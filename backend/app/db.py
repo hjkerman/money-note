@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS ledger_entries (
     sort_order INTEGER NOT NULL,
     due_day INTEGER,
     confirmed_at TEXT,
+    spending_category TEXT,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -173,6 +174,8 @@ def init_db() -> None:
             conn.execute("ALTER TABLE ledger_entries ADD COLUMN confirmed_at TEXT")
         if "due_day" not in ledger_columns:
             conn.execute("ALTER TABLE ledger_entries ADD COLUMN due_day INTEGER")
+        if "spending_category" not in ledger_columns:
+            conn.execute("ALTER TABLE ledger_entries ADD COLUMN spending_category TEXT")
         conn.execute(
             """
             UPDATE workbook_labels

@@ -27,6 +27,7 @@ class LedgerEntryIn(BaseModel):
     sort_order: int
     due_day: int | None = None
     confirmed_at: str | None = None
+    spending_category: str | None = None
 
 
 class LedgerEntry(LedgerEntryIn):
@@ -47,6 +48,7 @@ class LedgerEntryPatch(BaseModel):
     sort_order: int | None = None
     due_day: int | None = None
     confirmed_at: str | None = None
+    spending_category: str | None = None
 
 
 class PlannedEntryIn(BaseModel):

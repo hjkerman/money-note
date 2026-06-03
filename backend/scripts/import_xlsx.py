@@ -23,6 +23,7 @@ ENTRY_COLUMNS = [
     "sort_order",
     "due_day",
     "confirmed_at",
+    "spending_category",
 ]
 
 ARCHIVE_ROW_COLUMNS = [

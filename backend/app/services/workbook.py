@@ -112,6 +112,7 @@ def _parse_current_entries(ws: Any, cached_ws: Any) -> list[dict[str, Any]]:
                 "sort_order": row_idx,
                 "due_day": _extract_due_day(str(title)) if planned and title is not None else None,
                 "confirmed_at": None,
+                "spending_category": None,
             }
         )
     return entries

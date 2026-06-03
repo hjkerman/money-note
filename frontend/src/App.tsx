@@ -4,9 +4,11 @@ import {
   CashFlow,
   LedgerEntry,
   MonthlyPanel,
+  SpendingCategory,
   Summary,
   appendPlannedEntry,
   closeCurrentMonth,
+  confirmFrozenPanel,
   confirmPlannedEntry,
   createCashFlow,
   createEntry,
@@ -23,11 +25,16 @@ import {
   latestExportUrl,
   login,
   logout,
+  updateEntry,
 } from "./api";
 
 type PanelType = MonthlyPanel["panel_type"];
 type PrimaryTab = "current" | "fixed" | "frozen" | "cash" | "history";
 type CurrentTab = "expenses" | "claim" | "settlement";
+type StatItem = {
+  amount_value: number | null;
+  spending_category: SpendingCategory | null;
+};
 
 const panelMeta: Record<PanelType, { labelKey: string; fallback: string }> = {
   fixed: { labelKey: "panel_fixed_title", fallback: "현금성 고정지출" },
@@ -68,6 +75,7 @@ export function App() {
   const [activePrimaryTab, setActivePrimaryTab] = useState<PrimaryTab>("current");
   const [activeCurrentTab, setActiveCurrentTab] = useState<CurrentTab>("expenses");
   const [selectedHistoryMonth, setSelectedHistoryMonth] = useState(today.slice(0, 7));
+  const [showStats, setShowStats] = useState(false);
 
   const plannedEntries = entries.filter((entry) => entry.entry_kind === "planned");
   const expenseEntries = entries.filter((entry) => entry.entry_kind !== "planned");
@@ -83,6 +91,10 @@ export function App() {
         .filter((entry) => entry.entry_date?.startsWith(selectedHistoryMonth))
         .sort(compareEntriesByDate),
     [selectedHistoryMonth, structuredHistoryEntries],
+  );
+  const statsItems = useMemo(
+    () => activeStatItems(activePrimaryTab, activeCurrentTab, expenseEntries, historyEntries, panels),
+    [activeCurrentTab, activePrimaryTab, expenseEntries, historyEntries, panels],
   );
   const primaryTabs: { id: PrimaryTab; label: string; total: number }[] = [
     {
@@ -242,6 +254,7 @@ export function App() {
         sort_order: nextSortOrder(entries),
         due_day: null,
         confirmed_at: null,
+        spending_category: null,
       });
       setExpenseForm({ date: expenseForm.date, title: "", amount: "" });
       setStatus("당월 기록 추가 완료");
@@ -289,6 +302,23 @@ export function App() {
     await withRefresh(async () => {
       await confirmPlannedEntry(entry.id);
       setStatus(`${entry.title} 확인 완료`);
+    });
+  }
+
+  async function handleFrozenConfirm(panel: MonthlyPanel) {
+    const confirmed = window.confirm(`${panel.title} 동결을 풀고 당월 기록에 추가할까요?`);
+    if (!confirmed) return;
+    await withRefresh(async () => {
+      await confirmFrozenPanel(panel.id);
+      setStatus(`${panel.title} 동결 해제 완료`);
+    });
+  }
+
+  async function handleCategoryChange(entry: LedgerEntry, category: SpendingCategory | null) {
+    await withRefresh(async () => {
+      await updateEntry(entry.id, { spending_category: category });
+      const label = categoryLabel(category);
+      setStatus(`${entry.title} 분류 변경: ${label}`);
     });
   }
 
@@ -402,6 +432,9 @@ export function App() {
           <button type="button" onClick={() => void handleExport()} disabled={isBusy}>
             엑셀 export
           </button>
+          <button type="button" onClick={() => setShowStats(!showStats)} disabled={isBusy}>
+            통계 {showStats ? "끄기" : "보기"}
+          </button>
           <button type="button" className="danger" onClick={() => void handleCloseMonth()} disabled={isBusy}>
             월마감
           </button>
@@ -414,6 +447,8 @@ export function App() {
       <section className="statusline">{status}</section>
 
       <SummaryPanel summary={summary} labels={labels} />
+
+      {showStats ? <StatsPanel items={statsItems} /> : null}
 
       <section className="layout">
         <div className="main-column">
@@ -452,7 +487,11 @@ export function App() {
                   <h2>당월 지출</h2>
                   <span>{formatWon(sumAmounts(expenseEntries))}</span>
                 </div>
-                <EntryTable entries={expenseEntries} emptyText="당월 지출이 없습니다." />
+                <EntryTable
+                  entries={expenseEntries}
+                  emptyText="당월 지출이 없습니다."
+                  onCategoryChange={(entry, category) => void handleCategoryChange(entry, category)}
+                />
                 <form className="entry-form" onSubmit={(event) => void handleExpenseSubmit(event)}>
                   <input
                     type="date"
@@ -485,6 +524,7 @@ export function App() {
                   <PanelTable
                     title={panelLabel(labels, tab)}
                     rows={panels.filter((panel) => panel.panel_type === tab)}
+                    categoryForPanel={tab === "claim" ? autoClassifyClaimPanel : undefined}
                   />
                   <PanelAppendForm
                     isBusy={isBusy}
@@ -552,6 +592,7 @@ export function App() {
             <PanelTable
               title={panelLabel(labels, "frozen")}
               rows={panels.filter((panel) => panel.panel_type === "frozen")}
+              onConfirmFrozen={(panel) => void handleFrozenConfirm(panel)}
             />
             <PanelAppendForm
               isBusy={isBusy}
@@ -580,6 +621,7 @@ export function App() {
               selectedMonth={selectedHistoryMonth}
               setSelectedMonth={setSelectedHistoryMonth}
               entries={historyEntries}
+              onCategoryChange={(entry, category) => void handleCategoryChange(entry, category)}
             />
           </section>
         </div>
@@ -617,6 +659,47 @@ function SummaryPanel({ summary, labels }: { summary: Summary | null; labels: Re
       ) : (
         <p className="empty">요약을 불러오는 중입니다.</p>
       )}
+    </section>
+  );
+}
+
+function StatsPanel({ items }: { items: StatItem[] }) {
+  const rows = [
+    {
+      key: "essential" as SpendingCategory,
+      title: categoryLabel("essential"),
+      caption: "안 썼으면 일이 커졌을 돈. 생존 인프라.",
+      amount: sumStatItems(items.filter((item) => item.spending_category === "essential")),
+    },
+    {
+      key: "questionable" as SpendingCategory,
+      title: categoryLabel("questionable"),
+      caption: "과거의 내가 법정에 출석해야 합니다.",
+      amount: sumStatItems(items.filter((item) => item.spending_category === "questionable")),
+    },
+    {
+      key: null,
+      title: "아직 심문 전",
+      caption: "판결을 기다리는 소비들.",
+      amount: sumStatItems(items.filter((item) => !item.spending_category)),
+    },
+  ];
+  const total = sumStatItems(items);
+  return (
+    <section className="panel stats-panel">
+      <div className="panel-header">
+        <h2>소비 통계</h2>
+        <span>{formatWon(total)}</span>
+      </div>
+      <div className="stats-grid">
+        {rows.map((row) => (
+          <div key={row.title}>
+            <strong>{row.title}</strong>
+            <span>{formatWon(row.amount)}</span>
+            <p>{row.caption}</p>
+          </div>
+        ))}
+      </div>
     </section>
   );
 }
@@ -804,11 +887,13 @@ function HistoryPanel({
   selectedMonth,
   setSelectedMonth,
   entries,
+  onCategoryChange,
 }: {
   months: string[];
   selectedMonth: string;
   setSelectedMonth: (month: string) => void;
   entries: LedgerEntry[];
+  onCategoryChange: (entry: LedgerEntry, category: SpendingCategory | null) => void;
 }) {
   return (
     <section className="panel history-panel">
@@ -828,12 +913,24 @@ function HistoryPanel({
           <span>{formatWon(sumAmounts(entries))}</span>
         </div>
       </div>
-      <EntryTable entries={entries} emptyText="이 달의 구조화된 기록이 없습니다." />
+      <EntryTable
+        entries={entries}
+        emptyText="이 달의 구조화된 기록이 없습니다."
+        onCategoryChange={onCategoryChange}
+      />
     </section>
   );
 }
 
-function EntryTable({ entries, emptyText }: { entries: LedgerEntry[]; emptyText: string }) {
+function EntryTable({
+  entries,
+  emptyText,
+  onCategoryChange,
+}: {
+  entries: LedgerEntry[];
+  emptyText: string;
+  onCategoryChange?: (entry: LedgerEntry, category: SpendingCategory | null) => void;
+}) {
   if (!entries.length) return <p className="empty">{emptyText}</p>;
   return (
     <table>
@@ -841,6 +938,7 @@ function EntryTable({ entries, emptyText }: { entries: LedgerEntry[]; emptyText:
         <tr>
           <th>날짜</th>
           <th>적요</th>
+          {onCategoryChange ? <th className="category-cell">분류</th> : null}
           <th className="amount">금액</th>
         </tr>
       </thead>
@@ -849,6 +947,20 @@ function EntryTable({ entries, emptyText }: { entries: LedgerEntry[]; emptyText:
           <tr key={entry.id}>
             <td className="date">{entry.date_label ?? entry.group_label ?? ""}</td>
             <td>{entry.title}</td>
+            {onCategoryChange ? (
+              <td className="category-cell">
+                <select
+                  value={entry.spending_category ?? ""}
+                  onChange={(event) =>
+                    onCategoryChange(entry, (event.target.value || null) as SpendingCategory | null)
+                  }
+                >
+                  <option value="">미분류</option>
+                  <option value="essential">{categoryLabel("essential")}</option>
+                  <option value="questionable">{categoryLabel("questionable")}</option>
+                </select>
+              </td>
+            ) : null}
             <td className="amount">{formatWon(entry.amount_value)}</td>
           </tr>
         ))}
@@ -860,9 +972,13 @@ function EntryTable({ entries, emptyText }: { entries: LedgerEntry[]; emptyText:
 function PanelTable({
   title,
   rows,
+  onConfirmFrozen,
+  categoryForPanel,
 }: {
   title: string;
   rows: MonthlyPanel[];
+  onConfirmFrozen?: (panel: MonthlyPanel) => void;
+  categoryForPanel?: (panel: MonthlyPanel) => SpendingCategory | null;
 }) {
   return (
     <section className="panel compact">
@@ -872,13 +988,32 @@ function PanelTable({
       </div>
       {rows.length ? (
         <table>
+          {categoryForPanel ? (
+            <thead>
+              <tr>
+                <th>적요</th>
+                <th className="category-cell">자동 분류</th>
+                <th className="amount">금액</th>
+              </tr>
+            </thead>
+          ) : null}
           <tbody>
             {rows.map((row) => (
               <tr key={row.id}>
                 <td>
                   {row.title}
                 </td>
+                {categoryForPanel ? (
+                  <td className="category-cell">{categoryLabel(categoryForPanel(row))}</td>
+                ) : null}
                 <td className="amount">{formatWon(row.amount_value)}</td>
+                {onConfirmFrozen ? (
+                  <td className="action-cell">
+                    <button type="button" onClick={() => onConfirmFrozen(row)}>
+                      확인
+                    </button>
+                  </td>
+                ) : null}
               </tr>
             ))}
           </tbody>
@@ -895,6 +1030,12 @@ function panelLabel(labels: Record<string, string>, type: PanelType): string {
   return labels[meta.labelKey] ?? meta.fallback;
 }
 
+function categoryLabel(category: SpendingCategory | null): string {
+  if (category === "essential") return "이건 안 썼으면 좃됐을 돈";
+  if (category === "questionable") return "꼭 써야 했을까...?";
+  return "미분류";
+}
+
 function isAuthRequiredError(error: unknown): boolean {
   return error instanceof Error && error.message.includes("authentication required");
 }
@@ -904,6 +1045,44 @@ function parseAmount(value: string): number | null {
   if (!normalized) return null;
   const amount = Number(normalized);
   return Number.isFinite(amount) ? amount : null;
+}
+
+function autoClassifyClaimPanel(panel: MonthlyPanel): SpendingCategory | null {
+  const title = panel.title.toLowerCase();
+  if (/(병원|치과|의원|약국|약제|감기|정신과|정형외과|진료|검사|수술|이자|대출|통신|보험|관리비|교통|lpg|하이패스)/.test(title)) {
+    return "essential";
+  }
+  if (/(커피|카페|빽다방|편지지|간식|술|담배|게임|취미|굿즈)/.test(title)) {
+    return "questionable";
+  }
+  return null;
+}
+
+function activeStatItems(
+  activePrimaryTab: PrimaryTab,
+  activeCurrentTab: CurrentTab,
+  expenseEntries: LedgerEntry[],
+  historyEntries: LedgerEntry[],
+  panels: MonthlyPanel[],
+): StatItem[] {
+  if (activePrimaryTab === "history") {
+    return historyEntries.map((entry) => ({
+      amount_value: entry.amount_value,
+      spending_category: entry.spending_category,
+    }));
+  }
+  if (activePrimaryTab === "current" && activeCurrentTab === "claim") {
+    return panels
+      .filter((panel) => panel.panel_type === "claim")
+      .map((panel) => ({
+        amount_value: panel.amount_value,
+        spending_category: autoClassifyClaimPanel(panel),
+      }));
+  }
+  return expenseEntries.map((entry) => ({
+    amount_value: entry.amount_value,
+    spending_category: entry.spending_category,
+  }));
 }
 
 function parseOptionalDay(value: string): number | null {
@@ -955,6 +1134,10 @@ function sumPanelAmounts(rows: MonthlyPanel[]): number {
 
 function sumCashFlows(rows: CashFlow[]): number {
   return rows.reduce((total, row) => total + row.amount_value, 0);
+}
+
+function sumStatItems(rows: StatItem[]): number {
+  return rows.reduce((total, row) => total + (row.amount_value ?? 0), 0);
 }
 
 function formatWon(value: number | null): string {

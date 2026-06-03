@@ -24,7 +24,14 @@ def shared_panel(panel_type: str) -> dict:
     total = sum(row.get("amount_value") or 0 for row in rows)
     label_key, fallback = PANEL_TITLES[panel_type]
     title = list_labels().get(label_key, fallback)
-    return {"month": month, "panel_type": panel_type, "title": title, "rows": rows, "total": total}
+    return {
+        "month": month,
+        "panel_type": panel_type,
+        "title": title,
+        "subtitle": _subtitle(panel_type, rows, total),
+        "rows": rows,
+        "total": total,
+    }
 
 
 def shared_panel_html(panel_type: str) -> str:
@@ -70,6 +77,15 @@ def shared_panel_html(panel_type: str) -> str:
       color: #666;
       font-size: 14px;
     }}
+    .subtitle {{
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 6px;
+      background: #f7f2e8;
+      color: #5d4b2f;
+      font-size: 14px;
+      line-height: 1.45;
+    }}
     table {{
       width: 100%;
       border-collapse: collapse;
@@ -107,6 +123,7 @@ def shared_panel_html(panel_type: str) -> str:
     <header>
       <h1>{escape(data["title"])}</h1>
       <div class="month">{escape(data["month"])}</div>
+      <div class="subtitle">{escape(data["subtitle"])}</div>
     </header>
     <table>
       <thead>
@@ -132,6 +149,20 @@ def _row_html(row: dict) -> str:
         f"<td class=\"amount\">{_format_won(row.get('amount_value') or 0)}</td>"
         "</tr>"
     )
+
+
+def _subtitle(panel_type: str, rows: list[dict], total: float) -> str:
+    if panel_type == "claim":
+        if not rows:
+            return "이달은 평온했습니다. 이런 달도 있어야 사람이 삽니다."
+        if total >= 200000:
+            return "이달은 아팠습니다. 몸도 지갑도 같이 진료를 받았습니다."
+        if any("치과" in str(row.get("title") or "") for row in rows):
+            return "이달은 치아가 자본주의와 정면 충돌했습니다."
+        return "생활은 계속되고, 영수증은 조용히 증언합니다."
+    if not rows:
+        return "이번 달 정산은 고요합니다. 평화가 숫자로 증명되었습니다."
+    return "형제자매 간 평화를 위한 숫자 보고서입니다."
 
 
 def _format_won(value: float) -> str:

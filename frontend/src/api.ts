@@ -22,7 +22,10 @@ export type LedgerEntry = {
   sort_order: number;
   due_day: number | null;
   confirmed_at: string | null;
+  spending_category: SpendingCategory | null;
 };
+
+export type SpendingCategory = "essential" | "questionable";
 
 export type MonthlyPanel = {
   id: number;
@@ -104,12 +107,20 @@ export async function createEntry(payload: Omit<LedgerEntry, "id">): Promise<Led
   return postJson("/api/entries", payload);
 }
 
+export async function updateEntry(entryId: number, payload: Partial<Omit<LedgerEntry, "id">>): Promise<LedgerEntry> {
+  return patchJson(`/api/entries/${entryId}`, payload);
+}
+
 export async function createPanel(payload: Omit<MonthlyPanel, "id">): Promise<MonthlyPanel> {
   return postJson("/api/month/current/panels", payload);
 }
 
 export async function confirmPlannedEntry(entryId: number): Promise<{ planned: LedgerEntry; entry: LedgerEntry }> {
   return postJson(`/api/month/current/planned/${entryId}/confirm`, {});
+}
+
+export async function confirmFrozenPanel(panelId: number): Promise<{ entry: LedgerEntry }> {
+  return postJson(`/api/month/current/panels/${panelId}/confirm-frozen`, {});
 }
 
 export async function createCashFlow(payload: Omit<CashFlow, "id">): Promise<CashFlow> {
@@ -142,6 +153,16 @@ async function getJson<T>(path: string): Promise<T> {
 async function postJson<T>(path: string, body: unknown): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(body),
+  });
+  return parseResponse(response);
+}
+
+async function patchJson<T>(path: string, body: unknown): Promise<T> {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method: "PATCH",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
     body: JSON.stringify(body),

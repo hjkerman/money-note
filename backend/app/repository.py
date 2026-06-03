@@ -20,6 +20,7 @@ ENTRY_COLUMNS = [
     "sort_order",
     "due_day",
     "confirmed_at",
+    "spending_category",
 ]
 
 PANEL_COLUMNS = [
@@ -182,6 +183,46 @@ def confirm_planned_entry(entry_id: int) -> dict[str, Any] | None:
         entry = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (cursor.lastrowid,)).fetchone()
         updated_planned = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (entry_id,)).fetchone()
     return {"planned": row_to_dict(updated_planned), "entry": row_to_dict(entry)}
+
+
+def confirm_frozen_panel(panel_id: int) -> dict[str, Any] | None:
+    today = date.today()
+    date_label = f"{today:%Y.%m.%d}."
+    with session() as conn:
+        panel = conn.execute("SELECT * FROM monthly_panels WHERE id = ?", (panel_id,)).fetchone()
+        if panel is None:
+            return None
+        if panel["panel_type"] != "frozen":
+            raise ValueError("only frozen panels can be confirmed")
+
+        max_order = conn.execute(
+            """
+            SELECT MAX(sort_order) AS sort_order
+            FROM ledger_entries
+            WHERE book_section = 'current'
+            """
+        ).fetchone()["sort_order"]
+        sort_order = int(max_order or 2) + 1
+        cursor = conn.execute(
+            """
+            INSERT INTO ledger_entries(
+                book_section, entry_kind, entry_date, date_label, group_label, title,
+                amount_value, amount_expr, sort_order, due_day, confirmed_at, spending_category
+            )
+            VALUES ('current', 'expense', ?, ?, NULL, ?, ?, ?, ?, NULL, NULL, NULL)
+            """,
+            (
+                today.isoformat(),
+                date_label,
+                panel["title"],
+                panel["amount_value"],
+                panel["amount_expr"],
+                sort_order,
+            ),
+        )
+        conn.execute("DELETE FROM monthly_panels WHERE id = ?", (panel_id,))
+        entry = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (cursor.lastrowid,)).fetchone()
+    return {"entry": row_to_dict(entry)}
 
 
 def planned_entry_payment_date(due_day: int | None) -> date:
