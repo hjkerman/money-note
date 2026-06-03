@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, ReactNode, useEffect, useMemo, useState } from "react";
 import {
   AuthUser,
   CashFlow,
@@ -699,36 +699,38 @@ export function App() {
                       <InstallmentTable
                         rows={installments}
                         onDelete={(installment) => void handleInstallmentDelete(installment)}
+                        form={
+                          <form className="installment-form" onSubmit={(event) => void handleInstallmentSubmit(event)}>
+                            <input
+                              value={installmentForm.title}
+                              onChange={(event) => setInstallmentForm({ ...installmentForm, title: event.target.value })}
+                              placeholder="적요"
+                            />
+                            <input
+                              value={installmentForm.principal}
+                              onChange={(event) => setInstallmentForm({ ...installmentForm, principal: event.target.value })}
+                              inputMode="numeric"
+                              placeholder="할부액"
+                            />
+                            <input
+                              value={installmentForm.fee}
+                              onChange={(event) => setInstallmentForm({ ...installmentForm, fee: event.target.value })}
+                              inputMode="decimal"
+                              placeholder="수수료율(%)"
+                            />
+                            <input
+                              type="number"
+                              min="1"
+                              value={installmentForm.months}
+                              onChange={(event) => setInstallmentForm({ ...installmentForm, months: event.target.value })}
+                              placeholder="개월수"
+                            />
+                            <button type="submit" disabled={isBusy}>
+                              추가
+                            </button>
+                          </form>
+                        }
                       />
-                      <form className="installment-form" onSubmit={(event) => void handleInstallmentSubmit(event)}>
-                        <input
-                          value={installmentForm.title}
-                          onChange={(event) => setInstallmentForm({ ...installmentForm, title: event.target.value })}
-                          placeholder="적요"
-                        />
-                        <input
-                          value={installmentForm.principal}
-                          onChange={(event) => setInstallmentForm({ ...installmentForm, principal: event.target.value })}
-                          inputMode="numeric"
-                          placeholder="할부액"
-                        />
-                        <input
-                          value={installmentForm.fee}
-                          onChange={(event) => setInstallmentForm({ ...installmentForm, fee: event.target.value })}
-                          inputMode="decimal"
-                          placeholder="수수료율(%)"
-                        />
-                        <input
-                          type="number"
-                          min="1"
-                          value={installmentForm.months}
-                          onChange={(event) => setInstallmentForm({ ...installmentForm, months: event.target.value })}
-                          placeholder="개월수"
-                        />
-                        <button type="submit" disabled={isBusy}>
-                          추가
-                        </button>
-                      </form>
                     </section>
                   );
                 }
@@ -740,6 +742,15 @@ export function App() {
                       categoryForPanel={tab === "claim" ? classifyClaimPanel : undefined}
                       onDelete={(panel) => void handlePanelDelete(panel)}
                       onReset={tab === "claim" || tab === "settlement" ? () => void handlePanelReset(tab) : undefined}
+                      form={
+                        <PanelAppendForm
+                          isBusy={isBusy}
+                          panelType={tab}
+                          panelForm={panelForm}
+                          setPanelForm={setPanelForm}
+                          handlePanelSubmit={handlePanelSubmit}
+                        />
+                      }
                     />
                     {tab === "settlement" ? (
                       <CreditUsagePanel
@@ -748,14 +759,6 @@ export function App() {
                         settlementTotal={sumPanelAmounts(panels.filter((panel) => panel.panel_type === "settlement"))}
                       />
                     ) : null}
-                    <PanelAppendForm
-                      isBusy={isBusy}
-                      panelType={tab}
-                      labels={labels}
-                      panelForm={panelForm}
-                      setPanelForm={setPanelForm}
-                      handlePanelSubmit={handlePanelSubmit}
-                    />
                   </section>
                 );
               })}
@@ -766,14 +769,15 @@ export function App() {
               title={panelLabel(labels, "fixed")}
               rows={panels.filter((panel) => panel.panel_type === "fixed")}
               onDelete={(panel) => void handlePanelDelete(panel)}
-            />
-            <PanelAppendForm
-              isBusy={isBusy}
-              panelType="fixed"
-              labels={labels}
-              panelForm={panelForm}
-              setPanelForm={setPanelForm}
-              handlePanelSubmit={handlePanelSubmit}
+              form={
+                <PanelAppendForm
+                  isBusy={isBusy}
+                  panelType="fixed"
+                  panelForm={panelForm}
+                  setPanelForm={setPanelForm}
+                  handlePanelSubmit={handlePanelSubmit}
+                />
+              }
             />
             <section className="panel">
               <div className="panel-header">
@@ -824,14 +828,15 @@ export function App() {
               rows={panels.filter((panel) => panel.panel_type === "frozen")}
               onConfirmFrozen={(panel) => void handleFrozenConfirm(panel)}
               onDelete={(panel) => void handlePanelDelete(panel)}
-            />
-            <PanelAppendForm
-              isBusy={isBusy}
-              panelType="frozen"
-              labels={labels}
-              panelForm={panelForm}
-              setPanelForm={setPanelForm}
-              handlePanelSubmit={handlePanelSubmit}
+              form={
+                <PanelAppendForm
+                  isBusy={isBusy}
+                  panelType="frozen"
+                  panelForm={panelForm}
+                  setPanelForm={setPanelForm}
+                  handlePanelSubmit={handlePanelSubmit}
+                />
+              }
             />
           </section>
 
@@ -956,57 +961,50 @@ function CreditUsagePanel({
 function PanelAppendForm({
   isBusy,
   panelType,
-  labels,
   panelForm,
   setPanelForm,
   handlePanelSubmit,
 }: {
   isBusy: boolean;
   panelType: PanelType;
-  labels: Record<string, string>;
   panelForm: { panel_type: PanelType; title: string; amount: string; dueDay: string };
   setPanelForm: (value: { panel_type: PanelType; title: string; amount: string; dueDay: string }) => void;
   handlePanelSubmit: (event: FormEvent, panelType: PanelType) => Promise<void>;
 }) {
   return (
-    <section className="panel append-panel">
-      <div className="panel-header">
-        <h2>{panelLabel(labels, panelType)} 추가</h2>
-      </div>
-      <form
-        className="panel-form"
-        onSubmit={(event) => void handlePanelSubmit(event, panelType)}
-      >
-        <input
-          value={panelForm.panel_type === panelType ? panelForm.title : ""}
-          onChange={(event) =>
-            setPanelForm({
-              panel_type: panelType,
-              title: event.target.value,
-              amount: panelForm.amount,
-              dueDay: panelForm.dueDay,
-            })
-          }
-          placeholder="적요"
-        />
-        <input
-          value={panelForm.panel_type === panelType ? panelForm.amount : ""}
-          onChange={(event) =>
-            setPanelForm({
-              panel_type: panelType,
-              title: panelForm.title,
-              amount: event.target.value,
-              dueDay: panelForm.dueDay,
-            })
-          }
-          inputMode="numeric"
-          placeholder="금액"
-        />
-        <button type="submit" disabled={isBusy}>
-          추가
-        </button>
-      </form>
-    </section>
+    <form
+      className="panel-form"
+      onSubmit={(event) => void handlePanelSubmit(event, panelType)}
+    >
+      <input
+        value={panelForm.panel_type === panelType ? panelForm.title : ""}
+        onChange={(event) =>
+          setPanelForm({
+            panel_type: panelType,
+            title: event.target.value,
+            amount: panelForm.amount,
+            dueDay: panelForm.dueDay,
+          })
+        }
+        placeholder="적요"
+      />
+      <input
+        value={panelForm.panel_type === panelType ? panelForm.amount : ""}
+        onChange={(event) =>
+          setPanelForm({
+            panel_type: panelType,
+            title: panelForm.title,
+            amount: event.target.value,
+            dueDay: panelForm.dueDay,
+          })
+        }
+        inputMode="numeric"
+        placeholder="금액"
+      />
+      <button type="submit" disabled={isBusy}>
+        추가
+      </button>
+    </form>
   );
 }
 
@@ -1253,6 +1251,7 @@ function PanelTable({
   onDelete,
   onReset,
   categoryForPanel,
+  form,
 }: {
   title: string;
   rows: MonthlyPanel[];
@@ -1260,6 +1259,7 @@ function PanelTable({
   onDelete?: (panel: MonthlyPanel) => void;
   onReset?: () => void;
   categoryForPanel?: (panel: MonthlyPanel) => SpendingCategory | null;
+  form?: ReactNode;
 }) {
   return (
     <section className="panel compact">
@@ -1316,6 +1316,7 @@ function PanelTable({
       ) : (
         <p className="empty">항목이 없습니다.</p>
       )}
+      {form}
     </section>
   );
 }
@@ -1323,9 +1324,11 @@ function PanelTable({
 function InstallmentTable({
   rows,
   onDelete,
+  form,
 }: {
   rows: Installment[];
   onDelete: (installment: Installment) => void;
+  form?: ReactNode;
 }) {
   return (
     <section className="panel compact">
@@ -1369,6 +1372,7 @@ function InstallmentTable({
       ) : (
         <p className="empty">할부 항목이 없습니다.</p>
       )}
+      {form}
     </section>
   );
 }
