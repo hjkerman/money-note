@@ -1,21 +1,21 @@
 # money-note
 
-Personal money ledger service that preserves the current Excel workbook workflow while making the current month editable from desktop and mobile clients.
+기존 Excel 가계부의 운용 방식을 최대한 유지하면서, 당월 기록을 데스크탑과 모바일에서 조작할 수 있게 만들기 위한 개인 가계부 서버입니다.
 
-The intended source of truth is the server database. Excel files are imported as seed data and exported as portable snapshots.
+기본 source of truth는 서버 DB입니다. Excel 파일은 초기 데이터 import와 휴대 가능한 snapshot export 용도로 사용합니다.
 
-## Current Plan
+## 현재 계획
 
-- Backend: FastAPI, SQLite, openpyxl
-- Deployment: Docker Compose on Ubuntu 24.04
-- Clients: Flutter for macOS and Android, after the API stabilizes
-- Workbook shape:
-  - `당월 기록`: current month operating sheet
-  - `전체 기록(본인)`: archived ledger
+- 백엔드: FastAPI, SQLite, openpyxl
+- 배포: Ubuntu 24.04 홈서버에서 Docker Compose로 실행
+- 클라이언트: API 안정화 이후 macOS/Android용 Flutter 앱 구현 예정
+- Excel workbook 구조:
+  - `당월 기록`: 현재 월 운용 시트
+  - `전체 기록(본인)`: 누적 기록 시트
 
-## Quick Start
+## 빠른 시작
 
-Copy the current workbook into `data/template.xlsx`, then import it:
+현재 가계부 Excel 파일을 `data/template.xlsx`로 복사한 뒤 import합니다.
 
 ```bash
 mkdir -p data exports
@@ -23,17 +23,17 @@ cp /path/to/금전사용기록.xlsx data/template.xlsx
 docker compose run --rm api python scripts/import_xlsx.py /app/data/template.xlsx --replace
 ```
 
-Start the server:
+서버를 시작합니다.
 
 ```bash
 docker compose up --build
 ```
 
-The API will be available at `http://localhost:18080`.
+API는 `http://localhost:18080`에서 접근할 수 있습니다.
 
-## Useful API Calls
+## API 호출 예시
 
-Detailed Korean specifications:
+자세한 명세는 아래 문서를 참고합니다.
 
 - [API 명세](docs/api.md)
 - [DB 명세](docs/database.md)
@@ -49,20 +49,20 @@ curl -X POST http://localhost:18080/api/export
 curl -O http://localhost:18080/api/export/latest.xlsx
 ```
 
-Read-only browser views:
+읽기 전용 웹 화면:
 
 - `http://localhost:18080/share/claim`
 - `http://localhost:18080/share/settlement`
 
-Close the current month:
+당월 기록을 월마감 처리합니다.
 
 ```bash
 curl -X POST http://localhost:18080/api/month/current/close
 ```
 
-The close operation appends non-planned current entries to the dynamic archive and leaves planned `나갈 돈` rows in the current month.
+월마감은 `나갈 돈`이 아닌 당월 기록을 동적 전체 기록으로 append하고, `나갈 돈` 항목은 당월 기록에 남겨둡니다.
 
-Append a planned `나갈 돈` item:
+`나갈 돈` 항목을 추가합니다.
 
 ```bash
 curl -X POST http://localhost:18080/api/month/current/planned \
@@ -70,7 +70,7 @@ curl -X POST http://localhost:18080/api/month/current/planned \
   -d '{"title":"[매월 n일] 새 예정 지출","amount_value":12345}'
 ```
 
-Reorder current or planned entries:
+당월 기록 또는 `나갈 돈` 항목의 사용자 정의 정렬을 적용합니다.
 
 ```bash
 curl -X POST http://localhost:18080/api/month/current/reorder \
@@ -82,9 +82,9 @@ curl -X POST http://localhost:18080/api/month/current/planned/reorder \
   -d '{"ordered_ids":[28,23,24]}'
 ```
 
-## Data Directories
+## 데이터 디렉터리
 
-- `data/`: SQLite database and optional workbook template
-- `exports/`: generated `.xlsx` snapshots
+- `data/`: SQLite DB와 선택적 workbook template 저장
+- `exports/`: 생성된 `.xlsx` snapshot 저장
 
-These directories are intentionally ignored by git.
+위 디렉터리들은 개인 데이터가 들어가는 위치라 git 추적에서 제외합니다.
