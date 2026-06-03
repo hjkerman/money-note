@@ -13,9 +13,9 @@
     "windows": [
       {
         "title": "Money Note",
-        "width": 1280,
-        "height": 900,
-        "minWidth": 1024,
+        "width": 1440,
+        "height": 920,
+        "minWidth": 1180,
         "minHeight": 720,
         "resizable": true,
         "fullscreen": false

@@ -19,7 +19,7 @@
 
 먼저 `frontend/`에 웹 앱을 만듭니다. 이 웹 앱은 홈서버의 `/var/www/...`에 정적 파일로 배포할 수 있게 `dist/` 산출물을 생성합니다.
 
-그 다음 같은 웹 UI를 Tauri로 감싸 macOS `.app`을 만듭니다. 현재 `frontend/src-tauri/`에 데스크탑 앱 골격이 있으며, 인증서, 서명, notarization은 별도 배포 단계에서 처리합니다.
+같은 웹 UI를 Tauri로 감싸 macOS `.app`도 실행합니다. 현재 `frontend/src-tauri/`에 데스크탑 앱 골격이 있으며, 개발 실행은 `npm run tauri:dev`로 합니다. 인증서, 서명, notarization은 별도 배포 단계에서 처리합니다.
 
 모바일 앱도 필요합니다. 현재는 서버 API와 웹 UI를 먼저 안정화한 뒤, Android에서 가장 덜 고통스러운 형태로 확장하는 것을 목표로 합니다.
 
@@ -32,6 +32,7 @@
 - 동결: 확인 시 당월 기록으로 편입 가능
 - 할부: 할부액, 수수료율, 개월수를 입력하면 월 납입액을 원 단위 올림으로 계산
 - 현금흐름: 현금 입출금 기록이 유동성 현황에 반영
+- UI 구조: 주요 테이블은 테이블과 입력창이 같은 panel 안에 있는 형태로 통일
 - 통계/월별 기록: `통계 보기` 아래에서 함께 확인
 - 판단 모듈: 분류 기준과 문구를 `judgment` 모듈로 분리
 
@@ -48,10 +49,31 @@ docker compose run --rm api python scripts/import_xlsx.py /app/data/template.xls
 서버를 시작합니다.
 
 ```bash
-docker compose up --build
+docker compose up --build -d
 ```
 
 API는 `http://localhost:18080`에서 접근할 수 있습니다.
+
+웹 프론트엔드는 별도로 실행합니다.
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+접속 주소:
+
+```text
+http://127.0.0.1:5173
+```
+
+macOS 앱으로 확인하려면 웹 개발 서버 대신 Tauri 개발 앱을 실행합니다.
+
+```bash
+cd frontend
+npm run tauri:dev
+```
 
 ## 웹 프론트엔드 개발
 
@@ -102,6 +124,7 @@ npm run tauri:build
 주의:
 
 - `tauri:dev`는 내부에서 Vite 개발 서버를 `http://localhost:5173`에 띄웁니다.
+- macOS 앱 기본 개발 창은 1440x920으로, 표와 분류 드롭다운을 보기 좋게 조금 넓게 잡아둡니다.
 - 이미 `npm run dev`가 같은 포트에서 실행 중이면 먼저 종료한 뒤 `tauri:dev`를 실행합니다.
 - API 서버는 별도로 `docker compose up --build -d`로 실행되어 있어야 합니다.
 
@@ -112,6 +135,7 @@ npm run tauri:build
 - [API 명세](docs/api.md)
 - [DB 명세](docs/database.md)
 - [실행 방법](docs/runbook.md)
+- [macOS 앱 실행](docs/desktop-app.md)
 - [아키텍처](docs/architecture.md)
 - [테스트 절차](docs/test-plan.md)
 
@@ -137,17 +161,17 @@ curl -O http://localhost:18080/api/export/latest.xlsx
 curl -X POST http://localhost:18080/api/month/current/close
 ```
 
-월마감은 `나갈 돈`이 아닌 당월 기록을 동적 전체 기록으로 append하고, `나갈 돈` 항목은 당월 기록에 남겨둡니다.
+월마감은 카드 정기결제가 아닌 당월 기록을 동적 전체 기록으로 append하고, 카드 정기결제 항목은 당월 기록에 남겨둡니다.
 
-`나갈 돈` 항목을 추가합니다.
+카드 정기결제 항목을 추가합니다.
 
 ```bash
 curl -X POST http://localhost:18080/api/month/current/planned \
   -H 'Content-Type: application/json' \
-  -d '{"title":"[매월 n일] 새 예정 지출","amount_value":12345}'
+  -d '{"title":"[구독서비스] 월간 생존권","usage_place":"구독서비스","usage_item":"월간 생존권","amount_value":12345,"due_day":10}'
 ```
 
-당월 기록 또는 `나갈 돈` 항목의 사용자 정의 정렬을 적용합니다.
+당월 기록 또는 카드 정기결제 항목의 사용자 정의 정렬을 적용합니다.
 
 ```bash
 curl -X POST http://localhost:18080/api/month/current/reorder \

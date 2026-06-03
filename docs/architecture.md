@@ -1,6 +1,6 @@
 # 아키텍처
 
-`money-note`는 기존 Excel 가계부의 운용 방식을 유지하면서, 당월 기록을 웹과 향후 앱에서 조작하기 위한 개인 가계부 시스템이다.
+`money-note`는 기존 Excel 가계부의 운용 방식을 유지하면서, 당월 기록을 웹과 macOS 앱에서 조작하기 위한 개인 가계부 시스템이다.
 
 ## 기본 원칙
 
@@ -15,8 +15,8 @@
 - 백엔드: FastAPI + SQLite
 - Excel 처리: openpyxl
 - 프론트엔드: Vite + React + TypeScript
+- macOS 앱: Tauri. 같은 `frontend/` 웹 UI를 감싼다.
 - 배포: Docker Compose
-- 향후 macOS 앱: 웹 UI를 Tauri로 wrapping
 - 향후 모바일 앱: Android 중심으로 별도 검토
 
 ## 데이터 흐름
@@ -27,6 +27,8 @@
 4. 분류 변경은 화면에 pending 상태로 모였다가 `변경 사항 저장` 버튼을 눌러 서버에 저장된다.
 5. 필요하면 `/api/export`로 DB 내용을 Excel snapshot으로 export한다.
 
+macOS 앱은 별도의 업무 로직을 갖지 않는다. Tauri WebView가 같은 프론트엔드 번들을 열고, 서버 API와 통신한다.
+
 ## 주요 화면 구조
 
 - `요약 / 인사이트`: 카드대금, 송금/예치, 동결자산, 유동성 등 계산값
@@ -35,6 +37,17 @@
 - `동결`: 사지 말지 보류한 항목. 확인 시 당월 기록 편입 가능
 - `현금흐름`: 현금 입출금 기록
 - `통계 보기`: 소비 통계와 월별 기록을 함께 표시
+
+주요 조작 화면의 테이블은 `panel header -> table -> input form` 구조를 따른다. 당월 지출, 청구, 타인정산, 할부, 현금성 고정지출, 카드 정기결제, 동결, 현금흐름 모두 이 패턴을 공유한다.
+
+## 인증 흐름
+
+기본 인증은 서버가 발급하는 세션이다.
+
+- 웹 브라우저: `money_note_session` HttpOnly cookie를 사용한다.
+- Tauri 앱: 로그인 응답의 `session_token`을 저장하고 `Authorization: Bearer ...` 헤더도 함께 보낸다.
+
+Tauri WebView에서는 개발 origin과 API origin이 미묘하게 달라질 수 있으므로, cookie만 의존하지 않는다.
 
 ## 판단 모듈
 

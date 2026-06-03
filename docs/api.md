@@ -231,7 +231,7 @@ macOS Tauri 앱처럼 WebView cookie 저장이 흔들릴 수 있는 클라이언
 
 카드 정기결제 항목을 삭제한다.
 
-`나갈 돈` 항목만 삭제한다.
+`entry_kind = planned`인 카드 정기결제 항목만 삭제한다.
 
 응답:
 
@@ -243,7 +243,7 @@ macOS Tauri 앱처럼 WebView cookie 저장이 흔들릴 수 있는 클라이언
 
 ### `POST /api/month/current/planned/reorder`
 
-`나갈 돈` 항목만 사용자 지정 순서로 재정렬한다.
+카드 정기결제 항목만 사용자 지정 순서로 재정렬한다.
 
 요청:
 
@@ -408,7 +408,7 @@ next_month_liquidity
 - `book_section = current`이고 `entry_kind != planned`인 항목을 `archive`로 복사한다.
 - 복사된 항목은 `archive`의 마지막 `sort_order` 뒤에 append된다.
 - 원래 `current`에 있던 비-planned 항목은 삭제된다.
-- `planned` 항목, 즉 `나갈 돈`은 현재 월에 남는다.
+- `planned` 항목, 즉 카드 정기결제는 현재 월에 남는다.
 
 응답:
 

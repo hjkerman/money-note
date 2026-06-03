@@ -75,7 +75,7 @@ th {
 }
 
 .app-shell {
-  max-width: 1440px;
+  max-width: 1600px;
   min-height: 100vh;
   margin: 0 auto;
   padding: 24px;
@@ -265,7 +265,8 @@ th {
   border: 1px solid #d8ddcf;
   border-radius: 8px;
   background: #ffffff;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .panel-header {
@@ -307,11 +308,14 @@ th {
 }
 
 .category-cell {
-  width: 170px;
+  width: clamp(220px, 22vw, 300px);
+  min-width: 220px;
 }
 
 .category-cell select {
+  display: block;
   width: 100%;
+  min-width: 220px;
   padding: 6px 8px;
 }
 

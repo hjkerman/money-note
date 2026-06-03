@@ -17,6 +17,7 @@
 node --version
 npm --version
 docker compose version
+cargo --version
 ```
 
 ## 데이터 디렉터리
@@ -176,7 +177,7 @@ npm run dev
 접속 주소:
 
 ```text
-http://localhost:5173
+http://127.0.0.1:5173
 ```
 
 웹 앱에 접속하면 로그인 화면이 먼저 나타난다. 로그인 후 당월 기록 조작 화면으로 진입한다.
@@ -232,6 +233,8 @@ sudo rsync -a --delete frontend/dist/ /var/www/money-note/
 
 macOS 앱은 Tauri 기반이다. 별도의 화면을 새로 만들지 않고 `frontend/`의 웹 앱을 그대로 감싼다.
 
+자세한 설명은 [macOS 앱 실행](desktop-app.md)을 본다.
+
 Rust가 없다면 먼저 설치한다.
 
 ```bash
@@ -263,6 +266,12 @@ npm run tauri:build
 
 생성물은 `frontend/src-tauri/target/release/bundle/` 아래에 만들어진다. macOS 서명과 notarization은 배포 단계에서 별도로 처리한다.
 
+주의:
+
+- `npm run dev`와 `npm run tauri:dev`는 둘 다 5173 포트를 사용한다. 둘 중 하나만 실행한다.
+- API 서버는 `http://127.0.0.1:18080`에서 응답해야 한다.
+- Tauri 앱은 로그인 후 받은 `session_token`을 `Authorization` 헤더로도 보내므로, WebView cookie가 흔들려도 로그인 상태가 유지된다.
+
 인증서, reverse proxy, 도메인 연결은 서버 운영 환경에서 별도로 설정한다.
 
 ## Excel export
@@ -291,9 +300,9 @@ curl -X POST http://localhost:18080/api/month/current/close
 
 동작:
 
-- `나갈 돈`을 제외한 `current` 기록을 `archive`로 복사한다.
+- 카드 정기결제, 즉 `entry_kind = planned`인 항목을 제외한 `current` 기록을 `archive`로 복사한다.
 - 복사된 기록은 `전체 기록(본인)` export 시 hard data 아래에 append된다.
-- `나갈 돈` 항목은 당월 기록에 남는다.
+- 카드 정기결제 항목은 당월 기록에 남는다.
 
 ## 읽기 전용 공유 화면
 
@@ -318,20 +327,6 @@ http://localhost:18080/share/settlement
 ## 테스트 절차
 
 기능 확인 순서는 [테스트 절차](test-plan.md)를 따른다.
-
-## Tauri 계획
-
-현재는 웹 프론트엔드를 먼저 만든다. 이후 같은 `frontend/` UI를 Tauri로 wrapping해 macOS 앱을 만든다.
-
-예상 흐름:
-
-```bash
-cd frontend
-npm install
-npm run build
-```
-
-그 다음 Tauri 설정을 추가하고 `.app` 빌드를 구성한다. 인증서, 서명, notarization은 배포 단계에서 별도로 처리한다.
 
 ## 자주 쓰는 개발 검증
 
@@ -371,4 +366,16 @@ curl -c /tmp/money-note-cookie.txt \
   http://localhost:18080/api/auth/login
 
 curl -b /tmp/money-note-cookie.txt http://localhost:18080/api/auth/me
+```
+
+Bearer token 인증 확인:
+
+```bash
+TOKEN="$(curl -s \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"your-username","password":"your-password"}' \
+  http://localhost:18080/api/auth/login \
+  | python3 -c 'import json,sys; print(json.load(sys.stdin)["session_token"])')"
+
+curl -H "Authorization: Bearer $TOKEN" http://localhost:18080/api/auth/me
 ```
