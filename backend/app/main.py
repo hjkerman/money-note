@@ -1,9 +1,16 @@
 from datetime import datetime
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 
+from app.auth import (
+    authenticate_user,
+    clear_session_cookie,
+    create_session_cookie,
+    current_user_from_request,
+    require_user,
+)
 from app.config import get_settings
 from app.db import init_db, session
 from app.repository import (
@@ -24,10 +31,12 @@ from app.repository import (
     upsert_label,
 )
 from app.schemas import (
+    AuthUser,
     LedgerEntry,
     LedgerEntryIn,
     LedgerEntryPatch,
     EntryReorder,
+    LoginIn,
     MonthlyPanel,
     MonthlyPanelIn,
     MonthlyPanelPatch,
@@ -45,7 +54,7 @@ settings = get_settings()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
-    allow_credentials=False,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -61,20 +70,43 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
+@app.post("/api/auth/login", response_model=AuthUser)
+def login(payload: LoginIn, response: Response) -> dict:
+    user = authenticate_user(payload.username, payload.password)
+    if user is None:
+        raise HTTPException(status_code=401, detail="invalid username or password")
+    create_session_cookie(response, user["id"])
+    return user
+
+
+@app.post("/api/auth/logout")
+def logout(request: Request, response: Response) -> dict[str, bool]:
+    clear_session_cookie(request, response)
+    return {"ok": True}
+
+
+@app.get("/api/auth/me", response_model=AuthUser)
+def me(request: Request) -> dict:
+    user = current_user_from_request(request)
+    if user is None:
+        raise HTTPException(status_code=401, detail="authentication required")
+    return user
+
+
 @app.get("/api/entries/{section}", response_model=list[LedgerEntry])
-def get_entries(section: str) -> list[dict]:
+def get_entries(section: str, _: dict = Depends(require_user)) -> list[dict]:
     if section not in {"current", "archive"}:
         raise HTTPException(status_code=404, detail="unknown section")
     return list_entries(section)
 
 
 @app.post("/api/entries", response_model=LedgerEntry)
-def post_entry(entry: LedgerEntryIn) -> dict:
+def post_entry(entry: LedgerEntryIn, _: dict = Depends(require_user)) -> dict:
     return create_entry(entry)
 
 
 @app.patch("/api/entries/{entry_id}", response_model=LedgerEntry)
-def patch_entry(entry_id: int, patch: LedgerEntryPatch) -> dict:
+def patch_entry(entry_id: int, patch: LedgerEntryPatch, _: dict = Depends(require_user)) -> dict:
     entry = update_entry(entry_id, patch)
     if entry is None:
         raise HTTPException(status_code=404, detail="entry not found")
@@ -82,46 +114,46 @@ def patch_entry(entry_id: int, patch: LedgerEntryPatch) -> dict:
 
 
 @app.delete("/api/entries/{entry_id}")
-def remove_entry(entry_id: int) -> dict[str, bool]:
+def remove_entry(entry_id: int, _: dict = Depends(require_user)) -> dict[str, bool]:
     if not delete_entry(entry_id):
         raise HTTPException(status_code=404, detail="entry not found")
     return {"deleted": True}
 
 
 @app.post("/api/month/current/planned", response_model=LedgerEntry)
-def post_planned_entry(entry: PlannedEntryIn) -> dict:
+def post_planned_entry(entry: PlannedEntryIn, _: dict = Depends(require_user)) -> dict:
     return append_planned_entry(entry)
 
 
 @app.delete("/api/month/current/planned/{entry_id}")
-def remove_planned_entry(entry_id: int) -> dict[str, bool]:
+def remove_planned_entry(entry_id: int, _: dict = Depends(require_user)) -> dict[str, bool]:
     if not delete_planned_entry(entry_id):
         raise HTTPException(status_code=404, detail="planned entry not found")
     return {"deleted": True}
 
 
 @app.post("/api/month/current/reorder", response_model=list[LedgerEntry])
-def reorder_entries(payload: EntryReorder) -> list[dict]:
+def reorder_entries(payload: EntryReorder, _: dict = Depends(require_user)) -> list[dict]:
     return reorder_current_entries(payload.ordered_ids)
 
 
 @app.post("/api/month/current/planned/reorder", response_model=list[LedgerEntry])
-def reorder_planned_entries(payload: EntryReorder) -> list[dict]:
+def reorder_planned_entries(payload: EntryReorder, _: dict = Depends(require_user)) -> list[dict]:
     return reorder_current_entries(payload.ordered_ids, entry_kind="planned")
 
 
 @app.get("/api/month/current/panels", response_model=list[MonthlyPanel])
-def get_current_panels() -> list[dict]:
+def get_current_panels(_: dict = Depends(require_user)) -> list[dict]:
     return list_panels(current_month_label())
 
 
 @app.post("/api/month/current/panels", response_model=MonthlyPanel)
-def post_panel(panel: MonthlyPanelIn) -> dict:
+def post_panel(panel: MonthlyPanelIn, _: dict = Depends(require_user)) -> dict:
     return create_panel(panel)
 
 
 @app.patch("/api/month/current/panels/{panel_id}", response_model=MonthlyPanel)
-def patch_panel(panel_id: int, patch: MonthlyPanelPatch) -> dict:
+def patch_panel(panel_id: int, patch: MonthlyPanelPatch, _: dict = Depends(require_user)) -> dict:
     panel = update_panel(panel_id, patch)
     if panel is None:
         raise HTTPException(status_code=404, detail="panel not found")
@@ -129,14 +161,14 @@ def patch_panel(panel_id: int, patch: MonthlyPanelPatch) -> dict:
 
 
 @app.delete("/api/month/current/panels/{panel_id}")
-def remove_panel(panel_id: int) -> dict[str, bool]:
+def remove_panel(panel_id: int, _: dict = Depends(require_user)) -> dict[str, bool]:
     if not delete_panel(panel_id):
         raise HTTPException(status_code=404, detail="panel not found")
     return {"deleted": True}
 
 
 @app.get("/api/month/current/summary", response_model=Summary)
-def current_summary() -> Summary:
+def current_summary(_: dict = Depends(require_user)) -> Summary:
     try:
         return Summary(**current_summary_values())
     except ValueError as exc:
@@ -144,7 +176,7 @@ def current_summary() -> Summary:
 
 
 @app.post("/api/month/current/close")
-def close_month() -> dict[str, int]:
+def close_month(_: dict = Depends(require_user)) -> dict[str, int]:
     return close_current_month()
 
 
@@ -165,14 +197,14 @@ def read_shared_panel(panel_type: str) -> HTMLResponse:
 
 
 @app.get("/api/settings")
-def get_settings_values() -> dict[str, str]:
+def get_settings_values(_: dict = Depends(require_user)) -> dict[str, str]:
     with session() as conn:
         rows = conn.execute("SELECT key, value FROM app_settings ORDER BY key").fetchall()
     return {row["key"]: row["value"] for row in rows}
 
 
 @app.patch("/api/settings/{key}")
-def patch_setting(key: str, patch: SettingPatch) -> dict[str, str]:
+def patch_setting(key: str, patch: SettingPatch, _: dict = Depends(require_user)) -> dict[str, str]:
     allowed = {"base_next_month_liquidity", "interest_expense", "liquidity_status"}
     if key not in allowed:
         raise HTTPException(status_code=404, detail="unknown setting")
@@ -189,12 +221,12 @@ def patch_setting(key: str, patch: SettingPatch) -> dict[str, str]:
 
 
 @app.get("/api/labels")
-def get_labels() -> dict[str, str]:
+def get_labels(_: dict = Depends(require_user)) -> dict[str, str]:
     return list_labels()
 
 
 @app.patch("/api/labels/{key}")
-def patch_label(key: str, patch: SettingPatch) -> dict[str, str]:
+def patch_label(key: str, patch: SettingPatch, _: dict = Depends(require_user)) -> dict[str, str]:
     allowed = set(list_labels().keys())
     if key not in allowed:
         raise HTTPException(status_code=404, detail="unknown label")
@@ -202,7 +234,7 @@ def patch_label(key: str, patch: SettingPatch) -> dict[str, str]:
 
 
 @app.post("/api/export")
-def create_export() -> dict[str, str]:
+def create_export(_: dict = Depends(require_user)) -> dict[str, str]:
     settings = get_settings()
     hard_archive_rows = list_archive_rows()
     archive_entries = list_entries("archive")
@@ -238,7 +270,7 @@ def create_export() -> dict[str, str]:
 
 
 @app.get("/api/export/latest.xlsx")
-def latest_export() -> FileResponse:
+def latest_export(_: dict = Depends(require_user)) -> FileResponse:
     path = get_settings().export_dir / "latest.xlsx"
     if not path.exists():
         raise HTTPException(status_code=404, detail="no export has been created")

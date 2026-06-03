@@ -1,5 +1,6 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import {
+  AuthUser,
   LedgerEntry,
   MonthlyPanel,
   Summary,
@@ -11,8 +12,11 @@ import {
   fetchCurrentEntries,
   fetchCurrentPanels,
   fetchLabels,
+  fetchMe,
   fetchSummary,
   latestExportUrl,
+  login,
+  logout,
 } from "./api";
 
 type PanelType = MonthlyPanel["panel_type"];
@@ -32,7 +36,10 @@ export function App() {
   const [summary, setSummary] = useState<Summary | null>(null);
   const [labels, setLabels] = useState<Record<string, string>>({});
   const [status, setStatus] = useState("서버와 통신 준비 중");
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
   const [isBusy, setIsBusy] = useState(false);
+  const [loginForm, setLoginForm] = useState({ username: "", password: "" });
   const [expenseForm, setExpenseForm] = useState({ date: today, title: "", amount: "" });
   const [plannedForm, setPlannedForm] = useState({ title: "", amount: "" });
   const [panelForm, setPanelForm] = useState<{
@@ -67,8 +74,60 @@ export function App() {
   }
 
   useEffect(() => {
-    void refresh();
+    void checkAuth();
   }, []);
+
+  async function checkAuth() {
+    setIsBusy(true);
+    try {
+      const user = await fetchMe();
+      setAuthUser(user);
+      await refresh();
+    } catch {
+      setStatus("로그인이 필요합니다.");
+    } finally {
+      setAuthChecked(true);
+      setIsBusy(false);
+    }
+  }
+
+  async function handleLogin(event: FormEvent) {
+    event.preventDefault();
+    if (!loginForm.username.trim() || !loginForm.password) return;
+    setIsBusy(true);
+    try {
+      const user = await login({
+        username: loginForm.username.trim(),
+        password: loginForm.password,
+      });
+      setAuthUser(user);
+      setLoginForm({ username: "", password: "" });
+      setStatus("로그인 완료");
+      await refresh();
+    } catch (error) {
+      setStatus(`로그인 실패: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      setAuthChecked(true);
+      setIsBusy(false);
+    }
+  }
+
+  async function handleLogout() {
+    setIsBusy(true);
+    try {
+      await logout();
+      setAuthUser(null);
+      setEntries([]);
+      setPanels([]);
+      setSummary(null);
+      setLabels({});
+      setStatus("로그아웃 완료");
+    } catch (error) {
+      setStatus(`로그아웃 실패: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      setIsBusy(false);
+    }
+  }
 
   async function handleExpenseSubmit(event: FormEvent) {
     event.preventDefault();
@@ -153,6 +212,47 @@ export function App() {
     }
   }
 
+  if (!authChecked) {
+    return (
+      <main className="login-shell">
+        <section className="login-card">
+          <h1>money-note</h1>
+          <p>서버와 통신 준비 중</p>
+        </section>
+      </main>
+    );
+  }
+
+  if (!authUser) {
+    return (
+      <main className="login-shell">
+        <section className="login-card">
+          <h1>money-note</h1>
+          <p>가계부를 조작하려면 로그인이 필요합니다.</p>
+          <form onSubmit={(event) => void handleLogin(event)}>
+            <input
+              value={loginForm.username}
+              onChange={(event) => setLoginForm({ ...loginForm, username: event.target.value })}
+              autoComplete="username"
+              placeholder="아이디"
+            />
+            <input
+              type="password"
+              value={loginForm.password}
+              onChange={(event) => setLoginForm({ ...loginForm, password: event.target.value })}
+              autoComplete="current-password"
+              placeholder="비밀번호"
+            />
+            <button type="submit" disabled={isBusy}>
+              로그인
+            </button>
+          </form>
+          <div className="statusline">{status}</div>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className="app-shell">
       <header className="topbar">
@@ -161,6 +261,7 @@ export function App() {
           <p>{currentMonth} 당월 기록</p>
         </div>
         <div className="actions">
+          <span className="user-badge">{authUser.display_name}</span>
           <button type="button" onClick={() => void refresh()} disabled={isBusy}>
             새로고침
           </button>
@@ -169,6 +270,9 @@ export function App() {
           </button>
           <button type="button" className="danger" onClick={() => void handleCloseMonth()} disabled={isBusy}>
             월마감
+          </button>
+          <button type="button" onClick={() => void handleLogout()} disabled={isBusy}>
+            로그아웃
           </button>
         </div>
       </header>

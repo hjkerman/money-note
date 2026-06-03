@@ -81,6 +81,40 @@ th {
   padding: 24px;
 }
 
+.login-shell {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 18px;
+}
+
+.login-card {
+  width: min(420px, 100%);
+  border: 1px solid #d8ddcf;
+  border-radius: 8px;
+  background: #fff;
+  padding: 22px;
+}
+
+.login-card h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.login-card p {
+  margin: 8px 0 18px;
+  color: #697164;
+}
+
+.login-card form {
+  display: grid;
+  gap: 10px;
+}
+
+.login-card .statusline {
+  margin: 14px 0 0;
+}
+
 .topbar {
   display: flex;
   align-items: center;
@@ -105,6 +139,14 @@ th {
   flex-wrap: wrap;
   gap: 8px;
   justify-content: flex-end;
+}
+
+.user-badge {
+  align-self: center;
+  color: #596153;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 0 4px;
 }
 
 .statusline {

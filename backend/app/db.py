@@ -62,6 +62,25 @@ CREATE TABLE IF NOT EXISTS workbook_labels (
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    display_name TEXT NOT NULL DEFAULT '',
+    is_active INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS auth_sessions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    session_token_hash TEXT NOT NULL UNIQUE,
+    expires_at TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_seen_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE INDEX IF NOT EXISTS idx_ledger_section_order
 ON ledger_entries(book_section, sort_order);
 
@@ -73,6 +92,12 @@ ON archive_rows(sort_order);
 
 CREATE INDEX IF NOT EXISTS idx_panels_month_type_order
 ON monthly_panels(month, panel_type, sort_order);
+
+CREATE INDEX IF NOT EXISTS idx_auth_sessions_token
+ON auth_sessions(session_token_hash);
+
+CREATE INDEX IF NOT EXISTS idx_auth_sessions_user
+ON auth_sessions(user_id);
 
 INSERT OR IGNORE INTO app_settings(key, value) VALUES
 ('base_next_month_liquidity', '400000'),

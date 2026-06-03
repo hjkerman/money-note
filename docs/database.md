@@ -20,6 +20,8 @@
 - `monthly_panels`: 고정지출, 동결, 청구, 타인정산 패널
 - `app_settings`: 계산과 서버 동작에 쓰는 설정값
 - `workbook_labels`: Excel 표시 문구
+- `users`: 로그인 사용자
+- `auth_sessions`: 로그인 세션
 
 인덱스:
 
@@ -295,6 +297,68 @@ CREATE TABLE IF NOT EXISTS workbook_labels (
 | `summary_liquidity_status_label` | 유동성 현황 | `당월 기록!I7` |
 | `summary_next_month_liquidity_label` | 익월 유동성 | `당월 기록!I9` |
 
+## `users`
+
+로그인 사용자를 저장하는 테이블이다. 현재 서비스는 1인 사용을 전제로 하지만, 테이블은 여러 사용자를 저장할 수 있게 둔다.
+
+스키마:
+
+```sql
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    display_name TEXT NOT NULL DEFAULT '',
+    is_active INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+컬럼:
+
+| 컬럼 | 타입 | 설명 |
+| --- | --- | --- |
+| `id` | INTEGER | PK |
+| `username` | TEXT | 로그인 ID |
+| `password_hash` | TEXT | PBKDF2-SHA256 비밀번호 해시 |
+| `display_name` | TEXT | 화면 표시 이름 |
+| `is_active` | INTEGER | 활성 여부. `1`이면 활성 |
+| `created_at` | TEXT | 생성 시각 |
+| `updated_at` | TEXT | 수정 시각 |
+
+비밀번호는 평문으로 저장하지 않는다. 서버는 salt가 포함된 PBKDF2-SHA256 해시를 저장한다.
+
+## `auth_sessions`
+
+로그인 세션을 저장하는 테이블이다. 브라우저에는 raw session token이 HttpOnly cookie로 저장되고, DB에는 token hash만 저장된다.
+
+스키마:
+
+```sql
+CREATE TABLE IF NOT EXISTS auth_sessions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    session_token_hash TEXT NOT NULL UNIQUE,
+    expires_at TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_seen_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+컬럼:
+
+| 컬럼 | 타입 | 설명 |
+| --- | --- | --- |
+| `id` | INTEGER | PK |
+| `user_id` | INTEGER | `users.id` |
+| `session_token_hash` | TEXT | session token의 SHA-256 hash |
+| `expires_at` | TEXT | 세션 만료 시각 |
+| `created_at` | TEXT | 생성 시각 |
+| `last_seen_at` | TEXT | 마지막 사용 시각 |
+
+기본 세션 만료 기간은 `MONEY_NOTE_SESSION_DAYS`로 조정한다.
+
 ## Export와 DB의 관계
 
 export 입력:
@@ -328,4 +392,3 @@ export 정책:
 - Excel 표시 문구는 `workbook_labels`로 읽는다.
 
 `--replace` 옵션을 사용하면 기존 `ledger_entries`, `archive_rows`, `monthly_panels`, `workbook_labels`를 비우고 다시 import한다. `app_settings`는 key 단위 upsert로 갱신된다.
-

@@ -29,6 +29,71 @@
 }
 ```
 
+## 인증
+
+가계부 본체 API는 패스워드 기반 세션 인증을 사용한다. 로그인에 성공하면 서버가 HttpOnly cookie를 내려주며, 프론트엔드는 이후 요청에 cookie를 포함한다.
+
+공개 예외:
+
+- `GET /health`
+- `GET /share/{panel_type}`
+- `GET /api/share/{panel_type}`
+
+위 공개 예외를 제외한 앱 API는 인증이 필요하다.
+
+### `POST /api/auth/login`
+
+로그인한다.
+
+요청:
+
+```json
+{
+  "username": "your-username",
+  "password": "your-password"
+}
+```
+
+응답:
+
+```json
+{
+  "id": 1,
+  "username": "your-username",
+  "display_name": "사용자"
+}
+```
+
+성공 시 `money_note_session` cookie가 설정된다.
+
+### `POST /api/auth/logout`
+
+현재 세션을 삭제하고 cookie를 제거한다.
+
+응답:
+
+```json
+{
+  "ok": true
+}
+```
+
+### `GET /api/auth/me`
+
+현재 로그인한 사용자를 조회한다.
+
+응답:
+
+```json
+{
+  "id": 1,
+  "username": "your-username",
+  "display_name": "사용자"
+}
+```
+
+로그인하지 않은 경우 `401`을 반환한다.
+
 ## 금전 기록
 
 ### `GET /api/entries/{section}`

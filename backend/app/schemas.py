@@ -1,6 +1,17 @@
 from pydantic import BaseModel, Field
 
 
+class LoginIn(BaseModel):
+    username: str
+    password: str
+
+
+class AuthUser(BaseModel):
+    id: int
+    username: str
+    display_name: str
+
+
 class LedgerEntryIn(BaseModel):
     book_section: str = Field(pattern="^(current|archive)$")
     entry_kind: str = "expense"

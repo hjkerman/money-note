@@ -1,5 +1,11 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:18080";
 
+export type AuthUser = {
+  id: number;
+  username: string;
+  display_name: string;
+};
+
 export type LedgerEntry = {
   id: number;
   book_section: "current" | "archive";
@@ -37,6 +43,18 @@ export type Summary = {
 };
 
 export type Labels = Record<string, string>;
+
+export async function fetchMe(): Promise<AuthUser> {
+  return getJson("/api/auth/me");
+}
+
+export async function login(payload: { username: string; password: string }): Promise<AuthUser> {
+  return postJson("/api/auth/login", payload);
+}
+
+export async function logout(): Promise<{ ok: boolean }> {
+  return postJson("/api/auth/logout", {});
+}
 
 export async function fetchCurrentEntries(): Promise<LedgerEntry[]> {
   return getJson("/api/entries/current");
@@ -82,7 +100,9 @@ export function latestExportUrl(): string {
 }
 
 async function getJson<T>(path: string): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`);
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    credentials: "include",
+  });
   return parseResponse(response);
 }
 
@@ -90,6 +110,7 @@ async function postJson<T>(path: string, body: unknown): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify(body),
   });
   return parseResponse(response);
