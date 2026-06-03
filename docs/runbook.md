@@ -8,6 +8,7 @@
 
 - Docker 또는 Colima/Docker Compose
 - Node.js와 npm
+- macOS 앱 개발 시 Rust/Cargo
 - Git
 
 현재 개발 환경에서 확인한 버전:
@@ -219,6 +220,41 @@ frontend/dist/
 sudo mkdir -p /var/www/money-note
 sudo rsync -a --delete frontend/dist/ /var/www/money-note/
 ```
+
+## macOS 앱 개발 실행
+
+macOS 앱은 Tauri 기반이다. 별도의 화면을 새로 만들지 않고 `frontend/`의 웹 앱을 그대로 감싼다.
+
+Rust가 없다면 먼저 설치한다.
+
+```bash
+brew install rust
+```
+
+백엔드 API 서버를 켠다.
+
+```bash
+docker compose up --build -d
+```
+
+Tauri 개발 앱을 실행한다.
+
+```bash
+cd frontend
+npm install
+npm run tauri:dev
+```
+
+`tauri:dev`는 내부에서 Vite 개발 서버를 `http://localhost:5173`에 띄운다. 이미 별도로 `npm run dev`가 실행 중이면 포트 충돌이 나므로 먼저 종료한다.
+
+앱 번들을 만들 때:
+
+```bash
+cd frontend
+npm run tauri:build
+```
+
+생성물은 `frontend/src-tauri/target/release/bundle/` 아래에 만들어진다. macOS 서명과 notarization은 배포 단계에서 별도로 처리한다.
 
 인증서, reverse proxy, 도메인 연결은 서버 운영 환경에서 별도로 설정한다.
 

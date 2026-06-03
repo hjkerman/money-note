@@ -9,7 +9,7 @@
 - 백엔드: FastAPI, SQLite, openpyxl
 - 배포: Ubuntu 24.04 홈서버에서 Docker Compose로 실행
 - 웹 프론트엔드: Vite + React + TypeScript
-- macOS 앱: 웹 프론트엔드를 먼저 만든 뒤 Tauri로 wrapping
+- macOS 앱: 같은 웹 프론트엔드를 Tauri로 wrapping
 - 모바일 앱: 필요함. 우선 웹 프론트엔드/API를 안정화하고, 이후 Android 중심으로 구현 방식 결정
 - Excel workbook 구조:
   - `당월 기록`: 현재 월 운용 시트
@@ -19,7 +19,7 @@
 
 먼저 `frontend/`에 웹 앱을 만듭니다. 이 웹 앱은 홈서버의 `/var/www/...`에 정적 파일로 배포할 수 있게 `dist/` 산출물을 생성합니다.
 
-그 다음 같은 웹 UI를 Tauri로 감싸 macOS `.app`을 만듭니다. 인증서, 서명, notarization은 별도 배포 단계에서 처리합니다.
+그 다음 같은 웹 UI를 Tauri로 감싸 macOS `.app`을 만듭니다. 현재 `frontend/src-tauri/`에 데스크탑 앱 골격이 있으며, 인증서, 서명, notarization은 별도 배포 단계에서 처리합니다.
 
 모바일 앱도 필요합니다. 현재는 서버 API와 웹 UI를 먼저 안정화한 뒤, Android에서 가장 덜 고통스러운 형태로 확장하는 것을 목표로 합니다.
 
@@ -74,6 +74,36 @@ npm run build
 ```
 
 생성된 `frontend/dist/`를 홈서버의 `/var/www/...` 아래에 배치하면 됩니다.
+
+## macOS 앱 개발
+
+Tauri 앱은 웹 앱을 그대로 감싸므로, 화면 구조와 API 호출 방식은 웹 프론트엔드와 같습니다.
+
+필요한 런타임:
+
+```bash
+brew install rust
+```
+
+개발 실행:
+
+```bash
+cd frontend
+npm install
+npm run tauri:dev
+```
+
+앱 번들 생성:
+
+```bash
+npm run tauri:build
+```
+
+주의:
+
+- `tauri:dev`는 내부에서 Vite 개발 서버를 `http://localhost:5173`에 띄웁니다.
+- 이미 `npm run dev`가 같은 포트에서 실행 중이면 먼저 종료한 뒤 `tauri:dev`를 실행합니다.
+- API 서버는 별도로 `docker compose up --build -d`로 실행되어 있어야 합니다.
 
 ## API 호출 예시
 

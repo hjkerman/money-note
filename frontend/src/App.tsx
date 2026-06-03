@@ -56,6 +56,7 @@ const panelMeta: Record<PanelType, { labelKey: string; fallback: string }> = {
 
 const today = new Date().toISOString().slice(0, 10);
 const currentTabs: CurrentTab[] = ["expenses", "claim", "settlement", "installments"];
+const hasOwn = (record: Record<number, unknown>, key: number) => Object.prototype.hasOwnProperty.call(record, key);
 
 export function App() {
   const [entries, setEntries] = useState<LedgerEntry[]>([]);
@@ -1208,7 +1209,7 @@ function EntryTable({
       </thead>
       <tbody>
         {entries.map((entry) => {
-          const selectedCategory = Object.hasOwn(pendingCategoryChanges, entry.id)
+          const selectedCategory = hasOwn(pendingCategoryChanges, entry.id)
             ? pendingCategoryChanges[entry.id]
             : entry.spending_category;
           return (
@@ -1419,7 +1420,7 @@ function activeStatItems(
   }
   return expenseEntries.map((entry) => ({
     amount_value: entry.amount_value,
-    spending_category: Object.hasOwn(pendingCategoryChanges, entry.id)
+    spending_category: hasOwn(pendingCategoryChanges, entry.id)
       ? pendingCategoryChanges[entry.id]
       : entry.spending_category,
   }));
