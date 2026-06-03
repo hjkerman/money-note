@@ -70,7 +70,9 @@ export function App() {
     {
       id: "fixed",
       label: panelLabel(labels, "fixed"),
-      total: sumPanelAmounts(panels.filter((panel) => panel.panel_type === "fixed")),
+      total:
+        sumPanelAmounts(panels.filter((panel) => panel.panel_type === "fixed")) +
+        sumAmounts(plannedEntries),
     },
     {
       id: "frozen",
@@ -403,29 +405,6 @@ export function App() {
                 </form>
               </section>
 
-              <section className="panel">
-                <div className="panel-header">
-                  <h2>나갈 돈</h2>
-                  <span>{formatWon(sumAmounts(plannedEntries))}</span>
-                </div>
-                <EntryTable entries={plannedEntries} emptyText="예정 지출이 없습니다." />
-                <form className="inline-form" onSubmit={(event) => void handlePlannedSubmit(event)}>
-                  <input
-                    value={plannedForm.title}
-                    onChange={(event) => setPlannedForm({ ...plannedForm, title: event.target.value })}
-                    placeholder="적요"
-                  />
-                  <input
-                    value={plannedForm.amount}
-                    onChange={(event) => setPlannedForm({ ...plannedForm, amount: event.target.value })}
-                    inputMode="numeric"
-                    placeholder="금액"
-                  />
-                  <button type="submit" disabled={isBusy}>
-                    추가
-                  </button>
-                </form>
-              </section>
             </section>
 
             {currentTabs
@@ -462,6 +441,29 @@ export function App() {
               setPanelForm={setPanelForm}
               handlePanelSubmit={handlePanelSubmit}
             />
+            <section className="panel">
+              <div className="panel-header">
+                <h2>나갈 돈</h2>
+                <span>{formatWon(sumAmounts(plannedEntries))}</span>
+              </div>
+              <EntryTable entries={plannedEntries} emptyText="예정 지출이 없습니다." />
+              <form className="inline-form" onSubmit={(event) => void handlePlannedSubmit(event)}>
+                <input
+                  value={plannedForm.title}
+                  onChange={(event) => setPlannedForm({ ...plannedForm, title: event.target.value })}
+                  placeholder="적요"
+                />
+                <input
+                  value={plannedForm.amount}
+                  onChange={(event) => setPlannedForm({ ...plannedForm, amount: event.target.value })}
+                  inputMode="numeric"
+                  placeholder="금액"
+                />
+                <button type="submit" disabled={isBusy}>
+                  추가
+                </button>
+              </form>
+            </section>
           </section>
 
           <section className={activePrimaryTab === "frozen" ? "tab-panel active" : "tab-panel"}>
