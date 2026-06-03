@@ -15,6 +15,7 @@ from app.config import get_settings
 from app.db import init_db, session
 from app.repository import (
     append_planned_entry,
+    confirm_fixed_panel,
     create_panel,
     create_entry,
     delete_planned_entry,
@@ -158,6 +159,17 @@ def patch_panel(panel_id: int, patch: MonthlyPanelPatch, _: dict = Depends(requi
     if panel is None:
         raise HTTPException(status_code=404, detail="panel not found")
     return panel
+
+
+@app.post("/api/month/current/panels/{panel_id}/confirm-fixed")
+def post_confirm_fixed_panel(panel_id: int, _: dict = Depends(require_user)) -> dict:
+    try:
+        result = confirm_fixed_panel(panel_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+    if result is None:
+        raise HTTPException(status_code=404, detail="panel not found")
+    return result
 
 
 @app.delete("/api/month/current/panels/{panel_id}")

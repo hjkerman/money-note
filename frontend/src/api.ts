@@ -30,6 +30,8 @@ export type MonthlyPanel = {
   amount_value: number | null;
   amount_expr: string | null;
   sort_order: number;
+  due_day: number | null;
+  confirmed_at: string | null;
 };
 
 export type Summary = {
@@ -85,6 +87,10 @@ export async function createEntry(payload: Omit<LedgerEntry, "id">): Promise<Led
 
 export async function createPanel(payload: Omit<MonthlyPanel, "id">): Promise<MonthlyPanel> {
   return postJson("/api/month/current/panels", payload);
+}
+
+export async function confirmFixedPanel(panelId: number): Promise<{ panel: MonthlyPanel; entry: LedgerEntry }> {
+  return postJson(`/api/month/current/panels/${panelId}/confirm-fixed`, {});
 }
 
 export async function closeCurrentMonth(): Promise<{ archived: number; deleted_from_current: number }> {

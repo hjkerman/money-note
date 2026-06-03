@@ -73,6 +73,8 @@ class MonthlyPanel(BaseModel):
     amount_value: float | None = None
     amount_expr: str | None = None
     sort_order: int
+    due_day: int | None = None
+    confirmed_at: str | None = None
 
 
 class MonthlyPanelIn(BaseModel):
@@ -82,6 +84,7 @@ class MonthlyPanelIn(BaseModel):
     amount_value: float | None = None
     amount_expr: str | None = None
     sort_order: int
+    due_day: int | None = None
 
 
 class MonthlyPanelPatch(BaseModel):
@@ -91,6 +94,8 @@ class MonthlyPanelPatch(BaseModel):
     amount_value: float | None = None
     amount_expr: str | None = None
     sort_order: int | None = None
+    due_day: int | None = None
+    confirmed_at: str | None = None
 
 
 class SettingPatch(BaseModel):

@@ -46,6 +46,8 @@ CREATE TABLE IF NOT EXISTS monthly_panels (
     amount_value REAL,
     amount_expr TEXT,
     sort_order INTEGER NOT NULL,
+    due_day INTEGER,
+    confirmed_at TEXT,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -139,6 +141,14 @@ def connect() -> sqlite3.Connection:
 def init_db() -> None:
     with connect() as conn:
         conn.executescript(SCHEMA)
+        columns = {
+            row["name"]
+            for row in conn.execute("PRAGMA table_info(monthly_panels)").fetchall()
+        }
+        if "confirmed_at" not in columns:
+            conn.execute("ALTER TABLE monthly_panels ADD COLUMN confirmed_at TEXT")
+        if "due_day" not in columns:
+            conn.execute("ALTER TABLE monthly_panels ADD COLUMN due_day INTEGER")
 
 
 @contextmanager

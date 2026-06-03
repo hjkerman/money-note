@@ -1,3 +1,5 @@
+import calendar
+from datetime import date
 from typing import Any
 
 from app.db import session
@@ -26,6 +28,8 @@ PANEL_COLUMNS = [
     "amount_value",
     "amount_expr",
     "sort_order",
+    "due_day",
+    "confirmed_at",
 ]
 
 
@@ -48,15 +52,18 @@ def list_archive_rows() -> list[dict[str, Any]]:
     return [row_to_dict(row) for row in rows]
 
 
-def list_panels(month: str | None = None) -> list[dict[str, Any]]:
+def list_panels(month: str | None = None, include_confirmed_fixed: bool = False) -> list[dict[str, Any]]:
+    filter_confirmed = "" if include_confirmed_fixed else " AND NOT (panel_type = 'fixed' AND confirmed_at IS NOT NULL)"
     with session() as conn:
         if month:
             rows = conn.execute(
-                "SELECT * FROM monthly_panels WHERE month = ? ORDER BY sort_order, id",
+                f"SELECT * FROM monthly_panels WHERE month = ?{filter_confirmed} ORDER BY sort_order, id",
                 (month,),
             ).fetchall()
         else:
-            rows = conn.execute("SELECT * FROM monthly_panels ORDER BY sort_order, id").fetchall()
+            rows = conn.execute(
+                f"SELECT * FROM monthly_panels WHERE 1 = 1{filter_confirmed} ORDER BY sort_order, id"
+            ).fetchall()
     return [row_to_dict(row) for row in rows]
 
 
@@ -92,13 +99,74 @@ def create_panel(panel: MonthlyPanelIn) -> dict[str, Any]:
     with session() as conn:
         cursor = conn.execute(
             f"INSERT INTO monthly_panels ({columns}) VALUES ({placeholders})",
-            tuple(values[column] for column in PANEL_COLUMNS),
+            tuple(values.get(column) for column in PANEL_COLUMNS),
         )
         row = conn.execute(
             "SELECT * FROM monthly_panels WHERE id = ?",
             (cursor.lastrowid,),
         ).fetchone()
     return row_to_dict(row)
+
+
+def confirm_fixed_panel(panel_id: int) -> dict[str, Any] | None:
+    with session() as conn:
+        panel = conn.execute("SELECT * FROM monthly_panels WHERE id = ?", (panel_id,)).fetchone()
+        if panel is None:
+            return None
+        if panel["panel_type"] != "fixed":
+            raise ValueError("only fixed panels can be confirmed")
+        if panel["confirmed_at"] is not None:
+            raise ValueError("fixed panel already confirmed")
+
+        payment_date = fixed_panel_payment_date(panel["month"], panel["due_day"])
+        date_label = f"{payment_date:%Y.%m.%d}."
+        max_order = conn.execute(
+            """
+            SELECT MAX(sort_order) AS sort_order
+            FROM ledger_entries
+            WHERE book_section = 'current'
+            """
+        ).fetchone()["sort_order"]
+        sort_order = int(max_order or 2) + 1
+        cursor = conn.execute(
+            """
+            INSERT INTO ledger_entries(
+                book_section, entry_kind, entry_date, date_label, group_label, title,
+                amount_value, amount_expr, sort_order
+            )
+            VALUES ('current', 'expense', ?, ?, NULL, ?, ?, ?, ?)
+            """,
+            (
+                payment_date.isoformat(),
+                date_label,
+                panel["title"],
+                panel["amount_value"],
+                panel["amount_expr"],
+                sort_order,
+            ),
+        )
+        conn.execute(
+            "UPDATE monthly_panels SET confirmed_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+            (panel_id,),
+        )
+        entry = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (cursor.lastrowid,)).fetchone()
+        updated_panel = conn.execute("SELECT * FROM monthly_panels WHERE id = ?", (panel_id,)).fetchone()
+    return {"panel": row_to_dict(updated_panel), "entry": row_to_dict(entry)}
+
+
+def fixed_panel_payment_date(month: str, due_day: int | None) -> date:
+    try:
+        year_text, month_text = month.split("-", 1)
+        year = int(year_text)
+        month_number = int(month_text)
+    except ValueError:
+        today = date.today()
+        year = today.year
+        month_number = today.month
+
+    last_day = calendar.monthrange(year, month_number)[1]
+    day = due_day if due_day and due_day > 0 else date.today().day
+    return date(year, month_number, min(day, last_day))
 
 
 def update_panel(panel_id: int, patch: MonthlyPanelPatch) -> dict[str, Any] | None:

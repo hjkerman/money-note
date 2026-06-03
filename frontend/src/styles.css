@@ -160,7 +160,7 @@ th {
 
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(360px, 0.9fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
   align-items: start;
   margin-top: 16px;
@@ -174,8 +174,12 @@ th {
 
 .tabs {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
+}
+
+.sub-tabs {
+  margin-bottom: 12px;
 }
 
 .tabs button {
@@ -273,6 +277,27 @@ th {
 
 .panel-form {
   grid-template-columns: minmax(0, 1fr) 140px 70px;
+}
+
+.fixed-panel-form {
+  grid-template-columns: minmax(0, 1fr) 100px 140px 70px;
+}
+
+.muted-inline {
+  color: #747b6f;
+  display: inline-block;
+  font-size: 12px;
+  margin-left: 8px;
+  white-space: nowrap;
+}
+
+.action-cell {
+  width: 72px;
+  text-align: right;
+}
+
+.action-cell button {
+  padding: 6px 10px;
 }
 
 .summary-panel dl {
