@@ -10,6 +10,7 @@ class AuthUser(BaseModel):
     id: int
     username: str
     display_name: str
+    session_token: str | None = None
 
 
 class LedgerEntryIn(BaseModel):

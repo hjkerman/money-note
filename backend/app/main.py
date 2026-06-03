@@ -88,8 +88,8 @@ def login(payload: LoginIn, response: Response) -> dict:
     user = authenticate_user(payload.username, payload.password)
     if user is None:
         raise HTTPException(status_code=401, detail="invalid username or password")
-    create_session_cookie(response, user["id"])
-    return user
+    session_token = create_session_cookie(response, user["id"])
+    return {**user, "session_token": session_token}
 
 
 @app.post("/api/auth/logout")

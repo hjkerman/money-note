@@ -1,9 +1,11 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:18080";
+const SESSION_TOKEN_KEY = "money-note-session-token";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? defaultApiBaseUrl();
 
 export type AuthUser = {
   id: number;
   username: string;
   display_name: string;
+  session_token?: string | null;
 };
 
 export type LedgerEntry = {
@@ -82,11 +84,19 @@ export async function fetchMe(): Promise<AuthUser> {
 }
 
 export async function login(payload: { username: string; password: string }): Promise<AuthUser> {
-  return postJson("/api/auth/login", payload);
+  const user = await postJson<AuthUser>("/api/auth/login", payload);
+  if (user.session_token) {
+    localStorage.setItem(SESSION_TOKEN_KEY, user.session_token);
+  }
+  return user;
 }
 
 export async function logout(): Promise<{ ok: boolean }> {
-  return postJson("/api/auth/logout", {});
+  try {
+    return await postJson("/api/auth/logout", {});
+  } finally {
+    localStorage.removeItem(SESSION_TOKEN_KEY);
+  }
 }
 
 export async function fetchCurrentEntries(): Promise<LedgerEntry[]> {
@@ -197,6 +207,7 @@ export function latestExportUrl(): string {
 
 async function getJson<T>(path: string): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
+    headers: authHeaders(),
     credentials: "include",
   });
   return parseResponse(response);
@@ -205,7 +216,7 @@ async function getJson<T>(path: string): Promise<T> {
 async function postJson<T>(path: string, body: unknown): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders() },
     credentials: "include",
     body: JSON.stringify(body),
   });
@@ -215,7 +226,7 @@ async function postJson<T>(path: string, body: unknown): Promise<T> {
 async function patchJson<T>(path: string, body: unknown): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders() },
     credentials: "include",
     body: JSON.stringify(body),
   });
@@ -225,15 +236,52 @@ async function patchJson<T>(path: string, body: unknown): Promise<T> {
 async function deleteJson<T>(path: string): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: "DELETE",
+    headers: authHeaders(),
     credentials: "include",
   });
   return parseResponse(response);
 }
 
+function defaultApiBaseUrl(): string {
+  if (typeof window === "undefined") return "http://127.0.0.1:18080";
+  const { protocol, hostname } = window.location;
+  if (hostname === "localhost" || hostname === "127.0.0.1") {
+    return `${protocol}//${hostname}:18080`;
+  }
+  return "http://127.0.0.1:18080";
+}
+
+function authHeaders(): Record<string, string> {
+  const token = localStorage.getItem(SESSION_TOKEN_KEY);
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 async function parseResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     const detail = await response.text();
-    throw new Error(detail || `HTTP ${response.status}`);
+    throw new Error(readableErrorMessage(response.status, detail));
   }
   return response.json() as Promise<T>;
+}
+
+function readableErrorMessage(status: number, detail: string): string {
+  const parsedDetail = parseErrorDetail(detail);
+  if (status === 401 && parsedDetail === "invalid username or password") {
+    return "아이디 또는 비밀번호가 맞지 않습니다.";
+  }
+  if (status === 401 && parsedDetail === "authentication required") {
+    return "authentication required";
+  }
+  return parsedDetail || `HTTP ${status}`;
+}
+
+function parseErrorDetail(detail: string): string {
+  if (!detail) return "";
+  try {
+    const parsed = JSON.parse(detail) as { detail?: unknown };
+    if (typeof parsed.detail === "string") return parsed.detail;
+  } catch {
+    return detail;
+  }
+  return detail;
 }

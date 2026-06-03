@@ -5,7 +5,7 @@
 ## 공통 규칙
 
 - 요청/응답 형식: JSON
-- 인증: 공개 예외를 제외한 앱 API는 로그인 cookie 필요
+- 인증: 공개 예외를 제외한 앱 API는 로그인 cookie 또는 bearer token 필요
 - 날짜 형식: `YYYY-MM-DD`
 - 월 형식: `YYYY-MM`
 - 금액 필드:
@@ -32,6 +32,8 @@
 ## 인증
 
 가계부 본체 API는 패스워드 기반 세션 인증을 사용한다. 로그인에 성공하면 서버가 HttpOnly cookie를 내려주며, 프론트엔드는 이후 요청에 cookie를 포함한다.
+
+macOS Tauri 앱처럼 WebView cookie 저장이 흔들릴 수 있는 클라이언트를 위해 로그인 응답에는 `session_token`도 포함된다. 프론트엔드는 이 값을 저장하고 이후 요청에 `Authorization: Bearer ...` 헤더로 함께 보낸다.
 
 공개 예외:
 
@@ -60,11 +62,12 @@
 {
   "id": 1,
   "username": "your-username",
-  "display_name": "사용자"
+  "display_name": "사용자",
+  "session_token": "..."
 }
 ```
 
-성공 시 `money_note_session` cookie가 설정된다.
+성공 시 `money_note_session` cookie도 설정된다.
 
 ### `POST /api/auth/logout`
 
@@ -88,7 +91,8 @@
 {
   "id": 1,
   "username": "your-username",
-  "display_name": "사용자"
+  "display_name": "사용자",
+  "session_token": null
 }
 ```
 

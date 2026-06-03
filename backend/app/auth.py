@@ -84,7 +84,7 @@ def create_user(username: str, password: str, display_name: str = "") -> dict[st
     return _public_user(row)
 
 
-def create_session_cookie(response: Response, user_id: int) -> None:
+def create_session_cookie(response: Response, user_id: int) -> str:
     settings = get_settings()
     token = secrets.token_urlsafe(48)
     token_hash = _hash_session_token(token)
@@ -107,11 +107,12 @@ def create_session_cookie(response: Response, user_id: int) -> None:
         samesite="lax",
         path="/",
     )
+    return token
 
 
 def clear_session_cookie(request: Request, response: Response) -> None:
     settings = get_settings()
-    token = request.cookies.get(settings.session_cookie_name)
+    token = _session_token_from_request(request)
     if token:
         with session() as conn:
             conn.execute(
@@ -132,8 +133,7 @@ def require_user(request: Request) -> dict[str, Any]:
 
 
 def current_user_from_request(request: Request) -> dict[str, Any] | None:
-    settings = get_settings()
-    token = request.cookies.get(settings.session_cookie_name)
+    token = _session_token_from_request(request)
     if not token:
         return None
 
@@ -160,6 +160,18 @@ def current_user_from_request(request: Request) -> dict[str, Any] | None:
             (row["session_id"],),
         )
     return _public_user(row)
+
+
+def _session_token_from_request(request: Request) -> str | None:
+    settings = get_settings()
+    cookie_token = request.cookies.get(settings.session_cookie_name)
+    if cookie_token:
+        return cookie_token
+
+    authorization = request.headers.get("Authorization", "")
+    if authorization.lower().startswith("bearer "):
+        return authorization[7:].strip()
+    return None
 
 
 def _hash_session_token(token: str) -> str:
