@@ -69,6 +69,7 @@ npm run build
 
 - [API 명세](docs/api.md)
 - [DB 명세](docs/database.md)
+- [실행 방법](docs/runbook.md)
 
 ```bash
 curl http://localhost:18080/health
