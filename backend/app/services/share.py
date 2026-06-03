@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from html import escape
 
-from app.repository import list_labels, list_panels
+from app.repository import list_cash_flows, list_entries, list_labels, list_panels, list_settings
+from app.services.judgment import claim_ledger_note, format_won, shared_panel_subtitle
 from app.services.month import current_month_label
 
 
@@ -22,13 +23,17 @@ def shared_panel(panel_type: str) -> dict:
         if panel.get("panel_type") == panel_type and panel.get("title")
     ]
     total = sum(row.get("amount_value") or 0 for row in rows)
+    current_card_total = sum(row.get("amount_value") or 0 for row in list_entries("current"))
+    settings = list_settings()
+    card_limit = _float_setting(settings, "settlement_card_limit", 5_800_000)
     label_key, fallback = PANEL_TITLES[panel_type]
     title = list_labels().get(label_key, fallback)
     return {
         "month": month,
         "panel_type": panel_type,
         "title": title,
-        "subtitle": _subtitle(panel_type, rows, total),
+        "subtitle": shared_panel_subtitle(panel_type, rows, total, current_card_total, card_limit),
+        "ledger_note": _ledger_note(panel_type, month),
         "rows": rows,
         "total": total,
     }
@@ -133,9 +138,10 @@ def shared_panel_html(panel_type: str) -> str:
         {rows_html}
       </tbody>
       <tfoot>
-        <tr><td>합계</td><td class="amount">{_format_won(data["total"])}</td></tr>
+        <tr><td>합계</td><td class="amount">{format_won(data["total"])}</td></tr>
       </tfoot>
     </table>
+    {_ledger_note_html(data["ledger_note"])}
   </main>
 </body>
 </html>
@@ -146,24 +152,26 @@ def _row_html(row: dict) -> str:
     return (
         "<tr>"
         f"<td>{escape(str(row.get('title') or ''))}</td>"
-        f"<td class=\"amount\">{_format_won(row.get('amount_value') or 0)}</td>"
+        f"<td class=\"amount\">{format_won(row.get('amount_value') or 0)}</td>"
         "</tr>"
     )
 
 
-def _subtitle(panel_type: str, rows: list[dict], total: float) -> str:
-    if panel_type == "claim":
-        if not rows:
-            return "이달은 평온했습니다. 이런 달도 있어야 사람이 삽니다."
-        if total >= 200000:
-            return "이달은 아팠습니다. 몸도 지갑도 같이 진료를 받았습니다."
-        if any("치과" in str(row.get("title") or "") for row in rows):
-            return "이달은 치아가 자본주의와 정면 충돌했습니다."
-        return "생활은 계속되고, 영수증은 조용히 증언합니다."
-    if not rows:
-        return "이번 달 정산은 고요합니다. 평화가 숫자로 증명되었습니다."
-    return "형제자매 간 평화를 위한 숫자 보고서입니다."
+def _ledger_note_html(note: str | None) -> str:
+    if not note:
+        return ""
+    return f'<div class="subtitle">{escape(note)}</div>'
 
 
-def _format_won(value: float) -> str:
-    return f"{round(value):,}원"
+def _ledger_note(panel_type: str, month: str) -> str | None:
+    if panel_type != "claim":
+        return None
+    return claim_ledger_note(month, [*list_entries("archive"), *list_entries("current")], list_cash_flows())
+
+
+def _float_setting(settings: dict[str, str], key: str, fallback: float) -> float:
+    try:
+        return float(settings.get(key, fallback))
+    except (TypeError, ValueError):
+        return fallback
+

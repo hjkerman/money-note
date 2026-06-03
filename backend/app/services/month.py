@@ -6,6 +6,7 @@ from app.db import session
 
 
 def close_current_month() -> dict[str, int]:
+    """당월 기록을 archive로 옮기고 다음 달에도 남아야 할 항목만 current에 유지한다."""
     with session() as conn:
         current_entries = conn.execute(
             """
@@ -28,12 +29,12 @@ def close_current_month() -> dict[str, int]:
             conn.execute(
                 """
                 INSERT INTO ledger_entries (
-                    book_section, entry_kind, entry_date, date_label, group_label, title,
+                    book_section, entry_kind, entry_date, date_label, group_label, title, usage_place, usage_item,
                     amount_value, amount_expr, aux_amount_value, aux_amount_expr, extra_value,
                     sort_order, due_day, confirmed_at, spending_category
                 )
                 VALUES (
-                    'archive', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                    'archive', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
                 )
                 """,
                 (
@@ -42,6 +43,8 @@ def close_current_month() -> dict[str, int]:
                     entry["date_label"],
                     entry["group_label"],
                     entry["title"],
+                    entry["usage_place"],
+                    entry["usage_item"],
                     entry["amount_value"],
                     entry["amount_expr"],
                     entry["aux_amount_value"],
@@ -66,11 +69,21 @@ def close_current_month() -> dict[str, int]:
             WHERE book_section = 'current' AND entry_kind = 'planned'
             """
         )
+        conn.execute(
+            """
+            UPDATE installments
+            SET remaining_months = MAX(remaining_months - 1, 0),
+                is_active = CASE WHEN remaining_months <= 1 THEN 0 ELSE is_active END,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE is_active = 1
+            """
+        )
 
     return {"archived": archived, "deleted_from_current": deleted}
 
 
 def current_month_label() -> str:
+    """현재 기록에서 월 라벨을 추정하고, 기록이 없으면 오늘 기준 월을 사용한다."""
     with session() as conn:
         row = conn.execute(
             """

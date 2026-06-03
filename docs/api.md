@@ -5,7 +5,7 @@
 ## 공통 규칙
 
 - 요청/응답 형식: JSON
-- 인증: 현재 없음
+- 인증: 공개 예외를 제외한 앱 API는 로그인 cookie 필요
 - 날짜 형식: `YYYY-MM-DD`
 - 월 형식: `YYYY-MM`
 - 금액 필드:
@@ -115,13 +115,18 @@
     "entry_date": "2026-06-01",
     "date_label": "2026.06.01.",
     "group_label": null,
-    "title": "커피",
+    "title": "[카페] 커피",
+    "usage_place": "카페",
+    "usage_item": "커피",
     "amount_value": 4500,
     "amount_expr": null,
     "aux_amount_value": null,
     "aux_amount_expr": null,
     "extra_value": null,
-    "sort_order": 3
+    "sort_order": 3,
+    "due_day": null,
+    "confirmed_at": null,
+    "spending_category": "questionable"
   }
 ]
 ```
@@ -134,7 +139,7 @@
 `entry_kind` 의미:
 
 - `expense`: 일반 지출
-- `planned`: `나갈 돈` 항목
+- `planned`: 카드 정기결제 항목. 확인하면 같은 사용처/사용항목 구조로 당월 지출에 편입된다.
 
 ### `POST /api/entries`
 
@@ -149,13 +154,18 @@
   "entry_date": "2026-06-03",
   "date_label": "2026.06.03.",
   "group_label": null,
-  "title": "서버에게 바친 전기요금",
+  "title": "[한국전력] 전기요금",
+  "usage_place": "한국전력",
+  "usage_item": "전기요금",
   "amount_value": 12345,
   "amount_expr": null,
   "aux_amount_value": null,
   "aux_amount_expr": null,
   "extra_value": null,
-  "sort_order": 30
+  "sort_order": 30,
+  "due_day": null,
+  "confirmed_at": null,
+  "spending_category": null
 }
 ```
 
@@ -170,7 +180,10 @@
 ```json
 {
   "title": "수정된 적요",
+  "usage_place": "수정된 사용처",
+  "usage_item": "수정된 사용항목",
   "amount_value": 15000,
+  "spending_category": "essential",
   "sort_order": 31
 }
 ```
@@ -189,25 +202,30 @@
 }
 ```
 
-## 당월 `나갈 돈`
+## 카드 정기결제
 
 ### `POST /api/month/current/planned`
 
-`당월 기록`의 `나갈 돈` 그룹에 항목을 추가한다. 기존 planned 항목 뒤에 붙으며, 뒤쪽 현재 기록의 `sort_order`는 자동으로 밀린다.
+고정지출 탭의 `카드 정기결제` 항목을 추가한다. 기존 planned 항목 뒤에 붙으며, 뒤쪽 현재 기록의 `sort_order`는 자동으로 밀린다.
 
 요청:
 
 ```json
 {
-  "title": "카드값: 지난달의 나 수습비",
+  "title": "[통신사] 통신요금",
+  "usage_place": "통신사",
+  "usage_item": "통신요금",
   "amount_value": 50000,
-  "amount_expr": null
+  "amount_expr": null,
+  "due_day": 11
 }
 ```
 
 응답: 생성된 `LedgerEntry`.
 
 ### `DELETE /api/month/current/planned/{entry_id}`
+
+카드 정기결제 항목을 삭제한다.
 
 `나갈 돈` 항목만 삭제한다.
 
@@ -328,6 +346,18 @@
 }
 ```
 
+### `DELETE /api/month/current/panels/type/{panel_type}`
+
+현재 월의 특정 패널 타입 항목을 전부 삭제한다. 웹 UI의 청구/타인정산 `초기화` 버튼이 이 API를 사용한다.
+
+응답:
+
+```json
+{
+  "deleted": 3
+}
+```
+
 ## 요약
 
 ### `GET /api/month/current/summary`
@@ -340,6 +370,7 @@
 {
   "base_next_month_liquidity": 400000,
   "card_total": 123456,
+  "installment_monthly_total": 33900,
   "transfer_or_deposit_total": 500000,
   "interest_expense": 0,
   "frozen_asset_total": 100000,
@@ -360,7 +391,7 @@ next_month_liquidity
   + liquidity_status
 ```
 
-현재 구현상 `card_total`은 `current` 영역 전체 `amount_value` 합계다.
+현재 구현상 `card_total`은 `current` 영역 전체 `amount_value` 합계와 활성 할부의 월 납입액 합계다.
 
 ## 월마감
 
@@ -428,6 +459,70 @@ next_month_liquidity
 - `/share/claim`
 - `/share/settlement`
 
+## 할부
+
+### `GET /api/installments`
+
+활성 할부 항목을 조회한다.
+
+응답 예시:
+
+```json
+[
+  {
+    "id": 1,
+    "title": "노트북",
+    "principal_amount": 1000000,
+    "fee_rate": 1.7,
+    "fee_amount": 17000,
+    "months": 6,
+    "remaining_months": 6,
+    "start_month": "2026-06",
+    "sort_order": 1,
+    "is_active": 1,
+    "monthly_amount": 169500
+  }
+]
+```
+
+`monthly_amount`는 `(principal_amount + fee_amount) / months`를 원 단위 올림한 값이다.
+
+### `POST /api/installments`
+
+할부 항목을 생성한다.
+
+요청:
+
+```json
+{
+  "title": "노트북",
+  "principal_amount": 1000000,
+  "fee_rate": 1.7,
+  "months": 6,
+  "remaining_months": 6,
+  "start_month": "2026-06",
+  "sort_order": 1
+}
+```
+
+### `DELETE /api/installments/{installment_id}`
+
+할부 항목을 삭제한다.
+
+## 현금흐름
+
+### `GET /api/cash-flows`
+
+현금 입출금 기록을 조회한다.
+
+### `POST /api/cash-flows`
+
+현금 입출금 기록을 생성한다. 입금은 양수, 출금은 음수 금액을 사용한다.
+
+### `DELETE /api/cash-flows/{flow_id}`
+
+현금 입출금 기록을 삭제한다.
+
 ## 서버 설정
 
 ### `GET /api/settings`
@@ -440,7 +535,8 @@ next_month_liquidity
 {
   "base_next_month_liquidity": "400000",
   "interest_expense": "0",
-  "liquidity_status": "0"
+  "liquidity_status": "0",
+  "settlement_card_limit": "5800000"
 }
 ```
 
@@ -449,6 +545,7 @@ next_month_liquidity
 - `base_next_month_liquidity`: 익월 유동성 계산의 기준 금액
 - `interest_expense`: 이자지출
 - `liquidity_status`: 유동성 현황
+- `settlement_card_limit`: 가족카드 한도 감시 기준 금액
 
 ### `PATCH /api/settings/{key}`
 
@@ -475,6 +572,7 @@ next_month_liquidity
 - `base_next_month_liquidity`
 - `interest_expense`
 - `liquidity_status`
+- `settlement_card_limit`
 
 ## 엑셀 표시 라벨
 

@@ -14,6 +14,8 @@ export type LedgerEntry = {
   date_label: string | null;
   group_label: string | null;
   title: string;
+  usage_place: string | null;
+  usage_item: string | null;
   amount_value: number | null;
   amount_expr: string | null;
   aux_amount_value: number | null;
@@ -42,6 +44,7 @@ export type MonthlyPanel = {
 export type Summary = {
   base_next_month_liquidity: number;
   card_total: number;
+  installment_monthly_total: number;
   transfer_or_deposit_total: number;
   interest_expense: number;
   frozen_asset_total: number;
@@ -57,7 +60,22 @@ export type CashFlow = {
   sort_order: number;
 };
 
+export type Installment = {
+  id: number;
+  title: string;
+  principal_amount: number;
+  fee_rate: number;
+  fee_amount: number;
+  months: number;
+  remaining_months: number;
+  start_month: string;
+  sort_order: number;
+  is_active: number;
+  monthly_amount: number;
+};
+
 export type Labels = Record<string, string>;
+export type Settings = Record<string, string>;
 
 export async function fetchMe(): Promise<AuthUser> {
   return getJson("/api/auth/me");
@@ -91,16 +109,30 @@ export async function fetchCashFlows(): Promise<CashFlow[]> {
   return getJson("/api/cash-flows");
 }
 
+export async function fetchInstallments(): Promise<Installment[]> {
+  return getJson("/api/installments");
+}
+
 export async function fetchLabels(): Promise<Labels> {
   return getJson("/api/labels");
 }
 
+export async function fetchSettings(): Promise<Settings> {
+  return getJson("/api/settings");
+}
+
 export async function appendPlannedEntry(payload: {
   title: string;
+  usage_place: string | null;
+  usage_item: string | null;
   amount_value: number | null;
   due_day: number | null;
 }): Promise<LedgerEntry> {
   return postJson("/api/month/current/planned", payload);
+}
+
+export async function deletePlannedEntry(entryId: number): Promise<{ deleted: boolean }> {
+  return deleteJson(`/api/month/current/planned/${entryId}`);
 }
 
 export async function createEntry(payload: Omit<LedgerEntry, "id">): Promise<LedgerEntry> {
@@ -111,8 +143,20 @@ export async function updateEntry(entryId: number, payload: Partial<Omit<LedgerE
   return patchJson(`/api/entries/${entryId}`, payload);
 }
 
+export async function deleteEntry(entryId: number): Promise<{ deleted: boolean }> {
+  return deleteJson(`/api/entries/${entryId}`);
+}
+
 export async function createPanel(payload: Omit<MonthlyPanel, "id">): Promise<MonthlyPanel> {
   return postJson("/api/month/current/panels", payload);
+}
+
+export async function deletePanel(panelId: number): Promise<{ deleted: boolean }> {
+  return deleteJson(`/api/month/current/panels/${panelId}`);
+}
+
+export async function deletePanelsByType(panelType: MonthlyPanel["panel_type"]): Promise<{ deleted: number }> {
+  return deleteJson(`/api/month/current/panels/type/${panelType}`);
 }
 
 export async function confirmPlannedEntry(entryId: number): Promise<{ planned: LedgerEntry; entry: LedgerEntry }> {
@@ -125,6 +169,14 @@ export async function confirmFrozenPanel(panelId: number): Promise<{ entry: Ledg
 
 export async function createCashFlow(payload: Omit<CashFlow, "id">): Promise<CashFlow> {
   return postJson("/api/cash-flows", payload);
+}
+
+export async function createInstallment(payload: Omit<Installment, "id" | "is_active" | "monthly_amount" | "fee_amount">): Promise<Installment> {
+  return postJson("/api/installments", payload);
+}
+
+export async function deleteInstallment(installmentId: number): Promise<{ deleted: boolean }> {
+  return deleteJson(`/api/installments/${installmentId}`);
 }
 
 export async function deleteCashFlow(flowId: number): Promise<{ deleted: boolean }> {

@@ -16,6 +16,8 @@ CREATE TABLE IF NOT EXISTS ledger_entries (
     date_label TEXT,
     group_label TEXT,
     title TEXT NOT NULL DEFAULT '',
+    usage_place TEXT,
+    usage_item TEXT,
     amount_value REAL,
     amount_expr TEXT,
     aux_amount_value REAL,
@@ -97,6 +99,21 @@ CREATE TABLE IF NOT EXISTS cash_flows (
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS installments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL DEFAULT '',
+    principal_amount REAL NOT NULL,
+    fee_rate REAL NOT NULL DEFAULT 0,
+    fee_amount REAL NOT NULL DEFAULT 0,
+    months INTEGER NOT NULL,
+    remaining_months INTEGER NOT NULL,
+    start_month TEXT NOT NULL,
+    sort_order INTEGER NOT NULL,
+    is_active INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE INDEX IF NOT EXISTS idx_ledger_section_order
 ON ledger_entries(book_section, sort_order);
 
@@ -118,10 +135,14 @@ ON auth_sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_cash_flows_order
 ON cash_flows(occurred_on, sort_order, id);
 
+CREATE INDEX IF NOT EXISTS idx_installments_active_order
+ON installments(is_active, sort_order, id);
+
 INSERT OR IGNORE INTO app_settings(key, value) VALUES
 ('base_next_month_liquidity', '400000'),
 ('interest_expense', '0'),
-('liquidity_status', '0');
+('liquidity_status', '0'),
+('settlement_card_limit', '5800000');
 
 INSERT OR IGNORE INTO workbook_labels(key, value) VALUES
 ('current_header_date', '날짜'),
@@ -156,6 +177,7 @@ def connect() -> sqlite3.Connection:
 
 
 def init_db() -> None:
+    """서버 시작 시 필요한 테이블과 누락된 컬럼을 보강한다."""
     with connect() as conn:
         conn.executescript(SCHEMA)
         panel_columns = {
@@ -176,6 +198,16 @@ def init_db() -> None:
             conn.execute("ALTER TABLE ledger_entries ADD COLUMN due_day INTEGER")
         if "spending_category" not in ledger_columns:
             conn.execute("ALTER TABLE ledger_entries ADD COLUMN spending_category TEXT")
+        if "usage_place" not in ledger_columns:
+            conn.execute("ALTER TABLE ledger_entries ADD COLUMN usage_place TEXT")
+        if "usage_item" not in ledger_columns:
+            conn.execute("ALTER TABLE ledger_entries ADD COLUMN usage_item TEXT")
+        installment_columns = {
+            row["name"]
+            for row in conn.execute("PRAGMA table_info(installments)").fetchall()
+        }
+        if "fee_rate" not in installment_columns:
+            conn.execute("ALTER TABLE installments ADD COLUMN fee_rate REAL NOT NULL DEFAULT 0")
         conn.execute(
             """
             UPDATE workbook_labels

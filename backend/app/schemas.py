@@ -19,6 +19,8 @@ class LedgerEntryIn(BaseModel):
     date_label: str | None = None
     group_label: str | None = None
     title: str = ""
+    usage_place: str | None = None
+    usage_item: str | None = None
     amount_value: float | None = None
     amount_expr: str | None = None
     aux_amount_value: float | None = None
@@ -40,6 +42,8 @@ class LedgerEntryPatch(BaseModel):
     date_label: str | None = None
     group_label: str | None = None
     title: str | None = None
+    usage_place: str | None = None
+    usage_item: str | None = None
     amount_value: float | None = None
     amount_expr: str | None = None
     aux_amount_value: float | None = None
@@ -53,6 +57,8 @@ class LedgerEntryPatch(BaseModel):
 
 class PlannedEntryIn(BaseModel):
     title: str
+    usage_place: str | None = None
+    usage_item: str | None = None
     amount_value: float | None = None
     amount_expr: str | None = None
     due_day: int | None = None
@@ -65,6 +71,7 @@ class EntryReorder(BaseModel):
 class Summary(BaseModel):
     base_next_month_liquidity: float
     card_total: float
+    installment_monthly_total: float
     transfer_or_deposit_total: float
     interest_expense: float
     frozen_asset_total: float
@@ -121,4 +128,28 @@ class CashFlowIn(BaseModel):
     occurred_on: str
     title: str = ""
     amount_value: float
+    sort_order: int
+
+
+class Installment(BaseModel):
+    id: int
+    title: str
+    principal_amount: float
+    fee_rate: float
+    fee_amount: float
+    months: int
+    remaining_months: int
+    start_month: str
+    sort_order: int
+    is_active: int
+    monthly_amount: float
+
+
+class InstallmentIn(BaseModel):
+    title: str
+    principal_amount: float
+    fee_rate: float = 0
+    months: int
+    remaining_months: int | None = None
+    start_month: str
     sort_order: int

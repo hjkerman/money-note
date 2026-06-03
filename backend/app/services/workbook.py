@@ -107,6 +107,8 @@ def _parse_current_entries(ws: Any, cached_ws: Any) -> list[dict[str, Any]]:
                 "date_label": date_label,
                 "group_label": None if entry_date else date_label,
                 "title": "" if title is None else str(title),
+                "usage_place": None,
+                "usage_item": None,
                 "amount_value": amount_value,
                 "amount_expr": amount_expr,
                 "sort_order": row_idx,

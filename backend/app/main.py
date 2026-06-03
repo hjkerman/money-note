@@ -18,13 +18,17 @@ from app.repository import (
     confirm_frozen_panel,
     confirm_planned_entry,
     create_cash_flow,
+    create_installment,
     create_panel,
     create_entry,
     delete_cash_flow,
+    delete_installment,
     delete_planned_entry,
     delete_panel,
+    delete_panels_by_type,
     delete_entry,
     list_cash_flows,
+    list_installments,
     list_archive_rows,
     list_entries,
     list_labels,
@@ -39,6 +43,8 @@ from app.schemas import (
     AuthUser,
     CashFlow,
     CashFlowIn,
+    Installment,
+    InstallmentIn,
     LedgerEntry,
     LedgerEntryIn,
     LedgerEntryPatch,
@@ -196,6 +202,13 @@ def remove_panel(panel_id: int, _: dict = Depends(require_user)) -> dict[str, bo
     return {"deleted": True}
 
 
+@app.delete("/api/month/current/panels/type/{panel_type}")
+def remove_panels_by_type(panel_type: str, _: dict = Depends(require_user)) -> dict[str, int]:
+    if panel_type not in {"fixed", "frozen", "claim", "settlement"}:
+        raise HTTPException(status_code=404, detail="unknown panel type")
+    return {"deleted": delete_panels_by_type(current_month_label(), panel_type)}
+
+
 @app.get("/api/month/current/summary", response_model=Summary)
 def current_summary(_: dict = Depends(require_user)) -> Summary:
     try:
@@ -234,7 +247,7 @@ def get_settings_values(_: dict = Depends(require_user)) -> dict[str, str]:
 
 @app.patch("/api/settings/{key}")
 def patch_setting(key: str, patch: SettingPatch, _: dict = Depends(require_user)) -> dict[str, str]:
-    allowed = {"base_next_month_liquidity", "interest_expense", "liquidity_status"}
+    allowed = {"base_next_month_liquidity", "interest_expense", "liquidity_status", "settlement_card_limit"}
     if key not in allowed:
         raise HTTPException(status_code=404, detail="unknown setting")
     with session() as conn:
@@ -252,6 +265,27 @@ def patch_setting(key: str, patch: SettingPatch, _: dict = Depends(require_user)
 @app.get("/api/cash-flows", response_model=list[CashFlow])
 def get_cash_flows(_: dict = Depends(require_user)) -> list[dict]:
     return list_cash_flows()
+
+
+@app.get("/api/installments", response_model=list[Installment])
+def get_installments(_: dict = Depends(require_user)) -> list[dict]:
+    return list_installments()
+
+
+@app.post("/api/installments", response_model=Installment)
+def post_installment(installment: InstallmentIn, _: dict = Depends(require_user)) -> dict:
+    if installment.months < 1:
+        raise HTTPException(status_code=422, detail="months must be greater than zero")
+    if installment.remaining_months is not None and installment.remaining_months < 1:
+        raise HTTPException(status_code=422, detail="remaining_months must be greater than zero")
+    return create_installment(installment)
+
+
+@app.delete("/api/installments/{installment_id}")
+def remove_installment(installment_id: int, _: dict = Depends(require_user)) -> dict[str, bool]:
+    if not delete_installment(installment_id):
+        raise HTTPException(status_code=404, detail="installment not found")
+    return {"deleted": True}
 
 
 @app.post("/api/cash-flows", response_model=CashFlow)

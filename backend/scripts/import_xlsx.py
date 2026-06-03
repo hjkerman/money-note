@@ -15,6 +15,8 @@ ENTRY_COLUMNS = [
     "date_label",
     "group_label",
     "title",
+    "usage_place",
+    "usage_item",
     "amount_value",
     "amount_expr",
     "aux_amount_value",

@@ -22,6 +22,8 @@
 - `workbook_labels`: Excel 표시 문구
 - `users`: 로그인 사용자
 - `auth_sessions`: 로그인 세션
+- `cash_flows`: 현금 입출금 기록
+- `installments`: 할부 기록
 
 인덱스:
 
@@ -29,6 +31,10 @@
 - `idx_ledger_date`
 - `idx_archive_rows_order`
 - `idx_panels_month_type_order`
+- `idx_auth_sessions_token`
+- `idx_auth_sessions_user`
+- `idx_cash_flows_order`
+- `idx_installments_active_order`
 
 ## `ledger_entries`
 
@@ -50,12 +56,17 @@ CREATE TABLE IF NOT EXISTS ledger_entries (
     date_label TEXT,
     group_label TEXT,
     title TEXT NOT NULL DEFAULT '',
+    usage_place TEXT,
+    usage_item TEXT,
     amount_value REAL,
     amount_expr TEXT,
     aux_amount_value REAL,
     aux_amount_expr TEXT,
     extra_value TEXT,
     sort_order INTEGER NOT NULL,
+    due_day INTEGER,
+    confirmed_at TEXT,
+    spending_category TEXT,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -71,13 +82,18 @@ CREATE TABLE IF NOT EXISTS ledger_entries (
 | `entry_date` | TEXT | 실제 날짜. `YYYY-MM-DD` |
 | `date_label` | TEXT | Excel에 표시할 날짜 문자열. 예: `2026.06.03.` |
 | `group_label` | TEXT | 날짜가 아닌 그룹 라벨. 예: `나갈 돈` |
-| `title` | TEXT | 적요 |
+| `title` | TEXT | Excel 호환 적요. 새 당월 지출은 `[사용처] 사용항목` 형식 |
+| `usage_place` | TEXT | 앱에서 분리 입력한 사용처 |
+| `usage_item` | TEXT | 앱에서 분리 입력한 사용항목 |
 | `amount_value` | REAL | 계산 완료된 금액 |
 | `amount_expr` | TEXT | Excel 수식 또는 수식 문자열 |
 | `aux_amount_value` | REAL | 전체 기록 `E`열 보조 금액 |
 | `aux_amount_expr` | TEXT | 전체 기록 `E`열 보조 수식 |
 | `extra_value` | TEXT | 전체 기록 `F`열 추가 값 |
 | `sort_order` | INTEGER | 사용자 정의 정렬 순서 |
+| `due_day` | INTEGER | 카드 정기결제 결제일 |
+| `confirmed_at` | TEXT | 확인 처리 시각 |
+| `spending_category` | TEXT | `essential`, `questionable`, 또는 `NULL` |
 | `created_at` | TEXT | 생성 시각 |
 | `updated_at` | TEXT | 수정 시각 |
 
@@ -283,7 +299,7 @@ CREATE TABLE IF NOT EXISTS workbook_labels (
 | `archive_header_date` | 날짜 | `전체 기록(본인)!B2` |
 | `archive_header_title` | 적요 | `전체 기록(본인)!C2` |
 | `archive_header_amount` | 금액 | `전체 기록(본인)!D2` |
-| `panel_fixed_title` | 고정지출 | fixed 패널 제목 |
+| `panel_fixed_title` | 현금성 고정지출 | fixed 패널 제목 |
 | `panel_frozen_title` | 동결 | frozen 패널 제목 |
 | `panel_claim_title` | 청구 | claim 패널 제목 |
 | `panel_settlement_title` | 타인정산 | settlement 패널 제목 |
@@ -359,6 +375,38 @@ CREATE TABLE IF NOT EXISTS auth_sessions (
 
 기본 세션 만료 기간은 `MONEY_NOTE_SESSION_DAYS`로 조정한다.
 
+## `cash_flows`
+
+현금 입출금 기록이다. `liquidity_status` 계산에 더해진다.
+
+주요 컬럼:
+
+| 컬럼 | 설명 |
+| --- | --- |
+| `occurred_on` | 발생일. `YYYY-MM-DD` |
+| `title` | 적요 |
+| `amount_value` | 입금은 양수, 출금은 음수 |
+| `sort_order` | 정렬 순서 |
+
+## `installments`
+
+할부 항목이다. 활성 항목의 월 납입액은 카드대금 요약에 포함된다.
+
+주요 컬럼:
+
+| 컬럼 | 설명 |
+| --- | --- |
+| `title` | 적요 |
+| `principal_amount` | 할부 원금 |
+| `fee_rate` | 수수료율 |
+| `fee_amount` | `principal_amount * fee_rate / 100`을 원 단위 올림한 값 |
+| `months` | 총 개월수 |
+| `remaining_months` | 남은 개월수 |
+| `start_month` | 시작 월. `YYYY-MM` |
+| `is_active` | 활성 여부 |
+
+월마감 시 활성 할부의 `remaining_months`가 1 줄고, 0이 되면 `is_active = 0`이 된다.
+
 ## Export와 DB의 관계
 
 export 입력:
@@ -369,6 +417,7 @@ export 입력:
 - `monthly_panels`
 - `workbook_labels`
 - `app_settings`
+- 할부는 Excel export에 별도 표로 쓰지 않고, 요약의 카드대금 계산에 반영한다.
 
 export 정책:
 
