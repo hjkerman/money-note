@@ -55,6 +55,13 @@ def close_current_month() -> dict[str, int]:
         deleted = conn.execute(
             "DELETE FROM ledger_entries WHERE book_section = 'current' AND entry_kind != 'planned'"
         ).rowcount
+        conn.execute(
+            """
+            UPDATE ledger_entries
+            SET confirmed_at = NULL, updated_at = CURRENT_TIMESTAMP
+            WHERE book_section = 'current' AND entry_kind = 'planned'
+            """
+        )
 
     return {"archived": archived, "deleted_from_current": deleted}
 

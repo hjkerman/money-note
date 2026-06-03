@@ -25,6 +25,8 @@ class LedgerEntryIn(BaseModel):
     aux_amount_expr: str | None = None
     extra_value: str | None = None
     sort_order: int
+    due_day: int | None = None
+    confirmed_at: str | None = None
 
 
 class LedgerEntry(LedgerEntryIn):
@@ -43,12 +45,15 @@ class LedgerEntryPatch(BaseModel):
     aux_amount_expr: str | None = None
     extra_value: str | None = None
     sort_order: int | None = None
+    due_day: int | None = None
+    confirmed_at: str | None = None
 
 
 class PlannedEntryIn(BaseModel):
     title: str
     amount_value: float | None = None
     amount_expr: str | None = None
+    due_day: int | None = None
 
 
 class EntryReorder(BaseModel):
@@ -100,3 +105,18 @@ class MonthlyPanelPatch(BaseModel):
 
 class SettingPatch(BaseModel):
     value: str
+
+
+class CashFlow(BaseModel):
+    id: int
+    occurred_on: str
+    title: str
+    amount_value: float
+    sort_order: int
+
+
+class CashFlowIn(BaseModel):
+    occurred_on: str
+    title: str = ""
+    amount_value: float
+    sort_order: int

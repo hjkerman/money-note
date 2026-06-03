@@ -15,12 +15,15 @@ from app.config import get_settings
 from app.db import init_db, session
 from app.repository import (
     append_planned_entry,
-    confirm_fixed_panel,
+    confirm_planned_entry,
+    create_cash_flow,
     create_panel,
     create_entry,
+    delete_cash_flow,
     delete_planned_entry,
     delete_panel,
     delete_entry,
+    list_cash_flows,
     list_archive_rows,
     list_entries,
     list_labels,
@@ -33,6 +36,8 @@ from app.repository import (
 )
 from app.schemas import (
     AuthUser,
+    CashFlow,
+    CashFlowIn,
     LedgerEntry,
     LedgerEntryIn,
     LedgerEntryPatch,
@@ -126,6 +131,17 @@ def post_planned_entry(entry: PlannedEntryIn, _: dict = Depends(require_user)) -
     return append_planned_entry(entry)
 
 
+@app.post("/api/month/current/planned/{entry_id}/confirm")
+def post_confirm_planned_entry(entry_id: int, _: dict = Depends(require_user)) -> dict:
+    try:
+        result = confirm_planned_entry(entry_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+    if result is None:
+        raise HTTPException(status_code=404, detail="planned entry not found")
+    return result
+
+
 @app.delete("/api/month/current/planned/{entry_id}")
 def remove_planned_entry(entry_id: int, _: dict = Depends(require_user)) -> dict[str, bool]:
     if not delete_planned_entry(entry_id):
@@ -159,17 +175,6 @@ def patch_panel(panel_id: int, patch: MonthlyPanelPatch, _: dict = Depends(requi
     if panel is None:
         raise HTTPException(status_code=404, detail="panel not found")
     return panel
-
-
-@app.post("/api/month/current/panels/{panel_id}/confirm-fixed")
-def post_confirm_fixed_panel(panel_id: int, _: dict = Depends(require_user)) -> dict:
-    try:
-        result = confirm_fixed_panel(panel_id)
-    except ValueError as exc:
-        raise HTTPException(status_code=422, detail=str(exc))
-    if result is None:
-        raise HTTPException(status_code=404, detail="panel not found")
-    return result
 
 
 @app.delete("/api/month/current/panels/{panel_id}")
@@ -230,6 +235,23 @@ def patch_setting(key: str, patch: SettingPatch, _: dict = Depends(require_user)
             (key, patch.value),
         )
     return {key: patch.value}
+
+
+@app.get("/api/cash-flows", response_model=list[CashFlow])
+def get_cash_flows(_: dict = Depends(require_user)) -> list[dict]:
+    return list_cash_flows()
+
+
+@app.post("/api/cash-flows", response_model=CashFlow)
+def post_cash_flow(flow: CashFlowIn, _: dict = Depends(require_user)) -> dict:
+    return create_cash_flow(flow)
+
+
+@app.delete("/api/cash-flows/{flow_id}")
+def remove_cash_flow(flow_id: int, _: dict = Depends(require_user)) -> dict[str, bool]:
+    if not delete_cash_flow(flow_id):
+        raise HTTPException(status_code=404, detail="cash flow not found")
+    return {"deleted": True}
 
 
 @app.get("/api/labels")

@@ -20,6 +20,8 @@ export type LedgerEntry = {
   aux_amount_expr: string | null;
   extra_value: string | null;
   sort_order: number;
+  due_day: number | null;
+  confirmed_at: string | null;
 };
 
 export type MonthlyPanel = {
@@ -42,6 +44,14 @@ export type Summary = {
   frozen_asset_total: number;
   liquidity_status: number;
   next_month_liquidity: number;
+};
+
+export type CashFlow = {
+  id: number;
+  occurred_on: string;
+  title: string;
+  amount_value: number;
+  sort_order: number;
 };
 
 export type Labels = Record<string, string>;
@@ -70,6 +80,10 @@ export async function fetchSummary(): Promise<Summary> {
   return getJson("/api/month/current/summary");
 }
 
+export async function fetchCashFlows(): Promise<CashFlow[]> {
+  return getJson("/api/cash-flows");
+}
+
 export async function fetchLabels(): Promise<Labels> {
   return getJson("/api/labels");
 }
@@ -77,6 +91,7 @@ export async function fetchLabels(): Promise<Labels> {
 export async function appendPlannedEntry(payload: {
   title: string;
   amount_value: number | null;
+  due_day: number | null;
 }): Promise<LedgerEntry> {
   return postJson("/api/month/current/planned", payload);
 }
@@ -89,8 +104,16 @@ export async function createPanel(payload: Omit<MonthlyPanel, "id">): Promise<Mo
   return postJson("/api/month/current/panels", payload);
 }
 
-export async function confirmFixedPanel(panelId: number): Promise<{ panel: MonthlyPanel; entry: LedgerEntry }> {
-  return postJson(`/api/month/current/panels/${panelId}/confirm-fixed`, {});
+export async function confirmPlannedEntry(entryId: number): Promise<{ planned: LedgerEntry; entry: LedgerEntry }> {
+  return postJson(`/api/month/current/planned/${entryId}/confirm`, {});
+}
+
+export async function createCashFlow(payload: Omit<CashFlow, "id">): Promise<CashFlow> {
+  return postJson("/api/cash-flows", payload);
+}
+
+export async function deleteCashFlow(flowId: number): Promise<{ deleted: boolean }> {
+  return deleteJson(`/api/cash-flows/${flowId}`);
 }
 
 export async function closeCurrentMonth(): Promise<{ archived: number; deleted_from_current: number }> {
@@ -118,6 +141,14 @@ async function postJson<T>(path: string, body: unknown): Promise<T> {
     headers: { "Content-Type": "application/json" },
     credentials: "include",
     body: JSON.stringify(body),
+  });
+  return parseResponse(response);
+}
+
+async function deleteJson<T>(path: string): Promise<T> {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method: "DELETE",
+    credentials: "include",
   });
   return parseResponse(response);
 }

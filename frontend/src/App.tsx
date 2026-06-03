@@ -1,15 +1,19 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import {
   AuthUser,
+  CashFlow,
   LedgerEntry,
   MonthlyPanel,
   Summary,
   appendPlannedEntry,
   closeCurrentMonth,
-  confirmFixedPanel,
+  confirmPlannedEntry,
+  createCashFlow,
   createEntry,
   createExport,
   createPanel,
+  deleteCashFlow,
+  fetchCashFlows,
   fetchCurrentEntries,
   fetchCurrentPanels,
   fetchLabels,
@@ -21,11 +25,11 @@ import {
 } from "./api";
 
 type PanelType = MonthlyPanel["panel_type"];
-type PrimaryTab = "current" | "fixed" | "frozen";
+type PrimaryTab = "current" | "fixed" | "frozen" | "cash";
 type CurrentTab = "expenses" | "claim" | "settlement";
 
 const panelMeta: Record<PanelType, { labelKey: string; fallback: string }> = {
-  fixed: { labelKey: "panel_fixed_title", fallback: "고정지출" },
+  fixed: { labelKey: "panel_fixed_title", fallback: "현금성 고정지출" },
   frozen: { labelKey: "panel_frozen_title", fallback: "동결" },
   claim: { labelKey: "panel_claim_title", fallback: "청구" },
   settlement: { labelKey: "panel_settlement_title", fallback: "타인정산" },
@@ -37,6 +41,7 @@ const currentTabs: CurrentTab[] = ["expenses", "claim", "settlement"];
 export function App() {
   const [entries, setEntries] = useState<LedgerEntry[]>([]);
   const [panels, setPanels] = useState<MonthlyPanel[]>([]);
+  const [cashFlows, setCashFlows] = useState<CashFlow[]>([]);
   const [summary, setSummary] = useState<Summary | null>(null);
   const [labels, setLabels] = useState<Record<string, string>>({});
   const [status, setStatus] = useState("서버와 통신 준비 중");
@@ -45,7 +50,13 @@ export function App() {
   const [isBusy, setIsBusy] = useState(false);
   const [loginForm, setLoginForm] = useState({ username: "", password: "" });
   const [expenseForm, setExpenseForm] = useState({ date: today, title: "", amount: "" });
-  const [plannedForm, setPlannedForm] = useState({ title: "", amount: "" });
+  const [plannedForm, setPlannedForm] = useState({ dueDay: "", title: "", amount: "" });
+  const [cashFlowForm, setCashFlowForm] = useState({
+    occurredOn: today,
+    direction: "in",
+    title: "",
+    amount: "",
+  });
   const [panelForm, setPanelForm] = useState<{
     panel_type: PanelType;
     title: string;
@@ -79,6 +90,11 @@ export function App() {
       label: panelLabel(labels, "frozen"),
       total: sumPanelAmounts(panels.filter((panel) => panel.panel_type === "frozen")),
     },
+    {
+      id: "cash",
+      label: "현금흐름",
+      total: sumCashFlows(cashFlows),
+    },
   ];
   const currentSubTabs: { id: CurrentTab; label: string; total: number }[] = [
     { id: "expenses", label: "당월 지출", total: sumAmounts(expenseEntries) },
@@ -97,16 +113,18 @@ export function App() {
   async function refresh() {
     setIsBusy(true);
     try {
-      const [nextEntries, nextPanels, nextSummary, nextLabels] = await Promise.all([
+      const [nextEntries, nextPanels, nextSummary, nextLabels, nextCashFlows] = await Promise.all([
         fetchCurrentEntries(),
         fetchCurrentPanels(),
         fetchSummary(),
         fetchLabels(),
+        fetchCashFlows(),
       ]);
       setEntries(nextEntries);
       setPanels(nextPanels);
       setSummary(nextSummary);
       setLabels(nextLabels);
+      setCashFlows(nextCashFlows);
       setStatus("동기화 완료");
     } catch (error) {
       if (isAuthRequiredError(error)) {
@@ -170,6 +188,7 @@ export function App() {
       setAuthUser(null);
       setEntries([]);
       setPanels([]);
+      setCashFlows([]);
       setSummary(null);
       setLabels({});
       setStatus("로그아웃 완료");
@@ -198,6 +217,8 @@ export function App() {
         aux_amount_expr: null,
         extra_value: null,
         sort_order: nextSortOrder(entries),
+        due_day: null,
+        confirmed_at: null,
       });
       setExpenseForm({ date: expenseForm.date, title: "", amount: "" });
       setStatus("당월 기록 추가 완료");
@@ -211,9 +232,10 @@ export function App() {
       await appendPlannedEntry({
         title: plannedForm.title.trim(),
         amount_value: parseAmount(plannedForm.amount),
+        due_day: parseOptionalDay(plannedForm.dueDay),
       });
-      setPlannedForm({ title: "", amount: "" });
-      setStatus("나갈 돈 추가 완료");
+      setPlannedForm({ dueDay: "", title: "", amount: "" });
+      setStatus("카드 정기결제 추가 완료");
     });
   }
 
@@ -229,7 +251,7 @@ export function App() {
         amount_value: parseAmount(panelForm.amount),
         amount_expr: null,
         sort_order: nextSortOrder(sameTypePanels),
-        due_day: panelType === "fixed" ? parseOptionalDay(panelForm.dueDay) : null,
+        due_day: null,
         confirmed_at: null,
       });
       setPanelForm({ panel_type: panelType, title: "", amount: "", dueDay: "" });
@@ -237,18 +259,44 @@ export function App() {
     });
   }
 
-  async function handleFixedConfirm(panel: MonthlyPanel) {
-    const dueText = panel.due_day ? `${panel.due_day}일` : "오늘";
-    const confirmed = window.confirm(`${panel.title}을 ${dueText} 결제 건으로 당월 지출에 넣을까요?`);
+  async function handlePlannedConfirm(entry: LedgerEntry) {
+    const dueText = entry.due_day ? `${entry.due_day}일` : "오늘";
+    const confirmed = window.confirm(`${entry.title}을 ${dueText} 카드 결제 건으로 당월 지출에 넣을까요?`);
     if (!confirmed) return;
     await withRefresh(async () => {
-      await confirmFixedPanel(panel.id);
-      setStatus(`${panel.title} 확인 완료`);
+      await confirmPlannedEntry(entry.id);
+      setStatus(`${entry.title} 확인 완료`);
+    });
+  }
+
+  async function handleCashFlowSubmit(event: FormEvent) {
+    event.preventDefault();
+    if (!cashFlowForm.title.trim()) return;
+    const parsed = parseAmount(cashFlowForm.amount);
+    if (parsed === null) return;
+    await withRefresh(async () => {
+      await createCashFlow({
+        occurred_on: cashFlowForm.occurredOn,
+        title: cashFlowForm.title.trim(),
+        amount_value: cashFlowForm.direction === "out" ? -Math.abs(parsed) : Math.abs(parsed),
+        sort_order: nextSortOrder(cashFlows),
+      });
+      setCashFlowForm({ ...cashFlowForm, title: "", amount: "" });
+      setStatus("현금흐름 추가 완료");
+    });
+  }
+
+  async function handleCashFlowDelete(flow: CashFlow) {
+    const confirmed = window.confirm(`${flow.title} 현금흐름 기록을 삭제할까요?`);
+    if (!confirmed) return;
+    await withRefresh(async () => {
+      await deleteCashFlow(flow.id);
+      setStatus("현금흐름 삭제 완료");
     });
   }
 
   async function handleCloseMonth() {
-    const confirmed = window.confirm("나갈 돈을 제외한 당월 기록을 전체 기록으로 넘길까요?");
+    const confirmed = window.confirm("카드 정기결제를 제외한 당월 기록을 전체 기록으로 넘길까요?");
     if (!confirmed) return;
     await withRefresh(async () => {
       const result = await closeCurrentMonth();
@@ -431,7 +479,6 @@ export function App() {
             <PanelTable
               title={panelLabel(labels, "fixed")}
               rows={panels.filter((panel) => panel.panel_type === "fixed")}
-              onConfirmFixed={(panel) => void handleFixedConfirm(panel)}
             />
             <PanelAppendForm
               isBusy={isBusy}
@@ -443,11 +490,23 @@ export function App() {
             />
             <section className="panel">
               <div className="panel-header">
-                <h2>나갈 돈</h2>
+                <h2>카드 정기결제</h2>
                 <span>{formatWon(sumAmounts(plannedEntries))}</span>
               </div>
-              <EntryTable entries={plannedEntries} emptyText="예정 지출이 없습니다." />
-              <form className="inline-form" onSubmit={(event) => void handlePlannedSubmit(event)}>
+              <PlannedTable
+                entries={plannedEntries}
+                emptyText="카드 정기결제 항목이 없습니다."
+                onConfirm={(entry) => void handlePlannedConfirm(entry)}
+              />
+              <form className="planned-form" onSubmit={(event) => void handlePlannedSubmit(event)}>
+                <input
+                  type="number"
+                  min="1"
+                  max="31"
+                  value={plannedForm.dueDay}
+                  onChange={(event) => setPlannedForm({ ...plannedForm, dueDay: event.target.value })}
+                  placeholder="결제일"
+                />
                 <input
                   value={plannedForm.title}
                   onChange={(event) => setPlannedForm({ ...plannedForm, title: event.target.value })}
@@ -478,6 +537,17 @@ export function App() {
               panelForm={panelForm}
               setPanelForm={setPanelForm}
               handlePanelSubmit={handlePanelSubmit}
+            />
+          </section>
+
+          <section className={activePrimaryTab === "cash" ? "tab-panel active" : "tab-panel"}>
+            <CashFlowPanel
+              rows={cashFlows}
+              form={cashFlowForm}
+              setForm={setCashFlowForm}
+              onSubmit={handleCashFlowSubmit}
+              onDelete={(flow) => void handleCashFlowDelete(flow)}
+              isBusy={isBusy}
             />
           </section>
         </div>
@@ -534,14 +604,13 @@ function PanelAppendForm({
   setPanelForm: (value: { panel_type: PanelType; title: string; amount: string; dueDay: string }) => void;
   handlePanelSubmit: (event: FormEvent, panelType: PanelType) => Promise<void>;
 }) {
-  const isFixed = panelType === "fixed";
   return (
     <section className="panel append-panel">
       <div className="panel-header">
         <h2>{panelLabel(labels, panelType)} 추가</h2>
       </div>
       <form
-        className={isFixed ? "panel-form fixed-panel-form" : "panel-form"}
+        className="panel-form"
         onSubmit={(event) => void handlePanelSubmit(event, panelType)}
       >
         <input
@@ -556,23 +625,6 @@ function PanelAppendForm({
           }
           placeholder="적요"
         />
-        {isFixed ? (
-          <input
-            type="number"
-            min="1"
-            max="31"
-            value={panelForm.panel_type === panelType ? panelForm.dueDay : ""}
-            onChange={(event) =>
-              setPanelForm({
-                panel_type: panelType,
-                title: panelForm.title,
-                amount: panelForm.amount,
-                dueDay: event.target.value,
-              })
-            }
-            placeholder="결제일"
-          />
-        ) : null}
         <input
           value={panelForm.panel_type === panelType ? panelForm.amount : ""}
           onChange={(event) =>
@@ -583,6 +635,127 @@ function PanelAppendForm({
               dueDay: panelForm.dueDay,
             })
           }
+          inputMode="numeric"
+          placeholder="금액"
+        />
+        <button type="submit" disabled={isBusy}>
+          추가
+        </button>
+      </form>
+    </section>
+  );
+}
+
+function PlannedTable({
+  entries,
+  emptyText,
+  onConfirm,
+}: {
+  entries: LedgerEntry[];
+  emptyText: string;
+  onConfirm: (entry: LedgerEntry) => void;
+}) {
+  if (!entries.length) return <p className="empty">{emptyText}</p>;
+  return (
+    <table>
+      <thead>
+        <tr>
+          <th>결제일</th>
+          <th>적요</th>
+          <th className="amount">금액</th>
+          <th className="action-cell">확인</th>
+        </tr>
+      </thead>
+      <tbody>
+        {entries.map((entry) => (
+          <tr key={entry.id}>
+            <td className="date">{entry.due_day ? `매월 ${entry.due_day}일` : "날짜 없음"}</td>
+            <td>{entry.title}</td>
+            <td className="amount">{formatWon(entry.amount_value)}</td>
+            <td className="action-cell">
+              <button type="button" onClick={() => onConfirm(entry)}>
+                확인
+              </button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+function CashFlowPanel({
+  rows,
+  form,
+  setForm,
+  onSubmit,
+  onDelete,
+  isBusy,
+}: {
+  rows: CashFlow[];
+  form: { occurredOn: string; direction: string; title: string; amount: string };
+  setForm: (value: { occurredOn: string; direction: string; title: string; amount: string }) => void;
+  onSubmit: (event: FormEvent) => Promise<void>;
+  onDelete: (flow: CashFlow) => void;
+  isBusy: boolean;
+}) {
+  return (
+    <section className="panel">
+      <div className="panel-header">
+        <h2>현금흐름</h2>
+        <span>{formatWon(sumCashFlows(rows))}</span>
+      </div>
+      {rows.length ? (
+        <table>
+          <thead>
+            <tr>
+              <th>날짜</th>
+              <th>적요</th>
+              <th className="amount">금액</th>
+              <th className="action-cell">삭제</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr key={row.id}>
+                <td className="date">{formatDateLabel(row.occurred_on)}</td>
+                <td>{row.title}</td>
+                <td className={row.amount_value < 0 ? "amount negative" : "amount positive"}>
+                  {formatWon(row.amount_value)}
+                </td>
+                <td className="action-cell">
+                  <button type="button" onClick={() => onDelete(row)}>
+                    삭제
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p className="empty">현금 입출금 기록이 없습니다.</p>
+      )}
+      <form className="cash-flow-form" onSubmit={(event) => void onSubmit(event)}>
+        <input
+          type="date"
+          value={form.occurredOn}
+          onChange={(event) => setForm({ ...form, occurredOn: event.target.value })}
+        />
+        <select
+          value={form.direction}
+          onChange={(event) => setForm({ ...form, direction: event.target.value })}
+        >
+          <option value="in">입금</option>
+          <option value="out">출금</option>
+        </select>
+        <input
+          value={form.title}
+          onChange={(event) => setForm({ ...form, title: event.target.value })}
+          placeholder="적요"
+        />
+        <input
+          value={form.amount}
+          onChange={(event) => setForm({ ...form, amount: event.target.value })}
           inputMode="numeric"
           placeholder="금액"
         />
@@ -621,11 +794,9 @@ function EntryTable({ entries, emptyText }: { entries: LedgerEntry[]; emptyText:
 function PanelTable({
   title,
   rows,
-  onConfirmFixed,
 }: {
   title: string;
   rows: MonthlyPanel[];
-  onConfirmFixed?: (panel: MonthlyPanel) => void;
 }) {
   return (
     <section className="panel compact">
@@ -640,18 +811,8 @@ function PanelTable({
               <tr key={row.id}>
                 <td>
                   {row.title}
-                  {row.panel_type === "fixed" && row.due_day ? (
-                    <span className="muted-inline">매월 {row.due_day}일</span>
-                  ) : null}
                 </td>
                 <td className="amount">{formatWon(row.amount_value)}</td>
-                {onConfirmFixed ? (
-                  <td className="action-cell">
-                    <button type="button" onClick={() => onConfirmFixed(row)}>
-                      확인
-                    </button>
-                  </td>
-                ) : null}
               </tr>
             ))}
           </tbody>
@@ -707,6 +868,10 @@ function sumAmounts(entries: LedgerEntry[]): number {
 
 function sumPanelAmounts(rows: MonthlyPanel[]): number {
   return rows.reduce((total, row) => total + (row.amount_value ?? 0), 0);
+}
+
+function sumCashFlows(rows: CashFlow[]): number {
+  return rows.reduce((total, row) => total + row.amount_value, 0);
 }
 
 function formatWon(value: number | null): string {

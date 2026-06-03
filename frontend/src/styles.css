@@ -174,12 +174,27 @@ th {
 
 .tabs {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
 
+.primary-tabs {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: 6px;
+  border: 1px solid #d8ddcf;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
 .sub-tabs {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-self: start;
   margin-bottom: 12px;
+  padding: 4px;
+  border: 1px solid #d8ddcf;
+  border-radius: 999px;
+  background: #eef1e8;
 }
 
 .tabs button {
@@ -201,6 +216,34 @@ th {
   border-color: #93ad83;
   background: #eef5e9;
   box-shadow: inset 0 0 0 1px #c9d9bf;
+}
+
+.primary-tabs button {
+  min-height: 54px;
+  border-color: transparent;
+  background: transparent;
+}
+
+.primary-tabs button.active {
+  border-color: #8ea879;
+  background: #eef5e9;
+}
+
+.sub-tabs button {
+  min-height: 34px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  padding: 7px 12px;
+}
+
+.sub-tabs button strong {
+  font-size: 12px;
+}
+
+.sub-tabs button.active {
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(38, 48, 32, 0.12);
 }
 
 .tab-panel {
@@ -259,7 +302,9 @@ th {
 
 .inline-form,
 .entry-form,
-.panel-form {
+.panel-form,
+.planned-form,
+.cash-flow-form {
   display: grid;
   gap: 8px;
   padding: 12px;
@@ -279,8 +324,12 @@ th {
   grid-template-columns: minmax(0, 1fr) 140px 70px;
 }
 
-.fixed-panel-form {
-  grid-template-columns: minmax(0, 1fr) 100px 140px 70px;
+.planned-form {
+  grid-template-columns: 100px minmax(0, 1fr) 140px 70px;
+}
+
+.cash-flow-form {
+  grid-template-columns: 140px 100px minmax(0, 1fr) 140px 70px;
 }
 
 .muted-inline {
@@ -298,6 +347,14 @@ th {
 
 .action-cell button {
   padding: 6px 10px;
+}
+
+.positive {
+  color: #275d22;
+}
+
+.negative {
+  color: #8d2424;
 }
 
 .summary-panel dl {
@@ -371,9 +428,15 @@ th {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .primary-tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .inline-form,
   .entry-form,
-  .panel-form {
+  .panel-form,
+  .planned-form,
+  .cash-flow-form {
     grid-template-columns: 1fr;
   }
 
@@ -390,6 +453,12 @@ th {
 
   .tabs {
     grid-template-columns: 1fr;
+  }
+
+  .sub-tabs {
+    display: grid;
+    border-radius: 8px;
+    justify-self: stretch;
   }
 
   .summary-panel dl div,

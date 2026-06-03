@@ -1,9 +1,8 @@
-import calendar
 from datetime import date
 from typing import Any
 
 from app.db import session
-from app.schemas import LedgerEntryIn, LedgerEntryPatch, MonthlyPanelIn, MonthlyPanelPatch, PlannedEntryIn
+from app.schemas import CashFlowIn, LedgerEntryIn, LedgerEntryPatch, MonthlyPanelIn, MonthlyPanelPatch, PlannedEntryIn
 
 
 ENTRY_COLUMNS = [
@@ -19,6 +18,8 @@ ENTRY_COLUMNS = [
     "aux_amount_expr",
     "extra_value",
     "sort_order",
+    "due_day",
+    "confirmed_at",
 ]
 
 PANEL_COLUMNS = [
@@ -38,9 +39,10 @@ def row_to_dict(row: Any) -> dict[str, Any]:
 
 
 def list_entries(section: str) -> list[dict[str, Any]]:
+    filter_confirmed_planned = " AND NOT (entry_kind = 'planned' AND confirmed_at IS NOT NULL)" if section == "current" else ""
     with session() as conn:
         rows = conn.execute(
-            "SELECT * FROM ledger_entries WHERE book_section = ? ORDER BY sort_order, id",
+            f"SELECT * FROM ledger_entries WHERE book_section = ?{filter_confirmed_planned} ORDER BY sort_order, id",
             (section,),
         ).fetchall()
     return [row_to_dict(row) for row in rows]
@@ -108,17 +110,45 @@ def create_panel(panel: MonthlyPanelIn) -> dict[str, Any]:
     return row_to_dict(row)
 
 
-def confirm_fixed_panel(panel_id: int) -> dict[str, Any] | None:
+def list_cash_flows() -> list[dict[str, Any]]:
     with session() as conn:
-        panel = conn.execute("SELECT * FROM monthly_panels WHERE id = ?", (panel_id,)).fetchone()
-        if panel is None:
-            return None
-        if panel["panel_type"] != "fixed":
-            raise ValueError("only fixed panels can be confirmed")
-        if panel["confirmed_at"] is not None:
-            raise ValueError("fixed panel already confirmed")
+        rows = conn.execute(
+            "SELECT * FROM cash_flows ORDER BY occurred_on DESC, sort_order DESC, id DESC"
+        ).fetchall()
+    return [row_to_dict(row) for row in rows]
 
-        payment_date = fixed_panel_payment_date(panel["month"], panel["due_day"])
+
+def create_cash_flow(flow: CashFlowIn) -> dict[str, Any]:
+    values = flow.model_dump()
+    with session() as conn:
+        cursor = conn.execute(
+            """
+            INSERT INTO cash_flows(occurred_on, title, amount_value, sort_order)
+            VALUES (?, ?, ?, ?)
+            """,
+            (values["occurred_on"], values["title"], values["amount_value"], values["sort_order"]),
+        )
+        row = conn.execute("SELECT * FROM cash_flows WHERE id = ?", (cursor.lastrowid,)).fetchone()
+    return row_to_dict(row)
+
+
+def delete_cash_flow(flow_id: int) -> bool:
+    with session() as conn:
+        cursor = conn.execute("DELETE FROM cash_flows WHERE id = ?", (flow_id,))
+    return cursor.rowcount > 0
+
+
+def confirm_planned_entry(entry_id: int) -> dict[str, Any] | None:
+    with session() as conn:
+        planned = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (entry_id,)).fetchone()
+        if planned is None:
+            return None
+        if planned["entry_kind"] != "planned":
+            raise ValueError("only card recurring entries can be confirmed")
+        if planned["confirmed_at"] is not None:
+            raise ValueError("card recurring entry already confirmed")
+
+        payment_date = planned_entry_payment_date(planned["due_day"])
         date_label = f"{payment_date:%Y.%m.%d}."
         max_order = conn.execute(
             """
@@ -139,34 +169,25 @@ def confirm_fixed_panel(panel_id: int) -> dict[str, Any] | None:
             (
                 payment_date.isoformat(),
                 date_label,
-                panel["title"],
-                panel["amount_value"],
-                panel["amount_expr"],
+                planned["title"],
+                planned["amount_value"],
+                planned["amount_expr"],
                 sort_order,
             ),
         )
         conn.execute(
-            "UPDATE monthly_panels SET confirmed_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
-            (panel_id,),
+            "UPDATE ledger_entries SET confirmed_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+            (entry_id,),
         )
         entry = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (cursor.lastrowid,)).fetchone()
-        updated_panel = conn.execute("SELECT * FROM monthly_panels WHERE id = ?", (panel_id,)).fetchone()
-    return {"panel": row_to_dict(updated_panel), "entry": row_to_dict(entry)}
+        updated_planned = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (entry_id,)).fetchone()
+    return {"planned": row_to_dict(updated_planned), "entry": row_to_dict(entry)}
 
 
-def fixed_panel_payment_date(month: str, due_day: int | None) -> date:
-    try:
-        year_text, month_text = month.split("-", 1)
-        year = int(year_text)
-        month_number = int(month_text)
-    except ValueError:
-        today = date.today()
-        year = today.year
-        month_number = today.month
-
-    last_day = calendar.monthrange(year, month_number)[1]
-    day = due_day if due_day and due_day > 0 else date.today().day
-    return date(year, month_number, min(day, last_day))
+def planned_entry_payment_date(due_day: int | None) -> date:
+    today = date.today()
+    day = due_day if due_day and due_day > 0 else today.day
+    return date(today.year, today.month, min(day, 28 if today.month == 2 else 30 if today.month in {4, 6, 9, 11} else 31))
 
 
 def update_panel(panel_id: int, patch: MonthlyPanelPatch) -> dict[str, Any] | None:
@@ -242,11 +263,11 @@ def append_planned_entry(entry: PlannedEntryIn) -> dict[str, Any]:
             """
             INSERT INTO ledger_entries(
                 book_section, entry_kind, entry_date, date_label, group_label, title,
-                amount_value, amount_expr, sort_order
+                amount_value, amount_expr, sort_order, due_day, confirmed_at
             )
-            VALUES ('current', 'planned', NULL, '나갈 돈', '나갈 돈', ?, ?, ?, ?)
+            VALUES ('current', 'planned', NULL, '카드 정기결제', '카드 정기결제', ?, ?, ?, ?, NULL)
             """,
-            (entry.title, entry.amount_value, entry.amount_expr, sort_order),
+            (entry.title, entry.amount_value, entry.amount_expr, sort_order, entry.due_day),
         )
         row = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (cursor.lastrowid,)).fetchone()
     return row_to_dict(row)

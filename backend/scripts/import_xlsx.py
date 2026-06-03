@@ -21,6 +21,8 @@ ENTRY_COLUMNS = [
     "aux_amount_expr",
     "extra_value",
     "sort_order",
+    "due_day",
+    "confirmed_at",
 ]
 
 ARCHIVE_ROW_COLUMNS = [

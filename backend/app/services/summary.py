@@ -11,7 +11,7 @@ def current_summary_values() -> dict[str, float]:
     frozen_asset_total = panel_total("frozen")
     base_next_month_liquidity = setting_float("base_next_month_liquidity")
     interest_expense = setting_float("interest_expense")
-    liquidity_status = setting_float("liquidity_status")
+    liquidity_status = setting_float("liquidity_status") + cash_flow_total()
     return {
         "base_next_month_liquidity": base_next_month_liquidity,
         "card_total": card_total,
@@ -43,3 +43,9 @@ def setting_float(key: str) -> float:
     if row is None:
         return 0.0
     return float(row["value"])
+
+
+def cash_flow_total() -> float:
+    with session() as conn:
+        row = conn.execute("SELECT COALESCE(SUM(amount_value), 0) AS total FROM cash_flows").fetchone()
+    return float(row["total"])

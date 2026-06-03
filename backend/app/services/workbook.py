@@ -98,10 +98,11 @@ def _parse_current_entries(ws: Any, cached_ws: Any) -> list[dict[str, Any]]:
             last_date = normalize_date_label(group)
         entry_date, date_label = last_date
         amount_value, amount_expr = parse_amount(amount, cached_ws.cell(row_idx, 4).value)
+        planned = date_label in {"나갈 돈", "카드 정기결제"}
         entries.append(
             {
                 "book_section": "current",
-                "entry_kind": "planned" if date_label == "나갈 돈" else "expense",
+                "entry_kind": "planned" if planned else "expense",
                 "entry_date": entry_date,
                 "date_label": date_label,
                 "group_label": None if entry_date else date_label,
@@ -109,9 +110,21 @@ def _parse_current_entries(ws: Any, cached_ws: Any) -> list[dict[str, Any]]:
                 "amount_value": amount_value,
                 "amount_expr": amount_expr,
                 "sort_order": row_idx,
+                "due_day": _extract_due_day(str(title)) if planned and title is not None else None,
+                "confirmed_at": None,
             }
         )
     return entries
+
+
+def _extract_due_day(text: str) -> int | None:
+    import re
+
+    match = re.search(r"매월\s*(\d{1,2})\s*일", text)
+    if not match:
+        return None
+    day = int(match.group(1))
+    return day if 1 <= day <= 31 else None
 
 
 def _parse_current_panels(ws: Any, cached_ws: Any) -> list[dict[str, Any]]:
@@ -173,7 +186,7 @@ def _parse_labels(current: Any, archive: Any) -> dict[str, str]:
         "archive_header_date": _label(archive["B2"].value, "날짜"),
         "archive_header_title": _label(archive["C2"].value, "적요"),
         "archive_header_amount": _label(archive["D2"].value, "금액"),
-        "panel_fixed_title": _label(current["F2"].value, "고정지출"),
+        "panel_fixed_title": _label(current["F2"].value, "현금성 고정지출"),
         "panel_frozen_title": _label(current["F9"].value, "동결"),
         "panel_claim_title": _label(current["F16"].value, "청구"),
         "panel_settlement_title": _label(current["F45"].value, "타인정산"),
@@ -335,7 +348,7 @@ def _write_current_sheet(
     _write_header(ws, "B2", _get_label(labels, "current_header_date", "날짜"))
     _write_header(ws, "C2", _get_label(labels, "current_header_title", "적요"))
     _write_header(ws, "D2", _get_label(labels, "current_header_amount", "금액"))
-    _write_header(ws, "F2", _get_label(labels, "panel_fixed_title", "고정지출"))
+    _write_header(ws, "F2", _get_label(labels, "panel_fixed_title", "현금성 고정지출"))
     _write_header(ws, "I2", _get_label(labels, "summary_title", "요약"))
 
     current_first, current_last = _write_current_entries_table(ws, entries)
@@ -419,7 +432,7 @@ def _write_fixed_panel(ws: Any, panels: list[dict[str, Any]], labels: dict[str, 
         title_row=2,
         rows=[panel for panel in panels if panel.get("panel_type") == "fixed"],
         labels=labels,
-        title_label=_get_label(labels, "panel_fixed_title", "고정지출"),
+        title_label=_get_label(labels, "panel_fixed_title", "현금성 고정지출"),
         style_source_rows=(2, 3, 4),
     )
 
