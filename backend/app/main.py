@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 
 from app.config import get_settings
@@ -40,6 +41,14 @@ from app.services.summary import current_summary_values
 from app.services.workbook import export_workbook
 
 app = FastAPI(title="money-note")
+settings = get_settings()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins,
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.on_event("startup")
