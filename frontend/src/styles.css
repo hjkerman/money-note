@@ -163,12 +163,49 @@ th {
   grid-template-columns: minmax(0, 1.6fr) minmax(360px, 0.9fr);
   gap: 16px;
   align-items: start;
+  margin-top: 16px;
 }
 
-.left-column,
+.main-column,
 .right-column {
   display: grid;
   gap: 16px;
+}
+
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.tabs button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 48px;
+  text-align: left;
+}
+
+.tabs button strong {
+  color: #3f5137;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.tabs button.active {
+  border-color: #93ad83;
+  background: #eef5e9;
+  box-shadow: inset 0 0 0 1px #c9d9bf;
+}
+
+.tab-panel {
+  display: none;
+}
+
+.tab-panel.active {
+  display: grid;
+  gap: 12px;
 }
 
 .panel {
@@ -235,10 +272,12 @@ th {
 }
 
 .panel-form {
-  grid-template-columns: 120px minmax(0, 1fr) 120px 70px;
+  grid-template-columns: minmax(0, 1fr) 140px 70px;
 }
 
 .summary-panel dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   margin: 0;
 }
 
@@ -248,10 +287,19 @@ th {
   gap: 12px;
   padding: 10px 14px;
   border-bottom: 1px solid #e5e8df;
+  border-right: 1px solid #e5e8df;
+}
+
+.summary-panel dl div:nth-child(3n) {
+  border-right: 0;
+}
+
+.summary-panel dl div:nth-last-child(-n + 3) {
+  border-bottom: 0;
 }
 
 .summary-panel dl div:last-child {
-  border-bottom: 0;
+  border-right: 0;
 }
 
 .summary-panel dt {
@@ -294,6 +342,10 @@ th {
     grid-template-columns: 1fr;
   }
 
+  .tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .inline-form,
   .entry-form,
   .panel-form {
@@ -303,5 +355,26 @@ th {
   .amount,
   .date {
     width: auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .summary-panel dl {
+    grid-template-columns: 1fr;
+  }
+
+  .tabs {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-panel dl div,
+  .summary-panel dl div:nth-child(3n),
+  .summary-panel dl div:nth-last-child(-n + 3) {
+    border-right: 0;
+    border-bottom: 1px solid #e5e8df;
+  }
+
+  .summary-panel dl div:last-child {
+    border-bottom: 0;
   }
 }

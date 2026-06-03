@@ -20,6 +20,8 @@ import {
 } from "./api";
 
 type PanelType = MonthlyPanel["panel_type"];
+type AppTab = "expenses" | PanelType;
+type EditablePanelTab = Extract<AppTab, PanelType>;
 
 const panelMeta: Record<PanelType, { labelKey: string; fallback: string }> = {
   fixed: { labelKey: "panel_fixed_title", fallback: "고정지출" },
@@ -29,6 +31,7 @@ const panelMeta: Record<PanelType, { labelKey: string; fallback: string }> = {
 };
 
 const today = new Date().toISOString().slice(0, 10);
+const editablePanelTabs: EditablePanelTab[] = ["fixed", "frozen", "claim", "settlement"];
 
 export function App() {
   const [entries, setEntries] = useState<LedgerEntry[]>([]);
@@ -47,10 +50,34 @@ export function App() {
     title: string;
     amount: string;
   }>({ panel_type: "fixed", title: "", amount: "" });
+  const [activeTab, setActiveTab] = useState<AppTab>("expenses");
 
   const plannedEntries = entries.filter((entry) => entry.entry_kind === "planned");
   const expenseEntries = entries.filter((entry) => entry.entry_kind !== "planned");
   const currentMonth = useMemo(() => detectCurrentMonth(entries), [entries]);
+  const tabs: { id: AppTab; label: string; total: number }[] = [
+    { id: "expenses", label: "당월 지출", total: sumAmounts(expenseEntries) },
+    {
+      id: "fixed",
+      label: panelLabel(labels, "fixed"),
+      total: sumPanelAmounts(panels.filter((panel) => panel.panel_type === "fixed")),
+    },
+    {
+      id: "frozen",
+      label: panelLabel(labels, "frozen"),
+      total: sumPanelAmounts(panels.filter((panel) => panel.panel_type === "frozen")),
+    },
+    {
+      id: "claim",
+      label: panelLabel(labels, "claim"),
+      total: sumPanelAmounts(panels.filter((panel) => panel.panel_type === "claim")),
+    },
+    {
+      id: "settlement",
+      label: panelLabel(labels, "settlement"),
+      total: sumPanelAmounts(panels.filter((panel) => panel.panel_type === "settlement")),
+    },
+  ];
 
   async function refresh() {
     setIsBusy(true);
@@ -67,6 +94,11 @@ export function App() {
       setLabels(nextLabels);
       setStatus("동기화 완료");
     } catch (error) {
+      if (isAuthRequiredError(error)) {
+        setAuthUser(null);
+        setStatus("로그인이 필요합니다.");
+        return;
+      }
       setStatus(`서버 통신 실패: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setIsBusy(false);
@@ -83,8 +115,12 @@ export function App() {
       const user = await fetchMe();
       setAuthUser(user);
       await refresh();
-    } catch {
-      setStatus("로그인이 필요합니다.");
+    } catch (error) {
+      if (!isAuthRequiredError(error)) {
+        setStatus(`서버 통신 실패: ${error instanceof Error ? error.message : String(error)}`);
+      } else {
+        setStatus("로그인이 필요합니다.");
+      }
     } finally {
       setAuthChecked(true);
       setIsBusy(false);
@@ -166,21 +202,21 @@ export function App() {
     });
   }
 
-  async function handlePanelSubmit(event: FormEvent) {
+  async function handlePanelSubmit(event: FormEvent, panelType = panelForm.panel_type) {
     event.preventDefault();
     if (!panelForm.title.trim()) return;
     await withRefresh(async () => {
-      const sameTypePanels = panels.filter((panel) => panel.panel_type === panelForm.panel_type);
+      const sameTypePanels = panels.filter((panel) => panel.panel_type === panelType);
       await createPanel({
         month: currentMonth,
-        panel_type: panelForm.panel_type,
+        panel_type: panelType,
         title: panelForm.title.trim(),
         amount_value: parseAmount(panelForm.amount),
         amount_expr: null,
         sort_order: nextSortOrder(sameTypePanels),
       });
-      setPanelForm({ ...panelForm, title: "", amount: "" });
-      setStatus(`${panelLabel(labels, panelForm.panel_type)} 항목 추가 완료`);
+      setPanelForm({ panel_type: panelType, title: "", amount: "" });
+      setStatus(`${panelLabel(labels, panelType)} 항목 추가 완료`);
     });
   }
 
@@ -279,8 +315,74 @@ export function App() {
 
       <section className="statusline">{status}</section>
 
+      <SummaryPanel summary={summary} labels={labels} />
+
       <section className="layout">
-        <div className="left-column">
+        <div className="main-column">
+          <nav className="tabs" aria-label="가계부 테이블">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                className={activeTab === tab.id ? "active" : ""}
+                onClick={() => setActiveTab(tab.id)}
+              >
+                <span>{tab.label}</span>
+                <strong>{formatWon(tab.total)}</strong>
+              </button>
+            ))}
+          </nav>
+
+          <section className={activeTab === "expenses" ? "tab-panel active" : "tab-panel"}>
+            <section className="panel">
+              <div className="panel-header">
+                <h2>당월 지출</h2>
+                <span>{formatWon(sumAmounts(expenseEntries))}</span>
+              </div>
+              <EntryTable entries={expenseEntries} emptyText="당월 지출이 없습니다." />
+              <form className="entry-form" onSubmit={(event) => void handleExpenseSubmit(event)}>
+                <input
+                  type="date"
+                  value={expenseForm.date}
+                  onChange={(event) => setExpenseForm({ ...expenseForm, date: event.target.value })}
+                />
+                <input
+                  value={expenseForm.title}
+                  onChange={(event) => setExpenseForm({ ...expenseForm, title: event.target.value })}
+                  placeholder="적요"
+                />
+                <input
+                  value={expenseForm.amount}
+                  onChange={(event) => setExpenseForm({ ...expenseForm, amount: event.target.value })}
+                  inputMode="numeric"
+                  placeholder="금액"
+                />
+                <button type="submit" disabled={isBusy}>
+                  추가
+                </button>
+              </form>
+            </section>
+          </section>
+
+          {editablePanelTabs.map((tab) => (
+            <section key={tab} className={activeTab === tab ? "tab-panel active" : "tab-panel"}>
+              <PanelTable
+                title={panelLabel(labels, tab)}
+                rows={panels.filter((panel) => panel.panel_type === tab)}
+              />
+              <PanelAppendForm
+                isBusy={isBusy}
+                panelType={tab}
+                labels={labels}
+                panelForm={panelForm}
+                setPanelForm={setPanelForm}
+                handlePanelSubmit={handlePanelSubmit}
+              />
+            </section>
+          ))}
+        </div>
+
+        <aside className="right-column">
           <section className="panel">
             <div className="panel-header">
               <h2>나갈 돈</h2>
@@ -304,79 +406,6 @@ export function App() {
               </button>
             </form>
           </section>
-
-          <section className="panel">
-            <div className="panel-header">
-              <h2>당월 기록</h2>
-              <span>{formatWon(sumAmounts(expenseEntries))}</span>
-            </div>
-            <EntryTable entries={expenseEntries} emptyText="당월 지출이 없습니다." />
-            <form className="entry-form" onSubmit={(event) => void handleExpenseSubmit(event)}>
-              <input
-                type="date"
-                value={expenseForm.date}
-                onChange={(event) => setExpenseForm({ ...expenseForm, date: event.target.value })}
-              />
-              <input
-                value={expenseForm.title}
-                onChange={(event) => setExpenseForm({ ...expenseForm, title: event.target.value })}
-                placeholder="적요"
-              />
-              <input
-                value={expenseForm.amount}
-                onChange={(event) => setExpenseForm({ ...expenseForm, amount: event.target.value })}
-                inputMode="numeric"
-                placeholder="금액"
-              />
-              <button type="submit" disabled={isBusy}>
-                추가
-              </button>
-            </form>
-          </section>
-        </div>
-
-        <aside className="right-column">
-          <SummaryPanel summary={summary} labels={labels} />
-          <section className="panel">
-            <div className="panel-header">
-              <h2>패널 추가</h2>
-            </div>
-            <form className="panel-form" onSubmit={(event) => void handlePanelSubmit(event)}>
-              <select
-                value={panelForm.panel_type}
-                onChange={(event) =>
-                  setPanelForm({ ...panelForm, panel_type: event.target.value as PanelType })
-                }
-              >
-                {Object.keys(panelMeta).map((type) => (
-                  <option value={type} key={type}>
-                    {panelLabel(labels, type as PanelType)}
-                  </option>
-                ))}
-              </select>
-              <input
-                value={panelForm.title}
-                onChange={(event) => setPanelForm({ ...panelForm, title: event.target.value })}
-                placeholder="적요"
-              />
-              <input
-                value={panelForm.amount}
-                onChange={(event) => setPanelForm({ ...panelForm, amount: event.target.value })}
-                inputMode="numeric"
-                placeholder="금액"
-              />
-              <button type="submit" disabled={isBusy}>
-                추가
-              </button>
-            </form>
-          </section>
-          {(["fixed", "frozen", "claim", "settlement"] as PanelType[]).map((type) => (
-            <PanelTable
-              key={type}
-              title={panelLabel(labels, type)}
-              rows={panels.filter((panel) => panel.panel_type === type)}
-            />
-          ))}
         </aside>
       </section>
     </main>
@@ -398,7 +427,7 @@ function SummaryPanel({ summary, labels }: { summary: Summary | null; labels: Re
   return (
     <section className="panel summary-panel">
       <div className="panel-header">
-        <h2>{labels.summary_title ?? "요약"}</h2>
+        <h2>{labels.summary_title ?? "요약"} / 인사이트</h2>
       </div>
       {summary ? (
         <dl>
@@ -412,6 +441,53 @@ function SummaryPanel({ summary, labels }: { summary: Summary | null; labels: Re
       ) : (
         <p className="empty">요약을 불러오는 중입니다.</p>
       )}
+    </section>
+  );
+}
+
+function PanelAppendForm({
+  isBusy,
+  panelType,
+  labels,
+  panelForm,
+  setPanelForm,
+  handlePanelSubmit,
+}: {
+  isBusy: boolean;
+  panelType: PanelType;
+  labels: Record<string, string>;
+  panelForm: { panel_type: PanelType; title: string; amount: string };
+  setPanelForm: (value: { panel_type: PanelType; title: string; amount: string }) => void;
+  handlePanelSubmit: (event: FormEvent, panelType: PanelType) => Promise<void>;
+}) {
+  return (
+    <section className="panel append-panel">
+      <div className="panel-header">
+        <h2>{panelLabel(labels, panelType)} 추가</h2>
+      </div>
+      <form
+        className="panel-form"
+        onSubmit={(event) => void handlePanelSubmit(event, panelType)}
+      >
+        <input
+          value={panelForm.panel_type === panelType ? panelForm.title : ""}
+          onChange={(event) =>
+            setPanelForm({ panel_type: panelType, title: event.target.value, amount: panelForm.amount })
+          }
+          placeholder="적요"
+        />
+        <input
+          value={panelForm.panel_type === panelType ? panelForm.amount : ""}
+          onChange={(event) =>
+            setPanelForm({ panel_type: panelType, title: panelForm.title, amount: event.target.value })
+          }
+          inputMode="numeric"
+          placeholder="금액"
+        />
+        <button type="submit" disabled={isBusy}>
+          추가
+        </button>
+      </form>
     </section>
   );
 }
@@ -468,6 +544,10 @@ function PanelTable({ title, rows }: { title: string; rows: MonthlyPanel[] }) {
 function panelLabel(labels: Record<string, string>, type: PanelType): string {
   const meta = panelMeta[type];
   return labels[meta.labelKey] ?? meta.fallback;
+}
+
+function isAuthRequiredError(error: unknown): boolean {
+  return error instanceof Error && error.message.includes("authentication required");
 }
 
 function parseAmount(value: string): number | null {
