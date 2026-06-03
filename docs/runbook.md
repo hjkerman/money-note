@@ -137,6 +137,26 @@ docker compose exec -T api env PYTHONPATH=/app \
 
 운영 전에는 충분히 긴 비밀번호로 관리자 계정을 다시 만든다.
 
+## 비밀번호를 잊었을 때
+
+이 서비스는 1인 사용을 전제로 하므로, 웹에서 별도 재가입 절차를 제공하지 않는다. 비밀번호를 잊으면 서버 로컬 shell에서 기존 계정의 비밀번호를 재설정한다.
+
+```bash
+docker compose exec -T api env PYTHONPATH=/app \
+  python scripts/create_user.py your-username new-password \
+  --display-name "사용자" \
+  --replace
+```
+
+`--replace`는 같은 `username`이 이미 있을 때 비밀번호 해시와 표시 이름을 새 값으로 갱신한다. DB에는 새 비밀번호 평문이 저장되지 않고, 새 PBKDF2-SHA256 해시만 저장된다.
+
+기존 로그인 세션을 모두 끊고 싶으면 DB에서 해당 사용자의 세션을 삭제한다.
+
+```bash
+docker compose exec -T api sqlite3 /app/data/money-note.sqlite3 \
+  "DELETE FROM auth_sessions WHERE user_id = (SELECT id FROM users WHERE username = 'your-username');"
+```
+
 ## 웹 프론트엔드 개발 서버
 
 프론트엔드 의존성을 설치한다.
