@@ -14,6 +14,7 @@ import {
   createPanel,
   deleteCashFlow,
   fetchCashFlows,
+  fetchArchiveEntries,
   fetchCurrentEntries,
   fetchCurrentPanels,
   fetchLabels,
@@ -25,7 +26,7 @@ import {
 } from "./api";
 
 type PanelType = MonthlyPanel["panel_type"];
-type PrimaryTab = "current" | "fixed" | "frozen" | "cash";
+type PrimaryTab = "current" | "fixed" | "frozen" | "cash" | "history";
 type CurrentTab = "expenses" | "claim" | "settlement";
 
 const panelMeta: Record<PanelType, { labelKey: string; fallback: string }> = {
@@ -40,6 +41,7 @@ const currentTabs: CurrentTab[] = ["expenses", "claim", "settlement"];
 
 export function App() {
   const [entries, setEntries] = useState<LedgerEntry[]>([]);
+  const [archiveEntries, setArchiveEntries] = useState<LedgerEntry[]>([]);
   const [panels, setPanels] = useState<MonthlyPanel[]>([]);
   const [cashFlows, setCashFlows] = useState<CashFlow[]>([]);
   const [summary, setSummary] = useState<Summary | null>(null);
@@ -65,10 +67,23 @@ export function App() {
   }>({ panel_type: "fixed", title: "", amount: "", dueDay: "" });
   const [activePrimaryTab, setActivePrimaryTab] = useState<PrimaryTab>("current");
   const [activeCurrentTab, setActiveCurrentTab] = useState<CurrentTab>("expenses");
+  const [selectedHistoryMonth, setSelectedHistoryMonth] = useState(today.slice(0, 7));
 
   const plannedEntries = entries.filter((entry) => entry.entry_kind === "planned");
   const expenseEntries = entries.filter((entry) => entry.entry_kind !== "planned");
   const currentMonth = useMemo(() => detectCurrentMonth(entries), [entries]);
+  const structuredHistoryEntries = useMemo(
+    () => [...entries, ...archiveEntries].filter((entry) => entry.entry_kind !== "planned" && entry.entry_date),
+    [archiveEntries, entries],
+  );
+  const historyMonths = useMemo(() => collectEntryMonths(structuredHistoryEntries, currentMonth), [structuredHistoryEntries, currentMonth]);
+  const historyEntries = useMemo(
+    () =>
+      structuredHistoryEntries
+        .filter((entry) => entry.entry_date?.startsWith(selectedHistoryMonth))
+        .sort(compareEntriesByDate),
+    [selectedHistoryMonth, structuredHistoryEntries],
+  );
   const primaryTabs: { id: PrimaryTab; label: string; total: number }[] = [
     {
       id: "current",
@@ -95,6 +110,11 @@ export function App() {
       label: "현금흐름",
       total: sumCashFlows(cashFlows),
     },
+    {
+      id: "history",
+      label: "월별 기록",
+      total: sumAmounts(historyEntries),
+    },
   ];
   const currentSubTabs: { id: CurrentTab; label: string; total: number }[] = [
     { id: "expenses", label: "당월 지출", total: sumAmounts(expenseEntries) },
@@ -113,14 +133,16 @@ export function App() {
   async function refresh() {
     setIsBusy(true);
     try {
-      const [nextEntries, nextPanels, nextSummary, nextLabels, nextCashFlows] = await Promise.all([
+      const [nextEntries, nextArchiveEntries, nextPanels, nextSummary, nextLabels, nextCashFlows] = await Promise.all([
         fetchCurrentEntries(),
+        fetchArchiveEntries(),
         fetchCurrentPanels(),
         fetchSummary(),
         fetchLabels(),
         fetchCashFlows(),
       ]);
       setEntries(nextEntries);
+      setArchiveEntries(nextArchiveEntries);
       setPanels(nextPanels);
       setSummary(nextSummary);
       setLabels(nextLabels);
@@ -187,6 +209,7 @@ export function App() {
       await logout();
       setAuthUser(null);
       setEntries([]);
+      setArchiveEntries([]);
       setPanels([]);
       setCashFlows([]);
       setSummary(null);
@@ -550,6 +573,15 @@ export function App() {
               isBusy={isBusy}
             />
           </section>
+
+          <section className={activePrimaryTab === "history" ? "tab-panel active" : "tab-panel"}>
+            <HistoryPanel
+              months={historyMonths}
+              selectedMonth={selectedHistoryMonth}
+              setSelectedMonth={setSelectedHistoryMonth}
+              entries={historyEntries}
+            />
+          </section>
         </div>
       </section>
     </main>
@@ -767,6 +799,40 @@ function CashFlowPanel({
   );
 }
 
+function HistoryPanel({
+  months,
+  selectedMonth,
+  setSelectedMonth,
+  entries,
+}: {
+  months: string[];
+  selectedMonth: string;
+  setSelectedMonth: (month: string) => void;
+  entries: LedgerEntry[];
+}) {
+  return (
+    <section className="panel history-panel">
+      <div className="panel-header history-header">
+        <div>
+          <h2>월별 기록</h2>
+          <p>{entries.length ? `${entries.length}개 항목` : "구조화된 기록이 없습니다."}</p>
+        </div>
+        <div className="history-controls">
+          <select value={selectedMonth} onChange={(event) => setSelectedMonth(event.target.value)}>
+            {months.map((month) => (
+              <option key={month} value={month}>
+                {formatMonthLabel(month)}
+              </option>
+            ))}
+          </select>
+          <span>{formatWon(sumAmounts(entries))}</span>
+        </div>
+      </div>
+      <EntryTable entries={entries} emptyText="이 달의 구조화된 기록이 없습니다." />
+    </section>
+  );
+}
+
 function EntryTable({ entries, emptyText }: { entries: LedgerEntry[]; emptyText: string }) {
   if (!entries.length) return <p className="empty">{emptyText}</p>;
   return (
@@ -851,6 +917,18 @@ function nextSortOrder(rows: { sort_order: number }[]): number {
   return rows.reduce((max, row) => Math.max(max, row.sort_order), 0) + 1;
 }
 
+function collectEntryMonths(entries: LedgerEntry[], fallbackMonth: string): string[] {
+  const months = new Set(entries.map((entry) => entry.entry_date?.slice(0, 7)).filter(Boolean) as string[]);
+  months.add(fallbackMonth);
+  return [...months].sort((a, b) => b.localeCompare(a));
+}
+
+function compareEntriesByDate(a: LedgerEntry, b: LedgerEntry): number {
+  const dateCompare = (a.entry_date ?? "").localeCompare(b.entry_date ?? "");
+  if (dateCompare !== 0) return dateCompare;
+  return a.sort_order - b.sort_order || a.id - b.id;
+}
+
 function detectCurrentMonth(entries: LedgerEntry[]): string {
   const dated = entries.find((entry) => entry.entry_date);
   return dated?.entry_date?.slice(0, 7) ?? today.slice(0, 7);
@@ -860,6 +938,11 @@ function formatDateLabel(value: string): string | null {
   if (!value) return null;
   const [year, month, day] = value.split("-");
   return `${year}.${month}.${day}.`;
+}
+
+function formatMonthLabel(value: string): string {
+  const [year, month] = value.split("-");
+  return `${year}년 ${Number(month)}월`;
 }
 
 function sumAmounts(entries: LedgerEntry[]): number {

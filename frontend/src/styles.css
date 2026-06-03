@@ -178,7 +178,7 @@ th {
 }
 
 .primary-tabs {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   padding: 6px;
   border: 1px solid #d8ddcf;
   border-radius: 8px;
@@ -332,6 +332,32 @@ th {
   grid-template-columns: 140px 100px minmax(0, 1fr) 140px 70px;
 }
 
+.history-header {
+  align-items: flex-end;
+}
+
+.history-header p {
+  margin: 4px 0 0;
+  color: #747b6f;
+  font-size: 13px;
+}
+
+.history-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.history-controls select {
+  min-width: 150px;
+}
+
+.history-controls span {
+  color: #3f5137;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 .muted-inline {
   color: #747b6f;
   display: inline-block;
@@ -443,6 +469,15 @@ th {
   .amount,
   .date {
     width: auto;
+  }
+
+  .history-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .history-controls {
+    justify-content: space-between;
   }
 }
 

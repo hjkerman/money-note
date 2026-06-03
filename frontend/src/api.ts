@@ -72,6 +72,10 @@ export async function fetchCurrentEntries(): Promise<LedgerEntry[]> {
   return getJson("/api/entries/current");
 }
 
+export async function fetchArchiveEntries(): Promise<LedgerEntry[]> {
+  return getJson("/api/entries/archive");
+}
+
 export async function fetchCurrentPanels(): Promise<MonthlyPanel[]> {
   return getJson("/api/month/current/panels");
 }
