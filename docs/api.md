@@ -1,6 +1,6 @@
 # API 명세
 
-이 문서는 현재 구현된 `money-note` 서버 API 기준이다. 서버는 FastAPI로 구현되어 있으며, 기본 실행 주소는 Docker Compose 기준 `http://localhost:8080`이다.
+이 문서는 현재 구현된 `money-note` 서버 API 기준이다. 서버는 FastAPI로 구현되어 있으며, 기본 실행 주소는 Docker Compose 기준 `http://localhost:18080`이다.
 
 ## 공통 규칙
 
@@ -484,4 +484,3 @@ next_month_liquidity
 - 파일: `money-note-latest.xlsx`
 
 아직 export가 생성되지 않았으면 `404`를 반환한다.
-

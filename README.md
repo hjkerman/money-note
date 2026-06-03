@@ -29,7 +29,7 @@ Start the server:
 docker compose up --build
 ```
 
-The API will be available at `http://localhost:8080`.
+The API will be available at `http://localhost:18080`.
 
 ## Useful API Calls
 
@@ -39,25 +39,25 @@ Detailed Korean specifications:
 - [DB 명세](docs/database.md)
 
 ```bash
-curl http://localhost:8080/health
-curl http://localhost:8080/api/month/current/summary
-curl http://localhost:8080/api/entries/current
-curl http://localhost:8080/api/month/current/panels
-curl http://localhost:8080/api/share/claim
-curl http://localhost:8080/api/share/settlement
-curl -X POST http://localhost:8080/api/export
-curl -O http://localhost:8080/api/export/latest.xlsx
+curl http://localhost:18080/health
+curl http://localhost:18080/api/month/current/summary
+curl http://localhost:18080/api/entries/current
+curl http://localhost:18080/api/month/current/panels
+curl http://localhost:18080/api/share/claim
+curl http://localhost:18080/api/share/settlement
+curl -X POST http://localhost:18080/api/export
+curl -O http://localhost:18080/api/export/latest.xlsx
 ```
 
 Read-only browser views:
 
-- `http://localhost:8080/share/claim`
-- `http://localhost:8080/share/settlement`
+- `http://localhost:18080/share/claim`
+- `http://localhost:18080/share/settlement`
 
 Close the current month:
 
 ```bash
-curl -X POST http://localhost:8080/api/month/current/close
+curl -X POST http://localhost:18080/api/month/current/close
 ```
 
 The close operation appends non-planned current entries to the dynamic archive and leaves planned `나갈 돈` rows in the current month.
@@ -65,7 +65,7 @@ The close operation appends non-planned current entries to the dynamic archive a
 Append a planned `나갈 돈` item:
 
 ```bash
-curl -X POST http://localhost:8080/api/month/current/planned \
+curl -X POST http://localhost:18080/api/month/current/planned \
   -H 'Content-Type: application/json' \
   -d '{"title":"[매월 n일] 새 예정 지출","amount_value":12345}'
 ```
@@ -73,11 +73,11 @@ curl -X POST http://localhost:8080/api/month/current/planned \
 Reorder current or planned entries:
 
 ```bash
-curl -X POST http://localhost:8080/api/month/current/reorder \
+curl -X POST http://localhost:18080/api/month/current/reorder \
   -H 'Content-Type: application/json' \
   -d '{"ordered_ids":[3,1,2]}'
 
-curl -X POST http://localhost:8080/api/month/current/planned/reorder \
+curl -X POST http://localhost:18080/api/month/current/planned/reorder \
   -H 'Content-Type: application/json' \
   -d '{"ordered_ids":[28,23,24]}'
 ```
