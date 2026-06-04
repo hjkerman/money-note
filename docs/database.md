@@ -22,8 +22,11 @@
 - `workbook_labels`: Excel 표시 문구
 - `users`: 로그인 사용자
 - `auth_sessions`: 로그인 세션
+- `share_sessions`: 가족 공유 페이지 장기 세션
 - `cash_flows`: 현금 입출금 기록
 - `installments`: 할부 기록
+- `card_payment_events`: 즉시결제와 수기 할인액 처리 기록
+- `card_payment_allocations`: 결제/할인액의 사용내역별 배분
 
 인덱스:
 
@@ -94,6 +97,7 @@ CREATE TABLE IF NOT EXISTS ledger_entries (
 | `due_day` | INTEGER | 카드 정기결제 결제일 |
 | `confirmed_at` | TEXT | 확인 처리 시각 |
 | `spending_category` | TEXT | `essential`, `questionable`, 또는 `NULL` |
+| `payment_key` | TEXT | 월마감 전후에도 유지되는 카드 결제 배분용 고유 키 |
 | `created_at` | TEXT | 생성 시각 |
 | `updated_at` | TEXT | 수정 시각 |
 
@@ -375,6 +379,15 @@ CREATE TABLE IF NOT EXISTS auth_sessions (
 
 기본 세션 만료 기간은 `MONEY_NOTE_SESSION_DAYS`로 조정한다.
 
+## `share_sessions`
+
+가족 공유 PIN 통과 후 발급되는 공유 전용 장기 세션이다.
+
+- 본체 로그인 세션과 분리된다.
+- raw token은 브라우저 cookie에, SHA-256 token hash는 DB에 저장한다.
+- 기본 유효기간은 10년이지만 브라우저 또는 카카오톡 앱이 사이트 데이터를 삭제하면 cookie는 사라질 수 있다.
+- 공유 PIN을 변경하면 모든 `share_sessions` 행을 삭제한다.
+
 ## `cash_flows`
 
 현금 입출금 기록이다. `liquidity_status` 계산에 더해진다.
@@ -387,6 +400,9 @@ CREATE TABLE IF NOT EXISTS auth_sessions (
 | `title` | 적요 |
 | `amount_value` | 입금은 양수, 출금은 음수 |
 | `sort_order` | 정렬 순서 |
+| `is_primary_income` | 해당 월 결제 심사의 주 수입이면 `1` |
+
+같은 결제월의 `is_primary_income = 1`인 양수 입금 합계는 파산심사위원회의 기준 수입으로 사용된다.
 
 ## `installments`
 
@@ -406,6 +422,30 @@ CREATE TABLE IF NOT EXISTS auth_sessions (
 | `is_active` | 활성 여부 |
 
 월마감 시 활성 할부의 `remaining_months`가 1 줄고, 0이 되면 `is_active = 0`이 된다.
+
+## `card_payment_events`
+
+한 번의 즉시결제 또는 수기 할인액 처리를 기록한다.
+
+| 컬럼 | 설명 |
+| --- | --- |
+| `event_date` | 처리일. 즉시결제/할인은 익월 14일까지 허용 |
+| `event_type` | `immediate` 또는 `discount` |
+| `total_amount` | 해당 event의 allocation 합계 |
+| `note` | 선택적 메모 |
+| `cash_flow_id` | 즉시결제에서 자동 생성된 현금흐름 ID. 할인은 `NULL` |
+
+## `card_payment_allocations`
+
+결제 event의 금액을 원래 카드 사용내역에 배분한다.
+
+| 컬럼 | 설명 |
+| --- | --- |
+| `payment_event_id` | `card_payment_events.id` |
+| `entry_payment_key` | 월마감 전후에도 유지되는 `ledger_entries.payment_key` |
+| `amount_value` | 해당 사용내역에 배분한 즉시결제 또는 할인액 |
+
+하나의 사용내역에 여러 번 일부결제할 수 있고, 한 번의 결제 event를 여러 사용내역에 나눠 배분할 수 있다.
 
 ## Export와 DB의 관계
 

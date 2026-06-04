@@ -41,6 +41,7 @@ from app.repository import (
 )
 from app.schemas import (
     AuthUser,
+    CardPaymentEventIn,
     CashFlow,
     CashFlowIn,
     Installment,
@@ -55,7 +56,20 @@ from app.schemas import (
     MonthlyPanelPatch,
     PlannedEntryIn,
     SettingPatch,
+    SharePinIn,
     Summary,
+)
+from app.share_auth import (
+    set_share_pin,
+    share_access_allowed,
+    share_unlock_html,
+    unlock_share,
+)
+from app.services.card_payments import (
+    acknowledge_liquidity_reset,
+    create_card_payment_event,
+    current_payment_status,
+    delete_card_payment_event,
 )
 from app.services.month import close_current_month, current_month_label
 from app.services.share import shared_panel, shared_panel_html
@@ -217,13 +231,53 @@ def current_summary(_: dict = Depends(require_user)) -> Summary:
         raise HTTPException(status_code=422, detail=str(exc))
 
 
+@app.get("/api/card-payments/current")
+def get_current_card_payments(_: dict = Depends(require_user)) -> dict:
+    return current_payment_status()
+
+
+@app.post("/api/card-payments/events")
+def post_card_payment_event(payload: CardPaymentEventIn, _: dict = Depends(require_user)) -> dict:
+    try:
+        return create_card_payment_event(payload)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+
+
+@app.delete("/api/card-payments/events/{event_id}")
+def remove_card_payment_event(event_id: int, _: dict = Depends(require_user)) -> dict[str, bool]:
+    if not delete_card_payment_event(event_id):
+        raise HTTPException(status_code=404, detail="card payment event not found")
+    return {"deleted": True}
+
+
+@app.post("/api/card-payments/acknowledge-liquidity-reset")
+def post_acknowledge_liquidity_reset(_: dict = Depends(require_user)) -> dict[str, str]:
+    return acknowledge_liquidity_reset()
+
+
 @app.post("/api/month/current/close")
 def close_month(_: dict = Depends(require_user)) -> dict[str, int]:
     return close_current_month()
 
 
+@app.post("/api/share/pin")
+def post_share_pin(payload: SharePinIn, _: dict = Depends(require_user)) -> dict[str, bool]:
+    set_share_pin(payload.pin)
+    return {"configured": True}
+
+
+@app.post("/api/share/unlock")
+def post_share_unlock(payload: SharePinIn, request: Request, response: Response) -> dict[str, bool]:
+    if not unlock_share(payload.pin, response):
+        raise HTTPException(status_code=401, detail="invalid share pin")
+    return {"unlocked": True}
+
+
 @app.get("/api/share/{panel_type}")
-def get_shared_panel(panel_type: str) -> dict:
+def get_shared_panel(panel_type: str, request: Request) -> dict:
+    if not share_access_allowed(request):
+        raise HTTPException(status_code=401, detail="share pin required")
     try:
         return shared_panel(panel_type)
     except ValueError:
@@ -231,7 +285,9 @@ def get_shared_panel(panel_type: str) -> dict:
 
 
 @app.get("/share/{panel_type}", response_class=HTMLResponse)
-def read_shared_panel(panel_type: str) -> HTMLResponse:
+def read_shared_panel(panel_type: str, request: Request) -> HTMLResponse:
+    if not share_access_allowed(request):
+        return HTMLResponse(share_unlock_html(f"/share/{panel_type}"))
     try:
         return HTMLResponse(shared_panel_html(panel_type))
     except ValueError:

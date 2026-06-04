@@ -349,7 +349,7 @@ th {
 }
 
 .cash-flow-form {
-  grid-template-columns: 140px 100px minmax(0, 1fr) 140px 70px;
+  grid-template-columns: 140px 100px minmax(0, 1fr) 140px auto 70px;
 }
 
 .installment-form {
@@ -572,6 +572,129 @@ th {
   font-size: 12px;
 }
 
+.payment-stack {
+  display: grid;
+  gap: 16px;
+}
+
+.payment-overview .panel-header p {
+  margin: 4px 0 0;
+  color: #747b6f;
+  font-size: 13px;
+}
+
+.payment-alert,
+.judgment-line {
+  margin: 0;
+  padding: 12px 14px;
+  border-bottom: 1px solid #e5e8df;
+}
+
+.payment-alert {
+  background: #fff0ed;
+  color: #912e25;
+  font-weight: 800;
+}
+
+.judgment-line {
+  color: #5b6255;
+}
+
+.payment-overview.warning .judgment-line {
+  background: #fff8df;
+}
+
+.payment-overview.danger .judgment-line {
+  background: #fff0ed;
+  color: #79251f;
+}
+
+.payment-summary {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin: 0;
+}
+
+.payment-summary div {
+  padding: 12px 14px;
+  border-right: 1px solid #e5e8df;
+  border-bottom: 1px solid #e5e8df;
+}
+
+.payment-summary div:last-child {
+  border-right: 0;
+}
+
+.payment-summary dt {
+  color: #747b6f;
+  font-size: 12px;
+}
+
+.payment-summary dd {
+  margin: 5px 0 0;
+  font-weight: 800;
+}
+
+.payment-controls,
+.fallback-setting {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid #e5e8df;
+  background: #fbfcf8;
+}
+
+.fallback-setting {
+  border-top: 0;
+}
+
+.fallback-setting span {
+  margin-right: auto;
+  color: #62695d;
+  font-size: 13px;
+}
+
+.check-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.select-cell {
+  width: 58px;
+  text-align: center;
+}
+
+.payment-input-cell {
+  width: 150px;
+}
+
+.payment-input-cell input {
+  width: 100%;
+  min-width: 120px;
+}
+
+.paid-row {
+  color: #858b80;
+  background: #fafbf8;
+}
+
+.transport-badge,
+.primary-income-badge {
+  display: inline-block;
+  margin-left: 7px;
+  border: 1px solid #b9c7ae;
+  border-radius: 999px;
+  background: #eef5e9;
+  color: #47603c;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
 .compact table td:first-child {
   width: auto;
 }
@@ -646,6 +769,10 @@ th {
   }
 
   .credit-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-summary {
     grid-template-columns: 1fr;
   }
 

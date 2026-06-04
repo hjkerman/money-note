@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS ledger_entries (
     due_day INTEGER,
     confirmed_at TEXT,
     spending_category TEXT,
+    payment_key TEXT,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -89,12 +90,21 @@ CREATE TABLE IF NOT EXISTS auth_sessions (
     last_seen_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS share_sessions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_token_hash TEXT NOT NULL UNIQUE,
+    expires_at TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_seen_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS cash_flows (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     occurred_on TEXT NOT NULL,
     title TEXT NOT NULL DEFAULT '',
     amount_value REAL NOT NULL,
     sort_order INTEGER NOT NULL,
+    is_primary_income INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -112,6 +122,24 @@ CREATE TABLE IF NOT EXISTS installments (
     is_active INTEGER NOT NULL DEFAULT 1,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS card_payment_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    event_date TEXT NOT NULL,
+    event_type TEXT NOT NULL CHECK (event_type IN ('immediate', 'discount')),
+    total_amount REAL NOT NULL,
+    note TEXT NOT NULL DEFAULT '',
+    cash_flow_id INTEGER REFERENCES cash_flows(id) ON DELETE SET NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS card_payment_allocations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    payment_event_id INTEGER NOT NULL REFERENCES card_payment_events(id) ON DELETE CASCADE,
+    entry_payment_key TEXT NOT NULL,
+    amount_value REAL NOT NULL CHECK (amount_value > 0),
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX IF NOT EXISTS idx_ledger_section_order
@@ -132,11 +160,20 @@ ON auth_sessions(session_token_hash);
 CREATE INDEX IF NOT EXISTS idx_auth_sessions_user
 ON auth_sessions(user_id);
 
+CREATE INDEX IF NOT EXISTS idx_share_sessions_token
+ON share_sessions(session_token_hash);
+
 CREATE INDEX IF NOT EXISTS idx_cash_flows_order
 ON cash_flows(occurred_on, sort_order, id);
 
 CREATE INDEX IF NOT EXISTS idx_installments_active_order
 ON installments(is_active, sort_order, id);
+
+CREATE INDEX IF NOT EXISTS idx_card_payment_allocations_entry
+ON card_payment_allocations(entry_payment_key);
+
+CREATE INDEX IF NOT EXISTS idx_card_payment_events_date
+ON card_payment_events(event_date, id);
 
 INSERT OR IGNORE INTO app_settings(key, value) VALUES
 ('base_next_month_liquidity', '400000'),
@@ -202,12 +239,34 @@ def init_db() -> None:
             conn.execute("ALTER TABLE ledger_entries ADD COLUMN usage_place TEXT")
         if "usage_item" not in ledger_columns:
             conn.execute("ALTER TABLE ledger_entries ADD COLUMN usage_item TEXT")
+        if "payment_key" not in ledger_columns:
+            conn.execute("ALTER TABLE ledger_entries ADD COLUMN payment_key TEXT")
+        conn.execute(
+            """
+            UPDATE ledger_entries
+            SET payment_key = lower(hex(randomblob(16)))
+            WHERE payment_key IS NULL AND entry_kind != 'planned'
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_ledger_payment_key
+            ON ledger_entries(payment_key)
+            WHERE payment_key IS NOT NULL
+            """
+        )
         installment_columns = {
             row["name"]
             for row in conn.execute("PRAGMA table_info(installments)").fetchall()
         }
         if "fee_rate" not in installment_columns:
             conn.execute("ALTER TABLE installments ADD COLUMN fee_rate REAL NOT NULL DEFAULT 0")
+        cash_flow_columns = {
+            row["name"]
+            for row in conn.execute("PRAGMA table_info(cash_flows)").fetchall()
+        }
+        if "is_primary_income" not in cash_flow_columns:
+            conn.execute("ALTER TABLE cash_flows ADD COLUMN is_primary_income INTEGER NOT NULL DEFAULT 0")
         conn.execute(
             """
             UPDATE workbook_labels

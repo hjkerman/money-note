@@ -35,13 +35,13 @@
 
 macOS Tauri 앱처럼 WebView cookie 저장이 흔들릴 수 있는 클라이언트를 위해 로그인 응답에는 `session_token`도 포함된다. 프론트엔드는 이 값을 저장하고 이후 요청에 `Authorization: Bearer ...` 헤더로 함께 보낸다.
 
-공개 예외:
+공유 PIN 미설정 시 공개 예외:
 
 - `GET /health`
 - `GET /share/{panel_type}`
 - `GET /api/share/{panel_type}`
 
-위 공개 예외를 제외한 앱 API는 인증이 필요하다.
+공유 PIN을 설정하면 `/share/{panel_type}`과 `/api/share/{panel_type}`도 공유 전용 세션이 필요하다. 나머지 앱 API는 본체 로그인 인증이 필요하다.
 
 ### `POST /api/auth/login`
 
@@ -419,6 +419,45 @@ next_month_liquidity
 }
 ```
 
+## 카드 결제 관리
+
+### `GET /api/card-payments/current`
+
+현재 결제월의 결제 현황을 조회한다. 대상은 직전월 1일~말일 사용내역이다.
+
+응답에는 원래 결제액, 즉시결제 누적, 할인액 누적, 남은 결제액, 주 수입 합계, 항목별 배분 상태와 당월 결제 기록이 포함된다.
+
+### `POST /api/card-payments/events`
+
+즉시결제 또는 수기 할인액을 항목별로 배분한다.
+
+```json
+{
+  "event_date": "2026-06-04",
+  "event_type": "immediate",
+  "note": "",
+  "allocations": [
+    {
+      "entry_payment_key": "payment-key",
+      "amount_value": 3000
+    }
+  ]
+}
+```
+
+- `event_type = immediate`: 연결된 현금흐름 출금을 생성한다.
+- `event_type = discount`: 원래 사용금액은 유지하고 남은 결제금액만 줄인다.
+- 하나의 항목에 남은 금액 일부만 배분할 수 있다.
+- 익월 14일까지 처리 가능하다.
+
+### `DELETE /api/card-payments/events/{event_id}`
+
+결제 또는 할인 기록을 취소한다. 즉시결제라면 연결된 현금흐름도 함께 삭제한다.
+
+### `POST /api/card-payments/acknowledge-liquidity-reset`
+
+14일 경과 후 정규결제 완료 의제로 인해 사용자가 실제 유동성 현황을 수동 보정했음을 기록한다.
+
 ## 읽기 전용 공유
 
 현재 외부 공유 대상은 `청구`와 `타인정산`이다.
@@ -430,7 +469,7 @@ next_month_liquidity
 
 ### `GET /api/share/{panel_type}`
 
-읽기 전용 공유 데이터를 JSON으로 반환한다.
+공유 PIN 미설정 상태 또는 유효한 공유 세션에서 읽기 전용 공유 데이터를 JSON으로 반환한다.
 
 응답:
 
@@ -462,6 +501,28 @@ next_month_liquidity
 
 - `/share/claim`
 - `/share/settlement`
+
+공유 PIN이 설정되어 있고 공유 세션이 없으면 카카오톡 인앱 브라우저에서도 사용할 수 있는 네 자리 PIN 입력 화면을 먼저 표시한다.
+
+### `POST /api/share/pin`
+
+본체 로그인 사용자가 가족 공유용 숫자 네 자리 PIN을 설정한다. PIN 변경 시 기존 공유 세션을 모두 삭제한다.
+
+```json
+{
+  "pin": "1234"
+}
+```
+
+### `POST /api/share/unlock`
+
+공유 PIN을 확인하고 최대 10년의 공유 전용 cookie를 발급한다.
+
+```json
+{
+  "pin": "1234"
+}
+```
 
 ## 할부
 

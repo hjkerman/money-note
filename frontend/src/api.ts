@@ -27,6 +27,7 @@ export type LedgerEntry = {
   due_day: number | null;
   confirmed_at: string | null;
   spending_category: SpendingCategory | null;
+  payment_key: string | null;
 };
 
 export type SpendingCategory = "essential" | "questionable";
@@ -60,6 +61,7 @@ export type CashFlow = {
   title: string;
   amount_value: number;
   sort_order: number;
+  is_primary_income: number;
 };
 
 export type Installment = {
@@ -74,6 +76,40 @@ export type Installment = {
   sort_order: number;
   is_active: number;
   monthly_amount: number;
+};
+
+export type CardPaymentRow = LedgerEntry & {
+  original_amount: number;
+  immediate_paid_amount: number;
+  discount_amount: number;
+  remaining_amount: number;
+  is_transport: boolean;
+};
+
+export type CardPaymentEvent = {
+  id: number;
+  event_date: string;
+  event_type: "immediate" | "discount";
+  total_amount: number;
+  note: string;
+  cash_flow_id: number | null;
+};
+
+export type CardPaymentStatus = {
+  payment_month: string;
+  usage_month: string;
+  due_date: string;
+  immediate_allowed: boolean;
+  needs_liquidity_reset: boolean;
+  liquidity_reset_acknowledged: boolean;
+  original_total: number;
+  immediate_paid_total: number;
+  discount_total: number;
+  recorded_remaining_total: number;
+  effective_remaining_total: number;
+  primary_income_total: number;
+  rows: CardPaymentRow[];
+  events: CardPaymentEvent[];
 };
 
 export type Labels = Record<string, string>;
@@ -131,6 +167,35 @@ export async function fetchSettings(): Promise<Settings> {
   return getJson("/api/settings");
 }
 
+export async function updateSetting(key: string, value: string): Promise<Record<string, string>> {
+  return patchJson(`/api/settings/${key}`, { value });
+}
+
+export async function setSharePin(pin: string): Promise<{ configured: boolean }> {
+  return postJson("/api/share/pin", { pin });
+}
+
+export async function fetchCurrentCardPayments(): Promise<CardPaymentStatus> {
+  return getJson("/api/card-payments/current");
+}
+
+export async function createCardPaymentEvent(payload: {
+  event_date: string;
+  event_type: "immediate" | "discount";
+  note: string;
+  allocations: { entry_payment_key: string; amount_value: number }[];
+}): Promise<CardPaymentEvent> {
+  return postJson("/api/card-payments/events", payload);
+}
+
+export async function deleteCardPaymentEvent(eventId: number): Promise<{ deleted: boolean }> {
+  return deleteJson(`/api/card-payments/events/${eventId}`);
+}
+
+export async function acknowledgeLiquidityReset(): Promise<{ payment_month: string }> {
+  return postJson("/api/card-payments/acknowledge-liquidity-reset", {});
+}
+
 export async function appendPlannedEntry(payload: {
   title: string;
   usage_place: string | null;
@@ -145,7 +210,7 @@ export async function deletePlannedEntry(entryId: number): Promise<{ deleted: bo
   return deleteJson(`/api/month/current/planned/${entryId}`);
 }
 
-export async function createEntry(payload: Omit<LedgerEntry, "id">): Promise<LedgerEntry> {
+export async function createEntry(payload: Omit<LedgerEntry, "id" | "payment_key">): Promise<LedgerEntry> {
   return postJson("/api/entries", payload);
 }
 

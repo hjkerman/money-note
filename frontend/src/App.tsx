@@ -1,6 +1,8 @@
 import { FormEvent, ReactNode, useEffect, useMemo, useState } from "react";
 import {
   AuthUser,
+  CardPaymentRow,
+  CardPaymentStatus,
   CashFlow,
   Installment,
   LedgerEntry,
@@ -8,22 +10,26 @@ import {
   Settings,
   SpendingCategory,
   Summary,
+  acknowledgeLiquidityReset,
   appendPlannedEntry,
   closeCurrentMonth,
   confirmFrozenPanel,
   confirmPlannedEntry,
   createCashFlow,
+  createCardPaymentEvent,
   createEntry,
   createExport,
   createInstallment,
   createPanel,
   deleteEntry,
   deleteCashFlow,
+  deleteCardPaymentEvent,
   deleteInstallment,
   deletePanel,
   deletePanelsByType,
   deletePlannedEntry,
   fetchCashFlows,
+  fetchCurrentCardPayments,
   fetchArchiveEntries,
   fetchCurrentEntries,
   fetchCurrentPanels,
@@ -35,12 +41,14 @@ import {
   latestExportUrl,
   login,
   logout,
+  setSharePin,
   updateEntry,
+  updateSetting,
 } from "./api";
-import { categoryLabel, classifyClaimPanel, creditUsageTone, spendingStatTones } from "./judgment";
+import { categoryLabel, classifyClaimPanel, creditUsageTone, paymentPressureTone, spendingStatTones } from "./judgment";
 
 type PanelType = MonthlyPanel["panel_type"];
-type PrimaryTab = "current" | "fixed" | "frozen" | "cash";
+type PrimaryTab = "current" | "payment" | "fixed" | "frozen" | "cash";
 type CurrentTab = "expenses" | "claim" | "settlement" | "installments";
 type StatItem = {
   amount_value: number | null;
@@ -56,7 +64,7 @@ const panelMeta: Record<PanelType, { labelKey: string; fallback: string }> = {
 
 const today = new Date().toISOString().slice(0, 10);
 const currentTabs: CurrentTab[] = ["expenses", "claim", "settlement", "installments"];
-const hasOwn = (record: Record<number, unknown>, key: number) => Object.prototype.hasOwnProperty.call(record, key);
+const hasOwn = (record: object, key: PropertyKey) => Object.prototype.hasOwnProperty.call(record, key);
 
 export function App() {
   const [entries, setEntries] = useState<LedgerEntry[]>([]);
@@ -64,6 +72,7 @@ export function App() {
   const [panels, setPanels] = useState<MonthlyPanel[]>([]);
   const [cashFlows, setCashFlows] = useState<CashFlow[]>([]);
   const [installments, setInstallments] = useState<Installment[]>([]);
+  const [cardPayments, setCardPayments] = useState<CardPaymentStatus | null>(null);
   const [summary, setSummary] = useState<Summary | null>(null);
   const [labels, setLabels] = useState<Record<string, string>>({});
   const [settings, setSettings] = useState<Settings>({});
@@ -79,6 +88,7 @@ export function App() {
     direction: "in",
     title: "",
     amount: "",
+    isPrimaryIncome: false,
   });
   const [installmentForm, setInstallmentForm] = useState({
     title: "",
@@ -97,6 +107,10 @@ export function App() {
   const [selectedHistoryMonth, setSelectedHistoryMonth] = useState(today.slice(0, 7));
   const [showStats, setShowStats] = useState(false);
   const [pendingCategoryChanges, setPendingCategoryChanges] = useState<Record<number, SpendingCategory | null>>({});
+  const [paymentAllocations, setPaymentAllocations] = useState<Record<string, string>>({});
+  const [paymentBudget, setPaymentBudget] = useState("");
+  const [fallbackLiquidityInput, setFallbackLiquidityInput] = useState("");
+  const [isDiscountMode, setIsDiscountMode] = useState(false);
 
   const plannedEntries = entries.filter((entry) => entry.entry_kind === "planned");
   const expenseEntries = entries.filter((entry) => entry.entry_kind !== "planned");
@@ -137,6 +151,11 @@ export function App() {
         sumInstallmentMonthlyAmounts(installments) +
         sumPanelAmounts(panels.filter((panel) => panel.panel_type === "claim")) +
         sumPanelAmounts(panels.filter((panel) => panel.panel_type === "settlement")),
+    },
+    {
+      id: "payment",
+      label: "이번달 결제",
+      total: cardPayments?.effective_remaining_total ?? 0,
     },
     {
       id: "fixed",
@@ -188,6 +207,7 @@ export function App() {
         nextCashFlows,
         nextSettings,
         nextInstallments,
+        nextCardPayments,
       ] = await Promise.all([
         fetchCurrentEntries(),
         fetchArchiveEntries(),
@@ -197,6 +217,7 @@ export function App() {
         fetchCashFlows(),
         fetchSettings(),
         fetchInstallments(),
+        fetchCurrentCardPayments(),
       ]);
       setEntries(nextEntries);
       setArchiveEntries(nextArchiveEntries);
@@ -206,6 +227,7 @@ export function App() {
       setCashFlows(nextCashFlows);
       setSettings(nextSettings);
       setInstallments(nextInstallments);
+      setCardPayments(nextCardPayments);
       setStatus("동기화 완료");
     } catch (error) {
       if (isAuthRequiredError(error)) {
@@ -271,6 +293,7 @@ export function App() {
       setArchiveEntries([]);
       setPanels([]);
       setCashFlows([]);
+      setCardPayments(null);
       setSummary(null);
       setLabels({});
       setStatus("로그아웃 완료");
@@ -450,6 +473,7 @@ export function App() {
         title: cashFlowForm.title.trim(),
         amount_value: cashFlowForm.direction === "out" ? -Math.abs(parsed) : Math.abs(parsed),
         sort_order: nextSortOrder(cashFlows),
+        is_primary_income: cashFlowForm.direction === "in" && cashFlowForm.isPrimaryIncome ? 1 : 0,
       });
       setCashFlowForm({ ...cashFlowForm, title: "", amount: "" });
       setStatus("현금흐름 추가 완료");
@@ -493,6 +517,97 @@ export function App() {
     await withRefresh(async () => {
       await deleteInstallment(installment.id);
       setStatus("할부 항목 삭제 완료");
+    });
+  }
+
+  // 날짜순으로 즉시결제 가능액을 자동 배분하고, 마지막 항목은 일부 결제로 남긴다.
+  function handleAutoAllocate() {
+    if (!cardPayments?.immediate_allowed) return;
+    let remainingBudget = Math.max(0, parseAmount(paymentBudget) ?? summary?.liquidity_status ?? 0);
+    const next: Record<string, string> = {};
+    for (const row of cardPayments.rows) {
+      if (!row.payment_key || row.remaining_amount <= 0 || remainingBudget <= 0) continue;
+      const allocated = Math.min(row.remaining_amount, remainingBudget);
+      next[row.payment_key] = String(Math.round(allocated));
+      remainingBudget -= allocated;
+    }
+    setPaymentAllocations(next);
+    setStatus(`날짜순 결제안 생성 완료: ${formatWon(sumPaymentAllocationInputs(next))}`);
+  }
+
+  function handlePaymentSelection(row: CardPaymentRow, selected: boolean) {
+    if (!row.payment_key) return;
+    setPaymentAllocations((current) => {
+      const next = { ...current };
+      if (selected) next[row.payment_key as string] = String(Math.round(row.remaining_amount));
+      else delete next[row.payment_key as string];
+      return next;
+    });
+  }
+
+  async function handleCardPaymentSubmit() {
+    if (!cardPayments?.immediate_allowed) return;
+    const allocations = Object.entries(paymentAllocations)
+      .map(([entry_payment_key, amountText]) => ({
+        entry_payment_key,
+        amount_value: parseAmount(amountText) ?? 0,
+      }))
+      .filter((allocation) => allocation.amount_value > 0);
+    if (!allocations.length) return;
+    const total = allocations.reduce((sum, allocation) => sum + allocation.amount_value, 0);
+    const kind = isDiscountMode ? "할인액" : "즉시결제";
+    const confirmed = window.confirm(`${kind} ${formatWon(total)}을 선택한 사용내역에 반영할까요?`);
+    if (!confirmed) return;
+    await withRefresh(async () => {
+      await createCardPaymentEvent({
+        event_date: today,
+        event_type: isDiscountMode ? "discount" : "immediate",
+        note: "",
+        allocations,
+      });
+      setPaymentAllocations({});
+      setStatus(`${kind} 반영 완료`);
+    });
+  }
+
+  async function handleCardPaymentEventDelete(eventId: number) {
+    const confirmed = window.confirm("이 결제 또는 할인 기록을 취소할까요?");
+    if (!confirmed) return;
+    await withRefresh(async () => {
+      await deleteCardPaymentEvent(eventId);
+      setStatus("결제 기록 취소 완료");
+    });
+  }
+
+  async function handleFallbackLiquiditySave() {
+    const amount = parseAmount(fallbackLiquidityInput);
+    if (amount === null || amount < 0) return;
+    await withRefresh(async () => {
+      await updateSetting("base_next_month_liquidity", String(amount));
+      setFallbackLiquidityInput("");
+      setStatus("기본 심사 기준액 저장 완료");
+    });
+  }
+
+  async function handleLiquidityResetAcknowledgement() {
+    const confirmed = window.confirm("실제 계좌 잔액에 맞게 유동성 현황을 보정했습니까?");
+    if (!confirmed) return;
+    await withRefresh(async () => {
+      await acknowledgeLiquidityReset();
+      setStatus("유동성 보정 완료 확인");
+    });
+  }
+
+  async function handleSharePinSet() {
+    const pin = window.prompt("가족 공유 페이지에서 사용할 숫자 네 자리를 입력하세요.");
+    if (pin === null) return;
+    if (!/^[0-9]{4}$/.test(pin)) {
+      setStatus("공유 PIN은 숫자 네 자리여야 합니다.");
+      return;
+    }
+    await withRefresh(async () => {
+      await setSharePin(pin);
+      setStatus("가족 공유 PIN 설정 완료. 기존 공유 세션은 종료되었습니다.");
     });
   }
 
@@ -577,6 +692,9 @@ export function App() {
           <span className="user-badge">{authUser.display_name}</span>
           <button type="button" onClick={() => void refresh()} disabled={isBusy}>
             새로고침
+          </button>
+          <button type="button" onClick={() => void handleSharePinSet()} disabled={isBusy}>
+            공유 PIN 설정
           </button>
           {hasPendingCategoryChanges ? (
             <button type="button" className="save-needed" onClick={() => void handleSavePendingChanges()} disabled={isBusy}>
@@ -822,6 +940,29 @@ export function App() {
             </section>
           </section>
 
+          <section className={activePrimaryTab === "payment" ? "tab-panel active" : "tab-panel"}>
+            <CardPaymentPanel
+              status={cardPayments}
+              fallbackLiquidity={parseSettingNumber(settings, "base_next_month_liquidity", 400_000)}
+              availableLiquidity={summary?.liquidity_status ?? 0}
+              fallbackLiquidityInput={fallbackLiquidityInput}
+              setFallbackLiquidityInput={setFallbackLiquidityInput}
+              onFallbackLiquiditySave={() => void handleFallbackLiquiditySave()}
+              onAcknowledgeLiquidityReset={() => void handleLiquidityResetAcknowledgement()}
+              allocations={paymentAllocations}
+              setAllocations={setPaymentAllocations}
+              paymentBudget={paymentBudget}
+              setPaymentBudget={setPaymentBudget}
+              isDiscountMode={isDiscountMode}
+              setIsDiscountMode={setIsDiscountMode}
+              onAutoAllocate={handleAutoAllocate}
+              onSelect={handlePaymentSelection}
+              onSubmit={() => void handleCardPaymentSubmit()}
+              onDeleteEvent={(eventId) => void handleCardPaymentEventDelete(eventId)}
+              isBusy={isBusy}
+            />
+          </section>
+
           <section className={activePrimaryTab === "frozen" ? "tab-panel active" : "tab-panel"}>
             <PanelTable
               title={panelLabel(labels, "frozen")}
@@ -958,6 +1099,192 @@ function CreditUsagePanel({
   );
 }
 
+function CardPaymentPanel({
+  status,
+  fallbackLiquidity,
+  availableLiquidity,
+  fallbackLiquidityInput,
+  setFallbackLiquidityInput,
+  onFallbackLiquiditySave,
+  onAcknowledgeLiquidityReset,
+  allocations,
+  setAllocations,
+  paymentBudget,
+  setPaymentBudget,
+  isDiscountMode,
+  setIsDiscountMode,
+  onAutoAllocate,
+  onSelect,
+  onSubmit,
+  onDeleteEvent,
+  isBusy,
+}: {
+  status: CardPaymentStatus | null;
+  fallbackLiquidity: number;
+  availableLiquidity: number;
+  fallbackLiquidityInput: string;
+  setFallbackLiquidityInput: (value: string) => void;
+  onFallbackLiquiditySave: () => void;
+  onAcknowledgeLiquidityReset: () => void;
+  allocations: Record<string, string>;
+  setAllocations: (value: Record<string, string>) => void;
+  paymentBudget: string;
+  setPaymentBudget: (value: string) => void;
+  isDiscountMode: boolean;
+  setIsDiscountMode: (value: boolean) => void;
+  onAutoAllocate: () => void;
+  onSelect: (row: CardPaymentRow, selected: boolean) => void;
+  onSubmit: () => void;
+  onDeleteEvent: (eventId: number) => void;
+  isBusy: boolean;
+}) {
+  if (!status) {
+    return <section className="panel"><p className="empty">결제 현황을 불러오는 중입니다.</p></section>;
+  }
+  const daysUntilDue = daysBetween(today, status.due_date);
+  const referenceLiquidity = status.primary_income_total > 0 ? status.primary_income_total : fallbackLiquidity;
+  const pressure = paymentPressureTone(status.recorded_remaining_total, daysUntilDue, referenceLiquidity);
+  const selectedTotal = sumPaymentAllocationInputs(allocations);
+  return (
+    <section className="payment-stack">
+      <section className={`panel payment-overview ${pressure.level}`}>
+        <div className="panel-header">
+          <div>
+            <h2>이번달 결제</h2>
+            <p>{formatMonthLabel(status.usage_month)} 사용분 · {formatDateLabel(status.due_date)}까지 즉시결제 가능</p>
+          </div>
+          <span>{formatWon(status.effective_remaining_total)}</span>
+        </div>
+        {status.needs_liquidity_reset ? (
+          <div className="payment-alert">
+            <span>결제 안 된 내역 있습니다. 유동성 현황을 재설정하세요.</span>
+            <button type="button" onClick={onAcknowledgeLiquidityReset}>유동성 보정 완료</button>
+          </div>
+        ) : null}
+        <p className="judgment-line">{pressure.message}</p>
+        <dl className="payment-summary">
+          <div><dt>심사 기준 수입</dt><dd>{formatWon(referenceLiquidity)}</dd></div>
+          <div><dt>원래 결제액</dt><dd>{formatWon(status.original_total)}</dd></div>
+          <div><dt>즉시결제 누적</dt><dd>{formatWon(status.immediate_paid_total)}</dd></div>
+          <div><dt>할인액 누적</dt><dd>{formatWon(status.discount_total)}</dd></div>
+          <div><dt>기록상 미결제</dt><dd>{formatWon(status.recorded_remaining_total)}</dd></div>
+        </dl>
+        <div className="fallback-setting">
+          <span>주 수입이 없는 달에 사용할 기본 심사 기준액: {formatWon(fallbackLiquidity)}</span>
+          <input
+            value={fallbackLiquidityInput}
+            onChange={(event) => setFallbackLiquidityInput(event.target.value)}
+            inputMode="numeric"
+            placeholder="새 기본 기준액"
+          />
+          <button type="button" onClick={onFallbackLiquiditySave} disabled={isBusy}>저장</button>
+        </div>
+        <div className="payment-controls">
+          <input
+            value={paymentBudget}
+            onChange={(event) => setPaymentBudget(event.target.value)}
+            inputMode="numeric"
+            placeholder={`자동 배분 한도 (기본 현재 유동성 ${formatWon(availableLiquidity)})`}
+          />
+          <button type="button" onClick={onAutoAllocate} disabled={isBusy || !status.immediate_allowed}>
+            날짜순 자동 배분
+          </button>
+          <label className="check-label">
+            <input
+              type="checkbox"
+              checked={isDiscountMode}
+              onChange={(event) => setIsDiscountMode(event.target.checked)}
+            />
+            할인액 처리
+          </label>
+          <button type="button" onClick={() => setAllocations({})} disabled={isBusy}>선택 해제</button>
+          <button type="button" className="save-needed" onClick={onSubmit} disabled={isBusy || selectedTotal <= 0 || !status.immediate_allowed}>
+            {isDiscountMode ? "할인액 반영" : "즉시결제 반영"} {formatWon(selectedTotal)}
+          </button>
+        </div>
+      </section>
+
+      <section className="panel payment-ledger">
+        <div className="panel-header">
+          <h2>결제 대상 사용내역</h2>
+          <span>{status.rows.filter((row) => row.remaining_amount > 0).length}건</span>
+        </div>
+        {status.rows.length ? (
+          <table>
+            <thead>
+              <tr>
+                <th className="select-cell">선택</th>
+                <th>날짜</th>
+                <th>적요</th>
+                <th className="amount">원래 금액</th>
+                <th className="amount">즉시결제</th>
+                <th className="amount">할인</th>
+                <th className="amount">남은 금액</th>
+                <th className="payment-input-cell">이번 처리액</th>
+              </tr>
+            </thead>
+            <tbody>
+              {status.rows.map((row) => {
+                const key = row.payment_key ?? "";
+                const selected = Boolean(key && hasOwn(allocations, key));
+                return (
+                  <tr key={row.id} className={row.remaining_amount <= 0 ? "paid-row" : ""}>
+                    <td className="select-cell">
+                      <input
+                        type="checkbox"
+                        checked={selected}
+                        disabled={!key || row.remaining_amount <= 0 || !status.immediate_allowed}
+                        onChange={(event) => onSelect(row, event.target.checked)}
+                      />
+                    </td>
+                    <td className="date">{row.date_label ?? ""}</td>
+                    <td>{displayEntryTitle(row)}{row.is_transport ? <span className="transport-badge">교통</span> : null}</td>
+                    <td className="amount">{formatWon(row.original_amount)}</td>
+                    <td className="amount">{formatWon(row.immediate_paid_amount)}</td>
+                    <td className="amount">{formatWon(row.discount_amount)}</td>
+                    <td className="amount">{formatWon(row.remaining_amount)}</td>
+                    <td className="payment-input-cell">
+                      <input
+                        value={selected ? allocations[key] : ""}
+                        disabled={!selected}
+                        inputMode="numeric"
+                        max={row.remaining_amount}
+                        onChange={(event) => setAllocations({ ...allocations, [key]: event.target.value })}
+                        placeholder="금액"
+                      />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        ) : (
+          <p className="empty">직전월 카드 사용내역이 없습니다.</p>
+        )}
+      </section>
+
+      <section className="panel payment-events">
+        <div className="panel-header"><h2>당월 결제금액 기록</h2></div>
+        {status.events.length ? (
+          <table>
+            <thead><tr><th>날짜</th><th>종류</th><th className="amount">금액</th><th className="action-cell">취소</th></tr></thead>
+            <tbody>
+              {status.events.map((event) => (
+                <tr key={event.id}>
+                  <td className="date">{formatDateLabel(event.event_date)}</td>
+                  <td>{event.event_type === "discount" ? "할인액" : "즉시결제"}</td>
+                  <td className="amount">{formatWon(event.total_amount)}</td>
+                  <td className="action-cell"><button type="button" className="danger" onClick={() => onDeleteEvent(event.id)}>취소</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : <p className="empty">이번 달 결제 또는 할인 기록이 없습니다.</p>}
+      </section>
+    </section>
+  );
+}
+
 function PanelAppendForm({
   isBusy,
   panelType,
@@ -1063,8 +1390,8 @@ function CashFlowPanel({
   isBusy,
 }: {
   rows: CashFlow[];
-  form: { occurredOn: string; direction: string; title: string; amount: string };
-  setForm: (value: { occurredOn: string; direction: string; title: string; amount: string }) => void;
+  form: { occurredOn: string; direction: string; title: string; amount: string; isPrimaryIncome: boolean };
+  setForm: (value: { occurredOn: string; direction: string; title: string; amount: string; isPrimaryIncome: boolean }) => void;
   onSubmit: (event: FormEvent) => Promise<void>;
   onDelete: (flow: CashFlow) => void;
   isBusy: boolean;
@@ -1089,7 +1416,7 @@ function CashFlowPanel({
             {rows.map((row) => (
               <tr key={row.id}>
                 <td className="date">{formatDateLabel(row.occurred_on)}</td>
-                <td>{row.title}</td>
+                <td>{row.title}{row.is_primary_income ? <span className="primary-income-badge">주 수입</span> : null}</td>
                 <td className={row.amount_value < 0 ? "amount negative" : "amount positive"}>
                   {formatWon(row.amount_value)}
                 </td>
@@ -1129,6 +1456,15 @@ function CashFlowPanel({
           inputMode="numeric"
           placeholder="금액"
         />
+        <label className="check-label">
+          <input
+            type="checkbox"
+            checked={form.isPrimaryIncome}
+            disabled={form.direction !== "in"}
+            onChange={(event) => setForm({ ...form, isPrimaryIncome: event.target.checked })}
+          />
+          주 수입
+        </label>
         <button type="submit" disabled={isBusy}>
           추가
         </button>
@@ -1487,6 +1823,16 @@ function sumInstallmentMonthlyAmounts(rows: Installment[]): number {
 
 function sumStatItems(rows: StatItem[]): number {
   return rows.reduce((total, row) => total + (row.amount_value ?? 0), 0);
+}
+
+function sumPaymentAllocationInputs(values: Record<string, string>): number {
+  return Object.values(values).reduce((total, value) => total + (parseAmount(value) ?? 0), 0);
+}
+
+function daysBetween(from: string, to: string): number {
+  const start = new Date(`${from}T00:00:00`).getTime();
+  const end = new Date(`${to}T00:00:00`).getTime();
+  return Math.round((end - start) / 86_400_000);
 }
 
 function parseSettingNumber(settings: Settings, key: string, fallback: number): number {

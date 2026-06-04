@@ -31,10 +31,10 @@ def close_current_month() -> dict[str, int]:
                 INSERT INTO ledger_entries (
                     book_section, entry_kind, entry_date, date_label, group_label, title, usage_place, usage_item,
                     amount_value, amount_expr, aux_amount_value, aux_amount_expr, extra_value,
-                    sort_order, due_day, confirmed_at, spending_category
+                    sort_order, due_day, confirmed_at, spending_category, payment_key
                 )
                 VALUES (
-                    'archive', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                    'archive', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
                 )
                 """,
                 (
@@ -54,6 +54,7 @@ def close_current_month() -> dict[str, int]:
                     entry["due_day"],
                     entry["confirmed_at"],
                     entry["spending_category"],
+                    entry["payment_key"],
                 ),
             )
             next_order += 1

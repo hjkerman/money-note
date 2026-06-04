@@ -32,6 +32,7 @@ ENTRY_COLUMNS = [
     "due_day",
     "confirmed_at",
     "spending_category",
+    "payment_key",
 ]
 
 PANEL_COLUMNS = [
@@ -200,10 +201,16 @@ def create_cash_flow(flow: CashFlowIn) -> dict[str, Any]:
     with session() as conn:
         cursor = conn.execute(
             """
-            INSERT INTO cash_flows(occurred_on, title, amount_value, sort_order)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO cash_flows(occurred_on, title, amount_value, sort_order, is_primary_income)
+            VALUES (?, ?, ?, ?, ?)
             """,
-            (values["occurred_on"], values["title"], values["amount_value"], values["sort_order"]),
+            (
+                values["occurred_on"],
+                values["title"],
+                values["amount_value"],
+                values["sort_order"],
+                1 if values["is_primary_income"] and values["amount_value"] > 0 else 0,
+            ),
         )
         row = conn.execute("SELECT * FROM cash_flows WHERE id = ?", (cursor.lastrowid,)).fetchone()
     return row_to_dict(row)
@@ -239,9 +246,9 @@ def confirm_planned_entry(entry_id: int) -> dict[str, Any] | None:
             """
             INSERT INTO ledger_entries(
                 book_section, entry_kind, entry_date, date_label, group_label, title,
-                usage_place, usage_item, amount_value, amount_expr, sort_order
+                usage_place, usage_item, amount_value, amount_expr, sort_order, payment_key
             )
-            VALUES ('current', 'expense', ?, ?, NULL, ?, ?, ?, ?, ?, ?)
+            VALUES ('current', 'expense', ?, ?, NULL, ?, ?, ?, ?, ?, ?, lower(hex(randomblob(16))))
             """,
             (
                 payment_date.isoformat(),
@@ -285,9 +292,9 @@ def confirm_frozen_panel(panel_id: int) -> dict[str, Any] | None:
             """
             INSERT INTO ledger_entries(
                 book_section, entry_kind, entry_date, date_label, group_label, title,
-                amount_value, amount_expr, sort_order, due_day, confirmed_at, spending_category
+                amount_value, amount_expr, sort_order, due_day, confirmed_at, spending_category, payment_key
             )
-            VALUES ('current', 'expense', ?, ?, NULL, ?, ?, ?, ?, NULL, NULL, NULL)
+            VALUES ('current', 'expense', ?, ?, NULL, ?, ?, ?, ?, NULL, NULL, NULL, lower(hex(randomblob(16))))
             """,
             (
                 today.isoformat(),
@@ -344,6 +351,8 @@ def delete_panels_by_type(month: str, panel_type: str) -> int:
 
 def create_entry(entry: LedgerEntryIn) -> dict[str, Any]:
     values = entry.model_dump()
+    if values["entry_kind"] != "planned" and not values.get("payment_key"):
+        values["payment_key"] = None
     placeholders = ", ".join("?" for _ in ENTRY_COLUMNS)
     columns = ", ".join(ENTRY_COLUMNS)
     with session() as conn:
@@ -351,6 +360,15 @@ def create_entry(entry: LedgerEntryIn) -> dict[str, Any]:
             f"INSERT INTO ledger_entries ({columns}) VALUES ({placeholders})",
             tuple(values[column] for column in ENTRY_COLUMNS),
         )
+        if values["entry_kind"] != "planned" and not values.get("payment_key"):
+            conn.execute(
+                """
+                UPDATE ledger_entries
+                SET payment_key = lower(hex(randomblob(16)))
+                WHERE id = ?
+                """,
+                (cursor.lastrowid,),
+            )
         row = conn.execute(
             "SELECT * FROM ledger_entries WHERE id = ?",
             (cursor.lastrowid,),

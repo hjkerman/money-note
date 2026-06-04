@@ -6,6 +6,10 @@ class LoginIn(BaseModel):
     password: str
 
 
+class SharePinIn(BaseModel):
+    pin: str = Field(pattern="^[0-9]{4}$")
+
+
 class AuthUser(BaseModel):
     id: int
     username: str
@@ -31,6 +35,7 @@ class LedgerEntryIn(BaseModel):
     due_day: int | None = None
     confirmed_at: str | None = None
     spending_category: str | None = None
+    payment_key: str | None = None
 
 
 class LedgerEntry(LedgerEntryIn):
@@ -123,6 +128,7 @@ class CashFlow(BaseModel):
     title: str
     amount_value: float
     sort_order: int
+    is_primary_income: int = 0
 
 
 class CashFlowIn(BaseModel):
@@ -130,6 +136,7 @@ class CashFlowIn(BaseModel):
     title: str = ""
     amount_value: float
     sort_order: int
+    is_primary_income: int = 0
 
 
 class Installment(BaseModel):
@@ -154,3 +161,15 @@ class InstallmentIn(BaseModel):
     remaining_months: int | None = None
     start_month: str
     sort_order: int
+
+
+class CardPaymentAllocationIn(BaseModel):
+    entry_payment_key: str
+    amount_value: float
+
+
+class CardPaymentEventIn(BaseModel):
+    event_date: str
+    event_type: str = Field(pattern="^(immediate|discount)$")
+    note: str = ""
+    allocations: list[CardPaymentAllocationIn]

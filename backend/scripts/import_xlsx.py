@@ -65,6 +65,13 @@ def main() -> None:
             conn.execute("DELETE FROM monthly_panels")
             conn.execute("DELETE FROM workbook_labels")
         _insert_many(conn, "ledger_entries", ENTRY_COLUMNS, parsed.current_entries)
+        conn.execute(
+            """
+            UPDATE ledger_entries
+            SET payment_key = lower(hex(randomblob(16)))
+            WHERE payment_key IS NULL AND entry_kind != 'planned'
+            """
+        )
         _insert_many(conn, "archive_rows", ARCHIVE_ROW_COLUMNS, parsed.archive_rows)
         _insert_many(conn, "monthly_panels", PANEL_COLUMNS, parsed.panels)
         for key, value in parsed.settings.items():
