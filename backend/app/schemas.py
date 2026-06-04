@@ -69,7 +69,7 @@ class PlannedEntryIn(BaseModel):
     title: str
     usage_place: str = Field(min_length=1)
     usage_item: str | None = None
-    amount_value: float
+    amount_value: float = Field(ge=0)
     amount_expr: str | None = None
     due_day: int = Field(ge=1, le=31)
 
@@ -105,7 +105,7 @@ class MonthlyPanelIn(BaseModel):
     month: str
     panel_type: str
     title: str = ""
-    amount_value: float | None = None
+    amount_value: float | None = Field(default=None, ge=0)
     amount_expr: str | None = None
     sort_order: int
     due_day: int | None = None
@@ -115,7 +115,7 @@ class MonthlyPanelPatch(BaseModel):
     month: str | None = None
     panel_type: str | None = None
     title: str | None = None
-    amount_value: float | None = None
+    amount_value: float | None = Field(default=None, ge=0)
     amount_expr: str | None = None
     sort_order: int | None = None
     due_day: int | None = None
@@ -159,8 +159,8 @@ class Installment(BaseModel):
 
 class InstallmentIn(BaseModel):
     title: str
-    principal_amount: float
-    fee_rate: float = 0
+    principal_amount: float = Field(ge=0)
+    fee_rate: float = Field(default=0, ge=0)
     months: int
     remaining_months: int | None = None
     start_month: str
@@ -169,7 +169,7 @@ class InstallmentIn(BaseModel):
 
 class CardPaymentAllocationIn(BaseModel):
     entry_payment_key: str
-    amount_value: float
+    amount_value: float = Field(gt=0)
 
 
 class CardPaymentEventIn(BaseModel):
@@ -183,4 +183,4 @@ class LateCardEntryIn(BaseModel):
     entry_date: str
     usage_place: str | None = None
     usage_item: str | None = None
-    amount_value: float
+    amount_value: float = Field(ge=0)

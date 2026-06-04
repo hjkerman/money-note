@@ -106,6 +106,7 @@ CREATE TABLE IF NOT EXISTS ledger_entries (
 - 현재 일반 지출: `entry_date`, `usage_place`, `amount_value` 필수
 - 카드 정기결제: `due_day`, `usage_place`, `amount_value` 필수
 - 두 종류 모두 `usage_item`은 NULL 허용
+- 현금흐름은 출금을 음수로 저장하는 예외이며, 나머지 사용자 입력 금액은 0 이상
 
 과거 비정형 기록과 Excel 호환을 위해 범용 컬럼 자체는 nullable로 유지하고, repository 쓰기 검증과 API 스키마에서 필수 규칙을 강제한다.
 | `created_at` | TEXT | 생성 시각 |

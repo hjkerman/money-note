@@ -520,6 +520,8 @@ def _validate_structured_entry(values: dict[str, Any]) -> None:
     ]
     if missing:
         raise ValueError(f"required fields missing: {', '.join(missing)}")
+    if float(values["amount_value"]) < 0:
+        raise ValueError("amount_value must be greater than or equal to zero")
 
 
 def delete_entry(entry_id: int) -> bool:

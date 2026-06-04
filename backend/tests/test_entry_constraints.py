@@ -62,6 +62,8 @@ class EntryConstraintTest(unittest.TestCase):
         )
         with self.assertRaisesRegex(ValueError, "amount_value"):
             update_entry(entry["id"], LedgerEntryPatch(amount_value=None))
+        with self.assertRaisesRegex(ValueError, "greater than or equal to zero"):
+            update_entry(entry["id"], LedgerEntryPatch(amount_value=-1))
 
     def test_planned_schema_requires_due_day_place_and_amount(self) -> None:
         valid = PlannedEntryIn(
@@ -75,6 +77,8 @@ class EntryConstraintTest(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             PlannedEntryIn(title="", usage_place="", amount_value=1000, due_day=14)
+        with self.assertRaises(ValueError):
+            PlannedEntryIn(title="[사용처]", usage_place="사용처", amount_value=-1, due_day=14)
 
 
 if __name__ == "__main__":

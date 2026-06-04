@@ -174,6 +174,7 @@ macOS Tauri 앱처럼 WebView cookie 저장이 흔들릴 수 있는 클라이언
 금전 기록을 직접 생성한다.
 
 `book_section = current`, `entry_kind = expense`인 일반 지출은 `entry_date`, `usage_place`, `amount_value`가 필수다. `usage_item`은 비워둘 수 있다.
+현금흐름을 제외한 사용자 입력 금액은 0 이상이어야 한다.
 
 요청:
 
