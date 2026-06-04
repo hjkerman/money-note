@@ -112,8 +112,19 @@ export type CardPaymentStatus = {
   recorded_remaining_total: number;
   effective_remaining_total: number;
   primary_income_total: number;
+  discount_policy: CardDiscountPolicy;
   rows: CardPaymentRow[];
   events: CardPaymentEvent[];
+};
+
+export type CardDiscountPolicy = "undecided" | "enabled" | "disabled";
+
+export type CardDiscountMonth = {
+  month: string;
+  scope: "owner" | "family";
+  policy: CardDiscountPolicy;
+  discounts: Record<string, number>;
+  discount_total: number;
 };
 
 export type MonthCloseStatus = {
@@ -201,6 +212,21 @@ export async function setSharePin(pin: string): Promise<{ configured: boolean; n
 
 export async function fetchCurrentCardPayments(): Promise<CardPaymentStatus> {
   return getJson("/api/card-payments/current");
+}
+
+export async function fetchCardDiscountMonth(
+  month: string,
+  scope: "owner" | "family",
+): Promise<CardDiscountMonth> {
+  return getJson(`/api/card-discounts/months/${month}?scope=${scope}`);
+}
+
+export async function updateCardDiscountPolicy(
+  month: string,
+  scope: "owner" | "family",
+  policy: CardDiscountPolicy,
+): Promise<CardDiscountMonth> {
+  return patchJson(`/api/card-discounts/months/${month}?scope=${scope}`, { policy });
 }
 
 export async function fetchMonthCloseStatus(): Promise<MonthCloseStatus> {

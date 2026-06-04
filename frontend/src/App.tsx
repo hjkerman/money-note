@@ -2,6 +2,8 @@ import { FormEvent, ReactNode, useEffect, useMemo, useState } from "react";
 import {
   AuthUser,
   AuditLog,
+  CardDiscountMonth,
+  CardDiscountPolicy,
   CardPaymentRow,
   CardPaymentStatus,
   CashFlow,
@@ -37,6 +39,7 @@ import {
   fetchCurrentCardPayments,
   fetchArchiveEntries,
   fetchAuditLogs,
+  fetchCardDiscountMonth,
   fetchCurrentEntries,
   fetchCurrentPanels,
   fetchInstallments,
@@ -50,6 +53,7 @@ import {
   logout,
   setSharePin,
   updateEntry,
+  updateCardDiscountPolicy,
   updateSetting,
 } from "./api";
 import {
@@ -87,6 +91,8 @@ export function App() {
   const [cashFlows, setCashFlows] = useState<CashFlow[]>([]);
   const [installments, setInstallments] = useState<Installment[]>([]);
   const [cardPayments, setCardPayments] = useState<CardPaymentStatus | null>(null);
+  const [ownerDiscountMonth, setOwnerDiscountMonth] = useState<CardDiscountMonth | null>(null);
+  const [familyDiscountMonth, setFamilyDiscountMonth] = useState<CardDiscountMonth | null>(null);
   const [monthCloseStatus, setMonthCloseStatus] = useState<MonthCloseStatus | null>(null);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [summary, setSummary] = useState<Summary | null>(null);
@@ -234,6 +240,8 @@ export function App() {
         nextInstallments,
         nextCardPayments,
         nextMonthCloseStatus,
+        nextOwnerDiscountMonth,
+        nextFamilyDiscountMonth,
       ] = await Promise.all([
         fetchCurrentEntries(),
         fetchArchiveEntries(),
@@ -245,6 +253,8 @@ export function App() {
         fetchInstallments(),
         fetchCurrentCardPayments(),
         fetchMonthCloseStatus(),
+        fetchCardDiscountMonth(today.slice(0, 7), "owner"),
+        fetchCardDiscountMonth(today.slice(0, 7), "family"),
       ]);
       setEntries(nextEntries);
       setArchiveEntries(nextArchiveEntries);
@@ -256,6 +266,8 @@ export function App() {
       setInstallments(nextInstallments);
       setCardPayments(nextCardPayments);
       setMonthCloseStatus(nextMonthCloseStatus);
+      setOwnerDiscountMonth(nextOwnerDiscountMonth);
+      setFamilyDiscountMonth(nextFamilyDiscountMonth);
       setStatus("동기화 완료");
     } catch (error) {
       if (isAuthRequiredError(error)) {
@@ -624,6 +636,37 @@ export function App() {
     });
   }
 
+  async function handleDiscountPolicyChange(scope: "owner" | "family", month: string, policy: CardDiscountPolicy) {
+    await withRefresh(async () => {
+      await updateCardDiscountPolicy(month, scope, policy);
+      setStatus(`${formatMonthLabel(month)} ${scope === "family" ? "가족카드" : "본인회원 카드"} 할인 혜택 설정 완료`);
+    });
+  }
+
+  async function handleCurrentEntryDiscount(entry: LedgerEntry) {
+    if (!entry.payment_key) return;
+    if (ownerDiscountMonth?.policy === "disabled") {
+      setStatus("이번 달은 본인회원 카드 할인 혜택이 없는 달로 설정되어 있습니다.");
+      return;
+    }
+    const amountText = window.prompt(`${displayEntryTitle(entry)}에 반영할 할인액을 입력하세요.`, "");
+    if (amountText === null) return;
+    const amount = parseAmount(amountText);
+    if (amount === null || amount <= 0) {
+      setStatus("할인액은 0원보다 큰 숫자여야 합니다.");
+      return;
+    }
+    await withRefresh(async () => {
+      await createCardPaymentEvent({
+        event_date: today,
+        event_type: "discount",
+        note: "당월 기록에서 선반영",
+        allocations: [{ entry_payment_key: entry.payment_key as string, amount_value: amount }],
+      });
+      setStatus("당월 사용내역 할인액 반영 완료");
+    });
+  }
+
   async function handleTollDeferral(row: CardPaymentRow, defer: boolean) {
     if (!row.payment_key) return;
     const confirmed = window.confirm(
@@ -934,6 +977,14 @@ export function App() {
               ))}
             </nav>
 
+            <DiscountPolicyBar
+              month={today.slice(0, 7)}
+              scope={activeCurrentTab === "settlement" ? "family" : "owner"}
+              status={activeCurrentTab === "settlement" ? familyDiscountMonth : ownerDiscountMonth}
+              onChange={(scope, month, policy) => void handleDiscountPolicyChange(scope, month, policy)}
+              isBusy={isBusy}
+            />
+
             <section className={activeCurrentTab === "expenses" ? "tab-panel active" : "tab-panel"}>
               <section className="panel">
                 <div className="panel-header">
@@ -946,6 +997,8 @@ export function App() {
                   pendingCategoryChanges={pendingCategoryChanges}
                   onCategoryChange={(entry, category) => void handleCategoryChange(entry, category)}
                   onDelete={(entry) => void handleEntryDelete(entry)}
+                  discounts={ownerDiscountMonth?.discounts}
+                  onDiscount={(entry) => void handleCurrentEntryDiscount(entry)}
                 />
                 <form className="entry-form" onSubmit={(event) => void handleExpenseSubmit(event)}>
                   <input
@@ -1138,6 +1191,9 @@ export function App() {
               setPaymentBudget={setPaymentBudget}
               isDiscountMode={isDiscountMode}
               setIsDiscountMode={setIsDiscountMode}
+              onDiscountPolicyChange={(policy) =>
+                void handleDiscountPolicyChange("owner", cardPayments?.usage_month ?? today.slice(0, 7), policy)
+              }
               onAutoAllocate={handleAutoAllocate}
               onSelect={handlePaymentSelection}
               onSubmit={() => void handleCardPaymentSubmit()}
@@ -1381,6 +1437,46 @@ function CreditUsagePanel({
   );
 }
 
+function DiscountPolicyBar({
+  month,
+  scope,
+  status,
+  onChange,
+  isBusy,
+}: {
+  month: string;
+  scope: "owner" | "family";
+  status: CardDiscountMonth | null;
+  onChange: (scope: "owner" | "family", month: string, policy: CardDiscountPolicy) => void;
+  isBusy: boolean;
+}) {
+  const label = scope === "family" ? "가족카드" : "본인회원 카드";
+  return (
+    <section className={`discount-policy ${status?.policy ?? "undecided"}`}>
+      <div>
+        <strong>{formatMonthLabel(month)} {label} 할인 혜택</strong>
+        <span>
+          {status?.policy === "enabled"
+            ? "혜택 있음 · 항목별 할인액을 기록할 수 있습니다."
+            : status?.policy === "disabled"
+              ? "혜택 없음 · 할인액 입력을 막습니다."
+              : "아직 정하지 않았습니다. 확인 후 선택하세요."}
+        </span>
+      </div>
+      <select
+        value={status?.policy ?? "undecided"}
+        onChange={(event) => onChange(scope, month, event.target.value as CardDiscountPolicy)}
+        disabled={isBusy}
+        aria-label={`${label} 할인 혜택 설정`}
+      >
+        <option value="undecided">미정</option>
+        <option value="enabled">혜택 있음</option>
+        <option value="disabled">혜택 없음</option>
+      </select>
+    </section>
+  );
+}
+
 function CardPaymentPanel({
   status,
   fallbackLiquidity,
@@ -1395,6 +1491,7 @@ function CardPaymentPanel({
   setPaymentBudget,
   isDiscountMode,
   setIsDiscountMode,
+  onDiscountPolicyChange,
   onAutoAllocate,
   onSelect,
   onSubmit,
@@ -1418,6 +1515,7 @@ function CardPaymentPanel({
   setPaymentBudget: (value: string) => void;
   isDiscountMode: boolean;
   setIsDiscountMode: (value: boolean) => void;
+  onDiscountPolicyChange: (policy: CardDiscountPolicy) => void;
   onAutoAllocate: () => void;
   onSelect: (row: CardPaymentRow, selected: boolean) => void;
   onSubmit: () => void;
@@ -1452,6 +1550,19 @@ function CardPaymentPanel({
           </div>
         ) : null}
         <p className="judgment-line">{pressure.message}</p>
+        <DiscountPolicyBar
+          month={status.usage_month}
+          scope="owner"
+          status={{
+            month: status.usage_month,
+            scope: "owner",
+            policy: status.discount_policy,
+            discounts: {},
+            discount_total: status.discount_total,
+          }}
+          onChange={(_scope, _month, policy) => onDiscountPolicyChange(policy)}
+          isBusy={isBusy}
+        />
         <dl className="payment-summary">
           <div><dt>심사 기준 수입</dt><dd>{formatWon(referenceLiquidity)}</dd></div>
           <div><dt>원래 결제액</dt><dd>{formatWon(status.original_total)}</dd></div>
@@ -1492,12 +1603,23 @@ function CardPaymentPanel({
             <input
               type="checkbox"
               checked={isDiscountMode}
+              disabled={status.discount_policy === "disabled"}
               onChange={(event) => setIsDiscountMode(event.target.checked)}
             />
             할인액 처리
           </label>
           <button type="button" onClick={() => setAllocations({})} disabled={isBusy}>선택 해제</button>
-          <button type="button" className="save-needed" onClick={onSubmit} disabled={isBusy || selectedTotal <= 0 || !status.immediate_allowed}>
+          <button
+            type="button"
+            className="save-needed"
+            onClick={onSubmit}
+            disabled={
+              isBusy ||
+              selectedTotal <= 0 ||
+              !status.immediate_allowed ||
+              (isDiscountMode && status.discount_policy === "disabled")
+            }
+          >
             {isDiscountMode ? "할인액 반영" : "즉시결제 반영"} {formatWon(selectedTotal)}
           </button>
         </div>
@@ -1913,12 +2035,16 @@ function EntryTable({
   pendingCategoryChanges = {},
   onCategoryChange,
   onDelete,
+  discounts,
+  onDiscount,
 }: {
   entries: LedgerEntry[];
   emptyText: string;
   pendingCategoryChanges?: Record<number, SpendingCategory | null>;
   onCategoryChange?: (entry: LedgerEntry, category: SpendingCategory | null) => void;
   onDelete?: (entry: LedgerEntry) => void;
+  discounts?: Record<string, number>;
+  onDiscount?: (entry: LedgerEntry) => void;
 }) {
   if (!entries.length) return <p className="empty">{emptyText}</p>;
   return (
@@ -1930,6 +2056,7 @@ function EntryTable({
           <th>사용항목</th>
           {onCategoryChange ? <th className="category-cell">분류</th> : null}
           <th className="amount">금액</th>
+          {onDiscount ? <th className="discount-cell">할인</th> : null}
           {onDelete ? <th className="action-cell">삭제</th> : null}
         </tr>
       </thead>
@@ -1958,6 +2085,14 @@ function EntryTable({
                 </td>
               ) : null}
               <td className="amount">{formatWon(entry.amount_value)}</td>
+              {onDiscount ? (
+                <td className="discount-cell">
+                  <span>{formatWon(entry.payment_key ? discounts?.[entry.payment_key] ?? 0 : 0)}</span>
+                  <button type="button" onClick={() => onDiscount(entry)} disabled={!entry.payment_key}>
+                    기록
+                  </button>
+                </td>
+              ) : null}
               {onDelete ? (
                 <td className="action-cell">
                   <button type="button" className="danger" onClick={() => onDelete(entry)}>

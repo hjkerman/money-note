@@ -42,6 +42,7 @@ from app.repository import (
 from app.schemas import (
     AuthUser,
     CardPaymentEventIn,
+    CardDiscountPolicyPatch,
     CashFlow,
     CashFlowIn,
     Installment,
@@ -75,8 +76,10 @@ from app.services.card_payments import (
     create_late_card_entry,
     create_card_payment_event,
     current_payment_status,
+    discount_month_status,
     defer_toll_payment,
     delete_card_payment_event,
+    set_discount_month_policy,
 )
 from app.services.audit import clear_audit_logs, list_audit_logs, record_audit_log
 from app.services.month import calendar_month_label, close_current_month, month_close_status
@@ -281,6 +284,27 @@ def current_summary(_: dict = Depends(require_user)) -> Summary:
 @app.get("/api/card-payments/current")
 def get_current_card_payments(_: dict = Depends(require_user)) -> dict:
     return current_payment_status()
+
+
+@app.get("/api/card-discounts/months/{month}")
+def get_card_discount_month(month: str, scope: str = "owner", _: dict = Depends(require_user)) -> dict:
+    try:
+        return discount_month_status(month, scope)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+
+
+@app.patch("/api/card-discounts/months/{month}")
+def patch_card_discount_month(
+    month: str,
+    patch: CardDiscountPolicyPatch,
+    scope: str = "owner",
+    _: dict = Depends(require_user),
+) -> dict:
+    try:
+        return set_discount_month_policy(month, patch.policy, scope)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
 
 
 @app.post("/api/card-payments/events")

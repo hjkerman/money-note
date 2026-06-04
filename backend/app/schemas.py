@@ -179,6 +179,10 @@ class CardPaymentEventIn(BaseModel):
     allocations: list[CardPaymentAllocationIn]
 
 
+class CardDiscountPolicyPatch(BaseModel):
+    policy: str = Field(pattern="^(undecided|enabled|disabled)$")
+
+
 class LateCardEntryIn(BaseModel):
     entry_date: str
     usage_place: str | None = None

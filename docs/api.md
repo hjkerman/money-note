@@ -492,6 +492,22 @@ next_month_liquidity
 
 ## 카드 결제 관리
 
+### `GET /api/card-discounts/months/{month}?scope=owner|family`
+
+사용월 기준 할인 혜택 설정과 항목별 누적 할인액을 조회한다.
+
+- `scope=owner`: 본인회원 카드. 당월 지출과 청구에 적용한다.
+- `scope=family`: 가족카드. 타인정산에 적용한다.
+- `policy`: `undecided`, `enabled`, `disabled`
+
+### `PATCH /api/card-discounts/months/{month}?scope=owner|family`
+
+본인회원 카드와 가족카드의 월별 할인 혜택 여부를 서로 독립적으로 저장한다.
+
+```json
+{ "policy": "enabled" }
+```
+
 ### `GET /api/card-payments/current`
 
 현재 결제월의 결제 현황을 조회한다. 대상은 직전월 1일~말일 사용내역이다.
@@ -525,7 +541,9 @@ next_month_liquidity
 - `event_type = immediate`: 연결된 현금흐름 출금을 생성한다.
 - `event_type = discount`: 원래 사용금액은 유지하고 남은 결제금액만 줄인다.
 - 하나의 항목에 남은 금액 일부만 배분할 수 있다.
-- 익월 14일까지 처리 가능하다.
+- 즉시결제는 익월 14일까지 처리 가능하다.
+- 할인액은 당월 기록에서 미리 반영하거나 결제 화면에서 보충할 수 있다.
+- 사용월 할인 정책이 `disabled`이면 할인액 처리가 거부된다.
 - 통행료/하이패스 항목은 할인 및 일부결제가 불가능하며 남은 금액 전액만 즉시결제할 수 있다.
 
 ### `DELETE /api/card-payments/events/{event_id}`

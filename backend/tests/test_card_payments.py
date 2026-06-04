@@ -14,6 +14,8 @@ from app.services.card_payments import (
     current_payment_status,
     create_late_card_entry,
     defer_toll_payment,
+    discount_month_status,
+    set_discount_month_policy,
 )
 
 
@@ -114,6 +116,45 @@ class CardPaymentDeferralTest(unittest.TestCase):
                     ],
                 ),
                 date(2026, 6, 4),
+            )
+
+    def test_discount_policy_is_separate_for_owner_and_family_cards(self) -> None:
+        set_discount_month_policy("2026-05", "disabled", "owner")
+        set_discount_month_policy("2026-05", "enabled", "family")
+
+        self.assertEqual(discount_month_status("2026-05", "owner")["policy"], "disabled")
+        self.assertEqual(discount_month_status("2026-05", "family")["policy"], "enabled")
+
+    def test_current_entry_discount_is_recorded_and_blocked_only_when_policy_disabled(self) -> None:
+        with session() as conn:
+            conn.execute(
+                """
+                INSERT INTO ledger_entries(
+                    book_section, entry_kind, entry_date, date_label, title,
+                    amount_value, sort_order, payment_key
+                )
+                VALUES ('current', 'expense', '2026-06-20', '2026.06.20.', '당월 할인', 10000, 3, 'current-key')
+                """
+            )
+        create_card_payment_event(
+            CardPaymentEventIn(
+                event_date="2026-06-20",
+                event_type="discount",
+                allocations=[CardPaymentAllocationIn(entry_payment_key="current-key", amount_value=120)],
+            ),
+            date(2026, 6, 20),
+        )
+        self.assertEqual(discount_month_status("2026-06", "owner")["discounts"]["current-key"], 120)
+
+        set_discount_month_policy("2026-06", "disabled", "owner")
+        with self.assertRaisesRegex(ValueError, "할인 혜택이 없는 달"):
+            create_card_payment_event(
+                CardPaymentEventIn(
+                    event_date="2026-06-20",
+                    event_type="discount",
+                    allocations=[CardPaymentAllocationIn(entry_payment_key="current-key", amount_value=100)],
+                ),
+                date(2026, 6, 20),
             )
 
     def test_deferral_is_blocked_after_due_date(self) -> None:

@@ -32,9 +32,59 @@ def current_payment_status(today: date | None = None) -> dict[str, Any]:
         "recorded_remaining_total": recorded_remaining_total,
         "effective_remaining_total": 0 if is_after_due else recorded_remaining_total,
         "primary_income_total": _primary_income_total(today.strftime("%Y-%m")),
+        "discount_policy": discount_month_status(usage_month, "owner")["policy"],
         "rows": rows,
         "events": _events_for_payment_month(payment_month),
     }
+
+
+def discount_month_status(month: str, scope: str = "owner") -> dict[str, Any]:
+    """사용월의 할인 혜택 정책과 사용내역별 누적 할인액을 반환한다."""
+    _validate_month(month)
+    _validate_discount_scope(scope)
+    with session() as conn:
+        policy = _discount_policy_value(conn, month, scope)
+        rows = [] if scope == "family" else conn.execute(
+            """
+            SELECT ledger_entries.payment_key,
+                   COALESCE(SUM(card_payment_allocations.amount_value), 0) AS discount_amount
+            FROM ledger_entries
+            JOIN card_payment_allocations
+              ON card_payment_allocations.entry_payment_key = ledger_entries.payment_key
+            JOIN card_payment_events
+              ON card_payment_events.id = card_payment_allocations.payment_event_id
+             AND card_payment_events.event_type = 'discount'
+            WHERE ledger_entries.entry_date LIKE ?
+            GROUP BY ledger_entries.payment_key
+            """,
+            (f"{month}%",),
+        ).fetchall()
+    discounts = {row["payment_key"]: float(row["discount_amount"]) for row in rows}
+    return {
+        "month": month,
+        "scope": scope,
+        "policy": policy,
+        "discounts": discounts,
+        "discount_total": sum(discounts.values()),
+    }
+
+
+def set_discount_month_policy(month: str, policy: str, scope: str = "owner") -> dict[str, Any]:
+    """사용월 전체 카드 지출에 적용할 할인 혜택 여부를 저장한다."""
+    _validate_month(month)
+    _validate_discount_scope(scope)
+    if policy not in {"undecided", "enabled", "disabled"}:
+        raise ValueError("알 수 없는 할인 혜택 설정입니다.")
+    with session() as conn:
+        conn.execute(
+            """
+            INSERT INTO app_settings(key, value, updated_at)
+            VALUES (?, ?, CURRENT_TIMESTAMP)
+            ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP
+            """,
+            (f"card_discount_policy:{scope}:{month}", policy),
+        )
+    return discount_month_status(month, scope)
 
 
 def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = None) -> dict[str, Any]:
@@ -42,8 +92,8 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
     today = today or date.today()
     event_date = datetime.strptime(payload.event_date, "%Y-%m-%d").date()
     due_date = date(event_date.year, event_date.month, min(14, monthrange(event_date.year, event_date.month)[1]))
-    if event_date > due_date:
-        raise ValueError("즉시결제와 할인액 처리는 매월 14일까지 가능합니다.")
+    if payload.event_type == "immediate" and event_date > due_date:
+        raise ValueError("즉시결제는 매월 14일까지 가능합니다.")
     if not payload.allocations:
         raise ValueError("결제 또는 할인액을 배분할 항목이 없습니다.")
 
@@ -60,7 +110,7 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
             seen_keys.add(key)
             row = conn.execute(
                 """
-                SELECT title, amount_value
+                SELECT title, amount_value, entry_date
                 FROM ledger_entries
                 WHERE payment_key = ? AND entry_kind != 'planned'
                 """,
@@ -68,6 +118,9 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
             ).fetchone()
             if row is None:
                 raise ValueError("결제 대상 사용내역을 찾을 수 없습니다.")
+            usage_month = str(row["entry_date"] or "")[:7]
+            if payload.event_type == "discount" and usage_month and _discount_policy_value(conn, usage_month, "owner") == "disabled":
+                raise ValueError(f"{usage_month}은 할인 혜택이 없는 달로 설정되어 있습니다.")
             deferral = conn.execute(
                 """
                 SELECT target_payment_month
@@ -433,6 +486,26 @@ def _previous_month(value: date) -> str:
     if value.month == 1:
         return f"{value.year - 1}-12"
     return f"{value.year}-{value.month - 1:02d}"
+
+
+def _validate_month(value: str) -> None:
+    try:
+        datetime.strptime(value, "%Y-%m")
+    except ValueError as exc:
+        raise ValueError("월 형식은 YYYY-MM이어야 합니다.") from exc
+
+
+def _validate_discount_scope(value: str) -> None:
+    if value not in {"owner", "family"}:
+        raise ValueError("카드 구분은 owner 또는 family여야 합니다.")
+
+
+def _discount_policy_value(conn: Any, month: str, scope: str) -> str:
+    row = conn.execute(
+        "SELECT value FROM app_settings WHERE key = ?",
+        (f"card_discount_policy:{scope}:{month}",),
+    ).fetchone()
+    return str(row["value"]) if row else "undecided"
 
 
 def _next_month(value: date) -> str:

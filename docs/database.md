@@ -447,7 +447,7 @@ CREATE TABLE IF NOT EXISTS auth_sessions (
 
 | 컬럼 | 설명 |
 | --- | --- |
-| `event_date` | 처리일. 즉시결제/할인은 익월 14일까지 허용 |
+| `event_date` | 처리일. 즉시결제는 익월 14일까지, 할인은 당월 기록에서도 허용 |
 | `event_type` | `immediate` 또는 `discount` |
 | `total_amount` | 해당 event의 allocation 합계 |
 | `note` | 선택적 메모 |
@@ -466,6 +466,8 @@ CREATE TABLE IF NOT EXISTS auth_sessions (
 하나의 사용내역에 여러 번 일부결제할 수 있고, 한 번의 결제 event를 여러 사용내역에 나눠 배분할 수 있다.
 
 단, 적요에 `통행료` 또는 `하이패스`가 포함된 항목은 할인과 일부결제를 허용하지 않고 남은 금액 전액만 즉시결제할 수 있다.
+
+월별 할인 혜택 정책은 `app_settings`의 `card_discount_policy:{scope}:{YYYY-MM}` 키에 저장한다. `scope`는 본인회원 카드 `owner`와 가족카드 `family`로 분리된다.
 
 ## `card_payment_deferrals`
 
