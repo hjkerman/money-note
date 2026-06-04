@@ -45,7 +45,14 @@ import {
   updateEntry,
   updateSetting,
 } from "./api";
-import { categoryLabel, classifyClaimPanel, creditUsageTone, paymentPressureTone, spendingStatTones } from "./judgment";
+import {
+  budgetCommitteeTone,
+  categoryLabel,
+  classifyClaimPanel,
+  creditUsageTone,
+  paymentPressureTone,
+  spendingStatTones,
+} from "./judgment";
 
 type PanelType = MonthlyPanel["panel_type"];
 type PrimaryTab = "current" | "payment" | "fixed" | "frozen" | "cash";
@@ -738,7 +745,7 @@ export function App() {
         </section>
       ) : null}
 
-      <SummaryPanel summary={summary} labels={labels} />
+      <SummaryPanel summary={summary} labels={labels} entries={expenseEntries} panels={panels} cashFlows={cashFlows} />
 
       {showStats ? (
         <section className="insight-stack" aria-label="통계와 월별 기록">
@@ -1018,7 +1025,34 @@ export function App() {
   );
 }
 
-function SummaryPanel({ summary, labels }: { summary: Summary | null; labels: Record<string, string> }) {
+function SummaryPanel({
+  summary,
+  labels,
+  entries,
+  panels,
+  cashFlows,
+}: {
+  summary: Summary | null;
+  labels: Record<string, string>;
+  entries: LedgerEntry[];
+  panels: MonthlyPanel[];
+  cashFlows: CashFlow[];
+}) {
+  const claimRows = panels.filter((panel) => panel.panel_type === "claim");
+  const settlementRows = panels.filter((panel) => panel.panel_type === "settlement");
+  const frozenRows = panels.filter((panel) => panel.panel_type === "frozen");
+  const committee = budgetCommitteeTone({
+    expenseTotal: sumAmounts(entries),
+    expenseCount: entries.length,
+    cashFlowTotal: sumCashFlows(cashFlows),
+    cashFlowCount: cashFlows.length,
+    claimTotal: sumPanelAmounts(claimRows),
+    claimCount: claimRows.length,
+    settlementTotal: sumPanelAmounts(settlementRows),
+    settlementCount: settlementRows.length,
+    frozenTotal: sumPanelAmounts(frozenRows),
+    frozenCount: frozenRows.length,
+  });
   const rows = summary
     ? [
         [labels.summary_card_total_label ?? "카드대금", summary.card_total],
@@ -1036,14 +1070,17 @@ function SummaryPanel({ summary, labels }: { summary: Summary | null; labels: Re
         <h2>{labels.summary_title ?? "요약"} / 인사이트</h2>
       </div>
       {summary ? (
-        <dl>
-          {rows.map(([label, value]) => (
-            <div key={label} className={label === (labels.summary_next_month_liquidity_label ?? "익월 유동성") ? "total" : ""}>
-              <dt>{label}</dt>
-              <dd>{formatWon(value as number)}</dd>
-            </div>
-          ))}
-        </dl>
+        <>
+          <p className={`committee-verdict ${committee.level}`}>{committee.message}</p>
+          <dl>
+            {rows.map(([label, value]) => (
+              <div key={label} className={label === (labels.summary_next_month_liquidity_label ?? "익월 유동성") ? "total" : ""}>
+                <dt>{label}</dt>
+                <dd>{formatWon(value as number)}</dd>
+              </div>
+            ))}
+          </dl>
+        </>
       ) : (
         <p className="empty">요약을 불러오는 중입니다.</p>
       )}
