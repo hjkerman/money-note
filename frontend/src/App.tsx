@@ -1673,7 +1673,8 @@ function PlannedTable({
       <thead>
         <tr>
           <th>결제일</th>
-          <th>적요</th>
+          <th>사용처</th>
+          <th>사용항목</th>
           <th className="amount">금액</th>
           <th className="action-cell">확인</th>
           <th className="action-cell">삭제</th>
@@ -1683,7 +1684,8 @@ function PlannedTable({
         {entries.map((entry) => (
           <tr key={entry.id}>
             <td className="date">{entry.due_day ? `매월 ${entry.due_day}일` : "날짜 없음"}</td>
-            <td>{displayEntryTitle(entry)}</td>
+            <td>{entry.usage_place ?? ""}</td>
+            <td>{entry.usage_item ?? displayEntryTitle(entry)}</td>
             <td className="amount">{formatWon(entry.amount_value)}</td>
             <td className="action-cell">
               <button type="button" onClick={() => onConfirm(entry)}>
