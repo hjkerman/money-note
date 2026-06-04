@@ -20,6 +20,7 @@ from app.repository import (
     create_cash_flow,
     create_installment,
     create_panel,
+    complete_panels_by_type,
     create_entry,
     delete_cash_flow,
     delete_installment,
@@ -49,6 +50,8 @@ from app.schemas import (
     LedgerEntry,
     LedgerEntryIn,
     LedgerEntryPatch,
+    MonthCloseIn,
+    LateCardEntryIn,
     EntryReorder,
     LoginIn,
     MonthlyPanel,
@@ -69,11 +72,15 @@ from app.share_auth import (
 )
 from app.services.card_payments import (
     acknowledge_liquidity_reset,
+    cancel_toll_deferral,
+    create_late_card_entry,
     create_card_payment_event,
     current_payment_status,
+    defer_toll_payment,
     delete_card_payment_event,
 )
-from app.services.month import close_current_month, current_month_label
+from app.services.audit import clear_audit_logs, list_audit_logs, record_audit_log
+from app.services.month import calendar_month_label, close_current_month, month_close_status
 from app.services.share import shared_panel, shared_panel_html
 from app.services.summary import current_summary_values
 from app.services.workbook import export_workbook
@@ -88,6 +95,32 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+AUDIT_METHODS = {"POST", "PATCH", "DELETE"}
+AUDIT_CLEAR_PATH = "/api/audit-logs"
+
+
+@app.middleware("http")
+async def audit_mutating_api_requests(request: Request, call_next):
+    """변경 API의 경로와 결과만 기록하고 민감한 요청 본문은 남기지 않는다."""
+    user = current_user_from_request(request)
+    response = await call_next(request)
+    if (
+        request.method in AUDIT_METHODS
+        and request.url.path.startswith("/api/")
+        and not (request.method == "DELETE" and request.url.path == AUDIT_CLEAR_PATH)
+    ):
+        try:
+            record_audit_log(
+                str(user["username"]) if user else "anonymous",
+                request.method,
+                request.url.path,
+                response.status_code,
+            )
+        except Exception:
+            # 감사 로그 장애가 실제 가계부 조작을 실패시키지는 않는다.
+            pass
+    return response
+
 
 @app.on_event("startup")
 def startup() -> None:
@@ -98,6 +131,16 @@ def startup() -> None:
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.get("/api/audit-logs")
+def get_audit_logs(_: dict = Depends(require_user)) -> list[dict]:
+    return list_audit_logs()
+
+
+@app.delete("/api/audit-logs")
+def delete_audit_logs(_: dict = Depends(require_user)) -> dict[str, int]:
+    return {"deleted": clear_audit_logs()}
 
 
 @app.post("/api/auth/login", response_model=AuthUser)
@@ -185,7 +228,7 @@ def reorder_planned_entries(payload: EntryReorder, _: dict = Depends(require_use
 
 @app.get("/api/month/current/panels", response_model=list[MonthlyPanel])
 def get_current_panels(_: dict = Depends(require_user)) -> list[dict]:
-    return list_panels(current_month_label())
+    return list_panels(calendar_month_label())
 
 
 @app.post("/api/month/current/panels", response_model=MonthlyPanel)
@@ -223,7 +266,14 @@ def remove_panel(panel_id: int, _: dict = Depends(require_user)) -> dict[str, bo
 def remove_panels_by_type(panel_type: str, _: dict = Depends(require_user)) -> dict[str, int]:
     if panel_type not in {"fixed", "frozen", "claim", "settlement"}:
         raise HTTPException(status_code=404, detail="unknown panel type")
-    return {"deleted": delete_panels_by_type(current_month_label(), panel_type)}
+    return {"deleted": delete_panels_by_type(calendar_month_label(), panel_type)}
+
+
+@app.post("/api/month/current/panels/type/{panel_type}/complete")
+def complete_current_panels_by_type(panel_type: str, _: dict = Depends(require_user)) -> dict[str, int]:
+    if panel_type not in {"claim", "settlement"}:
+        raise HTTPException(status_code=404, detail="only claim and settlement can be completed in bulk")
+    return {"completed": complete_panels_by_type(calendar_month_label(), panel_type)}
 
 
 @app.get("/api/month/current/summary", response_model=Summary)
@@ -259,9 +309,44 @@ def post_acknowledge_liquidity_reset(_: dict = Depends(require_user)) -> dict[st
     return acknowledge_liquidity_reset()
 
 
+@app.post("/api/card-payments/late-entries")
+def post_late_card_entry(payload: LateCardEntryIn, _: dict = Depends(require_user)) -> dict:
+    try:
+        return create_late_card_entry(payload)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+
+
+@app.post("/api/card-payments/deferrals/{entry_payment_key}")
+def post_card_payment_deferral(entry_payment_key: str, _: dict = Depends(require_user)) -> dict[str, str]:
+    try:
+        return defer_toll_payment(entry_payment_key)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+
+
+@app.delete("/api/card-payments/deferrals/{entry_payment_key}")
+def remove_card_payment_deferral(entry_payment_key: str, _: dict = Depends(require_user)) -> dict[str, bool]:
+    try:
+        deleted = cancel_toll_deferral(entry_payment_key)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+    if not deleted:
+        raise HTTPException(status_code=404, detail="current payment deferral not found")
+    return {"deleted": True}
+
+
 @app.post("/api/month/current/close")
-def close_month(_: dict = Depends(require_user)) -> dict[str, int]:
-    return close_current_month()
+def close_month(payload: MonthCloseIn, _: dict = Depends(require_user)) -> dict:
+    try:
+        return close_current_month(allow_early_close=payload.allow_early_close)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+
+
+@app.get("/api/month/current/status")
+def get_month_close_status(_: dict = Depends(require_user)) -> dict:
+    return month_close_status()
 
 
 @app.post("/api/share/pin")

@@ -85,6 +85,9 @@ export type CardPaymentRow = LedgerEntry & {
   discount_amount: number;
   remaining_amount: number;
   is_transport: boolean;
+  is_toll: boolean;
+  is_deferred: boolean;
+  is_carried_over: boolean;
 };
 
 export type CardPaymentEvent = {
@@ -111,6 +114,26 @@ export type CardPaymentStatus = {
   primary_income_total: number;
   rows: CardPaymentRow[];
   events: CardPaymentEvent[];
+};
+
+export type MonthCloseStatus = {
+  calendar_month: string;
+  oldest_open_month: string | null;
+  last_closed_month: string | null;
+  needs_close: boolean;
+  is_early_close: boolean;
+  early_close_available: boolean;
+  early_close_start_day: number;
+  can_close: boolean;
+};
+
+export type AuditLog = {
+  id: number;
+  occurred_at: string;
+  actor_username: string;
+  method: string;
+  path: string;
+  status_code: number;
 };
 
 export type Labels = Record<string, string>;
@@ -180,6 +203,18 @@ export async function fetchCurrentCardPayments(): Promise<CardPaymentStatus> {
   return getJson("/api/card-payments/current");
 }
 
+export async function fetchMonthCloseStatus(): Promise<MonthCloseStatus> {
+  return getJson("/api/month/current/status");
+}
+
+export async function fetchAuditLogs(): Promise<AuditLog[]> {
+  return getJson("/api/audit-logs");
+}
+
+export async function clearAuditLogs(): Promise<{ deleted: number }> {
+  return deleteJson("/api/audit-logs");
+}
+
 export async function createCardPaymentEvent(payload: {
   event_date: string;
   event_type: "immediate" | "discount";
@@ -195,6 +230,27 @@ export async function deleteCardPaymentEvent(eventId: number): Promise<{ deleted
 
 export async function acknowledgeLiquidityReset(): Promise<{ payment_month: string }> {
   return postJson("/api/card-payments/acknowledge-liquidity-reset", {});
+}
+
+export async function deferTollPayment(entryPaymentKey: string): Promise<{
+  entry_payment_key: string;
+  from_payment_month: string;
+  target_payment_month: string;
+}> {
+  return postJson(`/api/card-payments/deferrals/${entryPaymentKey}`, {});
+}
+
+export async function cancelTollDeferral(entryPaymentKey: string): Promise<{ deleted: boolean }> {
+  return deleteJson(`/api/card-payments/deferrals/${entryPaymentKey}`);
+}
+
+export async function createLateCardEntry(payload: {
+  entry_date: string;
+  usage_place: string | null;
+  usage_item: string | null;
+  amount_value: number;
+}): Promise<LedgerEntry> {
+  return postJson("/api/card-payments/late-entries", payload);
 }
 
 export async function appendPlannedEntry(payload: {
@@ -235,6 +291,10 @@ export async function deletePanelsByType(panelType: MonthlyPanel["panel_type"]):
   return deleteJson(`/api/month/current/panels/type/${panelType}`);
 }
 
+export async function completePanelsByType(panelType: "claim" | "settlement"): Promise<{ completed: number }> {
+  return postJson(`/api/month/current/panels/type/${panelType}/complete`, {});
+}
+
 export async function confirmPlannedEntry(entryId: number): Promise<{ planned: LedgerEntry; entry: LedgerEntry }> {
   return postJson(`/api/month/current/planned/${entryId}/confirm`, {});
 }
@@ -259,8 +319,12 @@ export async function deleteCashFlow(flowId: number): Promise<{ deleted: boolean
   return deleteJson(`/api/cash-flows/${flowId}`);
 }
 
-export async function closeCurrentMonth(): Promise<{ archived: number; deleted_from_current: number }> {
-  return postJson("/api/month/current/close", {});
+export async function closeCurrentMonth(allowEarlyClose = false): Promise<{
+  closed_month: string | null;
+  archived: number;
+  deleted_from_current: number;
+}> {
+  return postJson("/api/month/current/close", { allow_early_close: allowEarlyClose });
 }
 
 export async function createExport(): Promise<{ filename: string; latest: string }> {

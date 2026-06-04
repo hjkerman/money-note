@@ -1,0 +1,49 @@
+import os
+from pathlib import Path
+import tempfile
+import unittest
+from unittest.mock import patch
+
+from app.config import get_settings
+from app.db import init_db, session
+from app.repository import complete_panels_by_type
+
+
+class PanelCompletionTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.db_path = Path(self.temp_dir.name) / "money-note.sqlite3"
+        self.env = patch.dict(os.environ, {"MONEY_NOTE_DB_PATH": str(self.db_path)})
+        self.env.start()
+        get_settings.cache_clear()
+        init_db()
+        with session() as conn:
+            conn.execute(
+                """
+                INSERT INTO monthly_panels(month, panel_type, title, amount_value, sort_order)
+                VALUES
+                    ('2026-06', 'claim', '청구 하나', 1000, 1),
+                    ('2026-06', 'claim', '청구 둘', 2000, 2),
+                    ('2026-06', 'settlement', '정산 하나', 3000, 1),
+                    ('2026-06', 'frozen', '동결 하나', 4000, 1)
+                """
+            )
+
+    def tearDown(self) -> None:
+        get_settings.cache_clear()
+        self.env.stop()
+        self.temp_dir.cleanup()
+
+    def test_bulk_completion_deletes_only_selected_delivery_queue(self) -> None:
+        completed = complete_panels_by_type("2026-06", "claim")
+
+        self.assertEqual(completed, 2)
+        with session() as conn:
+            remaining = conn.execute(
+                "SELECT panel_type, COUNT(*) AS count FROM monthly_panels GROUP BY panel_type ORDER BY panel_type"
+            ).fetchall()
+        self.assertEqual([(row["panel_type"], row["count"]) for row in remaining], [("frozen", 1), ("settlement", 1)])
+
+
+if __name__ == "__main__":
+    unittest.main()

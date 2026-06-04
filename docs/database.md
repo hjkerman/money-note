@@ -27,6 +27,8 @@
 - `installments`: 할부 기록
 - `card_payment_events`: 즉시결제와 수기 할인액 처리 기록
 - `card_payment_allocations`: 결제/할인액의 사용내역별 배분
+- `card_payment_deferrals`: 통행료/하이패스 이월과 원본 장부 상태
+- `audit_logs`: 변경 API 감사 로그
 
 인덱스:
 
@@ -81,7 +83,7 @@ CREATE TABLE IF NOT EXISTS ledger_entries (
 | --- | --- | --- |
 | `id` | INTEGER | PK |
 | `book_section` | TEXT | `current` 또는 `archive` |
-| `entry_kind` | TEXT | `expense`, `planned` 등 기록 종류 |
+| `entry_kind` | TEXT | `expense`, `planned`, `late_expense` 등 기록 종류 |
 | `entry_date` | TEXT | 실제 날짜. `YYYY-MM-DD` |
 | `date_label` | TEXT | Excel에 표시할 날짜 문자열. 예: `2026.06.03.` |
 | `group_label` | TEXT | 날짜가 아닌 그룹 라벨. 예: `나갈 돈` |
@@ -125,10 +127,14 @@ ORDER BY sort_order, id;
 
 월마감 규칙:
 
-- `current`의 `entry_kind != 'planned'`인 행은 `archive`로 복사된다.
+- `current`의 가장 오래된 미마감 월에 속한 `entry_kind != 'planned'` 행만 `archive`로 복사된다.
 - 복사본은 기존 archive 동적 기록의 마지막 `sort_order` 뒤에 붙는다.
 - 원본 current 행은 삭제된다.
 - `planned` 행은 삭제되지 않는다.
+- 현재 달은 매월 27일부터 명시 확인 후 조기 월마감할 수 있다.
+- 새 달 기록이 이미 있어도 가장 오래된 미마감 월만 이동한다.
+- `last_closed_month` 이하 날짜로 새 일반 지출을 입력하면 `archive`에 바로 추가된다.
+- `late_expense`는 카드사가 뒤늦게 매입한 전월 기록이며 처음부터 archive에 추가된다.
 
 ## `archive_rows`
 
@@ -449,6 +455,52 @@ CREATE TABLE IF NOT EXISTS auth_sessions (
 | `amount_value` | 해당 사용내역에 배분한 즉시결제 또는 할인액 |
 
 하나의 사용내역에 여러 번 일부결제할 수 있고, 한 번의 결제 event를 여러 사용내역에 나눠 배분할 수 있다.
+
+단, 적요에 `통행료` 또는 `하이패스`가 포함된 항목은 할인과 일부결제를 허용하지 않고 남은 금액 전액만 즉시결제할 수 있다.
+
+## `card_payment_deferrals`
+
+통행료/하이패스 항목을 다음 결제월로 이월할 때 원본 장부 상태를 보관한다.
+
+| 컬럼 | 설명 |
+| --- | --- |
+| `entry_payment_key` | 이월한 `ledger_entries.payment_key`. PK |
+| `from_payment_month` | 이월을 선택한 결제월 |
+| `target_payment_month` | 실제 처리 대상으로 넘긴 다음 결제월 |
+| `original_book_section` | 이월 전 `current` 또는 `archive` |
+| `original_entry_date` | 이월 전 실제 날짜 |
+| `original_date_label` | 이월 전 표시 날짜 |
+| `original_group_label` | 이월 전 그룹 라벨 |
+| `original_title` | 이월 전 적요 |
+| `original_sort_order` | 이월 전 정렬 위치 |
+
+이월 시 원본 `ledger_entries` 행 자체를 현재 월 장부 맨 앞으로 옮긴다.
+
+- `book_section = current`
+- 내부 `entry_date = 이월을 선택한 결제월의 1일`
+- 화면/Excel 표시 날짜인 `date_label`, `group_label`은 빈 문자열
+- `title` 앞에는 `[이월]` 추가
+- 기존 현재 월 장부의 최소 `sort_order`보다 1 작은 값을 사용해 맨 앞에 배치
+
+같은 결제월에 `이번 달에 처리`를 선택하면 보관한 원본 상태를 복원하고 이월 행을 삭제한다. 월마감 후에는 `[이월]` 장부 행이 일반 당월 사용내역처럼 archive로 이동한다.
+
+## 청구·타인정산 처리
+
+`monthly_panels`의 `claim`, `settlement` 항목은 장기 기록이 아니라 가족에게 전달하기 전까지 유지하는 임시 큐다. 미마감 장부 월과 무관하게 달력상 현재 연-월을 사용한다. `일괄 처리 완료` 시 선택한 타입의 현재 월 행을 삭제한다. 이 동작은 다른 패널 타입과 월마감에 영향을 주지 않는다.
+
+## `audit_logs`
+
+변경 API의 최소 감사 정보를 저장한다.
+
+| 컬럼 | 설명 |
+| --- | --- |
+| `occurred_at` | 요청 처리 시각 |
+| `actor_username` | 로그인 사용자명. 인증 전 요청은 `anonymous` |
+| `method` | `POST`, `PATCH`, `DELETE` |
+| `path` | API 경로. query와 요청 본문은 저장하지 않음 |
+| `status_code` | HTTP 결과 코드 |
+
+`DELETE /api/audit-logs`는 전체 행을 삭제하며, 초기화 요청 자체는 다시 기록하지 않는다.
 
 ## Export와 DB의 관계
 

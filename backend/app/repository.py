@@ -349,6 +349,16 @@ def delete_panels_by_type(month: str, panel_type: str) -> int:
     return cursor.rowcount
 
 
+def complete_panels_by_type(month: str, panel_type: str) -> int:
+    """청구 또는 타인정산의 현재 전달분을 일괄 처리하고 제거한다."""
+    with session() as conn:
+        cursor = conn.execute(
+            "DELETE FROM monthly_panels WHERE month = ? AND panel_type = ?",
+            (month, panel_type),
+        )
+    return cursor.rowcount
+
+
 def create_entry(entry: LedgerEntryIn) -> dict[str, Any]:
     values = entry.model_dump()
     if values["entry_kind"] != "planned" and not values.get("payment_key"):
@@ -356,6 +366,18 @@ def create_entry(entry: LedgerEntryIn) -> dict[str, Any]:
     placeholders = ", ".join("?" for _ in ENTRY_COLUMNS)
     columns = ", ".join(ENTRY_COLUMNS)
     with session() as conn:
+        # 이미 마감한 달의 뒤늦은 지출은 다음 달 장부에 섞지 않고 전체 기록에 바로 보관한다.
+        if values["book_section"] == "current" and values["entry_kind"] != "planned" and values.get("entry_date"):
+            setting = conn.execute(
+                "SELECT value FROM app_settings WHERE key = 'last_closed_month'"
+            ).fetchone()
+            entry_month = str(values["entry_date"])[:7]
+            if setting and entry_month <= str(setting["value"]):
+                values["book_section"] = "archive"
+                next_order = conn.execute(
+                    "SELECT COALESCE(MAX(sort_order), 0) + 1 AS next_order FROM ledger_entries WHERE book_section = 'archive'"
+                ).fetchone()["next_order"]
+                values["sort_order"] = int(next_order)
         cursor = conn.execute(
             f"INSERT INTO ledger_entries ({columns}) VALUES ({placeholders})",
             tuple(values[column] for column in ENTRY_COLUMNS),

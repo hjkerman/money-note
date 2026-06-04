@@ -1,18 +1,23 @@
 import { FormEvent, ReactNode, useEffect, useMemo, useState } from "react";
 import {
   AuthUser,
+  AuditLog,
   CardPaymentRow,
   CardPaymentStatus,
   CashFlow,
   Installment,
   LedgerEntry,
   MonthlyPanel,
+  MonthCloseStatus,
   Settings,
   SpendingCategory,
   Summary,
   acknowledgeLiquidityReset,
   appendPlannedEntry,
+  cancelTollDeferral,
+  clearAuditLogs,
   closeCurrentMonth,
+  completePanelsByType,
   confirmFrozenPanel,
   confirmPlannedEntry,
   createCashFlow,
@@ -20,22 +25,25 @@ import {
   createEntry,
   createExport,
   createInstallment,
+  createLateCardEntry,
   createPanel,
   deleteEntry,
   deleteCashFlow,
   deleteCardPaymentEvent,
   deleteInstallment,
   deletePanel,
-  deletePanelsByType,
   deletePlannedEntry,
+  deferTollPayment,
   fetchCashFlows,
   fetchCurrentCardPayments,
   fetchArchiveEntries,
+  fetchAuditLogs,
   fetchCurrentEntries,
   fetchCurrentPanels,
   fetchInstallments,
   fetchLabels,
   fetchMe,
+  fetchMonthCloseStatus,
   fetchSettings,
   fetchSummary,
   latestExportUrl,
@@ -80,6 +88,8 @@ export function App() {
   const [cashFlows, setCashFlows] = useState<CashFlow[]>([]);
   const [installments, setInstallments] = useState<Installment[]>([]);
   const [cardPayments, setCardPayments] = useState<CardPaymentStatus | null>(null);
+  const [monthCloseStatus, setMonthCloseStatus] = useState<MonthCloseStatus | null>(null);
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [summary, setSummary] = useState<Summary | null>(null);
   const [labels, setLabels] = useState<Record<string, string>>({});
   const [settings, setSettings] = useState<Settings>({});
@@ -113,11 +123,18 @@ export function App() {
   const [activeCurrentTab, setActiveCurrentTab] = useState<CurrentTab>("expenses");
   const [selectedHistoryMonth, setSelectedHistoryMonth] = useState(today.slice(0, 7));
   const [showStats, setShowStats] = useState(false);
+  const [showAuditLogs, setShowAuditLogs] = useState(false);
   const [pendingCategoryChanges, setPendingCategoryChanges] = useState<Record<number, SpendingCategory | null>>({});
   const [paymentAllocations, setPaymentAllocations] = useState<Record<string, string>>({});
   const [paymentBudget, setPaymentBudget] = useState("");
   const [fallbackLiquidityInput, setFallbackLiquidityInput] = useState("");
   const [isDiscountMode, setIsDiscountMode] = useState(false);
+  const [lateEntryForm, setLateEntryForm] = useState({
+    date: previousMonthLastDay(today),
+    usagePlace: "",
+    usageItem: "",
+    amount: "",
+  });
 
   const plannedEntries = entries.filter((entry) => entry.entry_kind === "planned");
   const expenseEntries = entries.filter((entry) => entry.entry_kind !== "planned");
@@ -215,6 +232,7 @@ export function App() {
         nextSettings,
         nextInstallments,
         nextCardPayments,
+        nextMonthCloseStatus,
       ] = await Promise.all([
         fetchCurrentEntries(),
         fetchArchiveEntries(),
@@ -225,6 +243,7 @@ export function App() {
         fetchSettings(),
         fetchInstallments(),
         fetchCurrentCardPayments(),
+        fetchMonthCloseStatus(),
       ]);
       setEntries(nextEntries);
       setArchiveEntries(nextArchiveEntries);
@@ -235,6 +254,7 @@ export function App() {
       setSettings(nextSettings);
       setInstallments(nextInstallments);
       setCardPayments(nextCardPayments);
+      setMonthCloseStatus(nextMonthCloseStatus);
       setStatus("동기화 완료");
     } catch (error) {
       if (isAuthRequiredError(error)) {
@@ -324,7 +344,7 @@ export function App() {
     await withRefresh(async () => {
       const dateLabel = formatDateLabel(expenseForm.date);
       const title = formatUsageTitle(usagePlace, usageItem);
-      await createEntry({
+      const created = await createEntry({
         book_section: "current",
         entry_kind: "expense",
         entry_date: expenseForm.date || null,
@@ -344,7 +364,7 @@ export function App() {
         spending_category: null,
       });
       setExpenseForm({ date: expenseForm.date, usagePlace: "", usageItem: "", amount: "" });
-      setStatus("당월 기록 추가 완료");
+      setStatus(created.book_section === "archive" ? "이미 마감한 달의 전체 기록에 추가 완료" : "당월 기록 추가 완료");
     });
   }
 
@@ -372,7 +392,7 @@ export function App() {
     await withRefresh(async () => {
       const sameTypePanels = panels.filter((panel) => panel.panel_type === panelType);
       await createPanel({
-        month: currentMonth,
+        month: monthCloseStatus?.calendar_month ?? today.slice(0, 7),
         panel_type: panelType,
         title: panelForm.title.trim(),
         amount_value: parseAmount(panelForm.amount),
@@ -447,14 +467,16 @@ export function App() {
     });
   }
 
-  async function handlePanelReset(panelType: PanelType) {
+  async function handlePanelComplete(panelType: "claim" | "settlement") {
     const targetPanels = panels.filter((panel) => panel.panel_type === panelType);
     if (!targetPanels.length) return;
-    const confirmed = window.confirm(`${panelLabel(labels, panelType)} 항목 ${targetPanels.length}개를 전부 초기화할까요?`);
+    const confirmed = window.confirm(
+      `${panelLabel(labels, panelType)} 항목 ${targetPanels.length}개를 일괄 처리 완료할까요?\n\n현재 목록과 공유 페이지에서 삭제됩니다.`,
+    );
     if (!confirmed) return;
     await withRefresh(async () => {
-      await deletePanelsByType(panelType);
-      setStatus(`${panelLabel(labels, panelType)} 초기화 완료`);
+      const result = await completePanelsByType(panelType);
+      setStatus(`${panelLabel(labels, panelType)} ${result.completed}개 처리 완료`);
     });
   }
 
@@ -537,7 +559,8 @@ export function App() {
     let remainingBudget = Math.max(0, parseAmount(paymentBudget) ?? summary?.liquidity_status ?? 0);
     const next: Record<string, string> = {};
     for (const row of cardPayments.rows) {
-      if (!row.payment_key || row.remaining_amount <= 0 || remainingBudget <= 0) continue;
+      if (!row.payment_key || row.is_deferred || row.remaining_amount <= 0 || remainingBudget <= 0) continue;
+      if (row.is_toll && row.remaining_amount > remainingBudget) continue;
       const allocated = Math.min(row.remaining_amount, remainingBudget);
       next[row.payment_key] = String(Math.round(allocated));
       remainingBudget -= allocated;
@@ -590,6 +613,47 @@ export function App() {
     });
   }
 
+  async function handleTollDeferral(row: CardPaymentRow, defer: boolean) {
+    if (!row.payment_key) return;
+    const confirmed = window.confirm(
+      defer
+        ? `${displayEntryTitle(row)} 항목을 다음 달 결제로 이월할까요?`
+        : `${displayEntryTitle(row)} 항목을 이번 달 결제 대상으로 되돌릴까요?`,
+    );
+    if (!confirmed) return;
+    await withRefresh(async () => {
+      if (defer) await deferTollPayment(row.payment_key as string);
+      else await cancelTollDeferral(row.payment_key as string);
+      setPaymentAllocations((current) => {
+        const next = { ...current };
+        delete next[row.payment_key as string];
+        return next;
+      });
+      setStatus(defer ? "통행료 다음 달 이월 완료" : "통행료 이번 달 처리 대상으로 복귀");
+    });
+  }
+
+  async function handleLateEntrySubmit(event: FormEvent) {
+    event.preventDefault();
+    const amount = parseAmount(lateEntryForm.amount);
+    if (amount === null || amount <= 0 || (!lateEntryForm.usagePlace.trim() && !lateEntryForm.usageItem.trim())) return;
+    await withRefresh(async () => {
+      await createLateCardEntry({
+        entry_date: lateEntryForm.date,
+        usage_place: lateEntryForm.usagePlace.trim() || null,
+        usage_item: lateEntryForm.usageItem.trim() || null,
+        amount_value: amount,
+      });
+      setLateEntryForm({
+        date: previousMonthLastDay(today),
+        usagePlace: "",
+        usageItem: "",
+        amount: "",
+      });
+      setStatus("전월 매입 지연 내역 추가 완료");
+    });
+  }
+
   async function handleFallbackLiquiditySave() {
     const amount = parseAmount(fallbackLiquidityInput);
     if (amount === null || amount < 0) return;
@@ -627,12 +691,56 @@ export function App() {
     });
   }
 
+  async function handleAuditLogToggle() {
+    if (showAuditLogs) {
+      setShowAuditLogs(false);
+      return;
+    }
+    setIsBusy(true);
+    try {
+      setAuditLogs(await fetchAuditLogs());
+      setShowAuditLogs(true);
+      setStatus("관리 로그 조회 완료");
+    } catch (error) {
+      setStatus(`관리 로그 조회 실패: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      setIsBusy(false);
+    }
+  }
+
+  async function handleAuditLogClear() {
+    const confirmed = window.confirm("관리 로그를 전부 초기화할까요?\n\n이 작업은 되돌릴 수 없습니다.");
+    if (!confirmed) return;
+    setIsBusy(true);
+    try {
+      const result = await clearAuditLogs();
+      setAuditLogs([]);
+      setStatus(`관리 로그 ${result.deleted}개 초기화 완료`);
+    } catch (error) {
+      setStatus(`관리 로그 초기화 실패: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      setIsBusy(false);
+    }
+  }
+
   async function handleCloseMonth() {
-    const confirmed = window.confirm("카드 정기결제를 제외한 당월 기록을 전체 기록으로 넘길까요?");
+    const targetMonth = monthCloseStatus?.oldest_open_month;
+    const isEarlyClose = Boolean(targetMonth && targetMonth === monthCloseStatus?.calendar_month);
+    const confirmed = window.confirm(
+      isEarlyClose
+        ? `${formatMonthLabel(targetMonth!)}을 조기 월마감할까요?\n\n이후 같은 달 날짜로 추가하는 지출은 전체 기록에 바로 보관됩니다. 청구와 타인정산은 영향을 받지 않습니다.`
+        : targetMonth
+        ? `${formatMonthLabel(targetMonth)} 기록만 월마감하여 전체 기록으로 넘길까요?`
+        : "가장 오래된 미마감 월 기록을 전체 기록으로 넘길까요?",
+    );
     if (!confirmed) return;
     await withRefresh(async () => {
-      const result = await closeCurrentMonth();
-      setStatus(`월마감 완료: ${result.archived}개 archive`);
+      const result = await closeCurrentMonth(isEarlyClose);
+      setStatus(
+        result.closed_month
+          ? `${formatMonthLabel(result.closed_month)} 월마감 완료: ${result.archived}개 archive`
+          : "월마감할 기록이 없습니다.",
+      );
     });
   }
 
@@ -723,7 +831,15 @@ export function App() {
           <button type="button" onClick={() => setShowStats(!showStats)} disabled={isBusy}>
             통계 {showStats ? "끄기" : "보기"}
           </button>
-          <button type="button" className="danger" onClick={() => void handleCloseMonth()} disabled={isBusy}>
+          <button type="button" onClick={() => void handleAuditLogToggle()} disabled={isBusy}>
+            관리 로그
+          </button>
+          <button
+            type="button"
+            className="danger"
+            onClick={() => void handleCloseMonth()}
+            disabled={isBusy || !monthCloseStatus?.can_close}
+          >
             월마감
           </button>
           <button type="button" onClick={() => void handleLogout()} disabled={isBusy}>
@@ -733,6 +849,9 @@ export function App() {
       </header>
 
       <section className="statusline">{status}</section>
+      {showAuditLogs ? (
+        <AuditLogPanel logs={auditLogs} onClear={() => void handleAuditLogClear()} isBusy={isBusy} />
+      ) : null}
       {authUser.share_pin_needs_change ? (
         <section className="security-warning">
           <div>
@@ -741,6 +860,17 @@ export function App() {
           </div>
           <button type="button" className="save-needed" onClick={() => void handleSharePinSet()} disabled={isBusy}>
             지금 PIN 변경
+          </button>
+        </section>
+      ) : null}
+      {monthCloseStatus?.needs_close && monthCloseStatus.oldest_open_month ? (
+        <section className="month-close-warning">
+          <div>
+            <strong>{formatMonthLabel(monthCloseStatus.oldest_open_month)} 장부가 아직 열려 있습니다.</strong>
+            <span>말일 사용내역과 카드사 지연 매입을 모두 적었다면 월마감하세요. 새 달 기록은 그대로 남습니다.</span>
+          </div>
+          <button type="button" className="save-needed" onClick={() => void handleCloseMonth()} disabled={isBusy}>
+            월마감 검토
           </button>
         </section>
       ) : null}
@@ -884,9 +1014,8 @@ export function App() {
                     <PanelTable
                       title={panelLabel(labels, tab)}
                       rows={panels.filter((panel) => panel.panel_type === tab)}
-                      categoryForPanel={tab === "claim" ? classifyClaimPanel : undefined}
                       onDelete={(panel) => void handlePanelDelete(panel)}
-                      onReset={tab === "claim" || tab === "settlement" ? () => void handlePanelReset(tab) : undefined}
+                      onComplete={tab === "claim" || tab === "settlement" ? () => void handlePanelComplete(tab) : undefined}
                       form={
                         <PanelAppendForm
                           isBusy={isBusy}
@@ -986,6 +1115,10 @@ export function App() {
               onSelect={handlePaymentSelection}
               onSubmit={() => void handleCardPaymentSubmit()}
               onDeleteEvent={(eventId) => void handleCardPaymentEventDelete(eventId)}
+              onTollDeferral={(row, defer) => void handleTollDeferral(row, defer)}
+              lateEntryForm={lateEntryForm}
+              setLateEntryForm={setLateEntryForm}
+              onLateEntrySubmit={handleLateEntrySubmit}
               isBusy={isBusy}
             />
           </section>
@@ -1088,6 +1221,48 @@ function SummaryPanel({
   );
 }
 
+function AuditLogPanel({ logs, onClear, isBusy }: { logs: AuditLog[]; onClear: () => void; isBusy: boolean }) {
+  return (
+    <section className="panel audit-panel">
+      <div className="panel-header">
+        <div>
+          <h2>관리 로그</h2>
+          <p>변경 API의 경로와 처리 결과만 기록합니다. 요청 본문과 비밀번호는 저장하지 않습니다.</p>
+        </div>
+        <button type="button" className="danger" onClick={onClear} disabled={isBusy || !logs.length}>
+          로그 초기화
+        </button>
+      </div>
+      {logs.length ? (
+        <table>
+          <thead>
+            <tr>
+              <th>시각</th>
+              <th>사용자</th>
+              <th>요청</th>
+              <th>경로</th>
+              <th className="amount">결과</th>
+            </tr>
+          </thead>
+          <tbody>
+            {logs.map((log) => (
+              <tr key={log.id}>
+                <td className="date">{formatAuditTimestamp(log.occurred_at)}</td>
+                <td>{log.actor_username}</td>
+                <td>{log.method}</td>
+                <td className="audit-path">{log.path}</td>
+                <td className="amount">{log.status_code}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p className="empty">기록된 변경 로그가 없습니다.</p>
+      )}
+    </section>
+  );
+}
+
 function StatsPanel({ items }: { items: StatItem[] }) {
   const rows = spendingStatTones().map((tone) => ({
     ...tone,
@@ -1174,6 +1349,10 @@ function CardPaymentPanel({
   onSelect,
   onSubmit,
   onDeleteEvent,
+  onTollDeferral,
+  lateEntryForm,
+  setLateEntryForm,
+  onLateEntrySubmit,
   isBusy,
 }: {
   status: CardPaymentStatus | null;
@@ -1193,6 +1372,10 @@ function CardPaymentPanel({
   onSelect: (row: CardPaymentRow, selected: boolean) => void;
   onSubmit: () => void;
   onDeleteEvent: (eventId: number) => void;
+  onTollDeferral: (row: CardPaymentRow, defer: boolean) => void;
+  lateEntryForm: { date: string; usagePlace: string; usageItem: string; amount: string };
+  setLateEntryForm: (value: { date: string; usagePlace: string; usageItem: string; amount: string }) => void;
+  onLateEntrySubmit: (event: FormEvent) => Promise<void>;
   isBusy: boolean;
 }) {
   if (!status) {
@@ -1237,12 +1420,15 @@ function CardPaymentPanel({
           <button type="button" onClick={onFallbackLiquiditySave} disabled={isBusy}>저장</button>
         </div>
         <div className="payment-controls">
-          <input
-            value={paymentBudget}
-            onChange={(event) => setPaymentBudget(event.target.value)}
-            inputMode="numeric"
-            placeholder={`자동 배분 한도 (기본 현재 유동성 ${formatWon(availableLiquidity)})`}
-          />
+          <label className="payment-budget-field">
+            <span>자동 배분 한도</span>
+            <input
+              value={paymentBudget}
+              onChange={(event) => setPaymentBudget(event.target.value)}
+              inputMode="numeric"
+              placeholder={`미입력 시 ${formatWon(availableLiquidity)}`}
+            />
+          </label>
           <button type="button" onClick={onAutoAllocate} disabled={isBusy || !status.immediate_allowed}>
             날짜순 자동 배분
           </button>
@@ -1261,10 +1447,60 @@ function CardPaymentPanel({
         </div>
       </section>
 
+      <section className="panel late-entry-panel">
+        <div className="panel-header">
+          <div>
+            <h2>전월 매입 지연 보정</h2>
+            <p>카드사가 월말 뒤에 올린 직전월 사용내역을 추가합니다. 과거 기록은 삭제하지 않습니다.</p>
+          </div>
+          <span>{status.rows.filter((row) => row.entry_kind === "late_expense").length}건</span>
+        </div>
+        {status.rows.some((row) => row.entry_kind === "late_expense") ? (
+          <table>
+            <thead><tr><th>날짜</th><th>적요</th><th className="amount">금액</th></tr></thead>
+            <tbody>
+              {status.rows.filter((row) => row.entry_kind === "late_expense").map((row) => (
+                <tr key={row.id}>
+                  <td className="date">{row.date_label}</td>
+                  <td>{displayEntryTitle(row)}</td>
+                  <td className="amount">{formatWon(row.amount_value)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : <p className="empty">카드사가 뒤늦게 제출한 전월 내역이 없습니다.</p>}
+        <form className="entry-form" onSubmit={(event) => void onLateEntrySubmit(event)}>
+          <input
+            type="date"
+            value={lateEntryForm.date}
+            min={previousMonthFirstDay(today)}
+            max={previousMonthLastDay(today)}
+            onChange={(event) => setLateEntryForm({ ...lateEntryForm, date: event.target.value })}
+          />
+          <input
+            value={lateEntryForm.usagePlace}
+            onChange={(event) => setLateEntryForm({ ...lateEntryForm, usagePlace: event.target.value })}
+            placeholder="사용처"
+          />
+          <input
+            value={lateEntryForm.usageItem}
+            onChange={(event) => setLateEntryForm({ ...lateEntryForm, usageItem: event.target.value })}
+            placeholder="사용항목"
+          />
+          <input
+            value={lateEntryForm.amount}
+            onChange={(event) => setLateEntryForm({ ...lateEntryForm, amount: event.target.value })}
+            inputMode="numeric"
+            placeholder="금액"
+          />
+          <button type="submit" disabled={isBusy}>추가</button>
+        </form>
+      </section>
+
       <section className="panel payment-ledger">
         <div className="panel-header">
           <h2>결제 대상 사용내역</h2>
-          <span>{status.rows.filter((row) => row.remaining_amount > 0).length}건</span>
+          <span>{status.rows.filter((row) => !row.is_deferred && row.remaining_amount > 0).length}건</span>
         </div>
         {status.rows.length ? (
           <table>
@@ -1285,17 +1521,45 @@ function CardPaymentPanel({
                 const key = row.payment_key ?? "";
                 const selected = Boolean(key && hasOwn(allocations, key));
                 return (
-                  <tr key={row.id} className={row.remaining_amount <= 0 ? "paid-row" : ""}>
+                  <tr
+                    key={row.id}
+                    className={[
+                      row.remaining_amount <= 0 ? "paid-row" : "",
+                      row.is_deferred ? "deferred-row" : "",
+                      row.is_carried_over ? "carried-row" : "",
+                    ].filter(Boolean).join(" ")}
+                  >
                     <td className="select-cell">
                       <input
                         type="checkbox"
                         checked={selected}
-                        disabled={!key || row.remaining_amount <= 0 || !status.immediate_allowed}
+                        disabled={
+                          !key ||
+                          row.is_deferred ||
+                          row.remaining_amount <= 0 ||
+                          !status.immediate_allowed ||
+                          (isDiscountMode && row.is_toll)
+                        }
                         onChange={(event) => onSelect(row, event.target.checked)}
                       />
                     </td>
-                    <td className="date">{row.date_label ?? ""}</td>
-                    <td>{displayEntryTitle(row)}{row.is_transport ? <span className="transport-badge">교통</span> : null}</td>
+                    <td className="date">{row.is_carried_over ? "" : row.date_label ?? ""}</td>
+                    <td>
+                      {displayEntryTitle(row)}
+                      {row.is_transport ? <span className="transport-badge">교통</span> : null}
+                      {row.is_toll ? <span className="toll-badge">통행료</span> : null}
+                      {row.is_deferred ? <span className="deferred-badge">다음 달 이월 예정</span> : null}
+                      {row.is_toll && !row.is_carried_over && row.remaining_amount > 0 ? (
+                        <button
+                          type="button"
+                          className="inline-action"
+                          disabled={isBusy || !status.immediate_allowed}
+                          onClick={() => onTollDeferral(row, !row.is_deferred)}
+                        >
+                          {row.is_deferred ? "이번 달에 처리" : "이월"}
+                        </button>
+                      ) : null}
+                    </td>
                     <td className="amount">{formatWon(row.original_amount)}</td>
                     <td className="amount">{formatWon(row.immediate_paid_amount)}</td>
                     <td className="amount">{formatWon(row.discount_amount)}</td>
@@ -1303,7 +1567,7 @@ function CardPaymentPanel({
                     <td className="payment-input-cell">
                       <input
                         value={selected ? allocations[key] : ""}
-                        disabled={!selected}
+                        disabled={!selected || row.is_toll}
                         inputMode="numeric"
                         max={row.remaining_amount}
                         onChange={(event) => setAllocations({ ...allocations, [key]: event.target.value })}
@@ -1592,7 +1856,8 @@ function EntryTable({
       <thead>
         <tr>
           <th>날짜</th>
-          <th>적요</th>
+          <th>사용처</th>
+          <th>사용항목</th>
           {onCategoryChange ? <th className="category-cell">분류</th> : null}
           <th className="amount">금액</th>
           {onDelete ? <th className="action-cell">삭제</th> : null}
@@ -1606,7 +1871,8 @@ function EntryTable({
           return (
             <tr key={entry.id}>
               <td className="date">{entry.date_label ?? entry.group_label ?? ""}</td>
-              <td>{displayEntryTitle(entry)}</td>
+              <td>{entry.usage_place ?? ""}</td>
+              <td>{entry.usage_item ?? displayEntryTitle(entry)}</td>
               {onCategoryChange ? (
                 <td className="category-cell">
                   <select
@@ -1643,6 +1909,7 @@ function PanelTable({
   onConfirmFrozen,
   onDelete,
   onReset,
+  onComplete,
   categoryForPanel,
   form,
 }: {
@@ -1651,6 +1918,7 @@ function PanelTable({
   onConfirmFrozen?: (panel: MonthlyPanel) => void;
   onDelete?: (panel: MonthlyPanel) => void;
   onReset?: () => void;
+  onComplete?: () => void;
   categoryForPanel?: (panel: MonthlyPanel) => SpendingCategory | null;
   form?: ReactNode;
 }) {
@@ -1660,6 +1928,11 @@ function PanelTable({
         <h2>{title}</h2>
         <div className="header-actions">
           <span>{formatWon(sumPanelAmounts(rows))}</span>
+          {onComplete && rows.length ? (
+            <button type="button" onClick={onComplete}>
+              일괄 처리 완료
+            </button>
+          ) : null}
           {onReset && rows.length ? (
             <button type="button" className="danger" onClick={onReset}>
               초기화
@@ -1793,6 +2066,7 @@ function formatUsageTitle(usagePlace: string, usageItem: string): string {
 }
 
 function displayEntryTitle(entry: LedgerEntry): string {
+  if (entry.title.startsWith("[이월]")) return entry.title;
   if (entry.usage_place || entry.usage_item) {
     return formatUsageTitle(entry.usage_place ?? "", entry.usage_item ?? "");
   }
@@ -1862,6 +2136,20 @@ function formatMonthLabel(value: string): string {
   return `${year}년 ${Number(month)}월`;
 }
 
+function previousMonthLastDay(value: string): string {
+  const dateValue = new Date(`${value}T00:00:00`);
+  dateValue.setDate(0);
+  return [
+    dateValue.getFullYear(),
+    String(dateValue.getMonth() + 1).padStart(2, "0"),
+    String(dateValue.getDate()).padStart(2, "0"),
+  ].join("-");
+}
+
+function previousMonthFirstDay(value: string): string {
+  return previousMonthLastDay(value).slice(0, 8) + "01";
+}
+
 function sumAmounts(entries: LedgerEntry[]): number {
   return entries.reduce((total, entry) => total + (entry.amount_value ?? 0), 0);
 }
@@ -1899,4 +2187,9 @@ function parseSettingNumber(settings: Settings, key: string, fallback: number): 
 
 function formatWon(value: number | null): string {
   return `${Math.round(value ?? 0).toLocaleString("ko-KR")}원`;
+}
+
+function formatAuditTimestamp(value: string): string {
+  const parsed = new Date(`${value.replace(" ", "T")}Z`);
+  return Number.isNaN(parsed.getTime()) ? value : parsed.toLocaleString("ko-KR", { hour12: false });
 }

@@ -1,20 +1,49 @@
 from __future__ import annotations
 
 from datetime import date
+from typing import Any
 
 from app.db import session
 
 
-def close_current_month() -> dict[str, int]:
-    """당월 기록을 archive로 옮기고 다음 달에도 남아야 할 항목만 current에 유지한다."""
+EARLY_CLOSE_START_DAY = 27
+
+
+def close_current_month(today: date | None = None, allow_early_close: bool = False) -> dict[str, Any]:
+    """현재 장부에서 가장 오래된 미마감 월 하나만 archive로 옮긴다."""
+    today = today or date.today()
     with session() as conn:
+        target_row = conn.execute(
+            """
+            SELECT MIN(substr(entry_date, 1, 7)) AS month
+            FROM ledger_entries
+            WHERE book_section = 'current'
+              AND entry_kind != 'planned'
+              AND entry_date IS NOT NULL
+            """
+        ).fetchone()
+        target_month = str(target_row["month"] or "")
+        if not target_month:
+            return {"closed_month": None, "archived": 0, "deleted_from_current": 0}
+        calendar_month = today.strftime("%Y-%m")
+        if target_month > calendar_month:
+            raise ValueError("미래 달은 월마감할 수 없습니다.")
+        if target_month == calendar_month:
+            if today.day < EARLY_CLOSE_START_DAY:
+                raise ValueError(f"현재 달 조기 월마감은 매월 {EARLY_CLOSE_START_DAY}일부터 가능합니다.")
+            if not allow_early_close:
+                raise ValueError("현재 달을 조기 월마감하려면 명시적인 확인이 필요합니다.")
+
         current_entries = conn.execute(
             """
             SELECT *
             FROM ledger_entries
             WHERE book_section = 'current'
+              AND entry_kind != 'planned'
+              AND entry_date LIKE ?
             ORDER BY sort_order, id
-            """
+            """,
+            (f"{target_month}%",),
         ).fetchall()
 
         archived = 0
@@ -24,8 +53,6 @@ def close_current_month() -> dict[str, int]:
         next_order = int(next_order_row["next_order"])
 
         for entry in current_entries:
-            if entry["entry_kind"] == "planned":
-                continue
             conn.execute(
                 """
                 INSERT INTO ledger_entries (
@@ -61,7 +88,13 @@ def close_current_month() -> dict[str, int]:
             archived += 1
 
         deleted = conn.execute(
-            "DELETE FROM ledger_entries WHERE book_section = 'current' AND entry_kind != 'planned'"
+            """
+            DELETE FROM ledger_entries
+            WHERE book_section = 'current'
+              AND entry_kind != 'planned'
+              AND entry_date LIKE ?
+            """,
+            (f"{target_month}%",),
         ).rowcount
         conn.execute(
             """
@@ -79,8 +112,48 @@ def close_current_month() -> dict[str, int]:
             WHERE is_active = 1
             """
         )
+        conn.execute(
+            """
+            INSERT INTO app_settings(key, value, updated_at)
+            VALUES ('last_closed_month', ?, CURRENT_TIMESTAMP)
+            ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP
+            """,
+            (target_month,),
+        )
 
-    return {"archived": archived, "deleted_from_current": deleted}
+    return {"closed_month": target_month, "archived": archived, "deleted_from_current": deleted}
+
+
+def month_close_status(today: date | None = None) -> dict[str, Any]:
+    """달력상 새 달인데 이전 월 장부가 남았는지 확인한다."""
+    today = today or date.today()
+    calendar_month = today.strftime("%Y-%m")
+    with session() as conn:
+        row = conn.execute(
+            """
+            SELECT MIN(substr(entry_date, 1, 7)) AS month
+            FROM ledger_entries
+            WHERE book_section = 'current'
+              AND entry_kind != 'planned'
+              AND entry_date IS NOT NULL
+            """
+        ).fetchone()
+        setting = conn.execute(
+            "SELECT value FROM app_settings WHERE key = 'last_closed_month'"
+        ).fetchone()
+    oldest_open_month = str(row["month"] or "") or None
+    is_early_close = bool(oldest_open_month and oldest_open_month == calendar_month)
+    early_close_available = bool(is_early_close and today.day >= EARLY_CLOSE_START_DAY)
+    return {
+        "calendar_month": calendar_month,
+        "oldest_open_month": oldest_open_month,
+        "last_closed_month": str(setting["value"]) if setting else None,
+        "needs_close": bool(oldest_open_month and oldest_open_month < calendar_month),
+        "is_early_close": is_early_close,
+        "early_close_available": early_close_available,
+        "early_close_start_day": EARLY_CLOSE_START_DAY,
+        "can_close": bool(oldest_open_month and (oldest_open_month < calendar_month or early_close_available)),
+    }
 
 
 def current_month_label() -> str:
@@ -98,3 +171,8 @@ def current_month_label() -> str:
     if row and row["entry_date"]:
         return str(row["entry_date"])[:7]
     return date.today().strftime("%Y-%m")
+
+
+def calendar_month_label(today: date | None = None) -> str:
+    """청구·타인정산처럼 월마감과 무관한 기능에 달력상 현재 월을 제공한다."""
+    return (today or date.today()).strftime("%Y-%m")

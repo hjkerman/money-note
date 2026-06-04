@@ -62,6 +62,10 @@ class LedgerEntryPatch(BaseModel):
     spending_category: str | None = None
 
 
+class MonthCloseIn(BaseModel):
+    allow_early_close: bool = False
+
+
 class PlannedEntryIn(BaseModel):
     title: str
     usage_place: str | None = None
@@ -174,3 +178,10 @@ class CardPaymentEventIn(BaseModel):
     event_type: str = Field(pattern="^(immediate|discount)$")
     note: str = ""
     allocations: list[CardPaymentAllocationIn]
+
+
+class LateCardEntryIn(BaseModel):
+    entry_date: str
+    usage_place: str | None = None
+    usage_item: str | None = None
+    amount_value: float

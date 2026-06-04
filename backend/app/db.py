@@ -142,6 +142,28 @@ CREATE TABLE IF NOT EXISTS card_payment_allocations (
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS card_payment_deferrals (
+    entry_payment_key TEXT PRIMARY KEY,
+    from_payment_month TEXT NOT NULL,
+    target_payment_month TEXT NOT NULL,
+    original_book_section TEXT,
+    original_entry_date TEXT,
+    original_date_label TEXT,
+    original_group_label TEXT,
+    original_title TEXT,
+    original_sort_order INTEGER,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS audit_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    occurred_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    actor_username TEXT NOT NULL DEFAULT 'anonymous',
+    method TEXT NOT NULL,
+    path TEXT NOT NULL,
+    status_code INTEGER NOT NULL
+);
+
 CREATE INDEX IF NOT EXISTS idx_ledger_section_order
 ON ledger_entries(book_section, sort_order);
 
@@ -174,6 +196,12 @@ ON card_payment_allocations(entry_payment_key);
 
 CREATE INDEX IF NOT EXISTS idx_card_payment_events_date
 ON card_payment_events(event_date, id);
+
+CREATE INDEX IF NOT EXISTS idx_card_payment_deferrals_target
+ON card_payment_deferrals(target_payment_month);
+
+CREATE INDEX IF NOT EXISTS idx_audit_logs_occurred
+ON audit_logs(occurred_at DESC, id DESC);
 
 INSERT OR IGNORE INTO app_settings(key, value) VALUES
 ('base_next_month_liquidity', '400000'),
@@ -267,6 +295,20 @@ def init_db() -> None:
         }
         if "is_primary_income" not in cash_flow_columns:
             conn.execute("ALTER TABLE cash_flows ADD COLUMN is_primary_income INTEGER NOT NULL DEFAULT 0")
+        deferral_columns = {
+            row["name"]
+            for row in conn.execute("PRAGMA table_info(card_payment_deferrals)").fetchall()
+        }
+        for column, column_type in {
+            "original_book_section": "TEXT",
+            "original_entry_date": "TEXT",
+            "original_date_label": "TEXT",
+            "original_group_label": "TEXT",
+            "original_title": "TEXT",
+            "original_sort_order": "INTEGER",
+        }.items():
+            if column not in deferral_columns:
+                conn.execute(f"ALTER TABLE card_payment_deferrals ADD COLUMN {column} {column_type}")
         conn.execute(
             """
             UPDATE workbook_labels

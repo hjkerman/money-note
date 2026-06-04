@@ -46,7 +46,7 @@ function chooseJudgment(messages: string[], ...signals: number[]): string {
 
 // 분류 코드를 사용자가 읽는 라벨로 바꾼다.
 export function categoryLabel(category: SpendingCategory | null): string {
-  if (category === "essential") return "이건 안 썼으면 큰일 났을 돈";
+  if (category === "essential") return "안 썼으면 큰일 났을 돈";
   if (category === "questionable") return "꼭 써야 했을까...?";
   return "미분류";
 }

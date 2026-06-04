@@ -4,7 +4,7 @@ from html import escape
 
 from app.repository import list_cash_flows, list_entries, list_labels, list_panels, list_settings
 from app.services.judgment import claim_ledger_note, format_won, shared_panel_subtitle
-from app.services.month import current_month_label
+from app.services.month import calendar_month_label
 
 
 PANEL_TITLES = {
@@ -16,7 +16,7 @@ PANEL_TITLES = {
 def shared_panel(panel_type: str) -> dict:
     if panel_type not in PANEL_TITLES:
         raise ValueError("unknown shared panel type")
-    month = current_month_label()
+    month = calendar_month_label()
     rows = [
         panel
         for panel in list_panels(month)
@@ -174,4 +174,3 @@ def _float_setting(settings: dict[str, str], key: str, fallback: float) -> float
         return float(settings.get(key, fallback))
     except (TypeError, ValueError):
         return fallback
-
