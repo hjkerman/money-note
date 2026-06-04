@@ -92,6 +92,7 @@ class MonthCloseTest(unittest.TestCase):
                 entry_date="2026-07-31",
                 date_label="2026.07.31.",
                 title="[카드사] 마감 후 매입",
+                usage_place="카드사",
                 amount_value=12_345,
                 sort_order=99,
             )

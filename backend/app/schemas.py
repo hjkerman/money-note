@@ -38,7 +38,6 @@ class LedgerEntryIn(BaseModel):
     spending_category: str | None = None
     payment_key: str | None = None
 
-
 class LedgerEntry(LedgerEntryIn):
     id: int
 
@@ -68,11 +67,11 @@ class MonthCloseIn(BaseModel):
 
 class PlannedEntryIn(BaseModel):
     title: str
-    usage_place: str | None = None
+    usage_place: str = Field(min_length=1)
     usage_item: str | None = None
-    amount_value: float | None = None
+    amount_value: float
     amount_expr: str | None = None
-    due_day: int | None = None
+    due_day: int = Field(ge=1, le=31)
 
 
 class EntryReorder(BaseModel):

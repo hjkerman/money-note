@@ -270,46 +270,6 @@ def confirm_planned_entry(entry_id: int) -> dict[str, Any] | None:
     return {"planned": row_to_dict(updated_planned), "entry": row_to_dict(entry)}
 
 
-def confirm_frozen_panel(panel_id: int) -> dict[str, Any] | None:
-    today = date.today()
-    date_label = f"{today:%Y.%m.%d}."
-    with session() as conn:
-        panel = conn.execute("SELECT * FROM monthly_panels WHERE id = ?", (panel_id,)).fetchone()
-        if panel is None:
-            return None
-        if panel["panel_type"] != "frozen":
-            raise ValueError("only frozen panels can be confirmed")
-
-        max_order = conn.execute(
-            """
-            SELECT MAX(sort_order) AS sort_order
-            FROM ledger_entries
-            WHERE book_section = 'current'
-            """
-        ).fetchone()["sort_order"]
-        sort_order = int(max_order or 2) + 1
-        cursor = conn.execute(
-            """
-            INSERT INTO ledger_entries(
-                book_section, entry_kind, entry_date, date_label, group_label, title,
-                amount_value, amount_expr, sort_order, due_day, confirmed_at, spending_category, payment_key
-            )
-            VALUES ('current', 'expense', ?, ?, NULL, ?, ?, ?, ?, NULL, NULL, NULL, lower(hex(randomblob(16))))
-            """,
-            (
-                today.isoformat(),
-                date_label,
-                panel["title"],
-                panel["amount_value"],
-                panel["amount_expr"],
-                sort_order,
-            ),
-        )
-        conn.execute("DELETE FROM monthly_panels WHERE id = ?", (panel_id,))
-        entry = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (cursor.lastrowid,)).fetchone()
-    return {"entry": row_to_dict(entry)}
-
-
 def planned_entry_payment_date(due_day: int | None) -> date:
     today = date.today()
     day = due_day if due_day and due_day > 0 else today.day
@@ -361,6 +321,7 @@ def complete_panels_by_type(month: str, panel_type: str) -> int:
 
 def create_entry(entry: LedgerEntryIn) -> dict[str, Any]:
     values = entry.model_dump()
+    _validate_structured_entry(values)
     if values["entry_kind"] != "planned" and not values.get("payment_key"):
         values["payment_key"] = None
     placeholders = ", ".join("?" for _ in ENTRY_COLUMNS)
@@ -525,15 +486,40 @@ def update_entry(entry_id: int, patch: LedgerEntryPatch) -> dict[str, Any] | Non
             row = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (entry_id,)).fetchone()
         return row_to_dict(row) if row else None
 
-    assignments = ", ".join(f"{column} = ?" for column in values)
-    params = list(values.values()) + [entry_id]
     with session() as conn:
+        existing = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (entry_id,)).fetchone()
+        if existing is None:
+            return None
+        merged = {**dict(existing), **values}
+        _validate_structured_entry(merged)
+        assignments = ", ".join(f"{column} = ?" for column in values)
+        params = list(values.values()) + [entry_id]
         conn.execute(
             f"UPDATE ledger_entries SET {assignments}, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
             params,
         )
         row = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (entry_id,)).fetchone()
     return row_to_dict(row) if row else None
+
+
+def _validate_structured_entry(values: dict[str, Any]) -> None:
+    """현재 일반 지출과 카드 정기결제의 필수 필드를 쓰기 직전에 검증한다."""
+    if values.get("book_section") != "current":
+        return
+    kind = values.get("entry_kind")
+    if kind == "expense":
+        required = ("entry_date", "usage_place", "amount_value")
+    elif kind == "planned":
+        required = ("due_day", "usage_place", "amount_value")
+    else:
+        return
+    missing = [
+        field
+        for field in required
+        if values.get(field) is None or (isinstance(values.get(field), str) and not values[field].strip())
+    ]
+    if missing:
+        raise ValueError(f"required fields missing: {', '.join(missing)}")
 
 
 def delete_entry(entry_id: int) -> bool:

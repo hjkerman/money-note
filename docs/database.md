@@ -100,6 +100,14 @@ CREATE TABLE IF NOT EXISTS ledger_entries (
 | `confirmed_at` | TEXT | 확인 처리 시각 |
 | `spending_category` | TEXT | `essential`, `questionable`, 또는 `NULL` |
 | `payment_key` | TEXT | 월마감 전후에도 유지되는 카드 결제 배분용 고유 키 |
+
+구조화된 앱 입력의 필수 규칙:
+
+- 현재 일반 지출: `entry_date`, `usage_place`, `amount_value` 필수
+- 카드 정기결제: `due_day`, `usage_place`, `amount_value` 필수
+- 두 종류 모두 `usage_item`은 NULL 허용
+
+과거 비정형 기록과 Excel 호환을 위해 범용 컬럼 자체는 nullable로 유지하고, repository 쓰기 검증과 API 스키마에서 필수 규칙을 강제한다.
 | `created_at` | TEXT | 생성 시각 |
 | `updated_at` | TEXT | 수정 시각 |
 

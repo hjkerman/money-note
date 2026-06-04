@@ -299,10 +299,6 @@ export async function confirmPlannedEntry(entryId: number): Promise<{ planned: L
   return postJson(`/api/month/current/planned/${entryId}/confirm`, {});
 }
 
-export async function confirmFrozenPanel(panelId: number): Promise<{ entry: LedgerEntry }> {
-  return postJson(`/api/month/current/panels/${panelId}/confirm-frozen`, {});
-}
-
 export async function createCashFlow(payload: Omit<CashFlow, "id">): Promise<CashFlow> {
   return postJson("/api/cash-flows", payload);
 }

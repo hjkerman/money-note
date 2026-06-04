@@ -15,7 +15,6 @@ from app.config import get_settings
 from app.db import init_db, session
 from app.repository import (
     append_planned_entry,
-    confirm_frozen_panel,
     confirm_planned_entry,
     create_cash_flow,
     create_installment,
@@ -175,12 +174,18 @@ def get_entries(section: str, _: dict = Depends(require_user)) -> list[dict]:
 
 @app.post("/api/entries", response_model=LedgerEntry)
 def post_entry(entry: LedgerEntryIn, _: dict = Depends(require_user)) -> dict:
-    return create_entry(entry)
+    try:
+        return create_entry(entry)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
 
 
 @app.patch("/api/entries/{entry_id}", response_model=LedgerEntry)
 def patch_entry(entry_id: int, patch: LedgerEntryPatch, _: dict = Depends(require_user)) -> dict:
-    entry = update_entry(entry_id, patch)
+    try:
+        entry = update_entry(entry_id, patch)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
     if entry is None:
         raise HTTPException(status_code=404, detail="entry not found")
     return entry
@@ -242,17 +247,6 @@ def patch_panel(panel_id: int, patch: MonthlyPanelPatch, _: dict = Depends(requi
     if panel is None:
         raise HTTPException(status_code=404, detail="panel not found")
     return panel
-
-
-@app.post("/api/month/current/panels/{panel_id}/confirm-frozen")
-def post_confirm_frozen_panel(panel_id: int, _: dict = Depends(require_user)) -> dict:
-    try:
-        result = confirm_frozen_panel(panel_id)
-    except ValueError as exc:
-        raise HTTPException(status_code=422, detail=str(exc))
-    if result is None:
-        raise HTTPException(status_code=404, detail="panel not found")
-    return result
 
 
 @app.delete("/api/month/current/panels/{panel_id}")

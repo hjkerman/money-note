@@ -18,7 +18,6 @@ import {
   clearAuditLogs,
   closeCurrentMonth,
   completePanelsByType,
-  confirmFrozenPanel,
   confirmPlannedEntry,
   createCashFlow,
   createCardPaymentEvent,
@@ -340,7 +339,11 @@ export function App() {
     event.preventDefault();
     const usagePlace = expenseForm.usagePlace.trim();
     const usageItem = expenseForm.usageItem.trim();
-    if (!usagePlace && !usageItem) return;
+    const amount = parseAmount(expenseForm.amount);
+    if (!expenseForm.date || !usagePlace || amount === null) {
+      setStatus("날짜, 사용처, 금액은 필수입니다.");
+      return;
+    }
     await withRefresh(async () => {
       const dateLabel = formatDateLabel(expenseForm.date);
       const title = formatUsageTitle(usagePlace, usageItem);
@@ -353,7 +356,7 @@ export function App() {
         title,
         usage_place: usagePlace || null,
         usage_item: usageItem || null,
-        amount_value: parseAmount(expenseForm.amount),
+        amount_value: amount,
         amount_expr: null,
         aux_amount_value: null,
         aux_amount_expr: null,
@@ -372,14 +375,19 @@ export function App() {
     event.preventDefault();
     const usagePlace = plannedForm.usagePlace.trim();
     const usageItem = plannedForm.usageItem.trim();
-    if (!usagePlace && !usageItem) return;
+    const amount = parseAmount(plannedForm.amount);
+    const dueDay = parseOptionalDay(plannedForm.dueDay);
+    if (!usagePlace || amount === null || dueDay === null) {
+      setStatus("결제일, 사용처, 금액은 필수입니다.");
+      return;
+    }
     await withRefresh(async () => {
       await appendPlannedEntry({
         title: formatUsageTitle(usagePlace, usageItem),
         usage_place: usagePlace || null,
         usage_item: usageItem || null,
-        amount_value: parseAmount(plannedForm.amount),
-        due_day: parseOptionalDay(plannedForm.dueDay),
+        amount_value: amount,
+        due_day: dueDay,
       });
       setPlannedForm({ dueDay: "", usagePlace: "", usageItem: "", amount: "" });
       setStatus("카드 정기결제 추가 완료");
@@ -422,15 +430,6 @@ export function App() {
     await withRefresh(async () => {
       await deletePlannedEntry(entry.id);
       setStatus("카드 정기결제 삭제 완료");
-    });
-  }
-
-  async function handleFrozenConfirm(panel: MonthlyPanel) {
-    const confirmed = window.confirm(`${panel.title} 동결을 풀고 당월 기록에 추가할까요?`);
-    if (!confirmed) return;
-    await withRefresh(async () => {
-      await confirmFrozenPanel(panel.id);
-      setStatus(`${panel.title} 동결 해제 완료`);
     });
   }
 
@@ -938,10 +937,12 @@ export function App() {
                 <form className="entry-form" onSubmit={(event) => void handleExpenseSubmit(event)}>
                   <input
                     type="date"
+                    required
                     value={expenseForm.date}
                     onChange={(event) => setExpenseForm({ ...expenseForm, date: event.target.value })}
                   />
                   <input
+                    required
                     value={expenseForm.usagePlace}
                     onChange={(event) => setExpenseForm({ ...expenseForm, usagePlace: event.target.value })}
                     placeholder="사용처"
@@ -952,6 +953,10 @@ export function App() {
                     placeholder="사용항목"
                   />
                   <input
+                    required
+                    type="number"
+                    min="0"
+                    step="1"
                     value={expenseForm.amount}
                     onChange={(event) => setExpenseForm({ ...expenseForm, amount: event.target.value })}
                     inputMode="numeric"
@@ -982,6 +987,9 @@ export function App() {
                               placeholder="적요"
                             />
                             <input
+                              type="number"
+                              min="0"
+                              step="1"
                               value={installmentForm.principal}
                               onChange={(event) => setInstallmentForm({ ...installmentForm, principal: event.target.value })}
                               inputMode="numeric"
@@ -1069,11 +1077,13 @@ export function App() {
                   type="number"
                   min="1"
                   max="31"
+                  required
                   value={plannedForm.dueDay}
                   onChange={(event) => setPlannedForm({ ...plannedForm, dueDay: event.target.value })}
                   placeholder="결제일"
                 />
                 <input
+                  required
                   value={plannedForm.usagePlace}
                   onChange={(event) => setPlannedForm({ ...plannedForm, usagePlace: event.target.value })}
                   placeholder="사용처"
@@ -1084,6 +1094,10 @@ export function App() {
                   placeholder="사용항목"
                 />
                 <input
+                  required
+                  type="number"
+                  min="0"
+                  step="1"
                   value={plannedForm.amount}
                   onChange={(event) => setPlannedForm({ ...plannedForm, amount: event.target.value })}
                   inputMode="numeric"
@@ -1127,7 +1141,6 @@ export function App() {
             <PanelTable
               title={panelLabel(labels, "frozen")}
               rows={panels.filter((panel) => panel.panel_type === "frozen")}
-              onConfirmFrozen={(panel) => void handleFrozenConfirm(panel)}
               onDelete={(panel) => void handlePanelDelete(panel)}
               form={
                 <PanelAppendForm
@@ -1412,6 +1425,9 @@ function CardPaymentPanel({
         <div className="fallback-setting">
           <span>주 수입이 없는 달에 사용할 기본 심사 기준액: {formatWon(fallbackLiquidity)}</span>
           <input
+            type="number"
+            min="0"
+            step="1"
             value={fallbackLiquidityInput}
             onChange={(event) => setFallbackLiquidityInput(event.target.value)}
             inputMode="numeric"
@@ -1423,6 +1439,9 @@ function CardPaymentPanel({
           <label className="payment-budget-field">
             <span>자동 배분 한도</span>
             <input
+              type="number"
+              min="0"
+              step="1"
               value={paymentBudget}
               onChange={(event) => setPaymentBudget(event.target.value)}
               inputMode="numeric"
@@ -1488,6 +1507,9 @@ function CardPaymentPanel({
             placeholder="사용항목"
           />
           <input
+            type="number"
+            min="0"
+            step="1"
             value={lateEntryForm.amount}
             onChange={(event) => setLateEntryForm({ ...lateEntryForm, amount: event.target.value })}
             inputMode="numeric"
@@ -1566,6 +1588,9 @@ function CardPaymentPanel({
                     <td className="amount">{formatWon(row.remaining_amount)}</td>
                     <td className="payment-input-cell">
                       <input
+                        type="number"
+                        min="0"
+                        step="1"
                         value={selected ? allocations[key] : ""}
                         disabled={!selected || row.is_toll}
                         inputMode="numeric"
@@ -1637,6 +1662,9 @@ function PanelAppendForm({
         placeholder="적요"
       />
       <input
+        type="number"
+        min="0"
+        step="1"
         value={panelForm.panel_type === panelType ? panelForm.amount : ""}
         onChange={(event) =>
           setPanelForm({
@@ -1774,6 +1802,9 @@ function CashFlowPanel({
           placeholder="적요"
         />
         <input
+          type="number"
+          min="0"
+          step="1"
           value={form.amount}
           onChange={(event) => setForm({ ...form, amount: event.target.value })}
           inputMode="numeric"
@@ -1908,7 +1939,6 @@ function EntryTable({
 function PanelTable({
   title,
   rows,
-  onConfirmFrozen,
   onDelete,
   onReset,
   onComplete,
@@ -1917,7 +1947,6 @@ function PanelTable({
 }: {
   title: string;
   rows: MonthlyPanel[];
-  onConfirmFrozen?: (panel: MonthlyPanel) => void;
   onDelete?: (panel: MonthlyPanel) => void;
   onReset?: () => void;
   onComplete?: () => void;
@@ -1949,7 +1978,6 @@ function PanelTable({
               <th>적요</th>
               {categoryForPanel ? <th className="category-cell">자동 분류</th> : null}
               <th className="amount">금액</th>
-              {onConfirmFrozen ? <th className="action-cell">확인</th> : null}
               {onDelete ? <th className="action-cell">삭제</th> : null}
             </tr>
           </thead>
@@ -1963,13 +1991,6 @@ function PanelTable({
                   <td className="category-cell">{categoryLabel(categoryForPanel(row))}</td>
                 ) : null}
                 <td className="amount">{formatWon(row.amount_value)}</td>
-                {onConfirmFrozen ? (
-                  <td className="action-cell">
-                    <button type="button" onClick={() => onConfirmFrozen(row)}>
-                      확인
-                    </button>
-                  </td>
-                ) : null}
                 {onDelete ? (
                   <td className="action-cell">
                     <button type="button" className="danger" onClick={() => onDelete(row)}>

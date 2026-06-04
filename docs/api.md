@@ -173,6 +173,8 @@ macOS Tauri 앱처럼 WebView cookie 저장이 흔들릴 수 있는 클라이언
 
 금전 기록을 직접 생성한다.
 
+`book_section = current`, `entry_kind = expense`인 일반 지출은 `entry_date`, `usage_place`, `amount_value`가 필수다. `usage_item`은 비워둘 수 있다.
+
 요청:
 
 ```json
@@ -235,6 +237,8 @@ macOS Tauri 앱처럼 WebView cookie 저장이 흔들릴 수 있는 클라이언
 ### `POST /api/month/current/planned`
 
 고정지출 탭의 `카드 정기결제` 항목을 추가한다. 기존 planned 항목 뒤에 붙으며, 뒤쪽 현재 기록의 `sort_order`는 자동으로 밀린다.
+
+`due_day`, `usage_place`, `amount_value`는 필수이며 `usage_item`은 비워둘 수 있다.
 
 요청:
 
