@@ -274,7 +274,11 @@ export function App() {
       });
       setAuthUser(user);
       setLoginForm({ username: "", password: "" });
-      setStatus("로그인 완료");
+      setStatus(
+        user.share_pin_needs_change
+          ? "로그인 완료. 가족 공유 PIN이 기본값 0000입니다. 지금 변경하세요."
+          : "로그인 완료",
+      );
       await refresh();
     } catch (error) {
       setStatus(`로그인 실패: ${error instanceof Error ? error.message : String(error)}`);
@@ -606,8 +610,13 @@ export function App() {
       return;
     }
     await withRefresh(async () => {
-      await setSharePin(pin);
-      setStatus("가족 공유 PIN 설정 완료. 기존 공유 세션은 종료되었습니다.");
+      const result = await setSharePin(pin);
+      setAuthUser((user) => (user ? { ...user, share_pin_needs_change: result.needs_change } : user));
+      setStatus(
+        result.needs_change
+          ? "0000은 기본 PIN입니다. 공유 페이지 보호를 위해 다른 PIN으로 변경하세요."
+          : "가족 공유 PIN 설정 완료. 기존 공유 세션은 종료되었습니다.",
+      );
     });
   }
 
@@ -717,6 +726,17 @@ export function App() {
       </header>
 
       <section className="statusline">{status}</section>
+      {authUser.share_pin_needs_change ? (
+        <section className="security-warning">
+          <div>
+            <strong>가족 공유 PIN이 아직 기본값 0000입니다.</strong>
+            <span>공유 링크를 보내기 전에 가족 공식 비밀번호로 변경하세요.</span>
+          </div>
+          <button type="button" className="save-needed" onClick={() => void handleSharePinSet()} disabled={isBusy}>
+            지금 PIN 변경
+          </button>
+        </section>
+      ) : null}
 
       <SummaryPanel summary={summary} labels={labels} />
 

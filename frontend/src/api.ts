@@ -6,6 +6,7 @@ export type AuthUser = {
   username: string;
   display_name: string;
   session_token?: string | null;
+  share_pin_needs_change: boolean;
 };
 
 export type LedgerEntry = {
@@ -171,7 +172,7 @@ export async function updateSetting(key: string, value: string): Promise<Record<
   return patchJson(`/api/settings/${key}`, { value });
 }
 
-export async function setSharePin(pin: string): Promise<{ configured: boolean }> {
+export async function setSharePin(pin: string): Promise<{ configured: boolean; needs_change: boolean }> {
   return postJson("/api/share/pin", { pin });
 }
 

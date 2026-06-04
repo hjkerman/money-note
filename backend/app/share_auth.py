@@ -13,6 +13,35 @@ from app.db import session
 
 SHARE_COOKIE_NAME = "money_note_share_session"
 SHARE_SESSION_DAYS = 3650
+DEFAULT_SHARE_PIN = "0000"
+
+
+def ensure_default_share_pin() -> None:
+    """공유 PIN이 없는 기존 DB를 기본 PIN 0000으로 잠근다."""
+    with session() as conn:
+        pin_row = conn.execute("SELECT value FROM app_settings WHERE key = 'share_pin_hash'").fetchone()
+        state_row = conn.execute("SELECT value FROM app_settings WHERE key = 'share_pin_is_default'").fetchone()
+        if pin_row is not None and pin_row["value"]:
+            if state_row is None:
+                conn.execute(
+                    "INSERT INTO app_settings(key, value) VALUES ('share_pin_is_default', '0')"
+                )
+            return
+        conn.execute(
+            """
+            INSERT INTO app_settings(key, value, updated_at)
+            VALUES ('share_pin_hash', ?, CURRENT_TIMESTAMP)
+            ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP
+            """,
+            (hash_password(DEFAULT_SHARE_PIN),),
+        )
+        conn.execute(
+            """
+            INSERT INTO app_settings(key, value, updated_at)
+            VALUES ('share_pin_is_default', '1', CURRENT_TIMESTAMP)
+            ON CONFLICT(key) DO UPDATE SET value = '1', updated_at = CURRENT_TIMESTAMP
+            """
+        )
 
 
 def set_share_pin(pin: str) -> None:
@@ -26,13 +55,22 @@ def set_share_pin(pin: str) -> None:
             """,
             (hash_password(pin),),
         )
+        conn.execute(
+            """
+            INSERT INTO app_settings(key, value, updated_at)
+            VALUES ('share_pin_is_default', ?, CURRENT_TIMESTAMP)
+            ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP
+            """,
+            ("1" if pin == DEFAULT_SHARE_PIN else "0",),
+        )
         conn.execute("DELETE FROM share_sessions")
 
 
-def share_pin_configured() -> bool:
+def share_pin_needs_change() -> bool:
+    """공유 PIN이 아직 기본값 0000인지 반환한다."""
     with session() as conn:
-        row = conn.execute("SELECT value FROM app_settings WHERE key = 'share_pin_hash'").fetchone()
-    return bool(row and row["value"])
+        row = conn.execute("SELECT value FROM app_settings WHERE key = 'share_pin_is_default'").fetchone()
+    return row is None or row["value"] == "1"
 
 
 def unlock_share(pin: str, response: Response) -> bool:
@@ -67,9 +105,7 @@ def unlock_share(pin: str, response: Response) -> bool:
 
 
 def share_access_allowed(request: Request) -> bool:
-    """PIN 미설정 상태는 공개하고, 설정 후에는 유효한 공유 세션만 허용한다."""
-    if not share_pin_configured():
-        return True
+    """유효한 공유 전용 세션이 있는 요청만 허용한다."""
     token = request.cookies.get(SHARE_COOKIE_NAME)
     if not token:
         return False

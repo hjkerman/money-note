@@ -15,6 +15,7 @@ class AuthUser(BaseModel):
     username: str
     display_name: str
     session_token: str | None = None
+    share_pin_needs_change: bool = False
 
 
 class LedgerEntryIn(BaseModel):

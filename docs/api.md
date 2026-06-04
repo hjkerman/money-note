@@ -35,13 +35,14 @@
 
 macOS Tauri 앱처럼 WebView cookie 저장이 흔들릴 수 있는 클라이언트를 위해 로그인 응답에는 `session_token`도 포함된다. 프론트엔드는 이 값을 저장하고 이후 요청에 `Authorization: Bearer ...` 헤더로 함께 보낸다.
 
-공유 PIN 미설정 시 공개 예외:
+로그인 없이 호출 가능한 예외:
 
 - `GET /health`
-- `GET /share/{panel_type}`
-- `GET /api/share/{panel_type}`
+- `GET /share/{panel_type}`: 유효한 공유 세션이 없으면 PIN 입력 화면 반환
+- `GET /api/share/{panel_type}`: 유효한 공유 세션 필요
+- `POST /api/share/unlock`
 
-공유 PIN을 설정하면 `/share/{panel_type}`과 `/api/share/{panel_type}`도 공유 전용 세션이 필요하다. 나머지 앱 API는 본체 로그인 인증이 필요하다.
+공유 PIN의 초기값은 `0000`이다. 가족은 기본 PIN `0000`으로도 공유 페이지에 접근할 수 있다. 본체 로그인 사용자는 기본 PIN을 다른 값으로 변경할 때까지 경고를 받는다. 나머지 앱 API는 본체 로그인 인증이 필요하다.
 
 ### `POST /api/auth/login`
 
@@ -63,7 +64,8 @@ macOS Tauri 앱처럼 WebView cookie 저장이 흔들릴 수 있는 클라이언
   "id": 1,
   "username": "your-username",
   "display_name": "사용자",
-  "session_token": "..."
+  "session_token": "...",
+  "share_pin_needs_change": true
 }
 ```
 
@@ -92,7 +94,8 @@ macOS Tauri 앱처럼 WebView cookie 저장이 흔들릴 수 있는 클라이언
   "id": 1,
   "username": "your-username",
   "display_name": "사용자",
-  "session_token": null
+  "session_token": null,
+  "share_pin_needs_change": false
 }
 ```
 
@@ -469,7 +472,7 @@ next_month_liquidity
 
 ### `GET /api/share/{panel_type}`
 
-공유 PIN 미설정 상태 또는 유효한 공유 세션에서 읽기 전용 공유 데이터를 JSON으로 반환한다.
+유효한 공유 세션에서 읽기 전용 공유 데이터를 JSON으로 반환한다.
 
 응답:
 
@@ -502,11 +505,11 @@ next_month_liquidity
 - `/share/claim`
 - `/share/settlement`
 
-공유 PIN이 설정되어 있고 공유 세션이 없으면 카카오톡 인앱 브라우저에서도 사용할 수 있는 네 자리 PIN 입력 화면을 먼저 표시한다.
+공유 세션이 없으면 카카오톡 인앱 브라우저에서도 사용할 수 있는 네 자리 PIN 입력 화면을 먼저 표시한다. 새 DB의 기본 PIN은 `0000`이다.
 
 ### `POST /api/share/pin`
 
-본체 로그인 사용자가 가족 공유용 숫자 네 자리 PIN을 설정한다. PIN 변경 시 기존 공유 세션을 모두 삭제한다.
+본체 로그인 사용자가 가족 공유용 숫자 네 자리 PIN을 설정한다. PIN 변경 시 기존 공유 세션을 모두 삭제한다. `0000`을 설정하면 기본 PIN 변경 경고는 계속 유지된다.
 
 ```json
 {

@@ -265,6 +265,9 @@ INSERT OR IGNORE INTO app_settings(key, value) VALUES
 | `base_next_month_liquidity` | 익월 유동성 계산의 기준 금액 |
 | `interest_expense` | 이자지출 |
 | `liquidity_status` | 유동성 현황 |
+| `settlement_card_limit` | 가족카드 한도 판단 기준 |
+| `share_pin_hash` | 가족 공유 PIN의 PBKDF2-SHA256 해시 |
+| `share_pin_is_default` | 공유 PIN이 기본값 `0000`이면 `1`, 사용자가 변경했으면 `0` |
 
 익월 유동성 계산:
 

@@ -60,8 +60,10 @@ from app.schemas import (
     Summary,
 )
 from app.share_auth import (
+    ensure_default_share_pin,
     set_share_pin,
     share_access_allowed,
+    share_pin_needs_change,
     share_unlock_html,
     unlock_share,
 )
@@ -90,6 +92,7 @@ app.add_middleware(
 @app.on_event("startup")
 def startup() -> None:
     init_db()
+    ensure_default_share_pin()
 
 
 @app.get("/health")
@@ -103,7 +106,7 @@ def login(payload: LoginIn, response: Response) -> dict:
     if user is None:
         raise HTTPException(status_code=401, detail="invalid username or password")
     session_token = create_session_cookie(response, user["id"])
-    return {**user, "session_token": session_token}
+    return {**user, "session_token": session_token, "share_pin_needs_change": share_pin_needs_change()}
 
 
 @app.post("/api/auth/logout")
@@ -117,7 +120,7 @@ def me(request: Request) -> dict:
     user = current_user_from_request(request)
     if user is None:
         raise HTTPException(status_code=401, detail="authentication required")
-    return user
+    return {**user, "share_pin_needs_change": share_pin_needs_change()}
 
 
 @app.get("/api/entries/{section}", response_model=list[LedgerEntry])
@@ -264,7 +267,7 @@ def close_month(_: dict = Depends(require_user)) -> dict[str, int]:
 @app.post("/api/share/pin")
 def post_share_pin(payload: SharePinIn, _: dict = Depends(require_user)) -> dict[str, bool]:
     set_share_pin(payload.pin)
-    return {"configured": True}
+    return {"configured": True, "needs_change": share_pin_needs_change()}
 
 
 @app.post("/api/share/unlock")
