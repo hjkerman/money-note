@@ -6,7 +6,8 @@ from unittest.mock import patch
 
 from app.config import get_settings
 from app.db import init_db, session
-from app.repository import complete_panels_by_type
+from app.repository import complete_panels_by_type, update_panel
+from app.schemas import MonthlyPanelPatch
 
 
 class PanelCompletionTest(unittest.TestCase):
@@ -43,6 +44,12 @@ class PanelCompletionTest(unittest.TestCase):
                 "SELECT panel_type, COUNT(*) AS count FROM monthly_panels GROUP BY panel_type ORDER BY panel_type"
             ).fetchall()
         self.assertEqual([(row["panel_type"], row["count"]) for row in remaining], [("frozen", 1), ("settlement", 1)])
+
+    def test_claim_discount_is_stored_separately_from_original_amount(self) -> None:
+        updated = update_panel(1, MonthlyPanelPatch(discount_amount=120))
+
+        self.assertEqual(updated["amount_value"], 1000)
+        self.assertEqual(updated["discount_amount"], 120)
 
 
 if __name__ == "__main__":

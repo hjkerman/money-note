@@ -39,6 +39,7 @@ export type MonthlyPanel = {
   panel_type: "fixed" | "frozen" | "claim" | "settlement";
   title: string;
   amount_value: number | null;
+  discount_amount: number;
   amount_expr: string | null;
   sort_order: number;
   due_day: number | null;
@@ -311,6 +312,10 @@ export async function createPanel(payload: Omit<MonthlyPanel, "id">): Promise<Mo
 
 export async function deletePanel(panelId: number): Promise<{ deleted: boolean }> {
   return deleteJson(`/api/month/current/panels/${panelId}`);
+}
+
+export async function updatePanelDiscount(panelId: number, discountAmount: number): Promise<MonthlyPanel> {
+  return patchJson(`/api/month/current/panels/${panelId}/discount`, { discount_amount: discountAmount });
 }
 
 export async function deletePanelsByType(panelType: MonthlyPanel["panel_type"]): Promise<{ deleted: number }> {

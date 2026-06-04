@@ -51,6 +51,7 @@ CREATE TABLE IF NOT EXISTS monthly_panels (
     panel_type TEXT NOT NULL,
     title TEXT NOT NULL DEFAULT '',
     amount_value REAL,
+    discount_amount REAL NOT NULL DEFAULT 0,
     amount_expr TEXT,
     sort_order INTEGER NOT NULL,
     due_day INTEGER,
@@ -253,6 +254,8 @@ def init_db() -> None:
             conn.execute("ALTER TABLE monthly_panels ADD COLUMN confirmed_at TEXT")
         if "due_day" not in panel_columns:
             conn.execute("ALTER TABLE monthly_panels ADD COLUMN due_day INTEGER")
+        if "discount_amount" not in panel_columns:
+            conn.execute("ALTER TABLE monthly_panels ADD COLUMN discount_amount REAL NOT NULL DEFAULT 0")
         ledger_columns = {
             row["name"]
             for row in conn.execute("PRAGMA table_info(ledger_entries)").fetchall()

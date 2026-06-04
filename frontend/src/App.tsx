@@ -54,6 +54,7 @@ import {
   setSharePin,
   updateEntry,
   updateCardDiscountPolicy,
+  updatePanelDiscount,
   updateSetting,
 } from "./api";
 import {
@@ -180,7 +181,7 @@ export function App() {
       total:
         sumAmounts(expenseEntries) +
         sumInstallmentMonthlyAmounts(installments) +
-        sumPanelAmounts(panels.filter((panel) => panel.panel_type === "claim")) +
+        sumPanelNetAmounts(panels.filter((panel) => panel.panel_type === "claim")) +
         sumPanelAmounts(panels.filter((panel) => panel.panel_type === "settlement")),
     },
     {
@@ -211,7 +212,7 @@ export function App() {
     {
       id: "claim",
       label: panelLabel(labels, "claim"),
-      total: sumPanelAmounts(panels.filter((panel) => panel.panel_type === "claim")),
+      total: sumPanelNetAmounts(panels.filter((panel) => panel.panel_type === "claim")),
     },
     {
       id: "settlement",
@@ -423,6 +424,7 @@ export function App() {
         panel_type: panelType,
         title: panelForm.title.trim(),
         amount_value: parseAmount(panelForm.amount),
+        discount_amount: 0,
         amount_expr: null,
         sort_order: nextSortOrder(sameTypePanels),
         due_day: null,
@@ -664,6 +666,24 @@ export function App() {
         allocations: [{ entry_payment_key: entry.payment_key as string, amount_value: amount }],
       });
       setStatus("당월 사용내역 할인액 반영 완료");
+    });
+  }
+
+  async function handleClaimDiscount(panel: MonthlyPanel) {
+    if (ownerDiscountMonth?.policy === "disabled") {
+      setStatus("이번 달은 본인회원 카드 할인 혜택이 없는 달로 설정되어 있습니다.");
+      return;
+    }
+    const amountText = window.prompt(`${panel.title}에 적용된 누적 할인액을 입력하세요.`, String(panel.discount_amount || ""));
+    if (amountText === null) return;
+    const amount = parseAmount(amountText);
+    if (amount === null || amount < 0) {
+      setStatus("할인액은 0원 이상의 숫자여야 합니다.");
+      return;
+    }
+    await withRefresh(async () => {
+      await updatePanelDiscount(panel.id, amount);
+      setStatus("청구 항목 할인액 반영 완료");
     });
   }
 
@@ -1090,6 +1110,7 @@ export function App() {
                       rows={panels.filter((panel) => panel.panel_type === tab)}
                       onDelete={(panel) => void handlePanelDelete(panel)}
                       onComplete={tab === "claim" || tab === "settlement" ? () => void handlePanelComplete(tab) : undefined}
+                      onDiscount={tab === "claim" ? (panel) => void handleClaimDiscount(panel) : undefined}
                       form={
                         <PanelAppendForm
                           isBusy={isBusy}
@@ -2114,6 +2135,7 @@ function PanelTable({
   onDelete,
   onReset,
   onComplete,
+  onDiscount,
   categoryForPanel,
   form,
 }: {
@@ -2122,6 +2144,7 @@ function PanelTable({
   onDelete?: (panel: MonthlyPanel) => void;
   onReset?: () => void;
   onComplete?: () => void;
+  onDiscount?: (panel: MonthlyPanel) => void;
   categoryForPanel?: (panel: MonthlyPanel) => SpendingCategory | null;
   form?: ReactNode;
 }) {
@@ -2130,7 +2153,7 @@ function PanelTable({
       <div className="panel-header">
         <h2>{title}</h2>
         <div className="header-actions">
-          <span>{formatWon(sumPanelAmounts(rows))}</span>
+          <span>{formatWon(sumPanelNetAmounts(rows))}</span>
           {onComplete && rows.length ? (
             <button type="button" onClick={onComplete}>
               일괄 처리 완료
@@ -2150,6 +2173,7 @@ function PanelTable({
               <th>적요</th>
               {categoryForPanel ? <th className="category-cell">자동 분류</th> : null}
               <th className="amount">금액</th>
+              {onDiscount ? <th className="discount-cell">할인 / 실제 청구</th> : null}
               {onDelete ? <th className="action-cell">삭제</th> : null}
             </tr>
           </thead>
@@ -2163,6 +2187,12 @@ function PanelTable({
                   <td className="category-cell">{categoryLabel(categoryForPanel(row))}</td>
                 ) : null}
                 <td className="amount">{formatWon(row.amount_value)}</td>
+                {onDiscount ? (
+                  <td className="discount-cell">
+                    <span>-{formatWon(row.discount_amount)} / {formatWon(panelNetAmount(row))}</span>
+                    <button type="button" onClick={() => onDiscount(row)}>기록</button>
+                  </td>
+                ) : null}
                 {onDelete ? (
                   <td className="action-cell">
                     <button type="button" className="danger" onClick={() => onDelete(row)}>
@@ -2289,7 +2319,7 @@ function activeStatItems(
     return panels
       .filter((panel) => panel.panel_type === "claim")
       .map((panel) => ({
-        amount_value: panel.amount_value,
+        amount_value: panelNetAmount(panel),
         spending_category: classifyClaimPanel(panel),
       }));
   }
@@ -2360,6 +2390,14 @@ function sumAmounts(entries: LedgerEntry[]): number {
 
 function sumPanelAmounts(rows: MonthlyPanel[]): number {
   return rows.reduce((total, row) => total + (row.amount_value ?? 0), 0);
+}
+
+function panelNetAmount(row: MonthlyPanel): number {
+  return Math.max(0, (row.amount_value ?? 0) - (row.discount_amount ?? 0));
+}
+
+function sumPanelNetAmounts(rows: MonthlyPanel[]): number {
+  return rows.reduce((total, row) => total + panelNetAmount(row), 0);
 }
 
 function sumCashFlows(rows: CashFlow[]): number {

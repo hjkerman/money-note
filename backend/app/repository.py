@@ -40,6 +40,7 @@ PANEL_COLUMNS = [
     "panel_type",
     "title",
     "amount_value",
+    "discount_amount",
     "amount_expr",
     "sort_order",
     "due_day",

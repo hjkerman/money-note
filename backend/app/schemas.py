@@ -95,6 +95,7 @@ class MonthlyPanel(BaseModel):
     panel_type: str
     title: str
     amount_value: float | None = None
+    discount_amount: float = 0
     amount_expr: str | None = None
     sort_order: int
     due_day: int | None = None
@@ -106,6 +107,7 @@ class MonthlyPanelIn(BaseModel):
     panel_type: str
     title: str = ""
     amount_value: float | None = Field(default=None, ge=0)
+    discount_amount: float = Field(default=0, ge=0)
     amount_expr: str | None = None
     sort_order: int
     due_day: int | None = None
@@ -116,6 +118,7 @@ class MonthlyPanelPatch(BaseModel):
     panel_type: str | None = None
     title: str | None = None
     amount_value: float | None = Field(default=None, ge=0)
+    discount_amount: float | None = Field(default=None, ge=0)
     amount_expr: str | None = None
     sort_order: int | None = None
     due_day: int | None = None
@@ -181,6 +184,10 @@ class CardPaymentEventIn(BaseModel):
 
 class CardDiscountPolicyPatch(BaseModel):
     policy: str = Field(pattern="^(undecided|enabled|disabled)$")
+
+
+class PanelDiscountPatch(BaseModel):
+    discount_amount: float = Field(ge=0)
 
 
 class LateCardEntryIn(BaseModel):

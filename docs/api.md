@@ -546,6 +546,10 @@ next_month_liquidity
 - 사용월 할인 정책이 `disabled`이면 할인액 처리가 거부된다.
 - 통행료/하이패스 항목은 할인 및 일부결제가 불가능하며 남은 금액 전액만 즉시결제할 수 있다.
 
+### `PATCH /api/month/current/panels/{panel_id}/discount`
+
+청구 항목에 본인회원 카드 할인액을 기록한다. 원래 청구금액은 유지하며 화면과 공유 청구서의 실제 청구액은 `원래 금액 - 할인액`으로 계산한다. 타인정산에는 적용할 수 없다.
+
 ### `DELETE /api/card-payments/events/{event_id}`
 
 결제 또는 할인 기록을 취소한다. 즉시결제라면 연결된 현금흐름도 함께 삭제한다.

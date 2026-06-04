@@ -215,6 +215,7 @@ CREATE TABLE IF NOT EXISTS monthly_panels (
     panel_type TEXT NOT NULL,
     title TEXT NOT NULL DEFAULT '',
     amount_value REAL,
+    discount_amount REAL NOT NULL DEFAULT 0,
     amount_expr TEXT,
     sort_order INTEGER NOT NULL,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -231,6 +232,7 @@ CREATE TABLE IF NOT EXISTS monthly_panels (
 | `panel_type` | TEXT | `fixed`, `frozen`, `claim`, `settlement` |
 | `title` | TEXT | 항목명 |
 | `amount_value` | REAL | 계산 완료된 금액 |
+| `discount_amount` | REAL | 청구 항목에 적용된 본인회원 카드 할인액. 원래 금액과 분리 보존 |
 | `amount_expr` | TEXT | Excel 수식 또는 수식 문자열 |
 | `sort_order` | INTEGER | 사용자 정의 정렬 순서 |
 | `created_at` | TEXT | 생성 시각 |

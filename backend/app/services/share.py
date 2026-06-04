@@ -22,7 +22,7 @@ def shared_panel(panel_type: str) -> dict:
         for panel in list_panels(month)
         if panel.get("panel_type") == panel_type and panel.get("title")
     ]
-    total = sum(row.get("amount_value") or 0 for row in rows)
+    total = sum(_panel_net_amount(row) for row in rows)
     current_card_total = sum(row.get("amount_value") or 0 for row in list_entries("current"))
     settings = list_settings()
     card_limit = _float_setting(settings, "settlement_card_limit", 5_800_000)
@@ -149,12 +149,20 @@ def shared_panel_html(panel_type: str) -> str:
 
 
 def _row_html(row: dict) -> str:
+    discount = float(row.get("discount_amount") or 0)
+    amount_text = format_won(_panel_net_amount(row))
+    if discount > 0:
+        amount_text = f"{amount_text}<small>할인 -{format_won(discount)}</small>"
     return (
         "<tr>"
         f"<td>{escape(str(row.get('title') or ''))}</td>"
-        f"<td class=\"amount\">{format_won(row.get('amount_value') or 0)}</td>"
+        f"<td class=\"amount\">{amount_text}</td>"
         "</tr>"
     )
+
+
+def _panel_net_amount(row: dict) -> float:
+    return max(0, float(row.get("amount_value") or 0) - float(row.get("discount_amount") or 0))
 
 
 def _ledger_note_html(note: str | None) -> str:
