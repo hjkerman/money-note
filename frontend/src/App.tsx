@@ -123,6 +123,8 @@ export function App() {
   const [selectedHistoryMonth, setSelectedHistoryMonth] = useState(today.slice(0, 7));
   const [showStats, setShowStats] = useState(false);
   const [showAuditLogs, setShowAuditLogs] = useState(false);
+  const [temporaryMemo, setTemporaryMemo] = useState("");
+  const [isMemoOpen, setIsMemoOpen] = useState(false);
   const [pendingCategoryChanges, setPendingCategoryChanges] = useState<Record<number, SpendingCategory | null>>({});
   const [paymentAllocations, setPaymentAllocations] = useState<Record<string, string>>({});
   const [paymentBudget, setPaymentBudget] = useState("");
@@ -337,6 +339,7 @@ export function App() {
   // 사용처와 사용항목을 합쳐 기존 Excel 적요 형식으로도 호환되는 당월 기록을 만든다.
   async function handleExpenseSubmit(event: FormEvent) {
     event.preventDefault();
+    const form = event.currentTarget as HTMLFormElement;
     const usagePlace = expenseForm.usagePlace.trim();
     const usageItem = expenseForm.usageItem.trim();
     const amount = parseAmount(expenseForm.amount);
@@ -368,11 +371,13 @@ export function App() {
       });
       setExpenseForm({ date: expenseForm.date, usagePlace: "", usageItem: "", amount: "" });
       setStatus(created.book_section === "archive" ? "이미 마감한 달의 전체 기록에 추가 완료" : "당월 기록 추가 완료");
+      focusFirstDataInput(form);
     });
   }
 
   async function handlePlannedSubmit(event: FormEvent) {
     event.preventDefault();
+    const form = event.currentTarget as HTMLFormElement;
     const usagePlace = plannedForm.usagePlace.trim();
     const usageItem = plannedForm.usageItem.trim();
     const amount = parseAmount(plannedForm.amount);
@@ -391,11 +396,13 @@ export function App() {
       });
       setPlannedForm({ dueDay: "", usagePlace: "", usageItem: "", amount: "" });
       setStatus("카드 정기결제 추가 완료");
+      focusFirstDataInput(form);
     });
   }
 
   async function handlePanelSubmit(event: FormEvent, panelType = panelForm.panel_type) {
     event.preventDefault();
+    const form = event.currentTarget as HTMLFormElement;
     if (!panelForm.title.trim()) return;
     await withRefresh(async () => {
       const sameTypePanels = panels.filter((panel) => panel.panel_type === panelType);
@@ -411,6 +418,7 @@ export function App() {
       });
       setPanelForm({ panel_type: panelType, title: "", amount: "", dueDay: "" });
       setStatus(`${panelLabel(labels, panelType)} 항목 추가 완료`);
+      focusFirstDataInput(form);
     });
   }
 
@@ -496,6 +504,7 @@ export function App() {
 
   async function handleCashFlowSubmit(event: FormEvent) {
     event.preventDefault();
+    const form = event.currentTarget as HTMLFormElement;
     if (!cashFlowForm.title.trim()) return;
     const parsed = parseAmount(cashFlowForm.amount);
     if (parsed === null) return;
@@ -509,6 +518,7 @@ export function App() {
       });
       setCashFlowForm({ ...cashFlowForm, title: "", amount: "" });
       setStatus("현금흐름 추가 완료");
+      focusFirstDataInput(form);
     });
   }
 
@@ -523,6 +533,7 @@ export function App() {
 
   async function handleInstallmentSubmit(event: FormEvent) {
     event.preventDefault();
+    const form = event.currentTarget as HTMLFormElement;
     if (!installmentForm.title.trim()) return;
     const principal = parseAmount(installmentForm.principal);
     const feeRate = Number(installmentForm.fee.replaceAll(",", "").trim() || 0);
@@ -540,6 +551,7 @@ export function App() {
       });
       setInstallmentForm({ title: "", principal: "", fee: "0", months: "" });
       setStatus("할부 항목 추가 완료");
+      focusFirstDataInput(form);
     });
   }
 
@@ -634,6 +646,7 @@ export function App() {
 
   async function handleLateEntrySubmit(event: FormEvent) {
     event.preventDefault();
+    const form = event.currentTarget as HTMLFormElement;
     const amount = parseAmount(lateEntryForm.amount);
     if (amount === null || amount <= 0 || (!lateEntryForm.usagePlace.trim() && !lateEntryForm.usageItem.trim())) return;
     await withRefresh(async () => {
@@ -650,6 +663,7 @@ export function App() {
         amount: "",
       });
       setStatus("전월 매입 지연 내역 추가 완료");
+      focusFirstDataInput(form);
     });
   }
 
@@ -812,7 +826,6 @@ export function App() {
           <p>{currentMonth} 당월 기록</p>
         </div>
         <div className="actions">
-          <span className="user-badge">{authUser.display_name}</span>
           <button type="button" onClick={() => void refresh()} disabled={isBusy}>
             새로고침
           </button>
@@ -1167,6 +1180,30 @@ export function App() {
 
         </div>
       </section>
+
+      <aside className={isMemoOpen ? "temporary-memo open" : "temporary-memo"} aria-label="임시 메모">
+        <div className="temporary-memo-header">
+          <strong>임시 메모</strong>
+          <div>
+            {isMemoOpen && temporaryMemo ? (
+              <button type="button" onClick={() => setTemporaryMemo("")}>
+                비우기
+              </button>
+            ) : null}
+            <button type="button" onClick={() => setIsMemoOpen(!isMemoOpen)} aria-expanded={isMemoOpen}>
+              {isMemoOpen ? "접기" : "메모"}
+            </button>
+          </div>
+        </div>
+        {isMemoOpen ? (
+          <textarea
+            autoFocus
+            value={temporaryMemo}
+            onChange={(event) => setTemporaryMemo(event.target.value)}
+            placeholder="새로고침하면 사라집니다."
+          />
+        ) : null}
+      </aside>
     </main>
   );
 }
@@ -2080,6 +2117,15 @@ function parseAmount(value: string): number | null {
   if (!normalized) return null;
   const amount = Number(normalized);
   return Number.isFinite(amount) ? amount : null;
+}
+
+function focusFirstDataInput(form: HTMLFormElement): void {
+  requestAnimationFrame(() => {
+    const target = form.querySelector<HTMLInputElement>(
+      'input:not([type="date"]):not([type="hidden"]):not(:disabled)',
+    );
+    target?.focus();
+  });
 }
 
 function formatUsageTitle(usagePlace: string, usageItem: string): string {
