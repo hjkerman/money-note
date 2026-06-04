@@ -8,7 +8,6 @@
 
 - Docker 또는 Colima/Docker Compose
 - Node.js와 npm
-- macOS 앱 개발 시 Rust/Cargo
 - Git
 
 현재 개발 환경에서 확인한 버전:
@@ -17,7 +16,6 @@
 node --version
 npm --version
 docker compose version
-cargo --version
 ```
 
 ## 데이터 디렉터리
@@ -185,8 +183,8 @@ http://127.0.0.1:5173
 인증 방식:
 
 - 웹 브라우저에서는 `money_note_session` cookie가 기본 인증 수단이다.
-- Tauri macOS 앱에서는 WebView 환경에서 cookie 저장이 흔들릴 수 있으므로 로그인 응답의 `session_token`도 저장한다.
-- 앱 프론트엔드는 이후 요청에 `Authorization: Bearer ...` 헤더를 함께 보낸다.
+- cookie를 쓰기 어려운 클라이언트를 위해 로그인 응답의 `session_token`도 제공한다.
+- 프론트엔드는 이후 요청에 `Authorization: Bearer ...` 헤더를 함께 보낼 수 있다.
 - 비밀번호 오류는 화면에 `아이디 또는 비밀번호가 맞지 않습니다.`로 표시한다.
 
 조작 저장 방식:
@@ -237,49 +235,6 @@ frontend/dist/
 sudo mkdir -p /var/www/money-note
 sudo rsync -a --delete frontend/dist/ /var/www/money-note/
 ```
-
-## macOS 앱 개발 실행
-
-macOS 앱은 Tauri 기반이다. 별도의 화면을 새로 만들지 않고 `frontend/`의 웹 앱을 그대로 감싼다.
-
-자세한 설명은 [macOS 앱 실행](desktop-app.md)을 본다.
-
-Rust가 없다면 먼저 설치한다.
-
-```bash
-brew install rust
-```
-
-백엔드 API 서버를 켠다.
-
-```bash
-docker compose up --build -d
-```
-
-Tauri 개발 앱을 실행한다.
-
-```bash
-cd frontend
-npm install
-npm run tauri:dev
-```
-
-`tauri:dev`는 내부에서 Vite 개발 서버를 `http://localhost:5173`에 띄운다. 이미 별도로 `npm run dev`가 실행 중이면 포트 충돌이 나므로 먼저 종료한다.
-
-앱 번들을 만들 때:
-
-```bash
-cd frontend
-npm run tauri:build
-```
-
-생성물은 `frontend/src-tauri/target/release/bundle/` 아래에 만들어진다. macOS 서명과 notarization은 배포 단계에서 별도로 처리한다.
-
-주의:
-
-- `npm run dev`와 `npm run tauri:dev`는 둘 다 5173 포트를 사용한다. 둘 중 하나만 실행한다.
-- API 서버는 `http://127.0.0.1:18080`에서 응답해야 한다.
-- Tauri 앱은 로그인 후 받은 `session_token`을 `Authorization` 헤더로도 보내므로, WebView cookie가 흔들려도 로그인 상태가 유지된다.
 
 인증서, reverse proxy, 도메인 연결은 서버 운영 환경에서 별도로 설정한다.
 

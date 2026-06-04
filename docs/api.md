@@ -53,7 +53,7 @@
 
 가계부 본체 API는 패스워드 기반 세션 인증을 사용한다. 로그인에 성공하면 서버가 HttpOnly cookie를 내려주며, 프론트엔드는 이후 요청에 cookie를 포함한다.
 
-macOS Tauri 앱처럼 WebView cookie 저장이 흔들릴 수 있는 클라이언트를 위해 로그인 응답에는 `session_token`도 포함된다. 프론트엔드는 이 값을 저장하고 이후 요청에 `Authorization: Bearer ...` 헤더로 함께 보낸다.
+cookie 저장을 쓰기 어려운 클라이언트를 위해 로그인 응답에는 `session_token`도 포함된다. 프론트엔드는 이 값을 저장하고 이후 요청에 `Authorization: Bearer ...` 헤더로 함께 보낼 수 있다.
 
 로그인 없이 호출 가능한 예외:
 
