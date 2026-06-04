@@ -218,6 +218,24 @@ def post_confirm_planned_entry(entry_id: int, _: dict = Depends(require_user)) -
     return result
 
 
+@app.patch("/api/month/current/planned/{entry_id}/discount", response_model=LedgerEntry)
+def patch_planned_discount(entry_id: int, patch: PanelDiscountPatch, _: dict = Depends(require_user)) -> dict:
+    with session() as conn:
+        entry = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (entry_id,)).fetchone()
+    if entry is None:
+        raise HTTPException(status_code=404, detail="planned entry not found")
+    if entry["entry_kind"] != "planned":
+        raise HTTPException(status_code=422, detail="카드 정기결제 항목에만 할인을 적용할 수 있습니다.")
+    if discount_month_status(calendar_month_label(), "owner")["policy"] == "disabled":
+        raise HTTPException(status_code=422, detail=f"{calendar_month_label()}은 본인회원 카드 할인 혜택이 없는 달입니다.")
+    if patch.discount_amount > float(entry["amount_value"] or 0):
+        raise HTTPException(status_code=422, detail="할인액은 카드 정기결제 금액을 초과할 수 없습니다.")
+    updated = update_entry(entry_id, LedgerEntryPatch(aux_amount_value=patch.discount_amount))
+    if updated is None:
+        raise HTTPException(status_code=404, detail="planned entry not found")
+    return updated
+
+
 @app.delete("/api/month/current/planned/{entry_id}")
 def remove_planned_entry(entry_id: int, _: dict = Depends(require_user)) -> dict[str, bool]:
     if not delete_planned_entry(entry_id):

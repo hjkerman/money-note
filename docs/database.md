@@ -214,6 +214,7 @@ CREATE TABLE IF NOT EXISTS monthly_panels (
     month TEXT NOT NULL,
     panel_type TEXT NOT NULL,
     title TEXT NOT NULL DEFAULT '',
+    spent_on TEXT,
     amount_value REAL,
     discount_amount REAL NOT NULL DEFAULT 0,
     amount_expr TEXT,
@@ -231,6 +232,7 @@ CREATE TABLE IF NOT EXISTS monthly_panels (
 | `month` | TEXT | 대상 월. `YYYY-MM` |
 | `panel_type` | TEXT | `fixed`, `frozen`, `claim`, `settlement` |
 | `title` | TEXT | 항목명 |
+| `spent_on` | TEXT | 청구/타인정산 사용일. `YYYY-MM-DD` |
 | `amount_value` | REAL | 계산 완료된 금액 |
 | `discount_amount` | REAL | 청구 항목에 적용된 본인회원 카드 할인액. 원래 금액과 분리 보존 |
 | `amount_expr` | TEXT | Excel 수식 또는 수식 문자열 |
@@ -469,7 +471,7 @@ CREATE TABLE IF NOT EXISTS auth_sessions (
 
 단, 적요에 `통행료` 또는 `하이패스`가 포함된 항목은 할인과 일부결제를 허용하지 않고 남은 금액 전액만 즉시결제할 수 있다.
 
-월별 할인 혜택 정책은 `app_settings`의 `card_discount_policy:{scope}:{YYYY-MM}` 키에 저장한다. `scope`는 본인회원 카드 `owner`와 가족카드 `family`로 분리된다.
+월별 할인 혜택 정책은 `app_settings`의 `card_discount_policy:{scope}:{YYYY-MM}` 키에 저장한다. `scope`는 본인회원 카드 `owner`와 가족카드 `family`로 분리된다. 카드 정기결제의 확인 전 할인액은 `ledger_entries.aux_amount_value`에 임시 저장하고, 확인 시 실제 카드 사용내역의 할인 event로 전환한다.
 
 ## `card_payment_deferrals`
 

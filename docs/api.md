@@ -262,6 +262,10 @@ macOS Tauri 앱처럼 WebView cookie 저장이 흔들릴 수 있는 클라이언
 
 `entry_kind = planned`인 카드 정기결제 항목만 삭제한다.
 
+### `PATCH /api/month/current/planned/{entry_id}/discount`
+
+카드 정기결제에 본인회원 카드 할인액을 미리 기록한다. 확인 전에는 `aux_amount_value`에 보관하고, `확인` 시 당월 지출과 같은 카드 할인 event로 이어진다.
+
 응답:
 
 ```json
@@ -549,6 +553,8 @@ next_month_liquidity
 ### `PATCH /api/month/current/panels/{panel_id}/discount`
 
 청구 항목에 본인회원 카드 할인액을 기록한다. 원래 청구금액은 유지하며 화면과 공유 청구서의 실제 청구액은 `원래 금액 - 할인액`으로 계산한다. 타인정산에는 적용할 수 없다.
+
+청구와 타인정산은 `spent_on` 기준으로 정렬된다. 같은 날짜라면 `sort_order`, `id` 순서로 먼저 입력한 항목이 위에 온다.
 
 ### `DELETE /api/card-payments/events/{event_id}`
 

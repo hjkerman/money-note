@@ -94,6 +94,7 @@ class MonthlyPanel(BaseModel):
     month: str
     panel_type: str
     title: str
+    spent_on: str | None = None
     amount_value: float | None = None
     discount_amount: float = 0
     amount_expr: str | None = None
@@ -106,6 +107,7 @@ class MonthlyPanelIn(BaseModel):
     month: str
     panel_type: str
     title: str = ""
+    spent_on: str | None = None
     amount_value: float | None = Field(default=None, ge=0)
     discount_amount: float = Field(default=0, ge=0)
     amount_expr: str | None = None
@@ -117,6 +119,7 @@ class MonthlyPanelPatch(BaseModel):
     month: str | None = None
     panel_type: str | None = None
     title: str | None = None
+    spent_on: str | None = None
     amount_value: float | None = Field(default=None, ge=0)
     discount_amount: float | None = Field(default=None, ge=0)
     amount_expr: str | None = None

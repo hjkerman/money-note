@@ -39,6 +39,7 @@ PANEL_COLUMNS = [
     "month",
     "panel_type",
     "title",
+    "spent_on",
     "amount_value",
     "discount_amount",
     "amount_expr",
@@ -62,7 +63,16 @@ def list_entries(section: str) -> list[dict[str, Any]]:
     filter_confirmed_planned = " AND NOT (entry_kind = 'planned' AND confirmed_at IS NOT NULL)" if section == "current" else ""
     with session() as conn:
         rows = conn.execute(
-            f"SELECT * FROM ledger_entries WHERE book_section = ?{filter_confirmed_planned} ORDER BY sort_order, id",
+            f"""
+            SELECT *
+            FROM ledger_entries
+            WHERE book_section = ?{filter_confirmed_planned}
+            ORDER BY
+              CASE WHEN entry_kind = 'planned' THEN COALESCE(due_day, 99) ELSE 0 END,
+              CASE WHEN entry_kind = 'planned' THEN NULL ELSE entry_date END,
+              sort_order,
+              id
+            """,
             (section,),
         ).fetchall()
     return [row_to_dict(row) for row in rows]
@@ -79,12 +89,30 @@ def list_panels(month: str | None = None, include_confirmed_fixed: bool = False)
     with session() as conn:
         if month:
             rows = conn.execute(
-                f"SELECT * FROM monthly_panels WHERE month = ?{filter_confirmed} ORDER BY sort_order, id",
+                f"""
+                SELECT *
+                FROM monthly_panels
+                WHERE month = ?{filter_confirmed}
+                ORDER BY
+                  CASE WHEN spent_on IS NULL THEN 1 ELSE 0 END,
+                  spent_on,
+                  sort_order,
+                  id
+                """,
                 (month,),
             ).fetchall()
         else:
             rows = conn.execute(
-                f"SELECT * FROM monthly_panels WHERE 1 = 1{filter_confirmed} ORDER BY sort_order, id"
+                f"""
+                SELECT *
+                FROM monthly_panels
+                WHERE 1 = 1{filter_confirmed}
+                ORDER BY
+                  CASE WHEN spent_on IS NULL THEN 1 ELSE 0 END,
+                  spent_on,
+                  sort_order,
+                  id
+                """
             ).fetchall()
     return [row_to_dict(row) for row in rows]
 
@@ -267,6 +295,24 @@ def confirm_planned_entry(entry_id: int) -> dict[str, Any] | None:
             (entry_id,),
         )
         entry = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (cursor.lastrowid,)).fetchone()
+        planned_discount = float(planned["aux_amount_value"] or 0)
+        if planned_discount > 0:
+            if planned_discount > float(planned["amount_value"] or 0):
+                raise ValueError("할인액은 카드 정기결제 금액을 초과할 수 없습니다.")
+            event_cursor = conn.execute(
+                """
+                INSERT INTO card_payment_events(event_date, event_type, total_amount, note, cash_flow_id)
+                VALUES (?, 'discount', ?, '카드 정기결제에서 선반영', NULL)
+                """,
+                (payment_date.isoformat(), planned_discount),
+            )
+            conn.execute(
+                """
+                INSERT INTO card_payment_allocations(payment_event_id, entry_payment_key, amount_value)
+                VALUES (?, ?, ?)
+                """,
+                (event_cursor.lastrowid, entry["payment_key"], planned_discount),
+            )
         updated_planned = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (entry_id,)).fetchone()
     return {"planned": row_to_dict(updated_planned), "entry": row_to_dict(entry)}
 
