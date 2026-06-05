@@ -1,553 +1,215 @@
 # DB 명세
 
-이 문서는 현재 구현된 SQLite DB 기준이다. DB는 서버의 source of truth이며, Excel 파일은 초기 import와 export snapshot에 사용된다.
+이 문서는 현재 구현된 SQLite DB 기준이다. 서버 DB가 source of truth이며, 백업은 [CSV 백업 포맷](csv-backup.md)으로 수행한다.
 
-## 기본 정보
+## 공통 규칙
 
-- DB 종류: SQLite
-- 기본 경로: `data/money-note.sqlite3`
-- 환경변수로 변경 가능: `MONEY_NOTE_DB_PATH`
-- 초기화 위치: `backend/app/db.py`
+- 날짜는 `YYYY-MM-DD` 문자열이다.
+- 월은 `YYYY-MM` 문자열이다.
+- 돈은 원 단위 정수로 저장한다. 수수료율 같은 비율만 소수를 허용한다.
+- `created_at`, `updated_at`은 SQLite `CURRENT_TIMESTAMP` 문자열이다.
+- 사용자 계정과 세션은 CSV 백업 대상이 아니다.
 
-서버 시작 시 `init_db()`가 실행되어 테이블, 인덱스, 기본 설정값, 기본 라벨이 생성된다.
+## 주요 테이블
 
-## 전체 구조
-
-테이블:
-
-- `ledger_entries`: 현재 월 기록과 동적으로 append되는 전체 기록
-- `archive_rows`: 과거 Excel 전체 기록 시트의 hard data 보존 영역
-- `monthly_panels`: 고정지출, 동결, 청구, 타인정산 패널
-- `app_settings`: 계산과 서버 동작에 쓰는 설정값
-- `workbook_labels`: Excel 표시 문구
-- `users`: 로그인 사용자
-- `auth_sessions`: 로그인 세션
-- `share_sessions`: 가족 공유 페이지 장기 세션
-- `cash_flows`: 현금 입출금 기록
-- `installments`: 할부 기록
-- `card_payment_events`: 즉시결제와 수기 할인액 처리 기록
-- `card_payment_allocations`: 결제/할인액의 사용내역별 배분
-- `card_payment_deferrals`: 통행료/하이패스 이월과 원본 장부 상태
+- `ledger_entries`: 당월/전체 지출, 카드 정기결제, 전월 매입 지연 보정
+- `monthly_panels`: 현금성 고정지출, 동결, 청구, 타인정산
+- `app_settings`: 유동성, 이자지출, 카드 한도 등 설정값
+- `app_labels`: 화면 표시 문구
+- `cash_flows`: 현금 입출금
+- `installments`: 할부
+- `card_payment_events`: 즉시결제/할인액 처리 이벤트
+- `card_payment_allocations`: 결제/할인 이벤트의 항목별 배분
+- `card_payment_deferrals`: 통행료/하이패스 이월 상태
+- `users`: 본체 사용자 계정
+- `auth_sessions`: 본체 로그인 세션
+- `share_sessions`: 가족 공유 페이지 세션
 - `audit_logs`: 변경 API 감사 로그
-
-인덱스:
-
-- `idx_ledger_section_order`
-- `idx_ledger_date`
-- `idx_archive_rows_order`
-- `idx_panels_month_type_order`
-- `idx_auth_sessions_token`
-- `idx_auth_sessions_user`
-- `idx_cash_flows_order`
-- `idx_installments_active_order`
 
 ## `ledger_entries`
 
-금전 사용 기록의 구조화된 테이블이다.
-
-용도:
-
-- `book_section = current`: `당월 기록` 시트의 메인 기록 테이블
-- `book_section = archive`: 월마감 이후 `전체 기록(본인)` 시트 하단에 append되는 동적 기록
-
-스키마:
-
-```sql
-CREATE TABLE IF NOT EXISTS ledger_entries (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    book_section TEXT NOT NULL CHECK (book_section IN ('current', 'archive')),
-    entry_kind TEXT NOT NULL DEFAULT 'expense',
-    entry_date TEXT,
-    date_label TEXT,
-    group_label TEXT,
-    title TEXT NOT NULL DEFAULT '',
-    usage_place TEXT,
-    usage_item TEXT,
-    amount_value REAL,
-    amount_expr TEXT,
-    aux_amount_value REAL,
-    aux_amount_expr TEXT,
-    extra_value TEXT,
-    sort_order INTEGER NOT NULL,
-    due_day INTEGER,
-    confirmed_at TEXT,
-    spending_category TEXT,
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-```
-
-컬럼:
+장부의 중심 테이블이다.
 
 | 컬럼 | 타입 | 설명 |
 | --- | --- | --- |
-| `id` | INTEGER | PK |
+| `id` | INTEGER PK | 내부 식별자 |
 | `book_section` | TEXT | `current` 또는 `archive` |
-| `entry_kind` | TEXT | `expense`, `planned`, `late_expense` 등 기록 종류 |
-| `entry_date` | TEXT | 실제 날짜. `YYYY-MM-DD` |
-| `date_label` | TEXT | Excel에 표시할 날짜 문자열. 예: `2026.06.03.` |
-| `group_label` | TEXT | 날짜가 아닌 그룹 라벨. 예: `나갈 돈` |
-| `title` | TEXT | Excel 호환 적요. 새 당월 지출은 `[사용처] 사용항목` 형식 |
-| `usage_place` | TEXT | 앱에서 분리 입력한 사용처 |
-| `usage_item` | TEXT | 앱에서 분리 입력한 사용항목 |
-| `amount_value` | REAL | 계산 완료된 금액 |
-| `amount_expr` | TEXT | Excel 수식 또는 수식 문자열 |
-| `aux_amount_value` | REAL | 전체 기록 `E`열 보조 금액 |
-| `aux_amount_expr` | TEXT | 전체 기록 `E`열 보조 수식 |
-| `extra_value` | TEXT | 전체 기록 `F`열 추가 값 |
-| `sort_order` | INTEGER | 사용자 정의 정렬 순서 |
-| `due_day` | INTEGER | 카드 정기결제 결제일 |
+| `entry_kind` | TEXT | `expense`, `planned`, `late_expense` 등 |
+| `entry_date` | TEXT | 사용일 |
+| `date_label` | TEXT | 화면 표시용 날짜 보조 문자열 |
+| `group_label` | TEXT | 화면 표시용 그룹 보조 문자열 |
+| `title` | TEXT | 대표 적요 |
+| `usage_place` | TEXT | 사용처 |
+| `usage_item` | TEXT | 사용항목 |
+| `amount_value` | REAL | 사용금액 |
+| `amount_expr` | TEXT | 과거 호환용 문자열 필드 |
+| `aux_amount_value` | REAL | 보조 금액 |
+| `aux_amount_expr` | TEXT | 보조 금액 문자열 |
+| `extra_value` | TEXT | 기타 값 |
+| `sort_order` | INTEGER | 정렬 순서 |
+| `due_day` | INTEGER | 카드 정기결제일 |
 | `confirmed_at` | TEXT | 확인 처리 시각 |
+| `confirmed_month` | TEXT | 카드 정기결제를 확인한 대상 월 |
 | `spending_category` | TEXT | `essential`, `questionable`, `dignity`, 또는 `NULL` |
-| `payment_key` | TEXT | 월마감 전후에도 유지되는 카드 결제 배분용 고유 키 |
-
-구조화된 앱 입력의 필수 규칙:
-
-- 현재 일반 지출: `entry_date`, `usage_place`, `amount_value` 필수
-- 카드 정기결제: `due_day`, `usage_place`, `amount_value` 필수
-- 두 종류 모두 `usage_item`은 NULL 허용
-- 현금흐름은 출금을 음수로 저장하는 예외이며, 나머지 사용자 입력 금액은 0 이상
-
-과거 비정형 기록과 Excel 호환을 위해 범용 컬럼 자체는 nullable로 유지하고, repository 쓰기 검증과 API 스키마에서 필수 규칙을 강제한다.
-| `created_at` | TEXT | 생성 시각 |
-| `updated_at` | TEXT | 수정 시각 |
-
-Excel 매핑:
-
-| Excel 위치 | DB 컬럼 |
-| --- | --- |
-| `당월 기록!B` | `date_label` 또는 `group_label` |
-| `당월 기록!C` | `title` |
-| `당월 기록!D` | `amount_value` 또는 `amount_expr` |
-| `전체 기록(본인)!B` | `date_label` 또는 `group_label` |
-| `전체 기록(본인)!C` | `title` |
-| `전체 기록(본인)!D` | `amount_value` 또는 `amount_expr` |
-| `전체 기록(본인)!E` | `aux_amount_value` 또는 `aux_amount_expr` |
-| `전체 기록(본인)!F` | `extra_value` |
+| `payment_key` | TEXT | 카드 결제/할인 배분용 안정 키 |
 
 정렬:
 
-```sql
-SELECT *
-FROM ledger_entries
-WHERE book_section = ?
-ORDER BY sort_order, id;
-```
-
-월마감 규칙:
-
-- `current`의 가장 오래된 미마감 월에 속한 `entry_kind != 'planned'` 행만 `archive`로 복사된다.
-- 복사본은 기존 archive 동적 기록의 마지막 `sort_order` 뒤에 붙는다.
-- 원본 current 행은 삭제된다.
-- `planned` 행은 삭제되지 않는다.
-- 현재 달은 매월 27일부터 명시 확인 후 조기 월마감할 수 있다.
-- 새 달 기록이 이미 있어도 가장 오래된 미마감 월만 이동한다.
-- `last_closed_month` 이하 날짜로 새 일반 지출을 입력하면 `archive`에 바로 추가된다.
-- `late_expense`는 카드사가 뒤늦게 매입한 전월 기록이며 처음부터 archive에 추가된다.
-
-## `archive_rows`
-
-과거 Excel `전체 기록(본인)` 시트의 hard data 보존 테이블이다.
-
-도입 이유:
-
-- 과거 기록 중 현재 양식과 칸/적요/보조열 사용 방식이 다른 데이터가 있다.
-- 이 데이터는 현재 DB 구조로 무리하게 흡수하지 않고, 원본의 행 단위 hard data로 보존한다.
-- export 시 이 영역은 template workbook의 기존 스타일과 값을 가능한 유지하고, 새 archive 기록은 그 아래에 append한다.
-
-스키마:
-
-```sql
-CREATE TABLE IF NOT EXISTS archive_rows (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    source_row INTEGER NOT NULL,
-    b_value TEXT,
-    c_value TEXT,
-    d_value REAL,
-    e_value TEXT,
-    f_value TEXT,
-    merge_down INTEGER NOT NULL DEFAULT 0,
-    sort_order INTEGER NOT NULL,
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-```
-
-컬럼:
-
-| 컬럼 | 타입 | 설명 |
-| --- | --- | --- |
-| `id` | INTEGER | PK |
-| `source_row` | INTEGER | 원본 Excel 행 번호 |
-| `b_value` | TEXT | 원본 B열 값 |
-| `c_value` | TEXT | 원본 C열 값 |
-| `d_value` | REAL | 원본 D열 금액 |
-| `e_value` | TEXT | 원본 E열 값 |
-| `f_value` | TEXT | 원본 F열 값 |
-| `merge_down` | INTEGER | B열 병합이 아래로 몇 행 이어지는지 |
-| `sort_order` | INTEGER | hard row 정렬 순서 |
-| `created_at` | TEXT | 생성 시각 |
-
-append 시작 행 계산:
-
-```text
-max(source_row + merge_down) + 1
-```
-
-즉, hard archive 영역의 마지막 병합 범위 아래부터 `ledger_entries.book_section = archive` 데이터가 append된다.
+- 카드 정기결제는 `due_day`, `sort_order`, `id` 순
+- 일반 지출은 `entry_date`, `sort_order`, `id` 순
 
 ## `monthly_panels`
 
-`당월 기록` 시트 우측의 동적 패널 테이블이다.
-
-대상 패널:
-
-- `fixed`: 고정지출
-- `frozen`: 동결
-- `claim`: 청구
-- `settlement`: 타인정산
-
-스키마:
-
-```sql
-CREATE TABLE IF NOT EXISTS monthly_panels (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    month TEXT NOT NULL,
-    panel_type TEXT NOT NULL,
-    title TEXT NOT NULL DEFAULT '',
-    spent_on TEXT,
-    amount_value REAL,
-    discount_amount REAL NOT NULL DEFAULT 0,
-    amount_expr TEXT,
-    sort_order INTEGER NOT NULL,
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-```
-
-컬럼:
+당월 하위 큐 성격의 테이블이다.
 
 | 컬럼 | 타입 | 설명 |
 | --- | --- | --- |
-| `id` | INTEGER | PK |
-| `month` | TEXT | 대상 월. `YYYY-MM` |
+| `id` | INTEGER PK | 내부 식별자 |
+| `month` | TEXT | 대상 월 |
 | `panel_type` | TEXT | `fixed`, `frozen`, `claim`, `settlement` |
-| `title` | TEXT | 항목명 |
-| `spent_on` | TEXT | 청구/타인정산 사용일. `YYYY-MM-DD` |
-| `amount_value` | REAL | 계산 완료된 금액 |
-| `discount_amount` | REAL | 청구 항목에 적용된 본인회원 카드 할인액. 원래 금액과 분리 보존 |
-| `amount_expr` | TEXT | Excel 수식 또는 수식 문자열 |
-| `sort_order` | INTEGER | 사용자 정의 정렬 순서 |
-| `created_at` | TEXT | 생성 시각 |
-| `updated_at` | TEXT | 수정 시각 |
+| `title` | TEXT | 적요 |
+| `spent_on` | TEXT | 사용일 |
+| `amount_value` | REAL | 금액 |
+| `discount_amount` | REAL | 할인액 |
+| `amount_expr` | TEXT | 과거 호환용 문자열 필드 |
+| `sort_order` | INTEGER | 정렬 순서 |
+| `due_day` | INTEGER | 필요 시 사용하는 결제일 |
+| `confirmed_at` | TEXT | 처리 완료 시각 |
 
-Excel 배치 규칙:
+정렬:
 
-- `fixed` 테이블을 먼저 그린다.
-- `frozen` 테이블은 fixed 테이블보다 세 행 아래에 그린다.
-- `claim` 테이블은 frozen 테이블보다 세 행 아래에 그린다.
-- `settlement` 테이블은 claim 테이블보다 세 행 아래에 그린다.
-
-요약 수식 연동:
-
-- `J4` 송금/예치: `fixed` 패널 금액 범위 합계
-- `J6` 동결자산: `frozen` 패널 금액 범위 합계
-
-패널 row count가 바뀌면 export 시 위 수식 범위도 함께 바뀐다.
+- 날짜가 있는 행이 먼저 온다.
+- 같은 날짜 안에서는 `sort_order`, `id` 순이다.
 
 ## `app_settings`
 
-앱/서버 설정값 테이블이다. 현재는 요약 계산의 변경 가능한 값들을 보관한다.
+앱 설정값이다.
 
-스키마:
-
-```sql
-CREATE TABLE IF NOT EXISTS app_settings (
-    key TEXT PRIMARY KEY,
-    value TEXT NOT NULL,
-    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-```
-
-기본값:
-
-```sql
-INSERT OR IGNORE INTO app_settings(key, value) VALUES
-('base_next_month_liquidity', '400000'),
-('interest_expense', '0'),
-('liquidity_status', '0');
-```
-
-설정 key:
-
-| key | 설명 |
+| key | 의미 |
 | --- | --- |
-| `base_next_month_liquidity` | 익월 유동성 계산의 기준 금액 |
-| `interest_expense` | 이자지출 |
-| `liquidity_status` | 유동성 현황 |
-| `settlement_card_limit` | 가족카드 한도 판단 기준 |
-| `share_pin_hash` | 가족 공유 PIN의 PBKDF2-SHA256 해시 |
-| `share_pin_is_default` | 공유 PIN이 기본값 `0000`이면 `1`, 사용자가 변경했으면 `0` |
+| `base_next_month_liquidity` | 주 수입 기록이 없을 때 쓰는 기본 유동성 기준 |
+| `interest_expense` | 이자 지출 |
+| `liquidity_status` | 현재 유동성 현황 |
+| `settlement_card_limit` | 가족카드 한도 감시 기준 |
 
-익월 유동성 계산:
+## `app_labels`
 
-```text
-base_next_month_liquidity
-- card_total
-- transfer_or_deposit_total
-- interest_expense
-- frozen_asset_total
-+ liquidity_status
-```
+화면 표시 문구를 저장한다.
 
-Excel export 시 `J9`에는 같은 의미의 수식이 기록된다.
+대표 key:
 
-## `workbook_labels`
-
-Excel에 표시되는 제목과 라벨을 관리하는 테이블이다. 구조는 고정하되, 표시 문구는 사용자가 바꿀 수 있게 하기 위한 테이블이다.
-
-스키마:
-
-```sql
-CREATE TABLE IF NOT EXISTS workbook_labels (
-    key TEXT PRIMARY KEY,
-    value TEXT NOT NULL,
-    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-```
-
-기본값:
-
-| key | 기본 value | 표시 위치 |
-| --- | --- | --- |
-| `current_header_date` | 날짜 | `당월 기록!B2` |
-| `current_header_title` | 적요 | `당월 기록!C2` |
-| `current_header_amount` | 금액 | `당월 기록!D2` |
-| `archive_header_date` | 날짜 | `전체 기록(본인)!B2` |
-| `archive_header_title` | 적요 | `전체 기록(본인)!C2` |
-| `archive_header_amount` | 금액 | `전체 기록(본인)!D2` |
-| `panel_fixed_title` | 현금성 고정지출 | fixed 패널 제목 |
-| `panel_frozen_title` | 동결 | frozen 패널 제목 |
-| `panel_claim_title` | 청구 | claim 패널 제목 |
-| `panel_settlement_title` | 타인정산 | settlement 패널 제목 |
-| `panel_header_title` | 적요 | 패널 항목명 헤더 |
-| `panel_header_amount` | 금액 | 패널 금액 헤더 |
-| `summary_title` | 요약 | `당월 기록!I2` |
-| `summary_card_total_label` | 카드대금 | `당월 기록!I3` |
-| `summary_transfer_or_deposit_label` | 송금/예치 | `당월 기록!I4` |
-| `summary_interest_expense_label` | 이자지출 | `당월 기록!I5` |
-| `summary_frozen_asset_label` | 동결자산 | `당월 기록!I6` |
-| `summary_liquidity_status_label` | 유동성 현황 | `당월 기록!I7` |
-| `summary_next_month_liquidity_label` | 익월 유동성 | `당월 기록!I9` |
-
-## `users`
-
-로그인 사용자를 저장하는 테이블이다. 현재 서비스는 1인 사용을 전제로 하지만, 테이블은 여러 사용자를 저장할 수 있게 둔다.
-
-스키마:
-
-```sql
-CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT NOT NULL UNIQUE,
-    password_hash TEXT NOT NULL,
-    display_name TEXT NOT NULL DEFAULT '',
-    is_active INTEGER NOT NULL DEFAULT 1,
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-```
-
-컬럼:
-
-| 컬럼 | 타입 | 설명 |
-| --- | --- | --- |
-| `id` | INTEGER | PK |
-| `username` | TEXT | 로그인 ID |
-| `password_hash` | TEXT | PBKDF2-SHA256 비밀번호 해시 |
-| `display_name` | TEXT | 화면 표시 이름 |
-| `is_active` | INTEGER | 활성 여부. `1`이면 활성 |
-| `created_at` | TEXT | 생성 시각 |
-| `updated_at` | TEXT | 수정 시각 |
-
-비밀번호는 평문으로 저장하지 않는다. 서버는 salt가 포함된 PBKDF2-SHA256 해시를 저장한다.
-
-## `auth_sessions`
-
-로그인 세션을 저장하는 테이블이다. 브라우저에는 raw session token이 HttpOnly cookie로 저장되고, DB에는 token hash만 저장된다.
-
-스키마:
-
-```sql
-CREATE TABLE IF NOT EXISTS auth_sessions (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    session_token_hash TEXT NOT NULL UNIQUE,
-    expires_at TEXT NOT NULL,
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    last_seen_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-```
-
-컬럼:
-
-| 컬럼 | 타입 | 설명 |
-| --- | --- | --- |
-| `id` | INTEGER | PK |
-| `user_id` | INTEGER | `users.id` |
-| `session_token_hash` | TEXT | session token의 SHA-256 hash |
-| `expires_at` | TEXT | 세션 만료 시각 |
-| `created_at` | TEXT | 생성 시각 |
-| `last_seen_at` | TEXT | 마지막 사용 시각 |
-
-기본 세션 만료 기간은 `MONEY_NOTE_SESSION_DAYS`로 조정한다.
-
-## `share_sessions`
-
-가족 공유 PIN 통과 후 발급되는 공유 전용 장기 세션이다.
-
-- 본체 로그인 세션과 분리된다.
-- raw token은 브라우저 cookie에, SHA-256 token hash는 DB에 저장한다.
-- 기본 유효기간은 10년이지만 브라우저 또는 카카오톡 앱이 사이트 데이터를 삭제하면 cookie는 사라질 수 있다.
-- 공유 PIN을 변경하면 모든 `share_sessions` 행을 삭제한다.
+| key | 의미 |
+| --- | --- |
+| `panel_fixed_title` | 현금성 고정지출 제목 |
+| `panel_frozen_title` | 동결 제목 |
+| `panel_claim_title` | 청구 제목 |
+| `panel_settlement_title` | 타인정산 제목 |
+| `summary_title` | 요약 제목 |
+| `summary_card_total_label` | 카드대금 라벨 |
+| `summary_next_month_liquidity_label` | 익월 유동성 라벨 |
 
 ## `cash_flows`
 
-현금 입출금 기록이다. `liquidity_status` 계산에 더해진다.
+현금 입출금 기록이다.
 
-주요 컬럼:
-
-| 컬럼 | 설명 |
-| --- | --- |
-| `occurred_on` | 발생일. `YYYY-MM-DD` |
-| `title` | 적요 |
-| `amount_value` | 입금은 양수, 출금은 음수 |
-| `sort_order` | 정렬 순서 |
-| `is_primary_income` | 해당 월 결제 심사의 주 수입이면 `1` |
-
-같은 결제월의 `is_primary_income = 1`인 양수 입금 합계는 파산심사위원회의 기준 수입으로 사용된다.
+| 컬럼 | 타입 | 설명 |
+| --- | --- | --- |
+| `id` | INTEGER PK | 내부 식별자 |
+| `occurred_on` | TEXT | 발생일 |
+| `title` | TEXT | 적요 |
+| `amount_value` | REAL | 입금은 양수, 출금은 음수 |
+| `sort_order` | INTEGER | 정렬 순서 |
+| `is_primary_income` | INTEGER | 주 수입이면 `1` |
 
 ## `installments`
 
-할부 항목이다. 활성 항목의 월 납입액은 카드대금 요약에 포함된다.
+할부 기록이다.
 
-주요 컬럼:
+| 컬럼 | 타입 | 설명 |
+| --- | --- | --- |
+| `id` | INTEGER PK | 내부 식별자 |
+| `title` | TEXT | 적요 |
+| `principal_amount` | REAL | 원금 |
+| `fee_rate` | REAL | 수수료율 |
+| `fee_amount` | REAL | 수수료 |
+| `months` | INTEGER | 전체 개월 수 |
+| `remaining_months` | INTEGER | 남은 개월 수 |
+| `start_month` | TEXT | 시작 월 |
+| `sort_order` | INTEGER | 정렬 순서 |
+| `is_active` | INTEGER | 활성 여부 |
 
-| 컬럼 | 설명 |
-| --- | --- |
-| `title` | 적요 |
-| `principal_amount` | 할부 원금 |
-| `fee_rate` | 수수료율 |
-| `fee_amount` | `principal_amount * fee_rate / 100`을 원 단위 올림한 값 |
-| `months` | 총 개월수 |
-| `remaining_months` | 남은 개월수 |
-| `start_month` | 시작 월. `YYYY-MM` |
-| `is_active` | 활성 여부 |
+월 납입액은 `ceil((principal_amount + fee_amount) / months)`로 계산한다.
 
-월마감 시 활성 할부의 `remaining_months`가 1 줄고, 0이 되면 `is_active = 0`이 된다.
+## 카드 결제 테이블
 
-## `card_payment_events`
+### `card_payment_events`
 
-한 번의 즉시결제 또는 수기 할인액 처리를 기록한다.
+즉시결제와 할인액 처리 이벤트다.
 
-| 컬럼 | 설명 |
-| --- | --- |
-| `event_date` | 처리일. 즉시결제는 익월 14일까지, 할인은 당월 기록에서도 허용 |
-| `event_type` | `immediate` 또는 `discount` |
-| `total_amount` | 해당 event의 allocation 합계 |
-| `note` | 선택적 메모 |
-| `cash_flow_id` | 즉시결제에서 자동 생성된 현금흐름 ID. 할인은 `NULL` |
+| 컬럼 | 타입 | 설명 |
+| --- | --- | --- |
+| `event_date` | TEXT | 처리일 |
+| `event_type` | TEXT | `immediate` 또는 `discount` |
+| `total_amount` | REAL | 처리 총액 |
+| `note` | TEXT | 메모 |
+| `cash_flow_id` | INTEGER | 즉시결제가 만든 현금흐름 id |
 
-## `card_payment_allocations`
+### `card_payment_allocations`
 
-결제 event의 금액을 원래 카드 사용내역에 배분한다.
+이벤트 금액을 사용내역별로 배분한다.
 
-| 컬럼 | 설명 |
-| --- | --- |
-| `payment_event_id` | `card_payment_events.id` |
-| `entry_payment_key` | 월마감 전후에도 유지되는 `ledger_entries.payment_key` |
-| `amount_value` | 해당 사용내역에 배분한 즉시결제 또는 할인액 |
+| 컬럼 | 타입 | 설명 |
+| --- | --- | --- |
+| `payment_event_id` | INTEGER | `card_payment_events.id` |
+| `entry_payment_key` | TEXT | `ledger_entries.payment_key` |
+| `amount_value` | REAL | 배분 금액 |
 
-하나의 사용내역에 여러 번 일부결제할 수 있고, 한 번의 결제 event를 여러 사용내역에 나눠 배분할 수 있다.
+### `card_payment_deferrals`
 
-단, 적요에 `통행료` 또는 `하이패스`가 포함된 항목은 할인과 일부결제를 허용하지 않고 남은 금액 전액만 즉시결제할 수 있다.
+통행료/하이패스 이월 상태다.
 
-월별 할인 혜택 정책은 `app_settings`의 `card_discount_policy:{scope}:{YYYY-MM}` 키에 저장한다. `scope`는 본인회원 카드 `owner`와 가족카드 `family`로 분리된다. 카드 정기결제의 확인 전 할인액은 `ledger_entries.aux_amount_value`에 임시 저장하고, 확인 시 실제 카드 사용내역의 할인 event로 전환한다.
+| 컬럼 | 타입 | 설명 |
+| --- | --- | --- |
+| `entry_payment_key` | TEXT PK | 이월된 사용내역의 `payment_key` |
+| `from_payment_month` | TEXT | 원래 결제월 |
+| `target_payment_month` | TEXT | 이월 목표 결제월 |
+| `original_*` | 여러 컬럼 | 이월 취소를 위한 원래 장부 상태 |
 
-## `card_payment_deferrals`
+## 사용자와 세션
 
-통행료/하이패스 항목을 다음 결제월로 이월할 때 원본 장부 상태를 보관한다.
+### `users`
 
-| 컬럼 | 설명 |
-| --- | --- |
-| `entry_payment_key` | 이월한 `ledger_entries.payment_key`. PK |
-| `from_payment_month` | 이월을 선택한 결제월 |
-| `target_payment_month` | 실제 처리 대상으로 넘긴 다음 결제월 |
-| `original_book_section` | 이월 전 `current` 또는 `archive` |
-| `original_entry_date` | 이월 전 실제 날짜 |
-| `original_date_label` | 이월 전 표시 날짜 |
-| `original_group_label` | 이월 전 그룹 라벨 |
-| `original_title` | 이월 전 적요 |
-| `original_sort_order` | 이월 전 정렬 위치 |
+본체 사용자의 로그인 정보를 저장한다. 현재 운용 전제는 1인 사용자다.
 
-이월 시 원본 `ledger_entries` 행 자체를 현재 월 장부 맨 앞으로 옮긴다.
+### `auth_sessions`
 
-- `book_section = current`
-- 내부 `entry_date = 이월을 선택한 결제월의 1일`
-- 화면/Excel 표시 날짜인 `date_label`, `group_label`은 빈 문자열
-- `title` 앞에는 `[이월]` 추가
-- 기존 현재 월 장부의 최소 `sort_order`보다 1 작은 값을 사용해 맨 앞에 배치
+본체 로그인 세션이다. 브라우저 cookie 또는 bearer token으로 사용된다.
 
-같은 결제월에 `이번 달에 처리`를 선택하면 보관한 원본 상태를 복원하고 이월 행을 삭제한다. 월마감 후에는 `[이월]` 장부 행이 일반 당월 사용내역처럼 archive로 이동한다.
+### `share_sessions`
 
-## 청구·타인정산 처리
-
-`monthly_panels`의 `claim`, `settlement` 항목은 장기 기록이 아니라 가족에게 전달하기 전까지 유지하는 임시 큐다. 미마감 장부 월과 무관하게 달력상 현재 연-월을 사용한다. `일괄 처리 완료` 시 선택한 타입의 현재 월 행을 삭제한다. 이 동작은 다른 패널 타입과 월마감에 영향을 주지 않는다.
+청구/타인정산 공유 페이지용 세션이다. 본체 로그인과 분리된다.
 
 ## `audit_logs`
 
-변경 API의 최소 감사 정보를 저장한다.
+변경 API의 사용자, 메서드, 경로, 상태 코드만 저장한다. 요청 본문, 비밀번호, 세션 토큰은 저장하지 않는다.
 
-| 컬럼 | 설명 |
-| --- | --- |
-| `occurred_at` | 요청 처리 시각 |
-| `actor_username` | 로그인 사용자명. 인증 전 요청은 `anonymous` |
-| `method` | `POST`, `PATCH`, `DELETE` |
-| `path` | API 경로. query와 요청 본문은 저장하지 않음 |
-| `status_code` | HTTP 결과 코드 |
+## CSV 백업 대상
 
-`DELETE /api/audit-logs`는 전체 행을 삭제하며, 초기화 요청 자체는 다시 기록하지 않는다.
+CSV 백업은 아래 테이블을 포함한다.
 
-## Export와 DB의 관계
-
-export 입력:
-
-- `archive_rows`
-- `ledger_entries WHERE book_section = 'archive'`
-- `ledger_entries WHERE book_section = 'current'`
+- `ledger_entries`
 - `monthly_panels`
-- `workbook_labels`
 - `app_settings`
-- 할부는 Excel export에 별도 표로 쓰지 않고, 요약의 카드대금 계산에 반영한다.
+- `app_labels`
+- `cash_flows`
+- `installments`
+- `card_payment_events`
+- `card_payment_allocations`
+- `card_payment_deferrals`
 
-export 정책:
+CSV 백업은 아래 테이블을 포함하지 않는다.
 
-- 원본 template workbook이 있으면 기존 시트 스타일과 hard archive 영역을 유지한다.
-- `당월 기록`은 DB의 current 기록과 monthly panel 기준으로 다시 그린다.
-- `전체 기록(본인)`의 hard archive 영역은 보존하고, dynamic archive 기록은 그 아래에 append한다.
-- 현재 월 메인 기록의 날짜 셀은 같은 날짜가 연속되면 B열을 병합한다.
-- archive append 기록의 날짜 셀도 같은 날짜가 연속되면 B열을 병합한다.
-- 월마감으로 append된 직전월 기록은 노란 배경으로 표시한다.
-
-## Import와 DB의 관계
-
-초기 import는 `backend/scripts/import_xlsx.py`가 수행한다.
-
-동작:
-
-- `당월 기록`의 메인 기록을 `ledger_entries.current`로 읽는다.
-- `당월 기록`의 우측 패널을 `monthly_panels`로 읽는다.
-- `전체 기록(본인)`의 기존 기록은 `archive_rows` hard data로 읽는다.
-- 요약 계산 기준값은 `app_settings`로 읽는다.
-- Excel 표시 문구는 `workbook_labels`로 읽는다.
-
-`--replace` 옵션을 사용하면 기존 `ledger_entries`, `archive_rows`, `monthly_panels`, `workbook_labels`를 비우고 다시 import한다. `app_settings`는 key 단위 upsert로 갱신된다.
+- `users`
+- `auth_sessions`
+- `share_sessions`
+- `audit_logs`

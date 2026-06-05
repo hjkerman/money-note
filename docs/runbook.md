@@ -24,29 +24,11 @@ repo 루트에서 아래 디렉터리를 사용한다.
 
 ```text
 data/
-exports/
 ```
 
-- `data/`: SQLite DB와 Excel template 저장
-- `exports/`: export된 `.xlsx` 파일 저장
+- `data/`: SQLite DB 저장
 
 이 디렉터리들은 개인 데이터가 들어가므로 git에 올리지 않는다.
-
-## 최초 Excel import
-
-현재 Excel 파일을 template으로 복사한 뒤 DB로 import한다.
-
-```bash
-mkdir -p data exports
-cp /path/to/금전사용기록.xlsx data/template.xlsx
-docker compose run --rm api python scripts/import_xlsx.py /app/data/template.xlsx --replace
-```
-
-주의:
-
-- 원본 Excel 파일은 직접 수정하지 않는다.
-- `--replace`는 기존 DB의 기록/라벨을 비우고 다시 import한다.
-- 실제 운영 중에는 `--replace`를 조심해서 사용한다.
 
 ## 백엔드 서버 실행
 
@@ -98,8 +80,6 @@ docker compose down
 
 ```text
 MONEY_NOTE_DB_PATH=/app/data/money-note.sqlite3
-MONEY_NOTE_EXPORT_DIR=/app/exports
-MONEY_NOTE_TEMPLATE_PATH=/app/data/template.xlsx
 ```
 
 개발용 CORS:
@@ -238,21 +218,21 @@ sudo rsync -a --delete frontend/dist/ /var/www/money-note/
 
 인증서, reverse proxy, 도메인 연결은 서버 운영 환경에서 별도로 설정한다.
 
-## Excel export
+## CSV 백업
 
-API로 export 파일을 생성한다.
+웹 상단의 `CSV 백업` 버튼으로 zip 백업을 내려받는다.
 
-```bash
-curl -X POST http://localhost:18080/api/export
-```
-
-최신 export 파일 다운로드:
+API로 받을 때는 로그인 세션 또는 bearer token이 필요하다.
 
 ```bash
-curl -O http://localhost:18080/api/export/latest.xlsx
+curl -O http://localhost:18080/api/backups/csv
 ```
 
-생성된 파일은 컨테이너 기준 `/app/exports`, 호스트 기준 `exports/`에 저장된다.
+복원은 웹 상단의 `CSV 복원` 버튼으로 수행한다. 복원하면 장부 운용 데이터가 백업 파일 내용으로 교체된다. 사용자 계정, 세션, 관리 로그는 유지된다.
+
+포맷 상세:
+
+- [CSV 백업 포맷](csv-backup.md)
 
 ## 월마감
 
@@ -267,7 +247,6 @@ curl -X POST http://localhost:18080/api/month/current/close \
 동작:
 
 - 카드 정기결제, 즉 `entry_kind = planned`인 항목을 제외한 `current` 기록을 `archive`로 복사한다.
-- 복사된 기록은 `전체 기록(본인)` export 시 hard data 아래에 append된다.
 - 카드 정기결제 항목은 당월 기록에 남는다.
 - 현재 달은 매월 27일부터 `allow_early_close=true`로 조기 마감할 수 있다.
 - 조기 마감 뒤 같은 달 날짜로 추가한 일반 지출은 `archive`에 바로 저장된다.

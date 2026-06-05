@@ -1,57 +1,36 @@
 # money-note
 
-기존 Excel 가계부의 운용 방식을 최대한 유지하면서, 당월 기록을 데스크탑과 모바일에서 조작할 수 있게 만들기 위한 개인 가계부 앱입니다.
+개인 신용카드 생활에 맞춘 1인용 가계부 웹 앱입니다.
 
-기본 source of truth는 서버 DB입니다. Excel 파일은 초기 데이터 import와 휴대 가능한 snapshot export 용도로 사용합니다.
+서버 DB가 원본 데이터입니다. 과거의 스프레드시트 운용 방식에서 출발했지만, 현재 앱은 웹 UI와 API를 중심으로 동작하며 백업은 CSV zip으로 관리합니다.
 
 ## 현재 계획
 
-- 백엔드: FastAPI, SQLite, openpyxl
+- 백엔드: FastAPI + SQLite
 - 배포: Ubuntu 24.04 홈서버에서 Docker Compose로 실행
 - 웹 프론트엔드: Vite + React + TypeScript
 - 데스크탑 앱: 웹 프론트엔드가 안정된 뒤 다시 검토
 - 모바일 앱: 필요함. 우선 웹 프론트엔드/API를 안정화하고, 이후 Android 중심으로 구현 방식 결정
-- Excel workbook 구조:
-  - `당월 기록`: 현재 월 운용 시트
-  - `전체 기록(본인)`: 누적 기록 시트
 
-## 클라이언트 개발 방향
+## 주요 기능
 
-먼저 `frontend/`에 웹 앱을 만듭니다. 이 웹 앱은 홈서버의 `/var/www/...`에 정적 파일로 배포할 수 있게 `dist/` 산출물을 생성합니다.
-
-모바일 앱도 필요합니다. 현재는 서버 API와 웹 UI를 먼저 안정화한 뒤, Android에서 가장 덜 고통스러운 형태로 확장하는 것을 목표로 합니다.
-
-## 현재 구현된 주요 기능
-
-- 당월 지출 추가: `사용처`와 `사용항목`을 나눠 입력하고, Excel export 때는 `[사용처] 사용항목` 형식으로 유지
-- 카드 정기결제: 당월 지출과 같은 `사용처`/`사용항목` 구조로 입력하고, 확인 시 당월 지출로 편입
-- 분류 저장 UX: 분류 변경은 pending 상태로 모이고 `변경 사항 저장` 버튼으로 일괄 저장
-- 청구/타인정산: 행별 삭제와 전체 초기화 지원
+- 당월 지출: 사용일, 사용처, 사용항목, 금액, 분류를 관리
+- 카드 정기결제: 결제일순 정렬, 확인 시 당월 지출로 편입
+- 청구/타인정산: 가족에게 보여줄 읽기 전용 공유 화면과 일괄 처리 완료
 - 동결: 살지 말지 보류한 임시 항목. 실제 지출은 직접 기록하고 동결 항목은 삭제
 - 할부: 할부액, 수수료율, 개월수를 입력하면 월 납입액을 원 단위 올림으로 계산
-- 현금흐름: 현금 입출금 기록이 유동성 현황에 반영
+- 현금흐름: 현금 입출금 기록을 유동성 현황에 반영
 - 이번달 결제: 직전월 카드 사용분을 날짜순으로 자동 배분하거나 직접 선택해 일부 즉시결제/할인액 처리
 - 통행료 이월: `통행료`/`하이패스` 항목은 할인·일부결제 없이 전액 처리하거나 다음 달 장부 맨 앞으로 이월
 - 수동 월마감: 새 달 기록을 먼저 입력해도 가장 오래된 미마감 월 하나만 전체 기록으로 이동
 - 조기 월마감: 매월 27일부터 명시 확인 후 현재 달을 닫을 수 있고, 이후 같은 달 지출은 전체 기록에 바로 추가
 - 전월 매입 지연 보정: 카드사가 뒤늦게 올린 직전월 사용내역을 이번달 결제 대상에 추가
-- 청구/타인정산 일괄 처리 완료: 전달이 끝난 현재 목록을 한 번에 삭제
 - 관리 로그: 변경 API의 사용자·경로·결과를 조회하고 필요할 때 전체 초기화
-- 결제 심사: 결제일까지 남은 기간과 주 수입 대비 미결제액을 바탕으로 파산심사위원회 문구 표시
-- UI 구조: 주요 테이블은 테이블과 입력창이 같은 panel 안에 있는 형태로 통일
-- 통계/월별 기록: `통계 보기` 아래에서 함께 확인
+- CSV 백업/복원: 장부 운용 데이터를 zip으로 내보내고 다시 가져오기
 - 판단 모듈: 분류 기준과 문구를 백엔드 `judgment` 모듈로 분리하고 프론트는 서버 판단 결과를 표시
 - 가족 공유 PIN: 청구/타인정산 공유 링크를 기본 PIN `0000`으로 잠그고, 변경 가능한 네 자리 PIN과 장기 세션 적용
 
 ## 빠른 시작
-
-현재 가계부 Excel 파일을 `data/template.xlsx`로 복사한 뒤 import합니다.
-
-```bash
-mkdir -p data exports
-cp /path/to/금전사용기록.xlsx data/template.xlsx
-docker compose run --rm api python scripts/import_xlsx.py /app/data/template.xlsx --replace
-```
 
 서버를 시작합니다.
 
@@ -97,15 +76,26 @@ npm run build
 
 생성된 `frontend/dist/`를 홈서버의 `/var/www/...` 아래에 배치하면 됩니다.
 
-## API 호출 예시
+## CSV 백업
 
-자세한 명세는 아래 문서를 참고합니다.
+웹 상단의 `CSV 백업` 버튼으로 현재 장부 운용 데이터를 zip 파일로 받을 수 있습니다.
+
+복원은 `CSV 복원` 버튼으로 수행합니다. 복원 시 기존 장부 운용 데이터는 백업 파일 내용으로 교체되지만, 사용자 계정과 세션, 관리 로그는 유지됩니다.
+
+포맷 상세:
+
+- [CSV 백업 포맷](docs/csv-backup.md)
+
+## 문서
 
 - [API 명세](docs/api.md)
 - [DB 명세](docs/database.md)
+- [CSV 백업 포맷](docs/csv-backup.md)
 - [실행 방법](docs/runbook.md)
 - [아키텍처](docs/architecture.md)
 - [테스트 절차](docs/test-plan.md)
+
+## API 호출 예시
 
 ```bash
 curl http://localhost:18080/health
@@ -114,48 +104,13 @@ curl http://localhost:18080/api/entries/current
 curl http://localhost:18080/api/month/current/panels
 curl http://localhost:18080/api/share/claim
 curl http://localhost:18080/api/share/settlement
-curl -X POST http://localhost:18080/api/export
-curl -O http://localhost:18080/api/export/latest.xlsx
+curl -O http://localhost:18080/api/backups/csv
 ```
 
-읽기 전용 웹 화면:
+로그인이 필요한 API는 브라우저 세션 또는 `Authorization: Bearer ...` 헤더가 필요합니다.
 
-- `http://localhost:18080/share/claim`
-- `http://localhost:18080/share/settlement`
+## Docker 데이터
 
-가장 오래된 미마감 기록을 월마감 처리합니다. 현재 달은 매월 27일부터 조기 마감할 수 있습니다.
-
-```bash
-curl -X POST http://localhost:18080/api/month/current/close \
-  -H 'Content-Type: application/json' \
-  -d '{"allow_early_close":false}'
-```
-
-조기 마감은 `allow_early_close=true`로 명시해야 합니다. 월마감은 카드 정기결제가 아닌 해당 월 기록을 동적 전체 기록으로 append하고, 카드 정기결제 항목은 당월 기록에 남겨둡니다. 마감한 달 날짜로 뒤늦게 추가한 지출은 전체 기록에 바로 보관됩니다.
-
-카드 정기결제 항목을 추가합니다.
-
-```bash
-curl -X POST http://localhost:18080/api/month/current/planned \
-  -H 'Content-Type: application/json' \
-  -d '{"title":"[구독서비스] 월간 생존권","usage_place":"구독서비스","usage_item":"월간 생존권","amount_value":12345,"due_day":10}'
-```
-
-당월 기록 또는 카드 정기결제 항목의 사용자 정의 정렬을 적용합니다.
-
-```bash
-curl -X POST http://localhost:18080/api/month/current/reorder \
-  -H 'Content-Type: application/json' \
-  -d '{"ordered_ids":[3,1,2]}'
-
-curl -X POST http://localhost:18080/api/month/current/planned/reorder \
-  -H 'Content-Type: application/json' \
-  -d '{"ordered_ids":[28,23,24]}'
-```
-
-## 데이터 디렉터리
-
-- `data/`: SQLite DB와 선택적 workbook template 저장
-- `exports/`: 생성된 `.xlsx` snapshot 저장
-
-위 디렉터리들은 개인 데이터가 들어가는 위치라 git 추적에서 제외합니다.
+- `data/`: SQLite DB 저장
+- 컨테이너 내부 DB 경로: `/app/data/money-note.sqlite3`
+- 호스트 기준 DB 경로: `data/money-note.sqlite3`

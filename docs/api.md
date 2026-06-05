@@ -10,7 +10,7 @@
 - 월 형식: `YYYY-MM`
 - 금액 필드:
   - `amount_value`: 계산 완료된 숫자 금액
-  - `amount_expr`: Excel 수식 또는 수식성 문자열. 값이 있으면 export 시 셀 수식으로 기록된다.
+  - `amount_expr`: 과거 호환용 문자열 필드. 신규 화면에서는 계산된 금액을 중시한다.
 - 정렬:
   - `sort_order` 오름차순, 동률이면 `id` 오름차순
   - 사용자가 직접 정렬을 바꾸는 경우 reorder API를 사용한다.
@@ -825,11 +825,11 @@ next_month_liquidity
 - `liquidity_status`
 - `settlement_card_limit`
 
-## 엑셀 표시 라벨
+## 앱 표시 라벨
 
 ### `GET /api/labels`
 
-엑셀 export에 사용할 표시 문구를 조회한다.
+화면에 표시할 문구를 조회한다.
 
 응답 예시:
 
@@ -848,7 +848,7 @@ next_month_liquidity
 
 ### `PATCH /api/labels/{key}`
 
-엑셀 표시 문구를 수정한다.
+화면 표시 문구를 수정한다.
 
 요청:
 
@@ -866,35 +866,48 @@ next_month_liquidity
 }
 ```
 
-허용 key는 현재 DB의 `workbook_labels`에 존재하는 key다.
+허용 key는 현재 DB의 `app_labels`에 존재하는 key다.
 
-## 엑셀 export
+## CSV 백업
 
-### `POST /api/export`
+### `GET /api/backups/csv`
 
-현재 DB 내용을 엑셀 파일로 export한다.
+현재 장부 운용 데이터를 CSV zip으로 다운로드한다.
 
-동작:
+응답:
 
-- `exports/money-note-YYYYMMDD-HHMMSS.xlsx` 생성
-- `exports/latest.xlsx` 갱신
-- 설정된 template workbook이 있으면 해당 파일의 스타일과 기존 hard archive 영역을 기반으로 export한다.
+- Content-Type: `application/zip`
+- 파일명: `money-note-csv-backup-YYYYMMDD-HHMMSS.zip`
+
+포맷 상세는 [CSV 백업 포맷](csv-backup.md)을 참고한다.
+
+### `POST /api/backups/csv/import`
+
+CSV 백업 zip을 업로드해 장부 운용 데이터를 복원한다.
+
+요청:
+
+```json
+{
+  "filename": "money-note-csv-backup-20260605-093012.zip",
+  "content_base64": "UEsDB..."
+}
+```
 
 응답:
 
 ```json
 {
-  "filename": "money-note-20260603-153000.xlsx",
-  "latest": "latest.xlsx"
+  "filename": "money-note-csv-backup-20260605-093012.zip",
+  "imported": {
+    "ledger_entries": 120,
+    "monthly_panels": 8,
+    "app_settings": 4,
+    "app_labels": 18
+  }
 }
 ```
 
-### `GET /api/export/latest.xlsx`
+복원 대상은 장부 운용 데이터다. 사용자 계정, 로그인 세션, 공유 세션, 감사 로그는 복원하지 않는다.
 
-가장 최근 export 파일을 다운로드한다.
-
-응답:
-
-- 파일: `money-note-latest.xlsx`
-
-아직 export가 생성되지 않았으면 `404`를 반환한다.
+잘못된 zip 또는 지원하지 않는 백업이면 `400`을 반환한다.

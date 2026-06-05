@@ -6,7 +6,6 @@ from pathlib import Path
 class Settings:
     def __init__(self) -> None:
         self.db_path = Path(os.getenv("MONEY_NOTE_DB_PATH", "data/money-note.sqlite3"))
-        self.export_dir = Path(os.getenv("MONEY_NOTE_EXPORT_DIR", "exports"))
         self.session_cookie_name = os.getenv("MONEY_NOTE_SESSION_COOKIE_NAME", "money_note_session")
         self.session_days = int(os.getenv("MONEY_NOTE_SESSION_DAYS", "30"))
         self.cookie_secure = os.getenv("MONEY_NOTE_COOKIE_SECURE", "false").lower() == "true"
@@ -18,8 +17,6 @@ class Settings:
             ).split(",")
             if origin.strip()
         ]
-        template_path = os.getenv("MONEY_NOTE_TEMPLATE_PATH")
-        self.template_path = Path(template_path) if template_path else None
 
 
 @lru_cache

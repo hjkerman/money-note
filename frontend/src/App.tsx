@@ -1,4 +1,4 @@
-import { Dispatch, FormEvent, ReactNode, SetStateAction, useEffect, useMemo, useState } from "react";
+import { Dispatch, FormEvent, ReactNode, SetStateAction, useEffect, useMemo, useRef, useState } from "react";
 import {
   AuthUser,
   AuditLog,
@@ -25,7 +25,6 @@ import {
   createCashFlow,
   createCardPaymentEvent,
   createEntry,
-  createExport,
   createInstallment,
   createLateCardEntry,
   createPanel,
@@ -50,7 +49,8 @@ import {
   fetchMonthCloseStatus,
   fetchSettings,
   fetchSummary,
-  latestExportUrl,
+  downloadCsvBackup,
+  importCsvBackup,
   login,
   logout,
   setSharePin,
@@ -148,6 +148,7 @@ export function App() {
     usageItem: "",
     amount: "",
   });
+  const csvBackupInputRef = useRef<HTMLInputElement | null>(null);
 
   const plannedEntries = entries.filter((entry) => entry.entry_kind === "planned");
   const expenseEntries = entries.filter((entry) => entry.entry_kind !== "planned");
@@ -347,7 +348,7 @@ export function App() {
     }
   }
 
-  // 사용처와 사용항목을 합쳐 기존 Excel 적요 형식으로도 호환되는 당월 기록을 만든다.
+  // 사용처와 사용항목을 합쳐 사람이 읽기 쉬운 대표 적요도 함께 저장한다.
   async function handleExpenseSubmit(event: FormEvent) {
     event.preventDefault();
     const form = event.currentTarget as HTMLFormElement;
@@ -841,12 +842,45 @@ export function App() {
     });
   }
 
-  async function handleExport() {
-    await withRefresh(async () => {
-      const result = await createExport();
-      setStatus(`엑셀 export 완료: ${result.filename}`);
-      window.location.href = latestExportUrl();
-    });
+  async function handleCsvBackupDownload() {
+    setIsBusy(true);
+    try {
+      const { filename, blob } = await downloadCsvBackup();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(url);
+      setStatus(`CSV 백업 생성 완료: ${filename}`);
+    } catch (error) {
+      setStatus(`CSV 백업 실패: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      setIsBusy(false);
+    }
+  }
+
+  async function handleCsvBackupImport(file: File | null) {
+    if (!file) return;
+    const confirmed = window.confirm(
+      "CSV 백업을 복원할까요?\n\n현재 장부 데이터가 백업 파일 내용으로 교체됩니다. 사용자 계정과 관리 로그는 바꾸지 않습니다.",
+    );
+    if (!confirmed) {
+      if (csvBackupInputRef.current) csvBackupInputRef.current.value = "";
+      return;
+    }
+    setIsBusy(true);
+    try {
+      const result = await importCsvBackup(file);
+      await refresh();
+      const total = Object.values(result.imported).reduce((sum, count) => sum + count, 0);
+      setStatus(`CSV 복원 완료: ${result.filename} (${total}행)`);
+    } catch (error) {
+      setStatus(`CSV 복원 실패: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      if (csvBackupInputRef.current) csvBackupInputRef.current.value = "";
+      setIsBusy(false);
+    }
   }
 
   // 쓰기 작업을 수행한 뒤 성공하면 서버 상태를 다시 읽는다.
@@ -913,9 +947,19 @@ export function App() {
           <button type="button" onClick={() => void handleSharePinSet()} disabled={isBusy}>
             공유 PIN 설정
           </button>
-          <button type="button" onClick={() => void handleExport()} disabled={isBusy}>
-            엑셀 export
+          <button type="button" onClick={() => void handleCsvBackupDownload()} disabled={isBusy}>
+            CSV 백업
           </button>
+          <button type="button" onClick={() => csvBackupInputRef.current?.click()} disabled={isBusy}>
+            CSV 복원
+          </button>
+          <input
+            ref={csvBackupInputRef}
+            type="file"
+            accept=".zip,application/zip"
+            hidden
+            onChange={(event) => void handleCsvBackupImport(event.target.files?.[0] ?? null)}
+          />
           <button type="button" onClick={() => setShowStats(!showStats)} disabled={isBusy}>
             통계 {showStats ? "끄기" : "보기"}
           </button>

@@ -33,19 +33,6 @@ CREATE TABLE IF NOT EXISTS ledger_entries (
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS archive_rows (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    source_row INTEGER NOT NULL,
-    b_value TEXT,
-    c_value TEXT,
-    d_value REAL,
-    e_value TEXT,
-    f_value TEXT,
-    merge_down INTEGER NOT NULL DEFAULT 0,
-    sort_order INTEGER NOT NULL,
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
 CREATE TABLE IF NOT EXISTS monthly_panels (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     month TEXT NOT NULL,
@@ -68,7 +55,7 @@ CREATE TABLE IF NOT EXISTS app_settings (
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS workbook_labels (
+CREATE TABLE IF NOT EXISTS app_labels (
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -173,9 +160,6 @@ ON ledger_entries(book_section, sort_order);
 CREATE INDEX IF NOT EXISTS idx_ledger_date
 ON ledger_entries(entry_date);
 
-CREATE INDEX IF NOT EXISTS idx_archive_rows_order
-ON archive_rows(sort_order);
-
 CREATE INDEX IF NOT EXISTS idx_panels_month_type_order
 ON monthly_panels(month, panel_type, sort_order);
 
@@ -212,7 +196,7 @@ INSERT OR IGNORE INTO app_settings(key, value) VALUES
 ('liquidity_status', '0'),
 ('settlement_card_limit', '5800000');
 
-INSERT OR IGNORE INTO workbook_labels(key, value) VALUES
+INSERT OR IGNORE INTO app_labels(key, value) VALUES
 ('current_header_date', '날짜'),
 ('current_header_title', '적요'),
 ('current_header_amount', '금액'),
@@ -327,7 +311,7 @@ def init_db() -> None:
                 conn.execute(f"ALTER TABLE card_payment_deferrals ADD COLUMN {column} {column_type}")
         conn.execute(
             """
-            UPDATE workbook_labels
+            UPDATE app_labels
             SET value = '현금성 고정지출', updated_at = CURRENT_TIMESTAMP
             WHERE key = 'panel_fixed_title' AND value = '고정지출'
             """

@@ -80,12 +80,6 @@ def list_entries(section: str, today: date | None = None) -> list[dict[str, Any]
     return [row_to_dict(row) for row in rows]
 
 
-def list_archive_rows() -> list[dict[str, Any]]:
-    with session() as conn:
-        rows = conn.execute("SELECT * FROM archive_rows ORDER BY sort_order, id").fetchall()
-    return [row_to_dict(row) for row in rows]
-
-
 def list_panels(month: str | None = None, include_confirmed_fixed: bool = False) -> list[dict[str, Any]]:
     filter_confirmed = "" if include_confirmed_fixed else " AND NOT (panel_type = 'fixed' AND confirmed_at IS NOT NULL)"
     with session() as conn:
@@ -121,7 +115,7 @@ def list_panels(month: str | None = None, include_confirmed_fixed: bool = False)
 
 def list_labels() -> dict[str, str]:
     with session() as conn:
-        rows = conn.execute("SELECT key, value FROM workbook_labels ORDER BY key").fetchall()
+        rows = conn.execute("SELECT key, value FROM app_labels ORDER BY key").fetchall()
     return {row["key"]: row["value"] for row in rows}
 
 
@@ -135,7 +129,7 @@ def upsert_label(key: str, value: str) -> dict[str, str]:
     with session() as conn:
         conn.execute(
             """
-            INSERT INTO workbook_labels(key, value, updated_at)
+            INSERT INTO app_labels(key, value, updated_at)
             VALUES (?, ?, CURRENT_TIMESTAMP)
             ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP
             """,

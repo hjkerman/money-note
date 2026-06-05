@@ -152,6 +152,11 @@ class SettingPatch(BaseModel):
     value: str
 
 
+class CsvBackupImportIn(BaseModel):
+    filename: str
+    content_base64: str
+
+
 class CashFlow(BaseModel):
     id: int
     occurred_on: str

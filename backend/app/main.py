@@ -1,8 +1,6 @@
-from datetime import datetime
-
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import HTMLResponse, Response as FastAPIResponse
 
 from app.auth import (
     authenticate_user,
@@ -29,7 +27,6 @@ from app.repository import (
     delete_entry,
     list_cash_flows,
     list_installments,
-    list_archive_rows,
     list_entries,
     list_labels,
     list_panels,
@@ -45,6 +42,7 @@ from app.schemas import (
     CardDiscountPolicyPatch,
     CashFlow,
     CashFlowIn,
+    CsvBackupImportIn,
     Installment,
     InstallmentIn,
     LedgerEntry,
@@ -83,11 +81,11 @@ from app.services.card_payments import (
     set_discount_month_policy,
 )
 from app.services.audit import clear_audit_logs, list_audit_logs, record_audit_log
+from app.services.csv_backup import export_csv_backup, import_csv_backup
 from app.services.judgment import app_judgment
 from app.services.month import calendar_month_label, close_current_month, month_close_status
 from app.services.share import shared_panel, shared_panel_html
 from app.services.summary import current_summary_values
-from app.services.workbook import export_workbook
 
 app = FastAPI(title="money-note")
 settings = get_settings()
@@ -546,45 +544,20 @@ def patch_label(key: str, patch: SettingPatch, _: dict = Depends(require_user)) 
     return upsert_label(key, patch.value)
 
 
-@app.post("/api/export")
-def create_export(_: dict = Depends(require_user)) -> dict[str, str]:
-    settings = get_settings()
-    hard_archive_rows = list_archive_rows()
-    archive_entries = list_entries("archive")
-    current_entries = list_entries("current")
-    panels = list_panels()
-    labels = list_labels()
-    export_settings = list_settings()
-
-    filename = f"money-note-{datetime.now().strftime('%Y%m%d-%H%M%S')}.xlsx"
-    output_path = settings.export_dir / filename
-    export_workbook(
-        hard_archive_rows,
-        archive_entries,
-        current_entries,
-        panels,
-        labels,
-        export_settings,
-        output_path,
-        template_path=settings.template_path,
+@app.get("/api/backups/csv")
+def download_csv_backup(_: dict = Depends(require_user)) -> FastAPIResponse:
+    filename, payload = export_csv_backup()
+    return FastAPIResponse(
+        content=payload,
+        media_type="application/zip",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
-    latest_path = settings.export_dir / "latest.xlsx"
-    export_workbook(
-        hard_archive_rows,
-        archive_entries,
-        current_entries,
-        panels,
-        labels,
-        export_settings,
-        latest_path,
-        template_path=settings.template_path,
-    )
-    return {"filename": filename, "latest": "latest.xlsx"}
 
 
-@app.get("/api/export/latest.xlsx")
-def latest_export(_: dict = Depends(require_user)) -> FileResponse:
-    path = get_settings().export_dir / "latest.xlsx"
-    if not path.exists():
-        raise HTTPException(status_code=404, detail="no export has been created")
-    return FileResponse(path, filename="money-note-latest.xlsx")
+@app.post("/api/backups/csv/import")
+def upload_csv_backup(payload: CsvBackupImportIn, _: dict = Depends(require_user)) -> dict[str, object]:
+    try:
+        imported = import_csv_backup(payload.content_base64)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"filename": payload.filename, "imported": imported}

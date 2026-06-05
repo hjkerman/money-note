@@ -6,9 +6,6 @@ services:
       - "18080:8000"
     environment:
       MONEY_NOTE_DB_PATH: /app/data/money-note.sqlite3
-      MONEY_NOTE_EXPORT_DIR: /app/exports
-      MONEY_NOTE_TEMPLATE_PATH: /app/data/template.xlsx
     volumes:
       - ./data:/app/data
-      - ./exports:/app/exports
     restart: unless-stopped

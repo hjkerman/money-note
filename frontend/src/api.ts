@@ -383,12 +383,26 @@ export async function closeCurrentMonth(allowEarlyClose = false): Promise<{
   return postJson("/api/month/current/close", { allow_early_close: allowEarlyClose });
 }
 
-export async function createExport(): Promise<{ filename: string; latest: string }> {
-  return postJson("/api/export", {});
+export async function downloadCsvBackup(): Promise<{ filename: string; blob: Blob }> {
+  const response = await fetch(`${API_BASE_URL}/api/backups/csv`, {
+    headers: authHeaders(),
+    credentials: "include",
+  });
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(readableErrorMessage(response.status, detail));
+  }
+  const filename = readDownloadFilename(response.headers.get("Content-Disposition"))
+    ?? `money-note-csv-backup-${new Date().toISOString().slice(0, 10)}.zip`;
+  return { filename, blob: await response.blob() };
 }
 
-export function latestExportUrl(): string {
-  return `${API_BASE_URL}/api/export/latest.xlsx`;
+export async function importCsvBackup(file: File): Promise<{ filename: string; imported: Record<string, number> }> {
+  const contentBase64 = await fileToBase64(file);
+  return postJson("/api/backups/csv/import", {
+    filename: file.name,
+    content_base64: contentBase64,
+  });
 }
 
 async function getJson<T>(path: string): Promise<T> {
@@ -440,6 +454,24 @@ function defaultApiBaseUrl(): string {
 function authHeaders(): Record<string, string> {
   const token = localStorage.getItem(SESSION_TOKEN_KEY);
   return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+function readDownloadFilename(header: string | null): string | null {
+  if (!header) return null;
+  const match = header.match(/filename="([^"]+)"/);
+  return match?.[1] ?? null;
+}
+
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.addEventListener("load", () => {
+      const result = String(reader.result ?? "");
+      resolve(result.includes(",") ? result.split(",")[1] : result);
+    });
+    reader.addEventListener("error", () => reject(reader.error ?? new Error("파일을 읽지 못했습니다.")));
+    reader.readAsDataURL(file);
+  });
 }
 
 async function parseResponse<T>(response: Response): Promise<T> {
