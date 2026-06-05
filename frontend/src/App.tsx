@@ -1032,17 +1032,6 @@ export function App() {
                   <h2>당월 지출</h2>
                   <span>{formatWon(sumAmounts(expenseEntries))}</span>
                 </div>
-                <EntryTable
-                  entries={expenseEntries}
-                  emptyText="당월 지출이 없습니다."
-                  judgment={judgment}
-                  onCategoryChange={(entry, category) => void handleCategoryChange(entry, category)}
-                  onDelete={(entry) => void handleEntryDelete(entry)}
-                  discounts={ownerDiscountMonth?.discounts}
-                  onDiscount={(entry) => void handleCurrentEntryDiscount(entry)}
-                  discountDrafts={discountDrafts}
-                  setDiscountDrafts={setDiscountDrafts}
-                />
                 <form className="entry-form" onSubmit={(event) => void handleExpenseSubmit(event)}>
                   <input
                     type="date"
@@ -1075,6 +1064,17 @@ export function App() {
                     추가
                   </button>
                 </form>
+                <EntryTable
+                  entries={expenseEntries}
+                  emptyText="당월 지출이 없습니다."
+                  judgment={judgment}
+                  onCategoryChange={(entry, category) => void handleCategoryChange(entry, category)}
+                  onDelete={(entry) => void handleEntryDelete(entry)}
+                  discounts={ownerDiscountMonth?.discounts}
+                  onDiscount={(entry) => void handleCurrentEntryDiscount(entry)}
+                  discountDrafts={discountDrafts}
+                  setDiscountDrafts={setDiscountDrafts}
+                />
               </section>
 
             </section>
@@ -1181,15 +1181,6 @@ export function App() {
                 <h2>카드 정기결제</h2>
                 <span>{formatWon(sumAmounts(plannedEntries))}</span>
               </div>
-              <PlannedTable
-                entries={plannedEntries}
-                emptyText="카드 정기결제 항목이 없습니다."
-                onConfirm={(entry) => void handlePlannedConfirm(entry)}
-                onDiscount={(entry) => void handlePlannedDiscount(entry)}
-                onDelete={(entry) => void handlePlannedDelete(entry)}
-                discountDrafts={discountDrafts}
-                setDiscountDrafts={setDiscountDrafts}
-              />
               <form className="planned-form" onSubmit={(event) => void handlePlannedSubmit(event)}>
                 <input
                   type="number"
@@ -1225,6 +1216,15 @@ export function App() {
                   추가
                 </button>
               </form>
+              <PlannedTable
+                entries={plannedEntries}
+                emptyText="카드 정기결제 항목이 없습니다."
+                onConfirm={(entry) => void handlePlannedConfirm(entry)}
+                onDiscount={(entry) => void handlePlannedDiscount(entry)}
+                onDelete={(entry) => void handlePlannedDelete(entry)}
+                discountDrafts={discountDrafts}
+                setDiscountDrafts={setDiscountDrafts}
+              />
             </section>
           </section>
 
@@ -1704,20 +1704,6 @@ function CardPaymentPanel({
           </div>
           <span>{status.rows.filter((row) => row.entry_kind === "late_expense").length}건</span>
         </div>
-        {status.rows.some((row) => row.entry_kind === "late_expense") ? (
-          <table>
-            <thead><tr><th>날짜</th><th>적요</th><th className="amount">금액</th></tr></thead>
-            <tbody>
-              {status.rows.filter((row) => row.entry_kind === "late_expense").map((row) => (
-                <tr key={row.id}>
-                  <td className="date">{row.date_label}</td>
-                  <td>{displayEntryTitle(row)}</td>
-                  <td className="amount">{formatWon(row.amount_value)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : <p className="empty">카드사가 뒤늦게 제출한 전월 내역이 없습니다.</p>}
         <form className="entry-form" onSubmit={(event) => void onLateEntrySubmit(event)}>
           <input
             type="date"
@@ -1747,6 +1733,20 @@ function CardPaymentPanel({
           />
           <button type="submit" disabled={isBusy}>추가</button>
         </form>
+        {status.rows.some((row) => row.entry_kind === "late_expense") ? (
+          <table>
+            <thead><tr><th>날짜</th><th>적요</th><th className="amount">금액</th></tr></thead>
+            <tbody>
+              {status.rows.filter((row) => row.entry_kind === "late_expense").map((row) => (
+                <tr key={row.id}>
+                  <td className="date">{row.date_label}</td>
+                  <td>{displayEntryTitle(row)}</td>
+                  <td className="amount">{formatWon(row.amount_value)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : <p className="empty">카드사가 뒤늦게 제출한 전월 내역이 없습니다.</p>}
       </section>
 
       <section className="panel payment-ledger">
@@ -2023,36 +2023,6 @@ function CashFlowPanel({
         <h2>현금흐름</h2>
         <span>{formatWon(sumCashFlows(rows))}</span>
       </div>
-      {rows.length ? (
-        <table>
-          <thead>
-            <tr>
-              <th>날짜</th>
-              <th>적요</th>
-              <th className="amount">금액</th>
-              <th className="action-cell">삭제</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row.id}>
-                <td className="date">{formatDateLabel(row.occurred_on)}</td>
-                <td>{row.title}{row.is_primary_income ? <span className="primary-income-badge">주 수입</span> : null}</td>
-                <td className={row.amount_value < 0 ? "amount negative" : "amount positive"}>
-                  {formatWon(row.amount_value)}
-                </td>
-                <td className="action-cell">
-                  <button type="button" onClick={() => onDelete(row)}>
-                    삭제
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : (
-        <p className="empty">현금 입출금 기록이 없습니다.</p>
-      )}
       <form className="cash-flow-form" onSubmit={(event) => void onSubmit(event)}>
         <input
           type="date"
@@ -2093,6 +2063,36 @@ function CashFlowPanel({
           추가
         </button>
       </form>
+      {rows.length ? (
+        <table>
+          <thead>
+            <tr>
+              <th>날짜</th>
+              <th>적요</th>
+              <th className="amount">금액</th>
+              <th className="action-cell">삭제</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr key={row.id}>
+                <td className="date">{formatDateLabel(row.occurred_on)}</td>
+                <td>{row.title}{row.is_primary_income ? <span className="primary-income-badge">주 수입</span> : null}</td>
+                <td className={row.amount_value < 0 ? "amount negative" : "amount positive"}>
+                  {formatWon(row.amount_value)}
+                </td>
+                <td className="action-cell">
+                  <button type="button" onClick={() => onDelete(row)}>
+                    삭제
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p className="empty">현금 입출금 기록이 없습니다.</p>
+      )}
     </section>
   );
 }
@@ -2309,6 +2309,7 @@ function PanelTable({
           ) : null}
         </div>
       </div>
+      {form}
       {rows.length ? (
         <table>
           <thead>
@@ -2369,7 +2370,6 @@ function PanelTable({
       ) : (
         <p className="empty">항목이 없습니다.</p>
       )}
-      {form}
     </section>
   );
 }
@@ -2389,6 +2389,7 @@ function InstallmentTable({
         <h2>할부</h2>
         <span>{formatWon(sumInstallmentMonthlyAmounts(rows))}</span>
       </div>
+      {form}
       {rows.length ? (
         <table>
           <thead>
@@ -2425,7 +2426,6 @@ function InstallmentTable({
       ) : (
         <p className="empty">할부 항목이 없습니다.</p>
       )}
-      {form}
     </section>
   );
 }
