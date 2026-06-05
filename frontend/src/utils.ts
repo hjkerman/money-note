@@ -168,6 +168,13 @@ export function sumAmounts(entries: LedgerEntry[]): number {
   return entries.reduce((total, entry) => total + (entry.amount_value ?? 0), 0);
 }
 
+export function sumEntryNetAmounts(entries: LedgerEntry[], discounts?: Record<string, number> | null): number {
+  return entries.reduce((total, entry) => {
+    const discount = entry.payment_key ? discounts?.[entry.payment_key] ?? 0 : 0;
+    return total + Math.max(0, (entry.amount_value ?? 0) - discount);
+  }, 0);
+}
+
 export function sumPanelAmounts(rows: MonthlyPanel[]): number {
   return rows.reduce((total, row) => total + (row.amount_value ?? 0), 0);
 }

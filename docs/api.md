@@ -872,25 +872,25 @@ next_month_liquidity
 
 ### `GET /api/backups/csv`
 
-현재 장부 운용 데이터를 CSV zip으로 다운로드한다.
+현재 장부 운용 데이터를 한 파일짜리 CSV 덤프로 다운로드한다.
 
 응답:
 
-- Content-Type: `application/zip`
-- 파일명: `money-note-csv-backup-YYYYMMDD-HHMMSS.zip`
+- Content-Type: `text/csv; charset=utf-8`
+- 파일명: `money-note-data-dump-YYYYMMDD-HHMMSS.csv`
 
 포맷 상세는 [CSV 백업 포맷](csv-backup.md)을 참고한다.
 
 ### `POST /api/backups/csv/import`
 
-CSV 백업 zip을 업로드해 장부 운용 데이터를 복원한다.
+CSV 덤프를 업로드해 장부 운용 데이터를 복원한다. 직전 버전의 테이블별 CSV zip도 호환용으로 읽을 수 있다.
 
 요청:
 
 ```json
 {
-  "filename": "money-note-csv-backup-20260605-093012.zip",
-  "content_base64": "UEsDB..."
+  "filename": "money-note-data-dump-20260605-093012.csv",
+  "content_base64": "X190YWJsZSxfX2tleSxfX3ZhbHVl..."
 }
 ```
 
@@ -898,7 +898,7 @@ CSV 백업 zip을 업로드해 장부 운용 데이터를 복원한다.
 
 ```json
 {
-  "filename": "money-note-csv-backup-20260605-093012.zip",
+  "filename": "money-note-data-dump-20260605-093012.csv",
   "imported": {
     "ledger_entries": 120,
     "monthly_panels": 8,
@@ -910,4 +910,32 @@ CSV 백업 zip을 업로드해 장부 운용 데이터를 복원한다.
 
 복원 대상은 장부 운용 데이터다. 사용자 계정, 로그인 세션, 공유 세션, 감사 로그는 복원하지 않는다.
 
-잘못된 zip 또는 지원하지 않는 백업이면 `400`을 반환한다.
+잘못된 CSV 또는 지원하지 않는 백업이면 `400`을 반환한다.
+
+## 관리자 작업
+
+### `POST /api/admin/reset-ledger-data`
+
+현재 비밀번호를 다시 확인한 뒤 장부 운용 데이터를 모두 초기화한다.
+
+요청:
+
+```json
+{
+  "password": "현재 계정 비밀번호"
+}
+```
+
+응답:
+
+```json
+{
+  "deleted": {
+    "ledger_entries": 0,
+    "monthly_panels": 0,
+    "cash_flows": 0
+  }
+}
+```
+
+삭제 대상은 당월/전체 기록, 월별 패널, 현금흐름, 할부, 카드 결제/할인/이월 데이터다. 사용자 계정, 로그인 세션, 공유 PIN, 앱 설정, 관리 로그는 유지한다.

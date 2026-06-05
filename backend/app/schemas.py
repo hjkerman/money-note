@@ -21,6 +21,10 @@ class PasswordChangeIn(BaseModel):
     new_password: str = Field(min_length=4)
 
 
+class PasswordConfirmIn(BaseModel):
+    password: str
+
+
 class SharePinIn(BaseModel):
     pin: str = Field(pattern="^[0-9]{4}$")
 

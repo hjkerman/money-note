@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.auth import current_user_from_request
 from app.config import get_settings
 from app.db import init_db
-from app.routers import audit, auth, backups, card_payments, entries, month, operations, share
+from app.routers import admin, audit, auth, backups, card_payments, entries, month, operations, share
 from app.services.audit import record_audit_log
 from app.share_auth import ensure_default_share_pin
 
@@ -57,6 +57,7 @@ def health() -> dict[str, str]:
 
 
 app.include_router(audit.router)
+app.include_router(admin.router)
 app.include_router(auth.router)
 app.include_router(entries.router)
 app.include_router(month.router)

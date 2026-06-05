@@ -136,8 +136,7 @@ def app_judgment(
     frozen_rows = [panel for panel in panels if panel.get("panel_type") == "frozen"]
     settlement_limit = float(settings.get("settlement_card_limit") or 5_800_000)
     settlement_total = sum(float(row.get("amount_value") or 0) for row in settlement_rows)
-    owner_card_total = sum(float(entry.get("amount_value") or 0) for entry in expense_entries)
-    owner_card_total += float(summary.get("installment_monthly_total") or 0)
+    owner_card_total = float(summary.get("card_total") or 0)
     days_until_due = days_between(date.today().isoformat(), str(payment_status.get("due_date") or date.today().isoformat()))
     reference_liquidity = float(payment_status.get("primary_income_total") or 0)
     if reference_liquidity <= 0:

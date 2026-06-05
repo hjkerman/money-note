@@ -56,6 +56,7 @@ import {
   importCsvBackup,
   login,
   logout,
+  resetLedgerData,
   setSharePin,
   updateEntry,
   updateCardDiscountPolicy,
@@ -105,6 +106,7 @@ import {
   previousMonthLastDay,
   sumAmounts,
   sumCashFlows,
+  sumEntryNetAmounts,
   sumInstallmentMonthlyAmounts,
   sumPanelAmounts,
   sumPanelNetAmounts,
@@ -164,6 +166,7 @@ export function App() {
   const [interestExpenseInput, setInterestExpenseInput] = useState("");
   const [scheduledIncomeInput, setScheduledIncomeInput] = useState("");
   const [passwordForm, setPasswordForm] = useState({ currentPassword: "", newPassword: "" });
+  const [resetPassword, setResetPassword] = useState("");
   const [paymentAllocations, setPaymentAllocations] = useState<Record<string, string>>({});
   const [paymentBudget, setPaymentBudget] = useState("");
   const [isDiscountMode, setIsDiscountMode] = useState(false);
@@ -199,7 +202,7 @@ export function App() {
       id: "current",
       label: "당월",
       total:
-        sumAmounts(expenseEntries) +
+        sumEntryNetAmounts(expenseEntries, ownerDiscountMonth?.discounts) +
         sumInstallmentMonthlyAmounts(installments) +
         sumPanelNetAmounts(panels.filter((panel) => panel.panel_type === "claim")) +
         sumPanelAmounts(panels.filter((panel) => panel.panel_type === "settlement")),
@@ -646,6 +649,18 @@ export function App() {
   }
 
   async function handleDiscountPolicyChange(scope: "owner" | "family", month: string, policy: CardDiscountPolicy) {
+    if (policy === "disabled" && scope === "owner") {
+      const currentDiscounts = Object.values(ownerDiscountMonth?.discounts ?? {}).reduce((sum, value) => sum + value, 0);
+      const claimDiscounts = panels
+        .filter((panel) => panel.month === month && panel.panel_type === "claim")
+        .reduce((sum, panel) => sum + (panel.discount_amount ?? 0), 0);
+      if (currentDiscounts + claimDiscounts > 0) {
+        const confirmed = window.confirm(
+          `${formatMonthLabel(month)} 할인 혜택을 없음으로 바꾸면 이미 적용한 할인액이 모두 삭제됩니다. 계속할까요?`,
+        );
+        if (!confirmed) return;
+      }
+    }
     await withRefresh(async () => {
       await updateCardDiscountPolicy(month, scope, policy);
       setStatus(`${formatMonthLabel(month)} ${scope === "family" ? "가족카드" : "본인회원 카드"} 할인 혜택 설정 완료`);
@@ -790,6 +805,25 @@ export function App() {
       });
       setPasswordForm({ currentPassword: "", newPassword: "" });
       setStatus("계정 비밀번호 변경 완료");
+    });
+  }
+
+  async function handleLedgerReset() {
+    if (!resetPassword) {
+      setStatus("장부 초기화에는 현재 비밀번호가 필요합니다.");
+      return;
+    }
+    const confirmed = window.confirm(
+      "장부 데이터를 전부 초기화할까요?\n\n당월/전체 기록, 청구, 타인정산, 현금흐름, 할부, 결제 기록이 삭제됩니다. 계정과 설정은 유지됩니다.",
+    );
+    if (!confirmed) return;
+    await withRefresh(async () => {
+      const result = await resetLedgerData(resetPassword);
+      const total = Object.values(result.deleted).reduce((sum, count) => sum + count, 0);
+      setResetPassword("");
+      setPaymentAllocations({});
+      setDiscountDrafts({});
+      setStatus(`장부 데이터 ${total}개 초기화 완료`);
     });
   }
 
@@ -987,7 +1021,7 @@ export function App() {
           <input
             ref={csvBackupInputRef}
             type="file"
-            accept=".zip,application/zip"
+            accept=".csv,text/csv,.zip,application/zip"
             hidden
             onChange={(event) => void handleCsvBackupImport(event.target.files?.[0] ?? null)}
           />
@@ -1144,6 +1178,7 @@ export function App() {
                     discounts={ownerDiscountMonth?.discounts}
                     onDiscount={(entry) => void handleCurrentEntryDiscount(entry)}
                     onClearDiscount={(entry) => void handleCurrentEntryDiscountClear(entry)}
+                    discountDisabled={ownerDiscountMonth?.policy === "disabled"}
                     discountDrafts={discountDrafts}
                     setDiscountDrafts={setDiscountDrafts}
                 />
@@ -1207,6 +1242,7 @@ export function App() {
                       onComplete={tab === "claim" || tab === "settlement" ? () => void handlePanelComplete(tab) : undefined}
                       onDiscount={tab === "claim" ? (panel) => void handleClaimDiscount(panel) : undefined}
                       onClearDiscount={tab === "claim" ? (panel) => void handleClaimDiscountClear(panel) : undefined}
+                      discountDisabled={ownerDiscountMonth?.policy === "disabled"}
                       categoryForPanel={tab === "claim" ? (panel) => judgment?.claim_categories[String(panel.id)] ?? null : undefined}
                       judgment={judgment}
                       discountDrafts={discountDrafts}
@@ -1429,6 +1465,22 @@ export function App() {
                   변경
                 </button>
               </label>
+              <section className="danger-zone">
+                <div>
+                  <h3>장부 데이터 전체 초기화</h3>
+                  <p>계정, 로그인 세션, 공유 PIN, 설정은 유지하고 사용자가 입력한 장부 운용 데이터만 삭제합니다.</p>
+                </div>
+                <input
+                  type="password"
+                  value={resetPassword}
+                  onChange={(event) => setResetPassword(event.target.value)}
+                  autoComplete="current-password"
+                  placeholder="현재 비밀번호"
+                />
+                <button type="button" className="danger" onClick={() => void handleLedgerReset()} disabled={isBusy}>
+                  전체 초기화
+                </button>
+              </section>
             </div>
           </section>
         </div>

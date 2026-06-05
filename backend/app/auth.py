@@ -87,6 +87,16 @@ def change_password(user_id: int, current_password: str, new_password: str) -> b
     return True
 
 
+def verify_user_password(user_id: int, password: str) -> bool:
+    """위험한 관리자 작업 전에 현재 계정 비밀번호를 다시 확인한다."""
+    with session() as conn:
+        row = conn.execute(
+            "SELECT password_hash FROM users WHERE id = ? AND is_active = 1",
+            (user_id,),
+        ).fetchone()
+    return row is not None and verify_password(password, row["password_hash"])
+
+
 def create_user(username: str, password: str, display_name: str = "") -> dict[str, Any]:
     password_hash = hash_password(password)
     with session() as conn:

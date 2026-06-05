@@ -220,7 +220,7 @@ sudo rsync -a --delete frontend/dist/ /var/www/money-note/
 
 ## CSV 백업
 
-웹 상단의 `CSV 백업` 버튼으로 zip 백업을 내려받는다.
+웹 상단의 `CSV 백업` 버튼으로 한 파일짜리 CSV 덤프를 내려받는다.
 
 API로 받을 때는 로그인 세션 또는 bearer token이 필요하다.
 

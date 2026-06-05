@@ -286,6 +286,7 @@ export function EntryTable({
   discounts,
   onDiscount,
   onClearDiscount,
+  discountDisabled = false,
   discountDrafts = {},
   setDiscountDrafts,
 }: {
@@ -297,6 +298,7 @@ export function EntryTable({
   discounts?: Record<string, number>;
   onDiscount?: (entry: LedgerEntry) => void;
   onClearDiscount?: (entry: LedgerEntry) => void;
+  discountDisabled?: boolean;
   discountDrafts?: Record<string, string>;
   setDiscountDrafts?: DiscountDraftSetter;
 }) {
@@ -321,7 +323,7 @@ export function EntryTable({
           const discountEligible = Boolean(onDiscount && entry.payment_key && !isDiscountExcludedEntry(entry));
           const discountChecked = Boolean(entry.payment_key && hasOwn(discounts, entry.payment_key));
           return (
-            <tr key={entry.id} className={discountEligible && !discountChecked ? "discount-missing-row" : ""}>
+            <tr key={entry.id} className={discountEligible && !discountDisabled && !discountChecked ? "discount-missing-row" : ""}>
               <td className="date">{entry.date_label ?? entry.group_label ?? ""}</td>
               <td>{entry.usage_place ?? ""}</td>
               <td>{entry.usage_item ?? ""}</td>
@@ -352,6 +354,7 @@ export function EntryTable({
                       setDrafts={setDiscountDrafts}
                       onSave={() => onDiscount(entry)}
                       onClear={onClearDiscount ? () => onClearDiscount(entry) : undefined}
+                      disabled={discountDisabled}
                     />
                   ) : null}
                 </td>
@@ -393,25 +396,26 @@ function DiscountEditor({
   return (
     <div className="discount-editor">
       {isChecked ? (
-        <button type="button" className="discount-badge" onClick={onClear} disabled={disabled || !onClear}>
+        <button type="button" className="discount-badge" onClick={onClear} disabled={!onClear}>
           할인 {formatWon(currentAmount)}
         </button>
       ) : null}
-      <div>
-        <input
-          type="number"
-          min="0"
-          step="1"
-          value={drafts[draftKey] ?? ""}
-          onChange={(event) => setDrafts?.((current) => ({ ...current, [draftKey]: event.target.value }))}
-          inputMode="numeric"
-          placeholder="할인액"
-          disabled={disabled}
-        />
-        <button type="button" onClick={onSave} disabled={disabled}>
-          저장
-        </button>
-      </div>
+      {!isChecked && !disabled ? (
+        <div>
+          <input
+            type="number"
+            min="0"
+            step="1"
+            value={drafts[draftKey] ?? ""}
+            onChange={(event) => setDrafts?.((current) => ({ ...current, [draftKey]: event.target.value }))}
+            inputMode="numeric"
+            placeholder="할인액"
+          />
+          <button type="button" onClick={onSave}>
+            저장
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -424,6 +428,7 @@ export function PanelTable({
   onComplete,
   onDiscount,
   onClearDiscount,
+  discountDisabled = false,
   discountDrafts = {},
   setDiscountDrafts,
   categoryForPanel,
@@ -437,6 +442,7 @@ export function PanelTable({
   onComplete?: () => void;
   onDiscount?: (panel: MonthlyPanel) => void;
   onClearDiscount?: (panel: MonthlyPanel) => void;
+  discountDisabled?: boolean;
   discountDrafts?: Record<string, string>;
   setDiscountDrafts?: DiscountDraftSetter;
   categoryForPanel?: (panel: MonthlyPanel) => SpendingCategory | null;
@@ -481,7 +487,7 @@ export function PanelTable({
               const discountEligible = Boolean(onDiscount && !isDiscountExcludedText(row.title));
               const discountChecked = Boolean(row.discount_checked);
               return (
-              <tr key={row.id} className={discountEligible && !discountChecked ? "discount-missing-row" : ""}>
+              <tr key={row.id} className={discountEligible && !discountDisabled && !discountChecked ? "discount-missing-row" : ""}>
                 {(rows.some((item) => item.spent_on) || rows.some((item) => item.panel_type === "claim" || item.panel_type === "settlement")) ? (
                   <td className="date">{formatDateLabel(row.spent_on ?? "") ?? ""}</td>
                 ) : null}
@@ -504,6 +510,7 @@ export function PanelTable({
                           setDrafts={setDiscountDrafts}
                           onSave={() => onDiscount(row)}
                           onClear={onClearDiscount ? () => onClearDiscount(row) : undefined}
+                          disabled={discountDisabled}
                         />
                         <span className="net-amount">실제 {formatWon(panelNetAmount(row))}</span>
                       </>

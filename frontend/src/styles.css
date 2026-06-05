@@ -46,6 +46,10 @@ button.danger {
   color: #8d2424;
 }
 
+button.danger:hover:not(:disabled) {
+  background: #fff0ed;
+}
+
 input,
 select,
 textarea {
@@ -840,6 +844,30 @@ button.discount-badge:hover:not(:disabled) {
   font-weight: 700;
 }
 
+.danger-zone {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 180px auto;
+  gap: 10px;
+  align-items: center;
+  margin-top: 8px;
+  padding: 14px;
+  border: 1px solid #d9a3a3;
+  border-radius: 8px;
+  background: #fff8f7;
+}
+
+.danger-zone h3 {
+  margin: 0 0 4px;
+  color: #8d2424;
+  font-size: 15px;
+}
+
+.danger-zone p {
+  margin: 0;
+  color: #7a5450;
+  font-size: 13px;
+}
+
 .hidden-input {
   display: none;
 }
@@ -876,6 +904,15 @@ button.discount-badge:hover:not(:disabled) {
 
 .judgment-line {
   color: #5b6255;
+}
+
+.fallback-note {
+  margin: 0;
+  padding: 10px 14px;
+  border-bottom: 1px solid #e5e8df;
+  background: #fbfcf8;
+  color: #62695d;
+  font-size: 13px;
 }
 
 .deferred-row {
@@ -1049,6 +1086,10 @@ button.discount-badge:hover:not(:disabled) {
   .settings-grid label,
   .settings-grid label:has(input[type="password"]),
   .settings-row {
+    grid-template-columns: 1fr;
+  }
+
+  .danger-zone {
     grid-template-columns: 1fr;
   }
 

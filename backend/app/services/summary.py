@@ -7,8 +7,10 @@ from app.repository import list_entries, list_installments
 def current_summary_values() -> dict[str, float]:
     current_entries = list_entries("current")
     entry_card_total = sum(entry.get("amount_value") or 0 for entry in current_entries)
+    entry_discount_total = current_entry_discount_total()
+    claim_total = panel_net_total("claim")
     installment_monthly_total = sum(row.get("monthly_amount") or 0 for row in list_installments())
-    card_total = entry_card_total + installment_monthly_total
+    card_total = max(0.0, entry_card_total - entry_discount_total) + claim_total + installment_monthly_total
     transfer_or_deposit_total = panel_total("fixed")
     frozen_asset_total = panel_total("frozen")
     base_next_month_liquidity = setting_float("base_next_month_liquidity")
@@ -36,6 +38,34 @@ def panel_total(panel_type: str) -> float:
         row = conn.execute(
             "SELECT COALESCE(SUM(amount_value), 0) AS total FROM monthly_panels WHERE panel_type = ?",
             (panel_type,),
+        ).fetchone()
+    return float(row["total"])
+
+
+def panel_net_total(panel_type: str) -> float:
+    with session() as conn:
+        rows = conn.execute(
+            "SELECT amount_value, discount_amount FROM monthly_panels WHERE panel_type = ?",
+            (panel_type,),
+        ).fetchall()
+    return sum(max(0.0, float(row["amount_value"] or 0) - float(row["discount_amount"] or 0)) for row in rows)
+
+
+def current_entry_discount_total() -> float:
+    with session() as conn:
+        row = conn.execute(
+            """
+            SELECT COALESCE(SUM(card_payment_allocations.amount_value), 0) AS total
+            FROM ledger_entries
+            JOIN card_payment_allocations
+              ON card_payment_allocations.entry_payment_key = ledger_entries.payment_key
+            JOIN card_payment_events
+              ON card_payment_events.id = card_payment_allocations.payment_event_id
+             AND card_payment_events.event_type = 'discount'
+            WHERE ledger_entries.book_section = 'current'
+              AND ledger_entries.entry_kind != 'planned'
+              AND ledger_entries.discount_checked = 1
+            """
         ).fetchone()
     return float(row["total"])
 

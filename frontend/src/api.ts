@@ -201,6 +201,10 @@ export async function changePassword(payload: {
   return patchJson("/api/auth/password", payload);
 }
 
+export async function resetLedgerData(password: string): Promise<{ deleted: Record<string, number> }> {
+  return postJson("/api/admin/reset-ledger-data", { password });
+}
+
 export async function fetchCurrentEntries(): Promise<LedgerEntry[]> {
   return getJson("/api/entries/current");
 }
@@ -410,7 +414,7 @@ export async function downloadCsvBackup(): Promise<{ filename: string; blob: Blo
     throw new Error(readableErrorMessage(response.status, detail));
   }
   const filename = readDownloadFilename(response.headers.get("Content-Disposition"))
-    ?? `money-note-csv-backup-${new Date().toISOString().slice(0, 10)}.zip`;
+    ?? `money-note-data-dump-${new Date().toISOString().slice(0, 10)}.csv`;
   return { filename, blob: await response.blob() };
 }
 

@@ -86,6 +86,8 @@ def set_discount_month_policy(month: str, policy: str, scope: str = "owner") -> 
             """,
             (f"card_discount_policy:{scope}:{month}", policy),
         )
+        if policy == "disabled" and scope == "owner":
+            _clear_owner_discounts_for_month(conn, month)
     return discount_month_status(month, scope)
 
 
@@ -593,6 +595,36 @@ def _delete_entry_discount_events(conn: Any, entry_payment_key: str) -> None:
         ).fetchone()["count"]
         if remaining == 0:
             conn.execute("DELETE FROM card_payment_events WHERE id = ?", (row["id"],))
+
+
+def _clear_owner_discounts_for_month(conn: Any, month: str) -> None:
+    rows = conn.execute(
+        """
+        SELECT payment_key
+        FROM ledger_entries
+        WHERE entry_date LIKE ?
+          AND payment_key IS NOT NULL
+        """,
+        (f"{month}%",),
+    ).fetchall()
+    for row in rows:
+        _delete_entry_discount_events(conn, row["payment_key"])
+    conn.execute(
+        """
+        UPDATE ledger_entries
+        SET discount_checked = 0, updated_at = CURRENT_TIMESTAMP
+        WHERE entry_date LIKE ?
+        """,
+        (f"{month}%",),
+    )
+    conn.execute(
+        """
+        UPDATE monthly_panels
+        SET discount_amount = 0, discount_checked = 0, updated_at = CURRENT_TIMESTAMP
+        WHERE month = ? AND panel_type = 'claim'
+        """,
+        (month,),
+    )
 
 
 def _previous_month(value: date) -> str:

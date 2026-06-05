@@ -13,7 +13,7 @@ def download_csv_backup(_: dict = Depends(require_user)) -> Response:
     filename, payload = export_csv_backup()
     return Response(
         content=payload,
-        media_type="application/zip",
+        media_type="text/csv; charset=utf-8",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
 
