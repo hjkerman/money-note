@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 from app.config import get_settings
 from app.db import init_db, session
-from app.repository import create_entry
+from app.repository import confirm_planned_entry, create_entry, list_entries
 from app.schemas import LedgerEntryIn
 from app.services.month import close_current_month, month_close_status
 
@@ -80,6 +80,29 @@ class MonthCloseTest(unittest.TestCase):
         result = close_current_month(date(2026, 7, 27), allow_early_close=True)
         self.assertEqual(result["closed_month"], "2026-07")
         self.assertEqual(result["archived"], 1)
+
+    def test_planned_confirmation_stays_hidden_after_early_close_until_next_month(self) -> None:
+        close_current_month(date(2026, 7, 1))
+        with session() as conn:
+            planned_id = conn.execute(
+                "SELECT id FROM ledger_entries WHERE entry_kind = 'planned'"
+            ).fetchone()["id"]
+
+        confirm_planned_entry(planned_id, date(2026, 7, 10))
+        self.assertFalse(
+            any(entry["id"] == planned_id for entry in list_entries("current", date(2026, 7, 10)))
+        )
+
+        close_current_month(date(2026, 7, 27), allow_early_close=True)
+        self.assertFalse(
+            any(entry["id"] == planned_id for entry in list_entries("current", date(2026, 7, 28)))
+        )
+        with self.assertRaisesRegex(ValueError, "already confirmed"):
+            confirm_planned_entry(planned_id, date(2026, 7, 28))
+
+        self.assertTrue(
+            any(entry["id"] == planned_id for entry in list_entries("current", date(2026, 8, 1)))
+        )
 
     def test_entry_for_closed_month_is_added_to_archive(self) -> None:
         close_current_month(date(2026, 7, 1))

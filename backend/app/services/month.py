@@ -98,13 +98,6 @@ def close_current_month(today: date | None = None, allow_early_close: bool = Fal
         ).rowcount
         conn.execute(
             """
-            UPDATE ledger_entries
-            SET confirmed_at = NULL, updated_at = CURRENT_TIMESTAMP
-            WHERE book_section = 'current' AND entry_kind = 'planned'
-            """
-        )
-        conn.execute(
-            """
             UPDATE installments
             SET remaining_months = MAX(remaining_months - 1, 0),
                 is_active = CASE WHEN remaining_months <= 1 THEN 0 ELSE is_active END,

@@ -8,6 +8,7 @@ import {
   CardPaymentStatus,
   CashFlow,
   Installment,
+  JudgmentState,
   LedgerEntry,
   MonthlyPanel,
   MonthCloseStatus,
@@ -43,6 +44,7 @@ import {
   fetchCurrentEntries,
   fetchCurrentPanels,
   fetchInstallments,
+  fetchJudgment,
   fetchLabels,
   fetchMe,
   fetchMonthCloseStatus,
@@ -58,14 +60,6 @@ import {
   updatePlannedDiscount,
   updateSetting,
 } from "./api";
-import {
-  budgetCommitteeTone,
-  categoryLabel,
-  classifyClaimPanel,
-  creditUsageTone,
-  paymentPressureTone,
-  spendingStatTones,
-} from "./judgment";
 
 type PanelType = MonthlyPanel["panel_type"];
 type PrimaryTab = "current" | "payment" | "fixed" | "frozen" | "cash";
@@ -86,6 +80,12 @@ const panelMeta: Record<PanelType, { labelKey: string; fallback: string }> = {
 const today = new Date().toISOString().slice(0, 10);
 const currentTabs: CurrentTab[] = ["expenses", "claim", "settlement", "installments"];
 const hasOwn = (record: object, key: PropertyKey) => Object.prototype.hasOwnProperty.call(record, key);
+const fallbackCategoryLabels: JudgmentState["category_labels"] = {
+  essential: "안 썼으면 큰일 났을 돈",
+  questionable: "꼭 써야 했을까...?",
+  dignity: "최소한의 품위유지비",
+  unclassified: "미분류",
+};
 
 export function App() {
   const [entries, setEntries] = useState<LedgerEntry[]>([]);
@@ -99,6 +99,7 @@ export function App() {
   const [monthCloseStatus, setMonthCloseStatus] = useState<MonthCloseStatus | null>(null);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [summary, setSummary] = useState<Summary | null>(null);
+  const [judgment, setJudgment] = useState<JudgmentState | null>(null);
   const [labels, setLabels] = useState<Record<string, string>>({});
   const [settings, setSettings] = useState<Settings>({});
   const [status, setStatus] = useState("서버와 통신 준비 중");
@@ -137,7 +138,6 @@ export function App() {
   const [isMemoOpen, setIsMemoOpen] = useState(false);
   const [discountDrafts, setDiscountDrafts] = useState<Record<string, string>>({});
   const [interestExpenseInput, setInterestExpenseInput] = useState("");
-  const [pendingCategoryChanges, setPendingCategoryChanges] = useState<Record<number, SpendingCategory | null>>({});
   const [paymentAllocations, setPaymentAllocations] = useState<Record<string, string>>({});
   const [paymentBudget, setPaymentBudget] = useState("");
   const [fallbackLiquidityInput, setFallbackLiquidityInput] = useState("");
@@ -165,20 +165,9 @@ export function App() {
     [selectedHistoryMonth, structuredHistoryEntries],
   );
   const statsItems = useMemo(
-    () => activeStatItems(activePrimaryTab, activeCurrentTab, expenseEntries, historyEntries, panels, pendingCategoryChanges),
-    [activeCurrentTab, activePrimaryTab, expenseEntries, historyEntries, panels, pendingCategoryChanges],
+    () => activeStatItems(activePrimaryTab, activeCurrentTab, expenseEntries, historyEntries, panels, judgment),
+    [activeCurrentTab, activePrimaryTab, expenseEntries, historyEntries, panels, judgment],
   );
-  const hasPendingCategoryChanges = Object.keys(pendingCategoryChanges).length > 0;
-
-  useEffect(() => {
-    if (!hasPendingCategoryChanges) return;
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      event.preventDefault();
-      event.returnValue = "저장하지 않고 나가시겠습니까?";
-    };
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [hasPendingCategoryChanges]);
   const primaryTabs: { id: PrimaryTab; label: string; total: number }[] = [
     {
       id: "current",
@@ -240,6 +229,7 @@ export function App() {
         nextArchiveEntries,
         nextPanels,
         nextSummary,
+        nextJudgment,
         nextLabels,
         nextCashFlows,
         nextSettings,
@@ -253,6 +243,7 @@ export function App() {
         fetchArchiveEntries(),
         fetchCurrentPanels(),
         fetchSummary(),
+        fetchJudgment().catch(() => null),
         fetchLabels(),
         fetchCashFlows(),
         fetchSettings(),
@@ -266,10 +257,11 @@ export function App() {
       setArchiveEntries(nextArchiveEntries);
       setPanels(nextPanels);
       setSummary(nextSummary);
+      setJudgment(nextJudgment);
       setLabels(nextLabels);
       setCashFlows(nextCashFlows);
       setSettings(nextSettings);
-      setInterestExpenseInput(nextSettings.interest_expense ?? "");
+      setInterestExpenseInput(formatIntegerSetting(nextSettings.interest_expense));
       setInstallments(nextInstallments);
       setCardPayments(nextCardPayments);
       setMonthCloseStatus(nextMonthCloseStatus);
@@ -462,19 +454,13 @@ export function App() {
     });
   }
 
-  // 분류 변경은 즉시 저장하지 않고 pending 상태로 모아 사용자가 저장 버튼을 누르게 한다.
+  // 분류 변경은 즉시 서버에 저장한다.
   async function handleCategoryChange(entry: LedgerEntry, category: SpendingCategory | null) {
-    const original = entry.spending_category;
-    setPendingCategoryChanges((current) => {
-      const next = { ...current };
-      if (category === original) {
-        delete next[entry.id];
-      } else {
-        next[entry.id] = category;
-      }
-      return next;
+    if (category === entry.spending_category) return;
+    await withRefresh(async () => {
+      await updateEntry(entry.id, { spending_category: category });
+      setStatus("분류 저장 완료");
     });
-    setStatus("저장되지 않은 변경 사항이 있습니다.");
   }
 
   async function handleEntryDelete(entry: LedgerEntry) {
@@ -505,21 +491,6 @@ export function App() {
     await withRefresh(async () => {
       const result = await completePanelsByType(panelType);
       setStatus(`${panelLabel(labels, panelType)} ${result.completed}개 처리 완료`);
-    });
-  }
-
-  // pending 분류 변경을 서버에 일괄 저장한다.
-  async function handleSavePendingChanges() {
-    const changes = Object.entries(pendingCategoryChanges);
-    if (!changes.length) return;
-    await withRefresh(async () => {
-      await Promise.all(
-        changes.map(([entryId, category]) =>
-          updateEntry(Number(entryId), { spending_category: category }),
-        ),
-      );
-      setPendingCategoryChanges({});
-      setStatus(`변경 사항 ${changes.length}개 저장 완료`);
     });
   }
 
@@ -654,6 +625,10 @@ export function App() {
 
   async function handleCurrentEntryDiscount(entry: LedgerEntry) {
     if (!entry.payment_key) return;
+    if (isDiscountExcludedEntry(entry)) {
+      setStatus("교통비와 통행료 계열 항목은 할인 대상이 아닙니다.");
+      return;
+    }
     if (ownerDiscountMonth?.policy === "disabled") {
       setStatus("이번 달은 본인회원 카드 할인 혜택이 없는 달로 설정되어 있습니다.");
       return;
@@ -677,6 +652,10 @@ export function App() {
   }
 
   async function handleClaimDiscount(panel: MonthlyPanel) {
+    if (isDiscountExcludedText(panel.title)) {
+      setStatus("교통비와 통행료 계열 항목은 할인 대상이 아닙니다.");
+      return;
+    }
     if (ownerDiscountMonth?.policy === "disabled") {
       setStatus("이번 달은 본인회원 카드 할인 혜택이 없는 달로 설정되어 있습니다.");
       return;
@@ -695,6 +674,10 @@ export function App() {
   }
 
   async function handlePlannedDiscount(entry: LedgerEntry) {
+    if (isDiscountExcludedEntry(entry)) {
+      setStatus("교통비와 통행료 계열 항목은 할인 대상이 아닙니다.");
+      return;
+    }
     if (ownerDiscountMonth?.policy === "disabled") {
       setStatus("이번 달은 본인회원 카드 할인 혜택이 없는 달로 설정되어 있습니다.");
       return;
@@ -773,6 +756,7 @@ export function App() {
     }
     await withRefresh(async () => {
       await updateSetting("interest_expense", String(amount));
+      setInterestExpenseInput(String(amount));
       setStatus("이자지출 저장 완료");
     });
   }
@@ -926,17 +910,9 @@ export function App() {
           <p>{currentMonth} 당월 기록</p>
         </div>
         <div className="actions">
-          <button type="button" onClick={() => void refresh()} disabled={isBusy}>
-            새로고침
-          </button>
           <button type="button" onClick={() => void handleSharePinSet()} disabled={isBusy}>
             공유 PIN 설정
           </button>
-          {hasPendingCategoryChanges ? (
-            <button type="button" className="save-needed" onClick={() => void handleSavePendingChanges()} disabled={isBusy}>
-              변경 사항 저장
-            </button>
-          ) : null}
           <button type="button" onClick={() => void handleExport()} disabled={isBusy}>
             엑셀 export
           </button>
@@ -989,10 +965,8 @@ export function App() {
 
       <SummaryPanel
         summary={summary}
+        judgment={judgment}
         labels={labels}
-        entries={expenseEntries}
-        panels={panels}
-        cashFlows={cashFlows}
         interestExpenseInput={interestExpenseInput}
         setInterestExpenseInput={setInterestExpenseInput}
         onInterestExpenseSave={() => void handleInterestExpenseSave()}
@@ -1001,13 +975,13 @@ export function App() {
 
       {showStats ? (
         <section className="insight-stack" aria-label="통계와 월별 기록">
-          <StatsPanel items={statsItems} />
+          <StatsPanel items={statsItems} judgment={judgment} />
           <HistoryPanel
             months={historyMonths}
             selectedMonth={selectedHistoryMonth}
             setSelectedMonth={setSelectedHistoryMonth}
             entries={historyEntries}
-            pendingCategoryChanges={pendingCategoryChanges}
+            judgment={judgment}
             onCategoryChange={(entry, category) => void handleCategoryChange(entry, category)}
           />
         </section>
@@ -1061,7 +1035,7 @@ export function App() {
                 <EntryTable
                   entries={expenseEntries}
                   emptyText="당월 지출이 없습니다."
-                  pendingCategoryChanges={pendingCategoryChanges}
+                  judgment={judgment}
                   onCategoryChange={(entry, category) => void handleCategoryChange(entry, category)}
                   onDelete={(entry) => void handleEntryDelete(entry)}
                   discounts={ownerDiscountMonth?.discounts}
@@ -1160,6 +1134,8 @@ export function App() {
                       onDelete={(panel) => void handlePanelDelete(panel)}
                       onComplete={tab === "claim" || tab === "settlement" ? () => void handlePanelComplete(tab) : undefined}
                       onDiscount={tab === "claim" ? (panel) => void handleClaimDiscount(panel) : undefined}
+                      categoryForPanel={tab === "claim" ? (panel) => judgment?.claim_categories[String(panel.id)] ?? null : undefined}
+                      judgment={judgment}
                       discountDrafts={discountDrafts}
                       setDiscountDrafts={setDiscountDrafts}
                       form={
@@ -1177,6 +1153,7 @@ export function App() {
                         cardLimit={parseSettingNumber(settings, "settlement_card_limit", 5_800_000)}
                         currentCardTotal={sumAmounts(expenseEntries) + sumInstallmentMonthlyAmounts(installments)}
                         settlementTotal={sumPanelAmounts(panels.filter((panel) => panel.panel_type === "settlement"))}
+                        tone={judgment?.credit ?? null}
                       />
                     ) : null}
                   </section>
@@ -1274,6 +1251,7 @@ export function App() {
               onSubmit={() => void handleCardPaymentSubmit()}
               onDeleteEvent={(eventId) => void handleCardPaymentEventDelete(eventId)}
               onTollDeferral={(row, defer) => void handleTollDeferral(row, defer)}
+              paymentTone={judgment?.payment ?? null}
               lateEntryForm={lateEntryForm}
               setLateEntryForm={setLateEntryForm}
               onLateEntrySubmit={handleLateEntrySubmit}
@@ -1341,40 +1319,25 @@ export function App() {
 
 function SummaryPanel({
   summary,
+  judgment,
   labels,
-  entries,
-  panels,
-  cashFlows,
   interestExpenseInput,
   setInterestExpenseInput,
   onInterestExpenseSave,
   isBusy,
 }: {
   summary: Summary | null;
+  judgment: JudgmentState | null;
   labels: Record<string, string>;
-  entries: LedgerEntry[];
-  panels: MonthlyPanel[];
-  cashFlows: CashFlow[];
   interestExpenseInput: string;
   setInterestExpenseInput: (value: string) => void;
   onInterestExpenseSave: () => void;
   isBusy: boolean;
 }) {
-  const claimRows = panels.filter((panel) => panel.panel_type === "claim");
-  const settlementRows = panels.filter((panel) => panel.panel_type === "settlement");
-  const frozenRows = panels.filter((panel) => panel.panel_type === "frozen");
-  const committee = budgetCommitteeTone({
-    expenseTotal: sumAmounts(entries),
-    expenseCount: entries.length,
-    cashFlowTotal: sumCashFlows(cashFlows),
-    cashFlowCount: cashFlows.length,
-    claimTotal: sumPanelNetAmounts(claimRows),
-    claimCount: claimRows.length,
-    settlementTotal: sumPanelAmounts(settlementRows),
-    settlementCount: settlementRows.length,
-    frozenTotal: sumPanelAmounts(frozenRows),
-    frozenCount: frozenRows.length,
-  });
+  const committee = judgment?.budget ?? {
+    level: "quiet",
+    message: "판단 모듈이 서버 응답을 기다리고 있습니다.",
+  };
   const rows = summary
     ? [
         [labels.summary_card_total_label ?? "카드대금", summary.card_total],
@@ -1467,8 +1430,14 @@ function AuditLogPanel({ logs, onClear, isBusy }: { logs: AuditLog[]; onClear: (
   );
 }
 
-function StatsPanel({ items }: { items: StatItem[] }) {
-  const rows = spendingStatTones().map((tone) => ({
+function StatsPanel({ items, judgment }: { items: StatItem[]; judgment: JudgmentState | null }) {
+  const tones = judgment?.stat_tones ?? [
+    { key: "essential" as SpendingCategory, title: fallbackCategoryLabels.essential, caption: "생존 인프라입니다." },
+    { key: "questionable" as SpendingCategory, title: fallbackCategoryLabels.questionable, caption: "예산위원회 출석 안건입니다." },
+    { key: "dignity" as SpendingCategory, title: fallbackCategoryLabels.dignity, caption: "사람 꼴 유지 비용입니다." },
+    { key: null, title: fallbackCategoryLabels.unclassified, caption: "아직 판결 전입니다." },
+  ];
+  const rows = tones.map((tone) => ({
     ...tone,
     amount: sumStatItems(
       items.filter((item) =>
@@ -1500,18 +1469,20 @@ function CreditUsagePanel({
   cardLimit,
   currentCardTotal,
   settlementTotal,
+  tone,
 }: {
   cardLimit: number;
   currentCardTotal: number;
   settlementTotal: number;
+  tone: JudgmentState["credit"] | null;
 }) {
   const combinedTotal = currentCardTotal + settlementTotal;
   const usageRate = cardLimit > 0 ? combinedTotal / cardLimit : 0;
   const usagePercent = usageRate * 100;
   const width = Math.min(100, Math.max(0, usagePercent));
-  const tone = creditUsageTone(usageRate);
+  const creditTone = tone ?? { level: "quiet", message: "가족카드 판단을 불러오는 중입니다." };
   return (
-    <section className={`panel credit-panel ${tone.level}`}>
+    <section className={`panel credit-panel ${creditTone.level}`}>
       <div className="panel-header">
         <h2>가족카드 한도 감시</h2>
         <span>{usagePercent.toFixed(1)}%</span>
@@ -1529,7 +1500,7 @@ function CreditUsagePanel({
           <dd>{formatWon(cardLimit)}</dd>
         </div>
       </dl>
-      <p>{tone.message}</p>
+      <p>{creditTone.message}</p>
       <p className="credit-note">할부와 일시불이 섞이면 실제 한도 차감액은 카드사 기준과 다를 수 있습니다.</p>
     </section>
   );
@@ -1595,6 +1566,7 @@ function CardPaymentPanel({
   onSubmit,
   onDeleteEvent,
   onTollDeferral,
+  paymentTone,
   lateEntryForm,
   setLateEntryForm,
   onLateEntrySubmit,
@@ -1619,6 +1591,7 @@ function CardPaymentPanel({
   onSubmit: () => void;
   onDeleteEvent: (eventId: number) => void;
   onTollDeferral: (row: CardPaymentRow, defer: boolean) => void;
+  paymentTone: JudgmentState["payment"] | null;
   lateEntryForm: { date: string; usagePlace: string; usageItem: string; amount: string };
   setLateEntryForm: (value: { date: string; usagePlace: string; usageItem: string; amount: string }) => void;
   onLateEntrySubmit: (event: FormEvent) => Promise<void>;
@@ -1629,7 +1602,7 @@ function CardPaymentPanel({
   }
   const daysUntilDue = daysBetween(today, status.due_date);
   const referenceLiquidity = status.primary_income_total > 0 ? status.primary_income_total : fallbackLiquidity;
-  const pressure = paymentPressureTone(status.recorded_remaining_total, daysUntilDue, referenceLiquidity);
+  const pressure = paymentTone ?? { level: "quiet", message: "결제 판단을 불러오는 중입니다." };
   const selectedTotal = sumPaymentAllocationInputs(allocations);
   return (
     <section className="payment-stack">
@@ -1799,12 +1772,15 @@ function CardPaymentPanel({
               {status.rows.map((row) => {
                 const key = row.payment_key ?? "";
                 const selected = Boolean(key && hasOwn(allocations, key));
+                const discountExcluded = isDiscountExcludedCardPayment(row);
                 return (
                   <tr
                     key={row.id}
                     className={[
                       row.remaining_amount <= 0 ? "paid-row" : "",
-                      row.discount_amount > 0 ? "discounted-row" : "",
+                      isDiscountMode && row.remaining_amount > 0 && !discountExcluded && row.discount_amount <= 0
+                        ? "discount-missing-row"
+                        : "",
                       row.is_deferred ? "deferred-row" : "",
                       row.is_carried_over ? "carried-row" : "",
                     ].filter(Boolean).join(" ")}
@@ -1818,7 +1794,7 @@ function CardPaymentPanel({
                           row.is_deferred ||
                           row.remaining_amount <= 0 ||
                           !status.immediate_allowed ||
-                          (isDiscountMode && row.is_toll)
+                          (isDiscountMode && discountExcluded)
                         }
                         onChange={(event) => onSelect(row, event.target.checked)}
                       />
@@ -1850,7 +1826,7 @@ function CardPaymentPanel({
                         min="0"
                         step="1"
                         value={selected ? allocations[key] : ""}
-                        disabled={!selected || row.is_toll}
+                        disabled={!selected || row.is_toll || (isDiscountMode && discountExcluded)}
                         inputMode="numeric"
                         max={row.remaining_amount}
                         onChange={(event) => setAllocations({ ...allocations, [key]: event.target.value })}
@@ -1993,19 +1969,21 @@ function PlannedTable({
       </thead>
       <tbody>
         {entries.map((entry) => (
-          <tr key={entry.id} className={(entry.aux_amount_value ?? 0) > 0 ? "discounted-row" : ""}>
+          <tr key={entry.id} className={entry.aux_amount_value || isDiscountExcludedEntry(entry) ? "" : "discount-missing-row"}>
             <td className="date">{entry.due_day ? `매월 ${entry.due_day}일` : "날짜 없음"}</td>
             <td>{entry.usage_place ?? ""}</td>
             <td>{entry.usage_item || "좌동"}</td>
             <td className="amount">{formatWon(entry.amount_value)}</td>
             <td className="discount-cell">
-              <DiscountEditor
-                currentAmount={entry.aux_amount_value ?? 0}
-                draftKey={`planned:${entry.id}`}
-                drafts={discountDrafts}
-                setDrafts={setDiscountDrafts}
-                onSave={() => onDiscount(entry)}
-              />
+              {isDiscountExcludedEntry(entry) ? null : (
+                <DiscountEditor
+                  currentAmount={entry.aux_amount_value ?? 0}
+                  draftKey={`planned:${entry.id}`}
+                  drafts={discountDrafts}
+                  setDrafts={setDiscountDrafts}
+                  onSave={() => onDiscount(entry)}
+                />
+              )}
             </td>
             <td className="action-cell">
               <button type="button" onClick={() => onConfirm(entry)}>
@@ -2124,14 +2102,14 @@ function HistoryPanel({
   selectedMonth,
   setSelectedMonth,
   entries,
-  pendingCategoryChanges,
+  judgment,
   onCategoryChange,
 }: {
   months: string[];
   selectedMonth: string;
   setSelectedMonth: (month: string) => void;
   entries: LedgerEntry[];
-  pendingCategoryChanges: Record<number, SpendingCategory | null>;
+  judgment: JudgmentState | null;
   onCategoryChange: (entry: LedgerEntry, category: SpendingCategory | null) => void;
 }) {
   return (
@@ -2155,7 +2133,7 @@ function HistoryPanel({
       <EntryTable
         entries={entries}
         emptyText="이 달의 구조화된 기록이 없습니다."
-        pendingCategoryChanges={pendingCategoryChanges}
+        judgment={judgment}
         onCategoryChange={onCategoryChange}
       />
     </section>
@@ -2165,7 +2143,7 @@ function HistoryPanel({
 function EntryTable({
   entries,
   emptyText,
-  pendingCategoryChanges = {},
+  judgment,
   onCategoryChange,
   onDelete,
   discounts,
@@ -2175,7 +2153,7 @@ function EntryTable({
 }: {
   entries: LedgerEntry[];
   emptyText: string;
-  pendingCategoryChanges?: Record<number, SpendingCategory | null>;
+  judgment?: JudgmentState | null;
   onCategoryChange?: (entry: LedgerEntry, category: SpendingCategory | null) => void;
   onDelete?: (entry: LedgerEntry) => void;
   discounts?: Record<string, number>;
@@ -2199,14 +2177,14 @@ function EntryTable({
       </thead>
       <tbody>
         {entries.map((entry) => {
-          const selectedCategory = hasOwn(pendingCategoryChanges, entry.id)
-            ? pendingCategoryChanges[entry.id]
-            : entry.spending_category;
+          const selectedCategory = entry.spending_category;
+          const currentDiscount = entry.payment_key ? discounts?.[entry.payment_key] ?? 0 : 0;
+          const discountEligible = Boolean(onDiscount && entry.payment_key && !isDiscountExcludedEntry(entry));
           return (
-            <tr key={entry.id} className={entry.payment_key && (discounts?.[entry.payment_key] ?? 0) > 0 ? "discounted-row" : ""}>
+            <tr key={entry.id} className={discountEligible && currentDiscount <= 0 ? "discount-missing-row" : ""}>
               <td className="date">{entry.date_label ?? entry.group_label ?? ""}</td>
               <td>{entry.usage_place ?? ""}</td>
-              <td>{entry.usage_item ?? displayEntryTitle(entry)}</td>
+              <td>{entry.usage_item ?? ""}</td>
               {onCategoryChange ? (
                 <td className="category-cell">
                   <select
@@ -2215,23 +2193,25 @@ function EntryTable({
                       onCategoryChange(entry, (event.target.value || null) as SpendingCategory | null)
                     }
                   >
-                    <option value="">미분류</option>
-                    <option value="essential">{categoryLabel("essential")}</option>
-                    <option value="questionable">{categoryLabel("questionable")}</option>
+                    <option value="">{categoryLabel(null, judgment)}</option>
+                    <option value="essential">{categoryLabel("essential", judgment)}</option>
+                    <option value="questionable">{categoryLabel("questionable", judgment)}</option>
+                    <option value="dignity">{categoryLabel("dignity", judgment)}</option>
                   </select>
                 </td>
               ) : null}
               <td className="amount">{formatWon(entry.amount_value)}</td>
               {onDiscount ? (
                 <td className="discount-cell">
-                  <DiscountEditor
-                    currentAmount={entry.payment_key ? discounts?.[entry.payment_key] ?? 0 : 0}
-                    draftKey={`entry:${entry.id}`}
-                    drafts={discountDrafts}
-                    setDrafts={setDiscountDrafts}
-                    onSave={() => onDiscount(entry)}
-                    disabled={!entry.payment_key}
-                  />
+                  {discountEligible ? (
+                    <DiscountEditor
+                      currentAmount={currentDiscount}
+                      draftKey={`entry:${entry.id}`}
+                      drafts={discountDrafts}
+                      setDrafts={setDiscountDrafts}
+                      onSave={() => onDiscount(entry)}
+                    />
+                  ) : null}
                 </td>
               ) : null}
               {onDelete ? (
@@ -2266,7 +2246,7 @@ function DiscountEditor({
 }) {
   return (
     <div className="discount-editor">
-      {currentAmount > 0 ? <span className="discount-badge">할인 적용 {formatWon(currentAmount)}</span> : <span>미적용</span>}
+      {currentAmount > 0 ? <span className="discount-badge">할인 {formatWon(currentAmount)}</span> : null}
       <div>
         <input
           type="number"
@@ -2296,6 +2276,7 @@ function PanelTable({
   discountDrafts = {},
   setDiscountDrafts,
   categoryForPanel,
+  judgment,
   form,
 }: {
   title: string;
@@ -2307,6 +2288,7 @@ function PanelTable({
   discountDrafts?: Record<string, string>;
   setDiscountDrafts?: DiscountDraftSetter;
   categoryForPanel?: (panel: MonthlyPanel) => SpendingCategory | null;
+  judgment?: JudgmentState | null;
   form?: ReactNode;
 }) {
   return (
@@ -2342,8 +2324,10 @@ function PanelTable({
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
-              <tr key={row.id} className={row.discount_amount > 0 ? "discounted-row" : ""}>
+            {rows.map((row) => {
+              const discountEligible = Boolean(onDiscount && !isDiscountExcludedText(row.title));
+              return (
+              <tr key={row.id} className={discountEligible && row.discount_amount <= 0 ? "discount-missing-row" : ""}>
                 {(rows.some((item) => item.spent_on) || rows.some((item) => item.panel_type === "claim" || item.panel_type === "settlement")) ? (
                   <td className="date">{formatDateLabel(row.spent_on ?? "") ?? ""}</td>
                 ) : null}
@@ -2351,19 +2335,23 @@ function PanelTable({
                   {row.title}
                 </td>
                 {categoryForPanel ? (
-                  <td className="category-cell">{categoryLabel(categoryForPanel(row))}</td>
+                  <td className="category-cell">{categoryLabel(categoryForPanel(row), judgment)}</td>
                 ) : null}
                 <td className="amount">{formatWon(row.amount_value)}</td>
                 {onDiscount ? (
                   <td className="discount-cell">
-                    <DiscountEditor
-                      currentAmount={row.discount_amount}
-                      draftKey={`panel:${row.id}`}
-                      drafts={discountDrafts}
-                      setDrafts={setDiscountDrafts}
-                      onSave={() => onDiscount(row)}
-                    />
-                    <span className="net-amount">실제 {formatWon(panelNetAmount(row))}</span>
+                    {discountEligible ? (
+                      <>
+                        <DiscountEditor
+                          currentAmount={row.discount_amount}
+                          draftKey={`panel:${row.id}`}
+                          drafts={discountDrafts}
+                          setDrafts={setDiscountDrafts}
+                          onSave={() => onDiscount(row)}
+                        />
+                        <span className="net-amount">실제 {formatWon(panelNetAmount(row))}</span>
+                      </>
+                    ) : null}
                   </td>
                 ) : null}
                 {onDelete ? (
@@ -2374,7 +2362,8 @@ function PanelTable({
                   </td>
                 ) : null}
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       ) : (
@@ -2454,7 +2443,13 @@ function parseAmount(value: string): number | null {
   const normalized = value.replaceAll(",", "").trim();
   if (!normalized) return null;
   const amount = Number(normalized);
-  return Number.isFinite(amount) ? amount : null;
+  return Number.isFinite(amount) && Number.isInteger(amount) ? amount : null;
+}
+
+function formatIntegerSetting(value: string | undefined): string {
+  if (!value) return "";
+  const amount = Number(value);
+  return Number.isFinite(amount) ? String(Math.round(amount)) : value;
 }
 
 function focusFirstDataInput(form: HTMLFormElement): void {
@@ -2480,27 +2475,43 @@ function displayEntryTitle(entry: LedgerEntry): string {
   return entry.title;
 }
 
+function isDiscountExcludedText(value: string | null | undefined): boolean {
+  if (!value) return false;
+  return /하이패스|교통비|통행/.test(value);
+}
+
+function isDiscountExcludedEntry(entry: LedgerEntry): boolean {
+  return [entry.title, entry.usage_place, entry.usage_item].some(isDiscountExcludedText);
+}
+
+function isDiscountExcludedCardPayment(row: CardPaymentRow): boolean {
+  return row.is_transport || row.is_toll || isDiscountExcludedEntry(row);
+}
+
+function categoryLabel(category: SpendingCategory | null, judgment?: JudgmentState | null): string {
+  const key = category ?? "unclassified";
+  return judgment?.category_labels[key] ?? fallbackCategoryLabels[key];
+}
+
 function activeStatItems(
   activePrimaryTab: PrimaryTab,
   activeCurrentTab: CurrentTab,
   expenseEntries: LedgerEntry[],
   _historyEntries: LedgerEntry[],
   panels: MonthlyPanel[],
-  pendingCategoryChanges: Record<number, SpendingCategory | null>,
+  judgment: JudgmentState | null,
 ): StatItem[] {
   if (activePrimaryTab === "current" && activeCurrentTab === "claim") {
     return panels
       .filter((panel) => panel.panel_type === "claim")
       .map((panel) => ({
         amount_value: panelNetAmount(panel),
-        spending_category: classifyClaimPanel(panel),
+        spending_category: judgment?.claim_categories[String(panel.id)] ?? null,
       }));
   }
   return expenseEntries.map((entry) => ({
     amount_value: entry.amount_value,
-    spending_category: hasOwn(pendingCategoryChanges, entry.id)
-      ? pendingCategoryChanges[entry.id]
-      : entry.spending_category,
+    spending_category: entry.spending_category,
   }));
 }
 

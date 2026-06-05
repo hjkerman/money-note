@@ -1,4 +1,14 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+
+def integer_money(value: object) -> object:
+    """비율이 아닌 돈은 원 단위 정수로만 받는다."""
+    if value is None:
+        return value
+    amount = float(value)
+    if not amount.is_integer():
+        raise ValueError("money amount must be an integer")
+    return int(amount)
 
 
 class LoginIn(BaseModel):
@@ -38,6 +48,8 @@ class LedgerEntryIn(BaseModel):
     spending_category: str | None = None
     payment_key: str | None = None
 
+    _integer_money = field_validator("amount_value", "aux_amount_value", mode="before")(integer_money)
+
 class LedgerEntry(LedgerEntryIn):
     id: int
 
@@ -60,6 +72,8 @@ class LedgerEntryPatch(BaseModel):
     confirmed_at: str | None = None
     spending_category: str | None = None
 
+    _integer_money = field_validator("amount_value", "aux_amount_value", mode="before")(integer_money)
+
 
 class MonthCloseIn(BaseModel):
     allow_early_close: bool = False
@@ -72,6 +86,8 @@ class PlannedEntryIn(BaseModel):
     amount_value: float = Field(ge=0)
     amount_expr: str | None = None
     due_day: int = Field(ge=1, le=31)
+
+    _integer_money = field_validator("amount_value", mode="before")(integer_money)
 
 
 class EntryReorder(BaseModel):
@@ -114,6 +130,8 @@ class MonthlyPanelIn(BaseModel):
     sort_order: int
     due_day: int | None = None
 
+    _integer_money = field_validator("amount_value", "discount_amount", mode="before")(integer_money)
+
 
 class MonthlyPanelPatch(BaseModel):
     month: str | None = None
@@ -126,6 +144,8 @@ class MonthlyPanelPatch(BaseModel):
     sort_order: int | None = None
     due_day: int | None = None
     confirmed_at: str | None = None
+
+    _integer_money = field_validator("amount_value", "discount_amount", mode="before")(integer_money)
 
 
 class SettingPatch(BaseModel):
@@ -147,6 +167,8 @@ class CashFlowIn(BaseModel):
     amount_value: float
     sort_order: int
     is_primary_income: int = 0
+
+    _integer_money = field_validator("amount_value", mode="before")(integer_money)
 
 
 class Installment(BaseModel):
@@ -172,10 +194,14 @@ class InstallmentIn(BaseModel):
     start_month: str
     sort_order: int
 
+    _integer_money = field_validator("principal_amount", mode="before")(integer_money)
+
 
 class CardPaymentAllocationIn(BaseModel):
     entry_payment_key: str
     amount_value: float = Field(gt=0)
+
+    _integer_money = field_validator("amount_value", mode="before")(integer_money)
 
 
 class CardPaymentEventIn(BaseModel):
@@ -192,9 +218,13 @@ class CardDiscountPolicyPatch(BaseModel):
 class PanelDiscountPatch(BaseModel):
     discount_amount: float = Field(ge=0)
 
+    _integer_money = field_validator("discount_amount", mode="before")(integer_money)
+
 
 class LateCardEntryIn(BaseModel):
     entry_date: str
     usage_place: str | None = None
     usage_item: str | None = None
     amount_value: float = Field(ge=0)
+
+    _integer_money = field_validator("amount_value", mode="before")(integer_money)

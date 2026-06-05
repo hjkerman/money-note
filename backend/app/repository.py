@@ -59,8 +59,10 @@ def installment_to_dict(row: Any) -> dict[str, Any]:
     return data
 
 
-def list_entries(section: str) -> list[dict[str, Any]]:
-    filter_confirmed_planned = " AND NOT (entry_kind = 'planned' AND confirmed_at IS NOT NULL)" if section == "current" else ""
+def list_entries(section: str, today: date | None = None) -> list[dict[str, Any]]:
+    current_month = (today or date.today()).strftime("%Y-%m")
+    filter_confirmed_planned = " AND NOT (entry_kind = 'planned' AND confirmed_month = ?)" if section == "current" else ""
+    params: tuple[Any, ...] = (section, current_month) if section == "current" else (section,)
     with session() as conn:
         rows = conn.execute(
             f"""
@@ -73,7 +75,7 @@ def list_entries(section: str) -> list[dict[str, Any]]:
               sort_order,
               id
             """,
-            (section,),
+            params,
         ).fetchall()
     return [row_to_dict(row) for row in rows]
 
@@ -251,17 +253,19 @@ def delete_cash_flow(flow_id: int) -> bool:
     return cursor.rowcount > 0
 
 
-def confirm_planned_entry(entry_id: int) -> dict[str, Any] | None:
+def confirm_planned_entry(entry_id: int, today: date | None = None) -> dict[str, Any] | None:
+    today = today or date.today()
+    confirmed_month = today.strftime("%Y-%m")
     with session() as conn:
         planned = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (entry_id,)).fetchone()
         if planned is None:
             return None
         if planned["entry_kind"] != "planned":
             raise ValueError("only card recurring entries can be confirmed")
-        if planned["confirmed_at"] is not None:
+        if planned["confirmed_month"] == confirmed_month:
             raise ValueError("card recurring entry already confirmed")
 
-        payment_date = planned_entry_payment_date(planned["due_day"])
+        payment_date = planned_entry_payment_date(planned["due_day"], today)
         date_label = f"{payment_date:%Y.%m.%d}."
         max_order = conn.execute(
             """
@@ -291,8 +295,12 @@ def confirm_planned_entry(entry_id: int) -> dict[str, Any] | None:
             ),
         )
         conn.execute(
-            "UPDATE ledger_entries SET confirmed_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
-            (entry_id,),
+            """
+            UPDATE ledger_entries
+            SET confirmed_at = CURRENT_TIMESTAMP, confirmed_month = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+            """,
+            (confirmed_month, entry_id),
         )
         entry = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (cursor.lastrowid,)).fetchone()
         planned_discount = float(planned["aux_amount_value"] or 0)
@@ -317,8 +325,8 @@ def confirm_planned_entry(entry_id: int) -> dict[str, Any] | None:
     return {"planned": row_to_dict(updated_planned), "entry": row_to_dict(entry)}
 
 
-def planned_entry_payment_date(due_day: int | None) -> date:
-    today = date.today()
+def planned_entry_payment_date(due_day: int | None, today: date | None = None) -> date:
+    today = today or date.today()
     day = due_day if due_day and due_day > 0 else today.day
     return date(today.year, today.month, min(day, 28 if today.month == 2 else 30 if today.month in {4, 6, 9, 11} else 31))
 

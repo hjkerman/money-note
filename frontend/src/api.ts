@@ -31,7 +31,27 @@ export type LedgerEntry = {
   payment_key: string | null;
 };
 
-export type SpendingCategory = "essential" | "questionable";
+export type SpendingCategory = "essential" | "questionable" | "dignity";
+
+export type JudgmentTone = {
+  level: "quiet" | "steady" | "warning" | "danger";
+  message: string;
+};
+
+export type JudgmentStatTone = {
+  key: SpendingCategory | null;
+  title: string;
+  caption: string;
+};
+
+export type JudgmentState = {
+  category_labels: Record<SpendingCategory | "unclassified", string>;
+  stat_tones: JudgmentStatTone[];
+  claim_categories: Record<string, SpendingCategory | null>;
+  budget: JudgmentTone;
+  credit: JudgmentTone;
+  payment: JudgmentTone;
+};
 
 export type MonthlyPanel = {
   id: number;
@@ -186,6 +206,10 @@ export async function fetchCurrentPanels(): Promise<MonthlyPanel[]> {
 
 export async function fetchSummary(): Promise<Summary> {
   return getJson("/api/month/current/summary");
+}
+
+export async function fetchJudgment(): Promise<JudgmentState> {
+  return getJson("/api/judgment/current");
 }
 
 export async function fetchCashFlows(): Promise<CashFlow[]> {

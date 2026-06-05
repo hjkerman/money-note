@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS ledger_entries (
     sort_order INTEGER NOT NULL,
     due_day INTEGER,
     confirmed_at TEXT,
+    confirmed_month TEXT,
     spending_category TEXT,
     payment_key TEXT,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -265,6 +266,8 @@ def init_db() -> None:
         }
         if "confirmed_at" not in ledger_columns:
             conn.execute("ALTER TABLE ledger_entries ADD COLUMN confirmed_at TEXT")
+        if "confirmed_month" not in ledger_columns:
+            conn.execute("ALTER TABLE ledger_entries ADD COLUMN confirmed_month TEXT")
         if "due_day" not in ledger_columns:
             conn.execute("ALTER TABLE ledger_entries ADD COLUMN due_day INTEGER")
         if "spending_category" not in ledger_columns:
@@ -280,6 +283,13 @@ def init_db() -> None:
             UPDATE ledger_entries
             SET payment_key = lower(hex(randomblob(16)))
             WHERE payment_key IS NULL AND entry_kind != 'planned'
+            """
+        )
+        conn.execute(
+            """
+            UPDATE ledger_entries
+            SET confirmed_month = strftime('%Y-%m', 'now')
+            WHERE entry_kind = 'planned' AND confirmed_at IS NOT NULL AND confirmed_month IS NULL
             """
         )
         conn.execute(
@@ -322,7 +332,36 @@ def init_db() -> None:
             WHERE key = 'panel_fixed_title' AND value = '고정지출'
             """
         )
+        _normalize_money_settings(conn)
         _backfill_planned_due_days(conn)
+
+
+def _normalize_money_settings(conn: sqlite3.Connection) -> None:
+    """돈 단위 설정값은 기존 소수 표기를 정수 문자열로 정리한다."""
+    keys = {
+        "base_next_month_liquidity",
+        "interest_expense",
+        "liquidity_status",
+        "settlement_card_limit",
+    }
+    rows = conn.execute(
+        f"SELECT key, value FROM app_settings WHERE key IN ({','.join('?' for _ in keys)})",
+        tuple(keys),
+    ).fetchall()
+    for row in rows:
+        try:
+            amount = float(row["value"])
+        except ValueError:
+            continue
+        if amount.is_integer():
+            conn.execute(
+                """
+                UPDATE app_settings
+                SET value = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE key = ?
+                """,
+                (str(int(amount)), row["key"]),
+            )
 
 
 def _backfill_planned_due_days(conn: sqlite3.Connection) -> None:

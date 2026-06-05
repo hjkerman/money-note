@@ -22,6 +22,40 @@ MEDICAL_WORDS = (
 PSYCHIATRY_WORDS = ("정신과", "정신건강", "상담")
 COLD_WORDS = ("감기", "내과", "이비인후과")
 TRANSPORT_WORDS = ("교통", "하이패스", "주유", "유류", "lpg", "가스")
+SMALL_CLAIM_LIMIT = 2_000
+ESSENTIAL_CLAIM_WORDS = (
+    "병원",
+    "치과",
+    "의원",
+    "약국",
+    "약제",
+    "감기",
+    "정신과",
+    "정형외과",
+    "진료",
+    "검사",
+    "수술",
+    "이자",
+    "대출",
+    "통신",
+    "보험",
+    "관리비",
+    "교통",
+    "lpg",
+    "가스",
+    "유류",
+    "주유",
+    "하이패스",
+    "통행",
+)
+QUESTIONABLE_CLAIM_WORDS = ("커피", "카페", "빽다방", "편지지", "간식", "술", "담배", "게임", "취미", "굿즈")
+DIGNITY_WORDS = ("세탁", "의류", "옷", "미용", "이발", "헤어", "면도", "칫솔", "치약", "샴푸", "비누", "화장품")
+CATEGORY_LABELS = {
+    "essential": "안 썼으면 큰일 났을 돈",
+    "questionable": "꼭 써야 했을까...?",
+    "dignity": "최소한의 품위유지비",
+    "unclassified": "미분류",
+}
 
 
 def stable_choice(messages: tuple[str, ...], *signals: object) -> str:
@@ -34,6 +68,384 @@ def stable_choice(messages: tuple[str, ...], *signals: object) -> str:
 def title_contains(row: dict, words: tuple[str, ...]) -> bool:
     title = str(row.get("title") or "").lower()
     return any(word in title for word in words)
+
+
+def text_contains(value: str, words: tuple[str, ...]) -> bool:
+    lowered = value.lower()
+    return any(word in lowered for word in words)
+
+
+def category_label(category: str | None) -> str:
+    """소비 분류 코드를 사용자가 읽을 라벨로 바꾼다."""
+    return CATEGORY_LABELS.get(category or "unclassified", CATEGORY_LABELS["unclassified"])
+
+
+def spending_stat_tones() -> list[dict]:
+    """소비 통계 카드 제목과 설명을 백엔드 기준으로 제공한다."""
+    return [
+        {
+            "key": "essential",
+            "title": category_label("essential"),
+            "caption": "안 썼으면 일이 커졌을 돈. 생존 인프라입니다.",
+        },
+        {
+            "key": "questionable",
+            "title": category_label("questionable"),
+            "caption": "과거의 내가 예산위원회에 출석해야 합니다.",
+        },
+        {
+            "key": "dignity",
+            "title": category_label("dignity"),
+            "caption": "사람 꼴을 유지하기 위한 최소한의 사회적 비용입니다.",
+        },
+        {
+            "key": None,
+            "title": category_label(None),
+            "caption": "아직 판결을 기다리는 소비들입니다.",
+        },
+    ]
+
+
+def classify_claim_category(row: dict) -> str | None:
+    """청구 항목은 사용자가 조작하지 않으므로 제목과 금액으로 자동 분류한다."""
+    title = str(row.get("title") or "")
+    amount = float(row.get("amount_value") or 0)
+    if 0 < amount <= SMALL_CLAIM_LIMIT:
+        return "questionable"
+    if text_contains(title, ESSENTIAL_CLAIM_WORDS):
+        return "essential"
+    if text_contains(title, DIGNITY_WORDS):
+        return "dignity"
+    if text_contains(title, QUESTIONABLE_CLAIM_WORDS):
+        return "questionable"
+    return None
+
+
+def app_judgment(
+    entries: list[dict],
+    panels: list[dict],
+    cash_flows: list[dict],
+    summary: dict,
+    payment_status: dict,
+    settings: dict[str, str],
+) -> dict:
+    """본체 웹앱에서 쓰는 모든 판단 문구를 한 번에 만든다."""
+    expense_entries = [entry for entry in entries if entry.get("entry_kind") != "planned"]
+    claim_rows = [panel for panel in panels if panel.get("panel_type") == "claim"]
+    settlement_rows = [panel for panel in panels if panel.get("panel_type") == "settlement"]
+    frozen_rows = [panel for panel in panels if panel.get("panel_type") == "frozen"]
+    settlement_limit = float(settings.get("settlement_card_limit") or 5_800_000)
+    settlement_total = sum(float(row.get("amount_value") or 0) for row in settlement_rows)
+    owner_card_total = sum(float(entry.get("amount_value") or 0) for entry in expense_entries)
+    owner_card_total += float(summary.get("installment_monthly_total") or 0)
+    days_until_due = days_between(date.today().isoformat(), str(payment_status.get("due_date") or date.today().isoformat()))
+    reference_liquidity = float(payment_status.get("primary_income_total") or 0)
+    if reference_liquidity <= 0:
+        reference_liquidity = float(settings.get("base_next_month_liquidity") or 400_000)
+
+    return {
+        "category_labels": CATEGORY_LABELS,
+        "stat_tones": spending_stat_tones(),
+        "claim_categories": {str(row["id"]): classify_claim_category(row) for row in claim_rows},
+        "budget": budget_committee_tone(
+            {
+                "expense_total": sum(float(entry.get("amount_value") or 0) for entry in expense_entries),
+                "expense_count": len(expense_entries),
+                "cash_flow_total": sum(float(flow.get("amount_value") or 0) for flow in cash_flows),
+                "cash_flow_count": len(cash_flows),
+                "claim_total": sum(panel_net_amount(row) for row in claim_rows),
+                "claim_count": len(claim_rows),
+                "settlement_total": settlement_total,
+                "settlement_count": len(settlement_rows),
+                "frozen_total": sum(float(row.get("amount_value") or 0) for row in frozen_rows),
+                "frozen_count": len(frozen_rows),
+            }
+        ),
+        "credit": credit_usage_tone((owner_card_total + settlement_total) / settlement_limit if settlement_limit > 0 else 0),
+        "payment": payment_pressure_tone(
+            float(payment_status.get("recorded_remaining_total") or 0),
+            days_until_due,
+            reference_liquidity,
+        ),
+    }
+
+
+def panel_net_amount(row: dict) -> float:
+    return max(0, float(row.get("amount_value") or 0) - float(row.get("discount_amount") or 0))
+
+
+def budget_committee_tone(input_data: dict) -> dict[str, str]:
+    """장부 전체 변화에 반응하는 예산심사위원회 한 줄 평을 만든다."""
+    activity_count = (
+        input_data["expense_count"]
+        + input_data["cash_flow_count"]
+        + input_data["claim_count"]
+        + input_data["settlement_count"]
+        + input_data["frozen_count"]
+    )
+
+    def say(messages: tuple[str, ...]) -> str:
+        return messages[activity_count % len(messages)]
+
+    if activity_count == 0:
+        return {
+            "level": "quiet",
+            "message": say(
+                (
+                    "아직 기록이 없습니다. 예산심사위원회가 의사봉만 닦고 있습니다.",
+                    "장부가 고요합니다. 평화인지 기록 누락인지는 위원회도 아직 판단을 유보합니다.",
+                    "이번 달 첫 안건을 기다리는 중입니다. 무소비라면 위업이고 미기록이라면 곧 들통납니다.",
+                )
+            ),
+        }
+    if input_data["cash_flow_total"] < 0 and abs(input_data["cash_flow_total"]) > input_data["expense_total"]:
+        return {
+            "level": "warning",
+            "message": say(
+                (
+                    "카드보다 현금이 더 적극적으로 퇴장했습니다. 계좌가 별도 의견서를 제출했습니다.",
+                    "장부의 주연은 카드가 아니라 현금 유출입니다. 예산위원회가 통장 쪽으로 고개를 돌립니다.",
+                    "현금흐름이 소비 기록보다 큰 목소리를 냅니다. 보이지 않는 지출도 발언권은 있습니다.",
+                )
+            ),
+        }
+    if input_data["frozen_total"] > input_data["expense_total"] and input_data["frozen_count"] > 0:
+        return {
+            "level": "steady",
+            "message": say(
+                (
+                    "쓴 돈보다 동결한 돈이 큽니다. 미래의 소비가 현재의 장부에서 대기번호를 받았습니다.",
+                    "동결 자산이 당월 지출보다 당당합니다. 아직 사지 않았다는 사실이 이번 달의 절약입니다.",
+                    "소비 후보군이 실제 소비보다 큽니다. 예산심사위원회가 결정을 미룬 용기를 높이 평가합니다.",
+                )
+            ),
+        }
+    if input_data["claim_total"] + input_data["settlement_total"] > input_data["expense_total"] and input_data["claim_count"] + input_data["settlement_count"] > 0:
+        return {
+            "level": "steady",
+            "message": say(
+                (
+                    "본인 소비보다 가족회계의 존재감이 큽니다. 이번 달 장부는 개인전보다 단체전에 가깝습니다.",
+                    "청구와 정산이 당월 지출보다 활발합니다. 가족이라는 제도가 회계상으로도 실재합니다.",
+                    "가족 관련 숫자가 장부 전면에 나섰습니다. 신뢰는 유지되고 계산기는 바쁩니다.",
+                )
+            ),
+        }
+    if input_data["expense_count"] >= 30:
+        return {
+            "level": "warning",
+            "message": say(
+                (
+                    "당월 지출 건수가 풍성합니다. 한 건 한 건은 생활이지만 합치면 행정입니다.",
+                    "소비 기록이 30건을 넘었습니다. 삶이 성실하게 영수증을 생산하고 있습니다.",
+                    "장부가 제법 두꺼워졌습니다. 예산심사위원회가 속독 능력을 요구받습니다.",
+                )
+            ),
+        }
+    if input_data["cash_flow_total"] > input_data["expense_total"] and input_data["cash_flow_total"] > 0:
+        return {
+            "level": "quiet",
+            "message": say(
+                (
+                    "현금 유입이 당월 지출보다 큽니다. 예산심사위원회가 이례적으로 칭찬을 결재합니다.",
+                    "들어온 돈이 쓴 돈보다 우세합니다. 장부가 사용자에게 유리한 증언을 남깁니다.",
+                    "현재까지는 유입 우세입니다. 재정적 품위가 일시적으로 확인되었습니다.",
+                )
+            ),
+        }
+    if input_data["expense_total"] >= 1_000_000:
+        return {
+            "level": "warning",
+            "message": say(
+                (
+                    "당월 소비가 일곱 자리에 진입했습니다. 삶의 밀도가 카드 명세서에도 반영되었습니다.",
+                    "지출 총액이 백만 원을 넘었습니다. 경제에는 기여했고 위원회에는 안건을 제공했습니다.",
+                    "소비 활동이 매우 적극적입니다. 예산심사위원회가 설명자료의 글자 크기를 줄입니다.",
+                )
+            ),
+        }
+    return {
+        "level": "quiet",
+        "message": say(
+            (
+                "현재까지는 사람 사는 수준의 소란입니다. 예산심사위원회가 관찰 의견만 남깁니다.",
+                "장부는 대체로 평온합니다. 소비는 있었고 재난으로 분류되지는 않았습니다.",
+                "이번 달 재정은 설명 가능한 범위에서 움직이고 있습니다. 위원회는 일단 믿어보기로 합니다.",
+                "기록이 쌓이고 있습니다. 숫자는 정직하며 아직 지나치게 공격적이지 않습니다.",
+            )
+        ),
+    }
+
+
+def credit_usage_tone(usage_rate: float) -> dict[str, str]:
+    usage_percent = usage_rate * 100
+    if usage_rate >= 0.8:
+        return {
+            "level": "danger",
+            "message": stable_choice(
+                (
+                    "추정 한도의 80%를 넘었습니다. 카드 명의자는 이제 금융상품이 아니라 금융기반시설입니다.",
+                    "한도 여백이 장식용으로 변했습니다. 신용평가라는 말이 서류가방을 들고 현관에 와 있습니다.",
+                    "가족카드가 한도를 생활공간처럼 사용 중입니다. 명의자의 평정심은 별도 예산으로 편성해야겠습니다.",
+                ),
+                round(usage_percent),
+            ),
+        }
+    if usage_rate >= 0.5:
+        return {
+            "level": "danger",
+            "message": stable_choice(
+                (
+                    "추정치가 한도의 절반을 넘었습니다. 신용도라는 단어가 정장을 입고 회의실에 들어옵니다.",
+                    "한도의 과반이 사용되었습니다. 가족의 소비가 민주적 절차 없이 다수당이 되었습니다.",
+                    "50% 선을 넘었습니다. 카드 명의자의 침착함이 이번 달의 가장 큰 무이자 할부입니다.",
+                ),
+                round(usage_percent),
+            ),
+        }
+    if usage_rate >= 0.3:
+        return {
+            "level": "warning",
+            "message": stable_choice(
+                (
+                    "추정치가 한도의 30%를 넘었습니다. 아직 사고는 아니지만, 카드 명의자의 표정은 회계감사 모드입니다.",
+                    "현실과 타협하던 구간을 이탈했습니다. 가족카드 사용내역에 해명자료가 붙기 시작합니다.",
+                    "30% 초과입니다. 한도는 넉넉하지만 명의자의 마음에는 이미 임시제한이 걸렸습니다.",
+                    "카드는 정상 작동 중입니다. 다만 명의자의 심박수가 부가서비스처럼 따라옵니다.",
+                ),
+                round(usage_percent),
+            ),
+        }
+    if usage_rate >= 0.1:
+        return {
+            "level": "steady",
+            "message": stable_choice(
+                (
+                    "한도 사용률은 온건합니다. 신뢰는 유지되고 정산표는 제 역할을 합니다.",
+                    "가족 신용공동체가 무난하게 운영 중입니다. 명의자의 불안은 아직 취미 수준입니다.",
+                    "이 정도면 신용은 일하고 불안은 휴가 중입니다.",
+                ),
+                round(usage_percent),
+            ),
+        }
+    return {
+        "level": "quiet",
+        "message": stable_choice(
+            (
+                "가족카드가 거의 명예직으로 근무 중입니다. 명의자의 혈압도 정상 범위입니다.",
+                "한도 사용률이 얌전합니다. 신용평가위원회가 안건 부족으로 조기 퇴근합니다.",
+                "한도의 10% 아래입니다. 이상적인 사용량이지만 인생이 늘 이상적이면 가계부가 이렇게 재밌진 않았겠지요.",
+            ),
+            round(usage_percent),
+        ),
+    }
+
+
+def payment_pressure_tone(remaining_amount: float, days_until_due: int, reference_liquidity: float) -> dict[str, str]:
+    liquidity_rate = remaining_amount / reference_liquidity if reference_liquidity > 0 else (2 if remaining_amount > 0 else 0)
+    signals = (round(remaining_amount), days_until_due, round(liquidity_rate * 100))
+    if remaining_amount <= 0:
+        return {
+            "level": "quiet",
+            "message": stable_choice(
+                (
+                    "이번 달 카드 채무는 정리되었습니다. 예산위원회가 드물게 박수를 칩니다.",
+                    "남은 결제금액이 없습니다. 파산심사위원회가 할 일을 잃고 커피를 탑니다.",
+                    "카드 결제는 정리되었습니다. 통장은 피곤하지만 명예롭게 퇴근합니다.",
+                ),
+                *signals,
+            ),
+        }
+    if days_until_due < 0:
+        return {
+            "level": "danger",
+            "message": stable_choice(
+                (
+                    "결제일이 지났는데 미결제 기록이 남아 있습니다. 실제 결제는 끝난 것으로 보고 유동성 현황을 보정해야 합니다.",
+                    "14일이 지났습니다. 파산심사위원회가 자동으로 의제를 정리하고, 통장 보정을 요구합니다.",
+                    "결제 가능 기간이 종료되었습니다. 장부와 실제 계좌 사이의 화해 절차가 필요합니다.",
+                ),
+                *signals,
+            ),
+        }
+    if days_until_due == 0:
+        return {
+            "level": "danger",
+            "message": stable_choice(
+                (
+                    "오늘이 결제 가능 마지막 날입니다. 파산심사위원회가 회의실 조명을 전부 켰습니다.",
+                    "D-Day입니다. 남은 결제금액이 있다면 지금은 철학보다 송금입니다.",
+                    "오늘 안에 정리해야 합니다. 장부가 농담을 줄이고 실무 모드로 전환합니다.",
+                ),
+                *signals,
+            ),
+        }
+    if liquidity_rate >= 2 or (days_until_due <= 2 and liquidity_rate >= 1):
+        return {
+            "level": "danger",
+            "message": stable_choice(
+                (
+                    "남은 결제금액이 기준 수입을 크게 압도합니다. 파산심사위원회가 비상 안건을 상정했습니다.",
+                    "금액과 일정이 함께 압박 중입니다. 장부가 사용자에게 조용한 재정 비상벨을 울립니다.",
+                    "결제일까지 여유와 금액 여유가 동시에 부족합니다. 위원회가 웃음을 잠시 접었습니다.",
+                ),
+                *signals,
+            ),
+        }
+    if days_until_due <= 5 and liquidity_rate >= 0.75:
+        return {
+            "level": "warning",
+            "message": stable_choice(
+                (
+                    "결제일이 가까운데 남은 금액도 제법 큽니다. 파산심사위원회가 출석 요구서를 준비합니다.",
+                    "시간과 금액이 함께 회의 안건이 되었습니다. 아직 늦진 않았지만 여유롭지도 않습니다.",
+                    "남은 며칠이 가볍지 않습니다. 통장은 설득보다 입금을 원합니다.",
+                ),
+                *signals,
+            ),
+        }
+    if liquidity_rate >= 1:
+        return {
+            "level": "warning",
+            "message": stable_choice(
+                (
+                    "남은 결제금액이 기준 수입 이상입니다. 카드사는 침착하고 사용자는 그렇지 않을 수 있습니다.",
+                    "금액이 기준선을 넘었습니다. 파산심사위원회가 자료 요청을 시작합니다.",
+                    "아직 날짜는 남았지만 금액이 만만치 않습니다. 장부가 숫자로 압박 면접을 봅니다.",
+                ),
+                *signals,
+            ),
+        }
+    if days_until_due <= 5 or liquidity_rate >= 0.5:
+        return {
+            "level": "steady",
+            "message": stable_choice(
+                (
+                    "관리 가능한 구간이지만 방심하면 위원회가 태도를 바꿉니다.",
+                    "아직 통제권은 사용자에게 있습니다. 다만 결제일 달력은 자꾸 말을 겁니다.",
+                    "남은 금액은 현실적입니다. 현실적이라는 말이 늘 편하다는 뜻은 아닙니다.",
+                ),
+                *signals,
+            ),
+        }
+    return {
+        "level": "quiet",
+        "message": stable_choice(
+            (
+                "현재 결제 압박은 낮습니다. 파산심사위원회가 관찰 의견만 남깁니다.",
+                "남은 결제금액이 기준 수입 안에서 조용합니다. 아직 회계상 품위가 유지됩니다.",
+                "카드 결제는 관리 가능한 범위입니다. 위원회가 드물게 온건한 표정을 짓습니다.",
+            ),
+            *signals,
+        ),
+    }
+
+
+def days_between(start_value: str, end_value: str) -> int:
+    try:
+        return (date.fromisoformat(end_value[:10]) - date.fromisoformat(start_value[:10])).days
+    except ValueError:
+        return 0
 
 
 def shared_panel_subtitle(

@@ -98,7 +98,7 @@ CREATE TABLE IF NOT EXISTS ledger_entries (
 | `sort_order` | INTEGER | 사용자 정의 정렬 순서 |
 | `due_day` | INTEGER | 카드 정기결제 결제일 |
 | `confirmed_at` | TEXT | 확인 처리 시각 |
-| `spending_category` | TEXT | `essential`, `questionable`, 또는 `NULL` |
+| `spending_category` | TEXT | `essential`, `questionable`, `dignity`, 또는 `NULL` |
 | `payment_key` | TEXT | 월마감 전후에도 유지되는 카드 결제 배분용 고유 키 |
 
 구조화된 앱 입력의 필수 규칙:

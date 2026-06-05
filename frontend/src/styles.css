@@ -743,8 +743,8 @@ th {
   font-size: 12px;
 }
 
-.discounted-row {
-  background: #f3faef;
+.discount-missing-row {
+  background: #fff1f1;
 }
 
 .discount-editor {

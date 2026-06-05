@@ -83,6 +83,7 @@ from app.services.card_payments import (
     set_discount_month_policy,
 )
 from app.services.audit import clear_audit_logs, list_audit_logs, record_audit_log
+from app.services.judgment import app_judgment
 from app.services.month import calendar_month_label, close_current_month, month_close_status
 from app.services.share import shared_panel, shared_panel_html
 from app.services.summary import current_summary_values
@@ -329,6 +330,18 @@ def current_summary(_: dict = Depends(require_user)) -> Summary:
         raise HTTPException(status_code=422, detail=str(exc))
 
 
+@app.get("/api/judgment/current")
+def current_judgment(_: dict = Depends(require_user)) -> dict:
+    return app_judgment(
+        list_entries("current"),
+        list_panels(calendar_month_label()),
+        list_cash_flows(),
+        current_summary_values(),
+        current_payment_status(),
+        list_settings(),
+    )
+
+
 @app.get("/api/card-payments/current")
 def get_current_card_payments(_: dict = Depends(require_user)) -> dict:
     return current_payment_status()
@@ -460,6 +473,16 @@ def patch_setting(key: str, patch: SettingPatch, _: dict = Depends(require_user)
     allowed = {"base_next_month_liquidity", "interest_expense", "liquidity_status", "settlement_card_limit"}
     if key not in allowed:
         raise HTTPException(status_code=404, detail="unknown setting")
+    value = patch.value
+    try:
+        amount = float(value)
+    except ValueError:
+        raise HTTPException(status_code=422, detail=f"{key} must be numeric")
+    if amount < 0:
+        raise HTTPException(status_code=422, detail=f"{key} must be greater than or equal to zero")
+    if not amount.is_integer():
+        raise HTTPException(status_code=422, detail=f"{key} must be an integer")
+    value = str(int(amount))
     with session() as conn:
         conn.execute(
             """
@@ -467,9 +490,9 @@ def patch_setting(key: str, patch: SettingPatch, _: dict = Depends(require_user)
             VALUES (?, ?, CURRENT_TIMESTAMP)
             ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP
             """,
-            (key, patch.value),
+            (key, value),
         )
-    return {key: patch.value}
+    return {key: value}
 
 
 @app.get("/api/cash-flows", response_model=list[CashFlow])
