@@ -18,7 +18,10 @@ import {
   acknowledgeLiquidityReset,
   appendPlannedEntry,
   cancelTollDeferral,
+  changePassword,
   clearAuditLogs,
+  clearEntryDiscount,
+  clearPanelDiscount,
   closeCurrentMonth,
   completePanelsByType,
   confirmPlannedEntry,
@@ -56,8 +59,8 @@ import {
   setSharePin,
   updateEntry,
   updateCardDiscountPolicy,
+  updateEntryDiscount,
   updatePanelDiscount,
-  updatePlannedDiscount,
   updateSetting,
 } from "./api";
 import { CurrentTab, PanelType, PrimaryTab } from "./types";
@@ -156,13 +159,13 @@ export function App() {
   const [selectedHistoryMonth, setSelectedHistoryMonth] = useState(today.slice(0, 7));
   const [showStats, setShowStats] = useState(false);
   const [showAuditLogs, setShowAuditLogs] = useState(false);
-  const [temporaryMemo, setTemporaryMemo] = useState("");
-  const [isMemoOpen, setIsMemoOpen] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [discountDrafts, setDiscountDrafts] = useState<Record<string, string>>({});
   const [interestExpenseInput, setInterestExpenseInput] = useState("");
+  const [scheduledIncomeInput, setScheduledIncomeInput] = useState("");
+  const [passwordForm, setPasswordForm] = useState({ currentPassword: "", newPassword: "" });
   const [paymentAllocations, setPaymentAllocations] = useState<Record<string, string>>({});
   const [paymentBudget, setPaymentBudget] = useState("");
-  const [fallbackLiquidityInput, setFallbackLiquidityInput] = useState("");
   const [isDiscountMode, setIsDiscountMode] = useState(false);
   const [lateEntryForm, setLateEntryForm] = useState({
     date: previousMonthLastDay(today),
@@ -285,6 +288,7 @@ export function App() {
       setCashFlows(nextCashFlows);
       setSettings(nextSettings);
       setInterestExpenseInput(formatIntegerSetting(nextSettings.interest_expense));
+      setScheduledIncomeInput(formatIntegerSetting(nextSettings.base_next_month_liquidity));
       setInstallments(nextInstallments);
       setCardPayments(nextCardPayments);
       setMonthCloseStatus(nextMonthCloseStatus);
@@ -370,7 +374,7 @@ export function App() {
     }
   }
 
-  // 사용처와 사용항목을 합쳐 사람이 읽기 쉬운 대표 적요도 함께 저장한다.
+  // 사용처와 세부내역을 합쳐 사람이 읽기 쉬운 대표 제목도 함께 저장한다.
   async function handleExpenseSubmit(event: FormEvent) {
     event.preventDefault();
     const form = event.currentTarget as HTMLFormElement;
@@ -402,6 +406,7 @@ export function App() {
         due_day: null,
         confirmed_at: null,
         spending_category: null,
+        discount_checked: 0,
       });
       setExpenseForm({ date: expenseForm.date, usagePlace: "", usageItem: "", amount: "" });
       setStatus(created.book_section === "archive" ? "이미 마감한 달의 전체 기록에 추가 완료" : "당월 기록 추가 완료");
@@ -451,6 +456,7 @@ export function App() {
         sort_order: nextSortOrder(sameTypePanels),
         due_day: null,
         confirmed_at: null,
+        discount_checked: 0,
       });
       setPanelForm({ panel_type: panelType, title: "", spentOn: panelForm.spentOn, amount: "", dueDay: "" });
       setStatus(`${panelLabel(labels, panelType)} 항목 추가 완료`);
@@ -658,19 +664,22 @@ export function App() {
     }
     const amountText = discountDrafts[`entry:${entry.id}`] ?? "";
     const amount = parseAmount(amountText);
-    if (amount === null || amount <= 0) {
-      setStatus("할인액은 0원보다 큰 숫자여야 합니다.");
+    if (amount === null || amount < 0) {
+      setStatus("할인액은 0원 이상의 숫자여야 합니다.");
       return;
     }
     await withRefresh(async () => {
-      await createCardPaymentEvent({
-        event_date: today,
-        event_type: "discount",
-        note: "당월 기록에서 선반영",
-        allocations: [{ entry_payment_key: entry.payment_key as string, amount_value: amount }],
-      });
+      await updateEntryDiscount(entry.payment_key as string, amount);
       setStatus("당월 사용내역 할인액 반영 완료");
       setDiscountDrafts((current) => ({ ...current, [`entry:${entry.id}`]: "" }));
+    });
+  }
+
+  async function handleCurrentEntryDiscountClear(entry: LedgerEntry) {
+    if (!entry.payment_key) return;
+    await withRefresh(async () => {
+      await clearEntryDiscount(entry.payment_key as string);
+      setStatus("당월 사용내역 할인 적용 취소 완료");
     });
   }
 
@@ -696,25 +705,10 @@ export function App() {
     });
   }
 
-  async function handlePlannedDiscount(entry: LedgerEntry) {
-    if (isDiscountExcludedEntry(entry)) {
-      setStatus("교통비와 통행료 계열 항목은 할인 대상이 아닙니다.");
-      return;
-    }
-    if (ownerDiscountMonth?.policy === "disabled") {
-      setStatus("이번 달은 본인회원 카드 할인 혜택이 없는 달로 설정되어 있습니다.");
-      return;
-    }
-    const amountText = discountDrafts[`planned:${entry.id}`] ?? "";
-    const amount = parseAmount(amountText);
-    if (amount === null || amount < 0) {
-      setStatus("할인액은 0원 이상의 숫자여야 합니다.");
-      return;
-    }
+  async function handleClaimDiscountClear(panel: MonthlyPanel) {
     await withRefresh(async () => {
-      await updatePlannedDiscount(entry.id, amount);
-      setStatus("카드 정기결제 할인액 저장 완료");
-      setDiscountDrafts((current) => ({ ...current, [`planned:${entry.id}`]: "" }));
+      await clearPanelDiscount(panel.id);
+      setStatus("청구 항목 할인 적용 취소 완료");
     });
   }
 
@@ -761,13 +755,13 @@ export function App() {
     });
   }
 
-  async function handleFallbackLiquiditySave() {
-    const amount = parseAmount(fallbackLiquidityInput);
+  async function handleScheduledIncomeSave() {
+    const amount = parseAmount(scheduledIncomeInput);
     if (amount === null || amount < 0) return;
     await withRefresh(async () => {
       await updateSetting("base_next_month_liquidity", String(amount));
-      setFallbackLiquidityInput("");
-      setStatus("기본 심사 기준액 저장 완료");
+      setScheduledIncomeInput(String(amount));
+      setStatus("예정 수입 저장 완료");
     });
   }
 
@@ -781,6 +775,21 @@ export function App() {
       await updateSetting("interest_expense", String(amount));
       setInterestExpenseInput(String(amount));
       setStatus("이자지출 저장 완료");
+    });
+  }
+
+  async function handlePasswordChange() {
+    if (!passwordForm.currentPassword || !passwordForm.newPassword) {
+      setStatus("현재 비밀번호와 새 비밀번호를 입력하세요.");
+      return;
+    }
+    await withRefresh(async () => {
+      await changePassword({
+        current_password: passwordForm.currentPassword,
+        new_password: passwordForm.newPassword,
+      });
+      setPasswordForm({ currentPassword: "", newPassword: "" });
+      setStatus("계정 비밀번호 변경 완료");
     });
   }
 
@@ -966,8 +975,8 @@ export function App() {
           <p>{currentMonth} 당월 기록</p>
         </div>
         <div className="actions">
-          <button type="button" onClick={() => void handleSharePinSet()} disabled={isBusy}>
-            공유 PIN 설정
+          <button type="button" onClick={() => setShowSettings(true)} disabled={isBusy}>
+            설정
           </button>
           <button type="button" onClick={() => void handleCsvBackupDownload()} disabled={isBusy}>
             CSV 백업
@@ -1033,10 +1042,6 @@ export function App() {
         summary={summary}
         judgment={judgment}
         labels={labels}
-        interestExpenseInput={interestExpenseInput}
-        setInterestExpenseInput={setInterestExpenseInput}
-        onInterestExpenseSave={() => void handleInterestExpenseSave()}
-        isBusy={isBusy}
       />
 
       {showStats ? (
@@ -1114,7 +1119,7 @@ export function App() {
                   <input
                     value={expenseForm.usageItem}
                     onChange={(event) => setExpenseForm({ ...expenseForm, usageItem: event.target.value })}
-                    placeholder="사용항목"
+                    placeholder="세부내역"
                   />
                   <input
                     required
@@ -1135,11 +1140,12 @@ export function App() {
                   emptyText="당월 지출이 없습니다."
                   judgment={judgment}
                   onCategoryChange={(entry, category) => void handleCategoryChange(entry, category)}
-                  onDelete={(entry) => void handleEntryDelete(entry)}
-                  discounts={ownerDiscountMonth?.discounts}
-                  onDiscount={(entry) => void handleCurrentEntryDiscount(entry)}
-                  discountDrafts={discountDrafts}
-                  setDiscountDrafts={setDiscountDrafts}
+                    onDelete={(entry) => void handleEntryDelete(entry)}
+                    discounts={ownerDiscountMonth?.discounts}
+                    onDiscount={(entry) => void handleCurrentEntryDiscount(entry)}
+                    onClearDiscount={(entry) => void handleCurrentEntryDiscountClear(entry)}
+                    discountDrafts={discountDrafts}
+                    setDiscountDrafts={setDiscountDrafts}
                 />
               </section>
 
@@ -1159,7 +1165,7 @@ export function App() {
                             <input
                               value={installmentForm.title}
                               onChange={(event) => setInstallmentForm({ ...installmentForm, title: event.target.value })}
-                              placeholder="적요"
+                              placeholder="세부내역"
                             />
                             <input
                               type="number"
@@ -1200,6 +1206,7 @@ export function App() {
                       onDelete={(panel) => void handlePanelDelete(panel)}
                       onComplete={tab === "claim" || tab === "settlement" ? () => void handlePanelComplete(tab) : undefined}
                       onDiscount={tab === "claim" ? (panel) => void handleClaimDiscount(panel) : undefined}
+                      onClearDiscount={tab === "claim" ? (panel) => void handleClaimDiscountClear(panel) : undefined}
                       categoryForPanel={tab === "claim" ? (panel) => judgment?.claim_categories[String(panel.id)] ?? null : undefined}
                       judgment={judgment}
                       discountDrafts={discountDrafts}
@@ -1266,7 +1273,7 @@ export function App() {
                 <input
                   value={plannedForm.usageItem}
                   onChange={(event) => setPlannedForm({ ...plannedForm, usageItem: event.target.value })}
-                  placeholder="사용항목"
+                  placeholder="세부내역"
                 />
                 <input
                   required
@@ -1286,10 +1293,7 @@ export function App() {
                 entries={plannedEntries}
                 emptyText="카드 정기결제 항목이 없습니다."
                 onConfirm={(entry) => void handlePlannedConfirm(entry)}
-                onDiscount={(entry) => void handlePlannedDiscount(entry)}
                 onDelete={(entry) => void handlePlannedDelete(entry)}
-                discountDrafts={discountDrafts}
-                setDiscountDrafts={setDiscountDrafts}
               />
             </section>
           </section>
@@ -1299,9 +1303,6 @@ export function App() {
               status={cardPayments}
               fallbackLiquidity={parseSettingNumber(settings, "base_next_month_liquidity", 400_000)}
               availableLiquidity={summary?.liquidity_status ?? 0}
-              fallbackLiquidityInput={fallbackLiquidityInput}
-              setFallbackLiquidityInput={setFallbackLiquidityInput}
-              onFallbackLiquiditySave={() => void handleFallbackLiquiditySave()}
               onAcknowledgeLiquidityReset={() => void handleLiquidityResetAcknowledgement()}
               allocations={paymentAllocations}
               setAllocations={setPaymentAllocations}
@@ -1356,29 +1357,83 @@ export function App() {
         </div>
       </section>
 
-      <aside className={isMemoOpen ? "temporary-memo open" : "temporary-memo"} aria-label="임시 메모">
-        <div className="temporary-memo-header">
-          <strong>임시 메모</strong>
-          <div>
-            {isMemoOpen && temporaryMemo ? (
-              <button type="button" onClick={() => setTemporaryMemo("")}>
-                비우기
+      {showSettings ? (
+        <div className="modal-backdrop" role="presentation" onMouseDown={() => setShowSettings(false)}>
+          <section
+            className="settings-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label="설정"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <div className="panel-header">
+              <h2>설정</h2>
+              <button type="button" onClick={() => setShowSettings(false)}>
+                닫기
               </button>
-            ) : null}
-            <button type="button" onClick={() => setIsMemoOpen(!isMemoOpen)} aria-expanded={isMemoOpen}>
-              {isMemoOpen ? "접기" : "메모"}
-            </button>
-          </div>
+            </div>
+            <div className="settings-grid">
+              <label>
+                <span>예정 수입</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={scheduledIncomeInput}
+                  onChange={(event) => setScheduledIncomeInput(event.target.value)}
+                  inputMode="numeric"
+                  placeholder="예정 수입"
+                />
+                <button type="button" onClick={() => void handleScheduledIncomeSave()} disabled={isBusy}>
+                  저장
+                </button>
+              </label>
+              <label>
+                <span>이자지출</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={interestExpenseInput}
+                  onChange={(event) => setInterestExpenseInput(event.target.value)}
+                  inputMode="numeric"
+                  placeholder="이자지출"
+                />
+                <button type="button" onClick={() => void handleInterestExpenseSave()} disabled={isBusy}>
+                  저장
+                </button>
+              </label>
+              <div className="settings-row">
+                <span>가족 공유 PIN</span>
+                <button type="button" onClick={() => void handleSharePinSet()} disabled={isBusy}>
+                  PIN 변경
+                </button>
+              </div>
+              <label>
+                <span>계정 비밀번호</span>
+                <input
+                  type="password"
+                  value={passwordForm.currentPassword}
+                  onChange={(event) => setPasswordForm({ ...passwordForm, currentPassword: event.target.value })}
+                  autoComplete="current-password"
+                  placeholder="현재 비밀번호"
+                />
+                <input
+                  type="password"
+                  value={passwordForm.newPassword}
+                  onChange={(event) => setPasswordForm({ ...passwordForm, newPassword: event.target.value })}
+                  autoComplete="new-password"
+                  placeholder="새 비밀번호"
+                />
+                <button type="button" onClick={() => void handlePasswordChange()} disabled={isBusy}>
+                  변경
+                </button>
+              </label>
+            </div>
+          </section>
         </div>
-        {isMemoOpen ? (
-          <textarea
-            autoFocus
-            value={temporaryMemo}
-            onChange={(event) => setTemporaryMemo(event.target.value)}
-            placeholder="새로고침하면 사라집니다."
-          />
-        ) : null}
-      </aside>
+      ) : null}
+
     </main>
   );
 }

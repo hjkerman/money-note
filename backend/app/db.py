@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS ledger_entries (
     confirmed_month TEXT,
     spending_category TEXT,
     payment_key TEXT,
+    discount_checked INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -41,6 +42,7 @@ CREATE TABLE IF NOT EXISTS monthly_panels (
     spent_on TEXT,
     amount_value REAL,
     discount_amount REAL NOT NULL DEFAULT 0,
+    discount_checked INTEGER NOT NULL DEFAULT 0,
     amount_expr TEXT,
     sort_order INTEGER NOT NULL,
     due_day INTEGER,
@@ -128,7 +130,7 @@ CREATE TABLE IF NOT EXISTS card_payment_allocations (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     payment_event_id INTEGER NOT NULL REFERENCES card_payment_events(id) ON DELETE CASCADE,
     entry_payment_key TEXT NOT NULL,
-    amount_value REAL NOT NULL CHECK (amount_value > 0),
+    amount_value REAL NOT NULL CHECK (amount_value >= 0),
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -198,16 +200,16 @@ INSERT OR IGNORE INTO app_settings(key, value) VALUES
 
 INSERT OR IGNORE INTO app_labels(key, value) VALUES
 ('current_header_date', '날짜'),
-('current_header_title', '적요'),
+('current_header_title', '세부내역'),
 ('current_header_amount', '금액'),
 ('archive_header_date', '날짜'),
-('archive_header_title', '적요'),
+('archive_header_title', '세부내역'),
 ('archive_header_amount', '금액'),
 ('panel_fixed_title', '현금성 고정지출'),
 ('panel_frozen_title', '동결'),
 ('panel_claim_title', '청구'),
 ('panel_settlement_title', '타인정산'),
-('panel_header_title', '적요'),
+('panel_header_title', '세부내역'),
 ('panel_header_amount', '금액'),
 ('summary_title', '요약'),
 ('summary_card_total_label', '카드대금'),
@@ -242,6 +244,8 @@ def init_db() -> None:
             conn.execute("ALTER TABLE monthly_panels ADD COLUMN due_day INTEGER")
         if "discount_amount" not in panel_columns:
             conn.execute("ALTER TABLE monthly_panels ADD COLUMN discount_amount REAL NOT NULL DEFAULT 0")
+        if "discount_checked" not in panel_columns:
+            conn.execute("ALTER TABLE monthly_panels ADD COLUMN discount_checked INTEGER NOT NULL DEFAULT 0")
         if "spent_on" not in panel_columns:
             conn.execute("ALTER TABLE monthly_panels ADD COLUMN spent_on TEXT")
         ledger_columns = {
@@ -262,6 +266,8 @@ def init_db() -> None:
             conn.execute("ALTER TABLE ledger_entries ADD COLUMN usage_item TEXT")
         if "payment_key" not in ledger_columns:
             conn.execute("ALTER TABLE ledger_entries ADD COLUMN payment_key TEXT")
+        if "discount_checked" not in ledger_columns:
+            conn.execute("ALTER TABLE ledger_entries ADD COLUMN discount_checked INTEGER NOT NULL DEFAULT 0")
         conn.execute(
             """
             UPDATE ledger_entries
@@ -314,6 +320,14 @@ def init_db() -> None:
             UPDATE app_labels
             SET value = '현금성 고정지출', updated_at = CURRENT_TIMESTAMP
             WHERE key = 'panel_fixed_title' AND value = '고정지출'
+            """
+        )
+        conn.execute(
+            """
+            UPDATE app_labels
+            SET value = '세부내역', updated_at = CURRENT_TIMESTAMP
+            WHERE key IN ('current_header_title', 'archive_header_title', 'panel_header_title')
+              AND value = '적요'
             """
         )
         _normalize_money_settings(conn)

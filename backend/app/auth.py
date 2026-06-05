@@ -67,6 +67,26 @@ def authenticate_user(username: str, password: str) -> dict[str, Any] | None:
     return _public_user(row)
 
 
+def change_password(user_id: int, current_password: str, new_password: str) -> bool:
+    """현재 비밀번호를 확인한 뒤 단일 사용자 계정의 비밀번호를 갱신한다."""
+    with session() as conn:
+        row = conn.execute(
+            "SELECT password_hash FROM users WHERE id = ? AND is_active = 1",
+            (user_id,),
+        ).fetchone()
+        if row is None or not verify_password(current_password, row["password_hash"]):
+            return False
+        conn.execute(
+            """
+            UPDATE users
+            SET password_hash = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+            """,
+            (hash_password(new_password), user_id),
+        )
+    return True
+
+
 def create_user(username: str, password: str, display_name: str = "") -> dict[str, Any]:
     password_hash = hash_password(password)
     with session() as conn:

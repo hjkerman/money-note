@@ -29,6 +29,7 @@ export type LedgerEntry = {
   confirmed_at: string | null;
   spending_category: SpendingCategory | null;
   payment_key: string | null;
+  discount_checked: number;
 };
 
 export type SpendingCategory = "essential" | "questionable" | "dignity";
@@ -61,6 +62,7 @@ export type MonthlyPanel = {
   spent_on: string | null;
   amount_value: number | null;
   discount_amount: number;
+  discount_checked: number;
   amount_expr: string | null;
   sort_order: number;
   due_day: number | null;
@@ -192,6 +194,13 @@ export async function logout(): Promise<{ ok: boolean }> {
   }
 }
 
+export async function changePassword(payload: {
+  current_password: string;
+  new_password: string;
+}): Promise<{ changed: boolean }> {
+  return patchJson("/api/auth/password", payload);
+}
+
 export async function fetchCurrentEntries(): Promise<LedgerEntry[]> {
   return getJson("/api/entries/current");
 }
@@ -253,6 +262,14 @@ export async function updateCardDiscountPolicy(
   policy: CardDiscountPolicy,
 ): Promise<CardDiscountMonth> {
   return patchJson(`/api/card-discounts/months/${month}?scope=${scope}`, { policy });
+}
+
+export async function updateEntryDiscount(entryPaymentKey: string, discountAmount: number): Promise<LedgerEntry> {
+  return patchJson(`/api/card-discounts/entries/${entryPaymentKey}`, { discount_amount: discountAmount });
+}
+
+export async function clearEntryDiscount(entryPaymentKey: string): Promise<{ deleted: boolean }> {
+  return deleteJson(`/api/card-discounts/entries/${entryPaymentKey}`);
 }
 
 export async function fetchMonthCloseStatus(): Promise<MonthCloseStatus> {
@@ -343,8 +360,8 @@ export async function updatePanelDiscount(panelId: number, discountAmount: numbe
   return patchJson(`/api/month/current/panels/${panelId}/discount`, { discount_amount: discountAmount });
 }
 
-export async function updatePlannedDiscount(entryId: number, discountAmount: number): Promise<LedgerEntry> {
-  return patchJson(`/api/month/current/planned/${entryId}/discount`, { discount_amount: discountAmount });
+export async function clearPanelDiscount(panelId: number): Promise<{ deleted: boolean }> {
+  return deleteJson(`/api/month/current/panels/${panelId}/discount`);
 }
 
 export async function deletePanelsByType(panelType: MonthlyPanel["panel_type"]): Promise<{ deleted: number }> {

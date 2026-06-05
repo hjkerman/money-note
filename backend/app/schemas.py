@@ -16,6 +16,11 @@ class LoginIn(BaseModel):
     password: str
 
 
+class PasswordChangeIn(BaseModel):
+    current_password: str
+    new_password: str = Field(min_length=4)
+
+
 class SharePinIn(BaseModel):
     pin: str = Field(pattern="^[0-9]{4}$")
 
@@ -47,6 +52,7 @@ class LedgerEntryIn(BaseModel):
     confirmed_at: str | None = None
     spending_category: str | None = None
     payment_key: str | None = None
+    discount_checked: int = 0
 
     _integer_money = field_validator("amount_value", "aux_amount_value", mode="before")(integer_money)
 
@@ -71,6 +77,7 @@ class LedgerEntryPatch(BaseModel):
     due_day: int | None = None
     confirmed_at: str | None = None
     spending_category: str | None = None
+    discount_checked: int | None = None
 
     _integer_money = field_validator("amount_value", "aux_amount_value", mode="before")(integer_money)
 
@@ -113,6 +120,7 @@ class MonthlyPanel(BaseModel):
     spent_on: str | None = None
     amount_value: float | None = None
     discount_amount: float = 0
+    discount_checked: int = 0
     amount_expr: str | None = None
     sort_order: int
     due_day: int | None = None
@@ -126,6 +134,7 @@ class MonthlyPanelIn(BaseModel):
     spent_on: str | None = None
     amount_value: float | None = Field(default=None, ge=0)
     discount_amount: float = Field(default=0, ge=0)
+    discount_checked: int = 0
     amount_expr: str | None = None
     sort_order: int
     due_day: int | None = None
@@ -140,6 +149,7 @@ class MonthlyPanelPatch(BaseModel):
     spent_on: str | None = None
     amount_value: float | None = Field(default=None, ge=0)
     discount_amount: float | None = Field(default=None, ge=0)
+    discount_checked: int | None = None
     amount_expr: str | None = None
     sort_order: int | None = None
     due_day: int | None = None
@@ -204,7 +214,7 @@ class InstallmentIn(BaseModel):
 
 class CardPaymentAllocationIn(BaseModel):
     entry_payment_key: str
-    amount_value: float = Field(gt=0)
+    amount_value: float = Field(ge=0)
 
     _integer_money = field_validator("amount_value", mode="before")(integer_money)
 

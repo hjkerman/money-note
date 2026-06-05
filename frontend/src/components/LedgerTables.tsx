@@ -17,6 +17,8 @@ import {
 } from "../utils";
 
 type DiscountDraftSetter = Dispatch<SetStateAction<Record<string, string>>>;
+const hasOwn = (record: object | undefined, key: PropertyKey) =>
+  Boolean(record && Object.prototype.hasOwnProperty.call(record, key));
 
 export function PanelAppendForm({
   isBusy,
@@ -33,7 +35,7 @@ export function PanelAppendForm({
 }) {
   return (
     <form
-      className="panel-form"
+      className={`panel-form panel-form-${panelType}`}
       onSubmit={(event) => void handlePanelSubmit(event, panelType)}
     >
       <input
@@ -63,7 +65,7 @@ export function PanelAppendForm({
             dueDay: panelForm.dueDay,
           })
         }
-        placeholder="적요"
+        placeholder="세부내역"
       />
       <input
         type="number"
@@ -93,18 +95,12 @@ export function PlannedTable({
   entries,
   emptyText,
   onConfirm,
-  onDiscount,
   onDelete,
-  discountDrafts,
-  setDiscountDrafts,
 }: {
   entries: LedgerEntry[];
   emptyText: string;
   onConfirm: (entry: LedgerEntry) => void;
-  onDiscount: (entry: LedgerEntry) => void;
   onDelete: (entry: LedgerEntry) => void;
-  discountDrafts: Record<string, string>;
-  setDiscountDrafts: DiscountDraftSetter;
 }) {
   if (!entries.length) return <p className="empty">{emptyText}</p>;
   return (
@@ -113,31 +109,19 @@ export function PlannedTable({
         <tr>
           <th>결제일</th>
           <th>사용처</th>
-          <th>사용항목</th>
+          <th>세부내역</th>
           <th className="amount">금액</th>
-          <th className="discount-cell">할인</th>
           <th className="action-cell">확인</th>
           <th className="action-cell">삭제</th>
         </tr>
       </thead>
       <tbody>
         {entries.map((entry) => (
-          <tr key={entry.id} className={entry.aux_amount_value || isDiscountExcludedEntry(entry) ? "" : "discount-missing-row"}>
+          <tr key={entry.id}>
             <td className="date">{entry.due_day ? `매월 ${entry.due_day}일` : "날짜 없음"}</td>
             <td>{entry.usage_place ?? ""}</td>
             <td>{entry.usage_item || "좌동"}</td>
             <td className="amount">{formatWon(entry.amount_value)}</td>
-            <td className="discount-cell">
-              {isDiscountExcludedEntry(entry) ? null : (
-                <DiscountEditor
-                  currentAmount={entry.aux_amount_value ?? 0}
-                  draftKey={`planned:${entry.id}`}
-                  drafts={discountDrafts}
-                  setDrafts={setDiscountDrafts}
-                  onSave={() => onDiscount(entry)}
-                />
-              )}
-            </td>
             <td className="action-cell">
               <button type="button" onClick={() => onConfirm(entry)}>
                 확인
@@ -192,7 +176,7 @@ export function CashFlowPanel({
         <input
           value={form.title}
           onChange={(event) => setForm({ ...form, title: event.target.value })}
-          placeholder="적요"
+          placeholder="세부내역"
         />
         <input
           type="number"
@@ -221,7 +205,7 @@ export function CashFlowPanel({
           <thead>
             <tr>
               <th>날짜</th>
-              <th>적요</th>
+              <th>세부내역</th>
               <th className="amount">금액</th>
               <th className="action-cell">삭제</th>
             </tr>
@@ -301,6 +285,7 @@ export function EntryTable({
   onDelete,
   discounts,
   onDiscount,
+  onClearDiscount,
   discountDrafts = {},
   setDiscountDrafts,
 }: {
@@ -311,6 +296,7 @@ export function EntryTable({
   onDelete?: (entry: LedgerEntry) => void;
   discounts?: Record<string, number>;
   onDiscount?: (entry: LedgerEntry) => void;
+  onClearDiscount?: (entry: LedgerEntry) => void;
   discountDrafts?: Record<string, string>;
   setDiscountDrafts?: DiscountDraftSetter;
 }) {
@@ -321,7 +307,7 @@ export function EntryTable({
         <tr>
           <th>날짜</th>
           <th>사용처</th>
-          <th>사용항목</th>
+          <th>세부내역</th>
           {onCategoryChange ? <th className="category-cell">분류</th> : null}
           <th className="amount">금액</th>
           {onDiscount ? <th className="discount-cell">할인</th> : null}
@@ -333,8 +319,9 @@ export function EntryTable({
           const selectedCategory = entry.spending_category;
           const currentDiscount = entry.payment_key ? discounts?.[entry.payment_key] ?? 0 : 0;
           const discountEligible = Boolean(onDiscount && entry.payment_key && !isDiscountExcludedEntry(entry));
+          const discountChecked = Boolean(entry.payment_key && hasOwn(discounts, entry.payment_key));
           return (
-            <tr key={entry.id} className={discountEligible && currentDiscount <= 0 ? "discount-missing-row" : ""}>
+            <tr key={entry.id} className={discountEligible && !discountChecked ? "discount-missing-row" : ""}>
               <td className="date">{entry.date_label ?? entry.group_label ?? ""}</td>
               <td>{entry.usage_place ?? ""}</td>
               <td>{entry.usage_item ?? ""}</td>
@@ -359,10 +346,12 @@ export function EntryTable({
                   {discountEligible ? (
                     <DiscountEditor
                       currentAmount={currentDiscount}
+                      isChecked={discountChecked}
                       draftKey={`entry:${entry.id}`}
                       drafts={discountDrafts}
                       setDrafts={setDiscountDrafts}
                       onSave={() => onDiscount(entry)}
+                      onClear={onClearDiscount ? () => onClearDiscount(entry) : undefined}
                     />
                   ) : null}
                 </td>
@@ -384,22 +373,30 @@ export function EntryTable({
 
 function DiscountEditor({
   currentAmount,
+  isChecked,
   draftKey,
   drafts,
   setDrafts,
   onSave,
+  onClear,
   disabled = false,
 }: {
   currentAmount: number;
+  isChecked: boolean;
   draftKey: string;
   drafts: Record<string, string>;
   setDrafts?: DiscountDraftSetter;
   onSave: () => void;
+  onClear?: () => void;
   disabled?: boolean;
 }) {
   return (
     <div className="discount-editor">
-      {currentAmount > 0 ? <span className="discount-badge">할인 {formatWon(currentAmount)}</span> : null}
+      {isChecked ? (
+        <button type="button" className="discount-badge" onClick={onClear} disabled={disabled || !onClear}>
+          할인 {formatWon(currentAmount)}
+        </button>
+      ) : null}
       <div>
         <input
           type="number"
@@ -426,6 +423,7 @@ export function PanelTable({
   onReset,
   onComplete,
   onDiscount,
+  onClearDiscount,
   discountDrafts = {},
   setDiscountDrafts,
   categoryForPanel,
@@ -438,6 +436,7 @@ export function PanelTable({
   onReset?: () => void;
   onComplete?: () => void;
   onDiscount?: (panel: MonthlyPanel) => void;
+  onClearDiscount?: (panel: MonthlyPanel) => void;
   discountDrafts?: Record<string, string>;
   setDiscountDrafts?: DiscountDraftSetter;
   categoryForPanel?: (panel: MonthlyPanel) => SpendingCategory | null;
@@ -470,7 +469,7 @@ export function PanelTable({
               {(rows.some((row) => row.spent_on) || rows.some((row) => row.panel_type === "claim" || row.panel_type === "settlement")) ? (
                 <th>사용일</th>
               ) : null}
-              <th>적요</th>
+              <th>세부내역</th>
               {categoryForPanel ? <th className="category-cell">자동 분류</th> : null}
               <th className="amount">금액</th>
               {onDiscount ? <th className="discount-cell">할인 / 실제 청구</th> : null}
@@ -480,8 +479,9 @@ export function PanelTable({
           <tbody>
             {rows.map((row) => {
               const discountEligible = Boolean(onDiscount && !isDiscountExcludedText(row.title));
+              const discountChecked = Boolean(row.discount_checked);
               return (
-              <tr key={row.id} className={discountEligible && row.discount_amount <= 0 ? "discount-missing-row" : ""}>
+              <tr key={row.id} className={discountEligible && !discountChecked ? "discount-missing-row" : ""}>
                 {(rows.some((item) => item.spent_on) || rows.some((item) => item.panel_type === "claim" || item.panel_type === "settlement")) ? (
                   <td className="date">{formatDateLabel(row.spent_on ?? "") ?? ""}</td>
                 ) : null}
@@ -498,10 +498,12 @@ export function PanelTable({
                       <>
                         <DiscountEditor
                           currentAmount={row.discount_amount}
+                          isChecked={discountChecked}
                           draftKey={`panel:${row.id}`}
                           drafts={discountDrafts}
                           setDrafts={setDiscountDrafts}
                           onSave={() => onDiscount(row)}
+                          onClear={onClearDiscount ? () => onClearDiscount(row) : undefined}
                         />
                         <span className="net-amount">실제 {formatWon(panelNetAmount(row))}</span>
                       </>
@@ -547,7 +549,7 @@ export function InstallmentTable({
         <table>
           <thead>
             <tr>
-              <th>적요</th>
+              <th>세부내역</th>
               <th className="amount">할부액</th>
               <th className="amount">수수료율</th>
               <th className="amount">수수료</th>

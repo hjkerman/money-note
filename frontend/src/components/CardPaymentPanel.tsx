@@ -20,9 +20,6 @@ export function CardPaymentPanel({
   status,
   fallbackLiquidity,
   availableLiquidity,
-  fallbackLiquidityInput,
-  setFallbackLiquidityInput,
-  onFallbackLiquiditySave,
   onAcknowledgeLiquidityReset,
   allocations,
   setAllocations,
@@ -45,9 +42,6 @@ export function CardPaymentPanel({
   status: CardPaymentStatus | null;
   fallbackLiquidity: number;
   availableLiquidity: number;
-  fallbackLiquidityInput: string;
-  setFallbackLiquidityInput: (value: string) => void;
-  onFallbackLiquiditySave: () => void;
   onAcknowledgeLiquidityReset: () => void;
   allocations: Record<string, string>;
   setAllocations: (value: Record<string, string>) => void;
@@ -110,19 +104,7 @@ export function CardPaymentPanel({
           <div><dt>할인액 누적</dt><dd>{formatWon(status.discount_total)}</dd></div>
           <div><dt>기록상 미결제</dt><dd>{formatWon(status.recorded_remaining_total)}</dd></div>
         </dl>
-        <div className="fallback-setting">
-          <span>주 수입이 없는 달에 사용할 기본 심사 기준액: {formatWon(fallbackLiquidity)}</span>
-          <input
-            type="number"
-            min="0"
-            step="1"
-            value={fallbackLiquidityInput}
-            onChange={(event) => setFallbackLiquidityInput(event.target.value)}
-            inputMode="numeric"
-            placeholder="새 기본 기준액"
-          />
-          <button type="button" onClick={onFallbackLiquiditySave} disabled={isBusy}>저장</button>
-        </div>
+        <p className="fallback-note">주 수입 기록이 없으면 설정의 예정 수입 {formatWon(fallbackLiquidity)}을 심사 기준으로 씁니다.</p>
         <div className="payment-controls">
           <label className="payment-budget-field">
             <span>자동 배분 한도</span>
@@ -133,7 +115,7 @@ export function CardPaymentPanel({
               value={paymentBudget}
               onChange={(event) => setPaymentBudget(event.target.value)}
               inputMode="numeric"
-              placeholder={`미입력 시 ${formatWon(availableLiquidity)}`}
+              placeholder={`미입력시 ${formatWon(availableLiquidity)}`}
             />
           </label>
           <button type="button" onClick={onAutoAllocate} disabled={isBusy || !status.immediate_allowed}>
@@ -186,11 +168,11 @@ export function CardPaymentPanel({
             onChange={(event) => setLateEntryForm({ ...lateEntryForm, usagePlace: event.target.value })}
             placeholder="사용처"
           />
-          <input
-            value={lateEntryForm.usageItem}
-            onChange={(event) => setLateEntryForm({ ...lateEntryForm, usageItem: event.target.value })}
-            placeholder="사용항목"
-          />
+            <input
+              value={lateEntryForm.usageItem}
+              onChange={(event) => setLateEntryForm({ ...lateEntryForm, usageItem: event.target.value })}
+            placeholder="세부내역"
+            />
           <input
             type="number"
             min="0"
@@ -204,7 +186,7 @@ export function CardPaymentPanel({
         </form>
         {status.rows.some((row) => row.entry_kind === "late_expense") ? (
           <table>
-            <thead><tr><th>날짜</th><th>적요</th><th className="amount">금액</th></tr></thead>
+            <thead><tr><th>날짜</th><th>세부내역</th><th className="amount">금액</th></tr></thead>
             <tbody>
               {status.rows.filter((row) => row.entry_kind === "late_expense").map((row) => (
                 <tr key={row.id}>
@@ -229,7 +211,7 @@ export function CardPaymentPanel({
               <tr>
                 <th className="select-cell">선택</th>
                 <th>날짜</th>
-                <th>적요</th>
+                <th>세부내역</th>
                 <th className="amount">원래 금액</th>
                 <th className="amount">즉시결제</th>
                 <th className="amount">할인</th>
@@ -314,21 +296,21 @@ export function CardPaymentPanel({
 
       <section className="panel payment-events">
         <div className="panel-header"><h2>당월 결제금액 기록</h2></div>
-        {status.events.length ? (
+        {status.events.filter((event) => event.event_type === "immediate").length ? (
           <table>
             <thead><tr><th>날짜</th><th>종류</th><th className="amount">금액</th><th className="action-cell">취소</th></tr></thead>
             <tbody>
-              {status.events.map((event) => (
+              {status.events.filter((event) => event.event_type === "immediate").map((event) => (
                 <tr key={event.id}>
                   <td className="date">{formatDateLabel(event.event_date)}</td>
-                  <td>{event.event_type === "discount" ? "할인액" : "즉시결제"}</td>
+                  <td>즉시결제</td>
                   <td className="amount">{formatWon(event.total_amount)}</td>
                   <td className="action-cell"><button type="button" className="danger" onClick={() => onDeleteEvent(event.id)}>취소</button></td>
                 </tr>
               ))}
             </tbody>
           </table>
-        ) : <p className="empty">이번 달 결제 또는 할인 기록이 없습니다.</p>}
+        ) : <p className="empty">이번 달 즉시결제 기록이 없습니다.</p>}
       </section>
     </section>
   );

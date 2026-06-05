@@ -19,18 +19,10 @@ export function SummaryPanel({
   summary,
   judgment,
   labels,
-  interestExpenseInput,
-  setInterestExpenseInput,
-  onInterestExpenseSave,
-  isBusy,
 }: {
   summary: Summary | null;
   judgment: JudgmentState | null;
   labels: Record<string, string>;
-  interestExpenseInput: string;
-  setInterestExpenseInput: (value: string) => void;
-  onInterestExpenseSave: () => void;
-  isBusy: boolean;
 }) {
   const committee = judgment?.budget ?? {
     level: "quiet",
@@ -63,21 +55,6 @@ export function SummaryPanel({
               </div>
             ))}
           </dl>
-          <div className="summary-setting">
-            <span>이자지출</span>
-            <input
-              type="number"
-              min="0"
-              step="1"
-              value={interestExpenseInput}
-              onChange={(event) => setInterestExpenseInput(event.target.value)}
-              inputMode="numeric"
-              placeholder="이자지출"
-            />
-            <button type="button" onClick={onInterestExpenseSave} disabled={isBusy}>
-              저장
-            </button>
-          </div>
         </>
       ) : (
         <p className="empty">요약을 불러오는 중입니다.</p>

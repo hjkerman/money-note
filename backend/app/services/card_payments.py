@@ -47,14 +47,16 @@ def discount_month_status(month: str, scope: str = "owner") -> dict[str, Any]:
         rows = [] if scope == "family" else conn.execute(
             """
             SELECT ledger_entries.payment_key,
-                   COALESCE(SUM(card_payment_allocations.amount_value), 0) AS discount_amount
+                   COALESCE(SUM(CASE WHEN card_payment_events.event_type = 'discount'
+                                     THEN card_payment_allocations.amount_value ELSE 0 END), 0) AS discount_amount
             FROM ledger_entries
-            JOIN card_payment_allocations
+            LEFT JOIN card_payment_allocations
               ON card_payment_allocations.entry_payment_key = ledger_entries.payment_key
-            JOIN card_payment_events
+            LEFT JOIN card_payment_events
               ON card_payment_events.id = card_payment_allocations.payment_event_id
              AND card_payment_events.event_type = 'discount'
             WHERE ledger_entries.entry_date LIKE ?
+              AND ledger_entries.discount_checked = 1
             GROUP BY ledger_entries.payment_key
             """,
             (f"{month}%",),
@@ -105,8 +107,10 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
             amount = float(allocation.amount_value)
             if key in seen_keys:
                 raise ValueError("같은 항목이 중복 선택되었습니다.")
-            if amount <= 0:
+            if payload.event_type == "immediate" and amount <= 0:
                 raise ValueError("처리 금액은 0원보다 커야 합니다.")
+            if payload.event_type == "discount" and amount < 0:
+                raise ValueError("할인액은 0원 이상이어야 합니다.")
             seen_keys.add(key)
             row = conn.execute(
                 """
@@ -179,11 +183,89 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
                 """,
                 (cursor.lastrowid, key, amount),
             )
+            if payload.event_type == "discount":
+                conn.execute(
+                    """
+                    UPDATE ledger_entries
+                    SET discount_checked = 1, updated_at = CURRENT_TIMESTAMP
+                    WHERE payment_key = ?
+                    """,
+                    (key,),
+                )
         event = conn.execute(
             "SELECT * FROM card_payment_events WHERE id = ?",
             (cursor.lastrowid,),
         ).fetchone()
     return dict(event)
+
+
+def set_entry_discount(entry_payment_key: str, amount: float, event_date: str | None = None) -> dict[str, Any]:
+    """당월 사용내역의 수기 할인액을 금액과 적용 여부로 나누어 저장한다."""
+    if amount < 0:
+        raise ValueError("할인액은 0원 이상이어야 합니다.")
+    event_date = event_date or date.today().isoformat()
+    with session() as conn:
+        row = conn.execute(
+            """
+            SELECT id, title, amount_value, entry_date
+            FROM ledger_entries
+            WHERE payment_key = ? AND entry_kind != 'planned'
+            """,
+            (entry_payment_key,),
+        ).fetchone()
+        if row is None:
+            raise ValueError("할인 대상 사용내역을 찾을 수 없습니다.")
+        if _is_toll(str(row["title"] or "")):
+            raise ValueError("통행료와 하이패스 항목에는 할인액을 반영할 수 없습니다.")
+        usage_month = str(row["entry_date"] or "")[:7]
+        if usage_month and _discount_policy_value(conn, usage_month, "owner") == "disabled":
+            raise ValueError(f"{usage_month}은 할인 혜택이 없는 달로 설정되어 있습니다.")
+        if amount > float(row["amount_value"] or 0):
+            raise ValueError("할인액은 원래 금액을 초과할 수 없습니다.")
+        _delete_entry_discount_events(conn, entry_payment_key)
+        conn.execute(
+            """
+            UPDATE ledger_entries
+            SET discount_checked = 1, updated_at = CURRENT_TIMESTAMP
+            WHERE payment_key = ?
+            """,
+            (entry_payment_key,),
+        )
+        if amount > 0:
+            event_cursor = conn.execute(
+                """
+                INSERT INTO card_payment_events(event_date, event_type, total_amount, note, cash_flow_id)
+                VALUES (?, 'discount', ?, '당월 기록에서 선반영', NULL)
+                """,
+                (event_date, amount),
+            )
+            conn.execute(
+                """
+                INSERT INTO card_payment_allocations(payment_event_id, entry_payment_key, amount_value)
+                VALUES (?, ?, ?)
+                """,
+                (event_cursor.lastrowid, entry_payment_key, amount),
+            )
+        updated = conn.execute("SELECT * FROM ledger_entries WHERE payment_key = ?", (entry_payment_key,)).fetchone()
+    return dict(updated)
+
+
+def clear_entry_discount(entry_payment_key: str) -> bool:
+    """당월 사용내역에 적용한 할인 확인과 할인 이벤트를 취소한다."""
+    with session() as conn:
+        row = conn.execute("SELECT id FROM ledger_entries WHERE payment_key = ?", (entry_payment_key,)).fetchone()
+        if row is None:
+            return False
+        _delete_entry_discount_events(conn, entry_payment_key)
+        conn.execute(
+            """
+            UPDATE ledger_entries
+            SET discount_checked = 0, updated_at = CURRENT_TIMESTAMP
+            WHERE payment_key = ?
+            """,
+            (entry_payment_key,),
+        )
+    return True
 
 
 def delete_card_payment_event(event_id: int) -> bool:
@@ -232,7 +314,7 @@ def create_late_card_entry(payload: LateCardEntryIn, today: date | None = None) 
     usage_item = (payload.usage_item or "").strip()
     title = _usage_title(usage_place, usage_item)
     if not title:
-        raise ValueError("사용처 또는 사용항목을 입력하세요.")
+        raise ValueError("사용처 또는 세부내역을 입력하세요.")
     with session() as conn:
         sort_order = conn.execute(
             """
@@ -480,6 +562,37 @@ def _events_for_payment_month(payment_month: str) -> list[dict[str, Any]]:
             (f"{payment_month}%",),
         ).fetchall()
     return [dict(row) for row in rows]
+
+
+def _delete_entry_discount_events(conn: Any, entry_payment_key: str) -> None:
+    event_rows = conn.execute(
+        """
+        SELECT DISTINCT card_payment_events.id
+        FROM card_payment_events
+        JOIN card_payment_allocations
+          ON card_payment_allocations.payment_event_id = card_payment_events.id
+        WHERE card_payment_events.event_type = 'discount'
+          AND card_payment_allocations.entry_payment_key = ?
+        """,
+        (entry_payment_key,),
+    ).fetchall()
+    conn.execute(
+        """
+        DELETE FROM card_payment_allocations
+        WHERE entry_payment_key = ?
+          AND payment_event_id IN (
+            SELECT id FROM card_payment_events WHERE event_type = 'discount'
+          )
+        """,
+        (entry_payment_key,),
+    )
+    for row in event_rows:
+        remaining = conn.execute(
+            "SELECT COUNT(*) AS count FROM card_payment_allocations WHERE payment_event_id = ?",
+            (row["id"],),
+        ).fetchone()["count"]
+        if remaining == 0:
+            conn.execute("DELETE FROM card_payment_events WHERE id = ?", (row["id"],))
 
 
 def _previous_month(value: date) -> str:

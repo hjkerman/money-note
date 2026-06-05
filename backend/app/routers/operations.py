@@ -1,0 +1,105 @@
+from fastapi import APIRouter, Depends, HTTPException
+
+from app.auth import require_user
+from app.db import session
+from app.repository import (
+    create_cash_flow,
+    create_installment,
+    delete_cash_flow,
+    delete_installment,
+    list_cash_flows,
+    list_installments,
+    list_labels,
+    upsert_label,
+)
+from app.schemas import CashFlow, CashFlowIn, Installment, InstallmentIn, SettingPatch
+
+settings_router = APIRouter(prefix="/api/settings", tags=["settings"])
+cash_router = APIRouter(prefix="/api/cash-flows", tags=["cash-flows"])
+installments_router = APIRouter(prefix="/api/installments", tags=["installments"])
+labels_router = APIRouter(prefix="/api/labels", tags=["labels"])
+
+
+@settings_router.get("")
+def get_settings_values(_: dict = Depends(require_user)) -> dict[str, str]:
+    with session() as conn:
+        rows = conn.execute("SELECT key, value FROM app_settings ORDER BY key").fetchall()
+    return {row["key"]: row["value"] for row in rows}
+
+
+@settings_router.patch("/{key}")
+def patch_setting(key: str, patch: SettingPatch, _: dict = Depends(require_user)) -> dict[str, str]:
+    allowed = {"base_next_month_liquidity", "interest_expense", "liquidity_status", "settlement_card_limit"}
+    if key not in allowed:
+        raise HTTPException(status_code=404, detail="unknown setting")
+    value = patch.value
+    try:
+        amount = float(value)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=f"{key} must be numeric") from exc
+    if amount < 0:
+        raise HTTPException(status_code=422, detail=f"{key} must be greater than or equal to zero")
+    if not amount.is_integer():
+        raise HTTPException(status_code=422, detail=f"{key} must be an integer")
+    value = str(int(amount))
+    with session() as conn:
+        conn.execute(
+            """
+            INSERT INTO app_settings(key, value, updated_at)
+            VALUES (?, ?, CURRENT_TIMESTAMP)
+            ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP
+            """,
+            (key, value),
+        )
+    return {key: value}
+
+
+@cash_router.get("", response_model=list[CashFlow])
+def get_cash_flows(_: dict = Depends(require_user)) -> list[dict]:
+    return list_cash_flows()
+
+
+@cash_router.post("", response_model=CashFlow)
+def post_cash_flow(flow: CashFlowIn, _: dict = Depends(require_user)) -> dict:
+    return create_cash_flow(flow)
+
+
+@cash_router.delete("/{flow_id}")
+def remove_cash_flow(flow_id: int, _: dict = Depends(require_user)) -> dict[str, bool]:
+    if not delete_cash_flow(flow_id):
+        raise HTTPException(status_code=404, detail="cash flow not found")
+    return {"deleted": True}
+
+
+@installments_router.get("", response_model=list[Installment])
+def get_installments(_: dict = Depends(require_user)) -> list[dict]:
+    return list_installments()
+
+
+@installments_router.post("", response_model=Installment)
+def post_installment(installment: InstallmentIn, _: dict = Depends(require_user)) -> dict:
+    if installment.months < 1:
+        raise HTTPException(status_code=422, detail="months must be greater than zero")
+    if installment.remaining_months is not None and installment.remaining_months < 1:
+        raise HTTPException(status_code=422, detail="remaining_months must be greater than zero")
+    return create_installment(installment)
+
+
+@installments_router.delete("/{installment_id}")
+def remove_installment(installment_id: int, _: dict = Depends(require_user)) -> dict[str, bool]:
+    if not delete_installment(installment_id):
+        raise HTTPException(status_code=404, detail="installment not found")
+    return {"deleted": True}
+
+
+@labels_router.get("")
+def get_labels(_: dict = Depends(require_user)) -> dict[str, str]:
+    return list_labels()
+
+
+@labels_router.patch("/{key}")
+def patch_label(key: str, patch: SettingPatch, _: dict = Depends(require_user)) -> dict[str, str]:
+    allowed = set(list_labels().keys())
+    if key not in allowed:
+        raise HTTPException(status_code=404, detail="unknown label")
+    return upsert_label(key, patch.value)
