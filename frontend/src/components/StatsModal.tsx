@@ -11,6 +11,7 @@ export function StatsModal({
   setSelectedMonth,
   entries,
   onCategoryChange,
+  onDeleteEntry,
   onClose,
 }: {
   items: StatItem[];
@@ -20,6 +21,7 @@ export function StatsModal({
   setSelectedMonth: (month: string) => void;
   entries: LedgerEntry[];
   onCategoryChange: (entry: LedgerEntry, category: SpendingCategory | null) => void;
+  onDeleteEntry: (entry: LedgerEntry) => void;
   onClose: () => void;
 }) {
   return (
@@ -46,6 +48,7 @@ export function StatsModal({
             entries={entries}
             judgment={judgment}
             onCategoryChange={onCategoryChange}
+            onDelete={onDeleteEntry}
           />
         </div>
       </section>

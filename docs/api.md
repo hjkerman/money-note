@@ -636,6 +636,7 @@ next_month_liquidity
 - archive에 `entry_kind = late_expense`로 추가한다.
 - 추가 즉시 이번달 결제 대상에 포함된다.
 - 이번달 결제 화면에서는 결제 대상 장부 행을 삭제할 수 있다. 삭제 시 해당 행의 즉시결제, 할인, 이월 참조도 함께 정리된다.
+- 청구 탭의 항목은 `monthly_panels`에 저장되므로 이 결제 대상 묶음에 포함되지 않는다.
 - 카드사 환급은 과거 기록을 삭제하지 않고 현금흐름 입금으로 기록한다.
 
 ### `POST /api/card-payments/deferrals/{entry_payment_key}`

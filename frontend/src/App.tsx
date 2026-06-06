@@ -474,7 +474,7 @@ export function App() {
     if (!confirmed) return;
     await withRefresh(async () => {
       await deleteEntry(entry.id);
-      setStatus("당월 기록 삭제 완료");
+      setStatus(entry.book_section === "archive" ? "전월 기록 삭제 완료" : "당월 기록 삭제 완료");
     });
   }
 
@@ -1053,6 +1053,7 @@ export function App() {
           setSelectedMonth={setSelectedHistoryMonth}
           entries={historyEntries}
           onCategoryChange={(entry, category) => void handleCategoryChange(entry, category)}
+          onDeleteEntry={(entry) => void handleEntryDelete(entry)}
           onClose={() => setShowStats(false)}
         />
       ) : null}

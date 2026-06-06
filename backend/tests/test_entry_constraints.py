@@ -83,9 +83,9 @@ class EntryConstraintTest(unittest.TestCase):
     def test_delete_entry_cleans_card_payment_allocations_and_cash_flow(self) -> None:
         first = create_entry(
             LedgerEntryIn(
-                book_section="current",
+                book_section="archive",
                 entry_kind="expense",
-                entry_date="2026-06-04",
+                entry_date="2026-05-04",
                 usage_place="첫째",
                 amount_value=1000,
                 sort_order=1,
@@ -94,9 +94,9 @@ class EntryConstraintTest(unittest.TestCase):
         )
         create_entry(
             LedgerEntryIn(
-                book_section="current",
+                book_section="archive",
                 entry_kind="expense",
-                entry_date="2026-06-04",
+                entry_date="2026-05-04",
                 usage_place="둘째",
                 amount_value=2000,
                 sort_order=2,
