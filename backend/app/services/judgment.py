@@ -3,6 +3,8 @@ from __future__ import annotations
 from datetime import date
 import hashlib
 
+from app.services.discounts import effective_card_discount
+
 
 MEDICAL_WORDS = (
     "병원",
@@ -131,7 +133,14 @@ def app_judgment(
 ) -> dict:
     """본체 웹앱에서 쓰는 모든 판단 문구를 한 번에 만든다."""
     expense_entries = [entry for entry in entries if entry.get("entry_kind") != "planned"]
-    claim_rows = [panel for panel in panels if panel.get("panel_type") == "claim"]
+    claim_rows = [
+        {
+            **panel,
+            "discount_policy": settings.get(f"card_discount_policy:owner:{panel.get('month')}", "undecided"),
+        }
+        for panel in panels
+        if panel.get("panel_type") == "claim"
+    ]
     settlement_rows = [panel for panel in panels if panel.get("panel_type") == "settlement"]
     frozen_rows = [panel for panel in panels if panel.get("panel_type") == "frozen"]
     settlement_limit = float(settings.get("settlement_card_limit") or 5_800_000)
@@ -158,6 +167,7 @@ def app_judgment(
                 "settlement_count": len(settlement_rows),
                 "frozen_total": sum(float(row.get("amount_value") or 0) for row in frozen_rows),
                 "frozen_count": len(frozen_rows),
+                "next_month_liquidity": float(summary.get("next_month_liquidity") or 0),
             }
         ),
         "credit": credit_usage_tone((owner_card_total + settlement_total) / settlement_limit if settlement_limit > 0 else 0),
@@ -170,7 +180,18 @@ def app_judgment(
 
 
 def panel_net_amount(row: dict) -> float:
-    return max(0, float(row.get("amount_value") or 0) - float(row.get("discount_amount") or 0))
+    if row.get("panel_type") != "claim":
+        return max(0, float(row.get("amount_value") or 0))
+    return max(
+        0,
+        float(row.get("amount_value") or 0)
+        - effective_card_discount(
+            row.get("amount_value"),
+            row.get("discount_amount"),
+            bool(row.get("discount_checked") or row.get("discount_amount")),
+            str(row.get("discount_policy") or "undecided"),
+        ),
+    )
 
 
 def budget_committee_tone(input_data: dict) -> dict[str, str]:
@@ -194,6 +215,18 @@ def budget_committee_tone(input_data: dict) -> dict[str, str]:
                     "아직 기록이 없습니다. 예산심사위원회가 의사봉만 닦고 있습니다.",
                     "장부가 고요합니다. 평화인지 기록 누락인지는 위원회도 아직 판단을 유보합니다.",
                     "이번 달 첫 안건을 기다리는 중입니다. 무소비라면 위업이고 미기록이라면 곧 들통납니다.",
+                )
+            ),
+        }
+    if input_data.get("next_month_liquidity", 0) < 0:
+        return {
+            "level": "danger",
+            "message": say(
+                (
+                    "익월 유동성이 마이너스입니다. 가족에게 적자 보전을 부탁해야 하는 상황이라 미안함과 회계적 참패가 동시에 기립했습니다.",
+                    "다음 달 장부가 이미 적자입니다. 가족에게 손을 벌리는 순간 예산심사위원회가 사용자를 증인석이 아니라 피고인석에 앉힙니다.",
+                    "익월 유동성 아래에 음수 표지판이 세워졌습니다. 가족에게 미안하다고 말할 준비와 본인 소비를 향한 준엄한 반성이 동시에 필요합니다.",
+                    "가족 보전 없이는 다음 달이 시작부터 휘청입니다. 사용자의 재정 판단은 오늘도 변명의 여지 없이 보강수업 대상입니다.",
                 )
             ),
         }

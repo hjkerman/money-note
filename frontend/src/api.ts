@@ -112,6 +112,10 @@ export type CardPaymentRow = LedgerEntry & {
   is_toll: boolean;
   is_deferred: boolean;
   is_carried_over: boolean;
+  is_group: boolean;
+  payment_keys: string[];
+  entry_ids: number[];
+  payment_parts: { entry_payment_key: string; entry_id: number; remaining_amount: number }[];
 };
 
 export type CardPaymentEvent = {

@@ -1,5 +1,5 @@
 import {
-  CardPaymentRow,
+  CardDiscountPolicy,
   CashFlow,
   Installment,
   JudgmentState,
@@ -18,6 +18,7 @@ export const panelMeta: Record<PanelType, { labelKey: string; fallback: string }
 };
 
 export const today = new Date().toISOString().slice(0, 10);
+export const DEFAULT_CARD_DISCOUNT_RATE = 0.012;
 export const currentTabs: CurrentTab[] = ["expenses", "claim", "settlement", "installments"];
 export const fallbackCategoryLabels: JudgmentState["category_labels"] = {
   essential: "안 썼으면 큰일 났을 돈",
@@ -71,19 +72,6 @@ export function displayEntryTitle(entry: LedgerEntry): string {
   return entry.title;
 }
 
-export function isDiscountExcludedText(value: string | null | undefined): boolean {
-  if (!value) return false;
-  return /하이패스|교통비|통행/.test(value);
-}
-
-export function isDiscountExcludedEntry(entry: LedgerEntry): boolean {
-  return [entry.title, entry.usage_place, entry.usage_item].some(isDiscountExcludedText);
-}
-
-export function isDiscountExcludedCardPayment(row: CardPaymentRow): boolean {
-  return row.is_transport || row.is_toll || isDiscountExcludedEntry(row);
-}
-
 export function categoryLabel(category: SpendingCategory | null, judgment?: JudgmentState | null): string {
   const key = category ?? "unclassified";
   return judgment?.category_labels[key] ?? fallbackCategoryLabels[key];
@@ -96,12 +84,13 @@ export function activeStatItems(
   _historyEntries: LedgerEntry[],
   panels: MonthlyPanel[],
   judgment: JudgmentState | null,
+  ownerDiscountPolicy: CardDiscountPolicy | null = null,
 ): StatItem[] {
   if (activePrimaryTab === "current" && activeCurrentTab === "claim") {
     return panels
       .filter((panel) => panel.panel_type === "claim")
       .map((panel) => ({
-        amount_value: panelNetAmount(panel),
+        amount_value: panelNetAmount(panel, ownerDiscountPolicy),
         spending_category: judgment?.claim_categories[String(panel.id)] ?? null,
       }));
   }
@@ -129,7 +118,7 @@ export function collectEntryMonths(entries: LedgerEntry[], fallbackMonth: string
 }
 
 export function compareEntriesByDate(a: LedgerEntry, b: LedgerEntry): number {
-  const dateCompare = (a.entry_date ?? "").localeCompare(b.entry_date ?? "");
+  const dateCompare = (b.entry_date ?? "").localeCompare(a.entry_date ?? "");
   if (dateCompare !== 0) return dateCompare;
   return a.sort_order - b.sort_order || a.id - b.id;
 }
@@ -168,9 +157,29 @@ export function sumAmounts(entries: LedgerEntry[]): number {
   return entries.reduce((total, entry) => total + (entry.amount_value ?? 0), 0);
 }
 
-export function sumEntryNetAmounts(entries: LedgerEntry[], discounts?: Record<string, number> | null): number {
+export function defaultCardDiscount(amount: number | null | undefined): number {
+  return Math.floor((amount ?? 0) * DEFAULT_CARD_DISCOUNT_RATE);
+}
+
+export function effectiveEntryDiscount(
+  entry: LedgerEntry,
+  discounts?: Record<string, number> | null,
+  policy: CardDiscountPolicy | null = null,
+): number {
+  if (!entry.payment_key || policy === "disabled") return 0;
+  if (discounts && Object.prototype.hasOwnProperty.call(discounts, entry.payment_key)) {
+    return Math.max(0, discounts[entry.payment_key] ?? 0);
+  }
+  return defaultCardDiscount(entry.amount_value);
+}
+
+export function sumEntryNetAmounts(
+  entries: LedgerEntry[],
+  discounts?: Record<string, number> | null,
+  policy: CardDiscountPolicy | null = null,
+): number {
   return entries.reduce((total, entry) => {
-    const discount = entry.payment_key ? discounts?.[entry.payment_key] ?? 0 : 0;
+    const discount = effectiveEntryDiscount(entry, discounts, policy);
     return total + Math.max(0, (entry.amount_value ?? 0) - discount);
   }, 0);
 }
@@ -179,12 +188,18 @@ export function sumPanelAmounts(rows: MonthlyPanel[]): number {
   return rows.reduce((total, row) => total + (row.amount_value ?? 0), 0);
 }
 
-export function panelNetAmount(row: MonthlyPanel): number {
-  return Math.max(0, (row.amount_value ?? 0) - (row.discount_amount ?? 0));
+export function effectivePanelDiscount(row: MonthlyPanel, policy: CardDiscountPolicy | null = null): number {
+  if (row.panel_type !== "claim" || policy === "disabled") return 0;
+  if (row.discount_checked) return Math.max(0, row.discount_amount ?? 0);
+  return defaultCardDiscount(row.amount_value);
 }
 
-export function sumPanelNetAmounts(rows: MonthlyPanel[]): number {
-  return rows.reduce((total, row) => total + panelNetAmount(row), 0);
+export function panelNetAmount(row: MonthlyPanel, policy: CardDiscountPolicy | null = null): number {
+  return Math.max(0, (row.amount_value ?? 0) - effectivePanelDiscount(row, policy));
+}
+
+export function sumPanelNetAmounts(rows: MonthlyPanel[], policy: CardDiscountPolicy | null = null): number {
+  return rows.reduce((total, row) => total + panelNetAmount(row, policy), 0);
 }
 
 export function sumCashFlows(rows: CashFlow[]): number {

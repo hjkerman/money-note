@@ -5,8 +5,8 @@ import unittest
 from unittest.mock import patch
 
 from app.config import get_settings
-from app.db import init_db
-from app.repository import create_entry, update_entry
+from app.db import init_db, session
+from app.repository import create_entry, delete_entry, update_entry
 from app.schemas import LedgerEntryIn, LedgerEntryPatch, PlannedEntryIn
 
 
@@ -79,6 +79,58 @@ class EntryConstraintTest(unittest.TestCase):
             PlannedEntryIn(title="", usage_place="", amount_value=1000, due_day=14)
         with self.assertRaises(ValueError):
             PlannedEntryIn(title="[사용처]", usage_place="사용처", amount_value=-1, due_day=14)
+
+    def test_delete_entry_cleans_card_payment_allocations_and_cash_flow(self) -> None:
+        first = create_entry(
+            LedgerEntryIn(
+                book_section="current",
+                entry_kind="expense",
+                entry_date="2026-06-04",
+                usage_place="첫째",
+                amount_value=1000,
+                sort_order=1,
+                payment_key="first-key",
+            )
+        )
+        create_entry(
+            LedgerEntryIn(
+                book_section="current",
+                entry_kind="expense",
+                entry_date="2026-06-04",
+                usage_place="둘째",
+                amount_value=2000,
+                sort_order=2,
+                payment_key="second-key",
+            )
+        )
+        with session() as conn:
+            cash_flow_id = conn.execute(
+                "INSERT INTO cash_flows(occurred_on, title, amount_value, sort_order) VALUES ('2026-06-05', '카드 즉시결제', -3000, 1)"
+            ).lastrowid
+            event_id = conn.execute(
+                "INSERT INTO card_payment_events(event_date, event_type, total_amount, cash_flow_id) VALUES ('2026-06-05', 'immediate', 3000, ?)",
+                (cash_flow_id,),
+            ).lastrowid
+            conn.execute(
+                "INSERT INTO card_payment_allocations(payment_event_id, entry_payment_key, amount_value) VALUES (?, 'first-key', 1000)",
+                (event_id,),
+            )
+            conn.execute(
+                "INSERT INTO card_payment_allocations(payment_event_id, entry_payment_key, amount_value) VALUES (?, 'second-key', 2000)",
+                (event_id,),
+            )
+
+        self.assertTrue(delete_entry(first["id"]))
+
+        with session() as conn:
+            event = conn.execute("SELECT total_amount FROM card_payment_events WHERE id = ?", (event_id,)).fetchone()
+            cash_flow = conn.execute("SELECT amount_value FROM cash_flows WHERE id = ?", (cash_flow_id,)).fetchone()
+            allocation_count = conn.execute(
+                "SELECT COUNT(*) AS count FROM card_payment_allocations WHERE entry_payment_key = 'first-key'"
+            ).fetchone()["count"]
+        self.assertEqual(event["total_amount"], 2000)
+        self.assertEqual(cash_flow["amount_value"], -2000)
+        self.assertEqual(allocation_count, 0)
 
 
 if __name__ == "__main__":

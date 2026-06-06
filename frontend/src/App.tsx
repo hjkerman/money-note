@@ -38,20 +38,8 @@ import {
   deletePanel,
   deletePlannedEntry,
   deferTollPayment,
-  fetchCashFlows,
-  fetchCurrentCardPayments,
-  fetchArchiveEntries,
   fetchAuditLogs,
-  fetchCardDiscountMonth,
-  fetchCurrentEntries,
-  fetchCurrentPanels,
-  fetchInstallments,
-  fetchJudgment,
-  fetchLabels,
   fetchMe,
-  fetchMonthCloseStatus,
-  fetchSettings,
-  fetchSummary,
   downloadCsvBackup,
   importCsvBackup,
   login,
@@ -64,19 +52,19 @@ import {
   updatePanelDiscount,
   updateSetting,
 } from "./api";
+import { useLedgerSnapshot } from "./hooks/useLedgerSnapshot";
 import { CurrentTab, PanelType, PrimaryTab } from "./types";
 import {
   AuditLogPanel,
   CreditUsagePanel,
   DiscountPolicyBar,
-  StatsPanel,
   SummaryPanel,
 } from "./components/Insights";
+import { StatsModal } from "./components/StatsModal";
 import { CardPaymentPanel } from "./components/CardPaymentPanel";
 import {
   CashFlowPanel,
   EntryTable,
-  HistoryPanel,
   InstallmentTable,
   PanelAppendForm,
   PanelTable,
@@ -96,8 +84,6 @@ import {
   formatUsageTitle,
   formatWon,
   isAuthRequiredError,
-  isDiscountExcludedEntry,
-  isDiscountExcludedText,
   nextSortOrder,
   panelLabel,
   parseAmount,
@@ -115,6 +101,7 @@ import {
 } from "./utils";
 
 export function App() {
+  const { loadLedgerSnapshot } = useLedgerSnapshot();
   const [entries, setEntries] = useState<LedgerEntry[]>([]);
   const [archiveEntries, setArchiveEntries] = useState<LedgerEntry[]>([]);
   const [panels, setPanels] = useState<MonthlyPanel[]>([]);
@@ -162,14 +149,12 @@ export function App() {
   const [showStats, setShowStats] = useState(false);
   const [showAuditLogs, setShowAuditLogs] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [discountDrafts, setDiscountDrafts] = useState<Record<string, string>>({});
   const [interestExpenseInput, setInterestExpenseInput] = useState("");
   const [scheduledIncomeInput, setScheduledIncomeInput] = useState("");
   const [passwordForm, setPasswordForm] = useState({ currentPassword: "", newPassword: "" });
   const [resetPassword, setResetPassword] = useState("");
   const [paymentAllocations, setPaymentAllocations] = useState<Record<string, string>>({});
   const [paymentBudget, setPaymentBudget] = useState("");
-  const [isDiscountMode, setIsDiscountMode] = useState(false);
   const [lateEntryForm, setLateEntryForm] = useState({
     date: previousMonthLastDay(today),
     usagePlace: "",
@@ -194,17 +179,25 @@ export function App() {
     [selectedHistoryMonth, structuredHistoryEntries],
   );
   const statsItems = useMemo(
-    () => activeStatItems(activePrimaryTab, activeCurrentTab, expenseEntries, historyEntries, panels, judgment),
-    [activeCurrentTab, activePrimaryTab, expenseEntries, historyEntries, panels, judgment],
+    () => activeStatItems(
+      activePrimaryTab,
+      activeCurrentTab,
+      expenseEntries,
+      historyEntries,
+      panels,
+      judgment,
+      ownerDiscountMonth?.policy,
+    ),
+    [activeCurrentTab, activePrimaryTab, expenseEntries, historyEntries, panels, judgment, ownerDiscountMonth?.policy],
   );
   const primaryTabs: { id: PrimaryTab; label: string; total: number }[] = [
     {
       id: "current",
       label: "당월",
       total:
-        sumEntryNetAmounts(expenseEntries, ownerDiscountMonth?.discounts) +
+        sumEntryNetAmounts(expenseEntries, ownerDiscountMonth?.discounts, ownerDiscountMonth?.policy) +
         sumInstallmentMonthlyAmounts(installments) +
-        sumPanelNetAmounts(panels.filter((panel) => panel.panel_type === "claim")) +
+        sumPanelNetAmounts(panels.filter((panel) => panel.panel_type === "claim"), ownerDiscountMonth?.policy) +
         sumPanelAmounts(panels.filter((panel) => panel.panel_type === "settlement")),
     },
     {
@@ -235,7 +228,7 @@ export function App() {
     {
       id: "claim",
       label: panelLabel(labels, "claim"),
-      total: sumPanelNetAmounts(panels.filter((panel) => panel.panel_type === "claim")),
+      total: sumPanelNetAmounts(panels.filter((panel) => panel.panel_type === "claim"), ownerDiscountMonth?.policy),
     },
     {
       id: "settlement",
@@ -253,50 +246,22 @@ export function App() {
   async function refresh() {
     setIsBusy(true);
     try {
-      const [
-        nextEntries,
-        nextArchiveEntries,
-        nextPanels,
-        nextSummary,
-        nextJudgment,
-        nextLabels,
-        nextCashFlows,
-        nextSettings,
-        nextInstallments,
-        nextCardPayments,
-        nextMonthCloseStatus,
-        nextOwnerDiscountMonth,
-        nextFamilyDiscountMonth,
-      ] = await Promise.all([
-        fetchCurrentEntries(),
-        fetchArchiveEntries(),
-        fetchCurrentPanels(),
-        fetchSummary(),
-        fetchJudgment().catch(() => null),
-        fetchLabels(),
-        fetchCashFlows(),
-        fetchSettings(),
-        fetchInstallments(),
-        fetchCurrentCardPayments(),
-        fetchMonthCloseStatus(),
-        fetchCardDiscountMonth(today.slice(0, 7), "owner"),
-        fetchCardDiscountMonth(today.slice(0, 7), "family"),
-      ]);
-      setEntries(nextEntries);
-      setArchiveEntries(nextArchiveEntries);
-      setPanels(nextPanels);
-      setSummary(nextSummary);
-      setJudgment(nextJudgment);
-      setLabels(nextLabels);
-      setCashFlows(nextCashFlows);
-      setSettings(nextSettings);
-      setInterestExpenseInput(formatIntegerSetting(nextSettings.interest_expense));
-      setScheduledIncomeInput(formatIntegerSetting(nextSettings.base_next_month_liquidity));
-      setInstallments(nextInstallments);
-      setCardPayments(nextCardPayments);
-      setMonthCloseStatus(nextMonthCloseStatus);
-      setOwnerDiscountMonth(nextOwnerDiscountMonth);
-      setFamilyDiscountMonth(nextFamilyDiscountMonth);
+      const snapshot = await loadLedgerSnapshot();
+      setEntries(snapshot.entries);
+      setArchiveEntries(snapshot.archiveEntries);
+      setPanels(snapshot.panels);
+      setSummary(snapshot.summary);
+      setJudgment(snapshot.judgment);
+      setLabels(snapshot.labels);
+      setCashFlows(snapshot.cashFlows);
+      setSettings(snapshot.settings);
+      setInterestExpenseInput(formatIntegerSetting(snapshot.settings.interest_expense));
+      setScheduledIncomeInput(formatIntegerSetting(snapshot.settings.base_next_month_liquidity));
+      setInstallments(snapshot.installments);
+      setCardPayments(snapshot.cardPayments);
+      setMonthCloseStatus(snapshot.monthCloseStatus);
+      setOwnerDiscountMonth(snapshot.ownerDiscountMonth);
+      setFamilyDiscountMonth(snapshot.familyDiscountMonth);
       setStatus("동기화 완료");
     } catch (error) {
       if (isAuthRequiredError(error)) {
@@ -313,6 +278,15 @@ export function App() {
   useEffect(() => {
     void checkAuth();
   }, []);
+
+  useEffect(() => {
+    if (!showStats) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setShowStats(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [showStats]);
 
   async function checkAuth() {
     setIsBusy(true);
@@ -595,7 +569,6 @@ export function App() {
     const next: Record<string, string> = {};
     for (const row of cardPayments.rows) {
       if (!row.payment_key || row.is_deferred || row.remaining_amount <= 0 || remainingBudget <= 0) continue;
-      if (row.is_toll && row.remaining_amount > remainingBudget) continue;
       const allocated = Math.min(row.remaining_amount, remainingBudget);
       next[row.payment_key] = String(Math.round(allocated));
       remainingBudget -= allocated;
@@ -617,25 +590,21 @@ export function App() {
   async function handleCardPaymentSubmit() {
     if (!cardPayments?.immediate_allowed) return;
     const allocations = Object.entries(paymentAllocations)
-      .map(([entry_payment_key, amountText]) => ({
-        entry_payment_key,
-        amount_value: parseAmount(amountText) ?? 0,
-      }))
+      .flatMap(([payment_key, amountText]) => expandCardPaymentAllocation(payment_key, parseAmount(amountText) ?? 0))
       .filter((allocation) => allocation.amount_value > 0);
     if (!allocations.length) return;
     const total = allocations.reduce((sum, allocation) => sum + allocation.amount_value, 0);
-    const kind = isDiscountMode ? "할인액" : "즉시결제";
-    const confirmed = window.confirm(`${kind} ${formatWon(total)}을 선택한 사용내역에 반영할까요?`);
+    const confirmed = window.confirm(`즉시결제 ${formatWon(total)}을 선택한 사용내역에 반영할까요?`);
     if (!confirmed) return;
     await withRefresh(async () => {
       await createCardPaymentEvent({
         event_date: today,
-        event_type: isDiscountMode ? "discount" : "immediate",
+        event_type: "immediate",
         note: "",
         allocations,
       });
       setPaymentAllocations({});
-      setStatus(`${kind} 반영 완료`);
+      setStatus("즉시결제 반영 완료");
     });
   }
 
@@ -648,19 +617,21 @@ export function App() {
     });
   }
 
-  async function handleDiscountPolicyChange(scope: "owner" | "family", month: string, policy: CardDiscountPolicy) {
-    if (policy === "disabled" && scope === "owner") {
-      const currentDiscounts = Object.values(ownerDiscountMonth?.discounts ?? {}).reduce((sum, value) => sum + value, 0);
-      const claimDiscounts = panels
-        .filter((panel) => panel.month === month && panel.panel_type === "claim")
-        .reduce((sum, panel) => sum + (panel.discount_amount ?? 0), 0);
-      if (currentDiscounts + claimDiscounts > 0) {
-        const confirmed = window.confirm(
-          `${formatMonthLabel(month)} 할인 혜택을 없음으로 바꾸면 이미 적용한 할인액이 모두 삭제됩니다. 계속할까요?`,
-        );
-        if (!confirmed) return;
-      }
+  function expandCardPaymentAllocation(paymentKey: string, amount: number) {
+    const row = cardPayments?.rows.find((item) => item.payment_key === paymentKey);
+    if (!row) return [{ entry_payment_key: paymentKey, amount_value: amount }];
+    let remaining = amount;
+    const allocations = [];
+    for (const part of row.payment_parts ?? []) {
+      if (remaining <= 0) break;
+      const allocated = Math.min(part.remaining_amount, remaining);
+      allocations.push({ entry_payment_key: part.entry_payment_key, amount_value: allocated });
+      remaining -= allocated;
     }
+    return allocations;
+  }
+
+  async function handleDiscountPolicyChange(scope: "owner" | "family", month: string, policy: CardDiscountPolicy) {
     await withRefresh(async () => {
       await updateCardDiscountPolicy(month, scope, policy);
       setStatus(`${formatMonthLabel(month)} ${scope === "family" ? "가족카드" : "본인회원 카드"} 할인 혜택 설정 완료`);
@@ -669,24 +640,13 @@ export function App() {
 
   async function handleCurrentEntryDiscount(entry: LedgerEntry) {
     if (!entry.payment_key) return;
-    if (isDiscountExcludedEntry(entry)) {
-      setStatus("교통비와 통행료 계열 항목은 할인 대상이 아닙니다.");
-      return;
-    }
     if (ownerDiscountMonth?.policy === "disabled") {
       setStatus("이번 달은 본인회원 카드 할인 혜택이 없는 달로 설정되어 있습니다.");
       return;
     }
-    const amountText = discountDrafts[`entry:${entry.id}`] ?? "";
-    const amount = parseAmount(amountText);
-    if (amount === null || amount < 0) {
-      setStatus("할인액은 0원 이상의 숫자여야 합니다.");
-      return;
-    }
     await withRefresh(async () => {
-      await updateEntryDiscount(entry.payment_key as string, amount);
-      setStatus("당월 사용내역 할인액 반영 완료");
-      setDiscountDrafts((current) => ({ ...current, [`entry:${entry.id}`]: "" }));
+      await updateEntryDiscount(entry.payment_key as string, 0);
+      setStatus("당월 사용내역 할인 제외 완료");
     });
   }
 
@@ -694,41 +654,30 @@ export function App() {
     if (!entry.payment_key) return;
     await withRefresh(async () => {
       await clearEntryDiscount(entry.payment_key as string);
-      setStatus("당월 사용내역 할인 적용 취소 완료");
+      setStatus("당월 사용내역 할인 적용 완료");
     });
   }
 
   async function handleClaimDiscount(panel: MonthlyPanel) {
-    if (isDiscountExcludedText(panel.title)) {
-      setStatus("교통비와 통행료 계열 항목은 할인 대상이 아닙니다.");
-      return;
-    }
     if (ownerDiscountMonth?.policy === "disabled") {
       setStatus("이번 달은 본인회원 카드 할인 혜택이 없는 달로 설정되어 있습니다.");
       return;
     }
-    const amountText = discountDrafts[`panel:${panel.id}`] ?? "";
-    const amount = parseAmount(amountText);
-    if (amount === null || amount < 0) {
-      setStatus("할인액은 0원 이상의 숫자여야 합니다.");
-      return;
-    }
     await withRefresh(async () => {
-      await updatePanelDiscount(panel.id, amount);
-      setStatus("청구 항목 할인액 반영 완료");
-      setDiscountDrafts((current) => ({ ...current, [`panel:${panel.id}`]: "" }));
+      await updatePanelDiscount(panel.id, 0);
+      setStatus("청구 항목 할인 제외 완료");
     });
   }
 
   async function handleClaimDiscountClear(panel: MonthlyPanel) {
     await withRefresh(async () => {
       await clearPanelDiscount(panel.id);
-      setStatus("청구 항목 할인 적용 취소 완료");
+      setStatus("청구 항목 할인 적용 완료");
     });
   }
 
   async function handleTollDeferral(row: CardPaymentRow, defer: boolean) {
-    if (!row.payment_key) return;
+    if (!row.payment_keys.length) return;
     const confirmed = window.confirm(
       defer
         ? `${displayEntryTitle(row)} 항목을 다음 달 결제로 이월할까요?`
@@ -736,14 +685,32 @@ export function App() {
     );
     if (!confirmed) return;
     await withRefresh(async () => {
-      if (defer) await deferTollPayment(row.payment_key as string);
-      else await cancelTollDeferral(row.payment_key as string);
+      for (const paymentKey of row.payment_keys) {
+        if (defer) await deferTollPayment(paymentKey);
+        else await cancelTollDeferral(paymentKey);
+      }
       setPaymentAllocations((current) => {
         const next = { ...current };
         delete next[row.payment_key as string];
         return next;
       });
-      setStatus(defer ? "통행료 다음 달 이월 완료" : "통행료 이번 달 처리 대상으로 복귀");
+      setStatus(defer ? "카드 사용내역 다음 달 이월 완료" : "카드 사용내역 이번 달 처리 대상으로 복귀");
+    });
+  }
+
+  async function handleCardPaymentRowDelete(row: CardPaymentRow) {
+    const confirmed = window.confirm(`${displayEntryTitle(row)} 항목을 결제 대상과 장부에서 삭제할까요?`);
+    if (!confirmed) return;
+    await withRefresh(async () => {
+      for (const entryId of row.entry_ids) {
+        await deleteEntry(entryId);
+      }
+      setPaymentAllocations((current) => {
+        const next = { ...current };
+        delete next[row.payment_key as string];
+        return next;
+      });
+      setStatus(row.is_group ? "묶음 카드 사용내역 삭제 완료" : "카드 사용내역 삭제 완료");
     });
   }
 
@@ -822,7 +789,6 @@ export function App() {
       const total = Object.values(result.deleted).reduce((sum, count) => sum + count, 0);
       setResetPassword("");
       setPaymentAllocations({});
-      setDiscountDrafts({});
       setStatus(`장부 데이터 ${total}개 초기화 완료`);
     });
   }
@@ -1079,17 +1045,16 @@ export function App() {
       />
 
       {showStats ? (
-        <section className="insight-stack" aria-label="통계와 월별 기록">
-          <StatsPanel items={statsItems} judgment={judgment} />
-          <HistoryPanel
-            months={historyMonths}
-            selectedMonth={selectedHistoryMonth}
-            setSelectedMonth={setSelectedHistoryMonth}
-            entries={historyEntries}
-            judgment={judgment}
-            onCategoryChange={(entry, category) => void handleCategoryChange(entry, category)}
-          />
-        </section>
+        <StatsModal
+          items={statsItems}
+          judgment={judgment}
+          months={historyMonths}
+          selectedMonth={selectedHistoryMonth}
+          setSelectedMonth={setSelectedHistoryMonth}
+          entries={historyEntries}
+          onCategoryChange={(entry, category) => void handleCategoryChange(entry, category)}
+          onClose={() => setShowStats(false)}
+        />
       ) : null}
 
       <section className="layout">
@@ -1178,9 +1143,7 @@ export function App() {
                     discounts={ownerDiscountMonth?.discounts}
                     onDiscount={(entry) => void handleCurrentEntryDiscount(entry)}
                     onClearDiscount={(entry) => void handleCurrentEntryDiscountClear(entry)}
-                    discountDisabled={ownerDiscountMonth?.policy === "disabled"}
-                    discountDrafts={discountDrafts}
-                    setDiscountDrafts={setDiscountDrafts}
+                    discountPolicy={ownerDiscountMonth?.policy}
                 />
               </section>
 
@@ -1242,11 +1205,9 @@ export function App() {
                       onComplete={tab === "claim" || tab === "settlement" ? () => void handlePanelComplete(tab) : undefined}
                       onDiscount={tab === "claim" ? (panel) => void handleClaimDiscount(panel) : undefined}
                       onClearDiscount={tab === "claim" ? (panel) => void handleClaimDiscountClear(panel) : undefined}
-                      discountDisabled={ownerDiscountMonth?.policy === "disabled"}
+                      discountPolicy={ownerDiscountMonth?.policy}
                       categoryForPanel={tab === "claim" ? (panel) => judgment?.claim_categories[String(panel.id)] ?? null : undefined}
                       judgment={judgment}
-                      discountDrafts={discountDrafts}
-                      setDiscountDrafts={setDiscountDrafts}
                       form={
                         <PanelAppendForm
                           isBusy={isBusy}
@@ -1344,8 +1305,6 @@ export function App() {
               setAllocations={setPaymentAllocations}
               paymentBudget={paymentBudget}
               setPaymentBudget={setPaymentBudget}
-              isDiscountMode={isDiscountMode}
-              setIsDiscountMode={setIsDiscountMode}
               onDiscountPolicyChange={(policy) =>
                 void handleDiscountPolicyChange("owner", cardPayments?.usage_month ?? today.slice(0, 7), policy)
               }
@@ -1353,6 +1312,7 @@ export function App() {
               onSelect={handlePaymentSelection}
               onSubmit={() => void handleCardPaymentSubmit()}
               onDeleteEvent={(eventId) => void handleCardPaymentEventDelete(eventId)}
+              onDeleteRow={(row) => void handleCardPaymentRowDelete(row)}
               onTollDeferral={(row, defer) => void handleTollDeferral(row, defer)}
               paymentTone={judgment?.payment ?? null}
               lateEntryForm={lateEntryForm}

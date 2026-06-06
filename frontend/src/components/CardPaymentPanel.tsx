@@ -7,7 +7,6 @@ import {
   formatDateLabel,
   formatMonthLabel,
   formatWon,
-  isDiscountExcludedCardPayment,
   previousMonthFirstDay,
   previousMonthLastDay,
   sumPaymentAllocationInputs,
@@ -25,13 +24,12 @@ export function CardPaymentPanel({
   setAllocations,
   paymentBudget,
   setPaymentBudget,
-  isDiscountMode,
-  setIsDiscountMode,
   onDiscountPolicyChange,
   onAutoAllocate,
   onSelect,
   onSubmit,
   onDeleteEvent,
+  onDeleteRow,
   onTollDeferral,
   paymentTone,
   lateEntryForm,
@@ -47,13 +45,12 @@ export function CardPaymentPanel({
   setAllocations: (value: Record<string, string>) => void;
   paymentBudget: string;
   setPaymentBudget: (value: string) => void;
-  isDiscountMode: boolean;
-  setIsDiscountMode: (value: boolean) => void;
   onDiscountPolicyChange: (policy: CardDiscountPolicy) => void;
   onAutoAllocate: () => void;
   onSelect: (row: CardPaymentRow, selected: boolean) => void;
   onSubmit: () => void;
   onDeleteEvent: (eventId: number) => void;
+  onDeleteRow: (row: CardPaymentRow) => void;
   onTollDeferral: (row: CardPaymentRow, defer: boolean) => void;
   paymentTone: JudgmentState["payment"] | null;
   lateEntryForm: { date: string; usagePlace: string; usageItem: string; amount: string };
@@ -121,15 +118,6 @@ export function CardPaymentPanel({
           <button type="button" onClick={onAutoAllocate} disabled={isBusy || !status.immediate_allowed}>
             날짜순 자동 배분
           </button>
-          <label className="check-label">
-            <input
-              type="checkbox"
-              checked={isDiscountMode}
-              disabled={status.discount_policy === "disabled"}
-              onChange={(event) => setIsDiscountMode(event.target.checked)}
-            />
-            할인액 처리
-          </label>
           <button type="button" onClick={() => setAllocations({})} disabled={isBusy}>선택 해제</button>
           <button
             type="button"
@@ -138,11 +126,10 @@ export function CardPaymentPanel({
             disabled={
               isBusy ||
               selectedTotal <= 0 ||
-              !status.immediate_allowed ||
-              (isDiscountMode && status.discount_policy === "disabled")
+              !status.immediate_allowed
             }
           >
-            {isDiscountMode ? "할인액 반영" : "즉시결제 반영"} {formatWon(selectedTotal)}
+            즉시결제 반영 {formatWon(selectedTotal)}
           </button>
         </div>
       </section>
@@ -217,21 +204,18 @@ export function CardPaymentPanel({
                 <th className="amount">할인</th>
                 <th className="amount">남은 금액</th>
                 <th className="payment-input-cell">이번 처리액</th>
+                <th className="action-cell">삭제</th>
               </tr>
             </thead>
             <tbody>
               {status.rows.map((row) => {
                 const key = row.payment_key ?? "";
                 const selected = Boolean(key && hasOwn(allocations, key));
-                const discountExcluded = isDiscountExcludedCardPayment(row);
                 return (
                   <tr
                     key={row.id}
                     className={[
                       row.remaining_amount <= 0 ? "paid-row" : "",
-                      isDiscountMode && row.remaining_amount > 0 && !discountExcluded && row.discount_amount <= 0
-                        ? "discount-missing-row"
-                        : "",
                       row.is_deferred ? "deferred-row" : "",
                       row.is_carried_over ? "carried-row" : "",
                     ].filter(Boolean).join(" ")}
@@ -244,8 +228,7 @@ export function CardPaymentPanel({
                           !key ||
                           row.is_deferred ||
                           row.remaining_amount <= 0 ||
-                          !status.immediate_allowed ||
-                          (isDiscountMode && discountExcluded)
+                          !status.immediate_allowed
                         }
                         onChange={(event) => onSelect(row, event.target.checked)}
                       />
@@ -253,10 +236,11 @@ export function CardPaymentPanel({
                     <td className="date">{row.is_carried_over ? "" : row.date_label ?? ""}</td>
                     <td>
                       {displayEntryTitle(row)}
+                      {row.is_group ? <span className="deferred-badge">통합 {row.entry_ids.length}건</span> : null}
                       {row.is_transport ? <span className="transport-badge">교통</span> : null}
                       {row.is_toll ? <span className="toll-badge">통행료</span> : null}
                       {row.is_deferred ? <span className="deferred-badge">다음 달 이월 예정</span> : null}
-                      {row.is_toll && !row.is_carried_over && row.remaining_amount > 0 ? (
+                      {!row.is_carried_over && row.remaining_amount > 0 ? (
                         <button
                           type="button"
                           className="inline-action"
@@ -277,12 +261,17 @@ export function CardPaymentPanel({
                         min="0"
                         step="1"
                         value={selected ? allocations[key] : ""}
-                        disabled={!selected || row.is_toll || (isDiscountMode && discountExcluded)}
+                        disabled={!selected}
                         inputMode="numeric"
                         max={row.remaining_amount}
                         onChange={(event) => setAllocations({ ...allocations, [key]: event.target.value })}
                         placeholder="금액"
                       />
+                    </td>
+                    <td className="action-cell">
+                      <button type="button" className="danger" onClick={() => onDeleteRow(row)} disabled={isBusy}>
+                        삭제
+                      </button>
                     </td>
                   </tr>
                 );

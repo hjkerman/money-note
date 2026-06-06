@@ -3,6 +3,7 @@ from __future__ import annotations
 from html import escape
 
 from app.repository import list_cash_flows, list_entries, list_labels, list_panels, list_settings
+from app.services.discounts import effective_card_discount
 from app.services.judgment import claim_ledger_note, format_won, shared_panel_subtitle
 from app.services.month import calendar_month_label
 
@@ -149,7 +150,7 @@ def shared_panel_html(panel_type: str) -> str:
 
 
 def _row_html(row: dict) -> str:
-    discount = float(row.get("discount_amount") or 0)
+    discount = _panel_discount_amount(row)
     amount_text = format_won(_panel_net_amount(row))
     if discount > 0:
         amount_text = f"{amount_text}<small>할인 -{format_won(discount)}</small>"
@@ -162,7 +163,20 @@ def _row_html(row: dict) -> str:
 
 
 def _panel_net_amount(row: dict) -> float:
-    return max(0, float(row.get("amount_value") or 0) - float(row.get("discount_amount") or 0))
+    return max(0, float(row.get("amount_value") or 0) - _panel_discount_amount(row))
+
+
+def _panel_discount_amount(row: dict) -> float:
+    if row.get("panel_type") != "claim":
+        return 0.0
+    settings = list_settings()
+    policy = settings.get(f"card_discount_policy:owner:{row.get('month')}", "undecided")
+    return effective_card_discount(
+        row.get("amount_value"),
+        row.get("discount_amount"),
+        bool(row.get("discount_checked") or row.get("discount_amount")),
+        policy,
+    )
 
 
 def _ledger_note_html(note: str | None) -> str:

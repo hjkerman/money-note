@@ -201,10 +201,10 @@ export function DiscountPolicyBar({
         <strong>{formatMonthLabel(month)} {label} 할인 혜택</strong>
         <span>
           {status?.policy === "enabled"
-            ? "혜택 있음 · 항목별 할인액을 기록할 수 있습니다."
+            ? "혜택 있음 · 카드 지출에 1.2% 할인을 적용합니다."
             : status?.policy === "disabled"
-              ? "혜택 없음 · 할인액 입력을 막습니다."
-              : "아직 정하지 않았습니다. 확인 후 선택하세요."}
+              ? "혜택 없음 · 모든 할인액을 0원으로 계산합니다."
+              : "미정이어도 기본 1.2% 할인으로 계산합니다. 확인 후 바꿀 수 있습니다."}
         </span>
       </div>
       <select

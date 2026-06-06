@@ -753,10 +753,6 @@ th {
   font-size: 12px;
 }
 
-.discount-missing-row {
-  background: #fff1f1;
-}
-
 .discount-editor {
   display: grid;
   justify-items: end;
@@ -818,6 +814,20 @@ button.discount-badge:hover:not(:disabled) {
   border-radius: 8px;
   background: #ffffff;
   box-shadow: 0 18px 50px rgba(31, 36, 29, 0.22);
+}
+
+.stats-modal {
+  width: min(960px, 100%);
+  max-height: min(820px, calc(100vh - 36px));
+  overflow: auto;
+  border: 1px solid #cfd5c8;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 18px 50px rgba(31, 36, 29, 0.22);
+}
+
+.stats-modal .insight-stack {
+  padding: 14px;
 }
 
 .settings-grid {

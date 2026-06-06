@@ -77,16 +77,16 @@ class CardPaymentDeferralTest(unittest.TestCase):
         self.assertEqual(row["date_label"], "2026.05.03.")
         self.assertEqual(row["title"], "고속도로 하이패스")
 
-    def test_non_toll_or_fully_paid_entry_cannot_be_deferred(self) -> None:
-        with self.assertRaisesRegex(ValueError, "통행료 또는 하이패스"):
-            defer_toll_payment("normal-key", date(2026, 6, 4))
+    def test_any_entry_can_be_deferred_but_paid_entry_cannot_be_deferred(self) -> None:
+        deferred = defer_toll_payment("normal-key", date(2026, 6, 4))
+        self.assertEqual(deferred["entry_payment_key"], "normal-key")
 
         create_card_payment_event(
             CardPaymentEventIn(
                 event_date="2026-06-04",
                 event_type="immediate",
                 allocations=[
-                    CardPaymentAllocationIn(entry_payment_key="toll-key", amount_value=5_000)
+                    CardPaymentAllocationIn(entry_payment_key="toll-key", amount_value=4_940)
                 ],
             ),
             date(2026, 6, 4),
@@ -94,29 +94,43 @@ class CardPaymentDeferralTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "이미 일부결제"):
             defer_toll_payment("toll-key", date(2026, 6, 4))
 
-    def test_toll_rejects_discount_and_partial_payment(self) -> None:
-        with self.assertRaisesRegex(ValueError, "할인액"):
-            create_card_payment_event(
-                CardPaymentEventIn(
-                    event_date="2026-06-04",
-                    event_type="discount",
-                    allocations=[
-                        CardPaymentAllocationIn(entry_payment_key="toll-key", amount_value=5_000)
-                    ],
-                ),
-                date(2026, 6, 4),
+    def test_toll_uses_discount_and_allows_partial_immediate_payment(self) -> None:
+        row = next(row for row in current_payment_status(date(2026, 6, 4))["rows"] if row["payment_key"] == "toll-key")
+        self.assertEqual(row["discount_amount"], 60)
+        self.assertEqual(row["remaining_amount"], 4_940)
+
+        create_card_payment_event(
+            CardPaymentEventIn(
+                event_date="2026-06-04",
+                event_type="immediate",
+                allocations=[
+                    CardPaymentAllocationIn(entry_payment_key="toll-key", amount_value=1_000)
+                ],
+            ),
+            date(2026, 6, 4),
+        )
+        updated = next(row for row in current_payment_status(date(2026, 6, 4))["rows"] if row["payment_key"] == "toll-key")
+        self.assertEqual(updated["remaining_amount"], 3_940)
+
+    def test_toll_and_highpass_rows_are_grouped_in_payment_screen(self) -> None:
+        with session() as conn:
+            conn.execute(
+                """
+                INSERT INTO ledger_entries(
+                    book_section, entry_kind, entry_date, date_label, title,
+                    amount_value, sort_order, payment_key
+                )
+                VALUES ('archive', 'expense', '2026-05-04', '2026.05.04.', '통행료 추가', 3000, 3, 'toll-key-2')
+                """
             )
-        with self.assertRaisesRegex(ValueError, "전액만"):
-            create_card_payment_event(
-                CardPaymentEventIn(
-                    event_date="2026-06-04",
-                    event_type="immediate",
-                    allocations=[
-                        CardPaymentAllocationIn(entry_payment_key="toll-key", amount_value=1_000)
-                    ],
-                ),
-                date(2026, 6, 4),
-            )
+
+        rows = current_payment_status(date(2026, 6, 4))["rows"]
+        grouped = next(row for row in rows if row["is_group"])
+
+        self.assertEqual(grouped["payment_keys"], ["toll-key", "toll-key-2"])
+        self.assertEqual(grouped["entry_ids"], [2, 3])
+        self.assertEqual(grouped["original_amount"], 8_000)
+        self.assertEqual(grouped["remaining_amount"], 7_904)
 
     def test_discount_policy_is_separate_for_owner_and_family_cards(self) -> None:
         set_discount_month_policy("2026-05", "disabled", "owner")
@@ -147,6 +161,8 @@ class CardPaymentDeferralTest(unittest.TestCase):
         self.assertEqual(discount_month_status("2026-06", "owner")["discounts"]["current-key"], 120)
 
         set_discount_month_policy("2026-06", "disabled", "owner")
+        disabled = discount_month_status("2026-06", "owner")
+        self.assertEqual(disabled["discounts"]["current-key"], 0)
         with self.assertRaisesRegex(ValueError, "할인 혜택이 없는 달"):
             create_card_payment_event(
                 CardPaymentEventIn(
@@ -156,6 +172,16 @@ class CardPaymentDeferralTest(unittest.TestCase):
                 ),
                 date(2026, 6, 20),
             )
+        set_discount_month_policy("2026-06", "enabled", "owner")
+        self.assertEqual(discount_month_status("2026-06", "owner")["discounts"]["current-key"], 120)
+
+    def test_unchecked_entries_get_default_discount(self) -> None:
+        status = current_payment_status(date(2026, 6, 4))
+        normal = next(row for row in status["rows"] if row["payment_key"] == "normal-key")
+
+        self.assertEqual(normal["discount_amount"], 120)
+        self.assertEqual(normal["remaining_amount"], 9_880)
+        self.assertEqual(discount_month_status("2026-05", "owner")["discounts"]["normal-key"], 120)
 
     def test_deferral_is_blocked_after_due_date(self) -> None:
         with self.assertRaisesRegex(ValueError, "14일까지"):

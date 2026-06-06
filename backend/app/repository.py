@@ -559,5 +559,49 @@ def _validate_structured_entry(values: dict[str, Any]) -> None:
 
 def delete_entry(entry_id: int) -> bool:
     with session() as conn:
+        entry = conn.execute("SELECT payment_key FROM ledger_entries WHERE id = ?", (entry_id,)).fetchone()
+        if entry is None:
+            return False
+        if entry["payment_key"]:
+            _delete_card_payment_references(conn, str(entry["payment_key"]))
         cursor = conn.execute("DELETE FROM ledger_entries WHERE id = ?", (entry_id,))
     return cursor.rowcount > 0
+
+
+def _delete_card_payment_references(conn: Any, payment_key: str) -> None:
+    """장부 행 삭제 시 결제/할인 배분과 이월 상태를 함께 정리한다."""
+    allocation_rows = conn.execute(
+        """
+        SELECT card_payment_allocations.id,
+               card_payment_allocations.payment_event_id,
+               card_payment_allocations.amount_value,
+               card_payment_events.cash_flow_id
+        FROM card_payment_allocations
+        JOIN card_payment_events
+          ON card_payment_events.id = card_payment_allocations.payment_event_id
+        WHERE card_payment_allocations.entry_payment_key = ?
+        """,
+        (payment_key,),
+    ).fetchall()
+    conn.execute("DELETE FROM card_payment_deferrals WHERE entry_payment_key = ?", (payment_key,))
+    conn.execute("DELETE FROM card_payment_allocations WHERE entry_payment_key = ?", (payment_key,))
+    for allocation in allocation_rows:
+        event_id = allocation["payment_event_id"]
+        remaining = conn.execute(
+            "SELECT COALESCE(SUM(amount_value), 0) AS total FROM card_payment_allocations WHERE payment_event_id = ?",
+            (event_id,),
+        ).fetchone()["total"]
+        if float(remaining or 0) <= 0:
+            conn.execute("DELETE FROM card_payment_events WHERE id = ?", (event_id,))
+            if allocation["cash_flow_id"] is not None:
+                conn.execute("DELETE FROM cash_flows WHERE id = ?", (allocation["cash_flow_id"],))
+            continue
+        conn.execute(
+            "UPDATE card_payment_events SET total_amount = ? WHERE id = ?",
+            (remaining, event_id),
+        )
+        if allocation["cash_flow_id"] is not None:
+            conn.execute(
+                "UPDATE cash_flows SET amount_value = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+                (-float(remaining), allocation["cash_flow_id"]),
+            )
