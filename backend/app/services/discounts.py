@@ -13,23 +13,23 @@ def default_card_discount(amount: float | int | None) -> float:
 
 def effective_card_discount(
     amount: float | int | None,
-    manual_discount: float | int | None,
-    manual_checked: bool,
+    override_discount: float | int | None,
+    override_enabled: bool,
     month_policy: str,
 ) -> float:
     """월 정책과 개별 할인 제외 상태를 합쳐 실제 계산에 쓸 할인액을 만든다."""
     if month_policy == "disabled":
         return 0.0
-    if manual_checked:
-        return max(0.0, float(manual_discount or 0))
+    if override_enabled:
+        return max(0.0, float(override_discount or 0))
     return default_card_discount(amount)
 
 
 def net_card_amount(
     amount: float | int | None,
-    manual_discount: float | int | None,
-    manual_checked: bool,
+    override_discount: float | int | None,
+    override_enabled: bool,
     month_policy: str,
 ) -> float:
     """할인 반영 후 카드 청구 예상액이다."""
-    return max(0.0, float(amount or 0) - effective_card_discount(amount, manual_discount, manual_checked, month_policy))
+    return max(0.0, float(amount or 0) - effective_card_discount(amount, override_discount, override_enabled, month_policy))

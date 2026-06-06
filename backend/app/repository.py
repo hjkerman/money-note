@@ -33,7 +33,7 @@ ENTRY_COLUMNS = [
     "confirmed_at",
     "spending_category",
     "payment_key",
-    "discount_checked",
+    "discount_override",
 ]
 
 PANEL_COLUMNS = [
@@ -47,7 +47,7 @@ PANEL_COLUMNS = [
     "sort_order",
     "due_day",
     "confirmed_at",
-    "discount_checked",
+    "discount_override",
 ]
 
 

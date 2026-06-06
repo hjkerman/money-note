@@ -29,7 +29,7 @@ export type LedgerEntry = {
   confirmed_at: string | null;
   spending_category: SpendingCategory | null;
   payment_key: string | null;
-  discount_checked: number;
+  discount_override: number;
 };
 
 export type SpendingCategory = "essential" | "questionable" | "dignity";
@@ -62,7 +62,7 @@ export type MonthlyPanel = {
   spent_on: string | null;
   amount_value: number | null;
   discount_amount: number;
-  discount_checked: number;
+  discount_override: number;
   amount_expr: string | null;
   sort_order: number;
   due_day: number | null;

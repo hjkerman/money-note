@@ -45,7 +45,7 @@ def panel_total(panel_type: str) -> float:
 def panel_net_total(panel_type: str) -> float:
     with session() as conn:
         rows = conn.execute(
-            "SELECT month, amount_value, discount_amount, discount_checked FROM monthly_panels WHERE panel_type = ?",
+            "SELECT month, amount_value, discount_amount, discount_override FROM monthly_panels WHERE panel_type = ?",
             (panel_type,),
         ).fetchall()
     return sum(
@@ -56,7 +56,7 @@ def panel_net_total(panel_type: str) -> float:
                 effective_card_discount(
                     row["amount_value"],
                     row["discount_amount"],
-                    bool(row["discount_checked"] or row["discount_amount"]),
+                    bool(row["discount_override"] or row["discount_amount"]),
                     setting_text(f"card_discount_policy:owner:{row['month']}", "undecided") if panel_type == "claim" else "disabled",
                 )
                 if panel_type == "claim"
@@ -73,9 +73,9 @@ def current_entry_discount_total() -> float:
             """
             SELECT ledger_entries.amount_value,
                    ledger_entries.entry_date,
-                   ledger_entries.discount_checked,
+                   ledger_entries.discount_override,
                    COALESCE(SUM(CASE WHEN card_payment_events.event_type = 'discount'
-                                     THEN card_payment_allocations.amount_value ELSE 0 END), 0) AS manual_discount_amount
+                                     THEN card_payment_allocations.amount_value ELSE 0 END), 0) AS override_discount_amount
             FROM ledger_entries
             LEFT JOIN card_payment_allocations
               ON card_payment_allocations.entry_payment_key = ledger_entries.payment_key
@@ -90,8 +90,8 @@ def current_entry_discount_total() -> float:
     return sum(
         effective_card_discount(
             row["amount_value"],
-            row["manual_discount_amount"],
-            bool(row["discount_checked"] or row["manual_discount_amount"]),
+            row["override_discount_amount"],
+            bool(row["discount_override"] or row["override_discount_amount"]),
             setting_text(f"card_discount_policy:owner:{str(row['entry_date'] or '')[:7]}", "undecided"),
         )
         for row in rows

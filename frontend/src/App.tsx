@@ -92,7 +92,6 @@ import {
   previousMonthLastDay,
   sumAmounts,
   sumCashFlows,
-  sumEntryNetAmounts,
   sumInstallmentMonthlyAmounts,
   sumPanelAmounts,
   sumPanelNetAmounts,
@@ -195,10 +194,8 @@ export function App() {
       id: "current",
       label: "당월",
       total:
-        sumEntryNetAmounts(expenseEntries, ownerDiscountMonth?.discounts, ownerDiscountMonth?.policy) +
-        sumInstallmentMonthlyAmounts(installments) +
-        sumPanelNetAmounts(panels.filter((panel) => panel.panel_type === "claim"), ownerDiscountMonth?.policy) +
-        sumPanelAmounts(panels.filter((panel) => panel.panel_type === "settlement")),
+        sumAmounts(expenseEntries) +
+        sumInstallmentMonthlyAmounts(installments),
     },
     {
       id: "payment",
@@ -383,7 +380,7 @@ export function App() {
         due_day: null,
         confirmed_at: null,
         spending_category: null,
-        discount_checked: 0,
+        discount_override: 0,
       });
       setExpenseForm({ date: expenseForm.date, usagePlace: "", usageItem: "", amount: "" });
       setStatus(created.book_section === "archive" ? "이미 마감한 달의 전체 기록에 추가 완료" : "당월 기록 추가 완료");
@@ -433,7 +430,7 @@ export function App() {
         sort_order: nextSortOrder(sameTypePanels),
         due_day: null,
         confirmed_at: null,
-        discount_checked: 0,
+        discount_override: 0,
       });
       setPanelForm({ panel_type: panelType, title: "", spentOn: panelForm.spentOn, amount: "", dueDay: "" });
       setStatus(`${panelLabel(labels, panelType)} 항목 추가 완료`);

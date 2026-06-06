@@ -111,7 +111,7 @@ def patch_panel_discount(panel_id: int, patch: PanelDiscountPatch, _: dict = Dep
         raise HTTPException(status_code=422, detail=f"{panel['month']}은 본인회원 카드 할인 혜택이 없는 달입니다.")
     if patch.discount_amount > float(panel["amount_value"] or 0):
         raise HTTPException(status_code=422, detail="할인액은 원래 청구금액을 초과할 수 없습니다.")
-    updated = update_panel(panel_id, MonthlyPanelPatch(discount_amount=patch.discount_amount, discount_checked=1))
+    updated = update_panel(panel_id, MonthlyPanelPatch(discount_amount=patch.discount_amount, discount_override=1))
     if updated is None:
         raise HTTPException(status_code=404, detail="panel not found")
     return updated
@@ -119,7 +119,7 @@ def patch_panel_discount(panel_id: int, patch: PanelDiscountPatch, _: dict = Dep
 
 @router.delete("/panels/{panel_id}/discount")
 def remove_panel_discount(panel_id: int, _: dict = Depends(require_user)) -> dict[str, bool]:
-    updated = update_panel(panel_id, MonthlyPanelPatch(discount_amount=0, discount_checked=0))
+    updated = update_panel(panel_id, MonthlyPanelPatch(discount_amount=0, discount_override=0))
     if updated is None:
         raise HTTPException(status_code=404, detail="panel not found")
     return {"deleted": True}

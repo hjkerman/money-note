@@ -449,6 +449,7 @@ next_month_liquidity
 ```
 
 `card_total`은 본인 당월 카드 지출의 할인 후 금액과 활성 할부의 월 납입액 합계다. 청구 탭 금액은 청구 표시 합계와 공유 청구서의 실청구액에는 반영하지만, `next_month_liquidity` 계산에는 넣지 않는다.
+청구와 타인정산은 회수 예정 정산액으로 보며, 당월 소비 통계와 `당월` 큰 탭 합계에도 넣지 않는다.
 
 ## 판단
 
@@ -556,7 +557,7 @@ next_month_liquidity
 - `policy`: `undecided`, `enabled`, `disabled`
 - `policy = disabled`이면 계산상 할인액은 모두 0원이다.
 - 그 외에는 기본 할인액을 `floor(amount_value * 0.012)`로 계산한다.
-- `discount_checked = 1`인 기존 데이터는 개별 예외로 보며, 저장된 할인액이 0원이면 할인 제외로 취급한다.
+- `discount_override = 1`이면 기본 할인 계산 대신 저장된 할인액을 쓴다. 저장된 할인액이 0원이면 할인 제외로 취급한다.
 
 ### `PATCH /api/card-discounts/months/{month}?scope=owner|family`
 

@@ -30,7 +30,7 @@ class CsvBackupTest(unittest.TestCase):
                 """
                 INSERT INTO ledger_entries(
                     book_section, entry_kind, entry_date, title, amount_value,
-                    sort_order, payment_key, discount_checked
+                    sort_order, payment_key, discount_override
                 )
                 VALUES ('current', 'expense', '2026-06-05', '할인 보존', 10000, 1, 'discount-key', 1)
                 """
@@ -66,7 +66,7 @@ class CsvBackupTest(unittest.TestCase):
             allocation = conn.execute(
                 "SELECT * FROM card_payment_allocations WHERE entry_payment_key = 'discount-key'"
             ).fetchone()
-        self.assertEqual(entry["discount_checked"], 1)
+        self.assertEqual(entry["discount_override"], 1)
         self.assertEqual(allocation["amount_value"], 120)
 
 

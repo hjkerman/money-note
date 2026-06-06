@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS ledger_entries (
     confirmed_month TEXT,
     spending_category TEXT,
     payment_key TEXT,
-    discount_checked INTEGER NOT NULL DEFAULT 0,
+    discount_override INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS monthly_panels (
     spent_on TEXT,
     amount_value REAL,
     discount_amount REAL NOT NULL DEFAULT 0,
-    discount_checked INTEGER NOT NULL DEFAULT 0,
+    discount_override INTEGER NOT NULL DEFAULT 0,
     amount_expr TEXT,
     sort_order INTEGER NOT NULL,
     due_day INTEGER,
@@ -244,8 +244,8 @@ def init_db() -> None:
             conn.execute("ALTER TABLE monthly_panels ADD COLUMN due_day INTEGER")
         if "discount_amount" not in panel_columns:
             conn.execute("ALTER TABLE monthly_panels ADD COLUMN discount_amount REAL NOT NULL DEFAULT 0")
-        if "discount_checked" not in panel_columns:
-            conn.execute("ALTER TABLE monthly_panels ADD COLUMN discount_checked INTEGER NOT NULL DEFAULT 0")
+        if "discount_override" not in panel_columns:
+            conn.execute("ALTER TABLE monthly_panels ADD COLUMN discount_override INTEGER NOT NULL DEFAULT 0")
         if "spent_on" not in panel_columns:
             conn.execute("ALTER TABLE monthly_panels ADD COLUMN spent_on TEXT")
         ledger_columns = {
@@ -266,8 +266,8 @@ def init_db() -> None:
             conn.execute("ALTER TABLE ledger_entries ADD COLUMN usage_item TEXT")
         if "payment_key" not in ledger_columns:
             conn.execute("ALTER TABLE ledger_entries ADD COLUMN payment_key TEXT")
-        if "discount_checked" not in ledger_columns:
-            conn.execute("ALTER TABLE ledger_entries ADD COLUMN discount_checked INTEGER NOT NULL DEFAULT 0")
+        if "discount_override" not in ledger_columns:
+            conn.execute("ALTER TABLE ledger_entries ADD COLUMN discount_override INTEGER NOT NULL DEFAULT 0")
         conn.execute(
             """
             UPDATE ledger_entries

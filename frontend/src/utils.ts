@@ -78,22 +78,15 @@ export function categoryLabel(category: SpendingCategory | null, judgment?: Judg
 }
 
 export function activeStatItems(
-  activePrimaryTab: PrimaryTab,
-  activeCurrentTab: CurrentTab,
+  _activePrimaryTab: PrimaryTab,
+  _activeCurrentTab: CurrentTab,
   expenseEntries: LedgerEntry[],
   _historyEntries: LedgerEntry[],
-  panels: MonthlyPanel[],
-  judgment: JudgmentState | null,
-  ownerDiscountPolicy: CardDiscountPolicy | null = null,
+  _panels: MonthlyPanel[],
+  _judgment: JudgmentState | null,
+  _ownerDiscountPolicy: CardDiscountPolicy | null = null,
 ): StatItem[] {
-  if (activePrimaryTab === "current" && activeCurrentTab === "claim") {
-    return panels
-      .filter((panel) => panel.panel_type === "claim")
-      .map((panel) => ({
-        amount_value: panelNetAmount(panel, ownerDiscountPolicy),
-        spending_category: judgment?.claim_categories[String(panel.id)] ?? null,
-      }));
-  }
+  // 소비 통계는 회수 예정인 청구/타인정산을 빼고, 내가 실제로 사용한 원장 지출만 본다.
   return expenseEntries.map((entry) => ({
     amount_value: entry.amount_value,
     spending_category: entry.spending_category,
@@ -173,24 +166,13 @@ export function effectiveEntryDiscount(
   return defaultCardDiscount(entry.amount_value);
 }
 
-export function sumEntryNetAmounts(
-  entries: LedgerEntry[],
-  discounts?: Record<string, number> | null,
-  policy: CardDiscountPolicy | null = null,
-): number {
-  return entries.reduce((total, entry) => {
-    const discount = effectiveEntryDiscount(entry, discounts, policy);
-    return total + Math.max(0, (entry.amount_value ?? 0) - discount);
-  }, 0);
-}
-
 export function sumPanelAmounts(rows: MonthlyPanel[]): number {
   return rows.reduce((total, row) => total + (row.amount_value ?? 0), 0);
 }
 
 export function effectivePanelDiscount(row: MonthlyPanel, policy: CardDiscountPolicy | null = null): number {
   if (row.panel_type !== "claim" || policy === "disabled") return 0;
-  if (row.discount_checked) return Math.max(0, row.discount_amount ?? 0);
+  if (row.discount_override) return Math.max(0, row.discount_amount ?? 0);
   return defaultCardDiscount(row.amount_value);
 }
 

@@ -188,7 +188,7 @@ def panel_net_amount(row: dict) -> float:
         - effective_card_discount(
             row.get("amount_value"),
             row.get("discount_amount"),
-            bool(row.get("discount_checked") or row.get("discount_amount")),
+            bool(row.get("discount_override") or row.get("discount_amount")),
             str(row.get("discount_policy") or "undecided"),
         ),
     )

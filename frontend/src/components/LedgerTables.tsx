@@ -318,7 +318,7 @@ export function EntryTable({
           const currentDiscount = effectiveEntryDiscount(entry, discounts, discountPolicy);
           const defaultDiscount = defaultCardDiscount(entry.amount_value);
           const discountEligible = Boolean(onDiscount && entry.payment_key);
-          const manualDiscount = Boolean(entry.discount_checked);
+          const discountOverride = Boolean(entry.discount_override);
           return (
             <tr key={entry.id}>
               <td className="date">{entry.date_label ?? entry.group_label ?? ""}</td>
@@ -346,7 +346,7 @@ export function EntryTable({
                     <DiscountEditor
                       currentAmount={currentDiscount}
                       defaultAmount={defaultDiscount}
-                      isManual={manualDiscount}
+                      isOverride={discountOverride}
                       onExclude={() => onDiscount(entry)}
                       onClear={onClearDiscount ? () => onClearDiscount(entry) : undefined}
                       disabled={discountPolicy === "disabled"}
@@ -372,21 +372,21 @@ export function EntryTable({
 function DiscountEditor({
   currentAmount,
   defaultAmount,
-  isManual,
+  isOverride,
   onExclude,
   onClear,
   disabled = false,
 }: {
   currentAmount: number;
   defaultAmount: number;
-  isManual: boolean;
+  isOverride: boolean;
   onExclude: () => void;
   onClear?: () => void;
   disabled?: boolean;
 }) {
   const badgeText = disabled
     ? "혜택 없음"
-    : isManual
+    : isOverride
       ? currentAmount > 0
         ? `기록 할인 ${formatWon(currentAmount)}`
         : "할인 제외"
@@ -394,15 +394,15 @@ function DiscountEditor({
   return (
     <div className="discount-editor">
       <div>
-        <button type="button" className="discount-badge" onClick={onClear} disabled={disabled || !isManual || !onClear}>
+        <button type="button" className="discount-badge" onClick={onClear} disabled={disabled || !isOverride || !onClear}>
           {badgeText}
         </button>
-        {!disabled && isManual ? (
+        {!disabled && isOverride ? (
           <button type="button" onClick={onClear} disabled={!onClear}>
             할인 적용
           </button>
         ) : null}
-        {!disabled && !isManual ? (
+        {!disabled && !isOverride ? (
           <button type="button" onClick={onExclude}>
             제외
           </button>
@@ -475,7 +475,7 @@ export function PanelTable({
               const discountEligible = Boolean(onDiscount);
               const currentDiscount = effectivePanelDiscount(row, discountPolicy);
               const defaultDiscount = defaultCardDiscount(row.amount_value);
-              const manualDiscount = Boolean(row.discount_checked);
+              const discountOverride = Boolean(row.discount_override);
               return (
               <tr key={row.id}>
                 {(rows.some((item) => item.spent_on) || rows.some((item) => item.panel_type === "claim" || item.panel_type === "settlement")) ? (
@@ -495,7 +495,7 @@ export function PanelTable({
                         <DiscountEditor
                           currentAmount={currentDiscount}
                           defaultAmount={defaultDiscount}
-                          isManual={manualDiscount}
+                          isOverride={discountOverride}
                           onExclude={() => onDiscount(row)}
                           onClear={onClearDiscount ? () => onClearDiscount(row) : undefined}
                           disabled={discountPolicy === "disabled"}

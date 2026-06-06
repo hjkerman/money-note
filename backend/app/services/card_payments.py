@@ -49,9 +49,9 @@ def discount_month_status(month: str, scope: str = "owner") -> dict[str, Any]:
             """
             SELECT ledger_entries.payment_key,
                    ledger_entries.amount_value,
-                   ledger_entries.discount_checked,
+                   ledger_entries.discount_override,
                    COALESCE(SUM(CASE WHEN card_payment_events.event_type = 'discount'
-                                     THEN card_payment_allocations.amount_value ELSE 0 END), 0) AS manual_discount_amount
+                                     THEN card_payment_allocations.amount_value ELSE 0 END), 0) AS override_discount_amount
             FROM ledger_entries
             LEFT JOIN card_payment_allocations
               ON card_payment_allocations.entry_payment_key = ledger_entries.payment_key
@@ -68,8 +68,8 @@ def discount_month_status(month: str, scope: str = "owner") -> dict[str, Any]:
     discounts = {
         row["payment_key"]: effective_card_discount(
             row["amount_value"],
-            row["manual_discount_amount"],
-            bool(row["discount_checked"] or row["manual_discount_amount"]),
+            row["override_discount_amount"],
+            bool(row["discount_override"] or row["override_discount_amount"]),
             policy,
         )
         for row in rows
@@ -127,7 +127,7 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
             seen_keys.add(key)
             row = conn.execute(
                 """
-                SELECT title, amount_value, entry_date, discount_checked
+                SELECT title, amount_value, entry_date, discount_override
                 FROM ledger_entries
                 WHERE payment_key = ? AND entry_kind != 'planned'
                 """,
@@ -159,7 +159,7 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
                 """,
                 (key,),
             ).fetchone()["total"]
-            manual_discount = conn.execute(
+            override_discount = conn.execute(
                 """
                 SELECT COALESCE(SUM(amount_value), 0) AS total
                 FROM card_payment_allocations
@@ -175,8 +175,8 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
             else:
                 current_discount = effective_card_discount(
                     row["amount_value"],
-                    manual_discount,
-                    bool(row["discount_checked"] or manual_discount),
+                    override_discount,
+                    bool(row["discount_override"] or override_discount),
                     _discount_policy_value(conn, usage_month, "owner") if usage_month else "undecided",
                 )
                 remaining = max(0.0, float(row["amount_value"] or 0) - float(paid or 0) - current_discount)
@@ -218,7 +218,7 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
                 conn.execute(
                     """
                     UPDATE ledger_entries
-                    SET discount_checked = 1, updated_at = CURRENT_TIMESTAMP
+                    SET discount_override = 1, updated_at = CURRENT_TIMESTAMP
                     WHERE payment_key = ?
                     """,
                     (key,),
@@ -255,7 +255,7 @@ def set_entry_discount(entry_payment_key: str, amount: float, event_date: str | 
         conn.execute(
             """
             UPDATE ledger_entries
-            SET discount_checked = 1, updated_at = CURRENT_TIMESTAMP
+            SET discount_override = 1, updated_at = CURRENT_TIMESTAMP
             WHERE payment_key = ?
             """,
             (entry_payment_key,),
@@ -289,7 +289,7 @@ def clear_entry_discount(entry_payment_key: str) -> bool:
         conn.execute(
             """
             UPDATE ledger_entries
-            SET discount_checked = 0, updated_at = CURRENT_TIMESTAMP
+            SET discount_override = 0, updated_at = CURRENT_TIMESTAMP
             WHERE payment_key = ?
             """,
             (entry_payment_key,),
@@ -527,7 +527,7 @@ def _payment_rows_for_month(usage_month: str, payment_month: str) -> list[dict[s
                    COALESCE(SUM(CASE WHEN card_payment_events.event_type = 'immediate'
                                      THEN card_payment_allocations.amount_value ELSE 0 END), 0) AS immediate_paid_amount,
                    COALESCE(SUM(CASE WHEN card_payment_events.event_type = 'discount'
-                                     THEN card_payment_allocations.amount_value ELSE 0 END), 0) AS manual_discount_amount
+                                     THEN card_payment_allocations.amount_value ELSE 0 END), 0) AS override_discount_amount
             FROM ledger_entries
             LEFT JOIN card_payment_allocations
               ON card_payment_allocations.entry_payment_key = ledger_entries.payment_key
@@ -558,14 +558,14 @@ def _payment_rows_for_month(usage_month: str, payment_month: str) -> list[dict[s
         data = dict(row)
         original = float(data.get("amount_value") or 0)
         immediate = float(data.pop("immediate_paid_amount") or 0)
-        manual_discount = float(data.pop("manual_discount_amount") or 0)
+        override_discount = float(data.pop("override_discount_amount") or 0)
         deferred_from = data.pop("deferred_from_payment_month", None)
         deferred_target = data.pop("deferred_target_payment_month", None)
         usage_month = str(data.get("entry_date") or "")[:7]
         discount = effective_card_discount(
             original,
-            manual_discount,
-            bool(data.get("discount_checked") or manual_discount),
+            override_discount,
+            bool(data.get("discount_override") or override_discount),
             _setting_value(f"card_discount_policy:owner:{usage_month}") or "undecided",
         )
         data.update(
@@ -706,7 +706,7 @@ def _clear_owner_discounts_for_month(conn: Any, month: str) -> None:
     conn.execute(
         """
         UPDATE ledger_entries
-        SET discount_checked = 0, updated_at = CURRENT_TIMESTAMP
+        SET discount_override = 0, updated_at = CURRENT_TIMESTAMP
         WHERE entry_date LIKE ?
         """,
         (f"{month}%",),
@@ -714,7 +714,7 @@ def _clear_owner_discounts_for_month(conn: Any, month: str) -> None:
     conn.execute(
         """
         UPDATE monthly_panels
-        SET discount_amount = 0, discount_checked = 0, updated_at = CURRENT_TIMESTAMP
+        SET discount_amount = 0, discount_override = 0, updated_at = CURRENT_TIMESTAMP
         WHERE month = ? AND panel_type = 'claim'
         """,
         (month,),
