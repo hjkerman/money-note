@@ -108,21 +108,6 @@ def spending_stat_tones() -> list[dict]:
     ]
 
 
-def classify_claim_category(row: dict) -> str | None:
-    """청구 항목은 사용자가 조작하지 않으므로 제목과 금액으로 자동 분류한다."""
-    title = str(row.get("title") or "")
-    amount = float(row.get("amount_value") or 0)
-    if 0 < amount <= SMALL_CLAIM_LIMIT:
-        return "questionable"
-    if text_contains(title, ESSENTIAL_CLAIM_WORDS):
-        return "essential"
-    if text_contains(title, DIGNITY_WORDS):
-        return "dignity"
-    if text_contains(title, QUESTIONABLE_CLAIM_WORDS):
-        return "questionable"
-    return None
-
-
 def app_judgment(
     entries: list[dict],
     panels: list[dict],
@@ -154,7 +139,7 @@ def app_judgment(
     return {
         "category_labels": CATEGORY_LABELS,
         "stat_tones": spending_stat_tones(),
-        "claim_categories": {str(row["id"]): classify_claim_category(row) for row in claim_rows},
+        "claim_categories": {},
         "budget": budget_committee_tone(
             {
                 "expense_total": sum(float(entry.get("amount_value") or 0) for entry in expense_entries),

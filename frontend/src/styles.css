@@ -375,9 +375,14 @@ th {
 }
 
 .amount {
-  width: 128px;
+  width: 108px;
   text-align: right;
   white-space: nowrap;
+}
+
+.panel-title-cell {
+  width: 100%;
+  min-width: 260px;
 }
 
 .date {
@@ -476,12 +481,15 @@ th {
 }
 
 .action-cell {
-  width: 72px;
+  width: 88px;
+  min-width: 88px;
   text-align: right;
 }
 
 .action-cell button {
+  min-width: 54px;
   padding: 6px 10px;
+  white-space: nowrap;
 }
 
 .positive {
@@ -742,7 +750,7 @@ th {
 }
 
 .discount-cell {
-  min-width: 190px;
+  min-width: 168px;
   text-align: right;
   white-space: nowrap;
 }
@@ -794,6 +802,20 @@ button.discount-badge:hover:not(:disabled) {
   margin-top: 4px;
   color: #5c6655;
   font-size: 12px;
+}
+
+.share-wide-button {
+  width: 100%;
+  margin-top: 12px;
+  padding: 11px 14px;
+  border-color: #9fb291;
+  background: #eef5e9;
+  color: #2f4b27;
+  font-weight: 800;
+}
+
+.share-wide-button:hover:not(:disabled) {
+  background: #e1eed9;
 }
 
 .modal-backdrop {
@@ -1054,6 +1076,10 @@ button.discount-badge:hover:not(:disabled) {
 
 .compact table td:first-child {
   width: auto;
+}
+
+.compact table .date {
+  padding-right: 22px;
 }
 
 @media (max-width: 980px) {

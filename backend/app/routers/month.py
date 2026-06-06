@@ -105,10 +105,12 @@ def patch_panel_discount(panel_id: int, patch: PanelDiscountPatch, _: dict = Dep
         panel = conn.execute("SELECT * FROM monthly_panels WHERE id = ?", (panel_id,)).fetchone()
     if panel is None:
         raise HTTPException(status_code=404, detail="panel not found")
-    if panel["panel_type"] != "claim":
-        raise HTTPException(status_code=422, detail="청구 항목에만 본인회원 카드 할인을 적용할 수 있습니다.")
-    if discount_month_status(panel["month"], "owner")["policy"] == "disabled":
-        raise HTTPException(status_code=422, detail=f"{panel['month']}은 본인회원 카드 할인 혜택이 없는 달입니다.")
+    if panel["panel_type"] not in {"claim", "settlement"}:
+        raise HTTPException(status_code=422, detail="청구 또는 타인정산 항목에만 카드 할인을 적용할 수 있습니다.")
+    scope = "family" if panel["panel_type"] == "settlement" else "owner"
+    card_label = "가족카드" if scope == "family" else "본인회원 카드"
+    if discount_month_status(panel["month"], scope)["policy"] == "disabled":
+        raise HTTPException(status_code=422, detail=f"{panel['month']}은 {card_label} 할인 혜택이 없는 달입니다.")
     if patch.discount_amount > float(panel["amount_value"] or 0):
         raise HTTPException(status_code=422, detail="할인액은 원래 청구금액을 초과할 수 없습니다.")
     updated = update_panel(panel_id, MonthlyPanelPatch(discount_amount=patch.discount_amount, discount_override=1))

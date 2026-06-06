@@ -57,9 +57,14 @@ def panel_net_total(panel_type: str) -> float:
                     row["amount_value"],
                     row["discount_amount"],
                     bool(row["discount_override"] or row["discount_amount"]),
-                    setting_text(f"card_discount_policy:owner:{row['month']}", "undecided") if panel_type == "claim" else "disabled",
+                    setting_text(
+                        f"card_discount_policy:{'family' if panel_type == 'settlement' else 'owner'}:{row['month']}",
+                        "undecided",
+                    )
+                    if panel_type in {"claim", "settlement"}
+                    else "disabled",
                 )
-                if panel_type == "claim"
+                if panel_type in {"claim", "settlement"}
                 else 0.0
             ),
         )

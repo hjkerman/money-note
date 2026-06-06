@@ -202,7 +202,7 @@ export function CashFlowPanel({
           <thead>
             <tr>
               <th>날짜</th>
-              <th>세부내역</th>
+              <th className="panel-title-cell">세부내역</th>
               <th className="amount">금액</th>
               <th className="action-cell">삭제</th>
             </tr>
@@ -421,8 +421,8 @@ export function PanelTable({
   onDiscount,
   onClearDiscount,
   discountPolicy = "undecided",
-  categoryForPanel,
   judgment,
+  onShare,
   form,
 }: {
   title: string;
@@ -433,8 +433,8 @@ export function PanelTable({
   onDiscount?: (panel: MonthlyPanel) => void;
   onClearDiscount?: (panel: MonthlyPanel) => void;
   discountPolicy?: CardDiscountPolicy | null;
-  categoryForPanel?: (panel: MonthlyPanel) => SpendingCategory | null;
   judgment?: JudgmentState | null;
+  onShare?: () => void;
   form?: ReactNode;
 }) {
   return (
@@ -463,10 +463,9 @@ export function PanelTable({
               {(rows.some((row) => row.spent_on) || rows.some((row) => row.panel_type === "claim" || row.panel_type === "settlement")) ? (
                 <th>사용일</th>
               ) : null}
-              <th>세부내역</th>
-              {categoryForPanel ? <th className="category-cell">자동 분류</th> : null}
+              <th className="panel-title-cell">세부내역</th>
               <th className="amount">금액</th>
-              {onDiscount ? <th className="discount-cell">할인 / 실제 청구</th> : null}
+              {onDiscount ? <th className="discount-cell">할인 / 원금</th> : null}
               {onDelete ? <th className="action-cell">삭제</th> : null}
             </tr>
           </thead>
@@ -481,13 +480,10 @@ export function PanelTable({
                 {(rows.some((item) => item.spent_on) || rows.some((item) => item.panel_type === "claim" || item.panel_type === "settlement")) ? (
                   <td className="date">{formatDateLabel(row.spent_on ?? "") ?? ""}</td>
                 ) : null}
-                <td>
+                <td className="panel-title-cell">
                   {row.title}
                 </td>
-                {categoryForPanel ? (
-                  <td className="category-cell">{categoryLabel(categoryForPanel(row), judgment)}</td>
-                ) : null}
-                <td className="amount">{formatWon(row.amount_value)}</td>
+                <td className="amount">{formatWon(discountEligible ? panelNetAmount(row, discountPolicy) : row.amount_value)}</td>
                 {onDiscount ? (
                   <td className="discount-cell">
                     {discountEligible ? (
@@ -500,7 +496,7 @@ export function PanelTable({
                           onClear={onClearDiscount ? () => onClearDiscount(row) : undefined}
                           disabled={discountPolicy === "disabled"}
                         />
-                        <span className="net-amount">실제 {formatWon(panelNetAmount(row, discountPolicy))}</span>
+                        <span className="net-amount">원금 {formatWon(row.amount_value)}</span>
                       </>
                     ) : null}
                   </td>
@@ -520,6 +516,11 @@ export function PanelTable({
       ) : (
         <p className="empty">항목이 없습니다.</p>
       )}
+      {onShare ? (
+        <button type="button" className="share-wide-button" onClick={onShare}>
+          공유하기
+        </button>
+      ) : null}
     </section>
   );
 }

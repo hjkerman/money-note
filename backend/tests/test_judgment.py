@@ -2,7 +2,6 @@ import unittest
 
 from app.services.judgment import (
     app_judgment,
-    classify_claim_category,
     claim_subtitle,
     ledger_verdict,
     settlement_subtitle,
@@ -68,12 +67,6 @@ class JudgmentTest(unittest.TestCase):
 
         self.assertNotEqual(ordinary, hearing)
 
-    def test_claim_category_includes_dignity_bucket(self) -> None:
-        self.assertEqual(classify_claim_category({"title": "병원 진료", "amount_value": 30_000}), "essential")
-        self.assertEqual(classify_claim_category({"title": "편지지", "amount_value": 10_000}), "questionable")
-        self.assertEqual(classify_claim_category({"title": "세탁비", "amount_value": 10_000}), "dignity")
-        self.assertIsNone(classify_claim_category({"title": "알 수 없는 지출", "amount_value": 10_000}))
-
     def test_app_judgment_returns_frontend_tones(self) -> None:
         result = app_judgment(
             entries=[
@@ -94,7 +87,7 @@ class JudgmentTest(unittest.TestCase):
         )
 
         self.assertEqual(result["category_labels"]["dignity"], "최소한의 품위유지비")
-        self.assertEqual(result["claim_categories"]["1"], "dignity")
+        self.assertEqual(result["claim_categories"], {})
         self.assertIn("budget", result)
         self.assertIn("payment", result)
 

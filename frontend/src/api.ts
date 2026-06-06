@@ -1,6 +1,10 @@
 const SESSION_TOKEN_KEY = "money-note-session-token";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? defaultApiBaseUrl();
 
+export function sharePageUrl(panelType: "claim" | "settlement"): string {
+  return `${API_BASE_URL}/share/${panelType}`;
+}
+
 export type AuthUser = {
   id: number;
   username: string;

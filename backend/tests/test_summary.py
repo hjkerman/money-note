@@ -46,6 +46,27 @@ class SummaryCalculationTest(unittest.TestCase):
         self.assertEqual(panel_net_total("claim"), 49_400)
         self.assertEqual(summary["next_month_liquidity"], 301_200)
 
+    def test_settlement_total_uses_family_discount_policy(self) -> None:
+        with session() as conn:
+            conn.execute(
+                """
+                INSERT INTO monthly_panels(month, panel_type, title, amount_value, sort_order)
+                VALUES ('2026-06', 'settlement', '가족카드', 100000, 1)
+                """
+            )
+
+        self.assertEqual(panel_net_total("settlement"), 98_800)
+
+        with session() as conn:
+            conn.execute(
+                """
+                INSERT OR REPLACE INTO app_settings(key, value, updated_at)
+                VALUES ('card_discount_policy:family:2026-06', 'disabled', CURRENT_TIMESTAMP)
+                """
+            )
+
+        self.assertEqual(panel_net_total("settlement"), 100_000)
+
 
 if __name__ == "__main__":
     unittest.main()

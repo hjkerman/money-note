@@ -46,6 +46,7 @@ import {
   logout,
   resetLedgerData,
   setSharePin,
+  sharePageUrl,
   updateEntry,
   updateCardDiscountPolicy,
   updateEntryDiscount,
@@ -497,6 +498,17 @@ export function App() {
     });
   }
 
+  async function handlePanelShare(panelType: "claim" | "settlement") {
+    const url = sharePageUrl(panelType);
+    try {
+      await navigator.clipboard.writeText(url);
+      setStatus(`${panelLabel(labels, panelType)} 공유 링크 복사 완료`);
+    } catch {
+      window.prompt("공유 링크를 복사하세요.", url);
+      setStatus(`${panelLabel(labels, panelType)} 공유 링크 표시 완료`);
+    }
+  }
+
   async function handleCashFlowSubmit(event: FormEvent) {
     event.preventDefault();
     const form = event.currentTarget as HTMLFormElement;
@@ -655,21 +667,23 @@ export function App() {
     });
   }
 
-  async function handleClaimDiscount(panel: MonthlyPanel) {
-    if (ownerDiscountMonth?.policy === "disabled") {
-      setStatus("이번 달은 본인회원 카드 할인 혜택이 없는 달로 설정되어 있습니다.");
+  async function handlePanelDiscount(panel: MonthlyPanel) {
+    const isSettlement = panel.panel_type === "settlement";
+    const policy = isSettlement ? familyDiscountMonth?.policy : ownerDiscountMonth?.policy;
+    if (policy === "disabled") {
+      setStatus(`이번 달은 ${isSettlement ? "가족카드" : "본인회원 카드"} 할인 혜택이 없는 달로 설정되어 있습니다.`);
       return;
     }
     await withRefresh(async () => {
       await updatePanelDiscount(panel.id, 0);
-      setStatus("청구 항목 할인 제외 완료");
+      setStatus(`${isSettlement ? "타인정산" : "청구"} 항목 할인 제외 완료`);
     });
   }
 
-  async function handleClaimDiscountClear(panel: MonthlyPanel) {
+  async function handlePanelDiscountClear(panel: MonthlyPanel) {
     await withRefresh(async () => {
       await clearPanelDiscount(panel.id);
-      setStatus("청구 항목 할인 적용 완료");
+      setStatus(`${panel.panel_type === "settlement" ? "타인정산" : "청구"} 항목 할인 적용 완료`);
     });
   }
 
@@ -1201,11 +1215,11 @@ export function App() {
                       rows={panels.filter((panel) => panel.panel_type === tab)}
                       onDelete={(panel) => void handlePanelDelete(panel)}
                       onComplete={tab === "claim" || tab === "settlement" ? () => void handlePanelComplete(tab) : undefined}
-                      onDiscount={tab === "claim" ? (panel) => void handleClaimDiscount(panel) : undefined}
-                      onClearDiscount={tab === "claim" ? (panel) => void handleClaimDiscountClear(panel) : undefined}
-                      discountPolicy={ownerDiscountMonth?.policy}
-                      categoryForPanel={tab === "claim" ? (panel) => judgment?.claim_categories[String(panel.id)] ?? null : undefined}
+                      onDiscount={tab === "claim" || tab === "settlement" ? (panel) => void handlePanelDiscount(panel) : undefined}
+                      onClearDiscount={tab === "claim" || tab === "settlement" ? (panel) => void handlePanelDiscountClear(panel) : undefined}
+                      discountPolicy={tab === "settlement" ? familyDiscountMonth?.policy : ownerDiscountMonth?.policy}
                       judgment={judgment}
+                      onShare={tab === "claim" || tab === "settlement" ? () => void handlePanelShare(tab) : undefined}
                       form={
                         <PanelAppendForm
                           isBusy={isBusy}

@@ -171,7 +171,7 @@ export function sumPanelAmounts(rows: MonthlyPanel[]): number {
 }
 
 export function effectivePanelDiscount(row: MonthlyPanel, policy: CardDiscountPolicy | null = null): number {
-  if (row.panel_type !== "claim" || policy === "disabled") return 0;
+  if (!["claim", "settlement"].includes(row.panel_type) || policy === "disabled") return 0;
   if (row.discount_override) return Math.max(0, row.discount_amount ?? 0);
   return defaultCardDiscount(row.amount_value);
 }

@@ -167,10 +167,11 @@ def _panel_net_amount(row: dict) -> float:
 
 
 def _panel_discount_amount(row: dict) -> float:
-    if row.get("panel_type") != "claim":
+    if row.get("panel_type") not in {"claim", "settlement"}:
         return 0.0
     settings = list_settings()
-    policy = settings.get(f"card_discount_policy:owner:{row.get('month')}", "undecided")
+    scope = "family" if row.get("panel_type") == "settlement" else "owner"
+    policy = settings.get(f"card_discount_policy:{scope}:{row.get('month')}", "undecided")
     return effective_card_discount(
         row.get("amount_value"),
         row.get("discount_amount"),
