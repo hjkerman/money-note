@@ -151,6 +151,9 @@ export function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [interestExpenseInput, setInterestExpenseInput] = useState("");
   const [scheduledIncomeInput, setScheduledIncomeInput] = useState("");
+  const [familyCardLimitInput, setFamilyCardLimitInput] = useState("");
+  const [ownerCardLast4Input, setOwnerCardLast4Input] = useState("");
+  const [familyCardLast4Input, setFamilyCardLast4Input] = useState("");
   const [passwordForm, setPasswordForm] = useState({ currentPassword: "", newPassword: "" });
   const [resetPassword, setResetPassword] = useState("");
   const [paymentAllocations, setPaymentAllocations] = useState<Record<string, string>>({});
@@ -229,9 +232,9 @@ export function App() {
       total: sumPanelNetAmounts(panels.filter((panel) => panel.panel_type === "claim"), ownerDiscountMonth?.policy),
     },
     {
-      id: "settlement",
-      label: panelLabel(labels, "settlement"),
-      total: sumPanelAmounts(panels.filter((panel) => panel.panel_type === "settlement")),
+      id: "family_card",
+      label: panelLabel(labels, "family_card"),
+      total: sumPanelNetAmounts(panels.filter((panel) => panel.panel_type === "family_card"), familyDiscountMonth?.policy),
     },
     {
       id: "installments",
@@ -255,6 +258,9 @@ export function App() {
       setSettings(snapshot.settings);
       setInterestExpenseInput(formatIntegerSetting(snapshot.settings.interest_expense));
       setScheduledIncomeInput(formatIntegerSetting(snapshot.settings.base_next_month_liquidity));
+      setFamilyCardLimitInput(formatIntegerSetting(snapshot.settings.family_card_limit));
+      setOwnerCardLast4Input(snapshot.settings.owner_card_last4 ?? "");
+      setFamilyCardLast4Input(snapshot.settings.family_card_last4 ?? "");
       setInstallments(snapshot.installments);
       setCardPayments(snapshot.cardPayments);
       setMonthCloseStatus(snapshot.monthCloseStatus);
@@ -424,7 +430,7 @@ export function App() {
         month: monthCloseStatus?.calendar_month ?? today.slice(0, 7),
         panel_type: panelType,
         title: panelForm.title.trim(),
-        spent_on: panelType === "claim" || panelType === "settlement" ? panelForm.spentOn : null,
+        spent_on: panelType === "claim" || panelType === "family_card" ? panelForm.spentOn : null,
         amount_value: parseAmount(panelForm.amount),
         discount_amount: 0,
         amount_expr: null,
@@ -485,7 +491,7 @@ export function App() {
     });
   }
 
-  async function handlePanelComplete(panelType: "claim" | "settlement") {
+  async function handlePanelComplete(panelType: "claim" | "family_card") {
     const targetPanels = panels.filter((panel) => panel.panel_type === panelType);
     if (!targetPanels.length) return;
     const confirmed = window.confirm(
@@ -498,7 +504,7 @@ export function App() {
     });
   }
 
-  async function handlePanelShare(panelType: "claim" | "settlement") {
+  async function handlePanelShare(panelType: "claim" | "family_card") {
     const url = sharePageUrl(panelType);
     try {
       await navigator.clipboard.writeText(url);
@@ -668,22 +674,22 @@ export function App() {
   }
 
   async function handlePanelDiscount(panel: MonthlyPanel) {
-    const isSettlement = panel.panel_type === "settlement";
-    const policy = isSettlement ? familyDiscountMonth?.policy : ownerDiscountMonth?.policy;
+    const isFamilyCard = panel.panel_type === "family_card";
+    const policy = isFamilyCard ? familyDiscountMonth?.policy : ownerDiscountMonth?.policy;
     if (policy === "disabled") {
-      setStatus(`이번 달은 ${isSettlement ? "가족카드" : "본인회원 카드"} 할인 혜택이 없는 달로 설정되어 있습니다.`);
+      setStatus(`이번 달은 ${isFamilyCard ? "가족카드" : "본인회원 카드"} 할인 혜택이 없는 달로 설정되어 있습니다.`);
       return;
     }
     await withRefresh(async () => {
       await updatePanelDiscount(panel.id, 0);
-      setStatus(`${isSettlement ? "타인정산" : "청구"} 항목 할인 제외 완료`);
+      setStatus(`${isFamilyCard ? "가족카드" : "청구"} 항목 할인 제외 완료`);
     });
   }
 
   async function handlePanelDiscountClear(panel: MonthlyPanel) {
     await withRefresh(async () => {
       await clearPanelDiscount(panel.id);
-      setStatus(`${panel.panel_type === "settlement" ? "타인정산" : "청구"} 항목 할인 적용 완료`);
+      setStatus(`${panel.panel_type === "family_card" ? "가족카드" : "청구"} 항목 할인 적용 완료`);
     });
   }
 
@@ -771,6 +777,31 @@ export function App() {
     });
   }
 
+  async function handleFamilyCardLimitSave() {
+    const amount = parseAmount(familyCardLimitInput);
+    if (amount === null || amount < 0) {
+      setStatus("가족카드 한도는 0원 이상의 숫자로 입력하세요.");
+      return;
+    }
+    await withRefresh(async () => {
+      await updateSetting("family_card_limit", String(amount));
+      setFamilyCardLimitInput(String(amount));
+      setStatus("가족카드 한도 저장 완료");
+    });
+  }
+
+  async function handleCardLast4Save(key: "owner_card_last4" | "family_card_last4", value: string) {
+    const trimmed = value.trim();
+    if (trimmed && !/^\d{4}$/.test(trimmed)) {
+      setStatus("카드 식별값은 비워두거나 숫자 네 자리로 입력해 주세요.");
+      return;
+    }
+    await withRefresh(async () => {
+      await updateSetting(key, trimmed);
+      setStatus(key === "owner_card_last4" ? "본인 카드 식별값 저장 완료" : "가족카드 식별값 저장 완료");
+    });
+  }
+
   async function handlePasswordChange() {
     if (!passwordForm.currentPassword || !passwordForm.newPassword) {
       setStatus("현재 비밀번호와 새 비밀번호를 입력하세요.");
@@ -792,7 +823,7 @@ export function App() {
       return;
     }
     const confirmed = window.confirm(
-      "장부 데이터를 전부 초기화할까요?\n\n당월/전체 기록, 청구, 타인정산, 현금흐름, 할부, 결제 기록이 삭제됩니다. 계정과 설정은 유지됩니다.",
+      "장부 데이터를 전부 초기화할까요?\n\n당월/전체 기록, 청구, 가족카드, 현금흐름, 할부, 결제 기록이 삭제됩니다. 계정과 설정은 유지됩니다.",
     );
     if (!confirmed) return;
     await withRefresh(async () => {
@@ -868,7 +899,7 @@ export function App() {
     const isEarlyClose = Boolean(targetMonth && targetMonth === monthCloseStatus?.calendar_month);
     const confirmed = window.confirm(
       isEarlyClose
-        ? `${formatMonthLabel(targetMonth!)}을 조기 월마감할까요?\n\n이후 같은 달 날짜로 추가하는 지출은 전체 기록에 바로 보관됩니다. 청구와 타인정산은 영향을 받지 않습니다.`
+        ? `${formatMonthLabel(targetMonth!)}을 조기 월마감할까요?\n\n이후 같은 달 날짜로 추가하는 지출은 전체 기록에 바로 보관됩니다. 청구와 가족카드는 영향을 받지 않습니다.`
         : targetMonth
         ? `${formatMonthLabel(targetMonth)} 기록만 월마감하여 전체 기록으로 넘길까요?`
         : "가장 오래된 미마감 월 기록을 전체 기록으로 넘길까요?",
@@ -1102,8 +1133,8 @@ export function App() {
 
             <DiscountPolicyBar
               month={today.slice(0, 7)}
-              scope={activeCurrentTab === "settlement" ? "family" : "owner"}
-              status={activeCurrentTab === "settlement" ? familyDiscountMonth : ownerDiscountMonth}
+              scope={activeCurrentTab === "family_card" ? "family" : "owner"}
+              status={activeCurrentTab === "family_card" ? familyDiscountMonth : ownerDiscountMonth}
               onChange={(scope, month, policy) => void handleDiscountPolicyChange(scope, month, policy)}
               isBusy={isBusy}
             />
@@ -1214,12 +1245,12 @@ export function App() {
                       title={panelLabel(labels, tab)}
                       rows={panels.filter((panel) => panel.panel_type === tab)}
                       onDelete={(panel) => void handlePanelDelete(panel)}
-                      onComplete={tab === "claim" || tab === "settlement" ? () => void handlePanelComplete(tab) : undefined}
-                      onDiscount={tab === "claim" || tab === "settlement" ? (panel) => void handlePanelDiscount(panel) : undefined}
-                      onClearDiscount={tab === "claim" || tab === "settlement" ? (panel) => void handlePanelDiscountClear(panel) : undefined}
-                      discountPolicy={tab === "settlement" ? familyDiscountMonth?.policy : ownerDiscountMonth?.policy}
+                      onComplete={tab === "claim" || tab === "family_card" ? () => void handlePanelComplete(tab) : undefined}
+                      onDiscount={tab === "claim" || tab === "family_card" ? (panel) => void handlePanelDiscount(panel) : undefined}
+                      onClearDiscount={tab === "claim" || tab === "family_card" ? (panel) => void handlePanelDiscountClear(panel) : undefined}
+                      discountPolicy={tab === "family_card" ? familyDiscountMonth?.policy : ownerDiscountMonth?.policy}
                       judgment={judgment}
-                      onShare={tab === "claim" || tab === "settlement" ? () => void handlePanelShare(tab) : undefined}
+                      onShare={tab === "claim" || tab === "family_card" ? () => void handlePanelShare(tab) : undefined}
                       form={
                         <PanelAppendForm
                           isBusy={isBusy}
@@ -1230,11 +1261,11 @@ export function App() {
                         />
                       }
                     />
-                    {tab === "settlement" ? (
+                    {tab === "family_card" ? (
                       <CreditUsagePanel
-                        cardLimit={parseSettingNumber(settings, "settlement_card_limit", 5_800_000)}
+                        cardLimit={parseSettingNumber(settings, "family_card_limit", 5_800_000)}
                         currentCardTotal={sumAmounts(expenseEntries) + sumInstallmentMonthlyAmounts(installments)}
-                        settlementTotal={sumPanelAmounts(panels.filter((panel) => panel.panel_type === "settlement"))}
+                        family_cardTotal={sumPanelAmounts(panels.filter((panel) => panel.panel_type === "family_card"))}
                         tone={judgment?.credit ?? null}
                       />
                     ) : null}
@@ -1408,6 +1439,55 @@ export function App() {
                   placeholder="이자지출"
                 />
                 <button type="button" onClick={() => void handleInterestExpenseSave()} disabled={isBusy}>
+                  저장
+                </button>
+              </label>
+              <label>
+                <span>가족카드 한도</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={familyCardLimitInput}
+                  onChange={(event) => setFamilyCardLimitInput(event.target.value)}
+                  inputMode="numeric"
+                  placeholder="가족카드 한도"
+                />
+                <button type="button" onClick={() => void handleFamilyCardLimitSave()} disabled={isBusy}>
+                  저장
+                </button>
+              </label>
+              <label>
+                <span>본인 카드 끝 4자리</span>
+                <input
+                  value={ownerCardLast4Input}
+                  onChange={(event) => setOwnerCardLast4Input(event.target.value)}
+                  inputMode="numeric"
+                  maxLength={4}
+                  placeholder="선택 입력"
+                />
+                <button
+                  type="button"
+                  onClick={() => void handleCardLast4Save("owner_card_last4", ownerCardLast4Input)}
+                  disabled={isBusy}
+                >
+                  저장
+                </button>
+              </label>
+              <label>
+                <span>가족카드 끝 4자리</span>
+                <input
+                  value={familyCardLast4Input}
+                  onChange={(event) => setFamilyCardLast4Input(event.target.value)}
+                  inputMode="numeric"
+                  maxLength={4}
+                  placeholder="선택 입력"
+                />
+                <button
+                  type="button"
+                  onClick={() => void handleCardLast4Save("family_card_last4", familyCardLast4Input)}
+                  disabled={isBusy}
+                >
                   저장
                 </button>
               </label>

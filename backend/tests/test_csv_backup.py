@@ -69,6 +69,25 @@ class CsvBackupTest(unittest.TestCase):
         self.assertEqual(entry["discount_override"], 1)
         self.assertEqual(allocation["amount_value"], 120)
 
+    def test_import_normalizes_legacy_settlement_domain_names(self) -> None:
+        payload = (
+            "__table,__key,__value,id,month,panel_type,title,amount_value,sort_order,key,value\n"
+            "__meta,format,money-note-data-dump,,,,,,,,\n"
+            "monthly_panels,,,1,2026-06,settlement,가족카드 옛 이름,1000,1,,\n"
+            "app_settings,,,,,,,,,settlement_card_limit,5800000\n"
+        ).encode("utf-8")
+
+        result = import_csv_backup(base64.b64encode(payload).decode("ascii"))
+
+        self.assertEqual(result["monthly_panels"], 1)
+        with session() as conn:
+            panel = conn.execute("SELECT panel_type FROM monthly_panels WHERE id = 1").fetchone()
+            setting = conn.execute("SELECT value FROM app_settings WHERE key = 'family_card_limit'").fetchone()
+            old_setting = conn.execute("SELECT value FROM app_settings WHERE key = 'settlement_card_limit'").fetchone()
+        self.assertEqual(panel["panel_type"], "family_card")
+        self.assertEqual(setting["value"], "5800000")
+        self.assertIsNone(old_setting)
+
 
 if __name__ == "__main__":
     unittest.main()

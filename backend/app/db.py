@@ -196,7 +196,9 @@ INSERT OR IGNORE INTO app_settings(key, value) VALUES
 ('base_next_month_liquidity', '400000'),
 ('interest_expense', '0'),
 ('liquidity_status', '0'),
-('settlement_card_limit', '5800000');
+('family_card_limit', '5800000'),
+('owner_card_last4', ''),
+('family_card_last4', '');
 
 INSERT OR IGNORE INTO app_labels(key, value) VALUES
 ('current_header_date', '날짜'),
@@ -208,7 +210,7 @@ INSERT OR IGNORE INTO app_labels(key, value) VALUES
 ('panel_fixed_title', '현금성 고정지출'),
 ('panel_frozen_title', '동결'),
 ('panel_claim_title', '청구'),
-('panel_settlement_title', '타인정산'),
+('panel_family_card_title', '가족카드'),
 ('panel_header_title', '세부내역'),
 ('panel_header_amount', '금액'),
 ('summary_title', '요약'),
@@ -330,8 +332,41 @@ def init_db() -> None:
               AND value = '적요'
             """
         )
+        _normalize_domain_names(conn)
         _normalize_money_settings(conn)
         _backfill_planned_due_days(conn)
+
+
+def _normalize_domain_names(conn: sqlite3.Connection) -> None:
+    """기존 settlement/타인정산 표기를 가족카드 도메인으로 통일한다."""
+    conn.execute(
+        """
+        UPDATE monthly_panels
+        SET panel_type = 'family_card', updated_at = CURRENT_TIMESTAMP
+        WHERE panel_type = 'settlement'
+        """
+    )
+    conn.execute(
+        """
+        UPDATE app_labels
+        SET key = 'panel_family_card_title', updated_at = CURRENT_TIMESTAMP
+        WHERE key = 'panel_settlement_title'
+          AND NOT EXISTS (SELECT 1 FROM app_labels WHERE key = 'panel_family_card_title')
+        """
+    )
+    for old_key in ("settlement_card_limit", "family_card_card_limit"):
+        row = conn.execute("SELECT value FROM app_settings WHERE key = ?", (old_key,)).fetchone()
+        if row is None:
+            continue
+        conn.execute(
+            """
+            INSERT INTO app_settings(key, value, updated_at)
+            VALUES ('family_card_limit', ?, CURRENT_TIMESTAMP)
+            ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP
+            """,
+            (row["value"],),
+        )
+        conn.execute("DELETE FROM app_settings WHERE key = ?", (old_key,))
 
 
 def _normalize_money_settings(conn: sqlite3.Connection) -> None:
@@ -340,7 +375,7 @@ def _normalize_money_settings(conn: sqlite3.Connection) -> None:
         "base_next_month_liquidity",
         "interest_expense",
         "liquidity_status",
-        "settlement_card_limit",
+        "family_card_limit",
     }
     rows = conn.execute(
         f"SELECT key, value FROM app_settings WHERE key IN ({','.join('?' for _ in keys)})",

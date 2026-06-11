@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 from app.config import get_settings
 from app.db import init_db, session
-from app.repository import create_entry, delete_entry, update_entry
+from app.repository import append_planned_entry, create_entry, delete_entry, list_entries, update_entry
 from app.schemas import LedgerEntryIn, LedgerEntryPatch, PlannedEntryIn
 
 
@@ -79,6 +79,28 @@ class EntryConstraintTest(unittest.TestCase):
             PlannedEntryIn(title="", usage_place="", amount_value=1000, due_day=14)
         with self.assertRaises(ValueError):
             PlannedEntryIn(title="[사용처]", usage_place="사용처", amount_value=-1, due_day=14)
+
+    def test_appended_planned_entry_is_visible_and_survives_init(self) -> None:
+        created = append_planned_entry(
+            PlannedEntryIn(
+                title="[구독] 서버 유지비",
+                usage_place="구독",
+                usage_item="서버 유지비",
+                amount_value=12000,
+                due_day=14,
+            )
+        )
+
+        self.assertEqual(created["book_section"], "current")
+        self.assertEqual(created["entry_kind"], "planned")
+        self.assertEqual(created["due_day"], 14)
+
+        visible = list_entries("current")
+        self.assertTrue(any(entry["id"] == created["id"] for entry in visible))
+
+        init_db()
+        visible_after_init = list_entries("current")
+        self.assertTrue(any(entry["id"] == created["id"] for entry in visible_after_init))
 
     def test_delete_entry_cleans_card_payment_allocations_and_cash_flow(self) -> None:
         first = create_entry(

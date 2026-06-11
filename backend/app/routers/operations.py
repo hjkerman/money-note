@@ -29,19 +29,25 @@ def get_settings_values(_: dict = Depends(require_user)) -> dict[str, str]:
 
 @settings_router.patch("/{key}")
 def patch_setting(key: str, patch: SettingPatch, _: dict = Depends(require_user)) -> dict[str, str]:
-    allowed = {"base_next_month_liquidity", "interest_expense", "liquidity_status", "settlement_card_limit"}
-    if key not in allowed:
+    numeric_settings = {"base_next_month_liquidity", "interest_expense", "liquidity_status", "family_card_limit"}
+    card_last4_settings = {"owner_card_last4", "family_card_last4"}
+    if key not in numeric_settings | card_last4_settings:
         raise HTTPException(status_code=404, detail="unknown setting")
     value = patch.value
-    try:
-        amount = float(value)
-    except ValueError as exc:
-        raise HTTPException(status_code=422, detail=f"{key} must be numeric") from exc
-    if amount < 0:
-        raise HTTPException(status_code=422, detail=f"{key} must be greater than or equal to zero")
-    if not amount.is_integer():
-        raise HTTPException(status_code=422, detail=f"{key} must be an integer")
-    value = str(int(amount))
+    if key in numeric_settings:
+        try:
+            amount = float(value)
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=f"{key} must be numeric") from exc
+        if amount < 0:
+            raise HTTPException(status_code=422, detail=f"{key} must be greater than or equal to zero")
+        if not amount.is_integer():
+            raise HTTPException(status_code=422, detail=f"{key} must be an integer")
+        value = str(int(amount))
+    else:
+        value = value.strip()
+        if value and (not value.isdigit() or len(value) != 4):
+            raise HTTPException(status_code=422, detail=f"{key} must be empty or four digits")
     with session() as conn:
         conn.execute(
             """

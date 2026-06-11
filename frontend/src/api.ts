@@ -1,7 +1,7 @@
 const SESSION_TOKEN_KEY = "money-note-session-token";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? defaultApiBaseUrl();
 
-export function sharePageUrl(panelType: "claim" | "settlement"): string {
+export function sharePageUrl(panelType: "claim" | "family_card"): string {
   return `${API_BASE_URL}/share/${panelType}`;
 }
 
@@ -61,7 +61,7 @@ export type JudgmentState = {
 export type MonthlyPanel = {
   id: number;
   month: string;
-  panel_type: "fixed" | "frozen" | "claim" | "settlement";
+  panel_type: "fixed" | "frozen" | "claim" | "family_card";
   title: string;
   spent_on: string | null;
   amount_value: number | null;
@@ -380,7 +380,7 @@ export async function deletePanelsByType(panelType: MonthlyPanel["panel_type"]):
   return deleteJson(`/api/month/current/panels/type/${panelType}`);
 }
 
-export async function completePanelsByType(panelType: "claim" | "settlement"): Promise<{ completed: number }> {
+export async function completePanelsByType(panelType: "claim" | "family_card"): Promise<{ completed: number }> {
   return postJson(`/api/month/current/panels/type/${panelType}/complete`, {});
 }
 

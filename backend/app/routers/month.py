@@ -105,9 +105,9 @@ def patch_panel_discount(panel_id: int, patch: PanelDiscountPatch, _: dict = Dep
         panel = conn.execute("SELECT * FROM monthly_panels WHERE id = ?", (panel_id,)).fetchone()
     if panel is None:
         raise HTTPException(status_code=404, detail="panel not found")
-    if panel["panel_type"] not in {"claim", "settlement"}:
-        raise HTTPException(status_code=422, detail="청구 또는 타인정산 항목에만 카드 할인을 적용할 수 있습니다.")
-    scope = "family" if panel["panel_type"] == "settlement" else "owner"
+    if panel["panel_type"] not in {"claim", "family_card"}:
+        raise HTTPException(status_code=422, detail="청구 또는 가족카드 항목에만 카드 할인을 적용할 수 있습니다.")
+    scope = "family" if panel["panel_type"] == "family_card" else "owner"
     card_label = "가족카드" if scope == "family" else "본인회원 카드"
     if discount_month_status(panel["month"], scope)["policy"] == "disabled":
         raise HTTPException(status_code=422, detail=f"{panel['month']}은 {card_label} 할인 혜택이 없는 달입니다.")
@@ -136,15 +136,15 @@ def remove_panel(panel_id: int, _: dict = Depends(require_user)) -> dict[str, bo
 
 @router.delete("/panels/type/{panel_type}")
 def remove_panels_by_type(panel_type: str, _: dict = Depends(require_user)) -> dict[str, int]:
-    if panel_type not in {"fixed", "frozen", "claim", "settlement"}:
+    if panel_type not in {"fixed", "frozen", "claim", "family_card"}:
         raise HTTPException(status_code=404, detail="unknown panel type")
     return {"deleted": delete_panels_by_type(calendar_month_label(), panel_type)}
 
 
 @router.post("/panels/type/{panel_type}/complete")
 def complete_current_panels_by_type(panel_type: str, _: dict = Depends(require_user)) -> dict[str, int]:
-    if panel_type not in {"claim", "settlement"}:
-        raise HTTPException(status_code=404, detail="only claim and settlement can be completed in bulk")
+    if panel_type not in {"claim", "family_card"}:
+        raise HTTPException(status_code=404, detail="only claim and family_card can be completed in bulk")
     return {"completed": complete_panels_by_type(calendar_month_label(), panel_type)}
 
 

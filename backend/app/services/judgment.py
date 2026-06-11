@@ -126,10 +126,10 @@ def app_judgment(
         for panel in panels
         if panel.get("panel_type") == "claim"
     ]
-    settlement_rows = [panel for panel in panels if panel.get("panel_type") == "settlement"]
+    family_card_rows = [panel for panel in panels if panel.get("panel_type") == "family_card"]
     frozen_rows = [panel for panel in panels if panel.get("panel_type") == "frozen"]
-    settlement_limit = float(settings.get("settlement_card_limit") or 5_800_000)
-    settlement_total = sum(float(row.get("amount_value") or 0) for row in settlement_rows)
+    family_card_limit = float(settings.get("family_card_limit") or 5_800_000)
+    family_card_total = sum(float(row.get("amount_value") or 0) for row in family_card_rows)
     owner_card_total = float(summary.get("card_total") or 0)
     days_until_due = days_between(date.today().isoformat(), str(payment_status.get("due_date") or date.today().isoformat()))
     reference_liquidity = float(payment_status.get("primary_income_total") or 0)
@@ -148,14 +148,14 @@ def app_judgment(
                 "cash_flow_count": len(cash_flows),
                 "claim_total": sum(panel_net_amount(row) for row in claim_rows),
                 "claim_count": len(claim_rows),
-                "settlement_total": settlement_total,
-                "settlement_count": len(settlement_rows),
+                "family_card_total": family_card_total,
+                "family_card_count": len(family_card_rows),
                 "frozen_total": sum(float(row.get("amount_value") or 0) for row in frozen_rows),
                 "frozen_count": len(frozen_rows),
                 "next_month_liquidity": float(summary.get("next_month_liquidity") or 0),
             }
         ),
-        "credit": credit_usage_tone((owner_card_total + settlement_total) / settlement_limit if settlement_limit > 0 else 0),
+        "credit": credit_usage_tone((owner_card_total + family_card_total) / family_card_limit if family_card_limit > 0 else 0),
         "payment": payment_pressure_tone(
             float(payment_status.get("recorded_remaining_total") or 0),
             days_until_due,
@@ -185,7 +185,7 @@ def budget_committee_tone(input_data: dict) -> dict[str, str]:
         input_data["expense_count"]
         + input_data["cash_flow_count"]
         + input_data["claim_count"]
-        + input_data["settlement_count"]
+        + input_data["family_card_count"]
         + input_data["frozen_count"]
     )
 
@@ -237,13 +237,13 @@ def budget_committee_tone(input_data: dict) -> dict[str, str]:
                 )
             ),
         }
-    if input_data["claim_total"] + input_data["settlement_total"] > input_data["expense_total"] and input_data["claim_count"] + input_data["settlement_count"] > 0:
+    if input_data["claim_total"] + input_data["family_card_total"] > input_data["expense_total"] and input_data["claim_count"] + input_data["family_card_count"] > 0:
         return {
             "level": "steady",
             "message": say(
                 (
                     "본인 소비보다 가족회계의 존재감이 큽니다. 이번 달 장부는 개인전보다 단체전에 가깝습니다.",
-                    "청구와 정산이 당월 지출보다 활발합니다. 가족이라는 제도가 회계상으로도 실재합니다.",
+                    "청구와 가족카드가 당월 지출보다 활발합니다. 가족이라는 제도가 회계상으로도 실재합니다.",
                     "가족 관련 숫자가 장부 전면에 나섰습니다. 신뢰는 유지되고 계산기는 바쁩니다.",
                 )
             ),
@@ -338,7 +338,7 @@ def credit_usage_tone(usage_rate: float) -> dict[str, str]:
             "level": "steady",
             "message": stable_choice(
                 (
-                    "한도 사용률은 온건합니다. 신뢰는 유지되고 정산표는 제 역할을 합니다.",
+                    "한도 사용률은 온건합니다. 신뢰는 유지되고 가족카드표는 제 역할을 합니다.",
                     "가족 신용공동체가 무난하게 운영 중입니다. 명의자의 불안은 아직 취미 수준입니다.",
                     "이 정도면 신용은 일하고 불안은 휴가 중입니다.",
                 ),
@@ -475,7 +475,7 @@ def shared_panel_subtitle(
     """공유 화면 상단에 보여줄 패널별 평가 문구를 고른다."""
     if panel_type == "claim":
         return claim_subtitle(rows, total)
-    return settlement_subtitle(rows, total, current_card_total, card_limit)
+    return family_card_subtitle(rows, total, current_card_total, card_limit)
 
 
 def claim_subtitle(rows: list[dict], total: float) -> str:
@@ -590,13 +590,13 @@ def claim_subtitle(rows: list[dict], total: float) -> str:
     )
 
 
-def settlement_subtitle(rows: list[dict], total: float, current_card_total: float, card_limit: float) -> str:
+def family_card_subtitle(rows: list[dict], total: float, current_card_total: float, card_limit: float) -> str:
     if not rows:
         return stable_choice(
             (
-                "이번 달 정산은 고요합니다. 평화가 숫자로 증명되었습니다.",
+                "이번 달 가족카드는 고요합니다. 평화가 숫자로 증명되었습니다.",
                 "가족카드 사용내역이 없습니다. 카드 명의자가 이유 없이 안도합니다.",
-                "정산할 금액이 없습니다. 형제자매 간 신용공동체가 휴회 중입니다.",
+                "가족카드로 정리할 금액이 없습니다. 형제자매 간 신용공동체가 휴회 중입니다.",
             ),
             round(current_card_total),
             round(card_limit),
@@ -612,7 +612,7 @@ def settlement_subtitle(rows: list[dict], total: float, current_card_total: floa
         return stable_choice(
             (
                 "가족카드가 한도를 주거공간처럼 사용 중입니다. 카드 명의자는 금융기반시설이 되었습니다.",
-                "추정 합산 사용액이 한도의 80%를 넘었습니다. 평화로운 정산보다 긴급 브리핑에 가깝습니다.",
+                "추정 합산 사용액이 한도의 80%를 넘었습니다. 평화로운 가족카드보다 긴급 브리핑에 가깝습니다.",
                 "한도 여백이 희귀자원이 되었습니다. 다 갚는다는 신뢰와 별개로 명의자의 심장은 실시간입니다.",
             ),
             *signals,
@@ -630,7 +630,7 @@ def settlement_subtitle(rows: list[dict], total: float, current_card_total: floa
         return stable_choice(
             (
                 "추정 합산 사용액이 한도의 30%를 넘었습니다. 카드 명의자의 심박수가 회계자료가 됩니다.",
-                "현실적 타협 구간을 조금 벗어났습니다. 명의자는 정산 능력을 믿으며 동시에 불안해합니다.",
+                "현실적 타협 구간을 조금 벗어났습니다. 명의자는 가족카드 능력을 믿으며 동시에 불안해합니다.",
                 "30% 선을 넘었습니다. 한도초과와는 멀지만 마음의 한도에는 근접했습니다.",
             ),
             *signals,
@@ -638,9 +638,9 @@ def settlement_subtitle(rows: list[dict], total: float, current_card_total: floa
     if largest_share >= 0.7 and total >= 100_000:
         return stable_choice(
             (
-                "이번 정산은 사실상 한 건의 대형 안건과 그 부속자료입니다.",
-                "한 항목이 정산액 대부분을 차지합니다. 소비라기보다 사건에 가까운 구성입니다.",
-                "정산 내역의 권력이 한 건에 집중되어 있습니다. 사유가 타당하길 명의자가 조용히 바랍니다.",
+                "이번 가족카드는 사실상 한 건의 대형 안건과 그 부속자료입니다.",
+                "한 항목이 가족카드 사용액 대부분을 차지합니다. 소비라기보다 사건에 가까운 구성입니다.",
+                "가족카드 내역의 권력이 한 건에 집중되어 있습니다. 사유가 타당하길 명의자가 조용히 바랍니다.",
             ),
             *signals,
         )
@@ -648,7 +648,7 @@ def settlement_subtitle(rows: list[dict], total: float, current_card_total: floa
         return stable_choice(
             (
                 "현실과 타협한 가족카드 사용 구간입니다. 할부 변수는 카드사만이 끝까지 알고 있습니다.",
-                "합산 사용률은 온건합니다. 신뢰는 유지되고 정산표는 제 역할을 합니다.",
+                "합산 사용률은 온건합니다. 신뢰는 유지되고 가족카드표는 제 역할을 합니다.",
                 "가족 신용공동체가 무난하게 운영 중입니다. 명의자의 불안은 아직 취미 수준입니다.",
             ),
             *signals,
@@ -657,7 +657,7 @@ def settlement_subtitle(rows: list[dict], total: float, current_card_total: floa
         (
             "형제자매 간 평화를 위한 숫자 보고서입니다.",
             "사용률이 얌전합니다. 가족카드도 이번 달에는 예의가 있었습니다.",
-            "정산 규모가 평온합니다. 명의자의 신용도와 심박수 모두 무사합니다.",
+            "가족카드 규모가 평온합니다. 명의자의 신용도와 심박수 모두 무사합니다.",
         ),
         *signals,
     )

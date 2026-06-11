@@ -13,7 +13,7 @@
 ## 주요 테이블
 
 - `ledger_entries`: 당월/전체 지출, 카드 정기결제, 전월 매입 지연 보정
-- `monthly_panels`: 현금성 고정지출, 동결, 청구, 타인정산
+- `monthly_panels`: 현금성 고정지출, 동결, 청구, 가족카드
 - `app_settings`: 유동성, 이자지출, 카드 한도 등 설정값
 - `app_labels`: 화면 표시 문구
 - `cash_flows`: 현금 입출금
@@ -66,7 +66,7 @@
 | --- | --- | --- |
 | `id` | INTEGER PK | 내부 식별자 |
 | `month` | TEXT | 대상 월 |
-| `panel_type` | TEXT | `fixed`, `frozen`, `claim`, `settlement` |
+| `panel_type` | TEXT | `fixed`, `frozen`, `claim`, `family_card` |
 | `title` | TEXT | 적요 |
 | `spent_on` | TEXT | 사용일 |
 | `amount_value` | REAL | 금액 |
@@ -90,7 +90,9 @@
 | `base_next_month_liquidity` | 주 수입 기록이 없을 때 쓰는 기본 유동성 기준 |
 | `interest_expense` | 이자 지출 |
 | `liquidity_status` | 현재 유동성 현황 |
-| `settlement_card_limit` | 가족카드 한도 감시 기준 |
+| `family_card_limit` | 가족카드 한도 감시 기준 |
+| `owner_card_last4` | 본인회원 카드 끝 4자리 |
+| `family_card_last4` | 가족카드 끝 4자리 |
 
 ## `app_labels`
 
@@ -103,7 +105,8 @@
 | `panel_fixed_title` | 현금성 고정지출 제목 |
 | `panel_frozen_title` | 동결 제목 |
 | `panel_claim_title` | 청구 제목 |
-| `panel_settlement_title` | 타인정산 제목 |
+| `panel_family_card_title` | 가족카드 제목 |
+| `panel_family_card_title` | 가족카드 제목 |
 | `summary_title` | 요약 제목 |
 | `summary_card_total_label` | 카드대금 라벨 |
 | `summary_next_month_liquidity_label` | 익월 유동성 라벨 |
@@ -187,7 +190,7 @@
 
 ### `share_sessions`
 
-청구/타인정산 공유 페이지용 세션이다. 본체 로그인과 분리된다.
+청구/가족카드 공유 페이지용 세션이다. 본체 로그인과 분리된다.
 
 ## `audit_logs`
 

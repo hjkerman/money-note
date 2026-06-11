@@ -47,9 +47,9 @@ export function PanelAppendForm({
             dueDay: panelForm.dueDay,
           })
         }
-        className={panelType === "claim" || panelType === "settlement" ? "" : "hidden-input"}
-        aria-hidden={panelType === "claim" || panelType === "settlement" ? undefined : true}
-        tabIndex={panelType === "claim" || panelType === "settlement" ? undefined : -1}
+        className={panelType === "claim" || panelType === "family_card" ? "" : "hidden-input"}
+        aria-hidden={panelType === "claim" || panelType === "family_card" ? undefined : true}
+        tabIndex={panelType === "claim" || panelType === "family_card" ? undefined : -1}
       />
       <input
         value={panelForm.panel_type === panelType ? panelForm.title : ""}
@@ -460,7 +460,7 @@ export function PanelTable({
         <table>
           <thead>
             <tr>
-              {(rows.some((row) => row.spent_on) || rows.some((row) => row.panel_type === "claim" || row.panel_type === "settlement")) ? (
+              {(rows.some((row) => row.spent_on) || rows.some((row) => row.panel_type === "claim" || row.panel_type === "family_card")) ? (
                 <th>사용일</th>
               ) : null}
               <th className="panel-title-cell">세부내역</th>
@@ -477,7 +477,7 @@ export function PanelTable({
               const discountOverride = Boolean(row.discount_override);
               return (
               <tr key={row.id}>
-                {(rows.some((item) => item.spent_on) || rows.some((item) => item.panel_type === "claim" || item.panel_type === "settlement")) ? (
+                {(rows.some((item) => item.spent_on) || rows.some((item) => item.panel_type === "claim" || item.panel_type === "family_card")) ? (
                   <td className="date">{formatDateLabel(row.spent_on ?? "") ?? ""}</td>
                 ) : null}
                 <td className="panel-title-cell">

@@ -143,15 +143,15 @@ export function StatsPanel({ items, judgment }: { items: StatItem[]; judgment: J
 export function CreditUsagePanel({
   cardLimit,
   currentCardTotal,
-  settlementTotal,
+  family_cardTotal,
   tone,
 }: {
   cardLimit: number;
   currentCardTotal: number;
-  settlementTotal: number;
+  family_cardTotal: number;
   tone: JudgmentState["credit"] | null;
 }) {
-  const combinedTotal = currentCardTotal + settlementTotal;
+  const combinedTotal = currentCardTotal + family_cardTotal;
   const usageRate = cardLimit > 0 ? combinedTotal / cardLimit : 0;
   const usagePercent = usageRate * 100;
   const width = Math.min(100, Math.max(0, usagePercent));

@@ -25,7 +25,7 @@ class PanelCompletionTest(unittest.TestCase):
                 VALUES
                     ('2026-06', 'claim', '청구 하나', 1000, 1),
                     ('2026-06', 'claim', '청구 둘', 2000, 2),
-                    ('2026-06', 'settlement', '정산 하나', 3000, 1),
+                    ('2026-06', 'family_card', '가족카드 하나', 3000, 1),
                     ('2026-06', 'frozen', '동결 하나', 4000, 1)
                 """
             )
@@ -43,7 +43,7 @@ class PanelCompletionTest(unittest.TestCase):
             remaining = conn.execute(
                 "SELECT panel_type, COUNT(*) AS count FROM monthly_panels GROUP BY panel_type ORDER BY panel_type"
             ).fetchall()
-        self.assertEqual([(row["panel_type"], row["count"]) for row in remaining], [("frozen", 1), ("settlement", 1)])
+        self.assertEqual([(row["panel_type"], row["count"]) for row in remaining], [("family_card", 1), ("frozen", 1)])
 
     def test_claim_discount_is_stored_separately_from_original_amount(self) -> None:
         updated = update_panel(1, MonthlyPanelPatch(discount_amount=120))

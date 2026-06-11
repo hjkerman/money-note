@@ -10,7 +10,7 @@ from app.services.month import calendar_month_label
 
 PANEL_TITLES = {
     "claim": ("panel_claim_title", "청구"),
-    "settlement": ("panel_settlement_title", "타인정산"),
+    "family_card": ("panel_family_card_title", "가족카드"),
 }
 
 
@@ -26,7 +26,7 @@ def shared_panel(panel_type: str) -> dict:
     total = sum(_panel_net_amount(row) for row in rows)
     current_card_total = sum(row.get("amount_value") or 0 for row in list_entries("current"))
     settings = list_settings()
-    card_limit = _float_setting(settings, "settlement_card_limit", 5_800_000)
+    card_limit = _float_setting(settings, "family_card_limit", 5_800_000)
     label_key, fallback = PANEL_TITLES[panel_type]
     title = list_labels().get(label_key, fallback)
     return {
@@ -167,10 +167,10 @@ def _panel_net_amount(row: dict) -> float:
 
 
 def _panel_discount_amount(row: dict) -> float:
-    if row.get("panel_type") not in {"claim", "settlement"}:
+    if row.get("panel_type") not in {"claim", "family_card"}:
         return 0.0
     settings = list_settings()
-    scope = "family" if row.get("panel_type") == "settlement" else "owner"
+    scope = "family" if row.get("panel_type") == "family_card" else "owner"
     policy = settings.get(f"card_discount_policy:{scope}:{row.get('month')}", "undecided")
     return effective_card_discount(
         row.get("amount_value"),

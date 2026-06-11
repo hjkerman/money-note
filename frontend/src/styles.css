@@ -430,7 +430,7 @@ th {
 }
 
 .panel-form-claim,
-.panel-form-settlement {
+.panel-form-family_card {
   grid-template-columns: 142px minmax(260px, 1fr) 160px 70px;
 }
 
@@ -1112,7 +1112,7 @@ button.discount-badge:hover:not(:disabled) {
   .entry-form,
   .panel-form,
   .panel-form-claim,
-  .panel-form-settlement,
+  .panel-form-family_card,
   .planned-form,
   .cash-flow-form,
   .installment-form {

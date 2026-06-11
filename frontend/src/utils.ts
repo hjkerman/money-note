@@ -14,12 +14,12 @@ export const panelMeta: Record<PanelType, { labelKey: string; fallback: string }
   fixed: { labelKey: "panel_fixed_title", fallback: "현금성 고정지출" },
   frozen: { labelKey: "panel_frozen_title", fallback: "동결" },
   claim: { labelKey: "panel_claim_title", fallback: "청구" },
-  settlement: { labelKey: "panel_settlement_title", fallback: "타인정산" },
+  family_card: { labelKey: "panel_family_card_title", fallback: "가족카드" },
 };
 
 export const today = new Date().toISOString().slice(0, 10);
 export const DEFAULT_CARD_DISCOUNT_RATE = 0.012;
-export const currentTabs: CurrentTab[] = ["expenses", "claim", "settlement", "installments"];
+export const currentTabs: CurrentTab[] = ["expenses", "claim", "family_card", "installments"];
 export const fallbackCategoryLabels: JudgmentState["category_labels"] = {
   essential: "안 썼으면 큰일 났을 돈",
   questionable: "꼭 써야 했을까...?",
@@ -86,7 +86,7 @@ export function activeStatItems(
   _judgment: JudgmentState | null,
   _ownerDiscountPolicy: CardDiscountPolicy | null = null,
 ): StatItem[] {
-  // 소비 통계는 회수 예정인 청구/타인정산을 빼고, 내가 실제로 사용한 원장 지출만 본다.
+  // 소비 통계는 회수 예정인 청구/가족카드를 빼고, 내가 실제로 사용한 원장 지출만 본다.
   return expenseEntries.map((entry) => ({
     amount_value: entry.amount_value,
     spending_category: entry.spending_category,
@@ -171,7 +171,7 @@ export function sumPanelAmounts(rows: MonthlyPanel[]): number {
 }
 
 export function effectivePanelDiscount(row: MonthlyPanel, policy: CardDiscountPolicy | null = null): number {
-  if (!["claim", "settlement"].includes(row.panel_type) || policy === "disabled") return 0;
+  if (!["claim", "family_card"].includes(row.panel_type) || policy === "disabled") return 0;
   if (row.discount_override) return Math.max(0, row.discount_amount ?? 0);
   return defaultCardDiscount(row.amount_value);
 }

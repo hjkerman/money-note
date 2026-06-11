@@ -254,7 +254,7 @@ curl -X POST http://localhost:18080/api/month/current/close \
 - 카드 정기결제 항목은 당월 기록에 남는다.
 - 현재 달은 매월 27일부터 `allow_early_close=true`로 조기 마감할 수 있다.
 - 조기 마감 뒤 같은 달 날짜로 추가한 일반 지출은 `archive`에 바로 저장된다.
-- 청구와 타인정산은 월마감과 무관하며, 각 탭의 `일괄 처리 완료`로 현재 전달분을 삭제한다.
+- 청구와 가족카드는 월마감과 무관하며, 각 탭의 `일괄 처리 완료`로 현재 전달분을 삭제한다.
 
 ## 읽기 전용 공유 화면
 
@@ -264,10 +264,10 @@ curl -X POST http://localhost:18080/api/month/current/close \
 http://localhost:18080/share/claim
 ```
 
-타인정산:
+가족카드:
 
 ```text
-http://localhost:18080/share/settlement
+http://localhost:18080/share/family_card
 ```
 
 가족에게 앱 설치 없이 보여주기 위한 read-only 웹 화면이다.

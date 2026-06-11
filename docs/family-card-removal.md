@@ -1,4 +1,4 @@
-# Family Card Removal Guide
+# 가족카드 제거 가이드
 
 family_card는 과도기적 부가 기능이며 제거 가능해야 한다.
 

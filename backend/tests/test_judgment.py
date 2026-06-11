@@ -4,7 +4,7 @@ from app.services.judgment import (
     app_judgment,
     claim_subtitle,
     ledger_verdict,
-    settlement_subtitle,
+    family_card_subtitle,
     stable_choice,
 )
 
@@ -53,11 +53,11 @@ class JudgmentTest(unittest.TestCase):
         self.assertNotEqual(one_sick_day, family_worry)
         self.assertIn("평", routine)
 
-    def test_settlement_subtitle_distinguishes_usage_pressure(self) -> None:
+    def test_family_card_subtitle_distinguishes_usage_pressure(self) -> None:
         rows = [{"title": "가족카드", "amount_value": 500_000}]
 
-        quiet = settlement_subtitle(rows, 500_000, 0, 5_800_000)
-        danger = settlement_subtitle(rows, 500_000, 4_300_000, 5_800_000)
+        quiet = family_card_subtitle(rows, 500_000, 0, 5_800_000)
+        danger = family_card_subtitle(rows, 500_000, 4_300_000, 5_800_000)
 
         self.assertNotEqual(quiet, danger)
 
@@ -74,7 +74,7 @@ class JudgmentTest(unittest.TestCase):
             ],
             panels=[
                 {"id": 1, "panel_type": "claim", "title": "세탁비", "amount_value": 10_000, "discount_amount": 0},
-                {"id": 2, "panel_type": "settlement", "title": "가족카드", "amount_value": 20_000},
+                {"id": 2, "panel_type": "family_card", "title": "가족카드", "amount_value": 20_000},
             ],
             cash_flows=[],
             summary={"installment_monthly_total": 0},
@@ -83,7 +83,7 @@ class JudgmentTest(unittest.TestCase):
                 "recorded_remaining_total": 0,
                 "primary_income_total": 400_000,
             },
-            settings={"settlement_card_limit": "5800000", "base_next_month_liquidity": "400000"},
+            settings={"family_card_limit": "5800000", "base_next_month_liquidity": "400000"},
         )
 
         self.assertEqual(result["category_labels"]["dignity"], "최소한의 품위유지비")

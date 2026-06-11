@@ -16,7 +16,7 @@
 
 - 당월 지출: 사용일, 사용처, 사용항목, 금액, 분류를 관리
 - 카드 정기결제: 결제일순 정렬, 확인 시 당월 지출로 편입
-- 청구/타인정산: 가족에게 보여줄 읽기 전용 공유 화면과 일괄 처리 완료
+- 청구/가족카드: 가족에게 보여줄 읽기 전용 공유 화면과 일괄 처리 완료
 - 동결: 살지 말지 보류한 임시 항목. 실제 지출은 직접 기록하고 동결 항목은 삭제
 - 할부: 할부액, 수수료율, 개월수를 입력하면 월 납입액을 원 단위 올림으로 계산
 - 현금흐름: 현금 입출금 기록을 유동성 현황에 반영
@@ -30,7 +30,7 @@
 - CSV 백업/복원: 장부 운용 데이터를 한 파일짜리 CSV 덤프로 내보내고 다시 가져오기
 - 위험 초기화: 현재 비밀번호 확인 후 장부 운용 데이터만 전체 삭제
 - 판단 모듈: 분류 기준과 문구를 백엔드 `judgment` 모듈로 분리하고 프론트는 서버 판단 결과를 표시
-- 가족 공유 PIN: 청구/타인정산 공유 링크를 기본 PIN `0000`으로 잠그고, 변경 가능한 네 자리 PIN과 장기 세션 적용
+- 가족 공유 PIN: 청구/가족카드 공유 링크를 기본 PIN `0000`으로 잠그고, 변경 가능한 네 자리 PIN과 장기 세션 적용
 
 ## 빠른 시작
 
@@ -105,7 +105,7 @@ curl http://localhost:18080/api/month/current/summary
 curl http://localhost:18080/api/entries/current
 curl http://localhost:18080/api/month/current/panels
 curl http://localhost:18080/api/share/claim
-curl http://localhost:18080/api/share/settlement
+curl http://localhost:18080/api/share/family_card
 curl -O http://localhost:18080/api/backups/csv
 ```
 

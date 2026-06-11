@@ -63,7 +63,7 @@ def installment_to_dict(row: Any) -> dict[str, Any]:
 
 def list_entries(section: str, today: date | None = None) -> list[dict[str, Any]]:
     current_month = (today or date.today()).strftime("%Y-%m")
-    filter_confirmed_planned = " AND NOT (entry_kind = 'planned' AND confirmed_month = ?)" if section == "current" else ""
+    filter_confirmed_planned = " AND NOT (entry_kind = 'planned' AND COALESCE(confirmed_month, '') = ?)" if section == "current" else ""
     params: tuple[Any, ...] = (section, current_month) if section == "current" else (section,)
     with session() as conn:
         rows = conn.execute(
@@ -343,7 +343,7 @@ def delete_panels_by_type(month: str, panel_type: str) -> int:
 
 
 def complete_panels_by_type(month: str, panel_type: str) -> int:
-    """청구 또는 타인정산의 현재 전달분을 일괄 처리하고 제거한다."""
+    """청구 또는 가족카드의 현재 전달분을 일괄 처리하고 제거한다."""
     with session() as conn:
         cursor = conn.execute(
             "DELETE FROM monthly_panels WHERE month = ? AND panel_type = ?",

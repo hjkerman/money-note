@@ -58,6 +58,7 @@ def import_csv_backup(encoded_payload: str) -> dict[str, int]:
             columns = _table_columns(conn, table)
             _insert_csv_rows(conn, table, columns, rows)
             imported[table] = len(rows)
+        _normalize_imported_domain_names(conn)
         conn.execute("PRAGMA foreign_keys = ON")
     return imported
 
@@ -181,7 +182,7 @@ def _insert_csv_rows(conn: Any, table: str, columns: list[str], rows: list[dict[
     placeholders = ", ".join("?" for _ in input_columns)
     column_list = ", ".join(input_columns)
     values = [
-        tuple(_csv_value(row.get(column)) for column in input_columns)
+        tuple(_csv_value(table, column, row.get(column)) for column in input_columns)
         for row in rows
     ]
     conn.executemany(
@@ -190,7 +191,35 @@ def _insert_csv_rows(conn: Any, table: str, columns: list[str], rows: list[dict[
     )
 
 
-def _csv_value(value: str | None) -> str | None:
+def _csv_value(table: str, column: str, value: str | None) -> str | None:
     if value is None or value == "":
+        if table in {"app_settings", "app_labels"} and column == "value":
+            return ""
         return None
     return value
+
+
+def _normalize_imported_domain_names(conn: Any) -> None:
+    """오래된 CSV에 남은 settlement 표기를 import 직후 가족카드로 정리한다."""
+    conn.execute("UPDATE monthly_panels SET panel_type = 'family_card' WHERE panel_type = 'settlement'")
+    for old_key in ("settlement_card_limit", "family_card_card_limit"):
+        row = conn.execute("SELECT value FROM app_settings WHERE key = ?", (old_key,)).fetchone()
+        if row is None:
+            continue
+        conn.execute(
+            """
+            INSERT INTO app_settings(key, value, updated_at)
+            VALUES ('family_card_limit', ?, CURRENT_TIMESTAMP)
+            ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP
+            """,
+            (row["value"],),
+        )
+        conn.execute("DELETE FROM app_settings WHERE key = ?", (old_key,))
+    conn.execute(
+        """
+        UPDATE app_labels
+        SET key = 'panel_family_card_title', updated_at = CURRENT_TIMESTAMP
+        WHERE key = 'panel_settlement_title'
+          AND NOT EXISTS (SELECT 1 FROM app_labels WHERE key = 'panel_family_card_title')
+        """
+    )

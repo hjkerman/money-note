@@ -46,16 +46,16 @@ class SummaryCalculationTest(unittest.TestCase):
         self.assertEqual(panel_net_total("claim"), 49_400)
         self.assertEqual(summary["next_month_liquidity"], 301_200)
 
-    def test_settlement_total_uses_family_discount_policy(self) -> None:
+    def test_family_card_total_uses_family_discount_policy(self) -> None:
         with session() as conn:
             conn.execute(
                 """
                 INSERT INTO monthly_panels(month, panel_type, title, amount_value, sort_order)
-                VALUES ('2026-06', 'settlement', '가족카드', 100000, 1)
+                VALUES ('2026-06', 'family_card', '가족카드', 100000, 1)
                 """
             )
 
-        self.assertEqual(panel_net_total("settlement"), 98_800)
+        self.assertEqual(panel_net_total("family_card"), 98_800)
 
         with session() as conn:
             conn.execute(
@@ -65,7 +65,25 @@ class SummaryCalculationTest(unittest.TestCase):
                 """
             )
 
-        self.assertEqual(panel_net_total("settlement"), 100_000)
+        self.assertEqual(panel_net_total("family_card"), 100_000)
+
+    def test_claim_and_family_card_do_not_affect_core_summary(self) -> None:
+        with session() as conn:
+            conn.execute(
+                """
+                INSERT INTO monthly_panels(month, panel_type, title, amount_value, sort_order)
+                VALUES
+                    ('2026-06', 'claim', '집에 청구할 돈', 80000, 1),
+                    ('2026-06', 'family_card', '가족카드 사용액', 90000, 2)
+                """
+            )
+
+        summary = current_summary_values()
+
+        self.assertEqual(summary["card_total"], 0)
+        self.assertEqual(summary["transfer_or_deposit_total"], 0)
+        self.assertEqual(summary["frozen_asset_total"], 0)
+        self.assertEqual(summary["next_month_liquidity"], 400_000)
 
 
 if __name__ == "__main__":

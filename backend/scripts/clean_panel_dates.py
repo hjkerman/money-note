@@ -22,7 +22,7 @@ def main() -> None:
             """
             SELECT id, title
             FROM monthly_panels
-            WHERE panel_type IN ('claim', 'settlement')
+            WHERE panel_type IN ('claim', 'family_card')
             ORDER BY id
             """
         ).fetchall()
