@@ -12,7 +12,6 @@ family_card는 과도기적 부가 기능이며 제거 가능해야 한다.
 - family_card 관련 Python 모델/서비스
 - family_card_last4
 - family_card_enabled
-- family_card CSV export/import 필드
 - family_card 테스트
 
 ## 제거하면 안 되는 것
@@ -34,6 +33,5 @@ family_card는 과도기적 부가 기능이며 제거 가능해야 한다.
 - 소비 통계 정상
 - card_payment 정상
 - liquidity 정상
-- CSV export/import 정상
 - npm build 통과
 - backend test 통과

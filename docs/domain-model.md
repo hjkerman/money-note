@@ -409,6 +409,45 @@ Money Note는 카드사 알림 자동입력을 고려한다.
 
 # 11. 문서 우선 원칙
 
+---
+
+# 11. Snapshot 백업
+
+서버 DB는 Money Note의 단일 원본이다.
+
+Snapshot은 원본 DB를 대체하는 별도 저장소가 아니라, 최근 3개월 장부 데이터와 비민감 운영 설정을 JSON 파일로 잠시 옮겨 담는 백업/복원 형식이다.
+
+Snapshot에 포함하는 것:
+
+- 최근 3개월 관련 `ledger_entries`
+- 최근 3개월 관련 `monthly_panels`
+- 최근 3개월 관련 `cash_flows`
+- 활성 또는 최근 관련 `installments`
+- 관련 `card_payment_events`
+- 관련 `card_payment_allocations`
+- 관련 `card_payment_deferrals`
+- 비민감 운영 `app_settings`
+- `app_labels`
+
+Snapshot에 포함하지 않는 것:
+
+- `users`
+- `auth_sessions`
+- `share_sessions`
+- `audit_logs`
+- 비밀번호, 비밀번호 해시, 세션 토큰
+- 공유 PIN 해시
+
+Snapshot restore는 위험 작업이다.
+
+복원 시 장부 운용 데이터는 snapshot 내용으로 교체되며, 현재 계정 비밀번호를 다시 확인해야 한다.
+
+사용자 계정, 본체 로그인 세션, 가족 공유 세션, 관리 로그는 snapshot restore 대상이 아니다.
+
+---
+
+# 12. 문서 우선 원칙
+
 Money Note를 수정할 때는 다음 순서를 따른다.
 
 1. domain-model.md 확인
@@ -421,7 +460,7 @@ Money Note를 수정할 때는 다음 순서를 따른다.
 
 ---
 
-# 12. 미래 방향
+# 13. 미래 방향
 
 Money Note의 핵심은 다음 네 가지다.
 

@@ -1,6 +1,6 @@
 # DB 명세
 
-이 문서는 현재 구현된 SQLite DB 기준이다. 서버 DB가 source of truth이며, 백업은 [CSV 백업 포맷](csv-backup.md)으로 수행한다.
+이 문서는 현재 구현된 SQLite DB 기준이다. 서버 DB가 source of truth다.
 
 ## 공통 규칙
 
@@ -8,7 +8,6 @@
 - 월은 `YYYY-MM` 문자열이다.
 - 돈은 원 단위 정수로 저장한다. 수수료율 같은 비율만 소수를 허용한다.
 - `created_at`, `updated_at`은 SQLite `CURRENT_TIMESTAMP` 문자열이다.
-- 사용자 계정과 세션은 CSV 백업 대상이 아니다.
 
 ## 주요 테이블
 
@@ -195,24 +194,3 @@
 ## `audit_logs`
 
 변경 API의 사용자, 메서드, 경로, 상태 코드만 저장한다. 요청 본문, 비밀번호, 세션 토큰은 저장하지 않는다.
-
-## CSV 백업 대상
-
-CSV 백업은 아래 테이블을 포함한다.
-
-- `ledger_entries`
-- `monthly_panels`
-- `app_settings`
-- `app_labels`
-- `cash_flows`
-- `installments`
-- `card_payment_events`
-- `card_payment_allocations`
-- `card_payment_deferrals`
-
-CSV 백업은 아래 테이블을 포함하지 않는다.
-
-- `users`
-- `auth_sessions`
-- `share_sessions`
-- `audit_logs`

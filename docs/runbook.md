@@ -222,21 +222,41 @@ sudo rsync -a --delete frontend/dist/ /var/www/money-note/
 
 인증서, reverse proxy, 도메인 연결은 서버 운영 환경에서 별도로 설정한다.
 
-## CSV 백업
+## Snapshot 백업과 복원
 
-웹 상단의 `CSV 백업` 버튼으로 한 파일짜리 CSV 덤프를 내려받는다.
+서버 DB가 단일 원본이다.
 
-API로 받을 때는 로그인 세션 또는 bearer token이 필요하다.
+Snapshot은 최근 3개월 장부 데이터와 앱 운영 설정을 담는 JSON 백업 파일이다. 원본 SQLite DB 파일을 그대로 내려받는 방식이 아니며, 사용자 계정과 세션, 관리 로그, 비밀번호/해시, 공유 PIN 해시는 포함하지 않는다.
+
+내보내기:
 
 ```bash
-curl -O http://localhost:18080/api/backups/csv
+curl -OJ -b /tmp/money-note-cookie.txt \
+  http://localhost:18080/api/admin/snapshot
 ```
 
-복원은 웹 상단의 `CSV 복원` 버튼으로 수행한다. 복원하면 장부 운용 데이터가 백업 파일 내용으로 교체된다. 사용자 계정, 세션, 관리 로그는 유지된다.
+응답 파일 확장자는 `.money-note-snapshot.json`이며, `schema_version`, `exported_at`, `range`, `data`를 포함한다.
 
-포맷 상세:
+복원은 위험 작업이다. 현재 비밀번호를 다시 확인하며, 장부 운용 데이터와 비민감 운영 설정이 snapshot 내용으로 교체된다. 사용자 계정, 본체 로그인 세션, 가족 공유 세션, 관리 로그는 유지된다.
 
-- [CSV 백업 포맷](csv-backup.md)
+웹에서는 `설정 -> 위험 작업 영역 -> snapshot 복원`에서 파일을 선택하고 현재 비밀번호를 입력한 뒤 실행한다.
+
+API로 복원:
+
+```bash
+python3 - <<'PY' > /tmp/snapshot-restore.json
+import json
+from pathlib import Path
+
+snapshot = json.loads(Path("money-note-snapshot.money-note-snapshot.json").read_text())
+print(json.dumps({"password": "your-password", "snapshot": snapshot}, ensure_ascii=False))
+PY
+
+curl -b /tmp/money-note-cookie.txt \
+  -H 'Content-Type: application/json' \
+  -d @/tmp/snapshot-restore.json \
+  http://localhost:18080/api/admin/snapshot/restore
+```
 
 ## 월마감
 

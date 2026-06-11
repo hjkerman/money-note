@@ -1,3 +1,5 @@
+from typing import Any
+
 from pydantic import BaseModel, Field, field_validator
 
 
@@ -23,6 +25,11 @@ class PasswordChangeIn(BaseModel):
 
 class PasswordConfirmIn(BaseModel):
     password: str
+
+
+class SnapshotRestoreIn(BaseModel):
+    password: str
+    snapshot: dict[str, Any]
 
 
 class SharePinIn(BaseModel):
@@ -164,11 +171,6 @@ class MonthlyPanelPatch(BaseModel):
 
 class SettingPatch(BaseModel):
     value: str
-
-
-class CsvBackupImportIn(BaseModel):
-    filename: str
-    content_base64: str
 
 
 class CashFlow(BaseModel):

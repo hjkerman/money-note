@@ -67,7 +67,6 @@ export function App() {
   } = useModalState();
   const {
     cashFlowForm,
-    csvBackupInputRef,
     expenseForm,
     installmentForm,
     lateEntryForm,
@@ -280,21 +279,18 @@ export function App() {
     handleAuditLogToggle,
     handleCardLast4Save,
     handleCloseMonth,
-    handleCsvBackupDownload,
-    handleCsvBackupImport,
     handleFamilyCardLimitSave,
     handleInterestExpenseSave,
     handleLedgerReset,
     handlePasswordChange,
     handleScheduledIncomeSave,
     handleSharePinSet,
+    handleSnapshotRestore,
   } = useSettingsHandlers({
-    csvBackupInputRef,
     familyCardLimitInput,
     interestExpenseInput,
     monthCloseStatus,
     passwordForm,
-    refresh,
     resetPassword,
     scheduledIncomeInput,
     setAuditLogs,
@@ -403,13 +399,10 @@ export function App() {
       header={
         <AppHeader
           currentMonth={currentMonth}
-          csvBackupInputRef={csvBackupInputRef}
           isBusy={isBusy}
           monthCloseStatus={monthCloseStatus}
           onAuditLogToggle={() => void handleAuditLogToggle()}
           onCloseMonth={() => void handleCloseMonth()}
-          onCsvBackupDownload={() => void handleCsvBackupDownload()}
-          onCsvBackupImport={(file) => void handleCsvBackupImport(file)}
           onLogout={() => void handleLogout()}
           onOpenSettings={() => setShowSettings(true)}
           onShowStatsToggle={() => setShowStats(!showStats)}
@@ -431,6 +424,7 @@ export function App() {
             onPasswordChange={() => void handlePasswordChange()}
             onScheduledIncomeSave={() => void handleScheduledIncomeSave()}
             onSharePinSet={() => void handleSharePinSet()}
+            onSnapshotRestore={(file) => void handleSnapshotRestore(file)}
             ownerCardLast4Input={ownerCardLast4Input}
             passwordForm={passwordForm}
             resetPassword={resetPassword}

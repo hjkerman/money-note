@@ -1,28 +1,21 @@
-import { RefObject } from "react";
 import { MonthCloseStatus } from "../api";
 
 export function AppHeader({
   currentMonth,
-  csvBackupInputRef,
   isBusy,
   monthCloseStatus,
   onAuditLogToggle,
   onCloseMonth,
-  onCsvBackupDownload,
-  onCsvBackupImport,
   onLogout,
   onOpenSettings,
   onShowStatsToggle,
   showStats,
 }: {
   currentMonth: string;
-  csvBackupInputRef: RefObject<HTMLInputElement | null>;
   isBusy: boolean;
   monthCloseStatus: MonthCloseStatus | null;
   onAuditLogToggle: () => void;
   onCloseMonth: () => void;
-  onCsvBackupDownload: () => void;
-  onCsvBackupImport: (file: File | null) => void;
   onLogout: () => void;
   onOpenSettings: () => void;
   onShowStatsToggle: () => void;
@@ -38,19 +31,6 @@ export function AppHeader({
         <button type="button" onClick={onOpenSettings} disabled={isBusy}>
           설정
         </button>
-        <button type="button" onClick={onCsvBackupDownload} disabled={isBusy}>
-          CSV 백업
-        </button>
-        <button type="button" onClick={() => csvBackupInputRef.current?.click()} disabled={isBusy}>
-          CSV 복원
-        </button>
-        <input
-          ref={csvBackupInputRef}
-          type="file"
-          accept=".csv,text/csv,.zip,application/zip"
-          hidden
-          onChange={(event) => onCsvBackupImport(event.target.files?.[0] ?? null)}
-        />
         <button type="button" onClick={onShowStatsToggle} disabled={isBusy}>
           통계 {showStats ? "끄기" : "보기"}
         </button>

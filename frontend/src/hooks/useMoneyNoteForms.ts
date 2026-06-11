@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { PanelType } from "../types";
 import { previousMonthLastDay, today } from "../utils";
 
@@ -34,11 +34,8 @@ export function useMoneyNoteForms() {
     usageItem: "",
     amount: "",
   });
-  const csvBackupInputRef = useRef<HTMLInputElement | null>(null);
-
   return {
     cashFlowForm,
-    csvBackupInputRef,
     expenseForm,
     installmentForm,
     lateEntryForm,

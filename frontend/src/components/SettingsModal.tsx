@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useRef, useState } from "react";
 
 type PasswordForm = { currentPassword: string; newPassword: string };
 
@@ -15,6 +15,7 @@ export function SettingsModal({
   onPasswordChange,
   onScheduledIncomeSave,
   onSharePinSet,
+  onSnapshotRestore,
   ownerCardLast4Input,
   passwordForm,
   resetPassword,
@@ -39,6 +40,7 @@ export function SettingsModal({
   onPasswordChange: () => void;
   onScheduledIncomeSave: () => void;
   onSharePinSet: () => void;
+  onSnapshotRestore: (file: File | null) => void;
   ownerCardLast4Input: string;
   passwordForm: PasswordForm;
   resetPassword: string;
@@ -51,6 +53,9 @@ export function SettingsModal({
   setResetPassword: Dispatch<SetStateAction<string>>;
   setScheduledIncomeInput: Dispatch<SetStateAction<string>>;
 }) {
+  const snapshotInputRef = useRef<HTMLInputElement | null>(null);
+  const [snapshotFile, setSnapshotFile] = useState<File | null>(null);
+
   return (
     <div className="modal-backdrop" role="presentation" onMouseDown={onClose}>
       <section
@@ -186,6 +191,28 @@ export function SettingsModal({
             />
             <button type="button" className="danger" onClick={onLedgerReset} disabled={isBusy}>
               전체 초기화
+            </button>
+            <div>
+              <h3>snapshot 복원</h3>
+              <p>최근 장부 데이터를 snapshot 파일 내용으로 교체합니다. 현재 비밀번호 확인이 필요합니다.</p>
+            </div>
+            <input
+              ref={snapshotInputRef}
+              type="file"
+              accept=".money-note-snapshot.json,application/json"
+              onChange={(event) => setSnapshotFile(event.target.files?.[0] ?? null)}
+            />
+            <button
+              type="button"
+              className="danger"
+              onClick={() => {
+                onSnapshotRestore(snapshotFile);
+                if (snapshotInputRef.current) snapshotInputRef.current.value = "";
+                setSnapshotFile(null);
+              }}
+              disabled={isBusy || !snapshotFile}
+            >
+              snapshot 복원
             </button>
           </section>
         </div>

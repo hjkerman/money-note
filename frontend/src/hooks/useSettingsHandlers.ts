@@ -1,27 +1,24 @@
-import { Dispatch, RefObject, SetStateAction } from "react";
+import { Dispatch, SetStateAction } from "react";
 
 import {
   AuthUser,
   changePassword,
   clearAuditLogs,
   closeCurrentMonth,
-  downloadCsvBackup,
   fetchAuditLogs,
-  importCsvBackup,
   MonthCloseStatus,
   resetLedgerData,
+  restoreSnapshot,
   setSharePin,
   updateSetting,
 } from "../api";
 import { formatMonthLabel, parseAmount } from "../utils";
 
 export function useSettingsHandlers({
-  csvBackupInputRef,
   familyCardLimitInput,
   interestExpenseInput,
   monthCloseStatus,
   passwordForm,
-  refresh,
   resetPassword,
   scheduledIncomeInput,
   setAuditLogs,
@@ -38,12 +35,10 @@ export function useSettingsHandlers({
   showAuditLogs,
   withRefresh,
 }: {
-  csvBackupInputRef: RefObject<HTMLInputElement | null>;
   familyCardLimitInput: string;
   interestExpenseInput: string;
   monthCloseStatus: MonthCloseStatus | null;
   passwordForm: { currentPassword: string; newPassword: string };
-  refresh: () => Promise<void>;
   resetPassword: string;
   scheduledIncomeInput: string;
   setAuditLogs: (logs: Awaited<ReturnType<typeof fetchAuditLogs>>) => void;
@@ -141,6 +136,35 @@ export function useSettingsHandlers({
     });
   }
 
+  async function handleSnapshotRestore(file: File | null) {
+    if (!file) {
+      setStatus("복원할 snapshot 파일을 선택하세요.");
+      return;
+    }
+    if (!resetPassword) {
+      setStatus("snapshot 복원에는 현재 비밀번호가 필요합니다.");
+      return;
+    }
+    const confirmed = window.confirm(
+      "snapshot을 복원할까요?\n\n기존 최근 장부 데이터가 snapshot 내용으로 교체됩니다. 계정, 로그인 세션, 공유 세션, 관리 로그는 유지됩니다.",
+    );
+    if (!confirmed) return;
+    let snapshot: unknown;
+    try {
+      snapshot = JSON.parse(await file.text());
+    } catch {
+      setStatus("snapshot 파일을 JSON으로 읽지 못했습니다.");
+      return;
+    }
+    await withRefresh(async () => {
+      const result = await restoreSnapshot(resetPassword, snapshot);
+      const total = Object.values(result.restored).reduce((sum, count) => sum + count, 0);
+      setResetPassword("");
+      setPaymentAllocations({});
+      setStatus(`snapshot 복원 완료: ${total}행`);
+    });
+  }
+
   async function handleSharePinSet() {
     const pin = window.prompt("가족 공유 페이지에서 사용할 숫자 네 자리를 입력하세요.");
     if (pin === null) return;
@@ -212,59 +236,17 @@ export function useSettingsHandlers({
     });
   }
 
-  async function handleCsvBackupDownload() {
-    setIsBusy(true);
-    try {
-      const { filename, blob } = await downloadCsvBackup();
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = filename;
-      link.click();
-      URL.revokeObjectURL(url);
-      setStatus(`CSV 백업 생성 완료: ${filename}`);
-    } catch (error) {
-      setStatus(`CSV 백업 실패: ${error instanceof Error ? error.message : String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
-  }
-
-  async function handleCsvBackupImport(file: File | null) {
-    if (!file) return;
-    const confirmed = window.confirm(
-      "CSV 백업을 복원할까요?\n\n현재 장부 데이터가 백업 파일 내용으로 교체됩니다. 사용자 계정과 관리 로그는 바꾸지 않습니다.",
-    );
-    if (!confirmed) {
-      if (csvBackupInputRef.current) csvBackupInputRef.current.value = "";
-      return;
-    }
-    setIsBusy(true);
-    try {
-      const result = await importCsvBackup(file);
-      await refresh();
-      const total = Object.values(result.imported).reduce((sum, count) => sum + count, 0);
-      setStatus(`CSV 복원 완료: ${result.filename} (${total}행)`);
-    } catch (error) {
-      setStatus(`CSV 복원 실패: ${error instanceof Error ? error.message : String(error)}`);
-    } finally {
-      if (csvBackupInputRef.current) csvBackupInputRef.current.value = "";
-      setIsBusy(false);
-    }
-  }
-
   return {
     handleAuditLogClear,
     handleAuditLogToggle,
     handleCardLast4Save,
     handleCloseMonth,
-    handleCsvBackupDownload,
-    handleCsvBackupImport,
     handleFamilyCardLimitSave,
     handleInterestExpenseSave,
     handleLedgerReset,
     handlePasswordChange,
     handleScheduledIncomeSave,
     handleSharePinSet,
+    handleSnapshotRestore,
   };
 }

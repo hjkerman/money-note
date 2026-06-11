@@ -2,7 +2,7 @@
 
 개인 신용카드 생활에 맞춘 1인용 가계부 웹 앱입니다.
 
-서버 DB가 원본 데이터입니다. 과거의 스프레드시트 운용 방식에서 출발했지만, 현재 앱은 웹 UI와 API를 중심으로 동작하며 백업은 단일 CSV 데이터 덤프로 관리합니다.
+서버 DB가 원본 데이터입니다. 과거의 스프레드시트 운용 방식에서 출발했지만, 현재 앱은 웹 UI와 API를 중심으로 동작합니다.
 
 ## 현재 계획
 
@@ -27,7 +27,7 @@
 - 조기 월마감: 매월 27일부터 명시 확인 후 현재 달을 닫을 수 있고, 이후 같은 달 지출은 전체 기록에 바로 추가
 - 전월 매입 지연 보정: 카드사가 뒤늦게 올린 직전월 사용내역을 이번달 결제 대상에 추가
 - 관리 로그: 변경 API의 사용자·경로·결과를 조회하고 필요할 때 전체 초기화
-- CSV 백업/복원: 장부 운용 데이터를 한 파일짜리 CSV 덤프로 내보내고 다시 가져오기
+- Snapshot 백업/복원: 최근 3개월 장부 데이터와 비민감 운영 설정을 JSON snapshot으로 보관하고 복원
 - 위험 초기화: 현재 비밀번호 확인 후 장부 운용 데이터만 전체 삭제
 - 판단 모듈: 분류 기준과 문구를 백엔드 `judgment` 모듈로 분리하고 프론트는 서버 판단 결과를 표시
 - 가족 공유 PIN: 청구/가족카드 공유 링크를 기본 PIN `0000`으로 잠그고, 변경 가능한 네 자리 PIN과 장기 세션 적용
@@ -78,21 +78,10 @@ npm run build
 
 생성된 `frontend/dist/`를 홈서버의 `/var/www/...` 아래에 배치하면 됩니다.
 
-## CSV 백업
-
-웹 상단의 `CSV 백업` 버튼으로 현재 장부 운용 데이터를 CSV 파일 하나로 받을 수 있습니다.
-
-복원은 `CSV 복원` 버튼으로 수행합니다. 복원 시 기존 장부 운용 데이터는 백업 파일 내용으로 교체되지만, 사용자 계정과 세션, 관리 로그는 유지됩니다.
-
-포맷 상세:
-
-- [CSV 백업 포맷](docs/csv-backup.md)
-
 ## 문서
 
 - [API 명세](docs/api.md)
 - [DB 명세](docs/database.md)
-- [CSV 백업 포맷](docs/csv-backup.md)
 - [실행 방법](docs/runbook.md)
 - [아키텍처](docs/architecture.md)
 - [테스트 절차](docs/test-plan.md)
@@ -106,7 +95,7 @@ curl http://localhost:18080/api/entries/current
 curl http://localhost:18080/api/month/current/panels
 curl http://localhost:18080/api/share/claim
 curl http://localhost:18080/api/share/family_card
-curl -O http://localhost:18080/api/backups/csv
+curl -OJ http://localhost:18080/api/admin/snapshot
 ```
 
 로그인이 필요한 API는 브라우저 세션 또는 `Authorization: Bearer ...` 헤더가 필요합니다.

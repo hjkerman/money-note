@@ -30,6 +30,8 @@ class AdminApiTest(unittest.TestCase):
         main_module = importlib.reload(main_module)
         paths = {route.path for route in main_module.app.routes}
         self.assertIn("/api/admin/reset-ledger-data", paths)
+        self.assertIn("/api/admin/snapshot", paths)
+        self.assertIn("/api/admin/snapshot/restore", paths)
 
     def test_reset_ledger_data_deletes_ledger_only(self) -> None:
         with session() as conn:
