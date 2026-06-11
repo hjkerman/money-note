@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -8,7 +10,14 @@ from app.routers import admin, audit, auth, backups, card_payments, entries, mon
 from app.services.audit import record_audit_log
 from app.share_auth import ensure_default_share_pin
 
-app = FastAPI(title="money-note")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    ensure_default_share_pin()
+    yield
+
+
+app = FastAPI(title="money-note", lifespan=lifespan)
 settings = get_settings()
 app.add_middleware(
     CORSMiddleware,
@@ -43,12 +52,6 @@ async def audit_mutating_api_requests(request: Request, call_next):
             # 감사 로그 장애가 실제 가계부 조작을 실패시키지는 않는다.
             pass
     return response
-
-
-@app.on_event("startup")
-def startup() -> None:
-    init_db()
-    ensure_default_share_pin()
 
 
 @app.get("/health")
