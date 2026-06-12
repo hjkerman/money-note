@@ -291,6 +291,7 @@ export function App() {
     handlePreRestoreRestore,
     handleScheduledIncomeSave,
     handleSharePinSet,
+    handleSnapshotDownload,
     handleSnapshotRestore,
   } = useSettingsHandlers({
     cardLimitInput,
@@ -434,6 +435,7 @@ export function App() {
             onPreRestoreRestore={(filename) => void handlePreRestoreRestore(filename)}
             onScheduledIncomeSave={() => void handleScheduledIncomeSave()}
             onSharePinSet={() => void handleSharePinSet()}
+            onSnapshotDownload={() => void handleSnapshotDownload()}
             onSnapshotRestore={(file) => void handleSnapshotRestore(file)}
             ownerCardLast4Input={ownerCardLast4Input}
             passwordForm={passwordForm}

@@ -20,6 +20,7 @@ export function SettingsModal({
   onPreRestoreRestore,
   onScheduledIncomeSave,
   onSharePinSet,
+  onSnapshotDownload,
   onSnapshotRestore,
   ownerCardLast4Input,
   passwordForm,
@@ -49,6 +50,7 @@ export function SettingsModal({
   onPreRestoreRestore: (filename: string) => void;
   onScheduledIncomeSave: () => void;
   onSharePinSet: () => void;
+  onSnapshotDownload: () => void;
   onSnapshotRestore: (file: File | null) => void;
   ownerCardLast4Input: string;
   passwordForm: PasswordForm;
@@ -188,42 +190,59 @@ export function SettingsModal({
             </button>
           </label>
           <section className="danger-zone">
-            <div>
-              <h3>장부 데이터 전체 초기화</h3>
-              <p>계정, 로그인 세션, 공유 PIN, 설정은 유지하고 사용자가 입력한 장부 운용 데이터만 삭제합니다.</p>
-            </div>
-            <input
-              type="password"
-              value={resetPassword}
-              onChange={(event) => setResetPassword(event.target.value)}
-              autoComplete="current-password"
-              placeholder="현재 비밀번호"
-            />
-            <button type="button" className="danger" onClick={onLedgerReset} disabled={isBusy}>
-              전체 초기화
-            </button>
-            <div>
-              <h3>snapshot 복원</h3>
-              <p>장부 운용 데이터를 snapshot 파일 내용으로 교체합니다. 현재 비밀번호 확인이 필요합니다.</p>
-            </div>
-            <input
-              ref={snapshotInputRef}
-              type="file"
-              accept=".money-note-snapshot.json,application/json"
-              onChange={(event) => setSnapshotFile(event.target.files?.[0] ?? null)}
-            />
-            <button
-              type="button"
-              className="danger"
-              onClick={() => {
-                onSnapshotRestore(snapshotFile);
-                if (snapshotInputRef.current) snapshotInputRef.current.value = "";
-                setSnapshotFile(null);
-              }}
-              disabled={isBusy || !snapshotFile}
-            >
-              snapshot 복원
-            </button>
+            <article className="danger-action">
+              <div>
+                <h3>snapshot 백업</h3>
+                <p>현재 장부와 설정을 단일 snapshot 파일로 내려받습니다. 비밀번호 재확인은 필요 없습니다.</p>
+              </div>
+              <button type="button" onClick={onSnapshotDownload} disabled={isBusy}>
+                snapshot 백업 다운로드
+              </button>
+            </article>
+            <article className="danger-action">
+              <div>
+                <h3>snapshot 복원</h3>
+                <p>장부 운용 데이터를 snapshot 파일 내용으로 교체합니다. 현재 비밀번호 확인이 필요합니다.</p>
+              </div>
+              <div className="danger-controls">
+                <input
+                  ref={snapshotInputRef}
+                  type="file"
+                  accept=".money-note-snapshot.json,application/json"
+                  onChange={(event) => setSnapshotFile(event.target.files?.[0] ?? null)}
+                />
+                <button
+                  type="button"
+                  className="danger"
+                  onClick={() => {
+                    onSnapshotRestore(snapshotFile);
+                    if (snapshotInputRef.current) snapshotInputRef.current.value = "";
+                    setSnapshotFile(null);
+                  }}
+                  disabled={isBusy || !snapshotFile}
+                >
+                  snapshot 복원
+                </button>
+              </div>
+            </article>
+            <article className="danger-action">
+              <div>
+                <h3>장부 데이터 전체 초기화</h3>
+                <p>계정, 로그인 세션, 공유 PIN, 설정은 유지하고 사용자가 입력한 장부 운용 데이터만 삭제합니다.</p>
+              </div>
+              <div className="danger-controls">
+                <input
+                  type="password"
+                  value={resetPassword}
+                  onChange={(event) => setResetPassword(event.target.value)}
+                  autoComplete="current-password"
+                  placeholder="현재 비밀번호"
+                />
+                <button type="button" className="danger" onClick={onLedgerReset} disabled={isBusy}>
+                  전체 초기화
+                </button>
+              </div>
+            </article>
             <div className="pre-restore-section">
               <div className="pre-restore-header">
                 <div>

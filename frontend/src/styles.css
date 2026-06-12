@@ -899,14 +899,31 @@ button.discount-badge:hover:not(:disabled) {
 
 .danger-zone {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 180px auto;
   gap: 10px;
-  align-items: center;
   margin-top: 8px;
   padding: 14px;
   border: 1px solid #d9a3a3;
   border-radius: 8px;
   background: #fff8f7;
+}
+
+.danger-action {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, auto);
+  gap: 10px;
+  align-items: center;
+}
+
+.danger-action + .danger-action {
+  padding-top: 10px;
+  border-top: 1px solid #efd2ce;
+}
+
+.danger-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
 }
 
 .danger-zone h3 {
@@ -922,7 +939,6 @@ button.discount-badge:hover:not(:disabled) {
 }
 
 .pre-restore-section {
-  grid-column: 1 / -1;
   display: grid;
   gap: 10px;
   margin-top: 4px;
@@ -1209,7 +1225,9 @@ button.discount-badge:hover:not(:disabled) {
     grid-template-columns: 1fr;
   }
 
-  .danger-zone {
+  .danger-zone,
+  .danger-action,
+  .danger-controls {
     grid-template-columns: 1fr;
   }
 

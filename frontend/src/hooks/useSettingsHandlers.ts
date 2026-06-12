@@ -6,6 +6,7 @@ import {
   clearAuditLogs,
   closeCurrentMonth,
   downloadPreRestoreBackup,
+  downloadSnapshot,
   fetchAuditLogs,
   fetchPreRestoreBackups,
   MonthCloseStatus,
@@ -171,6 +172,19 @@ export function useSettingsHandlers({
     });
   }
 
+  async function handleSnapshotDownload() {
+    setIsBusy(true);
+    try {
+      const result = await downloadSnapshot();
+      downloadBlob(result.blob, result.filename);
+      setStatus("snapshot 백업 다운로드 준비 완료");
+    } catch (error) {
+      setStatus(`snapshot 백업 다운로드 실패: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      setIsBusy(false);
+    }
+  }
+
   async function handlePreRestoreList() {
     setIsBusy(true);
     try {
@@ -188,14 +202,7 @@ export function useSettingsHandlers({
     setIsBusy(true);
     try {
       const result = await downloadPreRestoreBackup(filename);
-      const url = URL.createObjectURL(result.blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = result.filename;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
+      downloadBlob(result.blob, result.filename);
       setStatus("복원 전 백업 다운로드 준비 완료");
     } catch (error) {
       setStatus(`복원 전 백업 다운로드 실패: ${error instanceof Error ? error.message : String(error)}`);
@@ -308,6 +315,18 @@ export function useSettingsHandlers({
     handlePreRestoreRestore,
     handleScheduledIncomeSave,
     handleSharePinSet,
+    handleSnapshotDownload,
     handleSnapshotRestore,
   };
+}
+
+function downloadBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
 }

@@ -12,6 +12,21 @@ export async function restoreSnapshot(
   return postJson("/api/admin/snapshot/restore", { password, snapshot_text: snapshotText });
 }
 
+export async function downloadSnapshot(): Promise<{ blob: Blob; filename: string }> {
+  const response = await fetch(`${API_BASE_URL}/api/admin/snapshot`, {
+    headers: authHeaders(),
+    credentials: "include",
+  });
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(detail || `HTTP ${response.status}`);
+  }
+  return {
+    blob: await response.blob(),
+    filename: readDownloadFilename(response.headers.get("Content-Disposition")) ?? "money-note-snapshot.json",
+  };
+}
+
 export async function fetchPreRestoreBackups(): Promise<PreRestoreBackup[]> {
   const result = await getJson<{ backups: PreRestoreBackup[] }>("/api/admin/snapshot/pre-restore");
   return result.backups;
