@@ -7,9 +7,9 @@ export async function resetLedgerData(password: string): Promise<{ deleted: Reco
 
 export async function restoreSnapshot(
   password: string,
-  snapshot: unknown,
+  snapshotText: string,
 ): Promise<{ restored: Record<string, number> }> {
-  return postJson("/api/admin/snapshot/restore", { password, snapshot });
+  return postJson("/api/admin/snapshot/restore", { password, snapshot_text: snapshotText });
 }
 
 export async function fetchPreRestoreBackups(): Promise<PreRestoreBackup[]> {

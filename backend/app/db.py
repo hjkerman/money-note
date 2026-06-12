@@ -250,6 +250,7 @@ def init_db() -> None:
             conn.execute("ALTER TABLE monthly_panels ADD COLUMN discount_override INTEGER NOT NULL DEFAULT 0")
         if "spent_on" not in panel_columns:
             conn.execute("ALTER TABLE monthly_panels ADD COLUMN spent_on TEXT")
+        _drop_legacy_column(conn, "monthly_panels", "discount_checked")
         ledger_columns = {
             row["name"]
             for row in conn.execute("PRAGMA table_info(ledger_entries)").fetchall()
@@ -270,6 +271,7 @@ def init_db() -> None:
             conn.execute("ALTER TABLE ledger_entries ADD COLUMN payment_key TEXT")
         if "discount_override" not in ledger_columns:
             conn.execute("ALTER TABLE ledger_entries ADD COLUMN discount_override INTEGER NOT NULL DEFAULT 0")
+        _drop_legacy_column(conn, "ledger_entries", "discount_checked")
         conn.execute(
             """
             UPDATE ledger_entries
@@ -361,6 +363,19 @@ def _normalize_domain_names(conn: sqlite3.Connection) -> None:
           AND NOT EXISTS (SELECT 1 FROM app_labels WHERE key = 'panel_family_card_title')
         """
     )
+
+
+def _drop_legacy_column(conn: sqlite3.Connection, table: str, column: str) -> None:
+    """현재 스키마에서 제거된 컬럼은 가능할 때만 물리적으로 정리한다."""
+    columns = {row["name"] for row in conn.execute(f"PRAGMA table_info({table})").fetchall()}
+    if column not in columns:
+        return
+    try:
+        conn.execute(f"ALTER TABLE {table} DROP COLUMN {column}")
+    except sqlite3.OperationalError:
+        return
+
+
 def _normalize_money_settings(conn: sqlite3.Connection) -> None:
     """돈 단위 설정값은 기존 소수 표기를 정수 문자열로 정리한다."""
     keys = {

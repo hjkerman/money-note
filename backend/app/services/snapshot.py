@@ -29,6 +29,10 @@ SNAPSHOT_TABLES = [
     "app_settings",
     "app_labels",
 ]
+LEGACY_SNAPSHOT_COLUMNS = {
+    "ledger_entries": {"discount_checked"},
+    "monthly_panels": {"discount_checked"},
+}
 LEDGER_TABLES = [
     "card_payment_deferrals",
     "card_payment_allocations",
@@ -45,23 +49,29 @@ def export_snapshot(today: date | None = None) -> tuple[str, dict[str, Any]]:
     """장부 운용 데이터 전체와 비민감 운영 설정을 JSON snapshot으로 만든다."""
     with session() as conn:
         data = {
-            "ledger_entries": _rows(conn, "SELECT * FROM ledger_entries ORDER BY book_section, entry_kind, entry_date, sort_order, id"),
-            "monthly_panels": _rows(conn, "SELECT * FROM monthly_panels ORDER BY month, panel_type, sort_order, id"),
-            "cash_flows": _rows(conn, "SELECT * FROM cash_flows ORDER BY occurred_on, sort_order, id"),
-            "installments": _rows(conn, "SELECT * FROM installments ORDER BY is_active DESC, start_month, sort_order, id"),
-            "card_payment_events": _rows(conn, "SELECT * FROM card_payment_events ORDER BY event_date, id"),
-            "card_payment_allocations": _rows(conn, "SELECT * FROM card_payment_allocations ORDER BY payment_event_id, id"),
-            "card_payment_deferrals": _rows(conn, "SELECT * FROM card_payment_deferrals ORDER BY target_payment_month, entry_payment_key"),
-            "app_settings": _rows(
+            "ledger_entries": _snapshot_rows(
                 conn,
-                """
-                SELECT * FROM app_settings
-                WHERE key NOT IN ({})
-                ORDER BY key
-                """.format(",".join("?" for _ in SENSITIVE_SETTING_KEYS)),
-                tuple(SENSITIVE_SETTING_KEYS),
+                "ledger_entries",
+                "book_section, entry_kind, entry_date, sort_order, id",
             ),
-            "app_labels": _rows(conn, "SELECT * FROM app_labels ORDER BY key"),
+            "monthly_panels": _snapshot_rows(conn, "monthly_panels", "month, panel_type, sort_order, id"),
+            "cash_flows": _snapshot_rows(conn, "cash_flows", "occurred_on, sort_order, id"),
+            "installments": _snapshot_rows(conn, "installments", "is_active DESC, start_month, sort_order, id"),
+            "card_payment_events": _snapshot_rows(conn, "card_payment_events", "event_date, id"),
+            "card_payment_allocations": _snapshot_rows(conn, "card_payment_allocations", "payment_event_id, id"),
+            "card_payment_deferrals": _snapshot_rows(
+                conn,
+                "card_payment_deferrals",
+                "target_payment_month, entry_payment_key",
+            ),
+            "app_settings": _snapshot_rows(
+                conn,
+                "app_settings",
+                "key",
+                where="key NOT IN ({})".format(",".join("?" for _ in SENSITIVE_SETTING_KEYS)),
+                params=tuple(SENSITIVE_SETTING_KEYS),
+            ),
+            "app_labels": _snapshot_rows(conn, "app_labels", "key"),
         }
     exported_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
     snapshot = {
@@ -79,9 +89,9 @@ def export_snapshot(today: date | None = None) -> tuple[str, dict[str, Any]]:
 def restore_snapshot(snapshot: dict[str, Any]) -> dict[str, int]:
     """JSON snapshot을 검증하고 임시 복원에 성공한 뒤 운영 DB를 교체한다."""
     _validate_snapshot(snapshot)
-    _dry_run_restore(snapshot)
+    data = _normalized_snapshot_data(snapshot["data"])
+    _dry_run_restore(data)
     _write_pre_restore_backup()
-    data = snapshot["data"]
     restored: dict[str, int] = {}
     with session() as conn:
         restored = _replace_snapshot_tables(conn, data)
@@ -129,6 +139,19 @@ def restore_pre_restore_backup(filename: str) -> dict[str, int]:
 
 def _rows(conn: Any, sql: str, params: tuple[Any, ...] = ()) -> list[dict[str, Any]]:
     return [dict(row) for row in conn.execute(sql, params).fetchall()]
+
+
+def _snapshot_rows(
+    conn: Any,
+    table: str,
+    order_by: str,
+    where: str | None = None,
+    params: tuple[Any, ...] = (),
+) -> list[dict[str, Any]]:
+    columns = [column for column in _schema_columns(table) if column in _table_columns(conn, table)]
+    column_sql = ", ".join(f'"{column}"' for column in columns)
+    where_sql = f" WHERE {where}" if where else ""
+    return _rows(conn, f"SELECT {column_sql} FROM {table}{where_sql} ORDER BY {order_by}", params)
 
 
 def _replace_snapshot_tables(conn: Any, data: dict[str, list[dict[str, Any]]]) -> dict[str, int]:
@@ -200,6 +223,14 @@ def _validate_snapshot(snapshot: dict[str, Any]) -> None:
         raise ValueError("snapshot manifest mismatch")
 
 
+def _normalized_snapshot_data(data: dict[str, list[dict[str, Any]]]) -> dict[str, list[dict[str, Any]]]:
+    normalized: dict[str, list[dict[str, Any]]] = {}
+    for table in SNAPSHOT_TABLES:
+        ignored = LEGACY_SNAPSHOT_COLUMNS.get(table, set())
+        normalized[table] = [{key: value for key, value in row.items() if key not in ignored} for row in data[table]]
+    return normalized
+
+
 def _table_columns(conn: Any, table: str) -> set[str]:
     return {row["name"] for row in conn.execute(f"PRAGMA table_info({table})").fetchall()}
 
@@ -243,8 +274,7 @@ def _stable_hash(value: Any) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
-def _dry_run_restore(snapshot: dict[str, Any]) -> None:
-    data = snapshot["data"]
+def _dry_run_restore(data: dict[str, list[dict[str, Any]]]) -> None:
     with _schema_connection() as conn:
         _replace_snapshot_tables(conn, data)
         _raise_if_foreign_key_errors(conn)

@@ -155,15 +155,15 @@ export function useSettingsHandlers({
       "snapshot을 복원할까요?\n\n기존 장부 운용 데이터가 snapshot 내용으로 교체됩니다. 계정, 로그인 세션, 공유 세션, 관리 로그는 유지됩니다.",
     );
     if (!confirmed) return;
-    let snapshot: unknown;
+    let snapshotText = "";
     try {
-      snapshot = JSON.parse(await file.text());
+      snapshotText = await file.text();
     } catch {
-      setStatus("snapshot 파일을 JSON으로 읽지 못했습니다.");
+      setStatus("snapshot 파일을 읽지 못했습니다.");
       return;
     }
     await withRefresh(async () => {
-      const result = await restoreSnapshot(resetPassword, snapshot);
+      const result = await restoreSnapshot(resetPassword, snapshotText);
       const total = Object.values(result.restored).reduce((sum, count) => sum + count, 0);
       setResetPassword("");
       setPaymentAllocations({});

@@ -38,7 +38,15 @@ def post_snapshot_restore(payload: SnapshotRestoreIn, user: dict = Depends(requi
     if not verify_user_password(int(user["id"]), payload.password):
         raise HTTPException(status_code=422, detail="현재 비밀번호가 맞지 않습니다.")
     try:
-        restored = restore_snapshot(payload.snapshot)
+        if payload.snapshot_text is not None:
+            snapshot = json.loads(payload.snapshot_text)
+        elif payload.snapshot is not None:
+            snapshot = payload.snapshot
+        else:
+            raise ValueError("snapshot is missing")
+        restored = restore_snapshot(snapshot)
+    except json.JSONDecodeError as exc:
+        raise HTTPException(status_code=400, detail="snapshot file is not valid JSON") from exc
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     return {"restored": restored}

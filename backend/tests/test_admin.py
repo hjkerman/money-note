@@ -12,8 +12,9 @@ from app.routers.admin import (
     get_pre_restore_backup,
     get_pre_restore_backups,
     post_pre_restore_backup_restore,
+    post_snapshot_restore,
 )
-from app.schemas import PreRestoreRestoreIn
+from app.schemas import PreRestoreRestoreIn, SnapshotRestoreIn
 from app.services.reset import reset_ledger_data
 from app.services.snapshot import export_snapshot, restore_snapshot
 import app.services.snapshot as snapshot_service
@@ -124,6 +125,20 @@ class AdminApiTest(unittest.TestCase):
         with session() as conn:
             titles = {row["title"] for row in conn.execute("SELECT title FROM ledger_entries").fetchall()}
         self.assertIn("현재 운영 상태", titles)
+
+    def test_snapshot_restore_accepts_snapshot_text_payload(self) -> None:
+        user = self._create_user()
+        self._seed_entry("원문 snapshot 복원")
+        _, snapshot = export_snapshot()
+        snapshot_text = snapshot_service.json.dumps(snapshot, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+        reset_ledger_data()
+
+        response = post_snapshot_restore(SnapshotRestoreIn(password="secret", snapshot_text=snapshot_text), user)
+
+        self.assertEqual(response["restored"]["ledger_entries"], 1)
+        with session() as conn:
+            title = conn.execute("SELECT title FROM ledger_entries").fetchone()["title"]
+        self.assertEqual(title, "원문 snapshot 복원")
 
     def _create_user(self) -> dict:
         return create_user("tester", "secret", "테스트")

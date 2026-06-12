@@ -29,7 +29,8 @@ class PasswordConfirmIn(BaseModel):
 
 class SnapshotRestoreIn(BaseModel):
     password: str
-    snapshot: dict[str, Any]
+    snapshot: dict[str, Any] | None = None
+    snapshot_text: str | None = None
 
 
 class PreRestoreRestoreIn(BaseModel):

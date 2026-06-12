@@ -67,6 +67,34 @@ class SnapshotTest(unittest.TestCase):
         self.assertNotIn("auth_sessions", snapshot["data"])
         self.assertNotIn("audit_logs", snapshot["data"])
 
+    def test_export_omits_legacy_discount_checked_columns(self) -> None:
+        self._seed_data()
+        with session() as conn:
+            conn.execute("ALTER TABLE ledger_entries ADD COLUMN discount_checked INTEGER DEFAULT 1")
+            conn.execute("ALTER TABLE monthly_panels ADD COLUMN discount_checked INTEGER DEFAULT 1")
+
+        _, snapshot = export_snapshot(date(2026, 6, 11))
+
+        self.assertNotIn("discount_checked", snapshot["manifest"]["tables"]["ledger_entries"]["columns"])
+        self.assertNotIn("discount_checked", snapshot["manifest"]["tables"]["monthly_panels"]["columns"])
+        self.assertTrue(all("discount_checked" not in row for row in snapshot["data"]["ledger_entries"]))
+        self.assertTrue(all("discount_checked" not in row for row in snapshot["data"]["monthly_panels"]))
+
+    def test_restore_accepts_legacy_discount_checked_columns_after_manifest_validation(self) -> None:
+        self._seed_data()
+        _, snapshot = export_snapshot(date(2026, 6, 11))
+        for row in snapshot["data"]["ledger_entries"]:
+            row["discount_checked"] = 0
+        for row in snapshot["data"]["monthly_panels"]:
+            row["discount_checked"] = 0
+        snapshot["manifest"] = self._rebuilt_manifest(snapshot["data"])
+        snapshot["snapshot_id"] = snapshot["manifest"]["data_sha256"]
+
+        restored = restore_snapshot(snapshot)
+
+        self.assertEqual(restored["ledger_entries"], 3)
+        self.assertEqual(restored["monthly_panels"], 4)
+
     def test_restore_replaces_ledger_data_and_preserves_auth_share_and_audit(self) -> None:
         self._seed_data()
         _, snapshot = export_snapshot(date(2026, 6, 11))
