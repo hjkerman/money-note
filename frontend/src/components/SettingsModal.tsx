@@ -6,12 +6,12 @@ type PasswordForm = { currentPassword: string; newPassword: string };
 
 export function SettingsModal({
   familyCardLast4Input,
-  familyCardLimitInput,
+  cardLimitInput,
   interestExpenseInput,
   isBusy,
   onCardLast4Save,
   onClose,
-  onFamilyCardLimitSave,
+  onCardLimitSave,
   onInterestExpenseSave,
   onLedgerReset,
   onPasswordChange,
@@ -27,7 +27,7 @@ export function SettingsModal({
   resetPassword,
   scheduledIncomeInput,
   setFamilyCardLast4Input,
-  setFamilyCardLimitInput,
+  setCardLimitInput,
   setInterestExpenseInput,
   setOwnerCardLast4Input,
   setPasswordForm,
@@ -35,12 +35,12 @@ export function SettingsModal({
   setScheduledIncomeInput,
 }: {
   familyCardLast4Input: string;
-  familyCardLimitInput: string;
+  cardLimitInput: string;
   interestExpenseInput: string;
   isBusy: boolean;
   onCardLast4Save: (key: "owner_card_last4" | "family_card_last4", value: string) => void;
   onClose: () => void;
-  onFamilyCardLimitSave: () => void;
+  onCardLimitSave: () => void;
   onInterestExpenseSave: () => void;
   onLedgerReset: () => void;
   onPasswordChange: () => void;
@@ -56,7 +56,7 @@ export function SettingsModal({
   resetPassword: string;
   scheduledIncomeInput: string;
   setFamilyCardLast4Input: Dispatch<SetStateAction<string>>;
-  setFamilyCardLimitInput: Dispatch<SetStateAction<string>>;
+  setCardLimitInput: Dispatch<SetStateAction<string>>;
   setInterestExpenseInput: Dispatch<SetStateAction<string>>;
   setOwnerCardLast4Input: Dispatch<SetStateAction<string>>;
   setPasswordForm: Dispatch<SetStateAction<PasswordForm>>;
@@ -83,7 +83,7 @@ export function SettingsModal({
         </div>
         <div className="settings-grid">
           <label>
-            <span>예정 수입</span>
+            <span>기본 예정 수입</span>
             <input
               type="number"
               min="0"
@@ -91,7 +91,7 @@ export function SettingsModal({
               value={scheduledIncomeInput}
               onChange={(event) => setScheduledIncomeInput(event.target.value)}
               inputMode="numeric"
-              placeholder="예정 수입"
+              placeholder="기본 예정 수입"
             />
             <button type="button" onClick={onScheduledIncomeSave} disabled={isBusy}>
               저장
@@ -113,17 +113,17 @@ export function SettingsModal({
             </button>
           </label>
           <label>
-            <span>가족카드 한도</span>
+            <span>카드 한도</span>
             <input
               type="number"
               min="0"
               step="1"
-              value={familyCardLimitInput}
-              onChange={(event) => setFamilyCardLimitInput(event.target.value)}
+              value={cardLimitInput}
+              onChange={(event) => setCardLimitInput(event.target.value)}
               inputMode="numeric"
-              placeholder="가족카드 한도"
+              placeholder="카드 한도"
             />
-            <button type="button" onClick={onFamilyCardLimitSave} disabled={isBusy}>
+            <button type="button" onClick={onCardLimitSave} disabled={isBusy}>
               저장
             </button>
           </label>

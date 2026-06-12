@@ -120,6 +120,7 @@ class Summary(BaseModel):
     base_next_month_liquidity: float
     card_total: float
     installment_monthly_total: float
+    planned_recurring_total: float
     transfer_or_deposit_total: float
     interest_expense: float
     frozen_asset_total: float
@@ -237,7 +238,7 @@ class CardPaymentEventIn(BaseModel):
 
 
 class CardDiscountPolicyPatch(BaseModel):
-    policy: str = Field(pattern="^(undecided|enabled|disabled)$")
+    policy: str = Field(pattern="^(enabled|disabled)$")
 
 
 class PanelDiscountPatch(BaseModel):

@@ -1,5 +1,5 @@
 import { Dispatch, FormEvent, SetStateAction } from "react";
-import { CashFlow, LedgerEntry, MonthlyPanel } from "../api";
+import { CashFlow, LedgerEntry, MonthlyPanel, Summary } from "../api";
 import { CashFlowPanel, PanelAppendForm, PanelTable, PlannedTable } from "./LedgerTables";
 import { panelLabel, formatWon, sumAmounts } from "../utils";
 
@@ -22,6 +22,7 @@ export function FixedPanelView({
   plannedForm,
   setPanelForm,
   setPlannedForm,
+  summary,
 }: {
   active: boolean;
   handlePanelDelete: (panel: MonthlyPanel) => void;
@@ -37,6 +38,7 @@ export function FixedPanelView({
   plannedForm: PlannedForm;
   setPanelForm: Dispatch<SetStateAction<PanelForm>>;
   setPlannedForm: Dispatch<SetStateAction<PlannedForm>>;
+  summary: Summary | null;
 }) {
   return (
     <section className={active ? "tab-panel active" : "tab-panel"}>
@@ -57,7 +59,7 @@ export function FixedPanelView({
       <section className="panel">
         <div className="panel-header">
           <h2>카드 정기결제</h2>
-          <span>{formatWon(sumAmounts(plannedEntries))}</span>
+          <span>{formatWon(summary?.planned_recurring_total ?? sumAmounts(plannedEntries))}</span>
         </div>
         <form className="planned-form" onSubmit={(event) => handlePlannedSubmit(event)}>
           <input

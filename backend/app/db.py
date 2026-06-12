@@ -196,7 +196,7 @@ INSERT OR IGNORE INTO app_settings(key, value) VALUES
 ('base_next_month_liquidity', '400000'),
 ('interest_expense', '0'),
 ('liquidity_status', '0'),
-('family_card_limit', '5800000'),
+('card_limit', '5800000'),
 ('owner_card_last4', ''),
 ('family_card_last4', '');
 
@@ -215,7 +215,7 @@ INSERT OR IGNORE INTO app_labels(key, value) VALUES
 ('panel_header_amount', '금액'),
 ('summary_title', '요약'),
 ('summary_card_total_label', '카드대금'),
-('summary_transfer_or_deposit_label', '송금/예치'),
+('summary_transfer_or_deposit_label', '고정지출'),
 ('summary_interest_expense_label', '이자지출'),
 ('summary_frozen_asset_label', '동결자산'),
 ('summary_liquidity_status_label', '유동성 현황'),
@@ -332,6 +332,13 @@ def init_db() -> None:
               AND value = '적요'
             """
         )
+        conn.execute(
+            """
+            UPDATE app_labels
+            SET value = '고정지출', updated_at = CURRENT_TIMESTAMP
+            WHERE key = 'summary_transfer_or_deposit_label' AND value = '송금/예치'
+            """
+        )
         _normalize_domain_names(conn)
         _normalize_money_settings(conn)
         _backfill_planned_due_days(conn)
@@ -354,28 +361,13 @@ def _normalize_domain_names(conn: sqlite3.Connection) -> None:
           AND NOT EXISTS (SELECT 1 FROM app_labels WHERE key = 'panel_family_card_title')
         """
     )
-    for old_key in ("settlement_card_limit", "family_card_card_limit"):
-        row = conn.execute("SELECT value FROM app_settings WHERE key = ?", (old_key,)).fetchone()
-        if row is None:
-            continue
-        conn.execute(
-            """
-            INSERT INTO app_settings(key, value, updated_at)
-            VALUES ('family_card_limit', ?, CURRENT_TIMESTAMP)
-            ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP
-            """,
-            (row["value"],),
-        )
-        conn.execute("DELETE FROM app_settings WHERE key = ?", (old_key,))
-
-
 def _normalize_money_settings(conn: sqlite3.Connection) -> None:
     """돈 단위 설정값은 기존 소수 표기를 정수 문자열로 정리한다."""
     keys = {
         "base_next_month_liquidity",
         "interest_expense",
         "liquidity_status",
-        "family_card_limit",
+        "card_limit",
     }
     rows = conn.execute(
         f"SELECT key, value FROM app_settings WHERE key IN ({','.join('?' for _ in keys)})",

@@ -17,7 +17,7 @@ export function FamilyCardCreditPanel({
 }) {
   return (
     <CreditUsagePanel
-      cardLimit={parseSettingNumber(settings, "family_card_limit", 5_800_000)}
+      cardLimit={parseSettingNumber(settings, "card_limit", 5_800_000)}
       currentCardTotal={sumAmounts(expenseEntries) + sumInstallmentMonthlyAmounts(installments)}
       family_cardTotal={sumPanelAmounts(panels.filter((panel) => panel.panel_type === "family_card"))}
       tone={judgment?.credit ?? null}

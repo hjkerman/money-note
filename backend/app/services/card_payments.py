@@ -6,7 +6,7 @@ from typing import Any
 
 from app.db import session
 from app.schemas import CardPaymentEventIn, LateCardEntryIn
-from app.services.discounts import effective_card_discount
+from app.services.discounts import default_discount_policy, effective_card_discount, normalize_discount_policy
 
 
 def current_payment_status(today: date | None = None) -> dict[str, Any]:
@@ -88,7 +88,7 @@ def set_discount_month_policy(month: str, policy: str, scope: str = "owner") -> 
     """사용월 전체 카드 지출에 적용할 할인 혜택 여부를 저장한다."""
     _validate_month(month)
     _validate_discount_scope(scope)
-    if policy not in {"undecided", "enabled", "disabled"}:
+    if policy not in {"enabled", "disabled"}:
         raise ValueError("알 수 없는 할인 혜택 설정입니다.")
     with session() as conn:
         conn.execute(
@@ -177,7 +177,7 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
                     row["amount_value"],
                     override_discount,
                     bool(row["discount_override"] or override_discount),
-                    _discount_policy_value(conn, usage_month, "owner") if usage_month else "undecided",
+                    _discount_policy_value(conn, usage_month, "owner") if usage_month else "enabled",
                 )
                 remaining = max(0.0, float(row["amount_value"] or 0) - float(paid or 0) - current_discount)
             if amount > remaining + 0.0001:
@@ -566,7 +566,7 @@ def _payment_rows_for_month(usage_month: str, payment_month: str) -> list[dict[s
             original,
             override_discount,
             bool(data.get("discount_override") or override_discount),
-            _setting_value(f"card_discount_policy:owner:{usage_month}") or "undecided",
+            _setting_value(f"card_discount_policy:owner:{usage_month}") or "enabled",
         )
         data.update(
             {
@@ -744,7 +744,8 @@ def _discount_policy_value(conn: Any, month: str, scope: str) -> str:
         "SELECT value FROM app_settings WHERE key = ?",
         (f"card_discount_policy:{scope}:{month}",),
     ).fetchone()
-    return str(row["value"]) if row else "undecided"
+    value = str(row["value"]) if row else default_discount_policy(scope)
+    return normalize_discount_policy(value, scope)
 
 
 def _next_month(value: date) -> str:

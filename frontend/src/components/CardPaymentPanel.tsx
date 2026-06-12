@@ -101,10 +101,9 @@ export function CardPaymentPanel({
           <div><dt>할인액 누적</dt><dd>{formatWon(status.discount_total)}</dd></div>
           <div><dt>기록상 미결제</dt><dd>{formatWon(status.recorded_remaining_total)}</dd></div>
         </dl>
-        <p className="fallback-note">주 수입 기록이 없으면 설정의 예정 수입 {formatWon(fallbackLiquidity)}을 심사 기준으로 씁니다.</p>
+        <p className="fallback-note">이달 기준 수입 기록이 없으면 설정의 기본 예정 수입 {formatWon(fallbackLiquidity)}을 심사 기준으로 씁니다.</p>
         <div className="payment-controls">
           <label className="payment-budget-field">
-            <span>자동 배분 한도</span>
             <input
               type="number"
               min="0"
@@ -112,7 +111,8 @@ export function CardPaymentPanel({
               value={paymentBudget}
               onChange={(event) => setPaymentBudget(event.target.value)}
               inputMode="numeric"
-              placeholder={`미입력시 ${formatWon(availableLiquidity)}`}
+              aria-label="자동 배분 한도"
+              placeholder={`자동 배분 한도(기본 ${formatWon(availableLiquidity)})`}
             />
           </label>
           <button type="button" onClick={onAutoAllocate} disabled={isBusy || !status.immediate_allowed}>

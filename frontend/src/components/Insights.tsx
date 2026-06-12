@@ -31,7 +31,7 @@ export function SummaryPanel({
   const rows = summary
     ? [
         [labels.summary_card_total_label ?? "카드대금", summary.card_total],
-        [labels.summary_transfer_or_deposit_label ?? "송금/예치", summary.transfer_or_deposit_total],
+        [labels.summary_transfer_or_deposit_label ?? "고정지출", summary.transfer_or_deposit_total],
         [labels.summary_interest_expense_label ?? "이자지출", summary.interest_expense],
         [labels.summary_frozen_asset_label ?? "동결자산", summary.frozen_asset_total],
         [labels.summary_liquidity_status_label ?? "유동성 현황", summary.liquidity_status],
@@ -155,11 +155,11 @@ export function CreditUsagePanel({
   const usageRate = cardLimit > 0 ? combinedTotal / cardLimit : 0;
   const usagePercent = usageRate * 100;
   const width = Math.min(100, Math.max(0, usagePercent));
-  const creditTone = tone ?? { level: "quiet", message: "가족카드 판단을 불러오는 중입니다." };
+  const creditTone = tone ?? { level: "quiet", message: "카드 한도 판단을 불러오는 중입니다." };
   return (
     <section className={`panel credit-panel ${creditTone.level}`}>
       <div className="panel-header">
-        <h2>가족카드 한도 감시</h2>
+        <h2>카드 한도 감시</h2>
         <span>{usagePercent.toFixed(1)}%</span>
       </div>
       <div className="credit-meter" aria-label={`카드 한도 사용률 ${usagePercent.toFixed(1)}%`}>
@@ -195,25 +195,23 @@ export function DiscountPolicyBar({
   isBusy: boolean;
 }) {
   const label = scope === "family" ? "가족카드" : "본인회원 카드";
+  const policy = status?.policy ?? (scope === "family" ? "disabled" : "enabled");
   return (
-    <section className={`discount-policy ${status?.policy ?? "undecided"}`}>
+    <section className={`discount-policy ${policy}`}>
       <div>
         <strong>{formatMonthLabel(month)} {label} 할인 혜택</strong>
         <span>
-          {status?.policy === "enabled"
+          {policy === "enabled"
             ? "혜택 있음 · 카드 지출에 1.2% 할인을 적용합니다."
-            : status?.policy === "disabled"
-              ? "혜택 없음 · 모든 할인액을 0원으로 계산합니다."
-              : "미정이어도 기본 1.2% 할인으로 계산합니다. 확인 후 바꿀 수 있습니다."}
+            : "혜택 없음 · 모든 할인액을 0원으로 계산합니다."}
         </span>
       </div>
       <select
-        value={status?.policy ?? "undecided"}
+        value={policy}
         onChange={(event) => onChange(scope, month, event.target.value as CardDiscountPolicy)}
         disabled={isBusy}
         aria-label={`${label} 할인 혜택 설정`}
       >
-        <option value="undecided">미정</option>
         <option value="enabled">혜택 있음</option>
         <option value="disabled">혜택 없음</option>
       </select>

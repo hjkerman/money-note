@@ -160,6 +160,7 @@ export function CurrentMonthView({
             onDiscount={(entry) => handleCurrentEntryDiscount(entry)}
             onClearDiscount={(entry) => handleCurrentEntryDiscountClear(entry)}
             discountPolicy={ownerDiscountMonth?.policy}
+            wideDetailColumn
           />
         </section>
       </section>

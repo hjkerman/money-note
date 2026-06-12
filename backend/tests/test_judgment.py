@@ -83,7 +83,7 @@ class JudgmentTest(unittest.TestCase):
                 "recorded_remaining_total": 0,
                 "primary_income_total": 400_000,
             },
-            settings={"family_card_limit": "5800000", "base_next_month_liquidity": "400000"},
+            settings={"card_limit": "5800000", "base_next_month_liquidity": "400000"},
         )
 
         self.assertEqual(result["category_labels"]["dignity"], "최소한의 품위유지비")

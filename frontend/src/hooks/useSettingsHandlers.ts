@@ -19,7 +19,7 @@ import {
 import { formatMonthLabel, parseAmount } from "../utils";
 
 export function useSettingsHandlers({
-  familyCardLimitInput,
+  cardLimitInput,
   interestExpenseInput,
   monthCloseStatus,
   passwordForm,
@@ -27,7 +27,7 @@ export function useSettingsHandlers({
   scheduledIncomeInput,
   setAuditLogs,
   setAuthUser,
-  setFamilyCardLimitInput,
+  setCardLimitInput,
   setInterestExpenseInput,
   setIsBusy,
   setPasswordForm,
@@ -40,7 +40,7 @@ export function useSettingsHandlers({
   showAuditLogs,
   withRefresh,
 }: {
-  familyCardLimitInput: string;
+  cardLimitInput: string;
   interestExpenseInput: string;
   monthCloseStatus: MonthCloseStatus | null;
   passwordForm: { currentPassword: string; newPassword: string };
@@ -48,7 +48,7 @@ export function useSettingsHandlers({
   scheduledIncomeInput: string;
   setAuditLogs: (logs: Awaited<ReturnType<typeof fetchAuditLogs>>) => void;
   setAuthUser: Dispatch<SetStateAction<AuthUser | null>>;
-  setFamilyCardLimitInput: (value: string) => void;
+  setCardLimitInput: (value: string) => void;
   setInterestExpenseInput: (value: string) => void;
   setIsBusy: (busy: boolean) => void;
   setPasswordForm: (value: { currentPassword: string; newPassword: string }) => void;
@@ -67,7 +67,7 @@ export function useSettingsHandlers({
     await withRefresh(async () => {
       await updateSetting("base_next_month_liquidity", String(amount));
       setScheduledIncomeInput(String(amount));
-      setStatus("예정 수입 저장 완료");
+      setStatus("기본 예정 수입 저장 완료");
     });
   }
 
@@ -84,16 +84,16 @@ export function useSettingsHandlers({
     });
   }
 
-  async function handleFamilyCardLimitSave() {
-    const amount = parseAmount(familyCardLimitInput);
+  async function handleCardLimitSave() {
+    const amount = parseAmount(cardLimitInput);
     if (amount === null || amount < 0) {
-      setStatus("가족카드 한도는 0원 이상의 숫자로 입력하세요.");
+      setStatus("카드 한도는 0원 이상의 숫자로 입력하세요.");
       return;
     }
     await withRefresh(async () => {
-      await updateSetting("family_card_limit", String(amount));
-      setFamilyCardLimitInput(String(amount));
-      setStatus("가족카드 한도 저장 완료");
+      await updateSetting("card_limit", String(amount));
+      setCardLimitInput(String(amount));
+      setStatus("카드 한도 저장 완료");
     });
   }
 
@@ -299,7 +299,7 @@ export function useSettingsHandlers({
     handleAuditLogToggle,
     handleCardLast4Save,
     handleCloseMonth,
-    handleFamilyCardLimitSave,
+    handleCardLimitSave,
     handleInterestExpenseSave,
     handleLedgerReset,
     handlePasswordChange,

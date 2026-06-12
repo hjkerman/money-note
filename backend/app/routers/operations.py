@@ -29,7 +29,7 @@ def get_settings_values(_: dict = Depends(require_user)) -> dict[str, str]:
 
 @settings_router.patch("/{key}")
 def patch_setting(key: str, patch: SettingPatch, _: dict = Depends(require_user)) -> dict[str, str]:
-    numeric_settings = {"base_next_month_liquidity", "interest_expense", "liquidity_status", "family_card_limit"}
+    numeric_settings = {"base_next_month_liquidity", "interest_expense", "liquidity_status", "card_limit"}
     card_last4_settings = {"owner_card_last4", "family_card_last4"}
     if key not in numeric_settings | card_last4_settings:
         raise HTTPException(status_code=404, detail="unknown setting")

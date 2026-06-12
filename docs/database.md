@@ -86,10 +86,10 @@
 
 | key | 의미 |
 | --- | --- |
-| `base_next_month_liquidity` | 주 수입 기록이 없을 때 쓰는 기본 유동성 기준 |
+| `base_next_month_liquidity` | 이달 기준 수입 기록이 없을 때 쓰는 기본 예정 수입 |
 | `interest_expense` | 이자 지출 |
 | `liquidity_status` | 현재 유동성 현황 |
-| `family_card_limit` | 가족카드 한도 감시 기준 |
+| `card_limit` | 본인카드와 가족카드 합산 사용률을 판단할 카드 한도 |
 | `owner_card_last4` | 본인회원 카드 끝 4자리 |
 | `family_card_last4` | 가족카드 끝 4자리 |
 
@@ -121,7 +121,7 @@
 | `title` | TEXT | 적요 |
 | `amount_value` | REAL | 입금은 양수, 출금은 음수 |
 | `sort_order` | INTEGER | 정렬 순서 |
-| `is_primary_income` | INTEGER | 주 수입이면 `1` |
+| `is_primary_income` | INTEGER | 이달 기준 수입이면 `1` |
 
 ## `installments`
 

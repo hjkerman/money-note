@@ -191,7 +191,7 @@ export function CashFlowPanel({
             disabled={form.direction !== "in"}
             onChange={(event) => setForm({ ...form, isPrimaryIncome: event.target.checked })}
           />
-          주 수입
+          이달 기준 수입
         </label>
         <button type="submit" disabled={isBusy}>
           추가
@@ -211,7 +211,7 @@ export function CashFlowPanel({
             {rows.map((row) => (
               <tr key={row.id}>
                 <td className="date">{formatDateLabel(row.occurred_on)}</td>
-                <td>{row.title}{row.is_primary_income ? <span className="primary-income-badge">주 수입</span> : null}</td>
+                <td>{row.title}{row.is_primary_income ? <span className="primary-income-badge">이달 기준 수입</span> : null}</td>
                 <td className={row.amount_value < 0 ? "amount negative" : "amount positive"}>
                   {formatWon(row.amount_value)}
                 </td>
@@ -286,7 +286,8 @@ export function EntryTable({
   discounts,
   onDiscount,
   onClearDiscount,
-  discountPolicy = "undecided",
+  discountPolicy = "enabled",
+  wideDetailColumn = false,
 }: {
   entries: LedgerEntry[];
   emptyText: string;
@@ -297,15 +298,16 @@ export function EntryTable({
   onDiscount?: (entry: LedgerEntry) => void;
   onClearDiscount?: (entry: LedgerEntry) => void;
   discountPolicy?: CardDiscountPolicy | null;
+  wideDetailColumn?: boolean;
 }) {
   if (!entries.length) return <p className="empty">{emptyText}</p>;
   return (
-    <table>
+    <table className={wideDetailColumn ? "entry-table entry-table-wide-detail" : "entry-table"}>
       <thead>
         <tr>
-          <th>날짜</th>
-          <th>사용처</th>
-          <th>세부내역</th>
+          <th className="entry-date-cell">사용 일자</th>
+          <th className="entry-place-cell">사용처</th>
+          <th className="entry-detail-cell">세부내역</th>
           {onCategoryChange ? <th className="category-cell">분류</th> : null}
           <th className="amount">금액</th>
           {onDiscount ? <th className="discount-cell">할인</th> : null}
@@ -321,9 +323,9 @@ export function EntryTable({
           const discountOverride = Boolean(entry.discount_override);
           return (
             <tr key={entry.id}>
-              <td className="date">{entry.date_label ?? entry.group_label ?? ""}</td>
-              <td>{entry.usage_place ?? ""}</td>
-              <td>{entry.usage_item ?? ""}</td>
+              <td className="date entry-date-cell">{entry.date_label ?? entry.group_label ?? ""}</td>
+              <td className="entry-place-cell">{entry.usage_place ?? ""}</td>
+              <td className="entry-detail-cell">{entry.usage_item ?? ""}</td>
               {onCategoryChange ? (
                 <td className="category-cell">
                   <select
@@ -420,7 +422,7 @@ export function PanelTable({
   onComplete,
   onDiscount,
   onClearDiscount,
-  discountPolicy = "undecided",
+  discountPolicy = "enabled",
   judgment,
   onShare,
   form,

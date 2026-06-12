@@ -70,6 +70,7 @@ export type Summary = {
   base_next_month_liquidity: number;
   card_total: number;
   installment_monthly_total: number;
+  planned_recurring_total: number;
   transfer_or_deposit_total: number;
   interest_expense: number;
   frozen_asset_total: number;
@@ -142,7 +143,7 @@ export type CardPaymentStatus = {
   events: CardPaymentEvent[];
 };
 
-export type CardDiscountPolicy = "undecided" | "enabled" | "disabled";
+export type CardDiscountPolicy = "enabled" | "disabled";
 
 export type CardDiscountMonth = {
   month: string;

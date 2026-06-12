@@ -6,6 +6,18 @@ from math import floor
 DEFAULT_CARD_DISCOUNT_RATE = 0.012
 
 
+def default_discount_policy(scope: str = "owner") -> str:
+    """설정이 없는 달의 카드 할인 기본 정책이다."""
+    return "disabled" if scope == "family" else "enabled"
+
+
+def normalize_discount_policy(policy: str | None, scope: str = "owner") -> str:
+    """레거시/누락 정책값을 실제 계산에 쓰는 두 상태로 정규화한다."""
+    if policy in {"enabled", "disabled"}:
+        return policy
+    return default_discount_policy(scope)
+
+
 def default_card_discount(amount: float | int | None) -> float:
     """카드사가 별도 예외를 주지 않는다는 가정의 기본 할인액이다."""
     return float(floor(float(amount or 0) * DEFAULT_CARD_DISCOUNT_RATE))
@@ -18,6 +30,7 @@ def effective_card_discount(
     month_policy: str,
 ) -> float:
     """월 정책과 개별 할인 제외 상태를 합쳐 실제 계산에 쓸 할인액을 만든다."""
+    month_policy = normalize_discount_policy(month_policy)
     if month_policy == "disabled":
         return 0.0
     if override_enabled:

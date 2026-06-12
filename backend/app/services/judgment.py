@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import date
 import hashlib
 
-from app.services.discounts import effective_card_discount
+from app.services.discounts import effective_card_discount, normalize_discount_policy
 
 
 MEDICAL_WORDS = (
@@ -121,14 +121,17 @@ def app_judgment(
     claim_rows = [
         {
             **panel,
-            "discount_policy": settings.get(f"card_discount_policy:owner:{panel.get('month')}", "undecided"),
+            "discount_policy": normalize_discount_policy(
+                settings.get(f"card_discount_policy:owner:{panel.get('month')}", "enabled"),
+                "owner",
+            ),
         }
         for panel in panels
         if panel.get("panel_type") == "claim"
     ]
     family_card_rows = [panel for panel in panels if panel.get("panel_type") == "family_card"]
     frozen_rows = [panel for panel in panels if panel.get("panel_type") == "frozen"]
-    family_card_limit = float(settings.get("family_card_limit") or 5_800_000)
+    card_limit = float(settings.get("card_limit") or 5_800_000)
     family_card_total = sum(float(row.get("amount_value") or 0) for row in family_card_rows)
     owner_card_total = float(summary.get("card_total") or 0)
     days_until_due = days_between(date.today().isoformat(), str(payment_status.get("due_date") or date.today().isoformat()))
@@ -155,7 +158,7 @@ def app_judgment(
                 "next_month_liquidity": float(summary.get("next_month_liquidity") or 0),
             }
         ),
-        "credit": credit_usage_tone((owner_card_total + family_card_total) / family_card_limit if family_card_limit > 0 else 0),
+        "credit": credit_usage_tone((owner_card_total + family_card_total) / card_limit if card_limit > 0 else 0),
         "payment": payment_pressure_tone(
             float(payment_status.get("recorded_remaining_total") or 0),
             days_until_due,
@@ -174,7 +177,7 @@ def panel_net_amount(row: dict) -> float:
             row.get("amount_value"),
             row.get("discount_amount"),
             bool(row.get("discount_override") or row.get("discount_amount")),
-            str(row.get("discount_policy") or "undecided"),
+            normalize_discount_policy(str(row.get("discount_policy") or "enabled"), "owner"),
         ),
     )
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 from html import escape
 
 from app.repository import list_cash_flows, list_entries, list_labels, list_panels, list_settings
-from app.services.discounts import effective_card_discount
+from app.services.discounts import effective_card_discount, normalize_discount_policy
 from app.services.judgment import claim_ledger_note, format_won, shared_panel_subtitle
 from app.services.month import calendar_month_label
 
@@ -26,7 +26,7 @@ def shared_panel(panel_type: str) -> dict:
     total = sum(_panel_net_amount(row) for row in rows)
     current_card_total = sum(row.get("amount_value") or 0 for row in list_entries("current"))
     settings = list_settings()
-    card_limit = _float_setting(settings, "family_card_limit", 5_800_000)
+    card_limit = _float_setting(settings, "card_limit", 5_800_000)
     label_key, fallback = PANEL_TITLES[panel_type]
     title = list_labels().get(label_key, fallback)
     return {
@@ -171,7 +171,10 @@ def _panel_discount_amount(row: dict) -> float:
         return 0.0
     settings = list_settings()
     scope = "family" if row.get("panel_type") == "family_card" else "owner"
-    policy = settings.get(f"card_discount_policy:{scope}:{row.get('month')}", "undecided")
+    policy = normalize_discount_policy(
+        settings.get(f"card_discount_policy:{scope}:{row.get('month')}", "disabled" if scope == "family" else "enabled"),
+        scope,
+    )
     return effective_card_discount(
         row.get("amount_value"),
         row.get("discount_amount"),

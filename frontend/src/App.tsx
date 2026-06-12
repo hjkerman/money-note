@@ -105,7 +105,7 @@ export function App() {
   const [isBusy, setIsBusy] = useState(false);
   const [interestExpenseInput, setInterestExpenseInput] = useState("");
   const [scheduledIncomeInput, setScheduledIncomeInput] = useState("");
-  const [familyCardLimitInput, setFamilyCardLimitInput] = useState("");
+  const [cardLimitInput, setCardLimitInput] = useState("");
   const [ownerCardLast4Input, setOwnerCardLast4Input] = useState("");
   const [familyCardLast4Input, setFamilyCardLast4Input] = useState("");
   const [paymentAllocations, setPaymentAllocations] = useState<Record<string, string>>({});
@@ -171,6 +171,7 @@ export function App() {
       id: "fixed",
       label: "고정지출",
       total:
+        summary?.transfer_or_deposit_total ??
         sumPanelAmounts(panels.filter((panel) => panel.panel_type === "fixed")) +
         sumAmounts(plannedEntries),
     },
@@ -281,7 +282,7 @@ export function App() {
     handleAuditLogToggle,
     handleCardLast4Save,
     handleCloseMonth,
-    handleFamilyCardLimitSave,
+    handleCardLimitSave,
     handleInterestExpenseSave,
     handleLedgerReset,
     handlePasswordChange,
@@ -292,7 +293,7 @@ export function App() {
     handleSharePinSet,
     handleSnapshotRestore,
   } = useSettingsHandlers({
-    familyCardLimitInput,
+    cardLimitInput,
     interestExpenseInput,
     monthCloseStatus,
     passwordForm,
@@ -300,7 +301,7 @@ export function App() {
     scheduledIncomeInput,
     setAuditLogs,
     setAuthUser,
-    setFamilyCardLimitInput,
+    setCardLimitInput,
     setInterestExpenseInput,
     setIsBusy,
     setPasswordForm,
@@ -329,7 +330,7 @@ export function App() {
       setSettings(snapshot.settings);
       setInterestExpenseInput(formatIntegerSetting(snapshot.settings.interest_expense));
       setScheduledIncomeInput(formatIntegerSetting(snapshot.settings.base_next_month_liquidity));
-      setFamilyCardLimitInput(formatIntegerSetting(snapshot.settings.family_card_limit));
+      setCardLimitInput(formatIntegerSetting(snapshot.settings.card_limit));
       setOwnerCardLast4Input(snapshot.settings.owner_card_last4 ?? "");
       setFamilyCardLast4Input(snapshot.settings.family_card_last4 ?? "");
       setInstallments(snapshot.installments);
@@ -419,12 +420,12 @@ export function App() {
         showSettings ? (
           <SettingsModal
             familyCardLast4Input={familyCardLast4Input}
-            familyCardLimitInput={familyCardLimitInput}
+            cardLimitInput={cardLimitInput}
             interestExpenseInput={interestExpenseInput}
             isBusy={isBusy}
             onCardLast4Save={(key, value) => void handleCardLast4Save(key, value)}
             onClose={() => setShowSettings(false)}
-            onFamilyCardLimitSave={() => void handleFamilyCardLimitSave()}
+            onCardLimitSave={() => void handleCardLimitSave()}
             onInterestExpenseSave={() => void handleInterestExpenseSave()}
             onLedgerReset={() => void handleLedgerReset()}
             onPasswordChange={() => void handlePasswordChange()}
@@ -440,7 +441,7 @@ export function App() {
             resetPassword={resetPassword}
             scheduledIncomeInput={scheduledIncomeInput}
             setFamilyCardLast4Input={setFamilyCardLast4Input}
-            setFamilyCardLimitInput={setFamilyCardLimitInput}
+            setCardLimitInput={setCardLimitInput}
             setInterestExpenseInput={setInterestExpenseInput}
             setOwnerCardLast4Input={setOwnerCardLast4Input}
             setPasswordForm={setPasswordForm}
@@ -548,6 +549,7 @@ export function App() {
               plannedForm={plannedForm}
               setPanelForm={setPanelForm}
               setPlannedForm={setPlannedForm}
+              summary={summary}
             />
 
           <CardPaymentView
