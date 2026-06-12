@@ -900,6 +900,60 @@ button.discount-badge:hover:not(:disabled) {
   font-size: 13px;
 }
 
+.pre-restore-section {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 10px;
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid #e9c4c0;
+}
+
+.pre-restore-header,
+.pre-restore-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.pre-restore-list {
+  display: grid;
+  gap: 8px;
+}
+
+.pre-restore-item {
+  padding: 10px;
+  border: 1px solid #ead2cf;
+  border-radius: 8px;
+  background: #fffdfc;
+}
+
+.pre-restore-item div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.pre-restore-item strong,
+.pre-restore-item span,
+.pre-restore-item code {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pre-restore-item span,
+.pre-restore-empty {
+  color: #7a5450;
+  font-size: 13px;
+}
+
+.pre-restore-item code {
+  color: #596153;
+  font-size: 12px;
+}
+
 .hidden-input {
   display: none;
 }

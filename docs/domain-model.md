@@ -415,19 +415,36 @@ Money Note는 카드사 알림 자동입력을 고려한다.
 
 서버 DB는 Money Note의 단일 원본이다.
 
-Snapshot은 원본 DB를 대체하는 별도 저장소가 아니라, 최근 3개월 장부 데이터와 비민감 운영 설정을 JSON 파일로 잠시 옮겨 담는 백업/복원 형식이다.
+Snapshot은 원본 DB를 대체하는 별도 저장소가 아니라, 장부 운용 데이터 전체와 비민감 운영 설정을 JSON 파일로 잠시 옮겨 담는 백업/복원 형식이다.
+
+Snapshot 형식은 `schema_version = 2`를 사용한다.
+
+Snapshot은 canonical JSON 기준 SHA-256 manifest를 포함한다.
+
+Manifest 원칙:
+
+- `manifest` 자기 자신은 hash 대상에서 제외한다.
+- `data` 전체 hash를 기록한다.
+- 각 테이블의 컬럼 목록, row count, 테이블별 hash를 기록한다.
+- restore 시 manifest가 재계산 결과와 다르면 복원하지 않는다.
 
 Snapshot에 포함하는 것:
 
-- 최근 3개월 관련 `ledger_entries`
-- 최근 3개월 관련 `monthly_panels`
-- 최근 3개월 관련 `cash_flows`
-- 활성 또는 최근 관련 `installments`
-- 관련 `card_payment_events`
-- 관련 `card_payment_allocations`
-- 관련 `card_payment_deferrals`
+- 전체 `ledger_entries`
+- 전체 `monthly_panels`
+- 전체 `cash_flows`
+- 전체 `installments`
+- 전체 `card_payment_events`
+- 전체 `card_payment_allocations`
+- 전체 `card_payment_deferrals`
 - 비민감 운영 `app_settings`
 - `app_labels`
+
+Claim과 Family Card는 원장이 아니라 회수 예정 정보다.
+
+실제 운영에서는 가족카드 사용액이나 집안 생활비를 받은 뒤 처리가 끝난 항목을 삭제하며 관리한다.
+
+따라서 Snapshot은 Claim과 Family Card뿐 아니라 명시적 제외 대상을 뺀 장부 운용 데이터 전체를 백업한다.
 
 Snapshot에 포함하지 않는 것:
 
@@ -443,6 +460,31 @@ Snapshot restore는 위험 작업이다.
 복원 시 장부 운용 데이터는 snapshot 내용으로 교체되며, 현재 계정 비밀번호를 다시 확인해야 한다.
 
 사용자 계정, 본체 로그인 세션, 가족 공유 세션, 관리 로그는 snapshot restore 대상이 아니다.
+
+Restore 안전 원칙:
+
+- 운영 DB를 수정하기 전에 snapshot 구조와 manifest를 검증한다.
+- 운영 DB를 수정하기 전에 동일한 삽입 경로로 임시 DB dry-run restore를 수행한다.
+- dry-run에서 외래키 오류가 발생하면 운영 DB를 건드리지 않는다.
+- 실제 restore 직전 현재 운영 DB를 `pre_restore` snapshot으로 반드시 저장한다.
+- `pre_restore` 파일 생성, JSON parse, manifest 검증 중 하나라도 실패하면 restore를 중단한다.
+- 실제 restore 도중 예외가 발생하면 트랜잭션 rollback으로 기존 운영 DB를 보존한다.
+- `pre_restore`는 서버의 DB 디렉터리 아래 `snapshot-backups/`에 저장한다.
+- 사용자는 설정 모달 또는 관리자 API로 `pre_restore` 목록 조회, 다운로드, 되돌리기를 수행할 수 있어야 한다.
+- `pre_restore` 되돌리기도 일반 restore와 동일한 비밀번호 확인, manifest 검증, dry-run, 새 `pre_restore` 생성 절차를 거친다.
+- `pre_restore` 파일 접근은 정해진 filename 형식만 허용하며, `snapshot-backups/` 밖의 파일은 절대 읽지 않는다.
+
+향후 모바일 앱과 맥 앱은 실행 시 서버에서 전체 snapshot을 내려받아 각 기기 로컬에 보관할 수 있다.
+
+이때 브라우저 웹앱은 로컬 파일시스템을 안정적으로 제어할 수 없으므로 `cur_backup`/`prev_backup` 회전은 구현하지 않는다.
+
+대신 맥/모바일 클라이언트는 단일 `latest` 파일만 덮어쓰지 않고, 최소한 `cur_backup`과 `prev_backup` 두 벌을 유지한다.
+
+새 snapshot은 JSON parse, `schema_version`, manifest 검증을 통과한 뒤 임시 파일로 저장한다.
+
+정상 저장과 재검증이 끝난 경우에만 기존 `cur_backup`을 `prev_backup`으로 옮긴 다음 새 파일을 `cur_backup`으로 atomic rename한다.
+
+검증 실패 파일은 `cur_backup`이나 `prev_backup`을 덮어쓸 수 없고, 필요하면 `quarantine` 영역에 격리한다.
 
 ---
 

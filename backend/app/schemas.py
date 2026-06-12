@@ -32,6 +32,10 @@ class SnapshotRestoreIn(BaseModel):
     snapshot: dict[str, Any]
 
 
+class PreRestoreRestoreIn(BaseModel):
+    password: str
+
+
 class SharePinIn(BaseModel):
     pin: str = Field(pattern="^[0-9]{4}$")
 

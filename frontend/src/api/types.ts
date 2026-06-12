@@ -172,5 +172,13 @@ export type AuditLog = {
   status_code: number;
 };
 
+export type PreRestoreBackup = {
+  filename: string;
+  created_at: string;
+  size_bytes: number;
+  snapshot_id: string;
+  exported_at: string | null;
+};
+
 export type Labels = Record<string, string>;
 export type Settings = Record<string, string>;

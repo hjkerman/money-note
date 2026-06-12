@@ -226,7 +226,7 @@ sudo rsync -a --delete frontend/dist/ /var/www/money-note/
 
 서버 DB가 단일 원본이다.
 
-Snapshot은 최근 3개월 장부 데이터와 앱 운영 설정을 담는 JSON 백업 파일이다. 원본 SQLite DB 파일을 그대로 내려받는 방식이 아니며, 사용자 계정과 세션, 관리 로그, 비밀번호/해시, 공유 PIN 해시는 포함하지 않는다.
+Snapshot은 장부 운용 데이터 전체와 앱 운영 설정을 담는 JSON 백업 파일이다. 원본 SQLite DB 파일을 그대로 내려받는 방식이 아니며, 사용자 계정과 세션, 관리 로그, 비밀번호/해시, 공유 PIN 해시는 포함하지 않는다.
 
 내보내기:
 
@@ -235,11 +235,36 @@ curl -OJ -b /tmp/money-note-cookie.txt \
   http://localhost:18080/api/admin/snapshot
 ```
 
-응답 파일 확장자는 `.money-note-snapshot.json`이며, `schema_version`, `exported_at`, `range`, `data`를 포함한다.
+응답 파일 확장자는 `.money-note-snapshot.json`이며, `schema_version`, `exported_at`, `range`, `manifest`, `data`를 포함한다.
+
+현재 snapshot 형식은 `schema_version = 2`다.
+
+`manifest`는 canonical JSON 기준 SHA-256 무결성 정보를 담는다. `manifest` 자기 자신은 hash 대상에서 제외하며, `data` 전체 hash와 테이블별 컬럼 목록, row count, table hash를 기록한다.
 
 복원은 위험 작업이다. 현재 비밀번호를 다시 확인하며, 장부 운용 데이터와 비민감 운영 설정이 snapshot 내용으로 교체된다. 사용자 계정, 본체 로그인 세션, 가족 공유 세션, 관리 로그는 유지된다.
 
+복원 안전장치:
+
+- 운영 DB를 수정하기 전에 snapshot 구조와 manifest를 검증한다.
+- 운영 DB를 수정하기 전에 동일한 삽입 경로로 임시 DB dry-run restore를 수행한다.
+- dry-run에서 외래키 오류가 발견되면 복원을 중단한다.
+- 실제 restore 직전 현재 운영 DB를 `data/snapshot-backups/pre_restore-...money-note-snapshot.json` 파일로 반드시 저장한다.
+- `pre_restore` 파일 생성, JSON parse, manifest 검증 중 하나라도 실패하면 복원을 중단한다.
+- 실제 restore 도중 예외가 발생하면 트랜잭션 rollback으로 기존 운영 DB를 보존한다.
+
 웹에서는 `설정 -> 위험 작업 영역 -> snapshot 복원`에서 파일을 선택하고 현재 비밀번호를 입력한 뒤 실행한다.
+
+복원 결과가 잘못되었다면 같은 설정 모달의 `복원 전 백업` 섹션을 사용한다.
+
+절차:
+
+1. `목록 조회`를 누른다.
+2. restore 직전 시각의 `pre_restore` 항목을 확인한다.
+3. 필요하면 `다운로드`로 파일을 별도 보관한다.
+4. 현재 비밀번호를 입력한다.
+5. `되돌리기`를 누른다.
+
+`되돌리기`도 일반 restore와 동일한 검증과 dry-run을 거치며, 되돌리기 직전 상태 역시 새 `pre_restore`로 저장된다.
 
 API로 복원:
 
@@ -257,6 +282,50 @@ curl -b /tmp/money-note-cookie.txt \
   -d @/tmp/snapshot-restore.json \
   http://localhost:18080/api/admin/snapshot/restore
 ```
+
+API로 복원 전 백업 목록 조회:
+
+```bash
+curl -b /tmp/money-note-cookie.txt \
+  http://localhost:18080/api/admin/snapshot/pre-restore
+```
+
+API로 복원 전 백업 다운로드:
+
+```bash
+curl -OJ -b /tmp/money-note-cookie.txt \
+  http://localhost:18080/api/admin/snapshot/pre-restore/pre_restore-20260611T010101Z.money-note-snapshot.json
+```
+
+API로 복원 전 백업 되돌리기:
+
+```bash
+curl -b /tmp/money-note-cookie.txt \
+  -H 'Content-Type: application/json' \
+  -d '{"password":"your-password"}' \
+  http://localhost:18080/api/admin/snapshot/pre-restore/pre_restore-20260611T010101Z.money-note-snapshot.json/restore
+```
+
+### 클라이언트 자동 백업 정책
+
+향후 모바일 앱과 맥 앱은 앱 실행 시 서버에서 snapshot을 내려받아 각 기기 로컬에 백업 파일을 유지한다.
+
+브라우저 웹앱은 로컬 파일시스템을 안정적으로 제어할 수 없으므로 `cur_backup`/`prev_backup` 회전을 구현하지 않는다.
+
+기본 정책:
+
+- 전체 snapshot을 저장한다.
+- 각 기기는 최소 `cur_backup.money-note-snapshot.json`과 `prev_backup.money-note-snapshot.json` 두 벌을 유지한다.
+- 새 snapshot은 바로 `cur_backup`을 덮어쓰지 않는다.
+- 먼저 임시 파일로 저장한다.
+- 저장한 파일을 다시 JSON parse한다.
+- `schema_version`이 지원 범위인지 확인한다.
+- manifest를 재계산해 snapshot에 기록된 값과 일치하는지 확인한다.
+- 검증이 끝난 뒤 기존 `cur_backup`을 `prev_backup`으로 atomic rename한다.
+- 마지막으로 새 임시 파일을 `cur_backup`으로 atomic rename한다.
+- 검증 실패 파일은 `cur_backup`이나 `prev_backup`을 덮어쓸 수 없고, 필요하면 `quarantine/` 아래에 격리한다.
+
+이 정책은 네트워크 중단, 앱 강제 종료, 깨진 JSON, 잘못된 최신 상태가 곧바로 유일한 백업을 덮어쓰는 사고를 줄이기 위한 최소 안전장치다.
 
 ## 월마감
 

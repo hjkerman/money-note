@@ -102,6 +102,31 @@ class EntryConstraintTest(unittest.TestCase):
         visible_after_init = list_entries("current")
         self.assertTrue(any(entry["id"] == created["id"] for entry in visible_after_init))
 
+    def test_special_characters_round_trip_without_sql_or_html_escaping_loss(self) -> None:
+        special_place = "[연구실/편의점] O'Reilly <커피> & 간식"
+        special_item = "\"세미콜론; 괄호() 대괄호[] 슬래시/역슬래시\\\\\""
+        entry = create_entry(
+            LedgerEntryIn(
+                book_section="current",
+                entry_kind="expense",
+                entry_date="2026-06-04",
+                usage_place=special_place,
+                usage_item=special_item,
+                amount_value=1000,
+                sort_order=1,
+            )
+        )
+
+        self.assertEqual(entry["usage_place"], special_place)
+        self.assertEqual(entry["usage_item"], special_item)
+
+        patched_title = "수정된 <제목> & '따옴표' \"쌍따옴표\""
+        updated = update_entry(entry["id"], LedgerEntryPatch(title=patched_title))
+
+        self.assertEqual(updated["title"], patched_title)
+        visible = list_entries("current")
+        self.assertTrue(any(row["usage_place"] == special_place and row["usage_item"] == special_item for row in visible))
+
     def test_delete_entry_cleans_card_payment_allocations_and_cash_flow(self) -> None:
         first = create_entry(
             LedgerEntryIn(

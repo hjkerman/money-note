@@ -6,8 +6,8 @@ from unittest.mock import patch
 
 from app.config import get_settings
 from app.db import init_db, session
-from app.repository import complete_panels_by_type, update_panel
-from app.schemas import MonthlyPanelPatch
+from app.repository import complete_panels_by_type, create_panel, list_panels, update_panel
+from app.schemas import MonthlyPanelIn, MonthlyPanelPatch
 
 
 class PanelCompletionTest(unittest.TestCase):
@@ -50,6 +50,23 @@ class PanelCompletionTest(unittest.TestCase):
 
         self.assertEqual(updated["amount_value"], 1000)
         self.assertEqual(updated["discount_amount"], 120)
+
+    def test_panel_special_characters_round_trip(self) -> None:
+        title = "[병원] O'Reilly <진료> & 약값 / 괄호()"
+        created = create_panel(
+            MonthlyPanelIn(
+                month="2026-06",
+                panel_type="claim",
+                title=title,
+                spent_on="2026-06-11",
+                amount_value=1234,
+                sort_order=9,
+            )
+        )
+
+        self.assertEqual(created["title"], title)
+        listed = list_panels("2026-06")
+        self.assertTrue(any(panel["title"] == title for panel in listed))
 
 
 if __name__ == "__main__":

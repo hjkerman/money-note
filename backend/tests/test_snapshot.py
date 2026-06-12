@@ -25,18 +25,40 @@ class SnapshotTest(unittest.TestCase):
         self.env.stop()
         self.temp_dir.cleanup()
 
-    def test_export_contains_recent_data_and_excludes_sensitive_auth_state(self) -> None:
+    def test_export_contains_all_ledger_data_and_excludes_sensitive_auth_state(self) -> None:
         self._seed_data()
 
         filename, snapshot = export_snapshot(date(2026, 6, 11))
 
         self.assertTrue(filename.endswith(".money-note-snapshot.json"))
-        self.assertEqual(snapshot["schema_version"], 1)
-        self.assertEqual(snapshot["range"]["months"], ["2026-04", "2026-05", "2026-06"])
+        self.assertEqual(snapshot["schema_version"], 2)
+        self.assertEqual(snapshot["range"], {"scope": "all"})
+        self.assertEqual(snapshot["manifest"]["algorithm"], "sha256")
+        self.assertEqual(snapshot["manifest"]["tables"]["ledger_entries"]["row_count"], 3)
         titles = {row["title"] for row in snapshot["data"]["ledger_entries"]}
         self.assertIn("최근 지출", titles)
         self.assertIn("카드 정기결제", titles)
-        self.assertNotIn("오래된 지출", titles)
+        self.assertIn("오래된 지출", titles)
+        panel_titles = {row["title"] for row in snapshot["data"]["monthly_panels"]}
+        self.assertIn("최근 청구", panel_titles)
+        self.assertIn("오래된 청구", panel_titles)
+        self.assertIn("오래된 가족카드", panel_titles)
+        self.assertIn("오래된 고정지출", panel_titles)
+        cash_flow_titles = {row["title"] for row in snapshot["data"]["cash_flows"]}
+        self.assertIn("최근 현금", cash_flow_titles)
+        self.assertIn("오래된 현금", cash_flow_titles)
+        installment_titles = {row["title"] for row in snapshot["data"]["installments"]}
+        self.assertIn("활성 할부", installment_titles)
+        self.assertIn("오래된 종료 할부", installment_titles)
+        event_notes = {row["note"] for row in snapshot["data"]["card_payment_events"]}
+        self.assertIn("최근 결제", event_notes)
+        self.assertIn("오래된 결제", event_notes)
+        allocation_keys = {row["entry_payment_key"] for row in snapshot["data"]["card_payment_allocations"]}
+        self.assertIn("recent-key", allocation_keys)
+        self.assertIn("old-key", allocation_keys)
+        deferral_keys = {row["entry_payment_key"] for row in snapshot["data"]["card_payment_deferrals"]}
+        self.assertIn("recent-key", deferral_keys)
+        self.assertIn("old-key", deferral_keys)
         setting_keys = {row["key"] for row in snapshot["data"]["app_settings"]}
         self.assertIn("base_next_month_liquidity", setting_keys)
         self.assertNotIn("share_pin_hash", setting_keys)
@@ -49,6 +71,7 @@ class SnapshotTest(unittest.TestCase):
         self._seed_data()
         _, snapshot = export_snapshot(date(2026, 6, 11))
         snapshot["data"]["ledger_entries"][0]["title"] = "복원된 최근 지출"
+        snapshot["manifest"] = self._rebuilt_manifest(snapshot["data"])
 
         with session() as conn:
             conn.execute("DELETE FROM ledger_entries")
@@ -69,6 +92,11 @@ class SnapshotTest(unittest.TestCase):
         restored = restore_snapshot(snapshot)
 
         self.assertGreater(restored["ledger_entries"], 0)
+        backup_dir = self.db_path.parent / "snapshot-backups"
+        backups = list(backup_dir.glob("pre_restore-*.money-note-snapshot.json"))
+        self.assertEqual(len(backups), 1)
+        pre_restore = backups[0].read_text(encoding="utf-8")
+        self.assertIn("복원 전 임시 지출", pre_restore)
         with session() as conn:
             titles = {row["title"] for row in conn.execute("SELECT title FROM ledger_entries").fetchall()}
             self.assertIn("복원된 최근 지출", titles)
@@ -101,6 +129,106 @@ class SnapshotTest(unittest.TestCase):
         self.assertIn("최근 지출", titles)
         self.assertIn("오래된 지출", titles)
         self.assertEqual(user_count, 1)
+
+    def test_restore_rejects_missing_required_table_without_touching_db(self) -> None:
+        self._seed_data()
+        _, snapshot = export_snapshot(date(2026, 6, 11))
+        broken = copy.deepcopy(snapshot)
+        del broken["data"]["ledger_entries"]
+
+        with self.assertRaises(ValueError):
+            restore_snapshot(broken)
+
+        self._assert_seed_data_preserved()
+
+    def test_restore_rejects_wrong_schema_version_without_touching_db(self) -> None:
+        self._seed_data()
+        _, snapshot = export_snapshot(date(2026, 6, 11))
+        broken = copy.deepcopy(snapshot)
+        broken["schema_version"] = 999
+
+        with self.assertRaises(ValueError):
+            restore_snapshot(broken)
+
+        self._assert_seed_data_preserved()
+
+    def test_restore_rejects_empty_snapshot_without_touching_db(self) -> None:
+        self._seed_data()
+
+        with self.assertRaises(ValueError):
+            restore_snapshot({})
+
+        self._assert_seed_data_preserved()
+
+    def test_restore_rejects_missing_column_without_touching_db(self) -> None:
+        self._seed_data()
+        _, snapshot = export_snapshot(date(2026, 6, 11))
+        broken = copy.deepcopy(snapshot)
+        del broken["data"]["ledger_entries"][0]["title"]
+        broken["manifest"] = snapshot["manifest"]
+
+        with self.assertRaises(ValueError):
+            restore_snapshot(broken)
+
+        self._assert_seed_data_preserved()
+
+    def test_restore_rejects_manifest_mismatch_without_touching_db(self) -> None:
+        self._seed_data()
+        _, snapshot = export_snapshot(date(2026, 6, 11))
+        broken = copy.deepcopy(snapshot)
+        broken["data"]["ledger_entries"][0]["title"] = "해시 안 맞는 지출"
+
+        with self.assertRaises(ValueError):
+            restore_snapshot(broken)
+
+        self._assert_seed_data_preserved()
+
+    def test_restore_rejects_broken_foreign_key_without_touching_db(self) -> None:
+        self._seed_data()
+        _, snapshot = export_snapshot(date(2026, 6, 11))
+        broken = copy.deepcopy(snapshot)
+        broken["data"]["card_payment_allocations"][0]["payment_event_id"] = 99999
+        broken["manifest"] = self._rebuilt_manifest(broken["data"])
+
+        with self.assertRaises(ValueError):
+            restore_snapshot(broken)
+
+        self._assert_seed_data_preserved()
+
+    def _rebuilt_manifest(self, data: dict) -> dict:
+        import hashlib
+        import json
+
+        tables = {}
+        for table, rows in data.items():
+            columns = sorted(rows[0].keys()) if rows else []
+            tables[table] = {
+                "columns": columns,
+                "row_count": len(rows),
+                "sha256": hashlib.sha256(
+                    json.dumps(rows, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8"),
+                ).hexdigest(),
+            }
+        return {
+            "algorithm": "sha256",
+            "tables": tables,
+            "data_sha256": hashlib.sha256(
+                json.dumps(data, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8"),
+            ).hexdigest(),
+        }
+
+    def _assert_seed_data_preserved(self) -> None:
+        with session() as conn:
+            titles = {row["title"] for row in conn.execute("SELECT title FROM ledger_entries").fetchall()}
+            panels = {row["title"] for row in conn.execute("SELECT title FROM monthly_panels").fetchall()}
+            user_count = conn.execute("SELECT COUNT(*) AS count FROM users").fetchone()["count"]
+            auth_count = conn.execute("SELECT COUNT(*) AS count FROM auth_sessions").fetchone()["count"]
+        self.assertIn("최근 지출", titles)
+        self.assertIn("오래된 지출", titles)
+        self.assertIn("오래된 청구", panels)
+        self.assertIn("오래된 가족카드", panels)
+        self.assertEqual(user_count, 1)
+        self.assertEqual(auth_count, 1)
 
     def _seed_data(self) -> None:
         with session() as conn:
@@ -156,37 +284,51 @@ class SnapshotTest(unittest.TestCase):
             conn.execute(
                 """
                 INSERT INTO monthly_panels(id, month, panel_type, title, amount_value, sort_order)
-                VALUES (1, '2026-06', 'claim', '최근 청구', 1000, 1)
+                VALUES
+                    (1, '2026-06', 'claim', '최근 청구', 1000, 1),
+                    (2, '2026-02', 'claim', '오래된 청구', 2000, 2),
+                    (3, '2026-02', 'family_card', '오래된 가족카드', 3000, 3),
+                    (4, '2026-02', 'fixed', '오래된 고정지출', 4000, 4)
                 """
             )
             conn.execute(
                 """
                 INSERT INTO cash_flows(id, occurred_on, title, amount_value, sort_order)
-                VALUES (1, '2026-06-06', '최근 현금', 5000, 1)
+                VALUES
+                    (1, '2026-06-06', '최근 현금', 5000, 1),
+                    (2, '2026-02-06', '오래된 현금', 6000, 2)
                 """
             )
             conn.execute(
                 """
                 INSERT INTO installments(id, title, principal_amount, fee_rate, fee_amount, months, remaining_months, start_month, sort_order, is_active)
-                VALUES (1, '활성 할부', 120000, 0, 0, 12, 10, '2026-01', 1, 1)
+                VALUES
+                    (1, '활성 할부', 120000, 0, 0, 12, 10, '2026-01', 1, 1),
+                    (2, '오래된 종료 할부', 240000, 0, 0, 12, 0, '2025-01', 2, 0)
                 """
             )
             conn.execute(
                 """
                 INSERT INTO card_payment_events(id, event_date, event_type, total_amount, note, cash_flow_id)
-                VALUES (1, '2026-06-07', 'immediate', 500, '최근 결제', 1)
+                VALUES
+                    (1, '2026-06-07', 'immediate', 500, '최근 결제', 1),
+                    (2, '2026-02-07', 'immediate', 700, '오래된 결제', 2)
                 """
             )
             conn.execute(
                 """
                 INSERT INTO card_payment_allocations(id, payment_event_id, entry_payment_key, amount_value)
-                VALUES (1, 1, 'recent-key', 500)
+                VALUES
+                    (1, 1, 'recent-key', 500),
+                    (2, 2, 'old-key', 700)
                 """
             )
             conn.execute(
                 """
                 INSERT INTO card_payment_deferrals(entry_payment_key, from_payment_month, target_payment_month)
-                VALUES ('recent-key', '2026-06', '2026-07')
+                VALUES
+                    ('recent-key', '2026-06', '2026-07'),
+                    ('old-key', '2026-02', '2026-03')
                 """
             )
 

@@ -9,6 +9,7 @@ import {
   LedgerEntry,
   MonthlyPanel,
   MonthCloseStatus,
+  PreRestoreBackup,
   Settings,
   Summary,
 } from "./api";
@@ -95,6 +96,7 @@ export function App() {
   const [familyDiscountMonth, setFamilyDiscountMonth] = useState<CardDiscountMonth | null>(null);
   const [monthCloseStatus, setMonthCloseStatus] = useState<MonthCloseStatus | null>(null);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+  const [preRestoreBackups, setPreRestoreBackups] = useState<PreRestoreBackup[]>([]);
   const [summary, setSummary] = useState<Summary | null>(null);
   const [judgment, setJudgment] = useState<JudgmentState | null>(null);
   const [labels, setLabels] = useState<Record<string, string>>({});
@@ -283,6 +285,9 @@ export function App() {
     handleInterestExpenseSave,
     handleLedgerReset,
     handlePasswordChange,
+    handlePreRestoreDownload,
+    handlePreRestoreList,
+    handlePreRestoreRestore,
     handleScheduledIncomeSave,
     handleSharePinSet,
     handleSnapshotRestore,
@@ -300,6 +305,7 @@ export function App() {
     setIsBusy,
     setPasswordForm,
     setPaymentAllocations,
+    setPreRestoreBackups,
     setResetPassword,
     setScheduledIncomeInput,
     setShowAuditLogs,
@@ -422,11 +428,15 @@ export function App() {
             onInterestExpenseSave={() => void handleInterestExpenseSave()}
             onLedgerReset={() => void handleLedgerReset()}
             onPasswordChange={() => void handlePasswordChange()}
+            onPreRestoreDownload={(filename) => void handlePreRestoreDownload(filename)}
+            onPreRestoreList={() => void handlePreRestoreList()}
+            onPreRestoreRestore={(filename) => void handlePreRestoreRestore(filename)}
             onScheduledIncomeSave={() => void handleScheduledIncomeSave()}
             onSharePinSet={() => void handleSharePinSet()}
             onSnapshotRestore={(file) => void handleSnapshotRestore(file)}
             ownerCardLast4Input={ownerCardLast4Input}
             passwordForm={passwordForm}
+            preRestoreBackups={preRestoreBackups}
             resetPassword={resetPassword}
             scheduledIncomeInput={scheduledIncomeInput}
             setFamilyCardLast4Input={setFamilyCardLast4Input}

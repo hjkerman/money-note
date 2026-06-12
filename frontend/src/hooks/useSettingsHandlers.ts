@@ -5,9 +5,13 @@ import {
   changePassword,
   clearAuditLogs,
   closeCurrentMonth,
+  downloadPreRestoreBackup,
   fetchAuditLogs,
+  fetchPreRestoreBackups,
   MonthCloseStatus,
+  PreRestoreBackup,
   resetLedgerData,
+  restorePreRestoreBackup,
   restoreSnapshot,
   setSharePin,
   updateSetting,
@@ -28,6 +32,7 @@ export function useSettingsHandlers({
   setIsBusy,
   setPasswordForm,
   setPaymentAllocations,
+  setPreRestoreBackups,
   setResetPassword,
   setScheduledIncomeInput,
   setShowAuditLogs,
@@ -48,6 +53,7 @@ export function useSettingsHandlers({
   setIsBusy: (busy: boolean) => void;
   setPasswordForm: (value: { currentPassword: string; newPassword: string }) => void;
   setPaymentAllocations: (value: Record<string, string>) => void;
+  setPreRestoreBackups: (value: PreRestoreBackup[]) => void;
   setResetPassword: (value: string) => void;
   setScheduledIncomeInput: (value: string) => void;
   setShowAuditLogs: (value: boolean) => void;
@@ -146,7 +152,7 @@ export function useSettingsHandlers({
       return;
     }
     const confirmed = window.confirm(
-      "snapshot을 복원할까요?\n\n기존 최근 장부 데이터가 snapshot 내용으로 교체됩니다. 계정, 로그인 세션, 공유 세션, 관리 로그는 유지됩니다.",
+      "snapshot을 복원할까요?\n\n기존 장부 운용 데이터가 snapshot 내용으로 교체됩니다. 계정, 로그인 세션, 공유 세션, 관리 로그는 유지됩니다.",
     );
     if (!confirmed) return;
     let snapshot: unknown;
@@ -162,6 +168,58 @@ export function useSettingsHandlers({
       setResetPassword("");
       setPaymentAllocations({});
       setStatus(`snapshot 복원 완료: ${total}행`);
+    });
+  }
+
+  async function handlePreRestoreList() {
+    setIsBusy(true);
+    try {
+      const backups = await fetchPreRestoreBackups();
+      setPreRestoreBackups(backups);
+      setStatus(`복원 전 백업 ${backups.length}개 조회 완료`);
+    } catch (error) {
+      setStatus(`복원 전 백업 조회 실패: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      setIsBusy(false);
+    }
+  }
+
+  async function handlePreRestoreDownload(filename: string) {
+    setIsBusy(true);
+    try {
+      const result = await downloadPreRestoreBackup(filename);
+      const url = URL.createObjectURL(result.blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = result.filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      setStatus("복원 전 백업 다운로드 준비 완료");
+    } catch (error) {
+      setStatus(`복원 전 백업 다운로드 실패: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      setIsBusy(false);
+    }
+  }
+
+  async function handlePreRestoreRestore(filename: string) {
+    if (!resetPassword) {
+      setStatus("복원 전 백업으로 되돌리려면 현재 비밀번호가 필요합니다.");
+      return;
+    }
+    const confirmed = window.confirm(
+      `${filename}\n\n이 복원 전 백업 상태로 되돌릴까요?\n현재 장부 운용 데이터가 교체되며, 되돌리기 직전 상태도 새 pre_restore로 저장됩니다.`,
+    );
+    if (!confirmed) return;
+    await withRefresh(async () => {
+      const result = await restorePreRestoreBackup(filename, resetPassword);
+      const total = Object.values(result.restored).reduce((sum, count) => sum + count, 0);
+      setResetPassword("");
+      setPaymentAllocations({});
+      setPreRestoreBackups(await fetchPreRestoreBackups());
+      setStatus(`복원 전 백업으로 되돌리기 완료: ${total}행`);
     });
   }
 
@@ -245,6 +303,9 @@ export function useSettingsHandlers({
     handleInterestExpenseSave,
     handleLedgerReset,
     handlePasswordChange,
+    handlePreRestoreDownload,
+    handlePreRestoreList,
+    handlePreRestoreRestore,
     handleScheduledIncomeSave,
     handleSharePinSet,
     handleSnapshotRestore,
