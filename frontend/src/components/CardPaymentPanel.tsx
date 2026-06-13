@@ -66,6 +66,16 @@ export function CardPaymentPanel({
   const referenceLiquidity = status.primary_income_total > 0 ? status.primary_income_total : fallbackLiquidity;
   const pressure = paymentTone ?? { level: "quiet", message: "결제 판단을 불러오는 중입니다." };
   const selectedTotal = sumPaymentAllocationInputs(allocations);
+  const payableRows = status.rows.filter((row) => row.payment_key && !row.is_deferred && row.remaining_amount > 0);
+  const selectedCount = payableRows.filter((row) => row.payment_key && hasOwn(allocations, row.payment_key)).length;
+  const allPayableSelected = payableRows.length > 0 && selectedCount === payableRows.length;
+  const selectAllPayableRows = () => {
+    const next: Record<string, string> = {};
+    for (const row of payableRows) {
+      if (row.payment_key) next[row.payment_key] = String(Math.round(row.remaining_amount));
+    }
+    setAllocations(next);
+  };
   return (
     <section className="payment-stack">
       <section className={`panel payment-overview ${pressure.level}`}>
@@ -120,7 +130,14 @@ export function CardPaymentPanel({
           <button type="button" onClick={onAutoAllocate} disabled={isBusy || !status.immediate_allowed}>
             날짜순 자동 배분
           </button>
-          <button type="button" onClick={() => setAllocations({})} disabled={isBusy}>선택 해제</button>
+          <button
+            type="button"
+            onClick={selectAllPayableRows}
+            disabled={isBusy || !status.immediate_allowed || allPayableSelected || payableRows.length === 0}
+          >
+            전체 선택
+          </button>
+          <button type="button" onClick={() => setAllocations({})} disabled={isBusy || selectedCount === 0}>전체 선택 해제</button>
           <button
             type="button"
             className="save-needed"

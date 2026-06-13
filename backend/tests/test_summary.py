@@ -7,6 +7,8 @@ from unittest.mock import patch
 from app.config import get_settings
 from app.db import init_db, session
 from app.repository import confirm_planned_entry
+from app.schemas import CardPaymentAllocationIn, CardPaymentEventIn
+from app.services.card_payments import create_card_payment_event
 from app.services.summary import current_summary_values, panel_net_total
 
 
@@ -115,6 +117,31 @@ class SummaryCalculationTest(unittest.TestCase):
         self.assertEqual(after["planned_recurring_total"], 30_000)
         self.assertEqual(after["transfer_or_deposit_total"], 30_000)
         self.assertEqual(after["next_month_liquidity"], 370_360)
+
+    def test_immediate_card_payment_reduces_cash_liquidity(self) -> None:
+        with session() as conn:
+            conn.execute(
+                """
+                INSERT INTO ledger_entries(
+                    book_section, entry_kind, entry_date, title, amount_value, sort_order, payment_key
+                )
+                VALUES ('archive', 'expense', '2026-05-05', '전월 카드 사용', 10000, 1, 'paid-key')
+                """
+            )
+
+        before = current_summary_values()
+        create_card_payment_event(
+            CardPaymentEventIn(
+                event_date="2026-06-05",
+                event_type="immediate",
+                allocations=[CardPaymentAllocationIn(entry_payment_key="paid-key", amount_value=5000)],
+            )
+        )
+        after = current_summary_values()
+
+        self.assertEqual(before["liquidity_status"], 0)
+        self.assertEqual(after["liquidity_status"], -5_000)
+        self.assertEqual(after["next_month_liquidity"], before["next_month_liquidity"] - 5_000)
 
 
 if __name__ == "__main__":

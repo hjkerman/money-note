@@ -94,10 +94,10 @@ class CardPaymentDeferralTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "이미 일부결제"):
             defer_toll_payment("toll-key", date(2026, 6, 4))
 
-    def test_toll_uses_discount_and_allows_partial_immediate_payment(self) -> None:
+    def test_toll_has_no_discount_and_allows_partial_immediate_payment(self) -> None:
         row = next(row for row in current_payment_status(date(2026, 6, 4))["rows"] if row["payment_key"] == "toll-key")
-        self.assertEqual(row["discount_amount"], 60)
-        self.assertEqual(row["remaining_amount"], 4_940)
+        self.assertEqual(row["discount_amount"], 0)
+        self.assertEqual(row["remaining_amount"], 5_000)
 
         create_card_payment_event(
             CardPaymentEventIn(
@@ -110,7 +110,7 @@ class CardPaymentDeferralTest(unittest.TestCase):
             date(2026, 6, 4),
         )
         updated = next(row for row in current_payment_status(date(2026, 6, 4))["rows"] if row["payment_key"] == "toll-key")
-        self.assertEqual(updated["remaining_amount"], 3_940)
+        self.assertEqual(updated["remaining_amount"], 4_000)
 
     def test_toll_and_highpass_rows_are_grouped_in_payment_screen(self) -> None:
         with session() as conn:
@@ -130,7 +130,7 @@ class CardPaymentDeferralTest(unittest.TestCase):
         self.assertEqual(grouped["payment_keys"], ["toll-key", "toll-key-2"])
         self.assertEqual(grouped["entry_ids"], [2, 3])
         self.assertEqual(grouped["original_amount"], 8_000)
-        self.assertEqual(grouped["remaining_amount"], 7_904)
+        self.assertEqual(grouped["remaining_amount"], 8_000)
 
     def test_discount_policy_is_separate_for_owner_and_family_cards(self) -> None:
         set_discount_month_policy("2026-05", "disabled", "owner")
