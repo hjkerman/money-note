@@ -152,20 +152,32 @@ git pull
 
 ### 3. 서버 설정 파일 만들기
 
-repo 루트에 `.env` 파일을 만든다. 이 파일은 git에 올리지 않는다.
+repo 루트에 서버용 `.env` 파일을 만든다. 이 파일은 `docker compose`가 자동으로 읽으며, git에 올리지 않는다.
+
+주의:
+
+- 이 `.env`는 `/opt/money-note/.env`다.
+- 프론트엔드 개발용 `frontend/.env`와 다른 파일이다.
+- 서버 비밀값, 운영 도메인, cookie 설정은 repo 루트 `.env`에 둔다.
+- `.gitignore`에 `.env`가 들어 있으므로 실수로 git에 올라가지 않는다.
+
+복사해서 바로 만들려면 아래처럼 한다.
 
 ```bash
 cd /opt/money-note
-nano .env
-```
-
-예시:
-
-```text
+cat > .env <<'EOF'
 MONEY_NOTE_TODAY=
-MONEY_NOTE_CORS_ORIGINS=https://cloud.hjkerman.re.kr,http://localhost:5173,http://127.0.0.1:5173
+MONEY_NOTE_CORS_ORIGINS=https://cloud.hjkerman.re.kr
 MONEY_NOTE_COOKIE_SECURE=true
 MONEY_NOTE_SESSION_DAYS=30
+EOF
+chmod 600 .env
+```
+
+로컬 개발 주소도 함께 허용해야 하면 `MONEY_NOTE_CORS_ORIGINS`를 쉼표로 이어 쓴다.
+
+```text
+MONEY_NOTE_CORS_ORIGINS=https://cloud.hjkerman.re.kr,http://localhost:5173,http://127.0.0.1:5173
 ```
 
 설명:
@@ -176,6 +188,18 @@ MONEY_NOTE_SESSION_DAYS=30
 - 처음 로컬 확인만 할 때는 `MONEY_NOTE_COOKIE_SECURE=false`가 편하다.
 
 `docker-compose.yml`은 위 값을 자동으로 읽어 컨테이너에 전달한다.
+
+적용될 값을 확인하려면 아래 명령을 쓴다.
+
+```bash
+docker compose config
+```
+
+`.env`를 수정한 뒤 이미 서버가 떠 있다면 다시 올린다.
+
+```bash
+docker compose up --build -d
+```
 
 ### 4. 데이터 디렉터리 확인
 
@@ -453,17 +477,20 @@ http://127.0.0.1:5173
 - 이달 기준 수입이 없으면 `base_next_month_liquidity` 설정값, 즉 `기본 예정 수입`을 수입 하한선 겸 fallback 심사 기준액으로 사용하며 설정 화면에서 변경할 수 있다.
 - 14일 경과 후 미결제 기록이 있으면 실제 카드 결제는 완료된 것으로 의제하고, 사용자가 유동성 현황을 보정한 뒤 `유동성 보정 완료`를 누른다.
 
-API 서버 주소는 `.env`로 지정할 수 있다.
+API 서버 주소는 `frontend/.env`로 지정할 수 있다. 이 파일은 Vite 빌드 시점에 읽힌다.
 
 ```bash
+cd frontend
 cp .env.example .env
 ```
 
-`.env` 예시:
+`frontend/.env` 예시:
 
 ```text
 VITE_API_BASE_URL=http://localhost:18080
 ```
+
+운영 도메인에서 정적 파일을 배포하고 `/api/`를 같은 도메인에서 reverse proxy한다면 이 값을 비우거나 상대 경로 전략으로 바꾸는 방식을 검토한다. 현재 기본값은 로컬 개발 서버에서 백엔드 `18080` 포트로 직접 붙기 위한 설정이다.
 
 ## 웹 프론트엔드 정적 빌드
 
