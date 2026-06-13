@@ -2,7 +2,8 @@ import { API_BASE_URL, deleteJson, getJson, patchJson, postJson } from "./client
 import { MonthlyPanel } from "./types";
 
 export function sharePageUrl(panelType: "claim" | "family_card"): string {
-  return `${API_BASE_URL}/share/${panelType}`;
+  const baseUrl = API_BASE_URL || (typeof window === "undefined" ? "" : window.location.origin);
+  return new URL(`/share/${panelType}`, baseUrl).toString();
 }
 
 export async function fetchCurrentPanels(): Promise<MonthlyPanel[]> {
