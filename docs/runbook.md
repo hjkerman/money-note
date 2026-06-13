@@ -171,6 +171,8 @@ MONEY_NOTE_TODAY=
 MONEY_NOTE_CORS_ORIGINS=https://money.hjkerman.re.kr
 MONEY_NOTE_COOKIE_SECURE=true
 MONEY_NOTE_SESSION_DAYS=30
+MONEY_NOTE_APK_PATH=/app/downloads/money-note.apk
+MONEY_NOTE_APK_FILENAME=money-note.apk
 EOF
 chmod 600 .env
 ```
@@ -187,6 +189,7 @@ MONEY_NOTE_CORS_ORIGINS=https://money.hjkerman.re.kr,http://localhost:5173,http:
 - `MONEY_NOTE_CORS_ORIGINS`에는 실제 웹 프론트엔드 주소를 넣는다.
 - HTTPS 뒤에서 운영하면 `MONEY_NOTE_COOKIE_SECURE=true`를 권장한다.
 - 처음 로컬 확인만 할 때는 `MONEY_NOTE_COOKIE_SECURE=false`가 편하다.
+- `MONEY_NOTE_APK_PATH`는 설정 모달에서 내려받을 Android APK 파일의 컨테이너 내부 경로다. APK를 아직 제공하지 않을 때는 비워둬도 된다.
 
 `docker-compose.yml`은 위 값을 자동으로 읽어 컨테이너에 전달한다.
 
@@ -462,6 +465,30 @@ MONEY_NOTE_TODAY=2026-07-01 docker compose up --build -d
 `MONEY_NOTE_TODAY`는 월마감, 카드대금, 정기결제 표시처럼 앱 기준일이 필요한 흐름을 검증하기 위한 개발용 override다. 비워두면 실제 오늘 날짜를 사용한다. 운영 서버에서는 설정하지 않는다.
 
 앱 기준일은 기본적으로 KST(+09:00)로 계산한다. 다른 시간대가 필요하면 `MONEY_NOTE_TIMEZONE_OFFSET_MINUTES`에 UTC 기준 분 단위 offset을 지정한다. 한국 시간은 기본값 `540`이다.
+
+Android APK 다운로드:
+
+```text
+MONEY_NOTE_APK_PATH=/app/downloads/money-note.apk
+MONEY_NOTE_APK_FILENAME=money-note.apk
+```
+
+`MONEY_NOTE_APK_PATH`는 컨테이너 안에서 보이는 APK 파일 경로다. `docker-compose.yml`은 기본으로 서버 repo의 `./downloads` 디렉터리를 컨테이너의 `/app/downloads`에 연결한다.
+
+따라서 서버에서는 아래처럼 APK를 둔다.
+
+```bash
+mkdir -p /opt/money-note/downloads
+cp money-note.apk /opt/money-note/downloads/money-note.apk
+```
+
+그 뒤 `/opt/money-note/.env`에 위 값을 넣고 서버를 다시 올린다.
+
+```bash
+docker compose up --build -d
+```
+
+웹에서는 `설정 -> Android 앱 설치 파일 -> APK 다운로드` 버튼으로 내려받는다. APK 파일이 아직 없거나 `MONEY_NOTE_APK_PATH`가 비어 있으면 다운로드는 `apk file not found`로 실패한다.
 
 ## 로그인 계정 생성
 

@@ -9,7 +9,8 @@ from app.auth import create_user
 from app.config import get_settings
 from app.db import init_db, session
 from app.routers.admin import (
-    get_pre_restore_backup,
+    delete_pre_restore,
+    get_apk,
     get_pre_restore_backups,
     post_pre_restore_backup_restore,
     post_snapshot_restore,
@@ -45,6 +46,24 @@ class AdminApiTest(unittest.TestCase):
         self.assertIn("/api/admin/snapshot/pre-restore", paths)
         self.assertIn("/api/admin/snapshot/pre-restore/{filename}", paths)
         self.assertIn("/api/admin/snapshot/pre-restore/{filename}/restore", paths)
+        self.assertIn("/api/admin/apk", paths)
+
+    def test_apk_download_uses_configured_file(self) -> None:
+        apk_path = Path(self.temp_dir.name) / "money-note.apk"
+        apk_path.write_bytes(b"apk")
+        with patch.dict(
+            os.environ,
+            {
+                "MONEY_NOTE_DB_PATH": str(self.db_path),
+                "MONEY_NOTE_APK_PATH": str(apk_path),
+                "MONEY_NOTE_APK_FILENAME": "money-note-test.apk",
+            },
+        ):
+            get_settings.cache_clear()
+            response = get_apk(self._create_user())
+
+        self.assertEqual(response.media_type, "application/vnd.android.package-archive")
+        self.assertIn("money-note-test.apk", response.headers["content-disposition"])
 
     def test_reset_ledger_data_deletes_ledger_only(self) -> None:
         with session() as conn:
@@ -69,7 +88,7 @@ class AdminApiTest(unittest.TestCase):
         self.assertEqual(entry_count, 0)
         self.assertEqual(user_count, 1)
 
-    def test_pre_restore_list_download_and_restore_api(self) -> None:
+    def test_pre_restore_list_and_restore_api(self) -> None:
         user = self._create_user()
         filename = self._create_pre_restore_backup()
 
@@ -79,10 +98,6 @@ class AdminApiTest(unittest.TestCase):
         self.assertGreater(backups[0]["size_bytes"], 0)
         self.assertTrue(backups[0]["snapshot_id"])
         self.assertTrue(backups[0]["exported_at"])
-
-        download_response = get_pre_restore_backup(filename, user)
-        self.assertEqual(download_response.media_type, "application/json")
-        self.assertIn(filename, download_response.headers["content-disposition"])
 
         restore_response = post_pre_restore_backup_restore(
             filename,
@@ -98,7 +113,7 @@ class AdminApiTest(unittest.TestCase):
         user = self._create_user()
 
         with self.assertRaises(Exception):
-            get_pre_restore_backup("not-a-backup.json", user)
+            delete_pre_restore("not-a-backup.json", user)
 
     def test_pre_restore_restore_failure_preserves_current_db(self) -> None:
         user = self._create_user()

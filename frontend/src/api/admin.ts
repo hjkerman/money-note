@@ -27,6 +27,21 @@ export async function downloadSnapshot(): Promise<{ blob: Blob; filename: string
   };
 }
 
+export async function downloadAndroidApk(): Promise<{ blob: Blob; filename: string }> {
+  const response = await fetch(`${API_BASE_URL}/api/admin/apk`, {
+    headers: authHeaders(),
+    credentials: "include",
+  });
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(detail || `HTTP ${response.status}`);
+  }
+  return {
+    blob: await response.blob(),
+    filename: readDownloadFilename(response.headers.get("Content-Disposition")) ?? "money-note.apk",
+  };
+}
+
 export async function fetchPreRestoreBackups(): Promise<PreRestoreBackup[]> {
   const result = await getJson<{ backups: PreRestoreBackup[] }>("/api/admin/snapshot/pre-restore");
   return result.backups;

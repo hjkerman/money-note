@@ -10,6 +10,7 @@ export function SettingsModal({
   interestExpenseInput,
   isBusy,
   onCardLast4Save,
+  onApkDownload,
   onClose,
   onCardLimitSave,
   onInterestExpenseSave,
@@ -41,6 +42,7 @@ export function SettingsModal({
   interestExpenseInput: string;
   isBusy: boolean;
   onCardLast4Save: (key: "owner_card_last4" | "family_card_last4", value: string) => void;
+  onApkDownload: () => void;
   onClose: () => void;
   onCardLimitSave: () => void;
   onInterestExpenseSave: () => void;
@@ -191,6 +193,15 @@ export function SettingsModal({
               변경
             </button>
           </label>
+          <section className="settings-row settings-download-row">
+            <div>
+              <span>Android 앱 설치 파일</span>
+              <p>서버에 올려둔 최신 APK 파일을 내려받습니다.</p>
+            </div>
+            <button type="button" onClick={onApkDownload} disabled={isBusy}>
+              APK 다운로드
+            </button>
+          </section>
           <section className="danger-zone">
             <article className="danger-action">
               <div>

@@ -11,6 +11,9 @@ class Settings:
         self.cookie_secure = os.getenv("MONEY_NOTE_COOKIE_SECURE", "false").lower() == "true"
         self.today_override = os.getenv("MONEY_NOTE_TODAY", "").strip()
         self.timezone_offset_minutes = int(os.getenv("MONEY_NOTE_TIMEZONE_OFFSET_MINUTES", "540"))
+        apk_path = os.getenv("MONEY_NOTE_APK_PATH", "").strip()
+        self.apk_path = Path(apk_path) if apk_path else None
+        self.apk_filename = os.getenv("MONEY_NOTE_APK_FILENAME", "money-note.apk").strip() or "money-note.apk"
         self.cors_origins = [
             origin.strip()
             for origin in os.getenv(

@@ -926,6 +926,16 @@ button.discount-badge:hover:not(:disabled) {
   font-weight: 700;
 }
 
+.settings-download-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.settings-download-row p {
+  margin: 4px 0 0;
+  color: #747b6f;
+  font-size: 13px;
+}
+
 .danger-zone {
   display: grid;
   gap: 10px;

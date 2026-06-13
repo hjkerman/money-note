@@ -1,8 +1,10 @@
 import json
 
 from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi.responses import FileResponse
 
 from app.auth import require_user, verify_user_password
+from app.config import get_settings
 from app.schemas import PasswordConfirmIn, PreRestoreRestoreIn, SnapshotRestoreIn
 from app.services.reset import reset_ledger_data
 from app.services.snapshot import (
@@ -31,6 +33,19 @@ def get_snapshot(_: dict = Depends(require_user)) -> Response:
         content=json.dumps(snapshot, ensure_ascii=False, separators=(",", ":")),
         media_type="application/json",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@router.get("/apk")
+def get_apk(_: dict = Depends(require_user)) -> FileResponse:
+    settings = get_settings()
+    apk_path = settings.apk_path
+    if apk_path is None or not apk_path.is_file():
+        raise HTTPException(status_code=404, detail="apk file not found")
+    return FileResponse(
+        apk_path,
+        media_type="application/vnd.android.package-archive",
+        filename=settings.apk_filename,
     )
 
 

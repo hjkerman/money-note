@@ -255,6 +255,7 @@ export function App() {
     withRefresh,
   });
   const {
+    handleApkDownload,
     handleAuditLogClear,
     handleAuditLogToggle,
     handleCardLast4Save,
@@ -409,11 +410,12 @@ export function App() {
       settings={
         showSettings ? (
           <SettingsModal
-            familyCardLast4Input={familyCardLast4Input}
-            cardLimitInput={cardLimitInput}
-            interestExpenseInput={interestExpenseInput}
-            isBusy={isBusy}
-            onCardLast4Save={(key, value) => void handleCardLast4Save(key, value)}
+              familyCardLast4Input={familyCardLast4Input}
+              cardLimitInput={cardLimitInput}
+              interestExpenseInput={interestExpenseInput}
+              isBusy={isBusy}
+              onApkDownload={() => void handleApkDownload()}
+              onCardLast4Save={(key, value) => void handleCardLast4Save(key, value)}
             onClose={() => setShowSettings(false)}
             onCardLimitSave={() => void handleCardLimitSave()}
             onInterestExpenseSave={() => void handleInterestExpenseSave()}

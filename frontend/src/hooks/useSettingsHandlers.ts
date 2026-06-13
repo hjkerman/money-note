@@ -7,6 +7,7 @@ import {
   closeCurrentMonth,
   deleteAllPreRestoreBackups,
   deletePreRestoreBackup,
+  downloadAndroidApk,
   downloadSnapshot,
   fetchAuditLogs,
   fetchPreRestoreBackups,
@@ -186,6 +187,19 @@ export function useSettingsHandlers({
     }
   }
 
+  async function handleApkDownload() {
+    setIsBusy(true);
+    try {
+      const result = await downloadAndroidApk();
+      downloadBlob(result.blob, result.filename);
+      setStatus("Android APK 다운로드 준비 완료");
+    } catch (error) {
+      setStatus(`Android APK 다운로드 실패: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      setIsBusy(false);
+    }
+  }
+
   async function handlePreRestoreList() {
     setIsBusy(true);
     try {
@@ -310,6 +324,7 @@ export function useSettingsHandlers({
   }
 
   return {
+    handleApkDownload,
     handleAuditLogClear,
     handleAuditLogToggle,
     handleCardLast4Save,
