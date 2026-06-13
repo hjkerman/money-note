@@ -9,6 +9,7 @@
 - Docker 또는 Colima/Docker Compose
 - Node.js와 npm
 - Git
+- Apache HTTP Server
 
 현재 개발 환경에서 확인한 버전:
 
@@ -83,7 +84,7 @@ Ubuntu 24.04 홈서버에 처음 올릴 때의 기준 절차다. `docker run`에
 - 코드: Git repo에서 받는다.
 - 설정: 서버의 `.env`에 둔다.
 - 데이터: 서버의 `data/`에 둔다.
-- 웹 빌드 산출물: `frontend/dist/`를 `/var/www/...`로 복사한다.
+- 웹 빌드 산출물: `frontend/dist/`를 `/var/www/...`로 복사하고 Apache로 서비스한다.
 
 즉, 서버에 repo를 두되 `.env`, SQLite DB, snapshot 백업 같은 운영 파일은 git에 올리지 않는다. 이 프로젝트는 1인 홈서버 서비스라서, 별도 CI/CD 없이 `git pull -> docker compose up --build -d -> frontend build -> /var/www 배치` 흐름을 기본 배포 방식으로 삼는다.
 
@@ -116,7 +117,7 @@ Ubuntu 24.04 홈서버에 처음 올릴 때의 기준 절차다. `docker run`에
 
 ```bash
 sudo apt update
-sudo apt install -y git curl ca-certificates
+sudo apt install -y git curl ca-certificates apache2
 ```
 
 Docker Engine과 Compose plugin은 Docker 공식 문서 방식으로 설치한다. 이미 `docker compose version`이 정상 출력되면 다시 설치하지 않아도 된다.
@@ -260,9 +261,14 @@ docker compose exec -T api env PYTHONPATH=/app \
 
 서버에 Node.js가 없다면 설치한다. Ubuntu에서는 NodeSource나 `nvm` 중 편한 방식을 쓰면 된다. 이미 `node --version`과 `npm --version`이 나오면 넘어간다.
 
+운영 배포에서는 프론트엔드가 API 서버 절대주소를 들고 있지 않게 만든다. `VITE_API_BASE_URL`을 빈 값으로 빌드하면 브라우저가 현재 도메인 기준의 상대경로 `/api/...`, `/share/...`로 요청한다. 그러면 Apache가 내부 백엔드 `127.0.0.1:18080`으로 넘긴다.
+
 ```bash
 cd /opt/money-note/frontend
 npm install
+cat > .env.production <<'EOF'
+VITE_API_BASE_URL=
+EOF
 npm run build
 ```
 
@@ -283,44 +289,102 @@ sudo rsync -a --delete /opt/money-note/frontend/dist/ /var/www/money-note/
 
 이 단계까지 끝나면 백엔드는 `localhost:18080`, 프론트엔드 정적 파일은 `/var/www/money-note`에 있는 상태다.
 
-### 9. Reverse proxy 연결
+### 9. Apache reverse proxy 연결
 
-Nginx를 쓴다면 대략 아래 구조로 둔다.
+Apache 모듈을 켠다.
 
-```nginx
-server {
-    server_name cloud.hjkerman.re.kr;
-
-    root /var/www/money-note;
-    index index.html;
-
-    location /api/ {
-        proxy_pass http://127.0.0.1:18080/api/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    location /share/ {
-        proxy_pass http://127.0.0.1:18080/share/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    location /health {
-        proxy_pass http://127.0.0.1:18080/health;
-    }
-
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-}
+```bash
+sudo a2enmod proxy proxy_http rewrite headers ssl
+sudo systemctl reload apache2
 ```
 
-인증서는 `certbot` 등으로 별도 적용한다. HTTPS 적용 뒤에는 `.env`에서 `MONEY_NOTE_COOKIE_SECURE=true`를 사용한다.
+사이트 설정 파일을 만든다. 도메인과 인증서 경로는 서버 상황에 맞게 바꾼다.
+
+```bash
+sudo nano /etc/apache2/sites-available/money-note.conf
+```
+
+HTTP만 먼저 확인할 때의 최소 예시:
+
+```apache
+<VirtualHost *:80>
+    ServerName cloud.hjkerman.re.kr
+
+    DocumentRoot /var/www/money-note
+
+    ProxyPreserveHost On
+    ProxyPass /api/ http://127.0.0.1:18080/api/
+    ProxyPassReverse /api/ http://127.0.0.1:18080/api/
+    ProxyPass /share/ http://127.0.0.1:18080/share/
+    ProxyPassReverse /share/ http://127.0.0.1:18080/share/
+    ProxyPass /health http://127.0.0.1:18080/health
+    ProxyPassReverse /health http://127.0.0.1:18080/health
+
+    <Directory /var/www/money-note>
+        Require all granted
+        Options -Indexes
+        RewriteEngine On
+        RewriteCond %{REQUEST_FILENAME} !-f
+        RewriteCond %{REQUEST_FILENAME} !-d
+        RewriteRule ^ /index.html [L]
+    </Directory>
+
+    ErrorLog ${APACHE_LOG_DIR}/money-note-error.log
+    CustomLog ${APACHE_LOG_DIR}/money-note-access.log combined
+</VirtualHost>
+```
+
+HTTPS 적용 후의 예시:
+
+```apache
+<VirtualHost *:443>
+    ServerName cloud.hjkerman.re.kr
+
+    DocumentRoot /var/www/money-note
+
+    SSLEngine on
+    SSLCertificateFile /etc/letsencrypt/live/cloud.hjkerman.re.kr/fullchain.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/cloud.hjkerman.re.kr/privkey.pem
+
+    RequestHeader set X-Forwarded-Proto "https"
+    ProxyPreserveHost On
+    ProxyPass /api/ http://127.0.0.1:18080/api/
+    ProxyPassReverse /api/ http://127.0.0.1:18080/api/
+    ProxyPass /share/ http://127.0.0.1:18080/share/
+    ProxyPassReverse /share/ http://127.0.0.1:18080/share/
+    ProxyPass /health http://127.0.0.1:18080/health
+    ProxyPassReverse /health http://127.0.0.1:18080/health
+
+    <Directory /var/www/money-note>
+        Require all granted
+        Options -Indexes
+        RewriteEngine On
+        RewriteCond %{REQUEST_FILENAME} !-f
+        RewriteCond %{REQUEST_FILENAME} !-d
+        RewriteRule ^ /index.html [L]
+    </Directory>
+
+    ErrorLog ${APACHE_LOG_DIR}/money-note-error.log
+    CustomLog ${APACHE_LOG_DIR}/money-note-access.log combined
+</VirtualHost>
+```
+
+사이트를 활성화하고 설정 문법을 확인한다.
+
+```bash
+sudo a2ensite money-note.conf
+sudo apache2ctl configtest
+sudo systemctl reload apache2
+```
+
+인증서는 `certbot` 등으로 별도 적용한다. HTTPS 적용 뒤에는 repo 루트 `.env`에서 `MONEY_NOTE_COOKIE_SECURE=true`를 사용하고, 서버 컨테이너를 다시 올린다.
+
+```bash
+cd /opt/money-note
+docker compose up --build -d
+```
+
+운영에서 브라우저 개발자 도구를 열었을 때 API 요청 주소가 `https://cloud.hjkerman.re.kr/api/...` 형태여야 한다. `http://127.0.0.1:18080/api/...`가 보이면 `frontend/.env.production`을 만든 뒤 프론트엔드를 다시 빌드하고 `/var/www/money-note`에 다시 배치한다.
 
 ### 10. 배포 후 손검증
 
@@ -342,6 +406,9 @@ git pull
 docker compose up --build -d
 cd frontend
 npm install
+cat > .env.production <<'EOF'
+VITE_API_BASE_URL=
+EOF
 npm run build
 sudo rsync -a --delete dist/ /var/www/money-note/
 ```
@@ -353,7 +420,12 @@ curl http://localhost:18080/health
 docker compose logs --tail=80 api
 ```
 
-문제가 생기면 우선 `docker compose logs --tail=200 api`를 본다. 프론트엔드 화면만 이상하면 `npm run build`와 `/var/www/money-note` 배치 여부를 먼저 확인한다.
+문제가 생기면 우선 `docker compose logs --tail=200 api`와 Apache 로그를 본다. 프론트엔드 화면만 이상하면 `npm run build`, `frontend/.env.production`, `/var/www/money-note` 배치 여부를 먼저 확인한다.
+
+```bash
+sudo tail -n 120 /var/log/apache2/money-note-error.log
+sudo tail -n 120 /var/log/apache2/money-note-access.log
+```
 
 ## 백엔드 환경변수
 
@@ -490,7 +562,15 @@ cp .env.example .env
 VITE_API_BASE_URL=http://localhost:18080
 ```
 
-운영 도메인에서 정적 파일을 배포하고 `/api/`를 같은 도메인에서 reverse proxy한다면 이 값을 비우거나 상대 경로 전략으로 바꾸는 방식을 검토한다. 현재 기본값은 로컬 개발 서버에서 백엔드 `18080` 포트로 직접 붙기 위한 설정이다.
+운영 도메인에서 정적 파일을 배포하고 `/api/`를 같은 도메인에서 Apache reverse proxy한다면 `frontend/.env.production`에는 아래처럼 빈 값을 둔다.
+
+```text
+VITE_API_BASE_URL=
+```
+
+이 값은 빌드 시점에 결과물에 박제된다. 따라서 `.env.production`을 만들거나 수정한 뒤에는 반드시 `npm run build`를 다시 실행하고, 새 `dist/`를 `/var/www/money-note/`에 다시 복사한다.
+
+운영 빌드 결과가 정상이라면 브라우저에서 API 요청은 현재 도메인 기준의 `/api/...`로 보인다. `127.0.0.1:18080`이 보이면 운영용 환경파일이 적용되지 않은 빌드다.
 
 ## 웹 프론트엔드 정적 빌드
 
@@ -505,7 +585,7 @@ npm run build
 frontend/dist/
 ```
 
-홈서버에서 웹으로 배포할 때는 `frontend/dist/`의 내용을 `/var/www/...` 아래에 배치한다.
+홈서버에서 웹으로 배포할 때는 `frontend/dist/`의 내용을 Apache `DocumentRoot`인 `/var/www/...` 아래에 배치한다.
 
 예시:
 
@@ -514,7 +594,7 @@ sudo mkdir -p /var/www/money-note
 sudo rsync -a --delete frontend/dist/ /var/www/money-note/
 ```
 
-인증서, reverse proxy, 도메인 연결은 서버 운영 환경에서 별도로 설정한다.
+인증서, Apache reverse proxy, 도메인 연결은 서버 운영 환경에서 별도로 설정한다.
 
 ## Snapshot 백업과 복원
 

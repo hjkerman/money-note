@@ -7,7 +7,7 @@
 ## 현재 계획
 
 - 백엔드: FastAPI + SQLite
-- 배포: Ubuntu 24.04 홈서버에서 Docker Compose로 실행
+- 배포: Ubuntu 24.04 홈서버에서 Docker Compose와 Apache reverse proxy로 실행
 - 웹 프론트엔드: Vite + React + TypeScript
 - 운영 모드: 웹 프론트엔드와 백엔드는 오류 수정이 아닌 한 기능 변경을 중단
 - 데스크탑/모바일 앱: 현행 웹/API를 안정된 기준선으로 삼고, 별도 클라이언트에서 검토
@@ -86,7 +86,7 @@ VITE_API_BASE_URL=http://localhost:18080
 npm run build
 ```
 
-생성된 `frontend/dist/`를 홈서버의 `/var/www/...` 아래에 배치하면 됩니다.
+생성된 `frontend/dist/`를 홈서버의 `/var/www/...` 아래에 배치하고, Apache가 `/api/`와 `/share/`를 백엔드 컨테이너로 넘기게 합니다.
 
 ## 문서
 
