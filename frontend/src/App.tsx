@@ -470,8 +470,6 @@ export function App() {
           selectedMonth={selectedHistoryMonth}
           setSelectedMonth={setSelectedHistoryMonth}
           entries={historyEntries}
-          onCategoryChange={(entry, category) => void handleCategoryChange(entry, category)}
-          onDeleteEntry={(entry) => void handleEntryDelete(entry)}
           onClose={() => setShowStats(false)}
         />
       ) : null}

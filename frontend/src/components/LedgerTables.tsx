@@ -238,16 +238,12 @@ export function HistoryPanel({
   setSelectedMonth,
   entries,
   judgment,
-  onCategoryChange,
-  onDelete,
 }: {
   months: string[];
   selectedMonth: string;
   setSelectedMonth: (month: string) => void;
   entries: LedgerEntry[];
   judgment: JudgmentState | null;
-  onCategoryChange: (entry: LedgerEntry, category: SpendingCategory | null) => void;
-  onDelete?: (entry: LedgerEntry) => void;
 }) {
   return (
     <section className="panel history-panel">
@@ -271,8 +267,6 @@ export function HistoryPanel({
         entries={entries}
         emptyText="이 달의 구조화된 기록이 없습니다."
         judgment={judgment}
-        onCategoryChange={onCategoryChange}
-        onDelete={onDelete}
       />
     </section>
   );
