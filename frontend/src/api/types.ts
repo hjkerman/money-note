@@ -111,6 +111,7 @@ export type CardPaymentEvent = {
 };
 
 export type CardPaymentStatus = {
+  calendar_date: string;
   payment_month: string;
   usage_month: string;
   due_date: string;

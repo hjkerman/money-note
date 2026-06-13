@@ -145,6 +145,16 @@ export function previousMonthFirstDay(value: string): string {
   return previousMonthLastDay(value).slice(0, 8) + "01";
 }
 
+export function monthFirstDay(month: string): string {
+  return `${month}-01`;
+}
+
+export function monthLastDay(month: string): string {
+  const [year, monthValue] = month.split("-").map(Number);
+  const lastDay = new Date(year, monthValue, 0).getDate();
+  return `${month}-${String(lastDay).padStart(2, "0")}`;
+}
+
 export function sumAmounts(entries: LedgerEntry[]): number {
   return entries.reduce((total, entry) => total + (entry.amount_value ?? 0), 0);
 }

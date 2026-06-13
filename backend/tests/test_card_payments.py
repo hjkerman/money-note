@@ -223,6 +223,13 @@ class CardPaymentDeferralTest(unittest.TestCase):
                 date(2026, 6, 4),
             )
 
+    def test_current_payment_status_exposes_server_calendar_date(self) -> None:
+        status = current_payment_status(date(2026, 7, 1))
+
+        self.assertEqual(status["calendar_date"], "2026-07-01")
+        self.assertEqual(status["payment_month"], "2026-07")
+        self.assertEqual(status["usage_month"], "2026-06")
+
 
 if __name__ == "__main__":
     unittest.main()

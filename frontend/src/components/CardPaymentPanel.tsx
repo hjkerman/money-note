@@ -7,10 +7,9 @@ import {
   formatDateLabel,
   formatMonthLabel,
   formatWon,
-  previousMonthFirstDay,
-  previousMonthLastDay,
+  monthFirstDay,
+  monthLastDay,
   sumPaymentAllocationInputs,
-  today,
 } from "../utils";
 
 const hasOwn = (record: object, key: PropertyKey) => Object.prototype.hasOwnProperty.call(record, key);
@@ -67,6 +66,7 @@ export function CardPaymentPanel({
   const pressure = paymentTone ?? { level: "quiet", message: "결제 판단을 불러오는 중입니다." };
   const selectedTotal = sumPaymentAllocationInputs(allocations);
   const payableRows = status.rows.filter((row) => row.payment_key && !row.is_deferred && row.remaining_amount > 0);
+  const visiblePaymentRows = status.rows.filter((row) => row.remaining_amount > 0 || row.is_deferred);
   const selectedCount = payableRows.filter((row) => row.payment_key && hasOwn(allocations, row.payment_key)).length;
   const allPayableSelected = payableRows.length > 0 && selectedCount === payableRows.length;
   const selectAllPayableRows = () => {
@@ -165,8 +165,8 @@ export function CardPaymentPanel({
           <input
             type="date"
             value={lateEntryForm.date}
-            min={previousMonthFirstDay(today)}
-            max={previousMonthLastDay(today)}
+            min={monthFirstDay(status.usage_month)}
+            max={monthLastDay(status.usage_month)}
             onChange={(event) => setLateEntryForm({ ...lateEntryForm, date: event.target.value })}
           />
           <input
@@ -209,9 +209,9 @@ export function CardPaymentPanel({
       <section className="panel payment-ledger">
         <div className="panel-header">
           <h2>결제 대상 사용내역</h2>
-          <span>{status.rows.filter((row) => !row.is_deferred && row.remaining_amount > 0).length}건</span>
+          <span>{payableRows.length}건</span>
         </div>
-        {status.rows.length ? (
+        {visiblePaymentRows.length ? (
           <table>
             <thead>
               <tr>
@@ -227,7 +227,7 @@ export function CardPaymentPanel({
               </tr>
             </thead>
             <tbody>
-              {status.rows.map((row) => {
+              {visiblePaymentRows.map((row) => {
                 const key = row.payment_key ?? "";
                 const selected = Boolean(key && hasOwn(allocations, key));
                 const discountExcluded = Boolean(row.discount_override && row.discount_amount <= 0);

@@ -22,6 +22,7 @@ def current_payment_status(today: date | None = None) -> dict[str, Any]:
     is_after_due = today > due_date
     liquidity_reset_acknowledged = _setting_value("card_payment_liquidity_reset_ack_month") == payment_month
     return {
+        "calendar_date": today.isoformat(),
         "payment_month": payment_month,
         "usage_month": usage_month,
         "due_date": due_date.isoformat(),

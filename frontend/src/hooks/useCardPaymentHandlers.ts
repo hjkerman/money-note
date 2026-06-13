@@ -21,8 +21,8 @@ import {
   focusFirstDataInput,
   formatMonthLabel,
   formatWon,
+  monthLastDay,
   parseAmount,
-  previousMonthLastDay,
   sumPaymentAllocationInputs,
   today,
 } from "../utils";
@@ -85,7 +85,7 @@ export function useCardPaymentHandlers({
     if (!confirmed) return;
     await withRefresh(async () => {
       await createCardPaymentEvent({
-        event_date: today,
+        event_date: cardPayments.calendar_date,
         event_type: "immediate",
         note: "",
         allocations,
@@ -200,7 +200,7 @@ export function useCardPaymentHandlers({
         amount_value: amount,
       });
       setLateEntryForm({
-        date: previousMonthLastDay(today),
+        date: cardPayments ? monthLastDay(cardPayments.usage_month) : today,
         usagePlace: "",
         usageItem: "",
         amount: "",
