@@ -168,7 +168,7 @@ repo 루트에 서버용 `.env` 파일을 만든다. 이 파일은 `docker compo
 cd /opt/money-note
 cat > .env <<'EOF'
 MONEY_NOTE_TODAY=
-MONEY_NOTE_CORS_ORIGINS=https://cloud.hjkerman.re.kr
+MONEY_NOTE_CORS_ORIGINS=https://money.hjkerman.re.kr
 MONEY_NOTE_COOKIE_SECURE=true
 MONEY_NOTE_SESSION_DAYS=30
 EOF
@@ -178,7 +178,7 @@ chmod 600 .env
 로컬 개발 주소도 함께 허용해야 하면 `MONEY_NOTE_CORS_ORIGINS`를 쉼표로 이어 쓴다.
 
 ```text
-MONEY_NOTE_CORS_ORIGINS=https://cloud.hjkerman.re.kr,http://localhost:5173,http://127.0.0.1:5173
+MONEY_NOTE_CORS_ORIGINS=https://money.hjkerman.re.kr,http://localhost:5173,http://127.0.0.1:5173
 ```
 
 설명:
@@ -308,7 +308,7 @@ HTTP만 먼저 확인할 때의 최소 예시:
 
 ```apache
 <VirtualHost *:80>
-    ServerName cloud.hjkerman.re.kr
+    ServerName money.hjkerman.re.kr
 
     DocumentRoot /var/www/money-note
 
@@ -338,13 +338,13 @@ HTTPS 적용 후의 예시:
 
 ```apache
 <VirtualHost *:443>
-    ServerName cloud.hjkerman.re.kr
+    ServerName money.hjkerman.re.kr
 
     DocumentRoot /var/www/money-note
 
     SSLEngine on
-    SSLCertificateFile /etc/letsencrypt/live/cloud.hjkerman.re.kr/fullchain.pem
-    SSLCertificateKeyFile /etc/letsencrypt/live/cloud.hjkerman.re.kr/privkey.pem
+    SSLCertificateFile /etc/letsencrypt/live/money.hjkerman.re.kr/fullchain.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/money.hjkerman.re.kr/privkey.pem
 
     RequestHeader set X-Forwarded-Proto "https"
     ProxyPreserveHost On
@@ -384,7 +384,7 @@ cd /opt/money-note
 docker compose up --build -d
 ```
 
-운영에서 브라우저 개발자 도구를 열었을 때 API 요청 주소가 `https://cloud.hjkerman.re.kr/api/...` 형태여야 한다. `http://127.0.0.1:18080/api/...`가 보이면 `frontend/.env.production`을 만든 뒤 프론트엔드를 다시 빌드하고 `/var/www/money-note`에 다시 배치한다.
+운영에서 브라우저 개발자 도구를 열었을 때 API 요청 주소가 `https://money.hjkerman.re.kr/api/...` 형태여야 한다. `http://127.0.0.1:18080/api/...`가 보이면 `frontend/.env.production`을 만든 뒤 프론트엔드를 다시 빌드하고 `/var/www/money-note`에 다시 배치한다.
 
 ### 10. 배포 후 손검증
 
