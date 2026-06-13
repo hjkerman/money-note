@@ -142,16 +142,8 @@ export function App() {
     [selectedHistoryMonth, structuredHistoryEntries],
   );
   const statsItems = useMemo(
-    () => activeStatItems(
-      activePrimaryTab,
-      activeCurrentTab,
-      expenseEntries,
-      historyEntries,
-      panels,
-      judgment,
-      ownerDiscountMonth?.policy,
-    ),
-    [activeCurrentTab, activePrimaryTab, expenseEntries, historyEntries, panels, judgment, ownerDiscountMonth?.policy],
+    () => activeStatItems(historyEntries),
+    [historyEntries],
   );
   const primaryTabs: { id: PrimaryTab; label: string; total: number }[] = [
     {

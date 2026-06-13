@@ -105,7 +105,15 @@ export function AuditLogPanel({ logs, onClear, isBusy }: { logs: AuditLog[]; onC
   );
 }
 
-export function StatsPanel({ items, judgment }: { items: StatItem[]; judgment: JudgmentState | null }) {
+export function StatsPanel({
+  items,
+  judgment,
+  month,
+}: {
+  items: StatItem[];
+  judgment: JudgmentState | null;
+  month: string;
+}) {
   const tones = judgment?.stat_tones ?? [
     { key: "essential" as SpendingCategory, title: fallbackCategoryLabels.essential, caption: "생존 인프라입니다." },
     { key: "questionable" as SpendingCategory, title: fallbackCategoryLabels.questionable, caption: "예산위원회 출석 안건입니다." },
@@ -124,7 +132,10 @@ export function StatsPanel({ items, judgment }: { items: StatItem[]; judgment: J
   return (
     <section className="panel stats-panel">
       <div className="panel-header">
-        <h2>소비 통계</h2>
+        <div>
+          <h2>소비 통계</h2>
+          <p>{formatMonthLabel(month)} 기준</p>
+        </div>
         <span>{formatWon(total)}</span>
       </div>
       <div className="stats-grid">

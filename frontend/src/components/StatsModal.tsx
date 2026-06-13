@@ -40,7 +40,7 @@ export function StatsModal({
           </button>
         </div>
         <div className="insight-stack">
-          <StatsPanel items={items} judgment={judgment} />
+          <StatsPanel items={items} judgment={judgment} month={selectedMonth} />
           <HistoryPanel
             months={months}
             selectedMonth={selectedMonth}

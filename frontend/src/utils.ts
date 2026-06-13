@@ -7,7 +7,7 @@ import {
   Settings,
   SpendingCategory,
 } from "./api";
-import { CurrentTab, PanelType, PrimaryTab, StatItem } from "./types";
+import { CurrentTab, PanelType, StatItem } from "./types";
 
 export const panelMeta: Record<PanelType, { labelKey: string; fallback: string }> = {
   fixed: { labelKey: "panel_fixed_title", fallback: "현금성 고정지출" },
@@ -77,16 +77,10 @@ export function categoryLabel(category: SpendingCategory | null, judgment?: Judg
 }
 
 export function activeStatItems(
-  _activePrimaryTab: PrimaryTab,
-  _activeCurrentTab: CurrentTab,
-  expenseEntries: LedgerEntry[],
-  _historyEntries: LedgerEntry[],
-  _panels: MonthlyPanel[],
-  _judgment: JudgmentState | null,
-  _ownerDiscountPolicy: CardDiscountPolicy | null = null,
+  entries: LedgerEntry[],
 ): StatItem[] {
   // 소비 통계는 회수 예정인 청구/가족카드를 빼고, 내가 실제로 사용한 원장 지출만 본다.
-  return expenseEntries.map((entry) => ({
+  return entries.map((entry) => ({
     amount_value: entry.amount_value,
     spending_category: entry.spending_category,
   }));
