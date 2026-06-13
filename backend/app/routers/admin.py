@@ -6,9 +6,10 @@ from app.auth import require_user, verify_user_password
 from app.schemas import PasswordConfirmIn, PreRestoreRestoreIn, SnapshotRestoreIn
 from app.services.reset import reset_ledger_data
 from app.services.snapshot import (
+    delete_all_pre_restore_backups,
+    delete_pre_restore_backup,
     export_snapshot,
     list_pre_restore_backups,
-    read_pre_restore_backup,
     restore_pre_restore_backup,
     restore_snapshot,
 )
@@ -61,17 +62,24 @@ def get_pre_restore_backups(_: dict = Depends(require_user)) -> dict[str, list[d
     return {"backups": backups}
 
 
-@router.get("/snapshot/pre-restore/{filename}")
-def get_pre_restore_backup(filename: str, _: dict = Depends(require_user)) -> Response:
+@router.delete("/snapshot/pre-restore")
+def delete_all_pre_restore(_: dict = Depends(require_user)) -> dict[str, int]:
     try:
-        safe_filename, snapshot = read_pre_restore_backup(filename)
+        deleted = delete_all_pre_restore_backups()
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    return Response(
-        content=json.dumps(snapshot, ensure_ascii=False, separators=(",", ":")),
-        media_type="application/json",
-        headers={"Content-Disposition": f'attachment; filename="{safe_filename}"'},
-    )
+    return {"deleted": deleted}
+
+
+@router.delete("/snapshot/pre-restore/{filename}")
+def delete_pre_restore(filename: str, _: dict = Depends(require_user)) -> dict[str, bool]:
+    try:
+        deleted = delete_pre_restore_backup(filename)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if not deleted:
+        raise HTTPException(status_code=404, detail="pre_restore backup not found")
+    return {"deleted": True}
 
 
 @router.post("/snapshot/pre-restore/{filename}/restore")

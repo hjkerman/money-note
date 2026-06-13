@@ -6,16 +6,16 @@ import {
   fetchCurrentEntries,
   fetchCurrentPanels,
   fetchArchiveEntries,
-  fetchInstallments,
   fetchJudgment,
   fetchLabels,
   fetchMonthCloseStatus,
   fetchSettings,
   fetchSummary,
 } from "../api";
-import { today } from "../utils";
 
 export async function fetchLedgerSnapshot() {
+  const monthCloseStatus = await fetchMonthCloseStatus();
+  const calendarMonth = monthCloseStatus.calendar_month;
   const [
     entries,
     archiveEntries,
@@ -25,9 +25,7 @@ export async function fetchLedgerSnapshot() {
     labels,
     cashFlows,
     settings,
-    installments,
     cardPayments,
-    monthCloseStatus,
     ownerDiscountMonth,
     familyDiscountMonth,
   ] = await Promise.all([
@@ -39,11 +37,9 @@ export async function fetchLedgerSnapshot() {
     fetchLabels(),
     fetchCashFlows(),
     fetchSettings(),
-    fetchInstallments(),
     fetchCurrentCardPayments(),
-    fetchMonthCloseStatus(),
-    fetchCardDiscountMonth(today.slice(0, 7), "owner"),
-    fetchCardDiscountMonth(today.slice(0, 7), "family"),
+    fetchCardDiscountMonth(calendarMonth, "owner"),
+    fetchCardDiscountMonth(calendarMonth, "family"),
   ]);
 
   return {
@@ -55,7 +51,6 @@ export async function fetchLedgerSnapshot() {
     labels,
     cashFlows,
     settings,
-    installments,
     cardPayments,
     monthCloseStatus,
     ownerDiscountMonth,

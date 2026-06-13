@@ -74,6 +74,263 @@ docker compose ps
 docker compose down
 ```
 
+## 홈서버 첫 배포 절차
+
+Ubuntu 24.04 홈서버에 처음 올릴 때의 기준 절차다. `docker run`에 익숙한 사람이라면, 이 프로젝트에서는 `docker compose`가 긴 `docker run ...` 명령을 파일로 저장해 두고 반복 실행하는 역할이라고 보면 된다.
+
+요즘 소규모 개인 서버 배포에서는 서버에서 `git clone` 또는 `git pull`로 코드를 받는 방식도 여전히 흔하다. 다만 중요한 원칙은 코드와 운영 설정/데이터를 분리하는 것이다.
+
+- 코드: Git repo에서 받는다.
+- 설정: 서버의 `.env`에 둔다.
+- 데이터: 서버의 `data/`에 둔다.
+- 웹 빌드 산출물: `frontend/dist/`를 `/var/www/...`로 복사한다.
+
+즉, 서버에 repo를 두되 `.env`, SQLite DB, snapshot 백업 같은 운영 파일은 git에 올리지 않는다. 이 프로젝트는 1인 홈서버 서비스라서, 별도 CI/CD 없이 `git pull -> docker compose up --build -d -> frontend build -> /var/www 배치` 흐름을 기본 배포 방식으로 삼는다.
+
+## 운영 안정화 원칙
+
+현재 웹 프론트엔드와 백엔드는 실사용 후보 기준선이다. 오류가 발견되는 경우가 아니라면 기능 변경을 중단한다.
+
+허용하는 변경:
+
+- 데이터 손상 가능성 수정
+- 계산 오류 수정
+- 로그인, 공유 PIN, snapshot, restore 같은 안전 기능의 버그 수정
+- 배포 문서와 운영 절차 보강
+- 서버 설정, 도메인, HTTPS, 백업 위치처럼 배포에 필요한 조정
+
+보류하는 변경:
+
+- 새 기능 추가
+- 화면 취향 변경
+- API 의미 변경
+- DB 의미 변경
+- 대규모 리팩토링
+- 기존 웹/API 동작을 흔드는 클라이언트 선행 작업
+
+새 모바일 앱이나 맥 앱을 만들 때도 이 기준선을 흔들지 않는다. 필요한 기능이 생기면 먼저 기존 API로 가능한지 확인하고, API 변경이 필요하면 별도 작업으로 분리한다.
+
+### 1. 서버에 필요한 도구 설치
+
+서버에서 한 번만 수행한다.
+
+```bash
+sudo apt update
+sudo apt install -y git curl ca-certificates
+```
+
+Docker Engine과 Compose plugin은 Docker 공식 문서 방식으로 설치한다. 이미 `docker compose version`이 정상 출력되면 다시 설치하지 않아도 된다.
+
+```bash
+docker --version
+docker compose version
+```
+
+일반 사용자로 Docker를 실행하고 싶으면 현재 사용자를 `docker` 그룹에 넣고 다시 로그인한다.
+
+```bash
+sudo usermod -aG docker "$USER"
+```
+
+### 2. 서버에 코드 받기
+
+예시는 `/opt/money-note`에 배포하는 방식이다. 다른 경로를 써도 되지만, 이후 명령의 경로를 같이 바꾼다.
+
+```bash
+sudo mkdir -p /opt/money-note
+sudo chown "$USER":"$USER" /opt/money-note
+git clone git@github.com:hjkerman/money-note.git /opt/money-note
+cd /opt/money-note
+```
+
+이미 받아둔 repo를 갱신할 때는 새로 clone하지 않고 아래만 실행한다.
+
+```bash
+cd /opt/money-note
+git pull
+```
+
+### 3. 서버 설정 파일 만들기
+
+repo 루트에 `.env` 파일을 만든다. 이 파일은 git에 올리지 않는다.
+
+```bash
+cd /opt/money-note
+nano .env
+```
+
+예시:
+
+```text
+MONEY_NOTE_TODAY=
+MONEY_NOTE_CORS_ORIGINS=https://cloud.hjkerman.re.kr,http://localhost:5173,http://127.0.0.1:5173
+MONEY_NOTE_COOKIE_SECURE=true
+MONEY_NOTE_SESSION_DAYS=30
+```
+
+설명:
+
+- `MONEY_NOTE_TODAY`는 운영에서는 비워둔다.
+- `MONEY_NOTE_CORS_ORIGINS`에는 실제 웹 프론트엔드 주소를 넣는다.
+- HTTPS 뒤에서 운영하면 `MONEY_NOTE_COOKIE_SECURE=true`를 권장한다.
+- 처음 로컬 확인만 할 때는 `MONEY_NOTE_COOKIE_SECURE=false`가 편하다.
+
+`docker-compose.yml`은 위 값을 자동으로 읽어 컨테이너에 전달한다.
+
+### 4. 데이터 디렉터리 확인
+
+SQLite DB는 repo 루트의 `data/`에 저장된다.
+
+```bash
+mkdir -p /opt/money-note/data
+```
+
+기존 DB를 옮겨서 시작하려면 서버의 아래 위치에 둔다.
+
+```text
+/opt/money-note/data/money-note.sqlite3
+```
+
+DB 파일을 직접 복사한 뒤에는 다음 서버 시작 때 누락 컬럼 보강, 오래된 설정 정리 같은 마이그레이션이 자동으로 실행된다.
+
+### 5. 서버 컨테이너 실행
+
+```bash
+cd /opt/money-note
+docker compose up --build -d
+```
+
+정상 여부 확인:
+
+```bash
+docker compose ps
+curl http://localhost:18080/health
+```
+
+정상 응답:
+
+```json
+{"status":"ok"}
+```
+
+로그 확인:
+
+```bash
+docker compose logs --tail=80 api
+```
+
+### 6. 관리자 계정 만들기
+
+처음 배포한 DB에는 계정이 없을 수 있다. 아래 명령으로 계정을 만들거나 비밀번호를 재설정한다.
+
+```bash
+docker compose exec -T api env PYTHONPATH=/app \
+  python scripts/create_user.py your-username your-password \
+  --display-name "사용자" \
+  --replace
+```
+
+`your-username`과 `your-password`는 실제 값으로 바꾼다. 비밀번호는 평문 저장되지 않고 해시만 저장된다.
+
+### 7. 웹 프론트엔드 빌드
+
+서버에 Node.js가 없다면 설치한다. Ubuntu에서는 NodeSource나 `nvm` 중 편한 방식을 쓰면 된다. 이미 `node --version`과 `npm --version`이 나오면 넘어간다.
+
+```bash
+cd /opt/money-note/frontend
+npm install
+npm run build
+```
+
+빌드 결과는 아래에 생긴다.
+
+```text
+/opt/money-note/frontend/dist/
+```
+
+### 8. 웹 파일 배치
+
+예시는 `/var/www/money-note`에 배치하는 방식이다.
+
+```bash
+sudo mkdir -p /var/www/money-note
+sudo rsync -a --delete /opt/money-note/frontend/dist/ /var/www/money-note/
+```
+
+이 단계까지 끝나면 백엔드는 `localhost:18080`, 프론트엔드 정적 파일은 `/var/www/money-note`에 있는 상태다.
+
+### 9. Reverse proxy 연결
+
+Nginx를 쓴다면 대략 아래 구조로 둔다.
+
+```nginx
+server {
+    server_name cloud.hjkerman.re.kr;
+
+    root /var/www/money-note;
+    index index.html;
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:18080/api/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /share/ {
+        proxy_pass http://127.0.0.1:18080/share/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /health {
+        proxy_pass http://127.0.0.1:18080/health;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
+```
+
+인증서는 `certbot` 등으로 별도 적용한다. HTTPS 적용 뒤에는 `.env`에서 `MONEY_NOTE_COOKIE_SECURE=true`를 사용한다.
+
+### 10. 배포 후 손검증
+
+브라우저에서 실제 도메인에 접속한 뒤 아래를 확인한다.
+
+1. 로그인 가능
+2. 새 당월 지출 1건 추가 후 즉시 표시
+3. 설정에서 snapshot 백업 다운로드 가능
+4. 청구 공유 링크와 가족카드 공유 링크가 PIN 화면을 거쳐 열림
+5. `docker compose logs --tail=80 api`에 반복 오류가 없음
+
+### 11. 업데이트 절차
+
+코드를 새 버전으로 올릴 때는 아래 순서로 한다.
+
+```bash
+cd /opt/money-note
+git pull
+docker compose up --build -d
+cd frontend
+npm install
+npm run build
+sudo rsync -a --delete dist/ /var/www/money-note/
+```
+
+업데이트 후 확인:
+
+```bash
+curl http://localhost:18080/health
+docker compose logs --tail=80 api
+```
+
+문제가 생기면 우선 `docker compose logs --tail=200 api`를 본다. 프론트엔드 화면만 이상하면 `npm run build`와 `/var/www/money-note` 배치 여부를 먼저 확인한다.
+
 ## 백엔드 환경변수
 
 `docker-compose.yml` 기준 기본값:
@@ -99,6 +356,16 @@ MONEY_NOTE_COOKIE_SECURE=false
 ```
 
 운영에서 HTTPS 뒤에 둘 때는 `MONEY_NOTE_COOKIE_SECURE=true` 사용을 고려한다.
+
+날짜 민감 기능 검증:
+
+```bash
+MONEY_NOTE_TODAY=2026-07-01 docker compose up --build -d
+```
+
+`MONEY_NOTE_TODAY`는 월마감, 카드대금, 정기결제 표시처럼 앱 기준일이 필요한 흐름을 검증하기 위한 개발용 override다. 비워두면 실제 오늘 날짜를 사용한다. 운영 서버에서는 설정하지 않는다.
+
+앱 기준일은 기본적으로 KST(+09:00)로 계산한다. 다른 시간대가 필요하면 `MONEY_NOTE_TIMEZONE_OFFSET_MINUTES`에 UTC 기준 분 단위 offset을 지정한다. 한국 시간은 기본값 `540`이다.
 
 ## 로그인 계정 생성
 
@@ -239,7 +506,7 @@ curl -OJ -b /tmp/money-note-cookie.txt \
 
 응답 파일 확장자는 `.money-note-snapshot.json`이며, `schema_version`, `exported_at`, `range`, `manifest`, `data`를 포함한다.
 
-현재 snapshot 형식은 `schema_version = 2`다.
+현재 snapshot 형식은 `schema_version = 3`이다.
 
 `manifest`는 canonical JSON 기준 SHA-256 무결성 정보를 담는다. `manifest` 자기 자신은 hash 대상에서 제외하며, `data` 전체 hash와 테이블별 컬럼 목록, row count, table hash를 기록한다.
 
@@ -262,9 +529,9 @@ curl -OJ -b /tmp/money-note-cookie.txt \
 
 1. `목록 조회`를 누른다.
 2. restore 직전 시각의 `pre_restore` 항목을 확인한다.
-3. 필요하면 `다운로드`로 파일을 별도 보관한다.
-4. 현재 비밀번호를 입력한다.
-5. `되돌리기`를 누른다.
+3. 현재 비밀번호를 입력한다.
+4. `되돌리기`를 누른다.
+5. 필요 없어진 항목은 `삭제` 또는 `일괄 삭제`로 정리한다. 삭제에는 비밀번호 재확인을 요구하지 않는다.
 
 `되돌리기`도 일반 restore와 동일한 검증과 dry-run을 거치며, 되돌리기 직전 상태 역시 새 `pre_restore`로 저장된다.
 
@@ -292,10 +559,10 @@ curl -b /tmp/money-note-cookie.txt \
   http://localhost:18080/api/admin/snapshot/pre-restore
 ```
 
-API로 복원 전 백업 다운로드:
+API로 복원 전 백업 삭제:
 
 ```bash
-curl -OJ -b /tmp/money-note-cookie.txt \
+curl -X DELETE -b /tmp/money-note-cookie.txt \
   http://localhost:18080/api/admin/snapshot/pre-restore/pre_restore-20260611T010101Z.money-note-snapshot.json
 ```
 

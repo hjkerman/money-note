@@ -15,7 +15,8 @@ export function SettingsModal({
   onInterestExpenseSave,
   onLedgerReset,
   onPasswordChange,
-  onPreRestoreDownload,
+  onPreRestoreDelete,
+  onPreRestoreDeleteAll,
   onPreRestoreList,
   onPreRestoreRestore,
   onScheduledIncomeSave,
@@ -45,7 +46,8 @@ export function SettingsModal({
   onInterestExpenseSave: () => void;
   onLedgerReset: () => void;
   onPasswordChange: () => void;
-  onPreRestoreDownload: (filename: string) => void;
+  onPreRestoreDelete: (filename: string) => void;
+  onPreRestoreDeleteAll: () => void;
   onPreRestoreList: () => void;
   onPreRestoreRestore: (filename: string) => void;
   onScheduledIncomeSave: () => void;
@@ -249,24 +251,36 @@ export function SettingsModal({
                   <h3>복원 전 백업</h3>
                   <p>snapshot 복원 직전에 서버가 자동으로 남긴 안전장치입니다.</p>
                 </div>
-                <button type="button" onClick={onPreRestoreList} disabled={isBusy}>
-                  목록 조회
-                </button>
+                <div className="pre-restore-actions">
+                  <button type="button" onClick={onPreRestoreList} disabled={isBusy}>
+                    목록 조회
+                  </button>
+                  <button
+                    type="button"
+                    className="danger"
+                    onClick={onPreRestoreDeleteAll}
+                    disabled={isBusy || preRestoreBackups.length === 0}
+                  >
+                    일괄 삭제
+                  </button>
+                </div>
               </div>
               {preRestoreBackups.length ? (
                 <div className="pre-restore-list">
                   {preRestoreBackups.map((backup) => (
                     <article key={backup.filename} className="pre-restore-item">
                       <div>
-                        <strong>{backup.filename}</strong>
-                        <span>
-                          생성 {formatBackupDate(backup.created_at)} · export {formatBackupDate(backup.exported_at)} ·{" "}
-                          {formatBytes(backup.size_bytes)}
-                        </span>
+                        <strong>{formatBackupDate(backup.created_at)}</strong>
+                        <span>{formatBytes(backup.size_bytes)}</span>
                         <code>{backup.snapshot_id.slice(0, 16)}</code>
                       </div>
-                      <button type="button" onClick={() => onPreRestoreDownload(backup.filename)} disabled={isBusy}>
-                        다운로드
+                      <button
+                        type="button"
+                        className="danger"
+                        onClick={() => onPreRestoreDelete(backup.filename)}
+                        disabled={isBusy}
+                      >
+                        삭제
                       </button>
                       <button
                         type="button"

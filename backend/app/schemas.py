@@ -120,7 +120,6 @@ class EntryReorder(BaseModel):
 class Summary(BaseModel):
     base_next_month_liquidity: float
     card_total: float
-    installment_monthly_total: float
     planned_recurring_total: float
     transfer_or_deposit_total: float
     interest_expense: float
@@ -196,32 +195,6 @@ class CashFlowIn(BaseModel):
     is_primary_income: int = 0
 
     _integer_money = field_validator("amount_value", mode="before")(integer_money)
-
-
-class Installment(BaseModel):
-    id: int
-    title: str
-    principal_amount: float
-    fee_rate: float
-    fee_amount: float
-    months: int
-    remaining_months: int
-    start_month: str
-    sort_order: int
-    is_active: int
-    monthly_amount: float
-
-
-class InstallmentIn(BaseModel):
-    title: str
-    principal_amount: float = Field(ge=0)
-    fee_rate: float = Field(default=0, ge=0)
-    months: int
-    remaining_months: int | None = None
-    start_month: str
-    sort_order: int
-
-    _integer_money = field_validator("principal_amount", mode="before")(integer_money)
 
 
 class CardPaymentAllocationIn(BaseModel):

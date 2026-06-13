@@ -15,7 +15,6 @@ from app.repositories.entries import (
     reorder_current_entries,
     update_entry,
 )
-from app.repositories.installments import create_installment, delete_installment, list_installments
 from app.repositories.labels import list_labels, upsert_label
 from app.repositories.panels import (
     complete_panels_by_type,
@@ -33,17 +32,14 @@ __all__ = [
     "confirm_planned_entry",
     "create_cash_flow",
     "create_entry",
-    "create_installment",
     "create_panel",
     "delete_cash_flow",
     "delete_entry",
-    "delete_installment",
     "delete_panel",
     "delete_panels_by_type",
     "delete_planned_entry",
     "list_cash_flows",
     "list_entries",
-    "list_installments",
     "list_labels",
     "list_panels",
     "list_settings",

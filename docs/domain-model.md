@@ -432,7 +432,7 @@ Money Note는 카드사 알림 자동입력을 고려한다.
 
 Snapshot은 원본 DB를 대체하는 별도 저장소가 아니라, 장부 운용 데이터 전체와 비민감 운영 설정을 JSON 파일로 잠시 옮겨 담는 백업/복원 형식이다.
 
-Snapshot 형식은 `schema_version = 2`를 사용한다.
+Snapshot 형식은 `schema_version = 3`을 사용한다.
 
 Snapshot은 canonical JSON 기준 SHA-256 manifest를 포함한다.
 
@@ -448,7 +448,6 @@ Snapshot에 포함하는 것:
 - 전체 `ledger_entries`
 - 전체 `monthly_panels`
 - 전체 `cash_flows`
-- 전체 `installments`
 - 전체 `card_payment_events`
 - 전체 `card_payment_allocations`
 - 전체 `card_payment_deferrals`
@@ -485,7 +484,7 @@ Restore 안전 원칙:
 - `pre_restore` 파일 생성, JSON parse, manifest 검증 중 하나라도 실패하면 restore를 중단한다.
 - 실제 restore 도중 예외가 발생하면 트랜잭션 rollback으로 기존 운영 DB를 보존한다.
 - `pre_restore`는 서버의 DB 디렉터리 아래 `snapshot-backups/`에 저장한다.
-- 사용자는 설정 모달 또는 관리자 API로 `pre_restore` 목록 조회, 다운로드, 되돌리기를 수행할 수 있어야 한다.
+- 사용자는 설정 모달 또는 관리자 API로 `pre_restore` 목록 조회, 삭제, 되돌리기를 수행할 수 있어야 한다.
 - `pre_restore` 되돌리기도 일반 restore와 동일한 비밀번호 확인, manifest 검증, dry-run, 새 `pre_restore` 생성 절차를 거친다.
 - `pre_restore` 파일 접근은 정해진 filename 형식만 허용하며, `snapshot-backups/` 밖의 파일은 절대 읽지 않는다.
 

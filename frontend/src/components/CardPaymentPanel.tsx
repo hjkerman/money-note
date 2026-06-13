@@ -25,6 +25,7 @@ export function CardPaymentPanel({
   paymentBudget,
   setPaymentBudget,
   onDiscountPolicyChange,
+  onDiscountToggle,
   onAutoAllocate,
   onSelect,
   onSubmit,
@@ -46,6 +47,7 @@ export function CardPaymentPanel({
   paymentBudget: string;
   setPaymentBudget: (value: string) => void;
   onDiscountPolicyChange: (policy: CardDiscountPolicy) => void;
+  onDiscountToggle: (row: CardPaymentRow, exclude: boolean) => void;
   onAutoAllocate: () => void;
   onSelect: (row: CardPaymentRow, selected: boolean) => void;
   onSubmit: () => void;
@@ -211,6 +213,8 @@ export function CardPaymentPanel({
               {status.rows.map((row) => {
                 const key = row.payment_key ?? "";
                 const selected = Boolean(key && hasOwn(allocations, key));
+                const discountExcluded = Boolean(row.discount_override && row.discount_amount <= 0);
+                const discountEligible = status.discount_policy !== "disabled" && !row.is_toll;
                 return (
                   <tr
                     key={row.id}
@@ -253,7 +257,25 @@ export function CardPaymentPanel({
                     </td>
                     <td className="amount">{formatWon(row.original_amount)}</td>
                     <td className="amount">{formatWon(row.immediate_paid_amount)}</td>
-                    <td className="amount">{formatWon(row.discount_amount)}</td>
+                    <td className="amount discount-payment-cell">
+                      <span className="discount-payment-content">
+                        <span>{formatWon(row.discount_amount)}</span>
+                        {row.is_toll ? (
+                          <span className="muted-badge">대상 아님</span>
+                        ) : status.discount_policy === "disabled" ? (
+                          <span className="muted-badge">혜택 없음</span>
+                        ) : (
+                          <button
+                            type="button"
+                            className={discountExcluded ? "discount-badge" : "inline-action"}
+                            disabled={isBusy || !discountEligible}
+                            onClick={() => onDiscountToggle(row, !discountExcluded)}
+                          >
+                            {discountExcluded ? "다시 적용" : "할인 제외"}
+                          </button>
+                        )}
+                      </span>
+                    </td>
                     <td className="amount">{formatWon(row.remaining_amount)}</td>
                     <td className="payment-input-cell">
                       <input

@@ -31,7 +31,7 @@ class SnapshotTest(unittest.TestCase):
         filename, snapshot = export_snapshot(date(2026, 6, 11))
 
         self.assertTrue(filename.endswith(".money-note-snapshot.json"))
-        self.assertEqual(snapshot["schema_version"], 2)
+        self.assertEqual(snapshot["schema_version"], 3)
         self.assertEqual(snapshot["range"], {"scope": "all"})
         self.assertEqual(snapshot["manifest"]["algorithm"], "sha256")
         self.assertEqual(snapshot["manifest"]["tables"]["ledger_entries"]["row_count"], 3)
@@ -47,9 +47,6 @@ class SnapshotTest(unittest.TestCase):
         cash_flow_titles = {row["title"] for row in snapshot["data"]["cash_flows"]}
         self.assertIn("최근 현금", cash_flow_titles)
         self.assertIn("오래된 현금", cash_flow_titles)
-        installment_titles = {row["title"] for row in snapshot["data"]["installments"]}
-        self.assertIn("활성 할부", installment_titles)
-        self.assertIn("오래된 종료 할부", installment_titles)
         event_notes = {row["note"] for row in snapshot["data"]["card_payment_events"]}
         self.assertIn("최근 결제", event_notes)
         self.assertIn("오래된 결제", event_notes)
@@ -325,14 +322,6 @@ class SnapshotTest(unittest.TestCase):
                 VALUES
                     (1, '2026-06-06', '최근 현금', 5000, 1),
                     (2, '2026-02-06', '오래된 현금', 6000, 2)
-                """
-            )
-            conn.execute(
-                """
-                INSERT INTO installments(id, title, principal_amount, fee_rate, fee_amount, months, remaining_months, start_month, sort_order, is_active)
-                VALUES
-                    (1, '활성 할부', 120000, 0, 0, 12, 10, '2026-01', 1, 1),
-                    (2, '오래된 종료 할부', 240000, 0, 0, 12, 0, '2025-01', 2, 0)
                 """
             )
             conn.execute(

@@ -4,7 +4,6 @@ import {
   CardDiscountMonth,
   CardPaymentStatus,
   CashFlow,
-  Installment,
   JudgmentState,
   LedgerEntry,
   MonthlyPanel,
@@ -17,7 +16,6 @@ import { useAuthSession } from "./hooks/useAuthSession";
 import { useCardPaymentHandlers } from "./hooks/useCardPaymentHandlers";
 import { useCashFlowHandlers } from "./hooks/useCashFlowHandlers";
 import { useEntryHandlers } from "./hooks/useEntryHandlers";
-import { useInstallmentHandlers } from "./hooks/useInstallmentHandlers";
 import { useLedgerSnapshot } from "./hooks/useLedgerSnapshot";
 import { useModalState } from "./hooks/useModalState";
 import { useMoneyNoteForms } from "./hooks/useMoneyNoteForms";
@@ -43,11 +41,12 @@ import {
   formatWon,
   isAuthRequiredError,
   panelLabel,
+  previousMonthLastDay,
   sumAmounts,
   sumCashFlows,
-  sumInstallmentMonthlyAmounts,
   sumPanelAmounts,
   sumPanelNetAmounts,
+  today,
 } from "./utils";
 
 export function App() {
@@ -69,7 +68,6 @@ export function App() {
   const {
     cashFlowForm,
     expenseForm,
-    installmentForm,
     lateEntryForm,
     loginForm,
     panelForm,
@@ -78,7 +76,6 @@ export function App() {
     resetPassword,
     setCashFlowForm,
     setExpenseForm,
-    setInstallmentForm,
     setLateEntryForm,
     setLoginForm,
     setPanelForm,
@@ -90,7 +87,6 @@ export function App() {
   const [archiveEntries, setArchiveEntries] = useState<LedgerEntry[]>([]);
   const [panels, setPanels] = useState<MonthlyPanel[]>([]);
   const [cashFlows, setCashFlows] = useState<CashFlow[]>([]);
-  const [installments, setInstallments] = useState<Installment[]>([]);
   const [cardPayments, setCardPayments] = useState<CardPaymentStatus | null>(null);
   const [ownerDiscountMonth, setOwnerDiscountMonth] = useState<CardDiscountMonth | null>(null);
   const [familyDiscountMonth, setFamilyDiscountMonth] = useState<CardDiscountMonth | null>(null);
@@ -129,7 +125,10 @@ export function App() {
 
   const plannedEntries = entries.filter((entry) => entry.entry_kind === "planned");
   const expenseEntries = entries.filter((entry) => entry.entry_kind !== "planned");
-  const currentMonth = useMemo(() => detectCurrentMonth(entries), [entries]);
+  const currentMonth = useMemo(
+    () => monthCloseStatus?.calendar_month ?? detectCurrentMonth(entries),
+    [entries, monthCloseStatus?.calendar_month],
+  );
   const structuredHistoryEntries = useMemo(
     () => [...entries, ...archiveEntries].filter((entry) => entry.entry_kind !== "planned" && entry.entry_date),
     [archiveEntries, entries],
@@ -158,9 +157,7 @@ export function App() {
     {
       id: "current",
       label: "당월",
-      total:
-        sumAmounts(expenseEntries) +
-        sumInstallmentMonthlyAmounts(installments),
+      total: sumAmounts(expenseEntries),
     },
     {
       id: "payment",
@@ -197,11 +194,6 @@ export function App() {
       id: "family_card",
       label: panelLabel(labels, "family_card"),
       total: sumPanelNetAmounts(panels.filter((panel) => panel.panel_type === "family_card"), familyDiscountMonth?.policy),
-    },
-    {
-      id: "installments",
-      label: "할부",
-      total: sumInstallmentMonthlyAmounts(installments),
     },
   ];
   const {
@@ -245,16 +237,9 @@ export function App() {
     setStatus,
     withRefresh,
   });
-  const { handleInstallmentDelete, handleInstallmentSubmit } = useInstallmentHandlers({
-    currentMonth,
-    installmentForm,
-    installments,
-    setInstallmentForm,
-    setStatus,
-    withRefresh,
-  });
   const {
     handleAutoAllocate,
+    handleCardPaymentDiscountToggle,
     handleCardPaymentEventDelete,
     handleCardPaymentRowDelete,
     handleCardPaymentSubmit,
@@ -286,7 +271,8 @@ export function App() {
     handleInterestExpenseSave,
     handleLedgerReset,
     handlePasswordChange,
-    handlePreRestoreDownload,
+    handlePreRestoreDelete,
+    handlePreRestoreDeleteAll,
     handlePreRestoreList,
     handlePreRestoreRestore,
     handleScheduledIncomeSave,
@@ -334,11 +320,22 @@ export function App() {
       setCardLimitInput(formatIntegerSetting(snapshot.settings.card_limit));
       setOwnerCardLast4Input(snapshot.settings.owner_card_last4 ?? "");
       setFamilyCardLast4Input(snapshot.settings.family_card_last4 ?? "");
-      setInstallments(snapshot.installments);
       setCardPayments(snapshot.cardPayments);
       setMonthCloseStatus(snapshot.monthCloseStatus);
       setOwnerDiscountMonth(snapshot.ownerDiscountMonth);
       setFamilyDiscountMonth(snapshot.familyDiscountMonth);
+      setExpenseForm((form) => (form.date === today ? { ...form, date: snapshot.monthCloseStatus.calendar_date } : form));
+      setCashFlowForm((form) =>
+        form.occurredOn === today ? { ...form, occurredOn: snapshot.monthCloseStatus.calendar_date } : form,
+      );
+      setPanelForm((form) =>
+        form.spentOn === today ? { ...form, spentOn: snapshot.monthCloseStatus.calendar_date } : form,
+      );
+      setLateEntryForm((form) =>
+        form.date === previousMonthLastDay(today)
+          ? { ...form, date: previousMonthLastDay(snapshot.monthCloseStatus.calendar_date) }
+          : form,
+      );
       setStatus("동기화 완료");
     } catch (error) {
       if (isAuthRequiredError(error)) {
@@ -430,7 +427,8 @@ export function App() {
             onInterestExpenseSave={() => void handleInterestExpenseSave()}
             onLedgerReset={() => void handleLedgerReset()}
             onPasswordChange={() => void handlePasswordChange()}
-            onPreRestoreDownload={(filename) => void handlePreRestoreDownload(filename)}
+            onPreRestoreDelete={(filename) => void handlePreRestoreDelete(filename)}
+            onPreRestoreDeleteAll={() => void handlePreRestoreDeleteAll()}
             onPreRestoreList={() => void handlePreRestoreList()}
             onPreRestoreRestore={(filename) => void handlePreRestoreRestore(filename)}
             onScheduledIncomeSave={() => void handleScheduledIncomeSave()}
@@ -513,16 +511,12 @@ export function App() {
               handleDiscountPolicyChange={(scope, month, policy) => void handleDiscountPolicyChange(scope, month, policy)}
               handleEntryDelete={(entry) => void handleEntryDelete(entry)}
               handleExpenseSubmit={(event) => void handleExpenseSubmit(event)}
-              handleInstallmentDelete={(installment) => void handleInstallmentDelete(installment)}
-              handleInstallmentSubmit={(event) => void handleInstallmentSubmit(event)}
               handlePanelComplete={(panelType) => void handlePanelComplete(panelType)}
               handlePanelDelete={(panel) => void handlePanelDelete(panel)}
               handlePanelDiscount={(panel) => void handlePanelDiscount(panel)}
               handlePanelDiscountClear={(panel) => void handlePanelDiscountClear(panel)}
               handlePanelShare={(panelType) => void handlePanelShare(panelType)}
               handlePanelSubmit={handlePanelSubmit}
-              installmentForm={installmentForm}
-              installments={installments}
               isBusy={isBusy}
               judgment={judgment}
               labels={labels}
@@ -531,7 +525,6 @@ export function App() {
               panels={panels}
               setActiveCurrentTab={setActiveCurrentTab}
               setExpenseForm={setExpenseForm}
-              setInstallmentForm={setInstallmentForm}
               setPanelForm={setPanelForm}
               settings={settings}
             />
@@ -558,6 +551,7 @@ export function App() {
               active={activePrimaryTab === "payment"}
               cardPayments={cardPayments}
               handleAutoAllocate={handleAutoAllocate}
+              handleCardPaymentDiscountToggle={(row, exclude) => void handleCardPaymentDiscountToggle(row, exclude)}
               handleCardPaymentEventDelete={(eventId) => void handleCardPaymentEventDelete(eventId)}
               handleCardPaymentRowDelete={(row) => void handleCardPaymentRowDelete(row)}
               handleCardPaymentSubmit={() => void handleCardPaymentSubmit()}

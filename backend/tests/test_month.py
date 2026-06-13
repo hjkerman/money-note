@@ -42,8 +42,18 @@ class MonthCloseTest(unittest.TestCase):
     def test_status_warns_about_oldest_open_month(self) -> None:
         status = month_close_status(date(2026, 7, 1))
 
+        self.assertEqual(status["calendar_date"], "2026-07-01")
         self.assertTrue(status["needs_close"])
         self.assertEqual(status["oldest_open_month"], "2026-06")
+
+    def test_status_uses_app_today_override(self) -> None:
+        with patch.dict(os.environ, {"MONEY_NOTE_TODAY": "2026-07-01"}):
+            get_settings.cache_clear()
+            status = month_close_status()
+
+        self.assertEqual(status["calendar_date"], "2026-07-01")
+        self.assertEqual(status["calendar_month"], "2026-07")
+        self.assertTrue(status["needs_close"])
 
     def test_close_archives_only_oldest_month(self) -> None:
         result = close_current_month(date(2026, 7, 1))

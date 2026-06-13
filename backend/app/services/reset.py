@@ -7,7 +7,6 @@ RESET_TABLES = [
     "card_payment_deferrals",
     "card_payment_allocations",
     "card_payment_events",
-    "installments",
     "cash_flows",
     "monthly_panels",
     "ledger_entries",

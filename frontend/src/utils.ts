@@ -1,7 +1,6 @@
 import {
   CardDiscountPolicy,
   CashFlow,
-  Installment,
   JudgmentState,
   LedgerEntry,
   MonthlyPanel,
@@ -19,7 +18,7 @@ export const panelMeta: Record<PanelType, { labelKey: string; fallback: string }
 
 export const today = new Date().toISOString().slice(0, 10);
 export const DEFAULT_CARD_DISCOUNT_RATE = 0.012;
-export const currentTabs: CurrentTab[] = ["expenses", "claim", "family_card", "installments"];
+export const currentTabs: CurrentTab[] = ["expenses", "claim", "family_card"];
 export const fallbackCategoryLabels: JudgmentState["category_labels"] = {
   essential: "안 썼으면 큰일 났을 돈",
   questionable: "꼭 써야 했을까...?",
@@ -116,9 +115,9 @@ export function compareEntriesByDate(a: LedgerEntry, b: LedgerEntry): number {
   return a.sort_order - b.sort_order || a.id - b.id;
 }
 
-export function detectCurrentMonth(entries: LedgerEntry[]): string {
+export function detectCurrentMonth(entries: LedgerEntry[], fallbackMonth = today.slice(0, 7)): string {
   const dated = entries.find((entry) => entry.entry_date);
-  return dated?.entry_date?.slice(0, 7) ?? today.slice(0, 7);
+  return dated?.entry_date?.slice(0, 7) ?? fallbackMonth;
 }
 
 export function formatDateLabel(value: string): string | null {
@@ -154,12 +153,17 @@ export function defaultCardDiscount(amount: number | null | undefined): number {
   return Math.floor((amount ?? 0) * DEFAULT_CARD_DISCOUNT_RATE);
 }
 
+export function discountIneligibleTitle(title: string | null | undefined): boolean {
+  const text = (title ?? "").toLowerCase();
+  return text.includes("통행료") || text.includes("하이패스");
+}
+
 export function effectiveEntryDiscount(
   entry: LedgerEntry,
   discounts?: Record<string, number> | null,
   policy: CardDiscountPolicy | null = null,
 ): number {
-  if (!entry.payment_key || policy === "disabled") return 0;
+  if (!entry.payment_key || policy === "disabled" || discountIneligibleTitle(displayEntryTitle(entry))) return 0;
   if (discounts && Object.prototype.hasOwnProperty.call(discounts, entry.payment_key)) {
     return Math.max(0, discounts[entry.payment_key] ?? 0);
   }
@@ -171,7 +175,7 @@ export function sumPanelAmounts(rows: MonthlyPanel[]): number {
 }
 
 export function effectivePanelDiscount(row: MonthlyPanel, policy: CardDiscountPolicy | null = null): number {
-  if (!["claim", "family_card"].includes(row.panel_type) || policy === "disabled") return 0;
+  if (!["claim", "family_card"].includes(row.panel_type) || policy === "disabled" || discountIneligibleTitle(row.title)) return 0;
   if (row.discount_override) return Math.max(0, row.discount_amount ?? 0);
   return defaultCardDiscount(row.amount_value);
 }
@@ -186,10 +190,6 @@ export function sumPanelNetAmounts(rows: MonthlyPanel[], policy: CardDiscountPol
 
 export function sumCashFlows(rows: CashFlow[]): number {
   return rows.reduce((total, row) => total + row.amount_value, 0);
-}
-
-export function sumInstallmentMonthlyAmounts(rows: Installment[]): number {
-  return rows.reduce((total, row) => total + row.monthly_amount, 0);
 }
 
 export function sumStatItems(rows: StatItem[]): number {

@@ -5,13 +5,14 @@ from datetime import date, datetime
 from typing import Any
 
 from app.db import session
+from app.services.clock import app_today
 from app.schemas import CardPaymentEventIn, LateCardEntryIn
-from app.services.discounts import default_discount_policy, effective_card_discount, normalize_discount_policy
+from app.services.discounts import default_discount_policy, discount_ineligible_title, effective_card_discount, normalize_discount_policy
 
 
 def current_payment_status(today: date | None = None) -> dict[str, Any]:
     """이번 달 결제 대상인 직전월 사용내역과 결제 현황을 반환한다."""
-    today = today or date.today()
+    today = today or app_today()
     usage_month = _previous_month(today)
     due_date = date(today.year, today.month, min(14, monthrange(today.year, today.month)[1]))
     payment_month = today.strftime("%Y-%m")
@@ -49,6 +50,7 @@ def discount_month_status(month: str, scope: str = "owner") -> dict[str, Any]:
             """
             SELECT ledger_entries.payment_key,
                    ledger_entries.amount_value,
+                   ledger_entries.title,
                    ledger_entries.discount_override,
                    COALESCE(SUM(CASE WHEN card_payment_events.event_type = 'discount'
                                      THEN card_payment_allocations.amount_value ELSE 0 END), 0) AS override_discount_amount
@@ -71,6 +73,7 @@ def discount_month_status(month: str, scope: str = "owner") -> dict[str, Any]:
             row["override_discount_amount"],
             bool(row["discount_override"] or row["override_discount_amount"]),
             policy,
+            row["title"],
         )
         for row in rows
         if row["payment_key"]
@@ -104,7 +107,7 @@ def set_discount_month_policy(month: str, policy: str, scope: str = "owner") -> 
 
 def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = None) -> dict[str, Any]:
     """일부 결제를 포함한 즉시결제 또는 호환용 할인 배분을 기록한다."""
-    today = today or date.today()
+    today = today or app_today()
     event_date = datetime.strptime(payload.event_date, "%Y-%m-%d").date()
     due_date = date(event_date.year, event_date.month, min(14, monthrange(event_date.year, event_date.month)[1]))
     if payload.event_type == "immediate" and event_date > due_date:
@@ -171,6 +174,8 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
                 (key,),
             ).fetchone()["total"]
             if payload.event_type == "discount":
+                if discount_ineligible_title(row["title"]):
+                    raise ValueError("이 항목은 카드 할인 대상이 아닙니다.")
                 remaining = max(0.0, float(row["amount_value"] or 0) - float(paid or 0))
             else:
                 current_discount = effective_card_discount(
@@ -178,6 +183,7 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
                     override_discount,
                     bool(row["discount_override"] or override_discount),
                     _discount_policy_value(conn, usage_month, "owner") if usage_month else "enabled",
+                    row["title"],
                 )
                 remaining = max(0.0, float(row["amount_value"] or 0) - float(paid or 0) - current_discount)
             if amount > remaining + 0.0001:
@@ -234,7 +240,7 @@ def set_entry_discount(entry_payment_key: str, amount: float, event_date: str | 
     """당월 사용내역의 개별 할인 예외를 저장한다."""
     if amount < 0:
         raise ValueError("할인액은 0원 이상이어야 합니다.")
-    event_date = event_date or date.today().isoformat()
+    event_date = event_date or app_today().isoformat()
     with session() as conn:
         row = conn.execute(
             """
@@ -249,6 +255,8 @@ def set_entry_discount(entry_payment_key: str, amount: float, event_date: str | 
         usage_month = str(row["entry_date"] or "")[:7]
         if usage_month and _discount_policy_value(conn, usage_month, "owner") == "disabled":
             raise ValueError(f"{usage_month}은 할인 혜택이 없는 달로 설정되어 있습니다.")
+        if discount_ineligible_title(row["title"]):
+            raise ValueError("이 항목은 카드 할인 대상이 아닙니다.")
         if amount > float(row["amount_value"] or 0):
             raise ValueError("할인액은 원래 금액을 초과할 수 없습니다.")
         _delete_entry_discount_events(conn, entry_payment_key)
@@ -314,7 +322,7 @@ def delete_card_payment_event(event_id: int) -> bool:
 
 def acknowledge_liquidity_reset(today: date | None = None) -> dict[str, str]:
     """정규 결제 의제 후 사용자가 실제 계좌 유동성을 수동 보정했음을 기록한다."""
-    payment_month = (today or date.today()).strftime("%Y-%m")
+    payment_month = (today or app_today()).strftime("%Y-%m")
     with session() as conn:
         conn.execute(
             """
@@ -329,7 +337,7 @@ def acknowledge_liquidity_reset(today: date | None = None) -> dict[str, str]:
 
 def create_late_card_entry(payload: LateCardEntryIn, today: date | None = None) -> dict[str, Any]:
     """카드사 매입 지연으로 뒤늦게 확인된 직전월 사용내역을 archive에 추가한다."""
-    today = today or date.today()
+    today = today or app_today()
     usage_month = _previous_month(today)
     try:
         entry_date = datetime.strptime(payload.entry_date, "%Y-%m-%d").date()
@@ -378,7 +386,7 @@ def create_late_card_entry(payload: LateCardEntryIn, today: date | None = None) 
 
 def defer_toll_payment(entry_payment_key: str, today: date | None = None) -> dict[str, str]:
     """카드 사용내역의 미처리액을 다음 결제월로 한 번 이월한다."""
-    today = today or date.today()
+    today = today or app_today()
     due_date = date(today.year, today.month, min(14, monthrange(today.year, today.month)[1]))
     if today > due_date:
         raise ValueError("이월 선택은 매월 14일까지 가능합니다.")
@@ -472,7 +480,7 @@ def defer_toll_payment(entry_payment_key: str, today: date | None = None) -> dic
 
 def cancel_toll_deferral(entry_payment_key: str, today: date | None = None) -> bool:
     """현재 결제월에서 방금 이월한 카드 사용내역을 이번 달 처리 대상으로 되돌린다."""
-    today = today or date.today()
+    today = today or app_today()
     due_date = date(today.year, today.month, min(14, monthrange(today.year, today.month)[1]))
     if today > due_date:
         raise ValueError("이월은 매월 14일까지만 취소할 수 있습니다.")
@@ -567,6 +575,7 @@ def _payment_rows_for_month(usage_month: str, payment_month: str) -> list[dict[s
             override_discount,
             bool(data.get("discount_override") or override_discount),
             _setting_value(f"card_discount_policy:owner:{usage_month}") or "enabled",
+            data.get("title"),
         )
         data.update(
             {

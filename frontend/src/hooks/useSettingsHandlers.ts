@@ -5,7 +5,8 @@ import {
   changePassword,
   clearAuditLogs,
   closeCurrentMonth,
-  downloadPreRestoreBackup,
+  deleteAllPreRestoreBackups,
+  deletePreRestoreBackup,
   downloadSnapshot,
   fetchAuditLogs,
   fetchPreRestoreBackups,
@@ -131,7 +132,7 @@ export function useSettingsHandlers({
       return;
     }
     const confirmed = window.confirm(
-      "장부 데이터를 전부 초기화할까요?\n\n당월/전체 기록, 청구, 가족카드, 현금흐름, 할부, 결제 기록이 삭제됩니다. 계정과 설정은 유지됩니다.",
+      "장부 데이터를 전부 초기화할까요?\n\n당월/전체 기록, 청구, 가족카드, 현금흐름, 결제 기록이 삭제됩니다. 계정과 설정은 유지됩니다.",
     );
     if (!confirmed) return;
     await withRefresh(async () => {
@@ -198,17 +199,24 @@ export function useSettingsHandlers({
     }
   }
 
-  async function handlePreRestoreDownload(filename: string) {
-    setIsBusy(true);
-    try {
-      const result = await downloadPreRestoreBackup(filename);
-      downloadBlob(result.blob, result.filename);
-      setStatus("복원 전 백업 다운로드 준비 완료");
-    } catch (error) {
-      setStatus(`복원 전 백업 다운로드 실패: ${error instanceof Error ? error.message : String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
+  async function handlePreRestoreDelete(filename: string) {
+    const confirmed = window.confirm(`${filename}\n\n이 복원 전 백업을 삭제할까요?`);
+    if (!confirmed) return;
+    await withRefresh(async () => {
+      await deletePreRestoreBackup(filename);
+      setPreRestoreBackups(await fetchPreRestoreBackups());
+      setStatus("복원 전 백업 삭제 완료");
+    });
+  }
+
+  async function handlePreRestoreDeleteAll() {
+    const confirmed = window.confirm("조회 가능한 복원 전 백업을 모두 삭제할까요?");
+    if (!confirmed) return;
+    await withRefresh(async () => {
+      const result = await deleteAllPreRestoreBackups();
+      setPreRestoreBackups([]);
+      setStatus(`복원 전 백업 일괄 삭제 완료: ${result.deleted}개`);
+    });
   }
 
   async function handlePreRestoreRestore(filename: string) {
@@ -310,7 +318,8 @@ export function useSettingsHandlers({
     handleInterestExpenseSave,
     handleLedgerReset,
     handlePasswordChange,
-    handlePreRestoreDownload,
+    handlePreRestoreDelete,
+    handlePreRestoreDeleteAll,
     handlePreRestoreList,
     handlePreRestoreRestore,
     handleScheduledIncomeSave,

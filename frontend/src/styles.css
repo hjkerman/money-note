@@ -428,8 +428,7 @@ th {
 .entry-form,
 .panel-form,
 .planned-form,
-.cash-flow-form,
-.installment-form {
+.cash-flow-form {
   display: grid;
   gap: 8px;
   padding: 12px;
@@ -461,10 +460,6 @@ th {
 
 .cash-flow-form {
   grid-template-columns: 140px 100px minmax(0, 1fr) 140px auto 70px;
-}
-
-.installment-form {
-  grid-template-columns: minmax(0, 1fr) 130px 120px 100px 70px;
 }
 
 .history-header {
@@ -810,6 +805,34 @@ th {
   font-weight: 700;
 }
 
+.muted-badge {
+  display: inline-block;
+  border: 1px solid #d1d6ca;
+  border-radius: 999px;
+  background: #f4f5f1;
+  color: #6f7669;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.discount-payment-cell {
+  padding-left: 18px;
+  white-space: nowrap;
+}
+
+.discount-payment-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.discount-payment-content .inline-action {
+  margin-left: 0;
+}
+
 button.discount-badge {
   padding: 2px 7px;
 }
@@ -946,7 +969,20 @@ button.discount-badge:hover:not(:disabled) {
   border-top: 1px solid #e9c4c0;
 }
 
-.pre-restore-header,
+.pre-restore-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.pre-restore-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 .pre-restore-item {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto;
@@ -1214,8 +1250,7 @@ button.discount-badge:hover:not(:disabled) {
   .panel-form-claim,
   .panel-form-family_card,
   .planned-form,
-  .cash-flow-form,
-  .installment-form {
+  .cash-flow-form {
     grid-template-columns: 1fr;
   }
 

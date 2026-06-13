@@ -23,15 +23,22 @@ def default_card_discount(amount: float | int | None) -> float:
     return float(floor(float(amount or 0) * DEFAULT_CARD_DISCOUNT_RATE))
 
 
+def discount_ineligible_title(title: str | None) -> bool:
+    """카드 할인 가능성이 없는 사용처/세부내역을 판별한다."""
+    text = str(title or "").lower()
+    return "통행료" in text or "하이패스" in text
+
+
 def effective_card_discount(
     amount: float | int | None,
     override_discount: float | int | None,
     override_enabled: bool,
     month_policy: str,
+    title: str | None = None,
 ) -> float:
     """월 정책과 개별 할인 제외 상태를 합쳐 실제 계산에 쓸 할인액을 만든다."""
     month_policy = normalize_discount_policy(month_policy)
-    if month_policy == "disabled":
+    if month_policy == "disabled" or discount_ineligible_title(title):
         return 0.0
     if override_enabled:
         return max(0.0, float(override_discount or 0))
@@ -43,6 +50,7 @@ def net_card_amount(
     override_discount: float | int | None,
     override_enabled: bool,
     month_policy: str,
+    title: str | None = None,
 ) -> float:
     """할인 반영 후 카드 청구 예상액이다."""
-    return max(0.0, float(amount or 0) - effective_card_discount(amount, override_discount, override_enabled, month_policy))
+    return max(0.0, float(amount or 0) - effective_card_discount(amount, override_discount, override_enabled, month_policy, title))

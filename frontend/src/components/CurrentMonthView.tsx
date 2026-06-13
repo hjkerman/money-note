@@ -2,7 +2,6 @@ import { Dispatch, FormEvent, SetStateAction } from "react";
 import {
   CardDiscountMonth,
   CardDiscountPolicy,
-  Installment,
   JudgmentState,
   LedgerEntry,
   MonthlyPanel,
@@ -12,11 +11,10 @@ import {
 import { FamilyCardCreditPanel } from "../features/familyCard";
 import { CurrentTab } from "../types";
 import { DiscountPolicyBar } from "./Insights";
-import { EntryTable, InstallmentTable, PanelAppendForm, PanelTable } from "./LedgerTables";
+import { EntryTable, PanelAppendForm, PanelTable } from "./LedgerTables";
 import { currentTabs, formatWon, panelLabel, sumAmounts, today } from "../utils";
 
 type ExpenseForm = { date: string; usagePlace: string; usageItem: string; amount: string };
-type InstallmentForm = { title: string; principal: string; fee: string; months: string };
 type PanelForm = { panel_type: MonthlyPanel["panel_type"]; title: string; spentOn: string; amount: string; dueDay: string };
 
 export function CurrentMonthView({
@@ -32,16 +30,12 @@ export function CurrentMonthView({
   handleDiscountPolicyChange,
   handleEntryDelete,
   handleExpenseSubmit,
-  handleInstallmentDelete,
-  handleInstallmentSubmit,
   handlePanelComplete,
   handlePanelDelete,
   handlePanelDiscount,
   handlePanelDiscountClear,
   handlePanelShare,
   handlePanelSubmit,
-  installmentForm,
-  installments,
   isBusy,
   judgment,
   labels,
@@ -50,7 +44,6 @@ export function CurrentMonthView({
   panels,
   setActiveCurrentTab,
   setExpenseForm,
-  setInstallmentForm,
   setPanelForm,
   settings,
 }: {
@@ -66,16 +59,12 @@ export function CurrentMonthView({
   handleDiscountPolicyChange: (scope: "owner" | "family", month: string, policy: CardDiscountPolicy) => void;
   handleEntryDelete: (entry: LedgerEntry) => void;
   handleExpenseSubmit: (event: FormEvent) => void;
-  handleInstallmentDelete: (installment: Installment) => void;
-  handleInstallmentSubmit: (event: FormEvent) => void;
   handlePanelComplete: (panelType: "claim" | "family_card") => void;
   handlePanelDelete: (panel: MonthlyPanel) => void;
   handlePanelDiscount: (panel: MonthlyPanel) => void;
   handlePanelDiscountClear: (panel: MonthlyPanel) => void;
   handlePanelShare: (panelType: "claim" | "family_card") => void;
   handlePanelSubmit: (event: FormEvent, panelType: MonthlyPanel["panel_type"]) => Promise<void>;
-  installmentForm: InstallmentForm;
-  installments: Installment[];
   isBusy: boolean;
   judgment: JudgmentState | null;
   labels: Record<string, string>;
@@ -84,7 +73,6 @@ export function CurrentMonthView({
   panels: MonthlyPanel[];
   setActiveCurrentTab: Dispatch<SetStateAction<CurrentTab>>;
   setExpenseForm: Dispatch<SetStateAction<ExpenseForm>>;
-  setInstallmentForm: Dispatch<SetStateAction<InstallmentForm>>;
   setPanelForm: Dispatch<SetStateAction<PanelForm>>;
   settings: Settings;
 }) {
@@ -168,50 +156,6 @@ export function CurrentMonthView({
       {currentTabs
         .filter((tab) => tab !== "expenses")
         .map((tab) => {
-          if (tab === "installments") {
-            return (
-              <section key={tab} className={activeCurrentTab === tab ? "tab-panel active" : "tab-panel"}>
-                <InstallmentTable
-                  rows={installments}
-                  onDelete={(installment) => handleInstallmentDelete(installment)}
-                  form={
-                    <form className="installment-form" onSubmit={(event) => handleInstallmentSubmit(event)}>
-                      <input
-                        value={installmentForm.title}
-                        onChange={(event) => setInstallmentForm({ ...installmentForm, title: event.target.value })}
-                        placeholder="세부내역"
-                      />
-                      <input
-                        type="number"
-                        min="0"
-                        step="1"
-                        value={installmentForm.principal}
-                        onChange={(event) => setInstallmentForm({ ...installmentForm, principal: event.target.value })}
-                        inputMode="numeric"
-                        placeholder="할부액"
-                      />
-                      <input
-                        value={installmentForm.fee}
-                        onChange={(event) => setInstallmentForm({ ...installmentForm, fee: event.target.value })}
-                        inputMode="decimal"
-                        placeholder="수수료율(%)"
-                      />
-                      <input
-                        type="number"
-                        min="1"
-                        value={installmentForm.months}
-                        onChange={(event) => setInstallmentForm({ ...installmentForm, months: event.target.value })}
-                        placeholder="개월수"
-                      />
-                      <button type="submit" disabled={isBusy}>
-                        추가
-                      </button>
-                    </form>
-                  }
-                />
-              </section>
-            );
-          }
           return (
             <section key={tab} className={activeCurrentTab === tab ? "tab-panel active" : "tab-panel"}>
               <PanelTable
@@ -237,7 +181,6 @@ export function CurrentMonthView({
               {tab === "family_card" ? (
                 <FamilyCardCreditPanel
                   expenseEntries={expenseEntries}
-                  installments={installments}
                   judgment={judgment}
                   panels={panels}
                   settings={settings}

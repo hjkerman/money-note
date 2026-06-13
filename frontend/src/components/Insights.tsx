@@ -176,7 +176,7 @@ export function CreditUsagePanel({
         </div>
       </dl>
       <p>{creditTone.message}</p>
-      <p className="credit-note">할부와 일시불이 섞이면 실제 한도 차감액은 카드사 기준과 다를 수 있습니다.</p>
+      <p className="credit-note">카드사 실제 한도 차감액은 매입 시점과 결제 처리 상태에 따라 다를 수 있습니다.</p>
     </section>
   );
 }

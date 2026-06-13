@@ -180,6 +180,7 @@ def _panel_discount_amount(row: dict) -> float:
         row.get("discount_amount"),
         bool(row.get("discount_override") or row.get("discount_amount")),
         policy,
+        row.get("title"),
     )
 
 

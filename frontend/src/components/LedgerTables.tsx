@@ -1,9 +1,11 @@
 import { FormEvent, ReactNode } from "react";
-import { CardDiscountPolicy, CashFlow, Installment, JudgmentState, LedgerEntry, MonthlyPanel, SpendingCategory } from "../api";
+import { CardDiscountPolicy, CashFlow, JudgmentState, LedgerEntry, MonthlyPanel, SpendingCategory } from "../api";
 import { PanelType } from "../types";
 import {
   categoryLabel,
   defaultCardDiscount,
+  discountIneligibleTitle,
+  displayEntryTitle,
   effectiveEntryDiscount,
   effectivePanelDiscount,
   formatDateLabel,
@@ -12,7 +14,6 @@ import {
   panelNetAmount,
   sumAmounts,
   sumCashFlows,
-  sumInstallmentMonthlyAmounts,
   sumPanelNetAmounts,
   today,
 } from "../utils";
@@ -319,7 +320,7 @@ export function EntryTable({
           const selectedCategory = entry.spending_category;
           const currentDiscount = effectiveEntryDiscount(entry, discounts, discountPolicy);
           const defaultDiscount = defaultCardDiscount(entry.amount_value);
-          const discountEligible = Boolean(onDiscount && entry.payment_key);
+          const discountEligible = Boolean(onDiscount && entry.payment_key && !discountIneligibleTitle(displayEntryTitle(entry)));
           const discountOverride = Boolean(entry.discount_override);
           return (
             <tr key={entry.id}>
@@ -473,7 +474,7 @@ export function PanelTable({
           </thead>
           <tbody>
             {rows.map((row) => {
-              const discountEligible = Boolean(onDiscount);
+              const discountEligible = Boolean(onDiscount && !discountIneligibleTitle(row.title));
               const currentDiscount = effectivePanelDiscount(row, discountPolicy);
               const defaultDiscount = defaultCardDiscount(row.amount_value);
               const discountOverride = Boolean(row.discount_override);
@@ -523,62 +524,6 @@ export function PanelTable({
           공유하기
         </button>
       ) : null}
-    </section>
-  );
-}
-
-export function InstallmentTable({
-  rows,
-  onDelete,
-  form,
-}: {
-  rows: Installment[];
-  onDelete: (installment: Installment) => void;
-  form?: ReactNode;
-}) {
-  return (
-    <section className="panel compact">
-      <div className="panel-header">
-        <h2>할부</h2>
-        <span>{formatWon(sumInstallmentMonthlyAmounts(rows))}</span>
-      </div>
-      {form}
-      {rows.length ? (
-        <table>
-          <thead>
-            <tr>
-              <th>세부내역</th>
-              <th className="amount">할부액</th>
-              <th className="amount">수수료율</th>
-              <th className="amount">수수료</th>
-              <th className="amount">잔여</th>
-              <th className="amount">월 납입액</th>
-              <th className="action-cell">삭제</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row.id}>
-                <td>{row.title}</td>
-                <td className="amount">{formatWon(row.principal_amount)}</td>
-                <td className="amount">{row.fee_rate.toLocaleString("ko-KR")}%</td>
-                <td className="amount">{formatWon(row.fee_amount)}</td>
-                <td className="amount">
-                  {row.remaining_months}/{row.months}개월
-                </td>
-                <td className="amount">{formatWon(row.monthly_amount)}</td>
-                <td className="action-cell">
-                  <button type="button" className="danger" onClick={() => onDelete(row)}>
-                    삭제
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : (
-        <p className="empty">할부 항목이 없습니다.</p>
-      )}
     </section>
   );
 }

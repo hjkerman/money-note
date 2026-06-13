@@ -13,12 +13,6 @@ export function useMoneyNoteForms() {
     amount: "",
     isPrimaryIncome: false,
   });
-  const [installmentForm, setInstallmentForm] = useState({
-    title: "",
-    principal: "",
-    fee: "0",
-    months: "",
-  });
   const [panelForm, setPanelForm] = useState<{
     panel_type: PanelType;
     title: string;
@@ -37,7 +31,6 @@ export function useMoneyNoteForms() {
   return {
     cashFlowForm,
     expenseForm,
-    installmentForm,
     lateEntryForm,
     loginForm,
     panelForm,
@@ -46,7 +39,6 @@ export function useMoneyNoteForms() {
     resetPassword,
     setCashFlowForm,
     setExpenseForm,
-    setInstallmentForm,
     setLateEntryForm,
     setLoginForm,
     setPanelForm,

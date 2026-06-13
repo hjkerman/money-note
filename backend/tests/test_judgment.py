@@ -77,7 +77,7 @@ class JudgmentTest(unittest.TestCase):
                 {"id": 2, "panel_type": "family_card", "title": "가족카드", "amount_value": 20_000},
             ],
             cash_flows=[],
-            summary={"installment_monthly_total": 0},
+            summary={},
             payment_status={
                 "due_date": "2026-06-14",
                 "recorded_remaining_total": 0,

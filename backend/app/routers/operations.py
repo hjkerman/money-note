@@ -4,19 +4,15 @@ from app.auth import require_user
 from app.db import session
 from app.repository import (
     create_cash_flow,
-    create_installment,
     delete_cash_flow,
-    delete_installment,
     list_cash_flows,
-    list_installments,
     list_labels,
     upsert_label,
 )
-from app.schemas import CashFlow, CashFlowIn, Installment, InstallmentIn, SettingPatch
+from app.schemas import CashFlow, CashFlowIn, SettingPatch
 
 settings_router = APIRouter(prefix="/api/settings", tags=["settings"])
 cash_router = APIRouter(prefix="/api/cash-flows", tags=["cash-flows"])
-installments_router = APIRouter(prefix="/api/installments", tags=["installments"])
 labels_router = APIRouter(prefix="/api/labels", tags=["labels"])
 
 
@@ -74,27 +70,6 @@ def post_cash_flow(flow: CashFlowIn, _: dict = Depends(require_user)) -> dict:
 def remove_cash_flow(flow_id: int, _: dict = Depends(require_user)) -> dict[str, bool]:
     if not delete_cash_flow(flow_id):
         raise HTTPException(status_code=404, detail="cash flow not found")
-    return {"deleted": True}
-
-
-@installments_router.get("", response_model=list[Installment])
-def get_installments(_: dict = Depends(require_user)) -> list[dict]:
-    return list_installments()
-
-
-@installments_router.post("", response_model=Installment)
-def post_installment(installment: InstallmentIn, _: dict = Depends(require_user)) -> dict:
-    if installment.months < 1:
-        raise HTTPException(status_code=422, detail="months must be greater than zero")
-    if installment.remaining_months is not None and installment.remaining_months < 1:
-        raise HTTPException(status_code=422, detail="remaining_months must be greater than zero")
-    return create_installment(installment)
-
-
-@installments_router.delete("/{installment_id}")
-def remove_installment(installment_id: int, _: dict = Depends(require_user)) -> dict[str, bool]:
-    if not delete_installment(installment_id):
-        raise HTTPException(status_code=404, detail="installment not found")
     return {"deleted": True}
 
 

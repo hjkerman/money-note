@@ -4,6 +4,7 @@ from datetime import date
 from typing import Any
 
 from app.db import session
+from app.services.clock import app_today
 
 
 EARLY_CLOSE_START_DAY = 27
@@ -11,7 +12,7 @@ EARLY_CLOSE_START_DAY = 27
 
 def close_current_month(today: date | None = None, allow_early_close: bool = False) -> dict[str, Any]:
     """현재 장부에서 가장 오래된 미마감 월 하나만 archive로 옮긴다."""
-    today = today or date.today()
+    today = today or app_today()
     with session() as conn:
         target_row = conn.execute(
             """
@@ -98,15 +99,6 @@ def close_current_month(today: date | None = None, allow_early_close: bool = Fal
         ).rowcount
         conn.execute(
             """
-            UPDATE installments
-            SET remaining_months = MAX(remaining_months - 1, 0),
-                is_active = CASE WHEN remaining_months <= 1 THEN 0 ELSE is_active END,
-                updated_at = CURRENT_TIMESTAMP
-            WHERE is_active = 1
-            """
-        )
-        conn.execute(
-            """
             INSERT INTO app_settings(key, value, updated_at)
             VALUES ('last_closed_month', ?, CURRENT_TIMESTAMP)
             ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP
@@ -119,7 +111,7 @@ def close_current_month(today: date | None = None, allow_early_close: bool = Fal
 
 def month_close_status(today: date | None = None) -> dict[str, Any]:
     """달력상 새 달인데 이전 월 장부가 남았는지 확인한다."""
-    today = today or date.today()
+    today = today or app_today()
     calendar_month = today.strftime("%Y-%m")
     with session() as conn:
         row = conn.execute(
@@ -138,6 +130,7 @@ def month_close_status(today: date | None = None) -> dict[str, Any]:
     is_early_close = bool(oldest_open_month and oldest_open_month == calendar_month)
     early_close_available = bool(is_early_close and today.day >= EARLY_CLOSE_START_DAY)
     return {
+        "calendar_date": today.isoformat(),
         "calendar_month": calendar_month,
         "oldest_open_month": oldest_open_month,
         "last_closed_month": str(setting["value"]) if setting else None,
@@ -163,9 +156,9 @@ def current_month_label() -> str:
         ).fetchone()
     if row and row["entry_date"]:
         return str(row["entry_date"])[:7]
-    return date.today().strftime("%Y-%m")
+    return app_today().strftime("%Y-%m")
 
 
 def calendar_month_label(today: date | None = None) -> str:
     """청구·가족카드처럼 월마감과 무관한 기능에 달력상 현재 월을 제공한다."""
-    return (today or date.today()).strftime("%Y-%m")
+    return (today or app_today()).strftime("%Y-%m")

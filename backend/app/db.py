@@ -101,21 +101,6 @@ CREATE TABLE IF NOT EXISTS cash_flows (
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS installments (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT NOT NULL DEFAULT '',
-    principal_amount REAL NOT NULL,
-    fee_rate REAL NOT NULL DEFAULT 0,
-    fee_amount REAL NOT NULL DEFAULT 0,
-    months INTEGER NOT NULL,
-    remaining_months INTEGER NOT NULL,
-    start_month TEXT NOT NULL,
-    sort_order INTEGER NOT NULL,
-    is_active INTEGER NOT NULL DEFAULT 1,
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
 CREATE TABLE IF NOT EXISTS card_payment_events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     event_date TEXT NOT NULL,
@@ -177,9 +162,6 @@ ON share_sessions(session_token_hash);
 CREATE INDEX IF NOT EXISTS idx_cash_flows_order
 ON cash_flows(occurred_on, sort_order, id);
 
-CREATE INDEX IF NOT EXISTS idx_installments_active_order
-ON installments(is_active, sort_order, id);
-
 CREATE INDEX IF NOT EXISTS idx_card_payment_allocations_entry
 ON card_payment_allocations(entry_payment_key);
 
@@ -236,6 +218,7 @@ def init_db() -> None:
     """서버 시작 시 필요한 테이블과 누락된 컬럼을 보강한다."""
     with connect() as conn:
         conn.executescript(SCHEMA)
+        conn.execute("DROP TABLE IF EXISTS installments")
         panel_columns = {
             row["name"]
             for row in conn.execute("PRAGMA table_info(monthly_panels)").fetchall()
@@ -293,12 +276,6 @@ def init_db() -> None:
             WHERE payment_key IS NOT NULL
             """
         )
-        installment_columns = {
-            row["name"]
-            for row in conn.execute("PRAGMA table_info(installments)").fetchall()
-        }
-        if "fee_rate" not in installment_columns:
-            conn.execute("ALTER TABLE installments ADD COLUMN fee_rate REAL NOT NULL DEFAULT 0")
         cash_flow_columns = {
             row["name"]
             for row in conn.execute("PRAGMA table_info(cash_flows)").fetchall()
@@ -341,6 +318,7 @@ def init_db() -> None:
             WHERE key = 'summary_transfer_or_deposit_label' AND value = '송금/예치'
             """
         )
+        conn.execute("DELETE FROM app_settings WHERE key = 'family_card_limit'")
         _normalize_domain_names(conn)
         _normalize_money_settings(conn)
         _backfill_planned_due_days(conn)

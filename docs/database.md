@@ -16,7 +16,6 @@
 - `app_settings`: 유동성, 이자지출, 카드 한도 등 설정값
 - `app_labels`: 화면 표시 문구
 - `cash_flows`: 현금 입출금
-- `installments`: 할부
 - `card_payment_events`: 즉시결제/할인액 처리 이벤트
 - `card_payment_allocations`: 결제/할인 이벤트의 항목별 배분
 - `card_payment_deferrals`: 통행료/하이패스 이월 상태
@@ -122,25 +121,6 @@
 | `amount_value` | REAL | 입금은 양수, 출금은 음수 |
 | `sort_order` | INTEGER | 정렬 순서 |
 | `is_primary_income` | INTEGER | 이달 기준 수입이면 `1` |
-
-## `installments`
-
-할부 기록이다.
-
-| 컬럼 | 타입 | 설명 |
-| --- | --- | --- |
-| `id` | INTEGER PK | 내부 식별자 |
-| `title` | TEXT | 적요 |
-| `principal_amount` | REAL | 원금 |
-| `fee_rate` | REAL | 수수료율 |
-| `fee_amount` | REAL | 수수료 |
-| `months` | INTEGER | 전체 개월 수 |
-| `remaining_months` | INTEGER | 남은 개월 수 |
-| `start_month` | TEXT | 시작 월 |
-| `sort_order` | INTEGER | 정렬 순서 |
-| `is_active` | INTEGER | 활성 여부 |
-
-월 납입액은 `ceil((principal_amount + fee_amount) / months)`로 계산한다.
 
 ## 카드 결제 테이블
 

@@ -4,6 +4,7 @@ from datetime import date
 import hashlib
 
 from app.services.discounts import effective_card_discount, normalize_discount_policy
+from app.services.clock import app_today_iso
 
 
 MEDICAL_WORDS = (
@@ -134,7 +135,8 @@ def app_judgment(
     card_limit = float(settings.get("card_limit") or 5_800_000)
     family_card_total = sum(float(row.get("amount_value") or 0) for row in family_card_rows)
     owner_card_total = float(summary.get("card_total") or 0)
-    days_until_due = days_between(date.today().isoformat(), str(payment_status.get("due_date") or date.today().isoformat()))
+    today_iso = app_today_iso()
+    days_until_due = days_between(today_iso, str(payment_status.get("due_date") or today_iso))
     reference_liquidity = float(payment_status.get("primary_income_total") or 0)
     if reference_liquidity <= 0:
         reference_liquidity = float(settings.get("base_next_month_liquidity") or 400_000)
@@ -178,6 +180,7 @@ def panel_net_amount(row: dict) -> float:
             row.get("discount_amount"),
             bool(row.get("discount_override") or row.get("discount_amount")),
             normalize_discount_policy(str(row.get("discount_policy") or "enabled"), "owner"),
+            row.get("title"),
         ),
     )
 
@@ -318,7 +321,7 @@ def credit_usage_tone(usage_rate: float) -> dict[str, str]:
                 (
                     "추정치가 한도의 절반을 넘었습니다. 신용도라는 단어가 정장을 입고 회의실에 들어옵니다.",
                     "한도의 과반이 사용되었습니다. 가족의 소비가 민주적 절차 없이 다수당이 되었습니다.",
-                    "50% 선을 넘었습니다. 카드 명의자의 침착함이 이번 달의 가장 큰 무이자 할부입니다.",
+                    "50% 선을 넘었습니다. 카드 명의자의 침착함이 이번 달의 가장 큰 담보입니다.",
                 ),
                 round(usage_percent),
             ),
@@ -650,7 +653,7 @@ def family_card_subtitle(rows: list[dict], total: float, current_card_total: flo
     if usage_rate >= 0.1:
         return stable_choice(
             (
-                "현실과 타협한 가족카드 사용 구간입니다. 할부 변수는 카드사만이 끝까지 알고 있습니다.",
+                "현실과 타협한 가족카드 사용 구간입니다. 카드사 앱만이 끝까지 알고 있는 숫자가 있긴 합니다.",
                 "합산 사용률은 온건합니다. 신뢰는 유지되고 가족카드표는 제 역할을 합니다.",
                 "가족 신용공동체가 무난하게 운영 중입니다. 명의자의 불안은 아직 취미 수준입니다.",
             ),

@@ -15,14 +15,13 @@ from app.config import get_settings
 from app.db import SCHEMA, session
 
 
-SNAPSHOT_SCHEMA_VERSION = 2
+SNAPSHOT_SCHEMA_VERSION = 3
 SENSITIVE_SETTING_KEYS = {"share_pin_hash", "share_pin_is_default"}
 PRE_RESTORE_FILENAME_RE = re.compile(r"^pre_restore-\d{8}T\d{6}Z(?:-\d+)?\.money-note-snapshot\.json$")
 SNAPSHOT_TABLES = [
     "ledger_entries",
     "monthly_panels",
     "cash_flows",
-    "installments",
     "card_payment_events",
     "card_payment_allocations",
     "card_payment_deferrals",
@@ -37,7 +36,6 @@ LEDGER_TABLES = [
     "card_payment_deferrals",
     "card_payment_allocations",
     "card_payment_events",
-    "installments",
     "cash_flows",
     "monthly_panels",
     "ledger_entries",
@@ -56,7 +54,6 @@ def export_snapshot(today: date | None = None) -> tuple[str, dict[str, Any]]:
             ),
             "monthly_panels": _snapshot_rows(conn, "monthly_panels", "month, panel_type, sort_order, id"),
             "cash_flows": _snapshot_rows(conn, "cash_flows", "occurred_on, sort_order, id"),
-            "installments": _snapshot_rows(conn, "installments", "is_active DESC, start_month, sort_order, id"),
             "card_payment_events": _snapshot_rows(conn, "card_payment_events", "event_date, id"),
             "card_payment_allocations": _snapshot_rows(conn, "card_payment_allocations", "payment_event_id, id"),
             "card_payment_deferrals": _snapshot_rows(
@@ -129,6 +126,24 @@ def read_pre_restore_backup(filename: str) -> tuple[str, dict[str, Any]]:
     """검증된 pre_restore snapshot 파일을 읽는다."""
     path = _pre_restore_path(filename)
     return path.name, _read_snapshot_file(path)
+
+
+def delete_pre_restore_backup(filename: str) -> bool:
+    """검증된 pre_restore snapshot 파일을 삭제한다."""
+    path = _pre_restore_path(filename)
+    if not path.exists() or not path.is_file():
+        return False
+    path.unlink()
+    return True
+
+
+def delete_all_pre_restore_backups() -> int:
+    """서버에 보관된 유효한 pre_restore snapshot 파일을 모두 삭제한다."""
+    deleted = 0
+    for item in list_pre_restore_backups():
+        if delete_pre_restore_backup(str(item["filename"])):
+            deleted += 1
+    return deleted
 
 
 def restore_pre_restore_backup(filename: str) -> dict[str, int]:

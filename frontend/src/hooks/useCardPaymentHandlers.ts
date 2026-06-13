@@ -169,6 +169,24 @@ export function useCardPaymentHandlers({
     });
   }
 
+  async function handleCardPaymentDiscountToggle(row: CardPaymentRow, exclude: boolean) {
+    const paymentKeys = row.payment_keys.filter(Boolean);
+    if (!paymentKeys.length) return;
+    await withRefresh(async () => {
+      for (const paymentKey of paymentKeys) {
+        if (exclude) await updateEntryDiscount(paymentKey, 0);
+        else await clearEntryDiscount(paymentKey);
+      }
+      setPaymentAllocations((current) => {
+        const next = { ...current };
+        delete next[row.payment_key as string];
+        for (const paymentKey of paymentKeys) delete next[paymentKey];
+        return next;
+      });
+      setStatus(exclude ? "결제 대상 할인 제외 완료" : "결제 대상 할인 적용 완료");
+    });
+  }
+
   async function handleLateEntrySubmit(event: FormEvent) {
     event.preventDefault();
     const form = event.currentTarget as HTMLFormElement;
@@ -217,6 +235,7 @@ export function useCardPaymentHandlers({
 
   return {
     handleAutoAllocate,
+    handleCardPaymentDiscountToggle,
     handleCardPaymentEventDelete,
     handleCardPaymentRowDelete,
     handleCardPaymentSubmit,

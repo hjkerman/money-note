@@ -1,5 +1,5 @@
 import { deleteJson, getJson, patchJson, postJson } from "./client";
-import { AuditLog, CashFlow, Installment, JudgmentState, Labels, Settings, Summary } from "./types";
+import { AuditLog, CashFlow, JudgmentState, Labels, Settings, Summary } from "./types";
 
 export async function fetchSummary(): Promise<Summary> {
   return getJson("/api/month/current/summary");
@@ -19,18 +19,6 @@ export async function createCashFlow(payload: Omit<CashFlow, "id">): Promise<Cas
 
 export async function deleteCashFlow(flowId: number): Promise<{ deleted: boolean }> {
   return deleteJson(`/api/cash-flows/${flowId}`);
-}
-
-export async function fetchInstallments(): Promise<Installment[]> {
-  return getJson("/api/installments");
-}
-
-export async function createInstallment(payload: Omit<Installment, "id" | "is_active" | "monthly_amount" | "fee_amount">): Promise<Installment> {
-  return postJson("/api/installments", payload);
-}
-
-export async function deleteInstallment(installmentId: number): Promise<{ deleted: boolean }> {
-  return deleteJson(`/api/installments/${installmentId}`);
 }
 
 export async function fetchLabels(): Promise<Labels> {

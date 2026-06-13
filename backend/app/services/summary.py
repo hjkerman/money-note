@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from app.db import session
-from app.repository import list_entries, list_installments
+from app.repository import list_entries
 from app.services.discounts import effective_card_discount, normalize_discount_policy
 
 
@@ -13,8 +13,7 @@ def current_summary_values() -> dict[str, float]:
     planned_liquidity_total = sum(entry.get("amount_value") or 0 for entry in planned_entries)
     planned_recurring_total = planned_entry_total()
     entry_discount_total = current_entry_discount_total()
-    installment_monthly_total = sum(row.get("monthly_amount") or 0 for row in list_installments())
-    card_total = max(0.0, entry_card_total - entry_discount_total) + installment_monthly_total
+    card_total = max(0.0, entry_card_total - entry_discount_total)
     fixed_panel_total = panel_total("fixed")
     transfer_or_deposit_total = fixed_panel_total + planned_recurring_total
     liquidity_fixed_total = fixed_panel_total + planned_liquidity_total
@@ -25,7 +24,6 @@ def current_summary_values() -> dict[str, float]:
     return {
         "base_next_month_liquidity": base_next_month_liquidity,
         "card_total": card_total,
-        "installment_monthly_total": installment_monthly_total,
         "planned_recurring_total": planned_recurring_total,
         "transfer_or_deposit_total": transfer_or_deposit_total,
         "interest_expense": interest_expense,
@@ -66,7 +64,7 @@ def panel_total(panel_type: str) -> float:
 def panel_net_total(panel_type: str) -> float:
     with session() as conn:
         rows = conn.execute(
-            "SELECT month, amount_value, discount_amount, discount_override FROM monthly_panels WHERE panel_type = ?",
+            "SELECT month, title, amount_value, discount_amount, discount_override FROM monthly_panels WHERE panel_type = ?",
             (panel_type,),
         ).fetchall()
     return sum(
@@ -87,6 +85,7 @@ def panel_net_total(panel_type: str) -> float:
                     )
                     if panel_type in {"claim", "family_card"}
                     else "disabled",
+                    row["title"],
                 )
                 if panel_type in {"claim", "family_card"}
                 else 0.0
@@ -102,6 +101,7 @@ def current_entry_discount_total() -> float:
             """
             SELECT ledger_entries.amount_value,
                    ledger_entries.entry_date,
+                   ledger_entries.title,
                    ledger_entries.discount_override,
                    COALESCE(SUM(CASE WHEN card_payment_events.event_type = 'discount'
                                      THEN card_payment_allocations.amount_value ELSE 0 END), 0) AS override_discount_amount
@@ -122,6 +122,7 @@ def current_entry_discount_total() -> float:
             row["override_discount_amount"],
             bool(row["discount_override"] or row["override_discount_amount"]),
             setting_text(f"card_discount_policy:owner:{str(row['entry_date'] or '')[:7]}", "enabled"),
+            row["title"],
         )
         for row in rows
     )

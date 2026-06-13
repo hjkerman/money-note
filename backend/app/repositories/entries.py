@@ -4,6 +4,7 @@ from typing import Any
 from app.db import session
 from app.repositories.common import row_to_dict
 from app.schemas import LedgerEntryIn, LedgerEntryPatch, PlannedEntryIn
+from app.services.clock import app_today
 
 
 ENTRY_COLUMNS = [
@@ -30,7 +31,7 @@ ENTRY_COLUMNS = [
 
 
 def list_entries(section: str, today: date | None = None) -> list[dict[str, Any]]:
-    current_month = (today or date.today()).strftime("%Y-%m")
+    current_month = (today or app_today()).strftime("%Y-%m")
     filter_confirmed_planned = " AND NOT (entry_kind = 'planned' AND COALESCE(confirmed_month, '') = ?)" if section == "current" else ""
     params: tuple[Any, ...] = (section, current_month) if section == "current" else (section,)
     with session() as conn:
@@ -51,7 +52,7 @@ def list_entries(section: str, today: date | None = None) -> list[dict[str, Any]
 
 
 def confirm_planned_entry(entry_id: int, today: date | None = None) -> dict[str, Any] | None:
-    today = today or date.today()
+    today = today or app_today()
     confirmed_month = today.strftime("%Y-%m")
     with session() as conn:
         planned = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (entry_id,)).fetchone()
@@ -105,7 +106,7 @@ def confirm_planned_entry(entry_id: int, today: date | None = None) -> dict[str,
 
 
 def planned_entry_payment_date(due_day: int | None, today: date | None = None) -> date:
-    today = today or date.today()
+    today = today or app_today()
     day = due_day if due_day and due_day > 0 else today.day
     return date(today.year, today.month, min(day, 28 if today.month == 2 else 30 if today.month in {4, 6, 9, 11} else 31))
 

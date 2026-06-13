@@ -69,7 +69,6 @@ export type MonthlyPanel = {
 export type Summary = {
   base_next_month_liquidity: number;
   card_total: number;
-  installment_monthly_total: number;
   planned_recurring_total: number;
   transfer_or_deposit_total: number;
   interest_expense: number;
@@ -85,20 +84,6 @@ export type CashFlow = {
   amount_value: number;
   sort_order: number;
   is_primary_income: number;
-};
-
-export type Installment = {
-  id: number;
-  title: string;
-  principal_amount: number;
-  fee_rate: number;
-  fee_amount: number;
-  months: number;
-  remaining_months: number;
-  start_month: string;
-  sort_order: number;
-  is_active: number;
-  monthly_amount: number;
 };
 
 export type CardPaymentRow = LedgerEntry & {
@@ -154,6 +139,7 @@ export type CardDiscountMonth = {
 };
 
 export type MonthCloseStatus = {
+  calendar_date: string;
   calendar_month: string;
   oldest_open_month: string | null;
   last_closed_month: string | null;

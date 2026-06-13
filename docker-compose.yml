@@ -6,6 +6,10 @@ services:
       - "18080:8000"
     environment:
       MONEY_NOTE_DB_PATH: /app/data/money-note.sqlite3
+      MONEY_NOTE_TODAY: ${MONEY_NOTE_TODAY:-}
+      MONEY_NOTE_CORS_ORIGINS: ${MONEY_NOTE_CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
+      MONEY_NOTE_COOKIE_SECURE: ${MONEY_NOTE_COOKIE_SECURE:-false}
+      MONEY_NOTE_SESSION_DAYS: ${MONEY_NOTE_SESSION_DAYS:-30}
     volumes:
       - ./data:/app/data
     restart: unless-stopped

@@ -9,6 +9,7 @@ export function CardPaymentView({
   active,
   cardPayments,
   handleAutoAllocate,
+  handleCardPaymentDiscountToggle,
   handleCardPaymentEventDelete,
   handleCardPaymentRowDelete,
   handleCardPaymentSubmit,
@@ -31,6 +32,7 @@ export function CardPaymentView({
   active: boolean;
   cardPayments: CardPaymentStatus | null;
   handleAutoAllocate: () => void;
+  handleCardPaymentDiscountToggle: (row: CardPaymentRow, exclude: boolean) => void;
   handleCardPaymentEventDelete: (eventId: number) => void;
   handleCardPaymentRowDelete: (row: CardPaymentRow) => void;
   handleCardPaymentSubmit: () => void;
@@ -65,6 +67,7 @@ export function CardPaymentView({
           handleDiscountPolicyChange("owner", cardPayments?.usage_month ?? today.slice(0, 7), policy)
         }
         onAutoAllocate={handleAutoAllocate}
+        onDiscountToggle={(row, exclude) => handleCardPaymentDiscountToggle(row, exclude)}
         onSelect={handlePaymentSelection}
         onSubmit={() => handleCardPaymentSubmit()}
         onDeleteEvent={(eventId) => handleCardPaymentEventDelete(eventId)}
