@@ -71,12 +71,12 @@ export function fileToBase64(file: File): Promise<string> {
 }
 
 function defaultApiBaseUrl(): string {
-  if (typeof window === "undefined") return "http://127.0.0.1:18080";
+  if (typeof window === "undefined") return "";
   const { protocol, hostname } = window.location;
   if (hostname === "localhost" || hostname === "127.0.0.1") {
     return `${protocol}//${hostname}:18080`;
   }
-  return "http://127.0.0.1:18080";
+  return "";
 }
 
 async function parseResponse<T>(response: Response): Promise<T> {
