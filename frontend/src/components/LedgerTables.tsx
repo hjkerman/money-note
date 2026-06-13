@@ -390,16 +390,14 @@ function DiscountEditor({
   const badgeText = disabled
     ? "혜택 없음"
     : isOverride
-      ? currentAmount > 0
-        ? `기록 할인 ${formatWon(currentAmount)}`
-        : "할인 제외"
+      ? `할인 ${formatWon(currentAmount)}`
       : `할인 ${formatWon(defaultAmount)}`;
   return (
     <div className="discount-editor">
       <div>
-        <button type="button" className="discount-badge" onClick={onClear} disabled={disabled || !isOverride || !onClear}>
+        <span className={isOverride || disabled ? "discount-badge muted-discount-badge" : "discount-badge"}>
           {badgeText}
-        </button>
+        </span>
         {!disabled && isOverride ? (
           <button type="button" onClick={onClear} disabled={!onClear}>
             할인 적용
@@ -407,7 +405,7 @@ function DiscountEditor({
         ) : null}
         {!disabled && !isOverride ? (
           <button type="button" onClick={onExclude}>
-            제외
+            할인 제외
           </button>
         ) : null}
       </div>

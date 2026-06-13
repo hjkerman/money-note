@@ -26,7 +26,7 @@ def default_card_discount(amount: float | int | None) -> float:
 def discount_ineligible_title(title: str | None) -> bool:
     """카드 할인 가능성이 없는 사용처/세부내역을 판별한다."""
     text = str(title or "").lower()
-    return "통행료" in text or "하이패스" in text
+    return "통행" in text or "하이패스" in text
 
 
 def effective_card_discount(

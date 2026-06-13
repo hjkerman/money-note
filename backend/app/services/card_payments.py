@@ -766,7 +766,7 @@ def _next_month(value: date) -> str:
 
 def _is_toll(title: str) -> bool:
     lowered = title.lower()
-    return "통행료" in lowered or "하이패스" in lowered
+    return "통행" in lowered or "하이패스" in lowered
 
 
 def _carried_title(title: str) -> str:

@@ -112,6 +112,24 @@ class CardPaymentDeferralTest(unittest.TestCase):
         updated = next(row for row in current_payment_status(date(2026, 6, 4))["rows"] if row["payment_key"] == "toll-key")
         self.assertEqual(updated["remaining_amount"], 4_000)
 
+    def test_generic_toll_text_has_no_discount(self) -> None:
+        with session() as conn:
+            conn.execute(
+                """
+                INSERT INTO ledger_entries(
+                    book_section, entry_kind, entry_date, date_label, title,
+                    amount_value, sort_order, payment_key
+                )
+                VALUES ('archive', 'expense', '2026-05-04', '2026.05.04.', '민자도로 통행', 3000, 3, 'generic-toll-key')
+                """
+            )
+
+        row = next(row for row in current_payment_status(date(2026, 6, 4))["rows"] if "generic-toll-key" in row["payment_keys"])
+
+        self.assertTrue(row["is_toll"])
+        self.assertEqual(row["discount_amount"], 0)
+        self.assertEqual(row["remaining_amount"], 8_000)
+
     def test_toll_and_highpass_rows_are_grouped_in_payment_screen(self) -> None:
         with session() as conn:
             conn.execute(

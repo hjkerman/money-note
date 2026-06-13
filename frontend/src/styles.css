@@ -805,6 +805,12 @@ th {
   font-weight: 700;
 }
 
+.muted-discount-badge {
+  background: #f4f7f1;
+  color: #76806f;
+  opacity: 0.72;
+}
+
 .muted-badge {
   display: inline-block;
   border: 1px solid #d1d6ca;

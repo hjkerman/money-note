@@ -223,7 +223,7 @@ export function CardPaymentPanel({
                 <th className="amount">할인</th>
                 <th className="amount">남은 금액</th>
                 <th className="payment-input-cell">이번 처리액</th>
-                <th className="action-cell">삭제</th>
+                <th className="action-cell">원장 삭제</th>
               </tr>
             </thead>
             <tbody>
@@ -288,7 +288,7 @@ export function CardPaymentPanel({
                             disabled={isBusy || !discountEligible}
                             onClick={() => onDiscountToggle(row, !discountExcluded)}
                           >
-                            {discountExcluded ? "다시 적용" : "할인 제외"}
+                            {discountExcluded ? "할인 적용" : "할인 제외"}
                           </button>
                         )}
                       </span>
@@ -309,7 +309,7 @@ export function CardPaymentPanel({
                     </td>
                     <td className="action-cell">
                       <button type="button" className="danger" onClick={() => onDeleteRow(row)} disabled={isBusy}>
-                        삭제
+                        원장 삭제
                       </button>
                     </td>
                   </tr>

@@ -165,7 +165,7 @@ export function defaultCardDiscount(amount: number | null | undefined): number {
 
 export function discountIneligibleTitle(title: string | null | undefined): boolean {
   const text = (title ?? "").toLowerCase();
-  return text.includes("통행료") || text.includes("하이패스");
+  return text.includes("통행") || text.includes("하이패스");
 }
 
 export function effectiveEntryDiscount(
