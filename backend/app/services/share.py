@@ -44,7 +44,10 @@ def shared_panel_html(panel_type: str) -> str:
     data = shared_panel(panel_type)
     rows_html = "\n".join(_row_html(row) for row in data["rows"])
     if not rows_html:
-        rows_html = '<tr><td colspan="2" class="empty">표시할 항목이 없습니다.</td></tr>'
+        rows_html = '<tr><td colspan="4" class="empty">표시할 항목이 없습니다.</td></tr>'
+    original_total = sum(float(row.get("amount_value") or 0) for row in data["rows"])
+    discount_total = sum(_panel_discount_amount(row) for row in data["rows"])
+    net_total = sum(_panel_net_amount(row) for row in data["rows"])
     return f"""<!doctype html>
 <html lang="ko">
 <head>
@@ -107,10 +110,16 @@ def shared_panel_html(panel_type: str) -> str:
       font-size: 13px;
       color: #555;
     }}
-    td.amount, th.amount {{
+    td.money, th.money {{
       text-align: right;
       white-space: nowrap;
-      width: 140px;
+      width: 118px;
+    }}
+    td.discount {{
+      color: #7b5a2a;
+    }}
+    td.net {{
+      font-weight: 700;
     }}
     tfoot td {{
       font-weight: 700;
@@ -121,6 +130,21 @@ def shared_panel_html(panel_type: str) -> str:
     .empty {{
       color: #777;
       text-align: center;
+    }}
+    @media (max-width: 640px) {{
+      body {{
+        padding: 12px 8px;
+      }}
+      main {{
+        border-radius: 8px;
+      }}
+      th, td {{
+        padding: 10px 8px;
+      }}
+      td.money, th.money {{
+        width: auto;
+        font-size: 14px;
+      }}
     }}
   </style>
 </head>
@@ -133,13 +157,23 @@ def shared_panel_html(panel_type: str) -> str:
     </header>
     <table>
       <thead>
-        <tr><th>내용</th><th class="amount">금액</th></tr>
+        <tr>
+          <th>내용</th>
+          <th class="money">원금</th>
+          <th class="money">할인액</th>
+          <th class="money">할인 후 금액</th>
+        </tr>
       </thead>
       <tbody>
         {rows_html}
       </tbody>
       <tfoot>
-        <tr><td>합계</td><td class="amount">{format_won(data["total"])}</td></tr>
+        <tr>
+          <td>합계</td>
+          <td class="money">{format_won(original_total)}</td>
+          <td class="money discount">{_discount_text(discount_total)}</td>
+          <td class="money net">{format_won(net_total)}</td>
+        </tr>
       </tfoot>
     </table>
     {_ledger_note_html(data["ledger_note"])}
@@ -151,15 +185,22 @@ def shared_panel_html(panel_type: str) -> str:
 
 def _row_html(row: dict) -> str:
     discount = _panel_discount_amount(row)
-    amount_text = format_won(_panel_net_amount(row))
-    if discount > 0:
-        amount_text = f"{amount_text}<small>할인 -{format_won(discount)}</small>"
+    original = float(row.get("amount_value") or 0)
+    net = _panel_net_amount(row)
     return (
         "<tr>"
         f"<td>{escape(str(row.get('title') or ''))}</td>"
-        f"<td class=\"amount\">{amount_text}</td>"
+        f"<td class=\"money\">{format_won(original)}</td>"
+        f"<td class=\"money discount\">{_discount_text(discount)}</td>"
+        f"<td class=\"money net\">{format_won(net)}</td>"
         "</tr>"
     )
+
+
+def _discount_text(discount: float) -> str:
+    if discount <= 0:
+        return "0원"
+    return f"-{format_won(discount)}"
 
 
 def _panel_net_amount(row: dict) -> float:
