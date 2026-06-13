@@ -7,6 +7,8 @@ from app.services.discounts import effective_card_discount, normalize_discount_p
 from app.services.clock import app_today_iso
 
 
+# Judgment 문구와 판단 규칙은 이 파일을 single source of truth로 둔다.
+# 예산심사위원회, 공유 문구, 통계 톤을 다른 서비스나 UI에 흩뿌리지 않는다.
 MEDICAL_WORDS = (
     "병원",
     "치과",

@@ -1,27 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
-import {
-  AuditLog,
-  CardDiscountMonth,
-  CardPaymentStatus,
-  CashFlow,
-  JudgmentState,
-  LedgerEntry,
-  MonthlyPanel,
-  MonthCloseStatus,
-  PreRestoreBackup,
-  Settings,
-  Summary,
-} from "./api";
+import { useEffect } from "react";
 import { useAuthSession } from "./hooks/useAuthSession";
+import { useAppDerivedState } from "./hooks/useAppDerivedState";
+import { useAppRefresh } from "./hooks/useAppRefresh";
 import { useCardPaymentHandlers } from "./hooks/useCardPaymentHandlers";
 import { useCashFlowHandlers } from "./hooks/useCashFlowHandlers";
 import { useEntryHandlers } from "./hooks/useEntryHandlers";
-import { useLedgerSnapshot } from "./hooks/useLedgerSnapshot";
 import { useModalState } from "./hooks/useModalState";
 import { useMoneyNoteForms } from "./hooks/useMoneyNoteForms";
 import { usePanelHandlers } from "./hooks/usePanelHandlers";
 import { useSettingsHandlers } from "./hooks/useSettingsHandlers";
-import { CurrentTab, PrimaryTab } from "./types";
 import { AppHeader } from "./components/AppHeader";
 import { AppShell } from "./components/AppShell";
 import { AppStatusArea } from "./components/AppStatusArea";
@@ -32,25 +19,9 @@ import { InitialLoadingView, LoginView } from "./components/LoginView";
 import { CashFlowView, FixedPanelView, FrozenPanelView } from "./components/MonthlyPanelsView";
 import { SettingsModal } from "./components/SettingsModal";
 import { StatsModal } from "./components/StatsModal";
-import {
-  activeStatItems,
-  collectEntryMonths,
-  compareEntriesByDate,
-  detectCurrentMonth,
-  formatIntegerSetting,
-  formatWon,
-  isAuthRequiredError,
-  panelLabel,
-  previousMonthLastDay,
-  sumAmounts,
-  sumCashFlows,
-  sumPanelAmounts,
-  sumPanelNetAmounts,
-  today,
-} from "./utils";
+import { formatWon } from "./utils";
 
 export function App() {
-  const { loadLedgerSnapshot } = useLedgerSnapshot();
   const {
     activeCurrentTab,
     activePrimaryTab,
@@ -83,29 +54,51 @@ export function App() {
     setPlannedForm,
     setResetPassword,
   } = useMoneyNoteForms();
-  const [entries, setEntries] = useState<LedgerEntry[]>([]);
-  const [archiveEntries, setArchiveEntries] = useState<LedgerEntry[]>([]);
-  const [panels, setPanels] = useState<MonthlyPanel[]>([]);
-  const [cashFlows, setCashFlows] = useState<CashFlow[]>([]);
-  const [cardPayments, setCardPayments] = useState<CardPaymentStatus | null>(null);
-  const [ownerDiscountMonth, setOwnerDiscountMonth] = useState<CardDiscountMonth | null>(null);
-  const [familyDiscountMonth, setFamilyDiscountMonth] = useState<CardDiscountMonth | null>(null);
-  const [monthCloseStatus, setMonthCloseStatus] = useState<MonthCloseStatus | null>(null);
-  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
-  const [preRestoreBackups, setPreRestoreBackups] = useState<PreRestoreBackup[]>([]);
-  const [summary, setSummary] = useState<Summary | null>(null);
-  const [judgment, setJudgment] = useState<JudgmentState | null>(null);
-  const [labels, setLabels] = useState<Record<string, string>>({});
-  const [settings, setSettings] = useState<Settings>({});
-  const [status, setStatus] = useState("서버와 통신 준비 중");
-  const [isBusy, setIsBusy] = useState(false);
-  const [interestExpenseInput, setInterestExpenseInput] = useState("");
-  const [scheduledIncomeInput, setScheduledIncomeInput] = useState("");
-  const [cardLimitInput, setCardLimitInput] = useState("");
-  const [ownerCardLast4Input, setOwnerCardLast4Input] = useState("");
-  const [familyCardLast4Input, setFamilyCardLast4Input] = useState("");
-  const [paymentAllocations, setPaymentAllocations] = useState<Record<string, string>>({});
-  const [paymentBudget, setPaymentBudget] = useState("");
+  const {
+    archiveEntries,
+    auditLogs,
+    cardLimitInput,
+    cardPayments,
+    cashFlows,
+    clearLedgerState,
+    entries,
+    familyCardLast4Input,
+    familyDiscountMonth,
+    interestExpenseInput,
+    isBusy,
+    judgment,
+    labels,
+    monthCloseStatus,
+    ownerCardLast4Input,
+    ownerDiscountMonth,
+    panels,
+    paymentAllocations,
+    paymentBudget,
+    preRestoreBackups,
+    refresh,
+    registerAuthRequiredHandler,
+    scheduledIncomeInput,
+    setAuditLogs,
+    setCardLimitInput,
+    setFamilyCardLast4Input,
+    setInterestExpenseInput,
+    setIsBusy,
+    setOwnerCardLast4Input,
+    setPaymentAllocations,
+    setPaymentBudget,
+    setPreRestoreBackups,
+    setScheduledIncomeInput,
+    setStatus,
+    settings,
+    status,
+    summary,
+    withRefresh,
+  } = useAppRefresh({
+    setCashFlowForm,
+    setExpenseForm,
+    setLateEntryForm,
+    setPanelForm,
+  });
   const {
     authChecked,
     authUser,
@@ -122,72 +115,28 @@ export function App() {
     setLoginForm,
     setStatus,
   });
-
-  const plannedEntries = entries.filter((entry) => entry.entry_kind === "planned");
-  const expenseEntries = entries.filter((entry) => entry.entry_kind !== "planned");
-  const currentMonth = useMemo(
-    () => monthCloseStatus?.calendar_month ?? detectCurrentMonth(entries),
-    [entries, monthCloseStatus?.calendar_month],
-  );
-  const structuredHistoryEntries = useMemo(
-    () => [...entries, ...archiveEntries].filter((entry) => entry.entry_kind !== "planned" && entry.entry_date),
-    [archiveEntries, entries],
-  );
-  const historyMonths = useMemo(() => collectEntryMonths(structuredHistoryEntries, currentMonth), [structuredHistoryEntries, currentMonth]);
-  const historyEntries = useMemo(
-    () =>
-      structuredHistoryEntries
-        .filter((entry) => entry.entry_date?.startsWith(selectedHistoryMonth))
-        .sort(compareEntriesByDate),
-    [selectedHistoryMonth, structuredHistoryEntries],
-  );
-  const statsItems = useMemo(
-    () => activeStatItems(historyEntries),
-    [historyEntries],
-  );
-  const primaryTabs: { id: PrimaryTab; label: string; total: number }[] = [
-    {
-      id: "current",
-      label: "당월",
-      total: sumAmounts(expenseEntries),
-    },
-    {
-      id: "payment",
-      label: "이번달 결제",
-      total: cardPayments?.effective_remaining_total ?? 0,
-    },
-    {
-      id: "fixed",
-      label: "고정지출",
-      total:
-        summary?.transfer_or_deposit_total ??
-        sumPanelAmounts(panels.filter((panel) => panel.panel_type === "fixed")) +
-        sumAmounts(plannedEntries),
-    },
-    {
-      id: "frozen",
-      label: panelLabel(labels, "frozen"),
-      total: sumPanelAmounts(panels.filter((panel) => panel.panel_type === "frozen")),
-    },
-    {
-      id: "cash",
-      label: "현금흐름",
-      total: sumCashFlows(cashFlows),
-    },
-  ];
-  const currentSubTabs: { id: CurrentTab; label: string; total: number }[] = [
-    { id: "expenses", label: "당월 지출", total: sumAmounts(expenseEntries) },
-    {
-      id: "claim",
-      label: panelLabel(labels, "claim"),
-      total: sumPanelNetAmounts(panels.filter((panel) => panel.panel_type === "claim"), ownerDiscountMonth?.policy),
-    },
-    {
-      id: "family_card",
-      label: panelLabel(labels, "family_card"),
-      total: sumPanelNetAmounts(panels.filter((panel) => panel.panel_type === "family_card"), familyDiscountMonth?.policy),
-    },
-  ];
+  const {
+    currentMonth,
+    currentSubTabs,
+    expenseEntries,
+    historyEntries,
+    historyMonths,
+    plannedEntries,
+    primaryTabs,
+    statsItems,
+  } = useAppDerivedState({
+    archiveEntries,
+    cardPayments,
+    cashFlows,
+    entries,
+    familyDiscountMonth,
+    labels,
+    monthCloseStatus,
+    ownerDiscountMonth,
+    panels,
+    selectedHistoryMonth,
+    summary,
+  });
   const {
     handleCategoryChange,
     handleEntryDelete,
@@ -295,55 +244,13 @@ export function App() {
     withRefresh,
   });
 
-  // 서버의 최신 장부 상태를 한 번에 다시 읽어 화면 상태를 갱신한다.
-  async function refresh() {
-    setIsBusy(true);
-    try {
-      const snapshot = await loadLedgerSnapshot();
-      setEntries(snapshot.entries);
-      setArchiveEntries(snapshot.archiveEntries);
-      setPanels(snapshot.panels);
-      setSummary(snapshot.summary);
-      setJudgment(snapshot.judgment);
-      setLabels(snapshot.labels);
-      setCashFlows(snapshot.cashFlows);
-      setSettings(snapshot.settings);
-      setInterestExpenseInput(formatIntegerSetting(snapshot.settings.interest_expense));
-      setScheduledIncomeInput(formatIntegerSetting(snapshot.settings.base_next_month_liquidity));
-      setCardLimitInput(formatIntegerSetting(snapshot.settings.card_limit));
-      setOwnerCardLast4Input(snapshot.settings.owner_card_last4 ?? "");
-      setFamilyCardLast4Input(snapshot.settings.family_card_last4 ?? "");
-      setCardPayments(snapshot.cardPayments);
-      setMonthCloseStatus(snapshot.monthCloseStatus);
-      setOwnerDiscountMonth(snapshot.ownerDiscountMonth);
-      setFamilyDiscountMonth(snapshot.familyDiscountMonth);
-      setExpenseForm((form) => (form.date === today ? { ...form, date: snapshot.monthCloseStatus.calendar_date } : form));
-      setCashFlowForm((form) =>
-        form.occurredOn === today ? { ...form, occurredOn: snapshot.monthCloseStatus.calendar_date } : form,
-      );
-      setPanelForm((form) =>
-        form.spentOn === today ? { ...form, spentOn: snapshot.monthCloseStatus.calendar_date } : form,
-      );
-      setLateEntryForm((form) =>
-        form.date === previousMonthLastDay(today)
-          ? { ...form, date: previousMonthLastDay(snapshot.monthCloseStatus.calendar_date) }
-          : form,
-      );
-      setStatus("동기화 완료");
-    } catch (error) {
-      if (isAuthRequiredError(error)) {
-        handleAuthRequired();
-        return;
-      }
-      setStatus(`서버 통신 실패: ${error instanceof Error ? error.message : String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
-  }
-
   useEffect(() => {
     void checkAuth();
   }, []);
+
+  useEffect(() => {
+    registerAuthRequiredHandler(handleAuthRequired);
+  }, [handleAuthRequired, registerAuthRequiredHandler]);
 
   useEffect(() => {
     if (!showStats) return;
@@ -353,28 +260,6 @@ export function App() {
     window.addEventListener("keydown", closeOnEscape);
     return () => window.removeEventListener("keydown", closeOnEscape);
   }, [showStats]);
-
-  function clearLedgerState() {
-    setEntries([]);
-    setArchiveEntries([]);
-    setPanels([]);
-    setCashFlows([]);
-    setCardPayments(null);
-    setSummary(null);
-    setLabels({});
-  }
-
-  // 쓰기 작업을 수행한 뒤 성공하면 서버 상태를 다시 읽는다.
-  async function withRefresh(action: () => Promise<void>) {
-    setIsBusy(true);
-    try {
-      await action();
-      await refresh();
-    } catch (error) {
-      setStatus(`작업 실패: ${error instanceof Error ? error.message : String(error)}`);
-      setIsBusy(false);
-    }
-  }
 
   if (!authChecked) {
     return <InitialLoadingView />;
