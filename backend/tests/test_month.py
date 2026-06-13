@@ -9,6 +9,7 @@ from app.config import get_settings
 from app.db import init_db, session
 from app.repository import confirm_planned_entry, create_entry, list_entries
 from app.schemas import LedgerEntryIn
+from app.services.card_payments import current_payment_status
 from app.services.month import close_current_month, month_close_status
 
 
@@ -74,6 +75,25 @@ class MonthCloseTest(unittest.TestCase):
         self.assertEqual(july["book_section"], "current")
         self.assertEqual(planned, 1)
         self.assertFalse(month_close_status(date(2026, 7, 1))["needs_close"])
+
+    def test_close_preserves_discount_override_for_payment_panel(self) -> None:
+        with session() as conn:
+            conn.execute(
+                """
+                UPDATE ledger_entries
+                SET discount_override = 1
+                WHERE payment_key = 'june-key'
+                """
+            )
+
+        close_current_month(date(2026, 7, 1))
+        status = current_payment_status(date(2026, 7, 1))
+        row = next(row for row in status["rows"] if row["payment_key"] == "june-key")
+
+        self.assertEqual(row["book_section"], "archive")
+        self.assertEqual(row["discount_override"], 1)
+        self.assertEqual(row["discount_amount"], 0)
+        self.assertEqual(row["remaining_amount"], 10_000)
 
     def test_current_calendar_month_cannot_be_closed_before_27th(self) -> None:
         close_current_month(date(2026, 7, 1))
