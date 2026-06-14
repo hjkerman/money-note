@@ -573,6 +573,26 @@ flutter test
 
 운영 서버용 APK를 만든다.
 
+릴리즈 서명키를 사용할 때는 `mobile/android/key.properties`를 만든다. 이 파일은 git에 올리지 않는다.
+
+```properties
+storeFile=/Users/hjkerman/keys/money-note-release.jks
+storePassword=키스토어_비밀번호
+keyAlias=money-note-release
+keyPassword=키_비밀번호
+```
+
+환경변수로도 같은 값을 줄 수 있다.
+
+```bash
+export MONEY_NOTE_KEYSTORE_PATH=/Users/hjkerman/keys/money-note-release.jks
+export MONEY_NOTE_KEYSTORE_PASSWORD=키스토어_비밀번호
+export MONEY_NOTE_KEY_ALIAS=money-note-release
+export MONEY_NOTE_KEY_PASSWORD=키_비밀번호
+```
+
+`key.properties` 또는 환경변수가 모두 채워져 있으면 release APK는 해당 키로 서명된다. 값이 비어 있으면 개발 편의를 위해 debug 서명으로 빌드된다.
+
 ```bash
 cd mobile
 flutter build apk --release --dart-define=MONEY_NOTE_API_BASE_URL=https://money.hjkerman.re.kr

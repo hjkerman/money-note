@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../app_state.dart';
 import '../theme.dart';
@@ -41,24 +42,32 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: TextStyle(color: moneyMuted, fontSize: 16)),
               const SizedBox(height: 28),
               MoneyCard(
-                child: Column(
-                  children: [
-                    TextField(
+                child: AutofillGroup(
+                  child: Column(
+                    children: [
+                      TextField(
                         controller: username,
-                        decoration: const InputDecoration(labelText: '아이디')),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: password,
-                      obscureText: true,
-                      decoration: const InputDecoration(labelText: '비밀번호'),
-                      onSubmitted: (_) => _submit(),
-                    ),
-                    const SizedBox(height: 18),
-                    ElevatedButton(
-                      onPressed: widget.state.isBusy ? null : _submit,
-                      child: const Text('로그인'),
-                    ),
-                  ],
+                        autofillHints: const [AutofillHints.username],
+                        keyboardType: TextInputType.text,
+                        textInputAction: TextInputAction.next,
+                        decoration: const InputDecoration(labelText: '아이디'),
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: password,
+                        autofillHints: const [AutofillHints.password],
+                        obscureText: true,
+                        textInputAction: TextInputAction.done,
+                        decoration: const InputDecoration(labelText: '비밀번호'),
+                        onSubmitted: (_) => _submit(),
+                      ),
+                      const SizedBox(height: 18),
+                      ElevatedButton(
+                        onPressed: widget.state.isBusy ? null : _submit,
+                        child: const Text('로그인'),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               if (widget.state.statusMessage.isNotEmpty) ...[
@@ -75,6 +84,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _submit() {
+    TextInput.finishAutofillContext();
     widget.state.login(username.text.trim(), password.text);
   }
 }

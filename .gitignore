@@ -17,3 +17,8 @@ exports/
 work/
 *.sqlite3
 *.db
+
+# Android signing secrets
+*.jks
+*.keystore
+key.properties
