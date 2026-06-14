@@ -15,6 +15,7 @@ class AppState extends ChangeNotifier {
   final NotificationBridge notificationBridge = NotificationBridge();
 
   bool isBootstrapping = true;
+  bool networkUnavailable = false;
   bool isBusy = false;
   String statusMessage = '';
   AuthUser? user;
@@ -41,6 +42,8 @@ class AppState extends ChangeNotifier {
     if (entryMonth.isNotEmpty) return entryMonth.last;
     final panelMonth = panels.map((panel) => panel.month).toList();
     if (panelMonth.isNotEmpty) return panelMonth.last;
+    final serverMonth = monthCloseStatus?.calendarMonth ?? '';
+    if (serverMonth.length >= 7) return serverMonth.substring(0, 7);
     final now = DateTime.now();
     return '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}';
   }
@@ -59,6 +62,25 @@ class AppState extends ChangeNotifier {
   }
 
   List<LedgerEntry> get recentEntries => expenseEntries.take(5).toList();
+
+  List<LedgerEntry> get plannedEntries {
+    final rows =
+        entries.where((entry) => entry.entryKind == 'planned').toList();
+    rows.sort((a, b) {
+      final dueCompare = (a.dueDay ?? 0).compareTo(b.dueDay ?? 0);
+      if (dueCompare != 0) return dueCompare;
+      final sortCompare = a.sortOrder.compareTo(b.sortOrder);
+      if (sortCompare != 0) return sortCompare;
+      return a.id.compareTo(b.id);
+    });
+    return rows;
+  }
+
+  String get serverToday {
+    final calendarDate = monthCloseStatus?.calendarDate ?? '';
+    if (calendarDate.length >= 10) return calendarDate.substring(0, 10);
+    return _localToday();
+  }
 
   List<MonthlyPanel> panelsByType(String panelType) {
     final rows = panels.where((panel) => panel.panelType == panelType).toList();
@@ -84,6 +106,15 @@ class AppState extends ChangeNotifier {
 
   Future<void> bootstrap() async {
     await refreshNotificationPermissions(notify: false);
+    try {
+      await api.health();
+      networkUnavailable = false;
+    } catch (_) {
+      networkUnavailable = true;
+      isBootstrapping = false;
+      notifyListeners();
+      return;
+    }
     await api.loadSession();
     try {
       user = await api.me();
@@ -99,6 +130,8 @@ class AppState extends ChangeNotifier {
 
   Future<void> login(String username, String password) async {
     await _run(() async {
+      await api.health();
+      networkUnavailable = false;
       user = await api.login(username, password);
       await refresh(notify: false);
       await saveLaunchSnapshot();
@@ -200,7 +233,63 @@ class AppState extends ChangeNotifier {
         await api.excludePanelDiscount(panel.id);
       }
       await refresh(notify: false);
-      statusMessage = panelType == 'claim' ? '청구 추가 완료' : '가족카드 추가 완료';
+      statusMessage = switch (panelType) {
+        'claim' => '청구 추가 완료',
+        'family_card' => '가족카드 추가 완료',
+        'fixed' => '현금성 고정지출 추가 완료',
+        'frozen' => '동결 금액 추가 완료',
+        _ => '항목 추가 완료',
+      };
+    });
+  }
+
+  Future<void> createPlannedEntry({
+    required int dueDay,
+    required String usagePlace,
+    required String usageItem,
+    required int amount,
+  }) async {
+    await _run(() async {
+      await api.createPlannedEntry(
+        dueDay: dueDay,
+        usagePlace: usagePlace,
+        usageItem: usageItem,
+        amount: amount,
+      );
+      await refresh(notify: false);
+      statusMessage = '카드 정기결제 추가 완료';
+    });
+  }
+
+  Future<void> confirmPlannedEntry(int entryId) async {
+    await _run(() async {
+      await api.confirmPlannedEntry(entryId);
+      await refresh(notify: false);
+      statusMessage = '카드 정기결제 확인 완료';
+    });
+  }
+
+  Future<void> deletePlannedEntry(int entryId) async {
+    await _run(() async {
+      await api.deletePlannedEntry(entryId);
+      await refresh(notify: false);
+      statusMessage = '카드 정기결제 삭제 완료';
+    });
+  }
+
+  Future<void> excludeExistingEntryDiscount(String entryPaymentKey) async {
+    await _run(() async {
+      await api.excludeEntryDiscount(entryPaymentKey);
+      await refresh(notify: false);
+      statusMessage = '할인 제외 완료';
+    });
+  }
+
+  Future<void> applyDefaultEntryDiscount(String entryPaymentKey) async {
+    await _run(() async {
+      await api.clearEntryDiscount(entryPaymentKey);
+      await refresh(notify: false);
+      statusMessage = '할인 적용 완료';
     });
   }
 
@@ -276,7 +365,7 @@ class AppState extends ChangeNotifier {
   }) async {
     await _run(() async {
       await api.createCashFlow(
-        occurredOn: _today(),
+        occurredOn: serverToday,
         title: title,
         amount: isIncome ? amount : -amount,
         isPrimaryIncome: isIncome && isPrimaryIncome,
@@ -346,6 +435,21 @@ class AppState extends ChangeNotifier {
     });
   }
 
+  Future<void> restoreLocalSnapshot({
+    required String filename,
+    required String password,
+  }) async {
+    await _run(() async {
+      final snapshot = await _safeSnapshotFile(filename);
+      await api.restoreSnapshot(
+        password: password,
+        snapshotText: await snapshot.readAsString(),
+      );
+      await refresh(notify: false);
+      statusMessage = '스냅샷 복원 완료';
+    });
+  }
+
   Future<void> deleteLocalSnapshot(String filename) async {
     await _run(() async {
       final snapshot = await _safeSnapshotFile(filename);
@@ -399,6 +503,14 @@ class AppState extends ChangeNotifier {
     });
   }
 
+  Future<void> updateSetting(String key, String value) async {
+    await _run(() async {
+      settings = await api.updateSetting(key, value);
+      await refresh(notify: false);
+      statusMessage = '설정 저장 완료';
+    });
+  }
+
   Future<void> _run(Future<void> Function() action) async {
     isBusy = true;
     statusMessage = '';
@@ -415,6 +527,10 @@ class AppState extends ChangeNotifier {
   }
 
   String _today() {
+    return serverToday;
+  }
+
+  String _localToday() {
     final now = DateTime.now();
     return '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
   }

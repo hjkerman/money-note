@@ -35,7 +35,7 @@ class _SnapshotManagerScreenState extends State<SnapshotManagerScreen> {
             children: [
               const MoneyCard(
                 child: Text(
-                  '앱 실행 때마다 서버 스냅샷을 받아 앱 안에 보관합니다. 필요할 때 파일을 공유하거나 오래된 백업을 지울 수 있습니다.',
+                  '앱 실행 때마다 서버 스냅샷을 받아 앱 안에 보관합니다. 필요할 때 파일을 공유하거나 복원하거나 오래된 백업을 지울 수 있습니다.',
                   style:
                       TextStyle(color: moneyMuted, fontWeight: FontWeight.w600),
                 ),
@@ -141,6 +141,13 @@ class _SnapshotCard extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: OutlinedButton(
+                    onPressed: state.isBusy ? null : () => _restore(context),
+                    child: const Text('복원'),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: OutlinedButton(
                     onPressed: state.isBusy ? null : () => _delete(context),
                     style: OutlinedButton.styleFrom(foregroundColor: moneyRed),
                     child: const Text('삭제'),
@@ -176,6 +183,45 @@ class _SnapshotCard extends StatelessWidget {
       await state.deleteLocalSnapshot(snapshot.filename);
       onChanged();
     }
+  }
+
+  Future<void> _restore(BuildContext context) async {
+    final password = TextEditingController();
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('스냅샷 복원'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+                '${_title(snapshot.updatedAt)} 상태로 복원할까요? 현재 장부 운용 데이터가 교체됩니다.'),
+            const SizedBox(height: 12),
+            TextField(
+              controller: password,
+              obscureText: true,
+              decoration: const InputDecoration(labelText: '계정 비밀번호'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('취소'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('복원'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true && password.text.isNotEmpty) {
+      await state.restoreLocalSnapshot(
+          filename: snapshot.filename, password: password.text);
+      onChanged();
+    }
+    password.dispose();
   }
 
   String _title(DateTime value) {

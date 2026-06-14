@@ -171,6 +171,7 @@ MONEY_NOTE_TODAY=
 MONEY_NOTE_CORS_ORIGINS=https://money.hjkerman.re.kr
 MONEY_NOTE_COOKIE_SECURE=true
 MONEY_NOTE_SESSION_DAYS=30
+MONEY_NOTE_MOBILE_SESSION_DAYS=3650
 MONEY_NOTE_APK_PATH=/app/downloads/money-note.apk
 MONEY_NOTE_APK_FILENAME=money-note.apk
 EOF
@@ -189,7 +190,8 @@ MONEY_NOTE_CORS_ORIGINS=https://money.hjkerman.re.kr,http://localhost:5173,http:
 - `MONEY_NOTE_CORS_ORIGINS`에는 실제 웹 프론트엔드 주소를 넣는다.
 - HTTPS 뒤에서 운영하면 `MONEY_NOTE_COOKIE_SECURE=true`를 권장한다.
 - 처음 로컬 확인만 할 때는 `MONEY_NOTE_COOKIE_SECURE=false`가 편하다.
-- `MONEY_NOTE_SESSION_DAYS`는 로그인 세션 유지 기간이다. 모바일 앱에서는 잦은 재로그인이 불편하므로 365일 이상으로 길게 잡을 수 있다. 완전 무제한보다 `3650`처럼 매우 긴 유효기간을 두는 편이 토큰 폐기와 사고 대응 면에서 낫다.
+- `MONEY_NOTE_SESSION_DAYS`는 웹 cookie 로그인 세션 유지 기간이다.
+- `MONEY_NOTE_MOBILE_SESSION_DAYS`는 모바일 앱 Bearer 토큰 유지 기간이다. 기본값은 `3650`일이며, 웹 cookie 로그인 기간과 별도로 관리된다.
 - `MONEY_NOTE_APK_PATH`는 설정 모달에서 내려받을 Android APK 파일의 컨테이너 내부 경로다. APK를 아직 제공하지 않을 때는 비워둬도 된다.
 
 `docker-compose.yml`은 위 값을 자동으로 읽어 컨테이너에 전달한다.
@@ -467,10 +469,13 @@ MONEY_NOTE_CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
 ```text
 MONEY_NOTE_SESSION_COOKIE_NAME=money_note_session
 MONEY_NOTE_SESSION_DAYS=30
+MONEY_NOTE_MOBILE_SESSION_DAYS=3650
 MONEY_NOTE_COOKIE_SECURE=false
 ```
 
 운영에서 HTTPS 뒤에 둘 때는 `MONEY_NOTE_COOKIE_SECURE=true` 사용을 고려한다.
+
+웹 로그인 cookie는 `MONEY_NOTE_SESSION_DAYS`를 따른다. 모바일 앱은 `/api/auth/mobile-login`에서 받은 Bearer 토큰을 저장하며 `MONEY_NOTE_MOBILE_SESSION_DAYS`를 따른다. 공유 페이지 PIN 세션은 별도 장기 세션을 사용한다.
 
 날짜 민감 기능 검증:
 
@@ -572,9 +577,13 @@ flutter run --dart-define=MONEY_NOTE_API_BASE_URL=http://10.0.2.2:18080
 flutter run --dart-define=MONEY_NOTE_API_BASE_URL=https://money.hjkerman.re.kr
 ```
 
+모바일 앱은 서버 DB를 원본으로 사용한다. 앱 시작 시 `/health`에 닿지 않으면 로그인 화면으로 넘어가지 않고 종료 안내를 표시한다.
+
 모바일 앱은 로그인 응답의 `session_token`을 저장하고, 이후 API 요청에 `Authorization: Bearer ...` 헤더를 보낸다.
 
-앱 실행 후 로그인 세션이 살아 있으면 서버에서 snapshot을 자동으로 받아 앱 내부에 누적 저장한다. 이 자동 백업은 사용자가 매번 파일을 직접 내려받지 않아도 되는 안전장치다. 상태 탭의 `스냅샷 관리`에서 저장된 스냅샷 목록을 확인하고, 특정 파일을 공유하거나 삭제하거나 전체 삭제할 수 있다.
+모바일 로그인은 `/api/auth/mobile-login`을 사용한다. 이 경로는 웹 cookie를 만들지 않고, `MONEY_NOTE_MOBILE_SESSION_DAYS` 기준의 장기 Bearer 토큰만 발급한다.
+
+앱 실행 후 로그인 세션이 살아 있으면 서버에서 snapshot을 자동으로 받아 앱 내부에 누적 저장한다. 이 자동 백업은 사용자가 매번 파일을 직접 내려받지 않아도 되는 안전장치다. 상태 탭의 `관리 -> 백업 / 복원`에서 저장된 스냅샷 목록을 확인하고, 특정 파일을 공유하거나 복원하거나 삭제하거나 전체 삭제할 수 있다.
 
 ### 4. 검사와 테스트
 
@@ -996,8 +1005,8 @@ curl -b /tmp/money-note-cookie.txt \
 - 앱 실행 때마다 새 파일명으로 snapshot을 누적 저장한다.
 - 파일명은 `money-note-snapshot-YYYYMMDD-HHMMSS.money-note-snapshot.json` 형태를 사용한다.
 - 기존 snapshot 파일을 덮어쓰지 않는다.
-- 사용자는 모바일 `상태 -> 스냅샷 관리` 화면에서 파일별 공유, 파일별 삭제, 전체 삭제를 수행한다.
-- 모바일 앱의 snapshot은 서버 데이터 복원을 자동 수행하지 않는다. 복원이 필요하면 공유한 snapshot 파일을 웹 관리 화면에서 복원한다.
+- 사용자는 모바일 `상태 -> 관리 -> 백업 / 복원` 화면에서 파일별 공유, 파일별 복원, 파일별 삭제, 전체 삭제를 수행한다.
+- 모바일 앱의 snapshot은 서버 데이터 복원을 자동 수행하지 않는다. 사용자가 명시적으로 특정 snapshot을 선택하고 비밀번호를 입력했을 때만 서버 restore API를 호출한다.
 
 이 정책은 네트워크 중단, 앱 강제 종료, 잘못된 최신 상태가 곧바로 유일한 백업을 덮어쓰는 사고를 줄이기 위한 최소 안전장치다. 저장 공간이 부담되면 모바일 스냅샷 관리 화면에서 오래된 파일을 직접 정리한다.
 

@@ -41,7 +41,7 @@ class MoneyNoteApiClient {
 
   Future<AuthUser> login(String username, String password) async {
     final user = await _post(
-      '/api/auth/login',
+      '/api/auth/mobile-login',
       {'username': username, 'password': password},
       AuthUser.fromJson,
     );
@@ -58,6 +58,13 @@ class MoneyNoteApiClient {
   }
 
   Future<AuthUser> me() => _get('/api/auth/me', AuthUser.fromJson);
+
+  Future<void> health() async {
+    final response = await _client.get(_uri('/health'));
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw MoneyNoteApiException('서버 상태 확인에 실패했습니다.');
+    }
+  }
 
   Future<Summary> summary() =>
       _get('/api/month/current/summary', Summary.fromJson);
@@ -79,6 +86,10 @@ class MoneyNoteApiClient {
 
   Future<AppSettings> settings() {
     return _get('/api/settings', AppSettings.fromJson);
+  }
+
+  Future<AppSettings> updateSetting(String key, String value) {
+    return _patch('/api/settings/$key', {'value': value}, AppSettings.fromJson);
   }
 
   Future<CardDiscountMonth> discountMonth(String month, String scope) {
@@ -122,9 +133,45 @@ class MoneyNoteApiClient {
         LedgerEntry.fromJson);
   }
 
+  Future<LedgerEntry> createPlannedEntry({
+    required int dueDay,
+    required String usagePlace,
+    required String usageItem,
+    required int amount,
+  }) {
+    final trimmedPlace = usagePlace.trim();
+    final trimmedItem = usageItem.trim();
+    return _post(
+        '/api/month/current/planned',
+        {
+          'title': trimmedItem.isEmpty
+              ? trimmedPlace
+              : '[$trimmedPlace] $trimmedItem',
+          'usage_place': trimmedPlace,
+          'usage_item': trimmedItem.isEmpty ? null : trimmedItem,
+          'amount_value': amount,
+          'amount_expr': null,
+          'due_day': dueDay,
+        },
+        LedgerEntry.fromJson);
+  }
+
+  Future<Map<String, dynamic>> confirmPlannedEntry(int entryId) {
+    return _post('/api/month/current/planned/$entryId/confirm', const {},
+        (json) => json);
+  }
+
+  Future<void> deletePlannedEntry(int entryId) async {
+    await _delete('/api/month/current/planned/$entryId');
+  }
+
   Future<LedgerEntry> excludeEntryDiscount(String entryPaymentKey) {
     return _patch('/api/card-discounts/entries/$entryPaymentKey',
         {'discount_amount': 0}, LedgerEntry.fromJson);
+  }
+
+  Future<void> clearEntryDiscount(String entryPaymentKey) async {
+    await _delete('/api/card-discounts/entries/$entryPaymentKey');
   }
 
   Future<MonthlyPanel> createPanel({
@@ -211,6 +258,14 @@ class MoneyNoteApiClient {
       {bool allowEarlyClose = false}) {
     return _post('/api/month/current/close',
         {'allow_early_close': allowEarlyClose}, (json) => json);
+  }
+
+  Future<Map<String, dynamic>> restoreSnapshot({
+    required String password,
+    required String snapshotText,
+  }) {
+    return _post('/api/admin/snapshot/restore',
+        {'password': password, 'snapshot_text': snapshotText}, (json) => json);
   }
 
   Future<T> _get<T>(

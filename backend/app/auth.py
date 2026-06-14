@@ -116,17 +116,7 @@ def create_user(username: str, password: str, display_name: str = "") -> dict[st
 
 def create_session_cookie(response: Response, user_id: int) -> str:
     settings = get_settings()
-    token = secrets.token_urlsafe(48)
-    token_hash = _hash_session_token(token)
-    expires_at = datetime.now(timezone.utc) + timedelta(days=settings.session_days)
-    with session() as conn:
-        conn.execute(
-            """
-            INSERT INTO auth_sessions(user_id, session_token_hash, expires_at)
-            VALUES (?, ?, ?)
-            """,
-            (user_id, token_hash, _datetime_to_db(expires_at)),
-        )
+    token = create_bearer_session(user_id, settings.session_days)
     response.set_cookie(
         key=settings.session_cookie_name,
         value=token,
@@ -137,6 +127,26 @@ def create_session_cookie(response: Response, user_id: int) -> str:
         samesite="lax",
         path="/",
     )
+    return token
+
+
+def create_mobile_session_token(user_id: int) -> str:
+    """모바일 앱용 장기 Bearer 토큰을 만든다. 웹 cookie는 설정하지 않는다."""
+    return create_bearer_session(user_id, get_settings().mobile_session_days)
+
+
+def create_bearer_session(user_id: int, days: int) -> str:
+    token = secrets.token_urlsafe(48)
+    token_hash = _hash_session_token(token)
+    expires_at = datetime.now(timezone.utc) + timedelta(days=days)
+    with session() as conn:
+        conn.execute(
+            """
+            INSERT INTO auth_sessions(user_id, session_token_hash, expires_at)
+            VALUES (?, ?, ?)
+            """,
+            (user_id, token_hash, _datetime_to_db(expires_at)),
+        )
     return token
 
 

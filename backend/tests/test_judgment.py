@@ -2,7 +2,10 @@ import unittest
 
 from app.services.judgment import (
     app_judgment,
+    choose_message,
+    claim_ledger_note,
     claim_subtitle,
+    get_messages,
     ledger_verdict,
     family_card_subtitle,
     stable_choice,
@@ -16,6 +19,18 @@ class JudgmentTest(unittest.TestCase):
         self.assertEqual(
             stable_choice(messages, 10, 20, "상태"),
             stable_choice(messages, 10, 20, "상태"),
+        )
+
+    def test_choose_message_can_be_seeded_but_varies_by_seed(self) -> None:
+        messages = ("첫째", "둘째", "셋째", "넷째")
+
+        self.assertEqual(
+            choose_message(messages, "상태", seed="fixed"),
+            choose_message(messages, "상태", seed="fixed"),
+        )
+        self.assertGreater(
+            len({choose_message(messages, "상태", seed=index) for index in range(20)}),
+            1,
         )
 
     def test_claim_subtitle_distinguishes_medical_and_tiny_claims(self) -> None:
@@ -51,7 +66,7 @@ class JudgmentTest(unittest.TestCase):
 
         self.assertNotEqual(routine, one_sick_day)
         self.assertNotEqual(one_sick_day, family_worry)
-        self.assertIn("평", routine)
+        self.assertTrue("정신" in routine or "마음" in routine or "건강" in routine)
 
     def test_family_card_subtitle_distinguishes_usage_pressure(self) -> None:
         rows = [{"title": "가족카드", "amount_value": 500_000}]
@@ -61,11 +76,81 @@ class JudgmentTest(unittest.TestCase):
 
         self.assertNotEqual(quiet, danger)
 
+    def test_family_card_subtitle_avoids_private_family_blame_words(self) -> None:
+        rows = [{"title": "가족카드", "amount_value": 300_000}]
+        messages = [
+            family_card_subtitle(rows, 300_000, 0, 5_800_000),
+            family_card_subtitle(rows, 300_000, 2_000_000, 5_800_000),
+            family_card_subtitle(rows, 2_000_000, 2_000_000, 5_800_000),
+        ]
+
+        for message in messages:
+            self.assertNotIn("오빠", message)
+            self.assertNotIn("안 갚", message)
+            self.assertNotIn("먹튀", message)
+
+    def test_shared_message_pools_stay_separated(self) -> None:
+        claim_messages = set(get_messages("claim", "subtitle.empty"))
+        family_card_messages = set(get_messages("family_card", "subtitle.empty"))
+        insight_messages = set(get_messages("insight", "budget.empty"))
+
+        self.assertFalse(claim_messages & family_card_messages)
+        self.assertFalse(claim_messages & insight_messages)
+        self.assertFalse(family_card_messages & insight_messages)
+
+        all_family_card_messages: list[str] = []
+        for key in (
+            "subtitle.empty",
+            "subtitle.joint_high",
+            "subtitle.owner_high_family_low",
+            "subtitle.family_high",
+            "subtitle.combined_mid",
+            "subtitle.largest",
+            "subtitle.moderate",
+            "subtitle.quiet",
+        ):
+            all_family_card_messages.extend(get_messages("family_card", key))
+        for message in all_family_card_messages:
+            self.assertNotIn("오빠", message)
+            self.assertNotIn("안 갚", message)
+
     def test_ledger_verdict_distinguishes_questionable_spending(self) -> None:
         ordinary = ledger_verdict(200_000, 50_000, 0)
         hearing = ledger_verdict(200_000, 50_000, 8)
 
         self.assertNotEqual(ordinary, hearing)
+
+    def test_claim_ledger_note_hides_private_exact_amounts(self) -> None:
+        note = claim_ledger_note(
+            "2026-06",
+            [
+                {
+                    "entry_date": "2026-06-02",
+                    "entry_kind": "expense",
+                    "title": "정신건강의학과",
+                    "amount_value": 123_456,
+                    "spending_category": "questionable",
+                },
+                {
+                    "entry_date": "2026-06-03",
+                    "entry_kind": "expense",
+                    "title": "커피",
+                    "amount_value": 7_890,
+                    "spending_category": "questionable",
+                },
+            ],
+            [
+                {
+                    "occurred_on": "2026-06-03",
+                    "amount_value": -234_567,
+                },
+            ],
+        )
+
+        self.assertNotIn("123,456", note)
+        self.assertNotIn("234,567", note)
+        self.assertNotIn("questionable", note)
+        self.assertIn("장부를 얼핏 보니", note)
 
     def test_app_judgment_returns_frontend_tones(self) -> None:
         result = app_judgment(

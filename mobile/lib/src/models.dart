@@ -63,6 +63,8 @@ class LedgerEntry {
     this.amountValue,
     this.spendingCategory,
     this.paymentKey,
+    this.discountOverride = 0,
+    this.dueDay,
   });
 
   final int id;
@@ -76,6 +78,20 @@ class LedgerEntry {
   final int? amountValue;
   final String? spendingCategory;
   final String? paymentKey;
+  final int discountOverride;
+  final int? dueDay;
+
+  bool get isDiscountExcluded => discountOverride != 0;
+
+  int discountForPolicy(bool policyEnabled) {
+    if (!policyEnabled || paymentKey == null) return 0;
+    if (isDiscountExcluded) return 0;
+    return ((amountValue ?? 0) * 0.012).floor();
+  }
+
+  int effectiveAmountForPolicy(bool policyEnabled) {
+    return (amountValue ?? 0) - discountForPolicy(policyEnabled);
+  }
 
   factory LedgerEntry.fromJson(Map<String, dynamic> json) {
     return LedgerEntry(
@@ -91,6 +107,8 @@ class LedgerEntry {
           json['amount_value'] == null ? null : _int(json['amount_value']),
       spendingCategory: json['spending_category'] as String?,
       paymentKey: json['payment_key'] as String?,
+      discountOverride: _int(json['discount_override']),
+      dueDay: json['due_day'] == null ? null : _int(json['due_day']),
     );
   }
 }
@@ -296,15 +314,22 @@ class JudgmentTone {
 }
 
 class JudgmentState {
-  JudgmentState({required this.budget, required this.payment});
+  JudgmentState({
+    required this.budget,
+    required this.credit,
+    required this.payment,
+  });
 
   final JudgmentTone budget;
+  final JudgmentTone credit;
   final JudgmentTone payment;
 
   factory JudgmentState.fromJson(Map<String, dynamic> json) {
     return JudgmentState(
       budget: JudgmentTone.fromJson(
           json['budget'] as Map<String, dynamic>? ?? const {}),
+      credit: JudgmentTone.fromJson(
+          json['credit'] as Map<String, dynamic>? ?? const {}),
       payment: JudgmentTone.fromJson(
           json['payment'] as Map<String, dynamic>? ?? const {}),
     );

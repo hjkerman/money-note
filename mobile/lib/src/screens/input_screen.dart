@@ -8,9 +8,10 @@ import '../widgets/money_card.dart';
 import 'notification_import_screen.dart';
 
 class InputScreen extends StatefulWidget {
-  const InputScreen({required this.state, super.key});
+  const InputScreen({required this.state, super.key, this.onJudgmentTap});
 
   final AppState state;
+  final VoidCallback? onJudgmentTap;
 
   @override
   State<InputScreen> createState() => _InputScreenState();
@@ -22,6 +23,13 @@ class _InputScreenState extends State<InputScreen> {
   final amount = TextEditingController();
   final placeFocus = FocusNode();
   bool? discountEnabled;
+  late String selectedDate;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedDate = widget.state.serverToday;
+  }
 
   @override
   void dispose() {
@@ -54,12 +62,23 @@ class _InputScreenState extends State<InputScreen> {
                     label: '익월 유동성', amount: won(summary?.nextMonthLiquidity))),
           ],
         ),
+        const SectionTitle('오늘의 예산심사위원회'),
+        _JudgmentPreviewCard(
+          message: widget.state.judgment?.budget.message ?? '',
+          onTap: widget.onJudgmentTap,
+        ),
         if (!widget.state.notificationPermissions.isReady)
           _PermissionWarningCard(state: widget.state),
         const SectionTitle('카드 지출 입력'),
         MoneyCard(
           child: Column(
             children: [
+              _DatePickerRow(
+                label: '사용 일자',
+                value: selectedDate,
+                onChanged: (value) => setState(() => selectedDate = value),
+              ),
+              const SizedBox(height: 12),
               Row(
                 children: [
                   Expanded(
@@ -134,11 +153,51 @@ class _InputScreenState extends State<InputScreen> {
       amount: parsedAmount,
       discountEnabled: discountEnabled ??
           (widget.state.ownerDiscountMonth?.isEnabled ?? true),
+      entryDate: selectedDate,
     );
     place.clear();
     item.clear();
     amount.clear();
+    setState(() => selectedDate = widget.state.serverToday);
     placeFocus.requestFocus();
+  }
+}
+
+class _JudgmentPreviewCard extends StatelessWidget {
+  const _JudgmentPreviewCard({required this.message, this.onTap});
+
+  final String message;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = message.trim().isEmpty ? '판단 결과를 불러오는 중입니다.' : message.trim();
+    return MoneyCard(
+      color: moneyGreenSoft,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Row(
+          children: [
+            const Icon(Icons.gavel, color: moneyGreen),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                text,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+              ),
+            ),
+            if (onTap != null) ...[
+              const SizedBox(width: 8),
+              const Icon(Icons.chevron_right, color: moneyMuted),
+            ],
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -165,7 +224,7 @@ class _PermissionWarningCard extends StatelessWidget {
             const Text('카드 알림 낚시 준비가 덜 됐습니다.',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
             const SizedBox(height: 6),
-            Text('$missing을 Grant 해라....',
+            Text('앱을 사용하려면 $missing을 허용해야 합니다.',
                 style: const TextStyle(color: moneyMuted)),
             const SizedBox(height: 12),
             Wrap(
@@ -190,6 +249,44 @@ class _PermissionWarningCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _DatePickerRow extends StatelessWidget {
+  const _DatePickerRow({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String label;
+  final String value;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton(
+      onPressed: () async {
+        final initialDate = DateTime.tryParse(value) ?? DateTime.now();
+        final picked = await showDatePicker(
+          context: context,
+          initialDate: initialDate,
+          firstDate: DateTime(2020, 1, 1),
+          lastDate: DateTime(2100, 12, 31),
+        );
+        if (picked == null) return;
+        onChanged(
+            '${picked.year.toString().padLeft(4, '0')}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}');
+      },
+      child: Row(
+        children: [
+          Text(label),
+          const Spacer(),
+          Text(shortDate(value),
+              style: const TextStyle(fontWeight: FontWeight.w900)),
+        ],
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'api_client.dart';
 import 'app_state.dart';
@@ -44,9 +45,49 @@ class _MoneyNoteAppState extends State<MoneyNoteApp> {
         body: Center(child: CircularProgressIndicator()),
       );
     }
+    if (state.networkUnavailable) {
+      return const _NetworkRequiredView();
+    }
     if (!state.isLoggedIn) {
       return LoginScreen(state: state);
     }
     return HomeShell(state: state);
+  }
+}
+
+class _NetworkRequiredView extends StatelessWidget {
+  const _NetworkRequiredView();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text('서버에 연결할 수 없습니다.',
+                    textAlign: TextAlign.center,
+                    style:
+                        TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+                SizedBox(height: 12),
+                Text(
+                  'Money-Note 모바일 앱은 서버 DB를 원본으로 사용합니다. 네트워크 연결이나 서버 상태를 확인한 뒤 다시 실행해 주세요.',
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 20),
+                FilledButton(
+                  onPressed: SystemNavigator.pop,
+                  child: Text('앱 종료'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

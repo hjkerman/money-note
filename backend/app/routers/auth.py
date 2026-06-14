@@ -4,6 +4,7 @@ from app.auth import (
     authenticate_user,
     change_password,
     clear_session_cookie,
+    create_mobile_session_token,
     create_session_cookie,
     current_user_from_request,
     require_user,
@@ -20,6 +21,15 @@ def login(payload: LoginIn, response: Response) -> dict:
     if user is None:
         raise HTTPException(status_code=401, detail="invalid username or password")
     session_token = create_session_cookie(response, user["id"])
+    return {**user, "session_token": session_token, "share_pin_needs_change": share_pin_needs_change()}
+
+
+@router.post("/mobile-login", response_model=AuthUser)
+def mobile_login(payload: LoginIn) -> dict:
+    user = authenticate_user(payload.username, payload.password)
+    if user is None:
+        raise HTTPException(status_code=401, detail="invalid username or password")
+    session_token = create_mobile_session_token(user["id"])
     return {**user, "session_token": session_token, "share_pin_needs_change": share_pin_needs_change()}
 
 

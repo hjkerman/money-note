@@ -8,6 +8,7 @@ class Settings:
         self.db_path = Path(os.getenv("MONEY_NOTE_DB_PATH", "data/money-note.sqlite3"))
         self.session_cookie_name = os.getenv("MONEY_NOTE_SESSION_COOKIE_NAME", "money_note_session")
         self.session_days = int(os.getenv("MONEY_NOTE_SESSION_DAYS", "30"))
+        self.mobile_session_days = int(os.getenv("MONEY_NOTE_MOBILE_SESSION_DAYS", "3650"))
         self.cookie_secure = os.getenv("MONEY_NOTE_COOKIE_SECURE", "false").lower() == "true"
         self.today_override = os.getenv("MONEY_NOTE_TODAY", "").strip()
         self.timezone_offset_minutes = int(os.getenv("MONEY_NOTE_TIMEZONE_OFFSET_MINUTES", "540"))

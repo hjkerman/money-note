@@ -14,6 +14,7 @@ class MonthEntriesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final rows = state.expenseEntries;
+    final discountPolicyEnabled = state.ownerDiscountMonth?.isEnabled ?? true;
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 54, 20, 96),
       children: [
@@ -28,62 +29,116 @@ class MonthEntriesScreen extends StatelessWidget {
             trailing: Text('${rows.length}건',
                 style: const TextStyle(color: moneyMuted))),
         if (rows.isEmpty) const MoneyCard(child: Text('이번 달 지출 내역이 없습니다.')),
-        ...rows.map(_MonthEntryCard.new),
+        ...rows.map((entry) => _MonthEntryCard(
+              entry: entry,
+              state: state,
+              discountPolicyEnabled: discountPolicyEnabled,
+            )),
       ],
     );
   }
 }
 
 class _MonthEntryCard extends StatelessWidget {
-  const _MonthEntryCard(this.entry);
+  const _MonthEntryCard({
+    required this.entry,
+    required this.state,
+    required this.discountPolicyEnabled,
+  });
 
   final LedgerEntry entry;
+  final AppState state;
+  final bool discountPolicyEnabled;
 
   @override
   Widget build(BuildContext context) {
+    final discount = entry.discountForPolicy(discountPolicyEnabled);
+    final canToggleDiscount = discountPolicyEnabled &&
+        entry.paymentKey != null &&
+        entry.paymentKey!.isNotEmpty;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: MoneyCard(
         padding: const EdgeInsets.all(14),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            SizedBox(
-              width: 54,
-              child: Text(shortDate(entry.entryDate),
-                  style: const TextStyle(
-                      color: moneyGreen, fontWeight: FontWeight.w800)),
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(entry.usagePlace ?? entry.title,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: 54,
+                  child: Text(shortDate(entry.entryDate),
                       style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w900)),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 4,
-                    crossAxisAlignment: WrapCrossAlignment.center,
+                          color: moneyGreen, fontWeight: FontWeight.w800)),
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if ((entry.usageItem ?? '').isNotEmpty)
-                        Text(entry.usageItem!,
-                            style: const TextStyle(color: moneyMuted)),
-                      if (_isTransport(entry)) const _Badge('교통'),
-                      if (_isToll(entry)) const _Badge('통행료'),
+                      Text(entry.usagePlace ?? entry.title,
+                          style: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w900)),
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 4,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          if ((entry.usageItem ?? '').isNotEmpty)
+                            Text(entry.usageItem!,
+                                style: const TextStyle(color: moneyMuted)),
+                          if (_isTransport(entry)) const _Badge('교통'),
+                          if (_isToll(entry)) const _Badge('통행료'),
+                        ],
+                      ),
                     ],
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 10),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(won(entry.amountValue),
+                        style: const TextStyle(
+                            fontSize: 17, fontWeight: FontWeight.w900)),
+                    if (discountPolicyEnabled && entry.paymentKey != null) ...[
+                      const SizedBox(height: 3),
+                      Text('할인 ${won(discount)}',
+                          style: const TextStyle(
+                              color: moneyGreen,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800)),
+                      Text('실결제 ${won(entry.effectiveAmountForPolicy(true))}',
+                          style: const TextStyle(
+                              color: moneyMuted,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700)),
+                    ],
+                  ],
+                ),
+              ],
             ),
-            const SizedBox(width: 10),
-            Text(won(entry.amountValue),
-                style:
-                    const TextStyle(fontSize: 17, fontWeight: FontWeight.w900)),
+            if (canToggleDiscount) ...[
+              const SizedBox(height: 10),
+              OutlinedButton(
+                onPressed: state.isBusy ? null : _toggleDiscount,
+                child: Text(entry.isDiscountExcluded ? '할인 적용' : '할인 제외'),
+              ),
+            ],
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _toggleDiscount() async {
+    final paymentKey = entry.paymentKey;
+    if (paymentKey == null || paymentKey.isEmpty) return;
+    if (entry.isDiscountExcluded) {
+      await state.applyDefaultEntryDiscount(paymentKey);
+    } else {
+      await state.excludeExistingEntryDiscount(paymentKey);
+    }
   }
 
   bool _isTransport(LedgerEntry entry) => _title(entry).contains('교통');

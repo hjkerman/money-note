@@ -20,6 +20,13 @@ class _FamilyScreenState extends State<FamilyScreen> {
   final title = TextEditingController();
   final amount = TextEditingController();
   bool? discountEnabled;
+  late String selectedDate;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedDate = widget.state.serverToday;
+  }
 
   @override
   void dispose() {
@@ -37,19 +44,34 @@ class _FamilyScreenState extends State<FamilyScreen> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 54, 20, 96),
       children: [
-        const Text('가족',
+        const Text('정산',
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
         const SizedBox(height: 14),
-        SegmentedButton<String>(
-          segments: const [
-            ButtonSegment(value: 'claim', label: Text('청구')),
-            ButtonSegment(value: 'family_card', label: Text('가족카드')),
+        Row(
+          children: [
+            Expanded(
+              child: _SettlementSwitchCard(
+                title: '청구',
+                subtitle: '집안 생활비 정산',
+                amount: won(_effectiveTotal(widget.state.panelsByType('claim'),
+                    widget.state.ownerDiscountMonth?.isEnabled ?? true)),
+                selected: panelType == 'claim',
+                onTap: () => _selectPanel('claim'),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _SettlementSwitchCard(
+                title: '가족카드',
+                subtitle: '가족카드 사용액',
+                amount: won(_effectiveTotal(
+                    widget.state.panelsByType('family_card'),
+                    widget.state.familyDiscountMonth?.isEnabled ?? false)),
+                selected: panelType == 'family_card',
+                onTap: () => _selectPanel('family_card'),
+              ),
+            ),
           ],
-          selected: {panelType},
-          onSelectionChanged: (value) => setState(() {
-            panelType = value.first;
-            discountEnabled = null;
-          }),
         ),
         const SizedBox(height: 14),
         Row(
@@ -69,6 +91,12 @@ class _FamilyScreenState extends State<FamilyScreen> {
         MoneyCard(
           child: Column(
             children: [
+              _DatePickerRow(
+                label: '사용 일자',
+                value: selectedDate,
+                onChanged: (value) => setState(() => selectedDate = value),
+              ),
+              const SizedBox(height: 12),
               TextField(
                   controller: title,
                   decoration: InputDecoration(
@@ -143,10 +171,12 @@ class _FamilyScreenState extends State<FamilyScreen> {
       title: title.text,
       amount: parsedAmount,
       discountEnabled: discountEnabled ?? _defaultDiscountEnabled(),
+      spentOn: selectedDate,
     );
     title.clear();
     amount.clear();
     discountEnabled = null;
+    setState(() => selectedDate = widget.state.serverToday);
   }
 
   bool _defaultDiscountEnabled() {
@@ -161,6 +191,95 @@ class _FamilyScreenState extends State<FamilyScreen> {
         0,
         (sum, panel) =>
             sum + panel.effectiveAmountForPolicy(discountPolicyEnabled));
+  }
+
+  void _selectPanel(String nextPanelType) {
+    setState(() {
+      panelType = nextPanelType;
+      discountEnabled = null;
+      selectedDate = widget.state.serverToday;
+    });
+  }
+}
+
+class _SettlementSwitchCard extends StatelessWidget {
+  const _SettlementSwitchCard({
+    required this.title,
+    required this.subtitle,
+    required this.amount,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String title;
+  final String subtitle;
+  final String amount;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return MoneyCard(
+      color: selected ? moneyGreenSoft : Colors.white,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title,
+                style:
+                    const TextStyle(fontSize: 17, fontWeight: FontWeight.w900)),
+            const SizedBox(height: 4),
+            Text(subtitle,
+                style: const TextStyle(
+                    color: moneyMuted, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 10),
+            Text(amount,
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DatePickerRow extends StatelessWidget {
+  const _DatePickerRow({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String label;
+  final String value;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton(
+      onPressed: () async {
+        final initialDate = DateTime.tryParse(value) ?? DateTime.now();
+        final picked = await showDatePicker(
+          context: context,
+          initialDate: initialDate,
+          firstDate: DateTime(2020, 1, 1),
+          lastDate: DateTime(2100, 12, 31),
+        );
+        if (picked == null) return;
+        onChanged(
+            '${picked.year.toString().padLeft(4, '0')}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}');
+      },
+      child: Row(
+        children: [
+          Text(label),
+          const Spacer(),
+          Text(shortDate(value),
+              style: const TextStyle(fontWeight: FontWeight.w900)),
+        ],
+      ),
+    );
   }
 }
 

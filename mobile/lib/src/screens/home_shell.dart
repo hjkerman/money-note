@@ -23,7 +23,10 @@ class _HomeShellState extends State<HomeShell> {
   @override
   Widget build(BuildContext context) {
     final screens = [
-      InputScreen(state: widget.state),
+      InputScreen(
+        state: widget.state,
+        onJudgmentTap: () => setState(() => index = 4),
+      ),
       CashFlowScreen(state: widget.state),
       MonthEntriesScreen(state: widget.state),
       FamilyScreen(state: widget.state),
@@ -44,7 +47,7 @@ class _HomeShellState extends State<HomeShell> {
           NavigationDestination(
               icon: Icon(Icons.account_balance_wallet), label: '현금'),
           NavigationDestination(icon: Icon(Icons.receipt_long), label: '내역'),
-          NavigationDestination(icon: Icon(Icons.people_alt), label: '가족'),
+          NavigationDestination(icon: Icon(Icons.people_alt), label: '정산'),
           NavigationDestination(icon: Icon(Icons.assessment), label: '상태'),
         ],
       ),
