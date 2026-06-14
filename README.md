@@ -11,6 +11,7 @@
 - 웹 프론트엔드: Vite + React + TypeScript
 - 운영 모드: 웹 프론트엔드와 백엔드는 오류 수정이 아닌 한 기능 변경을 중단
 - 데스크탑/모바일 앱: 현행 웹/API를 안정된 기준선으로 삼고, 별도 클라이언트에서 검토
+- 모바일 앱 설계: 빠른 입력과 카드대금 처리 중심의 별도 모바일 UI를 Figma와 문서로 관리
 
 ## 운영 안정화 원칙
 
@@ -95,6 +96,7 @@ npm run build
 - [실행 방법](docs/runbook.md)
 - [아키텍처](docs/architecture.md)
 - [테스트 절차](docs/test-plan.md)
+- [모바일 앱 설계](docs/mobile-design.md)
 
 ## API 호출 예시
 

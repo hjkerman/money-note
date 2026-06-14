@@ -14,7 +14,7 @@
 - 백엔드: FastAPI + SQLite
 - 프론트엔드: Vite + React + TypeScript
 - 배포: Docker Compose
-- 향후 모바일 앱: Android 중심으로 별도 검토
+- 향후 모바일 앱: 웹 축소판이 아니라 빠른 입력, 카드대금 처리, 가족 정산, 상태 확인에 집중하는 별도 클라이언트로 설계한다. 기준 화면은 [모바일 앱 설계](mobile-design.md)에 둔다.
 
 ## 데이터 흐름
 
