@@ -33,6 +33,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
     final rows = widget.state.panelsByType(panelType);
     final isClaim = panelType == 'claim';
     final discountValue = discountEnabled ?? _defaultDiscountEnabled();
+    final discountPolicyEnabled = _defaultDiscountEnabled();
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 54, 20, 96),
       children: [
@@ -61,7 +62,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
             Expanded(
                 child: AmountTile(
                     label: isClaim ? '실청구 합계' : '실결제 합계',
-                    amount: won(widget.state.panelEffectiveTotal(panelType)))),
+                    amount: won(_effectiveTotal(rows, discountPolicyEnabled)))),
           ],
         ),
         const SectionTitle('추가'),
@@ -122,8 +123,12 @@ class _FamilyScreenState extends State<FamilyScreen> {
           MoneyCard(
             child: Text(isClaim ? '청구 내역이 없습니다.' : '가족카드 내역이 없습니다.'),
           ),
-        ...rows.map((panel) =>
-            _FamilyItem(panel: panel, state: widget.state, isClaim: isClaim)),
+        ...rows.map((panel) => _FamilyItem(
+              panel: panel,
+              state: widget.state,
+              isClaim: isClaim,
+              discountPolicyEnabled: discountPolicyEnabled,
+            )),
       ],
     );
   }
@@ -150,15 +155,26 @@ class _FamilyScreenState extends State<FamilyScreen> {
     }
     return widget.state.ownerDiscountMonth?.isEnabled ?? true;
   }
+
+  int _effectiveTotal(List<MonthlyPanel> rows, bool discountPolicyEnabled) {
+    return rows.fold(
+        0,
+        (sum, panel) =>
+            sum + panel.effectiveAmountForPolicy(discountPolicyEnabled));
+  }
 }
 
 class _FamilyItem extends StatelessWidget {
   const _FamilyItem(
-      {required this.panel, required this.state, required this.isClaim});
+      {required this.panel,
+      required this.state,
+      required this.isClaim,
+      required this.discountPolicyEnabled});
 
   final MonthlyPanel panel;
   final AppState state;
   final bool isClaim;
+  final bool discountPolicyEnabled;
 
   @override
   Widget build(BuildContext context) {
@@ -173,21 +189,47 @@ class _FamilyItem extends StatelessWidget {
                     const TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
             const SizedBox(height: 12),
             _Line(label: '원금', value: won(panel.amountValue)),
-            _Line(label: '할인', value: won(panel.discountAmount)),
+            _Line(
+                label: '할인',
+                value: won(panel.discountForPolicy(discountPolicyEnabled))),
             _Line(
                 label: isClaim ? '실청구' : '실결제',
-                value: won(panel.effectiveAmount)),
+                value:
+                    won(panel.effectiveAmountForPolicy(discountPolicyEnabled))),
             const SizedBox(height: 10),
-            OutlinedButton(
-              onPressed:
-                  state.isBusy ? null : () => state.deletePanel(panel.id),
-              style: OutlinedButton.styleFrom(foregroundColor: moneyRed),
-              child: const Text('삭제'),
+            Row(
+              children: [
+                if (discountPolicyEnabled) ...[
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: state.isBusy ? null : _toggleDiscount,
+                      child: Text(panel.isDiscountExcluded ? '할인 적용' : '할인 제외'),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                ],
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed:
+                        state.isBusy ? null : () => state.deletePanel(panel.id),
+                    style: OutlinedButton.styleFrom(foregroundColor: moneyRed),
+                    child: const Text('삭제'),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _toggleDiscount() async {
+    if (panel.isDiscountExcluded) {
+      await state.applyDefaultPanelDiscount(panel.id);
+    } else {
+      await state.excludeExistingPanelDiscount(panel.id);
+    }
   }
 }
 

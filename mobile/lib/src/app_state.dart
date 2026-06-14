@@ -20,6 +20,7 @@ class AppState extends ChangeNotifier {
   AuthUser? user;
   Summary? summary;
   JudgmentState? judgment;
+  MonthCloseStatus? monthCloseStatus;
   AppSettings settings = AppSettings(values: const {});
   CardDiscountMonth? ownerDiscountMonth;
   CardDiscountMonth? familyDiscountMonth;
@@ -111,6 +112,7 @@ class AppState extends ChangeNotifier {
       user = null;
       summary = null;
       judgment = null;
+      monthCloseStatus = null;
       entries = [];
       panels = [];
       cashFlows = [];
@@ -127,6 +129,7 @@ class AppState extends ChangeNotifier {
       api.currentPanels(),
       api.cashFlows(),
       api.settings(),
+      api.monthCloseStatus(),
     ]);
     summary = results[0] as Summary;
     judgment = results[1] as JudgmentState;
@@ -134,6 +137,7 @@ class AppState extends ChangeNotifier {
     panels = results[3] as List<MonthlyPanel>;
     cashFlows = results[4] as List<CashFlow>;
     settings = results[5] as AppSettings;
+    monthCloseStatus = results[6] as MonthCloseStatus;
     ownerDiscountMonth = await api.discountMonth(currentMonth, 'owner');
     familyDiscountMonth = await api.discountMonth(currentMonth, 'family');
     if (notify) notifyListeners();
@@ -233,6 +237,22 @@ class AppState extends ChangeNotifier {
       await api.deletePanel(panelId);
       await refresh(notify: false);
       statusMessage = '항목 삭제 완료';
+    });
+  }
+
+  Future<void> excludeExistingPanelDiscount(int panelId) async {
+    await _run(() async {
+      await api.excludePanelDiscount(panelId);
+      await refresh(notify: false);
+      statusMessage = '할인 제외 완료';
+    });
+  }
+
+  Future<void> applyDefaultPanelDiscount(int panelId) async {
+    await _run(() async {
+      await api.clearPanelDiscount(panelId);
+      await refresh(notify: false);
+      statusMessage = '할인 적용 완료';
     });
   }
 

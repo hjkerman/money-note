@@ -86,6 +86,10 @@ class MoneyNoteApiClient {
         CardDiscountMonth.fromJson);
   }
 
+  Future<MonthCloseStatus> monthCloseStatus() {
+    return _get('/api/month/current/status', MonthCloseStatus.fromJson);
+  }
+
   Future<LedgerEntry> createExpense({
     required String date,
     required String usagePlace,
@@ -151,6 +155,10 @@ class MoneyNoteApiClient {
   Future<MonthlyPanel> excludePanelDiscount(int panelId) {
     return _patch('/api/month/current/panels/$panelId/discount',
         {'discount_amount': 0}, MonthlyPanel.fromJson);
+  }
+
+  Future<void> clearPanelDiscount(int panelId) async {
+    await _delete('/api/month/current/panels/$panelId/discount');
   }
 
   Future<Map<String, dynamic>> completePanelType(String panelType) {

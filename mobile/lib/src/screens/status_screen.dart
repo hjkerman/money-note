@@ -14,7 +14,8 @@ class StatusScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final summary = state.summary;
-    final canCloseMonth = _isMonthEnd(DateTime.now());
+    final monthCloseStatus = state.monthCloseStatus;
+    final canCloseMonth = monthCloseStatus?.canClose ?? false;
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 54, 20, 96),
       children: [
@@ -93,7 +94,7 @@ class StatusScreen extends StatelessWidget {
               ),
               if (!canCloseMonth) ...[
                 const SizedBox(height: 8),
-                const Text('월마감은 월말에만 사용할 수 있습니다.',
+                const Text('월마감은 서버 기준으로 가능한 때에만 사용할 수 있습니다.',
                     style: TextStyle(color: moneyMuted, fontSize: 13)),
               ],
             ],
@@ -113,11 +114,20 @@ class StatusScreen extends StatelessWidget {
   }
 
   Future<void> _confirmMonthClose(BuildContext context) async {
+    final status = state.monthCloseStatus;
+    final targetMonth = status?.oldestOpenMonth;
+    final isEarlyClose = status?.isEarlyClose ?? false;
     final firstConfirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('월마감'),
-        content: const Text('현재 열린 월을 마감할까요? 서버가 복원 전 백업을 먼저 남깁니다.'),
+        content: Text(
+          isEarlyClose && targetMonth != null
+              ? '${_formatMonth(targetMonth)}을 조기 월마감할까요?\n\n이후 같은 달 날짜로 추가하는 지출은 전체 기록에 바로 보관됩니다. 서버가 복원 전 백업을 먼저 남깁니다.'
+              : targetMonth != null
+                  ? '${_formatMonth(targetMonth)} 기록을 월마감할까요? 서버가 복원 전 백업을 먼저 남깁니다.'
+                  : '현재 열린 월을 마감할까요? 서버가 복원 전 백업을 먼저 남깁니다.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -150,12 +160,12 @@ class StatusScreen extends StatelessWidget {
       ),
     );
     if (finalConfirmed == true) {
-      await state.closeCurrentMonth();
+      await state.closeCurrentMonth(allowEarlyClose: isEarlyClose);
     }
   }
 
-  bool _isMonthEnd(DateTime value) {
-    final tomorrow = value.add(const Duration(days: 1));
-    return tomorrow.month != value.month;
+  String _formatMonth(String value) {
+    if (value.length < 7) return value;
+    return '${value.substring(0, 4)}년 ${value.substring(5, 7)}월';
   }
 }

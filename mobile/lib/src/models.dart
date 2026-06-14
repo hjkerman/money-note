@@ -103,6 +103,7 @@ class MonthlyPanel {
     required this.title,
     required this.sortOrder,
     required this.discountAmount,
+    required this.discountOverride,
     this.spentOn,
     this.amountValue,
     this.dueDay,
@@ -114,11 +115,23 @@ class MonthlyPanel {
   final String title;
   final int sortOrder;
   final int discountAmount;
+  final int discountOverride;
   final String? spentOn;
   final int? amountValue;
   final int? dueDay;
 
   int get effectiveAmount => (amountValue ?? 0) - discountAmount;
+  bool get isDiscountExcluded => discountOverride != 0 && discountAmount <= 0;
+
+  int discountForPolicy(bool policyEnabled) {
+    if (!policyEnabled) return 0;
+    if (discountOverride != 0) return discountAmount;
+    return ((amountValue ?? 0) * 0.012).floor();
+  }
+
+  int effectiveAmountForPolicy(bool policyEnabled) {
+    return (amountValue ?? 0) - discountForPolicy(policyEnabled);
+  }
 
   factory MonthlyPanel.fromJson(Map<String, dynamic> json) {
     return MonthlyPanel(
@@ -128,6 +141,7 @@ class MonthlyPanel {
       title: json['title'] as String? ?? '',
       sortOrder: _int(json['sort_order']),
       discountAmount: _int(json['discount_amount']),
+      discountOverride: _int(json['discount_override']),
       spentOn: json['spent_on'] as String?,
       amountValue:
           json['amount_value'] == null ? null : _int(json['amount_value']),
@@ -183,6 +197,44 @@ class CardDiscountMonth {
       month: json['month'] as String? ?? '',
       scope: json['scope'] as String? ?? '',
       policy: json['policy'] as String? ?? 'disabled',
+    );
+  }
+}
+
+class MonthCloseStatus {
+  MonthCloseStatus({
+    required this.calendarDate,
+    required this.calendarMonth,
+    required this.needsClose,
+    required this.isEarlyClose,
+    required this.earlyCloseAvailable,
+    required this.earlyCloseStartDay,
+    required this.canClose,
+    this.oldestOpenMonth,
+    this.lastClosedMonth,
+  });
+
+  final String calendarDate;
+  final String calendarMonth;
+  final String? oldestOpenMonth;
+  final String? lastClosedMonth;
+  final bool needsClose;
+  final bool isEarlyClose;
+  final bool earlyCloseAvailable;
+  final int earlyCloseStartDay;
+  final bool canClose;
+
+  factory MonthCloseStatus.fromJson(Map<String, dynamic> json) {
+    return MonthCloseStatus(
+      calendarDate: json['calendar_date'] as String? ?? '',
+      calendarMonth: json['calendar_month'] as String? ?? '',
+      oldestOpenMonth: json['oldest_open_month'] as String?,
+      lastClosedMonth: json['last_closed_month'] as String?,
+      needsClose: json['needs_close'] as bool? ?? false,
+      isEarlyClose: json['is_early_close'] as bool? ?? false,
+      earlyCloseAvailable: json['early_close_available'] as bool? ?? false,
+      earlyCloseStartDay: _int(json['early_close_start_day']),
+      canClose: json['can_close'] as bool? ?? false,
     );
   }
 }
