@@ -39,6 +39,9 @@ class PanelCompletionTest(unittest.TestCase):
         completed = complete_panels_by_type("2026-06", "claim")
 
         self.assertEqual(completed, 2)
+        backups = list((self.db_path.parent / "snapshot-backups").glob("pre_restore-*.money-note-snapshot.json"))
+        self.assertEqual(len(backups), 1)
+        self.assertIn("청구 하나", backups[0].read_text(encoding="utf-8"))
         with session() as conn:
             remaining = conn.execute(
                 "SELECT panel_type, COUNT(*) AS count FROM monthly_panels GROUP BY panel_type ORDER BY panel_type"

@@ -10,8 +10,10 @@ import {
   downloadAndroidApk,
   downloadSnapshot,
   fetchAuditLogs,
+  fetchOperationStats,
   fetchPreRestoreBackups,
   MonthCloseStatus,
+  OperationStats,
   PreRestoreBackup,
   resetLedgerData,
   restorePreRestoreBackup,
@@ -33,6 +35,7 @@ export function useSettingsHandlers({
   setCardLimitInput,
   setInterestExpenseInput,
   setIsBusy,
+  setOperationStats,
   setPasswordForm,
   setPaymentAllocations,
   setPreRestoreBackups,
@@ -54,6 +57,7 @@ export function useSettingsHandlers({
   setCardLimitInput: (value: string) => void;
   setInterestExpenseInput: (value: string) => void;
   setIsBusy: (busy: boolean) => void;
+  setOperationStats: (stats: OperationStats | null) => void;
   setPasswordForm: (value: { currentPassword: string; newPassword: string }) => void;
   setPaymentAllocations: (value: Record<string, string>) => void;
   setPreRestoreBackups: (value: PreRestoreBackup[]) => void;
@@ -213,6 +217,18 @@ export function useSettingsHandlers({
     }
   }
 
+  async function handleOperationStatsLoad() {
+    setIsBusy(true);
+    try {
+      setOperationStats(await fetchOperationStats());
+      setStatus("운영 데이터 통계 조회 완료");
+    } catch (error) {
+      setStatus(`운영 데이터 통계 조회 실패: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      setIsBusy(false);
+    }
+  }
+
   async function handlePreRestoreDelete(filename: string) {
     const confirmed = window.confirm(`${filename}\n\n이 복원 전 백업을 삭제할까요?`);
     if (!confirmed) return;
@@ -333,6 +349,7 @@ export function useSettingsHandlers({
     handleInterestExpenseSave,
     handleLedgerReset,
     handlePasswordChange,
+    handleOperationStatsLoad,
     handlePreRestoreDelete,
     handlePreRestoreDeleteAll,
     handlePreRestoreList,

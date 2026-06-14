@@ -6,6 +6,7 @@ from fastapi.responses import FileResponse
 from app.auth import require_user, verify_user_password
 from app.config import get_settings
 from app.schemas import PasswordConfirmIn, PreRestoreRestoreIn, SnapshotRestoreIn
+from app.services.operation_stats import operation_data_stats
 from app.services.reset import reset_ledger_data
 from app.services.snapshot import (
     delete_all_pre_restore_backups,
@@ -47,6 +48,11 @@ def get_apk(_: dict = Depends(require_user)) -> FileResponse:
         media_type="application/vnd.android.package-archive",
         filename=settings.apk_filename,
     )
+
+
+@router.get("/operation-stats")
+def get_operation_stats(_: dict = Depends(require_user)) -> dict:
+    return operation_data_stats()
 
 
 @router.post("/snapshot/restore")

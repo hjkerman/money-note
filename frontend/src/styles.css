@@ -1056,6 +1056,69 @@ button.discount-badge:hover:not(:disabled) {
   font-size: 12px;
 }
 
+.operation-stats-section {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid #d8ded1;
+  border-radius: 8px;
+  background: #fbfcf8;
+}
+
+.operation-stats-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.operation-stats-header h3 {
+  margin: 0 0 4px;
+  color: #35462f;
+  font-size: 15px;
+}
+
+.operation-stats-header p {
+  margin: 0;
+  color: #687360;
+  font-size: 13px;
+}
+
+.operation-stats-grid,
+.table-counts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.operation-stats-grid div,
+.table-counts div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid #e2e7dc;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.operation-stats-grid span,
+.table-counts code {
+  overflow: hidden;
+  color: #687360;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.operation-stats-grid strong,
+.table-counts span {
+  color: #2f3c2a;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
 .hidden-input {
   display: none;
 }

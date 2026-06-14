@@ -61,6 +61,9 @@ class MonthCloseTest(unittest.TestCase):
 
         self.assertEqual(result["closed_month"], "2026-06")
         self.assertEqual(result["archived"], 1)
+        backups = list((self.db_path.parent / "snapshot-backups").glob("pre_restore-*.money-note-snapshot.json"))
+        self.assertEqual(len(backups), 1)
+        self.assertIn("말일 사용", backups[0].read_text(encoding="utf-8"))
         with session() as conn:
             june = conn.execute(
                 "SELECT book_section FROM ledger_entries WHERE payment_key = 'june-key'"

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from app.db import session
+from app.services.snapshot import create_pre_restore_backup
 
 
 RESET_TABLES = [
@@ -16,6 +17,7 @@ RESET_TABLES = [
 def reset_ledger_data() -> dict[str, int]:
     """계정과 설정은 남기고 사용자가 입력한 장부 운용 데이터만 비운다."""
     deleted: dict[str, int] = {}
+    create_pre_restore_backup()
     with session() as conn:
         conn.execute("PRAGMA foreign_keys = OFF")
         for table in RESET_TABLES:

@@ -71,6 +71,7 @@ export function App() {
     monthCloseStatus,
     ownerCardLast4Input,
     ownerDiscountMonth,
+    operationStats,
     panels,
     paymentAllocations,
     paymentBudget,
@@ -84,6 +85,7 @@ export function App() {
     setInterestExpenseInput,
     setIsBusy,
     setOwnerCardLast4Input,
+    setOperationStats,
     setPaymentAllocations,
     setPaymentBudget,
     setPreRestoreBackups,
@@ -212,6 +214,7 @@ export function App() {
     handleCardLimitSave,
     handleInterestExpenseSave,
     handleLedgerReset,
+    handleOperationStatsLoad,
     handlePasswordChange,
     handlePreRestoreDelete,
     handlePreRestoreDeleteAll,
@@ -233,6 +236,7 @@ export function App() {
     setCardLimitInput,
     setInterestExpenseInput,
     setIsBusy,
+    setOperationStats,
     setPasswordForm,
     setPaymentAllocations,
     setPreRestoreBackups,
@@ -251,6 +255,10 @@ export function App() {
   useEffect(() => {
     registerAuthRequiredHandler(handleAuthRequired);
   }, [handleAuthRequired, registerAuthRequiredHandler]);
+
+  useEffect(() => {
+    if (showSettings) void handleOperationStatsLoad();
+  }, [showSettings]);
 
   useEffect(() => {
     if (!showStats) return;
@@ -304,8 +312,9 @@ export function App() {
             onClose={() => setShowSettings(false)}
             onCardLimitSave={() => void handleCardLimitSave()}
             onInterestExpenseSave={() => void handleInterestExpenseSave()}
-            onLedgerReset={() => void handleLedgerReset()}
-            onPasswordChange={() => void handlePasswordChange()}
+              onLedgerReset={() => void handleLedgerReset()}
+              onOperationStatsLoad={() => void handleOperationStatsLoad()}
+              onPasswordChange={() => void handlePasswordChange()}
             onPreRestoreDelete={(filename) => void handlePreRestoreDelete(filename)}
             onPreRestoreDeleteAll={() => void handlePreRestoreDeleteAll()}
             onPreRestoreList={() => void handlePreRestoreList()}
@@ -315,6 +324,7 @@ export function App() {
             onSnapshotDownload={() => void handleSnapshotDownload()}
             onSnapshotRestore={(file) => void handleSnapshotRestore(file)}
             ownerCardLast4Input={ownerCardLast4Input}
+            operationStats={operationStats}
             passwordForm={passwordForm}
             preRestoreBackups={preRestoreBackups}
             resetPassword={resetPassword}

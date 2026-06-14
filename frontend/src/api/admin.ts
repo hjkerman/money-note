@@ -1,5 +1,5 @@
 import { API_BASE_URL, authHeaders, deleteJson, getJson, postJson, readDownloadFilename } from "./client";
-import { PreRestoreBackup } from "./types";
+import { OperationStats, PreRestoreBackup } from "./types";
 
 export async function resetLedgerData(password: string): Promise<{ deleted: Record<string, number> }> {
   return postJson("/api/admin/reset-ledger-data", { password });
@@ -40,6 +40,10 @@ export async function downloadAndroidApk(): Promise<{ blob: Blob; filename: stri
     blob: await response.blob(),
     filename: readDownloadFilename(response.headers.get("Content-Disposition")) ?? "money-note.apk",
   };
+}
+
+export async function fetchOperationStats(): Promise<OperationStats> {
+  return getJson("/api/admin/operation-stats");
 }
 
 export async function fetchPreRestoreBackups(): Promise<PreRestoreBackup[]> {

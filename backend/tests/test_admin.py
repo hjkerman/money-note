@@ -47,6 +47,7 @@ class AdminApiTest(unittest.TestCase):
         self.assertIn("/api/admin/snapshot/pre-restore/{filename}", paths)
         self.assertIn("/api/admin/snapshot/pre-restore/{filename}/restore", paths)
         self.assertIn("/api/admin/apk", paths)
+        self.assertIn("/api/admin/operation-stats", paths)
 
     def test_apk_download_uses_configured_file(self) -> None:
         apk_path = Path(self.temp_dir.name) / "money-note.apk"

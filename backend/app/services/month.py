@@ -5,6 +5,7 @@ from typing import Any
 
 from app.db import session
 from app.services.clock import app_today
+from app.services.snapshot import create_pre_restore_backup
 
 
 EARLY_CLOSE_START_DAY = 27
@@ -46,6 +47,8 @@ def close_current_month(today: date | None = None, allow_early_close: bool = Fal
             """,
             (f"{target_month}%",),
         ).fetchall()
+
+        create_pre_restore_backup()
 
         archived = 0
         next_order_row = conn.execute(

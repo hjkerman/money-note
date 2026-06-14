@@ -168,5 +168,14 @@ export type PreRestoreBackup = {
   exported_at: string | null;
 };
 
+export type OperationStats = {
+  db_file_size_bytes: number;
+  empty_db_size_bytes: number;
+  estimated_data_size_bytes: number;
+  pre_restore_total_size_bytes: number;
+  pre_restore_count: number;
+  table_row_counts: Record<string, number>;
+};
+
 export type Labels = Record<string, string>;
 export type Settings = Record<string, string>;

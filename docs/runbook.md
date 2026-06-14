@@ -189,6 +189,7 @@ MONEY_NOTE_CORS_ORIGINS=https://money.hjkerman.re.kr,http://localhost:5173,http:
 - `MONEY_NOTE_CORS_ORIGINS`에는 실제 웹 프론트엔드 주소를 넣는다.
 - HTTPS 뒤에서 운영하면 `MONEY_NOTE_COOKIE_SECURE=true`를 권장한다.
 - 처음 로컬 확인만 할 때는 `MONEY_NOTE_COOKIE_SECURE=false`가 편하다.
+- `MONEY_NOTE_SESSION_DAYS`는 로그인 세션 유지 기간이다. 모바일 앱에서는 잦은 재로그인이 불편하므로 365일 이상으로 길게 잡을 수 있다. 완전 무제한보다 `3650`처럼 매우 긴 유효기간을 두는 편이 토큰 폐기와 사고 대응 면에서 낫다.
 - `MONEY_NOTE_APK_PATH`는 설정 모달에서 내려받을 Android APK 파일의 컨테이너 내부 경로다. APK를 아직 제공하지 않을 때는 비워둬도 된다.
 
 `docker-compose.yml`은 위 값을 자동으로 읽어 컨테이너에 전달한다.
@@ -648,7 +649,7 @@ curl -OJ -b /tmp/money-note-cookie.txt \
 
 복원은 위험 작업이다. 현재 비밀번호를 다시 확인하며, 장부 운용 데이터와 비민감 운영 설정이 snapshot 내용으로 교체된다. 사용자 계정, 본체 로그인 세션, 가족 공유 세션, 관리 로그는 유지된다.
 
-복원 안전장치:
+위험 작업 안전장치:
 
 - 운영 DB를 수정하기 전에 snapshot 구조와 manifest를 검증한다.
 - 운영 DB를 수정하기 전에 동일한 삽입 경로로 임시 DB dry-run restore를 수행한다.
@@ -656,6 +657,16 @@ curl -OJ -b /tmp/money-note-cookie.txt \
 - 실제 restore 직전 현재 운영 DB를 `data/snapshot-backups/pre_restore-...money-note-snapshot.json` 파일로 반드시 저장한다.
 - `pre_restore` 파일 생성, JSON parse, manifest 검증 중 하나라도 실패하면 복원을 중단한다.
 - 실제 restore 도중 예외가 발생하면 트랜잭션 rollback으로 기존 운영 DB를 보존한다.
+
+서버는 다음 작업 직전에도 현재 장부 상태를 `pre_restore` snapshot으로 자동 저장한다.
+
+- snapshot restore
+- 월마감 실행
+- 장부 전체 초기화
+- 청구 일괄 처리 완료
+- 가족카드 일괄 처리 완료
+
+따라서 실수로 큰 변경을 실행한 경우 설정 모달의 `복원 전 백업` 섹션에서 직전 상태로 되돌릴 수 있다.
 
 웹에서는 `설정 -> 위험 작업 영역 -> snapshot 복원`에서 파일을 선택하고 현재 비밀번호를 입력한 뒤 실행한다.
 
@@ -670,6 +681,8 @@ curl -OJ -b /tmp/money-note-cookie.txt \
 5. 필요 없어진 항목은 `삭제` 또는 `일괄 삭제`로 정리한다. 삭제에는 비밀번호 재확인을 요구하지 않는다.
 
 `되돌리기`도 일반 restore와 동일한 검증과 dry-run을 거치며, 되돌리기 직전 상태 역시 새 `pre_restore`로 저장된다.
+
+설정 모달의 `운영 데이터 크기` 섹션에서는 SQLite 파일 크기, 빈 DB 기준 추정 운영 데이터 크기, pre_restore 합계, 테이블별 row count를 확인할 수 있다. 이 값은 운영 상태 점검용이며 정확한 과금/용량 계산값은 아니다.
 
 API로 복원:
 

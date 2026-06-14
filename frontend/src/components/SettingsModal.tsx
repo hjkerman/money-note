@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useRef, useState } from "react";
 
-import { PreRestoreBackup } from "../api";
+import { OperationStats, PreRestoreBackup } from "../api";
 
 type PasswordForm = { currentPassword: string; newPassword: string };
 
@@ -15,6 +15,7 @@ export function SettingsModal({
   onCardLimitSave,
   onInterestExpenseSave,
   onLedgerReset,
+  onOperationStatsLoad,
   onPasswordChange,
   onPreRestoreDelete,
   onPreRestoreDeleteAll,
@@ -25,6 +26,7 @@ export function SettingsModal({
   onSnapshotDownload,
   onSnapshotRestore,
   ownerCardLast4Input,
+  operationStats,
   passwordForm,
   preRestoreBackups,
   resetPassword,
@@ -47,6 +49,7 @@ export function SettingsModal({
   onCardLimitSave: () => void;
   onInterestExpenseSave: () => void;
   onLedgerReset: () => void;
+  onOperationStatsLoad: () => void;
   onPasswordChange: () => void;
   onPreRestoreDelete: (filename: string) => void;
   onPreRestoreDeleteAll: () => void;
@@ -57,6 +60,7 @@ export function SettingsModal({
   onSnapshotDownload: () => void;
   onSnapshotRestore: (file: File | null) => void;
   ownerCardLast4Input: string;
+  operationStats: OperationStats | null;
   passwordForm: PasswordForm;
   preRestoreBackups: PreRestoreBackup[];
   resetPassword: string;
@@ -260,7 +264,7 @@ export function SettingsModal({
               <div className="pre-restore-header">
                 <div>
                   <h3>복원 전 백업</h3>
-                  <p>snapshot 복원 직전에 서버가 자동으로 남긴 안전장치입니다.</p>
+                  <p>복원, 월마감, 초기화, 일괄 처리 직전에 서버가 자동으로 남긴 안전장치입니다.</p>
                 </div>
                 <div className="pre-restore-actions">
                   <button type="button" onClick={onPreRestoreList} disabled={isBusy}>
@@ -308,6 +312,51 @@ export function SettingsModal({
                 <p className="pre-restore-empty">아직 조회된 복원 전 백업이 없습니다.</p>
               )}
             </div>
+          </section>
+          <section className="operation-stats-section">
+            <div className="operation-stats-header">
+              <div>
+                <h3>운영 데이터 크기</h3>
+                <p>DB 테이블 행 수와 백업 파일 크기를 확인합니다.</p>
+              </div>
+              <button type="button" onClick={onOperationStatsLoad} disabled={isBusy}>
+                새로고침
+              </button>
+            </div>
+            {operationStats ? (
+              <>
+                <div className="operation-stats-grid">
+                  <div>
+                    <span>SQLite 파일</span>
+                    <strong>{formatBytes(operationStats.db_file_size_bytes)}</strong>
+                  </div>
+                  <div>
+                    <span>추정 운영 데이터</span>
+                    <strong>{formatBytes(operationStats.estimated_data_size_bytes)}</strong>
+                  </div>
+                  <div>
+                    <span>빈 DB 기준</span>
+                    <strong>{formatBytes(operationStats.empty_db_size_bytes)}</strong>
+                  </div>
+                  <div>
+                    <span>pre_restore</span>
+                    <strong>
+                      {formatBytes(operationStats.pre_restore_total_size_bytes)} · {operationStats.pre_restore_count}개
+                    </strong>
+                  </div>
+                </div>
+                <div className="table-counts">
+                  {Object.entries(operationStats.table_row_counts).map(([table, count]) => (
+                    <div key={table}>
+                      <code>{table}</code>
+                      <span>{count.toLocaleString()}행</span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <p className="pre-restore-empty">운영 데이터 통계를 아직 불러오지 않았습니다.</p>
+            )}
           </section>
         </div>
       </section>

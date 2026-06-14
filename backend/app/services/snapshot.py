@@ -88,12 +88,17 @@ def restore_snapshot(snapshot: dict[str, Any]) -> dict[str, int]:
     _validate_snapshot(snapshot)
     data = _normalized_snapshot_data(snapshot["data"])
     _dry_run_restore(data)
-    _write_pre_restore_backup()
+    create_pre_restore_backup()
     restored: dict[str, int] = {}
     with session() as conn:
         restored = _replace_snapshot_tables(conn, data)
         _raise_if_foreign_key_errors(conn)
     return restored
+
+
+def create_pre_restore_backup() -> Path:
+    """위험한 장부 변경 직전에 현재 상태를 검증 가능한 pre_restore snapshot으로 저장한다."""
+    return _write_pre_restore_backup()
 
 
 def list_pre_restore_backups() -> list[dict[str, Any]]:

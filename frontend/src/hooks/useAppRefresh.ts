@@ -8,6 +8,7 @@ import {
   LedgerEntry,
   MonthlyPanel,
   MonthCloseStatus,
+  OperationStats,
   PreRestoreBackup,
   Settings,
   Summary,
@@ -54,6 +55,7 @@ export function useAppRefresh({
   const [familyDiscountMonth, setFamilyDiscountMonth] = useState<CardDiscountMonth | null>(null);
   const [monthCloseStatus, setMonthCloseStatus] = useState<MonthCloseStatus | null>(null);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+  const [operationStats, setOperationStats] = useState<OperationStats | null>(null);
   const [preRestoreBackups, setPreRestoreBackups] = useState<PreRestoreBackup[]>([]);
   const [summary, setSummary] = useState<Summary | null>(null);
   const [judgment, setJudgment] = useState<JudgmentState | null>(null);
@@ -160,6 +162,7 @@ export function useAppRefresh({
     monthCloseStatus,
     ownerCardLast4Input,
     ownerDiscountMonth,
+    operationStats,
     panels,
     paymentAllocations,
     paymentBudget,
@@ -173,6 +176,7 @@ export function useAppRefresh({
     setInterestExpenseInput,
     setIsBusy,
     setOwnerCardLast4Input,
+    setOperationStats,
     setPaymentAllocations,
     setPaymentBudget,
     setPreRestoreBackups,
