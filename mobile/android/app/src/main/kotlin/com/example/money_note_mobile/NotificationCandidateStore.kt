@@ -18,12 +18,13 @@ data class NotificationCandidate(
 object NotificationCandidateStore {
     private const val FILE_NAME = "pending_card_notifications.json"
 
-    fun append(context: Context, candidate: NotificationCandidate) {
+    fun append(context: Context, candidate: NotificationCandidate): Boolean {
         synchronized(this) {
             val array = readArray(context)
-            if (contains(array, candidate.id)) return
+            if (contains(array, candidate.id)) return false
             array.put(candidate.toJson())
             writeArray(context, array)
+            return true
         }
     }
 

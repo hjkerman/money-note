@@ -6,11 +6,13 @@ import 'package:share_plus/share_plus.dart';
 
 import 'api_client.dart';
 import 'models.dart';
+import 'notification_bridge.dart';
 
 class AppState extends ChangeNotifier {
   AppState(this.api);
 
   final MoneyNoteApiClient api;
+  final NotificationBridge notificationBridge = NotificationBridge();
 
   bool isBootstrapping = true;
   bool isBusy = false;
@@ -25,6 +27,8 @@ class AppState extends ChangeNotifier {
   List<MonthlyPanel> panels = [];
   List<CashFlow> cashFlows = [];
   List<LocalSnapshotInfo> localSnapshots = [];
+  NotificationPermissionStatus notificationPermissions =
+      const NotificationPermissionStatus.ready();
 
   bool get isLoggedIn => user != null;
 
@@ -78,6 +82,7 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> bootstrap() async {
+    await refreshNotificationPermissions(notify: false);
     await api.loadSession();
     try {
       user = await api.me();
@@ -114,6 +119,7 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> refresh({bool notify = true}) async {
+    await refreshNotificationPermissions(notify: false);
     final results = await Future.wait([
       api.summary(),
       api.judgment(),
@@ -131,6 +137,21 @@ class AppState extends ChangeNotifier {
     ownerDiscountMonth = await api.discountMonth(currentMonth, 'owner');
     familyDiscountMonth = await api.discountMonth(currentMonth, 'family');
     if (notify) notifyListeners();
+  }
+
+  Future<void> refreshNotificationPermissions({bool notify = true}) async {
+    notificationPermissions = await notificationBridge.permissionStatus();
+    if (notify) notifyListeners();
+  }
+
+  Future<void> openNotificationListenerSettings() async {
+    await notificationBridge.openSettings();
+    await refreshNotificationPermissions();
+  }
+
+  Future<void> requestAppNotifications() async {
+    await notificationBridge.requestAppNotifications();
+    await refreshNotificationPermissions();
   }
 
   Future<void> createExpense({
@@ -257,14 +278,9 @@ class AppState extends ChangeNotifier {
     try {
       final snapshot = await api.downloadSnapshot();
       final directory = await _snapshotDirectory();
-      final current =
-          File('${directory.path}/cur_backup.money-note-snapshot.json');
-      final previous =
-          File('${directory.path}/prev_backup.money-note-snapshot.json');
-      if (await current.exists()) {
-        await current.copy(previous.path);
-      }
-      await current.writeAsBytes(snapshot.bytes, flush: true);
+      final backup = File(
+          '${directory.path}/money-note-snapshot-${_timestampForFilename()}.money-note-snapshot.json');
+      await backup.writeAsBytes(snapshot.bytes, flush: true);
       localSnapshots = await listLocalSnapshots();
     } catch (_) {
       // 자동 백업 실패는 앱 실행을 막지 않는다. 상태 화면의 스냅샷 관리에서 다시 확인한다.
@@ -273,20 +289,20 @@ class AppState extends ChangeNotifier {
 
   Future<void> shareCurrentSnapshot() async {
     await _run(() async {
-      final directory = await _snapshotDirectory();
-      final current =
-          File('${directory.path}/cur_backup.money-note-snapshot.json');
-      if (!await current.exists()) {
+      var snapshots = await listLocalSnapshots();
+      if (snapshots.isEmpty) {
         await saveLaunchSnapshot();
+        snapshots = await listLocalSnapshots();
       }
-      if (!await current.exists()) {
+      if (snapshots.isEmpty) {
         throw MoneyNoteApiException('공유할 스냅샷이 없습니다.');
       }
+      snapshots.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+      final current = await _safeSnapshotFile(snapshots.first.filename);
       await Share.shareXFiles(
         [
           XFile(current.path,
-              mimeType: 'application/json',
-              name: 'cur_backup.money-note-snapshot.json')
+              mimeType: 'application/json', name: snapshots.first.filename)
         ],
         text: 'Money-Note 스냅샷 백업',
       );
@@ -295,21 +311,62 @@ class AppState extends ChangeNotifier {
     });
   }
 
+  Future<void> shareLocalSnapshot(String filename) async {
+    await _run(() async {
+      final snapshot = await _safeSnapshotFile(filename);
+      await Share.shareXFiles(
+        [
+          XFile(snapshot.path,
+              mimeType: 'application/json',
+              name: 'money-note-snapshot-${_timestampForFilename()}.json')
+        ],
+        text: 'Money-Note 스냅샷 백업',
+      );
+      statusMessage = '스냅샷 공유 준비 완료';
+    });
+  }
+
+  Future<void> deleteLocalSnapshot(String filename) async {
+    await _run(() async {
+      final snapshot = await _safeSnapshotFile(filename);
+      if (await snapshot.exists()) {
+        await snapshot.delete();
+      }
+      localSnapshots = await listLocalSnapshots();
+      statusMessage = '스냅샷 삭제 완료';
+    });
+  }
+
+  Future<void> deleteAllLocalSnapshots() async {
+    await _run(() async {
+      for (final snapshot in await listLocalSnapshots()) {
+        final file = await _safeSnapshotFile(snapshot.filename);
+        if (await file.exists()) {
+          await file.delete();
+        }
+      }
+      localSnapshots = [];
+      statusMessage = '스냅샷 전체 삭제 완료';
+    });
+  }
+
   Future<List<LocalSnapshotInfo>> listLocalSnapshots() async {
     final directory = await _snapshotDirectory();
-    final names = [
-      'cur_backup.money-note-snapshot.json',
-      'prev_backup.money-note-snapshot.json'
-    ];
     final items = <LocalSnapshotInfo>[];
-    for (final name in names) {
-      final file = File('${directory.path}/$name');
-      if (await file.exists()) {
-        final stat = await file.stat();
-        items.add(LocalSnapshotInfo(
-            filename: name, sizeBytes: stat.size, updatedAt: stat.modified));
-      }
+    final files = directory
+        .listSync()
+        .whereType<File>()
+        .where((file) => file.path.endsWith('.money-note-snapshot.json'))
+        .toList();
+    for (final file in files) {
+      final stat = await file.stat();
+      items.add(LocalSnapshotInfo(
+        filename: file.uri.pathSegments.last,
+        sizeBytes: stat.size,
+        updatedAt: stat.modified,
+      ));
     }
+    items.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
     return items;
   }
 
@@ -358,6 +415,22 @@ class AppState extends ChangeNotifier {
       await directory.create(recursive: true);
     }
     return directory;
+  }
+
+  Future<File> _safeSnapshotFile(String filename) async {
+    final allowed = (await listLocalSnapshots())
+        .map((snapshot) => snapshot.filename)
+        .toSet();
+    if (!allowed.contains(filename)) {
+      throw MoneyNoteApiException('알 수 없는 스냅샷 파일입니다.');
+    }
+    final directory = await _snapshotDirectory();
+    return File('${directory.path}/$filename');
+  }
+
+  String _timestampForFilename() {
+    final now = DateTime.now();
+    return '${now.year.toString().padLeft(4, '0')}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}-${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}${now.second.toString().padLeft(2, '0')}';
   }
 }
 

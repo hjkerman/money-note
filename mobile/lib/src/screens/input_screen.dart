@@ -54,6 +54,8 @@ class _InputScreenState extends State<InputScreen> {
                     label: '익월 유동성', amount: won(summary?.nextMonthLiquidity))),
           ],
         ),
+        if (!widget.state.notificationPermissions.isReady)
+          _PermissionWarningCard(state: widget.state),
         const SectionTitle('카드 지출 입력'),
         MoneyCard(
           child: Column(
@@ -137,6 +139,59 @@ class _InputScreenState extends State<InputScreen> {
     item.clear();
     amount.clear();
     placeFocus.requestFocus();
+  }
+}
+
+class _PermissionWarningCard extends StatelessWidget {
+  const _PermissionWarningCard({required this.state});
+
+  final AppState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final permissions = state.notificationPermissions;
+    final missing = [
+      if (!permissions.listenerEnabled) '알림 접근 권한',
+      if (!permissions.appNotificationsEnabled) '앱 알림 표시 권한',
+    ].join(', ');
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 14),
+      child: MoneyCard(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('카드 알림 낚시 준비가 덜 됐습니다.',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+            const SizedBox(height: 6),
+            Text('$missing을 Grant 해라....',
+                style: const TextStyle(color: moneyMuted)),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                if (!permissions.listenerEnabled)
+                  OutlinedButton(
+                    onPressed: state.openNotificationListenerSettings,
+                    child: const Text('알림 접근 열기'),
+                  ),
+                if (!permissions.appNotificationsEnabled)
+                  OutlinedButton(
+                    onPressed: state.requestAppNotifications,
+                    child: const Text('앱 알림 허용'),
+                  ),
+                TextButton(
+                  onPressed: state.refreshNotificationPermissions,
+                  child: const Text('다시 확인'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

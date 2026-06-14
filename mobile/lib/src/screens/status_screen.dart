@@ -4,6 +4,7 @@ import '../app_state.dart';
 import '../formatters.dart';
 import '../theme.dart';
 import '../widgets/money_card.dart';
+import 'snapshot_manager_screen.dart';
 
 class StatusScreen extends StatelessWidget {
   const StatusScreen({required this.state, super.key});
@@ -13,6 +14,7 @@ class StatusScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final summary = state.summary;
+    final canCloseMonth = _isMonthEnd(DateTime.now());
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 54, 20, 96),
       children: [
@@ -73,16 +75,27 @@ class StatusScreen extends StatelessWidget {
               ),
               const SizedBox(height: 14),
               OutlinedButton(
-                onPressed:
-                    state.isBusy ? null : () => _showSnapshotManager(context),
+                onPressed: state.isBusy
+                    ? null
+                    : () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (_) =>
+                                  SnapshotManagerScreen(state: state)),
+                        ),
                 child: const Text('스냅샷 관리'),
               ),
               const SizedBox(height: 10),
               OutlinedButton(
-                onPressed:
-                    state.isBusy ? null : () => _confirmMonthClose(context),
+                onPressed: state.isBusy || !canCloseMonth
+                    ? null
+                    : () => _confirmMonthClose(context),
                 child: const Text('월마감'),
               ),
+              if (!canCloseMonth) ...[
+                const SizedBox(height: 8),
+                const Text('월마감은 월말에만 사용할 수 있습니다.',
+                    style: TextStyle(color: moneyMuted, fontSize: 13)),
+              ],
             ],
           ),
         ),
@@ -100,7 +113,7 @@ class StatusScreen extends StatelessWidget {
   }
 
   Future<void> _confirmMonthClose(BuildContext context) async {
-    final confirmed = await showDialog<bool>(
+    final firstConfirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('월마감'),
@@ -112,66 +125,37 @@ class StatusScreen extends StatelessWidget {
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('마감'),
+            child: const Text('계속'),
           ),
         ],
       ),
     );
-    if (confirmed == true) {
+    if (firstConfirmed != true || !context.mounted) return;
+
+    final finalConfirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('정말 월마감'),
+        content: const Text('마감 후에는 이번 달 기록이 전체 기록으로 이동합니다. 정말 진행할까요?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('취소'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('마감 실행'),
+          ),
+        ],
+      ),
+    );
+    if (finalConfirmed == true) {
       await state.closeCurrentMonth();
     }
   }
 
-  Future<void> _showSnapshotManager(BuildContext context) async {
-    final snapshots = await state.listLocalSnapshots();
-    if (!context.mounted) return;
-    await showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('스냅샷 관리'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('앱 실행 때마다 서버 스냅샷을 받아 최신/직전 두 벌을 앱 내부에 보관합니다.'),
-              const SizedBox(height: 14),
-              if (snapshots.isEmpty)
-                const Text('저장된 스냅샷이 없습니다.')
-              else
-                ...snapshots.map(
-                  (snapshot) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Text(
-                        '${snapshot.filename}\n${_formatBytes(snapshot.sizeBytes)} · ${snapshot.updatedAt}'),
-                  ),
-                ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('닫기'),
-          ),
-          FilledButton(
-            onPressed: () async {
-              Navigator.of(context).pop();
-              await state.shareCurrentSnapshot();
-            },
-            child: const Text('최신 백업 공유'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _formatBytes(int bytes) {
-    if (bytes >= 1024 * 1024) {
-      return '${(bytes / 1024 / 1024).toStringAsFixed(1)}MB';
-    }
-    if (bytes >= 1024) return '${(bytes / 1024).toStringAsFixed(1)}KB';
-    return '$bytes바이트';
+  bool _isMonthEnd(DateTime value) {
+    final tomorrow = value.add(const Duration(days: 1));
+    return tomorrow.month != value.month;
   }
 }

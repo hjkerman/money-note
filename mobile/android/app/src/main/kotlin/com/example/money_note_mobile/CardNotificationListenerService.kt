@@ -1,6 +1,14 @@
 package com.example.money_note_mobile
 
+import android.Manifest
 import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import java.security.MessageDigest
@@ -9,7 +17,10 @@ class CardNotificationListenerService : NotificationListenerService() {
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         if (!AllowedCardApps.contains(sbn.packageName)) return
         val candidate = parseCandidate(sbn) ?: return
-        NotificationCandidateStore.append(applicationContext, candidate)
+        val inserted = NotificationCandidateStore.append(applicationContext, candidate)
+        if (inserted) {
+            CandidateCaptureNotifier.show(applicationContext, candidate)
+        }
     }
 
     private fun parseCandidate(sbn: StatusBarNotification): NotificationCandidate? {
@@ -50,6 +61,54 @@ class CardNotificationListenerService : NotificationListenerService() {
     companion object {
         private val CARD_APPROVAL_REGEX =
             Regex("""\[일시불\.승인\((\d{4})\)\](\d{2})/(\d{2})\s+(\d{2}:\d{2})\s+([\d,]+)원""")
+    }
+}
+
+object CandidateCaptureNotifier {
+    private const val CHANNEL_ID = "card_candidate_capture"
+    private const val NOTIFICATION_ID = 4101
+
+    fun show(context: Context, candidate: NotificationCandidate) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+
+        val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                "카드 알림 후보",
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                description = "카드 알림에서 등록 대기 후보를 만들었을 때 알려줍니다."
+            }
+            manager.createNotificationChannel(channel)
+        }
+
+        val launchIntent = Intent(context, MainActivity::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            launchIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Notification.Builder(context, CHANNEL_ID)
+        } else {
+            Notification.Builder(context)
+        }
+        val notification = builder
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setContentTitle("카드 알림 후보 1건 포착")
+            .setContentText("${candidate.usagePlace} ${candidate.amount}원")
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+            .build()
+
+        manager.notify(NOTIFICATION_ID, notification)
     }
 }
 
