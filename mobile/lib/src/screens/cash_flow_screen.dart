@@ -30,8 +30,7 @@ class _CashFlowScreenState extends State<CashFlowScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final flows = [...widget.state.cashFlows]
-      ..sort((a, b) {
+    final flows = [...widget.state.cashFlows]..sort((a, b) {
         final dateCompare = b.occurredOn.compareTo(a.occurredOn);
         if (dateCompare != 0) return dateCompare;
         return b.id.compareTo(a.id);
@@ -39,13 +38,20 @@ class _CashFlowScreenState extends State<CashFlowScreen> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 54, 20, 96),
       children: [
-        const Text('현금흐름', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
+        const Text('현금흐름',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
         const SizedBox(height: 14),
         Row(
           children: [
-            Expanded(child: AmountTile(label: '현재 유동성', amount: won(widget.state.summary?.liquidityStatus))),
+            Expanded(
+                child: AmountTile(
+                    label: '현재 유동성',
+                    amount: won(widget.state.summary?.liquidityStatus))),
             const SizedBox(width: 12),
-            Expanded(child: AmountTile(label: '익월 유동성', amount: won(widget.state.summary?.nextMonthLiquidity))),
+            Expanded(
+                child: AmountTile(
+                    label: '익월 유동성',
+                    amount: won(widget.state.summary?.nextMonthLiquidity))),
           ],
         ),
         const SectionTitle('현금 입출금 입력'),
@@ -65,7 +71,9 @@ class _CashFlowScreenState extends State<CashFlowScreen> {
                 }),
               ),
               const SizedBox(height: 12),
-              TextField(controller: title, decoration: const InputDecoration(labelText: '내용')),
+              TextField(
+                  controller: title,
+                  decoration: const InputDecoration(labelText: '내용')),
               const SizedBox(height: 12),
               TextField(
                 controller: amount,
@@ -80,15 +88,20 @@ class _CashFlowScreenState extends State<CashFlowScreen> {
                   title: const Text('이달 기준 수입'),
                   subtitle: const Text('예산심사위원회의 이번 달 기준 수입으로 봅니다.'),
                   value: isPrimaryIncome,
-                  onChanged: (value) => setState(() => isPrimaryIncome = value ?? false),
+                  onChanged: (value) =>
+                      setState(() => isPrimaryIncome = value ?? false),
                 ),
               ],
               const SizedBox(height: 12),
-              ElevatedButton(onPressed: widget.state.isBusy ? null : _submit, child: const Text('현금흐름 추가')),
+              ElevatedButton(
+                  onPressed: widget.state.isBusy ? null : _submit,
+                  child: const Text('현금흐름 추가')),
             ],
           ),
         ),
-        SectionTitle('최근 현금흐름', trailing: Text('${flows.length}건', style: const TextStyle(color: moneyMuted))),
+        SectionTitle('최근 현금흐름',
+            trailing: Text('${flows.length}건',
+                style: const TextStyle(color: moneyMuted))),
         if (flows.isEmpty) const MoneyCard(child: Text('현금흐름 기록이 없습니다.')),
         ...flows.map((flow) => _CashFlowCard(flow: flow, state: widget.state)),
       ],
@@ -128,23 +141,32 @@ class _CashFlowCard extends StatelessWidget {
           children: [
             SizedBox(
               width: 54,
-              child: Text(shortDate(flow.occurredOn), style: const TextStyle(color: moneyGreen, fontWeight: FontWeight.w800)),
+              child: Text(shortDate(flow.occurredOn),
+                  style: const TextStyle(
+                      color: moneyGreen, fontWeight: FontWeight.w800)),
             ),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(flow.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
-                  if (flow.isPrimaryIncome) const Text('이달 기준 수입', style: TextStyle(color: moneyMuted)),
+                  Text(flow.title,
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w900)),
+                  if (flow.isPrimaryIncome)
+                    const Text('이달 기준 수입', style: TextStyle(color: moneyMuted)),
                 ],
               ),
             ),
             Text(
               '${isIncome ? '+' : '-'}${won(flow.amountValue.abs())}',
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: isIncome ? moneyGreen : moneyRed),
+              style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w900,
+                  color: isIncome ? moneyGreen : moneyRed),
             ),
             IconButton(
-              onPressed: state.isBusy ? null : () => state.deleteCashFlow(flow.id),
+              onPressed:
+                  state.isBusy ? null : () => state.deleteCashFlow(flow.id),
               icon: const Icon(Icons.delete_outline),
               tooltip: '삭제',
             ),

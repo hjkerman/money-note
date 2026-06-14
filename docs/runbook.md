@@ -493,7 +493,9 @@ docker compose up --build -d
 
 ## 모바일 앱 개발과 APK 빌드
 
-모바일 앱은 `mobile/` 디렉터리의 Flutter 프로젝트다. 웹 앱을 그대로 줄인 것이 아니라, 빠른 입력, 현금흐름 관리, 청구/가족카드 정산, 상태 확인에 집중한다. 카드대금 실제 결제는 카드사 앱에서 처리하고, Money-Note 모바일 앱에서는 현금 유동성 보정에 집중한다.
+모바일 앱은 `mobile/` 디렉터리의 Flutter 프로젝트다. 웹 앱을 그대로 줄인 것이 아니라, 빠른 입력, 현금흐름 관리, 당월 내역 확인, 청구/가족카드 정산, 상태 확인에 집중한다. 카드대금 실제 결제는 카드사 앱에서 처리하고, Money-Note 모바일 앱에서는 현금 유동성 보정에 집중한다.
+
+주 검증 기기는 Galaxy S23 FE / One UI 8.5다. 에뮬레이터에서는 최신 Android API로 빌드와 권한 흐름을 먼저 확인하고, 실기기에서는 알림 접근 권한, 우리카드 알림 수신, 큰 글꼴 표시를 반드시 확인한다.
 
 ### 1. 개발 도구 확인
 
@@ -644,6 +646,42 @@ flutter run -d emulator-5554 --dart-define=MONEY_NOTE_API_BASE_URL=http://10.0.2
 ```bash
 flutter build apk --release --dart-define=MONEY_NOTE_API_BASE_URL=https://money.hjkerman.re.kr
 ```
+
+### 8. 카드 알림 후보 등록 확인
+
+모바일 앱의 `알림에서 가져오기`는 카드사 알림을 곧바로 서버에 올리지 않는다. Android의 NotificationListenerService가 알림을 받으면 파싱된 후보만 앱 로컬 저장소에 보관하고, 사용자가 후보를 확인한 뒤 `등록`을 눌렀을 때만 서버 API를 호출한다.
+
+처리 원칙:
+
+- 우리카드 앱 allowlist에 포함된 패키지 알림만 처리한다.
+- 다른 앱 알림은 읽히더라도 저장하지 않고 즉시 무시한다.
+- 알림 원문은 장기 저장하지 않는다.
+- 저장하는 값은 카드 뒷자리, 사용일, 시간, 금액, 사용처 같은 파싱 결과뿐이다.
+- 본인카드 뒷자리는 당월 지출 등록으로, 가족카드 뒷자리는 가족카드 등록으로 연결한다.
+- 식별되지 않은 카드는 후보 화면에서 사용자가 직접 대상을 고른다.
+- 등록 전 사용자는 사용처, 사용항목, 금액, 할인 적용 여부를 수정할 수 있다.
+
+Android에서 권한을 켠다.
+
+1. 앱의 `입력` 탭으로 이동한다.
+2. `알림에서 가져오기`를 누른다.
+3. `알림 접근 권한 열기`를 누른다.
+4. Android 설정에서 Money-Note의 알림 접근 권한을 허용한다.
+
+현재 알림 파서는 아래 형식을 기준으로 한다.
+
+```text
+[일시불.승인(9452)]06/14 17:08 5,000원 / 누적:542,899원
+사랑방
+```
+
+포맷이나 카드사 앱 패키지가 바뀌면 아래 파일을 먼저 확인한다.
+
+```text
+mobile/android/app/src/main/kotlin/com/example/money_note_mobile/CardNotificationListenerService.kt
+```
+
+이 파일의 `CARD_APPROVAL_REGEX`가 알림 포맷 파서이고, `AllowedCardApps`가 처리 대상 패키지 allowlist다. 별도 polling이나 백그라운드 상시 루프는 두지 않는다.
 
 ## 로그인 계정 생성
 

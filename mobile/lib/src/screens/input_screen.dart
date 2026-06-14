@@ -21,6 +21,7 @@ class _InputScreenState extends State<InputScreen> {
   final item = TextEditingController();
   final amount = TextEditingController();
   final placeFocus = FocusNode();
+  bool? discountEnabled;
 
   @override
   void dispose() {
@@ -34,6 +35,8 @@ class _InputScreenState extends State<InputScreen> {
   @override
   Widget build(BuildContext context) {
     final summary = widget.state.summary;
+    final discountValue =
+        discountEnabled ?? (widget.state.ownerDiscountMonth?.isEnabled ?? true);
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 54, 20, 96),
       children: [
@@ -51,7 +54,7 @@ class _InputScreenState extends State<InputScreen> {
                     label: '익월 유동성', amount: won(summary?.nextMonthLiquidity))),
           ],
         ),
-        const SectionTitle('오늘 지출 입력'),
+        const SectionTitle('카드 지출 입력'),
         MoneyCard(
           child: Column(
             children: [
@@ -84,6 +87,15 @@ class _InputScreenState extends State<InputScreen> {
                 textInputAction: TextInputAction.next,
                 decoration: const InputDecoration(labelText: '사용항목'),
               ),
+              const SizedBox(height: 8),
+              CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('할인 적용'),
+                subtitle: const Text('체크를 끄면 이 항목은 할인 제외로 등록합니다.'),
+                value: discountValue,
+                onChanged: (value) =>
+                    setState(() => discountEnabled = value ?? false),
+              ),
               const SizedBox(height: 16),
               ElevatedButton(
                   onPressed: widget.state.isBusy ? null : _submit,
@@ -92,7 +104,8 @@ class _InputScreenState extends State<InputScreen> {
               OutlinedButton(
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute(
-                      builder: (_) => const NotificationImportScreen()),
+                      builder: (_) =>
+                          NotificationImportScreen(state: widget.state)),
                 ),
                 child: const Text('알림에서 가져오기'),
               ),
@@ -117,6 +130,8 @@ class _InputScreenState extends State<InputScreen> {
       usagePlace: place.text,
       usageItem: item.text,
       amount: parsedAmount,
+      discountEnabled: discountEnabled ??
+          (widget.state.ownerDiscountMonth?.isEnabled ?? true),
     );
     place.clear();
     item.clear();

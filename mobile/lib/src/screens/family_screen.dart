@@ -19,6 +19,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
   String panelType = 'claim';
   final title = TextEditingController();
   final amount = TextEditingController();
+  bool? discountEnabled;
 
   @override
   void dispose() {
@@ -31,6 +32,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
   Widget build(BuildContext context) {
     final rows = widget.state.panelsByType(panelType);
     final isClaim = panelType == 'claim';
+    final discountValue = discountEnabled ?? _defaultDiscountEnabled();
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 54, 20, 96),
       children: [
@@ -43,8 +45,10 @@ class _FamilyScreenState extends State<FamilyScreen> {
             ButtonSegment(value: 'family_card', label: Text('가족카드')),
           ],
           selected: {panelType},
-          onSelectionChanged: (value) =>
-              setState(() => panelType = value.first),
+          onSelectionChanged: (value) => setState(() {
+            panelType = value.first;
+            discountEnabled = null;
+          }),
         ),
         const SizedBox(height: 14),
         Row(
@@ -75,6 +79,15 @@ class _FamilyScreenState extends State<FamilyScreen> {
                 decoration: const InputDecoration(labelText: '금액'),
                 onSubmitted: (_) => _submit(),
               ),
+              const SizedBox(height: 8),
+              CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('할인 적용'),
+                subtitle: const Text('체크를 끄면 이 항목은 할인 제외로 등록합니다.'),
+                value: discountValue,
+                onChanged: (value) =>
+                    setState(() => discountEnabled = value ?? false),
+              ),
               const SizedBox(height: 14),
               ElevatedButton(
                   onPressed: widget.state.isBusy ? null : _submit,
@@ -85,8 +98,13 @@ class _FamilyScreenState extends State<FamilyScreen> {
         const SectionTitle('목록'),
         Row(
           children: [
-            const Expanded(
-              child: OutlinedButton(onPressed: null, child: Text('공유하기')),
+            Expanded(
+              child: OutlinedButton(
+                onPressed: widget.state.isBusy
+                    ? null
+                    : () => widget.state.sharePanel(panelType),
+                child: const Text('공유하기'),
+              ),
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -116,9 +134,21 @@ class _FamilyScreenState extends State<FamilyScreen> {
       return;
     }
     await widget.state.createPanel(
-        panelType: panelType, title: title.text, amount: parsedAmount);
+      panelType: panelType,
+      title: title.text,
+      amount: parsedAmount,
+      discountEnabled: discountEnabled ?? _defaultDiscountEnabled(),
+    );
     title.clear();
     amount.clear();
+    discountEnabled = null;
+  }
+
+  bool _defaultDiscountEnabled() {
+    if (panelType == 'family_card') {
+      return widget.state.familyDiscountMonth?.isEnabled ?? false;
+    }
+    return widget.state.ownerDiscountMonth?.isEnabled ?? true;
   }
 }
 

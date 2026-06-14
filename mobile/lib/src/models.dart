@@ -165,6 +165,74 @@ class CashFlow {
   }
 }
 
+class CardDiscountMonth {
+  CardDiscountMonth({
+    required this.month,
+    required this.scope,
+    required this.policy,
+  });
+
+  final String month;
+  final String scope;
+  final String policy;
+
+  bool get isEnabled => policy == 'enabled';
+
+  factory CardDiscountMonth.fromJson(Map<String, dynamic> json) {
+    return CardDiscountMonth(
+      month: json['month'] as String? ?? '',
+      scope: json['scope'] as String? ?? '',
+      policy: json['policy'] as String? ?? 'disabled',
+    );
+  }
+}
+
+class AppSettings {
+  AppSettings({
+    required this.values,
+  });
+
+  final Map<String, String> values;
+
+  String get ownerCardLast4 => values['owner_card_last4'] ?? '';
+  String get familyCardLast4 => values['family_card_last4'] ?? '';
+
+  factory AppSettings.fromJson(Map<String, dynamic> json) {
+    return AppSettings(
+        values:
+            json.map((key, value) => MapEntry(key, value?.toString() ?? '')));
+  }
+}
+
+class PendingCardNotification {
+  PendingCardNotification({
+    required this.id,
+    required this.cardLast4,
+    required this.monthDay,
+    required this.time,
+    required this.amount,
+    required this.usagePlace,
+  });
+
+  final String id;
+  final String cardLast4;
+  final String monthDay;
+  final String time;
+  final int amount;
+  final String usagePlace;
+
+  factory PendingCardNotification.fromJson(Map<String, dynamic> json) {
+    return PendingCardNotification(
+      id: json['id'] as String? ?? '',
+      cardLast4: json['card_last4'] as String? ?? '',
+      monthDay: json['month_day'] as String? ?? '',
+      time: json['time'] as String? ?? '',
+      amount: _int(json['amount']),
+      usagePlace: json['usage_place'] as String? ?? '',
+    );
+  }
+}
+
 class JudgmentTone {
   JudgmentTone({required this.message});
 

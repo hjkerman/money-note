@@ -320,7 +320,11 @@ export function EntryTable({
             <tr key={entry.id}>
               <td className="date entry-date-cell">{entry.date_label ?? entry.group_label ?? ""}</td>
               <td className="entry-place-cell">{entry.usage_place ?? ""}</td>
-              <td className="entry-detail-cell">{entry.usage_item ?? ""}</td>
+              <td className="entry-detail-cell">
+                <span className="entry-detail-text">{entry.usage_item ?? ""}</span>
+                {entryHasTransportLabel(entry) ? <span className="transport-badge">교통</span> : null}
+                {entryHasTollLabel(entry) ? <span className="toll-badge">통행료</span> : null}
+              </td>
               {onCategoryChange ? (
                 <td className="category-cell">
                   <select
@@ -364,6 +368,15 @@ export function EntryTable({
       </tbody>
     </table>
   );
+}
+
+function entryHasTransportLabel(entry: LedgerEntry): boolean {
+  return displayEntryTitle(entry).includes("교통");
+}
+
+function entryHasTollLabel(entry: LedgerEntry): boolean {
+  const title = displayEntryTitle(entry);
+  return title.includes("통행") || title.includes("하이패스");
 }
 
 function DiscountEditor({

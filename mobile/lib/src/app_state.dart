@@ -18,6 +18,9 @@ class AppState extends ChangeNotifier {
   AuthUser? user;
   Summary? summary;
   JudgmentState? judgment;
+  AppSettings settings = AppSettings(values: const {});
+  CardDiscountMonth? ownerDiscountMonth;
+  CardDiscountMonth? familyDiscountMonth;
   List<LedgerEntry> entries = [];
   List<MonthlyPanel> panels = [];
   List<CashFlow> cashFlows = [];
@@ -117,12 +120,16 @@ class AppState extends ChangeNotifier {
       api.currentEntries(),
       api.currentPanels(),
       api.cashFlows(),
+      api.settings(),
     ]);
     summary = results[0] as Summary;
     judgment = results[1] as JudgmentState;
     entries = results[2] as List<LedgerEntry>;
     panels = results[3] as List<MonthlyPanel>;
     cashFlows = results[4] as List<CashFlow>;
+    settings = results[5] as AppSettings;
+    ownerDiscountMonth = await api.discountMonth(currentMonth, 'owner');
+    familyDiscountMonth = await api.discountMonth(currentMonth, 'family');
     if (notify) notifyListeners();
   }
 
@@ -130,14 +137,19 @@ class AppState extends ChangeNotifier {
     required String usagePlace,
     required String usageItem,
     required int amount,
+    required bool discountEnabled,
+    String? entryDate,
   }) async {
     await _run(() async {
-      await api.createExpense(
-        date: _today(),
+      final entry = await api.createExpense(
+        date: entryDate ?? _today(),
         usagePlace: usagePlace,
         usageItem: usageItem,
         amount: amount,
       );
+      if (!discountEnabled && entry.paymentKey != null) {
+        await api.excludeEntryDiscount(entry.paymentKey!);
+      }
       await refresh(notify: false);
       statusMessage = '지출 추가 완료';
     });
@@ -147,18 +159,52 @@ class AppState extends ChangeNotifier {
     required String panelType,
     required String title,
     required int amount,
+    bool discountEnabled = true,
+    String? spentOn,
   }) async {
     await _run(() async {
-      await api.createPanel(
+      final panel = await api.createPanel(
         month: currentMonth,
         panelType: panelType,
         title: title,
         amount: amount,
-        spentOn: _today(),
+        spentOn: spentOn ?? _today(),
       );
+      if (!discountEnabled &&
+          (panelType == 'claim' || panelType == 'family_card')) {
+        await api.excludePanelDiscount(panel.id);
+      }
       await refresh(notify: false);
       statusMessage = panelType == 'claim' ? '청구 추가 완료' : '가족카드 추가 완료';
     });
+  }
+
+  Future<void> registerNotificationCandidate({
+    required PendingCardNotification candidate,
+    required String usageItem,
+    required String target,
+    required bool discountEnabled,
+  }) async {
+    final date = _dateFromMonthDay(candidate.monthDay);
+    if (target == 'family_card') {
+      await createPanel(
+        panelType: 'family_card',
+        title: usageItem.trim().isEmpty
+            ? candidate.usagePlace
+            : '${candidate.usagePlace} ${usageItem.trim()}',
+        amount: candidate.amount,
+        discountEnabled: discountEnabled,
+        spentOn: date,
+      );
+    } else {
+      await createExpense(
+        usagePlace: candidate.usagePlace,
+        usageItem: usageItem,
+        amount: candidate.amount,
+        discountEnabled: discountEnabled,
+        entryDate: date,
+      );
+    }
   }
 
   Future<void> deletePanel(int panelId) async {
@@ -175,6 +221,10 @@ class AppState extends ChangeNotifier {
       await refresh(notify: false);
       statusMessage = panelType == 'claim' ? '청구 처리 완료' : '가족카드 처리 완료';
     });
+  }
+
+  Future<void> sharePanel(String panelType) async {
+    await Share.share(api.sharePageUri(panelType).toString());
   }
 
   Future<void> createCashFlow({
@@ -290,6 +340,15 @@ class AppState extends ChangeNotifier {
   String _today() {
     final now = DateTime.now();
     return '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+  }
+
+  String _dateFromMonthDay(String monthDay) {
+    final now = DateTime.now();
+    final parts = monthDay.split('/');
+    if (parts.length != 2) return _today();
+    final month = int.tryParse(parts[0]) ?? now.month;
+    final day = int.tryParse(parts[1]) ?? now.day;
+    return '${now.year.toString().padLeft(4, '0')}-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}';
   }
 
   Future<Directory> _snapshotDirectory() async {

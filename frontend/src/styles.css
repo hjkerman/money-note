@@ -1293,6 +1293,10 @@ button.discount-badge:hover:not(:disabled) {
   font-weight: 700;
 }
 
+.entry-detail-text {
+  padding-right: 2px;
+}
+
 .compact table td:first-child {
   width: auto;
 }
