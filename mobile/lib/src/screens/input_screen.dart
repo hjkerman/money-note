@@ -5,6 +5,7 @@ import '../formatters.dart';
 import '../models.dart';
 import '../theme.dart';
 import '../widgets/money_card.dart';
+import 'notification_import_screen.dart';
 
 class InputScreen extends StatefulWidget {
   const InputScreen({required this.state, super.key});
@@ -88,7 +89,13 @@ class _InputScreenState extends State<InputScreen> {
                   onPressed: widget.state.isBusy ? null : _submit,
                   child: const Text('지출 추가')),
               const SizedBox(height: 10),
-              const OutlinedButton(onPressed: null, child: Text('알림에서 가져오기')),
+              OutlinedButton(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                      builder: (_) => const NotificationImportScreen()),
+                ),
+                child: const Text('알림에서 가져오기'),
+              ),
             ],
           ),
         ),

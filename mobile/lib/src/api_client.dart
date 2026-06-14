@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -70,8 +71,8 @@ class MoneyNoteApiClient {
     return _getList('/api/month/current/panels', MonthlyPanel.fromJson);
   }
 
-  Future<CardPaymentStatus> currentCardPayments() {
-    return _get('/api/card-payments/current', CardPaymentStatus.fromJson);
+  Future<List<CashFlow>> cashFlows() {
+    return _getList('/api/cash-flows', CashFlow.fromJson);
   }
 
   Future<LedgerEntry> createExpense({
@@ -140,20 +141,47 @@ class MoneyNoteApiClient {
     await _delete('/api/month/current/panels/$panelId');
   }
 
-  Future<void> createImmediatePayment({
-    required String eventDate,
-    required String note,
-    required List<Map<String, Object>> allocations,
-  }) async {
-    await _post(
-        '/api/card-payments/events',
-        {
-          'event_date': eventDate,
-          'event_type': 'immediate',
-          'note': note,
-          'allocations': allocations,
-        },
-        (json) => json);
+  Future<CashFlow> createCashFlow({
+    required String occurredOn,
+    required String title,
+    required int amount,
+    required bool isPrimaryIncome,
+  }) {
+    return _post(
+      '/api/cash-flows',
+      {
+        'occurred_on': occurredOn,
+        'title': title.trim(),
+        'amount_value': amount,
+        'sort_order': 0,
+        'is_primary_income': isPrimaryIncome ? 1 : 0,
+      },
+      CashFlow.fromJson,
+    );
+  }
+
+  Future<void> deleteCashFlow(int flowId) async {
+    await _delete('/api/cash-flows/$flowId');
+  }
+
+  Future<SnapshotDownload> downloadSnapshot() async {
+    final response =
+        await _client.get(_uri('/api/admin/snapshot'), headers: _headers());
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw MoneyNoteApiException(_readError(response));
+    }
+    return SnapshotDownload(
+      filename:
+          _readDownloadFilename(response.headers['content-disposition']) ??
+              'money-note-snapshot.money-note-snapshot.json',
+      bytes: response.bodyBytes,
+    );
+  }
+
+  Future<Map<String, dynamic>> closeCurrentMonth(
+      {bool allowEarlyClose = false}) {
+    return _post('/api/month/current/close',
+        {'allow_early_close': allowEarlyClose}, (json) => json);
   }
 
   Future<T> _get<T>(
@@ -227,6 +255,15 @@ class MoneyNoteApiClient {
     }
     return '서버 요청에 실패했습니다. (${response.statusCode})';
   }
+
+  String? _readDownloadFilename(String? header) {
+    if (header == null || header.isEmpty) return null;
+    final utf8Match = RegExp(r"filename\\*=UTF-8''([^;]+)").firstMatch(header);
+    if (utf8Match != null) return Uri.decodeComponent(utf8Match.group(1)!);
+    final quotedMatch = RegExp(r'filename="([^"]+)"').firstMatch(header);
+    if (quotedMatch != null) return quotedMatch.group(1);
+    return null;
+  }
 }
 
 class MoneyNoteApiException implements Exception {
@@ -236,4 +273,11 @@ class MoneyNoteApiException implements Exception {
 
   @override
   String toString() => message;
+}
+
+class SnapshotDownload {
+  SnapshotDownload({required this.filename, required this.bytes});
+
+  final String filename;
+  final Uint8List bytes;
 }

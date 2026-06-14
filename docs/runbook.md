@@ -493,7 +493,7 @@ docker compose up --build -d
 
 ## 모바일 앱 개발과 APK 빌드
 
-모바일 앱은 `mobile/` 디렉터리의 Flutter 프로젝트다. 웹 앱을 그대로 줄인 것이 아니라, 빠른 입력, 카드대금 처리, 청구/가족카드 정산, 상태 확인에 집중한다.
+모바일 앱은 `mobile/` 디렉터리의 Flutter 프로젝트다. 웹 앱을 그대로 줄인 것이 아니라, 빠른 입력, 현금흐름 관리, 청구/가족카드 정산, 상태 확인에 집중한다. 카드대금 실제 결제는 카드사 앱에서 처리하고, Money-Note 모바일 앱에서는 현금 유동성 보정에 집중한다.
 
 ### 1. 개발 도구 확인
 
@@ -557,6 +557,8 @@ flutter run --dart-define=MONEY_NOTE_API_BASE_URL=https://money.hjkerman.re.kr
 
 모바일 앱은 로그인 응답의 `session_token`을 저장하고, 이후 API 요청에 `Authorization: Bearer ...` 헤더를 보낸다.
 
+앱 실행 후 로그인 세션이 살아 있으면 서버에서 snapshot을 자동으로 받아 앱 내부에 저장한다. 모바일 앱은 최신 백업 `cur_backup.money-note-snapshot.json`과 직전 백업 `prev_backup.money-note-snapshot.json` 두 벌을 유지한다. 이 자동 백업은 사용자가 매번 파일을 직접 내려받지 않아도 되는 안전장치다. 상태 탭의 `스냅샷 관리`에서 저장 상태를 확인하고 최신 백업을 공유할 수 있다.
+
 ### 4. 검사와 테스트
 
 ```bash
@@ -604,6 +606,44 @@ docker compose up --build -d
 ```
 
 웹 설정 모달의 `Android 앱 설치 파일` 영역에서 APK를 내려받을 수 있다.
+
+### 7. 변경 후 에뮬레이터에 다시 띄우기
+
+모바일 앱 코드를 수정한 뒤 에뮬레이터에서 바로 확인할 때는 아래 순서를 쓴다.
+
+먼저 에뮬레이터가 떠 있는지 확인한다.
+
+```bash
+cd mobile
+flutter devices
+```
+
+정적 검사와 테스트를 실행한다.
+
+```bash
+flutter analyze
+flutter test
+```
+
+운영 서버에 붙여 에뮬레이터에서 실행한다.
+
+```bash
+flutter run -d emulator-5554 --dart-define=MONEY_NOTE_API_BASE_URL=https://money.hjkerman.re.kr
+```
+
+로컬 Docker 서버에 붙일 때는 Android 에뮬레이터에서 호스트 머신을 `10.0.2.2`로 본다.
+
+```bash
+flutter run -d emulator-5554 --dart-define=MONEY_NOTE_API_BASE_URL=http://10.0.2.2:18080
+```
+
+이미 `flutter run`이 붙어 있는 상태에서 소스만 바꿨다면 터미널에서 `r`을 눌러 빠르게 반영한다. 앱을 완전히 다시 시작해야 하면 `R`을 누른다. 실행 연결은 끊고 앱은 에뮬레이터에 남기려면 `d`를 누른다.
+
+릴리즈 APK까지 확인하려면 아래를 실행한다.
+
+```bash
+flutter build apk --release --dart-define=MONEY_NOTE_API_BASE_URL=https://money.hjkerman.re.kr
+```
 
 ## 로그인 계정 생성
 

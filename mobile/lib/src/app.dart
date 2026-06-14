@@ -29,7 +29,7 @@ class _MoneyNoteAppState extends State<MoneyNoteApp> {
       animation: state,
       builder: (context, _) {
         return MaterialApp(
-          title: '머니 노트',
+          title: 'Money-Note',
           debugShowCheckedModeBanner: false,
           theme: buildMoneyNoteTheme(),
           home: _homeForState(),

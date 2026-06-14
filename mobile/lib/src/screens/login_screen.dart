@@ -34,10 +34,10 @@ class _LoginScreenState extends State<LoginScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Spacer(),
-              const Text('머니 노트',
+              const Text('Money-Note',
                   style: TextStyle(fontSize: 38, fontWeight: FontWeight.w900)),
               const SizedBox(height: 10),
-              const Text('돈 쓰고 10초 안에 기록하기 위한 장부입니다.',
+              const Text('카드 긁은 죄를 10초 안에 자백하는 장부입니다.',
                   style: TextStyle(color: moneyMuted, fontSize: 16)),
               const SizedBox(height: 28),
               MoneyCard(

@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import 'api_client.dart';
 import 'models.dart';
@@ -14,9 +18,10 @@ class AppState extends ChangeNotifier {
   AuthUser? user;
   Summary? summary;
   JudgmentState? judgment;
-  CardPaymentStatus? cardPayments;
   List<LedgerEntry> entries = [];
   List<MonthlyPanel> panels = [];
+  List<CashFlow> cashFlows = [];
+  List<LocalSnapshotInfo> localSnapshots = [];
 
   bool get isLoggedIn => user != null;
 
@@ -74,6 +79,7 @@ class AppState extends ChangeNotifier {
     try {
       user = await api.me();
       await refresh();
+      await saveLaunchSnapshot();
     } catch (_) {
       user = null;
     } finally {
@@ -86,6 +92,7 @@ class AppState extends ChangeNotifier {
     await _run(() async {
       user = await api.login(username, password);
       await refresh(notify: false);
+      await saveLaunchSnapshot();
       statusMessage = '로그인 완료';
     });
   }
@@ -96,9 +103,9 @@ class AppState extends ChangeNotifier {
       user = null;
       summary = null;
       judgment = null;
-      cardPayments = null;
       entries = [];
       panels = [];
+      cashFlows = [];
       statusMessage = '로그아웃 완료';
     });
   }
@@ -109,13 +116,13 @@ class AppState extends ChangeNotifier {
       api.judgment(),
       api.currentEntries(),
       api.currentPanels(),
-      api.currentCardPayments(),
+      api.cashFlows(),
     ]);
     summary = results[0] as Summary;
     judgment = results[1] as JudgmentState;
     entries = results[2] as List<LedgerEntry>;
     panels = results[3] as List<MonthlyPanel>;
-    cardPayments = results[4] as CardPaymentStatus;
+    cashFlows = results[4] as List<CashFlow>;
     if (notify) notifyListeners();
   }
 
@@ -170,21 +177,98 @@ class AppState extends ChangeNotifier {
     });
   }
 
-  Future<void> payImmediately(CardPaymentRow row) async {
-    if (row.paymentKeys.isEmpty || row.remainingAmount <= 0) return;
+  Future<void> createCashFlow({
+    required String title,
+    required int amount,
+    required bool isIncome,
+    required bool isPrimaryIncome,
+  }) async {
     await _run(() async {
-      await api.createImmediatePayment(
-        eventDate: _today(),
-        note: '모바일 즉시결제',
-        allocations: [
-          {
-            'entry_payment_key': row.paymentKeys.first,
-            'amount_value': row.remainingAmount
-          },
-        ],
+      await api.createCashFlow(
+        occurredOn: _today(),
+        title: title,
+        amount: isIncome ? amount : -amount,
+        isPrimaryIncome: isIncome && isPrimaryIncome,
       );
       await refresh(notify: false);
-      statusMessage = '즉시결제 기록 완료';
+      statusMessage = '현금흐름 추가 완료';
+    });
+  }
+
+  Future<void> deleteCashFlow(int flowId) async {
+    await _run(() async {
+      await api.deleteCashFlow(flowId);
+      await refresh(notify: false);
+      statusMessage = '현금흐름 삭제 완료';
+    });
+  }
+
+  Future<void> saveLaunchSnapshot() async {
+    try {
+      final snapshot = await api.downloadSnapshot();
+      final directory = await _snapshotDirectory();
+      final current =
+          File('${directory.path}/cur_backup.money-note-snapshot.json');
+      final previous =
+          File('${directory.path}/prev_backup.money-note-snapshot.json');
+      if (await current.exists()) {
+        await current.copy(previous.path);
+      }
+      await current.writeAsBytes(snapshot.bytes, flush: true);
+      localSnapshots = await listLocalSnapshots();
+    } catch (_) {
+      // 자동 백업 실패는 앱 실행을 막지 않는다. 상태 화면의 스냅샷 관리에서 다시 확인한다.
+    }
+  }
+
+  Future<void> shareCurrentSnapshot() async {
+    await _run(() async {
+      final directory = await _snapshotDirectory();
+      final current =
+          File('${directory.path}/cur_backup.money-note-snapshot.json');
+      if (!await current.exists()) {
+        await saveLaunchSnapshot();
+      }
+      if (!await current.exists()) {
+        throw MoneyNoteApiException('공유할 스냅샷이 없습니다.');
+      }
+      await Share.shareXFiles(
+        [
+          XFile(current.path,
+              mimeType: 'application/json',
+              name: 'cur_backup.money-note-snapshot.json')
+        ],
+        text: 'Money-Note 스냅샷 백업',
+      );
+      localSnapshots = await listLocalSnapshots();
+      statusMessage = '스냅샷 공유 준비 완료';
+    });
+  }
+
+  Future<List<LocalSnapshotInfo>> listLocalSnapshots() async {
+    final directory = await _snapshotDirectory();
+    final names = [
+      'cur_backup.money-note-snapshot.json',
+      'prev_backup.money-note-snapshot.json'
+    ];
+    final items = <LocalSnapshotInfo>[];
+    for (final name in names) {
+      final file = File('${directory.path}/$name');
+      if (await file.exists()) {
+        final stat = await file.stat();
+        items.add(LocalSnapshotInfo(
+            filename: name, sizeBytes: stat.size, updatedAt: stat.modified));
+      }
+    }
+    return items;
+  }
+
+  Future<void> closeCurrentMonth({bool allowEarlyClose = false}) async {
+    await _run(() async {
+      final result =
+          await api.closeCurrentMonth(allowEarlyClose: allowEarlyClose);
+      await refresh(notify: false);
+      statusMessage = '월마감 완료: ${result['closed_month'] ?? '마감할 월 없음'}';
     });
   }
 
@@ -207,4 +291,25 @@ class AppState extends ChangeNotifier {
     final now = DateTime.now();
     return '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
   }
+
+  Future<Directory> _snapshotDirectory() async {
+    final base = await getApplicationDocumentsDirectory();
+    final directory = Directory('${base.path}/snapshots');
+    if (!await directory.exists()) {
+      await directory.create(recursive: true);
+    }
+    return directory;
+  }
+}
+
+class LocalSnapshotInfo {
+  LocalSnapshotInfo({
+    required this.filename,
+    required this.sizeBytes,
+    required this.updatedAt,
+  });
+
+  final String filename;
+  final int sizeBytes;
+  final DateTime updatedAt;
 }

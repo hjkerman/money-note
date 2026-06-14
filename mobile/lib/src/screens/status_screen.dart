@@ -61,23 +61,30 @@ class StatusScreen extends StatelessWidget {
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
           ),
         ),
-        const SectionTitle('주요 조작'),
-        Row(
-          children: [
-            Expanded(
-                child: ElevatedButton(
-                    onPressed: state.isBusy ? null : state.refresh,
-                    child: const Text('동기화'))),
-            const SizedBox(width: 10),
-            const Expanded(
-              child: OutlinedButton(onPressed: null, child: Text('스냅샷 다운로드')),
-            ),
-          ],
-        ),
         const SectionTitle('고급 기능'),
-        const MoneyCard(
-          child: Text(
-              '월마감, 백업, 복원, 관리 로그, 설정은 모바일에서도 접근 가능하게 두되 일상 입력 흐름과 분리합니다.'),
+        MoneyCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                '일상 입력과 분리해둔 조작입니다. 화면을 아래로 당기면 최신 장부를 다시 불러옵니다.',
+                style:
+                    TextStyle(color: moneyMuted, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 14),
+              OutlinedButton(
+                onPressed:
+                    state.isBusy ? null : () => _showSnapshotManager(context),
+                child: const Text('스냅샷 관리'),
+              ),
+              const SizedBox(height: 10),
+              OutlinedButton(
+                onPressed:
+                    state.isBusy ? null : () => _confirmMonthClose(context),
+                child: const Text('월마감'),
+              ),
+            ],
+          ),
         ),
         if (state.statusMessage.isNotEmpty) ...[
           const SizedBox(height: 14),
@@ -90,5 +97,81 @@ class StatusScreen extends StatelessWidget {
   int _expenseTotal() {
     return state.expenseEntries
         .fold(0, (sum, entry) => sum + (entry.amountValue ?? 0));
+  }
+
+  Future<void> _confirmMonthClose(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('월마감'),
+        content: const Text('현재 열린 월을 마감할까요? 서버가 복원 전 백업을 먼저 남깁니다.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('취소'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('마감'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      await state.closeCurrentMonth();
+    }
+  }
+
+  Future<void> _showSnapshotManager(BuildContext context) async {
+    final snapshots = await state.listLocalSnapshots();
+    if (!context.mounted) return;
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('스냅샷 관리'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('앱 실행 때마다 서버 스냅샷을 받아 최신/직전 두 벌을 앱 내부에 보관합니다.'),
+              const SizedBox(height: 14),
+              if (snapshots.isEmpty)
+                const Text('저장된 스냅샷이 없습니다.')
+              else
+                ...snapshots.map(
+                  (snapshot) => Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Text(
+                        '${snapshot.filename}\n${_formatBytes(snapshot.sizeBytes)} · ${snapshot.updatedAt}'),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('닫기'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await state.shareCurrentSnapshot();
+            },
+            child: const Text('최신 백업 공유'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatBytes(int bytes) {
+    if (bytes >= 1024 * 1024) {
+      return '${(bytes / 1024 / 1024).toStringAsFixed(1)}MB';
+    }
+    if (bytes >= 1024) return '${(bytes / 1024).toStringAsFixed(1)}KB';
+    return '$bytes바이트';
   }
 }

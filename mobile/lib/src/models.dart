@@ -136,6 +136,35 @@ class MonthlyPanel {
   }
 }
 
+class CashFlow {
+  CashFlow({
+    required this.id,
+    required this.occurredOn,
+    required this.title,
+    required this.amountValue,
+    required this.sortOrder,
+    required this.isPrimaryIncome,
+  });
+
+  final int id;
+  final String occurredOn;
+  final String title;
+  final int amountValue;
+  final int sortOrder;
+  final bool isPrimaryIncome;
+
+  factory CashFlow.fromJson(Map<String, dynamic> json) {
+    return CashFlow(
+      id: json['id'] as int,
+      occurredOn: json['occurred_on'] as String,
+      title: json['title'] as String? ?? '',
+      amountValue: _int(json['amount_value']),
+      sortOrder: _int(json['sort_order']),
+      isPrimaryIncome: _int(json['is_primary_income']) == 1,
+    );
+  }
+}
+
 class JudgmentTone {
   JudgmentTone({required this.message});
 
@@ -158,62 +187,6 @@ class JudgmentState {
           json['budget'] as Map<String, dynamic>? ?? const {}),
       payment: JudgmentTone.fromJson(
           json['payment'] as Map<String, dynamic>? ?? const {}),
-    );
-  }
-}
-
-class CardPaymentStatus {
-  CardPaymentStatus({
-    required this.paymentMonth,
-    required this.dueDate,
-    required this.effectiveRemainingTotal,
-    required this.rows,
-  });
-
-  final String paymentMonth;
-  final String dueDate;
-  final int effectiveRemainingTotal;
-  final List<CardPaymentRow> rows;
-
-  factory CardPaymentStatus.fromJson(Map<String, dynamic> json) {
-    return CardPaymentStatus(
-      paymentMonth: json['payment_month'] as String? ?? '',
-      dueDate: json['due_date'] as String? ?? '',
-      effectiveRemainingTotal: _int(json['effective_remaining_total']),
-      rows: (json['rows'] as List<dynamic>? ?? const [])
-          .map((row) => CardPaymentRow.fromJson(row as Map<String, dynamic>))
-          .toList(),
-    );
-  }
-}
-
-class CardPaymentRow {
-  CardPaymentRow({
-    required this.title,
-    required this.originalAmount,
-    required this.immediatePaidAmount,
-    required this.discountAmount,
-    required this.remainingAmount,
-    required this.paymentKeys,
-  });
-
-  final String title;
-  final int originalAmount;
-  final int immediatePaidAmount;
-  final int discountAmount;
-  final int remainingAmount;
-  final List<String> paymentKeys;
-
-  factory CardPaymentRow.fromJson(Map<String, dynamic> json) {
-    return CardPaymentRow(
-      title: json['title'] as String? ?? '',
-      originalAmount: _int(json['original_amount']),
-      immediatePaidAmount: _int(json['immediate_paid_amount']),
-      discountAmount: _int(json['discount_amount']),
-      remainingAmount: _int(json['remaining_amount']),
-      paymentKeys: (json['payment_keys'] as List<dynamic>? ?? const [])
-          .map((value) => value.toString())
-          .toList(),
     );
   }
 }
