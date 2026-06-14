@@ -1,0 +1,80 @@
+import 'package:flutter/material.dart';
+
+import '../app_state.dart';
+import '../theme.dart';
+import '../widgets/money_card.dart';
+
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({required this.state, super.key});
+
+  final AppState state;
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final username = TextEditingController();
+  final password = TextEditingController();
+
+  @override
+  void dispose() {
+    username.dispose();
+    password.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Spacer(),
+              const Text('머니 노트',
+                  style: TextStyle(fontSize: 38, fontWeight: FontWeight.w900)),
+              const SizedBox(height: 10),
+              const Text('돈 쓰고 10초 안에 기록하기 위한 장부입니다.',
+                  style: TextStyle(color: moneyMuted, fontSize: 16)),
+              const SizedBox(height: 28),
+              MoneyCard(
+                child: Column(
+                  children: [
+                    TextField(
+                        controller: username,
+                        decoration: const InputDecoration(labelText: '아이디')),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: password,
+                      obscureText: true,
+                      decoration: const InputDecoration(labelText: '비밀번호'),
+                      onSubmitted: (_) => _submit(),
+                    ),
+                    const SizedBox(height: 18),
+                    ElevatedButton(
+                      onPressed: widget.state.isBusy ? null : _submit,
+                      child: const Text('로그인'),
+                    ),
+                  ],
+                ),
+              ),
+              if (widget.state.statusMessage.isNotEmpty) ...[
+                const SizedBox(height: 14),
+                Text(widget.state.statusMessage,
+                    style: const TextStyle(color: moneyRed)),
+              ],
+              const Spacer(flex: 2),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _submit() {
+    widget.state.login(username.text.trim(), password.text);
+  }
+}

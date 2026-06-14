@@ -156,7 +156,7 @@ def share_unlock_html(next_path: str) -> str:
     <h1>가족 공유 확인</h1>
     <p>가족 공식 비밀번호 네 자리를 입력하세요.</p>
     <form id="unlock-form">
-      <input id="pin" inputmode="numeric" pattern="[0-9]{{4}}" maxlength="4" autocomplete="one-time-code" required>
+      <input id="pin" type="password" inputmode="numeric" pattern="[0-9]{{4}}" maxlength="4" autocomplete="one-time-code" required>
       <button type="submit">확인</button>
       <div id="message"></div>
     </form>

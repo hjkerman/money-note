@@ -491,6 +491,120 @@ docker compose up --build -d
 
 웹에서는 `설정 -> Android 앱 설치 파일 -> APK 다운로드` 버튼으로 내려받는다. APK 파일이 아직 없거나 `MONEY_NOTE_APK_PATH`가 비어 있으면 다운로드는 `apk file not found`로 실패한다.
 
+## 모바일 앱 개발과 APK 빌드
+
+모바일 앱은 `mobile/` 디렉터리의 Flutter 프로젝트다. 웹 앱을 그대로 줄인 것이 아니라, 빠른 입력, 카드대금 처리, 청구/가족카드 정산, 상태 확인에 집중한다.
+
+### 1. 개발 도구 확인
+
+필요한 도구:
+
+- Flutter SDK
+- Android Studio
+- Android SDK
+- Android SDK Command-line Tools
+- Android SDK Platform-Tools
+
+설치 상태는 아래로 확인한다.
+
+```bash
+cd mobile
+flutter doctor -v
+```
+
+`Android toolchain` 항목에서 `cmdline-tools component is missing`이 나오면 Android Studio에서 아래를 설치한다.
+
+1. Android Studio 실행
+2. `Settings` 또는 `Preferences` 열기
+3. `Languages & Frameworks -> Android SDK` 이동
+4. `SDK Tools` 탭 선택
+5. `Android SDK Command-line Tools` 체크
+6. 적용
+
+라이선스가 필요하다고 나오면 아래를 실행한다.
+
+```bash
+flutter doctor --android-licenses
+```
+
+모든 항목에 동의한 뒤 다시 확인한다.
+
+```bash
+flutter doctor -v
+```
+
+### 2. 의존성 설치
+
+```bash
+cd mobile
+flutter pub get
+```
+
+### 3. 로컬 서버에 붙여 실행
+
+Android 에뮬레이터에서 개발 머신의 `localhost`는 `10.0.2.2`로 접근한다.
+
+```bash
+cd mobile
+flutter run --dart-define=MONEY_NOTE_API_BASE_URL=http://10.0.2.2:18080
+```
+
+실제 서버에 붙일 때는 운영 도메인을 넣는다.
+
+```bash
+flutter run --dart-define=MONEY_NOTE_API_BASE_URL=https://money.hjkerman.re.kr
+```
+
+모바일 앱은 로그인 응답의 `session_token`을 저장하고, 이후 API 요청에 `Authorization: Bearer ...` 헤더를 보낸다.
+
+### 4. 검사와 테스트
+
+```bash
+cd mobile
+flutter analyze
+flutter test
+```
+
+### 5. APK 빌드
+
+운영 서버용 APK를 만든다.
+
+```bash
+cd mobile
+flutter build apk --release --dart-define=MONEY_NOTE_API_BASE_URL=https://money.hjkerman.re.kr
+```
+
+산출물:
+
+```text
+mobile/build/app/outputs/flutter-apk/app-release.apk
+```
+
+### 6. 서버에서 APK 다운로드 제공
+
+빌드한 APK를 서버 repo의 `downloads/`에 둔다.
+
+```bash
+mkdir -p /opt/money-note/downloads
+cp mobile/build/app/outputs/flutter-apk/app-release.apk /opt/money-note/downloads/money-note.apk
+```
+
+서버 `.env`에는 아래를 둔다.
+
+```text
+MONEY_NOTE_APK_PATH=/app/downloads/money-note.apk
+MONEY_NOTE_APK_FILENAME=money-note.apk
+```
+
+서버를 다시 올린다.
+
+```bash
+cd /opt/money-note
+docker compose up --build -d
+```
+
+웹 설정 모달의 `Android 앱 설치 파일` 영역에서 APK를 내려받을 수 있다.
+
 ## 로그인 계정 생성
 
 사용자 계정은 DB에 저장한다. 비밀번호는 PBKDF2-SHA256 해시로 저장되며 평문 저장하지 않는다.
