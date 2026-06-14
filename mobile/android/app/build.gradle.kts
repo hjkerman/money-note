@@ -49,7 +49,7 @@ android {
 
     signingConfigs {
         if (hasReleaseSigning) {
-            create("release") {
+            create("sharedReleaseKey") {
                 storeFile = file(releaseStoreFile!!)
                 storePassword = signingSecret("storePassword", "MONEY_NOTE_KEYSTORE_PASSWORD")
                 keyAlias = signingSecret("keyAlias", "MONEY_NOTE_KEY_ALIAS")
@@ -59,9 +59,15 @@ android {
     }
 
     buildTypes {
+        debug {
+            if (hasReleaseSigning) {
+                signingConfig = signingConfigs.getByName("sharedReleaseKey")
+            }
+        }
+
         release {
             signingConfig = if (hasReleaseSigning) {
-                signingConfigs.getByName("release")
+                signingConfigs.getByName("sharedReleaseKey")
             } else {
                 signingConfigs.getByName("debug")
             }

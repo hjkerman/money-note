@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.get_login_creds"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "kr.re.hjkerman.money_note",
+      "sha256_cert_fingerprints": [
+        "E3:56:6D:0A:EA:6E:B9:C3:B0:01:14:96:C7:71:04:39:E6:51:65:E6:1A:36:70:4D:B5:E1:41:87:5E:8D:FA:D5"
+      ]
+    }
+  }
+]

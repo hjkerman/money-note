@@ -293,6 +293,21 @@ sudo rsync -a --delete /opt/money-note/frontend/dist/ /var/www/money-note/
 
 이 단계까지 끝나면 백엔드는 `localhost:18080`, 프론트엔드 정적 파일은 `/var/www/money-note`에 있는 상태다.
 
+Android 앱과 Google 비밀번호 관리자를 웹 도메인에 연결하려면 프론트엔드 빌드 결과에 아래 파일이 반드시 포함되어야 한다.
+
+```text
+/var/www/money-note/.well-known/assetlinks.json
+```
+
+배치 후 서버에서 확인한다.
+
+```bash
+test -f /var/www/money-note/.well-known/assetlinks.json
+curl -s https://money.hjkerman.re.kr/.well-known/assetlinks.json
+```
+
+브라우저나 `curl`에서 JSON 배열이 그대로 보이면 된다. `404`, HTML, `index.html` 내용이 보이면 Apache rewrite나 파일 배치가 잘못된 것이다.
+
 ### 9. Apache reverse proxy 연결
 
 Apache 모듈을 켠다.
@@ -578,7 +593,7 @@ flutter test
 ```properties
 storeFile=/Users/hjkerman/keys/money-note-release.jks
 storePassword=키스토어_비밀번호
-keyAlias=money-note-release
+keyAlias=money-note
 keyPassword=키_비밀번호
 ```
 
@@ -587,11 +602,35 @@ keyPassword=키_비밀번호
 ```bash
 export MONEY_NOTE_KEYSTORE_PATH=/Users/hjkerman/keys/money-note-release.jks
 export MONEY_NOTE_KEYSTORE_PASSWORD=키스토어_비밀번호
-export MONEY_NOTE_KEY_ALIAS=money-note-release
+export MONEY_NOTE_KEY_ALIAS=money-note
 export MONEY_NOTE_KEY_PASSWORD=키_비밀번호
 ```
 
-`key.properties` 또는 환경변수가 모두 채워져 있으면 release APK는 해당 키로 서명된다. 값이 비어 있으면 개발 편의를 위해 debug 서명으로 빌드된다.
+`key.properties` 또는 환경변수가 모두 채워져 있으면 debug APK와 release APK 모두 같은 release 키로 서명된다. 값이 비어 있으면 개발 편의를 위해 기본 debug 서명으로 빌드된다.
+
+Money-Note는 웹 도메인 `money.hjkerman.re.kr`과 Android 앱의 비밀번호 관리자를 연결하기 위해 아래 파일을 프론트엔드 정적 파일에 포함한다.
+
+```text
+frontend/public/.well-known/assetlinks.json
+```
+
+이 파일에는 Android 패키지명 `kr.re.hjkerman.money_note`와 release signing certificate의 SHA-256 fingerprint가 들어간다. 서명키를 바꾸면 이 fingerprint도 다시 뽑아서 갱신해야 한다.
+
+현재 키 지문 확인 명령:
+
+```bash
+keytool -list -v \
+  -keystore /Users/hjkerman/keys/money-note-release.jks \
+  -alias money-note
+```
+
+운영 서버에 프론트엔드 빌드 결과물을 배포한 뒤 아래 URL이 JSON 파일로 열려야 한다.
+
+```text
+https://money.hjkerman.re.kr/.well-known/assetlinks.json
+```
+
+이 연결은 Google 비밀번호 관리자가 웹에 저장한 `money.hjkerman.re.kr` 로그인 정보를 Android 앱 로그인 화면에서도 같은 서비스의 계정으로 판단할 수 있게 돕는다.
 
 ```bash
 cd mobile
