@@ -46,6 +46,7 @@ class _InputScreenState extends State<InputScreen> {
     final discountValue =
         discountEnabled ?? (widget.state.ownerDiscountMonth?.isEnabled ?? true);
     return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(20, 54, 20, 96),
       children: [
         Text('${widget.state.currentMonth.replaceFirst('-', '년 ')}월',

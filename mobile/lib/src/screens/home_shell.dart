@@ -34,10 +34,7 @@ class _HomeShellState extends State<HomeShell> {
     ];
 
     return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: widget.state.refresh,
-        child: screens[index],
-      ),
+      body: _bodyForIndex(screens[index]),
       bottomNavigationBar: NavigationBar(
         selectedIndex: index,
         indicatorColor: moneyGreenSoft,
@@ -52,5 +49,23 @@ class _HomeShellState extends State<HomeShell> {
         ],
       ),
     );
+  }
+
+  Widget _bodyForIndex(Widget screen) {
+    if (index == 4) return screen;
+    return RefreshIndicator(
+      onRefresh: _refreshForIndex,
+      child: screen,
+    );
+  }
+
+  Future<void> _refreshForIndex() {
+    return switch (index) {
+      0 => widget.state.refreshInputArea(),
+      1 => widget.state.refreshCashArea(),
+      2 => widget.state.refreshEntriesArea(),
+      3 => widget.state.refreshSettlementArea(),
+      _ => widget.state.refresh(),
+    };
   }
 }

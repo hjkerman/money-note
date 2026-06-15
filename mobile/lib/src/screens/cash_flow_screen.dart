@@ -36,6 +36,7 @@ class _CashFlowScreenState extends State<CashFlowScreen> {
         return b.id.compareTo(a.id);
       });
     return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(20, 54, 20, 96),
       children: [
         const Text('현금흐름',

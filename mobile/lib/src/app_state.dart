@@ -176,6 +176,93 @@ class AppState extends ChangeNotifier {
     if (notify) notifyListeners();
   }
 
+  Future<void> refreshInputArea({bool notify = true}) async {
+    await refreshNotificationPermissions(notify: false);
+    await _refreshEntriesAndStatus();
+    if (notify) notifyListeners();
+  }
+
+  Future<void> refreshCashArea({bool notify = true}) async {
+    final results = await Future.wait([
+      api.cashFlows(),
+      api.summary(),
+      api.judgment(),
+    ]);
+    cashFlows = results[0] as List<CashFlow>;
+    summary = results[1] as Summary;
+    judgment = results[2] as JudgmentState;
+    if (notify) notifyListeners();
+  }
+
+  Future<void> refreshEntriesArea({bool notify = true}) async {
+    await _refreshEntriesAndStatus();
+    if (notify) notifyListeners();
+  }
+
+  Future<void> refreshSettlementArea({bool notify = true}) async {
+    await _refreshPanelsAndStatus();
+    if (notify) notifyListeners();
+  }
+
+  Future<void> refreshPanelManagementArea({bool notify = true}) async {
+    await _refreshPanelsAndStatus();
+    if (notify) notifyListeners();
+  }
+
+  Future<void> refreshPlannedManagementArea({bool notify = true}) async {
+    await _refreshEntriesAndStatus();
+    if (notify) notifyListeners();
+  }
+
+  Future<void> refreshSettingsArea({bool notify = true}) async {
+    final results = await Future.wait([
+      api.settings(),
+      api.summary(),
+      api.judgment(),
+    ]);
+    settings = results[0] as AppSettings;
+    summary = results[1] as Summary;
+    judgment = results[2] as JudgmentState;
+    await _refreshDiscountMonths();
+    if (notify) notifyListeners();
+  }
+
+  Future<void> _refreshEntriesAndStatus() async {
+    final results = await Future.wait([
+      api.currentEntries(),
+      api.summary(),
+      api.judgment(),
+      api.monthCloseStatus(),
+    ]);
+    entries = results[0] as List<LedgerEntry>;
+    summary = results[1] as Summary;
+    judgment = results[2] as JudgmentState;
+    monthCloseStatus = results[3] as MonthCloseStatus;
+    await _refreshDiscountMonths();
+  }
+
+  Future<void> _refreshPanelsAndStatus() async {
+    final results = await Future.wait([
+      api.currentPanels(),
+      api.summary(),
+      api.judgment(),
+    ]);
+    panels = results[0] as List<MonthlyPanel>;
+    summary = results[1] as Summary;
+    judgment = results[2] as JudgmentState;
+    await _refreshDiscountMonths();
+  }
+
+  Future<void> _refreshDiscountMonths() async {
+    final month = currentMonth;
+    final results = await Future.wait([
+      api.discountMonth(month, 'owner'),
+      api.discountMonth(month, 'family'),
+    ]);
+    ownerDiscountMonth = results[0];
+    familyDiscountMonth = results[1];
+  }
+
   Future<void> refreshNotificationPermissions({bool notify = true}) async {
     notificationPermissions = await notificationBridge.permissionStatus();
     if (notify) notifyListeners();
@@ -208,7 +295,7 @@ class AppState extends ChangeNotifier {
       if (!discountEnabled && entry.paymentKey != null) {
         await api.excludeEntryDiscount(entry.paymentKey!);
       }
-      await refresh(notify: false);
+      await refreshInputArea(notify: false);
       statusMessage = '지출 추가 완료';
     });
   }
@@ -232,7 +319,11 @@ class AppState extends ChangeNotifier {
           (panelType == 'claim' || panelType == 'family_card')) {
         await api.excludePanelDiscount(panel.id);
       }
-      await refresh(notify: false);
+      if (panelType == 'fixed' || panelType == 'frozen') {
+        await refreshPanelManagementArea(notify: false);
+      } else {
+        await refreshSettlementArea(notify: false);
+      }
       statusMessage = switch (panelType) {
         'claim' => '청구 추가 완료',
         'family_card' => '가족카드 추가 완료',
@@ -256,7 +347,7 @@ class AppState extends ChangeNotifier {
         usageItem: usageItem,
         amount: amount,
       );
-      await refresh(notify: false);
+      await refreshPlannedManagementArea(notify: false);
       statusMessage = '카드 정기결제 추가 완료';
     });
   }
@@ -264,7 +355,7 @@ class AppState extends ChangeNotifier {
   Future<void> confirmPlannedEntry(int entryId) async {
     await _run(() async {
       await api.confirmPlannedEntry(entryId);
-      await refresh(notify: false);
+      await refreshPlannedManagementArea(notify: false);
       statusMessage = '카드 정기결제 확인 완료';
     });
   }
@@ -272,7 +363,7 @@ class AppState extends ChangeNotifier {
   Future<void> deletePlannedEntry(int entryId) async {
     await _run(() async {
       await api.deletePlannedEntry(entryId);
-      await refresh(notify: false);
+      await refreshPlannedManagementArea(notify: false);
       statusMessage = '카드 정기결제 삭제 완료';
     });
   }
@@ -280,7 +371,7 @@ class AppState extends ChangeNotifier {
   Future<void> excludeExistingEntryDiscount(String entryPaymentKey) async {
     await _run(() async {
       await api.excludeEntryDiscount(entryPaymentKey);
-      await refresh(notify: false);
+      await refreshEntriesArea(notify: false);
       statusMessage = '할인 제외 완료';
     });
   }
@@ -288,7 +379,7 @@ class AppState extends ChangeNotifier {
   Future<void> applyDefaultEntryDiscount(String entryPaymentKey) async {
     await _run(() async {
       await api.clearEntryDiscount(entryPaymentKey);
-      await refresh(notify: false);
+      await refreshEntriesArea(notify: false);
       statusMessage = '할인 적용 완료';
     });
   }
@@ -324,7 +415,7 @@ class AppState extends ChangeNotifier {
   Future<void> deletePanel(int panelId) async {
     await _run(() async {
       await api.deletePanel(panelId);
-      await refresh(notify: false);
+      await refreshPanelManagementArea(notify: false);
       statusMessage = '항목 삭제 완료';
     });
   }
@@ -332,7 +423,7 @@ class AppState extends ChangeNotifier {
   Future<void> excludeExistingPanelDiscount(int panelId) async {
     await _run(() async {
       await api.excludePanelDiscount(panelId);
-      await refresh(notify: false);
+      await refreshSettlementArea(notify: false);
       statusMessage = '할인 제외 완료';
     });
   }
@@ -340,7 +431,7 @@ class AppState extends ChangeNotifier {
   Future<void> applyDefaultPanelDiscount(int panelId) async {
     await _run(() async {
       await api.clearPanelDiscount(panelId);
-      await refresh(notify: false);
+      await refreshSettlementArea(notify: false);
       statusMessage = '할인 적용 완료';
     });
   }
@@ -348,7 +439,7 @@ class AppState extends ChangeNotifier {
   Future<void> completePanelType(String panelType) async {
     await _run(() async {
       await api.completePanelType(panelType);
-      await refresh(notify: false);
+      await refreshSettlementArea(notify: false);
       statusMessage = panelType == 'claim' ? '청구 처리 완료' : '가족카드 처리 완료';
     });
   }
@@ -370,7 +461,7 @@ class AppState extends ChangeNotifier {
         amount: isIncome ? amount : -amount,
         isPrimaryIncome: isIncome && isPrimaryIncome,
       );
-      await refresh(notify: false);
+      await refreshCashArea(notify: false);
       statusMessage = '현금흐름 추가 완료';
     });
   }
@@ -378,7 +469,7 @@ class AppState extends ChangeNotifier {
   Future<void> deleteCashFlow(int flowId) async {
     await _run(() async {
       await api.deleteCashFlow(flowId);
-      await refresh(notify: false);
+      await refreshCashArea(notify: false);
       statusMessage = '현금흐름 삭제 완료';
     });
   }
@@ -505,8 +596,8 @@ class AppState extends ChangeNotifier {
 
   Future<void> updateSetting(String key, String value) async {
     await _run(() async {
-      settings = await api.updateSetting(key, value);
-      await refresh(notify: false);
+      await api.updateSetting(key, value);
+      await refreshSettingsArea(notify: false);
       statusMessage = '설정 저장 완료';
     });
   }

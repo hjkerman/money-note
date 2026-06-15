@@ -16,6 +16,7 @@ class MonthEntriesScreen extends StatelessWidget {
     final rows = state.expenseEntries;
     final discountPolicyEnabled = state.ownerDiscountMonth?.isEnabled ?? true;
     return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(20, 54, 20, 96),
       children: [
         Text('${state.currentMonth.replaceFirst('-', '년 ')}월 내역',

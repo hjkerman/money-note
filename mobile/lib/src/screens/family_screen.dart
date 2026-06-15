@@ -42,6 +42,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
     final discountValue = discountEnabled ?? _defaultDiscountEnabled();
     final discountPolicyEnabled = _defaultDiscountEnabled();
     return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(20, 54, 20, 96),
       children: [
         const Text('정산',
