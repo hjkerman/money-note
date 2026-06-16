@@ -26,6 +26,7 @@ class AppState extends ChangeNotifier {
   CardDiscountMonth? ownerDiscountMonth;
   CardDiscountMonth? familyDiscountMonth;
   List<LedgerEntry> entries = [];
+  List<LedgerEntry> confirmedPlannedEntries = [];
   List<MonthlyPanel> panels = [];
   List<CashFlow> cashFlows = [];
   List<LocalSnapshotInfo> localSnapshots = [];
@@ -147,6 +148,7 @@ class AppState extends ChangeNotifier {
       judgment = null;
       monthCloseStatus = null;
       entries = [];
+      confirmedPlannedEntries = [];
       panels = [];
       cashFlows = [];
       statusMessage = '로그아웃 완료';
@@ -159,6 +161,7 @@ class AppState extends ChangeNotifier {
       api.summary(),
       api.judgment(),
       api.currentEntries(),
+      api.confirmedPlannedEntries(),
       api.currentPanels(),
       api.cashFlows(),
       api.settings(),
@@ -167,10 +170,11 @@ class AppState extends ChangeNotifier {
     summary = results[0] as Summary;
     judgment = results[1] as JudgmentState;
     entries = results[2] as List<LedgerEntry>;
-    panels = results[3] as List<MonthlyPanel>;
-    cashFlows = results[4] as List<CashFlow>;
-    settings = results[5] as AppSettings;
-    monthCloseStatus = results[6] as MonthCloseStatus;
+    confirmedPlannedEntries = results[3] as List<LedgerEntry>;
+    panels = results[4] as List<MonthlyPanel>;
+    cashFlows = results[5] as List<CashFlow>;
+    settings = results[6] as AppSettings;
+    monthCloseStatus = results[7] as MonthCloseStatus;
     ownerDiscountMonth = await api.discountMonth(currentMonth, 'owner');
     familyDiscountMonth = await api.discountMonth(currentMonth, 'family');
     if (notify) notifyListeners();
@@ -210,7 +214,16 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> refreshPlannedManagementArea({bool notify = true}) async {
-    await _refreshEntriesAndStatus();
+    final results = await Future.wait([
+      api.currentEntries(),
+      api.confirmedPlannedEntries(),
+      api.summary(),
+      api.judgment(),
+    ]);
+    entries = results[0] as List<LedgerEntry>;
+    confirmedPlannedEntries = results[1] as List<LedgerEntry>;
+    summary = results[2] as Summary;
+    judgment = results[3] as JudgmentState;
     if (notify) notifyListeners();
   }
 
@@ -359,9 +372,9 @@ class AppState extends ChangeNotifier {
     });
   }
 
-  Future<void> confirmPlannedEntry(int entryId) async {
+  Future<void> confirmPlannedEntry(int entryId, String entryDate) async {
     await _run(() async {
-      await api.confirmPlannedEntry(entryId);
+      await api.confirmPlannedEntry(entryId, entryDate);
       await refreshPlannedManagementArea(notify: false);
       statusMessage = '카드 정기결제 확인 완료';
     });

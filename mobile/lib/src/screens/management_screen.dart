@@ -226,8 +226,9 @@ class _PlannedEntryManagementScreenState
       animation: widget.state,
       builder: (context, _) {
         final rows = widget.state.plannedEntries;
-        final total =
-            rows.fold<int>(0, (sum, entry) => sum + (entry.amountValue ?? 0));
+        final confirmedRows = widget.state.confirmedPlannedEntries;
+        final total = [...rows, ...confirmedRows]
+            .fold<int>(0, (sum, entry) => sum + (entry.amountValue ?? 0));
         return Scaffold(
           appBar: AppBar(title: const Text('카드 정기결제')),
           body: RefreshIndicator(
@@ -275,6 +276,13 @@ class _PlannedEntryManagementScreenState
                   const MoneyCard(child: Text('카드 정기결제가 없습니다.')),
                 ...rows.map((entry) =>
                     _PlannedEntryItem(entry: entry, state: widget.state)),
+                SectionTitle('이번 달 확인 처리됨',
+                    trailing: Text('${confirmedRows.length}건',
+                        style: const TextStyle(color: moneyMuted))),
+                if (confirmedRows.isEmpty)
+                  const MoneyCard(child: Text('이번 달에 확인 처리된 정기결제가 없습니다.')),
+                ...confirmedRows
+                    .map((entry) => _ConfirmedPlannedEntryItem(entry: entry)),
               ],
             ),
           ),
@@ -569,14 +577,30 @@ class _PanelManagementItem extends StatelessWidget {
   }
 }
 
-class _PlannedEntryItem extends StatelessWidget {
+class _PlannedEntryItem extends StatefulWidget {
   const _PlannedEntryItem({required this.entry, required this.state});
 
   final LedgerEntry entry;
   final AppState state;
 
   @override
+  State<_PlannedEntryItem> createState() => _PlannedEntryItemState();
+}
+
+class _PlannedEntryItemState extends State<_PlannedEntryItem> {
+  late String entryDate;
+
+  @override
+  void initState() {
+    super.initState();
+    entryDate = _plannedEntryDefaultDate(
+        widget.state.currentMonth, widget.entry.dueDay);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final entry = widget.entry;
+    final state = widget.state;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: MoneyCard(
@@ -590,6 +614,12 @@ class _PlannedEntryItem extends StatelessWidget {
               Text(entry.usageItem!, style: const TextStyle(color: moneyMuted)),
             const SizedBox(height: 8),
             _Line(label: '예정액', value: won(entry.amountValue)),
+            const SizedBox(height: 8),
+            _DatePickerRow(
+              label: '이번 등록 날짜',
+              value: entryDate,
+              onChanged: (value) => setState(() => entryDate = value),
+            ),
             const SizedBox(height: 10),
             Row(
               children: [
@@ -597,7 +627,7 @@ class _PlannedEntryItem extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: state.isBusy
                         ? null
-                        : () => state.confirmPlannedEntry(entry.id),
+                        : () => state.confirmPlannedEntry(entry.id, entryDate),
                     child: const Text('확인 처리'),
                   ),
                 ),
@@ -618,6 +648,89 @@ class _PlannedEntryItem extends StatelessWidget {
       ),
     );
   }
+}
+
+class _ConfirmedPlannedEntryItem extends StatelessWidget {
+  const _ConfirmedPlannedEntryItem({required this.entry});
+
+  final LedgerEntry entry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: MoneyCard(
+        color: moneyGreenSoft,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('${entry.dueDay ?? '-'}일 ${entry.usagePlace ?? entry.title}',
+                style:
+                    const TextStyle(fontSize: 17, fontWeight: FontWeight.w900)),
+            if ((entry.usageItem ?? '').isNotEmpty)
+              Text(entry.usageItem!, style: const TextStyle(color: moneyMuted)),
+            const SizedBox(height: 8),
+            _Line(label: '예정액', value: won(entry.amountValue)),
+            const SizedBox(height: 4),
+            const Text('이번 달 원장에 편입되었습니다.',
+                style:
+                    TextStyle(color: moneyMuted, fontWeight: FontWeight.w700)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DatePickerRow extends StatelessWidget {
+  const _DatePickerRow({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String label;
+  final String value;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton(
+      onPressed: () async {
+        final initialDate = DateTime.tryParse(value) ?? DateTime.now();
+        final picked = await showDatePicker(
+          context: context,
+          initialDate: initialDate,
+          firstDate: DateTime(2020, 1, 1),
+          lastDate: DateTime(2100, 12, 31),
+        );
+        if (picked == null) return;
+        onChanged(
+            '${picked.year.toString().padLeft(4, '0')}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}');
+      },
+      child: Row(
+        children: [
+          Text(label),
+          const Spacer(),
+          Text(shortDate(value),
+              style: const TextStyle(fontWeight: FontWeight.w900)),
+        ],
+      ),
+    );
+  }
+}
+
+String _plannedEntryDefaultDate(String month, int? dueDay) {
+  final parts = month.split('-');
+  if (parts.length != 2) return DateTime.now().toIso8601String().substring(0, 10);
+  final year = int.tryParse(parts[0]);
+  final monthValue = int.tryParse(parts[1]);
+  if (year == null || monthValue == null) {
+    return DateTime.now().toIso8601String().substring(0, 10);
+  }
+  final lastDay = DateTime(year, monthValue + 1, 0).day;
+  final day = (dueDay ?? 1).clamp(1, lastDay);
+  return '${year.toString().padLeft(4, '0')}-${monthValue.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}';
 }
 
 class _SettingField extends StatelessWidget {

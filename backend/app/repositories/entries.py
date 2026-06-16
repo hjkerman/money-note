@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from typing import Any
 
 from app.db import session
@@ -51,7 +51,25 @@ def list_entries(section: str, today: date | None = None) -> list[dict[str, Any]
     return [row_to_dict(row) for row in rows]
 
 
-def confirm_planned_entry(entry_id: int, today: date | None = None) -> dict[str, Any] | None:
+def list_confirmed_planned_entries(today: date | None = None) -> list[dict[str, Any]]:
+    """이번 달에 이미 원장 편입한 카드 정기결제 원본을 조회한다."""
+    confirmed_month = (today or app_today()).strftime("%Y-%m")
+    with session() as conn:
+        rows = conn.execute(
+            """
+            SELECT *
+            FROM ledger_entries
+            WHERE book_section = 'current'
+              AND entry_kind = 'planned'
+              AND confirmed_month = ?
+            ORDER BY COALESCE(due_day, 99), sort_order, id
+            """,
+            (confirmed_month,),
+        ).fetchall()
+    return [row_to_dict(row) for row in rows]
+
+
+def confirm_planned_entry(entry_id: int, today: date | None = None, entry_date: str | None = None) -> dict[str, Any] | None:
     today = today or app_today()
     confirmed_month = today.strftime("%Y-%m")
     with session() as conn:
@@ -63,7 +81,7 @@ def confirm_planned_entry(entry_id: int, today: date | None = None) -> dict[str,
         if planned["confirmed_month"] == confirmed_month:
             raise ValueError("card recurring entry already confirmed")
 
-        payment_date = planned_entry_payment_date(planned["due_day"], today)
+        payment_date = _parse_confirm_entry_date(entry_date, confirmed_month) if entry_date else planned_entry_payment_date(planned["due_day"], today)
         date_label = f"{payment_date:%Y.%m.%d}."
         max_order = conn.execute(
             """
@@ -103,6 +121,16 @@ def confirm_planned_entry(entry_id: int, today: date | None = None) -> dict[str,
         entry = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (cursor.lastrowid,)).fetchone()
         updated_planned = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (entry_id,)).fetchone()
     return {"planned": row_to_dict(updated_planned), "entry": row_to_dict(entry)}
+
+
+def _parse_confirm_entry_date(value: str, expected_month: str) -> date:
+    try:
+        parsed = datetime.strptime(value, "%Y-%m-%d").date()
+    except ValueError as exc:
+        raise ValueError("정기결제 등록 날짜 형식이 올바르지 않습니다.") from exc
+    if parsed.strftime("%Y-%m") != expected_month:
+        raise ValueError("정기결제 등록 날짜는 이번 달 날짜여야 합니다.")
+    return parsed
 
 
 def planned_entry_payment_date(due_day: int | None, today: date | None = None) -> date:

@@ -788,6 +788,28 @@ th {
   text-decoration: underline;
 }
 
+.compact-date-input {
+  min-width: 138px;
+}
+
+.confirmed-planned-list {
+  margin-top: 18px;
+}
+
+.panel-subheader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 12px 0 8px;
+  color: #4f5a49;
+}
+
+.panel-subheader h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
 .discount-cell button,
 .discount-editor button {
   padding: 5px 7px;

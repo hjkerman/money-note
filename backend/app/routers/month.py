@@ -10,6 +10,7 @@ from app.repository import (
     delete_panel,
     delete_panels_by_type,
     delete_planned_entry,
+    list_confirmed_planned_entries,
     list_cash_flows,
     list_entries,
     list_panels,
@@ -25,6 +26,7 @@ from app.schemas import (
     MonthlyPanelIn,
     MonthlyPanelPatch,
     PanelDiscountPatch,
+    PlannedConfirmIn,
     PlannedEntryIn,
     Summary,
 )
@@ -43,14 +45,19 @@ def post_planned_entry(entry: PlannedEntryIn, _: dict = Depends(require_user)) -
 
 
 @router.post("/planned/{entry_id}/confirm")
-def post_confirm_planned_entry(entry_id: int, _: dict = Depends(require_user)) -> dict:
+def post_confirm_planned_entry(entry_id: int, payload: PlannedConfirmIn | None = None, _: dict = Depends(require_user)) -> dict:
     try:
-        result = confirm_planned_entry(entry_id)
+        result = confirm_planned_entry(entry_id, entry_date=payload.entry_date if payload else None)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     if result is None:
         raise HTTPException(status_code=404, detail="planned entry not found")
     return result
+
+
+@router.get("/planned/confirmed", response_model=list[LedgerEntry])
+def get_confirmed_planned_entries(_: dict = Depends(require_user)) -> list[dict]:
+    return list_confirmed_planned_entries()
 
 
 @router.delete("/planned/{entry_id}")

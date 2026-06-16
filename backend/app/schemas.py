@@ -66,6 +66,7 @@ class LedgerEntryIn(BaseModel):
     sort_order: int
     due_day: int | None = None
     confirmed_at: str | None = None
+    confirmed_month: str | None = None
     spending_category: str | None = None
     payment_key: str | None = None
     discount_override: int = 0
@@ -92,6 +93,7 @@ class LedgerEntryPatch(BaseModel):
     sort_order: int | None = None
     due_day: int | None = None
     confirmed_at: str | None = None
+    confirmed_month: str | None = None
     spending_category: str | None = None
     discount_override: int | None = None
 
@@ -111,6 +113,10 @@ class PlannedEntryIn(BaseModel):
     due_day: int = Field(ge=1, le=31)
 
     _integer_money = field_validator("amount_value", mode="before")(integer_money)
+
+
+class PlannedConfirmIn(BaseModel):
+    entry_date: str | None = None
 
 
 class EntryReorder(BaseModel):

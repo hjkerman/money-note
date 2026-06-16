@@ -60,6 +60,7 @@ export function App() {
     cardLimitInput,
     cardPayments,
     cashFlows,
+    confirmedPlannedEntries,
     clearLedgerState,
     entries,
     familyCardLast4Input,
@@ -422,15 +423,17 @@ export function App() {
 
           <FixedPanelView
               active={activePrimaryTab === "fixed"}
+              currentMonth={currentMonth}
               handlePanelDelete={(panel) => void handlePanelDelete(panel)}
               handlePanelSubmit={handlePanelSubmit}
-              handlePlannedConfirm={(entry) => void handlePlannedConfirm(entry)}
+              handlePlannedConfirm={(entry, entryDate) => void handlePlannedConfirm(entry, entryDate)}
               handlePlannedDelete={(entry) => void handlePlannedDelete(entry)}
               handlePlannedSubmit={(event) => void handlePlannedSubmit(event)}
               isBusy={isBusy}
               labels={labels}
               panelForm={panelForm}
               panels={panels}
+              confirmedPlannedEntries={confirmedPlannedEntries}
               plannedEntries={plannedEntries}
               plannedForm={plannedForm}
               setPanelForm={setPanelForm}

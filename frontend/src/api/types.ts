@@ -24,6 +24,7 @@ export type LedgerEntry = {
   sort_order: number;
   due_day: number | null;
   confirmed_at: string | null;
+  confirmed_month: string | null;
   spending_category: SpendingCategory | null;
   payment_key: string | null;
   discount_override: number;

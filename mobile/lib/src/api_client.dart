@@ -76,6 +76,11 @@ class MoneyNoteApiClient {
     return _getList('/api/entries/current', LedgerEntry.fromJson);
   }
 
+  Future<List<LedgerEntry>> confirmedPlannedEntries() {
+    return _getList(
+        '/api/month/current/planned/confirmed', LedgerEntry.fromJson);
+  }
+
   Future<List<MonthlyPanel>> currentPanels() {
     return _getList('/api/month/current/panels', MonthlyPanel.fromJson);
   }
@@ -166,9 +171,10 @@ class MoneyNoteApiClient {
         LedgerEntry.fromJson);
   }
 
-  Future<Map<String, dynamic>> confirmPlannedEntry(int entryId) {
-    return _post('/api/month/current/planned/$entryId/confirm', const {},
-        (json) => json);
+  Future<Map<String, dynamic>> confirmPlannedEntry(
+      int entryId, String entryDate) {
+    return _post('/api/month/current/planned/$entryId/confirm',
+        {'entry_date': entryDate}, (json) => json);
   }
 
   Future<void> deletePlannedEntry(int entryId) async {

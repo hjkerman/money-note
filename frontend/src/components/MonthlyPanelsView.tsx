@@ -9,6 +9,7 @@ type PlannedForm = { dueDay: string; usagePlace: string; usageItem: string; amou
 
 export function FixedPanelView({
   active,
+  currentMonth,
   handlePanelDelete,
   handlePanelSubmit,
   handlePlannedConfirm,
@@ -18,6 +19,7 @@ export function FixedPanelView({
   labels,
   panelForm,
   panels,
+  confirmedPlannedEntries,
   plannedEntries,
   plannedForm,
   setPanelForm,
@@ -25,15 +27,17 @@ export function FixedPanelView({
   summary,
 }: {
   active: boolean;
+  currentMonth: string;
   handlePanelDelete: (panel: MonthlyPanel) => void;
   handlePanelSubmit: (event: FormEvent, panelType: MonthlyPanel["panel_type"]) => Promise<void>;
-  handlePlannedConfirm: (entry: LedgerEntry) => void;
+  handlePlannedConfirm: (entry: LedgerEntry, entryDate?: string) => void;
   handlePlannedDelete: (entry: LedgerEntry) => void;
   handlePlannedSubmit: (event: FormEvent) => void;
   isBusy: boolean;
   labels: Record<string, string>;
   panelForm: PanelForm;
   panels: MonthlyPanel[];
+  confirmedPlannedEntries: LedgerEntry[];
   plannedEntries: LedgerEntry[];
   plannedForm: PlannedForm;
   setPanelForm: Dispatch<SetStateAction<PanelForm>>;
@@ -99,10 +103,44 @@ export function FixedPanelView({
         <PlannedTable
           entries={plannedEntries}
           emptyText="카드 정기결제 항목이 없습니다."
-          onConfirm={(entry) => handlePlannedConfirm(entry)}
+          month={currentMonth}
+          onConfirm={(entry, entryDate) => handlePlannedConfirm(entry, entryDate)}
           onDelete={(entry) => handlePlannedDelete(entry)}
         />
+        <ConfirmedPlannedList entries={confirmedPlannedEntries} />
       </section>
+    </section>
+  );
+}
+
+function ConfirmedPlannedList({ entries }: { entries: LedgerEntry[] }) {
+  if (!entries.length) return null;
+  return (
+    <section className="confirmed-planned-list">
+      <div className="panel-subheader">
+        <h3>이번 달 확인 처리된 정기결제</h3>
+        <span>{entries.length}건</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>기본 결제일</th>
+            <th>사용처</th>
+            <th>세부내역</th>
+            <th className="amount">금액</th>
+          </tr>
+        </thead>
+        <tbody>
+          {entries.map((entry) => (
+            <tr key={entry.id}>
+              <td className="date">{entry.due_day ? `매월 ${entry.due_day}일` : "날짜 없음"}</td>
+              <td>{entry.usage_place ?? ""}</td>
+              <td>{entry.usage_item || "좌동"}</td>
+              <td className="amount">{formatWon(entry.amount_value)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </section>
   );
 }

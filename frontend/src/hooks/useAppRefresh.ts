@@ -47,6 +47,7 @@ export function useAppRefresh({
 }) {
   const { loadLedgerSnapshot } = useLedgerSnapshot();
   const [entries, setEntries] = useState<LedgerEntry[]>([]);
+  const [confirmedPlannedEntries, setConfirmedPlannedEntries] = useState<LedgerEntry[]>([]);
   const [archiveEntries, setArchiveEntries] = useState<LedgerEntry[]>([]);
   const [panels, setPanels] = useState<MonthlyPanel[]>([]);
   const [cashFlows, setCashFlows] = useState<CashFlow[]>([]);
@@ -81,6 +82,7 @@ export function useAppRefresh({
     try {
       const snapshot = await loadLedgerSnapshot();
       setEntries(snapshot.entries);
+      setConfirmedPlannedEntries(snapshot.confirmedPlannedEntries);
       setArchiveEntries(snapshot.archiveEntries);
       setPanels(snapshot.panels);
       setSummary(snapshot.summary);
@@ -153,6 +155,7 @@ export function useAppRefresh({
     cashFlows,
     clearLedgerState,
     entries,
+    confirmedPlannedEntries,
     familyCardLast4Input,
     familyDiscountMonth,
     interestExpenseInput,

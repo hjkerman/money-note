@@ -66,6 +66,7 @@ export function useEntryHandlers({
         sort_order: nextSortOrder(entries),
         due_day: null,
         confirmed_at: null,
+        confirmed_month: null,
         spending_category: (expenseForm.spendingCategory || null) as SpendingCategory | null,
         discount_override: 0,
       });
@@ -100,12 +101,14 @@ export function useEntryHandlers({
     });
   }
 
-  async function handlePlannedConfirm(entry: LedgerEntry) {
+  async function handlePlannedConfirm(entry: LedgerEntry, entryDate?: string) {
     const dueText = entry.due_day ? `${entry.due_day}일` : "오늘";
-    const confirmed = window.confirm(`${entry.title}을 ${dueText} 카드 결제 건으로 당월 지출에 넣을까요?`);
+    const confirmed = window.confirm(
+      `${entry.title}을 ${entryDate ?? dueText} 카드 결제 건으로 당월 지출에 넣을까요?`,
+    );
     if (!confirmed) return;
     await withRefresh(async () => {
-      await confirmPlannedEntry(entry.id);
+      await confirmPlannedEntry(entry.id, { entry_date: entryDate || null });
       setStatus(`${entry.title} 확인 완료`);
     });
   }

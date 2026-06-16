@@ -91,6 +91,7 @@ class LedgerEntry {
     this.auxAmountValue,
     this.discountOverride = 0,
     this.dueDay,
+    this.confirmedMonth,
   });
 
   final int id;
@@ -107,6 +108,7 @@ class LedgerEntry {
   final int? auxAmountValue;
   final int discountOverride;
   final int? dueDay;
+  final String? confirmedMonth;
 
   int get manualDiscount => discountOverride != 0 ? (auxAmountValue ?? 0) : 0;
   bool get isDiscountExcluded => discountOverride != 0 && manualDiscount <= 0;
@@ -141,6 +143,7 @@ class LedgerEntry {
           : _int(json['aux_amount_value']),
       discountOverride: _int(json['discount_override']),
       dueDay: json['due_day'] == null ? null : _int(json['due_day']),
+      confirmedMonth: json['confirmed_month'] as String?,
     );
   }
 }

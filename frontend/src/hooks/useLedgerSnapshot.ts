@@ -6,6 +6,7 @@ import {
   fetchCurrentEntries,
   fetchCurrentPanels,
   fetchArchiveEntries,
+  fetchConfirmedPlannedEntries,
   fetchJudgment,
   fetchLabels,
   fetchMonthCloseStatus,
@@ -18,6 +19,7 @@ export async function fetchLedgerSnapshot() {
   const calendarMonth = monthCloseStatus.calendar_month;
   const [
     entries,
+    confirmedPlannedEntries,
     archiveEntries,
     panels,
     summary,
@@ -30,6 +32,7 @@ export async function fetchLedgerSnapshot() {
     familyDiscountMonth,
   ] = await Promise.all([
     fetchCurrentEntries(),
+    fetchConfirmedPlannedEntries(),
     fetchArchiveEntries(),
     fetchCurrentPanels(),
     fetchSummary(),
@@ -44,6 +47,7 @@ export async function fetchLedgerSnapshot() {
 
   return {
     entries,
+    confirmedPlannedEntries,
     archiveEntries,
     panels,
     summary,
