@@ -443,6 +443,15 @@ Manifest 원칙:
 - 각 테이블의 컬럼 목록, row count, 테이블별 hash를 기록한다.
 - restore 시 manifest가 재계산 결과와 다르면 복원하지 않는다.
 
+하위호환 원칙:
+
+- restore는 먼저 snapshot 원문 기준으로 manifest를 검증한다.
+- 검증을 통과한 뒤 현재 서버 스키마에 없는 컬럼은 무시한다.
+- 현재 서버 스키마에 새로 생긴 컬럼이 snapshot에 없으면 DB 기본값 또는 `NULL` 허용 정책에 맡긴다.
+- `NOT NULL`인데 기본값이 없는 필수 컬럼이 누락된 경우에는 dry-run restore 단계에서 실패해야 한다.
+- 알 수 없는 필드가 있다는 이유만으로 백업 파일을 손상으로 보지 않는다. 단, manifest가 그 알 수 없는 필드까지 포함한 원문과 일치해야 한다.
+- 민감 설정, 필수 테이블 누락, 외래키 오류, manifest 불일치는 계속 복원 차단 사유다.
+
 Snapshot에 포함하는 것:
 
 - 전체 `ledger_entries`

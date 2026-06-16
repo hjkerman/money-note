@@ -511,7 +511,9 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> sharePanel(String panelType) async {
-    await Share.share(api.sharePageUri(panelType).toString());
+    await SharePlus.instance.share(
+      ShareParams(text: api.sharePageUri(panelType).toString()),
+    );
   }
 
   Future<void> createCashFlow({
@@ -567,12 +569,14 @@ class AppState extends ChangeNotifier {
       }
       snapshots.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
       final current = await _safeSnapshotFile(snapshots.first.filename);
-      await Share.shareXFiles(
-        [
-          XFile(current.path,
-              mimeType: 'application/json', name: snapshots.first.filename)
-        ],
-        text: 'Money-Note 스냅샷 백업',
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [
+            XFile(current.path,
+                mimeType: 'application/json', name: snapshots.first.filename)
+          ],
+          text: 'Money-Note 스냅샷 백업',
+        ),
       );
       localSnapshots = await listLocalSnapshots();
       statusMessage = '스냅샷 공유 준비 완료';
@@ -582,13 +586,15 @@ class AppState extends ChangeNotifier {
   Future<void> shareLocalSnapshot(String filename) async {
     await _run(() async {
       final snapshot = await _safeSnapshotFile(filename);
-      await Share.shareXFiles(
-        [
-          XFile(snapshot.path,
-              mimeType: 'application/json',
-              name: 'money-note-snapshot-${_timestampForFilename()}.json')
-        ],
-        text: 'Money-Note 스냅샷 백업',
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [
+            XFile(snapshot.path,
+                mimeType: 'application/json',
+                name: 'money-note-snapshot-${_timestampForFilename()}.json')
+          ],
+          text: 'Money-Note 스냅샷 백업',
+        ),
       );
       statusMessage = '스냅샷 공유 준비 완료';
     });

@@ -98,14 +98,6 @@ class NotificationBridge {
     }
   }
 
-  Future<List<CardNotificationCandidate>> listRawArchive() async {
-    return listCandidates();
-  }
-
-  Future<String> rawArchiveLogText() async {
-    return wooriLogText();
-  }
-
   Future<void> openSettings() async {
     await _channel.invokeMethod<bool>('openSettings');
   }

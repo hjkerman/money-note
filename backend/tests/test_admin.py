@@ -39,7 +39,7 @@ class AdminApiTest(unittest.TestCase):
         import app.main as main_module
 
         main_module = importlib.reload(main_module)
-        paths = {route.path for route in main_module.app.routes}
+        paths = set(main_module.app.openapi()["paths"])
         self.assertIn("/api/admin/reset-ledger-data", paths)
         self.assertIn("/api/admin/snapshot", paths)
         self.assertIn("/api/admin/snapshot/restore", paths)

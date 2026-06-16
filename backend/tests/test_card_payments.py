@@ -157,7 +157,7 @@ class CardPaymentDeferralTest(unittest.TestCase):
         self.assertEqual(discount_month_status("2026-05", "owner")["policy"], "disabled")
         self.assertEqual(discount_month_status("2026-05", "family")["policy"], "enabled")
 
-    def test_current_entry_discount_is_recorded_and_blocked_only_when_policy_disabled(self) -> None:
+    def test_current_entry_manual_discount_survives_disabled_month_policy(self) -> None:
         with session() as conn:
             conn.execute(
                 """
@@ -180,18 +180,18 @@ class CardPaymentDeferralTest(unittest.TestCase):
 
         set_discount_month_policy("2026-06", "disabled", "owner")
         disabled = discount_month_status("2026-06", "owner")
-        self.assertEqual(disabled["discounts"]["current-key"], 0)
-        with self.assertRaisesRegex(ValueError, "할인 혜택이 없는 달"):
-            create_card_payment_event(
-                CardPaymentEventIn(
-                    event_date="2026-06-20",
-                    event_type="discount",
-                    allocations=[CardPaymentAllocationIn(entry_payment_key="current-key", amount_value=100)],
-                ),
-                date(2026, 6, 20),
-            )
+        self.assertEqual(disabled["discounts"]["current-key"], 120)
+        create_card_payment_event(
+            CardPaymentEventIn(
+                event_date="2026-06-20",
+                event_type="discount",
+                allocations=[CardPaymentAllocationIn(entry_payment_key="current-key", amount_value=100)],
+            ),
+            date(2026, 6, 20),
+        )
+        self.assertEqual(discount_month_status("2026-06", "owner")["discounts"]["current-key"], 220)
         set_discount_month_policy("2026-06", "enabled", "owner")
-        self.assertEqual(discount_month_status("2026-06", "owner")["discounts"]["current-key"], 120)
+        self.assertEqual(discount_month_status("2026-06", "owner")["discounts"]["current-key"], 220)
 
     def test_unchecked_entries_get_default_discount(self) -> None:
         status = current_payment_status(date(2026, 6, 4))

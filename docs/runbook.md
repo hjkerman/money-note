@@ -715,21 +715,28 @@ flutter run -d emulator-5554 --dart-define=MONEY_NOTE_API_BASE_URL=http://10.0.2
 flutter build apk --release --dart-define=MONEY_NOTE_API_BASE_URL=https://money.hjkerman.re.kr
 ```
 
-### 8. 알림 원문 보관함 확인
+Android Gradle 메모:
 
-모바일 앱의 `알림에서 가져오기`는 당분간 Raw Notification Archive로 동작한다. Android의 NotificationListenerService가 받은 최근 알림 100건을 앱 로컬에 저장하고, 화면에서 원문을 확인한다.
+- 앱 모듈 자체는 Flutter built-in Kotlin 방식에 맞춰 `org.jetbrains.kotlin.android` 플러그인을 직접 적용하지 않는다.
+- `kotlin.compilerOptions` DSL로 JVM target을 지정한다.
+- `share_plus`는 최신 제약으로 올려도 현재 플러그인 내부에서 Kotlin Gradle Plugin 경고가 남을 수 있다.
+- 이 경우 앱 로직 문제가 아니라 Flutter 플러그인 생태계의 이행 상태 문제다. `flutter build apk`가 통과하는지 확인하고, 향후 `share_plus` 릴리즈에서 built-in Kotlin 이행이 완료되면 다시 `flutter pub upgrade share_plus`로 점검한다.
+
+### 8. 우리카드 알림 후보함 확인
+
+모바일 앱의 `알림에서 가져오기`는 우리카드 승인 알림을 로컬 후보함으로 모으는 화면이다. Android의 `NotificationListenerService`는 `com.wooricard.smartapp` 알림만 처리하며, 다른 앱 알림은 후보로도 로그로도 저장하지 않는다.
 
 처리 원칙:
 
-- 모든 앱 알림을 저장한다.
-- packageName allowlist로 거르지 않는다.
-- 자동 후보 생성은 하지 않는다.
-- 자동 지출 등록, 자동 가족카드 등록, 자동 청구 등록은 하지 않는다.
-- 서버로 아무 데이터도 보내지 않는다.
-- 저장 대상은 capturedAt, packageName, title, text, bigText, subText, textLines, rawText, notification key/postTime, ongoing 여부, category다.
-- 최근 100건만 유지하며, 100건을 넘으면 오래된 항목부터 제거한다.
-- 저장 시 Android 로그 태그 `MN_NOTIFY`로 packageName, title, text, bigText, rawText, 저장 성공 여부, 저장 건수를 남긴다.
-- 화면의 `txt 로그 공유` 버튼으로 관측 로그를 텍스트 파일로 공유할 수 있다.
+- 일시불 승인 알림만 자동 후보 생성 대상으로 삼는다.
+- 후보는 앱 로컬에 저장하며, 알림 수신 즉시 서버로 전송하지 않는다.
+- 사용자가 후보를 확인하고 `등록`을 눌렀을 때만 기존 본인 원장, 청구, 가족카드 API를 호출한다.
+- 본인카드 후보는 기본 `본인 사용`, 선택 가능 대상은 `본인 사용`/`청구 사용`이다.
+- 가족카드 후보는 기본 `가족 사용`, 선택 가능 대상은 `가족 사용`/`본인 사용`이다.
+- 할부 승인, 파싱 실패, 광고/혜택 안내는 후보로 만들지 않고 최근 우리카드 알림 로그에 남긴다.
+- 최근 우리카드 알림 로그는 로컬에 30건만 유지한다.
+- 저장 시 Android 로그 태그 `MN_NOTIFY`로 packageName, title, text, bigText, rawText, 파싱 상태, 후보 생성 여부, 저장 건수를 남긴다.
+- `상태 -> 관리 -> 최근 우리카드 알림`에서 원문과 파싱 결과를 확인하고 공유할 수 있다.
 
 Android에서 권한을 켠다.
 
@@ -743,13 +750,14 @@ Android에서 권한을 켠다.
 - 알림 접근 권한: Android 알림 원문을 관측하기 위한 권한
 - 앱 알림 표시 권한: 향후 알림 관련 안내를 띄우기 위한 권한
 
-알림 수집 동작은 아래 파일을 먼저 확인한다.
+알림 수집과 후보 생성 동작은 아래 파일을 먼저 확인한다.
 
 ```text
 mobile/android/app/src/main/kotlin/com/example/money_note_mobile/CardNotificationListenerService.kt
+mobile/android/app/src/main/kotlin/com/example/money_note_mobile/NotificationCandidateStore.kt
 ```
 
-현재 이 파일은 allowlist 없이 모든 알림을 raw archive에 저장한다. 별도 polling이나 백그라운드 상시 루프는 두지 않는다.
+별도 polling이나 백그라운드 상시 루프는 두지 않는다. 알림 리스너 콜백으로 들어온 우리카드 알림만 처리한다.
 
 ## 로그인 계정 생성
 
@@ -906,6 +914,14 @@ curl -OJ -b /tmp/money-note-cookie.txt \
 현재 snapshot 형식은 `schema_version = 3`이다.
 
 `manifest`는 canonical JSON 기준 SHA-256 무결성 정보를 담는다. `manifest` 자기 자신은 hash 대상에서 제외하며, `data` 전체 hash와 테이블별 컬럼 목록, row count, table hash를 기록한다.
+
+하위호환 정책:
+
+- 서버는 snapshot 원문 기준으로 manifest를 먼저 검증한다.
+- 검증을 통과한 뒤 현재 서버가 모르는 컬럼은 복원 삽입 전에 무시한다.
+- 현재 서버에 새로 생긴 컬럼이 구버전 snapshot에 없으면 DB 기본값 또는 `NULL`로 복원한다.
+- 필수 테이블 누락, 민감 설정 포함, manifest 불일치, 외래키 오류는 계속 복원 실패로 처리한다.
+- `NOT NULL`이면서 기본값이 없는 새 필수 컬럼이 누락된 경우에는 임시 DB dry-run에서 실패해야 하며, 운영 DB는 건드리지 않는다.
 
 복원은 위험 작업이다. 현재 비밀번호를 다시 확인하며, 장부 운용 데이터와 비민감 운영 설정이 snapshot 내용으로 교체된다. 사용자 계정, 본체 로그인 세션, 가족 공유 세션, 관리 로그는 유지된다.
 

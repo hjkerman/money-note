@@ -500,13 +500,15 @@ class _WooriNotificationLogScreenState
     final file =
         File('${directory.path}/money-note-woori-notification-log.txt');
     await file.writeAsString(text, flush: true);
-    await Share.shareXFiles(
-      [
-        XFile(file.path,
-            mimeType: 'text/plain',
-            name: 'money-note-woori-notification-log.txt')
-      ],
-      text: 'Money-Note 우리카드 알림 로그',
+    await SharePlus.instance.share(
+      ShareParams(
+        files: [
+          XFile(file.path,
+              mimeType: 'text/plain',
+              name: 'money-note-woori-notification-log.txt')
+        ],
+        text: 'Money-Note 우리카드 알림 로그',
+      ),
     );
   }
 

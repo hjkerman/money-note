@@ -92,6 +92,38 @@ class SnapshotTest(unittest.TestCase):
         self.assertEqual(restored["ledger_entries"], 3)
         self.assertEqual(restored["monthly_panels"], 4)
 
+    def test_restore_ignores_unknown_snapshot_columns_after_manifest_validation(self) -> None:
+        self._seed_data()
+        _, snapshot = export_snapshot(date(2026, 6, 11))
+        for row in snapshot["data"]["ledger_entries"]:
+            row["future_client_note"] = "나중에 생긴 컬럼"
+        for row in snapshot["data"]["monthly_panels"]:
+            row["future_panel_note"] = "나중에 생긴 패널 컬럼"
+        snapshot["manifest"] = self._rebuilt_manifest(snapshot["data"])
+        snapshot["snapshot_id"] = snapshot["manifest"]["data_sha256"]
+
+        restored = restore_snapshot(snapshot)
+
+        self.assertEqual(restored["ledger_entries"], 3)
+        self.assertEqual(restored["monthly_panels"], 4)
+        with session() as conn:
+            ledger_columns = {row["name"] for row in conn.execute("PRAGMA table_info(ledger_entries)").fetchall()}
+            panel_columns = {row["name"] for row in conn.execute("PRAGMA table_info(monthly_panels)").fetchall()}
+        self.assertNotIn("future_client_note", ledger_columns)
+        self.assertNotIn("future_panel_note", panel_columns)
+
+    def test_restore_accepts_empty_table_manifest_from_older_column_set(self) -> None:
+        self._seed_data()
+        _, snapshot = export_snapshot(date(2026, 6, 11))
+        snapshot["data"]["app_labels"] = []
+        snapshot["manifest"] = self._rebuilt_manifest(snapshot["data"])
+        snapshot["manifest"]["tables"]["app_labels"]["columns"] = ["key", "value"]
+        snapshot["snapshot_id"] = snapshot["manifest"]["data_sha256"]
+
+        restored = restore_snapshot(snapshot)
+
+        self.assertEqual(restored["app_labels"], 0)
+
     def test_restore_replaces_ledger_data_and_preserves_auth_share_and_audit(self) -> None:
         self._seed_data()
         _, snapshot = export_snapshot(date(2026, 6, 11))

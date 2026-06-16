@@ -238,7 +238,7 @@ def _validate_snapshot(snapshot: dict[str, Any]) -> None:
     manifest = snapshot.get("manifest")
     if not isinstance(manifest, dict):
         raise ValueError("snapshot manifest is missing")
-    expected_manifest = _build_manifest(data)
+    expected_manifest = _build_manifest(data, _manifest_table_columns(manifest))
     if manifest != expected_manifest:
         raise ValueError("snapshot manifest mismatch")
 
@@ -246,8 +246,12 @@ def _validate_snapshot(snapshot: dict[str, Any]) -> None:
 def _normalized_snapshot_data(data: dict[str, list[dict[str, Any]]]) -> dict[str, list[dict[str, Any]]]:
     normalized: dict[str, list[dict[str, Any]]] = {}
     for table in SNAPSHOT_TABLES:
+        schema_columns = set(_schema_columns(table))
         ignored = LEGACY_SNAPSHOT_COLUMNS.get(table, set())
-        normalized[table] = [{key: value for key, value in row.items() if key not in ignored} for row in data[table]]
+        normalized[table] = [
+            {key: value for key, value in row.items() if key in schema_columns and key not in ignored}
+            for row in data[table]
+        ]
     return normalized
 
 
@@ -255,13 +259,16 @@ def _table_columns(conn: Any, table: str) -> set[str]:
     return {row["name"] for row in conn.execute(f"PRAGMA table_info({table})").fetchall()}
 
 
-def _build_manifest(data: dict[str, list[dict[str, Any]]]) -> dict[str, Any]:
+def _build_manifest(
+    data: dict[str, list[dict[str, Any]]],
+    empty_table_columns: dict[str, list[str]] | None = None,
+) -> dict[str, Any]:
     tables = {}
     for table in SNAPSHOT_TABLES:
         rows = data.get(table)
         if not isinstance(rows, list):
             raise ValueError(f"{table} must be a list")
-        columns = _snapshot_columns(table, rows)
+        columns = _snapshot_columns(table, rows, empty_table_columns.get(table) if empty_table_columns else None)
         for row in rows:
             row_columns = sorted(row.keys())
             if row_columns != columns:
@@ -278,15 +285,35 @@ def _build_manifest(data: dict[str, list[dict[str, Any]]]) -> dict[str, Any]:
     }
 
 
-def _snapshot_columns(table: str, rows: list[dict[str, Any]]) -> list[str]:
+def _snapshot_columns(
+    table: str,
+    rows: list[dict[str, Any]],
+    empty_columns: list[str] | None = None,
+) -> list[str]:
     if rows:
         return sorted(rows[0].keys())
+    if empty_columns is not None:
+        return sorted(empty_columns)
     return _schema_columns(table)
 
 
 def _schema_columns(table: str) -> list[str]:
     with _schema_connection() as conn:
         return sorted(_table_columns(conn, table))
+
+
+def _manifest_table_columns(manifest: dict[str, Any]) -> dict[str, list[str]]:
+    tables = manifest.get("tables")
+    if not isinstance(tables, dict):
+        return {}
+    columns: dict[str, list[str]] = {}
+    for table, info in tables.items():
+        if table not in SNAPSHOT_TABLES or not isinstance(info, dict):
+            continue
+        table_columns = info.get("columns")
+        if isinstance(table_columns, list) and all(isinstance(column, str) for column in table_columns):
+            columns[table] = table_columns
+    return columns
 
 
 def _stable_hash(value: Any) -> str:
