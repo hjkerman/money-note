@@ -15,8 +15,23 @@ class MainActivity : FlutterActivity() {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "money_note/notifications").setMethodCallHandler { call, result ->
             when (call.method) {
-                "listRawArchive" -> result.success(NotificationCandidateStore.listRaw(applicationContext))
-                "rawArchiveLogText" -> result.success(NotificationCandidateStore.logText(applicationContext))
+                "configureCards" -> {
+                    NotificationCandidateStore.configureCards(
+                        applicationContext,
+                        call.argument<String>("owner_card_last4").orEmpty(),
+                        call.argument<String>("family_card_last4").orEmpty()
+                    )
+                    result.success(true)
+                }
+                "listCandidates" -> result.success(NotificationCandidateStore.listCandidates(applicationContext))
+                "candidateCounts" -> result.success(NotificationCandidateStore.candidateCounts(applicationContext))
+                "manualReviewCount" -> result.success(NotificationCandidateStore.manualReviewCount(applicationContext))
+                "deleteCandidate" -> result.success(NotificationCandidateStore.deleteCandidate(applicationContext, call.argument<String>("id").orEmpty()))
+                "clearCandidatesByRole" -> result.success(NotificationCandidateStore.clearCandidatesByRole(applicationContext, call.argument<String>("role").orEmpty()))
+                "listWooriLogs" -> result.success(NotificationCandidateStore.listWooriLogs(applicationContext))
+                "wooriLogText" -> result.success(NotificationCandidateStore.wooriLogText(applicationContext))
+                "deleteWooriLog" -> result.success(NotificationCandidateStore.deleteWooriLog(applicationContext, call.argument<String>("id").orEmpty()))
+                "clearWooriLogs" -> result.success(NotificationCandidateStore.clearWooriLogs(applicationContext))
                 "openSettings" -> {
                     startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
                     result.success(true)

@@ -5,6 +5,7 @@ import '../formatters.dart';
 import '../models.dart';
 import '../theme.dart';
 import '../widgets/money_card.dart';
+import 'notification_import_screen.dart';
 import 'snapshot_manager_screen.dart';
 
 class ManagementScreen extends StatelessWidget {
@@ -81,6 +82,13 @@ class ManagementScreen extends StatelessWidget {
             subtitle: '카드번호 4자리와 기본 운영 설정을 관리합니다.',
             icon: Icons.settings_outlined,
             onTap: () => _push(context, MobileSettingsScreen(state: state)),
+          ),
+          _MenuCard(
+            title: '최근 우리카드 알림',
+            subtitle: '파싱 실패, 할부 승인, 원문 로그를 확인합니다.',
+            icon: Icons.notifications_active_outlined,
+            onTap: () =>
+                _push(context, WooriNotificationLogScreen(state: state)),
           ),
         ],
       ),
@@ -722,7 +730,9 @@ class _DatePickerRow extends StatelessWidget {
 
 String _plannedEntryDefaultDate(String month, int? dueDay) {
   final parts = month.split('-');
-  if (parts.length != 2) return DateTime.now().toIso8601String().substring(0, 10);
+  if (parts.length != 2) {
+    return DateTime.now().toIso8601String().substring(0, 10);
+  }
   final year = int.tryParse(parts[0]);
   final monthValue = int.tryParse(parts[1]);
   if (year == null || monthValue == null) {

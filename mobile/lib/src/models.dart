@@ -339,21 +339,60 @@ class AppSettings {
   }
 }
 
-class RawNotificationRecord {
-  RawNotificationRecord({
+class CardNotificationCandidate {
+  CardNotificationCandidate({
+    required this.id,
+    required this.capturedAt,
+    required this.cardLast4,
+    required this.cardRole,
+    required this.entryDate,
+    required this.amount,
+    required this.merchant,
+    required this.rawText,
+  });
+
+  final String id;
+  final int capturedAt;
+  final String cardLast4;
+  final String cardRole;
+  final String entryDate;
+  final int amount;
+  final String merchant;
+  final String rawText;
+
+  bool get isOwnerCard => cardRole == 'owner';
+  bool get isFamilyCard => cardRole == 'family';
+
+  factory CardNotificationCandidate.fromJson(Map<String, dynamic> json) {
+    return CardNotificationCandidate(
+      id: json['id'] as String? ?? '',
+      capturedAt: _int(json['captured_at']),
+      cardLast4: json['card_last4'] as String? ?? '',
+      cardRole: json['card_role'] as String? ?? '',
+      entryDate: json['entry_date'] as String? ?? '',
+      amount: _int(json['amount']),
+      merchant: json['merchant'] as String? ?? '',
+      rawText: json['raw_text'] as String? ?? '',
+    );
+  }
+}
+
+class WooriNotificationLog {
+  WooriNotificationLog({
     required this.id,
     required this.capturedAt,
     required this.packageName,
     required this.title,
     required this.text,
     required this.bigText,
-    required this.subText,
-    required this.textLines,
     required this.rawText,
-    required this.notificationKey,
-    required this.postTime,
-    required this.isOngoing,
-    required this.category,
+    required this.isApprovalCandidate,
+    required this.parseStatus,
+    required this.parseFailureReason,
+    required this.cardLast4,
+    required this.entryDate,
+    required this.amount,
+    required this.merchant,
   });
 
   final String id;
@@ -362,34 +401,55 @@ class RawNotificationRecord {
   final String title;
   final String text;
   final String bigText;
-  final String subText;
-  final List<String> textLines;
   final String rawText;
-  final String notificationKey;
-  final int postTime;
-  final bool isOngoing;
-  final String category;
+  final bool isApprovalCandidate;
+  final String parseStatus;
+  final String parseFailureReason;
+  final String cardLast4;
+  final String entryDate;
+  final int amount;
+  final String merchant;
 
-  factory RawNotificationRecord.fromJson(Map<String, dynamic> json) {
-    final lines = json['text_lines'];
-    return RawNotificationRecord(
+  bool get needsManualReview =>
+      parseStatus == 'failed' || parseStatus == 'installment_manual';
+
+  factory WooriNotificationLog.fromJson(Map<String, dynamic> json) {
+    return WooriNotificationLog(
       id: json['id'] as String? ?? '',
       capturedAt: _int(json['captured_at']),
       packageName: json['package_name'] as String? ?? '',
       title: json['title'] as String? ?? '',
       text: json['text'] as String? ?? '',
       bigText: json['big_text'] as String? ?? '',
-      subText: json['sub_text'] as String? ?? '',
-      textLines: lines is List
-          ? lines.map((line) => line?.toString() ?? '').toList()
-          : const [],
       rawText: json['raw_text'] as String? ?? '',
-      notificationKey: json['notification_key'] as String? ?? '',
-      postTime: _int(json['post_time']),
-      isOngoing: json['is_ongoing'] as bool? ?? false,
-      category: json['category'] as String? ?? '',
+      isApprovalCandidate: json['is_approval_candidate'] as bool? ?? false,
+      parseStatus: json['parse_status'] as String? ?? '',
+      parseFailureReason: json['parse_failure_reason'] as String? ?? '',
+      cardLast4: json['card_last4'] as String? ?? '',
+      entryDate: json['entry_date'] as String? ?? '',
+      amount: _int(json['amount']),
+      merchant: json['merchant'] as String? ?? '',
     );
   }
+}
+
+class NotificationCandidateCounts {
+  const NotificationCandidateCounts({
+    required this.owner,
+    required this.family,
+    required this.manualReview,
+  });
+
+  const NotificationCandidateCounts.empty()
+      : owner = 0,
+        family = 0,
+        manualReview = 0;
+
+  final int owner;
+  final int family;
+  final int manualReview;
+
+  int get total => owner + family;
 }
 
 class JudgmentTone {

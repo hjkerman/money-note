@@ -80,18 +80,16 @@ mobile/build/app/outputs/flutter-apk/app-release.apk
 
 서버 설정 모달에서 APK 다운로드를 제공하려면 빌드된 APK를 서버의 `MONEY_NOTE_APK_PATH` 위치에 둔다.
 
-## 알림 원문 보관함
+## 우리카드 알림 후보함
 
-Android 앱은 NotificationListenerService로 알림 원문을 관측한다.
+Android 앱은 NotificationListenerService로 우리카드 승인 알림을 관측한다.
 
 현재 정책:
 
-- 모든 앱 알림을 저장한다.
-- packageName allowlist로 거르지 않는다.
-- 자동 후보 생성, 자동 지출 등록, 자동 가족카드 등록을 하지 않는다.
-- 서버로 아무 데이터도 보내지 않는다.
-- 최근 100건만 앱 로컬에 저장한다.
-- `알림에서 가져오기` 화면은 Raw Notification Archive로 동작한다.
-- 화면에서 packageName, title, text, bigText, textLines, rawText 등을 확인한다.
-- `txt 로그 공유`로 `MN_NOTIFY` 관측 내용을 파일 형태로 공유할 수 있다.
-- 알림 파서 재개발 전까지 이 화면은 실제 Android Notification에 어떤 값이 들어오는지 확인하는 공사장이다.
+- 처리 대상 packageName은 `com.wooricard.smartapp` 하나다.
+- 우리카드가 아닌 앱 알림은 후보로도 로그로도 저장하지 않는다.
+- 일시불 승인 알림을 파싱해 본인카드/가족카드 후보함에 로컬 저장한다.
+- 알림 수신 즉시 서버로 등록하지 않는다. 사용자가 후보를 확인하고 `등록`을 눌렀을 때만 기존 API를 호출한다.
+- 할부 승인, 파싱 실패, 광고/혜택 안내 등은 후보로 만들지 않고 최근 우리카드 알림 로그에 남긴다.
+- 최근 우리카드 알림 로그는 앱 로컬에 30건만 유지한다.
+- `상태 -> 관리 -> 최근 우리카드 알림`에서 원문과 파싱 결과를 확인하고 공유할 수 있다.

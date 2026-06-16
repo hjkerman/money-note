@@ -20,19 +20,90 @@ class NotificationBridge {
     }
   }
 
-  Future<List<RawNotificationRecord>> listRawArchive() async {
-    final raw = await _channel.invokeMethod<String>('listRawArchive') ?? '[]';
-    final decoded = jsonDecode(raw);
-    if (decoded is! List) return [];
-    return decoded
+  Future<void> configureCards({
+    required String ownerCardLast4,
+    required String familyCardLast4,
+  }) async {
+    try {
+      await _channel.invokeMethod<bool>('configureCards', {
+        'owner_card_last4': ownerCardLast4,
+        'family_card_last4': familyCardLast4,
+      });
+    } on MissingPluginException {
+      return;
+    }
+  }
+
+  Future<List<CardNotificationCandidate>> listCandidates() async {
+    final raw = await _invokeJsonList('listCandidates');
+    return raw
         .map((item) =>
-            RawNotificationRecord.fromJson(item as Map<String, dynamic>))
+            CardNotificationCandidate.fromJson(item as Map<String, dynamic>))
         .where((item) => item.id.isNotEmpty)
         .toList();
   }
 
+  Future<List<WooriNotificationLog>> listWooriLogs() async {
+    final raw = await _invokeJsonList('listWooriLogs');
+    return raw
+        .map((item) =>
+            WooriNotificationLog.fromJson(item as Map<String, dynamic>))
+        .where((item) => item.id.isNotEmpty)
+        .toList();
+  }
+
+  Future<NotificationCandidateCounts> candidateCounts() async {
+    try {
+      final raw =
+          await _channel.invokeMapMethod<String, int>('candidateCounts');
+      final manualReview =
+          await _channel.invokeMethod<int>('manualReviewCount') ?? 0;
+      return NotificationCandidateCounts(
+        owner: raw?['owner'] ?? 0,
+        family: raw?['family'] ?? 0,
+        manualReview: manualReview,
+      );
+    } on MissingPluginException {
+      return const NotificationCandidateCounts.empty();
+    }
+  }
+
+  Future<void> deleteCandidate(String id) async {
+    await _channel.invokeMethod<int>('deleteCandidate', {'id': id});
+  }
+
+  Future<void> clearCandidatesByRole(String role) async {
+    await _channel.invokeMethod<int>('clearCandidatesByRole', {'role': role});
+  }
+
+  Future<void> deleteWooriLog(String id) async {
+    await _channel.invokeMethod<int>('deleteWooriLog', {'id': id});
+  }
+
+  Future<void> clearWooriLogs() async {
+    await _channel.invokeMethod<int>('clearWooriLogs');
+  }
+
+  Future<String> wooriLogText() async {
+    return await _channel.invokeMethod<String>('wooriLogText') ?? '';
+  }
+
+  Future<List<dynamic>> _invokeJsonList(String method) async {
+    try {
+      final raw = await _channel.invokeMethod<String>(method) ?? '[]';
+      final decoded = jsonDecode(raw);
+      return decoded is List ? decoded : const [];
+    } on MissingPluginException {
+      return const [];
+    }
+  }
+
+  Future<List<CardNotificationCandidate>> listRawArchive() async {
+    return listCandidates();
+  }
+
   Future<String> rawArchiveLogText() async {
-    return await _channel.invokeMethod<String>('rawArchiveLogText') ?? '';
+    return wooriLogText();
   }
 
   Future<void> openSettings() async {

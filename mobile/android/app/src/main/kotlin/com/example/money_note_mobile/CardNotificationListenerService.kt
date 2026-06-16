@@ -9,11 +9,16 @@ import java.security.MessageDigest
 class CardNotificationListenerService : NotificationListenerService() {
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         val record = rawRecord(sbn)
-        val count = NotificationCandidateStore.appendRaw(applicationContext, record)
+        val result = NotificationCandidateStore.handleNotification(applicationContext, record)
+        if (!result.saved) return
         Log.d(
             "MN_NOTIFY",
             "packageName=${record.packageName}, title=${record.title}, text=${record.text}, " +
-                "bigText=${record.bigText}, rawText=${record.rawText}, saved=true, count=$count"
+                "bigText=${record.bigText}, rawText=${record.rawText}, saved=${result.saved}, " +
+                "isApprovalCandidate=${result.isApprovalCandidate}, parseStatus=${result.parseStatus}, " +
+                "parseFailureReason=${result.parseFailureReason}, card_last4=${result.parsed.cardLast4}, " +
+                "entry_date=${result.parsed.entryDate}, amount=${result.parsed.amount}, merchant=${result.parsed.merchant}, " +
+                "candidateCreated=${result.candidateCreated}, logCount=${result.logCount}, candidateCount=${result.candidateCount}"
         )
     }
 

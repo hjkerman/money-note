@@ -34,6 +34,8 @@ class AppState extends ChangeNotifier {
   List<LocalSnapshotInfo> localSnapshots = [];
   NotificationPermissionStatus notificationPermissions =
       const NotificationPermissionStatus.ready();
+  NotificationCandidateCounts notificationCandidateCounts =
+      const NotificationCandidateCounts.empty();
   bool _isForegroundRefreshRunning = false;
 
   bool get isLoggedIn => user != null;
@@ -176,8 +178,10 @@ class AppState extends ChangeNotifier {
     cashFlows = results[5] as List<CashFlow>;
     settings = results[6] as AppSettings;
     monthCloseStatus = results[7] as MonthCloseStatus;
+    await _configureNotificationCards();
     ownerDiscountMonth = await api.discountMonth(currentMonth, 'owner');
     familyDiscountMonth = await api.discountMonth(currentMonth, 'family');
+    await refreshNotificationInboxState(notify: false);
     if (notify) notifyListeners();
   }
 
@@ -199,6 +203,7 @@ class AppState extends ChangeNotifier {
 
   Future<void> refreshInputArea({bool notify = true}) async {
     await refreshNotificationPermissions(notify: false);
+    await refreshNotificationInboxState(notify: false);
     await _refreshEntriesAndStatus();
     if (notify) notifyListeners();
   }
@@ -253,7 +258,9 @@ class AppState extends ChangeNotifier {
     settings = results[0] as AppSettings;
     summary = results[1] as Summary;
     judgment = results[2] as JudgmentState;
+    await _configureNotificationCards();
     await _refreshDiscountMonths();
+    await refreshNotificationInboxState(notify: false);
     if (notify) notifyListeners();
   }
 
@@ -298,6 +305,18 @@ class AppState extends ChangeNotifier {
     if (notify) notifyListeners();
   }
 
+  Future<void> refreshNotificationInboxState({bool notify = true}) async {
+    notificationCandidateCounts = await notificationBridge.candidateCounts();
+    if (notify) notifyListeners();
+  }
+
+  Future<void> _configureNotificationCards() async {
+    await notificationBridge.configureCards(
+      ownerCardLast4: settings.ownerCardLast4,
+      familyCardLast4: settings.familyCardLast4,
+    );
+  }
+
   Future<void> openNotificationListenerSettings() async {
     await notificationBridge.openSettings();
     await refreshNotificationPermissions();
@@ -308,7 +327,7 @@ class AppState extends ChangeNotifier {
     await refreshNotificationPermissions();
   }
 
-  Future<void> createExpense({
+  Future<bool> createExpense({
     required String usagePlace,
     required String usageItem,
     required int amount,
@@ -316,7 +335,7 @@ class AppState extends ChangeNotifier {
     String? spendingCategory,
     String? entryDate,
   }) async {
-    await _run(() async {
+    return _run(() async {
       final resolvedEntryDate =
           entryDate == null || entryDate.isEmpty ? serverToday : entryDate;
       final entry = await api.createExpense(
@@ -336,14 +355,14 @@ class AppState extends ChangeNotifier {
     });
   }
 
-  Future<void> createPanel({
+  Future<bool> createPanel({
     required String panelType,
     required String title,
     required int amount,
     bool discountEnabled = true,
     String? spentOn,
   }) async {
-    await _run(() async {
+    return _run(() async {
       final panel = await api.createPanel(
         month: currentMonth,
         panelType: panelType,
@@ -661,15 +680,17 @@ class AppState extends ChangeNotifier {
     });
   }
 
-  Future<void> _run(Future<void> Function() action) async {
+  Future<bool> _run(Future<void> Function() action) async {
     isBusy = true;
     statusMessage = '';
     notifyListeners();
     try {
       await action();
+      return true;
     } catch (error) {
       statusMessage =
           error is MoneyNoteApiException ? error.message : error.toString();
+      return false;
     } finally {
       isBusy = false;
       notifyListeners();

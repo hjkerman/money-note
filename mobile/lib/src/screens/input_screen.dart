@@ -144,7 +144,7 @@ class _InputScreenState extends State<InputScreen> {
                       builder: (_) =>
                           NotificationImportScreen(state: widget.state)),
                 ),
-                child: const Text('알림에서 가져오기'),
+                child: Text(_notificationButtonText(widget.state)),
               ),
             ],
           ),
@@ -179,6 +179,12 @@ class _InputScreenState extends State<InputScreen> {
     setState(() => selectedDate = widget.state.serverToday);
     placeFocus.requestFocus();
   }
+}
+
+String _notificationButtonText(AppState state) {
+  final counts = state.notificationCandidateCounts;
+  if (counts.total == 0) return '알림에서 가져오기';
+  return '알림에서 가져오기(${counts.total}) · 본인 ${counts.owner}건 / 가족 ${counts.family}건';
 }
 
 class _JudgmentPreviewCard extends StatelessWidget {
