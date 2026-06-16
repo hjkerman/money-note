@@ -45,8 +45,6 @@ def shared_panel_html(panel_type: str) -> str:
     rows_html = "\n".join(_row_html(row) for row in data["rows"])
     if not rows_html:
         rows_html = '<tr><td colspan="4" class="empty">표시할 항목이 없습니다.</td></tr>'
-    original_total = sum(float(row.get("amount_value") or 0) for row in data["rows"])
-    discount_total = sum(_panel_discount_amount(row) for row in data["rows"])
     net_total = sum(_panel_net_amount(row) for row in data["rows"])
     return f"""<!doctype html>
 <html lang="ko">
@@ -169,9 +167,7 @@ def shared_panel_html(panel_type: str) -> str:
       </tbody>
       <tfoot>
         <tr>
-          <td>합계</td>
-          <td class="money">{format_won(original_total)}</td>
-          <td class="money discount">{_discount_text(discount_total)}</td>
+          <td colspan="3">합계</td>
           <td class="money net">{format_won(net_total)}</td>
         </tr>
       </tfoot>

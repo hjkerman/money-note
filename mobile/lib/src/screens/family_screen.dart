@@ -322,37 +322,36 @@ class _FamilyItem extends StatelessWidget {
                 value:
                     won(panel.effectiveAmountForPolicy(discountPolicyEnabled))),
             const SizedBox(height: 10),
-            Row(
-              children: [
-                if (discountEligible) ...[
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: state.isBusy ? null : _toggleDiscount,
-                      child:
-                          Text(panel.isDiscountExcluded ? '할인 적용' : '할인 제외'),
+            if (discountEligible || canEditNetAmount) ...[
+              Row(
+                children: [
+                  if (discountEligible)
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: state.isBusy ? null : _toggleDiscount,
+                        child:
+                            Text(panel.isDiscountExcluded ? '할인 적용' : '할인 제외'),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                ],
-                if (canEditNetAmount) ...[
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed:
-                          state.isBusy ? null : () => _editNetAmount(context),
-                      child: const Text('실결제액 수정'),
+                  if (discountEligible && canEditNetAmount)
+                    const SizedBox(width: 10),
+                  if (canEditNetAmount)
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed:
+                            state.isBusy ? null : () => _editNetAmount(context),
+                        child: const Text('실결제액 수정'),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
                 ],
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed:
-                        state.isBusy ? null : () => state.deletePanel(panel.id),
-                    style: OutlinedButton.styleFrom(foregroundColor: moneyRed),
-                    child: const Text('삭제'),
-                  ),
-                ),
-              ],
+              ),
+              const SizedBox(height: 10),
+            ],
+            OutlinedButton(
+              onPressed:
+                  state.isBusy ? null : () => state.deletePanel(panel.id),
+              style: OutlinedButton.styleFrom(foregroundColor: moneyRed),
+              child: const Text('삭제'),
             ),
           ],
         ),

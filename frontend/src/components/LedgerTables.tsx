@@ -502,6 +502,12 @@ export function PanelTable({
   onShare?: () => void;
   form?: ReactNode;
 }) {
+  const showDateColumn = rows.some(
+    (row) =>
+      row.panel_type === "claim" ||
+      row.panel_type === "family_card" ||
+      (Boolean(row.spent_on) && row.panel_type !== "fixed"),
+  );
   return (
     <section className="panel compact">
       <div className="panel-header">
@@ -525,9 +531,7 @@ export function PanelTable({
         <table>
           <thead>
             <tr>
-              {(rows.some((row) => row.spent_on) || rows.some((row) => row.panel_type === "claim" || row.panel_type === "family_card")) ? (
-                <th>사용일</th>
-              ) : null}
+              {showDateColumn ? <th>사용일</th> : null}
               <th className="panel-title-cell">세부내역</th>
               <th className="amount">금액</th>
               {onDiscount ? <th className="discount-cell">할인 / 원금</th> : null}
@@ -544,7 +548,7 @@ export function PanelTable({
               const netAmount = panelNetAmount(row, discountPolicy);
               return (
               <tr key={row.id}>
-                {(rows.some((item) => item.spent_on) || rows.some((item) => item.panel_type === "claim" || item.panel_type === "family_card")) ? (
+                {showDateColumn ? (
                   <td className="date">{formatDateLabel(row.spent_on ?? "") ?? ""}</td>
                 ) : null}
                 <td className="panel-title-cell">

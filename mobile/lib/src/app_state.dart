@@ -55,8 +55,6 @@ class AppState extends ChangeNotifier {
     rows.sort((a, b) {
       final dateCompare = (b.entryDate ?? '').compareTo(a.entryDate ?? '');
       if (dateCompare != 0) return dateCompare;
-      final sortCompare = b.sortOrder.compareTo(a.sortOrder);
-      if (sortCompare != 0) return sortCompare;
       return b.id.compareTo(a.id);
     });
     return rows;

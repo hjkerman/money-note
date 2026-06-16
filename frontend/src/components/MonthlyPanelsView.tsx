@@ -121,26 +121,20 @@ function ConfirmedPlannedList({ entries }: { entries: LedgerEntry[] }) {
         <h3>이번 달 확인 처리된 정기결제</h3>
         <span>{entries.length}건</span>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>기본 결제일</th>
-            <th>사용처</th>
-            <th>세부내역</th>
-            <th className="amount">금액</th>
-          </tr>
-        </thead>
-        <tbody>
-          {entries.map((entry) => (
-            <tr key={entry.id}>
-              <td className="date">{entry.due_day ? `매월 ${entry.due_day}일` : "날짜 없음"}</td>
-              <td>{entry.usage_place ?? ""}</td>
-              <td>{entry.usage_item || "좌동"}</td>
-              <td className="amount">{formatWon(entry.amount_value)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="confirmed-planned-cards">
+        {entries.map((entry) => (
+          <article className="confirmed-planned-card" key={entry.id}>
+            <div>
+              <strong>{entry.usage_place ?? entry.title}</strong>
+              <span>{entry.usage_item || "좌동"}</span>
+            </div>
+            <div className="confirmed-planned-meta">
+              <span>{entry.due_day ? `매월 ${entry.due_day}일` : "날짜 없음"}</span>
+              <strong>{formatWon(entry.amount_value)}</strong>
+            </div>
+          </article>
+        ))}
+      </div>
     </section>
   );
 }

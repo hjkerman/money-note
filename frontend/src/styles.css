@@ -444,7 +444,12 @@ th {
 }
 
 .entry-form {
-  grid-template-columns: 150px minmax(180px, 0.8fr) minmax(300px, 1.6fr) 150px 70px;
+  grid-template-columns: 142px minmax(135px, 0.75fr) minmax(220px, 1.2fr) minmax(190px, 0.75fr) 160px 74px;
+}
+
+.entry-form select {
+  min-width: 0;
+  width: 100%;
 }
 
 .panel-form {
@@ -794,6 +799,8 @@ th {
 
 .confirmed-planned-list {
   margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid #e5e8df;
 }
 
 .panel-subheader {
@@ -808,6 +815,38 @@ th {
 .panel-subheader h3 {
   margin: 0;
   font-size: 15px;
+}
+
+.confirmed-planned-cards {
+  display: grid;
+  gap: 8px;
+}
+
+.confirmed-planned-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid #d9dfd0;
+  border-radius: 8px;
+  background: #fbfcf8;
+}
+
+.confirmed-planned-card strong,
+.confirmed-planned-card span {
+  display: block;
+}
+
+.confirmed-planned-card span {
+  margin-top: 3px;
+  color: #66705e;
+  font-size: 12px;
+}
+
+.confirmed-planned-meta {
+  text-align: right;
+  white-space: nowrap;
 }
 
 .discount-cell button,
