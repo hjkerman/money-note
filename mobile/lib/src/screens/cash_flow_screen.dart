@@ -18,7 +18,7 @@ class CashFlowScreen extends StatefulWidget {
 class _CashFlowScreenState extends State<CashFlowScreen> {
   final title = TextEditingController();
   final amount = TextEditingController();
-  bool isIncome = false;
+  bool isIncome = true;
   bool isPrimaryIncome = false;
 
   @override
