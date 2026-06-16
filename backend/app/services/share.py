@@ -170,11 +170,9 @@ def shared_panel_html(panel_type: str) -> str:
       </tbody>
       <tfoot>
         <tr>
-          <td colspan="3">할인액 합계</td>
+          <td>합계</td>
+          <td class="money"></td>
           <td class="money discount">{_discount_text(discount_total)}</td>
-        </tr>
-        <tr>
-          <td colspan="3">합계</td>
           <td class="money net">{format_won(net_total)}</td>
         </tr>
       </tfoot>
