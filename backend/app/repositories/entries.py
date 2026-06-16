@@ -66,7 +66,35 @@ def list_confirmed_planned_entries(today: date | None = None) -> list[dict[str, 
             """,
             (confirmed_month,),
         ).fetchall()
-    return [row_to_dict(row) for row in rows]
+        confirmed_entries = []
+        for row in rows:
+            item = row_to_dict(row)
+            expense = conn.execute(
+                """
+                SELECT entry_date
+                FROM ledger_entries
+                WHERE book_section = 'current'
+                  AND entry_kind = 'expense'
+                  AND entry_date LIKE ?
+                  AND title = ?
+                  AND COALESCE(usage_place, '') = COALESCE(?, '')
+                  AND COALESCE(usage_item, '') = COALESCE(?, '')
+                  AND COALESCE(amount_value, 0) = COALESCE(?, 0)
+                ORDER BY id DESC
+                LIMIT 1
+                """,
+                (
+                    f"{confirmed_month}%",
+                    row["title"],
+                    row["usage_place"],
+                    row["usage_item"],
+                    row["amount_value"],
+                ),
+            ).fetchone()
+            if expense and expense["entry_date"]:
+                item["entry_date"] = expense["entry_date"]
+            confirmed_entries.append(item)
+    return confirmed_entries
 
 
 def confirm_planned_entry(entry_id: int, today: date | None = None, entry_date: str | None = None) -> dict[str, Any] | None:

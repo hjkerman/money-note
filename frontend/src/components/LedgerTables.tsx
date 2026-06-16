@@ -111,7 +111,7 @@ export function PlannedTable({
           <th>결제일</th>
           <th>사용처</th>
           <th>세부내역</th>
-          <th>이번 등록 날짜</th>
+          <th>이번 승인 날짜</th>
           <th className="amount">금액</th>
           <th className="action-cell">확인</th>
           <th className="action-cell">삭제</th>

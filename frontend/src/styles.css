@@ -805,6 +805,8 @@ th {
 
 .confirmed-planned-list .panel-subheader {
   padding: 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e5e8df;
 }
 
 .panel-subheader {

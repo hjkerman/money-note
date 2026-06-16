@@ -144,6 +144,11 @@ class MonthCloseTest(unittest.TestCase):
             conn.execute("UPDATE ledger_entries SET due_day = 15 WHERE id = ?", (planned_id,))
 
         result = confirm_planned_entry(planned_id, date(2026, 7, 10), entry_date="2026-07-17")
+        with session() as conn:
+            conn.execute(
+                "UPDATE ledger_entries SET entry_date = '2026-07-10' WHERE id = ?",
+                (planned_id,),
+            )
         confirmed = list_confirmed_planned_entries(date(2026, 7, 10))
 
         self.assertEqual(result["entry"]["entry_date"], "2026-07-17")

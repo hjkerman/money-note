@@ -118,7 +118,7 @@ function ConfirmedPlannedList({ entries, onUnsubscribe }: { entries: LedgerEntry
   return (
     <section className="confirmed-planned-list">
       <div className="panel-subheader">
-        <h3>이번 달 확인 처리된 정기결제</h3>
+        <h3>이번 달 처리된 정기결제</h3>
         <span>{entries.length}건</span>
       </div>
       <table>
@@ -127,7 +127,7 @@ function ConfirmedPlannedList({ entries, onUnsubscribe }: { entries: LedgerEntry
             <th>결제일</th>
             <th>사용처</th>
             <th>세부내역</th>
-            <th>실제 처리일</th>
+            <th>승인일</th>
             <th className="amount">금액</th>
             <th className="action-cell">구독중지</th>
           </tr>
