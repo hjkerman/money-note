@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 from app.config import get_settings
 from app.db import init_db, session
-from app.repository import confirm_planned_entry, create_entry, list_entries
+from app.repository import confirm_planned_entry, create_entry, list_confirmed_planned_entries, list_entries
 from app.schemas import LedgerEntryIn
 from app.services.card_payments import current_payment_status
 from app.services.month import close_current_month, month_close_status
@@ -117,9 +117,7 @@ class MonthCloseTest(unittest.TestCase):
     def test_planned_confirmation_stays_hidden_after_early_close_until_next_month(self) -> None:
         close_current_month(date(2026, 7, 1))
         with session() as conn:
-            planned_id = conn.execute(
-                "SELECT id FROM ledger_entries WHERE entry_kind = 'planned'"
-            ).fetchone()["id"]
+            planned_id = conn.execute("SELECT id FROM ledger_entries WHERE entry_kind = 'planned'").fetchone()["id"]
 
         confirm_planned_entry(planned_id, date(2026, 7, 10))
         self.assertFalse(
@@ -136,6 +134,21 @@ class MonthCloseTest(unittest.TestCase):
         self.assertTrue(
             any(entry["id"] == planned_id for entry in list_entries("current", date(2026, 8, 1)))
         )
+
+    def test_confirmed_planned_entry_keeps_actual_payment_date(self) -> None:
+        close_current_month(date(2026, 7, 1))
+        with session() as conn:
+            planned_id = conn.execute(
+                "SELECT id FROM ledger_entries WHERE entry_kind = 'planned'"
+            ).fetchone()["id"]
+            conn.execute("UPDATE ledger_entries SET due_day = 15 WHERE id = ?", (planned_id,))
+
+        result = confirm_planned_entry(planned_id, date(2026, 7, 10), entry_date="2026-07-17")
+        confirmed = list_confirmed_planned_entries(date(2026, 7, 10))
+
+        self.assertEqual(result["entry"]["entry_date"], "2026-07-17")
+        self.assertEqual(confirmed[0]["entry_date"], "2026-07-17")
+        self.assertEqual(confirmed[0]["due_day"], 15)
 
     def test_entry_for_closed_month_is_added_to_archive(self) -> None:
         close_current_month(date(2026, 7, 1))

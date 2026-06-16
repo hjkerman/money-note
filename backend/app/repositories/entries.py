@@ -113,10 +113,10 @@ def confirm_planned_entry(entry_id: int, today: date | None = None, entry_date: 
         conn.execute(
             """
             UPDATE ledger_entries
-            SET confirmed_at = CURRENT_TIMESTAMP, confirmed_month = ?, updated_at = CURRENT_TIMESTAMP
+            SET entry_date = ?, confirmed_at = CURRENT_TIMESTAMP, confirmed_month = ?, updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
             """,
-            (confirmed_month, entry_id),
+            (payment_date.isoformat(), confirmed_month, entry_id),
         )
         entry = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (cursor.lastrowid,)).fetchone()
         updated_planned = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (entry_id,)).fetchone()

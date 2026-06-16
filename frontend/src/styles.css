@@ -803,6 +803,10 @@ th {
   border-top: 1px solid #e5e8df;
 }
 
+.confirmed-planned-list .panel-subheader {
+  padding: 0 12px;
+}
+
 .panel-subheader {
   display: flex;
   align-items: center;
