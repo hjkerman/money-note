@@ -120,6 +120,12 @@ export function formatDateLabel(value: string): string | null {
   return `${year}.${month}.${day}.`;
 }
 
+export function displayEntryDateLabel(entry: LedgerEntry): string {
+  if (entry.entry_date) return formatDateLabel(entry.entry_date) ?? entry.entry_date;
+  if (entry.entry_kind === "expense") return "날짜 없음";
+  return entry.date_label ?? entry.group_label ?? "";
+}
+
 export function formatMonthLabel(value: string): string {
   const [year, month] = value.split("-");
   return `${year}년 ${Number(month)}월`;

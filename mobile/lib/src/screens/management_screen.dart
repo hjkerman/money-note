@@ -125,51 +125,56 @@ class _PanelManagementScreenState extends State<PanelManagementScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final rows = widget.state.panelsByType(widget.panelType);
-    final total =
-        rows.fold<int>(0, (sum, panel) => sum + (panel.amountValue ?? 0));
-    return Scaffold(
-      appBar: AppBar(title: Text(widget.title)),
-      body: RefreshIndicator(
-        onRefresh: widget.state.refreshPanelManagementArea,
-        child: ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 96),
-          children: [
-            AmountTile(label: '합계', amount: won(total)),
-            const SectionTitle('등록'),
-            MoneyCard(
-              child: Column(
-                children: [
-                  TextField(
-                      controller: title,
-                      decoration:
-                          InputDecoration(labelText: widget.inputLabel)),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: amount,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: '금액'),
-                    onSubmitted: (_) => _submit(),
+    return AnimatedBuilder(
+      animation: widget.state,
+      builder: (context, _) {
+        final rows = widget.state.panelsByType(widget.panelType);
+        final total =
+            rows.fold<int>(0, (sum, panel) => sum + (panel.amountValue ?? 0));
+        return Scaffold(
+          appBar: AppBar(title: Text(widget.title)),
+          body: RefreshIndicator(
+            onRefresh: widget.state.refreshPanelManagementArea,
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 96),
+              children: [
+                AmountTile(label: '합계', amount: won(total)),
+                const SectionTitle('등록'),
+                MoneyCard(
+                  child: Column(
+                    children: [
+                      TextField(
+                          controller: title,
+                          decoration:
+                              InputDecoration(labelText: widget.inputLabel)),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: amount,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(labelText: '금액'),
+                        onSubmitted: (_) => _submit(),
+                      ),
+                      const SizedBox(height: 14),
+                      ElevatedButton(
+                          onPressed: widget.state.isBusy ? null : _submit,
+                          child: const Text('추가')),
+                    ],
                   ),
-                  const SizedBox(height: 14),
-                  ElevatedButton(
-                      onPressed: widget.state.isBusy ? null : _submit,
-                      child: const Text('추가')),
-                ],
-              ),
+                ),
+                SectionTitle('목록',
+                    trailing: Text('${rows.length}건',
+                        style: const TextStyle(color: moneyMuted))),
+                if (rows.isEmpty) MoneyCard(child: Text(widget.emptyText)),
+                ...rows.map((panel) => _PanelManagementItem(
+                      panel: panel,
+                      state: widget.state,
+                    )),
+              ],
             ),
-            SectionTitle('목록',
-                trailing: Text('${rows.length}건',
-                    style: const TextStyle(color: moneyMuted))),
-            if (rows.isEmpty) MoneyCard(child: Text(widget.emptyText)),
-            ...rows.map((panel) => _PanelManagementItem(
-                  panel: panel,
-                  state: widget.state,
-                )),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -217,59 +222,64 @@ class _PlannedEntryManagementScreenState
 
   @override
   Widget build(BuildContext context) {
-    final rows = widget.state.plannedEntries;
-    final total =
-        rows.fold<int>(0, (sum, entry) => sum + (entry.amountValue ?? 0));
-    return Scaffold(
-      appBar: AppBar(title: const Text('카드 정기결제')),
-      body: RefreshIndicator(
-        onRefresh: widget.state.refreshPlannedManagementArea,
-        child: ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 96),
-          children: [
-            AmountTile(label: '예정액', amount: won(total)),
-            const SectionTitle('등록'),
-            MoneyCard(
-              child: Column(
-                children: [
-                  TextField(
-                    controller: dueDay,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: '결제일'),
+    return AnimatedBuilder(
+      animation: widget.state,
+      builder: (context, _) {
+        final rows = widget.state.plannedEntries;
+        final total =
+            rows.fold<int>(0, (sum, entry) => sum + (entry.amountValue ?? 0));
+        return Scaffold(
+          appBar: AppBar(title: const Text('카드 정기결제')),
+          body: RefreshIndicator(
+            onRefresh: widget.state.refreshPlannedManagementArea,
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 96),
+              children: [
+                AmountTile(label: '예정액', amount: won(total)),
+                const SectionTitle('등록'),
+                MoneyCard(
+                  child: Column(
+                    children: [
+                      TextField(
+                        controller: dueDay,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(labelText: '결제일'),
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                          controller: usagePlace,
+                          decoration: const InputDecoration(labelText: '사용처')),
+                      const SizedBox(height: 12),
+                      TextField(
+                          controller: usageItem,
+                          decoration: const InputDecoration(labelText: '세부내역')),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: amount,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(labelText: '금액'),
+                        onSubmitted: (_) => _submit(),
+                      ),
+                      const SizedBox(height: 14),
+                      ElevatedButton(
+                          onPressed: widget.state.isBusy ? null : _submit,
+                          child: const Text('정기결제 추가')),
+                    ],
                   ),
-                  const SizedBox(height: 12),
-                  TextField(
-                      controller: usagePlace,
-                      decoration: const InputDecoration(labelText: '사용처')),
-                  const SizedBox(height: 12),
-                  TextField(
-                      controller: usageItem,
-                      decoration: const InputDecoration(labelText: '세부내역')),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: amount,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: '금액'),
-                    onSubmitted: (_) => _submit(),
-                  ),
-                  const SizedBox(height: 14),
-                  ElevatedButton(
-                      onPressed: widget.state.isBusy ? null : _submit,
-                      child: const Text('정기결제 추가')),
-                ],
-              ),
+                ),
+                SectionTitle('목록',
+                    trailing: Text('${rows.length}건',
+                        style: const TextStyle(color: moneyMuted))),
+                if (rows.isEmpty)
+                  const MoneyCard(child: Text('카드 정기결제가 없습니다.')),
+                ...rows.map((entry) =>
+                    _PlannedEntryItem(entry: entry, state: widget.state)),
+              ],
             ),
-            SectionTitle('목록',
-                trailing: Text('${rows.length}건',
-                    style: const TextStyle(color: moneyMuted))),
-            if (rows.isEmpty)
-              const MoneyCard(child: Text('카드 정기결제가 없습니다.')),
-            ...rows.map((entry) =>
-                _PlannedEntryItem(entry: entry, state: widget.state)),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 

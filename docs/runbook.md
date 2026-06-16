@@ -715,50 +715,41 @@ flutter run -d emulator-5554 --dart-define=MONEY_NOTE_API_BASE_URL=http://10.0.2
 flutter build apk --release --dart-define=MONEY_NOTE_API_BASE_URL=https://money.hjkerman.re.kr
 ```
 
-### 8. 카드 알림 후보 등록 확인
+### 8. 알림 원문 보관함 확인
 
-모바일 앱의 `알림에서 가져오기`는 카드사 알림을 곧바로 서버에 올리지 않는다. Android의 NotificationListenerService가 알림을 받으면 파싱된 후보만 앱 로컬 저장소에 보관하고, 사용자가 후보를 확인한 뒤 `등록`을 눌렀을 때만 서버 API를 호출한다.
+모바일 앱의 `알림에서 가져오기`는 당분간 Raw Notification Archive로 동작한다. Android의 NotificationListenerService가 받은 최근 알림 100건을 앱 로컬에 저장하고, 화면에서 원문을 확인한다.
 
 처리 원칙:
 
-- 우리카드 앱 allowlist에 포함된 패키지 알림만 처리한다.
-- 여기서 allowlist는 화면에 보이는 앱 이름이 아니라 Android 내부 패키지명 기준이다. 구현은 `StatusBarNotification.packageName`을 확인한다.
-- 다른 앱 알림은 읽히더라도 저장하지 않고 즉시 무시한다.
-- 알림 원문은 장기 저장하지 않는다.
-- 저장하는 값은 카드 뒷자리, 사용일, 시간, 금액, 사용처 같은 파싱 결과뿐이다.
-- 본인카드 뒷자리는 당월 지출 등록으로, 가족카드 뒷자리는 가족카드 등록으로 연결한다.
-- 식별되지 않은 카드는 후보 화면에서 사용자가 직접 대상을 고른다.
-- 등록 전 사용자는 사용처, 사용항목, 금액, 할인 적용 여부를 수정할 수 있다.
-- 후보 저장에 성공하면 앱이 `카드 알림 후보 1건 포착` 알림을 띄운다.
-- 이 알림은 서버 등록 완료 알림이 아니라, 로컬 등록 대기 후보가 생겼다는 신호다.
+- 모든 앱 알림을 저장한다.
+- packageName allowlist로 거르지 않는다.
+- 자동 후보 생성은 하지 않는다.
+- 자동 지출 등록, 자동 가족카드 등록, 자동 청구 등록은 하지 않는다.
+- 서버로 아무 데이터도 보내지 않는다.
+- 저장 대상은 capturedAt, packageName, title, text, bigText, subText, textLines, rawText, notification key/postTime, ongoing 여부, category다.
+- 최근 100건만 유지하며, 100건을 넘으면 오래된 항목부터 제거한다.
+- 저장 시 Android 로그 태그 `MN_NOTIFY`로 packageName, title, text, bigText, rawText, 저장 성공 여부, 저장 건수를 남긴다.
+- 화면의 `txt 로그 공유` 버튼으로 관측 로그를 텍스트 파일로 공유할 수 있다.
 
 Android에서 권한을 켠다.
 
 1. 앱의 `입력` 탭으로 이동한다.
 2. `알림에서 가져오기`를 누른다.
-3. `알림 접근 권한 열기`를 누른다.
-4. Android 설정에서 Money-Note의 알림 접근 권한을 허용한다.
-5. 입력 화면 상단에 `앱 알림 표시 권한` 경고가 보이면 `앱 알림 허용`을 눌러 앱 알림도 허용한다.
+3. Android 설정에서 Money-Note의 알림 접근 권한을 허용한다.
+4. 입력 화면 상단에 `앱 알림 표시 권한` 경고가 보이면 `앱 알림 허용`을 눌러 앱 알림도 허용한다.
 
 앱 실행 시 필요한 권한이 빠져 있으면 입력 화면 상단에 `카드 알림 낚시 준비가 덜 됐습니다.` 경고가 표시된다. 알림 낚시에 필요한 권한은 두 가지다.
 
-- 알림 접근 권한: 우리카드 알림을 읽기 위한 권한
-- 앱 알림 표시 권한: 후보 저장 성공 알림을 띄우기 위한 권한
+- 알림 접근 권한: Android 알림 원문을 관측하기 위한 권한
+- 앱 알림 표시 권한: 향후 알림 관련 안내를 띄우기 위한 권한
 
-현재 알림 파서는 아래 형식을 기준으로 한다.
-
-```text
-[일시불.승인(9452)]06/14 17:08 5,000원 / 누적:542,899원
-사랑방
-```
-
-포맷이나 카드사 앱 패키지가 바뀌면 아래 파일을 먼저 확인한다.
+알림 수집 동작은 아래 파일을 먼저 확인한다.
 
 ```text
 mobile/android/app/src/main/kotlin/com/example/money_note_mobile/CardNotificationListenerService.kt
 ```
 
-이 파일의 `CARD_APPROVAL_REGEX`가 알림 포맷 파서이고, `AllowedCardApps`가 처리 대상 패키지 allowlist다. 별도 polling이나 백그라운드 상시 루프는 두지 않는다.
+현재 이 파일은 allowlist 없이 모든 알림을 raw archive에 저장한다. 별도 polling이나 백그라운드 상시 루프는 두지 않는다.
 
 ## 로그인 계정 생성
 

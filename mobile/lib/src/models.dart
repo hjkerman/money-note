@@ -197,6 +197,35 @@ class CashFlow {
   }
 }
 
+class SpendingCategoryOption {
+  const SpendingCategoryOption({required this.value, required this.label});
+
+  final String? value;
+  final String label;
+}
+
+const spendingCategoryOptions = [
+  SpendingCategoryOption(value: null, label: '미분류'),
+  SpendingCategoryOption(value: 'essential', label: '안 썼으면 큰일'),
+  SpendingCategoryOption(value: 'questionable', label: '꼭 써야 했을까...?'),
+  SpendingCategoryOption(value: 'dignity', label: '최소한의 품위유지비'),
+];
+
+String spendingCategoryLabel(String? value) {
+  for (final option in spendingCategoryOptions) {
+    if (option.value == value) return option.label;
+  }
+  return '미분류';
+}
+
+String? normalizeSpendingCategory(String? value) {
+  if (value == null || value.isEmpty) return null;
+  for (final option in spendingCategoryOptions) {
+    if (option.value == value) return value;
+  }
+  return null;
+}
+
 class CardDiscountMonth {
   CardDiscountMonth({
     required this.month,
@@ -274,31 +303,55 @@ class AppSettings {
   }
 }
 
-class PendingCardNotification {
-  PendingCardNotification({
+class RawNotificationRecord {
+  RawNotificationRecord({
     required this.id,
-    required this.cardLast4,
-    required this.monthDay,
-    required this.time,
-    required this.amount,
-    required this.usagePlace,
+    required this.capturedAt,
+    required this.packageName,
+    required this.title,
+    required this.text,
+    required this.bigText,
+    required this.subText,
+    required this.textLines,
+    required this.rawText,
+    required this.notificationKey,
+    required this.postTime,
+    required this.isOngoing,
+    required this.category,
   });
 
   final String id;
-  final String cardLast4;
-  final String monthDay;
-  final String time;
-  final int amount;
-  final String usagePlace;
+  final int capturedAt;
+  final String packageName;
+  final String title;
+  final String text;
+  final String bigText;
+  final String subText;
+  final List<String> textLines;
+  final String rawText;
+  final String notificationKey;
+  final int postTime;
+  final bool isOngoing;
+  final String category;
 
-  factory PendingCardNotification.fromJson(Map<String, dynamic> json) {
-    return PendingCardNotification(
+  factory RawNotificationRecord.fromJson(Map<String, dynamic> json) {
+    final lines = json['text_lines'];
+    return RawNotificationRecord(
       id: json['id'] as String? ?? '',
-      cardLast4: json['card_last4'] as String? ?? '',
-      monthDay: json['month_day'] as String? ?? '',
-      time: json['time'] as String? ?? '',
-      amount: _int(json['amount']),
-      usagePlace: json['usage_place'] as String? ?? '',
+      capturedAt: _int(json['captured_at']),
+      packageName: json['package_name'] as String? ?? '',
+      title: json['title'] as String? ?? '',
+      text: json['text'] as String? ?? '',
+      bigText: json['big_text'] as String? ?? '',
+      subText: json['sub_text'] as String? ?? '',
+      textLines: lines is List
+          ? lines.map((line) => line?.toString() ?? '').toList()
+          : const [],
+      rawText: json['raw_text'] as String? ?? '',
+      notificationKey: json['notification_key'] as String? ?? '',
+      postTime: _int(json['post_time']),
+      isOngoing: json['is_ongoing'] as bool? ?? false,
+      category: json['category'] as String? ?? '',
     );
   }
 }

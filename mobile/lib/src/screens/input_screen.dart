@@ -23,6 +23,7 @@ class _InputScreenState extends State<InputScreen> {
   final amount = TextEditingController();
   final placeFocus = FocusNode();
   bool? discountEnabled;
+  String? spendingCategory;
   late String selectedDate;
 
   @override
@@ -109,6 +110,20 @@ class _InputScreenState extends State<InputScreen> {
                 textInputAction: TextInputAction.next,
                 decoration: const InputDecoration(labelText: '사용항목'),
               ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                value: spendingCategory,
+                decoration: const InputDecoration(labelText: '분류'),
+                items: spendingCategoryOptions
+                    .map((option) => DropdownMenuItem<String>(
+                          value: option.value,
+                          child: Text(option.label),
+                        ))
+                    .toList(),
+                onChanged: (value) => setState(() {
+                  spendingCategory = value;
+                }),
+              ),
               const SizedBox(height: 8),
               CheckboxListTile(
                 contentPadding: EdgeInsets.zero,
@@ -154,11 +169,13 @@ class _InputScreenState extends State<InputScreen> {
       amount: parsedAmount,
       discountEnabled: discountEnabled ??
           (widget.state.ownerDiscountMonth?.isEnabled ?? true),
+      spendingCategory: spendingCategory,
       entryDate: selectedDate,
     );
     place.clear();
     item.clear();
     amount.clear();
+    spendingCategory = null;
     setState(() => selectedDate = widget.state.serverToday);
     placeFocus.requestFocus();
   }

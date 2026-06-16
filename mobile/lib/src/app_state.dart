@@ -283,14 +283,18 @@ class AppState extends ChangeNotifier {
     required String usageItem,
     required int amount,
     required bool discountEnabled,
+    String? spendingCategory,
     String? entryDate,
   }) async {
     await _run(() async {
+      final resolvedEntryDate =
+          entryDate == null || entryDate.isEmpty ? serverToday : entryDate;
       final entry = await api.createExpense(
-        date: entryDate ?? _today(),
+        date: resolvedEntryDate,
         usagePlace: usagePlace,
         usageItem: usageItem,
         amount: amount,
+        spendingCategory: normalizeSpendingCategory(spendingCategory),
       );
       if (!discountEnabled && entry.paymentKey != null) {
         await api.excludeEntryDiscount(entry.paymentKey!);
@@ -384,32 +388,21 @@ class AppState extends ChangeNotifier {
     });
   }
 
-  Future<void> registerNotificationCandidate({
-    required PendingCardNotification candidate,
-    required String usageItem,
-    required String target,
-    required bool discountEnabled,
-  }) async {
-    final date = _dateFromMonthDay(candidate.monthDay);
-    if (target == 'family_card') {
-      await createPanel(
-        panelType: 'family_card',
-        title: usageItem.trim().isEmpty
-            ? candidate.usagePlace
-            : '${candidate.usagePlace} ${usageItem.trim()}',
-        amount: candidate.amount,
-        discountEnabled: discountEnabled,
-        spentOn: date,
-      );
-    } else {
-      await createExpense(
-        usagePlace: candidate.usagePlace,
-        usageItem: usageItem,
-        amount: candidate.amount,
-        discountEnabled: discountEnabled,
-        entryDate: date,
-      );
-    }
+  Future<void> updateExpenseCategory(int entryId, String? category) async {
+    await _run(() async {
+      await api.updateEntryCategory(
+          entryId, normalizeSpendingCategory(category));
+      await refreshEntriesArea(notify: false);
+      statusMessage = '분류 변경 완료';
+    });
+  }
+
+  Future<void> deleteExpense(int entryId) async {
+    await _run(() async {
+      await api.deleteEntry(entryId);
+      await refreshEntriesArea(notify: false);
+      statusMessage = '지출 삭제 완료';
+    });
   }
 
   Future<void> deletePanel(int panelId) async {
@@ -624,15 +617,6 @@ class AppState extends ChangeNotifier {
   String _localToday() {
     final now = DateTime.now();
     return '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-  }
-
-  String _dateFromMonthDay(String monthDay) {
-    final now = DateTime.now();
-    final parts = monthDay.split('/');
-    if (parts.length != 2) return _today();
-    final month = int.tryParse(parts[0]) ?? now.month;
-    final day = int.tryParse(parts[1]) ?? now.day;
-    return '${now.year.toString().padLeft(4, '0')}-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}';
   }
 
   Future<Directory> _snapshotDirectory() async {

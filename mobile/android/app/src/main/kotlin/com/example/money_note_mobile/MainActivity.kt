@@ -15,15 +15,8 @@ class MainActivity : FlutterActivity() {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "money_note/notifications").setMethodCallHandler { call, result ->
             when (call.method) {
-                "listPending" -> result.success(NotificationCandidateStore.list(applicationContext))
-                "deletePending" -> {
-                    val id = call.argument<String>("id")
-                    if (id.isNullOrBlank()) {
-                        result.error("invalid_id", "삭제할 후보 ID가 없습니다.", null)
-                    } else {
-                        result.success(NotificationCandidateStore.delete(applicationContext, id))
-                    }
-                }
+                "listRawArchive" -> result.success(NotificationCandidateStore.listRaw(applicationContext))
+                "rawArchiveLogText" -> result.success(NotificationCandidateStore.logText(applicationContext))
                 "openSettings" -> {
                     startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
                     result.success(true)

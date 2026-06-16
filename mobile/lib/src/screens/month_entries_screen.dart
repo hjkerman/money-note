@@ -121,9 +121,50 @@ class _MonthEntryCard extends StatelessWidget {
             ),
             if (canToggleDiscount) ...[
               const SizedBox(height: 10),
+              DropdownButtonFormField<String>(
+                value: normalizeSpendingCategory(entry.spendingCategory),
+                decoration: const InputDecoration(labelText: '분류'),
+                items: spendingCategoryOptions
+                    .map((option) => DropdownMenuItem<String>(
+                          value: option.value,
+                          child: Text(option.label),
+                        ))
+                    .toList(),
+                onChanged: state.isBusy
+                    ? null
+                    : (value) => state.updateExpenseCategory(entry.id, value),
+              ),
+              const SizedBox(height: 10),
               OutlinedButton(
                 onPressed: state.isBusy ? null : _toggleDiscount,
                 child: Text(entry.isDiscountExcluded ? '할인 적용' : '할인 제외'),
+              ),
+              const SizedBox(height: 10),
+              OutlinedButton(
+                onPressed: state.isBusy ? null : () => _confirmDelete(context),
+                style: OutlinedButton.styleFrom(foregroundColor: moneyRed),
+                child: const Text('삭제'),
+              ),
+            ] else ...[
+              const SizedBox(height: 10),
+              DropdownButtonFormField<String>(
+                value: normalizeSpendingCategory(entry.spendingCategory),
+                decoration: const InputDecoration(labelText: '분류'),
+                items: spendingCategoryOptions
+                    .map((option) => DropdownMenuItem<String>(
+                          value: option.value,
+                          child: Text(option.label),
+                        ))
+                    .toList(),
+                onChanged: state.isBusy
+                    ? null
+                    : (value) => state.updateExpenseCategory(entry.id, value),
+              ),
+              const SizedBox(height: 10),
+              OutlinedButton(
+                onPressed: state.isBusy ? null : () => _confirmDelete(context),
+                style: OutlinedButton.styleFrom(foregroundColor: moneyRed),
+                child: const Text('삭제'),
               ),
             ],
           ],
@@ -139,6 +180,29 @@ class _MonthEntryCard extends StatelessWidget {
       await state.applyDefaultEntryDiscount(paymentKey);
     } else {
       await state.excludeExistingEntryDiscount(paymentKey);
+    }
+  }
+
+  Future<void> _confirmDelete(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('지출 삭제'),
+        content: Text('${entry.usagePlace ?? entry.title} 항목을 삭제할까요?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('취소'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('삭제'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      await state.deleteExpense(entry.id);
     }
   }
 

@@ -20,19 +20,19 @@ class NotificationBridge {
     }
   }
 
-  Future<List<PendingCardNotification>> listPending() async {
-    final raw = await _channel.invokeMethod<String>('listPending') ?? '[]';
+  Future<List<RawNotificationRecord>> listRawArchive() async {
+    final raw = await _channel.invokeMethod<String>('listRawArchive') ?? '[]';
     final decoded = jsonDecode(raw);
     if (decoded is! List) return [];
     return decoded
         .map((item) =>
-            PendingCardNotification.fromJson(item as Map<String, dynamic>))
+            RawNotificationRecord.fromJson(item as Map<String, dynamic>))
         .where((item) => item.id.isNotEmpty)
         .toList();
   }
 
-  Future<void> deletePending(String id) async {
-    await _channel.invokeMethod<bool>('deletePending', {'id': id});
+  Future<String> rawArchiveLogText() async {
+    return await _channel.invokeMethod<String>('rawArchiveLogText') ?? '';
   }
 
   Future<void> openSettings() async {

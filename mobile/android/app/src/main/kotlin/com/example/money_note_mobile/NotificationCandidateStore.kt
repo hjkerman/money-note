@@ -5,58 +5,66 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 
-data class NotificationCandidate(
+data class RawNotificationRecord(
     val id: String,
     val capturedAt: Long,
-    val cardLast4: String,
-    val monthDay: String,
-    val time: String,
-    val amount: Int,
-    val usagePlace: String
+    val packageName: String,
+    val title: String,
+    val text: String,
+    val bigText: String,
+    val subText: String,
+    val textLines: List<String>,
+    val rawText: String,
+    val notificationKey: String,
+    val postTime: Long,
+    val isOngoing: Boolean,
+    val category: String
 )
 
 object NotificationCandidateStore {
-    private const val FILE_NAME = "pending_card_notifications.json"
+    private const val RAW_FILE_NAME = "raw_notification_archive.json"
+    private const val MAX_RAW_COUNT = 100
 
-    fun append(context: Context, candidate: NotificationCandidate): Boolean {
+    fun appendRaw(context: Context, record: RawNotificationRecord): Int {
         synchronized(this) {
             val array = readArray(context)
-            if (contains(array, candidate.id)) return false
-            array.put(candidate.toJson())
-            writeArray(context, array)
-            return true
+            val next = JSONArray()
+            next.put(record.toJson())
+            for (index in 0 until array.length()) {
+                next.put(array.getJSONObject(index))
+            }
+            val trimmed = JSONArray()
+            val limit = minOf(next.length(), MAX_RAW_COUNT)
+            for (index in 0 until limit) {
+                trimmed.put(next.getJSONObject(index))
+            }
+            writeArray(context, trimmed)
+            return trimmed.length()
         }
     }
 
-    fun list(context: Context): String {
+    fun listRaw(context: Context): String {
         synchronized(this) {
             return readArray(context).toString()
         }
     }
 
-    fun delete(context: Context, id: String): Boolean {
+    fun logText(context: Context): String {
         synchronized(this) {
-            val original = readArray(context)
-            val next = JSONArray()
-            var deleted = false
-            for (index in 0 until original.length()) {
-                val item = original.getJSONObject(index)
-                if (item.optString("id") == id) {
-                    deleted = true
-                } else {
-                    next.put(item)
-                }
+            val array = readArray(context)
+            val lines = mutableListOf<String>()
+            for (index in 0 until array.length()) {
+                val item = array.getJSONObject(index)
+                lines.add("capturedAt=${item.optLong("captured_at")}")
+                lines.add("packageName=${item.optString("package_name")}")
+                lines.add("title=${item.optString("title")}")
+                lines.add("text=${item.optString("text")}")
+                lines.add("bigText=${item.optString("big_text")}")
+                lines.add("rawText=${item.optString("raw_text")}")
+                lines.add("---")
             }
-            if (deleted) writeArray(context, next)
-            return deleted
+            return lines.joinToString("\n")
         }
-    }
-
-    private fun contains(array: JSONArray, id: String): Boolean {
-        for (index in 0 until array.length()) {
-            if (array.getJSONObject(index).optString("id") == id) return true
-        }
-        return false
     }
 
     private fun readArray(context: Context): JSONArray {
@@ -73,15 +81,21 @@ object NotificationCandidateStore {
         file(context).writeText(array.toString(), Charsets.UTF_8)
     }
 
-    private fun file(context: Context): File = File(context.filesDir, FILE_NAME)
+    private fun file(context: Context): File = File(context.filesDir, RAW_FILE_NAME)
 
-    private fun NotificationCandidate.toJson(): JSONObject =
+    private fun RawNotificationRecord.toJson(): JSONObject =
         JSONObject()
             .put("id", id)
             .put("captured_at", capturedAt)
-            .put("card_last4", cardLast4)
-            .put("month_day", monthDay)
-            .put("time", time)
-            .put("amount", amount)
-            .put("usage_place", usagePlace)
+            .put("package_name", packageName)
+            .put("title", title)
+            .put("text", text)
+            .put("big_text", bigText)
+            .put("sub_text", subText)
+            .put("text_lines", JSONArray(textLines))
+            .put("raw_text", rawText)
+            .put("notification_key", notificationKey)
+            .put("post_time", postTime)
+            .put("is_ongoing", isOngoing)
+            .put("category", category)
 }

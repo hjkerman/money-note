@@ -6,6 +6,7 @@ import {
   defaultCardDiscount,
   discountIneligibleTitle,
   displayEntryTitle,
+  displayEntryDateLabel,
   effectiveEntryDiscount,
   effectivePanelDiscount,
   formatDateLabel,
@@ -318,7 +319,7 @@ export function EntryTable({
           const discountOverride = Boolean(entry.discount_override);
           return (
             <tr key={entry.id}>
-              <td className="date entry-date-cell">{entry.date_label ?? entry.group_label ?? ""}</td>
+              <td className="date entry-date-cell">{displayEntryDateLabel(entry)}</td>
               <td className="entry-place-cell">{entry.usage_place ?? ""}</td>
               <td className="entry-detail-cell">
                 <span className="entry-detail-text">{entry.usage_item ?? ""}</span>

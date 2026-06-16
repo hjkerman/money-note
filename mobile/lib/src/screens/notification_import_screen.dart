@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../app_state.dart';
-import '../formatters.dart';
 import '../models.dart';
 import '../notification_bridge.dart';
 import '../theme.dart';
@@ -19,61 +22,63 @@ class NotificationImportScreen extends StatefulWidget {
 
 class _NotificationImportScreenState extends State<NotificationImportScreen> {
   final bridge = NotificationBridge();
-  late Future<List<PendingCardNotification>> pendingFuture;
+  late Future<List<RawNotificationRecord>> archiveFuture;
 
   @override
   void initState() {
     super.initState();
-    pendingFuture = bridge.listPending();
+    archiveFuture = bridge.listRawArchive();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('알림에서 가져오기')),
-      body: FutureBuilder<List<PendingCardNotification>>(
-        future: pendingFuture,
+      appBar: AppBar(title: const Text('알림 원문 보관함')),
+      body: FutureBuilder<List<RawNotificationRecord>>(
+        future: archiveFuture,
         builder: (context, snapshot) {
           final items = snapshot.data ?? [];
-          return ListView(
-            padding: const EdgeInsets.all(20),
-            children: [
-              MoneyCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('카드사 알림 보관함',
+          return RefreshIndicator(
+            onRefresh: () async => _reload(),
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(20),
+              children: [
+                MoneyCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Raw Notification Archive',
+                          style: TextStyle(
+                              fontSize: 22, fontWeight: FontWeight.w900)),
+                      const SizedBox(height: 10),
+                      const Text(
+                        '최근 알림 100건을 앱 안에만 저장합니다. 지금은 관측용 공사장이라 서버 등록, 자동 후보 생성, 자동 분류를 하지 않습니다.',
                         style: TextStyle(
-                            fontSize: 22, fontWeight: FontWeight.w900)),
-                    const SizedBox(height: 10),
-                    const Text(
-                      '우리카드 알림만 읽고, 원문은 저장하지 않습니다. 등록 전까지는 서버에 보내지 않습니다.',
-                      style: TextStyle(
-                          color: moneyMuted, fontWeight: FontWeight.w600),
-                    ),
-                    const SizedBox(height: 12),
-                    OutlinedButton(
-                        onPressed: bridge.openSettings,
-                        child: const Text('알림 접근 권한 열기')),
-                  ],
+                            color: moneyMuted, fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 12),
+                      OutlinedButton(
+                        onPressed: _shareLog,
+                        child: const Text('txt 로그 공유'),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SectionTitle('등록 대기 후보'),
-              if (snapshot.connectionState == ConnectionState.waiting)
-                const Center(
-                    child: Padding(
-                        padding: EdgeInsets.all(24),
-                        child: CircularProgressIndicator()))
-              else if (items.isEmpty)
-                const MoneyCard(child: Text('등록 대기 중인 카드 알림이 없습니다.'))
-              else
-                ...items.map((item) => _PendingCandidateCard(
-                      state: widget.state,
-                      bridge: bridge,
-                      candidate: item,
-                      onChanged: _reload,
-                    )),
-            ],
+                SectionTitle('최근 알림',
+                    trailing: Text('${items.length}건',
+                        style: const TextStyle(color: moneyMuted))),
+                if (snapshot.connectionState == ConnectionState.waiting)
+                  const Center(
+                      child: Padding(
+                          padding: EdgeInsets.all(24),
+                          child: CircularProgressIndicator()))
+                else if (items.isEmpty)
+                  const MoneyCard(child: Text('저장된 알림 원문이 없습니다.'))
+                else
+                  ...items.map(_RawNotificationCard.new),
+              ],
+            ),
           );
         },
       ),
@@ -82,190 +87,90 @@ class _NotificationImportScreenState extends State<NotificationImportScreen> {
 
   void _reload() {
     setState(() {
-      pendingFuture = bridge.listPending();
+      archiveFuture = bridge.listRawArchive();
     });
   }
+
+  Future<void> _shareLog() async {
+    final text = await bridge.rawArchiveLogText();
+    final directory = await getTemporaryDirectory();
+    final file = File('${directory.path}/money-note-notification-log.txt');
+    await file.writeAsString(text, flush: true);
+    await Share.shareXFiles(
+      [
+        XFile(file.path,
+            mimeType: 'text/plain', name: 'money-note-notification-log.txt')
+      ],
+      text: 'Money-Note 알림 원문 로그',
+    );
+  }
 }
 
-class _PendingCandidateCard extends StatefulWidget {
-  const _PendingCandidateCard({
-    required this.state,
-    required this.bridge,
-    required this.candidate,
-    required this.onChanged,
-  });
+class _RawNotificationCard extends StatelessWidget {
+  const _RawNotificationCard(this.record);
 
-  final AppState state;
-  final NotificationBridge bridge;
-  final PendingCardNotification candidate;
-  final VoidCallback onChanged;
-
-  @override
-  State<_PendingCandidateCard> createState() => _PendingCandidateCardState();
-}
-
-class _PendingCandidateCardState extends State<_PendingCandidateCard> {
-  late final TextEditingController place;
-  late final TextEditingController item;
-  late final TextEditingController amount;
-  late String target;
-  late bool discountEnabled;
-
-  @override
-  void initState() {
-    super.initState();
-    place = TextEditingController(text: widget.candidate.usagePlace);
-    item = TextEditingController();
-    amount = TextEditingController(text: widget.candidate.amount.toString());
-    target = _initialTarget();
-    discountEnabled = _defaultDiscountEnabled(target);
-  }
-
-  @override
-  void dispose() {
-    place.dispose();
-    item.dispose();
-    amount.dispose();
-    super.dispose();
-  }
+  final RawNotificationRecord record;
 
   @override
   Widget build(BuildContext context) {
-    final unknown = target == 'unknown';
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: MoneyCard(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                      '${widget.candidate.monthDay} ${widget.candidate.time}',
-                      style: const TextStyle(fontWeight: FontWeight.w900)),
-                ),
-                Text(won(int.tryParse(amount.text) ?? widget.candidate.amount),
-                    style: const TextStyle(
-                        fontSize: 17, fontWeight: FontWeight.w900)),
-              ],
-            ),
+            Text(_capturedAt(record.capturedAt),
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
             const SizedBox(height: 8),
-            Text('카드 ${widget.candidate.cardLast4}',
-                style: const TextStyle(color: moneyMuted)),
-            const SizedBox(height: 12),
-            SegmentedButton<String>(
-              segments: const [
-                ButtonSegment(value: 'owner', label: Text('내 카드')),
-                ButtonSegment(value: 'family_card', label: Text('가족카드')),
-                ButtonSegment(value: 'unknown', label: Text('미식별')),
-              ],
-              selected: {target},
-              onSelectionChanged: (value) => setState(() {
-                target = value.first;
-                discountEnabled = _defaultDiscountEnabled(target);
-              }),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-                controller: place,
-                decoration: const InputDecoration(labelText: '사용처')),
-            const SizedBox(height: 10),
-            TextField(
-                controller: item,
-                decoration: const InputDecoration(labelText: '사용항목')),
-            const SizedBox(height: 10),
-            TextField(
-                controller: amount,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: '금액')),
-            if (!unknown) ...[
-              const SizedBox(height: 8),
-              CheckboxListTile(
-                contentPadding: EdgeInsets.zero,
-                title: const Text('할인 적용'),
-                value: discountEnabled,
-                onChanged: (value) =>
-                    setState(() => discountEnabled = value ?? false),
-              ),
-            ],
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed:
-                        unknown || widget.state.isBusy ? null : _register,
-                    child: const Text('등록'),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: _delete,
-                    style: OutlinedButton.styleFrom(foregroundColor: moneyRed),
-                    child: const Text('삭제'),
-                  ),
-                ),
-              ],
-            ),
-            if (unknown)
-              const Padding(
-                padding: EdgeInsets.only(top: 8),
-                child: Text('카드 식별 불가: 내 카드 또는 가족카드를 직접 선택하세요.',
-                    style: TextStyle(color: moneyRed)),
-              ),
+            _Field(label: 'Package', value: record.packageName),
+            _Field(label: 'Title', value: record.title),
+            _Field(label: 'Text', value: record.text),
+            _Field(label: 'BigText', value: record.bigText),
+            if (record.textLines.isNotEmpty)
+              _Field(label: 'TextLines', value: record.textLines.join('\n')),
+            _Field(label: 'SubText', value: record.subText),
+            _Field(label: 'Raw', value: record.rawText),
+            _Field(label: 'Key', value: record.notificationKey),
+            _Field(label: 'PostTime', value: record.postTime.toString()),
+            _Field(
+                label: 'Ongoing', value: record.isOngoing ? 'true' : 'false'),
+            _Field(label: 'Category', value: record.category),
           ],
         ),
       ),
     );
   }
 
-  String _initialTarget() {
-    if (widget.candidate.cardLast4 == widget.state.settings.ownerCardLast4) {
-      return 'owner';
-    }
-    if (widget.candidate.cardLast4 == widget.state.settings.familyCardLast4) {
-      return 'family_card';
-    }
-    return 'unknown';
+  String _capturedAt(int millis) {
+    if (millis <= 0) return '-';
+    final date = DateTime.fromMillisecondsSinceEpoch(millis);
+    return '${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')} '
+        '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}:${date.second.toString().padLeft(2, '0')}';
   }
+}
 
-  bool _defaultDiscountEnabled(String target) {
-    if (target == 'family_card') {
-      return widget.state.familyDiscountMonth?.isEnabled ?? false;
-    }
-    if (target == 'owner') {
-      return widget.state.ownerDiscountMonth?.isEnabled ?? true;
-    }
-    return false;
-  }
+class _Field extends StatelessWidget {
+  const _Field({required this.label, required this.value});
 
-  Future<void> _register() async {
-    final parsedAmount = int.tryParse(amount.text.replaceAll(',', '').trim());
-    if (place.text.trim().isEmpty || parsedAmount == null || parsedAmount < 0) {
-      return;
-    }
-    final updated = PendingCardNotification(
-      id: widget.candidate.id,
-      cardLast4: widget.candidate.cardLast4,
-      monthDay: widget.candidate.monthDay,
-      time: widget.candidate.time,
-      amount: parsedAmount,
-      usagePlace: place.text.trim(),
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    if (value.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('$label:',
+              style: const TextStyle(
+                  color: moneyMuted, fontWeight: FontWeight.w800)),
+          const SizedBox(height: 2),
+          SelectableText(value),
+        ],
+      ),
     );
-    await widget.state.registerNotificationCandidate(
-      candidate: updated,
-      usageItem: item.text,
-      target: target,
-      discountEnabled: discountEnabled,
-    );
-    await widget.bridge.deletePending(widget.candidate.id);
-    widget.onChanged();
-  }
-
-  Future<void> _delete() async {
-    await widget.bridge.deletePending(widget.candidate.id);
-    widget.onChanged();
   }
 }

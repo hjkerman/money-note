@@ -4,6 +4,7 @@ import { DiscountPolicyBar } from "./Insights";
 import {
   daysBetween,
   displayEntryTitle,
+  displayEntryDateLabel,
   formatDateLabel,
   formatMonthLabel,
   formatWon,
@@ -196,7 +197,7 @@ export function CardPaymentPanel({
             <tbody>
               {status.rows.filter((row) => row.entry_kind === "late_expense").map((row) => (
                 <tr key={row.id}>
-                  <td className="date">{row.date_label}</td>
+                  <td className="date">{displayEntryDateLabel(row)}</td>
                   <td>{displayEntryTitle(row)}</td>
                   <td className="amount">{formatWon(row.amount_value)}</td>
                 </tr>
@@ -254,7 +255,7 @@ export function CardPaymentPanel({
                         onChange={(event) => onSelect(row, event.target.checked)}
                       />
                     </td>
-                    <td className="date">{row.is_carried_over ? "" : row.date_label ?? ""}</td>
+                    <td className="date">{row.is_carried_over ? "" : displayEntryDateLabel(row)}</td>
                     <td>
                       {displayEntryTitle(row)}
                       {row.is_group ? <span className="deferred-badge">통합 {row.entry_ids.length}건</span> : null}

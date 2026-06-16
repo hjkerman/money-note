@@ -106,6 +106,7 @@ class MoneyNoteApiClient {
     required String usagePlace,
     required String usageItem,
     required int amount,
+    String? spendingCategory,
   }) {
     return _post(
         '/api/entries',
@@ -128,9 +129,18 @@ class MoneyNoteApiClient {
           'sort_order': 0,
           'due_day': null,
           'confirmed_at': null,
-          'spending_category': null,
+          'spending_category': spendingCategory,
         },
         LedgerEntry.fromJson);
+  }
+
+  Future<LedgerEntry> updateEntryCategory(int entryId, String? category) {
+    return _patch('/api/entries/$entryId', {'spending_category': category},
+        LedgerEntry.fromJson);
+  }
+
+  Future<void> deleteEntry(int entryId) async {
+    await _delete('/api/entries/$entryId');
   }
 
   Future<LedgerEntry> createPlannedEntry({

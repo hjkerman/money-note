@@ -38,7 +38,7 @@ class _HomeShellState extends State<HomeShell> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: index,
         indicatorColor: moneyGreenSoft,
-        onDestinationSelected: (value) => setState(() => index = value),
+        onDestinationSelected: _selectTab,
         destinations: const [
           NavigationDestination(icon: Icon(Icons.add_card), label: '입력'),
           NavigationDestination(
@@ -67,5 +67,15 @@ class _HomeShellState extends State<HomeShell> {
       3 => widget.state.refreshSettlementArea(),
       _ => widget.state.refresh(),
     };
+  }
+
+  Future<void> _selectTab(int value) async {
+    if (value == index) return;
+    setState(() => index = value);
+    if (value == 4) {
+      await widget.state.refresh();
+      return;
+    }
+    await _refreshForIndex();
   }
 }

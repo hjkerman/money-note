@@ -79,15 +79,18 @@ mobile/build/app/outputs/flutter-apk/app-release.apk
 
 서버 설정 모달에서 APK 다운로드를 제공하려면 빌드된 APK를 서버의 `MONEY_NOTE_APK_PATH` 위치에 둔다.
 
-## 카드 알림 후보 등록
+## 알림 원문 보관함
 
-Android 앱은 NotificationListenerService로 우리카드 알림만 읽는다.
+Android 앱은 NotificationListenerService로 알림 원문을 관측한다.
 
 현재 정책:
 
-- 우리카드 앱 allowlist에 포함된 패키지의 알림만 처리한다.
-- 알림 원문은 저장하지 않고, 카드 뒷자리, 사용일, 시간, 금액, 사용처만 로컬 후보로 저장한다.
-- 후보는 `알림에서 가져오기` 화면에서 확인/수정한 뒤 사용자가 `등록`을 눌러야 서버에 전송된다.
-- 본인카드 뒷자리와 일치하면 당월 지출, 가족카드 뒷자리와 일치하면 가족카드 항목으로 등록한다.
-- 일치하지 않으면 사용자가 등록 대상을 직접 고른다.
-- 알림 포맷이 바뀌면 Android 네이티브 파서와 allowlist를 먼저 확인한다.
+- 모든 앱 알림을 저장한다.
+- packageName allowlist로 거르지 않는다.
+- 자동 후보 생성, 자동 지출 등록, 자동 가족카드 등록을 하지 않는다.
+- 서버로 아무 데이터도 보내지 않는다.
+- 최근 100건만 앱 로컬에 저장한다.
+- `알림에서 가져오기` 화면은 Raw Notification Archive로 동작한다.
+- 화면에서 packageName, title, text, bigText, textLines, rawText 등을 확인한다.
+- `txt 로그 공유`로 `MN_NOTIFY` 관측 내용을 파일 형태로 공유할 수 있다.
+- 알림 파서 재개발 전까지 이 화면은 실제 Android Notification에 어떤 값이 들어오는지 확인하는 공사장이다.
