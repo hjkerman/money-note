@@ -62,8 +62,8 @@ class _CashFlowScreenState extends State<CashFlowScreen> {
             children: [
               SegmentedButton<bool>(
                 segments: const [
-                  ButtonSegment(value: false, label: Text('출금')),
                   ButtonSegment(value: true, label: Text('입금')),
+                  ButtonSegment(value: false, label: Text('출금')),
                 ],
                 selected: {isIncome},
                 onSelectionChanged: (value) => setState(() {
