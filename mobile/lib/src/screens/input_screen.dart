@@ -112,7 +112,7 @@ class _InputScreenState extends State<InputScreen> {
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: spendingCategory,
+                initialValue: spendingCategory,
                 decoration: const InputDecoration(labelText: '분류'),
                 items: spendingCategoryOptions
                     .map((option) => DropdownMenuItem<String>(

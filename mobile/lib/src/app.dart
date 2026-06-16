@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -14,14 +16,38 @@ class MoneyNoteApp extends StatefulWidget {
   State<MoneyNoteApp> createState() => _MoneyNoteAppState();
 }
 
-class _MoneyNoteAppState extends State<MoneyNoteApp> {
+class _MoneyNoteAppState extends State<MoneyNoteApp>
+    with WidgetsBindingObserver {
   late final AppState state;
+  bool _wasInBackground = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     state = AppState(MoneyNoteApiClient());
     state.bootstrap();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    state.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState lifecycleState) {
+    if (lifecycleState == AppLifecycleState.paused ||
+        lifecycleState == AppLifecycleState.hidden ||
+        lifecycleState == AppLifecycleState.detached) {
+      _wasInBackground = true;
+      return;
+    }
+    if (lifecycleState == AppLifecycleState.resumed && _wasInBackground) {
+      _wasInBackground = false;
+      unawaited(state.resumeFromBackground());
+    }
   }
 
   @override

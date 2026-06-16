@@ -11,6 +11,8 @@ import 'notification_bridge.dart';
 class AppState extends ChangeNotifier {
   AppState(this.api);
 
+  static const int _maxLocalSnapshots = 30;
+
   final MoneyNoteApiClient api;
   final NotificationBridge notificationBridge = NotificationBridge();
 
@@ -32,6 +34,7 @@ class AppState extends ChangeNotifier {
   List<LocalSnapshotInfo> localSnapshots = [];
   NotificationPermissionStatus notificationPermissions =
       const NotificationPermissionStatus.ready();
+  bool _isForegroundRefreshRunning = false;
 
   bool get isLoggedIn => user != null;
 
@@ -176,6 +179,22 @@ class AppState extends ChangeNotifier {
     ownerDiscountMonth = await api.discountMonth(currentMonth, 'owner');
     familyDiscountMonth = await api.discountMonth(currentMonth, 'family');
     if (notify) notifyListeners();
+  }
+
+  Future<void> resumeFromBackground() async {
+    if (!isLoggedIn || isBootstrapping || _isForegroundRefreshRunning) return;
+    _isForegroundRefreshRunning = true;
+    try {
+      await refresh(notify: false);
+      await saveLaunchSnapshot();
+      statusMessage = '앱 복귀 동기화 완료';
+    } catch (error) {
+      statusMessage =
+          error is MoneyNoteApiException ? error.message : error.toString();
+    } finally {
+      _isForegroundRefreshRunning = false;
+      notifyListeners();
+    }
   }
 
   Future<void> refreshInputArea({bool notify = true}) async {
@@ -510,6 +529,7 @@ class AppState extends ChangeNotifier {
       final backup = File(
           '${directory.path}/money-note-snapshot-${_timestampForFilename()}.money-note-snapshot.json');
       await backup.writeAsBytes(snapshot.bytes, flush: true);
+      await _pruneLocalSnapshots();
       localSnapshots = await listLocalSnapshots();
     } catch (_) {
       // 자동 백업 실패는 앱 실행을 막지 않는다. 상태 화면의 스냅샷 관리에서 다시 확인한다.
@@ -614,6 +634,16 @@ class AppState extends ChangeNotifier {
     return items;
   }
 
+  Future<void> _pruneLocalSnapshots() async {
+    final snapshots = await listLocalSnapshots();
+    for (final snapshot in snapshots.skip(_maxLocalSnapshots)) {
+      final file = await _safeSnapshotFile(snapshot.filename);
+      if (await file.exists()) {
+        await file.delete();
+      }
+    }
+  }
+
   Future<void> closeCurrentMonth({bool allowEarlyClose = false}) async {
     await _run(() async {
       final result =
@@ -677,7 +707,7 @@ class AppState extends ChangeNotifier {
 
   String _timestampForFilename() {
     final now = DateTime.now();
-    return '${now.year.toString().padLeft(4, '0')}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}-${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}${now.second.toString().padLeft(2, '0')}';
+    return '${now.year.toString().padLeft(4, '0')}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}-${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}${now.second.toString().padLeft(2, '0')}${now.millisecond.toString().padLeft(3, '0')}';
   }
 }
 

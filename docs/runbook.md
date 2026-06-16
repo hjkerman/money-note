@@ -994,8 +994,10 @@ curl -b /tmp/money-note-cookie.txt \
 
 - 전체 snapshot을 저장한다.
 - 앱 실행 때마다 새 파일명으로 snapshot을 누적 저장한다.
-- 파일명은 `money-note-snapshot-YYYYMMDD-HHMMSS.money-note-snapshot.json` 형태를 사용한다.
+- Android에서 앱이 백그라운드에서 포그라운드로 돌아올 때도 서버 데이터를 다시 조회하고 새 snapshot을 저장한다.
+- 파일명은 `money-note-snapshot-YYYYMMDD-HHMMSSmmm.money-note-snapshot.json` 형태를 사용한다.
 - 기존 snapshot 파일을 덮어쓰지 않는다.
+- 모바일 앱은 최근 30개 snapshot만 유지하며, 30개를 초과하면 가장 오래된 파일부터 삭제한다.
 - 사용자는 모바일 `상태 -> 관리 -> 백업 / 복원` 화면에서 파일별 공유, 파일별 복원, 파일별 삭제, 전체 삭제를 수행한다.
 - 모바일 앱의 snapshot은 서버 데이터 복원을 자동 수행하지 않는다. 사용자가 명시적으로 특정 snapshot을 선택하고 비밀번호를 입력했을 때만 서버 restore API를 호출한다.
 

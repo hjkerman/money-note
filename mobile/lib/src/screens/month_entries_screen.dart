@@ -128,7 +128,7 @@ class _MonthEntryCard extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             DropdownButtonFormField<String>(
-              value: normalizeSpendingCategory(entry.spendingCategory),
+              initialValue: normalizeSpendingCategory(entry.spendingCategory),
               decoration: const InputDecoration(labelText: '분류'),
               items: spendingCategoryOptions
                   .map((option) => DropdownMenuItem<String>(
