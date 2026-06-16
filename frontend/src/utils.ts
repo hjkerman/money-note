@@ -104,7 +104,8 @@ export function collectEntryMonths(entries: LedgerEntry[], fallbackMonth: string
 }
 
 export function compareEntriesByDate(a: LedgerEntry, b: LedgerEntry): number {
-  const dateCompare = (b.entry_date ?? "").localeCompare(a.entry_date ?? "");
+  // 웹 원장/월별 기록은 엑셀 장부처럼 오래된 날짜와 먼저 등록한 항목을 위에 둔다.
+  const dateCompare = (a.entry_date ?? "").localeCompare(b.entry_date ?? "");
   if (dateCompare !== 0) return dateCompare;
   return a.sort_order - b.sort_order || a.id - b.id;
 }
