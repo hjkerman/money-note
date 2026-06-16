@@ -4,6 +4,7 @@ from math import floor
 
 
 DEFAULT_CARD_DISCOUNT_RATE = 0.012
+DISCOUNT_INELIGIBLE_WORDS = ("교통", "대중교통", "버스", "지하철", "통행", "통행료", "하이패스")
 
 
 def default_discount_policy(scope: str = "owner") -> str:
@@ -26,7 +27,7 @@ def default_card_discount(amount: float | int | None) -> float:
 def discount_ineligible_title(title: str | None) -> bool:
     """카드 할인 가능성이 없는 사용처/세부내역을 판별한다."""
     text = str(title or "").lower()
-    return "통행" in text or "하이패스" in text
+    return any(word.lower() in text for word in DISCOUNT_INELIGIBLE_WORDS)
 
 
 def effective_card_discount(

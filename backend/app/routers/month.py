@@ -29,6 +29,7 @@ from app.schemas import (
     Summary,
 )
 from app.services.card_payments import current_payment_status, discount_month_status
+from app.services.discounts import discount_ineligible_title
 from app.services.judgment import app_judgment
 from app.services.month import calendar_month_label, close_current_month, month_close_status
 from app.services.summary import current_summary_values
@@ -89,6 +90,8 @@ def patch_panel(panel_id: int, patch: MonthlyPanelPatch, _: dict = Depends(requi
             raise HTTPException(status_code=404, detail="panel not found")
         if current["panel_type"] != "claim":
             raise HTTPException(status_code=422, detail="청구 항목에만 본인회원 카드 할인을 적용할 수 있습니다.")
+        if discount_ineligible_title(current["title"]):
+            raise HTTPException(status_code=422, detail="이 항목은 카드 할인 대상이 아닙니다.")
         if discount_month_status(current["month"], "owner")["policy"] == "disabled":
             raise HTTPException(status_code=422, detail=f"{current['month']}은 본인회원 카드 할인 혜택이 없는 달입니다.")
         if patch.discount_amount > float(current["amount_value"] or 0):
@@ -107,6 +110,8 @@ def patch_panel_discount(panel_id: int, patch: PanelDiscountPatch, _: dict = Dep
         raise HTTPException(status_code=404, detail="panel not found")
     if panel["panel_type"] not in {"claim", "family_card"}:
         raise HTTPException(status_code=422, detail="청구 또는 가족카드 항목에만 카드 할인을 적용할 수 있습니다.")
+    if discount_ineligible_title(panel["title"]):
+        raise HTTPException(status_code=422, detail="이 항목은 카드 할인 대상이 아닙니다.")
     scope = "family" if panel["panel_type"] == "family_card" else "owner"
     card_label = "가족카드" if scope == "family" else "본인회원 카드"
     if discount_month_status(panel["month"], scope)["policy"] == "disabled":

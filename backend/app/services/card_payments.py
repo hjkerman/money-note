@@ -7,7 +7,13 @@ from typing import Any
 from app.db import session
 from app.services.clock import app_today
 from app.schemas import CardPaymentEventIn, LateCardEntryIn
-from app.services.discounts import default_discount_policy, discount_ineligible_title, effective_card_discount, normalize_discount_policy
+from app.services.discounts import (
+    DISCOUNT_INELIGIBLE_WORDS,
+    default_discount_policy,
+    discount_ineligible_title,
+    effective_card_discount,
+    normalize_discount_policy,
+)
 
 
 def current_payment_status(today: date | None = None) -> dict[str, Any]:
@@ -584,7 +590,7 @@ def _payment_rows_for_month(usage_month: str, payment_month: str) -> list[dict[s
                 "immediate_paid_amount": immediate,
                 "discount_amount": discount,
                 "remaining_amount": max(0.0, original - immediate - discount),
-                "is_transport": "교통" in str(data.get("title") or ""),
+                "is_transport": _is_transport(str(data.get("title") or "")),
                 "is_toll": _is_toll(str(data.get("title") or "")),
                 "is_deferred": deferred_from == payment_month and deferred_target > payment_month,
                 "is_carried_over": deferred_target == payment_month,
@@ -767,6 +773,11 @@ def _next_month(value: date) -> str:
 def _is_toll(title: str) -> bool:
     lowered = title.lower()
     return "통행" in lowered or "하이패스" in lowered
+
+
+def _is_transport(title: str) -> bool:
+    lowered = title.lower()
+    return any(word.lower() in lowered for word in DISCOUNT_INELIGIBLE_WORDS)
 
 
 def _carried_title(title: str) -> str:

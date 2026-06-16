@@ -50,6 +50,31 @@ class Summary {
   }
 }
 
+const discountIneligibleWords = [
+  '교통',
+  '대중교통',
+  '버스',
+  '지하철',
+  '통행',
+  '통행료',
+  '하이패스',
+];
+
+bool discountIneligibleText(String? value) {
+  final text = (value ?? '').toLowerCase();
+  return discountIneligibleWords
+      .any((word) => text.contains(word.toLowerCase()));
+}
+
+bool discountIneligibleEntry(LedgerEntry entry) {
+  return discountIneligibleText(
+      '${entry.title} ${entry.usagePlace ?? ''} ${entry.usageItem ?? ''}');
+}
+
+bool discountIneligiblePanel(MonthlyPanel panel) {
+  return discountIneligibleText(panel.title);
+}
+
 class LedgerEntry {
   LedgerEntry({
     required this.id,
@@ -82,9 +107,10 @@ class LedgerEntry {
   final int? dueDay;
 
   bool get isDiscountExcluded => discountOverride != 0;
+  bool get isDiscountIneligible => discountIneligibleEntry(this);
 
   int discountForPolicy(bool policyEnabled) {
-    if (!policyEnabled || paymentKey == null) return 0;
+    if (!policyEnabled || paymentKey == null || isDiscountIneligible) return 0;
     if (isDiscountExcluded) return 0;
     return ((amountValue ?? 0) * 0.012).floor();
   }
@@ -140,9 +166,10 @@ class MonthlyPanel {
 
   int get effectiveAmount => (amountValue ?? 0) - discountAmount;
   bool get isDiscountExcluded => discountOverride != 0 && discountAmount <= 0;
+  bool get isDiscountIneligible => discountIneligiblePanel(this);
 
   int discountForPolicy(bool policyEnabled) {
-    if (!policyEnabled) return 0;
+    if (!policyEnabled || isDiscountIneligible) return 0;
     if (discountOverride != 0) return discountAmount;
     return ((amountValue ?? 0) * 0.012).floor();
   }

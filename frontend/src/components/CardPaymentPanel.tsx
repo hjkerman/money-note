@@ -232,7 +232,7 @@ export function CardPaymentPanel({
                 const key = row.payment_key ?? "";
                 const selected = Boolean(key && hasOwn(allocations, key));
                 const discountExcluded = Boolean(row.discount_override && row.discount_amount <= 0);
-                const discountEligible = status.discount_policy !== "disabled" && !row.is_toll;
+                const discountEligible = status.discount_policy !== "disabled" && !row.is_toll && !row.is_transport;
                 return (
                   <tr
                     key={row.id}
@@ -278,7 +278,7 @@ export function CardPaymentPanel({
                     <td className="amount discount-payment-cell">
                       <span className="discount-payment-content">
                         <span>{formatWon(row.discount_amount)}</span>
-                        {row.is_toll ? (
+                        {row.is_toll || row.is_transport ? (
                           <span className="muted-badge">대상 아님</span>
                         ) : status.discount_policy === "disabled" ? (
                           <span className="muted-badge">혜택 없음</span>

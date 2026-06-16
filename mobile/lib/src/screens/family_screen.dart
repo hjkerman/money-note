@@ -298,6 +298,8 @@ class _FamilyItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final discountEligible =
+        discountPolicyEnabled && !panel.isDiscountIneligible;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: MoneyCard(
@@ -309,9 +311,10 @@ class _FamilyItem extends StatelessWidget {
                     const TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
             const SizedBox(height: 12),
             _Line(label: '원금', value: won(panel.amountValue)),
-            _Line(
-                label: '할인',
-                value: won(panel.discountForPolicy(discountPolicyEnabled))),
+            if (discountEligible)
+              _Line(
+                  label: '할인',
+                  value: won(panel.discountForPolicy(discountPolicyEnabled))),
             _Line(
                 label: isClaim ? '실청구' : '실결제',
                 value:
@@ -319,7 +322,7 @@ class _FamilyItem extends StatelessWidget {
             const SizedBox(height: 10),
             Row(
               children: [
-                if (discountPolicyEnabled) ...[
+                if (discountEligible) ...[
                   Expanded(
                     child: OutlinedButton(
                       onPressed: state.isBusy ? null : _toggleDiscount,
@@ -345,6 +348,7 @@ class _FamilyItem extends StatelessWidget {
   }
 
   Future<void> _toggleDiscount() async {
+    if (panel.isDiscountIneligible) return;
     if (panel.isDiscountExcluded) {
       await state.applyDefaultPanelDiscount(panel.id);
     } else {

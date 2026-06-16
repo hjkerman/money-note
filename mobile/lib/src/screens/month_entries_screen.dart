@@ -53,8 +53,10 @@ class _MonthEntryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final discountEligible = !entry.isDiscountIneligible;
     final discount = entry.discountForPolicy(discountPolicyEnabled);
     final canToggleDiscount = discountPolicyEnabled &&
+        discountEligible &&
         entry.paymentKey != null &&
         entry.paymentKey!.isNotEmpty;
     return Padding(
@@ -102,7 +104,9 @@ class _MonthEntryCard extends StatelessWidget {
                     Text(won(entry.amountValue),
                         style: const TextStyle(
                             fontSize: 17, fontWeight: FontWeight.w900)),
-                    if (discountPolicyEnabled && entry.paymentKey != null) ...[
+                    if (discountPolicyEnabled &&
+                        discountEligible &&
+                        entry.paymentKey != null) ...[
                       const SizedBox(height: 3),
                       Text('할인 ${won(discount)}',
                           style: const TextStyle(
@@ -174,6 +178,7 @@ class _MonthEntryCard extends StatelessWidget {
   }
 
   Future<void> _toggleDiscount() async {
+    if (entry.isDiscountIneligible) return;
     final paymentKey = entry.paymentKey;
     if (paymentKey == null || paymentKey.isEmpty) return;
     if (entry.isDiscountExcluded) {
@@ -206,7 +211,10 @@ class _MonthEntryCard extends StatelessWidget {
     }
   }
 
-  bool _isTransport(LedgerEntry entry) => _title(entry).contains('교통');
+  bool _isTransport(LedgerEntry entry) {
+    final title = _title(entry);
+    return discountIneligibleText(title) && !_isToll(entry);
+  }
 
   bool _isToll(LedgerEntry entry) {
     final title = _title(entry);

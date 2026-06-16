@@ -296,7 +296,9 @@ class AppState extends ChangeNotifier {
         amount: amount,
         spendingCategory: normalizeSpendingCategory(spendingCategory),
       );
-      if (!discountEnabled && entry.paymentKey != null) {
+      if (!discountEnabled &&
+          !entry.isDiscountIneligible &&
+          entry.paymentKey != null) {
         await api.excludeEntryDiscount(entry.paymentKey!);
       }
       await refreshInputArea(notify: false);
@@ -320,6 +322,7 @@ class AppState extends ChangeNotifier {
         spentOn: spentOn ?? _today(),
       );
       if (!discountEnabled &&
+          !panel.isDiscountIneligible &&
           (panelType == 'claim' || panelType == 'family_card')) {
         await api.excludePanelDiscount(panel.id);
       }

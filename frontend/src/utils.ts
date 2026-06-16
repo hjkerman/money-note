@@ -163,9 +163,11 @@ export function defaultCardDiscount(amount: number | null | undefined): number {
   return Math.floor((amount ?? 0) * DEFAULT_CARD_DISCOUNT_RATE);
 }
 
+export const discountIneligibleWords = ["교통", "대중교통", "버스", "지하철", "통행", "통행료", "하이패스"];
+
 export function discountIneligibleTitle(title: string | null | undefined): boolean {
   const text = (title ?? "").toLowerCase();
-  return text.includes("통행") || text.includes("하이패스");
+  return discountIneligibleWords.some((word) => text.includes(word.toLowerCase()));
 }
 
 export function effectiveEntryDiscount(
