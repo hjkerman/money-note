@@ -24,6 +24,7 @@ def shared_panel(panel_type: str) -> dict:
         if panel.get("panel_type") == panel_type and panel.get("title")
     ]
     total = sum(_panel_net_amount(row) for row in rows)
+    discount_total = sum(_panel_discount_amount(row) for row in rows)
     current_card_total = sum(row.get("amount_value") or 0 for row in list_entries("current"))
     settings = list_settings()
     card_limit = _float_setting(settings, "card_limit", 5_800_000)
@@ -37,6 +38,7 @@ def shared_panel(panel_type: str) -> dict:
         "ledger_note": _ledger_note(panel_type, month),
         "rows": rows,
         "total": total,
+        "discount_total": discount_total,
     }
 
 
@@ -46,6 +48,7 @@ def shared_panel_html(panel_type: str) -> str:
     if not rows_html:
         rows_html = '<tr><td colspan="4" class="empty">표시할 항목이 없습니다.</td></tr>'
     net_total = sum(_panel_net_amount(row) for row in data["rows"])
+    discount_total = sum(_panel_discount_amount(row) for row in data["rows"])
     return f"""<!doctype html>
 <html lang="ko">
 <head>
@@ -166,6 +169,10 @@ def shared_panel_html(panel_type: str) -> str:
         {rows_html}
       </tbody>
       <tfoot>
+        <tr>
+          <td colspan="3">할인액 합계</td>
+          <td class="money discount">{_discount_text(discount_total)}</td>
+        </tr>
         <tr>
           <td colspan="3">합계</td>
           <td class="money net">{format_won(net_total)}</td>

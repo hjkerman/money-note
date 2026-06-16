@@ -107,13 +107,13 @@ export function FixedPanelView({
           onConfirm={(entry, entryDate) => handlePlannedConfirm(entry, entryDate)}
           onDelete={(entry) => handlePlannedDelete(entry)}
         />
-        <ConfirmedPlannedList entries={confirmedPlannedEntries} />
+        <ConfirmedPlannedList entries={confirmedPlannedEntries} onUnsubscribe={(entry) => handlePlannedDelete(entry)} />
       </section>
     </section>
   );
 }
 
-function ConfirmedPlannedList({ entries }: { entries: LedgerEntry[] }) {
+function ConfirmedPlannedList({ entries, onUnsubscribe }: { entries: LedgerEntry[]; onUnsubscribe: (entry: LedgerEntry) => void }) {
   if (!entries.length) return null;
   return (
     <section className="confirmed-planned-list">
@@ -121,22 +121,42 @@ function ConfirmedPlannedList({ entries }: { entries: LedgerEntry[] }) {
         <h3>이번 달 확인 처리된 정기결제</h3>
         <span>{entries.length}건</span>
       </div>
-      <div className="confirmed-planned-cards">
-        {entries.map((entry) => (
-          <article className="confirmed-planned-card" key={entry.id}>
-            <div>
-              <strong>{entry.usage_place ?? entry.title}</strong>
-              <span>{entry.usage_item || "좌동"}</span>
-            </div>
-            <div className="confirmed-planned-meta">
-              <span>{entry.due_day ? `매월 ${entry.due_day}일` : "날짜 없음"}</span>
-              <strong>{formatWon(entry.amount_value)}</strong>
-            </div>
-          </article>
-        ))}
-      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>결제일</th>
+            <th>사용처</th>
+            <th>세부내역</th>
+            <th>실제 처리일</th>
+            <th className="amount">금액</th>
+            <th className="action-cell">구독중지</th>
+          </tr>
+        </thead>
+        <tbody>
+          {entries.map((entry) => (
+            <tr key={entry.id}>
+              <td className="date">{entry.due_day ? `매월 ${entry.due_day}일` : "날짜 없음"}</td>
+              <td>{entry.usage_place ?? ""}</td>
+              <td>{entry.usage_item || "좌동"}</td>
+              <td className="date">{confirmedPlannedDate(entry)}</td>
+              <td className="amount">{formatWon(entry.amount_value)}</td>
+              <td className="action-cell">
+                <button type="button" className="danger" onClick={() => onUnsubscribe(entry)}>
+                  구독중지
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </section>
   );
+}
+
+function confirmedPlannedDate(entry: LedgerEntry): string {
+  if (entry.entry_date) return entry.entry_date;
+  if (entry.confirmed_at) return entry.confirmed_at.slice(0, 10);
+  return "-";
 }
 
 export function FrozenPanelView({

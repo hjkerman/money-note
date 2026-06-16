@@ -114,11 +114,13 @@ export function useEntryHandlers({
   }
 
   async function handlePlannedDelete(entry: LedgerEntry) {
-    const confirmed = window.confirm(`${displayEntryTitle(entry)} 카드 정기결제 항목을 삭제할까요?`);
+    const confirmed = window.confirm(
+      `${displayEntryTitle(entry)} 카드 정기결제를 해제할까요?\n\n이미 당월 원장에 들어간 지출은 유지되고, 다음 달부터 정기결제 목록에 나오지 않습니다.`,
+    );
     if (!confirmed) return;
     await withRefresh(async () => {
       await deletePlannedEntry(entry.id);
-      setStatus("카드 정기결제 삭제 완료");
+      setStatus("카드 정기결제 해제 완료");
     });
   }
 
