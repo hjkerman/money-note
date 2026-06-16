@@ -282,6 +282,7 @@ export function EntryTable({
   discounts,
   onDiscount,
   onClearDiscount,
+  onNetAmountEdit,
   discountPolicy = "enabled",
   wideDetailColumn = false,
 }: {
@@ -293,6 +294,7 @@ export function EntryTable({
   discounts?: Record<string, number>;
   onDiscount?: (entry: LedgerEntry) => void;
   onClearDiscount?: (entry: LedgerEntry) => void;
+  onNetAmountEdit?: (entry: LedgerEntry) => void;
   discountPolicy?: CardDiscountPolicy | null;
   wideDetailColumn?: boolean;
 }) {
@@ -315,8 +317,11 @@ export function EntryTable({
           const selectedCategory = entry.spending_category;
           const currentDiscount = effectiveEntryDiscount(entry, discounts, discountPolicy);
           const defaultDiscount = defaultCardDiscount(entry.amount_value);
-          const discountEligible = Boolean(onDiscount && entry.payment_key && !discountIneligibleTitle(displayEntryTitle(entry)));
           const discountOverride = Boolean(entry.discount_override);
+          const discountControlEligible = Boolean(
+            onDiscount && entry.payment_key && !discountIneligibleTitle(displayEntryTitle(entry)),
+          );
+          const discountDisplayEligible = Boolean(discountControlEligible || (onDiscount && discountOverride));
           return (
             <tr key={entry.id}>
               <td className="date entry-date-cell">{displayEntryDateLabel(entry)}</td>
@@ -341,10 +346,18 @@ export function EntryTable({
                   </select>
                 </td>
               ) : null}
-              <td className="amount">{formatWon(entry.amount_value)}</td>
+              <td className="amount">
+                {onNetAmountEdit && entry.payment_key ? (
+                  <button type="button" className="amount-cell-button" onClick={() => onNetAmountEdit(entry)}>
+                    {formatWon(entry.amount_value)}
+                  </button>
+                ) : (
+                  formatWon(entry.amount_value)
+                )}
+              </td>
               {onDiscount ? (
                 <td className="discount-cell">
-                  {discountEligible ? (
+                  {discountControlEligible ? (
                     <DiscountEditor
                       currentAmount={currentDiscount}
                       defaultAmount={defaultDiscount}
@@ -353,6 +366,8 @@ export function EntryTable({
                       onClear={onClearDiscount ? () => onClearDiscount(entry) : undefined}
                       disabled={discountPolicy === "disabled"}
                     />
+                  ) : discountDisplayEligible ? (
+                    <span className="discount-badge muted-discount-badge">할인 {formatWon(currentDiscount)}</span>
                   ) : null}
                 </td>
               ) : null}
@@ -429,6 +444,7 @@ export function PanelTable({
   onComplete,
   onDiscount,
   onClearDiscount,
+  onNetAmountEdit,
   discountPolicy = "enabled",
   judgment,
   onShare,
@@ -441,6 +457,7 @@ export function PanelTable({
   onComplete?: () => void;
   onDiscount?: (panel: MonthlyPanel) => void;
   onClearDiscount?: (panel: MonthlyPanel) => void;
+  onNetAmountEdit?: (panel: MonthlyPanel) => void;
   discountPolicy?: CardDiscountPolicy | null;
   judgment?: JudgmentState | null;
   onShare?: () => void;
@@ -480,10 +497,12 @@ export function PanelTable({
           </thead>
           <tbody>
             {rows.map((row) => {
-              const discountEligible = Boolean(onDiscount && !discountIneligibleTitle(row.title));
               const currentDiscount = effectivePanelDiscount(row, discountPolicy);
               const defaultDiscount = defaultCardDiscount(row.amount_value);
               const discountOverride = Boolean(row.discount_override);
+              const discountControlEligible = Boolean(onDiscount && !discountIneligibleTitle(row.title));
+              const discountDisplayEligible = Boolean(discountControlEligible || (onDiscount && discountOverride));
+              const netAmount = panelNetAmount(row, discountPolicy);
               return (
               <tr key={row.id}>
                 {(rows.some((item) => item.spent_on) || rows.some((item) => item.panel_type === "claim" || item.panel_type === "family_card")) ? (
@@ -492,10 +511,18 @@ export function PanelTable({
                 <td className="panel-title-cell">
                   {row.title}
                 </td>
-                <td className="amount">{formatWon(discountEligible ? panelNetAmount(row, discountPolicy) : row.amount_value)}</td>
+                <td className="amount">
+                  {onNetAmountEdit ? (
+                    <button type="button" className="amount-cell-button" onClick={() => onNetAmountEdit(row)}>
+                      {formatWon(netAmount)}
+                    </button>
+                  ) : (
+                    formatWon(discountDisplayEligible ? netAmount : row.amount_value)
+                  )}
+                </td>
                 {onDiscount ? (
                   <td className="discount-cell">
-                    {discountEligible ? (
+                    {discountControlEligible ? (
                       <>
                         <DiscountEditor
                           currentAmount={currentDiscount}
@@ -505,6 +532,11 @@ export function PanelTable({
                           onClear={onClearDiscount ? () => onClearDiscount(row) : undefined}
                           disabled={discountPolicy === "disabled"}
                         />
+                        <span className="net-amount">원금 {formatWon(row.amount_value)}</span>
+                      </>
+                    ) : discountDisplayEligible ? (
+                      <>
+                        <span className="discount-badge muted-discount-badge">할인 {formatWon(currentDiscount)}</span>
                         <span className="net-amount">원금 {formatWon(row.amount_value)}</span>
                       </>
                     ) : null}

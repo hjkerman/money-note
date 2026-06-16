@@ -300,6 +300,8 @@ class _FamilyItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final discountEligible =
         discountPolicyEnabled && !panel.isDiscountIneligible;
+    final showDiscountInfo = discountEligible || panel.discountOverride != 0;
+    final canEditNetAmount = panel.amountValue != null;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: MoneyCard(
@@ -311,7 +313,7 @@ class _FamilyItem extends StatelessWidget {
                     const TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
             const SizedBox(height: 12),
             _Line(label: '원금', value: won(panel.amountValue)),
-            if (discountEligible)
+            if (showDiscountInfo)
               _Line(
                   label: '할인',
                   value: won(panel.discountForPolicy(discountPolicyEnabled))),
@@ -326,7 +328,18 @@ class _FamilyItem extends StatelessWidget {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: state.isBusy ? null : _toggleDiscount,
-                      child: Text(panel.isDiscountExcluded ? '할인 적용' : '할인 제외'),
+                      child:
+                          Text(panel.isDiscountExcluded ? '할인 적용' : '할인 제외'),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                ],
+                if (canEditNetAmount) ...[
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed:
+                          state.isBusy ? null : () => _editNetAmount(context),
+                      child: const Text('실결제액 수정'),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -354,6 +367,46 @@ class _FamilyItem extends StatelessWidget {
     } else {
       await state.excludeExistingPanelDiscount(panel.id);
     }
+  }
+
+  Future<void> _editNetAmount(BuildContext context) async {
+    final amount = panel.amountValue;
+    if (amount == null) return;
+    final controller = TextEditingController(
+      text: panel.effectiveAmountForPolicy(discountPolicyEnabled).toString(),
+    );
+    final netAmount = await showDialog<int>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(isClaim ? '실청구액 수정' : '실결제액 수정'),
+        content: TextField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+          autofocus: true,
+          decoration: InputDecoration(
+            labelText: isClaim ? '실청구액' : '실결제액',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('취소'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final parsed =
+                  int.tryParse(controller.text.replaceAll(',', '').trim());
+              if (parsed == null || parsed < 0 || parsed > amount) return;
+              Navigator.of(context).pop(parsed);
+            },
+            child: const Text('저장'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (netAmount == null) return;
+    await state.updatePanelNetAmount(panel, netAmount);
   }
 }
 

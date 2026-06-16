@@ -160,6 +160,7 @@ export function App() {
     handlePanelDelete,
     handlePanelDiscount,
     handlePanelDiscountClear,
+    handlePanelNetAmountEdit,
     handlePanelShare,
     handlePanelSubmit,
   } = usePanelHandlers({
@@ -188,6 +189,7 @@ export function App() {
     handleCardPaymentSubmit,
     handleCurrentEntryDiscount,
     handleCurrentEntryDiscountClear,
+    handleCurrentEntryNetAmountEdit,
     handleDiscountPolicyChange,
     handleLateEntrySubmit,
     handleLiquidityResetAcknowledgement,
@@ -395,6 +397,7 @@ export function App() {
               handleCategoryChange={(entry, category) => void handleCategoryChange(entry, category)}
               handleCurrentEntryDiscount={(entry) => void handleCurrentEntryDiscount(entry)}
               handleCurrentEntryDiscountClear={(entry) => void handleCurrentEntryDiscountClear(entry)}
+              handleCurrentEntryNetAmountEdit={(entry) => void handleCurrentEntryNetAmountEdit(entry)}
               handleDiscountPolicyChange={(scope, month, policy) => void handleDiscountPolicyChange(scope, month, policy)}
               handleEntryDelete={(entry) => void handleEntryDelete(entry)}
               handleExpenseSubmit={(event) => void handleExpenseSubmit(event)}
@@ -402,6 +405,7 @@ export function App() {
               handlePanelDelete={(panel) => void handlePanelDelete(panel)}
               handlePanelDiscount={(panel) => void handlePanelDiscount(panel)}
               handlePanelDiscountClear={(panel) => void handlePanelDiscountClear(panel)}
+              handlePanelNetAmountEdit={(panel) => void handlePanelNetAmountEdit(panel)}
               handlePanelShare={(panelType) => void handlePanelShare(panelType)}
               handlePanelSubmit={handlePanelSubmit}
               isBusy={isBusy}

@@ -4,7 +4,13 @@ import { previousMonthLastDay, today } from "../utils";
 
 export function useMoneyNoteForms() {
   const [loginForm, setLoginForm] = useState({ username: "", password: "" });
-  const [expenseForm, setExpenseForm] = useState({ date: today, usagePlace: "", usageItem: "", amount: "" });
+  const [expenseForm, setExpenseForm] = useState({
+    date: today,
+    usagePlace: "",
+    usageItem: "",
+    spendingCategory: "",
+    amount: "",
+  });
   const [plannedForm, setPlannedForm] = useState({ dueDay: "", usagePlace: "", usageItem: "", amount: "" });
   const [cashFlowForm, setCashFlowForm] = useState({
     occurredOn: today,

@@ -41,7 +41,7 @@
 | `usage_item` | TEXT | 사용항목 |
 | `amount_value` | REAL | 사용금액 |
 | `amount_expr` | TEXT | 과거 호환용 문자열 필드 |
-| `aux_amount_value` | REAL | 보조 금액 |
+| `aux_amount_value` | REAL | 원장 항목의 수동 할인액 override. 실결제액 직접 수정 시 `amount_value - 실결제액`을 저장한다. |
 | `aux_amount_expr` | TEXT | 보조 금액 문자열 |
 | `extra_value` | TEXT | 기타 값 |
 | `sort_order` | INTEGER | 정렬 순서 |
@@ -50,6 +50,7 @@
 | `confirmed_month` | TEXT | 카드 정기결제를 확인한 대상 월 |
 | `spending_category` | TEXT | `essential`, `questionable`, `dignity`, 또는 `NULL` |
 | `payment_key` | TEXT | 카드 결제/할인 배분용 안정 키 |
+| `discount_override` | INTEGER | `1`이면 기본 할인 계산 대신 `aux_amount_value`를 수동 할인액으로 사용 |
 
 정렬:
 
@@ -68,7 +69,8 @@
 | `title` | TEXT | 적요 |
 | `spent_on` | TEXT | 사용일 |
 | `amount_value` | REAL | 금액 |
-| `discount_amount` | REAL | 할인액 |
+| `discount_amount` | REAL | 청구/가족카드 항목의 수동 할인액 override |
+| `discount_override` | INTEGER | `1`이면 기본 할인 계산 대신 `discount_amount`를 수동 할인액으로 사용 |
 | `amount_expr` | TEXT | 과거 호환용 문자열 필드 |
 | `sort_order` | INTEGER | 정렬 순서 |
 | `due_day` | INTEGER | 필요 시 사용하는 결제일 |

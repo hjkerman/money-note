@@ -59,6 +59,11 @@ class _MonthEntryCard extends StatelessWidget {
         discountEligible &&
         entry.paymentKey != null &&
         entry.paymentKey!.isNotEmpty;
+    final canEditNetAmount =
+        entry.paymentKey != null &&
+        entry.paymentKey!.isNotEmpty &&
+        entry.amountValue != null;
+    final showDiscountInfo = canToggleDiscount || entry.discountOverride != 0;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: MoneyCard(
@@ -104,9 +109,7 @@ class _MonthEntryCard extends StatelessWidget {
                     Text(won(entry.amountValue),
                         style: const TextStyle(
                             fontSize: 17, fontWeight: FontWeight.w900)),
-                    if (discountPolicyEnabled &&
-                        discountEligible &&
-                        entry.paymentKey != null) ...[
+                    if (showDiscountInfo) ...[
                       const SizedBox(height: 3),
                       Text('할인 ${won(discount)}',
                           style: const TextStyle(
@@ -123,54 +126,50 @@ class _MonthEntryCard extends StatelessWidget {
                 ),
               ],
             ),
-            if (canToggleDiscount) ...[
-              const SizedBox(height: 10),
-              DropdownButtonFormField<String>(
-                value: normalizeSpendingCategory(entry.spendingCategory),
-                decoration: const InputDecoration(labelText: '분류'),
-                items: spendingCategoryOptions
-                    .map((option) => DropdownMenuItem<String>(
-                          value: option.value,
-                          child: Text(option.label),
-                        ))
-                    .toList(),
-                onChanged: state.isBusy
-                    ? null
-                    : (value) => state.updateExpenseCategory(entry.id, value),
+            const SizedBox(height: 10),
+            DropdownButtonFormField<String>(
+              value: normalizeSpendingCategory(entry.spendingCategory),
+              decoration: const InputDecoration(labelText: '분류'),
+              items: spendingCategoryOptions
+                  .map((option) => DropdownMenuItem<String>(
+                        value: option.value,
+                        child: Text(option.label),
+                      ))
+                  .toList(),
+              onChanged: state.isBusy
+                  ? null
+                  : (value) => state.updateExpenseCategory(entry.id, value),
+            ),
+            const SizedBox(height: 10),
+            if (canToggleDiscount || canEditNetAmount)
+              Row(
+                children: [
+                  if (canToggleDiscount)
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: state.isBusy ? null : _toggleDiscount,
+                        child:
+                            Text(entry.isDiscountExcluded ? '할인 적용' : '할인 제외'),
+                      ),
+                    ),
+                  if (canToggleDiscount && canEditNetAmount)
+                    const SizedBox(width: 10),
+                  if (canEditNetAmount)
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed:
+                            state.isBusy ? null : () => _editNetAmount(context),
+                        child: const Text('실결제액 수정'),
+                      ),
+                    ),
+                ],
               ),
-              const SizedBox(height: 10),
-              OutlinedButton(
-                onPressed: state.isBusy ? null : _toggleDiscount,
-                child: Text(entry.isDiscountExcluded ? '할인 적용' : '할인 제외'),
-              ),
-              const SizedBox(height: 10),
-              OutlinedButton(
-                onPressed: state.isBusy ? null : () => _confirmDelete(context),
-                style: OutlinedButton.styleFrom(foregroundColor: moneyRed),
-                child: const Text('삭제'),
-              ),
-            ] else ...[
-              const SizedBox(height: 10),
-              DropdownButtonFormField<String>(
-                value: normalizeSpendingCategory(entry.spendingCategory),
-                decoration: const InputDecoration(labelText: '분류'),
-                items: spendingCategoryOptions
-                    .map((option) => DropdownMenuItem<String>(
-                          value: option.value,
-                          child: Text(option.label),
-                        ))
-                    .toList(),
-                onChanged: state.isBusy
-                    ? null
-                    : (value) => state.updateExpenseCategory(entry.id, value),
-              ),
-              const SizedBox(height: 10),
-              OutlinedButton(
-                onPressed: state.isBusy ? null : () => _confirmDelete(context),
-                style: OutlinedButton.styleFrom(foregroundColor: moneyRed),
-                child: const Text('삭제'),
-              ),
-            ],
+            const SizedBox(height: 10),
+            OutlinedButton(
+              onPressed: state.isBusy ? null : () => _confirmDelete(context),
+              style: OutlinedButton.styleFrom(foregroundColor: moneyRed),
+              child: const Text('삭제'),
+            ),
           ],
         ),
       ),
@@ -186,6 +185,43 @@ class _MonthEntryCard extends StatelessWidget {
     } else {
       await state.excludeExistingEntryDiscount(paymentKey);
     }
+  }
+
+  Future<void> _editNetAmount(BuildContext context) async {
+    final amount = entry.amountValue;
+    if (amount == null) return;
+    final controller = TextEditingController(
+        text: entry.effectiveAmountForPolicy(discountPolicyEnabled).toString());
+    final netAmount = await showDialog<int>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('실결제액 수정'),
+        content: TextField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+          autofocus: true,
+          decoration: const InputDecoration(labelText: '실결제액'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('취소'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final parsed =
+                  int.tryParse(controller.text.replaceAll(',', '').trim());
+              if (parsed == null || parsed < 0 || parsed > amount) return;
+              Navigator.of(context).pop(parsed);
+            },
+            child: const Text('저장'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (netAmount == null) return;
+    await state.updateEntryNetAmount(entry, netAmount);
   }
 
   Future<void> _confirmDelete(BuildContext context) async {

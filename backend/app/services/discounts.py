@@ -39,10 +39,10 @@ def effective_card_discount(
 ) -> float:
     """월 정책과 개별 할인 제외 상태를 합쳐 실제 계산에 쓸 할인액을 만든다."""
     month_policy = normalize_discount_policy(month_policy)
-    if month_policy == "disabled" or discount_ineligible_title(title):
-        return 0.0
     if override_enabled:
         return max(0.0, float(override_discount or 0))
+    if month_policy == "disabled" or discount_ineligible_title(title):
+        return 0.0
     return default_card_discount(amount)
 
 

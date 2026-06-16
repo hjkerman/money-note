@@ -17,7 +17,7 @@ import { useLedgerSnapshot } from "./useLedgerSnapshot";
 import { PanelType } from "../types";
 import { formatIntegerSetting, isAuthRequiredError, previousMonthLastDay, today } from "../utils";
 
-type ExpenseForm = { date: string; usagePlace: string; usageItem: string; amount: string };
+type ExpenseForm = { date: string; usagePlace: string; usageItem: string; spendingCategory: string; amount: string };
 type CashFlowForm = {
   occurredOn: string;
   direction: string;

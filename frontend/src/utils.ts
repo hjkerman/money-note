@@ -175,6 +175,7 @@ export function effectiveEntryDiscount(
   discounts?: Record<string, number> | null,
   policy: CardDiscountPolicy | null = null,
 ): number {
+  if (entry.discount_override) return Math.max(0, entry.aux_amount_value ?? 0);
   if (!entry.payment_key || policy === "disabled" || discountIneligibleTitle(displayEntryTitle(entry))) return 0;
   if (discounts && Object.prototype.hasOwnProperty.call(discounts, entry.payment_key)) {
     return Math.max(0, discounts[entry.payment_key] ?? 0);
@@ -182,13 +183,21 @@ export function effectiveEntryDiscount(
   return defaultCardDiscount(entry.amount_value);
 }
 
+export function entryNetAmount(
+  entry: LedgerEntry,
+  discounts?: Record<string, number> | null,
+  policy: CardDiscountPolicy | null = null,
+): number {
+  return Math.max(0, (entry.amount_value ?? 0) - effectiveEntryDiscount(entry, discounts, policy));
+}
+
 export function sumPanelAmounts(rows: MonthlyPanel[]): number {
   return rows.reduce((total, row) => total + (row.amount_value ?? 0), 0);
 }
 
 export function effectivePanelDiscount(row: MonthlyPanel, policy: CardDiscountPolicy | null = null): number {
-  if (!["claim", "family_card"].includes(row.panel_type) || policy === "disabled" || discountIneligibleTitle(row.title)) return 0;
   if (row.discount_override) return Math.max(0, row.discount_amount ?? 0);
+  if (!["claim", "family_card"].includes(row.panel_type) || policy === "disabled" || discountIneligibleTitle(row.title)) return 0;
   return defaultCardDiscount(row.amount_value);
 }
 

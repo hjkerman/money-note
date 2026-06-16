@@ -59,6 +59,7 @@ def discount_month_status(month: str, scope: str = "owner") -> dict[str, Any]:
                    ledger_entries.amount_value,
                    ledger_entries.title,
                    ledger_entries.discount_override,
+                   ledger_entries.aux_amount_value,
                    COALESCE(SUM(CASE WHEN card_payment_events.event_type = 'discount'
                                      THEN card_payment_allocations.amount_value ELSE 0 END), 0) AS override_discount_amount
             FROM ledger_entries
@@ -77,8 +78,8 @@ def discount_month_status(month: str, scope: str = "owner") -> dict[str, Any]:
     discounts = {
         row["payment_key"]: effective_card_discount(
             row["amount_value"],
-            row["override_discount_amount"],
-            bool(row["discount_override"] or row["override_discount_amount"]),
+            _manual_entry_discount(row),
+            bool(row["discount_override"] or row["override_discount_amount"] or row["aux_amount_value"]),
             policy,
             row["title"],
         )
@@ -137,7 +138,7 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
             seen_keys.add(key)
             row = conn.execute(
                 """
-                SELECT title, amount_value, entry_date, discount_override
+                SELECT title, amount_value, entry_date, discount_override, aux_amount_value
                 FROM ledger_entries
                 WHERE payment_key = ? AND entry_kind != 'planned'
                 """,
@@ -146,8 +147,6 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
             if row is None:
                 raise ValueError("결제 대상 사용내역을 찾을 수 없습니다.")
             usage_month = str(row["entry_date"] or "")[:7]
-            if payload.event_type == "discount" and usage_month and _discount_policy_value(conn, usage_month, "owner") == "disabled":
-                raise ValueError(f"{usage_month}은 할인 혜택이 없는 달로 설정되어 있습니다.")
             deferral = conn.execute(
                 """
                 SELECT target_payment_month
@@ -181,14 +180,12 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
                 (key,),
             ).fetchone()["total"]
             if payload.event_type == "discount":
-                if discount_ineligible_title(row["title"]):
-                    raise ValueError("이 항목은 카드 할인 대상이 아닙니다.")
                 remaining = max(0.0, float(row["amount_value"] or 0) - float(paid or 0))
             else:
                 current_discount = effective_card_discount(
                     row["amount_value"],
-                    override_discount,
-                    bool(row["discount_override"] or override_discount),
+                    _manual_entry_discount({**dict(row), "override_discount_amount": override_discount}),
+                    bool(row["discount_override"] or override_discount or row["aux_amount_value"]),
                     _discount_policy_value(conn, usage_month, "owner") if usage_month else "enabled",
                     row["title"],
                 )
@@ -259,37 +256,17 @@ def set_entry_discount(entry_payment_key: str, amount: float, event_date: str | 
         ).fetchone()
         if row is None:
             raise ValueError("할인 대상 사용내역을 찾을 수 없습니다.")
-        usage_month = str(row["entry_date"] or "")[:7]
-        if usage_month and _discount_policy_value(conn, usage_month, "owner") == "disabled":
-            raise ValueError(f"{usage_month}은 할인 혜택이 없는 달로 설정되어 있습니다.")
-        if discount_ineligible_title(row["title"]):
-            raise ValueError("이 항목은 카드 할인 대상이 아닙니다.")
         if amount > float(row["amount_value"] or 0):
             raise ValueError("할인액은 원래 금액을 초과할 수 없습니다.")
         _delete_entry_discount_events(conn, entry_payment_key)
         conn.execute(
             """
             UPDATE ledger_entries
-            SET discount_override = 1, updated_at = CURRENT_TIMESTAMP
+            SET aux_amount_value = ?, discount_override = 1, updated_at = CURRENT_TIMESTAMP
             WHERE payment_key = ?
             """,
-            (entry_payment_key,),
+            (amount, entry_payment_key),
         )
-        if amount > 0:
-            event_cursor = conn.execute(
-                """
-                INSERT INTO card_payment_events(event_date, event_type, total_amount, note, cash_flow_id)
-                VALUES (?, 'discount', ?, '당월 기록에서 선반영', NULL)
-                """,
-                (event_date, amount),
-            )
-            conn.execute(
-                """
-                INSERT INTO card_payment_allocations(payment_event_id, entry_payment_key, amount_value)
-                VALUES (?, ?, ?)
-                """,
-                (event_cursor.lastrowid, entry_payment_key, amount),
-            )
         updated = conn.execute("SELECT * FROM ledger_entries WHERE payment_key = ?", (entry_payment_key,)).fetchone()
     return dict(updated)
 
@@ -304,7 +281,7 @@ def clear_entry_discount(entry_payment_key: str) -> bool:
         conn.execute(
             """
             UPDATE ledger_entries
-            SET discount_override = 0, updated_at = CURRENT_TIMESTAMP
+            SET aux_amount_value = NULL, discount_override = 0, updated_at = CURRENT_TIMESTAMP
             WHERE payment_key = ?
             """,
             (entry_payment_key,),
@@ -579,8 +556,8 @@ def _payment_rows_for_month(usage_month: str, payment_month: str) -> list[dict[s
         usage_month = str(data.get("entry_date") or "")[:7]
         discount = effective_card_discount(
             original,
-            override_discount,
-            bool(data.get("discount_override") or override_discount),
+            _manual_entry_discount({**data, "override_discount_amount": override_discount}),
+            bool(data.get("discount_override") or override_discount or data.get("aux_amount_value")),
             _setting_value(f"card_discount_policy:owner:{usage_month}") or "enabled",
             data.get("title"),
         )
@@ -705,6 +682,13 @@ def _delete_entry_discount_events(conn: Any, entry_payment_key: str) -> None:
         ).fetchone()["count"]
         if remaining == 0:
             conn.execute("DELETE FROM card_payment_events WHERE id = ?", (row["id"],))
+
+
+def _manual_entry_discount(row: Any) -> float:
+    """원장 항목의 수동 할인액을 꺼낸다. 새 값(aux)이 있으면 과거 할인 이벤트보다 우선한다."""
+    if row["discount_override"] and row["aux_amount_value"] is not None:
+        return float(row["aux_amount_value"] or 0)
+    return float(row["override_discount_amount"] or 0)
 
 
 def _clear_owner_discounts_for_month(conn: Any, month: str) -> None:

@@ -175,9 +175,14 @@ class MoneyNoteApiClient {
     await _delete('/api/month/current/planned/$entryId');
   }
 
-  Future<LedgerEntry> excludeEntryDiscount(String entryPaymentKey) {
+  Future<LedgerEntry> updateEntryDiscount(
+      String entryPaymentKey, int discountAmount) {
     return _patch('/api/card-discounts/entries/$entryPaymentKey',
-        {'discount_amount': 0}, LedgerEntry.fromJson);
+        {'discount_amount': discountAmount}, LedgerEntry.fromJson);
+  }
+
+  Future<LedgerEntry> excludeEntryDiscount(String entryPaymentKey) {
+    return updateEntryDiscount(entryPaymentKey, 0);
   }
 
   Future<void> clearEntryDiscount(String entryPaymentKey) async {
@@ -209,9 +214,13 @@ class MoneyNoteApiClient {
         MonthlyPanel.fromJson);
   }
 
-  Future<MonthlyPanel> excludePanelDiscount(int panelId) {
+  Future<MonthlyPanel> updatePanelDiscount(int panelId, int discountAmount) {
     return _patch('/api/month/current/panels/$panelId/discount',
-        {'discount_amount': 0}, MonthlyPanel.fromJson);
+        {'discount_amount': discountAmount}, MonthlyPanel.fromJson);
+  }
+
+  Future<MonthlyPanel> excludePanelDiscount(int panelId) {
+    return updatePanelDiscount(panelId, 0);
   }
 
   Future<void> clearPanelDiscount(int panelId) async {

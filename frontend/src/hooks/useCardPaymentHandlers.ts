@@ -21,6 +21,7 @@ import {
   focusFirstDataInput,
   formatMonthLabel,
   formatWon,
+  entryNetAmount,
   monthLastDay,
   parseAmount,
   sumPaymentAllocationInputs,
@@ -128,6 +129,22 @@ export function useCardPaymentHandlers({
     await withRefresh(async () => {
       await clearEntryDiscount(entry.payment_key as string);
       setStatus("당월 사용내역 할인 적용 완료");
+    });
+  }
+
+  async function handleCurrentEntryNetAmountEdit(entry: LedgerEntry) {
+    if (!entry.payment_key || entry.amount_value == null) return;
+    const currentNet = entryNetAmount(entry, undefined, ownerDiscountPolicy ?? null);
+    const raw = window.prompt("실결제액을 입력하세요.", String(Math.round(currentNet)));
+    if (raw === null) return;
+    const netAmount = parseAmount(raw);
+    if (netAmount === null || netAmount < 0 || netAmount > entry.amount_value) {
+      setStatus("실결제액은 0원 이상 원금 이하로 입력해야 합니다.");
+      return;
+    }
+    await withRefresh(async () => {
+      await updateEntryDiscount(entry.payment_key as string, Math.round(entry.amount_value as number) - netAmount);
+      setStatus(`실결제액 ${formatWon(netAmount)} 반영 완료`);
     });
   }
 
@@ -241,6 +258,7 @@ export function useCardPaymentHandlers({
     handleCardPaymentSubmit,
     handleCurrentEntryDiscount,
     handleCurrentEntryDiscountClear,
+    handleCurrentEntryNetAmountEdit,
     handleDiscountPolicyChange,
     handleLateEntrySubmit,
     handleLiquidityResetAcknowledgement,

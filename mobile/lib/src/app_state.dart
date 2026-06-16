@@ -391,6 +391,17 @@ class AppState extends ChangeNotifier {
     });
   }
 
+  Future<void> updateEntryNetAmount(LedgerEntry entry, int netAmount) async {
+    final paymentKey = entry.paymentKey;
+    final amount = entry.amountValue;
+    if (paymentKey == null || paymentKey.isEmpty || amount == null) return;
+    await _run(() async {
+      await api.updateEntryDiscount(paymentKey, amount - netAmount);
+      await refreshEntriesArea(notify: false);
+      statusMessage = '실결제액 수정 완료';
+    });
+  }
+
   Future<void> updateExpenseCategory(int entryId, String? category) async {
     await _run(() async {
       await api.updateEntryCategory(
@@ -424,6 +435,16 @@ class AppState extends ChangeNotifier {
     });
   }
 
+  Future<void> updatePanelNetAmount(MonthlyPanel panel, int netAmount) async {
+    final amount = panel.amountValue;
+    if (amount == null) return;
+    await _run(() async {
+      await api.updatePanelDiscount(panel.id, amount - netAmount);
+      await refreshSettlementArea(notify: false);
+      statusMessage = '실결제액 수정 완료';
+    });
+  }
+
   Future<void> applyDefaultPanelDiscount(int panelId) async {
     await _run(() async {
       await api.clearPanelDiscount(panelId);
@@ -445,6 +466,7 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> createCashFlow({
+    required String occurredOn,
     required String title,
     required int amount,
     required bool isIncome,
@@ -452,7 +474,7 @@ class AppState extends ChangeNotifier {
   }) async {
     await _run(() async {
       await api.createCashFlow(
-        occurredOn: serverToday,
+        occurredOn: occurredOn,
         title: title,
         amount: isIncome ? amount : -amount,
         isPrimaryIncome: isIncome && isPrimaryIncome,

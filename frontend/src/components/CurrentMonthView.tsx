@@ -12,9 +12,9 @@ import { FamilyCardCreditPanel } from "../features/familyCard";
 import { CurrentTab } from "../types";
 import { DiscountPolicyBar } from "./Insights";
 import { EntryTable, PanelAppendForm, PanelTable } from "./LedgerTables";
-import { currentTabs, formatWon, panelLabel, sumAmounts, today } from "../utils";
+import { categoryLabel, currentTabs, formatWon, panelLabel, sumAmounts, today } from "../utils";
 
-type ExpenseForm = { date: string; usagePlace: string; usageItem: string; amount: string };
+type ExpenseForm = { date: string; usagePlace: string; usageItem: string; spendingCategory: string; amount: string };
 type PanelForm = { panel_type: MonthlyPanel["panel_type"]; title: string; spentOn: string; amount: string; dueDay: string };
 
 export function CurrentMonthView({
@@ -27,6 +27,7 @@ export function CurrentMonthView({
   handleCategoryChange,
   handleCurrentEntryDiscount,
   handleCurrentEntryDiscountClear,
+  handleCurrentEntryNetAmountEdit,
   handleDiscountPolicyChange,
   handleEntryDelete,
   handleExpenseSubmit,
@@ -34,6 +35,7 @@ export function CurrentMonthView({
   handlePanelDelete,
   handlePanelDiscount,
   handlePanelDiscountClear,
+  handlePanelNetAmountEdit,
   handlePanelShare,
   handlePanelSubmit,
   isBusy,
@@ -56,6 +58,7 @@ export function CurrentMonthView({
   handleCategoryChange: (entry: LedgerEntry, category: SpendingCategory | null) => void;
   handleCurrentEntryDiscount: (entry: LedgerEntry) => void;
   handleCurrentEntryDiscountClear: (entry: LedgerEntry) => void;
+  handleCurrentEntryNetAmountEdit: (entry: LedgerEntry) => void;
   handleDiscountPolicyChange: (scope: "owner" | "family", month: string, policy: CardDiscountPolicy) => void;
   handleEntryDelete: (entry: LedgerEntry) => void;
   handleExpenseSubmit: (event: FormEvent) => void;
@@ -63,6 +66,7 @@ export function CurrentMonthView({
   handlePanelDelete: (panel: MonthlyPanel) => void;
   handlePanelDiscount: (panel: MonthlyPanel) => void;
   handlePanelDiscountClear: (panel: MonthlyPanel) => void;
+  handlePanelNetAmountEdit: (panel: MonthlyPanel) => void;
   handlePanelShare: (panelType: "claim" | "family_card") => void;
   handlePanelSubmit: (event: FormEvent, panelType: MonthlyPanel["panel_type"]) => Promise<void>;
   isBusy: boolean;
@@ -124,6 +128,16 @@ export function CurrentMonthView({
               onChange={(event) => setExpenseForm({ ...expenseForm, usageItem: event.target.value })}
               placeholder="세부내역"
             />
+            <select
+              value={expenseForm.spendingCategory}
+              onChange={(event) => setExpenseForm({ ...expenseForm, spendingCategory: event.target.value })}
+              aria-label="분류"
+            >
+              <option value="">{categoryLabel(null, judgment)}</option>
+              <option value="essential">{categoryLabel("essential", judgment)}</option>
+              <option value="questionable">{categoryLabel("questionable", judgment)}</option>
+              <option value="dignity">{categoryLabel("dignity", judgment)}</option>
+            </select>
             <input
               required
               type="number"
@@ -147,6 +161,7 @@ export function CurrentMonthView({
             discounts={ownerDiscountMonth?.discounts}
             onDiscount={(entry) => handleCurrentEntryDiscount(entry)}
             onClearDiscount={(entry) => handleCurrentEntryDiscountClear(entry)}
+            onNetAmountEdit={(entry) => handleCurrentEntryNetAmountEdit(entry)}
             discountPolicy={ownerDiscountMonth?.policy}
             wideDetailColumn
           />
@@ -165,6 +180,7 @@ export function CurrentMonthView({
                 onComplete={tab === "claim" || tab === "family_card" ? () => handlePanelComplete(tab) : undefined}
                 onDiscount={tab === "claim" || tab === "family_card" ? (panel) => handlePanelDiscount(panel) : undefined}
                 onClearDiscount={tab === "claim" || tab === "family_card" ? (panel) => handlePanelDiscountClear(panel) : undefined}
+                onNetAmountEdit={tab === "claim" || tab === "family_card" ? (panel) => handlePanelNetAmountEdit(panel) : undefined}
                 discountPolicy={tab === "family_card" ? familyDiscountMonth?.policy : ownerDiscountMonth?.policy}
                 judgment={judgment}
                 onShare={tab === "claim" || tab === "family_card" ? () => handlePanelShare(tab) : undefined}

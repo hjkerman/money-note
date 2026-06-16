@@ -29,9 +29,9 @@ export function useEntryHandlers({
   withRefresh,
 }: {
   entries: LedgerEntry[];
-  expenseForm: { date: string; usagePlace: string; usageItem: string; amount: string };
+  expenseForm: { date: string; usagePlace: string; usageItem: string; spendingCategory: string; amount: string };
   plannedForm: { dueDay: string; usagePlace: string; usageItem: string; amount: string };
-  setExpenseForm: (value: { date: string; usagePlace: string; usageItem: string; amount: string }) => void;
+  setExpenseForm: (value: { date: string; usagePlace: string; usageItem: string; spendingCategory: string; amount: string }) => void;
   setPlannedForm: (value: { dueDay: string; usagePlace: string; usageItem: string; amount: string }) => void;
   setStatus: (value: string) => void;
   withRefresh: (action: () => Promise<void>) => Promise<void>;
@@ -66,10 +66,10 @@ export function useEntryHandlers({
         sort_order: nextSortOrder(entries),
         due_day: null,
         confirmed_at: null,
-        spending_category: null,
+        spending_category: (expenseForm.spendingCategory || null) as SpendingCategory | null,
         discount_override: 0,
       });
-      setExpenseForm({ date: expenseForm.date, usagePlace: "", usageItem: "", amount: "" });
+      setExpenseForm({ date: expenseForm.date, usagePlace: "", usageItem: "", spendingCategory: "", amount: "" });
       setStatus(created.book_section === "archive" ? "이미 마감한 달의 전체 기록에 추가 완료" : "당월 기록 추가 완료");
       focusFirstDataInput(form);
     });

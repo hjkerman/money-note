@@ -88,6 +88,7 @@ class LedgerEntry {
     this.amountValue,
     this.spendingCategory,
     this.paymentKey,
+    this.auxAmountValue,
     this.discountOverride = 0,
     this.dueDay,
   });
@@ -103,15 +104,17 @@ class LedgerEntry {
   final int? amountValue;
   final String? spendingCategory;
   final String? paymentKey;
+  final int? auxAmountValue;
   final int discountOverride;
   final int? dueDay;
 
-  bool get isDiscountExcluded => discountOverride != 0;
+  int get manualDiscount => discountOverride != 0 ? (auxAmountValue ?? 0) : 0;
+  bool get isDiscountExcluded => discountOverride != 0 && manualDiscount <= 0;
   bool get isDiscountIneligible => discountIneligibleEntry(this);
 
   int discountForPolicy(bool policyEnabled) {
+    if (discountOverride != 0) return manualDiscount;
     if (!policyEnabled || paymentKey == null || isDiscountIneligible) return 0;
-    if (isDiscountExcluded) return 0;
     return ((amountValue ?? 0) * 0.012).floor();
   }
 
@@ -133,6 +136,9 @@ class LedgerEntry {
           json['amount_value'] == null ? null : _int(json['amount_value']),
       spendingCategory: json['spending_category'] as String?,
       paymentKey: json['payment_key'] as String?,
+      auxAmountValue: json['aux_amount_value'] == null
+          ? null
+          : _int(json['aux_amount_value']),
       discountOverride: _int(json['discount_override']),
       dueDay: json['due_day'] == null ? null : _int(json['due_day']),
     );
@@ -169,8 +175,8 @@ class MonthlyPanel {
   bool get isDiscountIneligible => discountIneligiblePanel(this);
 
   int discountForPolicy(bool policyEnabled) {
-    if (!policyEnabled || isDiscountIneligible) return 0;
     if (discountOverride != 0) return discountAmount;
+    if (!policyEnabled || isDiscountIneligible) return 0;
     return ((amountValue ?? 0) * 0.012).floor();
   }
 

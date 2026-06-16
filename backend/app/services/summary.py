@@ -103,6 +103,7 @@ def current_entry_discount_total() -> float:
                    ledger_entries.entry_date,
                    ledger_entries.title,
                    ledger_entries.discount_override,
+                   ledger_entries.aux_amount_value,
                    COALESCE(SUM(CASE WHEN card_payment_events.event_type = 'discount'
                                      THEN card_payment_allocations.amount_value ELSE 0 END), 0) AS override_discount_amount
             FROM ledger_entries
@@ -119,13 +120,19 @@ def current_entry_discount_total() -> float:
     return sum(
         effective_card_discount(
             row["amount_value"],
-            row["override_discount_amount"],
-            bool(row["discount_override"] or row["override_discount_amount"]),
+            _manual_entry_discount(row),
+            bool(row["discount_override"] or row["override_discount_amount"] or row["aux_amount_value"]),
             setting_text(f"card_discount_policy:owner:{str(row['entry_date'] or '')[:7]}", "enabled"),
             row["title"],
         )
         for row in rows
     )
+
+
+def _manual_entry_discount(row: object) -> float:
+    if row["discount_override"] and row["aux_amount_value"] is not None:
+        return float(row["aux_amount_value"] or 0)
+    return float(row["override_discount_amount"] or 0)
 
 
 def setting_float(key: str) -> float:

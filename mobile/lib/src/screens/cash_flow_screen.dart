@@ -20,6 +20,13 @@ class _CashFlowScreenState extends State<CashFlowScreen> {
   final amount = TextEditingController();
   bool isIncome = true;
   bool isPrimaryIncome = false;
+  late String selectedDate;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedDate = widget.state.serverToday;
+  }
 
   @override
   void dispose() {
@@ -72,6 +79,12 @@ class _CashFlowScreenState extends State<CashFlowScreen> {
                 }),
               ),
               const SizedBox(height: 12),
+              _DatePickerRow(
+                label: '일자',
+                value: selectedDate,
+                onChanged: (value) => setState(() => selectedDate = value),
+              ),
+              const SizedBox(height: 12),
               TextField(
                   controller: title,
                   decoration: const InputDecoration(labelText: '내용')),
@@ -115,6 +128,7 @@ class _CashFlowScreenState extends State<CashFlowScreen> {
       return;
     }
     await widget.state.createCashFlow(
+      occurredOn: selectedDate,
       title: title.text,
       amount: parsedAmount,
       isIncome: isIncome,
@@ -122,7 +136,48 @@ class _CashFlowScreenState extends State<CashFlowScreen> {
     );
     title.clear();
     amount.clear();
-    setState(() => isPrimaryIncome = false);
+    setState(() {
+      isPrimaryIncome = false;
+      selectedDate = widget.state.serverToday;
+    });
+  }
+}
+
+class _DatePickerRow extends StatelessWidget {
+  const _DatePickerRow({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String label;
+  final String value;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton(
+      onPressed: () async {
+        final initialDate = DateTime.tryParse(value) ?? DateTime.now();
+        final picked = await showDatePicker(
+          context: context,
+          initialDate: initialDate,
+          firstDate: DateTime(2020, 1, 1),
+          lastDate: DateTime(2100, 12, 31),
+        );
+        if (picked == null) return;
+        onChanged(
+            '${picked.year.toString().padLeft(4, '0')}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}');
+      },
+      child: Row(
+        children: [
+          Text(label),
+          const Spacer(),
+          Text(shortDate(value),
+              style: const TextStyle(fontWeight: FontWeight.w900)),
+        ],
+      ),
+    );
   }
 }
 

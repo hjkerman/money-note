@@ -1,6 +1,7 @@
 import { FormEvent } from "react";
 import {
   clearPanelDiscount,
+  CardDiscountPolicy,
   completePanelsByType,
   createPanel,
   deletePanel,
@@ -9,7 +10,7 @@ import {
   updatePanelDiscount,
 } from "../api";
 import { PanelType } from "../types";
-import { focusFirstDataInput, nextSortOrder, panelLabel, parseAmount, today } from "../utils";
+import { focusFirstDataInput, nextSortOrder, panelLabel, panelNetAmount, parseAmount, today, formatWon } from "../utils";
 
 export function usePanelHandlers({
   familyDiscountPolicy,
@@ -22,10 +23,10 @@ export function usePanelHandlers({
   setStatus,
   withRefresh,
 }: {
-  familyDiscountPolicy?: string | null;
+  familyDiscountPolicy?: CardDiscountPolicy | null;
   labels: Record<string, string>;
   month: string | undefined;
-  ownerDiscountPolicy?: string | null;
+  ownerDiscountPolicy?: CardDiscountPolicy | null;
   panelForm: { panel_type: PanelType; title: string; spentOn: string; amount: string; dueDay: string };
   panels: MonthlyPanel[];
   setPanelForm: (value: { panel_type: PanelType; title: string; spentOn: string; amount: string; dueDay: string }) => void;
@@ -110,11 +111,29 @@ export function usePanelHandlers({
     });
   }
 
+  async function handlePanelNetAmountEdit(panel: MonthlyPanel) {
+    if (panel.amount_value == null || !["claim", "family_card"].includes(panel.panel_type)) return;
+    const policy = panel.panel_type === "family_card" ? familyDiscountPolicy : ownerDiscountPolicy;
+    const currentNet = panelNetAmount(panel, policy ?? null);
+    const raw = window.prompt("실결제액을 입력하세요.", String(Math.round(currentNet)));
+    if (raw === null) return;
+    const netAmount = parseAmount(raw);
+    if (netAmount === null || netAmount < 0 || netAmount > panel.amount_value) {
+      setStatus("실결제액은 0원 이상 원금 이하로 입력해야 합니다.");
+      return;
+    }
+    await withRefresh(async () => {
+      await updatePanelDiscount(panel.id, Math.round(panel.amount_value as number) - netAmount);
+      setStatus(`실결제액 ${formatWon(netAmount)} 반영 완료`);
+    });
+  }
+
   return {
     handlePanelComplete,
     handlePanelDelete,
     handlePanelDiscount,
     handlePanelDiscountClear,
+    handlePanelNetAmountEdit,
     handlePanelShare,
     handlePanelSubmit,
   };
