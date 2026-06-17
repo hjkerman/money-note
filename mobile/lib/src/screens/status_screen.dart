@@ -52,22 +52,6 @@ class StatusScreen extends StatelessWidget {
                     label: '동결', amount: won(summary?.frozenAssetTotal))),
           ],
         ),
-        const SectionTitle('예산심사위원회'),
-        _JudgmentCard(
-          title: '예산심사위원회',
-          message: state.judgment?.budget.message ?? '',
-          color: moneyGreenSoft,
-        ),
-        const SizedBox(height: 10),
-        _JudgmentCard(
-          title: '카드 한도 감시',
-          message: state.judgment?.credit.message ?? '',
-        ),
-        const SizedBox(height: 10),
-        _JudgmentCard(
-          title: '파산심사위원회',
-          message: state.judgment?.payment.message ?? '',
-        ),
         const SectionTitle('관리'),
         ManagementMenuList(state: state),
         if (state.statusMessage.isNotEmpty) ...[
@@ -81,37 +65,5 @@ class StatusScreen extends StatelessWidget {
   int _expenseTotal() {
     return state.expenseEntries
         .fold(0, (sum, entry) => sum + (entry.amountValue ?? 0));
-  }
-}
-
-class _JudgmentCard extends StatelessWidget {
-  const _JudgmentCard({
-    required this.title,
-    required this.message,
-    this.color,
-  });
-
-  final String title;
-  final String message;
-  final Color? color;
-
-  @override
-  Widget build(BuildContext context) {
-    return MoneyCard(
-      color: color ?? moneySurface,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title,
-              style:
-                  const TextStyle(fontSize: 15, fontWeight: FontWeight.w900)),
-          const SizedBox(height: 8),
-          Text(
-            message.trim().isEmpty ? '판단 결과를 불러오는 중입니다.' : message.trim(),
-            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
-          ),
-        ],
-      ),
-    );
   }
 }
