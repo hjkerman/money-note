@@ -63,9 +63,9 @@ class _HomeShellState extends State<HomeShell> {
         onJudgmentTap: () => setState(() => index = 4),
         onManualInputTap: () => setState(() => index = 2),
       ),
-      CashFlowScreen(state: widget.state),
-      MonthEntriesScreen(state: widget.state),
       FamilyScreen(state: widget.state),
+      MonthEntriesScreen(state: widget.state),
+      CashFlowScreen(state: widget.state),
       StatusScreen(state: widget.state),
     ];
 
@@ -77,10 +77,10 @@ class _HomeShellState extends State<HomeShell> {
         onDestinationSelected: _selectTab,
         destinations: const [
           NavigationDestination(icon: Icon(Icons.home), label: '홈'),
+          NavigationDestination(icon: Icon(Icons.people_alt), label: '정산'),
+          NavigationDestination(icon: Icon(Icons.add_card), label: '입력'),
           NavigationDestination(
               icon: Icon(Icons.account_balance_wallet), label: '현금'),
-          NavigationDestination(icon: Icon(Icons.add_card), label: '입력'),
-          NavigationDestination(icon: Icon(Icons.people_alt), label: '정산'),
           NavigationDestination(icon: Icon(Icons.settings), label: '설정'),
         ],
       ),
@@ -98,9 +98,9 @@ class _HomeShellState extends State<HomeShell> {
   Future<void> _refreshForIndex() {
     return switch (index) {
       0 => widget.state.refreshInputArea(),
-      1 => widget.state.refreshCashArea(),
+      1 => widget.state.refreshSettlementArea(),
       2 => widget.state.refreshEntriesArea(),
-      3 => widget.state.refreshSettlementArea(),
+      3 => widget.state.refreshCashArea(),
       _ => widget.state.refresh(),
     };
   }
