@@ -507,6 +507,8 @@ export function PanelTable({
       row.panel_type === "family_card" ||
       (Boolean(row.spent_on) && row.panel_type !== "fixed"),
   );
+  const dateColumnLabel =
+    rows.length > 0 && rows.every((row) => row.panel_type === "frozen") ? "등록일자" : "사용일";
   return (
     <section className="panel compact">
       <div className="panel-header">
@@ -530,7 +532,7 @@ export function PanelTable({
         <table>
           <thead>
             <tr>
-              {showDateColumn ? <th>사용일</th> : null}
+              {showDateColumn ? <th>{dateColumnLabel}</th> : null}
               <th className="panel-title-cell">세부내역</th>
               <th className="amount">금액</th>
               {onDiscount ? <th className="discount-cell">할인 / 원금</th> : null}
