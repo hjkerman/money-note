@@ -406,6 +406,7 @@ class _CandidateCardState extends State<_CandidateCard> {
     final trimmedPlace = usagePlace.trim();
     final trimmedItem = usageItem.trim();
     if (trimmedItem.isEmpty) return trimmedPlace;
+    if (target == 'claim') return '$trimmedPlace: $trimmedItem';
     return '[$trimmedPlace] $trimmedItem';
   }
 }
