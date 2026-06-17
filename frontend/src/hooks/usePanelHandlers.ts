@@ -43,7 +43,12 @@ export function usePanelHandlers({
         month: month ?? today.slice(0, 7),
         panel_type: panelType,
         title: panelForm.title.trim(),
-        spent_on: panelType === "claim" || panelType === "family_card" ? panelForm.spentOn : null,
+        spent_on:
+          panelType === "claim" || panelType === "family_card"
+            ? panelForm.spentOn
+            : panelType === "frozen"
+              ? today
+              : null,
         amount_value: parseAmount(panelForm.amount),
         discount_amount: 0,
         amount_expr: null,

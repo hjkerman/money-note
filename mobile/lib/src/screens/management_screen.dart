@@ -579,9 +579,20 @@ class _PanelManagementItem extends StatelessWidget {
         child: Row(
           children: [
             Expanded(
-              child: Text(panel.title,
-                  style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.w900)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (panel.panelType == 'frozen' && panel.spentOn != null)
+                    Text('등록일자 ${shortDate(panel.spentOn)}',
+                        style: const TextStyle(
+                            color: moneyMuted,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700)),
+                  Text(panel.title,
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w900)),
+                ],
+              ),
             ),
             Text(won(panel.amountValue),
                 style: const TextStyle(fontWeight: FontWeight.w900)),

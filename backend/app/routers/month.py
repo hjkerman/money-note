@@ -84,7 +84,10 @@ def get_current_panels(_: dict = Depends(require_user)) -> list[dict]:
 
 @router.post("/panels", response_model=MonthlyPanel)
 def post_panel(panel: MonthlyPanelIn, _: dict = Depends(require_user)) -> dict:
-    return create_panel(panel)
+    try:
+        return create_panel(panel)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
 @router.patch("/panels/{panel_id}", response_model=MonthlyPanel)

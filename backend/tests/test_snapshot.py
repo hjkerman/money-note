@@ -79,6 +79,26 @@ class SnapshotTest(unittest.TestCase):
                 for column, column_type in columns.items():
                     self.assertEqual(info[column], column_type)
 
+    def test_restore_preserves_frozen_panel_registration_date(self) -> None:
+        with session() as conn:
+            conn.execute(
+                """
+                INSERT INTO monthly_panels(id, month, panel_type, title, spent_on, amount_value, sort_order)
+                VALUES (99, '2026-06', 'frozen', '등록일자 있는 동결', '2026-06-18', 12345, 1)
+                """
+            )
+        _, snapshot = export_snapshot(date(2026, 6, 18))
+        frozen = next(row for row in snapshot["data"]["monthly_panels"] if row["id"] == 99)
+        self.assertEqual(frozen["spent_on"], "2026-06-18")
+
+        with session() as conn:
+            conn.execute("DELETE FROM monthly_panels WHERE id = 99")
+        restore_snapshot(snapshot)
+
+        with session() as conn:
+            restored = conn.execute("SELECT spent_on FROM monthly_panels WHERE id = 99").fetchone()
+        self.assertEqual(restored["spent_on"], "2026-06-18")
+
     def test_restore_truncates_float_money_values_from_legacy_snapshot(self) -> None:
         self._seed_data()
         _, snapshot = export_snapshot(date(2026, 6, 11))

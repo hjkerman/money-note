@@ -56,6 +56,7 @@ def list_panels(month: str | None = None, include_confirmed_fixed: bool = False)
 
 
 def create_panel(panel: MonthlyPanelIn) -> dict[str, Any]:
+    _validate_panel_create(panel)
     values = panel.model_dump()
     placeholders = ", ".join("?" for _ in PANEL_COLUMNS)
     columns = ", ".join(PANEL_COLUMNS)
@@ -69,6 +70,15 @@ def create_panel(panel: MonthlyPanelIn) -> dict[str, Any]:
             (cursor.lastrowid,),
         ).fetchone()
     return row_to_dict(row)
+
+
+def _validate_panel_create(panel: MonthlyPanelIn) -> None:
+    if not panel.title.strip():
+        raise ValueError("세부내역을 입력해야 합니다.")
+    if panel.amount_value is None:
+        raise ValueError("금액을 입력해야 합니다.")
+    if panel.panel_type == "frozen" and not str(panel.spent_on or "").strip():
+        raise ValueError("동결 항목은 등록일자가 필요합니다.")
 
 
 def update_panel(panel_id: int, patch: MonthlyPanelPatch) -> dict[str, Any] | None:

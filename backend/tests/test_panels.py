@@ -71,6 +71,32 @@ class PanelCompletionTest(unittest.TestCase):
         listed = list_panels("2026-06")
         self.assertTrue(any(panel["title"] == title for panel in listed))
 
+    def test_frozen_panel_requires_registration_date(self) -> None:
+        with self.assertRaisesRegex(ValueError, "등록일자"):
+            create_panel(
+                MonthlyPanelIn(
+                    month="2026-06",
+                    panel_type="frozen",
+                    title="묶어둘 돈",
+                    amount_value=5000,
+                    sort_order=10,
+                )
+            )
+
+    def test_frozen_panel_stores_registration_date(self) -> None:
+        created = create_panel(
+            MonthlyPanelIn(
+                month="2026-06",
+                panel_type="frozen",
+                title="묶어둘 돈",
+                spent_on="2026-06-18",
+                amount_value=5000,
+                sort_order=10,
+            )
+        )
+
+        self.assertEqual(created["spent_on"], "2026-06-18")
+
 
 if __name__ == "__main__":
     unittest.main()
