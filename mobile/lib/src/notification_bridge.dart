@@ -14,6 +14,7 @@ class NotificationBridge {
       return NotificationPermissionStatus(
         listenerEnabled: raw?['listener_enabled'] ?? true,
         appNotificationsEnabled: raw?['app_notifications_enabled'] ?? true,
+        batteryUnrestricted: raw?['battery_unrestricted'] ?? true,
       );
     } on MissingPluginException {
       return const NotificationPermissionStatus.ready();
@@ -110,6 +111,10 @@ class NotificationBridge {
     await _channel.invokeMethod<bool>('requestAppNotifications');
   }
 
+  Future<void> openBatteryOptimizationSettings() async {
+    await _channel.invokeMethod<bool>('openBatteryOptimizationSettings');
+  }
+
   Future<String?> consumeLaunchTarget() async {
     try {
       final target = await _channel.invokeMethod<String>('consumeLaunchTarget');
@@ -124,14 +129,18 @@ class NotificationPermissionStatus {
   const NotificationPermissionStatus({
     required this.listenerEnabled,
     required this.appNotificationsEnabled,
+    required this.batteryUnrestricted,
   });
 
   const NotificationPermissionStatus.ready()
       : listenerEnabled = true,
-        appNotificationsEnabled = true;
+        appNotificationsEnabled = true,
+        batteryUnrestricted = true;
 
   final bool listenerEnabled;
   final bool appNotificationsEnabled;
+  final bool batteryUnrestricted;
 
-  bool get isReady => listenerEnabled && appNotificationsEnabled;
+  bool get isReady =>
+      listenerEnabled && appNotificationsEnabled && batteryUnrestricted;
 }

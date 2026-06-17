@@ -236,6 +236,7 @@ class _PermissionWarningCard extends StatelessWidget {
     final missing = [
       if (!permissions.listenerEnabled) '알림 접근 권한',
       if (!permissions.appNotificationsEnabled) '앱 알림 표시 권한',
+      if (!permissions.batteryUnrestricted) '배터리 사용량 제한없음',
     ].join(', ');
 
     return Padding(
@@ -264,6 +265,11 @@ class _PermissionWarningCard extends StatelessWidget {
                   OutlinedButton(
                     onPressed: state.requestAppNotifications,
                     child: const Text('앱 알림 허용'),
+                  ),
+                if (!permissions.batteryUnrestricted)
+                  OutlinedButton(
+                    onPressed: state.openBatteryOptimizationSettings,
+                    child: const Text('배터리 제한 해제'),
                   ),
                 TextButton(
                   onPressed: state.refreshNotificationPermissions,

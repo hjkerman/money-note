@@ -2,8 +2,10 @@ package com.example.money_note_mobile
 
 import android.Manifest
 import android.app.NotificationManager
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.os.PowerManager
 import android.content.Intent
 import android.provider.Settings
 import io.flutter.embedding.android.FlutterActivity
@@ -14,8 +16,11 @@ class MainActivity : FlutterActivity() {
     companion object {
         const val ACTION_OPEN_NOTIFICATION_IMPORT = "com.example.money_note_mobile.OPEN_NOTIFICATION_IMPORT"
         const val EXTRA_OPEN_NOTIFICATION_IMPORT = "open_notification_import"
+        private const val REQUEST_POST_NOTIFICATIONS = 4102
         private var pendingNotificationImportOpen = false
     }
+
+    private var pendingNotificationPermissionResult: MethodChannel.Result? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -48,7 +53,10 @@ class MainActivity : FlutterActivity() {
                     result.success(true)
                 }
                 "requestAppNotifications" -> {
-                    requestAppNotificationPermission()
+                    requestAppNotificationPermission(result)
+                }
+                "openBatteryOptimizationSettings" -> {
+                    openBatteryOptimizationSettings()
                     result.success(true)
                 }
                 "consumeLaunchTarget" -> result.success(consumeLaunchTarget())
@@ -56,6 +64,18 @@ class MainActivity : FlutterActivity() {
                 else -> result.notImplemented()
             }
         }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode != REQUEST_POST_NOTIFICATIONS) return
+        val granted = grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED
+        pendingNotificationPermissionResult?.success(granted)
+        pendingNotificationPermissionResult = null
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -80,7 +100,8 @@ class MainActivity : FlutterActivity() {
     private fun permissionStatus(): Map<String, Boolean> {
         return mapOf(
             "listener_enabled" to isNotificationListenerEnabled(),
-            "app_notifications_enabled" to areAppNotificationsEnabled()
+            "app_notifications_enabled" to areAppNotificationsEnabled(),
+            "battery_unrestricted" to isBatteryUnrestricted()
         )
     }
 
@@ -100,11 +121,39 @@ class MainActivity : FlutterActivity() {
         return manager.areNotificationsEnabled()
     }
 
-    private fun requestAppNotificationPermission() {
+    private fun requestAppNotificationPermission(result: MethodChannel.Result) {
+        if (areAppNotificationsEnabled()) {
+            result.success(true)
+            return
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 4102)
+            if (pendingNotificationPermissionResult != null) {
+                result.success(false)
+                return
+            }
+            pendingNotificationPermissionResult = result
+            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQUEST_POST_NOTIFICATIONS)
         } else {
             openAppNotificationSettings()
+            result.success(true)
+        }
+    }
+
+    private fun isBatteryUnrestricted(): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return true
+        val powerManager = getSystemService(PowerManager::class.java)
+        return powerManager.isIgnoringBatteryOptimizations(packageName)
+    }
+
+    private fun openBatteryOptimizationSettings() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || isBatteryUnrestricted()) return
+        val requestIntent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+            .setData(Uri.parse("package:$packageName"))
+        val fallbackIntent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+        try {
+            startActivity(requestIntent)
+        } catch (_: Exception) {
+            startActivity(fallbackIntent)
         }
     }
 

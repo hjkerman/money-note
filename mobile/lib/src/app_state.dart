@@ -340,6 +340,11 @@ class AppState extends ChangeNotifier {
     await refreshNotificationPermissions();
   }
 
+  Future<void> openBatteryOptimizationSettings() async {
+    await notificationBridge.openBatteryOptimizationSettings();
+    await refreshNotificationPermissions();
+  }
+
   Future<bool> createExpense({
     required String usagePlace,
     required String usageItem,
