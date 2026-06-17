@@ -58,9 +58,10 @@ class _HomeShellState extends State<HomeShell> {
   @override
   Widget build(BuildContext context) {
     final screens = [
-      InputScreen(
+      HomeScreen(
         state: widget.state,
         onJudgmentTap: () => setState(() => index = 4),
+        onManualInputTap: () => setState(() => index = 2),
       ),
       CashFlowScreen(state: widget.state),
       MonthEntriesScreen(state: widget.state),
@@ -75,12 +76,12 @@ class _HomeShellState extends State<HomeShell> {
         indicatorColor: moneyGreenSoft,
         onDestinationSelected: _selectTab,
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.add_card), label: '입력'),
+          NavigationDestination(icon: Icon(Icons.home), label: '홈'),
           NavigationDestination(
               icon: Icon(Icons.account_balance_wallet), label: '현금'),
-          NavigationDestination(icon: Icon(Icons.receipt_long), label: '내역'),
+          NavigationDestination(icon: Icon(Icons.add_card), label: '입력'),
           NavigationDestination(icon: Icon(Icons.people_alt), label: '정산'),
-          NavigationDestination(icon: Icon(Icons.assessment), label: '상태'),
+          NavigationDestination(icon: Icon(Icons.settings), label: '설정'),
         ],
       ),
     );

@@ -27,71 +27,84 @@ class ManagementScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          _MenuCard(
-            title: '동결 금액',
-            subtitle: '당장 쓰지 않을 금액을 등록하거나 삭제합니다.',
-            icon: Icons.lock_outline,
-            onTap: () => _push(
-              context,
-              PanelManagementScreen(
-                state: state,
-                panelType: 'frozen',
-                title: '동결 금액',
-                inputLabel: '동결 내용',
-                emptyText: '동결 금액이 없습니다.',
-              ),
-            ),
-          ),
-          _MenuCard(
-            title: '현금성 고정지출',
-            subtitle: '이번 달 현금성으로 빼둘 고정지출을 관리합니다.',
-            icon: Icons.savings_outlined,
-            onTap: () => _push(
-              context,
-              PanelManagementScreen(
-                state: state,
-                panelType: 'fixed',
-                title: '현금성 고정지출',
-                inputLabel: '지출 내용',
-                emptyText: '현금성 고정지출이 없습니다.',
-              ),
-            ),
-          ),
-          _MenuCard(
-            title: '카드 정기결제',
-            subtitle: '매달 카드로 나갈 정기결제를 등록하고 확인 처리합니다.',
-            icon: Icons.credit_card,
-            onTap: () =>
-                _push(context, PlannedEntryManagementScreen(state: state)),
-          ),
-          _MenuCard(
-            title: '월마감',
-            subtitle: '현재 월마감 가능 여부를 확인하고 실행합니다.',
-            icon: Icons.event_available,
-            onTap: () =>
-                _push(context, MonthCloseManagementScreen(state: state)),
-          ),
-          _MenuCard(
-            title: '백업 / 복원',
-            subtitle: '앱 내부 스냅샷을 만들고 공유하거나 복원합니다.',
-            icon: Icons.backup_outlined,
-            onTap: () => _push(context, SnapshotManagerScreen(state: state)),
-          ),
-          _MenuCard(
-            title: '설정',
-            subtitle: '카드번호 4자리와 기본 운영 설정을 관리합니다.',
-            icon: Icons.settings_outlined,
-            onTap: () => _push(context, MobileSettingsScreen(state: state)),
-          ),
-          _MenuCard(
-            title: '최근 우리카드 알림',
-            subtitle: '파싱 실패, 할부 승인, 원문 로그를 확인합니다.',
-            icon: Icons.notifications_active_outlined,
-            onTap: () =>
-                _push(context, WooriNotificationLogScreen(state: state)),
-          ),
+          ManagementMenuList(state: state),
         ],
       ),
+    );
+  }
+}
+
+class ManagementMenuList extends StatelessWidget {
+  const ManagementMenuList({required this.state, super.key});
+
+  final AppState state;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        _MenuCard(
+          title: '동결 금액',
+          subtitle: '당장 쓰지 않을 금액을 등록하거나 삭제합니다.',
+          icon: Icons.lock_outline,
+          onTap: () => _push(
+            context,
+            PanelManagementScreen(
+              state: state,
+              panelType: 'frozen',
+              title: '동결 금액',
+              inputLabel: '동결 내용',
+              emptyText: '동결 금액이 없습니다.',
+            ),
+          ),
+        ),
+        _MenuCard(
+          title: '현금성 고정지출',
+          subtitle: '이번 달 현금성으로 빼둘 고정지출을 관리합니다.',
+          icon: Icons.savings_outlined,
+          onTap: () => _push(
+            context,
+            PanelManagementScreen(
+              state: state,
+              panelType: 'fixed',
+              title: '현금성 고정지출',
+              inputLabel: '지출 내용',
+              emptyText: '현금성 고정지출이 없습니다.',
+            ),
+          ),
+        ),
+        _MenuCard(
+          title: '카드 정기결제',
+          subtitle: '매달 카드로 나갈 정기결제를 등록하고 확인 처리합니다.',
+          icon: Icons.credit_card,
+          onTap: () =>
+              _push(context, PlannedEntryManagementScreen(state: state)),
+        ),
+        _MenuCard(
+          title: '월마감',
+          subtitle: '현재 월마감 가능 여부를 확인하고 실행합니다.',
+          icon: Icons.event_available,
+          onTap: () => _push(context, MonthCloseManagementScreen(state: state)),
+        ),
+        _MenuCard(
+          title: '백업 / 복원',
+          subtitle: '앱 내부 스냅샷을 공유하거나 복원합니다.',
+          icon: Icons.backup_outlined,
+          onTap: () => _push(context, SnapshotManagerScreen(state: state)),
+        ),
+        _MenuCard(
+          title: '설정',
+          subtitle: '카드번호 4자리와 기본 운영 설정을 관리합니다.',
+          icon: Icons.settings_outlined,
+          onTap: () => _push(context, MobileSettingsScreen(state: state)),
+        ),
+        _MenuCard(
+          title: '최근 우리카드 알림',
+          subtitle: '파싱 실패, 할부 승인, 원문 로그를 확인합니다.',
+          icon: Icons.notifications_active_outlined,
+          onTap: () => _push(context, WooriNotificationLogScreen(state: state)),
+        ),
+      ],
     );
   }
 

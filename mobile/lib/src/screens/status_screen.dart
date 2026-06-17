@@ -20,7 +20,7 @@ class StatusScreen extends StatelessWidget {
         Row(
           children: [
             const Expanded(
-                child: Text('상태',
+                child: Text('설정',
                     style:
                         TextStyle(fontSize: 24, fontWeight: FontWeight.w900))),
             IconButton(
@@ -69,28 +69,7 @@ class StatusScreen extends StatelessWidget {
           message: state.judgment?.payment.message ?? '',
         ),
         const SectionTitle('관리'),
-        MoneyCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                '동결 금액, 고정지출, 정기결제, 월마감, 백업과 설정은 여기에서 다룹니다.',
-                style:
-                    TextStyle(color: moneyMuted, fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 14),
-              FilledButton(
-                onPressed: state.isBusy
-                    ? null
-                    : () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (_) => ManagementScreen(state: state)),
-                        ),
-                child: const Text('관리 열기'),
-              ),
-            ],
-          ),
-        ),
+        ManagementMenuList(state: state),
         if (state.statusMessage.isNotEmpty) ...[
           const SizedBox(height: 14),
           Text(state.statusMessage, style: const TextStyle(color: moneyMuted)),

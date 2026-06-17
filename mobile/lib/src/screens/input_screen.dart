@@ -7,17 +7,110 @@ import '../theme.dart';
 import '../widgets/money_card.dart';
 import 'notification_import_screen.dart';
 
-class InputScreen extends StatefulWidget {
-  const InputScreen({required this.state, super.key, this.onJudgmentTap});
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({
+    required this.state,
+    super.key,
+    this.onJudgmentTap,
+    this.onManualInputTap,
+  });
 
   final AppState state;
   final VoidCallback? onJudgmentTap;
+  final VoidCallback? onManualInputTap;
 
   @override
-  State<InputScreen> createState() => _InputScreenState();
+  Widget build(BuildContext context) {
+    final summary = state.summary;
+    final recentRows = state.expenseEntries.take(10).toList();
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(20, 54, 20, 96),
+      children: [
+        Text('${state.currentMonth.replaceFirst('-', '년 ')}월',
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
+        const SizedBox(height: 14),
+        Row(
+          children: [
+            Expanded(
+                child:
+                    AmountTile(label: '카드대금', amount: won(summary?.cardTotal))),
+            const SizedBox(width: 12),
+            Expanded(
+                child: AmountTile(label: '월 지출', amount: won(_expenseTotal()))),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+                child: AmountTile(
+                    label: '익월 유동성', amount: won(summary?.nextMonthLiquidity))),
+            const SizedBox(width: 12),
+            Expanded(
+                child: AmountTile(
+                    label: '동결', amount: won(summary?.frozenAssetTotal))),
+          ],
+        ),
+        const SectionTitle('오늘의 예산심사위원회'),
+        _JudgmentPreviewCard(
+          title: '예산심사위원회',
+          message: state.judgment?.budget.message ?? '',
+          color: moneyGreenSoft,
+          onTap: onJudgmentTap,
+        ),
+        const SizedBox(height: 10),
+        _JudgmentPreviewCard(
+          title: '카드 한도 감시',
+          message: state.judgment?.credit.message ?? '',
+          onTap: onJudgmentTap,
+        ),
+        const SizedBox(height: 10),
+        _JudgmentPreviewCard(
+          title: '파산심사위원회',
+          message: state.judgment?.payment.message ?? '',
+          onTap: onJudgmentTap,
+        ),
+        if (!state.notificationPermissions.isReady)
+          _PermissionWarningCard(state: state),
+        const SizedBox(height: 16),
+        OutlinedButton(
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute(
+                builder: (_) => NotificationImportScreen(state: state)),
+          ),
+          child: Text(_notificationButtonText(state)),
+        ),
+        const SectionTitle('최근 입력',
+            trailing: Text('최근 10건', style: TextStyle(color: moneyMuted))),
+        if (recentRows.isEmpty) const MoneyCard(child: Text('최근 입력이 없습니다.')),
+        ...recentRows.map(_RecentEntryCard.new),
+        const SizedBox(height: 10),
+        FilledButton(
+          onPressed: onManualInputTap,
+          child: const Text('내역 수동 입력'),
+        ),
+        if (state.statusMessage.isNotEmpty) _StatusMessage(state.statusMessage),
+      ],
+    );
+  }
+
+  int _expenseTotal() {
+    return state.expenseEntries
+        .fold(0, (sum, entry) => sum + (entry.amountValue ?? 0));
+  }
 }
 
-class _InputScreenState extends State<InputScreen> {
+class ExpenseInputCard extends StatefulWidget {
+  const ExpenseInputCard({required this.state, super.key});
+
+  final AppState state;
+
+  @override
+  State<ExpenseInputCard> createState() => _ExpenseInputCardState();
+}
+
+class _ExpenseInputCardState extends State<ExpenseInputCard> {
   final place = TextEditingController();
   final item = TextEditingController();
   final amount = TextEditingController();
@@ -43,118 +136,84 @@ class _InputScreenState extends State<InputScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final summary = widget.state.summary;
     final discountValue =
         discountEnabled ?? (widget.state.ownerDiscountMonth?.isEnabled ?? true);
-    return ListView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(20, 54, 20, 96),
-      children: [
-        Text('${widget.state.currentMonth.replaceFirst('-', '년 ')}월',
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
-        const SizedBox(height: 14),
-        Row(
-          children: [
-            Expanded(
-                child:
-                    AmountTile(label: '카드대금', amount: won(summary?.cardTotal))),
-            const SizedBox(width: 12),
-            Expanded(
-                child: AmountTile(
-                    label: '익월 유동성', amount: won(summary?.nextMonthLiquidity))),
-          ],
-        ),
-        const SectionTitle('오늘의 예산심사위원회'),
-        _JudgmentPreviewCard(
-          message: widget.state.judgment?.budget.message ?? '',
-          onTap: widget.onJudgmentTap,
-        ),
-        if (!widget.state.notificationPermissions.isReady)
-          _PermissionWarningCard(state: widget.state),
-        const SectionTitle('카드 지출 입력'),
-        MoneyCard(
-          child: Column(
+    return MoneyCard(
+      child: Column(
+        children: [
+          _DatePickerRow(
+            label: '사용 일자',
+            value: selectedDate,
+            onChanged: (value) => setState(() => selectedDate = value),
+          ),
+          const SizedBox(height: 12),
+          Row(
             children: [
-              _DatePickerRow(
-                label: '사용 일자',
-                value: selectedDate,
-                onChanged: (value) => setState(() => selectedDate = value),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: place,
-                      focusNode: placeFocus,
-                      textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(labelText: '사용처'),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  SizedBox(
-                    width: 118,
-                    child: TextField(
-                      controller: amount,
-                      keyboardType: TextInputType.number,
-                      textInputAction: TextInputAction.done,
-                      decoration: const InputDecoration(labelText: '금액'),
-                      onSubmitted: (_) => _submit(),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: item,
-                textInputAction: TextInputAction.next,
-                decoration: const InputDecoration(labelText: '사용항목'),
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
-                initialValue: spendingCategory,
-                decoration: const InputDecoration(labelText: '분류'),
-                items: spendingCategoryOptions
-                    .map((option) => DropdownMenuItem<String>(
-                          value: option.value,
-                          child: Text(option.label),
-                        ))
-                    .toList(),
-                onChanged: (value) => setState(() {
-                  spendingCategory = value;
-                }),
-              ),
-              const SizedBox(height: 8),
-              CheckboxListTile(
-                contentPadding: EdgeInsets.zero,
-                title: const Text('할인 적용'),
-                subtitle: const Text('체크를 끄면 이 항목은 할인 제외로 등록합니다.'),
-                value: discountValue,
-                onChanged: (value) =>
-                    setState(() => discountEnabled = value ?? false),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                  onPressed: widget.state.isBusy ? null : _submit,
-                  child: const Text('지출 추가')),
-              const SizedBox(height: 10),
-              OutlinedButton(
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                      builder: (_) =>
-                          NotificationImportScreen(state: widget.state)),
+              Expanded(
+                child: TextField(
+                  controller: place,
+                  focusNode: placeFocus,
+                  textInputAction: TextInputAction.next,
+                  decoration: const InputDecoration(labelText: '사용처'),
                 ),
-                child: Text(_notificationButtonText(widget.state)),
+              ),
+              const SizedBox(width: 10),
+              SizedBox(
+                width: 118,
+                child: TextField(
+                  controller: amount,
+                  keyboardType: TextInputType.number,
+                  textInputAction: TextInputAction.done,
+                  decoration: const InputDecoration(labelText: '금액'),
+                  onSubmitted: (_) => _submit(),
+                ),
               ),
             ],
           ),
-        ),
-        const SectionTitle('최근 입력',
-            trailing: Text('최근 5건', style: TextStyle(color: moneyMuted))),
-        ...widget.state.recentEntries.map(_RecentEntryCard.new),
-        if (widget.state.statusMessage.isNotEmpty)
-          _StatusMessage(widget.state.statusMessage),
-      ],
+          const SizedBox(height: 12),
+          TextField(
+            controller: item,
+            textInputAction: TextInputAction.next,
+            decoration: const InputDecoration(labelText: '사용항목'),
+          ),
+          const SizedBox(height: 12),
+          DropdownButtonFormField<String>(
+            initialValue: spendingCategory,
+            decoration: const InputDecoration(labelText: '분류'),
+            items: spendingCategoryOptions
+                .map((option) => DropdownMenuItem<String>(
+                      value: option.value,
+                      child: Text(option.label),
+                    ))
+                .toList(),
+            onChanged: (value) => setState(() {
+              spendingCategory = value;
+            }),
+          ),
+          const SizedBox(height: 8),
+          CheckboxListTile(
+            contentPadding: EdgeInsets.zero,
+            title: const Text('할인 적용'),
+            subtitle: const Text('체크를 끄면 이 항목은 할인 제외로 등록합니다.'),
+            value: discountValue,
+            onChanged: (value) =>
+                setState(() => discountEnabled = value ?? false),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+              onPressed: widget.state.isBusy ? null : _submit,
+              child: const Text('지출 추가')),
+          const SizedBox(height: 10),
+          OutlinedButton(
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                  builder: (_) =>
+                      NotificationImportScreen(state: widget.state)),
+            ),
+            child: Text(_notificationButtonText(widget.state)),
+          ),
+        ],
+      ),
     );
   }
 
@@ -188,36 +247,49 @@ String _notificationButtonText(AppState state) {
 }
 
 class _JudgmentPreviewCard extends StatelessWidget {
-  const _JudgmentPreviewCard({required this.message, this.onTap});
+  const _JudgmentPreviewCard({
+    required this.message,
+    required this.title,
+    this.color,
+    this.onTap,
+  });
 
+  final String title;
   final String message;
+  final Color? color;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final text = message.trim().isEmpty ? '판단 결과를 불러오는 중입니다.' : message.trim();
     return MoneyCard(
-      color: moneyGreenSoft,
+      color: color ?? moneySurface,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(14),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.gavel, color: moneyGreen),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                text,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
-              ),
+            Row(
+              children: [
+                const Icon(Icons.gavel, color: moneyGreen),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(title,
+                      style: const TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.w900)),
+                ),
+                if (onTap != null)
+                  const Icon(Icons.chevron_right, color: moneyMuted),
+              ],
             ),
-            if (onTap != null) ...[
-              const SizedBox(width: 8),
-              const Icon(Icons.chevron_right, color: moneyMuted),
-            ],
+            const SizedBox(height: 8),
+            Text(
+              text,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+            ),
           ],
         ),
       ),

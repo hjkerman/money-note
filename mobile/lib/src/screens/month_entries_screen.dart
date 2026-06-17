@@ -5,6 +5,7 @@ import '../formatters.dart';
 import '../models.dart';
 import '../theme.dart';
 import '../widgets/money_card.dart';
+import 'input_screen.dart';
 
 class MonthEntriesScreen extends StatelessWidget {
   const MonthEntriesScreen({required this.state, super.key});
@@ -26,6 +27,8 @@ class MonthEntriesScreen extends StatelessWidget {
             label: '월 지출',
             amount: won(rows.fold<int>(
                 0, (sum, entry) => sum + (entry.amountValue ?? 0)))),
+        const SectionTitle('카드 지출 입력'),
+        ExpenseInputCard(state: state),
         SectionTitle('전체 지출',
             trailing: Text('${rows.length}건',
                 style: const TextStyle(color: moneyMuted))),
@@ -59,8 +62,7 @@ class _MonthEntryCard extends StatelessWidget {
         discountEligible &&
         entry.paymentKey != null &&
         entry.paymentKey!.isNotEmpty;
-    final canEditNetAmount =
-        entry.paymentKey != null &&
+    final canEditNetAmount = entry.paymentKey != null &&
         entry.paymentKey!.isNotEmpty &&
         entry.amountValue != null;
     final showDiscountInfo = canToggleDiscount || entry.discountOverride != 0;
