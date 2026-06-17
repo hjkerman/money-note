@@ -19,6 +19,23 @@ class HomeShell extends StatefulWidget {
 
 class _HomeShellState extends State<HomeShell> {
   int index = 0;
+  late int _seenHomeResetGeneration;
+
+  @override
+  void initState() {
+    super.initState();
+    _seenHomeResetGeneration = widget.state.homeResetGeneration;
+  }
+
+  @override
+  void didUpdateWidget(covariant HomeShell oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (_seenHomeResetGeneration == widget.state.homeResetGeneration) return;
+    _seenHomeResetGeneration = widget.state.homeResetGeneration;
+    if (index != 0) {
+      setState(() => index = 0);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
