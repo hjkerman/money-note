@@ -19,9 +19,9 @@ def normalize_discount_policy(policy: str | None, scope: str = "owner") -> str:
     return default_discount_policy(scope)
 
 
-def default_card_discount(amount: float | int | None) -> float:
+def default_card_discount(amount: float | int | None) -> int:
     """카드사가 별도 예외를 주지 않는다는 가정의 기본 할인액이다."""
-    return float(floor(float(amount or 0) * DEFAULT_CARD_DISCOUNT_RATE))
+    return int(floor(float(amount or 0) * DEFAULT_CARD_DISCOUNT_RATE))
 
 
 def discount_ineligible_title(title: str | None) -> bool:
@@ -36,13 +36,13 @@ def effective_card_discount(
     override_enabled: bool,
     month_policy: str,
     title: str | None = None,
-) -> float:
+) -> int:
     """월 정책과 개별 할인 제외 상태를 합쳐 실제 계산에 쓸 할인액을 만든다."""
     month_policy = normalize_discount_policy(month_policy)
     if override_enabled:
-        return max(0.0, float(override_discount or 0))
+        return max(0, int(override_discount or 0))
     if month_policy == "disabled" or discount_ineligible_title(title):
-        return 0.0
+        return 0
     return default_card_discount(amount)
 
 
@@ -52,6 +52,6 @@ def net_card_amount(
     override_enabled: bool,
     month_policy: str,
     title: str | None = None,
-) -> float:
+) -> int:
     """할인 반영 후 카드 청구 예상액이다."""
-    return max(0.0, float(amount or 0) - effective_card_discount(amount, override_discount, override_enabled, month_policy, title))
+    return max(0, int(amount or 0) - effective_card_discount(amount, override_discount, override_enabled, month_policy, title))

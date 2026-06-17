@@ -7,6 +7,9 @@
 - 날짜는 `YYYY-MM-DD` 문자열이다.
 - 월은 `YYYY-MM` 문자열이다.
 - 돈은 원 단위 정수로 저장한다. 수수료율 같은 비율만 소수를 허용한다.
+- 금액 컬럼은 새 DB 생성 시 `INTEGER` 타입을 사용한다.
+- 구버전 JSON snapshot/백업에 `1000.0` 또는 `1000.9`처럼 float 금액이 들어 있으면 restore/import 시 소수점 아래를 절삭해 `1000`으로 정규화한다.
+- 일반 API 입력에서는 원화 금액을 정수로 보내는 것을 원칙으로 한다.
 - `created_at`, `updated_at`은 SQLite `CURRENT_TIMESTAMP` 문자열이다.
 
 ## 주요 테이블
@@ -39,9 +42,9 @@
 | `title` | TEXT | 대표 적요 |
 | `usage_place` | TEXT | 사용처 |
 | `usage_item` | TEXT | 사용항목 |
-| `amount_value` | REAL | 사용금액 |
+| `amount_value` | INTEGER | 사용금액. 원화 정수 금액 |
 | `amount_expr` | TEXT | 과거 호환용 문자열 필드 |
-| `aux_amount_value` | REAL | 원장 항목의 수동 할인액 override. 실결제액 직접 수정 시 `amount_value - 실결제액`을 저장한다. |
+| `aux_amount_value` | INTEGER | 원장 항목의 수동 할인액 override. 실결제액 직접 수정 시 `amount_value - 실결제액`을 원화 정수 금액으로 저장한다. |
 | `aux_amount_expr` | TEXT | 보조 금액 문자열 |
 | `extra_value` | TEXT | 기타 값 |
 | `sort_order` | INTEGER | 정렬 순서 |
@@ -68,8 +71,8 @@
 | `panel_type` | TEXT | `fixed`, `frozen`, `claim`, `family_card` |
 | `title` | TEXT | 적요 |
 | `spent_on` | TEXT | 사용일 |
-| `amount_value` | REAL | 금액 |
-| `discount_amount` | REAL | 청구/가족카드 항목의 수동 할인액 override |
+| `amount_value` | INTEGER | 금액. 원화 정수 금액 |
+| `discount_amount` | INTEGER | 청구/가족카드 항목의 수동 할인액 override. 원화 정수 금액 |
 | `discount_override` | INTEGER | `1`이면 기본 할인 계산 대신 `discount_amount`를 수동 할인액으로 사용 |
 | `amount_expr` | TEXT | 과거 호환용 문자열 필드 |
 | `sort_order` | INTEGER | 정렬 순서 |
@@ -120,7 +123,7 @@
 | `id` | INTEGER PK | 내부 식별자 |
 | `occurred_on` | TEXT | 발생일 |
 | `title` | TEXT | 적요 |
-| `amount_value` | REAL | 입금은 양수, 출금은 음수 |
+| `amount_value` | INTEGER | 입금은 양수, 출금은 음수. 원화 정수 금액 |
 | `sort_order` | INTEGER | 정렬 순서 |
 | `is_primary_income` | INTEGER | 이달 기준 수입이면 `1` |
 
@@ -134,7 +137,7 @@
 | --- | --- | --- |
 | `event_date` | TEXT | 처리일 |
 | `event_type` | TEXT | `immediate` 또는 `discount` |
-| `total_amount` | REAL | 처리 총액 |
+| `total_amount` | INTEGER | 처리 총액. 원화 정수 금액 |
 | `note` | TEXT | 메모 |
 | `cash_flow_id` | INTEGER | 즉시결제가 만든 현금흐름 id |
 
@@ -146,7 +149,7 @@
 | --- | --- | --- |
 | `payment_event_id` | INTEGER | `card_payment_events.id` |
 | `entry_payment_key` | TEXT | `ledger_entries.payment_key` |
-| `amount_value` | REAL | 배분 금액 |
+| `amount_value` | INTEGER | 배분 금액. 원화 정수 금액 |
 
 ### `card_payment_deferrals`
 

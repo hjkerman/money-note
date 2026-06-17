@@ -18,9 +18,9 @@ CREATE TABLE IF NOT EXISTS ledger_entries (
     title TEXT NOT NULL DEFAULT '',
     usage_place TEXT,
     usage_item TEXT,
-    amount_value REAL,
+    amount_value INTEGER,
     amount_expr TEXT,
-    aux_amount_value REAL,
+    aux_amount_value INTEGER,
     aux_amount_expr TEXT,
     extra_value TEXT,
     sort_order INTEGER NOT NULL,
@@ -40,8 +40,8 @@ CREATE TABLE IF NOT EXISTS monthly_panels (
     panel_type TEXT NOT NULL,
     title TEXT NOT NULL DEFAULT '',
     spent_on TEXT,
-    amount_value REAL,
-    discount_amount REAL NOT NULL DEFAULT 0,
+    amount_value INTEGER,
+    discount_amount INTEGER NOT NULL DEFAULT 0,
     discount_override INTEGER NOT NULL DEFAULT 0,
     amount_expr TEXT,
     sort_order INTEGER NOT NULL,
@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS cash_flows (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     occurred_on TEXT NOT NULL,
     title TEXT NOT NULL DEFAULT '',
-    amount_value REAL NOT NULL,
+    amount_value INTEGER NOT NULL,
     sort_order INTEGER NOT NULL,
     is_primary_income INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -105,7 +105,7 @@ CREATE TABLE IF NOT EXISTS card_payment_events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     event_date TEXT NOT NULL,
     event_type TEXT NOT NULL CHECK (event_type IN ('immediate', 'discount')),
-    total_amount REAL NOT NULL,
+    total_amount INTEGER NOT NULL,
     note TEXT NOT NULL DEFAULT '',
     cash_flow_id INTEGER REFERENCES cash_flows(id) ON DELETE SET NULL,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -115,7 +115,7 @@ CREATE TABLE IF NOT EXISTS card_payment_allocations (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     payment_event_id INTEGER NOT NULL REFERENCES card_payment_events(id) ON DELETE CASCADE,
     entry_payment_key TEXT NOT NULL,
-    amount_value REAL NOT NULL CHECK (amount_value >= 0),
+    amount_value INTEGER NOT NULL CHECK (amount_value >= 0),
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -228,7 +228,7 @@ def init_db() -> None:
         if "due_day" not in panel_columns:
             conn.execute("ALTER TABLE monthly_panels ADD COLUMN due_day INTEGER")
         if "discount_amount" not in panel_columns:
-            conn.execute("ALTER TABLE monthly_panels ADD COLUMN discount_amount REAL NOT NULL DEFAULT 0")
+            conn.execute("ALTER TABLE monthly_panels ADD COLUMN discount_amount INTEGER NOT NULL DEFAULT 0")
         if "discount_override" not in panel_columns:
             conn.execute("ALTER TABLE monthly_panels ADD COLUMN discount_override INTEGER NOT NULL DEFAULT 0")
         if "spent_on" not in panel_columns:

@@ -64,6 +64,62 @@ class SnapshotTest(unittest.TestCase):
         self.assertNotIn("auth_sessions", snapshot["data"])
         self.assertNotIn("audit_logs", snapshot["data"])
 
+    def test_new_database_uses_integer_money_columns(self) -> None:
+        expected = {
+            "ledger_entries": {"amount_value": "INTEGER", "aux_amount_value": "INTEGER"},
+            "monthly_panels": {"amount_value": "INTEGER", "discount_amount": "INTEGER"},
+            "cash_flows": {"amount_value": "INTEGER"},
+            "card_payment_events": {"total_amount": "INTEGER"},
+            "card_payment_allocations": {"amount_value": "INTEGER"},
+        }
+
+        with session() as conn:
+            for table, columns in expected.items():
+                info = {row["name"]: row["type"].upper() for row in conn.execute(f"PRAGMA table_info({table})")}
+                for column, column_type in columns.items():
+                    self.assertEqual(info[column], column_type)
+
+    def test_restore_truncates_float_money_values_from_legacy_snapshot(self) -> None:
+        self._seed_data()
+        _, snapshot = export_snapshot(date(2026, 6, 11))
+        next(row for row in snapshot["data"]["ledger_entries"] if row["id"] == 1)["amount_value"] = 1000.9
+        next(row for row in snapshot["data"]["ledger_entries"] if row["id"] == 1)["aux_amount_value"] = 12.8
+        next(row for row in snapshot["data"]["monthly_panels"] if row["id"] == 1)["amount_value"] = 2000.7
+        next(row for row in snapshot["data"]["monthly_panels"] if row["id"] == 1)["discount_amount"] = 24.9
+        next(row for row in snapshot["data"]["cash_flows"] if row["id"] == 1)["amount_value"] = -5000.6
+        next(row for row in snapshot["data"]["card_payment_events"] if row["id"] == 1)["total_amount"] = 500.5
+        next(row for row in snapshot["data"]["card_payment_allocations"] if row["id"] == 1)["amount_value"] = 300.4
+        for setting in snapshot["data"]["app_settings"]:
+            if setting["key"] == "base_next_month_liquidity":
+                setting["value"] = "400000.9"
+                break
+        snapshot["manifest"] = self._rebuilt_manifest(snapshot["data"])
+        snapshot["snapshot_id"] = snapshot["manifest"]["data_sha256"]
+
+        restore_snapshot(snapshot)
+
+        with session() as conn:
+            ledger = conn.execute(
+                "SELECT amount_value, aux_amount_value FROM ledger_entries WHERE id = 1",
+            ).fetchone()
+            panel = conn.execute(
+                "SELECT amount_value, discount_amount FROM monthly_panels WHERE id = 1",
+            ).fetchone()
+            cash_flow = conn.execute("SELECT amount_value FROM cash_flows WHERE id = 1").fetchone()
+            event = conn.execute("SELECT total_amount FROM card_payment_events WHERE id = 1").fetchone()
+            allocation = conn.execute("SELECT amount_value FROM card_payment_allocations WHERE id = 1").fetchone()
+            setting = conn.execute(
+                "SELECT value FROM app_settings WHERE key = 'base_next_month_liquidity'",
+            ).fetchone()
+        self.assertEqual(ledger["amount_value"], 1000)
+        self.assertEqual(ledger["aux_amount_value"], 12)
+        self.assertEqual(panel["amount_value"], 2000)
+        self.assertEqual(panel["discount_amount"], 24)
+        self.assertEqual(cash_flow["amount_value"], -5000)
+        self.assertEqual(event["total_amount"], 500)
+        self.assertEqual(allocation["amount_value"], 300)
+        self.assertEqual(setting["value"], "400000")
+
     def test_export_omits_legacy_discount_checked_columns(self) -> None:
         self._seed_data()
         with session() as conn:

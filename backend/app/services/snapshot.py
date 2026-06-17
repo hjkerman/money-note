@@ -5,6 +5,7 @@ import hashlib
 import os
 import re
 from contextlib import contextmanager
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 import sqlite3
 import tempfile
@@ -31,6 +32,19 @@ SNAPSHOT_TABLES = [
 LEGACY_SNAPSHOT_COLUMNS = {
     "ledger_entries": {"discount_checked"},
     "monthly_panels": {"discount_checked"},
+}
+SNAPSHOT_MONEY_COLUMNS = {
+    "ledger_entries": {"amount_value", "aux_amount_value"},
+    "monthly_panels": {"amount_value", "discount_amount"},
+    "cash_flows": {"amount_value"},
+    "card_payment_events": {"total_amount"},
+    "card_payment_allocations": {"amount_value"},
+}
+MONEY_SETTING_KEYS = {
+    "base_next_month_liquidity",
+    "interest_expense",
+    "liquidity_status",
+    "card_limit",
 }
 LEDGER_TABLES = [
     "card_payment_deferrals",
@@ -248,11 +262,38 @@ def _normalized_snapshot_data(data: dict[str, list[dict[str, Any]]]) -> dict[str
     for table in SNAPSHOT_TABLES:
         schema_columns = set(_schema_columns(table))
         ignored = LEGACY_SNAPSHOT_COLUMNS.get(table, set())
-        normalized[table] = [
-            {key: value for key, value in row.items() if key in schema_columns and key not in ignored}
-            for row in data[table]
-        ]
+        rows = []
+        for row in data[table]:
+            filtered = {key: value for key, value in row.items() if key in schema_columns and key not in ignored}
+            rows.append(_normalize_snapshot_row(table, filtered))
+        normalized[table] = rows
     return normalized
+
+
+def _normalize_snapshot_row(table: str, row: dict[str, Any]) -> dict[str, Any]:
+    """구버전 snapshot의 float 금액 표현을 DB 저장 직전 원 단위 정수로 정리한다."""
+    for column in SNAPSHOT_MONEY_COLUMNS.get(table, set()):
+        if column in row:
+            row[column] = _normalize_snapshot_money(row[column], f"{table}.{column}")
+    if table == "app_settings" and row.get("key") in MONEY_SETTING_KEYS and "value" in row:
+        row["value"] = str(_normalize_snapshot_money(row["value"], f"app_settings.{row['key']}"))
+    return row
+
+
+def _normalize_snapshot_money(value: Any, label: str) -> int | None:
+    if value is None:
+        return None
+    if isinstance(value, bool):
+        raise ValueError(f"{label} must be an integer money amount")
+    if isinstance(value, int):
+        return value
+    try:
+        amount = Decimal(str(value).strip())
+    except (InvalidOperation, AttributeError):
+        raise ValueError(f"{label} must be an integer money amount") from None
+    if not amount.is_finite():
+        raise ValueError(f"{label} must be an integer money amount")
+    return int(amount)
 
 
 def _table_columns(conn: Any, table: str) -> set[str]:

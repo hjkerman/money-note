@@ -428,5 +428,5 @@ def _delete_card_payment_references(conn: Any, payment_key: str) -> None:
         if allocation["cash_flow_id"] is not None:
             conn.execute(
                 "UPDATE cash_flows SET amount_value = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
-                (-float(remaining), allocation["cash_flow_id"]),
+                (-int(remaining or 0), allocation["cash_flow_id"]),
             )

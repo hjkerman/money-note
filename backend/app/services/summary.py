@@ -5,7 +5,7 @@ from app.repository import list_entries
 from app.services.discounts import effective_card_discount, normalize_discount_policy
 
 
-def current_summary_values() -> dict[str, float]:
+def current_summary_values() -> dict[str, int]:
     visible_current_entries = list_entries("current")
     current_entries = [entry for entry in visible_current_entries if entry.get("entry_kind") != "planned"]
     planned_entries = [entry for entry in visible_current_entries if entry.get("entry_kind") == "planned"]
@@ -13,7 +13,7 @@ def current_summary_values() -> dict[str, float]:
     planned_liquidity_total = sum(entry.get("amount_value") or 0 for entry in planned_entries)
     planned_recurring_total = planned_entry_total()
     entry_discount_total = current_entry_discount_total()
-    card_total = max(0.0, entry_card_total - entry_discount_total)
+    card_total = max(0, entry_card_total - entry_discount_total)
     fixed_panel_total = panel_total("fixed")
     transfer_or_deposit_total = fixed_panel_total + planned_recurring_total
     liquidity_fixed_total = fixed_panel_total + planned_liquidity_total
@@ -21,20 +21,23 @@ def current_summary_values() -> dict[str, float]:
     base_next_month_liquidity = setting_float("base_next_month_liquidity")
     interest_expense = setting_float("interest_expense")
     liquidity_status = setting_float("liquidity_status") + cash_flow_total()
-    return {
-        "base_next_month_liquidity": base_next_month_liquidity,
-        "card_total": card_total,
-        "planned_recurring_total": planned_recurring_total,
-        "transfer_or_deposit_total": transfer_or_deposit_total,
-        "interest_expense": interest_expense,
-        "frozen_asset_total": frozen_asset_total,
-        "liquidity_status": liquidity_status,
-        "next_month_liquidity": base_next_month_liquidity
+    next_month_liquidity = (
+        base_next_month_liquidity
         - card_total
         - liquidity_fixed_total
         - interest_expense
         - frozen_asset_total
-        + liquidity_status,
+        + liquidity_status
+    )
+    return {
+        "base_next_month_liquidity": int(base_next_month_liquidity),
+        "card_total": int(card_total),
+        "planned_recurring_total": int(planned_recurring_total),
+        "transfer_or_deposit_total": int(transfer_or_deposit_total),
+        "interest_expense": int(interest_expense),
+        "frozen_asset_total": int(frozen_asset_total),
+        "liquidity_status": int(liquidity_status),
+        "next_month_liquidity": int(next_month_liquidity),
     }
 
 

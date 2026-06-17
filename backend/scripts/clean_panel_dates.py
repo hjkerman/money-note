@@ -51,7 +51,7 @@ def main() -> None:
 def _ensure_columns(conn: sqlite3.Connection) -> None:
     columns = {row["name"] for row in conn.execute("PRAGMA table_info(monthly_panels)").fetchall()}
     if "discount_amount" not in columns:
-        conn.execute("ALTER TABLE monthly_panels ADD COLUMN discount_amount REAL NOT NULL DEFAULT 0")
+        conn.execute("ALTER TABLE monthly_panels ADD COLUMN discount_amount INTEGER NOT NULL DEFAULT 0")
     if "spent_on" not in columns:
         conn.execute("ALTER TABLE monthly_panels ADD COLUMN spent_on TEXT")
 

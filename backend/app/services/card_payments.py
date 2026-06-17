@@ -123,12 +123,12 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
     if not payload.allocations:
         raise ValueError("결제 또는 할인액을 배분할 항목이 없습니다.")
 
-    allocations: list[tuple[str, float]] = []
+    allocations: list[tuple[str, int]] = []
     seen_keys: set[str] = set()
     with session() as conn:
         for allocation in payload.allocations:
             key = allocation.entry_payment_key
-            amount = float(allocation.amount_value)
+            amount = int(allocation.amount_value)
             if key in seen_keys:
                 raise ValueError("같은 항목이 중복 선택되었습니다.")
             if payload.event_type == "immediate" and amount <= 0:
@@ -205,7 +205,7 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
                 INSERT INTO cash_flows(occurred_on, title, amount_value, sort_order)
                 VALUES (?, ?, ?, ?)
                 """,
-                (payload.event_date, "카드 즉시결제", -total, next_order),
+                (payload.event_date, "카드 즉시결제", -int(total), next_order),
             )
             cash_flow_id = cash_cursor.lastrowid
 
@@ -214,7 +214,7 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
             INSERT INTO card_payment_events(event_date, event_type, total_amount, note, cash_flow_id)
             VALUES (?, ?, ?, ?, ?)
             """,
-            (payload.event_date, payload.event_type, total, payload.note.strip(), cash_flow_id),
+            (payload.event_date, payload.event_type, int(total), payload.note.strip(), cash_flow_id),
         )
         for key, amount in allocations:
             conn.execute(
@@ -240,7 +240,7 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
     return dict(event)
 
 
-def set_entry_discount(entry_payment_key: str, amount: float, event_date: str | None = None) -> dict[str, Any]:
+def set_entry_discount(entry_payment_key: str, amount: int, event_date: str | None = None) -> dict[str, Any]:
     """당월 사용내역의 개별 할인 예외를 저장한다."""
     if amount < 0:
         raise ValueError("할인액은 0원 이상이어야 합니다.")
@@ -265,7 +265,7 @@ def set_entry_discount(entry_payment_key: str, amount: float, event_date: str | 
             SET aux_amount_value = ?, discount_override = 1, updated_at = CURRENT_TIMESTAMP
             WHERE payment_key = ?
             """,
-            (amount, entry_payment_key),
+            (int(amount), entry_payment_key),
         )
         updated = conn.execute("SELECT * FROM ledger_entries WHERE payment_key = ?", (entry_payment_key,)).fetchone()
     return dict(updated)
@@ -360,7 +360,7 @@ def create_late_card_entry(payload: LateCardEntryIn, today: date | None = None) 
                 title,
                 usage_place or None,
                 usage_item or None,
-                float(payload.amount_value),
+                int(payload.amount_value),
                 sort_order,
             ),
         )
@@ -548,9 +548,9 @@ def _payment_rows_for_month(usage_month: str, payment_month: str) -> list[dict[s
     result = []
     for row in rows:
         data = dict(row)
-        original = float(data.get("amount_value") or 0)
-        immediate = float(data.pop("immediate_paid_amount") or 0)
-        override_discount = float(data.pop("override_discount_amount") or 0)
+        original = int(data.get("amount_value") or 0)
+        immediate = int(data.pop("immediate_paid_amount") or 0)
+        override_discount = int(data.pop("override_discount_amount") or 0)
         deferred_from = data.pop("deferred_from_payment_month", None)
         deferred_target = data.pop("deferred_target_payment_month", None)
         usage_month = str(data.get("entry_date") or "")[:7]
@@ -566,7 +566,7 @@ def _payment_rows_for_month(usage_month: str, payment_month: str) -> list[dict[s
                 "original_amount": original,
                 "immediate_paid_amount": immediate,
                 "discount_amount": discount,
-                "remaining_amount": max(0.0, original - immediate - discount),
+                "remaining_amount": max(0, original - immediate - discount),
                 "is_transport": _is_transport(str(data.get("title") or "")),
                 "is_toll": _is_toll(str(data.get("title") or "")),
                 "is_deferred": deferred_from == payment_month and deferred_target > payment_month,
@@ -577,7 +577,7 @@ def _payment_rows_for_month(usage_month: str, payment_month: str) -> list[dict[s
                     {
                         "entry_payment_key": data["payment_key"],
                         "entry_id": data["id"],
-                        "remaining_amount": max(0.0, original - immediate - discount),
+                        "remaining_amount": max(0, original - immediate - discount),
                     }
                 ] if data.get("payment_key") else [],
                 "is_group": False,
@@ -604,7 +604,7 @@ def _group_toll_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 {
                     "entry_payment_key": row["payment_key"],
                     "entry_id": row["id"],
-                    "remaining_amount": float(row.get("remaining_amount") or 0),
+                    "remaining_amount": int(row.get("remaining_amount") or 0),
                 }
                 for row in toll_rows
                 if row.get("payment_key")
@@ -614,11 +614,11 @@ def _group_toll_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
             "title": "하이패스/통행료 통합",
             "usage_place": "하이패스/통행료",
             "usage_item": f"{len(toll_rows)}건",
-            "original_amount": sum(float(row.get("original_amount") or 0) for row in toll_rows),
-            "amount_value": sum(float(row.get("amount_value") or 0) for row in toll_rows),
-            "immediate_paid_amount": sum(float(row.get("immediate_paid_amount") or 0) for row in toll_rows),
-            "discount_amount": sum(float(row.get("discount_amount") or 0) for row in toll_rows),
-            "remaining_amount": sum(float(row.get("remaining_amount") or 0) for row in toll_rows),
+            "original_amount": sum(int(row.get("original_amount") or 0) for row in toll_rows),
+            "amount_value": sum(int(row.get("amount_value") or 0) for row in toll_rows),
+            "immediate_paid_amount": sum(int(row.get("immediate_paid_amount") or 0) for row in toll_rows),
+            "discount_amount": sum(int(row.get("discount_amount") or 0) for row in toll_rows),
+            "remaining_amount": sum(int(row.get("remaining_amount") or 0) for row in toll_rows),
             "is_transport": any(bool(row.get("is_transport")) for row in toll_rows),
             "is_toll": True,
             "is_deferred": all(bool(row.get("is_deferred")) for row in toll_rows),
