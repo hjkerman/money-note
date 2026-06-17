@@ -47,6 +47,10 @@ def get_apk(_: dict = Depends(require_user)) -> FileResponse:
         apk_path,
         media_type="application/vnd.android.package-archive",
         filename=settings.apk_filename,
+        headers={
+            "Cache-Control": "no-store, max-age=0",
+            "Pragma": "no-cache",
+        },
     )
 
 

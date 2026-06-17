@@ -65,6 +65,8 @@ class AdminApiTest(unittest.TestCase):
 
         self.assertEqual(response.media_type, "application/vnd.android.package-archive")
         self.assertIn("money-note-test.apk", response.headers["content-disposition"])
+        self.assertEqual(response.headers["cache-control"], "no-store, max-age=0")
+        self.assertEqual(response.headers["pragma"], "no-cache")
 
     def test_reset_ledger_data_deletes_ledger_only(self) -> None:
         with session() as conn:
