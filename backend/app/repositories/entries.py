@@ -187,6 +187,16 @@ def create_entry(entry: LedgerEntryIn) -> dict[str, Any]:
                     "SELECT COALESCE(MAX(sort_order), 0) + 1 AS next_order FROM ledger_entries WHERE book_section = 'archive'"
                 ).fetchone()["next_order"]
                 values["sort_order"] = int(next_order)
+        if values["entry_kind"] != "planned" and int(values.get("sort_order") or 0) <= 0:
+            next_order = conn.execute(
+                """
+                SELECT COALESCE(MAX(sort_order), 0) + 1 AS next_order
+                FROM ledger_entries
+                WHERE book_section = ?
+                """,
+                (values["book_section"],),
+            ).fetchone()["next_order"]
+            values["sort_order"] = int(next_order)
         cursor = conn.execute(
             f"INSERT INTO ledger_entries ({columns}) VALUES ({placeholders})",
             tuple(values[column] for column in ENTRY_COLUMNS),

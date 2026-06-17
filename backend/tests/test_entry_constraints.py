@@ -65,6 +65,38 @@ class EntryConstraintTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "greater than or equal to zero"):
             update_entry(entry["id"], LedgerEntryPatch(amount_value=-1))
 
+    def test_zero_sort_order_is_assigned_like_web_append_order(self) -> None:
+        first = create_entry(
+            LedgerEntryIn(
+                book_section="current",
+                entry_kind="expense",
+                entry_date="2026-06-04",
+                usage_place="모바일",
+                usage_item="첫 등록",
+                amount_value=1000,
+                sort_order=0,
+            )
+        )
+        second = create_entry(
+            LedgerEntryIn(
+                book_section="current",
+                entry_kind="expense",
+                entry_date="2026-06-04",
+                usage_place="모바일",
+                usage_item="두 번째 등록",
+                amount_value=2000,
+                sort_order=0,
+            )
+        )
+
+        self.assertLess(first["sort_order"], second["sort_order"])
+        same_day = [
+            entry["usage_item"]
+            for entry in list_entries("current")
+            if entry["entry_date"] == "2026-06-04"
+        ]
+        self.assertEqual(same_day, ["첫 등록", "두 번째 등록"])
+
     def test_planned_schema_requires_due_day_place_and_amount(self) -> None:
         valid = PlannedEntryIn(
             title="[사용처]",
