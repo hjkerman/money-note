@@ -582,8 +582,8 @@ class _PanelManagementItem extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (panel.panelType == 'frozen' && panel.spentOn != null)
-                    Text('등록일자 ${shortDate(panel.spentOn)}',
+                  if (panel.panelType == 'frozen')
+                    Text('등록일자 ${_registrationDateLabel(panel.spentOn)}',
                         style: const TextStyle(
                             color: moneyMuted,
                             fontSize: 12,
@@ -606,6 +606,11 @@ class _PanelManagementItem extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _registrationDateLabel(String? value) {
+    final label = shortDate(value);
+    return label.isEmpty ? '미상' : label;
   }
 }
 
