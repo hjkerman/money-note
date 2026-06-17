@@ -406,7 +406,9 @@ export function EntryTable({
                       disabled={discountPolicy === "disabled"}
                     />
                   ) : discountDisplayEligible ? (
-                    <span className="discount-badge muted-discount-badge">할인 {formatWon(currentDiscount)}</span>
+                    <span className={currentDiscount > 0 ? "discount-badge" : "discount-badge muted-discount-badge"}>
+                      할인 {formatWon(currentDiscount)}
+                    </span>
                   ) : null}
                 </td>
               ) : null}
@@ -449,25 +451,22 @@ function DiscountEditor({
   onClear?: () => void;
   disabled?: boolean;
 }) {
-  const badgeText = disabled
-    ? "혜택 없음"
-    : isOverride
-      ? `할인 ${formatWon(currentAmount)}`
-      : `할인 ${formatWon(defaultAmount)}`;
+  const hasDiscount = currentAmount > 0;
+  const badgeText = disabled ? "혜택 없음" : `할인 ${formatWon(isOverride ? currentAmount : defaultAmount)}`;
   return (
     <div className="discount-editor">
       <div>
-        <span className={isOverride || disabled ? "discount-badge muted-discount-badge" : "discount-badge"}>
+        <span className={disabled || !hasDiscount ? "discount-badge muted-discount-badge" : "discount-badge"}>
           {badgeText}
         </span>
-        {!disabled && isOverride ? (
-          <button type="button" onClick={onClear} disabled={!onClear}>
-            할인 적용
-          </button>
-        ) : null}
-        {!disabled && !isOverride ? (
+        {!disabled && hasDiscount ? (
           <button type="button" onClick={onExclude}>
             할인 제외
+          </button>
+        ) : null}
+        {!disabled && !hasDiscount ? (
+          <button type="button" onClick={onClear} disabled={!onClear}>
+            할인 적용
           </button>
         ) : null}
       </div>
@@ -579,7 +578,9 @@ export function PanelTable({
                       </>
                     ) : discountDisplayEligible ? (
                       <>
-                        <span className="discount-badge muted-discount-badge">할인 {formatWon(currentDiscount)}</span>
+                        <span className={currentDiscount > 0 ? "discount-badge" : "discount-badge muted-discount-badge"}>
+                          할인 {formatWon(currentDiscount)}
+                        </span>
                         <span className="net-amount">원금 {formatWon(row.amount_value)}</span>
                       </>
                     ) : null}
