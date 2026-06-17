@@ -109,6 +109,15 @@ class NotificationBridge {
   Future<void> requestAppNotifications() async {
     await _channel.invokeMethod<bool>('requestAppNotifications');
   }
+
+  Future<String?> consumeLaunchTarget() async {
+    try {
+      final target = await _channel.invokeMethod<String>('consumeLaunchTarget');
+      return target?.trim().isEmpty == true ? null : target?.trim();
+    } on MissingPluginException {
+      return null;
+    }
+  }
 }
 
 class NotificationPermissionStatus {

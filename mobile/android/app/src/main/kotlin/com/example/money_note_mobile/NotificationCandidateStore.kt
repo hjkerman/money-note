@@ -3,7 +3,9 @@ package com.example.money_note_mobile
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import org.json.JSONArray
 import org.json.JSONObject
@@ -294,6 +296,16 @@ object NotificationCandidateStore {
                 )
             }
             val description = "본인카드 미확인 ${counts.owner}건\n가족카드 미확인 ${counts.family}건"
+            val openIntent = Intent(context, MainActivity::class.java)
+                .setAction(MainActivity.ACTION_OPEN_NOTIFICATION_IMPORT)
+                .putExtra(MainActivity.EXTRA_OPEN_NOTIFICATION_IMPORT, true)
+                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            val pendingIntent = PendingIntent.getActivity(
+                context,
+                SUMMARY_NOTIFICATION_ID,
+                openIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
             val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 Notification.Builder(context, CHANNEL_ID)
             } else {
@@ -305,6 +317,7 @@ object NotificationCandidateStore {
                 .setContentTitle("새 내역 발견!")
                 .setContentText(description.lines().first())
                 .setStyle(Notification.BigTextStyle().bigText(description))
+                .setContentIntent(pendingIntent)
                 .setOngoing(false)
                 .setAutoCancel(false)
                 .build()

@@ -38,6 +38,7 @@ class AppState extends ChangeNotifier {
       const NotificationCandidateCounts.empty();
   bool _isForegroundRefreshRunning = false;
   int homeResetGeneration = 0;
+  int notificationImportOpenGeneration = 0;
 
   bool get isLoggedIn => user != null;
 
@@ -125,6 +126,7 @@ class AppState extends ChangeNotifier {
       user = await api.me();
       await refresh();
       await saveLaunchSnapshot();
+      await consumeLaunchTarget();
     } catch (_) {
       user = null;
     } finally {
@@ -140,6 +142,7 @@ class AppState extends ChangeNotifier {
       user = await api.login(username, password);
       await refresh(notify: false);
       await saveLaunchSnapshot();
+      await consumeLaunchTarget(notify: false);
       statusMessage = '로그인 완료';
     });
   }
@@ -192,6 +195,7 @@ class AppState extends ChangeNotifier {
     try {
       await refresh(notify: false);
       await saveLaunchSnapshot();
+      await consumeLaunchTarget(notify: false);
       statusMessage = '앱 복귀 동기화 완료';
     } catch (error) {
       statusMessage =
@@ -309,6 +313,13 @@ class AppState extends ChangeNotifier {
 
   Future<void> refreshNotificationInboxState({bool notify = true}) async {
     notificationCandidateCounts = await notificationBridge.candidateCounts();
+    if (notify) notifyListeners();
+  }
+
+  Future<void> consumeLaunchTarget({bool notify = true}) async {
+    final target = await notificationBridge.consumeLaunchTarget();
+    if (target != 'notification_import') return;
+    notificationImportOpenGeneration += 1;
     if (notify) notifyListeners();
   }
 

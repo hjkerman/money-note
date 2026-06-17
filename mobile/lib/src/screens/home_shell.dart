@@ -6,6 +6,7 @@ import 'cash_flow_screen.dart';
 import 'family_screen.dart';
 import 'input_screen.dart';
 import 'month_entries_screen.dart';
+import 'notification_import_screen.dart';
 import 'status_screen.dart';
 
 class HomeShell extends StatefulWidget {
@@ -20,20 +21,37 @@ class HomeShell extends StatefulWidget {
 class _HomeShellState extends State<HomeShell> {
   int index = 0;
   late int _seenHomeResetGeneration;
+  late int _seenNotificationImportOpenGeneration;
 
   @override
   void initState() {
     super.initState();
     _seenHomeResetGeneration = widget.state.homeResetGeneration;
+    _seenNotificationImportOpenGeneration =
+        widget.state.notificationImportOpenGeneration;
+    if (_seenNotificationImportOpenGeneration > 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _openNotificationImport();
+      });
+    }
   }
 
   @override
   void didUpdateWidget(covariant HomeShell oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (_seenHomeResetGeneration == widget.state.homeResetGeneration) return;
-    _seenHomeResetGeneration = widget.state.homeResetGeneration;
-    if (index != 0) {
-      setState(() => index = 0);
+    if (_seenHomeResetGeneration != widget.state.homeResetGeneration) {
+      _seenHomeResetGeneration = widget.state.homeResetGeneration;
+      if (index != 0) {
+        setState(() => index = 0);
+      }
+    }
+    if (_seenNotificationImportOpenGeneration !=
+        widget.state.notificationImportOpenGeneration) {
+      _seenNotificationImportOpenGeneration =
+          widget.state.notificationImportOpenGeneration;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _openNotificationImport();
+      });
     }
   }
 
@@ -94,5 +112,16 @@ class _HomeShellState extends State<HomeShell> {
       return;
     }
     await _refreshForIndex();
+  }
+
+  void _openNotificationImport() {
+    if (index != 0) {
+      setState(() => index = 0);
+    }
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => NotificationImportScreen(state: widget.state),
+      ),
+    );
   }
 }

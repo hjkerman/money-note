@@ -11,8 +11,15 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
+    companion object {
+        const val ACTION_OPEN_NOTIFICATION_IMPORT = "com.example.money_note_mobile.OPEN_NOTIFICATION_IMPORT"
+        const val EXTRA_OPEN_NOTIFICATION_IMPORT = "open_notification_import"
+        private var pendingNotificationImportOpen = false
+    }
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        captureLaunchTarget(intent)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "money_note/notifications").setMethodCallHandler { call, result ->
             when (call.method) {
                 "configureCards" -> {
@@ -44,10 +51,30 @@ class MainActivity : FlutterActivity() {
                     requestAppNotificationPermission()
                     result.success(true)
                 }
+                "consumeLaunchTarget" -> result.success(consumeLaunchTarget())
                 "permissionStatus" -> result.success(permissionStatus())
                 else -> result.notImplemented()
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        captureLaunchTarget(intent)
+    }
+
+    private fun captureLaunchTarget(intent: Intent?) {
+        if (intent?.action == ACTION_OPEN_NOTIFICATION_IMPORT ||
+            intent?.getBooleanExtra(EXTRA_OPEN_NOTIFICATION_IMPORT, false) == true) {
+            pendingNotificationImportOpen = true
+        }
+    }
+
+    private fun consumeLaunchTarget(): String {
+        if (!pendingNotificationImportOpen) return ""
+        pendingNotificationImportOpen = false
+        return "notification_import"
     }
 
     private fun permissionStatus(): Map<String, Boolean> {
