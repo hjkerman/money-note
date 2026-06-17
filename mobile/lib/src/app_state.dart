@@ -227,6 +227,7 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> refreshEntriesArea({bool notify = true}) async {
+    await refreshNotificationInboxState(notify: false);
     await _refreshEntriesAndStatus();
     if (notify) notifyListeners();
   }
