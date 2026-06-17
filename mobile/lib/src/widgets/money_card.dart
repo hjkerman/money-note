@@ -60,27 +60,43 @@ class AmountTile extends StatelessWidget {
     required this.label,
     required this.amount,
     super.key,
+    this.onTap,
   });
 
   final String label;
   final String amount;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return MoneyCard(
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(label,
+                  style: const TextStyle(
+                      color: moneyMuted, fontWeight: FontWeight.w600)),
+            ),
+            if (onTap != null)
+              const Icon(Icons.chevron_right, size: 18, color: moneyMuted),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Text(amount,
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+      ],
+    );
+    final card = MoneyCard(
       padding: const EdgeInsets.all(14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label,
-              style: const TextStyle(
-                  color: moneyMuted, fontWeight: FontWeight.w600)),
-          const SizedBox(height: 6),
-          Text(amount,
-              style:
-                  const TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
-        ],
-      ),
+      child: content,
+    );
+    if (onTap == null) return card;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: card,
     );
   }
 }

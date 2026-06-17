@@ -5,6 +5,7 @@ import '../formatters.dart';
 import '../models.dart';
 import '../theme.dart';
 import '../widgets/money_card.dart';
+import 'management_screen.dart';
 import 'notification_import_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -49,7 +50,9 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
                 child: AmountTile(
-                    label: '동결', amount: won(summary?.frozenAssetTotal))),
+                    label: '동결',
+                    amount: won(summary?.frozenAssetTotal),
+                    onTap: () => _openFrozenManagement(context))),
           ],
         ),
         const SectionTitle('오늘의 예산심사위원회'),
@@ -98,6 +101,20 @@ class HomeScreen extends StatelessWidget {
   int _expenseTotal() {
     return state.expenseEntries
         .fold(0, (sum, entry) => sum + (entry.amountValue ?? 0));
+  }
+
+  void _openFrozenManagement(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => PanelManagementScreen(
+          state: state,
+          panelType: 'frozen',
+          title: '동결 금액',
+          inputLabel: '동결 내용',
+          emptyText: '동결 금액이 없습니다.',
+        ),
+      ),
+    );
   }
 }
 
