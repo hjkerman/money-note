@@ -20,13 +20,11 @@ class HomeShell extends StatefulWidget {
 
 class _HomeShellState extends State<HomeShell> {
   int index = 0;
-  late int _seenHomeResetGeneration;
   late int _seenNotificationImportOpenGeneration;
 
   @override
   void initState() {
     super.initState();
-    _seenHomeResetGeneration = widget.state.homeResetGeneration;
     _seenNotificationImportOpenGeneration =
         widget.state.notificationImportOpenGeneration;
     if (_seenNotificationImportOpenGeneration > 0) {
@@ -39,12 +37,6 @@ class _HomeShellState extends State<HomeShell> {
   @override
   void didUpdateWidget(covariant HomeShell oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (_seenHomeResetGeneration != widget.state.homeResetGeneration) {
-      _seenHomeResetGeneration = widget.state.homeResetGeneration;
-      if (index != 0) {
-        setState(() => index = 0);
-      }
-    }
     if (_seenNotificationImportOpenGeneration !=
         widget.state.notificationImportOpenGeneration) {
       _seenNotificationImportOpenGeneration =

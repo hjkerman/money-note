@@ -19,7 +19,6 @@ class MoneyNoteApp extends StatefulWidget {
 class _MoneyNoteAppState extends State<MoneyNoteApp>
     with WidgetsBindingObserver {
   late final AppState state;
-  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   bool _wasInBackground = false;
 
   @override
@@ -47,14 +46,8 @@ class _MoneyNoteAppState extends State<MoneyNoteApp>
     }
     if (lifecycleState == AppLifecycleState.resumed && _wasInBackground) {
       _wasInBackground = false;
-      unawaited(_resumeFromBackground());
+      unawaited(state.resumeFromBackground());
     }
-  }
-
-  Future<void> _resumeFromBackground() async {
-    await state.resumeFromBackground();
-    if (!mounted) return;
-    _navigatorKey.currentState?.popUntil((route) => route.isFirst);
   }
 
   @override
@@ -65,7 +58,6 @@ class _MoneyNoteAppState extends State<MoneyNoteApp>
         return MaterialApp(
           title: 'Money-Note',
           debugShowCheckedModeBanner: false,
-          navigatorKey: _navigatorKey,
           theme: buildMoneyNoteTheme(),
           home: _homeForState(),
         );

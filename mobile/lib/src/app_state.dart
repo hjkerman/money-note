@@ -37,7 +37,6 @@ class AppState extends ChangeNotifier {
   NotificationCandidateCounts notificationCandidateCounts =
       const NotificationCandidateCounts.empty();
   bool _isForegroundRefreshRunning = false;
-  int homeResetGeneration = 0;
   int notificationImportOpenGeneration = 0;
 
   bool get isLoggedIn => user != null;
@@ -201,7 +200,6 @@ class AppState extends ChangeNotifier {
       statusMessage =
           error is MoneyNoteApiException ? error.message : error.toString();
     } finally {
-      homeResetGeneration += 1;
       _isForegroundRefreshRunning = false;
       notifyListeners();
     }
