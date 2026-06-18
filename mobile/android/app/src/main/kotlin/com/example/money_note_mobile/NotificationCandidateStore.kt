@@ -247,12 +247,16 @@ object NotificationCandidateStore {
         return null
     }
 
-    private fun extractMerchant(raw: String): String? {
+    internal fun extractMerchant(raw: String): String? {
         val lines = raw.lines().map { it.trim() }.filter { it.isNotEmpty() }.distinct()
-        val ignoredWords = listOf("승인내역", "누적", "승인(", "승인", "원", "수신거부")
-        return lines.lastOrNull { line ->
-            ignoredWords.none { line.contains(it) } && !Regex("""^\d{1,2}/\d{1,2}""").containsMatchIn(line)
-        }
+        return lines.lastOrNull { line -> !isApprovalMetadataLine(line) }
+    }
+
+    private fun isApprovalMetadataLine(line: String): Boolean {
+        if (line == "승인내역" || line.contains("누적") || line.contains("수신거부")) return true
+        if (Regex("""\[[^\]]*승인\(\d{4}\)\]""").containsMatchIn(line)) return true
+        if (Regex("""^\d{1,2}/\d{1,2}(?:\s+\d{1,2}:\d{2})?$""").matches(line)) return true
+        return Regex("""^[0-9][0-9,]*\s*원(?:\s*/.*)?$""").matches(line)
     }
 
     private fun appendCandidateLocked(context: Context, candidate: CardNotificationCandidate): Int {
