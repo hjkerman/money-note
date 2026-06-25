@@ -391,6 +391,7 @@ export function App() {
           <CurrentMonthView
               active={activePrimaryTab === "current"}
               activeCurrentTab={activeCurrentTab}
+              currentMonth={currentMonth}
               currentSubTabs={currentSubTabs}
               expenseEntries={expenseEntries}
               expenseForm={expenseForm}

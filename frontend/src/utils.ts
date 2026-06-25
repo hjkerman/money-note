@@ -127,6 +127,57 @@ export function displayEntryDateLabel(entry: LedgerEntry): string {
   return entry.date_label ?? entry.group_label ?? "";
 }
 
+function markdownCell(value: string | number | null | undefined): string {
+  return String(value ?? "")
+    .replaceAll("\\", "\\\\")
+    .replaceAll("|", "\\|")
+    .replaceAll("\r", " ")
+    .replaceAll("\n", " ")
+    .trim();
+}
+
+export function ledgerEntriesMarkdown(
+  entries: LedgerEntry[],
+  month: string,
+  judgment?: JudgmentState | null,
+): string {
+  const header = [
+    `# Money Note 원장 - ${formatMonthLabel(month)}`,
+    "",
+    "| 사용일자 | 사용처 | 세부내역 | 분류 | 사용금액 |",
+    "|---|---|---|---|---:|",
+  ];
+  const rows = entries.map((entry) =>
+    [
+      displayEntryDateLabel(entry),
+      entry.usage_place ?? "",
+      entry.usage_item ?? "",
+      categoryLabel(entry.spending_category, judgment),
+      formatWon(entry.amount_value ?? 0),
+    ]
+      .map(markdownCell)
+      .join(" | "),
+  );
+  return [...header, ...rows.map((row) => `| ${row} |`), ""].join("\n");
+}
+
+export function downloadLedgerEntriesMarkdown(
+  entries: LedgerEntry[],
+  month: string,
+  judgment?: JudgmentState | null,
+): void {
+  const content = ledgerEntriesMarkdown(entries, month, judgment);
+  const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `money-note-ledger-${month}.md`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
 export function formatMonthLabel(value: string): string {
   const [year, month] = value.split("-");
   return `${year}년 ${Number(month)}월`;

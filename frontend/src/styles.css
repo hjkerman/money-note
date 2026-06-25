@@ -66,6 +66,10 @@ table {
   font-size: 14px;
 }
 
+.entry-table-wrap {
+  width: 100%;
+}
+
 .entry-table-wide-detail .entry-place-cell {
   min-width: 190px;
 }
@@ -929,6 +933,20 @@ button.discount-badge:hover:not(:disabled) {
 
 .share-wide-button:hover:not(:disabled) {
   background: #e1eed9;
+}
+
+.ledger-export-button {
+  width: 100%;
+  margin-top: 12px;
+  padding: 11px 14px;
+  border-color: #a7b99a;
+  background: #f3f8ef;
+  color: #334d2d;
+  font-weight: 800;
+}
+
+.ledger-export-button:hover:not(:disabled) {
+  background: #e7f1df;
 }
 
 .modal-backdrop {

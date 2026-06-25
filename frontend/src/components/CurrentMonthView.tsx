@@ -20,6 +20,7 @@ type PanelForm = { panel_type: MonthlyPanel["panel_type"]; title: string; spentO
 export function CurrentMonthView({
   active,
   activeCurrentTab,
+  currentMonth,
   currentSubTabs,
   expenseEntries,
   expenseForm,
@@ -51,6 +52,7 @@ export function CurrentMonthView({
 }: {
   active: boolean;
   activeCurrentTab: CurrentTab;
+  currentMonth: string;
   currentSubTabs: { id: CurrentTab; label: string; total: number }[];
   expenseEntries: LedgerEntry[];
   expenseForm: ExpenseForm;
@@ -163,6 +165,7 @@ export function CurrentMonthView({
             onClearDiscount={(entry) => handleCurrentEntryDiscountClear(entry)}
             onNetAmountEdit={(entry) => handleCurrentEntryNetAmountEdit(entry)}
             discountPolicy={ownerDiscountMonth?.policy}
+            exportMonth={currentMonth}
             wideDetailColumn
           />
         </section>
