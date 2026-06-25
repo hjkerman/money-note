@@ -154,6 +154,7 @@ class _CandidateList extends StatelessWidget {
           const MoneyCard(child: Text('등록 대기 중인 승인 알림이 없습니다.'))
         else
           ...candidates.map((candidate) => _CandidateCard(
+                key: ValueKey(candidate.id),
                 state: state,
                 bridge: bridge,
                 candidate: candidate,
@@ -195,6 +196,7 @@ class _CandidateList extends StatelessWidget {
 
 class _CandidateCard extends StatefulWidget {
   const _CandidateCard({
+    super.key,
     required this.state,
     required this.bridge,
     required this.candidate,
