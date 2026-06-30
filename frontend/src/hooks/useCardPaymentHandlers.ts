@@ -56,13 +56,20 @@ export function useCardPaymentHandlers({
     let remainingBudget = Math.max(0, parseAmount(paymentBudget) ?? summary?.liquidity_status ?? 0);
     const next: Record<string, string> = {};
     for (const row of cardPayments.rows) {
-      if (!row.payment_key || row.is_deferred || row.remaining_amount <= 0 || remainingBudget <= 0) continue;
+      if (
+        !row.payment_key ||
+        row.is_deferred ||
+        row.is_transport ||
+        row.is_toll ||
+        row.remaining_amount <= 0 ||
+        remainingBudget <= 0
+      ) continue;
       const allocated = Math.min(row.remaining_amount, remainingBudget);
       next[row.payment_key] = String(Math.round(allocated));
       remainingBudget -= allocated;
     }
     setPaymentAllocations(next);
-    setStatus(`날짜순 결제안 생성 완료: ${formatWon(sumPaymentAllocationInputs(next))}`);
+    setStatus(`날짜순 결제안 생성 완료: ${formatWon(sumPaymentAllocationInputs(next))} · 교통/통행료 제외`);
   }
 
   function handlePaymentSelection(row: CardPaymentRow, selected: boolean) {
