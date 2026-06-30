@@ -19,6 +19,8 @@
 - `app_settings`: 유동성, 이자지출, 카드 한도 등 설정값
 - `app_labels`: 화면 표시 문구
 - `cash_flows`: 현금 입출금
+- `card_payment_batches`: 월마감이 만든 이번달 결제 작업함
+- `card_payment_batch_items`: 결제 작업함에 포함된 원장 항목
 - `card_payment_events`: 즉시결제/할인액 처리 이벤트
 - `card_payment_allocations`: 결제/할인 이벤트의 항목별 배분
 - `card_payment_deferrals`: 통행료/하이패스 이월 상태
@@ -129,12 +131,39 @@
 
 ## 카드 결제 테이블
 
+### `card_payment_batches`
+
+월마감 직후 생성되는 결제 작업함이다.
+
+카드 결제 화면은 달력상 직전월을 자동 조회하지 않고, 현재 활성 batch만 본다. 새 월마감이 실행되면 이전 batch와 그 즉시결제/할인 이벤트는 임시 작업 데이터로 보고 삭제된다. 사용자는 이전 batch를 다시 선택하지 않는다.
+
+| 컬럼 | 타입 | 설명 |
+| --- | --- | --- |
+| `id` | INTEGER PK | 내부 식별자 |
+| `usage_month` | TEXT | 월마감된 사용월. 예: `2026-06` |
+| `source` | TEXT | 생성 원인. 현재는 `month_close` |
+| `status` | TEXT | 현재는 `active` 중심으로 사용 |
+| `created_at` | TEXT | 생성 시각 |
+
+### `card_payment_batch_items`
+
+활성 결제 작업함에 포함된 원장 항목 목록이다.
+
+| 컬럼 | 타입 | 설명 |
+| --- | --- | --- |
+| `id` | INTEGER PK | 내부 식별자 |
+| `batch_id` | INTEGER | `card_payment_batches.id` |
+| `entry_id` | INTEGER | `ledger_entries.id` |
+| `entry_payment_key` | TEXT | `ledger_entries.payment_key` |
+| `created_at` | TEXT | 생성 시각 |
+
 ### `card_payment_events`
 
 즉시결제와 할인액 처리 이벤트다.
 
 | 컬럼 | 타입 | 설명 |
 | --- | --- | --- |
+| `batch_id` | INTEGER | 이 이벤트가 속한 `card_payment_batches.id` |
 | `event_date` | TEXT | 처리일 |
 | `event_type` | TEXT | `immediate` 또는 `discount` |
 | `total_amount` | INTEGER | 처리 총액. 원화 정수 금액 |
@@ -154,6 +183,8 @@
 ### `card_payment_deferrals`
 
 통행료/하이패스 이월 상태다.
+
+이월은 결제 작업함에서는 다음 결제월로 넘기는 선택이지만, 원장에서는 다음 달 맨 위에 `[이월] [n월 사용 내역] ...` 형태로 남는다. 이유는 이월된 금액이 다음 결제월의 유동성에 영향을 주기 때문이다. 다만 이 원장 항목은 그 달 월마감 전까지 결제 작업함에 자동 노출되지 않는다. 해당 달을 월마감하면 새 batch에 편입된다.
 
 | 컬럼 | 타입 | 설명 |
 | --- | --- | --- |

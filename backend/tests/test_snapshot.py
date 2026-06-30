@@ -50,6 +50,8 @@ class SnapshotTest(unittest.TestCase):
         event_notes = {row["note"] for row in snapshot["data"]["card_payment_events"]}
         self.assertIn("최근 결제", event_notes)
         self.assertIn("오래된 결제", event_notes)
+        self.assertEqual(snapshot["manifest"]["tables"]["card_payment_batches"]["row_count"], 2)
+        self.assertEqual(snapshot["manifest"]["tables"]["card_payment_batch_items"]["row_count"], 2)
         allocation_keys = {row["entry_payment_key"] for row in snapshot["data"]["card_payment_allocations"]}
         self.assertIn("recent-key", allocation_keys)
         self.assertIn("old-key", allocation_keys)
@@ -200,6 +202,22 @@ class SnapshotTest(unittest.TestCase):
 
         self.assertEqual(restored["app_labels"], 0)
 
+    def test_restore_accepts_legacy_snapshot_without_card_payment_batch_tables(self) -> None:
+        self._seed_data()
+        _, snapshot = export_snapshot(date(2026, 6, 11))
+        del snapshot["data"]["card_payment_batches"]
+        del snapshot["data"]["card_payment_batch_items"]
+        for row in snapshot["data"]["card_payment_events"]:
+            row.pop("batch_id", None)
+        snapshot["manifest"] = self._rebuilt_manifest(snapshot["data"])
+        snapshot["snapshot_id"] = snapshot["manifest"]["data_sha256"]
+
+        restored = restore_snapshot(snapshot)
+
+        self.assertEqual(restored["card_payment_batches"], 0)
+        self.assertEqual(restored["card_payment_batch_items"], 0)
+        self.assertEqual(restored["ledger_entries"], 3)
+
     def test_restore_replaces_ledger_data_and_preserves_auth_share_and_audit(self) -> None:
         self._seed_data()
         _, snapshot = export_snapshot(date(2026, 6, 11))
@@ -239,7 +257,9 @@ class SnapshotTest(unittest.TestCase):
             share_count = conn.execute("SELECT COUNT(*) AS count FROM share_sessions").fetchone()["count"]
             audit_count = conn.execute("SELECT COUNT(*) AS count FROM audit_logs").fetchone()["count"]
             pin_hash = conn.execute("SELECT value FROM app_settings WHERE key = 'share_pin_hash'").fetchone()["value"]
-            base_income = conn.execute("SELECT value FROM app_settings WHERE key = 'base_next_month_liquidity'").fetchone()["value"]
+            base_income = conn.execute(
+                "SELECT value FROM app_settings WHERE key = 'base_next_month_liquidity'",
+            ).fetchone()["value"]
         self.assertEqual(user_count, 1)
         self.assertEqual(auth_count, 1)
         self.assertEqual(share_count, 1)
@@ -434,10 +454,26 @@ class SnapshotTest(unittest.TestCase):
             )
             conn.execute(
                 """
-                INSERT INTO card_payment_events(id, event_date, event_type, total_amount, note, cash_flow_id)
+                INSERT INTO card_payment_batches(id, usage_month, source, status)
                 VALUES
-                    (1, '2026-06-07', 'immediate', 500, '최근 결제', 1),
-                    (2, '2026-02-07', 'immediate', 700, '오래된 결제', 2)
+                    (1, '2026-05', 'month_close', 'active'),
+                    (2, '2026-01', 'month_close', 'active')
+                """
+            )
+            conn.execute(
+                """
+                INSERT INTO card_payment_batch_items(id, batch_id, entry_id, entry_payment_key)
+                VALUES
+                    (1, 1, 1, 'recent-key'),
+                    (2, 2, 2, 'old-key')
+                """
+            )
+            conn.execute(
+                """
+                INSERT INTO card_payment_events(id, batch_id, event_date, event_type, total_amount, note, cash_flow_id)
+                VALUES
+                    (1, 1, '2026-06-07', 'immediate', 500, '최근 결제', 1),
+                    (2, 2, '2026-02-07', 'immediate', 700, '오래된 결제', 2)
                 """
             )
             conn.execute(

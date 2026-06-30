@@ -408,6 +408,7 @@ def _delete_card_payment_references(conn: Any, payment_key: str) -> None:
         """,
         (payment_key,),
     ).fetchall()
+    conn.execute("DELETE FROM card_payment_batch_items WHERE entry_payment_key = ?", (payment_key,))
     conn.execute("DELETE FROM card_payment_deferrals WHERE entry_payment_key = ?", (payment_key,))
     conn.execute("DELETE FROM card_payment_allocations WHERE entry_payment_key = ?", (payment_key,))
     for allocation in allocation_rows:

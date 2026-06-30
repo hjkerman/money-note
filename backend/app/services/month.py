@@ -5,6 +5,7 @@ from typing import Any
 
 from app.db import session
 from app.services.clock import app_today
+from app.services.card_payments import create_month_close_card_payment_batch
 from app.services.snapshot import create_pre_restore_backup
 
 
@@ -109,6 +110,7 @@ def close_current_month(today: date | None = None, allow_early_close: bool = Fal
             """,
             (target_month,),
         )
+        create_month_close_card_payment_batch(conn, target_month)
 
     return {"closed_month": target_month, "archived": archived, "deleted_from_current": deleted}
 

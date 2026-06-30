@@ -5,9 +5,11 @@ from app.services.snapshot import create_pre_restore_backup
 
 
 RESET_TABLES = [
+    "card_payment_batch_items",
     "card_payment_deferrals",
     "card_payment_allocations",
     "card_payment_events",
+    "card_payment_batches",
     "cash_flows",
     "monthly_panels",
     "ledger_entries",

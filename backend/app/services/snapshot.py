@@ -23,12 +23,15 @@ SNAPSHOT_TABLES = [
     "ledger_entries",
     "monthly_panels",
     "cash_flows",
+    "card_payment_batches",
+    "card_payment_batch_items",
     "card_payment_events",
     "card_payment_allocations",
     "card_payment_deferrals",
     "app_settings",
     "app_labels",
 ]
+OPTIONAL_SNAPSHOT_TABLES = {"card_payment_batches", "card_payment_batch_items"}
 LEGACY_SNAPSHOT_COLUMNS = {
     "ledger_entries": {"discount_checked"},
     "monthly_panels": {"discount_checked"},
@@ -47,9 +50,11 @@ MONEY_SETTING_KEYS = {
     "card_limit",
 }
 LEDGER_TABLES = [
+    "card_payment_batch_items",
     "card_payment_deferrals",
     "card_payment_allocations",
     "card_payment_events",
+    "card_payment_batches",
     "cash_flows",
     "monthly_panels",
     "ledger_entries",
@@ -68,6 +73,8 @@ def export_snapshot(today: date | None = None) -> tuple[str, dict[str, Any]]:
             ),
             "monthly_panels": _snapshot_rows(conn, "monthly_panels", "month, panel_type, sort_order, id"),
             "cash_flows": _snapshot_rows(conn, "cash_flows", "occurred_on, sort_order, id"),
+            "card_payment_batches": _snapshot_rows(conn, "card_payment_batches", "id"),
+            "card_payment_batch_items": _snapshot_rows(conn, "card_payment_batch_items", "batch_id, id"),
             "card_payment_events": _snapshot_rows(conn, "card_payment_events", "event_date, id"),
             "card_payment_allocations": _snapshot_rows(conn, "card_payment_allocations", "payment_event_id, id"),
             "card_payment_deferrals": _snapshot_rows(
@@ -237,10 +244,11 @@ def _validate_snapshot(snapshot: dict[str, Any]) -> None:
     data = snapshot.get("data")
     if not isinstance(data, dict):
         raise ValueError("snapshot data is missing")
-    missing = [table for table in SNAPSHOT_TABLES if table not in data]
+    missing = [table for table in SNAPSHOT_TABLES if table not in data and table not in OPTIONAL_SNAPSHOT_TABLES]
     if missing:
         raise ValueError(f"snapshot data is missing tables: {', '.join(missing)}")
-    for table in SNAPSHOT_TABLES:
+    present_tables = [table for table in SNAPSHOT_TABLES if table in data]
+    for table in present_tables:
         if not isinstance(data[table], list):
             raise ValueError(f"{table} must be a list")
         for row in data[table]:
@@ -252,7 +260,24 @@ def _validate_snapshot(snapshot: dict[str, Any]) -> None:
     manifest = snapshot.get("manifest")
     if not isinstance(manifest, dict):
         raise ValueError("snapshot manifest is missing")
-    expected_manifest = _build_manifest(data, _manifest_table_columns(manifest))
+    manifest_tables = manifest.get("tables")
+    if not isinstance(manifest_tables, dict):
+        raise ValueError("snapshot manifest is missing tables")
+    unknown_manifest_tables = set(manifest_tables) - set(SNAPSHOT_TABLES)
+    if unknown_manifest_tables:
+        raise ValueError(f"snapshot manifest has unsupported tables: {', '.join(sorted(unknown_manifest_tables))}")
+    required_manifest_missing = [
+        table
+        for table in SNAPSHOT_TABLES
+        if table not in manifest_tables and table not in OPTIONAL_SNAPSHOT_TABLES
+    ]
+    if required_manifest_missing:
+        raise ValueError(f"snapshot manifest is missing tables: {', '.join(required_manifest_missing)}")
+    expected_manifest = _build_manifest(
+        data,
+        _manifest_table_columns(manifest),
+        table_names=[table for table in SNAPSHOT_TABLES if table in manifest_tables],
+    )
     if manifest != expected_manifest:
         raise ValueError("snapshot manifest mismatch")
 
@@ -263,7 +288,7 @@ def _normalized_snapshot_data(data: dict[str, list[dict[str, Any]]]) -> dict[str
         schema_columns = set(_schema_columns(table))
         ignored = LEGACY_SNAPSHOT_COLUMNS.get(table, set())
         rows = []
-        for row in data[table]:
+        for row in data.get(table, []):
             filtered = {key: value for key, value in row.items() if key in schema_columns and key not in ignored}
             rows.append(_normalize_snapshot_row(table, filtered))
         normalized[table] = rows
@@ -303,9 +328,11 @@ def _table_columns(conn: Any, table: str) -> set[str]:
 def _build_manifest(
     data: dict[str, list[dict[str, Any]]],
     empty_table_columns: dict[str, list[str]] | None = None,
+    table_names: list[str] | None = None,
 ) -> dict[str, Any]:
     tables = {}
-    for table in SNAPSHOT_TABLES:
+    selected_tables = table_names or SNAPSHOT_TABLES
+    for table in selected_tables:
         rows = data.get(table)
         if not isinstance(rows, list):
             raise ValueError(f"{table} must be a list")
@@ -322,7 +349,7 @@ def _build_manifest(
     return {
         "algorithm": "sha256",
         "tables": tables,
-        "data_sha256": _stable_hash({table: data[table] for table in SNAPSHOT_TABLES}),
+        "data_sha256": _stable_hash({table: data[table] for table in selected_tables}),
     }
 
 

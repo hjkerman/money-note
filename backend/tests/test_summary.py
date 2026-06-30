@@ -8,7 +8,7 @@ from app.config import get_settings
 from app.db import init_db, session
 from app.repository import confirm_planned_entry
 from app.schemas import CardPaymentAllocationIn, CardPaymentEventIn
-from app.services.card_payments import create_card_payment_event
+from app.services.card_payments import create_card_payment_event, create_month_close_card_payment_batch
 from app.services.summary import current_summary_values, panel_net_total
 
 
@@ -128,6 +128,7 @@ class SummaryCalculationTest(unittest.TestCase):
                 VALUES ('archive', 'expense', '2026-05-05', '전월 카드 사용', 10000, 1, 'paid-key')
                 """
             )
+            create_month_close_card_payment_batch(conn, "2026-05")
 
         before = current_summary_values()
         create_card_payment_event(

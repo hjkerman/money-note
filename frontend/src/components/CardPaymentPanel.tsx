@@ -83,7 +83,7 @@ export function CardPaymentPanel({
         <div className="panel-header">
           <div>
             <h2>이번달 결제</h2>
-            <p>{formatMonthLabel(status.usage_month)} 사용분 · {formatDateLabel(status.due_date)}까지 즉시결제 가능</p>
+            <p>{formatMonthLabel(status.usage_month)} 마감분 · {formatDateLabel(status.due_date)}까지 즉시결제 가능</p>
           </div>
           <span>{formatWon(status.effective_remaining_total)}</span>
         </div>
@@ -319,7 +319,7 @@ export function CardPaymentPanel({
             </tbody>
           </table>
         ) : (
-          <p className="empty">직전월 카드 사용내역이 없습니다.</p>
+          <p className="empty">월마감 후 결제 대상 원장이 표시됩니다.</p>
         )}
       </section>
 

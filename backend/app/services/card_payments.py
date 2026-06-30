@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from calendar import monthrange
+from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Any
 
@@ -16,35 +17,114 @@ from app.services.discounts import (
 )
 
 
+@dataclass(frozen=True)
+class CardPaymentContext:
+    batch_id: int | None
+    usage_month: str
+    payment_month: str
+    due_date: date
+
+
 def current_payment_status(today: date | None = None) -> dict[str, Any]:
-    """이번 달 결제 대상인 직전월 사용내역과 결제 현황을 반환한다."""
+    """최근 월마감이 생성한 카드 결제 작업함과 결제 현황을 반환한다."""
     today = today or app_today()
-    usage_month = _previous_month(today)
-    due_date = date(today.year, today.month, min(14, monthrange(today.year, today.month)[1]))
-    payment_month = today.strftime("%Y-%m")
-    rows = _payment_rows_for_month(usage_month, payment_month)
+    context = _active_payment_context(today)
+    rows = _payment_rows_for_batch(context)
     payable_rows = [row for row in rows if not row["is_deferred"]]
     recorded_remaining_total = sum(row["remaining_amount"] for row in payable_rows)
-    is_after_due = today > due_date
-    liquidity_reset_acknowledged = _setting_value("card_payment_liquidity_reset_ack_month") == payment_month
+    is_after_due = today > context.due_date
+    liquidity_reset_acknowledged = _setting_value("card_payment_liquidity_reset_ack_month") == context.payment_month
     return {
         "calendar_date": today.isoformat(),
-        "payment_month": payment_month,
-        "usage_month": usage_month,
-        "due_date": due_date.isoformat(),
-        "immediate_allowed": today <= due_date,
+        "payment_month": context.payment_month,
+        "usage_month": context.usage_month,
+        "due_date": context.due_date.isoformat(),
+        "immediate_allowed": context.batch_id is not None and today <= context.due_date,
         "needs_liquidity_reset": is_after_due and recorded_remaining_total > 0 and not liquidity_reset_acknowledged,
         "liquidity_reset_acknowledged": liquidity_reset_acknowledged,
         "original_total": sum(row["original_amount"] for row in payable_rows),
         "immediate_paid_total": sum(row["immediate_paid_amount"] for row in payable_rows),
         "discount_total": sum(row["discount_amount"] for row in payable_rows),
         "recorded_remaining_total": recorded_remaining_total,
-        "effective_remaining_total": 0 if is_after_due else recorded_remaining_total,
-        "primary_income_total": _primary_income_total(today.strftime("%Y-%m")),
-        "discount_policy": discount_month_status(usage_month, "owner")["policy"],
+        "effective_remaining_total": recorded_remaining_total,
+        "primary_income_total": _primary_income_total(context.payment_month),
+        "discount_policy": discount_month_status(context.usage_month, "owner")["policy"],
         "rows": rows,
-        "events": _events_for_payment_month(payment_month),
+        "events": _events_for_batch(context.batch_id),
     }
+
+
+def create_month_close_card_payment_batch(conn: Any, usage_month: str) -> int:
+    """월마감 직후 해당 사용월의 카드 원장을 결제 작업함으로 만든다."""
+    _validate_month(usage_month)
+    payment_month = _next_month_from_month(usage_month)
+
+    carryover_rows = conn.execute(
+        """
+        SELECT entry_payment_key
+        FROM card_payment_deferrals
+        WHERE target_payment_month = ?
+        """,
+        (payment_month,),
+    ).fetchall()
+    carryover_keys = {str(row["entry_payment_key"]) for row in carryover_rows}
+
+    conn.execute(
+        """
+        DELETE FROM card_payment_allocations
+        WHERE payment_event_id IN (
+            SELECT id FROM card_payment_events WHERE batch_id IS NOT NULL
+        )
+        """
+    )
+    conn.execute("DELETE FROM card_payment_events WHERE batch_id IS NOT NULL")
+    conn.execute("DELETE FROM card_payment_batch_items")
+    conn.execute("DELETE FROM card_payment_batches")
+    if carryover_keys:
+        placeholders = ",".join("?" for _ in carryover_keys)
+        conn.execute(
+            f"""
+            DELETE FROM card_payment_deferrals
+            WHERE target_payment_month != ?
+              AND entry_payment_key NOT IN ({placeholders})
+            """,
+            (payment_month, *tuple(carryover_keys)),
+        )
+    else:
+        conn.execute("DELETE FROM card_payment_deferrals WHERE target_payment_month != ?", (payment_month,))
+
+    cursor = conn.execute(
+        """
+        INSERT INTO card_payment_batches(usage_month, source, status)
+        VALUES (?, 'month_close', 'active')
+        """,
+        (usage_month,),
+    )
+    batch_id = int(cursor.lastrowid)
+    rows = conn.execute(
+        """
+        SELECT ledger_entries.id, ledger_entries.payment_key
+        FROM ledger_entries
+        LEFT JOIN card_payment_deferrals
+          ON card_payment_deferrals.entry_payment_key = ledger_entries.payment_key
+        WHERE ledger_entries.entry_kind != 'planned'
+          AND ledger_entries.payment_key IS NOT NULL
+          AND COALESCE(ledger_entries.amount_value, 0) > 0
+          AND (
+                ledger_entries.entry_date LIKE ?
+                OR card_payment_deferrals.target_payment_month = ?
+              )
+        ORDER BY
+          CASE WHEN card_payment_deferrals.target_payment_month = ? THEN 0 ELSE 1 END,
+          ledger_entries.entry_date,
+          ledger_entries.sort_order,
+          ledger_entries.id
+        """,
+        (f"{usage_month}%", payment_month, payment_month),
+    ).fetchall()
+    for row in rows:
+        _add_card_payment_batch_item(conn, batch_id, int(row["id"]), str(row["payment_key"]))
+    return batch_id
 
 
 def discount_month_status(month: str, scope: str = "owner") -> dict[str, Any]:
@@ -60,8 +140,10 @@ def discount_month_status(month: str, scope: str = "owner") -> dict[str, Any]:
                    ledger_entries.title,
                    ledger_entries.discount_override,
                    ledger_entries.aux_amount_value,
-                   COALESCE(SUM(CASE WHEN card_payment_events.event_type = 'discount'
-                                     THEN card_payment_allocations.amount_value ELSE 0 END), 0) AS override_discount_amount
+                   COALESCE(SUM(
+                       CASE WHEN card_payment_events.event_type = 'discount'
+                            THEN card_payment_allocations.amount_value ELSE 0 END
+                   ), 0) AS override_discount_amount
             FROM ledger_entries
             LEFT JOIN card_payment_allocations
               ON card_payment_allocations.entry_payment_key = ledger_entries.payment_key
@@ -117,8 +199,13 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
     """일부 결제를 포함한 즉시결제 또는 호환용 할인 배분을 기록한다."""
     today = today or app_today()
     event_date = datetime.strptime(payload.event_date, "%Y-%m-%d").date()
-    due_date = date(event_date.year, event_date.month, min(14, monthrange(event_date.year, event_date.month)[1]))
-    if payload.event_type == "immediate" and event_date > due_date:
+    context = _active_payment_context(today)
+    if context.batch_id is None:
+        raise ValueError("월마감 후 생성된 결제 작업함이 없습니다.")
+    usage_start = datetime.strptime(f"{context.usage_month}-01", "%Y-%m-%d").date()
+    if event_date < usage_start or event_date > context.due_date:
+        raise ValueError("결제 처리는 월마감 사용월부터 익월 14일까지 가능합니다.")
+    if payload.event_type == "immediate" and event_date > context.due_date:
         raise ValueError("즉시결제는 매월 14일까지 가능합니다.")
     if not payload.allocations:
         raise ValueError("결제 또는 할인액을 배분할 항목이 없습니다.")
@@ -140,12 +227,15 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
                 """
                 SELECT title, amount_value, entry_date, discount_override, aux_amount_value
                 FROM ledger_entries
+                JOIN card_payment_batch_items
+                  ON card_payment_batch_items.entry_id = ledger_entries.id
                 WHERE payment_key = ? AND entry_kind != 'planned'
+                  AND card_payment_batch_items.batch_id = ?
                 """,
-                (key,),
+                (key, context.batch_id),
             ).fetchone()
             if row is None:
-                raise ValueError("결제 대상 사용내역을 찾을 수 없습니다.")
+                raise ValueError("현재 결제 작업함의 사용내역을 찾을 수 없습니다.")
             usage_month = str(row["entry_date"] or "")[:7]
             deferral = conn.execute(
                 """
@@ -165,8 +255,9 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
                   ON card_payment_events.id = card_payment_allocations.payment_event_id
                 WHERE entry_payment_key = ?
                   AND card_payment_events.event_type = 'immediate'
+                  AND card_payment_events.batch_id = ?
                 """,
-                (key,),
+                (key, context.batch_id),
             ).fetchone()["total"]
             override_discount = conn.execute(
                 """
@@ -176,8 +267,9 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
                   ON card_payment_events.id = card_payment_allocations.payment_event_id
                 WHERE entry_payment_key = ?
                   AND card_payment_events.event_type = 'discount'
+                  AND card_payment_events.batch_id = ?
                 """,
-                (key,),
+                (key, context.batch_id),
             ).fetchone()["total"]
             if payload.event_type == "discount":
                 remaining = max(0.0, float(row["amount_value"] or 0) - float(paid or 0))
@@ -211,10 +303,10 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
 
         cursor = conn.execute(
             """
-            INSERT INTO card_payment_events(event_date, event_type, total_amount, note, cash_flow_id)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO card_payment_events(batch_id, event_date, event_type, total_amount, note, cash_flow_id)
+            VALUES (?, ?, ?, ?, ?, ?)
             """,
-            (payload.event_date, payload.event_type, int(total), payload.note.strip(), cash_flow_id),
+            (context.batch_id, payload.event_date, payload.event_type, int(total), payload.note.strip(), cash_flow_id),
         )
         for key, amount in allocations:
             conn.execute(
@@ -306,7 +398,7 @@ def delete_card_payment_event(event_id: int) -> bool:
 
 def acknowledge_liquidity_reset(today: date | None = None) -> dict[str, str]:
     """정규 결제 의제 후 사용자가 실제 계좌 유동성을 수동 보정했음을 기록한다."""
-    payment_month = (today or app_today()).strftime("%Y-%m")
+    payment_month = _active_payment_context(today or app_today()).payment_month
     with session() as conn:
         conn.execute(
             """
@@ -320,15 +412,19 @@ def acknowledge_liquidity_reset(today: date | None = None) -> dict[str, str]:
 
 
 def create_late_card_entry(payload: LateCardEntryIn, today: date | None = None) -> dict[str, Any]:
-    """카드사 매입 지연으로 뒤늦게 확인된 직전월 사용내역을 archive에 추가한다."""
+    """카드사 매입 지연으로 확인된 결제 작업함 사용월 내역을 archive와 batch에 추가한다."""
     today = today or app_today()
-    usage_month = _previous_month(today)
+    context = _active_payment_context(today)
+    if context.batch_id is None:
+        raise ValueError("월마감 후 생성된 결제 작업함이 없습니다.")
     try:
         entry_date = datetime.strptime(payload.entry_date, "%Y-%m-%d").date()
     except ValueError as exc:
         raise ValueError("전월 보정 날짜 형식이 올바르지 않습니다.") from exc
-    if entry_date.strftime("%Y-%m") != usage_month:
-        raise ValueError("전월 매입 지연 보정은 직전월 날짜만 사용할 수 있습니다.")
+    if entry_date.strftime("%Y-%m") != context.usage_month:
+        raise ValueError(
+            "전월 매입 지연 보정은 현재 결제 작업함의 사용월 날짜만 사용할 수 있습니다."
+        )
     if payload.amount_value <= 0:
         raise ValueError("전월 보정 금액은 0원보다 커야 합니다.")
     usage_place = (payload.usage_place or "").strip()
@@ -364,6 +460,11 @@ def create_late_card_entry(payload: LateCardEntryIn, today: date | None = None) 
                 sort_order,
             ),
         )
+        payment_key_row = conn.execute(
+            "SELECT payment_key FROM ledger_entries WHERE id = ?",
+            (cursor.lastrowid,),
+        ).fetchone()
+        _add_card_payment_batch_item(conn, context.batch_id, int(cursor.lastrowid), str(payment_key_row["payment_key"]))
         row = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (cursor.lastrowid,)).fetchone()
     return dict(row)
 
@@ -371,30 +472,44 @@ def create_late_card_entry(payload: LateCardEntryIn, today: date | None = None) 
 def defer_toll_payment(entry_payment_key: str, today: date | None = None) -> dict[str, str]:
     """카드 사용내역의 미처리액을 다음 결제월로 한 번 이월한다."""
     today = today or app_today()
-    due_date = date(today.year, today.month, min(14, monthrange(today.year, today.month)[1]))
-    if today > due_date:
+    context = _active_payment_context(today)
+    if context.batch_id is None:
+        raise ValueError("월마감 후 생성된 결제 작업함이 없습니다.")
+    if today > context.due_date:
         raise ValueError("이월 선택은 매월 14일까지 가능합니다.")
-    payment_month = today.strftime("%Y-%m")
-    usage_month = _previous_month(today)
-    target_payment_month = _next_month(today)
+    payment_month = context.payment_month
+    target_payment_month = _next_month_from_month(payment_month)
     with session() as conn:
         row = conn.execute(
             """
-            SELECT book_section, title, entry_date, date_label, group_label, amount_value, sort_order
+            SELECT ledger_entries.book_section,
+                   ledger_entries.title,
+                   ledger_entries.entry_date,
+                   ledger_entries.date_label,
+                   ledger_entries.group_label,
+                   ledger_entries.amount_value,
+                   ledger_entries.sort_order
             FROM ledger_entries
-            WHERE payment_key = ? AND entry_kind != 'planned'
+            JOIN card_payment_batch_items
+              ON card_payment_batch_items.entry_id = ledger_entries.id
+            WHERE ledger_entries.payment_key = ?
+              AND ledger_entries.entry_kind != 'planned'
+              AND card_payment_batch_items.batch_id = ?
             """,
-            (entry_payment_key,),
+            (entry_payment_key, context.batch_id),
         ).fetchone()
-        if row is None or not str(row["entry_date"] or "").startswith(usage_month):
+        if row is None:
             raise ValueError("이번 달 이월 대상으로 선택할 수 없는 사용내역입니다.")
         allocated = conn.execute(
             """
             SELECT COALESCE(SUM(amount_value), 0) AS total
             FROM card_payment_allocations
+            JOIN card_payment_events
+              ON card_payment_events.id = card_payment_allocations.payment_event_id
             WHERE entry_payment_key = ?
+              AND card_payment_events.batch_id = ?
             """,
-            (entry_payment_key,),
+            (entry_payment_key, context.batch_id),
         ).fetchone()["total"]
         if float(allocated or 0) > 0:
             raise ValueError("이미 일부결제 또는 할인이 반영된 항목은 이월할 수 없습니다.")
@@ -450,7 +565,7 @@ def defer_toll_payment(entry_payment_key: str, today: date | None = None) -> dic
             """,
             (
                 f"{payment_month}-01",
-                _carried_title(str(row["title"] or "")),
+                _carried_title(str(row["title"] or ""), str(row["entry_date"] or "")),
                 first_order,
                 entry_payment_key,
             ),
@@ -465,10 +580,12 @@ def defer_toll_payment(entry_payment_key: str, today: date | None = None) -> dic
 def cancel_toll_deferral(entry_payment_key: str, today: date | None = None) -> bool:
     """현재 결제월에서 방금 이월한 카드 사용내역을 이번 달 처리 대상으로 되돌린다."""
     today = today or app_today()
-    due_date = date(today.year, today.month, min(14, monthrange(today.year, today.month)[1]))
-    if today > due_date:
+    context = _active_payment_context(today)
+    if context.batch_id is None:
+        return False
+    if today > context.due_date:
         raise ValueError("이월은 매월 14일까지만 취소할 수 있습니다.")
-    payment_month = today.strftime("%Y-%m")
+    payment_month = context.payment_month
     with session() as conn:
         deferral = conn.execute(
             """
@@ -509,30 +626,66 @@ def cancel_toll_deferral(entry_payment_key: str, today: date | None = None) -> b
     return True
 
 
-def _payment_rows_for_month(usage_month: str, payment_month: str) -> list[dict[str, Any]]:
+def _active_payment_context(today: date) -> CardPaymentContext:
+    """달력 추정값이 아니라 마지막 월마감 batch를 기준으로 결제 작업 대상을 찾는다."""
+    with session() as conn:
+        batch = conn.execute(
+            """
+            SELECT *
+            FROM card_payment_batches
+            WHERE status = 'active'
+            ORDER BY id DESC
+            LIMIT 1
+            """
+        ).fetchone()
+    if batch is None:
+        payment_month = today.strftime("%Y-%m")
+        return CardPaymentContext(
+            batch_id=None,
+            usage_month=_previous_month(today),
+            payment_month=payment_month,
+            due_date=_payment_due_date(payment_month),
+        )
+    usage_month = str(batch["usage_month"])
+    payment_month = _next_month_from_month(usage_month)
+    return CardPaymentContext(
+        batch_id=int(batch["id"]),
+        usage_month=usage_month,
+        payment_month=payment_month,
+        due_date=_payment_due_date(payment_month),
+    )
+
+
+def _payment_rows_for_batch(context: CardPaymentContext) -> list[dict[str, Any]]:
+    if context.batch_id is None:
+        return []
+    payment_month = context.payment_month
     with session() as conn:
         rows = conn.execute(
             """
             SELECT ledger_entries.*,
                    card_payment_deferrals.from_payment_month AS deferred_from_payment_month,
                    card_payment_deferrals.target_payment_month AS deferred_target_payment_month,
-                   COALESCE(SUM(CASE WHEN card_payment_events.event_type = 'immediate'
-                                     THEN card_payment_allocations.amount_value ELSE 0 END), 0) AS immediate_paid_amount,
-                   COALESCE(SUM(CASE WHEN card_payment_events.event_type = 'discount'
-                                     THEN card_payment_allocations.amount_value ELSE 0 END), 0) AS override_discount_amount
-            FROM ledger_entries
+                   COALESCE(SUM(
+                       CASE WHEN card_payment_events.event_type = 'immediate'
+                            THEN card_payment_allocations.amount_value ELSE 0 END
+                   ), 0) AS immediate_paid_amount,
+                   COALESCE(SUM(
+                       CASE WHEN card_payment_events.event_type = 'discount'
+                            THEN card_payment_allocations.amount_value ELSE 0 END
+                   ), 0) AS override_discount_amount
+            FROM card_payment_batch_items
+            JOIN ledger_entries
+              ON ledger_entries.id = card_payment_batch_items.entry_id
             LEFT JOIN card_payment_allocations
               ON card_payment_allocations.entry_payment_key = ledger_entries.payment_key
             LEFT JOIN card_payment_events
               ON card_payment_events.id = card_payment_allocations.payment_event_id
+             AND card_payment_events.batch_id = card_payment_batch_items.batch_id
             LEFT JOIN card_payment_deferrals
               ON card_payment_deferrals.entry_payment_key = ledger_entries.payment_key
-            WHERE ledger_entries.entry_kind != 'planned'
-              AND (
-                    ledger_entries.entry_date LIKE ?
-                    OR card_payment_deferrals.from_payment_month = ?
-                    OR card_payment_deferrals.target_payment_month = ?
-                  )
+            WHERE card_payment_batch_items.batch_id = ?
+              AND ledger_entries.entry_kind != 'planned'
               AND COALESCE(ledger_entries.amount_value, 0) > 0
             GROUP BY ledger_entries.id
             ORDER BY
@@ -543,7 +696,7 @@ def _payment_rows_for_month(usage_month: str, payment_month: str) -> list[dict[s
               ledger_entries.sort_order,
               ledger_entries.id
             """,
-            (f"{usage_month}%", payment_month, payment_month, payment_month, payment_month),
+            (context.batch_id, payment_month, payment_month),
         ).fetchall()
     result = []
     for row in rows:
@@ -639,16 +792,18 @@ def _group_toll_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return result
 
 
-def _events_for_payment_month(payment_month: str) -> list[dict[str, Any]]:
+def _events_for_batch(batch_id: int | None) -> list[dict[str, Any]]:
+    if batch_id is None:
+        return []
     with session() as conn:
         rows = conn.execute(
             """
             SELECT *
             FROM card_payment_events
-            WHERE event_date LIKE ?
+            WHERE batch_id = ?
             ORDER BY event_date DESC, id DESC
             """,
-            (f"{payment_month}%",),
+            (batch_id,),
         ).fetchall()
     return [dict(row) for row in rows]
 
@@ -685,7 +840,7 @@ def _delete_entry_discount_events(conn: Any, entry_payment_key: str) -> None:
 
 
 def _manual_entry_discount(row: Any) -> float:
-    """원장 항목의 수동 할인액을 꺼낸다. 새 값(aux)이 있으면 과거 할인 이벤트보다 우선한다."""
+    """원장 수동 할인액을 꺼낸다. aux 값이 있으면 과거 할인 이벤트보다 우선한다."""
     if row["discount_override"] and row["aux_amount_value"] is not None:
         return float(row["aux_amount_value"] or 0)
     return float(row["override_discount_amount"] or 0)
@@ -754,6 +909,28 @@ def _next_month(value: date) -> str:
     return f"{value.year}-{value.month + 1:02d}"
 
 
+def _next_month_from_month(value: str) -> str:
+    parsed = datetime.strptime(f"{value}-01", "%Y-%m-%d").date()
+    return _next_month(parsed)
+
+
+def _payment_due_date(payment_month: str) -> date:
+    parsed = datetime.strptime(f"{payment_month}-01", "%Y-%m-%d").date()
+    return date(parsed.year, parsed.month, min(14, monthrange(parsed.year, parsed.month)[1]))
+
+
+def _add_card_payment_batch_item(conn: Any, batch_id: int | None, entry_id: int, payment_key: str) -> None:
+    if batch_id is None or not payment_key:
+        return
+    conn.execute(
+        """
+        INSERT OR IGNORE INTO card_payment_batch_items(batch_id, entry_id, entry_payment_key)
+        VALUES (?, ?, ?)
+        """,
+        (batch_id, entry_id, payment_key),
+    )
+
+
 def _is_toll(title: str) -> bool:
     lowered = title.lower()
     return "통행" in lowered or "하이패스" in lowered
@@ -764,8 +941,13 @@ def _is_transport(title: str) -> bool:
     return any(word.lower() in lowered for word in DISCOUNT_INELIGIBLE_WORDS)
 
 
-def _carried_title(title: str) -> str:
-    return title if title.startswith("[이월]") else f"[이월] {title}"
+def _carried_title(title: str, original_entry_date: str = "") -> str:
+    if title.startswith("[이월]"):
+        return title
+    original_month = str(original_entry_date or "")[:7]
+    if len(original_month) == 7 and original_month[5:7].isdigit():
+        return f"[이월] [{int(original_month[5:7])}월 사용 내역] {title}"
+    return f"[이월] {title}"
 
 
 def _usage_title(usage_place: str, usage_item: str) -> str:

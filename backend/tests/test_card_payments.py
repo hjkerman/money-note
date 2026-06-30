@@ -11,10 +11,12 @@ from app.schemas import CardPaymentAllocationIn, CardPaymentEventIn, LateCardEnt
 from app.services.card_payments import (
     cancel_toll_deferral,
     create_card_payment_event,
+    create_month_close_card_payment_batch,
     current_payment_status,
     create_late_card_entry,
     defer_toll_payment,
     discount_month_status,
+    set_entry_discount,
     set_discount_month_policy,
 )
 
@@ -36,9 +38,11 @@ class CardPaymentDeferralTest(unittest.TestCase):
                 )
                 VALUES
                     ('archive', 'expense', '2026-05-02', '2026.05.02.', '일반 사용', 10000, 1, 'normal-key'),
-                    ('archive', 'expense', '2026-05-03', '2026.05.03.', '고속도로 하이패스', 5000, 2, 'toll-key')
+                    ('archive', 'expense', '2026-05-03', '2026.05.03.',
+                     '고속도로 하이패스', 5000, 2, 'toll-key')
                 """
             )
+            create_month_close_card_payment_batch(conn, "2026-05")
 
     def tearDown(self) -> None:
         get_settings.cache_clear()
@@ -57,6 +61,10 @@ class CardPaymentDeferralTest(unittest.TestCase):
         self.assertTrue(deferred["title"].startswith("[이월]"))
         self.assertEqual(june["original_total"], 10_000)
 
+        july = current_payment_status(date(2026, 7, 4))
+        self.assertFalse(any(row.get("is_carried_over") for row in july["rows"]))
+        with session() as conn:
+            create_month_close_card_payment_batch(conn, "2026-06")
         july = current_payment_status(date(2026, 7, 4))
         self.assertEqual(july["rows"][0]["payment_key"], "toll-key")
         self.assertTrue(july["rows"][0]["is_carried_over"])
@@ -109,7 +117,10 @@ class CardPaymentDeferralTest(unittest.TestCase):
             ),
             date(2026, 6, 4),
         )
-        updated = next(row for row in current_payment_status(date(2026, 6, 4))["rows"] if row["payment_key"] == "toll-key")
+        updated = next(
+            row for row in current_payment_status(date(2026, 6, 4))["rows"]
+            if row["payment_key"] == "toll-key"
+        )
         self.assertEqual(updated["remaining_amount"], 4_000)
 
     def test_generic_toll_text_has_no_discount(self) -> None:
@@ -120,11 +131,16 @@ class CardPaymentDeferralTest(unittest.TestCase):
                     book_section, entry_kind, entry_date, date_label, title,
                     amount_value, sort_order, payment_key
                 )
-                VALUES ('archive', 'expense', '2026-05-04', '2026.05.04.', '민자도로 통행', 3000, 3, 'generic-toll-key')
+                VALUES ('archive', 'expense', '2026-05-04', '2026.05.04.',
+                        '민자도로 통행', 3000, 3, 'generic-toll-key')
                 """
             )
+            create_month_close_card_payment_batch(conn, "2026-05")
 
-        row = next(row for row in current_payment_status(date(2026, 6, 4))["rows"] if "generic-toll-key" in row["payment_keys"])
+        row = next(
+            row for row in current_payment_status(date(2026, 6, 4))["rows"]
+            if "generic-toll-key" in row["payment_keys"]
+        )
 
         self.assertTrue(row["is_toll"])
         self.assertEqual(row["discount_amount"], 0)
@@ -141,6 +157,7 @@ class CardPaymentDeferralTest(unittest.TestCase):
                 VALUES ('archive', 'expense', '2026-05-04', '2026.05.04.', '통행료 추가', 3000, 3, 'toll-key-2')
                 """
             )
+            create_month_close_card_payment_batch(conn, "2026-05")
 
         rows = current_payment_status(date(2026, 6, 4))["rows"]
         grouped = next(row for row in rows if row["is_group"])
@@ -168,27 +185,13 @@ class CardPaymentDeferralTest(unittest.TestCase):
                 VALUES ('current', 'expense', '2026-06-20', '2026.06.20.', '당월 할인', 10000, 3, 'current-key')
                 """
             )
-        create_card_payment_event(
-            CardPaymentEventIn(
-                event_date="2026-06-20",
-                event_type="discount",
-                allocations=[CardPaymentAllocationIn(entry_payment_key="current-key", amount_value=120)],
-            ),
-            date(2026, 6, 20),
-        )
+        set_entry_discount("current-key", 120, "2026-06-20")
         self.assertEqual(discount_month_status("2026-06", "owner")["discounts"]["current-key"], 120)
 
         set_discount_month_policy("2026-06", "disabled", "owner")
         disabled = discount_month_status("2026-06", "owner")
         self.assertEqual(disabled["discounts"]["current-key"], 120)
-        create_card_payment_event(
-            CardPaymentEventIn(
-                event_date="2026-06-20",
-                event_type="discount",
-                allocations=[CardPaymentAllocationIn(entry_payment_key="current-key", amount_value=100)],
-            ),
-            date(2026, 6, 20),
-        )
+        set_entry_discount("current-key", 220, "2026-06-20")
         self.assertEqual(discount_month_status("2026-06", "owner")["discounts"]["current-key"], 220)
         set_discount_month_policy("2026-06", "enabled", "owner")
         self.assertEqual(discount_month_status("2026-06", "owner")["discounts"]["current-key"], 220)
@@ -230,7 +233,7 @@ class CardPaymentDeferralTest(unittest.TestCase):
         self.assertEqual(late["title"], "[카드사 지연매입] 월말 소비")
 
     def test_late_entry_rejects_non_previous_month_date(self) -> None:
-        with self.assertRaisesRegex(ValueError, "직전월 날짜"):
+        with self.assertRaisesRegex(ValueError, "결제 작업함의 사용월 날짜"):
             create_late_card_entry(
                 LateCardEntryIn(
                     entry_date="2026-06-01",
@@ -245,8 +248,8 @@ class CardPaymentDeferralTest(unittest.TestCase):
         status = current_payment_status(date(2026, 7, 1))
 
         self.assertEqual(status["calendar_date"], "2026-07-01")
-        self.assertEqual(status["payment_month"], "2026-07")
-        self.assertEqual(status["usage_month"], "2026-06")
+        self.assertEqual(status["payment_month"], "2026-06")
+        self.assertEqual(status["usage_month"], "2026-05")
 
 
 if __name__ == "__main__":

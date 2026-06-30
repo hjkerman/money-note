@@ -103,12 +103,30 @@ CREATE TABLE IF NOT EXISTS cash_flows (
 
 CREATE TABLE IF NOT EXISTS card_payment_events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    batch_id INTEGER REFERENCES card_payment_batches(id) ON DELETE CASCADE,
     event_date TEXT NOT NULL,
     event_type TEXT NOT NULL CHECK (event_type IN ('immediate', 'discount')),
     total_amount INTEGER NOT NULL,
     note TEXT NOT NULL DEFAULT '',
     cash_flow_id INTEGER REFERENCES cash_flows(id) ON DELETE SET NULL,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS card_payment_batches (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    usage_month TEXT NOT NULL,
+    source TEXT NOT NULL DEFAULT 'month_close',
+    status TEXT NOT NULL DEFAULT 'active',
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS card_payment_batch_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    batch_id INTEGER NOT NULL REFERENCES card_payment_batches(id) ON DELETE CASCADE,
+    entry_id INTEGER NOT NULL REFERENCES ledger_entries(id) ON DELETE CASCADE,
+    entry_payment_key TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(batch_id, entry_payment_key)
 );
 
 CREATE TABLE IF NOT EXISTS card_payment_allocations (
@@ -167,6 +185,15 @@ ON card_payment_allocations(entry_payment_key);
 
 CREATE INDEX IF NOT EXISTS idx_card_payment_events_date
 ON card_payment_events(event_date, id);
+
+CREATE INDEX IF NOT EXISTS idx_card_payment_batches_active
+ON card_payment_batches(status, id);
+
+CREATE INDEX IF NOT EXISTS idx_card_payment_batch_items_batch
+ON card_payment_batch_items(batch_id, entry_id);
+
+CREATE INDEX IF NOT EXISTS idx_card_payment_batch_items_key
+ON card_payment_batch_items(entry_payment_key);
 
 CREATE INDEX IF NOT EXISTS idx_card_payment_deferrals_target
 ON card_payment_deferrals(target_payment_month);
@@ -286,6 +313,17 @@ def init_db() -> None:
             row["name"]
             for row in conn.execute("PRAGMA table_info(card_payment_deferrals)").fetchall()
         }
+        event_columns = {
+            row["name"]
+            for row in conn.execute("PRAGMA table_info(card_payment_events)").fetchall()
+        }
+        if "batch_id" not in event_columns:
+            conn.execute(
+                """
+                ALTER TABLE card_payment_events
+                ADD COLUMN batch_id INTEGER REFERENCES card_payment_batches(id) ON DELETE CASCADE
+                """,
+            )
         for column, column_type in {
             "original_book_section": "TEXT",
             "original_entry_date": "TEXT",
