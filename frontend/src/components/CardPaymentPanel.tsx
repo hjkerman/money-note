@@ -29,7 +29,6 @@ export function CardPaymentPanel({
   onAutoAllocate,
   onSelect,
   onSubmit,
-  onDeleteEvent,
   onDeleteRow,
   onTollDeferral,
   paymentTone,
@@ -51,7 +50,6 @@ export function CardPaymentPanel({
   onAutoAllocate: () => void;
   onSelect: (row: CardPaymentRow, selected: boolean) => void;
   onSubmit: () => void;
-  onDeleteEvent: (eventId: number) => void;
   onDeleteRow: (row: CardPaymentRow) => void;
   onTollDeferral: (row: CardPaymentRow, defer: boolean) => void;
   paymentTone: JudgmentState["payment"] | null;
@@ -321,25 +319,6 @@ export function CardPaymentPanel({
         ) : (
           <p className="empty">월마감 후 결제 대상 원장이 표시됩니다.</p>
         )}
-      </section>
-
-      <section className="panel payment-events">
-        <div className="panel-header"><h2>당월 결제금액 기록</h2></div>
-        {status.events.filter((event) => event.event_type === "immediate").length ? (
-          <table>
-            <thead><tr><th>날짜</th><th>종류</th><th className="amount">금액</th><th className="action-cell">취소</th></tr></thead>
-            <tbody>
-              {status.events.filter((event) => event.event_type === "immediate").map((event) => (
-                <tr key={event.id}>
-                  <td className="date">{formatDateLabel(event.event_date)}</td>
-                  <td>즉시결제</td>
-                  <td className="amount">{formatWon(event.total_amount)}</td>
-                  <td className="action-cell"><button type="button" className="danger" onClick={() => onDeleteEvent(event.id)}>취소</button></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : <p className="empty">이번 달 즉시결제 기록이 없습니다.</p>}
       </section>
     </section>
   );

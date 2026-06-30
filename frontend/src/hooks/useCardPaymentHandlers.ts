@@ -8,7 +8,6 @@ import {
   clearEntryDiscount,
   createCardPaymentEvent,
   createLateCardEntry,
-  deleteCardPaymentEvent,
   deleteEntry,
   deferTollPayment,
   LedgerEntry,
@@ -100,15 +99,6 @@ export function useCardPaymentHandlers({
       });
       setPaymentAllocations({});
       setStatus("즉시결제 반영 완료");
-    });
-  }
-
-  async function handleCardPaymentEventDelete(eventId: number) {
-    const confirmed = window.confirm("이 결제 또는 할인 기록을 취소할까요?");
-    if (!confirmed) return;
-    await withRefresh(async () => {
-      await deleteCardPaymentEvent(eventId);
-      setStatus("결제 기록 취소 완료");
     });
   }
 
@@ -260,7 +250,6 @@ export function useCardPaymentHandlers({
   return {
     handleAutoAllocate,
     handleCardPaymentDiscountToggle,
-    handleCardPaymentEventDelete,
     handleCardPaymentRowDelete,
     handleCardPaymentSubmit,
     handleCurrentEntryDiscount,

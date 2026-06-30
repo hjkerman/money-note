@@ -41,10 +41,6 @@ export async function createCardPaymentEvent(payload: {
   return postJson("/api/card-payments/events", payload);
 }
 
-export async function deleteCardPaymentEvent(eventId: number): Promise<{ deleted: boolean }> {
-  return deleteJson(`/api/card-payments/events/${eventId}`);
-}
-
 export async function acknowledgeLiquidityReset(): Promise<{ payment_month: string }> {
   return postJson("/api/card-payments/acknowledge-liquidity-reset", {});
 }

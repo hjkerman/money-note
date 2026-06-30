@@ -185,7 +185,6 @@ export function App() {
   const {
     handleAutoAllocate,
     handleCardPaymentDiscountToggle,
-    handleCardPaymentEventDelete,
     handleCardPaymentRowDelete,
     handleCardPaymentSubmit,
     handleCurrentEntryDiscount,
@@ -447,7 +446,6 @@ export function App() {
               cardPayments={cardPayments}
               handleAutoAllocate={handleAutoAllocate}
               handleCardPaymentDiscountToggle={(row, exclude) => void handleCardPaymentDiscountToggle(row, exclude)}
-              handleCardPaymentEventDelete={(eventId) => void handleCardPaymentEventDelete(eventId)}
               handleCardPaymentRowDelete={(row) => void handleCardPaymentRowDelete(row)}
               handleCardPaymentSubmit={() => void handleCardPaymentSubmit()}
               handleDiscountPolicyChange={(scope, month, policy) => void handleDiscountPolicyChange(scope, month, policy)}
