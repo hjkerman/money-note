@@ -110,6 +110,19 @@ def close_current_month(today: date | None = None, allow_early_close: bool = Fal
             """,
             (target_month,),
         )
+        conn.execute(
+            """
+            UPDATE ledger_entries
+            SET entry_date = NULL,
+                confirmed_at = NULL,
+                confirmed_month = NULL,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE book_section = 'current'
+              AND entry_kind = 'planned'
+              AND confirmed_month = ?
+            """,
+            (target_month,),
+        )
         create_month_close_card_payment_batch(conn, target_month)
 
     return {"closed_month": target_month, "archived": archived, "deleted_from_current": deleted}

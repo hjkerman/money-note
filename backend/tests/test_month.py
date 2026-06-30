@@ -114,7 +114,7 @@ class MonthCloseTest(unittest.TestCase):
         self.assertEqual(result["closed_month"], "2026-07")
         self.assertEqual(result["archived"], 1)
 
-    def test_planned_confirmation_stays_hidden_after_early_close_until_next_month(self) -> None:
+    def test_month_close_resets_planned_confirmation_for_next_cycle(self) -> None:
         close_current_month(date(2026, 7, 1))
         with session() as conn:
             planned_id = conn.execute("SELECT id FROM ledger_entries WHERE entry_kind = 'planned'").fetchone()["id"]
@@ -125,11 +125,17 @@ class MonthCloseTest(unittest.TestCase):
         )
 
         close_current_month(date(2026, 7, 27), allow_early_close=True)
-        self.assertFalse(
+        self.assertTrue(
             any(entry["id"] == planned_id for entry in list_entries("current", date(2026, 7, 28)))
         )
-        with self.assertRaisesRegex(ValueError, "already confirmed"):
-            confirm_planned_entry(planned_id, date(2026, 7, 28))
+        with session() as conn:
+            planned = conn.execute(
+                "SELECT entry_date, confirmed_at, confirmed_month FROM ledger_entries WHERE id = ?",
+                (planned_id,),
+            ).fetchone()
+        self.assertIsNone(planned["entry_date"])
+        self.assertIsNone(planned["confirmed_at"])
+        self.assertIsNone(planned["confirmed_month"])
 
         self.assertTrue(
             any(entry["id"] == planned_id for entry in list_entries("current", date(2026, 8, 1)))
