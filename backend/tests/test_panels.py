@@ -48,6 +48,37 @@ class PanelCompletionTest(unittest.TestCase):
             ).fetchall()
         self.assertEqual([(row["panel_type"], row["count"]) for row in remaining], [("family_card", 1), ("frozen", 1)])
 
+    def test_claim_and_family_card_remain_visible_across_calendar_months(self) -> None:
+        listed = list_panels("2026-07")
+
+        titles = {panel["title"] for panel in listed}
+        self.assertIn("청구 하나", titles)
+        self.assertIn("청구 둘", titles)
+        self.assertIn("가족카드 하나", titles)
+        self.assertNotIn("동결 하나", titles)
+
+    def test_bulk_completion_deletes_claim_queue_across_months(self) -> None:
+        with session() as conn:
+            conn.execute(
+                """
+                INSERT INTO monthly_panels(month, panel_type, title, amount_value, sort_order)
+                VALUES ('2026-05', 'claim', '지난달 미처리 청구', 9000, 0)
+                """
+            )
+
+        completed = complete_panels_by_type("2026-07", "claim")
+
+        self.assertEqual(completed, 3)
+        with session() as conn:
+            remaining_claims = conn.execute(
+                "SELECT COUNT(*) AS count FROM monthly_panels WHERE panel_type = 'claim'"
+            ).fetchone()["count"]
+            remaining_family_card = conn.execute(
+                "SELECT COUNT(*) AS count FROM monthly_panels WHERE panel_type = 'family_card'"
+            ).fetchone()["count"]
+        self.assertEqual(remaining_claims, 0)
+        self.assertEqual(remaining_family_card, 1)
+
     def test_claim_discount_is_stored_separately_from_original_amount(self) -> None:
         updated = update_panel(1, MonthlyPanelPatch(discount_amount=120))
 

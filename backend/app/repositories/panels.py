@@ -29,7 +29,7 @@ def list_panels(month: str | None = None, include_confirmed_fixed: bool = False)
                 f"""
                 SELECT *
                 FROM monthly_panels
-                WHERE (month = ? OR panel_type = 'fixed'){filter_confirmed}
+                WHERE (month = ? OR panel_type = 'fixed' OR panel_type IN ('claim', 'family_card')){filter_confirmed}
                 ORDER BY
                   CASE WHEN panel_type = 'fixed' THEN 0 ELSE 1 END,
                   CASE WHEN spent_on IS NULL THEN 1 ELSE 0 END,
@@ -107,6 +107,12 @@ def delete_panel(panel_id: int) -> bool:
 
 def delete_panels_by_type(month: str, panel_type: str) -> int:
     with session() as conn:
+        if panel_type in {"claim", "family_card"}:
+            cursor = conn.execute(
+                "DELETE FROM monthly_panels WHERE panel_type = ?",
+                (panel_type,),
+            )
+            return cursor.rowcount
         cursor = conn.execute(
             "DELETE FROM monthly_panels WHERE month = ? AND panel_type = ?",
             (month, panel_type),
@@ -118,6 +124,12 @@ def complete_panels_by_type(month: str, panel_type: str) -> int:
     """청구 또는 가족카드의 현재 전달분을 일괄 처리하고 제거한다."""
     create_pre_restore_backup()
     with session() as conn:
+        if panel_type in {"claim", "family_card"}:
+            cursor = conn.execute(
+                "DELETE FROM monthly_panels WHERE panel_type = ?",
+                (panel_type,),
+            )
+            return cursor.rowcount
         cursor = conn.execute(
             "DELETE FROM monthly_panels WHERE month = ? AND panel_type = ?",
             (month, panel_type),
