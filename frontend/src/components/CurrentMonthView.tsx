@@ -37,6 +37,7 @@ export function CurrentMonthView({
   handlePanelDiscount,
   handlePanelDiscountClear,
   handlePanelNetAmountEdit,
+  handlePanelProcessSelected,
   handlePanelShare,
   handlePanelSubmit,
   isBusy,
@@ -69,6 +70,7 @@ export function CurrentMonthView({
   handlePanelDiscount: (panel: MonthlyPanel) => void;
   handlePanelDiscountClear: (panel: MonthlyPanel) => void;
   handlePanelNetAmountEdit: (panel: MonthlyPanel) => void;
+  handlePanelProcessSelected: (panelType: "claim" | "family_card", selectedPanels: MonthlyPanel[]) => void;
   handlePanelShare: (panelType: "claim" | "family_card") => void;
   handlePanelSubmit: (event: FormEvent, panelType: MonthlyPanel["panel_type"]) => Promise<void>;
   isBusy: boolean;
@@ -184,6 +186,7 @@ export function CurrentMonthView({
                 onDiscount={tab === "claim" || tab === "family_card" ? (panel) => handlePanelDiscount(panel) : undefined}
                 onClearDiscount={tab === "claim" || tab === "family_card" ? (panel) => handlePanelDiscountClear(panel) : undefined}
                 onNetAmountEdit={tab === "claim" || tab === "family_card" ? (panel) => handlePanelNetAmountEdit(panel) : undefined}
+                onProcessSelected={tab === "claim" || tab === "family_card" ? (selectedPanels) => handlePanelProcessSelected(tab, selectedPanels) : undefined}
                 discountPolicy={tab === "family_card" ? familyDiscountMonth?.policy : ownerDiscountMonth?.policy}
                 judgment={judgment}
                 onShare={tab === "claim" || tab === "family_card" ? () => handlePanelShare(tab) : undefined}

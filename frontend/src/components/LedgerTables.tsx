@@ -1,4 +1,4 @@
-import { FormEvent, ReactNode, useMemo, useState } from "react";
+import { FormEvent, ReactNode, useEffect, useMemo, useState } from "react";
 import { CardDiscountPolicy, CashFlow, JudgmentState, LedgerEntry, MonthlyPanel, SpendingCategory } from "../api";
 import { PanelType } from "../types";
 import {
@@ -501,6 +501,7 @@ export function PanelTable({
   onDiscount,
   onClearDiscount,
   onNetAmountEdit,
+  onProcessSelected,
   discountPolicy = "enabled",
   judgment,
   onShare,
@@ -514,6 +515,7 @@ export function PanelTable({
   onDiscount?: (panel: MonthlyPanel) => void;
   onClearDiscount?: (panel: MonthlyPanel) => void;
   onNetAmountEdit?: (panel: MonthlyPanel) => void;
+  onProcessSelected?: (panels: MonthlyPanel[]) => void;
   discountPolicy?: CardDiscountPolicy | null;
   judgment?: JudgmentState | null;
   onShare?: () => void;
@@ -527,12 +529,56 @@ export function PanelTable({
   );
   const dateColumnLabel =
     rows.length > 0 && rows.every((row) => row.panel_type === "frozen") ? "등록일자" : "사용일";
+  const selectable = Boolean(onProcessSelected);
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(() => new Set());
+  const selectedRows = useMemo(
+    () => rows.filter((row) => selectedIds.has(row.id)),
+    [rows, selectedIds],
+  );
+  const selectedTotal = sumPanelNetAmounts(selectedRows, discountPolicy);
+  const allSelected = rows.length > 0 && selectedRows.length === rows.length;
+
+  useEffect(() => {
+    setSelectedIds((current) => {
+      const rowIds = new Set(rows.map((row) => row.id));
+      const next = new Set([...current].filter((id) => rowIds.has(id)));
+      return next.size === current.size ? current : next;
+    });
+  }, [rows]);
+
+  function setRowSelected(row: MonthlyPanel, selected: boolean) {
+    setSelectedIds((current) => {
+      const next = new Set(current);
+      if (selected) {
+        next.add(row.id);
+      } else {
+        next.delete(row.id);
+      }
+      return next;
+    });
+  }
+
+  function setAllSelected(selected: boolean) {
+    setSelectedIds(selected ? new Set(rows.map((row) => row.id)) : new Set());
+  }
+
+  function processSelectedRows() {
+    if (!onProcessSelected || !selectedRows.length) return;
+    onProcessSelected(selectedRows);
+    setSelectedIds(new Set());
+  }
+
   return (
     <section className="panel compact">
       <div className="panel-header">
         <h2>{title}</h2>
         <div className="header-actions">
           <span>{formatWon(sumPanelNetAmounts(rows, discountPolicy))}</span>
+          {onProcessSelected && rows.length ? (
+            <button type="button" onClick={processSelectedRows} disabled={!selectedRows.length}>
+              {formatWon(selectedTotal)} 결제 처리
+            </button>
+          ) : null}
           {onComplete && rows.length ? (
             <button type="button" onClick={onComplete}>
               일괄 처리 완료
@@ -550,6 +596,16 @@ export function PanelTable({
         <table>
           <thead>
             <tr>
+              {selectable ? (
+                <th className="select-cell">
+                  <input
+                    type="checkbox"
+                    checked={allSelected}
+                    aria-label={`${title} 전체 선택`}
+                    onChange={(event) => setAllSelected(event.target.checked)}
+                  />
+                </th>
+              ) : null}
               {showDateColumn ? <th>{dateColumnLabel}</th> : null}
               <th className="panel-title-cell">세부내역</th>
               <th className="amount">금액</th>
@@ -567,6 +623,16 @@ export function PanelTable({
               const netAmount = panelNetAmount(row, discountPolicy);
               return (
               <tr key={row.id}>
+                {selectable ? (
+                  <td className="select-cell">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(row.id)}
+                      aria-label={`${row.title} 선택`}
+                      onChange={(event) => setRowSelected(row, event.target.checked)}
+                    />
+                  </td>
+                ) : null}
                 {showDateColumn ? (
                   <td className="date">{formatDateLabel(row.spent_on ?? "") ?? ""}</td>
                 ) : null}

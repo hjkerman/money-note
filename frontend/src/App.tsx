@@ -162,6 +162,7 @@ export function App() {
     handlePanelDiscount,
     handlePanelDiscountClear,
     handlePanelNetAmountEdit,
+    handlePanelProcessSelected,
     handlePanelShare,
     handlePanelSubmit,
   } = usePanelHandlers({
@@ -407,6 +408,7 @@ export function App() {
               handlePanelDiscount={(panel) => void handlePanelDiscount(panel)}
               handlePanelDiscountClear={(panel) => void handlePanelDiscountClear(panel)}
               handlePanelNetAmountEdit={(panel) => void handlePanelNetAmountEdit(panel)}
+              handlePanelProcessSelected={(panelType, selectedPanels) => void handlePanelProcessSelected(panelType, selectedPanels)}
               handlePanelShare={(panelType) => void handlePanelShare(panelType)}
               handlePanelSubmit={handlePanelSubmit}
               isBusy={isBusy}

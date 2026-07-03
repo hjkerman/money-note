@@ -85,6 +85,22 @@ export function usePanelHandlers({
     });
   }
 
+  async function handlePanelProcessSelected(panelType: "claim" | "family_card", selectedPanels: MonthlyPanel[]) {
+    if (!selectedPanels.length) return;
+    const policy = panelType === "family_card" ? familyDiscountPolicy : ownerDiscountPolicy;
+    const total = selectedPanels.reduce((sum, panel) => sum + panelNetAmount(panel, policy ?? null), 0);
+    const confirmed = window.confirm(
+      `${panelLabel(labels, panelType)} 항목 ${selectedPanels.length}개, ${formatWon(total)}을 처리 완료할까요?\n\n선택한 항목만 현재 목록과 공유 페이지에서 삭제됩니다.`,
+    );
+    if (!confirmed) return;
+    await withRefresh(async () => {
+      for (const panel of selectedPanels) {
+        await deletePanel(panel.id);
+      }
+      setStatus(`${panelLabel(labels, panelType)} ${selectedPanels.length}개 처리 완료`);
+    });
+  }
+
   async function handlePanelShare(panelType: "claim" | "family_card") {
     const url = sharePageUrl(panelType);
     try {
@@ -139,6 +155,7 @@ export function usePanelHandlers({
     handlePanelDiscount,
     handlePanelDiscountClear,
     handlePanelNetAmountEdit,
+    handlePanelProcessSelected,
     handlePanelShare,
     handlePanelSubmit,
   };
