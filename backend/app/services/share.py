@@ -25,6 +25,8 @@ def shared_panel(panel_type: str) -> dict:
     ]
     total = sum(_panel_net_amount(row) for row in rows)
     discount_total = sum(_panel_discount_amount(row) for row in rows)
+    minimum_rows = [row for row in rows if _is_minimum_payment_row(row, month)]
+    minimum_total = sum(_panel_net_amount(row) for row in minimum_rows)
     current_card_total = sum(row.get("amount_value") or 0 for row in list_entries("current"))
     settings = list_settings()
     card_limit = _float_setting(settings, "card_limit", 5_800_000)
@@ -39,16 +41,18 @@ def shared_panel(panel_type: str) -> dict:
         "rows": rows,
         "total": total,
         "discount_total": discount_total,
+        "minimum_total": minimum_total,
     }
 
 
 def shared_panel_html(panel_type: str) -> str:
     data = shared_panel(panel_type)
-    rows_html = "\n".join(_row_html(row) for row in data["rows"])
+    rows_html = "\n".join(_row_html(row, data["month"]) for row in data["rows"])
     if not rows_html:
         rows_html = '<tr><td colspan="4" class="empty">표시할 항목이 없습니다.</td></tr>'
     net_total = sum(_panel_net_amount(row) for row in data["rows"])
     discount_total = sum(_panel_discount_amount(row) for row in data["rows"])
+    minimum_total = sum(_panel_net_amount(row) for row in data["rows"] if _is_minimum_payment_row(row, data["month"]))
     return f"""<!doctype html>
 <html lang="ko">
 <head>
@@ -96,6 +100,30 @@ def shared_panel_html(panel_type: str) -> str:
       font-size: 14px;
       line-height: 1.45;
     }}
+    .share-actions {{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 22px;
+      border-bottom: 1px solid #e8e3d8;
+      background: #fffdfa;
+    }}
+    .share-actions button {{
+      border: 1px solid #a7b899;
+      border-radius: 999px;
+      background: #eef5e9;
+      color: #2f4b27;
+      padding: 8px 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }}
+    .minimum-total {{
+      color: #5d4b2f;
+      font-size: 13px;
+      font-weight: 700;
+      text-align: right;
+    }}
     table {{
       width: 100%;
       border-collapse: collapse;
@@ -122,6 +150,13 @@ def shared_panel_html(panel_type: str) -> str:
     td.net {{
       font-weight: 700;
     }}
+    tr.deferable-row {{
+      transition: opacity 0.15s ease, color 0.15s ease;
+    }}
+    body.minimum-mode tr.deferable-row {{
+      color: #9a958b;
+      opacity: 0.45;
+    }}
     tfoot td {{
       font-weight: 700;
       background: #faf8f2;
@@ -142,6 +177,14 @@ def shared_panel_html(panel_type: str) -> str:
       th, td {{
         padding: 10px 8px;
       }}
+      .share-actions {{
+        padding: 10px 12px;
+        align-items: flex-start;
+        flex-direction: column;
+      }}
+      .minimum-total {{
+        text-align: left;
+      }}
       td.money, th.money {{
         width: auto;
         font-size: 14px;
@@ -156,6 +199,10 @@ def shared_panel_html(panel_type: str) -> str:
       <div class="month">{escape(data["month"])}</div>
       <div class="subtitle">{escape(data["subtitle"])}</div>
     </header>
+    <div class="share-actions">
+      <button type="button" id="minimumToggle">최소 결제</button>
+      <div class="minimum-total">최소 결제 합계 {format_won(minimum_total)}</div>
+    </div>
     <table>
       <thead>
         <tr>
@@ -179,23 +226,42 @@ def shared_panel_html(panel_type: str) -> str:
     </table>
     {_ledger_note_html(data["ledger_note"])}
   </main>
+  <script>
+    const button = document.getElementById("minimumToggle");
+    button?.addEventListener("click", () => {{
+      document.body.classList.toggle("minimum-mode");
+      button.textContent = document.body.classList.contains("minimum-mode") ? "전체 보기" : "최소 결제";
+    }});
+  </script>
 </body>
 </html>
 """
 
 
-def _row_html(row: dict) -> str:
+def _row_html(row: dict, current_month: str) -> str:
     discount = _panel_discount_amount(row)
     original = float(row.get("amount_value") or 0)
     net = _panel_net_amount(row)
+    row_class = "" if _is_minimum_payment_row(row, current_month) else ' class="deferable-row"'
     return (
-        "<tr>"
+        f"<tr{row_class}>"
         f"<td>{escape(str(row.get('title') or ''))}</td>"
         f"<td class=\"money\">{format_won(original)}</td>"
         f"<td class=\"money discount\">{_discount_text(discount)}</td>"
         f"<td class=\"money net\">{format_won(net)}</td>"
         "</tr>"
     )
+
+
+def _is_minimum_payment_row(row: dict, current_month: str) -> bool:
+    title = str(row.get("title") or "")
+    if "이자" in title:
+        return True
+    spent_on = str(row.get("spent_on") or "")
+    if not spent_on:
+        return True
+    spent_month = spent_on[:7]
+    return spent_month < current_month
 
 
 def _discount_text(discount: float) -> str:
