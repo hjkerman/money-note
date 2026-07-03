@@ -27,6 +27,7 @@ def shared_panel(panel_type: str) -> dict:
     discount_total = sum(_panel_discount_amount(row) for row in rows)
     minimum_rows = [row for row in rows if _is_minimum_payment_row(row, month)]
     minimum_total = sum(_panel_net_amount(row) for row in minimum_rows)
+    minimum_discount_total = sum(_panel_discount_amount(row) for row in minimum_rows)
     current_card_total = sum(row.get("amount_value") or 0 for row in list_entries("current"))
     settings = list_settings()
     card_limit = _float_setting(settings, "card_limit", 5_800_000)
@@ -42,6 +43,7 @@ def shared_panel(panel_type: str) -> dict:
         "total": total,
         "discount_total": discount_total,
         "minimum_total": minimum_total,
+        "minimum_discount_total": minimum_discount_total,
     }
 
 
@@ -52,7 +54,9 @@ def shared_panel_html(panel_type: str) -> str:
         rows_html = '<tr><td colspan="4" class="empty">표시할 항목이 없습니다.</td></tr>'
     net_total = sum(_panel_net_amount(row) for row in data["rows"])
     discount_total = sum(_panel_discount_amount(row) for row in data["rows"])
-    minimum_total = sum(_panel_net_amount(row) for row in data["rows"] if _is_minimum_payment_row(row, data["month"]))
+    minimum_rows = [row for row in data["rows"] if _is_minimum_payment_row(row, data["month"])]
+    minimum_total = sum(_panel_net_amount(row) for row in minimum_rows)
+    minimum_discount_total = sum(_panel_discount_amount(row) for row in minimum_rows)
     return f"""<!doctype html>
 <html lang="ko">
 <head>
@@ -219,8 +223,18 @@ def shared_panel_html(panel_type: str) -> str:
         <tr>
           <td>합계</td>
           <td class="money"></td>
-          <td class="money discount">{_discount_text(discount_total)}</td>
-          <td class="money net">{format_won(net_total)}</td>
+          <td
+            id="discountTotal"
+            class="money discount"
+            data-full="{escape(_discount_text(discount_total))}"
+            data-minimum="{escape(_discount_text(minimum_discount_total))}"
+          >{_discount_text(discount_total)}</td>
+          <td
+            id="netTotal"
+            class="money net"
+            data-full="{escape(format_won(net_total))}"
+            data-minimum="{escape(format_won(minimum_total))}"
+          >{format_won(net_total)}</td>
         </tr>
       </tfoot>
     </table>
@@ -228,9 +242,18 @@ def shared_panel_html(panel_type: str) -> str:
   </main>
   <script>
     const button = document.getElementById("minimumToggle");
+    const discountTotal = document.getElementById("discountTotal");
+    const netTotal = document.getElementById("netTotal");
     button?.addEventListener("click", () => {{
       document.body.classList.toggle("minimum-mode");
-      button.textContent = document.body.classList.contains("minimum-mode") ? "전체 보기" : "최소 결제";
+      const minimumMode = document.body.classList.contains("minimum-mode");
+      button.textContent = minimumMode ? "전체 보기" : "최소 결제";
+      if (discountTotal) {{
+        discountTotal.textContent = minimumMode ? discountTotal.dataset.minimum ?? "" : discountTotal.dataset.full ?? "";
+      }}
+      if (netTotal) {{
+        netTotal.textContent = minimumMode ? netTotal.dataset.minimum ?? "" : netTotal.dataset.full ?? "";
+      }}
     }});
   </script>
 </body>
