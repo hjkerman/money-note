@@ -63,7 +63,7 @@ class SharePanelTest(unittest.TestCase):
 
         self.assertIn("최소 결제", html)
         self.assertIn("전체 보기", html)
-        self.assertIn("최소 결제 합계 1,200원", html)
+        self.assertIn("최소 1,200원 결제 필요", html)
         self.assertIn('data-full="-300원"', html)
         self.assertIn('data-minimum="-100원"', html)
         self.assertIn('data-full="3,000원"', html)

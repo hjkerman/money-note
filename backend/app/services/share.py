@@ -205,7 +205,7 @@ def shared_panel_html(panel_type: str) -> str:
     </header>
     <div class="share-actions">
       <button type="button" id="minimumToggle">최소 결제</button>
-      <div class="minimum-total">최소 결제 합계 {format_won(minimum_total)}</div>
+      <div class="minimum-total">최소 {format_won(minimum_total)} 결제 필요</div>
     </div>
     <table>
       <thead>
