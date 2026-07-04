@@ -71,6 +71,7 @@ class SharePanelTest(unittest.TestCase):
         self.assertIn('data-minimum="-100원"', html)
         self.assertIn('data-full="3,000원"', html)
         self.assertIn('data-minimum="1,200원"', html)
+        self.assertIn('<td>합계</td>\n          <td class="money"></td>\n          <td class="money"></td>', html)
         self.assertEqual(html.count('class="deferable-row"'), 1)
         self.assertIn("이번 달 커피", html)
 

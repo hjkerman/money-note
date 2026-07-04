@@ -235,6 +235,7 @@ def shared_panel_html(panel_type: str) -> str:
         <tr>
           <td>합계</td>
           <td class="money"></td>
+          <td class="money"></td>
           <td
             id="discountTotal"
             class="money discount"
