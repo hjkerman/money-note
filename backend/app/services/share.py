@@ -132,6 +132,11 @@ def shared_panel_html(panel_type: str) -> str:
       width: 100%;
       border-collapse: collapse;
     }}
+    .share-table-wrap {{
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }}
     th, td {{
       padding: 12px 14px;
       border-bottom: 1px solid #ece8df;
@@ -143,12 +148,8 @@ def shared_panel_html(panel_type: str) -> str:
       font-size: 13px;
       color: #555;
     }}
-    th.date, td.date {{
-      white-space: nowrap;
-      width: 104px;
-    }}
     th.content, td.content {{
-      min-width: 220px;
+      min-width: 280px;
       width: auto;
     }}
     td.money, th.money {{
@@ -166,8 +167,7 @@ def shared_panel_html(panel_type: str) -> str:
       transition: opacity 0.15s ease, color 0.15s ease;
     }}
     body.minimum-mode tr.deferable-row {{
-      color: #9a958b;
-      opacity: 0.45;
+      display: none;
     }}
     tfoot td {{
       font-weight: 700;
@@ -198,11 +198,11 @@ def shared_panel_html(panel_type: str) -> str:
         text-align: left;
       }}
       td.money, th.money {{
-        width: auto;
+        width: 96px;
         font-size: 14px;
       }}
       th.content, td.content {{
-        min-width: 150px;
+        min-width: 190px;
       }}
     }}
   </style>
@@ -218,39 +218,39 @@ def shared_panel_html(panel_type: str) -> str:
       <button type="button" id="minimumToggle">최소 결제</button>
       <div class="minimum-total">최소 {format_won(minimum_total)} 결제 필요</div>
     </div>
-    <table>
-      <thead>
-        <tr>
-          <th class="date">사용일</th>
-          <th class="content">내용</th>
-          <th class="money">원금</th>
-          <th class="money">할인액</th>
-          <th class="money">할인 후 금액</th>
-        </tr>
-      </thead>
-      <tbody>
-        {rows_html}
-      </tbody>
-      <tfoot>
-        <tr>
-          <td>합계</td>
-          <td class="money"></td>
-          <td class="money"></td>
-          <td
-            id="discountTotal"
-            class="money discount"
-            data-full="{escape(_discount_text(discount_total))}"
-            data-minimum="{escape(_discount_text(minimum_discount_total))}"
-          >{_discount_text(discount_total)}</td>
-          <td
-            id="netTotal"
-            class="money net"
-            data-full="{escape(format_won(net_total))}"
-            data-minimum="{escape(format_won(minimum_total))}"
-          >{format_won(net_total)}</td>
-        </tr>
-      </tfoot>
-    </table>
+    <div class="share-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="content">내용</th>
+            <th class="money">원금</th>
+            <th class="money">할인액</th>
+            <th class="money">할인 후 금액</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows_html}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td>합계</td>
+            <td class="money"></td>
+            <td
+              id="discountTotal"
+              class="money discount"
+              data-full="{escape(_discount_text(discount_total))}"
+              data-minimum="{escape(_discount_text(minimum_discount_total))}"
+            >{_discount_text(discount_total)}</td>
+            <td
+              id="netTotal"
+              class="money net"
+              data-full="{escape(format_won(net_total))}"
+              data-minimum="{escape(format_won(minimum_total))}"
+            >{format_won(net_total)}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
     {_ledger_note_html(data["ledger_note"])}
   </main>
   <script>
@@ -281,8 +281,7 @@ def _row_html(row: dict, current_month: str) -> str:
     row_class = "" if _is_minimum_payment_row(row, current_month) else ' class="deferable-row"'
     return (
         f"<tr{row_class}>"
-        f"<td class=\"date\">{escape(_spent_on_label(row))}</td>"
-        f"<td class=\"content\">{escape(str(row.get('title') or ''))}</td>"
+        f"<td class=\"content\">{escape(_content_label(row))}</td>"
         f"<td class=\"money\">{format_won(original)}</td>"
         f"<td class=\"money discount\">{_discount_text(discount)}</td>"
         f"<td class=\"money net\">{format_won(net)}</td>"
@@ -290,11 +289,17 @@ def _row_html(row: dict, current_month: str) -> str:
     )
 
 
-def _spent_on_label(row: dict) -> str:
+def _content_label(row: dict) -> str:
+    title = str(row.get("title") or "")
+    date_label = _spent_on_short_label(row)
+    return f"{date_label} {title}" if date_label else title
+
+
+def _spent_on_short_label(row: dict) -> str:
     value = str(row.get("spent_on") or "")
     if len(value) >= 10:
-        return f"{value[:4]}.{value[5:7]}.{value[8:10]}."
-    return value
+        return f"[{value[5:7]}/{value[8:10]}]"
+    return ""
 
 
 def _is_minimum_payment_row(row: dict, current_month: str) -> bool:
