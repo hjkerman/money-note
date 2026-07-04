@@ -51,7 +51,7 @@ def shared_panel_html(panel_type: str) -> str:
     data = shared_panel(panel_type)
     rows_html = "\n".join(_row_html(row, data["month"]) for row in data["rows"])
     if not rows_html:
-        rows_html = '<tr><td colspan="4" class="empty">표시할 항목이 없습니다.</td></tr>'
+        rows_html = '<tr><td colspan="5" class="empty">표시할 항목이 없습니다.</td></tr>'
     net_total = sum(_panel_net_amount(row) for row in data["rows"])
     discount_total = sum(_panel_discount_amount(row) for row in data["rows"])
     minimum_rows = [row for row in data["rows"] if _is_minimum_payment_row(row, data["month"])]
@@ -210,6 +210,7 @@ def shared_panel_html(panel_type: str) -> str:
     <table>
       <thead>
         <tr>
+          <th>사용일</th>
           <th>내용</th>
           <th class="money">원금</th>
           <th class="money">할인액</th>
@@ -268,12 +269,20 @@ def _row_html(row: dict, current_month: str) -> str:
     row_class = "" if _is_minimum_payment_row(row, current_month) else ' class="deferable-row"'
     return (
         f"<tr{row_class}>"
+        f"<td>{escape(_spent_on_label(row))}</td>"
         f"<td>{escape(str(row.get('title') or ''))}</td>"
         f"<td class=\"money\">{format_won(original)}</td>"
         f"<td class=\"money discount\">{_discount_text(discount)}</td>"
         f"<td class=\"money net\">{format_won(net)}</td>"
         "</tr>"
     )
+
+
+def _spent_on_label(row: dict) -> str:
+    value = str(row.get("spent_on") or "")
+    if len(value) >= 10:
+        return f"{value[:4]}.{value[5:7]}.{value[8:10]}."
+    return value
 
 
 def _is_minimum_payment_row(row: dict, current_month: str) -> bool:
