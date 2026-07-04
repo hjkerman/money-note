@@ -75,7 +75,7 @@ def shared_panel_html(panel_type: str) -> str:
       padding: 28px 16px;
     }}
     main {{
-      max-width: 720px;
+      max-width: 860px;
       margin: 0 auto;
       background: #fff;
       border: 1px solid #ddd8ce;
@@ -143,10 +143,18 @@ def shared_panel_html(panel_type: str) -> str:
       font-size: 13px;
       color: #555;
     }}
+    th.date, td.date {{
+      white-space: nowrap;
+      width: 104px;
+    }}
+    th.content, td.content {{
+      min-width: 220px;
+      width: auto;
+    }}
     td.money, th.money {{
       text-align: right;
       white-space: nowrap;
-      width: 118px;
+      width: 104px;
     }}
     td.discount {{
       color: #7b5a2a;
@@ -193,6 +201,9 @@ def shared_panel_html(panel_type: str) -> str:
         width: auto;
         font-size: 14px;
       }}
+      th.content, td.content {{
+        min-width: 150px;
+      }}
     }}
   </style>
 </head>
@@ -210,8 +221,8 @@ def shared_panel_html(panel_type: str) -> str:
     <table>
       <thead>
         <tr>
-          <th>사용일</th>
-          <th>내용</th>
+          <th class="date">사용일</th>
+          <th class="content">내용</th>
           <th class="money">원금</th>
           <th class="money">할인액</th>
           <th class="money">할인 후 금액</th>
@@ -269,8 +280,8 @@ def _row_html(row: dict, current_month: str) -> str:
     row_class = "" if _is_minimum_payment_row(row, current_month) else ' class="deferable-row"'
     return (
         f"<tr{row_class}>"
-        f"<td>{escape(_spent_on_label(row))}</td>"
-        f"<td>{escape(str(row.get('title') or ''))}</td>"
+        f"<td class=\"date\">{escape(_spent_on_label(row))}</td>"
+        f"<td class=\"content\">{escape(str(row.get('title') or ''))}</td>"
         f"<td class=\"money\">{format_won(original)}</td>"
         f"<td class=\"money discount\">{_discount_text(discount)}</td>"
         f"<td class=\"money net\">{format_won(net)}</td>"
