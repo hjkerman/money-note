@@ -1,6 +1,8 @@
 package com.example.money_note_mobile
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class NotificationCandidateStoreTest {
@@ -37,5 +39,43 @@ class NotificationCandidateStoreTest {
         """.trimIndent()
 
         assertEquals("수원지방법원", NotificationCandidateStore.extractMerchant(raw))
+    }
+
+    @Test
+    fun ignoresLumpSumCancellationAsApprovalCandidate() {
+        val raw = """
+            승인내역
+            [일시불.취소(9452)]07/05 11:22
+            5,000원 / 누적:100,000원
+            취소가맹점
+        """.trimIndent()
+
+        assertFalse(
+            NotificationCandidateStore.isApprovalNotificationCandidate(
+                title = "승인내역",
+                text = "[일시불.취소(9452)]07/05 11:22\n5,000원 / 누적:100,000원\n취소가맹점",
+                bigText = raw,
+                raw = raw
+            )
+        )
+    }
+
+    @Test
+    fun keepsLumpSumApprovalAsApprovalCandidate() {
+        val raw = """
+            승인내역
+            [일시불.승인(9452)]07/05 11:22
+            5,000원 / 누적:100,000원
+            승인가맹점
+        """.trimIndent()
+
+        assertTrue(
+            NotificationCandidateStore.isApprovalNotificationCandidate(
+                title = "승인내역",
+                text = "[일시불.승인(9452)]07/05 11:22\n5,000원 / 누적:100,000원\n승인가맹점",
+                bigText = raw,
+                raw = raw
+            )
+        )
     }
 }

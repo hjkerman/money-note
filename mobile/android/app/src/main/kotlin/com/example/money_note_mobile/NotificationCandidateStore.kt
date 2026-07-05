@@ -197,9 +197,12 @@ object NotificationCandidateStore {
 
     private fun parseApproval(record: RawNotificationRecord): ParseResult {
         val raw = record.rawText
-        val ignored = listOf("(광고)", "이벤트", "혜택", "마케팅", "자동납부", "결제일", "수신거부")
-            .any { raw.contains(it) || record.title.contains(it) }
-        val approvalCandidate = !ignored && listOf(record.title, record.text, record.bigText, raw).any { it.contains("승인") }
+        val approvalCandidate = isApprovalNotificationCandidate(
+            record.title,
+            record.text,
+            record.bigText,
+            raw
+        )
         if (!approvalCandidate) {
             return ParseResult(false, "ignored", "", ParsedApproval(null, null, null, null))
         }
@@ -221,6 +224,24 @@ object NotificationCandidateStore {
             return ParseResult(true, "failed", "필수 필드 누락: ${missing.joinToString(", ")}", base)
         }
         return ParseResult(true, "parsed", "", base)
+    }
+
+    internal fun isApprovalNotificationCandidate(title: String, text: String, bigText: String, raw: String): Boolean {
+        val ignoredTerms = listOf(
+            "(광고)",
+            "이벤트",
+            "혜택",
+            "마케팅",
+            "자동납부",
+            "결제일",
+            "수신거부",
+            "취소",
+            "승인취소",
+            "매출취소"
+        )
+        val bodies = listOf(title, text, bigText, raw)
+        if (ignoredTerms.any { term -> bodies.any { it.contains(term) } }) return false
+        return bodies.any { it.contains("승인") }
     }
 
     private fun extractCardLast4(raw: String): String? =
