@@ -64,7 +64,7 @@ class SharePanelTest(unittest.TestCase):
         self.assertIn("최소 결제", html)
         self.assertIn("전체 보기", html)
         self.assertNotIn("<th>사용일</th>", html)
-        self.assertIn("<th>내용</th>", html)
+        self.assertIn('<th class="content">내용</th>', html)
         self.assertIn("[06/22] 지난달 병원비", html)
         self.assertIn('class="share-table-wrap"', html)
         self.assertIn("body.minimum-mode tr.deferable-row", html)

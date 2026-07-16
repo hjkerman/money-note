@@ -37,7 +37,13 @@ from .features import (
     spending_category_counts,
     spending_category_totals,
 )
-from .insight import app_judgment, budget_committee_tone, credit_usage_tone, payment_pressure_tone
+from .insight import (
+    app_judgment,
+    budget_committee_tone,
+    credit_usage_tone,
+    many_expense_threshold,
+    payment_pressure_tone,
+)
 
 
 def shared_panel_subtitle(
@@ -80,6 +86,7 @@ __all__ = [
     "in_date_range",
     "judgment_message",
     "ledger_verdict",
+    "many_expense_threshold",
     "panel_net_amount",
     "payment_pressure_tone",
     "previous_to_current_range",

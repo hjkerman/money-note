@@ -7,7 +7,13 @@ from unittest.mock import patch
 
 from app.config import get_settings
 from app.db import init_db, session
-from app.repository import confirm_planned_entry, create_entry, list_confirmed_planned_entries, list_entries
+from app.repository import (
+    confirm_planned_entry,
+    create_entry,
+    list_confirmed_planned_entries,
+    list_entries,
+    list_recent_closed_month_expense_counts,
+)
 from app.schemas import LedgerEntryIn
 from app.services.card_payments import current_payment_status
 from app.services.month import close_current_month, month_close_status
@@ -78,6 +84,11 @@ class MonthCloseTest(unittest.TestCase):
         self.assertEqual(july["book_section"], "current")
         self.assertEqual(planned, 1)
         self.assertFalse(month_close_status(date(2026, 7, 1))["needs_close"])
+
+    def test_recent_closed_month_expense_counts_ignore_current_and_planned_entries(self) -> None:
+        close_current_month(date(2026, 7, 1))
+
+        self.assertEqual(list_recent_closed_month_expense_counts(), [1])
 
     def test_close_preserves_discount_override_for_payment_panel(self) -> None:
         with session() as conn:

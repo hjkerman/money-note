@@ -13,6 +13,7 @@ from app.repository import (
     list_confirmed_planned_entries,
     list_cash_flows,
     list_entries,
+    list_recent_closed_month_expense_counts,
     list_panels,
     list_settings,
     reorder_current_entries,
@@ -182,4 +183,5 @@ def current_judgment(_: dict = Depends(require_user)) -> dict:
         current_summary_values(),
         current_payment_status(),
         list_settings(),
+        list_recent_closed_month_expense_counts(),
     )

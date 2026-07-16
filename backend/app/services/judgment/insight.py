@@ -1,11 +1,17 @@
 from __future__ import annotations
 
+from math import ceil
+from statistics import median
+
 from app.services.clock import app_today_iso
 from app.services.discounts import normalize_discount_policy
 
 from .categories import CATEGORY_LABELS, spending_stat_tones
 from .common import days_between, judgment_message
 from .features import panel_net_amount
+
+
+DEFAULT_MANY_EXPENSE_THRESHOLD = 120
 
 
 def app_judgment(
@@ -15,6 +21,7 @@ def app_judgment(
     summary: dict,
     payment_status: dict,
     settings: dict[str, str],
+    historical_expense_counts: list[int] | None = None,
 ) -> dict:
     """본체 웹앱에서 쓰는 모든 판단 문구를 한 번에 만든다."""
     expense_entries = [entry for entry in entries if entry.get("entry_kind") != "planned"]
@@ -57,6 +64,7 @@ def app_judgment(
                 "frozen_total": sum(float(row.get("amount_value") or 0) for row in frozen_rows),
                 "frozen_count": len(frozen_rows),
                 "next_month_liquidity": float(summary.get("next_month_liquidity") or 0),
+                "historical_expense_counts": historical_expense_counts or [],
             }
         ),
         "credit": credit_usage_tone((owner_card_total + family_card_total) / card_limit if card_limit > 0 else 0),
@@ -106,9 +114,11 @@ def budget_committee_tone(input_data: dict) -> dict[str, str]:
             "level": "steady",
             "message": say("budget.family_presence"),
         }
-    if input_data["expense_count"] >= 30:
+    if input_data["expense_count"] >= many_expense_threshold(
+        input_data.get("historical_expense_counts")
+    ):
         return {
-            "level": "warning",
+            "level": "steady",
             "message": say("budget.many_expenses"),
         }
     if input_data["cash_flow_total"] > input_data["expense_total"] and input_data["cash_flow_total"] > 0:
@@ -125,6 +135,16 @@ def budget_committee_tone(input_data: dict) -> dict[str, str]:
         "level": "quiet",
         "message": say("budget.default"),
     }
+
+
+def many_expense_threshold(historical_counts: list[int] | None) -> int:
+    """최근 마감 월의 생활 패턴보다 확실히 건수가 많을 때만 판정한다."""
+    counts = [int(count) for count in historical_counts or [] if int(count) >= 0]
+    if not counts:
+        return DEFAULT_MANY_EXPENSE_THRESHOLD
+    baseline = median(counts[:3])
+    margin = max(10, ceil(baseline * 0.15))
+    return ceil(baseline) + margin
 
 
 def credit_usage_tone(usage_rate: float) -> dict[str, str]:
