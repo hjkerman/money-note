@@ -85,8 +85,18 @@ class MoneyNoteApiClient {
     return _getList('/api/month/current/panels', MonthlyPanel.fromJson);
   }
 
-  Future<List<CashFlow>> cashFlows() {
-    return _getList('/api/cash-flows', CashFlow.fromJson);
+  Future<List<CashFlow>> cashFlows({
+    String? dateFrom,
+    String? dateTo,
+    int? limit,
+  }) {
+    final query = <String, String>{};
+    if (dateFrom != null && dateFrom.isNotEmpty) query['from'] = dateFrom;
+    if (dateTo != null && dateTo.isNotEmpty) query['to'] = dateTo;
+    if (limit != null) query['limit'] = limit.toString();
+    final queryText = Uri(queryParameters: query).query;
+    final path = '/api/cash-flows${queryText.isEmpty ? '' : '?$queryText'}';
+    return _getList(path, CashFlow.fromJson);
   }
 
   Future<AppSettings> settings() {

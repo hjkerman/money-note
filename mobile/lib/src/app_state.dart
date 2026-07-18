@@ -163,15 +163,15 @@ class AppState extends ChangeNotifier {
 
   Future<void> refresh({bool notify = true}) async {
     await refreshNotificationPermissions(notify: false);
+    final freshMonthCloseStatus = await api.monthCloseStatus();
     final results = await Future.wait([
       api.summary(),
       api.judgment(),
       api.currentEntries(),
       api.confirmedPlannedEntries(),
       api.currentPanels(),
-      api.cashFlows(),
+      _loadRecentCashFlows(freshMonthCloseStatus),
       api.settings(),
-      api.monthCloseStatus(),
     ]);
     summary = results[0] as Summary;
     judgment = results[1] as JudgmentState;
@@ -180,7 +180,7 @@ class AppState extends ChangeNotifier {
     panels = results[4] as List<MonthlyPanel>;
     cashFlows = results[5] as List<CashFlow>;
     settings = results[6] as AppSettings;
-    monthCloseStatus = results[7] as MonthCloseStatus;
+    monthCloseStatus = freshMonthCloseStatus;
     await _configureNotificationCards();
     ownerDiscountMonth = await api.discountMonth(currentMonth, 'owner');
     familyDiscountMonth = await api.discountMonth(currentMonth, 'family');
@@ -213,15 +213,30 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> refreshCashArea({bool notify = true}) async {
+    final freshMonthCloseStatus = await api.monthCloseStatus();
     final results = await Future.wait([
-      api.cashFlows(),
+      _loadRecentCashFlows(freshMonthCloseStatus),
       api.summary(),
       api.judgment(),
     ]);
     cashFlows = results[0] as List<CashFlow>;
     summary = results[1] as Summary;
     judgment = results[2] as JudgmentState;
+    monthCloseStatus = freshMonthCloseStatus;
     if (notify) notifyListeners();
+  }
+
+  Future<List<CashFlow>> _loadRecentCashFlows(MonthCloseStatus status) {
+    final serverDate = DateTime.tryParse(status.calendarDate);
+    if (serverDate == null) {
+      throw MoneyNoteApiException('서버 기준 날짜를 확인할 수 없습니다.');
+    }
+    final dateFrom = DateTime(serverDate.year, serverDate.month - 1, 1);
+    final dateTo = DateTime(serverDate.year, serverDate.month + 1, 0);
+    return api.cashFlows(
+      dateFrom: _formatDate(dateFrom),
+      dateTo: _formatDate(dateTo),
+    );
   }
 
   Future<void> refreshEntriesArea({bool notify = true}) async {
@@ -726,7 +741,11 @@ class AppState extends ChangeNotifier {
 
   String _localToday() {
     final now = DateTime.now();
-    return '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    return _formatDate(now);
+  }
+
+  String _formatDate(DateTime value) {
+    return '${value.year.toString().padLeft(4, '0')}-${value.month.toString().padLeft(2, '0')}-${value.day.toString().padLeft(2, '0')}';
   }
 
   Future<Directory> _snapshotDirectory() async {

@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from datetime import date
+
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.auth import require_user
 from app.db import session
@@ -57,8 +59,16 @@ def patch_setting(key: str, patch: SettingPatch, _: dict = Depends(require_user)
 
 
 @cash_router.get("", response_model=list[CashFlow])
-def get_cash_flows(_: dict = Depends(require_user)) -> list[dict]:
-    return list_cash_flows()
+def get_cash_flows(
+    date_from: date | None = Query(default=None, alias="from"),
+    date_to: date | None = Query(default=None, alias="to"),
+    limit: int | None = Query(default=None, ge=1),
+    _: dict = Depends(require_user),
+) -> list[dict]:
+    try:
+        return list_cash_flows(date_from=date_from, date_to=date_to, limit=limit)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
 @cash_router.post("", response_model=CashFlow)

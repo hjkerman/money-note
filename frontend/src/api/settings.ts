@@ -9,8 +9,15 @@ export async function fetchJudgment(): Promise<JudgmentState> {
   return getJson("/api/judgment/current");
 }
 
-export async function fetchCashFlows(): Promise<CashFlow[]> {
-  return getJson("/api/cash-flows");
+export async function fetchCashFlows(
+  query: { dateFrom?: string; dateTo?: string; limit?: number } = {},
+): Promise<CashFlow[]> {
+  const params = new URLSearchParams();
+  if (query.dateFrom) params.set("from", query.dateFrom);
+  if (query.dateTo) params.set("to", query.dateTo);
+  if (query.limit !== undefined) params.set("limit", String(query.limit));
+  const queryString = params.toString();
+  return getJson(`/api/cash-flows${queryString ? `?${queryString}` : ""}`);
 }
 
 export async function createCashFlow(payload: Omit<CashFlow, "id">): Promise<CashFlow> {

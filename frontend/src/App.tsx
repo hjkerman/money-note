@@ -32,9 +32,11 @@ export function App() {
     setShowAuditLogs,
     setShowSettings,
     setShowStats,
+    setStatsView,
     showAuditLogs,
     showSettings,
     showStats,
+    statsView,
   } = useModalState();
   const {
     cashFlowForm,
@@ -299,7 +301,14 @@ export function App() {
           onCloseMonth={() => void handleCloseMonth()}
           onLogout={() => void handleLogout()}
           onOpenSettings={() => setShowSettings(true)}
-          onShowStatsToggle={() => setShowStats(!showStats)}
+          onShowStatsToggle={() => {
+            if (showStats) {
+              setShowStats(false);
+              return;
+            }
+            setStatsView("card");
+            setShowStats(true);
+          }}
           showStats={showStats}
         />
       }
@@ -368,6 +377,9 @@ export function App() {
           selectedMonth={selectedHistoryMonth}
           setSelectedMonth={setSelectedHistoryMonth}
           entries={historyEntries}
+          recentCashFlows={cashFlows}
+          view={statsView}
+          setView={setStatsView}
           onClose={() => setShowStats(false)}
         />
       ) : null}
@@ -485,6 +497,10 @@ export function App() {
               handleCashFlowDelete={(flow) => void handleCashFlowDelete(flow)}
               handleCashFlowSubmit={handleCashFlowSubmit}
               isBusy={isBusy}
+              onOpenHistory={() => {
+                setStatsView("cash");
+                setShowStats(true);
+              }}
               setCashFlowForm={setCashFlowForm}
             />
 

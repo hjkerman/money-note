@@ -257,7 +257,7 @@ export function CardPaymentPanel({
                     <td>
                       {displayEntryTitle(row)}
                       {row.is_group ? <span className="deferred-badge">통합 {row.entry_ids.length}건</span> : null}
-                      {row.is_transport ? <span className="transport-badge">교통</span> : null}
+                      {row.is_transport ? <span className="toll-badge">교통</span> : null}
                       {row.is_toll ? <span className="toll-badge">통행료</span> : null}
                       {row.is_deferred ? <span className="deferred-badge">다음 달 이월 예정</span> : null}
                       {!row.is_carried_over && row.remaining_amount > 0 ? (

@@ -205,6 +205,7 @@ export function CashFlowView({
   handleCashFlowDelete,
   handleCashFlowSubmit,
   isBusy,
+  onOpenHistory,
   setCashFlowForm,
 }: {
   active: boolean;
@@ -213,6 +214,7 @@ export function CashFlowView({
   handleCashFlowDelete: (flow: CashFlow) => void;
   handleCashFlowSubmit: (event: FormEvent) => Promise<void>;
   isBusy: boolean;
+  onOpenHistory: () => void;
   setCashFlowForm: Dispatch<SetStateAction<CashFlowForm>>;
 }) {
   return (
@@ -223,6 +225,7 @@ export function CashFlowView({
         setForm={setCashFlowForm}
         onSubmit={handleCashFlowSubmit}
         onDelete={(flow) => handleCashFlowDelete(flow)}
+        onOpenHistory={onOpenHistory}
         isBusy={isBusy}
       />
     </section>

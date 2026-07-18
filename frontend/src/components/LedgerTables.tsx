@@ -11,7 +11,6 @@ import {
   effectiveEntryDiscount,
   effectivePanelDiscount,
   formatDateLabel,
-  formatMonthLabel,
   formatWon,
   panelNetAmount,
   sumAmounts,
@@ -184,6 +183,7 @@ export function CashFlowPanel({
   setForm,
   onSubmit,
   onDelete,
+  onOpenHistory,
   isBusy,
 }: {
   rows: CashFlow[];
@@ -191,6 +191,7 @@ export function CashFlowPanel({
   setForm: (value: { occurredOn: string; direction: string; title: string; amount: string; isPrimaryIncome: boolean }) => void;
   onSubmit: (event: FormEvent) => Promise<void>;
   onDelete: (flow: CashFlow) => void;
+  onOpenHistory: () => void;
   isBusy: boolean;
 }) {
   return (
@@ -269,20 +270,19 @@ export function CashFlowPanel({
       ) : (
         <p className="empty">현금 입출금 기록이 없습니다.</p>
       )}
+      <button type="button" className="cash-history-button" onClick={onOpenHistory}>
+        전체 현금흐름 보기
+      </button>
     </section>
   );
 }
 
 export function HistoryPanel({
-  months,
   selectedMonth,
-  setSelectedMonth,
   entries,
   judgment,
 }: {
-  months: string[];
   selectedMonth: string;
-  setSelectedMonth: (month: string) => void;
   entries: LedgerEntry[];
   judgment: JudgmentState | null;
 }) {
@@ -294,13 +294,6 @@ export function HistoryPanel({
           <p>{entries.length ? `${entries.length}개 항목` : "구조화된 기록이 없습니다."}</p>
         </div>
         <div className="history-controls">
-          <select value={selectedMonth} onChange={(event) => setSelectedMonth(event.target.value)}>
-            {months.map((month) => (
-              <option key={month} value={month}>
-                {formatMonthLabel(month)}
-              </option>
-            ))}
-          </select>
           <span>{formatWon(sumAmounts(entries))}</span>
         </div>
       </div>
@@ -310,6 +303,55 @@ export function HistoryPanel({
         judgment={judgment}
         exportMonth={selectedMonth}
       />
+    </section>
+  );
+}
+
+export function CashFlowHistoryPanel({ rows, selectedMonth }: { rows: CashFlow[]; selectedMonth: string }) {
+  const monthlyRows = useMemo(
+    () =>
+      rows
+        .filter((row) => row.occurred_on.startsWith(selectedMonth))
+        .sort(
+          (a, b) =>
+            a.occurred_on.localeCompare(b.occurred_on) ||
+            a.sort_order - b.sort_order ||
+            a.id - b.id,
+        ),
+    [rows, selectedMonth],
+  );
+  return (
+    <section className="panel history-panel cash-history-panel">
+      <div className="panel-header history-header">
+        <div>
+          <h2>현금흐름</h2>
+          <p>{monthlyRows.length ? `${monthlyRows.length}개 항목` : "현금 입출금 기록이 없습니다."}</p>
+        </div>
+      </div>
+      {monthlyRows.length ? (
+        <table>
+          <thead>
+            <tr>
+              <th className="date">일자</th>
+              <th>내용</th>
+              <th className="amount">금액</th>
+            </tr>
+          </thead>
+          <tbody>
+            {monthlyRows.map((row) => (
+              <tr key={row.id}>
+                <td className="date">{formatDateLabel(row.occurred_on)}</td>
+                <td>{row.title}</td>
+                <td className={`amount ${row.amount_value < 0 ? "negative" : "positive"}`}>
+                  {row.amount_value < 0 ? "-" : "+"}{formatWon(Math.abs(row.amount_value))}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p className="empty">이 달의 현금 입출금 기록이 없습니다.</p>
+      )}
     </section>
   );
 }
@@ -372,7 +414,7 @@ export function EntryTable({
                 <td className="entry-place-cell">{entry.usage_place ?? ""}</td>
                 <td className="entry-detail-cell">
                   <span className="entry-detail-text">{entry.usage_item ?? ""}</span>
-                  {entryHasTransportLabel(entry) ? <span className="transport-badge">교통</span> : null}
+                  {entryHasTransportLabel(entry) ? <span className="toll-badge">교통</span> : null}
                   {entryHasTollLabel(entry) ? <span className="toll-badge">통행료</span> : null}
                 </td>
                 {onCategoryChange ? (

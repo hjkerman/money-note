@@ -13,10 +13,12 @@ import {
   fetchSettings,
   fetchSummary,
 } from "../api";
+import { monthFirstDay, monthLastDay, previousMonthFirstDay } from "../utils";
 
 export async function fetchLedgerSnapshot() {
   const monthCloseStatus = await fetchMonthCloseStatus();
   const calendarMonth = monthCloseStatus.calendar_month;
+  const calendarMonthFirstDay = monthFirstDay(calendarMonth);
   const [
     entries,
     confirmedPlannedEntries,
@@ -38,7 +40,10 @@ export async function fetchLedgerSnapshot() {
     fetchSummary(),
     fetchJudgment().catch(() => null),
     fetchLabels(),
-    fetchCashFlows(),
+    fetchCashFlows({
+      dateFrom: previousMonthFirstDay(calendarMonthFirstDay),
+      dateTo: monthLastDay(calendarMonth),
+    }),
     fetchSettings(),
     fetchCurrentCardPayments(),
     fetchCardDiscountMonth(calendarMonth, "owner"),
