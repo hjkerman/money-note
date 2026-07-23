@@ -3,7 +3,6 @@ from typing import Any
 from app.db import session
 from app.repositories.common import row_to_dict
 from app.schemas import MonthlyPanelIn, MonthlyPanelPatch
-from app.services.snapshot import create_pre_restore_backup
 
 
 PANEL_COLUMNS = [
@@ -106,23 +105,6 @@ def delete_panel(panel_id: int) -> bool:
 
 
 def delete_panels_by_type(month: str, panel_type: str) -> int:
-    with session() as conn:
-        if panel_type in {"claim", "family_card"}:
-            cursor = conn.execute(
-                "DELETE FROM monthly_panels WHERE panel_type = ?",
-                (panel_type,),
-            )
-            return cursor.rowcount
-        cursor = conn.execute(
-            "DELETE FROM monthly_panels WHERE month = ? AND panel_type = ?",
-            (month, panel_type),
-        )
-    return cursor.rowcount
-
-
-def complete_panels_by_type(month: str, panel_type: str) -> int:
-    """청구 또는 가족카드의 현재 전달분을 일괄 처리하고 제거한다."""
-    create_pre_restore_backup()
     with session() as conn:
         if panel_type in {"claim", "family_card"}:
             cursor = conn.execute(

@@ -1,6 +1,4 @@
 import {
-  CardDiscountPolicy,
-  CashFlow,
   JudgmentState,
   LedgerEntry,
   MonthlyPanel,
@@ -17,7 +15,6 @@ export const panelMeta: Record<PanelType, { labelKey: string; fallback: string }
 };
 
 export const today = new Date().toISOString().slice(0, 10);
-export const DEFAULT_CARD_DISCOUNT_RATE = 0.012;
 export const currentTabs: CurrentTab[] = ["expenses", "claim", "family_card"];
 export const fallbackCategoryLabels: JudgmentState["category_labels"] = {
   essential: "안 썼으면 큰일 났을 돈",
@@ -211,58 +208,24 @@ export function sumAmounts(entries: LedgerEntry[]): number {
   return entries.reduce((total, entry) => total + (entry.amount_value ?? 0), 0);
 }
 
-export function defaultCardDiscount(amount: number | null | undefined): number {
-  return Math.floor((amount ?? 0) * DEFAULT_CARD_DISCOUNT_RATE);
+export function effectiveEntryDiscount(entry: LedgerEntry): number {
+  return Math.max(0, entry.effective_discount_amount);
 }
 
-export const discountIneligibleWords = ["교통", "대중교통", "버스", "지하철", "통행", "통행료", "하이패스"];
-
-export function discountIneligibleTitle(title: string | null | undefined): boolean {
-  const text = (title ?? "").toLowerCase();
-  return discountIneligibleWords.some((word) => text.includes(word.toLowerCase()));
+export function entryNetAmount(entry: LedgerEntry): number {
+  return Math.max(0, entry.effective_amount_value ?? entry.amount_value ?? 0);
 }
 
-export function effectiveEntryDiscount(
-  entry: LedgerEntry,
-  discounts?: Record<string, number> | null,
-  policy: CardDiscountPolicy | null = null,
-): number {
-  if (entry.discount_override) return Math.max(0, entry.aux_amount_value ?? 0);
-  if (!entry.payment_key || policy === "disabled" || discountIneligibleTitle(displayEntryTitle(entry))) return 0;
-  if (discounts && Object.prototype.hasOwnProperty.call(discounts, entry.payment_key)) {
-    return Math.max(0, discounts[entry.payment_key] ?? 0);
-  }
-  return defaultCardDiscount(entry.amount_value);
+export function effectivePanelDiscount(row: MonthlyPanel): number {
+  return Math.max(0, row.effective_discount_amount);
 }
 
-export function entryNetAmount(
-  entry: LedgerEntry,
-  discounts?: Record<string, number> | null,
-  policy: CardDiscountPolicy | null = null,
-): number {
-  return Math.max(0, (entry.amount_value ?? 0) - effectiveEntryDiscount(entry, discounts, policy));
+export function panelNetAmount(row: MonthlyPanel): number {
+  return Math.max(0, row.effective_amount_value ?? row.amount_value ?? 0);
 }
 
-export function sumPanelAmounts(rows: MonthlyPanel[]): number {
-  return rows.reduce((total, row) => total + (row.amount_value ?? 0), 0);
-}
-
-export function effectivePanelDiscount(row: MonthlyPanel, policy: CardDiscountPolicy | null = null): number {
-  if (row.discount_override) return Math.max(0, row.discount_amount ?? 0);
-  if (!["claim", "family_card"].includes(row.panel_type) || policy === "disabled" || discountIneligibleTitle(row.title)) return 0;
-  return defaultCardDiscount(row.amount_value);
-}
-
-export function panelNetAmount(row: MonthlyPanel, policy: CardDiscountPolicy | null = null): number {
-  return Math.max(0, (row.amount_value ?? 0) - effectivePanelDiscount(row, policy));
-}
-
-export function sumPanelNetAmounts(rows: MonthlyPanel[], policy: CardDiscountPolicy | null = null): number {
-  return rows.reduce((total, row) => total + panelNetAmount(row, policy), 0);
-}
-
-export function sumCashFlows(rows: CashFlow[]): number {
-  return rows.reduce((total, row) => total + row.amount_value, 0);
+export function sumPanelNetAmounts(rows: MonthlyPanel[]): number {
+  return rows.reduce((total, row) => total + panelNetAmount(row), 0);
 }
 
 export function sumStatItems(rows: StatItem[]): number {

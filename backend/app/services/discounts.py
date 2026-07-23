@@ -30,6 +30,17 @@ def discount_ineligible_title(title: str | None) -> bool:
     return any(word.lower() in text for word in DISCOUNT_INELIGIBLE_WORDS)
 
 
+def toll_title(title: str | None) -> bool:
+    """후불 하이패스/통행료 계열 사용내역인지 판별한다."""
+    text = str(title or "").lower()
+    return "통행" in text or "하이패스" in text
+
+
+def transport_title(title: str | None) -> bool:
+    """통행료를 제외한 교통 계열 사용내역인지 판별한다."""
+    return discount_ineligible_title(title) and not toll_title(title)
+
+
 def effective_card_discount(
     amount: float | int | None,
     override_discount: float | int | None,

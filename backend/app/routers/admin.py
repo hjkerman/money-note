@@ -33,7 +33,11 @@ def get_snapshot(_: dict = Depends(require_user)) -> Response:
     return Response(
         content=json.dumps(snapshot, ensure_ascii=False, separators=(",", ":")),
         media_type="application/json",
-        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "Cache-Control": "no-store, max-age=0",
+            "Pragma": "no-cache",
+        },
     )
 
 

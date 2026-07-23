@@ -90,6 +90,30 @@ Money Note의 모든 계산은 다음 원칙을 따른다.
 
 ---
 
+## 원칙 5
+
+서버는 런타임 데이터와 계산 결과의 단일 진실 원천이다.
+
+- SQLite DB가 영속 데이터의 원본이다.
+- 할인 가능 여부, 자동 할인액, 수동 override 반영액, 실결제액, 카드대금, 고정지출, 유동성, 청구·가족카드 합계는 서버가 계산한다.
+- 기준일과 기준 월은 서버의 `app_today()` 및 월 상태 API가 결정한다.
+- 웹과 모바일은 서버 응답을 표시하고 사용자 입력을 전달하는 클라이언트다.
+- 웹과 모바일에 1.2% 할인율, 교통·통행 키워드, 요약 합계 계산식을 별도로 복제하지 않는다.
+- 변경 API 호출 뒤에는 관련 조회 API를 다시 호출해 서버가 확정한 상태를 화면에 반영한다.
+
+`LedgerEntry`와 `MonthlyPanel` 응답의 다음 필드는 저장 컬럼이 아니라 서버 표시 투영값이다.
+
+- `discount_policy`
+- `automatic_discount_eligible`
+- `automatic_discount_amount`
+- `effective_discount_amount`
+- `effective_amount_value`
+- 원장의 `is_transport`, `is_toll`
+
+클라이언트가 이 값을 자체 계산으로 보정하면 서버와 화면의 의미가 갈라지므로 금지한다.
+
+---
+
 # 3. 원장 (ledger_entries)
 
 ledger_entries는 Money Note의 핵심 원장이다.
@@ -499,10 +523,6 @@ Money Note는 카드사 알림 자동입력을 고려한다.
 
 ---
 
-# 11. 문서 우선 원칙
-
----
-
 # 11. Snapshot 백업
 
 서버 DB는 Money Note의 단일 원본이다.
@@ -578,17 +598,15 @@ Restore 안전 원칙:
 - `pre_restore` 되돌리기도 일반 restore와 동일한 비밀번호 확인, manifest 검증, dry-run, 새 `pre_restore` 생성 절차를 거친다.
 - `pre_restore` 파일 접근은 정해진 filename 형식만 허용하며, `snapshot-backups/` 밖의 파일은 절대 읽지 않는다.
 
-향후 모바일 앱과 맥 앱은 실행 시 서버에서 전체 snapshot을 내려받아 각 기기 로컬에 보관할 수 있다.
+모바일 앱은 실행 시와 백그라운드에서 포그라운드로 복귀할 때 서버에서 전체 snapshot을 내려받아 앱 전용 저장소에 새 파일로 보관한다.
 
-이때 브라우저 웹앱은 로컬 파일시스템을 안정적으로 제어할 수 없으므로 `cur_backup`/`prev_backup` 회전은 구현하지 않는다.
+브라우저 웹앱은 로컬 파일시스템을 안정적으로 제어할 수 없으므로 자동 누적 백업을 구현하지 않는다.
 
-대신 맥/모바일 클라이언트는 단일 `latest` 파일만 덮어쓰지 않고, 최소한 `cur_backup`과 `prev_backup` 두 벌을 유지한다.
+모바일 앱은 기존 파일을 덮어쓰지 않고 최근 30개 snapshot을 유지한다. 30개를 넘으면 가장 오래된 파일부터 삭제한다.
 
-새 snapshot은 JSON parse, `schema_version`, manifest 검증을 통과한 뒤 임시 파일로 저장한다.
+모바일 snapshot은 자동 복원하지 않는다. 사용자가 특정 파일을 명시적으로 선택하고 비밀번호를 다시 확인한 경우에만 서버 restore API를 호출한다.
 
-정상 저장과 재검증이 끝난 경우에만 기존 `cur_backup`을 `prev_backup`으로 옮긴 다음 새 파일을 `cur_backup`으로 atomic rename한다.
-
-검증 실패 파일은 `cur_backup`이나 `prev_backup`을 덮어쓸 수 없고, 필요하면 `quarantine` 영역에 격리한다.
+새 snapshot은 서버가 생성한 manifest를 포함한 단일 JSON 파일이며, 복원 시 서버가 JSON 구조, `schema_version`, manifest, dry-run을 다시 검증한다. 형식상 정상인 파일의 논리적 누락은 hash만으로 검출할 수 없으므로 서버의 mandatory `pre_restore`가 마지막 복구 지점이다.
 
 ---
 

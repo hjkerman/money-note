@@ -109,7 +109,7 @@ Ubuntu 24.04 홈서버에 처음 올릴 때의 기준 절차다. `docker run`에
 - 대규모 리팩토링
 - 기존 웹/API 동작을 흔드는 클라이언트 선행 작업
 
-새 모바일 앱이나 맥 앱을 만들 때도 이 기준선을 흔들지 않는다. 필요한 기능이 생기면 먼저 기존 API로 가능한지 확인하고, API 변경이 필요하면 별도 작업으로 분리한다.
+새 클라이언트를 만들 때도 이 기준선을 흔들지 않는다. 필요한 기능이 생기면 먼저 기존 API로 가능한지 확인하고, API 변경이 필요하면 별도 작업으로 분리한다.
 
 ### 1. 서버에 필요한 도구 설치
 
@@ -172,6 +172,15 @@ MONEY_NOTE_CORS_ORIGINS=https://money.hjkerman.re.kr
 MONEY_NOTE_COOKIE_SECURE=true
 MONEY_NOTE_SESSION_DAYS=30
 MONEY_NOTE_MOBILE_SESSION_DAYS=3650
+MONEY_NOTE_LOGIN_MAX_FAILURES=5
+MONEY_NOTE_LOGIN_WINDOW_SECONDS=300
+MONEY_NOTE_SHARE_PIN_MAX_FAILURES=10
+MONEY_NOTE_SHARE_PIN_WINDOW_SECONDS=600
+MONEY_NOTE_API_REQUEST_MAX_BYTES=1048576
+MONEY_NOTE_SNAPSHOT_RESTORE_MAX_BYTES=26214400
+MONEY_NOTE_AUDIT_LOG_RETENTION_DAYS=180
+MONEY_NOTE_PRE_RESTORE_KEEP_COUNT=30
+MONEY_NOTE_TRUST_PROXY_HEADERS=true
 MONEY_NOTE_APK_PATH=/app/downloads/money-note.apk
 MONEY_NOTE_APK_FILENAME=money-note.apk
 EOF
@@ -188,10 +197,15 @@ MONEY_NOTE_CORS_ORIGINS=https://money.hjkerman.re.kr,http://localhost:5173,http:
 
 - `MONEY_NOTE_TODAY`는 운영에서는 비워둔다.
 - `MONEY_NOTE_CORS_ORIGINS`에는 실제 웹 프론트엔드 주소를 넣는다.
-- HTTPS 뒤에서 운영하면 `MONEY_NOTE_COOKIE_SECURE=true`를 권장한다.
+- HTTPS 운영 Origin이 있으면 `MONEY_NOTE_COOKIE_SECURE=true`가 필수다. 그렇지 않으면 서버가 기동을 거부한다.
 - 처음 로컬 확인만 할 때는 `MONEY_NOTE_COOKIE_SECURE=false`가 편하다.
 - `MONEY_NOTE_SESSION_DAYS`는 웹 cookie 로그인 세션 유지 기간이다.
 - `MONEY_NOTE_MOBILE_SESSION_DAYS`는 모바일 앱 Bearer 토큰 유지 기간이다. 기본값은 `3650`일이며, 웹 cookie 로그인 기간과 별도로 관리된다.
+- 로그인과 공유 PIN 제한값은 공개 주소에서 무제한 대입을 막는다.
+- `MONEY_NOTE_API_REQUEST_MAX_BYTES`는 일반 변경 API의 요청 본문 최대 크기다. 기본값은 `1 MiB`다.
+- `MONEY_NOTE_SNAPSHOT_RESTORE_MAX_BYTES`는 일반 상한보다 큰 snapshot restore JSON 전용 최대 크기다. chunked 요청에도 적용되며 기본값은 `25 MiB`다.
+- `MONEY_NOTE_AUDIT_LOG_RETENTION_DAYS`와 `MONEY_NOTE_PRE_RESTORE_KEEP_COUNT`는 서버 시작 시 오래된 운영 보조 자료를 정리한다.
+- Apache와 Docker Compose 기본 구조에서는 `MONEY_NOTE_TRUST_PROXY_HEADERS=true`를 쓴다. 백엔드를 인터넷에 직접 노출하면 `false`로 바꾼다.
 - `MONEY_NOTE_APK_PATH`는 설정 모달에서 내려받을 Android APK 파일의 컨테이너 내부 경로다. APK를 아직 제공하지 않을 때는 비워둬도 된다.
 
 `docker-compose.yml`은 위 값을 자동으로 읽어 컨테이너에 전달한다.
@@ -214,7 +228,11 @@ SQLite DB는 repo 루트의 `data/`에 저장된다.
 
 ```bash
 mkdir -p /opt/money-note/data
+sudo chown -R 1000:1000 /opt/money-note/data
+sudo chmod 700 /opt/money-note/data
 ```
+
+API 컨테이너는 UID/GID `1000`의 비루트 사용자로 실행한다. 다른 소유자의 기존 DB를 복사했다면 파일과 `snapshot-backups/`도 UID/GID `1000`이 쓸 수 있어야 한다. 기존 DB 파일은 가능하면 `chmod 600`으로 두고, 호스트의 다른 일반 계정에는 `data/` 접근 권한을 주지 않는다.
 
 기존 DB를 옮겨서 시작하려면 서버의 아래 위치에 둔다.
 
@@ -256,12 +274,12 @@ docker compose logs --tail=80 api
 
 ```bash
 docker compose exec -T api env PYTHONPATH=/app \
-  python scripts/create_user.py your-username your-password \
+  python scripts/create_user.py your-username 12자-이상-비밀번호 \
   --display-name "사용자" \
   --replace
 ```
 
-`your-username`과 `your-password`는 실제 값으로 바꾼다. 비밀번호는 평문 저장되지 않고 해시만 저장된다.
+사용자명과 비밀번호는 실제 값으로 바꾼다. 비밀번호는 12자 이상이어야 하며 평문 저장되지 않고 해시만 저장된다. `--replace`로 재설정하면 기존 웹·모바일 세션도 모두 종료한다.
 
 ### 7. 웹 프론트엔드 빌드
 
@@ -344,6 +362,11 @@ HTTP만 먼저 확인할 때의 최소 예시:
     <Directory /var/www/money-note>
         Require all granted
         Options -Indexes
+        Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"
+        Header always set X-Content-Type-Options "nosniff"
+        Header always set X-Frame-Options "DENY"
+        Header always set Referrer-Policy "no-referrer"
+        Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
         RewriteEngine On
         RewriteCond %{REQUEST_FILENAME} !-f
         RewriteCond %{REQUEST_FILENAME} !-d
@@ -366,6 +389,7 @@ HTTPS 적용 후의 예시:
     SSLEngine on
     SSLCertificateFile /etc/letsencrypt/live/money.hjkerman.re.kr/fullchain.pem
     SSLCertificateKeyFile /etc/letsencrypt/live/money.hjkerman.re.kr/privkey.pem
+    Header always set Strict-Transport-Security "max-age=31536000"
 
     RequestHeader set X-Forwarded-Proto "https"
     ProxyPreserveHost On
@@ -376,9 +400,18 @@ HTTPS 적용 후의 예시:
     ProxyPass /health http://127.0.0.1:18080/health
     ProxyPassReverse /health http://127.0.0.1:18080/health
 
+    <Location /api/admin/snapshot/restore>
+        LimitRequestBody 26214400
+    </Location>
+
     <Directory /var/www/money-note>
         Require all granted
         Options -Indexes
+        Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"
+        Header always set X-Content-Type-Options "nosniff"
+        Header always set X-Frame-Options "DENY"
+        Header always set Referrer-Policy "no-referrer"
+        Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
         RewriteEngine On
         RewriteCond %{REQUEST_FILENAME} !-f
         RewriteCond %{REQUEST_FILENAME} !-d
@@ -387,6 +420,15 @@ HTTPS 적용 후의 예시:
 
     ErrorLog ${APACHE_LOG_DIR}/money-note-error.log
     CustomLog ${APACHE_LOG_DIR}/money-note-access.log combined
+</VirtualHost>
+```
+
+운영에서는 앞의 HTTP 확인용 vhost를 계속 서비스하지 말고 HTTPS로 리디렉션한다.
+
+```apache
+<VirtualHost *:80>
+    ServerName money.hjkerman.re.kr
+    Redirect permanent / https://money.hjkerman.re.kr/
 </VirtualHost>
 ```
 
@@ -416,6 +458,9 @@ docker compose up --build -d
 3. 설정에서 snapshot 백업 다운로드 가능
 4. 청구 공유 링크와 가족카드 공유 링크가 PIN 화면을 거쳐 열림
 5. `docker compose logs --tail=80 api`에 반복 오류가 없음
+6. 로그인 cookie에 `HttpOnly`, `Secure`, `SameSite=Lax`가 설정됨
+7. 웹 로그인 응답 JSON의 `session_token`이 `null`임
+8. 기본 공유 PIN `0000` 경고가 사라지도록 운영 PIN을 변경함
 
 ### 11. 업데이트 절차
 
@@ -471,9 +516,18 @@ MONEY_NOTE_SESSION_COOKIE_NAME=money_note_session
 MONEY_NOTE_SESSION_DAYS=30
 MONEY_NOTE_MOBILE_SESSION_DAYS=3650
 MONEY_NOTE_COOKIE_SECURE=false
+MONEY_NOTE_LOGIN_MAX_FAILURES=5
+MONEY_NOTE_LOGIN_WINDOW_SECONDS=300
+MONEY_NOTE_SHARE_PIN_MAX_FAILURES=10
+MONEY_NOTE_SHARE_PIN_WINDOW_SECONDS=600
+MONEY_NOTE_API_REQUEST_MAX_BYTES=1048576
+MONEY_NOTE_SNAPSHOT_RESTORE_MAX_BYTES=26214400
+MONEY_NOTE_AUDIT_LOG_RETENTION_DAYS=180
+MONEY_NOTE_PRE_RESTORE_KEEP_COUNT=30
+MONEY_NOTE_TRUST_PROXY_HEADERS=true
 ```
 
-운영에서 HTTPS 뒤에 둘 때는 `MONEY_NOTE_COOKIE_SECURE=true` 사용을 고려한다.
+운영 HTTPS Origin을 설정하면 `MONEY_NOTE_COOKIE_SECURE=true`가 필수다. CORS Origin은 `*`를 허용하지 않으며 scheme과 host를 포함한 정확한 주소를 쉼표로 나열한다.
 
 웹 로그인 cookie는 `MONEY_NOTE_SESSION_DAYS`를 따른다. 모바일 앱은 `/api/auth/mobile-login`에서 받은 Bearer 토큰을 저장하며 `MONEY_NOTE_MOBILE_SESSION_DAYS`를 따른다. 공유 페이지 PIN 세션은 별도 장기 세션을 사용한다.
 
@@ -513,7 +567,7 @@ docker compose up --build -d
 
 ## 모바일 앱 개발과 APK 빌드
 
-모바일 앱은 `mobile/` 디렉터리의 Flutter 프로젝트다. 웹 앱을 그대로 줄인 것이 아니라, 빠른 입력, 현금흐름 관리, 당월 내역 확인, 청구/가족카드 정산, 상태 확인에 집중한다. 카드대금 실제 결제는 카드사 앱에서 처리하고, Money-Note 모바일 앱에서는 현금 유동성 보정에 집중한다.
+모바일 앱은 `mobile/` 디렉터리의 Flutter 프로젝트다. 웹 앱을 그대로 줄인 것이 아니라, 홈 상태 확인, 빠른 입력, 현금흐름 관리, 당월 내역 확인, 청구/가족카드 정산에 집중한다. 카드대금 실제 결제는 카드사 앱에서 처리하고, Money-Note 모바일 앱에서는 현금 유동성 보정에 집중한다.
 
 모바일 현금 탭과 웹 현금흐름 탭은 서버 기준 날짜를 사용해 직전 월 1일부터 당월 말일까지의 현금흐름만 조회한다. 서버 DB에는 과거 현금흐름이 계속 보존된다. 웹은 `통계 보기` 모달의 `현금흐름` 보기에서 전체 기록을 한 번 불러와 월별로 보여주며, API에서 조건 없는 `GET /api/cash-flows`를 호출해도 전체 기록을 조회할 수 있다.
 
@@ -585,7 +639,7 @@ flutter run --dart-define=MONEY_NOTE_API_BASE_URL=https://money.hjkerman.re.kr
 
 모바일 로그인은 `/api/auth/mobile-login`을 사용한다. 이 경로는 웹 cookie를 만들지 않고, `MONEY_NOTE_MOBILE_SESSION_DAYS` 기준의 장기 Bearer 토큰만 발급한다.
 
-앱 실행 후 로그인 세션이 살아 있으면 서버에서 snapshot을 자동으로 받아 앱 내부에 누적 저장한다. 이 자동 백업은 사용자가 매번 파일을 직접 내려받지 않아도 되는 안전장치다. 상태 탭의 `관리 -> 백업 / 복원`에서 저장된 스냅샷 목록을 확인하고, 특정 파일을 공유하거나 복원하거나 삭제하거나 전체 삭제할 수 있다.
+앱 실행 후 로그인 세션이 살아 있으면 서버에서 snapshot을 자동으로 받아 앱 내부에 누적 저장한다. 이 자동 백업은 사용자가 매번 파일을 직접 내려받지 않아도 되는 안전장치다. `설정 -> 백업 / 복원`에서 저장된 스냅샷 목록을 확인하고, 특정 파일을 공유하거나 복원하거나 삭제하거나 전체 삭제할 수 있다.
 
 ### 4. 검사와 테스트
 
@@ -717,12 +771,15 @@ flutter run -d emulator-5554 --dart-define=MONEY_NOTE_API_BASE_URL=http://10.0.2
 flutter build apk --release --dart-define=MONEY_NOTE_API_BASE_URL=https://money.hjkerman.re.kr
 ```
 
+release manifest는 평문 HTTP 통신을 차단한다. 운영 빌드의 `MONEY_NOTE_API_BASE_URL`은 반드시 `https://` 주소여야 하며, 로컬 `http://10.0.2.2:18080`은 debug 실행에만 사용한다.
+
 Android Gradle 메모:
 
-- 앱 모듈 자체는 Flutter built-in Kotlin 방식에 맞춰 `org.jetbrains.kotlin.android` 플러그인을 직접 적용하지 않는다.
+- 앱 모듈은 `org.jetbrains.kotlin.android` 플러그인을 직접 적용하지 않는다.
 - `kotlin.compilerOptions` DSL로 JVM target을 지정한다.
-- `share_plus`는 최신 제약으로 올려도 현재 플러그인 내부에서 Kotlin Gradle Plugin 경고가 남을 수 있다.
-- 이 경우 앱 로직 문제가 아니라 Flutter 플러그인 생태계의 이행 상태 문제다. `flutter build apk`가 통과하는지 확인하고, 향후 `share_plus` 릴리즈에서 built-in Kotlin 이행이 완료되면 다시 `flutter pub upgrade share_plus`로 점검한다.
+- 현재 Flutter/AGP 호환을 위해 `android.builtInKotlin=false`와 `android.newDsl=false`를 임시로 유지한다. AGP 10 이전에 Flutter SDK와 플러그인을 갱신하고 두 플래그를 제거한 상태로 빌드를 재검증한다.
+- Flutter 도구가 제공하는 Kotlin `2.2.10`에 대해 향후 `2.2.20` 이상을 요구할 예정이라는 경고가 날 수 있다. 프로젝트에서 Kotlin 플러그인을 다시 직접 적용해 우회하지 않는다.
+- `share_plus 13.2.1`에서는 과거의 플러그인 자체 Kotlin Gradle Plugin 경고가 재현되지 않는다.
 
 ### 8. 카드·교통 실험 알림 수집 확인
 
@@ -751,9 +808,9 @@ Android에서 권한을 켠다.
 1. 앱의 `입력` 탭으로 이동한다.
 2. `알림에서 가져오기`를 누른다.
 3. Android 설정에서 Money-Note의 알림 접근 권한을 허용한다.
-4. 입력 화면 상단에 `앱 알림 표시 권한` 경고가 보이면 `앱 알림 허용`을 눌러 앱 알림도 허용한다.
+4. 홈 화면에 `앱 알림 표시 권한` 경고가 보이면 `앱 알림 허용`을 눌러 앱 알림도 허용한다.
 
-앱 실행 시 필요한 권한이 빠져 있으면 입력 화면 상단에 `카드 알림 낚시 준비가 덜 됐습니다.` 경고가 표시된다. 알림 낚시에 필요한 권한은 두 가지다.
+앱 실행 시 필요한 권한이 빠져 있으면 홈 화면에 `카드 알림 낚시 준비가 덜 됐습니다.` 경고가 표시된다. 알림 낚시에 필요한 권한은 두 가지다.
 
 - 알림 접근 권한: Android 알림 원문을 관측하기 위한 권한
 - 앱 알림 표시 권한: 향후 알림 관련 안내를 띄우기 위한 권한
@@ -836,14 +893,14 @@ https://play.google.com/store/apps/details?id=com.lgt.tmoney
 
 ```bash
 docker compose exec -T api env PYTHONPATH=/app \
-  python scripts/create_user.py your-username your-password \
+  python scripts/create_user.py your-username 12자-이상-비밀번호 \
   --display-name "사용자" \
   --replace
 ```
 
 로컬 개발 DB에는 별도 테스트 계정을 만들 수 있다. 테스트 계정 정보는 git에 기록하지 않는다.
 
-운영 전에는 충분히 긴 비밀번호로 관리자 계정을 다시 만든다.
+본체 비밀번호는 12자 이상이어야 한다.
 
 ## 비밀번호를 잊었을 때
 
@@ -851,19 +908,12 @@ docker compose exec -T api env PYTHONPATH=/app \
 
 ```bash
 docker compose exec -T api env PYTHONPATH=/app \
-  python scripts/create_user.py your-username new-password \
+  python scripts/create_user.py your-username 12자-이상-새-비밀번호 \
   --display-name "사용자" \
   --replace
 ```
 
-`--replace`는 같은 `username`이 이미 있을 때 비밀번호 해시와 표시 이름을 새 값으로 갱신한다. DB에는 새 비밀번호 평문이 저장되지 않고, 새 PBKDF2-SHA256 해시만 저장된다.
-
-기존 로그인 세션을 모두 끊고 싶으면 DB에서 해당 사용자의 세션을 삭제한다.
-
-```bash
-docker compose exec -T api sqlite3 /app/data/money-note.sqlite3 \
-  "DELETE FROM auth_sessions WHERE user_id = (SELECT id FROM users WHERE username = 'your-username');"
-```
+`--replace`는 같은 `username`이 이미 있을 때 비밀번호 해시와 표시 이름을 갱신하고 기존 웹·모바일 세션을 모두 종료한다. DB에는 새 비밀번호 평문이 저장되지 않고 새 PBKDF2-SHA256 해시만 저장된다.
 
 ## 웹 프론트엔드 개발 서버
 
@@ -890,20 +940,20 @@ http://127.0.0.1:5173
 
 인증 방식:
 
-- 웹 브라우저에서는 `money_note_session` cookie가 기본 인증 수단이다.
-- cookie를 쓰기 어려운 클라이언트를 위해 로그인 응답의 `session_token`도 제공한다.
-- 프론트엔드는 이후 요청에 `Authorization: Bearer ...` 헤더를 함께 보낼 수 있다.
+- 웹 브라우저는 `money_note_session` HttpOnly cookie만 사용한다.
+- 웹 로그인 응답은 `session_token`을 노출하지 않는다.
+- 모바일만 `/api/auth/mobile-login`에서 장기 Bearer 토큰을 받는다.
 - 비밀번호 오류는 화면에 `아이디 또는 비밀번호가 맞지 않습니다.`로 표시한다.
 
 조작 저장 방식:
 
 - 추가, 삭제, 확인, 초기화는 버튼을 누르는 즉시 서버 DB에 반영된다.
-- 분류 변경은 화면에 임시로 쌓이고, 상단의 `변경 사항 저장` 버튼을 눌러야 서버 DB에 반영된다.
-- 이 방식은 여러 지출을 빠르게 분류한 뒤 한 번에 저장하기 위한 UX다.
+- 분류 변경을 포함한 드롭다운과 버튼 조작은 즉시 서버 DB에 반영한다.
+- 변경 후 관련 영역을 다시 조회해 서버가 확정한 할인·합계·판단 결과를 화면에 반영한다.
 
 카드 결제 관리:
 
-- `이번달 결제` 탭은 직전월 1일~말일 사용분을 보여준다.
+- `이번달 결제` 탭은 마지막 월마감이 만든 활성 결제 batch를 보여준다. 달력상 직전월을 클라이언트가 추정하지 않는다.
 - 즉시결제는 익월 14일까지 가능하다.
 - 카드 할인은 월 정책이 혜택 없음이 아닌 경우 기본 1.2%로 계산한다. 개별 항목의 `할인 제외`를 누르면 해당 항목 할인액은 0원이다.
 - 자동 배분 기본 한도는 현재 유동성이며, 날짜 오름차순으로 배분한다.
@@ -912,7 +962,7 @@ http://127.0.0.1:5173
 - 청구 탭의 하이패스/통행료는 집에 청구하는 별도 패널 데이터이므로 결제 화면의 통합 행에 섞이지 않는다.
 - 현금흐름 입금에 `이달 기준 수입`을 표시하면 파산심사위원회의 해당 월 심사 기준으로 사용한다.
 - 이달 기준 수입이 없으면 `base_next_month_liquidity` 설정값, 즉 `기본 예정 수입`을 수입 하한선 겸 fallback 심사 기준액으로 사용하며 설정 화면에서 변경할 수 있다.
-- 14일 경과 후 미결제 기록이 있으면 실제 카드 결제는 완료된 것으로 의제하고, 사용자가 유동성 현황을 보정한 뒤 `유동성 보정 완료`를 누른다.
+- 14일 경과 후 미결제 기록이 있으면 이를 숨기지 않고 안내한다. 사용자가 카드사 내역을 확인하고 유동성 현황을 보정한 뒤 `유동성 보정 완료`를 누른다.
 
 API 서버 주소는 `frontend/.env`로 지정할 수 있다. 이 파일은 Vite 빌드 시점에 읽힌다.
 
@@ -1073,7 +1123,7 @@ curl -b /tmp/money-note-cookie.txt \
 
 ### 클라이언트 자동 백업 정책
 
-향후 모바일 앱과 맥 앱은 앱 실행 시 서버에서 snapshot을 내려받아 각 기기 로컬에 백업 파일을 유지한다.
+모바일 앱은 앱 실행 시 서버에서 snapshot을 내려받아 앱 전용 저장소에 백업 파일을 유지한다.
 
 브라우저 웹앱은 로컬 파일시스템을 안정적으로 제어할 수 없으므로 자동 누적 백업을 구현하지 않는다.
 
@@ -1085,7 +1135,7 @@ curl -b /tmp/money-note-cookie.txt \
 - 파일명은 `money-note-snapshot-YYYYMMDD-HHMMSSmmm.money-note-snapshot.json` 형태를 사용한다.
 - 기존 snapshot 파일을 덮어쓰지 않는다.
 - 모바일 앱은 최근 30개 snapshot만 유지하며, 30개를 초과하면 가장 오래된 파일부터 삭제한다.
-- 사용자는 모바일 `상태 -> 관리 -> 백업 / 복원` 화면에서 파일별 공유, 파일별 복원, 파일별 삭제, 전체 삭제를 수행한다.
+- 사용자는 모바일 `설정 -> 백업 / 복원` 화면에서 파일별 공유, 파일별 복원, 파일별 삭제, 전체 삭제를 수행한다.
 - 모바일 앱의 snapshot은 서버 데이터 복원을 자동 수행하지 않는다. 사용자가 명시적으로 특정 snapshot을 선택하고 비밀번호를 입력했을 때만 서버 restore API를 호출한다.
 
 이 정책은 네트워크 중단, 앱 강제 종료, 잘못된 최신 상태가 곧바로 유일한 백업을 덮어쓰는 사고를 줄이기 위한 최소 안전장치다. 저장 공간이 부담되면 모바일 스냅샷 관리 화면에서 오래된 파일을 직접 정리한다.
@@ -1192,11 +1242,13 @@ Bearer token 인증 확인:
 TOKEN="$(curl -s \
   -H 'Content-Type: application/json' \
   -d '{"username":"your-username","password":"your-password"}' \
-  http://localhost:18080/api/auth/login \
+  http://localhost:18080/api/auth/mobile-login \
   | python3 -c 'import json,sys; print(json.load(sys.stdin)["session_token"])')"
 
 curl -H "Authorization: Bearer $TOKEN" http://localhost:18080/api/auth/me
 ```
+
+전체 보안 설정과 남는 위험은 [보안 운영](security.md)을 함께 확인한다.
 
 ## 관리 로그
 

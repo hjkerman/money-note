@@ -5,7 +5,7 @@ import '../formatters.dart';
 import '../models.dart';
 import '../theme.dart';
 import '../widgets/money_card.dart';
-import 'notification_import_screen.dart';
+import 'notification_archive_screen.dart';
 import 'snapshot_manager_screen.dart';
 
 class ManagementScreen extends StatelessWidget {

@@ -1,6 +1,18 @@
 import { deleteJson, getJson, patchJson, postJson } from "./client";
 import { LedgerEntry } from "./types";
 
+type LedgerEntryWrite = Omit<
+  LedgerEntry,
+  | "id"
+  | "discount_policy"
+  | "automatic_discount_eligible"
+  | "automatic_discount_amount"
+  | "effective_discount_amount"
+  | "effective_amount_value"
+  | "is_transport"
+  | "is_toll"
+>;
+
 export async function fetchCurrentEntries(): Promise<LedgerEntry[]> {
   return getJson("/api/entries/current");
 }
@@ -27,11 +39,11 @@ export async function deletePlannedEntry(entryId: number): Promise<{ deleted: bo
   return deleteJson(`/api/month/current/planned/${entryId}`);
 }
 
-export async function createEntry(payload: Omit<LedgerEntry, "id" | "payment_key">): Promise<LedgerEntry> {
+export async function createEntry(payload: Omit<LedgerEntryWrite, "payment_key">): Promise<LedgerEntry> {
   return postJson("/api/entries", payload);
 }
 
-export async function updateEntry(entryId: number, payload: Partial<Omit<LedgerEntry, "id">>): Promise<LedgerEntry> {
+export async function updateEntry(entryId: number, payload: Partial<LedgerEntryWrite>): Promise<LedgerEntry> {
   return patchJson(`/api/entries/${entryId}`, payload);
 }
 

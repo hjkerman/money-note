@@ -42,6 +42,8 @@ class AppState extends ChangeNotifier {
   bool get isLoggedIn => user != null;
 
   String get currentMonth {
+    final serverMonth = monthCloseStatus?.calendarMonth ?? '';
+    if (serverMonth.length >= 7) return serverMonth.substring(0, 7);
     final entryMonth = entries
         .where((entry) => entry.entryDate != null)
         .map((entry) => entry.entryDate!.substring(0, 7))
@@ -49,8 +51,6 @@ class AppState extends ChangeNotifier {
     if (entryMonth.isNotEmpty) return entryMonth.last;
     final panelMonth = panels.map((panel) => panel.month).toList();
     if (panelMonth.isNotEmpty) return panelMonth.last;
-    final serverMonth = monthCloseStatus?.calendarMonth ?? '';
-    if (serverMonth.length >= 7) return serverMonth.substring(0, 7);
     final now = DateTime.now();
     return '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}';
   }
@@ -97,16 +97,6 @@ class AppState extends ChangeNotifier {
       return a.id.compareTo(b.id);
     });
     return rows;
-  }
-
-  int panelOriginalTotal(String panelType) {
-    return panelsByType(panelType)
-        .fold(0, (sum, panel) => sum + (panel.amountValue ?? 0));
-  }
-
-  int panelEffectiveTotal(String panelType) {
-    return panelsByType(panelType)
-        .fold(0, (sum, panel) => sum + panel.effectiveAmount);
   }
 
   Future<void> bootstrap() async {

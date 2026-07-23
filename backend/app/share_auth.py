@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 import hashlib
+import json
 import secrets
 
 from fastapi import Request, Response
@@ -14,6 +15,7 @@ from app.db import session
 SHARE_COOKIE_NAME = "money_note_share_session"
 SHARE_SESSION_DAYS = 3650
 DEFAULT_SHARE_PIN = "0000"
+SENSITIVE_SHARE_SETTING_KEYS = frozenset({"share_pin_hash", "share_pin_is_default"})
 
 
 def ensure_default_share_pin() -> None:
@@ -134,6 +136,12 @@ def share_access_allowed(request: Request) -> bool:
 def share_unlock_html(next_path: str) -> str:
     """공유 페이지 앞에 표시하는 간단한 가족 PIN 입력 화면이다."""
     safe_next = next_path if next_path.startswith("/share/") else "/share/claim"
+    safe_next_json = (
+        json.dumps(safe_next)
+        .replace("<", "\\u003c")
+        .replace(">", "\\u003e")
+        .replace("&", "\\u0026")
+    )
     return f"""<!doctype html>
 <html lang="ko">
 <head>
@@ -170,7 +178,7 @@ def share_unlock_html(next_path: str) -> str:
         credentials: "include",
         body: JSON.stringify({{ pin: document.getElementById("pin").value }})
       }});
-      if (response.ok) window.location.href = {safe_next!r};
+      if (response.ok) window.location.href = {safe_next_json};
       else document.getElementById("message").textContent = "비밀번호가 맞지 않습니다.";
     }});
   </script>

@@ -132,16 +132,17 @@ export function App() {
   } = useAppDerivedState({
     archiveEntries,
     cardPayments,
-    cashFlows,
     entries,
-    familyDiscountMonth,
     labels,
     monthCloseStatus,
-    ownerDiscountMonth,
-    panels,
     selectedHistoryMonth,
     summary,
   });
+  useEffect(() => {
+    if (!selectedHistoryMonth && monthCloseStatus?.calendar_month) {
+      setSelectedHistoryMonth(monthCloseStatus.calendar_month);
+    }
+  }, [monthCloseStatus?.calendar_month, selectedHistoryMonth, setSelectedHistoryMonth]);
   const {
     handleCategoryChange,
     handleEntryDelete,
@@ -168,6 +169,7 @@ export function App() {
     handlePanelShare,
     handlePanelSubmit,
   } = usePanelHandlers({
+    calendarDate: monthCloseStatus?.calendar_date,
     familyDiscountPolicy: familyDiscountMonth?.policy,
     labels,
     month: monthCloseStatus?.calendar_month,
@@ -433,6 +435,7 @@ export function App() {
               setExpenseForm={setExpenseForm}
               setPanelForm={setPanelForm}
               settings={settings}
+              summary={summary}
             />
 
           <FixedPanelView
@@ -458,6 +461,7 @@ export function App() {
           <CardPaymentView
               active={activePrimaryTab === "payment"}
               cardPayments={cardPayments}
+              currentMonth={currentMonth}
               handleAutoAllocate={handleAutoAllocate}
               handleCardPaymentDiscountToggle={(row, exclude) => void handleCardPaymentDiscountToggle(row, exclude)}
               handleCardPaymentRowDelete={(row) => void handleCardPaymentRowDelete(row)}
@@ -502,6 +506,7 @@ export function App() {
                 setShowStats(true);
               }}
               setCashFlowForm={setCashFlowForm}
+              summary={summary}
             />
 
         </div>

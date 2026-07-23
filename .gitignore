@@ -10,6 +10,8 @@ node_modules/
 dist/
 *.tsbuildinfo
 *.sh
+*.apk
+secrets/
 
 data/
 downloads/

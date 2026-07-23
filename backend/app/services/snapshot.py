@@ -14,10 +14,10 @@ from typing import Any
 
 from app.config import get_settings
 from app.db import SCHEMA, session
+from app.share_auth import SENSITIVE_SHARE_SETTING_KEYS
 
 
 SNAPSHOT_SCHEMA_VERSION = 3
-SENSITIVE_SETTING_KEYS = {"share_pin_hash", "share_pin_is_default"}
 PRE_RESTORE_FILENAME_RE = re.compile(r"^pre_restore-\d{8}T\d{6}Z(?:-\d+)?\.money-note-snapshot\.json$")
 SNAPSHOT_TABLES = [
     "ledger_entries",
@@ -86,8 +86,10 @@ def export_snapshot(today: date | None = None) -> tuple[str, dict[str, Any]]:
                 conn,
                 "app_settings",
                 "key",
-                where="key NOT IN ({})".format(",".join("?" for _ in SENSITIVE_SETTING_KEYS)),
-                params=tuple(SENSITIVE_SETTING_KEYS),
+                where="key NOT IN ({})".format(
+                    ",".join("?" for _ in SENSITIVE_SHARE_SETTING_KEYS)
+                ),
+                params=tuple(SENSITIVE_SHARE_SETTING_KEYS),
             ),
             "app_labels": _snapshot_rows(conn, "app_labels", "key"),
         }
@@ -202,9 +204,9 @@ def _replace_snapshot_tables(conn: Any, data: dict[str, list[dict[str, Any]]]) -
         conn.execute(f"DELETE FROM {table}")
     conn.execute(
         "DELETE FROM app_settings WHERE key NOT IN ({})".format(
-            ",".join("?" for _ in SENSITIVE_SETTING_KEYS),
+            ",".join("?" for _ in SENSITIVE_SHARE_SETTING_KEYS),
         ),
-        tuple(SENSITIVE_SETTING_KEYS),
+        tuple(SENSITIVE_SHARE_SETTING_KEYS),
     )
     conn.execute("DELETE FROM app_labels")
     for table in SNAPSHOT_TABLES:
@@ -255,7 +257,7 @@ def _validate_snapshot(snapshot: dict[str, Any]) -> None:
             if not isinstance(row, dict):
                 raise ValueError(f"{table} rows must be objects")
     for setting in data["app_settings"]:
-        if setting.get("key") in SENSITIVE_SETTING_KEYS:
+        if setting.get("key") in SENSITIVE_SHARE_SETTING_KEYS:
             raise ValueError("snapshot contains sensitive app_settings")
     manifest = snapshot.get("manifest")
     if not isinstance(manifest, dict):

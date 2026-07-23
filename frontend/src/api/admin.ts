@@ -1,4 +1,4 @@
-import { API_BASE_URL, authHeaders, deleteJson, getJson, postJson, readDownloadFilename } from "./client";
+import { API_BASE_URL, deleteJson, getJson, postJson, readDownloadFilename } from "./client";
 import { OperationStats, PreRestoreBackup } from "./types";
 
 export async function resetLedgerData(password: string): Promise<{ deleted: Record<string, number> }> {
@@ -14,7 +14,6 @@ export async function restoreSnapshot(
 
 export async function downloadSnapshot(): Promise<{ blob: Blob; filename: string }> {
   const response = await fetch(`${API_BASE_URL}/api/admin/snapshot`, {
-    headers: authHeaders(),
     credentials: "include",
   });
   if (!response.ok) {
@@ -29,7 +28,6 @@ export async function downloadSnapshot(): Promise<{ blob: Blob; filename: string
 
 export async function downloadAndroidApk(): Promise<{ blob: Blob; filename: string }> {
   const response = await fetch(`${API_BASE_URL}/api/admin/apk`, {
-    headers: authHeaders(),
     credentials: "include",
   });
   if (!response.ok) {

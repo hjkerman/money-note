@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+from calendar import monthrange
+
 from app.db import session
-from app.repository import list_entries
+from app.repositories.entries import list_entries
+from app.services.clock import app_today
 from app.services.discounts import effective_card_discount, normalize_discount_policy
 
 
@@ -31,13 +34,21 @@ def current_summary_values() -> dict[str, int]:
     )
     return {
         "base_next_month_liquidity": int(base_next_month_liquidity),
+        "current_spending_total": int(entry_card_total),
+        "current_discount_total": int(entry_discount_total),
         "card_total": int(card_total),
         "planned_recurring_total": int(planned_recurring_total),
+        "fixed_cash_total": int(fixed_panel_total),
         "transfer_or_deposit_total": int(transfer_or_deposit_total),
         "interest_expense": int(interest_expense),
         "frozen_asset_total": int(frozen_asset_total),
         "liquidity_status": int(liquidity_status),
         "next_month_liquidity": int(next_month_liquidity),
+        "claim_original_total": int(panel_total("claim")),
+        "claim_net_total": int(panel_net_total("claim")),
+        "family_card_original_total": int(panel_total("family_card")),
+        "family_card_net_total": int(panel_net_total("family_card")),
+        "visible_cash_flow_total": int(visible_cash_flow_total()),
     }
 
 
@@ -155,4 +166,24 @@ def setting_text(key: str, fallback: str = "") -> str:
 def cash_flow_total() -> float:
     with session() as conn:
         row = conn.execute("SELECT COALESCE(SUM(amount_value), 0) AS total FROM cash_flows").fetchone()
+    return float(row["total"])
+
+
+def visible_cash_flow_total() -> float:
+    """웹/모바일 기본 목록과 같은 직전 월 1일부터 당월 말일까지의 현금흐름 합계다."""
+    today = app_today()
+    if today.month == 1:
+        date_from = f"{today.year - 1}-12-01"
+    else:
+        date_from = f"{today.year}-{today.month - 1:02d}-01"
+    date_to = f"{today.year}-{today.month:02d}-{monthrange(today.year, today.month)[1]:02d}"
+    with session() as conn:
+        row = conn.execute(
+            """
+            SELECT COALESCE(SUM(amount_value), 0) AS total
+            FROM cash_flows
+            WHERE occurred_on BETWEEN ? AND ?
+            """,
+            (date_from, date_to),
+        ).fetchone()
     return float(row["total"])

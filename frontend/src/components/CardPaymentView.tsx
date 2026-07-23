@@ -1,13 +1,14 @@
 import { Dispatch, FormEvent, SetStateAction } from "react";
 import { CardDiscountPolicy, CardPaymentRow, CardPaymentStatus, JudgmentState, Settings, Summary } from "../api";
 import { CardPaymentPanel } from "./CardPaymentPanel";
-import { parseSettingNumber, today } from "../utils";
+import { parseSettingNumber } from "../utils";
 
 type LateEntryForm = { date: string; usagePlace: string; usageItem: string; amount: string };
 
 export function CardPaymentView({
   active,
   cardPayments,
+  currentMonth,
   handleAutoAllocate,
   handleCardPaymentDiscountToggle,
   handleCardPaymentRowDelete,
@@ -30,6 +31,7 @@ export function CardPaymentView({
 }: {
   active: boolean;
   cardPayments: CardPaymentStatus | null;
+  currentMonth: string;
   handleAutoAllocate: () => void;
   handleCardPaymentDiscountToggle: (row: CardPaymentRow, exclude: boolean) => void;
   handleCardPaymentRowDelete: (row: CardPaymentRow) => void;
@@ -62,7 +64,7 @@ export function CardPaymentView({
         paymentBudget={paymentBudget}
         setPaymentBudget={setPaymentBudget}
         onDiscountPolicyChange={(policy) =>
-          handleDiscountPolicyChange("owner", cardPayments?.usage_month ?? today.slice(0, 7), policy)
+          handleDiscountPolicyChange("owner", cardPayments?.usage_month ?? currentMonth, policy)
         }
         onAutoAllocate={handleAutoAllocate}
         onDiscountToggle={(row, exclude) => handleCardPaymentDiscountToggle(row, exclude)}

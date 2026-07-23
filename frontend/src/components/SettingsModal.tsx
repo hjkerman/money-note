@@ -191,7 +191,8 @@ export function SettingsModal({
               value={passwordForm.newPassword}
               onChange={(event) => setPasswordForm({ ...passwordForm, newPassword: event.target.value })}
               autoComplete="new-password"
-              placeholder="새 비밀번호"
+              minLength={12}
+              placeholder="새 비밀번호(12자 이상)"
             />
             <button type="button" onClick={onPasswordChange} disabled={isBusy}>
               변경

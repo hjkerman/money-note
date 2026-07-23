@@ -121,14 +121,20 @@ export function useSettingsHandlers({
       setStatus("현재 비밀번호와 새 비밀번호를 입력하세요.");
       return;
     }
-    await withRefresh(async () => {
+    setIsBusy(true);
+    try {
       await changePassword({
         current_password: passwordForm.currentPassword,
         new_password: passwordForm.newPassword,
       });
       setPasswordForm({ currentPassword: "", newPassword: "" });
-      setStatus("계정 비밀번호 변경 완료");
-    });
+      setAuthUser(null);
+      setStatus("계정 비밀번호를 변경했습니다. 모든 기기에서 다시 로그인해 주세요.");
+    } catch (error) {
+      setStatus(`비밀번호 변경 실패: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      setIsBusy(false);
+    }
   }
 
   async function handleLedgerReset() {

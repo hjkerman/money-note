@@ -9,26 +9,40 @@ from app.auth import (
     current_user_from_request,
     require_user,
 )
+from app.config import get_settings
 from app.schemas import AuthUser, LoginIn, PasswordChangeIn
+from app.security import AttemptLimit, FailedAttemptLimiter, request_client_key
 from app.share_auth import share_pin_needs_change
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
+settings = get_settings()
+login_limiter = FailedAttemptLimiter(
+    AttemptLimit(settings.login_max_failures, settings.login_window_seconds)
+)
 
 
 @router.post("/login", response_model=AuthUser)
-def login(payload: LoginIn, response: Response) -> dict:
+def login(payload: LoginIn, request: Request, response: Response) -> dict:
+    attempt_key = request_client_key(request, payload.username)
+    login_limiter.check(attempt_key)
     user = authenticate_user(payload.username, payload.password)
     if user is None:
+        login_limiter.register_failure(attempt_key)
         raise HTTPException(status_code=401, detail="invalid username or password")
-    session_token = create_session_cookie(response, user["id"])
-    return {**user, "session_token": session_token, "share_pin_needs_change": share_pin_needs_change()}
+    login_limiter.clear(attempt_key)
+    create_session_cookie(response, user["id"])
+    return {**user, "session_token": None, "share_pin_needs_change": share_pin_needs_change()}
 
 
 @router.post("/mobile-login", response_model=AuthUser)
-def mobile_login(payload: LoginIn) -> dict:
+def mobile_login(payload: LoginIn, request: Request) -> dict:
+    attempt_key = request_client_key(request, payload.username)
+    login_limiter.check(attempt_key)
     user = authenticate_user(payload.username, payload.password)
     if user is None:
+        login_limiter.register_failure(attempt_key)
         raise HTTPException(status_code=401, detail="invalid username or password")
+    login_limiter.clear(attempt_key)
     session_token = create_mobile_session_token(user["id"])
     return {**user, "session_token": session_token, "share_pin_needs_change": share_pin_needs_change()}
 
@@ -48,7 +62,13 @@ def me(request: Request) -> dict:
 
 
 @router.patch("/password")
-def patch_password(payload: PasswordChangeIn, user: dict = Depends(require_user)) -> dict[str, bool]:
+def patch_password(
+    payload: PasswordChangeIn,
+    request: Request,
+    response: Response,
+    user: dict = Depends(require_user),
+) -> dict[str, bool]:
     if not change_password(int(user["id"]), payload.current_password, payload.new_password):
         raise HTTPException(status_code=422, detail="현재 비밀번호가 맞지 않습니다.")
+    clear_session_cookie(request, response)
     return {"changed": True}

@@ -2,11 +2,15 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'models.dart';
 
 const _tokenKey = 'money_note_session_token';
+const _secureStorage = FlutterSecureStorage(
+  aOptions: AndroidOptions(migrateWithBackup: true),
+);
 
 class MoneyNoteApiClient {
   MoneyNoteApiClient({
@@ -25,18 +29,26 @@ class MoneyNoteApiClient {
   String? _sessionToken;
 
   Future<void> loadSession() async {
+    _sessionToken = await _secureStorage.read(key: _tokenKey);
+    if (_sessionToken != null && _sessionToken!.isNotEmpty) return;
+
+    // 일반 설정 저장소에 남아 있는 구버전 토큰을 한 번만 보안 저장소로 이전한다.
     final prefs = await SharedPreferences.getInstance();
-    _sessionToken = prefs.getString(_tokenKey);
+    final legacyToken = prefs.getString(_tokenKey);
+    if (legacyToken != null && legacyToken.isNotEmpty) {
+      await _secureStorage.write(key: _tokenKey, value: legacyToken);
+      _sessionToken = legacyToken;
+    }
+    await prefs.remove(_tokenKey);
   }
 
   Future<void> saveSession(String? token) async {
     _sessionToken = token;
-    final prefs = await SharedPreferences.getInstance();
     if (token == null || token.isEmpty) {
-      await prefs.remove(_tokenKey);
+      await _secureStorage.delete(key: _tokenKey);
       return;
     }
-    await prefs.setString(_tokenKey, token);
+    await _secureStorage.write(key: _tokenKey, value: token);
   }
 
   Future<AuthUser> login(String username, String password) async {

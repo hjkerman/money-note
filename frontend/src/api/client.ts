@@ -1,18 +1,14 @@
-const SESSION_TOKEN_KEY = "money-note-session-token";
+const LEGACY_SESSION_TOKEN_KEY = "money-note-session-token";
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? defaultApiBaseUrl();
 
-export function storeSessionToken(token: string | null | undefined): void {
-  if (token) localStorage.setItem(SESSION_TOKEN_KEY, token);
-}
-
-export function clearSessionToken(): void {
-  localStorage.removeItem(SESSION_TOKEN_KEY);
+if (typeof window !== "undefined") {
+  // 웹 인증은 HttpOnly cookie만 사용한다. 과거 버전이 남긴 Bearer 토큰도 즉시 제거한다.
+  window.localStorage.removeItem(LEGACY_SESSION_TOKEN_KEY);
 }
 
 export async function getJson<T>(path: string): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
-    headers: authHeaders(),
     credentials: "include",
   });
   return parseResponse(response);
@@ -21,7 +17,7 @@ export async function getJson<T>(path: string): Promise<T> {
 export async function postJson<T>(path: string, body: unknown): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: { "Content-Type": "application/json" },
     credentials: "include",
     body: JSON.stringify(body),
   });
@@ -31,7 +27,7 @@ export async function postJson<T>(path: string, body: unknown): Promise<T> {
 export async function patchJson<T>(path: string, body: unknown): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: { "Content-Type": "application/json" },
     credentials: "include",
     body: JSON.stringify(body),
   });
@@ -41,15 +37,9 @@ export async function patchJson<T>(path: string, body: unknown): Promise<T> {
 export async function deleteJson<T>(path: string): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: "DELETE",
-    headers: authHeaders(),
     credentials: "include",
   });
   return parseResponse(response);
-}
-
-export function authHeaders(): Record<string, string> {
-  const token = localStorage.getItem(SESSION_TOKEN_KEY);
-  return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
 export function readDownloadFilename(header: string | null): string | null {

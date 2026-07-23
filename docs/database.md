@@ -11,6 +11,7 @@
 - 구버전 JSON snapshot/백업에 `1000.0` 또는 `1000.9`처럼 float 금액이 들어 있으면 restore/import 시 소수점 아래를 절삭해 `1000`으로 정규화한다.
 - 일반 API 입력에서는 원화 금액을 정수로 보내는 것을 원칙으로 한다.
 - `created_at`, `updated_at`은 SQLite `CURRENT_TIMESTAMP` 문자열이다.
+- 할인 정책, 자동/유효 할인액, 실결제액, 교통·통행 태그는 DB 중복 컬럼이 아니라 조회 시 서버가 만드는 API 투영값이다.
 
 ## 주요 테이블
 
@@ -62,6 +63,8 @@
 - 카드 정기결제는 `due_day`, `sort_order`, `id` 순
 - 일반 지출은 `entry_date`, `sort_order`, `id` 순
 
+API의 `discount_policy`, `automatic_discount_eligible`, `automatic_discount_amount`, `effective_discount_amount`, `effective_amount_value`, `is_transport`, `is_toll`은 이 테이블 컬럼이 아니다. 서버가 저장값과 월 정책을 결합해 응답에만 덧붙인다.
+
 ## `monthly_panels`
 
 당월 하위 큐 성격의 테이블이다.
@@ -85,6 +88,8 @@
 
 - 날짜가 있는 행이 먼저 온다.
 - 같은 날짜 안에서는 `sort_order`, `id` 순이다.
+
+API의 할인 정책·자동 할인·유효 할인·실결제 투영 필드는 이 테이블에 저장하지 않는다. 원본 금액과 수동 override만 저장하고 최종값은 서버가 매 조회 때 계산한다.
 
 ## `app_settings`
 
@@ -110,7 +115,6 @@
 | `panel_fixed_title` | 현금성 고정지출 제목 |
 | `panel_frozen_title` | 동결 제목 |
 | `panel_claim_title` | 청구 제목 |
-| `panel_family_card_title` | 가족카드 제목 |
 | `panel_family_card_title` | 가족카드 제목 |
 | `summary_title` | 요약 제목 |
 | `summary_card_total_label` | 카드대금 라벨 |

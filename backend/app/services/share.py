@@ -2,7 +2,11 @@ from __future__ import annotations
 
 from html import escape
 
-from app.repository import list_cash_flows, list_entries, list_labels, list_panels, list_settings
+from app.repositories.cash_flows import list_cash_flows
+from app.repositories.entries import list_entries
+from app.repositories.labels import list_labels
+from app.repositories.panels import list_panels
+from app.repositories.settings import list_settings
 from app.services.discounts import effective_card_discount, normalize_discount_policy
 from app.services.judgment import claim_ledger_note, format_won, shared_panel_subtitle
 from app.services.month import calendar_month_label

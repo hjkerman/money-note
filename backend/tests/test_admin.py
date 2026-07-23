@@ -104,7 +104,7 @@ class AdminApiTest(unittest.TestCase):
 
         restore_response = post_pre_restore_backup_restore(
             filename,
-            PreRestoreRestoreIn(password="secret"),
+            PreRestoreRestoreIn(password="test-secret-123"),
             user,
         )
         self.assertIn("restored", restore_response)
@@ -139,7 +139,11 @@ class AdminApiTest(unittest.TestCase):
         (backup_dir / filename).write_text(snapshot_service.json.dumps(snapshot, ensure_ascii=False), encoding="utf-8")
 
         with self.assertRaises(Exception):
-            post_pre_restore_backup_restore(filename, PreRestoreRestoreIn(password="secret"), user)
+            post_pre_restore_backup_restore(
+                filename,
+                PreRestoreRestoreIn(password="test-secret-123"),
+                user,
+            )
         with session() as conn:
             titles = {row["title"] for row in conn.execute("SELECT title FROM ledger_entries").fetchall()}
         self.assertIn("현재 운영 상태", titles)
@@ -151,7 +155,10 @@ class AdminApiTest(unittest.TestCase):
         snapshot_text = snapshot_service.json.dumps(snapshot, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
         reset_ledger_data()
 
-        response = post_snapshot_restore(SnapshotRestoreIn(password="secret", snapshot_text=snapshot_text), user)
+        response = post_snapshot_restore(
+            SnapshotRestoreIn(password="test-secret-123", snapshot_text=snapshot_text),
+            user,
+        )
 
         self.assertEqual(response["restored"]["ledger_entries"], 1)
         with session() as conn:
@@ -159,7 +166,7 @@ class AdminApiTest(unittest.TestCase):
         self.assertEqual(title, "원문 snapshot 복원")
 
     def _create_user(self) -> dict:
-        return create_user("tester", "secret", "테스트")
+        return create_user("tester", "test-secret-123", "테스트")
 
     def _create_pre_restore_backup(self) -> str:
         self._seed_entry("원래 상태")

@@ -25,6 +25,9 @@ val hasReleaseSigning = listOf(
     signingSecret("keyAlias", "MONEY_NOTE_KEY_ALIAS"),
     signingSecret("keyPassword", "MONEY_NOTE_KEY_PASSWORD"),
 ).all { it != null }
+val releaseTaskRequested = gradle.startParameter.taskNames.any {
+    it.contains("release", ignoreCase = true)
+}
 
 android {
     namespace = "com.example.money_note_mobile"
@@ -65,10 +68,12 @@ android {
         }
 
         release {
-            signingConfig = if (hasReleaseSigning) {
-                signingConfigs.getByName("sharedReleaseKey")
-            } else {
-                signingConfigs.getByName("debug")
+            if (hasReleaseSigning) {
+                signingConfig = signingConfigs.getByName("sharedReleaseKey")
+            } else if (releaseTaskRequested) {
+                throw GradleException(
+                    "Release signing is required. Configure key.properties or MONEY_NOTE_KEYSTORE_*."
+                )
             }
         }
     }

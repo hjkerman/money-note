@@ -27,52 +27,51 @@ class AuthUser {
 class Summary {
   Summary({
     required this.cardTotal,
+    required this.currentSpendingTotal,
+    required this.currentDiscountTotal,
     required this.plannedRecurringTotal,
+    required this.fixedCashTotal,
     required this.frozenAssetTotal,
     required this.liquidityStatus,
     required this.nextMonthLiquidity,
+    required this.claimOriginalTotal,
+    required this.claimNetTotal,
+    required this.familyCardOriginalTotal,
+    required this.familyCardNetTotal,
+    required this.visibleCashFlowTotal,
   });
 
   final int cardTotal;
+  final int currentSpendingTotal;
+  final int currentDiscountTotal;
   final int plannedRecurringTotal;
+  final int fixedCashTotal;
   final int frozenAssetTotal;
   final int liquidityStatus;
   final int nextMonthLiquidity;
+  final int claimOriginalTotal;
+  final int claimNetTotal;
+  final int familyCardOriginalTotal;
+  final int familyCardNetTotal;
+  final int visibleCashFlowTotal;
 
   factory Summary.fromJson(Map<String, dynamic> json) {
     return Summary(
       cardTotal: _int(json['card_total']),
+      currentSpendingTotal: _int(json['current_spending_total']),
+      currentDiscountTotal: _int(json['current_discount_total']),
       plannedRecurringTotal: _int(json['planned_recurring_total']),
+      fixedCashTotal: _int(json['fixed_cash_total']),
       frozenAssetTotal: _int(json['frozen_asset_total']),
       liquidityStatus: _int(json['liquidity_status']),
       nextMonthLiquidity: _int(json['next_month_liquidity']),
+      claimOriginalTotal: _int(json['claim_original_total']),
+      claimNetTotal: _int(json['claim_net_total']),
+      familyCardOriginalTotal: _int(json['family_card_original_total']),
+      familyCardNetTotal: _int(json['family_card_net_total']),
+      visibleCashFlowTotal: _int(json['visible_cash_flow_total']),
     );
   }
-}
-
-const discountIneligibleWords = [
-  '교통',
-  '대중교통',
-  '버스',
-  '지하철',
-  '통행',
-  '통행료',
-  '하이패스',
-];
-
-bool discountIneligibleText(String? value) {
-  final text = (value ?? '').toLowerCase();
-  return discountIneligibleWords
-      .any((word) => text.contains(word.toLowerCase()));
-}
-
-bool discountIneligibleEntry(LedgerEntry entry) {
-  return discountIneligibleText(
-      '${entry.title} ${entry.usagePlace ?? ''} ${entry.usageItem ?? ''}');
-}
-
-bool discountIneligiblePanel(MonthlyPanel panel) {
-  return discountIneligibleText(panel.title);
 }
 
 class LedgerEntry {
@@ -90,6 +89,13 @@ class LedgerEntry {
     this.paymentKey,
     this.auxAmountValue,
     this.discountOverride = 0,
+    this.discountPolicy = 'disabled',
+    this.automaticDiscountEligible = false,
+    this.automaticDiscountAmount = 0,
+    this.effectiveDiscountAmount = 0,
+    this.effectiveAmountValue,
+    this.isTransport = false,
+    this.isToll = false,
     this.dueDay,
     this.confirmedMonth,
   });
@@ -107,22 +113,22 @@ class LedgerEntry {
   final String? paymentKey;
   final int? auxAmountValue;
   final int discountOverride;
+  final String discountPolicy;
+  final bool automaticDiscountEligible;
+  final int automaticDiscountAmount;
+  final int effectiveDiscountAmount;
+  final int? effectiveAmountValue;
+  final bool isTransport;
+  final bool isToll;
   final int? dueDay;
   final String? confirmedMonth;
 
   int get manualDiscount => discountOverride != 0 ? (auxAmountValue ?? 0) : 0;
-  bool get isDiscountExcluded => discountOverride != 0 && manualDiscount <= 0;
-  bool get isDiscountIneligible => discountIneligibleEntry(this);
-
-  int discountForPolicy(bool policyEnabled) {
-    if (discountOverride != 0) return manualDiscount;
-    if (!policyEnabled || paymentKey == null || isDiscountIneligible) return 0;
-    return ((amountValue ?? 0) * 0.012).floor();
-  }
-
-  int effectiveAmountForPolicy(bool policyEnabled) {
-    return (amountValue ?? 0) - discountForPolicy(policyEnabled);
-  }
+  bool get isDiscountExcluded =>
+      discountOverride != 0 && effectiveDiscountAmount <= 0;
+  bool get isDiscountIneligible => !automaticDiscountEligible;
+  bool get isDiscountPolicyEnabled => discountPolicy == 'enabled';
+  int get effectiveAmount => effectiveAmountValue ?? (amountValue ?? 0);
 
   factory LedgerEntry.fromJson(Map<String, dynamic> json) {
     return LedgerEntry(
@@ -142,6 +148,16 @@ class LedgerEntry {
           ? null
           : _int(json['aux_amount_value']),
       discountOverride: _int(json['discount_override']),
+      discountPolicy: json['discount_policy'] as String? ?? 'disabled',
+      automaticDiscountEligible:
+          json['automatic_discount_eligible'] as bool? ?? false,
+      automaticDiscountAmount: _int(json['automatic_discount_amount']),
+      effectiveDiscountAmount: _int(json['effective_discount_amount']),
+      effectiveAmountValue: json['effective_amount_value'] == null
+          ? null
+          : _int(json['effective_amount_value']),
+      isTransport: json['is_transport'] as bool? ?? false,
+      isToll: json['is_toll'] as bool? ?? false,
       dueDay: json['due_day'] == null ? null : _int(json['due_day']),
       confirmedMonth: json['confirmed_month'] as String?,
     );
@@ -157,6 +173,11 @@ class MonthlyPanel {
     required this.sortOrder,
     required this.discountAmount,
     required this.discountOverride,
+    this.discountPolicy = 'disabled',
+    this.automaticDiscountEligible = false,
+    this.automaticDiscountAmount = 0,
+    this.effectiveDiscountAmount = 0,
+    this.effectiveAmountValue,
     this.spentOn,
     this.amountValue,
     this.dueDay,
@@ -169,23 +190,20 @@ class MonthlyPanel {
   final int sortOrder;
   final int discountAmount;
   final int discountOverride;
+  final String discountPolicy;
+  final bool automaticDiscountEligible;
+  final int automaticDiscountAmount;
+  final int effectiveDiscountAmount;
+  final int? effectiveAmountValue;
   final String? spentOn;
   final int? amountValue;
   final int? dueDay;
 
-  int get effectiveAmount => (amountValue ?? 0) - discountAmount;
-  bool get isDiscountExcluded => discountOverride != 0 && discountAmount <= 0;
-  bool get isDiscountIneligible => discountIneligiblePanel(this);
-
-  int discountForPolicy(bool policyEnabled) {
-    if (discountOverride != 0) return discountAmount;
-    if (!policyEnabled || isDiscountIneligible) return 0;
-    return ((amountValue ?? 0) * 0.012).floor();
-  }
-
-  int effectiveAmountForPolicy(bool policyEnabled) {
-    return (amountValue ?? 0) - discountForPolicy(policyEnabled);
-  }
+  int get effectiveAmount => effectiveAmountValue ?? (amountValue ?? 0);
+  bool get isDiscountExcluded =>
+      discountOverride != 0 && effectiveDiscountAmount <= 0;
+  bool get isDiscountIneligible => !automaticDiscountEligible;
+  bool get isDiscountPolicyEnabled => discountPolicy == 'enabled';
 
   factory MonthlyPanel.fromJson(Map<String, dynamic> json) {
     return MonthlyPanel(
@@ -196,6 +214,14 @@ class MonthlyPanel {
       sortOrder: _int(json['sort_order']),
       discountAmount: _int(json['discount_amount']),
       discountOverride: _int(json['discount_override']),
+      discountPolicy: json['discount_policy'] as String? ?? 'disabled',
+      automaticDiscountEligible:
+          json['automatic_discount_eligible'] as bool? ?? false,
+      automaticDiscountAmount: _int(json['automatic_discount_amount']),
+      effectiveDiscountAmount: _int(json['effective_discount_amount']),
+      effectiveAmountValue: json['effective_amount_value'] == null
+          ? null
+          : _int(json['effective_amount_value']),
       spentOn: json['spent_on'] as String?,
       amountValue:
           json['amount_value'] == null ? null : _int(json['amount_value']),

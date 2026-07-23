@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { CardDiscountMonth, CardPaymentStatus, CashFlow, LedgerEntry, MonthlyPanel, MonthCloseStatus, Summary } from "../api";
+import { CardPaymentStatus, LedgerEntry, MonthCloseStatus, Summary } from "../api";
 import { CurrentTab, PrimaryTab } from "../types";
 import {
   activeStatItems,
@@ -7,34 +7,22 @@ import {
   compareEntriesByDate,
   detectCurrentMonth,
   panelLabel,
-  sumAmounts,
-  sumCashFlows,
-  sumPanelAmounts,
-  sumPanelNetAmounts,
 } from "../utils";
 
 export function useAppDerivedState({
   archiveEntries,
   cardPayments,
-  cashFlows,
   entries,
-  familyDiscountMonth,
   labels,
   monthCloseStatus,
-  ownerDiscountMonth,
-  panels,
   selectedHistoryMonth,
   summary,
 }: {
   archiveEntries: LedgerEntry[];
   cardPayments: CardPaymentStatus | null;
-  cashFlows: CashFlow[];
   entries: LedgerEntry[];
-  familyDiscountMonth: CardDiscountMonth | null;
   labels: Record<string, string>;
   monthCloseStatus: MonthCloseStatus | null;
-  ownerDiscountMonth: CardDiscountMonth | null;
-  panels: MonthlyPanel[];
   selectedHistoryMonth: string;
   summary: Summary | null;
 }) {
@@ -62,7 +50,7 @@ export function useAppDerivedState({
       {
         id: "current",
         label: "당월",
-        total: sumAmounts(expenseEntries),
+        total: summary?.current_spending_total ?? 0,
       },
       {
         id: "payment",
@@ -72,44 +60,43 @@ export function useAppDerivedState({
       {
         id: "fixed",
         label: "고정지출",
-        total:
-          summary?.transfer_or_deposit_total ??
-          sumPanelAmounts(panels.filter((panel) => panel.panel_type === "fixed")) + sumAmounts(plannedEntries),
+        total: summary?.transfer_or_deposit_total ?? 0,
       },
       {
         id: "frozen",
         label: panelLabel(labels, "frozen"),
-        total: sumPanelAmounts(panels.filter((panel) => panel.panel_type === "frozen")),
+        total: summary?.frozen_asset_total ?? 0,
       },
       {
         id: "cash",
         label: "현금흐름",
-        total: sumCashFlows(cashFlows),
+        total: summary?.visible_cash_flow_total ?? 0,
       },
     ],
-    [cardPayments?.effective_remaining_total, cashFlows, expenseEntries, labels, panels, plannedEntries, summary?.transfer_or_deposit_total],
+    [
+      cardPayments?.effective_remaining_total,
+      labels,
+      summary?.current_spending_total,
+      summary?.frozen_asset_total,
+      summary?.transfer_or_deposit_total,
+      summary?.visible_cash_flow_total,
+    ],
   );
   const currentSubTabs: { id: CurrentTab; label: string; total: number }[] = useMemo(
     () => [
-      { id: "expenses", label: "당월 지출", total: sumAmounts(expenseEntries) },
+      { id: "expenses", label: "당월 지출", total: summary?.current_spending_total ?? 0 },
       {
         id: "claim",
         label: panelLabel(labels, "claim"),
-        total: sumPanelNetAmounts(
-          panels.filter((panel) => panel.panel_type === "claim"),
-          ownerDiscountMonth?.policy,
-        ),
+        total: summary?.claim_net_total ?? 0,
       },
       {
         id: "family_card",
         label: panelLabel(labels, "family_card"),
-        total: sumPanelNetAmounts(
-          panels.filter((panel) => panel.panel_type === "family_card"),
-          familyDiscountMonth?.policy,
-        ),
+        total: summary?.family_card_net_total ?? 0,
       },
     ],
-    [expenseEntries, familyDiscountMonth?.policy, labels, ownerDiscountMonth?.policy, panels],
+    [labels, summary?.claim_net_total, summary?.current_spending_total, summary?.family_card_net_total],
   );
 
   return {

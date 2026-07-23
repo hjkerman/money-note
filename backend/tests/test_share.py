@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 from app.config import get_settings
 from app.db import init_db, session
+from app.share_auth import share_unlock_html
 from app.services.share import shared_panel, shared_panel_html
 
 
@@ -77,6 +78,12 @@ class SharePanelTest(unittest.TestCase):
         self.assertIn('<td>합계</td>\n            <td class="money"></td>', html)
         self.assertEqual(html.count('class="deferable-row"'), 1)
         self.assertIn("이번 달 커피", html)
+
+    def test_share_unlock_redirect_is_safe_inside_inline_script(self) -> None:
+        html = share_unlock_html("/share/</script><script>alert(1)</script>")
+
+        self.assertNotIn("</script><script>alert(1)</script>", html)
+        self.assertIn(r"\u003c/script\u003e", html)
 
 
 if __name__ == "__main__":

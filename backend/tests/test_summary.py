@@ -46,6 +46,10 @@ class SummaryCalculationTest(unittest.TestCase):
         summary = current_summary_values()
 
         self.assertEqual(summary["card_total"], 98_800)
+        self.assertEqual(summary["current_spending_total"], 100_000)
+        self.assertEqual(summary["current_discount_total"], 1_200)
+        self.assertEqual(summary["claim_original_total"], 50_000)
+        self.assertEqual(summary["claim_net_total"], 49_400)
         self.assertEqual(panel_net_total("claim"), 49_400)
         self.assertEqual(summary["next_month_liquidity"], 301_200)
 
@@ -87,6 +91,8 @@ class SummaryCalculationTest(unittest.TestCase):
         self.assertEqual(summary["transfer_or_deposit_total"], 0)
         self.assertEqual(summary["frozen_asset_total"], 0)
         self.assertEqual(summary["next_month_liquidity"], 400_000)
+        self.assertEqual(summary["claim_original_total"], 80_000)
+        self.assertEqual(summary["family_card_original_total"], 90_000)
 
     def test_planned_card_payment_counts_as_fixed_until_confirmed(self) -> None:
         with session() as conn:

@@ -40,7 +40,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
     final rows = widget.state.panelsByType(panelType);
     final isClaim = panelType == 'claim';
     final discountValue = discountEnabled ?? _defaultDiscountEnabled();
-    final discountPolicyEnabled = _defaultDiscountEnabled();
+    final summary = widget.state.summary;
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(20, 54, 20, 96),
@@ -54,8 +54,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
               child: _SettlementSwitchCard(
                 title: '청구',
                 subtitle: '집안 생활비 정산',
-                amount: won(_effectiveTotal(widget.state.panelsByType('claim'),
-                    widget.state.ownerDiscountMonth?.isEnabled ?? true)),
+                amount: won(summary?.claimNetTotal),
                 selected: panelType == 'claim',
                 onTap: () => _selectPanel('claim'),
               ),
@@ -65,9 +64,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
               child: _SettlementSwitchCard(
                 title: '가족카드',
                 subtitle: '가족카드 사용액',
-                amount: won(_effectiveTotal(
-                    widget.state.panelsByType('family_card'),
-                    widget.state.familyDiscountMonth?.isEnabled ?? false)),
+                amount: won(summary?.familyCardNetTotal),
                 selected: panelType == 'family_card',
                 onTap: () => _selectPanel('family_card'),
               ),
@@ -80,12 +77,16 @@ class _FamilyScreenState extends State<FamilyScreen> {
             Expanded(
                 child: AmountTile(
                     label: '원금 합계',
-                    amount: won(widget.state.panelOriginalTotal(panelType)))),
+                    amount: won(isClaim
+                        ? summary?.claimOriginalTotal
+                        : summary?.familyCardOriginalTotal))),
             const SizedBox(width: 12),
             Expanded(
                 child: AmountTile(
                     label: isClaim ? '실청구 합계' : '실결제 합계',
-                    amount: won(_effectiveTotal(rows, discountPolicyEnabled)))),
+                    amount: won(isClaim
+                        ? summary?.claimNetTotal
+                        : summary?.familyCardNetTotal))),
           ],
         ),
         const SectionTitle('추가'),
@@ -156,7 +157,6 @@ class _FamilyScreenState extends State<FamilyScreen> {
               panel: panel,
               state: widget.state,
               isClaim: isClaim,
-              discountPolicyEnabled: discountPolicyEnabled,
             )),
       ],
     );
@@ -185,13 +185,6 @@ class _FamilyScreenState extends State<FamilyScreen> {
       return widget.state.familyDiscountMonth?.isEnabled ?? false;
     }
     return widget.state.ownerDiscountMonth?.isEnabled ?? true;
-  }
-
-  int _effectiveTotal(List<MonthlyPanel> rows, bool discountPolicyEnabled) {
-    return rows.fold(
-        0,
-        (sum, panel) =>
-            sum + panel.effectiveAmountForPolicy(discountPolicyEnabled));
   }
 
   void _selectPanel(String nextPanelType) {
@@ -286,20 +279,16 @@ class _DatePickerRow extends StatelessWidget {
 
 class _FamilyItem extends StatelessWidget {
   const _FamilyItem(
-      {required this.panel,
-      required this.state,
-      required this.isClaim,
-      required this.discountPolicyEnabled});
+      {required this.panel, required this.state, required this.isClaim});
 
   final MonthlyPanel panel;
   final AppState state;
   final bool isClaim;
-  final bool discountPolicyEnabled;
 
   @override
   Widget build(BuildContext context) {
     final discountEligible =
-        discountPolicyEnabled && !panel.isDiscountIneligible;
+        panel.isDiscountPolicyEnabled && !panel.isDiscountIneligible;
     final showDiscountInfo = discountEligible || panel.discountOverride != 0;
     final canEditNetAmount = panel.amountValue != null;
     return Padding(
@@ -314,13 +303,10 @@ class _FamilyItem extends StatelessWidget {
             const SizedBox(height: 12),
             _Line(label: '원금', value: won(panel.amountValue)),
             if (showDiscountInfo)
-              _Line(
-                  label: '할인',
-                  value: won(panel.discountForPolicy(discountPolicyEnabled))),
+              _Line(label: '할인', value: won(panel.effectiveDiscountAmount)),
             _Line(
                 label: isClaim ? '실청구' : '실결제',
-                value:
-                    won(panel.effectiveAmountForPolicy(discountPolicyEnabled))),
+                value: won(panel.effectiveAmount)),
             const SizedBox(height: 10),
             if (discountEligible || canEditNetAmount) ...[
               Row(
@@ -372,7 +358,7 @@ class _FamilyItem extends StatelessWidget {
     final amount = panel.amountValue;
     if (amount == null) return;
     final controller = TextEditingController(
-      text: panel.effectiveAmountForPolicy(discountPolicyEnabled).toString(),
+      text: panel.effectiveAmount.toString(),
     );
     final netAmount = await showDialog<int>(
       context: context,

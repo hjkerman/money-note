@@ -38,7 +38,8 @@ class HomeScreen extends StatelessWidget {
                     AmountTile(label: '카드대금', amount: won(summary?.cardTotal))),
             const SizedBox(width: 12),
             Expanded(
-                child: AmountTile(label: '월 지출', amount: won(_expenseTotal()))),
+                child: AmountTile(
+                    label: '월 지출', amount: won(summary?.currentSpendingTotal))),
           ],
         ),
         const SizedBox(height: 12),
@@ -96,11 +97,6 @@ class HomeScreen extends StatelessWidget {
         if (state.statusMessage.isNotEmpty) _StatusMessage(state.statusMessage),
       ],
     );
-  }
-
-  int _expenseTotal() {
-    return state.expenseEntries
-        .fold(0, (sum, entry) => sum + (entry.amountValue ?? 0));
   }
 
   void _openFrozenManagement(BuildContext context) {

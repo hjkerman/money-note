@@ -19,7 +19,6 @@ from app.repositories.entries import (
 )
 from app.repositories.labels import list_labels, upsert_label
 from app.repositories.panels import (
-    complete_panels_by_type,
     create_panel,
     delete_panel,
     delete_panels_by_type,
@@ -27,6 +26,7 @@ from app.repositories.panels import (
     update_panel,
 )
 from app.repositories.settings import list_settings
+from app.services.panels import complete_panels_by_type
 
 __all__ = [
     "append_planned_entry",

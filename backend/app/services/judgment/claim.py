@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from .common import in_date_range, judgment_message, previous_to_current_range, title_contains
-from .features import COLD_WORDS, MEDICAL_WORDS, PSYCHIATRY_WORDS, TRANSPORT_WORDS, claim_features
+from .features import COLD_WORDS, MEDICAL_WORDS, PSYCHIATRY_WORDS, claim_features
 
 
 def claim_subtitle(rows: list[dict], total: float) -> str:

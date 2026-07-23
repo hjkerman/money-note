@@ -1,7 +1,7 @@
 import { Dispatch, FormEvent, SetStateAction } from "react";
 import { CashFlow, LedgerEntry, MonthlyPanel, Summary } from "../api";
 import { CashFlowPanel, PanelAppendForm, PanelTable, PlannedTable } from "./LedgerTables";
-import { panelLabel, formatWon, sumAmounts } from "../utils";
+import { panelLabel, formatWon } from "../utils";
 
 type CashFlowForm = { occurredOn: string; direction: string; title: string; amount: string; isPrimaryIncome: boolean };
 type PanelForm = { panel_type: MonthlyPanel["panel_type"]; title: string; spentOn: string; amount: string; dueDay: string };
@@ -63,7 +63,7 @@ export function FixedPanelView({
       <section className="panel">
         <div className="panel-header">
           <h2>카드 정기결제</h2>
-          <span>{formatWon(summary?.planned_recurring_total ?? sumAmounts(plannedEntries))}</span>
+          <span>{formatWon(summary?.planned_recurring_total ?? 0)}</span>
         </div>
         <form className="planned-form" onSubmit={(event) => handlePlannedSubmit(event)}>
           <input
@@ -207,6 +207,7 @@ export function CashFlowView({
   isBusy,
   onOpenHistory,
   setCashFlowForm,
+  summary,
 }: {
   active: boolean;
   cashFlowForm: CashFlowForm;
@@ -216,11 +217,13 @@ export function CashFlowView({
   isBusy: boolean;
   onOpenHistory: () => void;
   setCashFlowForm: Dispatch<SetStateAction<CashFlowForm>>;
+  summary: Summary | null;
 }) {
   return (
     <section className={active ? "tab-panel active" : "tab-panel"}>
       <CashFlowPanel
         rows={cashFlows}
+        total={summary?.visible_cash_flow_total ?? 0}
         form={cashFlowForm}
         setForm={setCashFlowForm}
         onSubmit={handleCashFlowSubmit}

@@ -15,7 +15,6 @@ class MonthEntriesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final rows = state.expenseEntries;
-    final discountPolicyEnabled = state.ownerDiscountMonth?.isEnabled ?? true;
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(20, 54, 20, 96),
@@ -24,9 +23,7 @@ class MonthEntriesScreen extends StatelessWidget {
             style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
         const SizedBox(height: 14),
         AmountTile(
-            label: '월 지출',
-            amount: won(rows.fold<int>(
-                0, (sum, entry) => sum + (entry.amountValue ?? 0)))),
+            label: '월 지출', amount: won(state.summary?.currentSpendingTotal)),
         const SectionTitle('카드 지출 입력'),
         ExpenseInputCard(state: state),
         SectionTitle('전체 지출',
@@ -36,7 +33,6 @@ class MonthEntriesScreen extends StatelessWidget {
         ...rows.map((entry) => _MonthEntryCard(
               entry: entry,
               state: state,
-              discountPolicyEnabled: discountPolicyEnabled,
             )),
       ],
     );
@@ -47,18 +43,16 @@ class _MonthEntryCard extends StatelessWidget {
   const _MonthEntryCard({
     required this.entry,
     required this.state,
-    required this.discountPolicyEnabled,
   });
 
   final LedgerEntry entry;
   final AppState state;
-  final bool discountPolicyEnabled;
 
   @override
   Widget build(BuildContext context) {
     final discountEligible = !entry.isDiscountIneligible;
-    final discount = entry.discountForPolicy(discountPolicyEnabled);
-    final canToggleDiscount = discountPolicyEnabled &&
+    final discount = entry.effectiveDiscountAmount;
+    final canToggleDiscount = entry.isDiscountPolicyEnabled &&
         discountEligible &&
         entry.paymentKey != null &&
         entry.paymentKey!.isNotEmpty;
@@ -118,7 +112,7 @@ class _MonthEntryCard extends StatelessWidget {
                               color: moneyGreen,
                               fontSize: 12,
                               fontWeight: FontWeight.w800)),
-                      Text('실결제 ${won(entry.effectiveAmountForPolicy(true))}',
+                      Text('실결제 ${won(entry.effectiveAmount)}',
                           style: const TextStyle(
                               color: moneyMuted,
                               fontSize: 12,
@@ -192,8 +186,8 @@ class _MonthEntryCard extends StatelessWidget {
   Future<void> _editNetAmount(BuildContext context) async {
     final amount = entry.amountValue;
     if (amount == null) return;
-    final controller = TextEditingController(
-        text: entry.effectiveAmountForPolicy(discountPolicyEnabled).toString());
+    final controller =
+        TextEditingController(text: entry.effectiveAmount.toString());
     final netAmount = await showDialog<int>(
       context: context,
       builder: (context) => AlertDialog(
@@ -250,17 +244,11 @@ class _MonthEntryCard extends StatelessWidget {
   }
 
   bool _isTransport(LedgerEntry entry) {
-    final title = _title(entry);
-    return discountIneligibleText(title) && !_isToll(entry);
+    return entry.isTransport;
   }
 
   bool _isToll(LedgerEntry entry) {
-    final title = _title(entry);
-    return title.contains('통행') || title.contains('하이패스');
-  }
-
-  String _title(LedgerEntry entry) {
-    return '${entry.title} ${entry.usagePlace ?? ''} ${entry.usageItem ?? ''}';
+    return entry.isToll;
   }
 }
 

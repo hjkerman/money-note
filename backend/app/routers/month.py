@@ -2,23 +2,24 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from app.auth import require_user
 from app.db import session
-from app.repository import (
+from app.repositories.cash_flows import list_cash_flows
+from app.repositories.entries import (
     append_planned_entry,
-    complete_panels_by_type,
     confirm_planned_entry,
+    delete_planned_entry,
+    list_confirmed_planned_entries,
+    list_entries,
+    list_recent_closed_month_expense_counts,
+    reorder_current_entries,
+)
+from app.repositories.panels import (
     create_panel,
     delete_panel,
     delete_panels_by_type,
-    delete_planned_entry,
-    list_confirmed_planned_entries,
-    list_cash_flows,
-    list_entries,
-    list_recent_closed_month_expense_counts,
     list_panels,
-    list_settings,
-    reorder_current_entries,
     update_panel,
 )
+from app.repositories.settings import list_settings
 from app.schemas import (
     EntryReorder,
     LedgerEntry,
@@ -34,6 +35,13 @@ from app.schemas import (
 from app.services.card_payments import current_payment_status
 from app.services.judgment import app_judgment
 from app.services.month import calendar_month_label, close_current_month, month_close_status
+from app.services.panels import complete_panels_by_type
+from app.services.presentation import (
+    present_ledger_entries,
+    present_ledger_entry,
+    present_monthly_panel,
+    present_monthly_panels,
+)
 from app.services.summary import current_summary_values
 
 router = APIRouter(prefix="/api/month/current", tags=["month"])
@@ -42,7 +50,7 @@ judgment_router = APIRouter(prefix="/api/judgment", tags=["judgment"])
 
 @router.post("/planned", response_model=LedgerEntry)
 def post_planned_entry(entry: PlannedEntryIn, _: dict = Depends(require_user)) -> dict:
-    return append_planned_entry(entry)
+    return present_ledger_entry(append_planned_entry(entry))
 
 
 @router.post("/planned/{entry_id}/confirm")
@@ -53,12 +61,15 @@ def post_confirm_planned_entry(entry_id: int, payload: PlannedConfirmIn | None =
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     if result is None:
         raise HTTPException(status_code=404, detail="planned entry not found")
-    return result
+    return {
+        "planned": present_ledger_entry(result["planned"]),
+        "entry": present_ledger_entry(result["entry"]),
+    }
 
 
 @router.get("/planned/confirmed", response_model=list[LedgerEntry])
 def get_confirmed_planned_entries(_: dict = Depends(require_user)) -> list[dict]:
-    return list_confirmed_planned_entries()
+    return present_ledger_entries(list_confirmed_planned_entries())
 
 
 @router.delete("/planned/{entry_id}")
@@ -70,23 +81,23 @@ def remove_planned_entry(entry_id: int, _: dict = Depends(require_user)) -> dict
 
 @router.post("/reorder", response_model=list[LedgerEntry])
 def reorder_entries(payload: EntryReorder, _: dict = Depends(require_user)) -> list[dict]:
-    return reorder_current_entries(payload.ordered_ids)
+    return present_ledger_entries(reorder_current_entries(payload.ordered_ids))
 
 
 @router.post("/planned/reorder", response_model=list[LedgerEntry])
 def reorder_planned_entries(payload: EntryReorder, _: dict = Depends(require_user)) -> list[dict]:
-    return reorder_current_entries(payload.ordered_ids, entry_kind="planned")
+    return present_ledger_entries(reorder_current_entries(payload.ordered_ids, entry_kind="planned"))
 
 
 @router.get("/panels", response_model=list[MonthlyPanel])
 def get_current_panels(_: dict = Depends(require_user)) -> list[dict]:
-    return list_panels(calendar_month_label())
+    return present_monthly_panels(list_panels(calendar_month_label()))
 
 
 @router.post("/panels", response_model=MonthlyPanel)
 def post_panel(panel: MonthlyPanelIn, _: dict = Depends(require_user)) -> dict:
     try:
-        return create_panel(panel)
+        return present_monthly_panel(create_panel(panel))
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
@@ -105,7 +116,7 @@ def patch_panel(panel_id: int, patch: MonthlyPanelPatch, _: dict = Depends(requi
     panel = update_panel(panel_id, patch)
     if panel is None:
         raise HTTPException(status_code=404, detail="panel not found")
-    return panel
+    return present_monthly_panel(panel)
 
 
 @router.patch("/panels/{panel_id}/discount", response_model=MonthlyPanel)
@@ -121,7 +132,7 @@ def patch_panel_discount(panel_id: int, patch: PanelDiscountPatch, _: dict = Dep
     updated = update_panel(panel_id, MonthlyPanelPatch(discount_amount=patch.discount_amount, discount_override=1))
     if updated is None:
         raise HTTPException(status_code=404, detail="panel not found")
-    return updated
+    return present_monthly_panel(updated)
 
 
 @router.delete("/panels/{panel_id}/discount")

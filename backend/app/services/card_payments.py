@@ -9,11 +9,12 @@ from app.db import session
 from app.services.clock import app_today
 from app.schemas import CardPaymentEventIn, LateCardEntryIn
 from app.services.discounts import (
-    DISCOUNT_INELIGIBLE_WORDS,
+    default_card_discount,
     default_discount_policy,
-    discount_ineligible_title,
     effective_card_discount,
     normalize_discount_policy,
+    toll_title,
+    transport_title,
 )
 
 
@@ -707,11 +708,13 @@ def _payment_rows_for_batch(context: CardPaymentContext) -> list[dict[str, Any]]
         deferred_from = data.pop("deferred_from_payment_month", None)
         deferred_target = data.pop("deferred_target_payment_month", None)
         usage_month = str(data.get("entry_date") or "")[:7]
+        discount_policy = _setting_value(f"card_discount_policy:owner:{usage_month}") or "enabled"
+        automatic_discount_eligible = not transport_title(data.get("title")) and not toll_title(data.get("title"))
         discount = effective_card_discount(
             original,
             _manual_entry_discount({**data, "override_discount_amount": override_discount}),
             bool(data.get("discount_override") or override_discount or data.get("aux_amount_value")),
-            _setting_value(f"card_discount_policy:owner:{usage_month}") or "enabled",
+            discount_policy,
             data.get("title"),
         )
         data.update(
@@ -719,9 +722,18 @@ def _payment_rows_for_batch(context: CardPaymentContext) -> list[dict[str, Any]]
                 "original_amount": original,
                 "immediate_paid_amount": immediate,
                 "discount_amount": discount,
+                "discount_policy": discount_policy,
+                "automatic_discount_eligible": automatic_discount_eligible,
+                "automatic_discount_amount": (
+                    default_card_discount(original)
+                    if automatic_discount_eligible
+                    else 0
+                ),
+                "effective_discount_amount": discount,
+                "effective_amount_value": max(0, original - discount),
                 "remaining_amount": max(0, original - immediate - discount),
-                "is_transport": _is_transport(str(data.get("title") or "")),
-                "is_toll": _is_toll(str(data.get("title") or "")),
+                "is_transport": transport_title(data.get("title")),
+                "is_toll": toll_title(data.get("title")),
                 "is_deferred": deferred_from == payment_month and deferred_target > payment_month,
                 "is_carried_over": deferred_target == payment_month,
                 "payment_keys": [data["payment_key"]] if data.get("payment_key") else [],
@@ -771,6 +783,16 @@ def _group_toll_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
             "amount_value": sum(int(row.get("amount_value") or 0) for row in toll_rows),
             "immediate_paid_amount": sum(int(row.get("immediate_paid_amount") or 0) for row in toll_rows),
             "discount_amount": sum(int(row.get("discount_amount") or 0) for row in toll_rows),
+            "automatic_discount_eligible": False,
+            "automatic_discount_amount": 0,
+            "effective_discount_amount": sum(
+                int(row.get("effective_discount_amount") or 0)
+                for row in toll_rows
+            ),
+            "effective_amount_value": sum(
+                int(row.get("effective_amount_value") or 0)
+                for row in toll_rows
+            ),
             "remaining_amount": sum(int(row.get("remaining_amount") or 0) for row in toll_rows),
             "is_transport": any(bool(row.get("is_transport")) for row in toll_rows),
             "is_toll": True,
@@ -929,16 +951,6 @@ def _add_card_payment_batch_item(conn: Any, batch_id: int | None, entry_id: int,
         """,
         (batch_id, entry_id, payment_key),
     )
-
-
-def _is_toll(title: str) -> bool:
-    lowered = title.lower()
-    return "통행" in lowered or "하이패스" in lowered
-
-
-def _is_transport(title: str) -> bool:
-    lowered = title.lower()
-    return any(word.lower() in lowered for word in DISCOUNT_INELIGIBLE_WORDS)
 
 
 def _carried_title(title: str, original_entry_date: str = "") -> str:

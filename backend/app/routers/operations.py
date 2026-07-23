@@ -4,14 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.auth import require_user
 from app.db import session
-from app.repository import (
-    create_cash_flow,
-    delete_cash_flow,
-    list_cash_flows,
-    list_labels,
-    upsert_label,
-)
+from app.repositories.cash_flows import create_cash_flow, delete_cash_flow, list_cash_flows
+from app.repositories.labels import list_labels, upsert_label
 from app.schemas import CashFlow, CashFlowIn, SettingPatch
+from app.share_auth import SENSITIVE_SHARE_SETTING_KEYS
 
 settings_router = APIRouter(prefix="/api/settings", tags=["settings"])
 cash_router = APIRouter(prefix="/api/cash-flows", tags=["cash-flows"])
@@ -21,7 +17,12 @@ labels_router = APIRouter(prefix="/api/labels", tags=["labels"])
 @settings_router.get("")
 def get_settings_values(_: dict = Depends(require_user)) -> dict[str, str]:
     with session() as conn:
-        rows = conn.execute("SELECT key, value FROM app_settings ORDER BY key").fetchall()
+        rows = conn.execute(
+            "SELECT key, value FROM app_settings "
+            f"WHERE key NOT IN ({','.join('?' for _ in SENSITIVE_SHARE_SETTING_KEYS)}) "
+            "ORDER BY key",
+            tuple(SENSITIVE_SHARE_SETTING_KEYS),
+        ).fetchall()
     return {row["key"]: row["value"] for row in rows}
 
 

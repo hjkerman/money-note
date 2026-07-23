@@ -15,6 +15,7 @@ from app.db import session
 
 PASSWORD_HASH_PREFIX = "pbkdf2_sha256"
 PASSWORD_HASH_ITERATIONS = 390000
+MIN_LOGIN_PASSWORD_LENGTH = 12
 
 
 def hash_password(password: str) -> str:
@@ -60,15 +61,15 @@ def authenticate_user(username: str, password: str) -> dict[str, Any] | None:
             """,
             (username,),
         ).fetchone()
-    if row is None or not row["is_active"]:
-        return None
-    if not verify_password(password, row["password_hash"]):
+    password_hash = row["password_hash"] if row is not None else _DUMMY_PASSWORD_HASH
+    password_matches = verify_password(password, password_hash)
+    if row is None or not row["is_active"] or not password_matches:
         return None
     return _public_user(row)
 
 
 def change_password(user_id: int, current_password: str, new_password: str) -> bool:
-    """현재 비밀번호를 확인한 뒤 단일 사용자 계정의 비밀번호를 갱신한다."""
+    """비밀번호를 갱신하고 탈취 가능성이 있는 기존 세션을 모두 종료한다."""
     with session() as conn:
         row = conn.execute(
             "SELECT password_hash FROM users WHERE id = ? AND is_active = 1",
@@ -84,6 +85,7 @@ def change_password(user_id: int, current_password: str, new_password: str) -> b
             """,
             (hash_password(new_password), user_id),
         )
+        conn.execute("DELETE FROM auth_sessions WHERE user_id = ?", (user_id,))
     return True
 
 
@@ -98,6 +100,7 @@ def verify_user_password(user_id: int, password: str) -> bool:
 
 
 def create_user(username: str, password: str, display_name: str = "") -> dict[str, Any]:
+    validate_login_password(password)
     password_hash = hash_password(password)
     with session() as conn:
         cursor = conn.execute(
@@ -112,6 +115,12 @@ def create_user(username: str, password: str, display_name: str = "") -> dict[st
             (cursor.lastrowid,),
         ).fetchone()
     return _public_user(row)
+
+
+def validate_login_password(password: str) -> None:
+    """본체 로그인 비밀번호의 서버 공통 최소 길이를 검사한다."""
+    if len(password) < MIN_LOGIN_PASSWORD_LENGTH:
+        raise ValueError(f"password must be at least {MIN_LOGIN_PASSWORD_LENGTH} characters")
 
 
 def create_session_cookie(response: Response, user_id: int) -> str:
@@ -237,3 +246,6 @@ def _b64encode(value: bytes) -> str:
 def _b64decode(value: str) -> bytes:
     padding = "=" * (-len(value) % 4)
     return base64.urlsafe_b64decode(value + padding)
+
+
+_DUMMY_PASSWORD_HASH = hash_password("money-note-dummy-password")

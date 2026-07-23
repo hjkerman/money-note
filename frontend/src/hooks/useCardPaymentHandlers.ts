@@ -24,7 +24,6 @@ import {
   monthLastDay,
   parseAmount,
   sumPaymentAllocationInputs,
-  today,
 } from "../utils";
 
 export function useCardPaymentHandlers({
@@ -131,7 +130,7 @@ export function useCardPaymentHandlers({
 
   async function handleCurrentEntryNetAmountEdit(entry: LedgerEntry) {
     if (!entry.payment_key || entry.amount_value == null) return;
-    const currentNet = entryNetAmount(entry, undefined, ownerDiscountPolicy ?? null);
+    const currentNet = entryNetAmount(entry);
     const raw = window.prompt("실결제액을 입력하세요.", String(Math.round(currentNet)));
     if (raw === null) return;
     const netAmount = parseAmount(raw);
@@ -214,7 +213,7 @@ export function useCardPaymentHandlers({
         amount_value: amount,
       });
       setLateEntryForm({
-        date: cardPayments ? monthLastDay(cardPayments.usage_month) : today,
+        date: cardPayments ? monthLastDay(cardPayments.usage_month) : lateEntryForm.date,
         usagePlace: "",
         usageItem: "",
         amount: "",

@@ -20,13 +20,13 @@ def integer_money(value: object) -> object:
 
 
 class LoginIn(BaseModel):
-    username: str
-    password: str
+    username: str = Field(min_length=1, max_length=128)
+    password: str = Field(min_length=1, max_length=1024)
 
 
 class PasswordChangeIn(BaseModel):
-    current_password: str
-    new_password: str = Field(min_length=4)
+    current_password: str = Field(min_length=1, max_length=1024)
+    new_password: str = Field(min_length=12, max_length=1024)
 
 
 class PasswordConfirmIn(BaseModel):
@@ -81,6 +81,13 @@ class LedgerEntryIn(BaseModel):
 
 class LedgerEntry(LedgerEntryIn):
     id: int
+    discount_policy: str = "disabled"
+    automatic_discount_eligible: bool = False
+    automatic_discount_amount: int = 0
+    effective_discount_amount: int = 0
+    effective_amount_value: int | None = None
+    is_transport: bool = False
+    is_toll: bool = False
 
 
 class LedgerEntryPatch(BaseModel):
@@ -131,13 +138,21 @@ class EntryReorder(BaseModel):
 
 class Summary(BaseModel):
     base_next_month_liquidity: int
+    current_spending_total: int
+    current_discount_total: int
     card_total: int
     planned_recurring_total: int
+    fixed_cash_total: int
     transfer_or_deposit_total: int
     interest_expense: int
     frozen_asset_total: int
     liquidity_status: int
     next_month_liquidity: int
+    claim_original_total: int
+    claim_net_total: int
+    family_card_original_total: int
+    family_card_net_total: int
+    visible_cash_flow_total: int
 
 
 class MonthlyPanel(BaseModel):
@@ -153,6 +168,11 @@ class MonthlyPanel(BaseModel):
     sort_order: int
     due_day: int | None = None
     confirmed_at: str | None = None
+    discount_policy: str = "disabled"
+    automatic_discount_eligible: bool = False
+    automatic_discount_amount: int = 0
+    effective_discount_amount: int = 0
+    effective_amount_value: int | None = None
 
 
 class MonthlyPanelIn(BaseModel):

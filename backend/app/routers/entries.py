@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.auth import require_user
-from app.repository import create_entry, delete_entry, list_entries, update_entry
+from app.repositories.entries import create_entry, delete_entry, list_entries, update_entry
 from app.schemas import LedgerEntry, LedgerEntryIn, LedgerEntryPatch
+from app.services.presentation import present_ledger_entries, present_ledger_entry
 
 router = APIRouter(prefix="/api/entries", tags=["entries"])
 
@@ -11,13 +12,13 @@ router = APIRouter(prefix="/api/entries", tags=["entries"])
 def get_entries(section: str, _: dict = Depends(require_user)) -> list[dict]:
     if section not in {"current", "archive"}:
         raise HTTPException(status_code=404, detail="unknown section")
-    return list_entries(section)
+    return present_ledger_entries(list_entries(section))
 
 
 @router.post("", response_model=LedgerEntry)
 def post_entry(entry: LedgerEntryIn, _: dict = Depends(require_user)) -> dict:
     try:
-        return create_entry(entry)
+        return present_ledger_entry(create_entry(entry))
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
@@ -30,7 +31,7 @@ def patch_entry(entry_id: int, patch: LedgerEntryPatch, _: dict = Depends(requir
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     if entry is None:
         raise HTTPException(status_code=404, detail="entry not found")
-    return entry
+    return present_ledger_entry(entry)
 
 
 @router.delete("/{entry_id}")

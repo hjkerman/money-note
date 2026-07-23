@@ -7,12 +7,13 @@ import {
   MonthlyPanel,
   Settings,
   SpendingCategory,
+  Summary,
 } from "../api";
 import { FamilyCardCreditPanel } from "../features/familyCard";
 import { CurrentTab } from "../types";
 import { DiscountPolicyBar } from "./Insights";
 import { EntryTable, PanelAppendForm, PanelTable } from "./LedgerTables";
-import { categoryLabel, currentTabs, formatWon, panelLabel, sumAmounts, today } from "../utils";
+import { categoryLabel, currentTabs, formatWon, panelLabel } from "../utils";
 
 type ExpenseForm = { date: string; usagePlace: string; usageItem: string; spendingCategory: string; amount: string };
 type PanelForm = { panel_type: MonthlyPanel["panel_type"]; title: string; spentOn: string; amount: string; dueDay: string };
@@ -50,6 +51,7 @@ export function CurrentMonthView({
   setExpenseForm,
   setPanelForm,
   settings,
+  summary,
 }: {
   active: boolean;
   activeCurrentTab: CurrentTab;
@@ -83,6 +85,7 @@ export function CurrentMonthView({
   setExpenseForm: Dispatch<SetStateAction<ExpenseForm>>;
   setPanelForm: Dispatch<SetStateAction<PanelForm>>;
   settings: Settings;
+  summary: Summary | null;
 }) {
   return (
     <section className={active ? "tab-panel active" : "tab-panel"}>
@@ -101,7 +104,7 @@ export function CurrentMonthView({
       </nav>
 
       <DiscountPolicyBar
-        month={today.slice(0, 7)}
+        month={currentMonth}
         scope={activeCurrentTab === "family_card" ? "family" : "owner"}
         status={activeCurrentTab === "family_card" ? familyDiscountMonth : ownerDiscountMonth}
         onChange={(scope, month, policy) => handleDiscountPolicyChange(scope, month, policy)}
@@ -112,7 +115,7 @@ export function CurrentMonthView({
         <section className="panel">
           <div className="panel-header">
             <h2>당월 지출</h2>
-            <span>{formatWon(sumAmounts(expenseEntries))}</span>
+            <span>{formatWon(currentSubTabs.find((tab) => tab.id === "expenses")?.total ?? 0)}</span>
           </div>
           <form className="entry-form" onSubmit={(event) => handleExpenseSubmit(event)}>
             <input
@@ -162,11 +165,9 @@ export function CurrentMonthView({
             judgment={judgment}
             onCategoryChange={(entry, category) => handleCategoryChange(entry, category)}
             onDelete={(entry) => handleEntryDelete(entry)}
-            discounts={ownerDiscountMonth?.discounts}
             onDiscount={(entry) => handleCurrentEntryDiscount(entry)}
             onClearDiscount={(entry) => handleCurrentEntryDiscountClear(entry)}
             onNetAmountEdit={(entry) => handleCurrentEntryNetAmountEdit(entry)}
-            discountPolicy={ownerDiscountMonth?.policy}
             exportMonth={currentMonth}
             wideDetailColumn
           />
@@ -187,7 +188,6 @@ export function CurrentMonthView({
                 onClearDiscount={tab === "claim" || tab === "family_card" ? (panel) => handlePanelDiscountClear(panel) : undefined}
                 onNetAmountEdit={tab === "claim" || tab === "family_card" ? (panel) => handlePanelNetAmountEdit(panel) : undefined}
                 onProcessSelected={tab === "claim" || tab === "family_card" ? (selectedPanels) => handlePanelProcessSelected(tab, selectedPanels) : undefined}
-                discountPolicy={tab === "family_card" ? familyDiscountMonth?.policy : ownerDiscountMonth?.policy}
                 judgment={judgment}
                 onShare={tab === "claim" || tab === "family_card" ? () => handlePanelShare(tab) : undefined}
                 form={
@@ -202,10 +202,9 @@ export function CurrentMonthView({
               />
               {tab === "family_card" ? (
                 <FamilyCardCreditPanel
-                  expenseEntries={expenseEntries}
                   judgment={judgment}
-                  panels={panels}
                   settings={settings}
+                  summary={summary}
                 />
               ) : null}
             </section>

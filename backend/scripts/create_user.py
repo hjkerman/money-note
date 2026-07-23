@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 import sqlite3
 
-from app.auth import create_user, hash_password
+from app.auth import create_user, hash_password, validate_login_password
 from app.db import init_db, session
 
 
@@ -14,6 +14,10 @@ def main() -> None:
     parser.add_argument("--display-name", default="")
     parser.add_argument("--replace", action="store_true")
     args = parser.parse_args()
+    try:
+        validate_login_password(args.password)
+    except ValueError as exc:
+        raise SystemExit(str(exc)) from exc
 
     init_db()
     with session() as conn:
@@ -36,6 +40,10 @@ def main() -> None:
                     args.display_name or args.username,
                     args.username,
                 ),
+            )
+            conn.execute(
+                "DELETE FROM auth_sessions WHERE user_id = ?",
+                (existing["id"],),
             )
             print(f"updated user: {args.username}")
             return

@@ -15,6 +15,7 @@ from app.services.card_payments import (
     set_discount_month_policy,
     set_entry_discount,
 )
+from app.services.presentation import present_ledger_entry
 
 payments_router = APIRouter(prefix="/api/card-payments", tags=["card-payments"])
 discounts_router = APIRouter(prefix="/api/card-discounts", tags=["card-discounts"])
@@ -49,7 +50,7 @@ def patch_card_discount_month(
 @discounts_router.patch("/entries/{entry_payment_key}")
 def patch_entry_discount(entry_payment_key: str, patch: PanelDiscountPatch, _: dict = Depends(require_user)) -> dict:
     try:
-        return set_entry_discount(entry_payment_key, patch.discount_amount)
+        return present_ledger_entry(set_entry_discount(entry_payment_key, patch.discount_amount))
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 

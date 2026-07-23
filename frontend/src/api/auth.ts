@@ -1,4 +1,4 @@
-import { clearSessionToken, getJson, patchJson, postJson, storeSessionToken } from "./client";
+import { getJson, patchJson, postJson } from "./client";
 import { AuthUser } from "./types";
 
 export async function fetchMe(): Promise<AuthUser> {
@@ -6,17 +6,11 @@ export async function fetchMe(): Promise<AuthUser> {
 }
 
 export async function login(payload: { username: string; password: string }): Promise<AuthUser> {
-  const user = await postJson<AuthUser>("/api/auth/login", payload);
-  storeSessionToken(user.session_token);
-  return user;
+  return postJson<AuthUser>("/api/auth/login", payload);
 }
 
 export async function logout(): Promise<{ ok: boolean }> {
-  try {
-    return await postJson("/api/auth/logout", {});
-  } finally {
-    clearSessionToken();
-  }
+  return postJson("/api/auth/logout", {});
 }
 
 export async function changePassword(payload: {

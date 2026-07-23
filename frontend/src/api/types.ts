@@ -28,6 +28,13 @@ export type LedgerEntry = {
   spending_category: SpendingCategory | null;
   payment_key: string | null;
   discount_override: number;
+  discount_policy: CardDiscountPolicy;
+  automatic_discount_eligible: boolean;
+  automatic_discount_amount: number;
+  effective_discount_amount: number;
+  effective_amount_value: number | null;
+  is_transport: boolean;
+  is_toll: boolean;
 };
 
 export type SpendingCategory = "essential" | "questionable" | "dignity";
@@ -65,17 +72,30 @@ export type MonthlyPanel = {
   sort_order: number;
   due_day: number | null;
   confirmed_at: string | null;
+  discount_policy: CardDiscountPolicy;
+  automatic_discount_eligible: boolean;
+  automatic_discount_amount: number;
+  effective_discount_amount: number;
+  effective_amount_value: number | null;
 };
 
 export type Summary = {
   base_next_month_liquidity: number;
+  current_spending_total: number;
+  current_discount_total: number;
   card_total: number;
   planned_recurring_total: number;
+  fixed_cash_total: number;
   transfer_or_deposit_total: number;
   interest_expense: number;
   frozen_asset_total: number;
   liquidity_status: number;
   next_month_liquidity: number;
+  claim_original_total: number;
+  claim_net_total: number;
+  family_card_original_total: number;
+  family_card_net_total: number;
+  visible_cash_flow_total: number;
 };
 
 export type CashFlow = {

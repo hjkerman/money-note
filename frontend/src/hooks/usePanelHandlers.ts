@@ -10,10 +10,11 @@ import {
   updatePanelDiscount,
 } from "../api";
 import { PanelType } from "../types";
-import { focusFirstDataInput, nextSortOrder, panelLabel, panelNetAmount, parseAmount, today, formatWon } from "../utils";
+import { focusFirstDataInput, nextSortOrder, panelLabel, panelNetAmount, parseAmount, formatWon } from "../utils";
 
 export function usePanelHandlers({
   familyDiscountPolicy,
+  calendarDate,
   labels,
   month,
   ownerDiscountPolicy,
@@ -24,6 +25,7 @@ export function usePanelHandlers({
   withRefresh,
 }: {
   familyDiscountPolicy?: CardDiscountPolicy | null;
+  calendarDate: string | undefined;
   labels: Record<string, string>;
   month: string | undefined;
   ownerDiscountPolicy?: CardDiscountPolicy | null;
@@ -37,17 +39,21 @@ export function usePanelHandlers({
     event.preventDefault();
     const form = event.currentTarget as HTMLFormElement;
     if (!panelForm.title.trim()) return;
+    if (!month || !calendarDate) {
+      setStatus("서버 기준 날짜를 불러온 뒤 다시 시도하세요.");
+      return;
+    }
     await withRefresh(async () => {
       const sameTypePanels = panels.filter((panel) => panel.panel_type === panelType);
       await createPanel({
-        month: month ?? today.slice(0, 7),
+        month,
         panel_type: panelType,
         title: panelForm.title.trim(),
         spent_on:
           panelType === "claim" || panelType === "family_card"
             ? panelForm.spentOn
             : panelType === "frozen"
-              ? today
+              ? calendarDate
               : null,
         amount_value: parseAmount(panelForm.amount),
         discount_amount: 0,
@@ -87,8 +93,7 @@ export function usePanelHandlers({
 
   async function handlePanelProcessSelected(panelType: "claim" | "family_card", selectedPanels: MonthlyPanel[]) {
     if (!selectedPanels.length) return;
-    const policy = panelType === "family_card" ? familyDiscountPolicy : ownerDiscountPolicy;
-    const total = selectedPanels.reduce((sum, panel) => sum + panelNetAmount(panel, policy ?? null), 0);
+    const total = selectedPanels.reduce((sum, panel) => sum + panelNetAmount(panel), 0);
     const confirmed = window.confirm(
       `${panelLabel(labels, panelType)} 항목 ${selectedPanels.length}개, ${formatWon(total)}을 처리 완료할까요?\n\n선택한 항목만 현재 목록과 공유 페이지에서 삭제됩니다.`,
     );
@@ -134,8 +139,7 @@ export function usePanelHandlers({
 
   async function handlePanelNetAmountEdit(panel: MonthlyPanel) {
     if (panel.amount_value == null || !["claim", "family_card"].includes(panel.panel_type)) return;
-    const policy = panel.panel_type === "family_card" ? familyDiscountPolicy : ownerDiscountPolicy;
-    const currentNet = panelNetAmount(panel, policy ?? null);
+    const currentNet = panelNetAmount(panel);
     const raw = window.prompt("실결제액을 입력하세요.", String(Math.round(currentNet)));
     if (raw === null) return;
     const netAmount = parseAmount(raw);
