@@ -69,8 +69,8 @@ class _NotificationImportScreenState extends State<NotificationImportScreen> {
                         onPressed: () async {
                           setState(() => manualNoticeDismissed = true);
                           await Navigator.of(context).push(MaterialPageRoute(
-                            builder: (_) => CapturedNotificationLogScreen(
-                                state: widget.state),
+                            builder: (_) =>
+                                WooriNotificationLogScreen(state: widget.state),
                           ));
                           await _reload();
                         },
@@ -413,20 +413,78 @@ class _CandidateCardState extends State<_CandidateCard> {
   }
 }
 
-class CapturedNotificationLogScreen extends StatefulWidget {
-  const CapturedNotificationLogScreen({required this.state, super.key});
+class WooriNotificationLogScreen extends StatelessWidget {
+  const WooriNotificationLogScreen({required this.state, super.key});
 
   final AppState state;
 
   @override
-  State<CapturedNotificationLogScreen> createState() =>
+  Widget build(BuildContext context) {
+    return _CapturedNotificationLogScreen(
+      state: state,
+      title: '최근 우리카드 알림',
+      sources: const [
+        _CapturedSourceSpec(
+          source: 'woori_card',
+          tabLabel: '우리',
+          title: '우리카드 알림',
+          emptyText: '최근 우리카드 알림 로그가 없습니다.',
+        ),
+      ],
+    );
+  }
+}
+
+class ExperimentalDataScreen extends StatelessWidget {
+  const ExperimentalDataScreen({required this.state, super.key});
+
+  final AppState state;
+
+  @override
+  Widget build(BuildContext context) {
+    return _CapturedNotificationLogScreen(
+      state: state,
+      title: 'Experimental Data',
+      sources: const [
+        _CapturedSourceSpec(
+          source: 'mobile_tmoney',
+          tabLabel: '교통',
+          title: '모바일티머니 원문',
+          emptyText: '모바일티머니 알림이 없습니다. 수집 패키지는 com.lgt.tmoney입니다.',
+          note: '현재는 결제 금액과 잔액 알림 원문만 보관합니다. 파싱, 등록 후보 생성, 서버 전송은 하지 않습니다.',
+        ),
+        _CapturedSourceSpec(
+          source: 'highway_toll',
+          tabLabel: '통행',
+          title: '고속도로통행료+ 원문',
+          emptyText: '고속도로통행료+ 알림이 없습니다. 수집 패키지는 com.ex.hipass_app입니다.',
+          note: '현재는 원문만 보관합니다. 파싱, 등록 후보 생성, 서버 전송은 하지 않습니다.',
+        ),
+      ],
+    );
+  }
+}
+
+class _CapturedNotificationLogScreen extends StatefulWidget {
+  const _CapturedNotificationLogScreen({
+    required this.state,
+    required this.title,
+    required this.sources,
+  });
+
+  final AppState state;
+  final String title;
+  final List<_CapturedSourceSpec> sources;
+
+  @override
+  State<_CapturedNotificationLogScreen> createState() =>
       _CapturedNotificationLogScreenState();
 }
 
 class _CapturedNotificationLogScreenState
-    extends State<CapturedNotificationLogScreen> {
+    extends State<_CapturedNotificationLogScreen> {
   final bridge = NotificationBridge();
-  late Future<_CapturedLogsData> logsFuture;
+  late Future<Map<String, List<CapturedNotificationLog>>> logsFuture;
 
   @override
   void initState() {
@@ -437,66 +495,45 @@ class _CapturedNotificationLogScreenState
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: widget.sources.length,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('최근 납치된 알림'),
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: '우리'),
-              Tab(text: '통행'),
-              Tab(text: '교통'),
-            ],
-          ),
+          title: Text(widget.title),
+          bottom: widget.sources.length > 1
+              ? TabBar(
+                  tabs: widget.sources
+                      .map((source) => Tab(text: source.tabLabel))
+                      .toList(),
+                )
+              : null,
         ),
-        body: FutureBuilder<_CapturedLogsData>(
+        body: FutureBuilder<Map<String, List<CapturedNotificationLog>>>(
           future: logsFuture,
           builder: (context, snapshot) {
-            final data = snapshot.data ?? const _CapturedLogsData.empty();
             if (snapshot.connectionState == ConnectionState.waiting &&
                 snapshot.data == null) {
               return const Center(child: CircularProgressIndicator());
             }
+            final data = snapshot.data ?? const {};
+            final tabs = widget.sources
+                .map(
+                  (source) => _CapturedLogTab(
+                    source: source.source,
+                    title: source.title,
+                    emptyText: source.emptyText,
+                    note: source.note,
+                    logs: data[source.source] ?? const [],
+                    onRefresh: _reload,
+                    onShareAll: _shareAll,
+                    onShare: _shareOne,
+                    onDelete: _deleteLog,
+                    onClear: _clearLogs,
+                  ),
+                )
+                .toList();
+            if (tabs.length == 1) return tabs.single;
             return TabBarView(
-              children: [
-                _CapturedLogTab(
-                  source: 'woori_card',
-                  title: '본인카드 알림',
-                  emptyText: '최근 우리카드 알림 로그가 없습니다.',
-                  logs: data.woori,
-                  onRefresh: _reload,
-                  onShareAll: _shareAll,
-                  onShare: _shareOne,
-                  onDelete: _deleteLog,
-                  onClear: _clearLogs,
-                ),
-                _CapturedLogTab(
-                  source: 'highway_toll',
-                  title: '하이패스 알림',
-                  emptyText:
-                      '고속도로 통행료+ 알림이 없습니다. 수집 패키지는 com.ex.hipass_app입니다.',
-                  note: '현재는 원문만 보관합니다. 파싱, 등록 후보 생성, 서버 전송은 하지 않습니다.',
-                  logs: data.highwayToll,
-                  onRefresh: _reload,
-                  onShareAll: _shareAll,
-                  onShare: _shareOne,
-                  onDelete: _deleteLog,
-                  onClear: _clearLogs,
-                ),
-                _CapturedLogTab(
-                  source: 'mobile_tmoney',
-                  title: '모바일티머니 알림',
-                  emptyText: '모바일티머니 알림이 없습니다. 수집 패키지는 com.lgt.tmoney입니다.',
-                  note:
-                      '현재는 결제 금액과 잔액 알림 원문만 보관합니다. 파싱, 등록 후보 생성, 서버 전송은 하지 않습니다.',
-                  logs: data.mobileTmoney,
-                  onRefresh: _reload,
-                  onShareAll: _shareAll,
-                  onShare: _shareOne,
-                  onDelete: _deleteLog,
-                  onClear: _clearLogs,
-                ),
-              ],
+              children: tabs,
             );
           },
         ),
@@ -504,17 +541,14 @@ class _CapturedNotificationLogScreenState
     );
   }
 
-  Future<_CapturedLogsData> _load() async {
-    final results = await Future.wait([
-      bridge.listWooriLogs(),
-      bridge.listHighwayTollLogs(),
-      bridge.listMobileTmoneyLogs(),
-    ]);
-    return _CapturedLogsData(
-      woori: results[0],
-      highwayToll: results[1],
-      mobileTmoney: results[2],
+  Future<Map<String, List<CapturedNotificationLog>>> _load() async {
+    final results = await Future.wait(
+      widget.sources.map((source) => bridge.listCapturedLogs(source.source)),
     );
+    return {
+      for (var index = 0; index < widget.sources.length; index += 1)
+        widget.sources[index].source: results[index],
+    };
   }
 
   Future<void> _reload() async {
@@ -583,6 +617,22 @@ class _CapturedNotificationLogScreenState
     await bridge.clearCapturedLogs(source);
     await _reload();
   }
+}
+
+class _CapturedSourceSpec {
+  const _CapturedSourceSpec({
+    required this.source,
+    required this.tabLabel,
+    required this.title,
+    required this.emptyText,
+    this.note,
+  });
+
+  final String source;
+  final String tabLabel;
+  final String title;
+  final String emptyText;
+  final String? note;
 }
 
 class _CapturedLogTab extends StatelessWidget {
@@ -763,23 +813,6 @@ class _NotificationInboxData {
 
   final List<CardNotificationCandidate> candidates;
   final List<CapturedNotificationLog> logs;
-}
-
-class _CapturedLogsData {
-  const _CapturedLogsData({
-    required this.woori,
-    required this.highwayToll,
-    required this.mobileTmoney,
-  });
-
-  const _CapturedLogsData.empty()
-      : woori = const [],
-        highwayToll = const [],
-        mobileTmoney = const [];
-
-  final List<CapturedNotificationLog> woori;
-  final List<CapturedNotificationLog> highwayToll;
-  final List<CapturedNotificationLog> mobileTmoney;
 }
 
 String _capturedSourceLabel(String source) {

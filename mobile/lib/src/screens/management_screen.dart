@@ -99,11 +99,16 @@ class ManagementMenuList extends StatelessWidget {
           onTap: () => _push(context, MobileSettingsScreen(state: state)),
         ),
         _MenuCard(
-          title: '최근 납치된 알림',
-          subtitle: '우리카드, 통행료, 교통 알림 원문을 확인하고 공유합니다.',
+          title: '최근 우리카드 알림',
+          subtitle: '실사용 중인 우리카드 승인 알림 원문을 확인하고 공유합니다.',
           icon: Icons.notifications_active_outlined,
-          onTap: () =>
-              _push(context, CapturedNotificationLogScreen(state: state)),
+          onTap: () => _push(context, WooriNotificationLogScreen(state: state)),
+        ),
+        _MenuCard(
+          title: 'Experimental Data',
+          subtitle: '교통·통행 원문을 보관하는 실험용 관측소입니다.',
+          icon: Icons.science_outlined,
+          onTap: () => _push(context, ExperimentalDataScreen(state: state)),
         ),
       ],
     );
