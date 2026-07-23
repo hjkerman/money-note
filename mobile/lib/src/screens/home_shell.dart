@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../app_state.dart';
@@ -20,11 +22,13 @@ class HomeShell extends StatefulWidget {
 
 class _HomeShellState extends State<HomeShell> {
   int index = 0;
+  late final PageController _pageController;
   late int _seenNotificationImportOpenGeneration;
 
   @override
   void initState() {
     super.initState();
+    _pageController = PageController();
     _seenNotificationImportOpenGeneration =
         widget.state.notificationImportOpenGeneration;
     if (_seenNotificationImportOpenGeneration > 0) {
@@ -32,6 +36,12 @@ class _HomeShellState extends State<HomeShell> {
         if (mounted) _openNotificationImport();
       });
     }
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   @override
@@ -52,8 +62,8 @@ class _HomeShellState extends State<HomeShell> {
     final screens = [
       HomeScreen(
         state: widget.state,
-        onJudgmentTap: () => setState(() => index = 4),
-        onManualInputTap: () => setState(() => index = 2),
+        onJudgmentTap: () => _selectTab(4),
+        onManualInputTap: () => _selectTab(2),
       ),
       FamilyScreen(state: widget.state),
       MonthEntriesScreen(state: widget.state),
@@ -62,7 +72,16 @@ class _HomeShellState extends State<HomeShell> {
     ];
 
     return Scaffold(
-      body: _bodyForIndex(screens[index]),
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: (value) => unawaited(_handlePageChanged(value)),
+        children: [
+          for (var screenIndex = 0;
+              screenIndex < screens.length;
+              screenIndex += 1)
+            _bodyForIndex(screens[screenIndex], screenIndex),
+        ],
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: index,
         indicatorColor: moneyGreenSoft,
@@ -79,16 +98,16 @@ class _HomeShellState extends State<HomeShell> {
     );
   }
 
-  Widget _bodyForIndex(Widget screen) {
-    if (index == 4) return screen;
+  Widget _bodyForIndex(Widget screen, int screenIndex) {
+    if (screenIndex == 4) return screen;
     return RefreshIndicator(
-      onRefresh: _refreshForIndex,
+      onRefresh: () => _refreshForIndex(screenIndex),
       child: screen,
     );
   }
 
-  Future<void> _refreshForIndex() {
-    return switch (index) {
+  Future<void> _refreshForIndex(int screenIndex) {
+    return switch (screenIndex) {
       0 => widget.state.refreshInputArea(),
       1 => widget.state.refreshSettlementArea(),
       2 => widget.state.refreshEntriesArea(),
@@ -99,17 +118,26 @@ class _HomeShellState extends State<HomeShell> {
 
   Future<void> _selectTab(int value) async {
     if (value == index) return;
+    await _pageController.animateToPage(
+      value,
+      duration: const Duration(milliseconds: 240),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  Future<void> _handlePageChanged(int value) async {
+    if (value == index) return;
     setState(() => index = value);
     if (value == 4) {
       await widget.state.refresh();
       return;
     }
-    await _refreshForIndex();
+    await _refreshForIndex(value);
   }
 
   void _openNotificationImport() {
     if (index != 0) {
-      setState(() => index = 0);
+      _pageController.jumpToPage(0);
     }
     Navigator.of(context).push(
       MaterialPageRoute(
