@@ -7,6 +7,30 @@ import org.junit.Test
 
 class NotificationCandidateStoreTest {
     @Test
+    fun classifiesSupportedNotificationPackages() {
+        assertEquals(
+            NotificationSource.WOORI_CARD,
+            NotificationSource.fromPackageName("com.wooricard.smartapp")
+        )
+        assertEquals(
+            NotificationSource.HIGHWAY_TOLL,
+            NotificationSource.fromPackageName("com.ex.hipass_app")
+        )
+        assertEquals(
+            NotificationSource.MOBILE_TMONEY,
+            NotificationSource.fromPackageName("com.lgt.tmoney")
+        )
+        assertEquals(null, NotificationSource.fromPackageName("com.example.other"))
+    }
+
+    @Test
+    fun createsCandidatesOnlyForWooriCardNotifications() {
+        assertTrue(NotificationSource.WOORI_CARD.createsCandidate)
+        assertFalse(NotificationSource.HIGHWAY_TOLL.createsCandidate)
+        assertFalse(NotificationSource.MOBILE_TMONEY.createsCandidate)
+    }
+
+    @Test
     fun extractsMerchantContainingWonCharacterFromMultilineApproval() {
         val raw = """
             승인내역

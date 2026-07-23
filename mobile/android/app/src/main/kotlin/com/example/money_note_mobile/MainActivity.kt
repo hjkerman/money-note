@@ -40,10 +40,31 @@ class MainActivity : FlutterActivity() {
                 "manualReviewCount" -> result.success(NotificationCandidateStore.manualReviewCount(applicationContext))
                 "deleteCandidate" -> result.success(NotificationCandidateStore.deleteCandidate(applicationContext, call.argument<String>("id").orEmpty()))
                 "clearCandidatesByRole" -> result.success(NotificationCandidateStore.clearCandidatesByRole(applicationContext, call.argument<String>("role").orEmpty()))
-                "listWooriLogs" -> result.success(NotificationCandidateStore.listWooriLogs(applicationContext))
-                "wooriLogText" -> result.success(NotificationCandidateStore.wooriLogText(applicationContext))
-                "deleteWooriLog" -> result.success(NotificationCandidateStore.deleteWooriLog(applicationContext, call.argument<String>("id").orEmpty()))
-                "clearWooriLogs" -> result.success(NotificationCandidateStore.clearWooriLogs(applicationContext))
+                "listCapturedLogs" -> result.success(
+                    NotificationCandidateStore.listCapturedLogs(
+                        applicationContext,
+                        call.argument<String>("source").orEmpty()
+                    )
+                )
+                "capturedLogText" -> result.success(
+                    NotificationCandidateStore.capturedLogText(
+                        applicationContext,
+                        call.argument<String>("source").orEmpty()
+                    )
+                )
+                "deleteCapturedLog" -> result.success(
+                    NotificationCandidateStore.deleteCapturedLog(
+                        applicationContext,
+                        call.argument<String>("source").orEmpty(),
+                        call.argument<String>("id").orEmpty()
+                    )
+                )
+                "clearCapturedLogs" -> result.success(
+                    NotificationCandidateStore.clearCapturedLogs(
+                        applicationContext,
+                        call.argument<String>("source").orEmpty()
+                    )
+                )
                 "openSettings" -> {
                     startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
                     result.success(true)

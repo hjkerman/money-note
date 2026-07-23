@@ -44,14 +44,26 @@ class NotificationBridge {
         .toList();
   }
 
-  Future<List<WooriNotificationLog>> listWooriLogs() async {
-    final raw = await _invokeJsonList('listWooriLogs');
+  Future<List<CapturedNotificationLog>> listCapturedLogs(String source) async {
+    final raw = await _invokeJsonList(
+      'listCapturedLogs',
+      arguments: {'source': source},
+    );
     return raw
         .map((item) =>
-            WooriNotificationLog.fromJson(item as Map<String, dynamic>))
+            CapturedNotificationLog.fromJson(item as Map<String, dynamic>))
         .where((item) => item.id.isNotEmpty)
         .toList();
   }
+
+  Future<List<CapturedNotificationLog>> listWooriLogs() =>
+      listCapturedLogs('woori_card');
+
+  Future<List<CapturedNotificationLog>> listHighwayTollLogs() =>
+      listCapturedLogs('highway_toll');
+
+  Future<List<CapturedNotificationLog>> listMobileTmoneyLogs() =>
+      listCapturedLogs('mobile_tmoney');
 
   Future<NotificationCandidateCounts> candidateCounts() async {
     try {
@@ -77,21 +89,35 @@ class NotificationBridge {
     await _channel.invokeMethod<int>('clearCandidatesByRole', {'role': role});
   }
 
-  Future<void> deleteWooriLog(String id) async {
-    await _channel.invokeMethod<int>('deleteWooriLog', {'id': id});
+  Future<void> deleteCapturedLog(String source, String id) async {
+    await _channel.invokeMethod<int>(
+      'deleteCapturedLog',
+      {'source': source, 'id': id},
+    );
   }
 
-  Future<void> clearWooriLogs() async {
-    await _channel.invokeMethod<int>('clearWooriLogs');
+  Future<void> clearCapturedLogs(String source) async {
+    await _channel.invokeMethod<int>(
+      'clearCapturedLogs',
+      {'source': source},
+    );
   }
 
-  Future<String> wooriLogText() async {
-    return await _channel.invokeMethod<String>('wooriLogText') ?? '';
+  Future<String> capturedLogText(String source) async {
+    return await _channel.invokeMethod<String>(
+          'capturedLogText',
+          {'source': source},
+        ) ??
+        '';
   }
 
-  Future<List<dynamic>> _invokeJsonList(String method) async {
+  Future<List<dynamic>> _invokeJsonList(
+    String method, {
+    Map<String, dynamic>? arguments,
+  }) async {
     try {
-      final raw = await _channel.invokeMethod<String>(method) ?? '[]';
+      final raw =
+          await _channel.invokeMethod<String>(method, arguments) ?? '[]';
       final decoded = jsonDecode(raw);
       return decoded is List ? decoded : const [];
     } on MissingPluginException {

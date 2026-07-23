@@ -377,15 +377,22 @@ class CardNotificationCandidate {
   }
 }
 
-class WooriNotificationLog {
-  WooriNotificationLog({
+class CapturedNotificationLog {
+  CapturedNotificationLog({
     required this.id,
+    required this.source,
     required this.capturedAt,
     required this.packageName,
     required this.title,
     required this.text,
     required this.bigText,
+    required this.subText,
+    required this.textLines,
     required this.rawText,
+    required this.notificationKey,
+    required this.postTime,
+    required this.isOngoing,
+    required this.category,
     required this.isApprovalCandidate,
     required this.parseStatus,
     required this.parseFailureReason,
@@ -396,12 +403,19 @@ class WooriNotificationLog {
   });
 
   final String id;
+  final String source;
   final int capturedAt;
   final String packageName;
   final String title;
   final String text;
   final String bigText;
+  final String subText;
+  final List<String> textLines;
   final String rawText;
+  final String notificationKey;
+  final int postTime;
+  final bool isOngoing;
+  final String category;
   final bool isApprovalCandidate;
   final String parseStatus;
   final String parseFailureReason;
@@ -413,15 +427,24 @@ class WooriNotificationLog {
   bool get needsManualReview =>
       parseStatus == 'failed' || parseStatus == 'installment_manual';
 
-  factory WooriNotificationLog.fromJson(Map<String, dynamic> json) {
-    return WooriNotificationLog(
+  factory CapturedNotificationLog.fromJson(Map<String, dynamic> json) {
+    return CapturedNotificationLog(
       id: json['id'] as String? ?? '',
+      source: json['source'] as String? ?? 'woori_card',
       capturedAt: _int(json['captured_at']),
       packageName: json['package_name'] as String? ?? '',
       title: json['title'] as String? ?? '',
       text: json['text'] as String? ?? '',
       bigText: json['big_text'] as String? ?? '',
+      subText: json['sub_text'] as String? ?? '',
+      textLines: (json['text_lines'] as List<dynamic>? ?? const [])
+          .map((item) => item.toString())
+          .toList(),
       rawText: json['raw_text'] as String? ?? '',
+      notificationKey: json['notification_key'] as String? ?? '',
+      postTime: _int(json['post_time']),
+      isOngoing: json['is_ongoing'] as bool? ?? false,
+      category: json['category'] as String? ?? '',
       isApprovalCandidate: json['is_approval_candidate'] as bool? ?? false,
       parseStatus: json['parse_status'] as String? ?? '',
       parseFailureReason: json['parse_failure_reason'] as String? ?? '',

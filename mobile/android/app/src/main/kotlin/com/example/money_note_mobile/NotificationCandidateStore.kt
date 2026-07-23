@@ -34,14 +34,21 @@ data class ParsedApproval(
     val merchant: String?
 )
 
-data class WooriNotificationLog(
+data class CapturedNotificationLog(
     val id: String,
+    val source: String,
     val capturedAt: Long,
     val packageName: String,
     val title: String,
     val text: String,
     val bigText: String,
+    val subText: String,
+    val textLines: List<String>,
     val rawText: String,
+    val notificationKey: String,
+    val postTime: Long,
+    val isOngoing: Boolean,
+    val category: String,
     val isApprovalCandidate: Boolean,
     val parseStatus: String,
     val parseFailureReason: String,
@@ -64,8 +71,7 @@ object NotificationCandidateStore {
     private const val OWNER_CARD_KEY = "owner_card_last4"
     private const val FAMILY_CARD_KEY = "family_card_last4"
     private const val CANDIDATE_FILE_NAME = "card_notification_candidates.json"
-    private const val WOORI_LOG_FILE_NAME = "woori_notification_logs.json"
-    private const val MAX_WOORI_LOG_COUNT = 30
+    private const val MAX_CAPTURED_LOG_COUNT = 30
     private const val CHANNEL_ID = "money_note_card_candidates"
     private const val SUMMARY_NOTIFICATION_ID = 8201
 
@@ -78,17 +84,21 @@ object NotificationCandidateStore {
     }
 
     fun handleNotification(context: Context, record: RawNotificationRecord): HandleResult {
-        if (record.packageName != "com.wooricard.smartapp") {
+        val source = NotificationSource.fromPackageName(record.packageName)
+        if (source == null) {
             return HandleResult(
                 saved = false,
                 candidateCreated = false,
-                logCount = logCount(context),
+                logCount = 0,
                 candidateCount = candidateTotal(context),
                 isApprovalCandidate = false,
                 parseStatus = "ignored",
                 parseFailureReason = "",
                 parsed = ParsedApproval(null, null, null, null)
             )
+        }
+        if (!source.createsCandidate) {
+            return handleRawOnlyNotification(context, record, source)
         }
 
         val parsed = parseApproval(record)
@@ -107,14 +117,9 @@ object NotificationCandidateStore {
         } else {
             null
         }
-        val log = WooriNotificationLog(
-            id = record.id,
-            capturedAt = record.capturedAt,
-            packageName = record.packageName,
-            title = record.title,
-            text = record.text,
-            bigText = record.bigText,
-            rawText = record.rawText,
+        val log = capturedLog(
+            source = source,
+            record = record,
             isApprovalCandidate = parsed.isApprovalCandidate,
             parseStatus = parsed.status,
             parseFailureReason = parsed.reason,
@@ -122,7 +127,7 @@ object NotificationCandidateStore {
         )
 
         synchronized(this) {
-            val logCount = appendWooriLogLocked(context, log)
+            val logCount = appendCapturedLogLocked(context, source, log)
             if (candidate != null) appendCandidateLocked(context, candidate)
             updateSummaryNotification(context)
             return HandleResult(
@@ -138,11 +143,72 @@ object NotificationCandidateStore {
         }
     }
 
+    private fun handleRawOnlyNotification(
+        context: Context,
+        record: RawNotificationRecord,
+        source: NotificationSource
+    ): HandleResult {
+        val emptyApproval = ParsedApproval(null, null, null, null)
+        val log = capturedLog(
+            source = source,
+            record = record,
+            isApprovalCandidate = false,
+            parseStatus = "raw_only",
+            parseFailureReason = "",
+            parsed = emptyApproval
+        )
+        synchronized(this) {
+            val logCount = appendCapturedLogLocked(context, source, log)
+            return HandleResult(
+                saved = true,
+                candidateCreated = false,
+                logCount = logCount,
+                candidateCount = candidateCountLocked(context),
+                isApprovalCandidate = false,
+                parseStatus = "raw_only",
+                parseFailureReason = "",
+                parsed = emptyApproval
+            )
+        }
+    }
+
+    private fun capturedLog(
+        source: NotificationSource,
+        record: RawNotificationRecord,
+        isApprovalCandidate: Boolean,
+        parseStatus: String,
+        parseFailureReason: String,
+        parsed: ParsedApproval
+    ): CapturedNotificationLog =
+        CapturedNotificationLog(
+            id = record.id,
+            source = source.wireName,
+            capturedAt = record.capturedAt,
+            packageName = record.packageName,
+            title = record.title,
+            text = record.text,
+            bigText = record.bigText,
+            subText = record.subText,
+            textLines = record.textLines,
+            rawText = record.rawText,
+            notificationKey = record.notificationKey,
+            postTime = record.postTime,
+            isOngoing = record.isOngoing,
+            category = record.category,
+            isApprovalCandidate = isApprovalCandidate,
+            parseStatus = parseStatus,
+            parseFailureReason = parseFailureReason,
+            parsed = parsed
+        )
+
     fun listCandidates(context: Context): String =
         synchronized(this) { readArray(context, CANDIDATE_FILE_NAME).toString() }
 
-    fun listWooriLogs(context: Context): String =
-        synchronized(this) { readArray(context, WOORI_LOG_FILE_NAME).toString() }
+    fun listCapturedLogs(context: Context, sourceName: String): String =
+        synchronized(this) {
+            val source = NotificationSource.fromWireName(sourceName) ?: return@synchronized "[]"
+            readArray(context, source.logFileName).toString()
+        }
 
     fun candidateCounts(context: Context): Map<String, Int> =
         synchronized(this) {
@@ -161,23 +227,31 @@ object NotificationCandidateStore {
         deleteMatching(context, CANDIDATE_FILE_NAME) { it.optString("card_role") == role }
             .also { updateSummaryNotification(context) }
 
-    fun deleteWooriLog(context: Context, id: String): Int =
-        deleteMatching(context, WOORI_LOG_FILE_NAME) { it.optString("id") == id }
+    fun deleteCapturedLog(context: Context, sourceName: String, id: String): Int {
+        val source = NotificationSource.fromWireName(sourceName) ?: return 0
+        return deleteMatching(context, source.logFileName) { it.optString("id") == id }
+    }
 
-    fun clearWooriLogs(context: Context): Int {
+    fun clearCapturedLogs(context: Context, sourceName: String): Int {
+        val source = NotificationSource.fromWireName(sourceName) ?: return 0
         synchronized(this) {
-            writeArray(context, WOORI_LOG_FILE_NAME, JSONArray())
+            writeArray(context, source.logFileName, JSONArray())
             return 0
         }
     }
 
-    fun wooriLogText(context: Context): String {
+    fun capturedLogText(context: Context, sourceName: String): String {
+        val source = NotificationSource.fromWireName(sourceName) ?: return ""
         synchronized(this) {
-            val array = readArray(context, WOORI_LOG_FILE_NAME)
-            val lines = mutableListOf("=== Money Note Woori Notification Debug ===", "count: ${array.length()}")
+            val array = readArray(context, source.logFileName)
+            val lines = mutableListOf(
+                "=== Money Note ${source.debugTitle} Notification Debug ===",
+                "count: ${array.length()}"
+            )
             for (index in 0 until array.length()) {
                 val item = array.getJSONObject(index)
                 lines.add("[${index + 1}]")
+                lines.add("source=${item.optString("source", source.wireName)}")
                 lines.add("capturedAt=${item.optLong("captured_at")}")
                 lines.add("parseStatus=${item.optString("parse_status")}")
                 lines.add("parseFailureReason=${item.optString("parse_failure_reason")}")
@@ -185,7 +259,13 @@ object NotificationCandidateStore {
                 lines.add("title=${item.optString("title")}")
                 lines.add("text=${item.optString("text")}")
                 lines.add("bigText=${item.optString("big_text")}")
+                lines.add("subText=${item.optString("sub_text")}")
+                lines.add("textLines=${item.optJSONArray("text_lines") ?: JSONArray()}")
                 lines.add("rawText=${item.optString("raw_text")}")
+                lines.add("notificationKey=${item.optString("notification_key")}")
+                lines.add("postTime=${item.optLong("post_time")}")
+                lines.add("isOngoing=${item.optBoolean("is_ongoing")}")
+                lines.add("category=${item.optString("category")}")
                 lines.add("card_last4=${item.optString("card_last4")}")
                 lines.add("entry_date=${item.optString("entry_date")}")
                 lines.add("amount=${item.optString("amount")}")
@@ -292,8 +372,12 @@ object NotificationCandidateStore {
         return next.length()
     }
 
-    private fun appendWooriLogLocked(context: Context, log: WooriNotificationLog): Int {
-        val array = readArray(context, WOORI_LOG_FILE_NAME)
+    private fun appendCapturedLogLocked(
+        context: Context,
+        source: NotificationSource,
+        log: CapturedNotificationLog
+    ): Int {
+        val array = readArray(context, source.logFileName)
         val next = JSONArray()
         next.put(log.toJson())
         for (index in 0 until array.length()) {
@@ -301,9 +385,9 @@ object NotificationCandidateStore {
             if (item.optString("id") != log.id) next.put(item)
         }
         val trimmed = JSONArray()
-        val limit = minOf(next.length(), MAX_WOORI_LOG_COUNT)
+        val limit = minOf(next.length(), MAX_CAPTURED_LOG_COUNT)
         for (index in 0 until limit) trimmed.put(next.getJSONObject(index))
-        writeArray(context, WOORI_LOG_FILE_NAME, trimmed)
+        writeArray(context, source.logFileName, trimmed)
         return trimmed.length()
     }
 
@@ -362,9 +446,6 @@ object NotificationCandidateStore {
     private fun candidateTotal(context: Context): Int =
         synchronized(this) { candidateCountLocked(context) }
 
-    private fun logCount(context: Context): Int =
-        synchronized(this) { readArray(context, WOORI_LOG_FILE_NAME).length() }
-
     private fun candidateCountLocked(context: Context): Int =
         readArray(context, CANDIDATE_FILE_NAME).length()
 
@@ -382,7 +463,7 @@ object NotificationCandidateStore {
     }
 
     private fun manualReviewCountLocked(context: Context): Int {
-        val array = readArray(context, WOORI_LOG_FILE_NAME)
+        val array = readArray(context, NotificationSource.WOORI_CARD.logFileName)
         var count = 0
         for (index in 0 until array.length()) {
             when (array.getJSONObject(index).optString("parse_status")) {
@@ -436,15 +517,22 @@ object NotificationCandidateStore {
             .put("merchant", merchant)
             .put("raw_text", rawText)
 
-    private fun WooriNotificationLog.toJson(): JSONObject =
+    private fun CapturedNotificationLog.toJson(): JSONObject =
         JSONObject()
             .put("id", id)
+            .put("source", source)
             .put("captured_at", capturedAt)
             .put("package_name", packageName)
             .put("title", title)
             .put("text", text)
             .put("big_text", bigText)
+            .put("sub_text", subText)
+            .put("text_lines", JSONArray(textLines))
             .put("raw_text", rawText)
+            .put("notification_key", notificationKey)
+            .put("post_time", postTime)
+            .put("is_ongoing", isOngoing)
+            .put("category", category)
             .put("is_approval_candidate", isApprovalCandidate)
             .put("parse_status", parseStatus)
             .put("parse_failure_reason", parseFailureReason)

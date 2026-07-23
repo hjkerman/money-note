@@ -724,21 +724,27 @@ Android Gradle 메모:
 - `share_plus`는 최신 제약으로 올려도 현재 플러그인 내부에서 Kotlin Gradle Plugin 경고가 남을 수 있다.
 - 이 경우 앱 로직 문제가 아니라 Flutter 플러그인 생태계의 이행 상태 문제다. `flutter build apk`가 통과하는지 확인하고, 향후 `share_plus` 릴리즈에서 built-in Kotlin 이행이 완료되면 다시 `flutter pub upgrade share_plus`로 점검한다.
 
-### 8. 우리카드 알림 후보함 확인
+### 8. 카드·하이패스·교통 알림 수집 확인
 
-모바일 앱의 `알림에서 가져오기`는 우리카드 승인 알림을 로컬 후보함으로 모으는 화면이다. Android의 `NotificationListenerService`는 `com.wooricard.smartapp` 알림만 처리하며, 다른 앱 알림은 후보로도 로그로도 저장하지 않는다.
+모바일 앱의 `알림에서 가져오기`는 우리카드 승인 알림을 로컬 후보함으로 모으는 화면이다. `설정 -> 관리 -> 최근 납치된 알림`은 수집한 원문을 `우리 / 통행 / 교통` 탭으로 나누어 보여준다.
 
 처리 원칙:
 
+- Android `NotificationListenerService`는 하나만 사용한다.
+- 우리카드 패키지는 `com.wooricard.smartapp`이다.
+- 고속도로 통행료+ 패키지는 Google Play 등록정보로 확인한 `com.ex.hipass_app`이다.
+- 모바일티머니 패키지는 Google Play 등록정보로 확인한 `com.lgt.tmoney`다.
 - 일시불 승인 알림만 자동 후보 생성 대상으로 삼는다.
 - 후보는 앱 로컬에 저장하며, 알림 수신 즉시 서버로 전송하지 않는다.
 - 사용자가 후보를 확인하고 `등록`을 눌렀을 때만 기존 본인 원장, 청구, 가족카드 API를 호출한다.
 - 본인카드 후보는 기본 `본인 사용`, 선택 가능 대상은 `본인 사용`/`청구 사용`이다.
 - 가족카드 후보는 기본 `가족 사용`, 선택 가능 대상은 `가족 사용`/`본인 사용`이다.
 - 할부 승인, 파싱 실패, 광고/혜택 안내는 후보로 만들지 않고 최근 우리카드 알림 로그에 남긴다.
-- 최근 우리카드 알림 로그는 로컬에 30건만 유지한다.
+- 고속도로 통행료+ 알림은 하이패스 로그에 원문만 저장한다. 후보 생성과 서버 전송은 하지 않는다.
+- 모바일티머니 알림은 교통 로그에 원문만 저장한다. 후보 생성과 서버 전송은 하지 않는다.
+- 우리카드, 하이패스, 모바일티머니 로그는 출처별로 로컬에 최근 30건만 유지한다.
 - 저장 시 Android 로그 태그 `MN_NOTIFY`로 packageName, title, text, bigText, rawText, 파싱 상태, 후보 생성 여부, 저장 건수를 남긴다.
-- `상태 -> 관리 -> 최근 우리카드 알림`에서 원문과 파싱 결과를 확인하고 공유할 수 있다.
+- `설정 -> 관리 -> 최근 납치된 알림`에서 원문을 개별 또는 출처별 파일로 공유할 수 있다.
 
 Android에서 권한을 켠다.
 
@@ -756,10 +762,83 @@ Android에서 권한을 켠다.
 
 ```text
 mobile/android/app/src/main/kotlin/com/example/money_note_mobile/CardNotificationListenerService.kt
+mobile/android/app/src/main/kotlin/com/example/money_note_mobile/NotificationSource.kt
 mobile/android/app/src/main/kotlin/com/example/money_note_mobile/NotificationCandidateStore.kt
 ```
 
-별도 polling이나 백그라운드 상시 루프는 두지 않는다. 알림 리스너 콜백으로 들어온 우리카드 알림만 처리한다.
+별도 polling이나 백그라운드 상시 루프는 두지 않는다. 알림 리스너 콜백으로 들어온 지원 패키지 알림만 처리한다. `CardNotificationListenerService`라는 클래스명은 기존 알림 접근 권한의 Android component를 유지하기 위한 호환 이름이다.
+
+#### 패키지명 확인
+
+현재 고속도로 통행료+ 패키지는 `com.ex.hipass_app`, 모바일티머니 패키지는 `com.lgt.tmoney`로 확정되어 있다. 향후 앱 교체나 패키지 변경이 의심되면 설치된 실기기에서 확인한다.
+
+```bash
+adb shell pm list packages | rg 'hipass|toll|wooricard|tmoney'
+```
+
+앱을 화면에 띄운 뒤 현재 foreground activity를 확인할 수도 있다.
+
+```bash
+adb shell dumpsys activity activities | rg 'mResumedActivity'
+```
+
+알림이 도착할 때 Money Note가 실제로 저장했는지 확인한다.
+
+```bash
+adb logcat -s MN_NOTIFY
+```
+
+하이패스 로그 카드의 `Package` 값이 `com.ex.hipass_app`인지 확인한다. 공식 Google Play 주소도 패키지 ID를 포함한다.
+
+```text
+https://play.google.com/store/apps/details?id=com.ex.hipass_app
+```
+
+교통 로그 카드의 `Package` 값이 `com.lgt.tmoney`인지 확인한다. 공식 Google Play 주소:
+
+```text
+https://play.google.com/store/apps/details?id=com.lgt.tmoney
+```
+
+#### 하이패스 원문 수집 단계
+
+고속도로 통행료+ 공식 설명은 하이패스 이용내역 알림 제공을 명시하지만, 알림 본문의 정확한 필드와 문장 형식은 공개하지 않는다. 따라서 현재 단계에서는 다음을 지킨다.
+
+1. 원문을 로컬 하이패스 로그에 저장한다.
+2. `Title`, `Text`, `BigText`, `SubText`, `TextLines`, `RawText`, 알림 key와 게시 시각을 확인한다.
+3. 원문 카드를 공유해 표본을 모은다.
+4. 날짜, 금액, 진입·진출 영업소 등 필요한 필드가 안정적으로 확인된 뒤 별도 하이패스 파서를 만든다.
+5. 파싱 후에도 자동 서버 등록은 하지 않고, 본인 사용 또는 청구 사용과 금액을 사용자가 확인한 뒤 등록한다.
+
+하이패스 통행료는 우리카드 기본 할인 대상이 아니다. 향후 후보를 만들더라도 할인 제외가 기본이며, 원문만 수집된 상태는 원장이나 청구 금액에 영향을 주지 않는다.
+
+고속도로 통행료+ 알림이 오지 않는다면 다음 순서로만 실험한다.
+
+1. 내비게이션 앱의 알림과 공유 기능에 예상 통행료가 노출되는지 확인한다.
+2. 노출된다면 기존 알림 리스너처럼 공개된 데이터를 로컬 원문으로 수집할 수 있는지 검토한다.
+3. 공개 데이터가 없다면 사용자가 앱 화면에서 직접 시작한 운전 모드 동안만 통행료 안내 음성 관측을 검토한다.
+4. 음성 관측을 구현한다면 Android의 `microphone` foreground service와 권한 정책을 따르고, 숫자 추출 후 원음은 즉시 폐기한다.
+
+Android는 백그라운드에서 임의로 마이크 foreground service를 시작하거나 마이크에 접근하는 것을 제한한다. 따라서 위치 감지만으로 몰래 상시 녹음을 시작하는 설계는 사용하지 않는다.
+
+```text
+https://developer.android.com/develop/background-work/services/fgs/service-types#microphone
+https://developer.android.com/develop/background-work/services/fgs/restrictions-bg-start
+```
+
+후불 하이패스카드 또는 차량 하이패스 단말기 직접 판독은 별도 하드웨어와 폐쇄형 규격을 다루는 프로젝트가 되므로 Money Note의 현재 fallback 범위에서 제외한다.
+
+#### 모바일티머니 원문 수집 단계
+
+실기기에서 모바일티머니 앱이 삼성월렛 모바일티머니의 결제 금액과 잔액 알림을 제공하는 것을 확인했다. 현재 단계에서는 다음을 지킨다.
+
+1. `com.lgt.tmoney` 알림 원문을 로컬 교통 로그에 저장한다.
+2. `우리 / 통행 / 교통` 중 `교통` 탭에서 원문 필드를 확인하고 공유한다.
+3. 알림 문장 형식과 승차·하차 시점, 결제 금액, 잔액 필드가 안정적인지 표본을 모은다.
+4. 표본이 충분하면 우리카드·하이패스 파서와 분리된 모바일티머니 파서를 추가한다.
+5. 파싱 후에도 자동 서버 등록은 하지 않는다. 본인 사용 또는 청구 사용, 날짜와 금액을 사용자가 확인한 뒤 등록 후보를 처리한다.
+
+모바일티머니 교통비도 자동 할인 계산 대상이 아니다. 원문만 수집된 상태는 원장, 청구, 가족카드, 카드대금에 영향을 주지 않는다.
 
 ## 로그인 계정 생성
 

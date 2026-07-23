@@ -69,8 +69,8 @@ class _NotificationImportScreenState extends State<NotificationImportScreen> {
                         onPressed: () async {
                           setState(() => manualNoticeDismissed = true);
                           await Navigator.of(context).push(MaterialPageRoute(
-                            builder: (_) =>
-                                WooriNotificationLogScreen(state: widget.state),
+                            builder: (_) => CapturedNotificationLogScreen(
+                                state: widget.state),
                           ));
                           await _reload();
                         },
@@ -114,7 +114,7 @@ class _NotificationImportScreenState extends State<NotificationImportScreen> {
     ]);
     return _NotificationInboxData(
       candidates: results[0] as List<CardNotificationCandidate>,
-      logs: results[1] as List<WooriNotificationLog>,
+      logs: results[1] as List<CapturedNotificationLog>,
     );
   }
 
@@ -413,119 +413,160 @@ class _CandidateCardState extends State<_CandidateCard> {
   }
 }
 
-class WooriNotificationLogScreen extends StatefulWidget {
-  const WooriNotificationLogScreen({required this.state, super.key});
+class CapturedNotificationLogScreen extends StatefulWidget {
+  const CapturedNotificationLogScreen({required this.state, super.key});
 
   final AppState state;
 
   @override
-  State<WooriNotificationLogScreen> createState() =>
-      _WooriNotificationLogScreenState();
+  State<CapturedNotificationLogScreen> createState() =>
+      _CapturedNotificationLogScreenState();
 }
 
-class _WooriNotificationLogScreenState
-    extends State<WooriNotificationLogScreen> {
+class _CapturedNotificationLogScreenState
+    extends State<CapturedNotificationLogScreen> {
   final bridge = NotificationBridge();
-  late Future<List<WooriNotificationLog>> logsFuture;
+  late Future<_CapturedLogsData> logsFuture;
 
   @override
   void initState() {
     super.initState();
-    logsFuture = bridge.listWooriLogs();
+    logsFuture = _load();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('최근 우리카드 알림')),
-      body: FutureBuilder<List<WooriNotificationLog>>(
-        future: logsFuture,
-        builder: (context, snapshot) {
-          final logs = snapshot.data ?? [];
-          return RefreshIndicator(
-            onRefresh: _reload,
-            child: ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 96),
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('최근 납치된 알림'),
+          bottom: const TabBar(
+            tabs: [
+              Tab(text: '우리'),
+              Tab(text: '통행'),
+              Tab(text: '교통'),
+            ],
+          ),
+        ),
+        body: FutureBuilder<_CapturedLogsData>(
+          future: logsFuture,
+          builder: (context, snapshot) {
+            final data = snapshot.data ?? const _CapturedLogsData.empty();
+            if (snapshot.connectionState == ConnectionState.waiting &&
+                snapshot.data == null) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            return TabBarView(
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: logs.isEmpty ? null : _shareLog,
-                        child: const Text('로그 공유'),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: logs.isEmpty ? null : _clearLogs,
-                        child: const Text('전체 삭제'),
-                      ),
-                    ),
-                  ],
+                _CapturedLogTab(
+                  source: 'woori_card',
+                  title: '본인카드 알림',
+                  emptyText: '최근 우리카드 알림 로그가 없습니다.',
+                  logs: data.woori,
+                  onRefresh: _reload,
+                  onShareAll: _shareAll,
+                  onShare: _shareOne,
+                  onDelete: _deleteLog,
+                  onClear: _clearLogs,
                 ),
-                SectionTitle('최근 로그',
-                    trailing: Text('${logs.length}건',
-                        style: const TextStyle(color: moneyMuted))),
-                if (snapshot.connectionState == ConnectionState.waiting)
-                  const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(24),
-                      child: CircularProgressIndicator(),
-                    ),
-                  )
-                else if (logs.isEmpty)
-                  const MoneyCard(child: Text('최근 우리카드 알림 로그가 없습니다.'))
-                else
-                  ...logs.map((log) => _WooriLogCard(
-                        log: log,
-                        onDelete: () => _deleteLog(log),
-                      )),
+                _CapturedLogTab(
+                  source: 'highway_toll',
+                  title: '하이패스 알림',
+                  emptyText:
+                      '고속도로 통행료+ 알림이 없습니다. 수집 패키지는 com.ex.hipass_app입니다.',
+                  note: '현재는 원문만 보관합니다. 파싱, 등록 후보 생성, 서버 전송은 하지 않습니다.',
+                  logs: data.highwayToll,
+                  onRefresh: _reload,
+                  onShareAll: _shareAll,
+                  onShare: _shareOne,
+                  onDelete: _deleteLog,
+                  onClear: _clearLogs,
+                ),
+                _CapturedLogTab(
+                  source: 'mobile_tmoney',
+                  title: '모바일티머니 알림',
+                  emptyText: '모바일티머니 알림이 없습니다. 수집 패키지는 com.lgt.tmoney입니다.',
+                  note:
+                      '현재는 결제 금액과 잔액 알림 원문만 보관합니다. 파싱, 등록 후보 생성, 서버 전송은 하지 않습니다.',
+                  logs: data.mobileTmoney,
+                  onRefresh: _reload,
+                  onShareAll: _shareAll,
+                  onShare: _shareOne,
+                  onDelete: _deleteLog,
+                  onClear: _clearLogs,
+                ),
               ],
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
+    );
+  }
+
+  Future<_CapturedLogsData> _load() async {
+    final results = await Future.wait([
+      bridge.listWooriLogs(),
+      bridge.listHighwayTollLogs(),
+      bridge.listMobileTmoneyLogs(),
+    ]);
+    return _CapturedLogsData(
+      woori: results[0],
+      highwayToll: results[1],
+      mobileTmoney: results[2],
     );
   }
 
   Future<void> _reload() async {
     await widget.state.refreshNotificationInboxState(notify: true);
+    if (!mounted) return;
     setState(() {
-      logsFuture = bridge.listWooriLogs();
+      logsFuture = _load();
     });
+    await logsFuture;
   }
 
-  Future<void> _shareLog() async {
-    final text = await bridge.wooriLogText();
+  Future<void> _shareAll(String source) async {
+    final text = await bridge.capturedLogText(source);
     final directory = await getTemporaryDirectory();
+    final slug = _capturedSourceSlug(source);
     final file =
-        File('${directory.path}/money-note-woori-notification-log.txt');
+        File('${directory.path}/money-note-$slug-notification-log.txt');
     await file.writeAsString(text, flush: true);
     await SharePlus.instance.share(
       ShareParams(
         files: [
           XFile(file.path,
               mimeType: 'text/plain',
-              name: 'money-note-woori-notification-log.txt')
+              name: 'money-note-$slug-notification-log.txt')
         ],
-        text: 'Money-Note 우리카드 알림 로그',
+        text: 'Money-Note ${_capturedSourceLabel(source)} 알림 로그',
       ),
     );
   }
 
-  Future<void> _deleteLog(WooriNotificationLog log) async {
-    await bridge.deleteWooriLog(log.id);
+  Future<void> _shareOne(CapturedNotificationLog log) async {
+    await SharePlus.instance.share(
+      ShareParams(
+        text: _capturedLogText(log),
+        subject: 'Money-Note ${_capturedSourceLabel(log.source)} 알림',
+      ),
+    );
+  }
+
+  Future<void> _deleteLog(CapturedNotificationLog log) async {
+    await bridge.deleteCapturedLog(log.source, log.id);
     await _reload();
   }
 
-  Future<void> _clearLogs() async {
+  Future<void> _clearLogs(String source) async {
+    final label = _capturedSourceLabel(source);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('로그 전체 삭제'),
-        content: const Text('최근 우리카드 알림 로그를 모두 삭제할까요? 후보함은 건드리지 않습니다.'),
+        content: Text(
+            '최근 $label 알림 로그를 모두 삭제할까요?${source == 'woori_card' ? ' 후보함은 건드리지 않습니다.' : ''}'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -539,15 +580,99 @@ class _WooriNotificationLogScreenState
       ),
     );
     if (confirmed != true) return;
-    await bridge.clearWooriLogs();
+    await bridge.clearCapturedLogs(source);
     await _reload();
   }
 }
 
-class _WooriLogCard extends StatelessWidget {
-  const _WooriLogCard({required this.log, required this.onDelete});
+class _CapturedLogTab extends StatelessWidget {
+  const _CapturedLogTab({
+    required this.source,
+    required this.title,
+    required this.emptyText,
+    required this.logs,
+    required this.onRefresh,
+    required this.onShareAll,
+    required this.onShare,
+    required this.onDelete,
+    required this.onClear,
+    this.note,
+  });
 
-  final WooriNotificationLog log;
+  final String source;
+  final String title;
+  final String emptyText;
+  final String? note;
+  final List<CapturedNotificationLog> logs;
+  final Future<void> Function() onRefresh;
+  final Future<void> Function(String source) onShareAll;
+  final Future<void> Function(CapturedNotificationLog log) onShare;
+  final Future<void> Function(CapturedNotificationLog log) onDelete;
+  final Future<void> Function(String source) onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 96),
+        children: [
+          if (note != null) ...[
+            MoneyCard(
+              child: Text(
+                note!,
+                style: const TextStyle(
+                    color: moneyMuted, fontWeight: FontWeight.w600),
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: logs.isEmpty ? null : () => onShareAll(source),
+                  child: const Text('로그 공유'),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: logs.isEmpty ? null : () => onClear(source),
+                  child: const Text('전체 삭제'),
+                ),
+              ),
+            ],
+          ),
+          SectionTitle(
+            title,
+            trailing: Text('${logs.length}건',
+                style: const TextStyle(color: moneyMuted)),
+          ),
+          if (logs.isEmpty)
+            MoneyCard(child: Text(emptyText))
+          else
+            ...logs.map((log) => _CapturedLogCard(
+                  log: log,
+                  onShare: () => onShare(log),
+                  onDelete: () => onDelete(log),
+                )),
+        ],
+      ),
+    );
+  }
+}
+
+class _CapturedLogCard extends StatelessWidget {
+  const _CapturedLogCard({
+    required this.log,
+    required this.onShare,
+    required this.onDelete,
+  });
+
+  final CapturedNotificationLog log;
+  final VoidCallback onShare;
   final VoidCallback onDelete;
 
   @override
@@ -566,6 +691,11 @@ class _WooriLogCard extends StatelessWidget {
                           fontSize: 16, fontWeight: FontWeight.w900)),
                 ),
                 IconButton(
+                  tooltip: '공유',
+                  onPressed: onShare,
+                  icon: const Icon(Icons.share_outlined),
+                ),
+                IconButton(
                   tooltip: '삭제',
                   onPressed: onDelete,
                   icon: const Icon(Icons.delete_outline),
@@ -578,7 +708,15 @@ class _WooriLogCard extends StatelessWidget {
             _Field(label: 'Title', value: log.title),
             _Field(label: 'Text', value: log.text),
             _Field(label: 'BigText', value: log.bigText),
+            _Field(label: 'SubText', value: log.subText),
+            _Field(label: 'TextLines', value: log.textLines.join('\n')),
             _Field(label: 'RawText', value: log.rawText),
+            _Field(label: 'NotificationKey', value: log.notificationKey),
+            _Field(
+                label: 'PostTime',
+                value: log.postTime == 0 ? '' : log.postTime.toString()),
+            _Field(label: 'IsOngoing', value: log.isOngoing.toString()),
+            _Field(label: 'Category', value: log.category),
             _Field(label: 'card_last4', value: log.cardLast4),
             _Field(label: 'entry_date', value: log.entryDate),
             _Field(
@@ -624,7 +762,71 @@ class _NotificationInboxData {
         logs = const [];
 
   final List<CardNotificationCandidate> candidates;
-  final List<WooriNotificationLog> logs;
+  final List<CapturedNotificationLog> logs;
+}
+
+class _CapturedLogsData {
+  const _CapturedLogsData({
+    required this.woori,
+    required this.highwayToll,
+    required this.mobileTmoney,
+  });
+
+  const _CapturedLogsData.empty()
+      : woori = const [],
+        highwayToll = const [],
+        mobileTmoney = const [];
+
+  final List<CapturedNotificationLog> woori;
+  final List<CapturedNotificationLog> highwayToll;
+  final List<CapturedNotificationLog> mobileTmoney;
+}
+
+String _capturedSourceLabel(String source) {
+  switch (source) {
+    case 'highway_toll':
+      return '하이패스';
+    case 'mobile_tmoney':
+      return '모바일티머니';
+    default:
+      return '우리카드';
+  }
+}
+
+String _capturedSourceSlug(String source) {
+  switch (source) {
+    case 'highway_toll':
+      return 'highway-toll';
+    case 'mobile_tmoney':
+      return 'mobile-tmoney';
+    default:
+      return 'woori-card';
+  }
+}
+
+String _capturedLogText(CapturedNotificationLog log) {
+  final lines = <String>[
+    'capturedAt=${log.capturedAt}',
+    'source=${log.source}',
+    'packageName=${log.packageName}',
+    'title=${log.title}',
+    'text=${log.text}',
+    'bigText=${log.bigText}',
+    'subText=${log.subText}',
+    'textLines=${log.textLines.join(' | ')}',
+    'rawText=${log.rawText}',
+    'notificationKey=${log.notificationKey}',
+    'postTime=${log.postTime}',
+    'isOngoing=${log.isOngoing}',
+    'category=${log.category}',
+    'parseStatus=${log.parseStatus}',
+    'parseFailureReason=${log.parseFailureReason}',
+    'card_last4=${log.cardLast4}',
+    'entry_date=${log.entryDate}',
+    'amount=${log.amount}',
+    'merchant=${log.merchant}',
+  ];
+  return lines.join('\n');
 }
 
 String _capturedAt(int millis) {
