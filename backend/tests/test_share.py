@@ -54,10 +54,65 @@ class SharePanelTest(unittest.TestCase):
     def test_shared_panel_reports_minimum_payment_total(self) -> None:
         data = shared_panel("claim")
 
+        self.assertEqual(data["minimum_payment_month"], "2026-07")
         self.assertEqual(data["minimum_total"], 1200)
         self.assertEqual(data["minimum_discount_total"], 100)
         self.assertEqual(data["total"], 3000)
         self.assertEqual(data["discount_total"], 300)
+
+    def test_minimum_payment_advances_after_earliest_cycle_is_cleared(self) -> None:
+        with session() as conn:
+            conn.execute(
+                """
+                DELETE FROM monthly_panels
+                WHERE panel_type = 'claim'
+                  AND title IN ('지난달 병원비', '전세대출이자')
+                """
+            )
+
+        data = shared_panel("claim")
+
+        self.assertEqual(data["minimum_payment_month"], "2026-08")
+        self.assertEqual(data["minimum_total"], 1800)
+        self.assertEqual(data["minimum_discount_total"], 200)
+        self.assertIn("2026년 8월 최소 결제 금액: 1,800원", shared_panel_html("claim"))
+
+    def test_interest_exception_applies_only_to_claim(self) -> None:
+        with session() as conn:
+            conn.execute(
+                """
+                INSERT INTO monthly_panels(
+                    month, panel_type, title, spent_on, amount_value, sort_order
+                )
+                VALUES
+                    ('2026-06', 'family_card', '지난달 가족카드', '2026-06-22', 1000, 1),
+                    ('2026-07', 'family_card', '이자라는 단어', '2026-07-03', 300, 2)
+                """
+            )
+
+        data = shared_panel("family_card")
+
+        self.assertEqual(data["minimum_payment_month"], "2026-07")
+        self.assertEqual(data["minimum_total"], 1000)
+
+    def test_december_usage_moves_to_next_year_payment_cycle(self) -> None:
+        with session() as conn:
+            conn.execute("DELETE FROM monthly_panels WHERE panel_type = 'claim'")
+            conn.execute(
+                """
+                INSERT INTO monthly_panels(
+                    month, panel_type, title, spent_on, amount_value,
+                    discount_amount, discount_override, sort_order
+                )
+                VALUES ('2026-12', 'claim', '연말 가족 장보기', '2026-12-28', 5000, 0, 1, 1)
+                """
+            )
+
+        data = shared_panel("claim")
+
+        self.assertEqual(data["minimum_payment_month"], "2027-01")
+        self.assertEqual(data["minimum_total"], 5000)
+        self.assertIn("2027년 1월 최소 결제 금액: 5,000원", shared_panel_html("claim"))
 
     def test_shared_panel_html_dims_current_month_non_interest_rows(self) -> None:
         html = shared_panel_html("claim")
@@ -70,7 +125,7 @@ class SharePanelTest(unittest.TestCase):
         self.assertIn('class="share-table-wrap"', html)
         self.assertIn("body.minimum-mode tr.deferable-row", html)
         self.assertIn("display: none", html)
-        self.assertIn("최소 1,200원 결제 필요", html)
+        self.assertIn("2026년 7월 최소 결제 금액: 1,200원", html)
         self.assertIn('data-full="-300원"', html)
         self.assertIn('data-minimum="-100원"', html)
         self.assertIn('data-full="3,000원"', html)

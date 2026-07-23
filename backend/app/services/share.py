@@ -29,7 +29,7 @@ def shared_panel(panel_type: str) -> dict:
     ]
     total = sum(_panel_net_amount(row) for row in rows)
     discount_total = sum(_panel_discount_amount(row) for row in rows)
-    minimum_rows = [row for row in rows if _is_minimum_payment_row(row, month)]
+    minimum_payment_month, minimum_rows = _minimum_payment_rows(rows, panel_type, month)
     minimum_total = sum(_panel_net_amount(row) for row in minimum_rows)
     minimum_discount_total = sum(_panel_discount_amount(row) for row in minimum_rows)
     current_card_total = sum(row.get("amount_value") or 0 for row in list_entries("current"))
@@ -46,6 +46,7 @@ def shared_panel(panel_type: str) -> dict:
         "rows": rows,
         "total": total,
         "discount_total": discount_total,
+        "minimum_payment_month": minimum_payment_month,
         "minimum_total": minimum_total,
         "minimum_discount_total": minimum_discount_total,
     }
@@ -53,14 +54,22 @@ def shared_panel(panel_type: str) -> dict:
 
 def shared_panel_html(panel_type: str) -> str:
     data = shared_panel(panel_type)
-    rows_html = "\n".join(_row_html(row, data["month"]) for row in data["rows"])
+    rows_html = "\n".join(
+        _row_html(
+            row,
+            data["panel_type"],
+            data["minimum_payment_month"],
+            data["month"],
+        )
+        for row in data["rows"]
+    )
     if not rows_html:
-        rows_html = '<tr><td colspan="5" class="empty">표시할 항목이 없습니다.</td></tr>'
+        rows_html = '<tr><td colspan="4" class="empty">표시할 항목이 없습니다.</td></tr>'
     net_total = sum(_panel_net_amount(row) for row in data["rows"])
     discount_total = sum(_panel_discount_amount(row) for row in data["rows"])
-    minimum_rows = [row for row in data["rows"] if _is_minimum_payment_row(row, data["month"])]
-    minimum_total = sum(_panel_net_amount(row) for row in minimum_rows)
-    minimum_discount_total = sum(_panel_discount_amount(row) for row in minimum_rows)
+    minimum_total = data["minimum_total"]
+    minimum_discount_total = data["minimum_discount_total"]
+    minimum_payment_label = _korean_month_label(data["minimum_payment_month"])
     return f"""<!doctype html>
 <html lang="ko">
 <head>
@@ -220,7 +229,7 @@ def shared_panel_html(panel_type: str) -> str:
     </header>
     <div class="share-actions">
       <button type="button" id="minimumToggle">최소 결제</button>
-      <div class="minimum-total">최소 {format_won(minimum_total)} 결제 필요</div>
+      <div class="minimum-total">{minimum_payment_label} 최소 결제 금액: {format_won(minimum_total)}</div>
     </div>
     <div class="share-table-wrap">
       <table>
@@ -278,11 +287,25 @@ def shared_panel_html(panel_type: str) -> str:
 """
 
 
-def _row_html(row: dict, current_month: str) -> str:
+def _row_html(
+    row: dict,
+    panel_type: str,
+    minimum_payment_month: str,
+    current_month: str,
+) -> str:
     discount = _panel_discount_amount(row)
     original = float(row.get("amount_value") or 0)
     net = _panel_net_amount(row)
-    row_class = "" if _is_minimum_payment_row(row, current_month) else ' class="deferable-row"'
+    row_class = (
+        ""
+        if _is_minimum_payment_row(
+            row,
+            panel_type,
+            minimum_payment_month,
+            current_month,
+        )
+        else ' class="deferable-row"'
+    )
     return (
         f"<tr{row_class}>"
         f"<td class=\"content\">{escape(_content_label(row))}</td>"
@@ -306,15 +329,66 @@ def _spent_on_short_label(row: dict) -> str:
     return ""
 
 
-def _is_minimum_payment_row(row: dict, current_month: str) -> bool:
+def _minimum_payment_rows(
+    rows: list[dict],
+    panel_type: str,
+    current_month: str,
+) -> tuple[str, list[dict]]:
+    payment_months = [_payment_month(row, current_month) for row in rows]
+    minimum_payment_month = (
+        min(payment_months) if payment_months else _next_month(current_month)
+    )
+    minimum_rows = [
+        row
+        for row in rows
+        if _is_minimum_payment_row(
+            row,
+            panel_type,
+            minimum_payment_month,
+            current_month,
+        )
+    ]
+    return minimum_payment_month, minimum_rows
+
+
+def _is_minimum_payment_row(
+    row: dict,
+    panel_type: str,
+    minimum_payment_month: str,
+    current_month: str,
+) -> bool:
     title = str(row.get("title") or "")
-    if "이자" in title:
+    if panel_type == "claim" and "이자" in title:
         return True
+    return _payment_month(row, current_month) == minimum_payment_month
+
+
+def _payment_month(row: dict, current_month: str) -> str:
     spent_on = str(row.get("spent_on") or "")
     if not spent_on:
-        return True
+        # 구버전 날짜 누락 행은 가장 가까운 회차에 포함해 정산 누락을 막는다.
+        return current_month
     spent_month = spent_on[:7]
-    return spent_month < current_month
+    try:
+        return _next_month(spent_month)
+    except ValueError:
+        return current_month
+
+
+def _next_month(month: str) -> str:
+    year_text, month_text = month.split("-", 1)
+    year = int(year_text)
+    month_number = int(month_text)
+    if month_number < 1 or month_number > 12:
+        raise ValueError("invalid month")
+    if month_number == 12:
+        return f"{year + 1:04d}-01"
+    return f"{year:04d}-{month_number + 1:02d}"
+
+
+def _korean_month_label(month: str) -> str:
+    year_text, month_text = month.split("-", 1)
+    return f"{int(year_text)}년 {int(month_text)}월"
 
 
 def _discount_text(discount: float) -> str:
