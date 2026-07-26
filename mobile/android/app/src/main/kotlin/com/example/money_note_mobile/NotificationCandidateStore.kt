@@ -83,6 +83,19 @@ object NotificationCandidateStore {
             .apply()
     }
 
+    fun purgeRetiredNotificationLogs(context: Context) {
+        synchronized(this) {
+            val activeLogFiles = NotificationSource.entries.map { it.logFileName }.toSet()
+            context.filesDir.listFiles()
+                ?.filter {
+                    it.isFile &&
+                        it.name.endsWith("_notification_logs.json") &&
+                        it.name !in activeLogFiles
+                }
+                ?.forEach { it.delete() }
+        }
+    }
+
     fun handleNotification(context: Context, record: RawNotificationRecord): HandleResult {
         val source = NotificationSource.fromPackageName(record.packageName)
         if (source == null) {

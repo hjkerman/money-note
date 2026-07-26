@@ -25,6 +25,7 @@ class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         captureLaunchTarget(intent)
+        NotificationCandidateStore.purgeRetiredNotificationLogs(applicationContext)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "money_note/notifications").setMethodCallHandler { call, result ->
             when (call.method) {
                 "configureCards" -> {

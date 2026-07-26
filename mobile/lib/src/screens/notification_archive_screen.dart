@@ -21,14 +21,11 @@ class WooriNotificationLogScreen extends StatelessWidget {
     return _CapturedNotificationLogScreen(
       state: state,
       title: '최근 우리카드 알림',
-      sources: const [
-        _CapturedSourceSpec(
-          source: 'woori_card',
-          tabLabel: '우리',
-          title: '우리카드 알림',
-          emptyText: '최근 우리카드 알림 로그가 없습니다.',
-        ),
-      ],
+      source: const _CapturedSourceSpec(
+        source: 'woori_card',
+        title: '우리카드 알림',
+        emptyText: '최근 우리카드 알림 로그가 없습니다.',
+      ),
     );
   }
 }
@@ -43,22 +40,12 @@ class ExperimentalDataScreen extends StatelessWidget {
     return _CapturedNotificationLogScreen(
       state: state,
       title: 'Experimental Data',
-      sources: const [
-        _CapturedSourceSpec(
-          source: 'mobile_tmoney',
-          tabLabel: '교통',
-          title: '모바일티머니 원문',
-          emptyText: '모바일티머니 알림이 없습니다. 수집 패키지는 com.lgt.tmoney입니다.',
-          note: '현재는 결제 금액과 잔액 알림 원문만 보관합니다. 파싱, 등록 후보 생성, 서버 전송은 하지 않습니다.',
-        ),
-        _CapturedSourceSpec(
-          source: 'highway_toll',
-          tabLabel: '통행',
-          title: '고속도로통행료+ 원문',
-          emptyText: '고속도로통행료+ 알림이 없습니다. 수집 패키지는 com.ex.hipass_app입니다.',
-          note: '현재는 원문만 보관합니다. 파싱, 등록 후보 생성, 서버 전송은 하지 않습니다.',
-        ),
-      ],
+      source: const _CapturedSourceSpec(
+        source: 'highway_toll',
+        title: '고속도로통행료+ 원문',
+        emptyText: '고속도로통행료+ 알림이 없습니다. 수집 패키지는 com.ex.hipass_app입니다.',
+        note: '현재는 원문만 보관합니다. 파싱, 등록 후보 생성, 서버 전송은 하지 않습니다.',
+      ),
     );
   }
 }
@@ -67,12 +54,12 @@ class _CapturedNotificationLogScreen extends StatefulWidget {
   const _CapturedNotificationLogScreen({
     required this.state,
     required this.title,
-    required this.sources,
+    required this.source,
   });
 
   final AppState state;
   final String title;
-  final List<_CapturedSourceSpec> sources;
+  final _CapturedSourceSpec source;
 
   @override
   State<_CapturedNotificationLogScreen> createState() =>
@@ -82,7 +69,7 @@ class _CapturedNotificationLogScreen extends StatefulWidget {
 class _CapturedNotificationLogScreenState
     extends State<_CapturedNotificationLogScreen> {
   final bridge = NotificationBridge();
-  late Future<Map<String, List<CapturedNotificationLog>>> logsFuture;
+  late Future<List<CapturedNotificationLog>> logsFuture;
 
   @override
   void initState() {
@@ -92,60 +79,35 @@ class _CapturedNotificationLogScreenState
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: widget.sources.length,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-          bottom: widget.sources.length > 1
-              ? TabBar(
-                  tabs: widget.sources
-                      .map((source) => Tab(text: source.tabLabel))
-                      .toList(),
-                )
-              : null,
-        ),
-        body: FutureBuilder<Map<String, List<CapturedNotificationLog>>>(
-          future: logsFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting &&
-                snapshot.data == null) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            final data = snapshot.data ?? const {};
-            final tabs = widget.sources
-                .map(
-                  (source) => _CapturedLogTab(
-                    source: source.source,
-                    title: source.title,
-                    emptyText: source.emptyText,
-                    note: source.note,
-                    logs: data[source.source] ?? const [],
-                    onRefresh: _reload,
-                    onShareAll: _shareAll,
-                    onShare: _shareOne,
-                    onDelete: _deleteLog,
-                    onClear: _clearLogs,
-                  ),
-                )
-                .toList();
-            if (tabs.length == 1) return tabs.single;
-            return TabBarView(children: tabs);
-          },
-        ),
+    final source = widget.source;
+    return Scaffold(
+      appBar: AppBar(title: Text(widget.title)),
+      body: FutureBuilder<List<CapturedNotificationLog>>(
+        future: logsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting &&
+              snapshot.data == null) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return _CapturedLogTab(
+            source: source.source,
+            title: source.title,
+            emptyText: source.emptyText,
+            note: source.note,
+            logs: snapshot.data ?? const [],
+            onRefresh: _reload,
+            onShareAll: _shareAll,
+            onShare: _shareOne,
+            onDelete: _deleteLog,
+            onClear: _clearLogs,
+          );
+        },
       ),
     );
   }
 
-  Future<Map<String, List<CapturedNotificationLog>>> _load() async {
-    final results = await Future.wait(
-      widget.sources.map((source) => bridge.listCapturedLogs(source.source)),
-    );
-    return {
-      for (var index = 0; index < widget.sources.length; index += 1)
-        widget.sources[index].source: results[index],
-    };
-  }
+  Future<List<CapturedNotificationLog>> _load() =>
+      bridge.listCapturedLogs(widget.source.source);
 
   Future<void> _reload() async {
     await widget.state.refreshNotificationInboxState(notify: true);
@@ -222,14 +184,12 @@ class _CapturedNotificationLogScreenState
 class _CapturedSourceSpec {
   const _CapturedSourceSpec({
     required this.source,
-    required this.tabLabel,
     required this.title,
     required this.emptyText,
     this.note,
   });
 
   final String source;
-  final String tabLabel;
   final String title;
   final String emptyText;
   final String? note;
@@ -425,8 +385,6 @@ String _capturedSourceLabel(String source) {
   switch (source) {
     case 'highway_toll':
       return '하이패스';
-    case 'mobile_tmoney':
-      return '모바일티머니';
     default:
       return '우리카드';
   }
@@ -436,8 +394,6 @@ String _capturedSourceSlug(String source) {
   switch (source) {
     case 'highway_toll':
       return 'highway-toll';
-    case 'mobile_tmoney':
-      return 'mobile-tmoney';
     default:
       return 'woori-card';
   }

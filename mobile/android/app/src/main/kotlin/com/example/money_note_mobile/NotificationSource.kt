@@ -20,13 +20,6 @@ internal enum class NotificationSource(
         logFileName = "highway_toll_notification_logs.json",
         debugTitle = "Highway Toll Plus",
         createsCandidate = false
-    ),
-    MOBILE_TMONEY(
-        wireName = "mobile_tmoney",
-        packageName = "com.lgt.tmoney",
-        logFileName = "mobile_tmoney_notification_logs.json",
-        debugTitle = "Mobile Tmoney",
-        createsCandidate = false
     );
 
     companion object {

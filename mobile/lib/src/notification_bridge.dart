@@ -62,9 +62,6 @@ class NotificationBridge {
   Future<List<CapturedNotificationLog>> listHighwayTollLogs() =>
       listCapturedLogs('highway_toll');
 
-  Future<List<CapturedNotificationLog>> listMobileTmoneyLogs() =>
-      listCapturedLogs('mobile_tmoney');
-
   Future<NotificationCandidateCounts> candidateCounts() async {
     try {
       final raw =

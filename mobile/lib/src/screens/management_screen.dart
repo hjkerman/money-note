@@ -106,7 +106,7 @@ class ManagementMenuList extends StatelessWidget {
         ),
         _MenuCard(
           title: 'Experimental Data',
-          subtitle: '교통·통행 원문을 보관하는 실험용 관측소입니다.',
+          subtitle: '통행료 알림 원문을 보관하는 실험용 관측소입니다.',
           icon: Icons.science_outlined,
           onTap: () => _push(context, ExperimentalDataScreen(state: state)),
         ),

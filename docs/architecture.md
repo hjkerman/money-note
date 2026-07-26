@@ -35,10 +35,9 @@ Android 알림 수집은 `NotificationListenerService` 하나를 공용 입구�
 
 - 우리카드 `com.wooricard.smartapp`: 원문 로그를 남기고, 지원하는 승인 형식만 파싱해 로컬 등록 후보를 만든다.
 - 고속도로 통행료+ `com.ex.hipass_app`: 원문 로그만 별도 파일에 남긴다. 파싱, 후보 생성, 서버 전송은 하지 않는다.
-- 모바일티머니 `com.lgt.tmoney`: 삼성월렛 모바일티머니의 교통 결제 금액·잔액 알림 원문만 별도 파일에 남긴다. 파싱, 후보 생성, 서버 전송은 하지 않는다.
 - 그 밖의 앱: 저장하지 않는다.
 
-패키지 식별은 `mobile/android/app/src/main/kotlin/com/example/money_note_mobile/NotificationSource.kt`가 담당한다. Android 시스템 권한과 중복 수집을 단순하게 유지하기 위해 리스너는 하나로 둔다. UI에서는 실사용 중인 우리카드를 `최근 우리카드 알림`으로 분리하고, 모바일티머니·고속도로통행료+는 설정 맨 아래 `Experimental Data`의 `교통 / 통행` 탭에 격리한다.
+패키지 식별은 `mobile/android/app/src/main/kotlin/com/example/money_note_mobile/NotificationSource.kt`가 담당한다. Android 시스템 권한과 중복 수집을 단순하게 유지하기 위해 리스너는 하나로 둔다. UI에서는 실사용 중인 우리카드를 `최근 우리카드 알림`으로 분리하고, 고속도로통행료+는 설정 맨 아래 `Experimental Data`에 격리한다.
 
 원문 로그는 앱 로컬 진단 자료이며 서버 DB의 원본 데이터나 Snapshot 대상이 아니다. 사용자가 등록을 확정한 뒤 기존 API로 전송된 데이터만 서버의 사실이 된다.
 
@@ -96,7 +95,7 @@ Android 알림 수집은 `NotificationListenerService` 하나를 공용 입구�
 - 웹 `App.tsx`: 최상위 상태와 화면 조립
 - 웹 `components/ledger/`: 원장, 패널, 정기결제, 현금흐름 표시 컴포넌트
 - 모바일 `notification_import_screen.dart`: 우리카드 등록 후보 흐름
-- 모바일 `notification_archive_screen.dart`: 우리카드 원문과 교통·통행 실험 원문 관측
+- 모바일 `notification_archive_screen.dart`: 우리카드 원문과 통행료 실험 원문 관측
 - 백엔드 `repositories/`: 저장·조회
 - 백엔드 `services/`: 도메인 계산과 위험 작업
 - 백엔드 `routers/`: 인증과 HTTP 입출력

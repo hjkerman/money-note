@@ -16,10 +16,6 @@ class NotificationCandidateStoreTest {
             NotificationSource.HIGHWAY_TOLL,
             NotificationSource.fromPackageName("com.ex.hipass_app")
         )
-        assertEquals(
-            NotificationSource.MOBILE_TMONEY,
-            NotificationSource.fromPackageName("com.lgt.tmoney")
-        )
         assertEquals(null, NotificationSource.fromPackageName("com.example.other"))
     }
 
@@ -27,7 +23,6 @@ class NotificationCandidateStoreTest {
     fun createsCandidatesOnlyForWooriCardNotifications() {
         assertTrue(NotificationSource.WOORI_CARD.createsCandidate)
         assertFalse(NotificationSource.HIGHWAY_TOLL.createsCandidate)
-        assertFalse(NotificationSource.MOBILE_TMONEY.createsCandidate)
     }
 
     @Test
