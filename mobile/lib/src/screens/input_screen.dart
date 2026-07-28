@@ -13,12 +13,10 @@ class HomeScreen extends StatelessWidget {
     required this.state,
     super.key,
     this.onJudgmentTap,
-    this.onManualInputTap,
   });
 
   final AppState state;
   final VoidCallback? onJudgmentTap;
-  final VoidCallback? onManualInputTap;
 
   @override
   Widget build(BuildContext context) {
@@ -89,11 +87,6 @@ class HomeScreen extends StatelessWidget {
             trailing: Text('최근 10건', style: TextStyle(color: moneyMuted))),
         if (recentRows.isEmpty) const MoneyCard(child: Text('최근 입력이 없습니다.')),
         ...recentRows.map(_RecentEntryCard.new),
-        const SizedBox(height: 10),
-        FilledButton(
-          onPressed: onManualInputTap,
-          child: const Text('내역 수동 입력'),
-        ),
         if (state.statusMessage.isNotEmpty) _StatusMessage(state.statusMessage),
       ],
     );

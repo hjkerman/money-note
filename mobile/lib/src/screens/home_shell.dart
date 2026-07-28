@@ -63,7 +63,6 @@ class _HomeShellState extends State<HomeShell> {
       HomeScreen(
         state: widget.state,
         onJudgmentTap: () => _selectTab(4),
-        onManualInputTap: () => _selectTab(2),
       ),
       FamilyScreen(state: widget.state),
       MonthEntriesScreen(state: widget.state),
