@@ -12,11 +12,9 @@ class HomeScreen extends StatelessWidget {
   const HomeScreen({
     required this.state,
     super.key,
-    this.onJudgmentTap,
   });
 
   final AppState state;
-  final VoidCallback? onJudgmentTap;
 
   @override
   Widget build(BuildContext context) {
@@ -59,19 +57,16 @@ class HomeScreen extends StatelessWidget {
           title: '예산심사위원회',
           message: state.judgment?.budget.message ?? '',
           color: moneyGreenSoft,
-          onTap: onJudgmentTap,
         ),
         const SizedBox(height: 10),
         _JudgmentPreviewCard(
           title: '카드 한도 감시',
           message: state.judgment?.credit.message ?? '',
-          onTap: onJudgmentTap,
         ),
         const SizedBox(height: 10),
         _JudgmentPreviewCard(
           title: '파산심사위원회',
           message: state.judgment?.payment.message ?? '',
-          onTap: onJudgmentTap,
         ),
         if (!state.notificationPermissions.isReady)
           _PermissionWarningCard(state: state),
@@ -257,47 +252,39 @@ class _JudgmentPreviewCard extends StatelessWidget {
     required this.message,
     required this.title,
     this.color,
-    this.onTap,
   });
 
   final String title;
   final String message;
   final Color? color;
-  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final text = message.trim().isEmpty ? '판단 결과를 불러오는 중입니다.' : message.trim();
     return MoneyCard(
       color: color ?? moneySurface,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.gavel, color: moneyGreen),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(title,
-                      style: const TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.w900)),
-                ),
-                if (onTap != null)
-                  const Icon(Icons.chevron_right, color: moneyMuted),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              text,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
-            ),
-          ],
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.gavel, color: moneyGreen),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(title,
+                    style: const TextStyle(
+                        fontSize: 15, fontWeight: FontWeight.w900)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            text,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+          ),
+        ],
       ),
     );
   }

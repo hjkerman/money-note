@@ -24,7 +24,9 @@ Judgment 문구는 현재 대부분 서버에서 완성된 문장으로 내려�
 
 ## 빌드 도구 경고
 
-- 앱 모듈은 `org.jetbrains.kotlin.android`를 직접 적용하지 않지만, 현재 Flutter/AGP 호환을 위해 `android.builtInKotlin=false`와 `android.newDsl=false`를 임시로 유지한다. 이 때문에 AGP 10 호환 경고와 Flutter 도구의 Kotlin `2.2.10` 지원 종료 예고가 남는다. 프로젝트에서 구형 플러그인을 다시 선언하지 말고 Flutter SDK와 플러그인 생태계가 새 DSL을 지원하면 두 호환 플래그를 제거해 재검증한다.
+- Android 빌드는 Kotlin Gradle Plugin `2.4.10`, Android Gradle Plugin `9.1.0`, Gradle `9.3.1`, JDK 17 조합을 사용한다. 현재 Kotlin 공식 호환표 안에서 사용할 수 있는 가장 높은 조합이며, 기존 Kotlin `2.2.10` 지원 종료 경고는 재현되지 않는다.
+- 앱 모듈은 `org.jetbrains.kotlin.android`를 직접 적용하지 않는다. 다만 일부 Flutter 플러그인이 아직 이 플러그인을 적용하므로 루트에서 버전만 선언하고 `android.builtInKotlin=false`를 유지한다. AGP 내장 Kotlin을 켜면 현재 플러그인 구성에서 빌드가 실패하므로, 플러그인 생태계가 내장 Kotlin을 지원한 뒤 다시 전환한다.
+- `android.newDsl=false`도 Flutter 호환을 위해 유지한다. 이 두 호환 플래그를 제거할 때는 `flutter clean`, 정적 분석, 테스트, debug/release APK 빌드를 모두 다시 수행한다.
 - 프론트엔드 운영 의존성 audit은 깨끗하다. 개발 도구 의존성에서만 낮은 등급 경고가 남는 경우에는 Vite/Vitest 상류 수정과 함께 갱신하며, 운영 번들 취약점과 구분한다.
 
 ## 구조상 남은 큰 파일

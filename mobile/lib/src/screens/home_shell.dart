@@ -60,10 +60,7 @@ class _HomeShellState extends State<HomeShell> {
   @override
   Widget build(BuildContext context) {
     final screens = [
-      HomeScreen(
-        state: widget.state,
-        onJudgmentTap: () => _selectTab(4),
-      ),
+      HomeScreen(state: widget.state),
       FamilyScreen(state: widget.state),
       MonthEntriesScreen(state: widget.state),
       CashFlowScreen(state: widget.state),

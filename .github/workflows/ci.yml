@@ -60,5 +60,5 @@ jobs:
       - run: flutter analyze
       - run: flutter test
       - run: flutter build apk --debug
-      - run: ./gradlew testDebugUnitTest --quiet
+      - run: ./gradlew :app:testDebugUnitTest --quiet
         working-directory: mobile/android

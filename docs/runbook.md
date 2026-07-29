@@ -776,10 +776,24 @@ release manifest는 평문 HTTP 통신을 차단한다. 운영 빌드의 `MONEY_
 Android Gradle 메모:
 
 - 앱 모듈은 `org.jetbrains.kotlin.android` 플러그인을 직접 적용하지 않는다.
+- 루트 설정은 Flutter 플러그인 호환을 위해 Kotlin Gradle Plugin `2.4.10` 버전만 선언한다.
+- Android 빌드 도구는 Android Gradle Plugin `9.1.0`, Gradle `9.3.1`, JDK 17을 사용한다. Kotlin `2.4.10` 공식 호환 범위 안에서 검증한 조합이다.
 - `kotlin.compilerOptions` DSL로 JVM target을 지정한다.
-- 현재 Flutter/AGP 호환을 위해 `android.builtInKotlin=false`와 `android.newDsl=false`를 임시로 유지한다. AGP 10 이전에 Flutter SDK와 플러그인을 갱신하고 두 플래그를 제거한 상태로 빌드를 재검증한다.
-- Flutter 도구가 제공하는 Kotlin `2.2.10`에 대해 향후 `2.2.20` 이상을 요구할 예정이라는 경고가 날 수 있다. 프로젝트에서 Kotlin 플러그인을 다시 직접 적용해 우회하지 않는다.
+- 일부 Flutter 플러그인이 아직 Kotlin Android 플러그인을 직접 적용하므로 `android.builtInKotlin=false`와 `android.newDsl=false`를 유지한다. 플러그인들이 AGP 내장 Kotlin을 지원하면 두 플래그를 제거하고 빌드를 재검증한다.
 - `share_plus 13.2.1`에서는 과거의 플러그인 자체 Kotlin Gradle Plugin 경고가 재현되지 않는다.
+
+Android 도구 버전을 바꾼 뒤에는 최소한 다음을 모두 실행한다.
+
+```bash
+cd mobile
+flutter clean
+flutter pub get
+flutter analyze
+flutter test
+flutter build apk --debug
+cd android
+./gradlew :app:testDebugUnitTest --quiet
+```
 
 ### 8. 카드·통행료 실험 알림 수집 확인
 
