@@ -179,5 +179,5 @@ def current_month_label() -> str:
 
 
 def calendar_month_label(today: date | None = None) -> str:
-    """청구·가족카드처럼 월마감과 무관한 기능에 달력상 현재 월을 제공한다."""
+    """동결·청구·가족카드처럼 월마감과 무관한 기능에 달력상 현재 월을 제공한다."""
     return (today or app_today()).strftime("%Y-%m")

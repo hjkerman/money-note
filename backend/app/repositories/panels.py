@@ -28,7 +28,7 @@ def list_panels(month: str | None = None, include_confirmed_fixed: bool = False)
                 f"""
                 SELECT *
                 FROM monthly_panels
-                WHERE (month = ? OR panel_type = 'fixed' OR panel_type IN ('claim', 'family_card')){filter_confirmed}
+                WHERE (month = ? OR panel_type IN ('fixed', 'frozen', 'claim', 'family_card')){filter_confirmed}
                 ORDER BY
                   CASE WHEN panel_type = 'fixed' THEN 0 ELSE 1 END,
                   CASE WHEN spent_on IS NULL THEN 1 ELSE 0 END,

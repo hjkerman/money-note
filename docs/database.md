@@ -75,7 +75,7 @@ API의 `discount_policy`, `automatic_discount_eligible`, `automatic_discount_amo
 | `month` | TEXT | 대상 월 |
 | `panel_type` | TEXT | `fixed`, `frozen`, `claim`, `family_card` |
 | `title` | TEXT | 적요 |
-| `spent_on` | TEXT | 사용일 |
+| `spent_on` | TEXT | 사용일. `frozen`에서는 등록일자 |
 | `amount_value` | INTEGER | 금액. 원화 정수 금액 |
 | `discount_amount` | INTEGER | 청구/가족카드 항목의 수동 할인액 override. 원화 정수 금액 |
 | `discount_override` | INTEGER | `1`이면 기본 할인 계산 대신 `discount_amount`를 수동 할인액으로 사용 |

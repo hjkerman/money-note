@@ -48,14 +48,14 @@ class PanelCompletionTest(unittest.TestCase):
             ).fetchall()
         self.assertEqual([(row["panel_type"], row["count"]) for row in remaining], [("family_card", 1), ("frozen", 1)])
 
-    def test_claim_and_family_card_remain_visible_across_calendar_months(self) -> None:
+    def test_persistent_panels_remain_visible_across_calendar_months(self) -> None:
         listed = list_panels("2026-07")
 
         titles = {panel["title"] for panel in listed}
         self.assertIn("청구 하나", titles)
         self.assertIn("청구 둘", titles)
         self.assertIn("가족카드 하나", titles)
-        self.assertNotIn("동결 하나", titles)
+        self.assertIn("동결 하나", titles)
 
     def test_bulk_completion_deletes_claim_queue_across_months(self) -> None:
         with session() as conn:
