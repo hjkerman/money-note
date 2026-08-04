@@ -368,36 +368,43 @@ class AppSettings {
 class CardNotificationCandidate {
   CardNotificationCandidate({
     required this.id,
+    required this.source,
     required this.capturedAt,
     required this.cardLast4,
     required this.cardRole,
     required this.entryDate,
     required this.amount,
     required this.merchant,
+    required this.usageItem,
     required this.rawText,
   });
 
   final String id;
+  final String source;
   final int capturedAt;
   final String cardLast4;
   final String cardRole;
   final String entryDate;
-  final int amount;
+  final int? amount;
   final String merchant;
+  final String usageItem;
   final String rawText;
 
   bool get isOwnerCard => cardRole == 'owner';
   bool get isFamilyCard => cardRole == 'family';
+  bool get isHighwayToll => source == 'highway_toll';
 
   factory CardNotificationCandidate.fromJson(Map<String, dynamic> json) {
     return CardNotificationCandidate(
       id: json['id'] as String? ?? '',
+      source: json['source'] as String? ?? 'woori_card',
       capturedAt: _int(json['captured_at']),
       cardLast4: json['card_last4'] as String? ?? '',
       cardRole: json['card_role'] as String? ?? '',
       entryDate: json['entry_date'] as String? ?? '',
-      amount: _int(json['amount']),
+      amount: _nullableInt(json['amount']),
       merchant: json['merchant'] as String? ?? '',
+      usageItem: json['usage_item'] as String? ?? '',
       rawText: json['raw_text'] as String? ?? '',
     );
   }
@@ -539,4 +546,12 @@ int _int(dynamic value) {
   if (value is num) return value.toInt();
   if (value is String) return int.tryParse(value) ?? 0;
   return 0;
+}
+
+int? _nullableInt(dynamic value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  if (value is String) return int.tryParse(value);
+  return null;
 }

@@ -8,6 +8,7 @@ import 'cash_flow_screen.dart';
 import 'family_screen.dart';
 import 'input_screen.dart';
 import 'month_entries_screen.dart';
+import 'notification_archive_screen.dart';
 import 'notification_import_screen.dart';
 import 'status_screen.dart';
 
@@ -24,6 +25,7 @@ class _HomeShellState extends State<HomeShell> {
   int index = 0;
   late final PageController _pageController;
   late int _seenNotificationImportOpenGeneration;
+  late int _seenNotificationArchiveOpenGeneration;
 
   @override
   void initState() {
@@ -31,9 +33,16 @@ class _HomeShellState extends State<HomeShell> {
     _pageController = PageController();
     _seenNotificationImportOpenGeneration =
         widget.state.notificationImportOpenGeneration;
+    _seenNotificationArchiveOpenGeneration =
+        widget.state.notificationArchiveOpenGeneration;
     if (_seenNotificationImportOpenGeneration > 0) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) _openNotificationImport();
+      });
+    }
+    if (_seenNotificationArchiveOpenGeneration > 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _openNotificationArchive();
       });
     }
   }
@@ -53,6 +62,14 @@ class _HomeShellState extends State<HomeShell> {
           widget.state.notificationImportOpenGeneration;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) _openNotificationImport();
+      });
+    }
+    if (_seenNotificationArchiveOpenGeneration !=
+        widget.state.notificationArchiveOpenGeneration) {
+      _seenNotificationArchiveOpenGeneration =
+          widget.state.notificationArchiveOpenGeneration;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _openNotificationArchive();
       });
     }
   }
@@ -138,6 +155,17 @@ class _HomeShellState extends State<HomeShell> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => NotificationImportScreen(state: widget.state),
+      ),
+    );
+  }
+
+  void _openNotificationArchive() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => CapturedNotificationLogScreen(
+          state: widget.state,
+          initialSource: widget.state.notificationArchiveSource,
+        ),
       ),
     );
   }

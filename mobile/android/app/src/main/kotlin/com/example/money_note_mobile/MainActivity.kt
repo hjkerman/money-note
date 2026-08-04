@@ -15,9 +15,12 @@ import io.flutter.plugin.common.MethodChannel
 class MainActivity : FlutterActivity() {
     companion object {
         const val ACTION_OPEN_NOTIFICATION_IMPORT = "com.example.money_note_mobile.OPEN_NOTIFICATION_IMPORT"
+        const val ACTION_OPEN_NOTIFICATION_ARCHIVE = "com.example.money_note_mobile.OPEN_NOTIFICATION_ARCHIVE"
         const val EXTRA_OPEN_NOTIFICATION_IMPORT = "open_notification_import"
+        const val EXTRA_NOTIFICATION_ARCHIVE_SOURCE = "notification_archive_source"
         private const val REQUEST_POST_NOTIFICATIONS = 4102
         private var pendingNotificationImportOpen = false
+        private var pendingNotificationArchiveSource = ""
     }
 
     private var pendingNotificationPermissionResult: MethodChannel.Result? = null
@@ -110,10 +113,21 @@ class MainActivity : FlutterActivity() {
         if (intent?.action == ACTION_OPEN_NOTIFICATION_IMPORT ||
             intent?.getBooleanExtra(EXTRA_OPEN_NOTIFICATION_IMPORT, false) == true) {
             pendingNotificationImportOpen = true
+            pendingNotificationArchiveSource = ""
+        }
+        if (intent?.action == ACTION_OPEN_NOTIFICATION_ARCHIVE) {
+            pendingNotificationImportOpen = false
+            pendingNotificationArchiveSource =
+                intent.getStringExtra(EXTRA_NOTIFICATION_ARCHIVE_SOURCE).orEmpty()
         }
     }
 
     private fun consumeLaunchTarget(): String {
+        if (pendingNotificationArchiveSource.isNotEmpty()) {
+            val source = pendingNotificationArchiveSource
+            pendingNotificationArchiveSource = ""
+            return "notification_archive:$source"
+        }
         if (!pendingNotificationImportOpen) return ""
         pendingNotificationImportOpen = false
         return "notification_import"

@@ -20,12 +20,6 @@ class NotificationCandidateStoreTest {
     }
 
     @Test
-    fun createsCandidatesOnlyForWooriCardNotifications() {
-        assertTrue(NotificationSource.WOORI_CARD.createsCandidate)
-        assertFalse(NotificationSource.HIGHWAY_TOLL.createsCandidate)
-    }
-
-    @Test
     fun extractsMerchantContainingWonCharacterFromMultilineApproval() {
         val raw = """
             승인내역

@@ -57,12 +57,14 @@ data class CapturedNotificationLog(
 
 data class CardNotificationCandidate(
     val id: String,
+    val source: String,
     val capturedAt: Long,
     val cardLast4: String,
     val cardRole: String,
     val entryDate: String,
-    val amount: Int,
+    val amount: Int?,
     val merchant: String,
+    val usageItem: String,
     val rawText: String
 )
 
@@ -110,21 +112,30 @@ object NotificationCandidateStore {
                 parsed = ParsedApproval(null, null, null, null)
             )
         }
-        if (!source.createsCandidate) {
-            return handleRawOnlyNotification(context, record, source)
+        return when (source) {
+            NotificationSource.WOORI_CARD -> handleWooriCardNotification(context, record, source)
+            NotificationSource.HIGHWAY_TOLL -> handleHighwayTollNotification(context, record, source)
         }
+    }
 
+    private fun handleWooriCardNotification(
+        context: Context,
+        record: RawNotificationRecord,
+        source: NotificationSource
+    ): HandleResult {
         val parsed = parseApproval(record)
         val role = parsed.approval.cardLast4?.let { cardRole(context, it) }
         val candidate = if (parsed.status == "parsed" && role != null) {
             CardNotificationCandidate(
                 id = record.id,
+                source = source.wireName,
                 capturedAt = record.capturedAt,
                 cardLast4 = parsed.approval.cardLast4!!,
                 cardRole = role,
                 entryDate = parsed.approval.entryDate!!,
                 amount = parsed.approval.amount!!,
                 merchant = parsed.approval.merchant!!,
+                usageItem = "",
                 rawText = record.rawText
             )
         } else {
@@ -141,11 +152,14 @@ object NotificationCandidateStore {
 
         synchronized(this) {
             val logCount = appendCapturedLogLocked(context, source, log)
-            if (candidate != null) appendCandidateLocked(context, candidate)
-            updateSummaryNotification(context)
+            val candidateCreated = candidate?.let { appendCandidateLocked(context, it) } == true
+            updateCaptureNotificationsLocked(
+                context,
+                alertFailure = parsed.status in setOf("failed", "installment_manual")
+            )
             return HandleResult(
                 saved = true,
-                candidateCreated = candidate != null,
+                candidateCreated = candidateCreated,
                 logCount = logCount,
                 candidateCount = candidateCountLocked(context),
                 isApprovalCandidate = parsed.isApprovalCandidate,
@@ -156,31 +170,94 @@ object NotificationCandidateStore {
         }
     }
 
-    private fun handleRawOnlyNotification(
+    private fun handleHighwayTollNotification(
         context: Context,
         record: RawNotificationRecord,
         source: NotificationSource
     ): HandleResult {
-        val emptyApproval = ParsedApproval(null, null, null, null)
+        val parsed = HighwayTollNotificationParser.parse(record)
+        val parsedApproval = ParsedApproval(
+            cardLast4 = null,
+            entryDate = parsed.toll.entryDate,
+            amount = parsed.toll.amount,
+            merchant = parsed.toll.route
+        )
+        if (!parsed.isTollCandidate) {
+            if (record.rawText.isBlank()) {
+                return HandleResult(
+                    saved = false,
+                    candidateCreated = false,
+                    logCount = capturedLogCount(context, source),
+                    candidateCount = candidateTotal(context),
+                    isApprovalCandidate = false,
+                    parseStatus = parsed.status,
+                    parseFailureReason = parsed.reason,
+                    parsed = parsedApproval
+                )
+            }
+            val ignoredLog = capturedLog(
+                source = source,
+                record = record,
+                isApprovalCandidate = false,
+                parseStatus = parsed.status,
+                parseFailureReason = parsed.reason,
+                parsed = parsedApproval
+            )
+            synchronized(this) {
+                val logCount = appendCapturedLogLocked(context, source, ignoredLog)
+                updateCaptureNotificationsLocked(context)
+                return HandleResult(
+                    saved = true,
+                    candidateCreated = false,
+                    logCount = logCount,
+                    candidateCount = candidateCountLocked(context),
+                    isApprovalCandidate = false,
+                    parseStatus = parsed.status,
+                    parseFailureReason = parsed.reason,
+                    parsed = parsedApproval
+                )
+            }
+        }
+        val candidate = if (parsed.createsCandidate) {
+            CardNotificationCandidate(
+                id = HighwayTollNotificationParser.semanticCandidateId(parsed.toll),
+                source = source.wireName,
+                capturedAt = record.capturedAt,
+                cardLast4 = "",
+                cardRole = "owner",
+                entryDate = parsed.toll.entryDate!!,
+                amount = parsed.toll.amount,
+                merchant = "통행료",
+                usageItem = parsed.toll.route.orEmpty(),
+                rawText = record.rawText
+            )
+        } else {
+            null
+        }
         val log = capturedLog(
             source = source,
             record = record,
-            isApprovalCandidate = false,
-            parseStatus = "raw_only",
-            parseFailureReason = "",
-            parsed = emptyApproval
+            isApprovalCandidate = parsed.isTollCandidate,
+            parseStatus = parsed.status,
+            parseFailureReason = parsed.reason,
+            parsed = parsedApproval
         )
         synchronized(this) {
             val logCount = appendCapturedLogLocked(context, source, log)
+            val candidateCreated = candidate?.let { appendCandidateLocked(context, it) } == true
+            if (candidateCreated && candidate != null) {
+                NotificationCaptureNotifier.notifyHighwayTollCandidate(context, candidate)
+            }
+            updateCaptureNotificationsLocked(context, alertFailure = parsed.status == "failed")
             return HandleResult(
                 saved = true,
-                candidateCreated = false,
+                candidateCreated = candidateCreated,
                 logCount = logCount,
                 candidateCount = candidateCountLocked(context),
-                isApprovalCandidate = false,
-                parseStatus = "raw_only",
-                parseFailureReason = "",
-                parsed = emptyApproval
+                isApprovalCandidate = parsed.isTollCandidate,
+                parseStatus = parsed.status,
+                parseFailureReason = parsed.reason,
+                parsed = parsedApproval
             )
         }
     }
@@ -232,23 +309,54 @@ object NotificationCandidateStore {
     fun manualReviewCount(context: Context): Int =
         synchronized(this) { manualReviewCountLocked(context) }
 
-    fun deleteCandidate(context: Context, id: String): Int =
-        deleteMatching(context, CANDIDATE_FILE_NAME) { it.optString("id") == id }
-            .also { updateSummaryNotification(context) }
+    fun deleteCandidate(context: Context, id: String): Int = synchronized(this) {
+        val candidates = readArray(context, CANDIDATE_FILE_NAME)
+        val removed = (0 until candidates.length())
+            .map { candidates.getJSONObject(it) }
+            .firstOrNull { it.optString("id") == id }
+        val count = deleteMatchingLocked(CANDIDATE_FILE_NAME, context) {
+            it.optString("id") == id
+        }
+        if (removed?.optString("source", NotificationSource.WOORI_CARD.wireName) ==
+            NotificationSource.HIGHWAY_TOLL.wireName) {
+            NotificationCaptureNotifier.cancelHighwayTollCandidate(context, id)
+        }
+        updateCaptureNotificationsLocked(context)
+        count
+    }
 
-    fun clearCandidatesByRole(context: Context, role: String): Int =
-        deleteMatching(context, CANDIDATE_FILE_NAME) { it.optString("card_role") == role }
-            .also { updateSummaryNotification(context) }
+    fun clearCandidatesByRole(context: Context, role: String): Int = synchronized(this) {
+        val candidates = readArray(context, CANDIDATE_FILE_NAME)
+        val removedTollIds = (0 until candidates.length())
+            .map { candidates.getJSONObject(it) }
+            .filter {
+                it.optString("card_role") == role &&
+                    it.optString("source", NotificationSource.WOORI_CARD.wireName) ==
+                    NotificationSource.HIGHWAY_TOLL.wireName
+            }
+            .map { it.optString("id") }
+        val count = deleteMatchingLocked(CANDIDATE_FILE_NAME, context) {
+            it.optString("card_role") == role
+        }
+        removedTollIds.forEach { NotificationCaptureNotifier.cancelHighwayTollCandidate(context, it) }
+        updateCaptureNotificationsLocked(context)
+        count
+    }
 
     fun deleteCapturedLog(context: Context, sourceName: String, id: String): Int {
         val source = NotificationSource.fromWireName(sourceName) ?: return 0
-        return deleteMatching(context, source.logFileName) { it.optString("id") == id }
+        synchronized(this) {
+            val count = deleteMatchingLocked(source.logFileName, context) { it.optString("id") == id }
+            updateFailureNotificationLocked(context)
+            return count
+        }
     }
 
     fun clearCapturedLogs(context: Context, sourceName: String): Int {
         val source = NotificationSource.fromWireName(sourceName) ?: return 0
         synchronized(this) {
             writeArray(context, source.logFileName, JSONArray())
+            updateFailureNotificationLocked(context)
             return 0
         }
     }
@@ -373,16 +481,18 @@ object NotificationCandidateStore {
         return Regex("""^[0-9][0-9,]*\s*원(?:\s*/.*)?$""").matches(line)
     }
 
-    private fun appendCandidateLocked(context: Context, candidate: CardNotificationCandidate): Int {
+    private fun appendCandidateLocked(context: Context, candidate: CardNotificationCandidate): Boolean {
         val array = readArray(context, CANDIDATE_FILE_NAME)
+        for (index in 0 until array.length()) {
+            if (array.getJSONObject(index).optString("id") == candidate.id) return false
+        }
         val next = JSONArray()
         next.put(candidate.toJson())
         for (index in 0 until array.length()) {
-            val item = array.getJSONObject(index)
-            if (item.optString("id") != candidate.id) next.put(item)
+            next.put(array.getJSONObject(index))
         }
         writeArray(context, CANDIDATE_FILE_NAME, next)
-        return next.length()
+        return true
     }
 
     private fun appendCapturedLogLocked(
@@ -404,47 +514,49 @@ object NotificationCandidateStore {
         return trimmed.length()
     }
 
-    fun updateSummaryNotification(context: Context) {
-        synchronized(this) {
-            val counts = candidateCountsLocked(context)
-            val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            if (counts.owner + counts.family == 0) {
-                manager.cancel(SUMMARY_NOTIFICATION_ID)
-                return
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                manager.createNotificationChannel(
-                    NotificationChannel(CHANNEL_ID, "Money-Note 카드 후보", NotificationManager.IMPORTANCE_DEFAULT)
-                )
-            }
-            val description = "본인카드 미확인 ${counts.owner}건\n가족카드 미확인 ${counts.family}건"
-            val openIntent = Intent(context, MainActivity::class.java)
-                .setAction(MainActivity.ACTION_OPEN_NOTIFICATION_IMPORT)
-                .putExtra(MainActivity.EXTRA_OPEN_NOTIFICATION_IMPORT, true)
-                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            val pendingIntent = PendingIntent.getActivity(
-                context,
-                SUMMARY_NOTIFICATION_ID,
-                openIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-            val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                Notification.Builder(context, CHANNEL_ID)
-            } else {
-                @Suppress("DEPRECATION")
-                Notification.Builder(context)
-            }
-            val notification = builder
-                .setSmallIcon(android.R.drawable.ic_dialog_info)
-                .setContentTitle("새 내역 발견!")
-                .setContentText(description.lines().first())
-                .setStyle(Notification.BigTextStyle().bigText(description))
-                .setContentIntent(pendingIntent)
-                .setOngoing(false)
-                .setAutoCancel(false)
-                .build()
-            manager.notify(SUMMARY_NOTIFICATION_ID, notification)
+    private fun updateSummaryNotificationLocked(context: Context) {
+        val counts = candidateCountsLocked(context, NotificationSource.WOORI_CARD.wireName)
+        val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        if (counts.owner + counts.family == 0) {
+            manager.cancel(SUMMARY_NOTIFICATION_ID)
+            return
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            manager.createNotificationChannel(
+                NotificationChannel(
+                    CHANNEL_ID,
+                    "Money-Note 카드 후보",
+                    NotificationManager.IMPORTANCE_DEFAULT
+                )
+            )
+        }
+        val description = "본인카드 미확인 ${counts.owner}건\n가족카드 미확인 ${counts.family}건"
+        val openIntent = Intent(context, MainActivity::class.java)
+            .setAction(MainActivity.ACTION_OPEN_NOTIFICATION_IMPORT)
+            .putExtra(MainActivity.EXTRA_OPEN_NOTIFICATION_IMPORT, true)
+            .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            SUMMARY_NOTIFICATION_ID,
+            openIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Notification.Builder(context, CHANNEL_ID)
+        } else {
+            @Suppress("DEPRECATION")
+            Notification.Builder(context)
+        }
+        val notification = builder
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setContentTitle("새 내역 발견!")
+            .setContentText(description.lines().first())
+            .setStyle(Notification.BigTextStyle().bigText(description))
+            .setContentIntent(pendingIntent)
+            .setOngoing(false)
+            .setAutoCancel(false)
+            .build()
+        manager.notify(SUMMARY_NOTIFICATION_ID, notification)
     }
 
     private fun cardRole(context: Context, cardLast4: String): String? {
@@ -462,12 +574,15 @@ object NotificationCandidateStore {
     private fun candidateCountLocked(context: Context): Int =
         readArray(context, CANDIDATE_FILE_NAME).length()
 
-    private fun candidateCountsLocked(context: Context): CandidateCounts {
+    private fun candidateCountsLocked(context: Context, source: String? = null): CandidateCounts {
         val array = readArray(context, CANDIDATE_FILE_NAME)
         var owner = 0
         var family = 0
         for (index in 0 until array.length()) {
-            when (array.getJSONObject(index).optString("card_role")) {
+            val item = array.getJSONObject(index)
+            val itemSource = item.optString("source", NotificationSource.WOORI_CARD.wireName)
+            if (source != null && itemSource != source) continue
+            when (item.optString("card_role")) {
                 "owner" -> owner += 1
                 "family" -> family += 1
             }
@@ -476,31 +591,72 @@ object NotificationCandidateStore {
     }
 
     private fun manualReviewCountLocked(context: Context): Int {
-        val array = readArray(context, NotificationSource.WOORI_CARD.logFileName)
         var count = 0
-        for (index in 0 until array.length()) {
-            when (array.getJSONObject(index).optString("parse_status")) {
-                "failed", "installment_manual" -> count += 1
+        for (source in NotificationSource.entries) {
+            val array = readArray(context, source.logFileName)
+            for (index in 0 until array.length()) {
+                when (array.getJSONObject(index).optString("parse_status")) {
+                    "failed", "installment_manual" -> count += 1
+                }
             }
         }
         return count
     }
 
-    private fun deleteMatching(
+    private fun capturedLogCount(context: Context, source: NotificationSource): Int =
+        synchronized(this) { readArray(context, source.logFileName).length() }
+
+    private fun updateCaptureNotificationsLocked(
         context: Context,
-        fileName: String,
-        predicate: (JSONObject) -> Boolean
-    ): Int {
-        synchronized(this) {
-            val array = readArray(context, fileName)
-            val next = JSONArray()
+        alertFailure: Boolean = false
+    ) {
+        updateSummaryNotificationLocked(context)
+        NotificationCaptureNotifier.updateHighwayTollSummary(
+            context,
+            candidateObjectsLocked(context, NotificationSource.HIGHWAY_TOLL.wireName)
+        )
+        updateFailureNotificationLocked(context, alert = alertFailure)
+    }
+
+    private fun updateFailureNotificationLocked(context: Context, alert: Boolean = false) {
+        val failures = mutableListOf<CapturedNotificationLog>()
+        for (source in NotificationSource.entries) {
+            val array = readArray(context, source.logFileName)
             for (index in 0 until array.length()) {
                 val item = array.getJSONObject(index)
-                if (!predicate(item)) next.put(item)
+                if (item.optString("parse_status") !in setOf("failed", "installment_manual")) continue
+                failures.add(item.toCapturedLog(source))
             }
-            writeArray(context, fileName, next)
-            return next.length()
         }
+        NotificationCaptureNotifier.updateFailureSummary(context, failures, alert)
+    }
+
+    private fun deleteMatchingLocked(
+        fileName: String,
+        context: Context,
+        predicate: (JSONObject) -> Boolean
+    ): Int {
+        val array = readArray(context, fileName)
+        val next = JSONArray()
+        for (index in 0 until array.length()) {
+            val item = array.getJSONObject(index)
+            if (!predicate(item)) next.put(item)
+        }
+        writeArray(context, fileName, next)
+        return next.length()
+    }
+
+    private fun candidateObjectsLocked(
+        context: Context,
+        source: String
+    ): List<CardNotificationCandidate> {
+        val array = readArray(context, CANDIDATE_FILE_NAME)
+        return (0 until array.length())
+            .map { array.getJSONObject(it) }
+            .filter {
+                it.optString("source", NotificationSource.WOORI_CARD.wireName) == source
+            }
+            .map { it.toCandidate() }
     }
 
     private fun readArray(context: Context, fileName: String): JSONArray {
@@ -522,12 +678,14 @@ object NotificationCandidateStore {
     private fun CardNotificationCandidate.toJson(): JSONObject =
         JSONObject()
             .put("id", id)
+            .put("source", source)
             .put("captured_at", capturedAt)
             .put("card_last4", cardLast4)
             .put("card_role", cardRole)
             .put("entry_date", entryDate)
-            .put("amount", amount)
+            .put("amount", amount ?: JSONObject.NULL)
             .put("merchant", merchant)
+            .put("usage_item", usageItem)
             .put("raw_text", rawText)
 
     private fun CapturedNotificationLog.toJson(): JSONObject =
@@ -553,6 +711,49 @@ object NotificationCandidateStore {
             .put("entry_date", parsed.entryDate)
             .put("amount", parsed.amount)
             .put("merchant", parsed.merchant)
+
+    private fun JSONObject.toCandidate(): CardNotificationCandidate =
+        CardNotificationCandidate(
+            id = optString("id"),
+            source = optString("source", NotificationSource.WOORI_CARD.wireName),
+            capturedAt = optLong("captured_at"),
+            cardLast4 = optString("card_last4"),
+            cardRole = optString("card_role"),
+            entryDate = optString("entry_date"),
+            amount = if (has("amount") && !isNull("amount")) optInt("amount") else null,
+            merchant = optString("merchant"),
+            usageItem = optString("usage_item"),
+            rawText = optString("raw_text")
+        )
+
+    private fun JSONObject.toCapturedLog(source: NotificationSource): CapturedNotificationLog =
+        CapturedNotificationLog(
+            id = optString("id"),
+            source = optString("source", source.wireName),
+            capturedAt = optLong("captured_at"),
+            packageName = optString("package_name"),
+            title = optString("title"),
+            text = optString("text"),
+            bigText = optString("big_text"),
+            subText = optString("sub_text"),
+            textLines = optJSONArray("text_lines")?.let { array ->
+                (0 until array.length()).map { array.optString(it) }
+            }.orEmpty(),
+            rawText = optString("raw_text"),
+            notificationKey = optString("notification_key"),
+            postTime = optLong("post_time"),
+            isOngoing = optBoolean("is_ongoing"),
+            category = optString("category"),
+            isApprovalCandidate = optBoolean("is_approval_candidate"),
+            parseStatus = optString("parse_status"),
+            parseFailureReason = optString("parse_failure_reason"),
+            parsed = ParsedApproval(
+                cardLast4 = optString("card_last4").ifEmpty { null },
+                entryDate = optString("entry_date").ifEmpty { null },
+                amount = if (has("amount") && !isNull("amount")) optInt("amount") else null,
+                merchant = optString("merchant").ifEmpty { null }
+            )
+        )
 }
 
 data class ParseResult(

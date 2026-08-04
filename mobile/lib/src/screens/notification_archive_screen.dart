@@ -11,65 +11,41 @@ import '../notification_bridge.dart';
 import '../theme.dart';
 import '../widgets/money_card.dart';
 
-class WooriNotificationLogScreen extends StatelessWidget {
-  const WooriNotificationLogScreen({required this.state, super.key});
-
-  final AppState state;
-
-  @override
-  Widget build(BuildContext context) {
-    return _CapturedNotificationLogScreen(
-      state: state,
-      title: '최근 우리카드 알림',
-      source: const _CapturedSourceSpec(
-        source: 'woori_card',
-        title: '우리카드 알림',
-        emptyText: '최근 우리카드 알림 로그가 없습니다.',
-      ),
-    );
-  }
-}
-
-class ExperimentalDataScreen extends StatelessWidget {
-  const ExperimentalDataScreen({required this.state, super.key});
-
-  final AppState state;
-
-  @override
-  Widget build(BuildContext context) {
-    return _CapturedNotificationLogScreen(
-      state: state,
-      title: 'Experimental Data',
-      source: const _CapturedSourceSpec(
-        source: 'highway_toll',
-        title: '고속도로통행료+ 원문',
-        emptyText: '고속도로통행료+ 알림이 없습니다. 수집 패키지는 com.ex.hipass_app입니다.',
-        note: '현재는 원문만 보관합니다. 파싱, 등록 후보 생성, 서버 전송은 하지 않습니다.',
-      ),
-    );
-  }
-}
-
-class _CapturedNotificationLogScreen extends StatefulWidget {
-  const _CapturedNotificationLogScreen({
+class CapturedNotificationLogScreen extends StatefulWidget {
+  const CapturedNotificationLogScreen({
     required this.state,
-    required this.title,
-    required this.source,
+    this.initialSource = 'woori_card',
+    super.key,
   });
 
   final AppState state;
-  final String title;
-  final _CapturedSourceSpec source;
+  final String initialSource;
 
   @override
-  State<_CapturedNotificationLogScreen> createState() =>
+  State<CapturedNotificationLogScreen> createState() =>
       _CapturedNotificationLogScreenState();
 }
 
 class _CapturedNotificationLogScreenState
-    extends State<_CapturedNotificationLogScreen> {
+    extends State<CapturedNotificationLogScreen> {
+  static const sources = [
+    _CapturedSourceSpec(
+      source: 'woori_card',
+      tabLabel: '우리카드',
+      title: '우리카드 알림',
+      emptyText: '최근 우리카드 알림 로그가 없습니다.',
+    ),
+    _CapturedSourceSpec(
+      source: 'highway_toll',
+      tabLabel: '통행료',
+      title: '고속도로통행료+ 알림',
+      emptyText: '최근 통행료 알림 로그가 없습니다.',
+      note: '파싱 결과와 원문을 함께 보관합니다. 후보 등록 전에는 서버로 전송하지 않습니다.',
+    ),
+  ];
+
   final bridge = NotificationBridge();
-  late Future<List<CapturedNotificationLog>> logsFuture;
+  late Future<Map<String, List<CapturedNotificationLog>>> logsFuture;
 
   @override
   void initState() {
@@ -79,35 +55,58 @@ class _CapturedNotificationLogScreenState
 
   @override
   Widget build(BuildContext context) {
-    final source = widget.source;
-    return Scaffold(
-      appBar: AppBar(title: Text(widget.title)),
-      body: FutureBuilder<List<CapturedNotificationLog>>(
-        future: logsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting &&
-              snapshot.data == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          return _CapturedLogTab(
-            source: source.source,
-            title: source.title,
-            emptyText: source.emptyText,
-            note: source.note,
-            logs: snapshot.data ?? const [],
-            onRefresh: _reload,
-            onShareAll: _shareAll,
-            onShare: _shareOne,
-            onDelete: _deleteLog,
-            onClear: _clearLogs,
-          );
-        },
+    final initialIndex = sources.indexWhere(
+      (source) => source.source == widget.initialSource,
+    );
+    return DefaultTabController(
+      length: sources.length,
+      initialIndex: initialIndex < 0 ? 0 : initialIndex,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('최근 납치한 알림'),
+          bottom: TabBar(
+            tabs: sources.map((source) => Tab(text: source.tabLabel)).toList(),
+          ),
+        ),
+        body: FutureBuilder<Map<String, List<CapturedNotificationLog>>>(
+          future: logsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting &&
+                snapshot.data == null) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            final logsBySource = snapshot.data ?? const {};
+            return TabBarView(
+              children: sources.map((source) {
+                return _CapturedLogTab(
+                  source: source.source,
+                  title: source.title,
+                  emptyText: source.emptyText,
+                  note: source.note,
+                  logs: logsBySource[source.source] ?? const [],
+                  onRefresh: _reload,
+                  onShareAll: _shareAll,
+                  onShare: _shareOne,
+                  onDelete: _deleteLog,
+                  onClear: _clearLogs,
+                );
+              }).toList(),
+            );
+          },
+        ),
       ),
     );
   }
 
-  Future<List<CapturedNotificationLog>> _load() =>
-      bridge.listCapturedLogs(widget.source.source);
+  Future<Map<String, List<CapturedNotificationLog>>> _load() async {
+    final values = await Future.wait(
+      sources.map((source) => bridge.listCapturedLogs(source.source)),
+    );
+    return {
+      for (var index = 0; index < sources.length; index += 1)
+        sources[index].source: values[index],
+    };
+  }
 
   Future<void> _reload() async {
     await widget.state.refreshNotificationInboxState(notify: true);
@@ -161,7 +160,7 @@ class _CapturedNotificationLogScreenState
         title: const Text('로그 전체 삭제'),
         content: Text(
           '최근 $label 알림 로그를 모두 삭제할까요?'
-          '${source == 'woori_card' ? ' 후보함은 건드리지 않습니다.' : ''}',
+          ' 후보함은 건드리지 않습니다.',
         ),
         actions: [
           TextButton(
@@ -184,12 +183,14 @@ class _CapturedNotificationLogScreenState
 class _CapturedSourceSpec {
   const _CapturedSourceSpec({
     required this.source,
+    required this.tabLabel,
     required this.title,
     required this.emptyText,
     this.note,
   });
 
   final String source;
+  final String tabLabel;
   final String title;
   final String emptyText;
   final String? note;
@@ -384,7 +385,7 @@ class _Field extends StatelessWidget {
 String _capturedSourceLabel(String source) {
   switch (source) {
     case 'highway_toll':
-      return '하이패스';
+      return '통행료';
     default:
       return '우리카드';
   }

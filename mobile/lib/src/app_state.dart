@@ -38,6 +38,8 @@ class AppState extends ChangeNotifier {
       const NotificationCandidateCounts.empty();
   bool _isForegroundRefreshRunning = false;
   int notificationImportOpenGeneration = 0;
+  int notificationArchiveOpenGeneration = 0;
+  String notificationArchiveSource = 'woori_card';
 
   bool get isLoggedIn => user != null;
 
@@ -322,8 +324,15 @@ class AppState extends ChangeNotifier {
 
   Future<void> consumeLaunchTarget({bool notify = true}) async {
     final target = await notificationBridge.consumeLaunchTarget();
-    if (target != 'notification_import') return;
-    notificationImportOpenGeneration += 1;
+    if (target == 'notification_import') {
+      notificationImportOpenGeneration += 1;
+    } else if (target?.startsWith('notification_archive:') == true) {
+      notificationArchiveSource =
+          target!.substring('notification_archive:'.length);
+      notificationArchiveOpenGeneration += 1;
+    } else {
+      return;
+    }
     if (notify) notifyListeners();
   }
 

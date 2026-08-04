@@ -34,12 +34,12 @@
 Android 알림 수집은 `NotificationListenerService` 하나를 공용 입구로 사용한다. 출처마다 리스너 서비스를 따로 만들지 않는다. 리스너가 받은 알림은 패키지명으로 분류한 뒤 출처별 처리 경로로 보낸다.
 
 - 우리카드 `com.wooricard.smartapp`: 원문 로그를 남기고, 지원하는 승인 형식만 파싱해 로컬 등록 후보를 만든다.
-- 고속도로 통행료+ `com.ex.hipass_app`: 원문 로그만 별도 파일에 남긴다. 파싱, 후보 생성, 서버 전송은 하지 않는다.
+- 고속도로 통행료+ `com.ex.hipass_app`: 원문 로그를 남기고 날짜·시각, 구간, 금액을 출처 전용 파서로 읽어 로컬 통행료 후보를 만든다.
 - 그 밖의 앱: 저장하지 않는다.
 
-패키지 식별은 `mobile/android/app/src/main/kotlin/com/example/money_note_mobile/NotificationSource.kt`가 담당한다. Android 시스템 권한과 중복 수집을 단순하게 유지하기 위해 리스너는 하나로 둔다. UI에서는 실사용 중인 우리카드를 `최근 우리카드 알림`으로 분리하고, 고속도로통행료+는 설정 맨 아래 `Experimental Data`에 격리한다.
+패키지 식별은 `mobile/android/app/src/main/kotlin/com/example/money_note_mobile/NotificationSource.kt`가 담당한다. Android 시스템 권한과 중복 수집을 단순하게 유지하기 위해 리스너는 하나로 둔다. 우리카드 파서는 기존 저장소에 유지하고 통행료 파서는 `HighwayTollNotificationParser.kt`로 분리한다. 원문과 파싱 상태는 설정의 `최근 납치한 알림`에서 `우리카드`/`통행료` 탭으로 확인한다.
 
-원문 로그는 앱 로컬 진단 자료이며 서버 DB의 원본 데이터나 Snapshot 대상이 아니다. 사용자가 등록을 확정한 뒤 기존 API로 전송된 데이터만 서버의 사실이 된다.
+원문 로그와 로컬 후보는 서버 DB의 원본 데이터나 Snapshot 대상이 아니다. 통행료 후보의 사용처는 `통행료`, 세부내역은 확인된 구간이며 금액을 읽지 못하면 빈칸으로 둔다. 사용자가 본인 사용 또는 청구 사용을 선택하고 `등록`을 확정한 뒤 기존 API로 전송된 데이터만 서버의 사실이 된다.
 
 ## 주요 화면 구조
 

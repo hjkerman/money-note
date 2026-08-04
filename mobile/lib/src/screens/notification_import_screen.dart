@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../app_state.dart';
+import '../formatters.dart';
 import '../models.dart';
 import '../notification_bridge.dart';
 import '../theme.dart';
@@ -40,6 +41,16 @@ class _NotificationImportScreenState extends State<NotificationImportScreen> {
             data.candidates.where((item) => item.isFamilyCard).toList();
         final manualCount =
             data.logs.where((item) => item.needsManualReview).length;
+        final latestManualSource = data.logs
+            .where((item) => item.needsManualReview)
+            .fold<CapturedNotificationLog?>(
+              null,
+              (latest, item) =>
+                  latest == null || item.capturedAt > latest.capturedAt
+                      ? item
+                      : latest,
+            )
+            ?.source;
         return DefaultTabController(
           length: 2,
           child: Scaffold(
@@ -65,8 +76,10 @@ class _NotificationImportScreenState extends State<NotificationImportScreen> {
                         onPressed: () async {
                           setState(() => manualNoticeDismissed = true);
                           await Navigator.of(context).push(MaterialPageRoute(
-                            builder: (_) =>
-                                WooriNotificationLogScreen(state: widget.state),
+                            builder: (_) => CapturedNotificationLogScreen(
+                              state: widget.state,
+                              initialSource: latestManualSource ?? 'woori_card',
+                            ),
                           ));
                           await _reload();
                         },
@@ -107,10 +120,14 @@ class _NotificationImportScreenState extends State<NotificationImportScreen> {
     final results = await Future.wait([
       bridge.listCandidates(),
       bridge.listWooriLogs(),
+      bridge.listHighwayTollLogs(),
     ]);
     return _NotificationInboxData(
       candidates: results[0] as List<CardNotificationCandidate>,
-      logs: results[1] as List<CapturedNotificationLog>,
+      logs: [
+        ...results[1] as List<CapturedNotificationLog>,
+        ...results[2] as List<CapturedNotificationLog>,
+      ],
     );
   }
 
@@ -140,22 +157,42 @@ class _CandidateList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final title = role == 'family' ? '가족카드 후보' : '본인카드 후보';
+    final ordered = [...candidates]
+      ..sort((left, right) => right.capturedAt.compareTo(left.capturedAt));
+    final groups = _candidateGroups(ordered);
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       children: [
-        SectionTitle(title,
-            trailing: Text('${candidates.length}건',
-                style: const TextStyle(color: moneyMuted))),
+        SectionTitle(
+          title,
+          trailing: Text(
+            '${candidates.length}건',
+            style: const TextStyle(color: moneyMuted),
+          ),
+        ),
         if (candidates.isEmpty)
           const MoneyCard(child: Text('등록 대기 중인 승인 알림이 없습니다.'))
         else
-          ...candidates.map((candidate) => _CandidateCard(
-                key: ValueKey(candidate.id),
-                state: state,
-                bridge: bridge,
-                candidate: candidate,
-                onChanged: onChanged,
-              )),
+          ...groups.expand((group) => [
+                if (group.isHighwayToll)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8, bottom: 8),
+                    child: Text(
+                      group.label,
+                      style: const TextStyle(
+                        color: moneyMuted,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ...group.items.map((candidate) => _CandidateCard(
+                      key: ValueKey(candidate.id),
+                      state: state,
+                      bridge: bridge,
+                      candidate: candidate,
+                      onChanged: onChanged,
+                    )),
+              ]),
         const SizedBox(height: 12),
         OutlinedButton(
           onPressed: candidates.isEmpty
@@ -188,6 +225,54 @@ class _CandidateList extends StatelessWidget {
       ],
     );
   }
+
+  List<_CandidateGroup> _candidateGroups(
+    List<CardNotificationCandidate> ordered,
+  ) {
+    if (role == 'family') {
+      return [
+        _CandidateGroup(
+          label: '가족카드',
+          items: ordered,
+          isHighwayToll: false,
+        ),
+      ];
+    }
+    final bySource = <String, List<CardNotificationCandidate>>{};
+    for (final candidate in ordered) {
+      bySource.putIfAbsent(candidate.source, () => []).add(candidate);
+    }
+    final groups = bySource.entries.map((entry) {
+      final tollTotal = entry.value.fold<int>(
+        0,
+        (sum, candidate) => sum + (candidate.amount ?? 0),
+      );
+      return _CandidateGroup(
+        label: entry.key == 'highway_toll'
+            ? '통행료 후보(계: ${won(tollTotal)})'
+            : '우리카드 후보',
+        items: entry.value,
+        isHighwayToll: entry.key == 'highway_toll',
+      );
+    }).toList();
+    groups.sort(
+      (left, right) =>
+          right.items.first.capturedAt.compareTo(left.items.first.capturedAt),
+    );
+    return groups;
+  }
+}
+
+class _CandidateGroup {
+  const _CandidateGroup({
+    required this.label,
+    required this.items,
+    required this.isHighwayToll,
+  });
+
+  final String label;
+  final List<CardNotificationCandidate> items;
+  final bool isHighwayToll;
 }
 
 class _CandidateCard extends StatefulWidget {
@@ -222,8 +307,10 @@ class _CandidateCardState extends State<_CandidateCard> {
     super.initState();
     date = TextEditingController(text: widget.candidate.entryDate);
     place = TextEditingController(text: widget.candidate.merchant);
-    item = TextEditingController();
-    amount = TextEditingController(text: widget.candidate.amount.toString());
+    item = TextEditingController(text: widget.candidate.usageItem);
+    amount = TextEditingController(
+      text: widget.candidate.amount?.toString() ?? '',
+    );
     target = widget.candidate.isFamilyCard ? 'family_card' : 'ledger';
   }
 
@@ -255,7 +342,10 @@ class _CandidateCardState extends State<_CandidateCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('카드 ${widget.candidate.cardLast4}',
+            Text(
+                widget.candidate.isHighwayToll
+                    ? '통행료 알림'
+                    : '카드 ${widget.candidate.cardLast4}',
                 style:
                     const TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
             const SizedBox(height: 12),
@@ -288,7 +378,13 @@ class _CandidateCardState extends State<_CandidateCard> {
             const SizedBox(height: 12),
             TextField(
               controller: amount,
-              decoration: const InputDecoration(labelText: '금액'),
+              decoration: InputDecoration(
+                labelText: '금액',
+                helperText: widget.candidate.isHighwayToll &&
+                        widget.candidate.amount == null
+                    ? '요금을 읽지 못했습니다. 확인 후 입력하세요.'
+                    : null,
+              ),
               keyboardType: TextInputType.number,
             ),
             if (showCategory) ...[
@@ -305,14 +401,16 @@ class _CandidateCardState extends State<_CandidateCard> {
                 onChanged: (value) => setState(() => spendingCategory = value),
               ),
             ],
-            const SizedBox(height: 8),
-            CheckboxListTile(
-              contentPadding: EdgeInsets.zero,
-              title: const Text('할인 적용'),
-              value: discountValue,
-              onChanged: (value) =>
-                  setState(() => discountEnabled = value ?? false),
-            ),
+            if (!widget.candidate.isHighwayToll) ...[
+              const SizedBox(height: 8),
+              CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('할인 적용'),
+                value: discountValue,
+                onChanged: (value) =>
+                    setState(() => discountEnabled = value ?? false),
+              ),
+            ],
             const SizedBox(height: 12),
             Row(
               children: [
@@ -361,7 +459,9 @@ class _CandidateCardState extends State<_CandidateCard> {
             usagePlace: place.text,
             usageItem: item.text,
             amount: parsedAmount,
-            discountEnabled: discountEnabled ?? _defaultDiscountEnabled(),
+            discountEnabled: widget.candidate.isHighwayToll
+                ? false
+                : discountEnabled ?? _defaultDiscountEnabled(),
             spendingCategory: spendingCategory,
             entryDate: date.text.trim(),
           )
@@ -369,7 +469,9 @@ class _CandidateCardState extends State<_CandidateCard> {
             panelType: target,
             title: _panelTitle(place.text, item.text),
             amount: parsedAmount,
-            discountEnabled: discountEnabled ?? _defaultDiscountEnabled(),
+            discountEnabled: widget.candidate.isHighwayToll
+                ? false
+                : discountEnabled ?? _defaultDiscountEnabled(),
             spentOn: date.text.trim(),
           );
     if (!success) return;
