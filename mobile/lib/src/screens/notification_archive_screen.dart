@@ -40,7 +40,6 @@ class _CapturedNotificationLogScreenState
       tabLabel: '통행료',
       title: '고속도로통행료+ 알림',
       emptyText: '최근 통행료 알림 로그가 없습니다.',
-      note: '파싱 결과와 원문을 함께 보관합니다. 후보 등록 전에는 서버로 전송하지 않습니다.',
     ),
   ];
 
@@ -82,7 +81,6 @@ class _CapturedNotificationLogScreenState
                   source: source.source,
                   title: source.title,
                   emptyText: source.emptyText,
-                  note: source.note,
                   logs: logsBySource[source.source] ?? const [],
                   onRefresh: _reload,
                   onShareAll: _shareAll,
@@ -186,14 +184,12 @@ class _CapturedSourceSpec {
     required this.tabLabel,
     required this.title,
     required this.emptyText,
-    this.note,
   });
 
   final String source;
   final String tabLabel;
   final String title;
   final String emptyText;
-  final String? note;
 }
 
 class _CapturedLogTab extends StatelessWidget {
@@ -207,13 +203,11 @@ class _CapturedLogTab extends StatelessWidget {
     required this.onShare,
     required this.onDelete,
     required this.onClear,
-    this.note,
   });
 
   final String source;
   final String title;
   final String emptyText;
-  final String? note;
   final List<CapturedNotificationLog> logs;
   final Future<void> Function() onRefresh;
   final Future<void> Function(String source) onShareAll;
@@ -229,18 +223,6 @@ class _CapturedLogTab extends StatelessWidget {
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 96),
         children: [
-          if (note != null) ...[
-            MoneyCard(
-              child: Text(
-                note!,
-                style: const TextStyle(
-                  color: moneyMuted,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-          ],
           Row(
             children: [
               Expanded(
