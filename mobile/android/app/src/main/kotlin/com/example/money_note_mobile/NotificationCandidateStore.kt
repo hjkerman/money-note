@@ -7,6 +7,8 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.util.AtomicFile
+import android.util.Log
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
@@ -57,6 +59,7 @@ data class CapturedNotificationLog(
 
 data class CardNotificationCandidate(
     val id: String,
+    val eventId: String,
     val source: String,
     val capturedAt: Long,
     val cardLast4: String,
@@ -73,6 +76,7 @@ object NotificationCandidateStore {
     private const val OWNER_CARD_KEY = "owner_card_last4"
     private const val FAMILY_CARD_KEY = "family_card_last4"
     private const val CANDIDATE_FILE_NAME = "card_notification_candidates.json"
+    private const val PROCESSED_EVENT_FILE_NAME = "processed_notification_events.json"
     private const val MAX_CAPTURED_LOG_COUNT = 30
     private const val CHANNEL_ID = "money_note_card_candidates"
     private const val SUMMARY_NOTIFICATION_ID = 8201
@@ -95,6 +99,11 @@ object NotificationCandidateStore {
                         it.name !in activeLogFiles
                 }
                 ?.forEach { it.delete() }
+            writeProcessedEventsLocked(
+                context,
+                readProcessedEventsLocked(context),
+                System.currentTimeMillis()
+            )
         }
     }
 
@@ -112,10 +121,29 @@ object NotificationCandidateStore {
                 parsed = ParsedApproval(null, null, null, null)
             )
         }
-        return when (source) {
+        val shouldProcess = synchronized(this) {
+            shouldProcessEventLocked(context, record)
+        }
+        if (!shouldProcess) {
+            return HandleResult(
+                saved = false,
+                candidateCreated = false,
+                logCount = capturedLogCount(context, source),
+                candidateCount = candidateTotal(context),
+                isApprovalCandidate = false,
+                parseStatus = "duplicate",
+                parseFailureReason = "",
+                parsed = ParsedApproval(null, null, null, null)
+            )
+        }
+        val result = when (source) {
             NotificationSource.WOORI_CARD -> handleWooriCardNotification(context, record, source)
             NotificationSource.HIGHWAY_TOLL -> handleHighwayTollNotification(context, record, source)
         }
+        synchronized(this) {
+            completeProcessedEventLocked(context, record, result.candidateId)
+        }
+        return result
     }
 
     private fun handleWooriCardNotification(
@@ -128,6 +156,7 @@ object NotificationCandidateStore {
         val candidate = if (parsed.status == "parsed" && role != null) {
             CardNotificationCandidate(
                 id = record.id,
+                eventId = record.id,
                 source = source.wireName,
                 capturedAt = record.capturedAt,
                 cardLast4 = parsed.approval.cardLast4!!,
@@ -165,7 +194,8 @@ object NotificationCandidateStore {
                 isApprovalCandidate = parsed.isApprovalCandidate,
                 parseStatus = parsed.status,
                 parseFailureReason = parsed.reason,
-                parsed = parsed.approval
+                parsed = parsed.approval,
+                candidateId = candidate?.id
             )
         }
     }
@@ -221,6 +251,7 @@ object NotificationCandidateStore {
         val candidate = if (parsed.createsCandidate) {
             CardNotificationCandidate(
                 id = HighwayTollNotificationParser.semanticCandidateId(parsed.toll),
+                eventId = record.id,
                 source = source.wireName,
                 capturedAt = record.capturedAt,
                 cardLast4 = "",
@@ -257,7 +288,8 @@ object NotificationCandidateStore {
                 isApprovalCandidate = parsed.isTollCandidate,
                 parseStatus = parsed.status,
                 parseFailureReason = parsed.reason,
-                parsed = parsedApproval
+                parsed = parsedApproval,
+                candidateId = candidate?.id
             )
         }
     }
@@ -317,6 +349,7 @@ object NotificationCandidateStore {
         val count = deleteMatchingLocked(CANDIDATE_FILE_NAME, context) {
             it.optString("id") == id
         }
+        markCandidatesConsumedLocked(context, listOfNotNull(removed))
         if (removed?.optString("source", NotificationSource.WOORI_CARD.wireName) ==
             NotificationSource.HIGHWAY_TOLL.wireName) {
             NotificationCaptureNotifier.cancelHighwayTollCandidate(context, id)
@@ -327,17 +360,19 @@ object NotificationCandidateStore {
 
     fun clearCandidatesByRole(context: Context, role: String): Int = synchronized(this) {
         val candidates = readArray(context, CANDIDATE_FILE_NAME)
-        val removedTollIds = (0 until candidates.length())
+        val removedCandidates = (0 until candidates.length())
             .map { candidates.getJSONObject(it) }
+            .filter { it.optString("card_role") == role }
+        val removedTollIds = removedCandidates
             .filter {
-                it.optString("card_role") == role &&
-                    it.optString("source", NotificationSource.WOORI_CARD.wireName) ==
+                it.optString("source", NotificationSource.WOORI_CARD.wireName) ==
                     NotificationSource.HIGHWAY_TOLL.wireName
             }
             .map { it.optString("id") }
         val count = deleteMatchingLocked(CANDIDATE_FILE_NAME, context) {
             it.optString("card_role") == role
         }
+        markCandidatesConsumedLocked(context, removedCandidates)
         removedTollIds.forEach { NotificationCaptureNotifier.cancelHighwayTollCandidate(context, it) }
         updateCaptureNotificationsLocked(context)
         count
@@ -483,16 +518,16 @@ object NotificationCandidateStore {
 
     private fun appendCandidateLocked(context: Context, candidate: CardNotificationCandidate): Boolean {
         val array = readArray(context, CANDIDATE_FILE_NAME)
-        for (index in 0 until array.length()) {
-            if (array.getJSONObject(index).optString("id") == candidate.id) return false
-        }
+        val existed = (0 until array.length())
+            .any { array.getJSONObject(it).optString("id") == candidate.id }
         val next = JSONArray()
         next.put(candidate.toJson())
         for (index in 0 until array.length()) {
-            next.put(array.getJSONObject(index))
+            val existing = array.getJSONObject(index)
+            if (existing.optString("id") != candidate.id) next.put(existing)
         }
         writeArray(context, CANDIDATE_FILE_NAME, next)
-        return true
+        return !existed
     }
 
     private fun appendCapturedLogLocked(
@@ -659,18 +694,177 @@ object NotificationCandidateStore {
             .map { it.toCandidate() }
     }
 
+    private fun shouldProcessEventLocked(
+        context: Context,
+        record: RawNotificationRecord
+    ): Boolean {
+        val now = record.capturedAt
+        val events = readProcessedEventsLocked(context)
+        val eventId = NotificationEventPolicy.eventId(
+            record.packageName,
+            record.notificationKey,
+            record.postTime
+        )
+        val contentHash = NotificationEventPolicy.contentHash(record.rawText)
+        val existing = events.firstOrNull { it.eventId == eventId }
+            ?: return true
+        val refreshed = existing.copy(lastSeenAt = now)
+        writeProcessedEventsLocked(
+            context,
+            events.map { if (it.eventId == eventId) refreshed else it },
+            now
+        )
+        if (existing.state == NotificationEventPolicy.STATE_CONSUMED) return false
+        return existing.contentHash != contentHash
+    }
+
+    private fun completeProcessedEventLocked(
+        context: Context,
+        record: RawNotificationRecord,
+        candidateId: String?
+    ) {
+        val now = record.capturedAt
+        val eventId = NotificationEventPolicy.eventId(
+            record.packageName,
+            record.notificationKey,
+            record.postTime
+        )
+        val contentHash = NotificationEventPolicy.contentHash(record.rawText)
+        val events = readProcessedEventsLocked(context)
+        val existing = events.firstOrNull { it.eventId == eventId }
+        val completed = ProcessedNotificationEvent(
+            eventId = eventId,
+            contentHash = contentHash,
+            lastSeenAt = now,
+            state = if (candidateId != null) {
+                NotificationEventPolicy.STATE_PENDING
+            } else {
+                existing?.state ?: NotificationEventPolicy.STATE_OBSERVED
+            },
+            candidateId = candidateId ?: existing?.candidateId
+        )
+        writeProcessedEventsLocked(
+            context,
+            events.filterNot { it.eventId == eventId } + completed,
+            now
+        )
+    }
+
+    private fun markCandidatesConsumedLocked(
+        context: Context,
+        candidates: List<JSONObject>
+    ) {
+        if (candidates.isEmpty()) return
+        val now = System.currentTimeMillis()
+        val candidateIds = candidates.map { it.optString("id") }.filter { it.isNotEmpty() }.toSet()
+        val explicitEventIds = candidates
+            .map { it.optString("event_id") }
+            .filter { it.isNotEmpty() }
+            .toSet()
+        val events = readProcessedEventsLocked(context).toMutableList()
+        val matchedEventIds = mutableSetOf<String>()
+        for (index in events.indices) {
+            val event = events[index]
+            if (event.eventId !in explicitEventIds && event.candidateId !in candidateIds) continue
+            events[index] = event.copy(
+                lastSeenAt = now,
+                state = NotificationEventPolicy.STATE_CONSUMED
+            )
+            matchedEventIds.add(event.eventId)
+        }
+        for (eventId in explicitEventIds - matchedEventIds) {
+            val candidateId = candidates.firstOrNull {
+                it.optString("event_id") == eventId
+            }?.optString("id")
+            events.add(
+                ProcessedNotificationEvent(
+                    eventId = eventId,
+                    contentHash = "",
+                    lastSeenAt = now,
+                    state = NotificationEventPolicy.STATE_CONSUMED,
+                    candidateId = candidateId
+                )
+            )
+        }
+        writeProcessedEventsLocked(context, events, now)
+    }
+
+    private fun readProcessedEventsLocked(context: Context): List<ProcessedNotificationEvent> {
+        val processedFile = file(context, PROCESSED_EVENT_FILE_NAME)
+        if (processedFile.exists() || File("${processedFile.path}.bak").exists()) {
+            val array = readArray(context, PROCESSED_EVENT_FILE_NAME)
+            return (0 until array.length()).map { array.getJSONObject(it).toProcessedEvent() }
+        }
+
+        val candidateIds = readArray(context, CANDIDATE_FILE_NAME)
+            .let { array -> (0 until array.length()).map { array.getJSONObject(it).optString("id") }.toSet() }
+        val seeded = mutableListOf<ProcessedNotificationEvent>()
+        for (source in NotificationSource.entries) {
+            val logs = readArray(context, source.logFileName)
+            for (index in 0 until logs.length()) {
+                val log = logs.getJSONObject(index)
+                val packageName = log.optString("package_name")
+                val notificationKey = log.optString("notification_key")
+                val postTime = log.optLong("post_time")
+                if (packageName.isEmpty() || notificationKey.isEmpty() || postTime <= 0L) continue
+                val logId = log.optString("id")
+                val candidateId = logId.takeIf { it in candidateIds }
+                seeded.add(
+                    ProcessedNotificationEvent(
+                        eventId = NotificationEventPolicy.eventId(
+                            packageName,
+                            notificationKey,
+                            postTime
+                        ),
+                        contentHash = NotificationEventPolicy.contentHash(log.optString("raw_text")),
+                        lastSeenAt = log.optLong("captured_at"),
+                        state = if (candidateId != null) {
+                            NotificationEventPolicy.STATE_PENDING
+                        } else {
+                            NotificationEventPolicy.STATE_OBSERVED
+                        },
+                        candidateId = candidateId
+                    )
+                )
+            }
+        }
+        writeProcessedEventsLocked(context, seeded, System.currentTimeMillis())
+        return NotificationEventPolicy.prune(seeded, System.currentTimeMillis())
+    }
+
+    private fun writeProcessedEventsLocked(
+        context: Context,
+        events: List<ProcessedNotificationEvent>,
+        now: Long
+    ) {
+        val array = JSONArray()
+        NotificationEventPolicy.prune(events, now).forEach { array.put(it.toJson()) }
+        writeArray(context, PROCESSED_EVENT_FILE_NAME, array)
+    }
+
     private fun readArray(context: Context, fileName: String): JSONArray {
         val file = file(context, fileName)
-        if (!file.exists()) return JSONArray()
+        if (!file.exists() && !File("${file.path}.bak").exists()) return JSONArray()
         return try {
-            JSONArray(file.readText(Charsets.UTF_8))
-        } catch (_: Exception) {
+            val text = AtomicFile(file).openRead().bufferedReader(Charsets.UTF_8).use { it.readText() }
+            JSONArray(text)
+        } catch (error: Exception) {
+            Log.e("MN_NOTIFY", "failed to read local notification data: $fileName", error)
             JSONArray()
         }
     }
 
     private fun writeArray(context: Context, fileName: String, array: JSONArray) {
-        file(context, fileName).writeText(array.toString(), Charsets.UTF_8)
+        val atomicFile = AtomicFile(file(context, fileName))
+        val output = atomicFile.startWrite()
+        try {
+            output.write(array.toString().toByteArray(Charsets.UTF_8))
+            output.flush()
+            atomicFile.finishWrite(output)
+        } catch (error: Exception) {
+            atomicFile.failWrite(output)
+            throw error
+        }
     }
 
     private fun file(context: Context, fileName: String): File = File(context.filesDir, fileName)
@@ -678,6 +872,7 @@ object NotificationCandidateStore {
     private fun CardNotificationCandidate.toJson(): JSONObject =
         JSONObject()
             .put("id", id)
+            .put("event_id", eventId)
             .put("source", source)
             .put("captured_at", capturedAt)
             .put("card_last4", cardLast4)
@@ -712,9 +907,27 @@ object NotificationCandidateStore {
             .put("amount", parsed.amount)
             .put("merchant", parsed.merchant)
 
+    private fun ProcessedNotificationEvent.toJson(): JSONObject =
+        JSONObject()
+            .put("event_id", eventId)
+            .put("content_hash", contentHash)
+            .put("last_seen_at", lastSeenAt)
+            .put("state", state)
+            .put("candidate_id", candidateId)
+
+    private fun JSONObject.toProcessedEvent(): ProcessedNotificationEvent =
+        ProcessedNotificationEvent(
+            eventId = optString("event_id"),
+            contentHash = optString("content_hash"),
+            lastSeenAt = optLong("last_seen_at"),
+            state = optString("state", NotificationEventPolicy.STATE_OBSERVED),
+            candidateId = optString("candidate_id").ifEmpty { null }
+        )
+
     private fun JSONObject.toCandidate(): CardNotificationCandidate =
         CardNotificationCandidate(
             id = optString("id"),
+            eventId = optString("event_id").ifEmpty { optString("id") },
             source = optString("source", NotificationSource.WOORI_CARD.wireName),
             capturedAt = optLong("captured_at"),
             cardLast4 = optString("card_last4"),
@@ -771,7 +984,8 @@ data class HandleResult(
     val isApprovalCandidate: Boolean,
     val parseStatus: String,
     val parseFailureReason: String,
-    val parsed: ParsedApproval
+    val parsed: ParsedApproval,
+    val candidateId: String? = null
 )
 
 data class CandidateCounts(val owner: Int, val family: Int)

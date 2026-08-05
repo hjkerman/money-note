@@ -7,6 +7,14 @@ import 'models.dart';
 class NotificationBridge {
   static const _channel = MethodChannel('money_note/notifications');
 
+  void setLaunchTargetHandler(Future<void> Function() handler) {
+    _channel.setMethodCallHandler((call) async {
+      if (call.method == 'launchTargetChanged') {
+        await handler();
+      }
+    });
+  }
+
   Future<NotificationPermissionStatus> permissionStatus() async {
     try {
       final raw =

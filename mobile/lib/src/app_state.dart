@@ -102,6 +102,7 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> bootstrap() async {
+    notificationBridge.setLaunchTargetHandler(consumeLaunchTarget);
     await refreshNotificationPermissions(notify: false);
     try {
       await api.health();

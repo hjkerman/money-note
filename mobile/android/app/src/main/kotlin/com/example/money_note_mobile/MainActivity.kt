@@ -2,11 +2,11 @@ package com.example.money_note_mobile
 
 import android.Manifest
 import android.app.NotificationManager
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.PowerManager
-import android.content.Intent
 import android.provider.Settings
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -24,71 +24,97 @@ class MainActivity : FlutterActivity() {
     }
 
     private var pendingNotificationPermissionResult: MethodChannel.Result? = null
+    private var notificationChannel: MethodChannel? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         captureLaunchTarget(intent)
         NotificationCandidateStore.purgeRetiredNotificationLogs(applicationContext)
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "money_note/notifications").setMethodCallHandler { call, result ->
-            when (call.method) {
-                "configureCards" -> {
-                    NotificationCandidateStore.configureCards(
-                        applicationContext,
-                        call.argument<String>("owner_card_last4").orEmpty(),
-                        call.argument<String>("family_card_last4").orEmpty()
+        notificationChannel = MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            "money_note/notifications"
+        ).also { channel ->
+            channel.setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "configureCards" -> {
+                        NotificationCandidateStore.configureCards(
+                            applicationContext,
+                            call.argument<String>("owner_card_last4").orEmpty(),
+                            call.argument<String>("family_card_last4").orEmpty()
+                        )
+                        result.success(true)
+                    }
+                    "listCandidates" -> result.success(
+                        NotificationCandidateStore.listCandidates(applicationContext)
                     )
-                    result.success(true)
-                }
-                "listCandidates" -> result.success(NotificationCandidateStore.listCandidates(applicationContext))
-                "candidateCounts" -> result.success(NotificationCandidateStore.candidateCounts(applicationContext))
-                "manualReviewCount" -> result.success(NotificationCandidateStore.manualReviewCount(applicationContext))
-                "deleteCandidate" -> result.success(NotificationCandidateStore.deleteCandidate(applicationContext, call.argument<String>("id").orEmpty()))
-                "clearCandidatesByRole" -> result.success(NotificationCandidateStore.clearCandidatesByRole(applicationContext, call.argument<String>("role").orEmpty()))
-                "listCapturedLogs" -> result.success(
-                    NotificationCandidateStore.listCapturedLogs(
-                        applicationContext,
-                        call.argument<String>("source").orEmpty()
+                    "candidateCounts" -> result.success(
+                        NotificationCandidateStore.candidateCounts(applicationContext)
                     )
-                )
-                "capturedLogText" -> result.success(
-                    NotificationCandidateStore.capturedLogText(
-                        applicationContext,
-                        call.argument<String>("source").orEmpty()
+                    "manualReviewCount" -> result.success(
+                        NotificationCandidateStore.manualReviewCount(applicationContext)
                     )
-                )
-                "deleteCapturedLog" -> result.success(
-                    NotificationCandidateStore.deleteCapturedLog(
-                        applicationContext,
-                        call.argument<String>("source").orEmpty(),
-                        call.argument<String>("id").orEmpty()
+                    "deleteCandidate" -> result.success(
+                        NotificationCandidateStore.deleteCandidate(
+                            applicationContext,
+                            call.argument<String>("id").orEmpty()
+                        )
                     )
-                )
-                "clearCapturedLogs" -> result.success(
-                    NotificationCandidateStore.clearCapturedLogs(
-                        applicationContext,
-                        call.argument<String>("source").orEmpty()
+                    "clearCandidatesByRole" -> result.success(
+                        NotificationCandidateStore.clearCandidatesByRole(
+                            applicationContext,
+                            call.argument<String>("role").orEmpty()
+                        )
                     )
-                )
-                "openSettings" -> {
-                    startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
-                    result.success(true)
+                    "listCapturedLogs" -> result.success(
+                        NotificationCandidateStore.listCapturedLogs(
+                            applicationContext,
+                            call.argument<String>("source").orEmpty()
+                        )
+                    )
+                    "capturedLogText" -> result.success(
+                        NotificationCandidateStore.capturedLogText(
+                            applicationContext,
+                            call.argument<String>("source").orEmpty()
+                        )
+                    )
+                    "deleteCapturedLog" -> result.success(
+                        NotificationCandidateStore.deleteCapturedLog(
+                            applicationContext,
+                            call.argument<String>("source").orEmpty(),
+                            call.argument<String>("id").orEmpty()
+                        )
+                    )
+                    "clearCapturedLogs" -> result.success(
+                        NotificationCandidateStore.clearCapturedLogs(
+                            applicationContext,
+                            call.argument<String>("source").orEmpty()
+                        )
+                    )
+                    "openSettings" -> {
+                        startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+                        result.success(true)
+                    }
+                    "openAppNotificationSettings" -> {
+                        openAppNotificationSettings()
+                        result.success(true)
+                    }
+                    "requestAppNotifications" -> requestAppNotificationPermission(result)
+                    "openBatteryOptimizationSettings" -> {
+                        openBatteryOptimizationSettings()
+                        result.success(true)
+                    }
+                    "consumeLaunchTarget" -> result.success(consumeLaunchTarget())
+                    "permissionStatus" -> result.success(permissionStatus())
+                    else -> result.notImplemented()
                 }
-                "openAppNotificationSettings" -> {
-                    openAppNotificationSettings()
-                    result.success(true)
-                }
-                "requestAppNotifications" -> {
-                    requestAppNotificationPermission(result)
-                }
-                "openBatteryOptimizationSettings" -> {
-                    openBatteryOptimizationSettings()
-                    result.success(true)
-                }
-                "consumeLaunchTarget" -> result.success(consumeLaunchTarget())
-                "permissionStatus" -> result.success(permissionStatus())
-                else -> result.notImplemented()
             }
         }
+    }
+
+    override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
+        notificationChannel?.setMethodCallHandler(null)
+        notificationChannel = null
+        super.cleanUpFlutterEngine(flutterEngine)
     }
 
     override fun onRequestPermissionsResult(
@@ -107,6 +133,7 @@ class MainActivity : FlutterActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         captureLaunchTarget(intent)
+        notificationChannel?.invokeMethod("launchTargetChanged", null)
     }
 
     private fun captureLaunchTarget(intent: Intent?) {

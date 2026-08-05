@@ -39,6 +39,8 @@ Android 알림 수집은 `NotificationListenerService` 하나를 공용 입구�
 
 패키지 식별은 `mobile/android/app/src/main/kotlin/com/example/money_note_mobile/NotificationSource.kt`가 담당한다. Android 시스템 권한과 중복 수집을 단순하게 유지하기 위해 리스너는 하나로 둔다. 우리카드 파서는 기존 저장소에 유지하고 통행료 파서는 `HighwayTollNotificationParser.kt`로 분리한다. 원문과 파싱 상태는 설정의 `최근 납치한 알림`에서 `우리카드`/`통행료` 탭으로 확인한다.
 
+리스너가 다시 연결되면 현재 Android 알림창에 남은 지원 패키지 알림을 같은 파서와 저장 경로로 회수한다. `notificationKey + postTime` 기반 처리 이력을 모바일 로컬에 마지막 관측 후 7일, 최대 512건 유지하여 같은 활성 알림이 후보로 되살아나는 것을 막는다. 처리 이력은 원문 로그·후보와 분리하며 서버 DB와 Snapshot에는 포함하지 않는다. 로컬 JSON 파일은 원자적으로 교체한다.
+
 원문 로그와 로컬 후보는 서버 DB의 원본 데이터나 Snapshot 대상이 아니다. 통행료 후보의 사용처는 `통행료`, 세부내역은 확인된 구간이며 금액을 읽지 못하면 빈칸으로 둔다. 사용자가 본인 사용 또는 청구 사용을 선택하고 `등록`을 확정한 뒤 기존 API로 전송된 데이터만 서버의 사실이 된다.
 
 ## 주요 화면 구조
