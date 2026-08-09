@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
+from typing import Any
 
+from .classifier import card_classifier_manifest
 from .models import DiscountCard
 from .policies import (
     CardChargePolicy,
@@ -14,6 +17,9 @@ from .policies import (
 class PolicyBinding:
     effective_from: str
     policy: CardChargePolicy
+
+
+CARD_CHARGE_POLICY_MANIFEST_VERSION = 1
 
 
 # 본인·가족은 현재 같은 계산식을 우연히 사용하지만 서로 독립된 정책 이력이다.
@@ -44,3 +50,59 @@ def policy_for(card: DiscountCard, usage_month: str) -> CardChargePolicy:
     if not candidates:
         raise ValueError(f"{card.value} 카드의 {usage_month} 정책을 찾을 수 없습니다.")
     return max(candidates, key=lambda binding: binding.effective_from).policy
+
+
+def card_charge_policy_manifest(covered_through: str | None = None) -> dict[str, Any]:
+    """과거 Snapshot을 같은 카드 정책으로 복원할 수 있는지 검증할 명세를 만든다."""
+    manifest = {
+        "schema_version": CARD_CHARGE_POLICY_MANIFEST_VERSION,
+        "classifier": card_classifier_manifest(),
+        "cards": {
+            card.value: [
+                {
+                    "effective_from": binding.effective_from,
+                    **binding.policy.snapshot_definition(),
+                }
+                for binding in POLICY_TIMELINES[card]
+            ]
+            for card in DiscountCard
+        },
+    }
+    if covered_through is not None:
+        manifest["covered_through"] = covered_through
+    return manifest
+
+
+def card_charge_policy_manifest_compatible(
+    snapshot_manifest: object,
+) -> bool:
+    """Snapshot 당시 정책은 보존하고 이후 시작하는 binding 추가만 허용한다."""
+    if not isinstance(snapshot_manifest, dict):
+        return False
+    if set(snapshot_manifest) != {"schema_version", "covered_through", "classifier", "cards"}:
+        return False
+    snapshot_month = snapshot_manifest.get("covered_through")
+    if not isinstance(snapshot_month, str) or not re.fullmatch(
+        r"\d{4}-(?:0[1-9]|1[0-2])",
+        snapshot_month,
+    ):
+        return False
+    current = card_charge_policy_manifest()
+    if snapshot_manifest.get("schema_version") != current["schema_version"]:
+        return False
+    if snapshot_manifest.get("classifier") != current["classifier"]:
+        return False
+    snapshot_cards = snapshot_manifest.get("cards")
+    current_cards = current["cards"]
+    if not isinstance(snapshot_cards, dict) or set(snapshot_cards) != set(current_cards):
+        return False
+    for card, snapshot_bindings in snapshot_cards.items():
+        current_bindings = current_cards[card]
+        if not isinstance(snapshot_bindings, list) or not snapshot_bindings:
+            return False
+        if current_bindings[: len(snapshot_bindings)] != snapshot_bindings:
+            return False
+        for binding in current_bindings[len(snapshot_bindings) :]:
+            if binding.get("effective_from", "") <= snapshot_month:
+                return False
+    return True

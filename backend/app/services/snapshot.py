@@ -14,10 +14,17 @@ from typing import Any
 
 from app.config import get_settings
 from app.db import SCHEMA, session
+from app.services.card_charge import (
+    card_charge_policy_manifest,
+    card_charge_policy_manifest_compatible,
+)
+from app.services.clock import app_today
 from app.share_auth import SENSITIVE_SHARE_SETTING_KEYS
 
 
-SNAPSHOT_SCHEMA_VERSION = 3
+SNAPSHOT_SCHEMA_VERSION = 4
+LEGACY_SNAPSHOT_SCHEMA_VERSIONS = {3}
+SUPPORTED_SNAPSHOT_SCHEMA_VERSIONS = LEGACY_SNAPSHOT_SCHEMA_VERSIONS | {SNAPSHOT_SCHEMA_VERSION}
 PRE_RESTORE_FILENAME_RE = re.compile(r"^pre_restore-\d{8}T\d{6}Z(?:-\d+)?\.money-note-snapshot\.json$")
 SNAPSHOT_TABLES = [
     "ledger_entries",
@@ -94,14 +101,20 @@ def export_snapshot(today: date | None = None) -> tuple[str, dict[str, Any]]:
             "app_labels": _snapshot_rows(conn, "app_labels", "key"),
         }
     exported_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    policy_context = card_charge_policy_manifest(_snapshot_policy_horizon(data, today))
     snapshot = {
         "schema_version": SNAPSHOT_SCHEMA_VERSION,
         "exported_at": exported_at,
         "range": {"scope": "all"},
+        "card_charge_policy": policy_context,
         "data": data,
     }
-    snapshot["manifest"] = _build_manifest(data)
-    snapshot["snapshot_id"] = snapshot["manifest"]["data_sha256"]
+    snapshot["manifest"] = _build_manifest(
+        data,
+        policy_context=policy_context,
+        snapshot_metadata=_snapshot_metadata(snapshot),
+    )
+    snapshot["snapshot_id"] = snapshot["manifest"]["content_sha256"]
     filename = f"money-note-snapshot-{exported_at.replace(':', '').replace('-', '')}.money-note-snapshot.json"
     return filename, snapshot
 
@@ -143,7 +156,9 @@ def list_pre_restore_backups() -> list[dict[str, Any]]:
                 "filename": path.name,
                 "created_at": _timestamp_to_iso(stat.st_mtime),
                 "size_bytes": stat.st_size,
-                "snapshot_id": snapshot.get("snapshot_id") or snapshot["manifest"]["data_sha256"],
+                "snapshot_id": snapshot.get("snapshot_id")
+                or snapshot["manifest"].get("content_sha256")
+                or snapshot["manifest"]["data_sha256"],
                 "exported_at": snapshot.get("exported_at"),
             },
         )
@@ -239,7 +254,8 @@ def _insert_rows(conn: Any, table: str, rows: list[dict[str, Any]]) -> int:
 def _validate_snapshot(snapshot: dict[str, Any]) -> None:
     if not isinstance(snapshot, dict):
         raise ValueError("snapshot must be an object")
-    if snapshot.get("schema_version") != SNAPSHOT_SCHEMA_VERSION:
+    schema_version = snapshot.get("schema_version")
+    if schema_version not in SUPPORTED_SNAPSHOT_SCHEMA_VERSIONS:
         raise ValueError("unsupported snapshot schema_version")
     if not isinstance(snapshot.get("range"), dict):
         raise ValueError("snapshot range is missing")
@@ -275,13 +291,26 @@ def _validate_snapshot(snapshot: dict[str, Any]) -> None:
     ]
     if required_manifest_missing:
         raise ValueError(f"snapshot manifest is missing tables: {', '.join(required_manifest_missing)}")
+    policy_context = snapshot.get("card_charge_policy")
+    if schema_version == SNAPSHOT_SCHEMA_VERSION and not isinstance(policy_context, dict):
+        raise ValueError("snapshot card_charge_policy is missing")
     expected_manifest = _build_manifest(
         data,
         _manifest_table_columns(manifest),
         table_names=[table for table in SNAPSHOT_TABLES if table in manifest_tables],
+        policy_context=policy_context if schema_version == SNAPSHOT_SCHEMA_VERSION else None,
+        snapshot_metadata=(
+            _snapshot_metadata(snapshot)
+            if schema_version == SNAPSHOT_SCHEMA_VERSION
+            else None
+        ),
     )
     if manifest != expected_manifest:
         raise ValueError("snapshot manifest mismatch")
+    if schema_version == SNAPSHOT_SCHEMA_VERSION and not card_charge_policy_manifest_compatible(
+        policy_context,
+    ):
+        raise ValueError("snapshot card charge policy does not match this server")
 
 
 def _normalized_snapshot_data(data: dict[str, list[dict[str, Any]]]) -> dict[str, list[dict[str, Any]]]:
@@ -331,6 +360,8 @@ def _build_manifest(
     data: dict[str, list[dict[str, Any]]],
     empty_table_columns: dict[str, list[str]] | None = None,
     table_names: list[str] | None = None,
+    policy_context: dict[str, Any] | None = None,
+    snapshot_metadata: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     tables = {}
     selected_tables = table_names or SNAPSHOT_TABLES
@@ -348,11 +379,54 @@ def _build_manifest(
             "row_count": len(rows),
             "sha256": _stable_hash(rows),
         }
-    return {
+    selected_data = {table: data[table] for table in selected_tables}
+    manifest = {
         "algorithm": "sha256",
         "tables": tables,
-        "data_sha256": _stable_hash({table: data[table] for table in selected_tables}),
+        "data_sha256": _stable_hash(selected_data),
     }
+    if policy_context is not None:
+        manifest["card_charge_policy_sha256"] = _stable_hash(policy_context)
+        metadata = snapshot_metadata or {}
+        manifest["content_sha256"] = _stable_hash(
+            {
+                **metadata,
+                "card_charge_policy": policy_context,
+                "data": selected_data,
+            },
+        )
+    return manifest
+
+
+def _snapshot_metadata(snapshot: dict[str, Any]) -> dict[str, Any]:
+    """manifest와 파생 식별자를 제외한 Snapshot 상단 메타데이터를 고정한다."""
+    return {
+        "schema_version": snapshot.get("schema_version"),
+        "exported_at": snapshot.get("exported_at"),
+        "range": snapshot.get("range"),
+    }
+
+
+def _snapshot_policy_horizon(
+    data: dict[str, list[dict[str, Any]]],
+    today: date | None,
+) -> str:
+    """Snapshot에 들어 있는 계산 대상 월과 서버 기준월 중 가장 늦은 월을 반환한다."""
+    months = {(today or app_today()).strftime("%Y-%m")}
+    for row in data["ledger_entries"]:
+        _add_snapshot_month(months, row.get("entry_date"))
+    for row in data["monthly_panels"]:
+        _add_snapshot_month(months, row.get("month"))
+    for row in data["card_payment_batches"]:
+        _add_snapshot_month(months, row.get("usage_month"))
+        _add_snapshot_month(months, row.get("payment_month"))
+    return max(months)
+
+
+def _add_snapshot_month(months: set[str], value: Any) -> None:
+    month = str(value or "")[:7]
+    if re.fullmatch(r"\d{4}-(?:0[1-9]|1[0-2])", month):
+        months.add(month)
 
 
 def _snapshot_columns(

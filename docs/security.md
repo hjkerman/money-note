@@ -48,6 +48,8 @@ Money Note는 1인용이지만 인터넷에 공개되는 금융 기록 서비스
 - Snapshot은 장부 운용 데이터와 비민감 설정만 포함한다.
 - `users`, `auth_sessions`, `share_sessions`, `audit_logs`, 비밀번호 해시, 공유 PIN 해시는 제외한다.
 - restore는 manifest 검증, 현재 스키마 정규화, 임시 DB dry-run을 먼저 통과해야 한다.
+- 새 Snapshot은 카드 할인 정책 명세와 주요 상단 메타데이터까지 canonical hash에 포함하며, 당시 정책이 현재 서버에 보존되지 않았으면 복원하지 않는다.
+- 정책 명세는 검증 자료일 뿐 Snapshot에서 읽어 실행하지 않는다.
 - 실제 DB를 바꾸기 직전에 mandatory `pre_restore`를 원자적으로 생성하고 다시 검증한다.
 - restore 트랜잭션 실패 시 운영 DB 변경을 rollback한다.
 

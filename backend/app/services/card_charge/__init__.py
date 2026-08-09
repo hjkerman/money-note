@@ -11,7 +11,11 @@ from .classifier import (
 from .evaluator import evaluate_card_charge, evaluate_stored_charge
 from .models import CardChargeInput, CardChargeResult, DiscountCard
 from .policies import DEFAULT_CARD_DISCOUNT_RATE, flat_statement_discount
-from .registry import policy_for
+from .registry import (
+    card_charge_policy_manifest,
+    card_charge_policy_manifest_compatible,
+    policy_for,
+)
 
 __all__ = [
     "CardChargeInput",
@@ -19,6 +23,8 @@ __all__ = [
     "DEFAULT_CARD_DISCOUNT_RATE",
     "DISCOUNT_INELIGIBLE_WORDS",
     "DiscountCard",
+    "card_charge_policy_manifest",
+    "card_charge_policy_manifest_compatible",
     "classify_discount_card",
     "default_discount_policy",
     "discount_ineligible_title",

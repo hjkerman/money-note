@@ -131,8 +131,12 @@ class AdminApiTest(unittest.TestCase):
                 "created_at": "2026-06-11 00:00:00",
             },
         )
-        snapshot["manifest"] = snapshot_service._build_manifest(snapshot["data"])
-        snapshot["snapshot_id"] = snapshot["manifest"]["data_sha256"]
+        snapshot["manifest"] = snapshot_service._build_manifest(
+            snapshot["data"],
+            policy_context=snapshot["card_charge_policy"],
+            snapshot_metadata=snapshot_service._snapshot_metadata(snapshot),
+        )
+        snapshot["snapshot_id"] = snapshot["manifest"]["content_sha256"]
         backup_dir = self.db_path.parent / "snapshot-backups"
         backup_dir.mkdir()
         filename = "pre_restore-20260611T010101Z.money-note-snapshot.json"

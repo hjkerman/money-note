@@ -559,7 +559,7 @@ Money Note는 카드사 알림 자동입력을 고려한다.
 
 Snapshot은 원본 DB를 대체하는 별도 저장소가 아니라, 장부 운용 데이터 전체와 비민감 운영 설정을 JSON 파일로 잠시 옮겨 담는 백업/복원 형식이다.
 
-Snapshot 형식은 `schema_version = 3`을 사용한다.
+새 Snapshot 형식은 `schema_version = 4`를 사용한다. 기존 `schema_version = 3` 파일은 하위호환 복원 대상으로 유지한다.
 
 Snapshot은 canonical JSON 기준 SHA-256 manifest를 포함한다.
 
@@ -568,11 +568,23 @@ Manifest 원칙:
 - `manifest` 자기 자신은 hash 대상에서 제외한다.
 - `data` 전체 hash를 기록한다.
 - 각 테이블의 컬럼 목록, row count, 테이블별 hash를 기록한다.
+- `schema_version`, `exported_at`, `range`, `card_charge_policy`, `data`를 합친 전체 content hash를 기록한다.
 - restore 시 manifest가 재계산 결과와 다르면 복원하지 않는다.
+
+`card_charge_policy`는 Snapshot 생성 당시의 카드 실결제액 계산 전제를 기록한다.
+
+- 카드별 사용월 정책 binding과 `policy_id`
+- 정책 종류와 할인율 같은 계산 매개변수
+- 교통·통행 분류 키워드, 판정 방식과 우선순위
+- 서버 기준월과 Snapshot 데이터가 포괄하는 마지막 월 `covered_through`
+
+이 명세는 실행 가능한 설정이 아니라 감사와 복원 검증 자료다. 새 Snapshot을 복원할 때 당시 정책이 현재 서버에 그대로 남아 있지 않으면, 서버는 과거 금액을 다른 정책으로 조용히 재계산하지 않고 복원을 차단한다. Snapshot 생성월 이후부터 적용되는 정책 binding을 현재 서버가 추가로 가진 경우에는 과거 계산을 바꾸지 않으므로 복원을 허용한다.
 
 하위호환 원칙:
 
 - restore는 먼저 snapshot 원문 기준으로 manifest를 검증한다.
+- 버전 4는 manifest 검증 후 당시 `card_charge_policy`가 현재 서버에 보존되어 있는지 확인한다. 생성월 이후의 새 binding 추가만 허용한다.
+- 버전 3은 정책 명세가 없으므로 기존 데이터 manifest와 dry-run을 기준으로 복원을 허용한다.
 - 검증을 통과한 뒤 현재 서버 스키마에 없는 컬럼은 무시한다.
 - 현재 서버 스키마에 새로 생긴 컬럼이 snapshot에 없으면 DB 기본값 또는 `NULL` 허용 정책에 맡긴다.
 - `NOT NULL`인데 기본값이 없는 필수 컬럼이 누락된 경우에는 dry-run restore 단계에서 실패해야 한다.
@@ -591,6 +603,7 @@ Snapshot에 포함하는 것:
 - 전체 `card_payment_deferrals`
 - 비민감 운영 `app_settings`
 - `app_labels`
+- 카드 할인 정책 검증 명세 `card_charge_policy`
 
 Claim과 Family Card는 원장이 아니라 회수 예정 정보다.
 
@@ -636,7 +649,7 @@ Restore 안전 원칙:
 
 모바일 snapshot은 자동 복원하지 않는다. 사용자가 특정 파일을 명시적으로 선택하고 비밀번호를 다시 확인한 경우에만 서버 restore API를 호출한다.
 
-새 snapshot은 서버가 생성한 manifest를 포함한 단일 JSON 파일이며, 복원 시 서버가 JSON 구조, `schema_version`, manifest, dry-run을 다시 검증한다. 형식상 정상인 파일의 논리적 누락은 hash만으로 검출할 수 없으므로 서버의 mandatory `pre_restore`가 마지막 복구 지점이다.
+새 snapshot은 서버가 생성한 manifest를 포함한 단일 JSON 파일이며, 복원 시 서버가 JSON 구조, `schema_version`, manifest, 카드 할인 정책 일치 여부와 dry-run을 다시 검증한다. 형식상 정상인 파일의 논리적 누락은 hash만으로 검출할 수 없으므로 서버의 mandatory `pre_restore`가 마지막 복구 지점이다.
 
 ---
 

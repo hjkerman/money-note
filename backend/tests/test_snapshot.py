@@ -8,6 +8,9 @@ from unittest.mock import patch
 
 from app.config import get_settings
 from app.db import init_db, session
+from app.services.card_charge import DiscountCard
+from app.services.card_charge.policies import NoAutomaticDiscountPolicy
+from app.services.card_charge.registry import POLICY_TIMELINES, PolicyBinding
 from app.services.snapshot import export_snapshot, restore_snapshot
 
 
@@ -31,9 +34,23 @@ class SnapshotTest(unittest.TestCase):
         filename, snapshot = export_snapshot(date(2026, 6, 11))
 
         self.assertTrue(filename.endswith(".money-note-snapshot.json"))
-        self.assertEqual(snapshot["schema_version"], 3)
+        self.assertEqual(snapshot["schema_version"], 4)
         self.assertEqual(snapshot["range"], {"scope": "all"})
         self.assertEqual(snapshot["manifest"]["algorithm"], "sha256")
+        self.assertEqual(
+            snapshot["card_charge_policy"]["cards"]["owner"][0]["policy_id"],
+            "owner-flat-statement-1.2",
+        )
+        self.assertEqual(
+            snapshot["card_charge_policy"]["cards"]["owner"][0]["parameters"]["rate"],
+            "0.012",
+        )
+        self.assertEqual(snapshot["card_charge_policy"]["covered_through"], "2026-06")
+        self.assertEqual(
+            snapshot["snapshot_id"],
+            snapshot["manifest"]["content_sha256"],
+        )
+        self.assertTrue(snapshot["manifest"]["card_charge_policy_sha256"])
         self.assertEqual(snapshot["manifest"]["tables"]["ledger_entries"]["row_count"], 3)
         titles = {row["title"] for row in snapshot["data"]["ledger_entries"]}
         self.assertIn("최근 지출", titles)
@@ -115,8 +132,7 @@ class SnapshotTest(unittest.TestCase):
             if setting["key"] == "base_next_month_liquidity":
                 setting["value"] = "400000.9"
                 break
-        snapshot["manifest"] = self._rebuilt_manifest(snapshot["data"])
-        snapshot["snapshot_id"] = snapshot["manifest"]["data_sha256"]
+        self._refresh_manifest(snapshot)
 
         restore_snapshot(snapshot)
 
@@ -162,8 +178,7 @@ class SnapshotTest(unittest.TestCase):
             row["discount_checked"] = 0
         for row in snapshot["data"]["monthly_panels"]:
             row["discount_checked"] = 0
-        snapshot["manifest"] = self._rebuilt_manifest(snapshot["data"])
-        snapshot["snapshot_id"] = snapshot["manifest"]["data_sha256"]
+        self._refresh_manifest(snapshot)
 
         restored = restore_snapshot(snapshot)
 
@@ -177,8 +192,7 @@ class SnapshotTest(unittest.TestCase):
             row["future_client_note"] = "나중에 생긴 컬럼"
         for row in snapshot["data"]["monthly_panels"]:
             row["future_panel_note"] = "나중에 생긴 패널 컬럼"
-        snapshot["manifest"] = self._rebuilt_manifest(snapshot["data"])
-        snapshot["snapshot_id"] = snapshot["manifest"]["data_sha256"]
+        self._refresh_manifest(snapshot)
 
         restored = restore_snapshot(snapshot)
 
@@ -194,9 +208,8 @@ class SnapshotTest(unittest.TestCase):
         self._seed_data()
         _, snapshot = export_snapshot(date(2026, 6, 11))
         snapshot["data"]["app_labels"] = []
-        snapshot["manifest"] = self._rebuilt_manifest(snapshot["data"])
+        self._refresh_manifest(snapshot)
         snapshot["manifest"]["tables"]["app_labels"]["columns"] = ["key", "value"]
-        snapshot["snapshot_id"] = snapshot["manifest"]["data_sha256"]
 
         restored = restore_snapshot(snapshot)
 
@@ -209,8 +222,7 @@ class SnapshotTest(unittest.TestCase):
         del snapshot["data"]["card_payment_batch_items"]
         for row in snapshot["data"]["card_payment_events"]:
             row.pop("batch_id", None)
-        snapshot["manifest"] = self._rebuilt_manifest(snapshot["data"])
-        snapshot["snapshot_id"] = snapshot["manifest"]["data_sha256"]
+        self._refresh_manifest(snapshot)
 
         restored = restore_snapshot(snapshot)
 
@@ -222,7 +234,7 @@ class SnapshotTest(unittest.TestCase):
         self._seed_data()
         _, snapshot = export_snapshot(date(2026, 6, 11))
         snapshot["data"]["ledger_entries"][0]["title"] = "복원된 최근 지출"
-        snapshot["manifest"] = self._rebuilt_manifest(snapshot["data"])
+        self._refresh_manifest(snapshot)
 
         with session() as conn:
             conn.execute("DELETE FROM ledger_entries")
@@ -336,19 +348,101 @@ class SnapshotTest(unittest.TestCase):
 
         self._assert_seed_data_preserved()
 
+    def test_restore_accepts_schema_version_3_snapshot_without_policy_manifest(self) -> None:
+        self._seed_data()
+        _, snapshot = export_snapshot(date(2026, 6, 11))
+        snapshot["schema_version"] = 3
+        snapshot.pop("card_charge_policy")
+        snapshot["manifest"] = self._rebuilt_manifest(snapshot["data"])
+        snapshot["snapshot_id"] = snapshot["manifest"]["data_sha256"]
+
+        restored = restore_snapshot(snapshot)
+
+        self.assertEqual(restored["ledger_entries"], 3)
+        self.assertEqual(restored["monthly_panels"], 4)
+
+    def test_restore_rejects_policy_manifest_tampering_without_touching_db(self) -> None:
+        self._seed_data()
+        _, snapshot = export_snapshot(date(2026, 6, 11))
+        snapshot["card_charge_policy"]["cards"]["owner"][0]["parameters"]["rate"] = "0.999"
+
+        with self.assertRaisesRegex(ValueError, "snapshot manifest mismatch"):
+            restore_snapshot(snapshot)
+
+        self._assert_seed_data_preserved()
+
+    def test_restore_rejects_top_level_metadata_tampering(self) -> None:
+        self._seed_data()
+        _, snapshot = export_snapshot(date(2026, 6, 11))
+        snapshot["exported_at"] = "2000-01-01T00:00:00Z"
+
+        with self.assertRaisesRegex(ValueError, "snapshot manifest mismatch"):
+            restore_snapshot(snapshot)
+
+        self._assert_seed_data_preserved()
+
+    def test_restore_rejects_valid_but_different_policy_manifest(self) -> None:
+        self._seed_data()
+        _, snapshot = export_snapshot(date(2026, 6, 11))
+        snapshot["card_charge_policy"]["cards"]["owner"][0]["parameters"]["rate"] = "0.999"
+        self._refresh_manifest(snapshot)
+
+        with self.assertRaisesRegex(ValueError, "card charge policy does not match"):
+            restore_snapshot(snapshot)
+
+        self._assert_seed_data_preserved()
+
+    def test_restore_accepts_policy_bindings_that_start_after_snapshot_month(self) -> None:
+        self._seed_data()
+        _, snapshot = export_snapshot(date(2026, 6, 11))
+        future_binding = PolicyBinding(
+            "2099-01",
+            NoAutomaticDiscountPolicy("owner-no-automatic-discount-2099"),
+        )
+
+        with patch.dict(
+            POLICY_TIMELINES,
+            {DiscountCard.OWNER: POLICY_TIMELINES[DiscountCard.OWNER] + (future_binding,)},
+        ):
+            restored = restore_snapshot(snapshot)
+
+        self.assertEqual(restored["ledger_entries"], 3)
+
+    def test_restore_rejects_new_policy_binding_that_reinterprets_snapshot_month(self) -> None:
+        self._seed_data()
+        _, snapshot = export_snapshot(date(2026, 6, 11))
+        retroactive_binding = PolicyBinding(
+            "2000-01",
+            NoAutomaticDiscountPolicy("owner-retroactive-no-discount"),
+        )
+
+        with patch.dict(
+            POLICY_TIMELINES,
+            {DiscountCard.OWNER: POLICY_TIMELINES[DiscountCard.OWNER] + (retroactive_binding,)},
+        ):
+            with self.assertRaisesRegex(ValueError, "card charge policy does not match"):
+                restore_snapshot(snapshot)
+
+        self._assert_seed_data_preserved()
+
     def test_restore_rejects_broken_foreign_key_without_touching_db(self) -> None:
         self._seed_data()
         _, snapshot = export_snapshot(date(2026, 6, 11))
         broken = copy.deepcopy(snapshot)
         broken["data"]["card_payment_allocations"][0]["payment_event_id"] = 99999
-        broken["manifest"] = self._rebuilt_manifest(broken["data"])
+        self._refresh_manifest(broken)
 
         with self.assertRaises(ValueError):
             restore_snapshot(broken)
 
         self._assert_seed_data_preserved()
 
-    def _rebuilt_manifest(self, data: dict) -> dict:
+    def _rebuilt_manifest(
+        self,
+        data: dict,
+        policy_context: dict | None = None,
+        snapshot_metadata: dict | None = None,
+    ) -> dict:
         import hashlib
         import json
 
@@ -362,13 +456,50 @@ class SnapshotTest(unittest.TestCase):
                     json.dumps(rows, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8"),
                 ).hexdigest(),
             }
-        return {
+        manifest = {
             "algorithm": "sha256",
             "tables": tables,
             "data_sha256": hashlib.sha256(
                 json.dumps(data, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8"),
             ).hexdigest(),
         }
+        if policy_context is not None:
+            manifest["card_charge_policy_sha256"] = hashlib.sha256(
+                json.dumps(
+                    policy_context,
+                    ensure_ascii=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ).encode("utf-8"),
+            ).hexdigest()
+            manifest["content_sha256"] = hashlib.sha256(
+                json.dumps(
+                    {
+                        **(snapshot_metadata or {}),
+                        "card_charge_policy": policy_context,
+                        "data": data,
+                    },
+                    ensure_ascii=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ).encode("utf-8"),
+            ).hexdigest()
+        return manifest
+
+    def _refresh_manifest(self, snapshot: dict) -> None:
+        snapshot["manifest"] = self._rebuilt_manifest(
+            snapshot["data"],
+            snapshot.get("card_charge_policy"),
+            {
+                "schema_version": snapshot.get("schema_version"),
+                "exported_at": snapshot.get("exported_at"),
+                "range": snapshot.get("range"),
+            },
+        )
+        snapshot["snapshot_id"] = snapshot["manifest"].get(
+            "content_sha256",
+            snapshot["manifest"]["data_sha256"],
+        )
 
     def _assert_seed_data_preserved(self) -> None:
         with session() as conn:

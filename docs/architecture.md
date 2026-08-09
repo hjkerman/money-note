@@ -60,6 +60,8 @@ Android 알림 수집은 `NotificationListenerService` 하나를 공용 입구�
 
 카드 분류, 사용월별 정책 선택, 자동 할인, 수동 override와 실결제액 계산은 `backend/app/services/card_charge/`만 소유한다. `backend/app/services/discounts.py`는 과거 Python import를 위한 호환층이다. `backend/app/services/presentation.py`는 DB 행을 API 표시 모델로 바꾼다. 프론트엔드와 모바일 모델은 이 투영 필드를 소비할 뿐 같은 규칙을 다시 구현하지 않는다.
 
+Snapshot v4는 카드별 정책 binding, 계산 매개변수, 분류 규칙과 데이터 기준 마지막 월을 `card_charge_policy` 명세로 기록하고 장부 데이터·주요 상단 메타데이터와 함께 해시한다. 복원은 이 명세를 실행하지 않으며 당시 정책이 현재 서버에 보존되어 있는지만 확인한다. 명세의 `covered_through` 이후부터 적용되는 binding 추가는 허용한다. 정책 명세가 없던 Snapshot v3는 하위호환 경로로 복원한다.
+
 가족카드는 비핵심 feature다. 공용 카드 계산기는 `FAMILY`라는 정책 키만 알며 가족카드 UI, 공유 응답 또는 정산 데이터 구조에 의존하지 않는다. 가족카드 제거 시 정책 등록 하나와 feature 경계만 제거하고 본인 원장·카드대금·유동성 계산은 수정하지 않는 것이 기준이다.
 
 ## 카드 결제 관리

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from decimal import Decimal, ROUND_FLOOR
-from typing import Protocol
+from typing import Any, Protocol
 
 from .models import AutomaticDiscount, CardChargeInput
 
@@ -25,6 +25,9 @@ class CardChargePolicy(Protocol):
     def automatic_discount(self, charge: CardChargeInput) -> AutomaticDiscount:
         """수동 override와 월 스위치를 제외한 카드 자체 혜택만 계산한다."""
 
+    def snapshot_definition(self) -> dict[str, Any]:
+        """Snapshot에서 현재 정책을 식별할 안정적인 명세를 반환한다."""
+
 
 @dataclass(frozen=True)
 class FlatStatementDiscountPolicy:
@@ -39,6 +42,13 @@ class FlatStatementDiscountPolicy:
             reason=f"flat_statement:{self.rate}",
         )
 
+    def snapshot_definition(self) -> dict[str, Any]:
+        return {
+            "policy_id": self.policy_id,
+            "type": "flat_statement",
+            "parameters": {"rate": format(self.rate, "f")},
+        }
+
 
 @dataclass(frozen=True)
 class NoAutomaticDiscountPolicy:
@@ -51,3 +61,10 @@ class NoAutomaticDiscountPolicy:
             amount=0,
             reason="no_automatic_discount",
         )
+
+    def snapshot_definition(self) -> dict[str, Any]:
+        return {
+            "policy_id": self.policy_id,
+            "type": "no_automatic_discount",
+            "parameters": {},
+        }

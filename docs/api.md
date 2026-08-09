@@ -1015,6 +1015,7 @@ GET /api/cash-flows?from=2026-07-01&to=2026-07-31&limit=100
 - `schema_version`
 - `exported_at`
 - `range`
+- `card_charge_policy`: 카드별 정책 이력과 교통·통행 분류 규칙의 검증용 명세
 - `manifest`: canonical JSON 기준 SHA-256 무결성 정보. `manifest` 자기 자신은 hash 대상에서 제외한다.
 - 전체 `ledger_entries`, `monthly_panels`, `cash_flows`
 - 전체 `card_payment_batches`, `card_payment_batch_items`
@@ -1052,7 +1053,7 @@ JSON snapshot을 복원한다. 현재 비밀번호를 다시 확인하며, 장�
 ```json
 {
   "password": "현재 계정 비밀번호",
-  "snapshot_text": "{\"schema_version\":3,...}"
+  "snapshot_text": "{\"schema_version\":4,...}"
 }
 ```
 
@@ -1062,10 +1063,16 @@ JSON snapshot을 복원한다. 현재 비밀번호를 다시 확인하며, 장�
 {
   "password": "현재 계정 비밀번호",
   "snapshot": {
-    "schema_version": 3,
+    "schema_version": 4,
     "exported_at": "2026-06-11T00:00:00Z",
     "range": {
       "scope": "all"
+    },
+    "card_charge_policy": {
+      "schema_version": 1,
+      "covered_through": "2026-06",
+      "classifier": {"schema_version": 1},
+      "cards": {}
     },
     "manifest": {
       "algorithm": "sha256",
@@ -1076,7 +1083,9 @@ JSON snapshot을 복원한다. 현재 비밀번호를 다시 확인하며, 장�
           "sha256": "..."
         }
       },
-      "data_sha256": "..."
+      "data_sha256": "...",
+      "card_charge_policy_sha256": "...",
+      "content_sha256": "..."
     },
     "data": {}
   }
@@ -1096,11 +1105,13 @@ JSON snapshot을 복원한다. 현재 비밀번호를 다시 확인하며, 장�
 }
 ```
 
-`users`, `auth_sessions`, `share_sessions`, `audit_logs`는 복원 대상이 아니다. snapshot 구조가 맞지 않거나 지원하지 않는 `schema_version`, manifest 불일치, 필수 테이블/컬럼 누락, 외래키 오류가 있으면 `400`을 반환한다.
+`users`, `auth_sessions`, `share_sessions`, `audit_logs`는 복원 대상이 아니다. snapshot 구조가 맞지 않거나 지원하지 않는 `schema_version`, manifest 불일치, 버전 4의 과거 카드 정책 보존 실패, 필수 테이블/컬럼 누락, 외래키 오류가 있으면 `400`을 반환한다.
 
 요청 본문은 기본 25 MiB로 제한한다. `Content-Length`가 없거나 chunked 전송이어도 누적 본문이 `MONEY_NOTE_SNAPSHOT_RESTORE_MAX_BYTES`를 넘으면 `413`을 반환한다.
 
 하위호환 정책상 manifest 검증을 통과한 snapshot의 알 수 없는 컬럼은 현재 서버 DB에 삽입하지 않고 무시한다. 구버전 snapshot에 현재 서버의 새 컬럼이 없으면 DB 기본값 또는 `NULL` 허용 정책을 따른다. 단, 필수 테이블 누락, 민감 설정 포함, manifest 불일치, 외래키 오류, 기본값 없는 `NOT NULL` 컬럼 누락은 복원 실패로 처리한다.
+
+현재 서버는 `schema_version = 4`를 생성하고 정책 명세가 없던 `schema_version = 3`도 복원한다. 버전 4의 `card_charge_policy`와 주요 상단 메타데이터는 데이터와 함께 SHA-256 검증 대상이다. Snapshot 당시 정책이나 분류 규칙이 현재 서버에서 바뀌었으면 복원하지 않으며, 명세의 `covered_through` 이후부터 적용되는 새 binding 추가만 허용한다. 이 명세는 Snapshot에서 임의 정책을 실행하기 위한 입력이 아니다.
 
 복원은 운영 DB를 건드리기 전에 동일한 삽입 경로로 임시 DB dry-run을 수행한다. 또한 실제 복원 직전 현재 운영 DB를 `pre_restore-...money-note-snapshot.json` 파일로 반드시 저장하고, 이 파일의 manifest 검증에 실패하면 복원을 중단한다.
 
@@ -1141,7 +1152,7 @@ JSON snapshot을 복원한다. 현재 비밀번호를 다시 확인하며, 장�
       "filename": "pre_restore-20260611T010101Z.money-note-snapshot.json",
       "created_at": "2026-06-11T01:01:02Z",
       "size_bytes": 12345,
-      "snapshot_id": "canonical-data-sha256",
+      "snapshot_id": "canonical-content-sha256",
       "exported_at": "2026-06-11T01:01:01Z"
     }
   ]

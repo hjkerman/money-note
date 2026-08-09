@@ -15,6 +15,18 @@ TOLL_WORDS = (
     "하이패스",
 )
 DISCOUNT_INELIGIBLE_WORDS = TRANSIT_WORDS + TOLL_WORDS
+CARD_CLASSIFIER_SCHEMA_VERSION = 1
+
+
+def card_classifier_manifest() -> dict[str, object]:
+    """Snapshot 검증에 사용할 카드 분류 규칙의 안정적인 명세를 반환한다."""
+    return {
+        "schema_version": CARD_CLASSIFIER_SCHEMA_VERSION,
+        "matching": "case_insensitive_substring",
+        "precedence": ["toll", "transit", "default_card"],
+        "toll_words": list(TOLL_WORDS),
+        "transit_words": list(TRANSIT_WORDS),
+    }
 
 
 def toll_title(title: str | None) -> bool:

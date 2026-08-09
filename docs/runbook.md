@@ -1053,15 +1053,19 @@ curl -OJ -b /tmp/money-note-cookie.txt \
   http://localhost:18080/api/admin/snapshot
 ```
 
-응답 파일 확장자는 `.money-note-snapshot.json`이며, `schema_version`, `exported_at`, `range`, `manifest`, `data`를 포함한다.
+응답 파일 확장자는 `.money-note-snapshot.json`이며, `schema_version`, `exported_at`, `range`, `card_charge_policy`, `manifest`, `data`를 포함한다.
 
-현재 snapshot 형식은 `schema_version = 3`이다.
+현재 snapshot 형식은 `schema_version = 4`다. 기존 `schema_version = 3` 파일도 복원할 수 있다.
 
-`manifest`는 canonical JSON 기준 SHA-256 무결성 정보를 담는다. `manifest` 자기 자신은 hash 대상에서 제외하며, `data` 전체 hash와 테이블별 컬럼 목록, row count, table hash를 기록한다.
+`manifest`는 canonical JSON 기준 SHA-256 무결성 정보를 담는다. `manifest` 자기 자신과 파생 식별자인 `snapshot_id`는 hash 대상에서 제외하며, `data` 전체 hash, 테이블별 컬럼 목록·row count·table hash, `card_charge_policy` hash, 주요 상단 메타데이터와 정책 명세를 포함한 전체 content hash를 기록한다.
+
+`card_charge_policy`는 카드별 정책 ID, 적용 시작월, 정책 종류와 할인율, 교통·통행 분류 규칙, Snapshot 데이터가 포괄하는 마지막 월 `covered_through`를 담는 검증용 명세다. 복원 시 서버는 이를 실행하지 않고 현재 코드의 정책 레지스트리와 비교한다. 당시 binding이나 분류 규칙이 바뀌었으면 복원을 중단한다. `covered_through` 이후부터 적용되는 새 binding이 현재 서버에 추가된 경우는 허용한다.
 
 하위호환 정책:
 
 - 서버는 snapshot 원문 기준으로 manifest를 먼저 검증한다.
+- 버전 4는 manifest 검증 뒤 Snapshot 당시 카드 정책과 분류 규칙이 현재 서버에 보존되어 있는지 확인한다.
+- 버전 3은 카드 정책 명세가 없으므로 기존 manifest와 dry-run 경로로 복원한다.
 - 검증을 통과한 뒤 현재 서버가 모르는 컬럼은 복원 삽입 전에 무시한다.
 - 현재 서버에 새로 생긴 컬럼이 구버전 snapshot에 없으면 DB 기본값 또는 `NULL`로 복원한다.
 - 금액 컬럼은 현재 DB에서 원화 정수 `INTEGER`로 저장한다.
