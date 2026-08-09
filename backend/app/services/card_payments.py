@@ -6,16 +6,16 @@ from datetime import date, datetime
 from typing import Any
 
 from app.db import session
-from app.services.clock import app_today
 from app.schemas import CardPaymentEventIn, LateCardEntryIn
-from app.services.discounts import (
-    default_card_discount,
+from app.services.card_charge import (
+    DiscountCard,
     default_discount_policy,
-    effective_card_discount,
+    evaluate_stored_charge,
     normalize_discount_policy,
     toll_title,
     transport_title,
 )
+from app.services.clock import app_today
 
 
 @dataclass(frozen=True)
@@ -139,6 +139,8 @@ def discount_month_status(month: str, scope: str = "owner") -> dict[str, Any]:
             SELECT ledger_entries.payment_key,
                    ledger_entries.amount_value,
                    ledger_entries.title,
+                   ledger_entries.usage_place,
+                   ledger_entries.spending_category,
                    ledger_entries.discount_override,
                    ledger_entries.aux_amount_value,
                    COALESCE(SUM(
@@ -159,13 +161,17 @@ def discount_month_status(month: str, scope: str = "owner") -> dict[str, Any]:
             (f"{month}%",),
         ).fetchall()
     discounts = {
-        row["payment_key"]: effective_card_discount(
+        row["payment_key"]: evaluate_stored_charge(
             row["amount_value"],
             _manual_entry_discount(row),
             bool(row["discount_override"] or row["override_discount_amount"] or row["aux_amount_value"]),
             policy,
+            month,
             row["title"],
-        )
+            DiscountCard.OWNER,
+            merchant=row["usage_place"],
+            spending_category=row["spending_category"],
+        ).effective_discount_amount
         for row in rows
         if row["payment_key"]
     }
@@ -226,7 +232,8 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
             seen_keys.add(key)
             row = conn.execute(
                 """
-                SELECT title, amount_value, entry_date, discount_override, aux_amount_value
+                SELECT title, usage_place, spending_category, amount_value,
+                       entry_date, discount_override, aux_amount_value
                 FROM ledger_entries
                 JOIN card_payment_batch_items
                   ON card_payment_batch_items.entry_id = ledger_entries.id
@@ -275,13 +282,17 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
             if payload.event_type == "discount":
                 remaining = max(0.0, float(row["amount_value"] or 0) - float(paid or 0))
             else:
-                current_discount = effective_card_discount(
+                current_discount = evaluate_stored_charge(
                     row["amount_value"],
                     _manual_entry_discount({**dict(row), "override_discount_amount": override_discount}),
                     bool(row["discount_override"] or override_discount or row["aux_amount_value"]),
                     _discount_policy_value(conn, usage_month, "owner") if usage_month else "enabled",
+                    usage_month,
                     row["title"],
-                )
+                    DiscountCard.OWNER,
+                    merchant=row["usage_place"],
+                    spending_category=row["spending_category"],
+                ).effective_discount_amount
                 remaining = max(0.0, float(row["amount_value"] or 0) - float(paid or 0) - current_discount)
             if amount > remaining + 0.0001:
                 raise ValueError("처리 금액이 해당 항목의 남은 결제금액을 초과합니다.")
@@ -709,26 +720,26 @@ def _payment_rows_for_batch(context: CardPaymentContext) -> list[dict[str, Any]]
         deferred_target = data.pop("deferred_target_payment_month", None)
         usage_month = str(data.get("entry_date") or "")[:7]
         discount_policy = _setting_value(f"card_discount_policy:owner:{usage_month}") or "enabled"
-        automatic_discount_eligible = not transport_title(data.get("title")) and not toll_title(data.get("title"))
-        discount = effective_card_discount(
+        charge = evaluate_stored_charge(
             original,
             _manual_entry_discount({**data, "override_discount_amount": override_discount}),
             bool(data.get("discount_override") or override_discount or data.get("aux_amount_value")),
             discount_policy,
+            usage_month,
             data.get("title"),
+            DiscountCard.OWNER,
+            merchant=data.get("usage_place"),
+            spending_category=data.get("spending_category"),
         )
+        discount = charge.effective_discount_amount
         data.update(
             {
                 "original_amount": original,
                 "immediate_paid_amount": immediate,
                 "discount_amount": discount,
                 "discount_policy": discount_policy,
-                "automatic_discount_eligible": automatic_discount_eligible,
-                "automatic_discount_amount": (
-                    default_card_discount(original)
-                    if automatic_discount_eligible
-                    else 0
-                ),
+                "automatic_discount_eligible": charge.automatic_discount_eligible,
+                "automatic_discount_amount": charge.automatic_discount_amount,
                 "effective_discount_amount": discount,
                 "effective_amount_value": max(0, original - discount),
                 "remaining_amount": max(0, original - immediate - discount),

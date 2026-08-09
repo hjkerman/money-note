@@ -7,7 +7,7 @@ from app.repositories.entries import list_entries
 from app.repositories.labels import list_labels
 from app.repositories.panels import list_panels
 from app.repositories.settings import list_settings
-from app.services.discounts import effective_card_discount, normalize_discount_policy
+from app.services.card_charge import DiscountCard, evaluate_stored_charge, normalize_discount_policy
 from app.services.judgment import claim_ledger_note, format_won, shared_panel_subtitle
 from app.services.month import calendar_month_label
 
@@ -410,13 +410,16 @@ def _panel_discount_amount(row: dict) -> float:
         settings.get(f"card_discount_policy:{scope}:{row.get('month')}", "disabled" if scope == "family" else "enabled"),
         scope,
     )
-    return effective_card_discount(
+    card = DiscountCard.FAMILY if scope == "family" else DiscountCard.OWNER
+    return evaluate_stored_charge(
         row.get("amount_value"),
         row.get("discount_amount"),
         bool(row.get("discount_override") or row.get("discount_amount")),
         policy,
+        str(row.get("month") or ""),
         row.get("title"),
-    )
+        card,
+    ).effective_discount_amount
 
 
 def _ledger_note_html(note: str | None) -> str:

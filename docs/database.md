@@ -63,7 +63,7 @@
 - 카드 정기결제는 `due_day`, `sort_order`, `id` 순
 - 일반 지출은 `entry_date`, `sort_order`, `id` 순
 
-API의 `discount_policy`, `automatic_discount_eligible`, `automatic_discount_amount`, `effective_discount_amount`, `effective_amount_value`, `is_transport`, `is_toll`은 이 테이블 컬럼이 아니다. 서버가 저장값과 월 정책을 결합해 응답에만 덧붙인다.
+API의 `discount_policy`, `automatic_discount_eligible`, `automatic_discount_amount`, `effective_discount_amount`, `effective_amount_value`, `is_transport`, `is_toll`은 이 테이블 컬럼이 아니다. 서버의 `card_charge` 모듈이 원본 금액, 사용월, 카드 종류, 월 정책과 수동 override를 결합해 응답에만 덧붙인다.
 
 ## `monthly_panels`
 
@@ -90,6 +90,8 @@ API의 `discount_policy`, `automatic_discount_eligible`, `automatic_discount_amo
 - 같은 날짜 안에서는 `sort_order`, `id` 순이다.
 
 API의 할인 정책·자동 할인·유효 할인·실결제 투영 필드는 이 테이블에 저장하지 않는다. 원본 금액과 수동 override만 저장하고 최종값은 서버가 매 조회 때 계산한다.
+
+카드 정책 자체는 DB 컬럼이나 테이블로 저장하지 않는다. 본인·가족·통행료·교통카드의 사용월별 정책 이력은 서버 코드의 `card_charge` 레지스트리가 관리하고, 자주 바뀌는 본인/가족 월별 혜택 여부만 기존 `app_settings`에 저장한다. 이 분리는 카드 교체 시 새 효력 시작월을 추가하면서 과거 Snapshot과 거래를 기존 정책으로 재계산할 수 있게 한다.
 
 ## `app_settings`
 

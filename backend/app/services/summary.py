@@ -4,8 +4,8 @@ from calendar import monthrange
 
 from app.db import session
 from app.repositories.entries import list_entries
+from app.services.card_charge import DiscountCard, evaluate_stored_charge
 from app.services.clock import app_today
-from app.services.discounts import effective_card_discount, normalize_discount_policy
 
 
 def current_summary_values() -> dict[str, int]:
@@ -82,29 +82,7 @@ def panel_net_total(panel_type: str) -> float:
             (panel_type,),
         ).fetchall()
     return sum(
-        max(
-            0.0,
-            float(row["amount_value"] or 0)
-            - (
-                effective_card_discount(
-                    row["amount_value"],
-                    row["discount_amount"],
-                    bool(row["discount_override"] or row["discount_amount"]),
-                    normalize_discount_policy(
-                        setting_text(
-                            f"card_discount_policy:{'family' if panel_type == 'family_card' else 'owner'}:{row['month']}",
-                            "disabled" if panel_type == "family_card" else "enabled",
-                        ),
-                        "family" if panel_type == "family_card" else "owner",
-                    )
-                    if panel_type in {"claim", "family_card"}
-                    else "disabled",
-                    row["title"],
-                )
-                if panel_type in {"claim", "family_card"}
-                else 0.0
-            ),
-        )
+        _panel_effective_amount(row, panel_type)
         for row in rows
     )
 
@@ -116,6 +94,8 @@ def current_entry_discount_total() -> float:
             SELECT ledger_entries.amount_value,
                    ledger_entries.entry_date,
                    ledger_entries.title,
+                   ledger_entries.usage_place,
+                   ledger_entries.spending_category,
                    ledger_entries.discount_override,
                    ledger_entries.aux_amount_value,
                    COALESCE(SUM(CASE WHEN card_payment_events.event_type = 'discount'
@@ -132,15 +112,39 @@ def current_entry_discount_total() -> float:
             """
         ).fetchall()
     return sum(
-        effective_card_discount(
+        evaluate_stored_charge(
             row["amount_value"],
             _manual_entry_discount(row),
             bool(row["discount_override"] or row["override_discount_amount"] or row["aux_amount_value"]),
             setting_text(f"card_discount_policy:owner:{str(row['entry_date'] or '')[:7]}", "enabled"),
+            str(row["entry_date"] or "")[:7],
             row["title"],
-        )
+            DiscountCard.OWNER,
+            merchant=row["usage_place"],
+            spending_category=row["spending_category"],
+        ).effective_discount_amount
         for row in rows
     )
+
+
+def _panel_effective_amount(row: object, panel_type: str) -> int:
+    if panel_type not in {"claim", "family_card"}:
+        return max(0, int(row["amount_value"] or 0))
+    scope = "family" if panel_type == "family_card" else "owner"
+    card = DiscountCard.FAMILY if panel_type == "family_card" else DiscountCard.OWNER
+    policy = setting_text(
+        f"card_discount_policy:{scope}:{row['month']}",
+        "disabled" if panel_type == "family_card" else "enabled",
+    )
+    return evaluate_stored_charge(
+        row["amount_value"],
+        row["discount_amount"],
+        bool(row["discount_override"] or row["discount_amount"]),
+        policy,
+        str(row["month"] or ""),
+        row["title"],
+        card,
+    ).effective_amount
 
 
 def _manual_entry_discount(row: object) -> float:

@@ -1,44 +1,30 @@
+"""레거시 import를 위한 카드 실결제액 계산 호환층.
+
+새 계산 코드는 ``app.services.card_charge``를 직접 사용한다. 이 모듈은 기존 public
+함수와 테스트의 import 경로를 깨뜨리지 않기 위해 남겨 둔다.
+"""
+
 from __future__ import annotations
 
-from math import floor
+from app.services.card_charge import (
+    DEFAULT_CARD_DISCOUNT_RATE as _DEFAULT_CARD_DISCOUNT_RATE,
+    DISCOUNT_INELIGIBLE_WORDS,
+    DiscountCard,
+    default_discount_policy,
+    discount_ineligible_title,
+    evaluate_stored_charge,
+    flat_statement_discount,
+    normalize_discount_policy,
+    toll_title,
+    transport_title,
+)
 
-
-DEFAULT_CARD_DISCOUNT_RATE = 0.012
-DISCOUNT_INELIGIBLE_WORDS = ("교통", "대중교통", "버스", "지하철", "통행", "통행료", "하이패스")
-
-
-def default_discount_policy(scope: str = "owner") -> str:
-    """설정이 없는 달의 카드 할인 기본 정책이다."""
-    return "disabled" if scope == "family" else "enabled"
-
-
-def normalize_discount_policy(policy: str | None, scope: str = "owner") -> str:
-    """레거시/누락 정책값을 실제 계산에 쓰는 두 상태로 정규화한다."""
-    if policy in {"enabled", "disabled"}:
-        return policy
-    return default_discount_policy(scope)
+DEFAULT_CARD_DISCOUNT_RATE = float(_DEFAULT_CARD_DISCOUNT_RATE)
 
 
 def default_card_discount(amount: float | int | None) -> int:
-    """카드사가 별도 예외를 주지 않는다는 가정의 기본 할인액이다."""
-    return int(floor(float(amount or 0) * DEFAULT_CARD_DISCOUNT_RATE))
-
-
-def discount_ineligible_title(title: str | None) -> bool:
-    """카드 할인 가능성이 없는 사용처/세부내역을 판별한다."""
-    text = str(title or "").lower()
-    return any(word.lower() in text for word in DISCOUNT_INELIGIBLE_WORDS)
-
-
-def toll_title(title: str | None) -> bool:
-    """후불 하이패스/통행료 계열 사용내역인지 판별한다."""
-    text = str(title or "").lower()
-    return "통행" in text or "하이패스" in text
-
-
-def transport_title(title: str | None) -> bool:
-    """통행료를 제외한 교통 계열 사용내역인지 판별한다."""
-    return discount_ineligible_title(title) and not toll_title(title)
+    """기존 1.2% 기본 자동 할인액을 반환한다."""
+    return flat_statement_discount(int(amount or 0), _DEFAULT_CARD_DISCOUNT_RATE)
 
 
 def effective_card_discount(
@@ -48,13 +34,16 @@ def effective_card_discount(
     month_policy: str,
     title: str | None = None,
 ) -> int:
-    """월 정책과 개별 할인 제외 상태를 합쳐 실제 계산에 쓸 할인액을 만든다."""
-    month_policy = normalize_discount_policy(month_policy)
-    if override_enabled:
-        return max(0, int(override_discount or 0))
-    if month_policy == "disabled" or discount_ineligible_title(title):
-        return 0
-    return default_card_discount(amount)
+    """기존 호출 형식으로 본인 범용카드의 최종 할인액을 반환한다."""
+    return evaluate_stored_charge(
+        amount,
+        override_discount,
+        override_enabled,
+        month_policy,
+        "9999-12",
+        title,
+        DiscountCard.OWNER,
+    ).effective_discount_amount
 
 
 def net_card_amount(
@@ -64,5 +53,27 @@ def net_card_amount(
     month_policy: str,
     title: str | None = None,
 ) -> int:
-    """할인 반영 후 카드 청구 예상액이다."""
-    return max(0, int(amount or 0) - effective_card_discount(amount, override_discount, override_enabled, month_policy, title))
+    """기존 호출 형식으로 본인 범용카드의 실결제액을 반환한다."""
+    return evaluate_stored_charge(
+        amount,
+        override_discount,
+        override_enabled,
+        month_policy,
+        "9999-12",
+        title,
+        DiscountCard.OWNER,
+    ).effective_amount
+
+
+__all__ = [
+    "DEFAULT_CARD_DISCOUNT_RATE",
+    "DISCOUNT_INELIGIBLE_WORDS",
+    "default_card_discount",
+    "default_discount_policy",
+    "discount_ineligible_title",
+    "effective_card_discount",
+    "net_card_amount",
+    "normalize_discount_policy",
+    "toll_title",
+    "transport_title",
+]

@@ -3,8 +3,8 @@ from __future__ import annotations
 from math import ceil
 from statistics import median
 
+from app.services.card_charge import normalize_discount_policy
 from app.services.clock import app_today_iso
-from app.services.discounts import normalize_discount_policy
 
 from .categories import CATEGORY_LABELS, spending_stat_tones
 from .common import days_between, judgment_message

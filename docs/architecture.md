@@ -56,9 +56,11 @@ Android 알림 수집은 `NotificationListenerService` 하나를 공용 입구�
 
 주요 조작 화면의 테이블은 `panel header -> input form -> table` 구조를 따른다. 월말에 기록이 길어져도 입력창을 찾기 위해 맨 아래까지 내려가지 않도록 하기 위한 구조다.
 
-카드 할인 혜택 정책은 사용월 기준이며 본인회원 카드와 가족카드를 분리한다. 월 정책이 `disabled`이면 할인액은 계산상 0원이다. 그 외에는 모든 카드 지출에 기본 1.2% 할인을 적용한다. `discount_override=1`인 항목은 개별 예외로 보며, 저장된 할인액이 0원이면 할인 제외로 취급한다. 기존에 저장된 할인 이벤트와 청구 할인액은 보존한다.
+카드 실결제액 계산은 본인카드, 가족카드, 통행료카드, 교통카드를 독립 객체로 다룬다. 본인카드와 가족카드는 현재 각각 1.2% 청구할인 정책을 가지지만 정책 등록과 월별 `enabled`/`disabled` 상태는 독립적이다. 통행료카드와 교통카드는 자동 할인이 없다. `discount_override=1`인 항목은 카드 종류와 월 상태보다 우선하며, 저장된 할인액이 0원이면 할인 제외로 취급한다.
 
-할인율과 자동 할인 제외 키워드는 `backend/app/services/discounts.py`만 소유한다. `backend/app/services/presentation.py`는 DB 행을 API 표시 모델로 바꾼다. 프론트엔드와 모바일 모델은 이 투영 필드를 소비할 뿐 같은 규칙을 다시 구현하지 않는다.
+카드 분류, 사용월별 정책 선택, 자동 할인, 수동 override와 실결제액 계산은 `backend/app/services/card_charge/`만 소유한다. `backend/app/services/discounts.py`는 과거 Python import를 위한 호환층이다. `backend/app/services/presentation.py`는 DB 행을 API 표시 모델로 바꾼다. 프론트엔드와 모바일 모델은 이 투영 필드를 소비할 뿐 같은 규칙을 다시 구현하지 않는다.
+
+가족카드는 비핵심 feature다. 공용 카드 계산기는 `FAMILY`라는 정책 키만 알며 가족카드 UI, 공유 응답 또는 정산 데이터 구조에 의존하지 않는다. 가족카드 제거 시 정책 등록 하나와 feature 경계만 제거하고 본인 원장·카드대금·유동성 계산은 수정하지 않는 것이 기준이다.
 
 ## 카드 결제 관리
 

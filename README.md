@@ -97,6 +97,8 @@ npm run build
 - [실행 방법](docs/runbook.md)
 - [아키텍처](docs/architecture.md)
 - [도메인 모델](docs/domain-model.md)
+- [카드 교체와 할인 정책 변경](docs/card-policy-change.md)
+- [가족카드 제거 가이드](docs/family-card-removal.md)
 - [보안 운영](docs/security.md)
 - [테스트 절차](docs/test-plan.md)
 - [모바일 앱 설계](docs/mobile-design.md)

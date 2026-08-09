@@ -668,7 +668,8 @@ next_month_liquidity
 - `policy`: `enabled`, `disabled`
 - 저장된 정책이 없으면 본인회원 카드는 `enabled`, 가족카드는 `disabled`로 간주한다.
 - `policy = disabled`이면 계산상 할인액은 모두 0원이다.
-- 그 외에는 기본 할인액을 `floor(amount_value * 0.012)`로 계산한다.
+- 그 외에는 해당 사용월의 카드 정책을 적용한다. 현재 본인카드와 가족카드는 각각 `floor(amount_value * 0.012)`를 사용한다.
+- 통행료카드와 교통카드는 별도 카드 정책으로 분류하며 자동 할인액은 0원이다.
 - `discount_override = 1`이면 기본 할인 계산 대신 저장된 할인액을 쓴다. 저장된 할인액이 0원이면 할인 제외로 취급한다.
 
 ### `PATCH /api/card-discounts/months/{month}?scope=owner|family`

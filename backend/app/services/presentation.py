@@ -5,15 +5,14 @@ from typing import Any
 
 from app.db import session
 from app.repositories.settings import list_settings
-from app.services.clock import app_today
-from app.services.discounts import (
-    default_card_discount,
-    discount_ineligible_title,
-    effective_card_discount,
+from app.services.card_charge import (
+    DiscountCard,
+    evaluate_stored_charge,
     normalize_discount_policy,
     toll_title,
     transport_title,
 )
+from app.services.clock import app_today
 
 
 def present_ledger_entries(entries: Iterable[Mapping[str, Any]]) -> list[dict[str, Any]]:
@@ -45,8 +44,6 @@ def present_ledger_entry(
     payment_key = str(data.get("payment_key") or "")
     amount = int(data.get("amount_value") or 0)
     is_card_expense = data.get("entry_kind") != "planned" and bool(payment_key)
-    automatic_eligible = is_card_expense and not discount_ineligible_title(data.get("title"))
-    automatic_discount = default_card_discount(amount) if automatic_eligible else 0
     legacy_discount = int(event_discounts.get(payment_key, 0))
     override_enabled = bool(
         data.get("discount_override")
@@ -57,17 +54,24 @@ def present_ledger_entry(
         override_discount = int(data.get("aux_amount_value") or 0)
     else:
         override_discount = legacy_discount
-    effective_discount = (
-        effective_card_discount(
+    charge = (
+        evaluate_stored_charge(
             amount,
             override_discount,
             override_enabled,
             policy,
+            month,
             data.get("title"),
+            DiscountCard.OWNER,
+            merchant=data.get("usage_place"),
+            spending_category=data.get("spending_category"),
         )
         if is_card_expense
-        else 0
+        else None
     )
+    automatic_eligible = bool(charge and charge.automatic_discount_eligible)
+    automatic_discount = charge.automatic_discount_amount if charge else 0
+    effective_discount = charge.effective_discount_amount if charge else 0
     data.update(
         {
             "discount_policy": policy,
@@ -109,19 +113,23 @@ def present_monthly_panel(
     )
     amount = int(data.get("amount_value") or 0)
     is_card_panel = panel_type in {"claim", "family_card"}
-    automatic_eligible = is_card_panel and not discount_ineligible_title(data.get("title"))
-    automatic_discount = default_card_discount(amount) if automatic_eligible else 0
-    effective_discount = (
-        effective_card_discount(
+    default_card = DiscountCard.FAMILY if panel_type == "family_card" else DiscountCard.OWNER
+    charge = (
+        evaluate_stored_charge(
             amount,
             int(data.get("discount_amount") or 0),
             bool(data.get("discount_override") or data.get("discount_amount")),
             policy,
+            month,
             data.get("title"),
+            default_card,
         )
         if is_card_panel
-        else 0
+        else None
     )
+    automatic_eligible = bool(charge and charge.automatic_discount_eligible)
+    automatic_discount = charge.automatic_discount_amount if charge else 0
+    effective_discount = charge.effective_discount_amount if charge else 0
     data.update(
         {
             "discount_policy": policy,

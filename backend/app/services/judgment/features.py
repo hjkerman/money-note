@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from app.services.discounts import effective_card_discount, normalize_discount_policy
+from app.services.card_charge import DiscountCard, evaluate_stored_charge, normalize_discount_policy
 
 from .common import title_contains
 
@@ -59,13 +59,15 @@ def panel_net_amount(row: dict) -> float:
     return max(
         0,
         float(row.get("amount_value") or 0)
-        - effective_card_discount(
+        - evaluate_stored_charge(
             row.get("amount_value"),
             row.get("discount_amount"),
             bool(row.get("discount_override") or row.get("discount_amount")),
             normalize_discount_policy(str(row.get("discount_policy") or "enabled"), "owner"),
+            str(row.get("month") or ""),
             row.get("title"),
-        ),
+            DiscountCard.OWNER,
+        ).effective_discount_amount,
     )
 
 
