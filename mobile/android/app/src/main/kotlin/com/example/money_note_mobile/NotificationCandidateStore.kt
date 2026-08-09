@@ -90,6 +90,7 @@ object NotificationCandidateStore {
     }
 
     fun purgeRetiredNotificationLogs(context: Context) {
+        NotificationCaptureNotifier.retireHighwayTollSuccessNotifications(context)
         synchronized(this) {
             val activeLogFiles = NotificationSource.entries.map { it.logFileName }.toSet()
             context.filesDir.listFiles()
@@ -276,10 +277,10 @@ object NotificationCandidateStore {
         synchronized(this) {
             val logCount = appendCapturedLogLocked(context, source, log)
             val candidateCreated = candidate?.let { appendCandidateLocked(context, it) } == true
-            if (candidateCreated && candidate != null) {
-                NotificationCaptureNotifier.notifyHighwayTollCandidate(context, candidate)
-            }
-            updateCaptureNotificationsLocked(context, alertFailure = parsed.status == "failed")
+            updateCaptureNotificationsLocked(
+                context,
+                alertFailure = requiresManualReview(parsed.status)
+            )
             return HandleResult(
                 saved = true,
                 candidateCreated = candidateCreated,
@@ -350,10 +351,6 @@ object NotificationCandidateStore {
             it.optString("id") == id
         }
         markCandidatesConsumedLocked(context, listOfNotNull(removed))
-        if (removed?.optString("source", NotificationSource.WOORI_CARD.wireName) ==
-            NotificationSource.HIGHWAY_TOLL.wireName) {
-            NotificationCaptureNotifier.cancelHighwayTollCandidate(context, id)
-        }
         updateCaptureNotificationsLocked(context)
         count
     }
@@ -363,17 +360,10 @@ object NotificationCandidateStore {
         val removedCandidates = (0 until candidates.length())
             .map { candidates.getJSONObject(it) }
             .filter { it.optString("card_role") == role }
-        val removedTollIds = removedCandidates
-            .filter {
-                it.optString("source", NotificationSource.WOORI_CARD.wireName) ==
-                    NotificationSource.HIGHWAY_TOLL.wireName
-            }
-            .map { it.optString("id") }
         val count = deleteMatchingLocked(CANDIDATE_FILE_NAME, context) {
             it.optString("card_role") == role
         }
         markCandidatesConsumedLocked(context, removedCandidates)
-        removedTollIds.forEach { NotificationCaptureNotifier.cancelHighwayTollCandidate(context, it) }
         updateCaptureNotificationsLocked(context)
         count
     }
@@ -550,7 +540,10 @@ object NotificationCandidateStore {
     }
 
     private fun updateSummaryNotificationLocked(context: Context) {
-        val counts = candidateCountsLocked(context, NotificationSource.WOORI_CARD.wireName)
+        val counts = notificationSummaryCounts(
+            cardCounts = candidateCountsLocked(context, NotificationSource.WOORI_CARD.wireName),
+            tollCounts = candidateCountsLocked(context, NotificationSource.HIGHWAY_TOLL.wireName)
+        )
         val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (counts.owner + counts.family == 0) {
             manager.cancel(SUMMARY_NOTIFICATION_ID)
@@ -627,11 +620,12 @@ object NotificationCandidateStore {
 
     private fun manualReviewCountLocked(context: Context): Int {
         var count = 0
+        val pendingEventIds = pendingCandidateEventIdsLocked(context)
         for (source in NotificationSource.entries) {
             val array = readArray(context, source.logFileName)
             for (index in 0 until array.length()) {
-                when (array.getJSONObject(index).optString("parse_status")) {
-                    "failed", "installment_manual" -> count += 1
+                if (requiresManualReview(array.getJSONObject(index), pendingEventIds)) {
+                    count += 1
                 }
             }
         }
@@ -645,26 +639,42 @@ object NotificationCandidateStore {
         context: Context,
         alertFailure: Boolean = false
     ) {
+        NotificationCaptureNotifier.retireHighwayTollSuccessNotifications(context)
         updateSummaryNotificationLocked(context)
-        NotificationCaptureNotifier.updateHighwayTollSummary(
-            context,
-            candidateObjectsLocked(context, NotificationSource.HIGHWAY_TOLL.wireName)
-        )
         updateFailureNotificationLocked(context, alert = alertFailure)
     }
 
     private fun updateFailureNotificationLocked(context: Context, alert: Boolean = false) {
         val failures = mutableListOf<CapturedNotificationLog>()
+        val pendingEventIds = pendingCandidateEventIdsLocked(context)
         for (source in NotificationSource.entries) {
             val array = readArray(context, source.logFileName)
             for (index in 0 until array.length()) {
                 val item = array.getJSONObject(index)
-                if (item.optString("parse_status") !in setOf("failed", "installment_manual")) continue
+                if (!requiresManualReview(item, pendingEventIds)) continue
                 failures.add(item.toCapturedLog(source))
             }
         }
         NotificationCaptureNotifier.updateFailureSummary(context, failures, alert)
     }
+
+    private fun pendingCandidateEventIdsLocked(context: Context): Set<String> {
+        val candidates = readArray(context, CANDIDATE_FILE_NAME)
+        return (0 until candidates.length())
+            .map { candidates.getJSONObject(it) }
+            .map { it.optString("event_id").ifEmpty { it.optString("id") } }
+            .filter(String::isNotEmpty)
+            .toSet()
+    }
+
+    private fun requiresManualReview(
+        item: JSONObject,
+        pendingEventIds: Set<String>
+    ): Boolean = requiresManualReview(
+        status = item.optString("parse_status"),
+        eventId = item.optString("id"),
+        pendingEventIds = pendingEventIds
+    )
 
     private fun deleteMatchingLocked(
         fileName: String,
@@ -679,19 +689,6 @@ object NotificationCandidateStore {
         }
         writeArray(context, fileName, next)
         return next.length()
-    }
-
-    private fun candidateObjectsLocked(
-        context: Context,
-        source: String
-    ): List<CardNotificationCandidate> {
-        val array = readArray(context, CANDIDATE_FILE_NAME)
-        return (0 until array.length())
-            .map { array.getJSONObject(it) }
-            .filter {
-                it.optString("source", NotificationSource.WOORI_CARD.wireName) == source
-            }
-            .map { it.toCandidate() }
     }
 
     private fun shouldProcessEventLocked(
@@ -924,21 +921,6 @@ object NotificationCandidateStore {
             candidateId = optString("candidate_id").ifEmpty { null }
         )
 
-    private fun JSONObject.toCandidate(): CardNotificationCandidate =
-        CardNotificationCandidate(
-            id = optString("id"),
-            eventId = optString("event_id").ifEmpty { optString("id") },
-            source = optString("source", NotificationSource.WOORI_CARD.wireName),
-            capturedAt = optLong("captured_at"),
-            cardLast4 = optString("card_last4"),
-            cardRole = optString("card_role"),
-            entryDate = optString("entry_date"),
-            amount = if (has("amount") && !isNull("amount")) optInt("amount") else null,
-            merchant = optString("merchant"),
-            usageItem = optString("usage_item"),
-            rawText = optString("raw_text")
-        )
-
     private fun JSONObject.toCapturedLog(source: NotificationSource): CapturedNotificationLog =
         CapturedNotificationLog(
             id = optString("id"),
@@ -989,3 +971,21 @@ data class HandleResult(
 )
 
 data class CandidateCounts(val owner: Int, val family: Int)
+
+internal fun notificationSummaryCounts(
+    cardCounts: CandidateCounts,
+    tollCounts: CandidateCounts
+): CandidateCounts = CandidateCounts(
+    owner = cardCounts.owner + tollCounts.owner + tollCounts.family,
+    family = cardCounts.family
+)
+
+internal fun requiresManualReview(status: String): Boolean =
+    status in setOf("failed", "installment_manual", "partial")
+
+internal fun requiresManualReview(
+    status: String,
+    eventId: String,
+    pendingEventIds: Set<String>
+): Boolean = requiresManualReview(status) &&
+    (status != "partial" || eventId in pendingEventIds)

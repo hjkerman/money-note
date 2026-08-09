@@ -7,6 +7,27 @@ import org.junit.Test
 
 class NotificationCandidateStoreTest {
     @Test
+    fun countsHighwayTollCandidatesAsOwnerCardInSummary() {
+        assertEquals(
+            CandidateCounts(owner = 5, family = 1),
+            notificationSummaryCounts(
+                cardCounts = CandidateCounts(owner = 2, family = 1),
+                tollCounts = CandidateCounts(owner = 2, family = 1)
+            )
+        )
+    }
+
+    @Test
+    fun requiresManualReviewForMissingHighwayTollAmount() {
+        assertTrue(requiresManualReview("partial"))
+        assertTrue(requiresManualReview("failed"))
+        assertTrue(requiresManualReview("installment_manual"))
+        assertFalse(requiresManualReview("parsed"))
+        assertTrue(requiresManualReview("partial", "event-1", setOf("event-1")))
+        assertFalse(requiresManualReview("partial", "event-1", emptySet()))
+    }
+
+    @Test
     fun classifiesSupportedNotificationPackages() {
         assertEquals(
             NotificationSource.WOORI_CARD,
