@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app_state.dart';
 import '../apk_download_service.dart';
+import '../apk_install_bridge.dart';
 import '../formatters.dart';
 import '../theme.dart';
 import '../widgets/money_card.dart';
@@ -78,8 +79,21 @@ class _ApkDownloadButton extends StatefulWidget {
 
 class _ApkDownloadButtonState extends State<_ApkDownloadButton> {
   final ApkDownloadService _service = ApkDownloadService();
+  final ApkInstallBridge _installBridge = ApkInstallBridge();
+  InstalledAppVersion? _installedVersion;
   bool _downloading = false;
   double? _progress;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadInstalledVersion();
+  }
+
+  Future<void> _loadInstalledVersion() async {
+    final version = await _installBridge.installedVersion();
+    if (mounted) setState(() => _installedVersion = version);
+  }
 
   Future<void> _download() async {
     if (_downloading) return;
@@ -117,15 +131,32 @@ class _ApkDownloadButtonState extends State<_ApkDownloadButton> {
         : progress == null
             ? 'APK 받는 중...'
             : 'APK 받는 중 ${(progress * 100).round()}%';
-    return FilledButton.icon(
-      onPressed: _downloading ? null : _download,
-      icon: _downloading
-          ? const SizedBox.square(
-              dimension: 18,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
-          : const Icon(Icons.system_update_alt),
-      label: Text(label),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (_installedVersion case final version?) ...[
+          Text(
+            '현재 설치 버전 ${version.label}',
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: moneyMuted,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 8),
+        ],
+        FilledButton.icon(
+          onPressed: _downloading ? null : _download,
+          icon: _downloading
+              ? const SizedBox.square(
+                  dimension: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.system_update_alt),
+          label: Text(label),
+        ),
+      ],
     );
   }
 }

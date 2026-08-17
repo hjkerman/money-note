@@ -655,6 +655,8 @@ flutter run --dart-define=MONEY_NOTE_API_BASE_URL=https://money.hjkerman.re.kr
 
 모바일 `설정` 탭 맨 아래의 `APK 다운로드`는 버전 확인 기능이 아니다. 사용자가 누를 때 서버에 현재 배치된 `/api/admin/apk`를 모바일 Bearer 인증으로 내려받고 Android 설치 화면을 연다. 서버에 새 APK를 배치하면 이 버튼은 즉시 그 파일을 받는다. 별도 버전 manifest나 업데이트 확인 API는 사용하지 않는다.
 
+버튼 위의 `현재 설치 버전`은 Android가 현재 설치본에서 읽은 `versionName (versionCode)`다. Git 커밋 시각이나 수동 변경사항 문구는 표시하지 않으므로 빌드 시 추가 메타데이터를 관리할 필요가 없다.
+
 다운로드는 앱 전용 cache의 `apk-updates/`에 `.part` 파일로 스트리밍한다. 응답 MIME type이 APK가 아니거나, 파일이 비었거나, `Content-Length`와 실제 수신량이 다르거나, 200MB를 초과하면 설치를 중단하고 임시 파일을 삭제한다. 완전히 받은 뒤에만 `.apk`로 이름을 바꾼다.
 
 Android 네이티브 설치층은 APK의 package name이 현재 앱의 `kr.re.hjkerman.money_note`와 같은지 확인하고, 설치된 앱과 다운로드한 APK의 서명 인증서 SHA-256이 같은지 대조한다. 버전 번호의 대소는 비교하지 않으며 실제 업그레이드·다운그레이드 허용 여부는 Android Package Installer가 결정한다. APK는 기존 release JKS로 계속 서명해야 한다. 다른 키로 서명된 파일은 Money-Note가 설치 화면을 열기 전에 거부한다.

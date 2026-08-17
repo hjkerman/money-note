@@ -32,6 +32,7 @@ class ApkInstallBridge(
         cleanupUpdates()
         channel.setMethodCallHandler { call, result ->
             when (call.method) {
+                "installedVersion" -> installedVersion(result)
                 "canInstallPackages" -> result.success(canInstallPackages())
                 "openInstallSettings" -> openInstallSettings(result)
                 "installApk" -> installApk(
@@ -52,6 +53,30 @@ class ApkInstallBridge(
         installerFile?.delete()
         installerFile = null
         waitingForInstallerReturn = false
+    }
+
+    private fun installedVersion(result: MethodChannel.Result) {
+        try {
+            val info = activity.packageManager.getPackageInfo(activity.packageName, 0)
+            val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                info.longVersionCode
+            } else {
+                @Suppress("DEPRECATION")
+                info.versionCode.toLong()
+            }
+            result.success(
+                mapOf(
+                    "versionName" to info.versionName.orEmpty(),
+                    "versionCode" to versionCode,
+                ),
+            )
+        } catch (error: Exception) {
+            result.error(
+                "version_lookup_failed",
+                error.message ?: "설치된 앱 버전을 확인할 수 없습니다.",
+                null,
+            )
+        }
     }
 
     private fun canInstallPackages(): Boolean {
