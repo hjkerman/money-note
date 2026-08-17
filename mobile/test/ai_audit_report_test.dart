@@ -186,6 +186,16 @@ void main() {
 
     expect(markdown, contains('# Money-Note 회계감사 자료 - 2026년 8월'));
     expect(markdown, contains('당신은 개인 가계부 서비스 Money Note의 외부 회계감사관입니다.'));
+    expect(markdown, contains('객관적인 생존 필수 여부가 아니라'));
+    expect(markdown, contains('지속 가능한 일상생활의 baseline'));
+    expect(markdown, contains('합리적인 삶의 질과 사회생활'));
+    expect(markdown, contains('품목명만을 근거로 사용자의 소비 분류가 잘못되었다고 판단하지 마세요'));
+    expect(markdown, contains('목적이나 귀속 월을 추적하지 않습니다'));
+    expect(markdown, contains('특정 카드 지출을 과거의 특정 동결액과 연결하지 마세요'));
+    expect(markdown, contains('가용 유동성을 평가할 때만 고려하세요'));
+    expect(markdown, contains('세 개념을 서로 바꾸어 해석하지 마세요'));
+    expect(markdown, contains('먼저 사용자에게 구체적으로 질문하고'));
+    expect(markdown, contains('답변을 받은 뒤 최종 판단에 반영하세요'));
     expect(markdown, contains('가게\\|지점'));
     expect(markdown, contains('첫 줄 둘째 줄'));
     expect(markdown, contains('10,000원 | 120원 | 9,880원'));
