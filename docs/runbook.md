@@ -304,25 +304,25 @@ npm run build
 
 ### 8. 웹 파일 배치
 
-예시는 `/var/www/money-note`에 배치하는 방식이다.
+운영 Apache의 `DocumentRoot`인 `/var/www/money`에 배치한다.
 
 ```bash
-sudo mkdir -p /var/www/money-note
-sudo rsync -a --delete /opt/money-note/frontend/dist/ /var/www/money-note/
+sudo mkdir -p /var/www/money
+sudo rsync -a --delete /opt/money-note/frontend/dist/ /var/www/money/
 ```
 
-이 단계까지 끝나면 백엔드는 `localhost:18080`, 프론트엔드 정적 파일은 `/var/www/money-note`에 있는 상태다.
+이 단계까지 끝나면 백엔드는 `localhost:18080`, 프론트엔드 정적 파일은 `/var/www/money`에 있는 상태다.
 
 Android 앱과 Google 비밀번호 관리자를 웹 도메인에 연결하려면 프론트엔드 빌드 결과에 아래 파일이 반드시 포함되어야 한다.
 
 ```text
-/var/www/money-note/.well-known/assetlinks.json
+/var/www/money/.well-known/assetlinks.json
 ```
 
 배치 후 서버에서 확인한다.
 
 ```bash
-test -f /var/www/money-note/.well-known/assetlinks.json
+test -f /var/www/money/.well-known/assetlinks.json
 curl -s https://money.hjkerman.re.kr/.well-known/assetlinks.json
 ```
 
@@ -349,7 +349,7 @@ HTTP만 먼저 확인할 때의 최소 예시:
 <VirtualHost *:80>
     ServerName money.hjkerman.re.kr
 
-    DocumentRoot /var/www/money-note
+    DocumentRoot /var/www/money
 
     ProxyPreserveHost On
     ProxyPass /api/ http://127.0.0.1:18080/api/
@@ -359,7 +359,7 @@ HTTP만 먼저 확인할 때의 최소 예시:
     ProxyPass /health http://127.0.0.1:18080/health
     ProxyPassReverse /health http://127.0.0.1:18080/health
 
-    <Directory /var/www/money-note>
+    <Directory /var/www/money>
         Require all granted
         Options -Indexes
         Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"
@@ -384,7 +384,7 @@ HTTPS 적용 후의 예시:
 <VirtualHost *:443>
     ServerName money.hjkerman.re.kr
 
-    DocumentRoot /var/www/money-note
+    DocumentRoot /var/www/money
 
     SSLEngine on
     SSLCertificateFile /etc/letsencrypt/live/money.hjkerman.re.kr/fullchain.pem
@@ -404,7 +404,7 @@ HTTPS 적용 후의 예시:
         LimitRequestBody 26214400
     </Location>
 
-    <Directory /var/www/money-note>
+    <Directory /var/www/money>
         Require all granted
         Options -Indexes
         Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"
@@ -447,7 +447,7 @@ cd /opt/money-note
 docker compose up --build -d
 ```
 
-운영에서 브라우저 개발자 도구를 열었을 때 API 요청 주소가 `https://money.hjkerman.re.kr/api/...` 형태여야 한다. `http://127.0.0.1:18080/api/...`가 보이면 `frontend/.env.production`을 만든 뒤 프론트엔드를 다시 빌드하고 `/var/www/money-note`에 다시 배치한다.
+운영에서 브라우저 개발자 도구를 열었을 때 API 요청 주소가 `https://money.hjkerman.re.kr/api/...` 형태여야 한다. `http://127.0.0.1:18080/api/...`가 보이면 `frontend/.env.production`을 만든 뒤 프론트엔드를 다시 빌드하고 `/var/www/money`에 다시 배치한다.
 
 ### 10. 배포 후 손검증
 
@@ -484,8 +484,8 @@ chmod 600 .env.deploy
 또한 서버에서 배포 사용자가 Apache 웹 루트에 직접 동기화할 수 있도록 최초 한 번만 권한을 정리한다.
 
 ```bash
-sudo chown -R "$USER":www-data /var/www/money-note
-sudo chmod -R u+rwX,go+rX /var/www/money-note
+sudo chown -R "$USER":www-data /var/www/money
+sudo chmod -R u+rwX,go+rX /var/www/money
 ```
 
 그 뒤에는 서버 셸에 들어가 `git pull`, `npm run build`, `rsync`를 직접 실행할 필요가 없다. 변경 파일 판정과 관계없이 프론트엔드와 백엔드를 모두 다시 배포하려면 다음을 사용한다.
@@ -501,7 +501,7 @@ curl http://localhost:18080/health
 docker compose logs --tail=80 api
 ```
 
-문제가 생기면 우선 `docker compose logs --tail=200 api`와 Apache 로그를 본다. 프론트엔드 화면만 이상하면 `npm run build`, `frontend/.env.production`, `/var/www/money-note` 배치 여부를 먼저 확인한다.
+문제가 생기면 우선 `docker compose logs --tail=200 api`와 Apache 로그를 본다. 프론트엔드 화면만 이상하면 `npm run build`, `frontend/.env.production`, `/var/www/money` 배치 여부를 먼저 확인한다.
 
 ```bash
 sudo tail -n 120 /var/log/apache2/money-note-error.log
@@ -1066,7 +1066,7 @@ VITE_API_BASE_URL=http://localhost:18080
 VITE_API_BASE_URL=
 ```
 
-이 값은 빌드 시점에 결과물에 박제된다. 따라서 `.env.production`을 만들거나 수정한 뒤에는 반드시 `npm run build`를 다시 실행하고, 새 `dist/`를 `/var/www/money-note/`에 다시 복사한다.
+이 값은 빌드 시점에 결과물에 박제된다. 따라서 `.env.production`을 만들거나 수정한 뒤에는 반드시 `npm run build`를 다시 실행하고, 새 `dist/`를 `/var/www/money/`에 다시 복사한다.
 
 프론트엔드 코드는 운영 도메인에서 기본적으로 상대경로를 사용한다. 그래도 운영 배포에서는 `.env.production`을 명시적으로 만들어 두면 빌드 의도가 분명해진다.
 
@@ -1090,8 +1090,8 @@ frontend/dist/
 예시:
 
 ```bash
-sudo mkdir -p /var/www/money-note
-sudo rsync -a --delete frontend/dist/ /var/www/money-note/
+sudo mkdir -p /var/www/money
+sudo rsync -a --delete frontend/dist/ /var/www/money/
 ```
 
 인증서, Apache reverse proxy, 도메인 연결은 서버 운영 환경에서 별도로 설정한다.
