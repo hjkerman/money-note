@@ -464,22 +464,37 @@ docker compose up --build -d
 
 ### 11. 업데이트 절차
 
-코드를 새 버전으로 올릴 때는 아래 순서로 한다.
+일상적인 업데이트는 개발 Mac의 repo 루트에서 아래 한 줄로 수행한다.
 
 ```bash
-cd /opt/money-note
-git pull
-docker compose up --build -d
-cd frontend
-npm install
-cat > .env.production <<'EOF'
-VITE_API_BASE_URL=
-EOF
-npm run build
-sudo rsync -a --delete dist/ /var/www/money-note/
+./scripts/deploy-server.sh
 ```
 
-업데이트 후 확인:
+스크립트는 로컬 커밋이 `origin/main`에 push되었는지 확인한 뒤 SSH로 서버의 `main`을 fast-forward한다. 마지막으로 **실제 배포가 완료된 커밋 해시**를 `/opt/money-note/.git/money-note-deployed-commit`에 기록하고, 그 이후 변경 파일을 기준으로 백엔드와 프론트엔드 중 필요한 영역만 다시 빌드한다. Docker 재빌드, 웹 파일 동기화, API health check가 모두 성공한 뒤에만 이 기록을 갱신한다. 따라서 서버에서 `git pull`만 수행되고 빌드가 실패한 경우에도 다음 실행에서 누락된 배포를 다시 시도한다.
+
+최초 한 번은 로컬에 공용 배포 설정을 만든다.
+
+```bash
+cp .env.deploy.example .env.deploy
+chmod 600 .env.deploy
+```
+
+`.env.deploy`에서 SSH host/user와 서버 경로를 실제 값으로 바꾼다. 이 파일은 서버의 서비스용 `.env`와 별개이며 Git에서 제외된다. SSH 개인키 내용이나 암호를 넣지 말고, 필요하면 `MONEY_NOTE_DEPLOY_IDENTITY_FILE`에 로컬 key file 경로만 둔다.
+
+또한 서버에서 배포 사용자가 Apache 웹 루트에 직접 동기화할 수 있도록 최초 한 번만 권한을 정리한다.
+
+```bash
+sudo chown -R "$USER":www-data /var/www/money-note
+sudo chmod -R u+rwX,go+rX /var/www/money-note
+```
+
+그 뒤에는 서버 셸에 들어가 `git pull`, `npm run build`, `rsync`를 직접 실행할 필요가 없다. 변경 파일 판정과 관계없이 프론트엔드와 백엔드를 모두 다시 배포하려면 다음을 사용한다.
+
+```bash
+./scripts/deploy-server.sh --force
+```
+
+수동 점검이 필요할 때만 서버에서 아래를 확인한다.
 
 ```bash
 curl http://localhost:18080/health
@@ -754,6 +769,27 @@ docker compose up --build -d
 ```
 
 웹 설정 모달의 `Android 앱 설치 파일` 영역에서 APK를 내려받을 수 있다.
+
+### 6.1. 한 명령으로 모바일 release 배포
+
+일상적인 모바일 배포는 repo 루트의 `scripts/release-mobile.sh`를 사용한다. 이 스크립트는 작업 트리가 깨끗한지 확인하고 Flutter 정적 분석·테스트·release 빌드를 수행한 뒤, APK를 서버 임시 경로로 `scp` 전송한다. 로컬과 원격의 SHA-256이 같을 때만 `/opt/money-note/downloads/money-note.apk`로 원자적으로 교체한다. Docker의 `downloads/` bind mount에는 즉시 반영되므로 컨테이너를 재시작하지 않는다.
+
+서버 배포와 같은 `.env.deploy`를 사용한다. 아직 만들지 않았다면 예제를 복사하고 실제 SSH 정보를 입력한다.
+
+```bash
+cp .env.deploy.example .env.deploy
+chmod 600 .env.deploy
+```
+
+`MONEY_NOTE_DEPLOY_IDENTITY_FILE`에는 SSH 개인키 내용이나 암호가 아니라 로컬 key file 경로만 적는다. 비워두면 SSH config와 `ssh-agent`를 사용한다. YubiKey FIDO2 SSH key를 쓸 때는 OpenSSH가 생성한 key-handle file 경로를 적고 PIN·터치는 OpenSSH에 맡긴다. Android release JKS 설정은 기존 `mobile/android/key.properties`에 두거나 같은 환경파일의 `MONEY_NOTE_KEYSTORE_*` 값을 사용한다.
+
+모바일 버전은 자동으로 올리지 않는다. `mobile/pubspec.yaml`의 버전을 확인한 뒤 다음 한 줄로 배포한다.
+
+```bash
+./scripts/release-mobile.sh
+```
+
+스크립트는 Git commit이나 push를 수행하지 않는다. 에이전트 작업에서는 모바일 검증 및 release 빌드, 커밋, push를 마친 뒤 같은 커밋의 작업 트리가 깨끗한 상태에서 이 스크립트를 실행한다. 모바일 변경이 없는 push에는 APK를 다시 배포하지 않는다.
 
 ### 7. 변경 후 에뮬레이터에 다시 띄우기
 

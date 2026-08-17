@@ -10,8 +10,13 @@ node_modules/
 dist/
 *.tsbuildinfo
 *.sh
+!scripts/deploy-server.sh
+!scripts/release-mobile.sh
 *.apk
 secrets/
+
+# Local deployment configuration
+.env.deploy
 
 data/
 downloads/
