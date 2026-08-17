@@ -58,16 +58,13 @@ class HomeScreen extends StatelessWidget {
           message: state.judgment?.budget.message ?? '',
           color: moneyGreenSoft,
         ),
-        const SizedBox(height: 10),
-        _JudgmentPreviewCard(
-          title: '카드 한도 감시',
-          message: state.judgment?.credit.message ?? '',
-        ),
-        const SizedBox(height: 10),
-        _JudgmentPreviewCard(
-          title: '파산심사위원회',
-          message: state.judgment?.payment.message ?? '',
-        ),
+        if (state.hasOutstandingCardPayment) ...[
+          const SizedBox(height: 10),
+          _JudgmentPreviewCard(
+            title: '파산심사위원회',
+            message: state.judgment?.payment.message ?? '',
+          ),
+        ],
         if (!state.notificationPermissions.isReady)
           _PermissionWarningCard(state: state),
         const SizedBox(height: 16),

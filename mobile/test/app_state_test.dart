@@ -63,4 +63,16 @@ void main() {
     expect(manual.effectiveDiscountAmount, 1200);
     expect(manual.effectiveAmount, 8800);
   });
+
+  test('파산심사위원회 노출 여부는 서버의 남은 결제액을 따른다', () {
+    final state = AppState(
+      MoneyNoteApiClient(baseUrl: 'https://example.invalid'),
+    );
+
+    state.cardPaymentStatus = CardPaymentStatus(effectiveRemainingTotal: 0);
+    expect(state.hasOutstandingCardPayment, isFalse);
+
+    state.cardPaymentStatus = CardPaymentStatus(effectiveRemainingTotal: 1);
+    expect(state.hasOutstandingCardPayment, isTrue);
+  });
 }

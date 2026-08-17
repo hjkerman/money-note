@@ -81,6 +81,9 @@ class MoneyNoteApiClient {
   Future<Summary> summary() =>
       _get('/api/month/current/summary', Summary.fromJson);
 
+  Future<CardPaymentStatus> currentCardPaymentStatus() =>
+      _get('/api/card-payments/current', CardPaymentStatus.fromJson);
+
   Future<JudgmentState> judgment() =>
       _get('/api/judgment/current', JudgmentState.fromJson);
 

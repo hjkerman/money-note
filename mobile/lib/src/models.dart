@@ -74,6 +74,18 @@ class Summary {
   }
 }
 
+class CardPaymentStatus {
+  CardPaymentStatus({required this.effectiveRemainingTotal});
+
+  final int effectiveRemainingTotal;
+
+  factory CardPaymentStatus.fromJson(Map<String, dynamic> json) {
+    return CardPaymentStatus(
+      effectiveRemainingTotal: _int(json['effective_remaining_total']),
+    );
+  }
+}
+
 class LedgerEntry {
   LedgerEntry({
     required this.id,

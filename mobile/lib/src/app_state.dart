@@ -22,6 +22,7 @@ class AppState extends ChangeNotifier {
   String statusMessage = '';
   AuthUser? user;
   Summary? summary;
+  CardPaymentStatus? cardPaymentStatus;
   JudgmentState? judgment;
   MonthCloseStatus? monthCloseStatus;
   AppSettings settings = AppSettings(values: const {});
@@ -42,6 +43,9 @@ class AppState extends ChangeNotifier {
   String notificationArchiveSource = 'woori_card';
 
   bool get isLoggedIn => user != null;
+
+  bool get hasOutstandingCardPayment =>
+      (cardPaymentStatus?.effectiveRemainingTotal ?? 0) > 0;
 
   String get currentMonth {
     final serverMonth = monthCloseStatus?.calendarMonth ?? '';
@@ -144,6 +148,7 @@ class AppState extends ChangeNotifier {
       await api.logout();
       user = null;
       summary = null;
+      cardPaymentStatus = null;
       judgment = null;
       monthCloseStatus = null;
       entries = [];
@@ -159,6 +164,7 @@ class AppState extends ChangeNotifier {
     final freshMonthCloseStatus = await api.monthCloseStatus();
     final results = await Future.wait([
       api.summary(),
+      api.currentCardPaymentStatus(),
       api.judgment(),
       api.currentEntries(),
       api.confirmedPlannedEntries(),
@@ -167,12 +173,13 @@ class AppState extends ChangeNotifier {
       api.settings(),
     ]);
     summary = results[0] as Summary;
-    judgment = results[1] as JudgmentState;
-    entries = results[2] as List<LedgerEntry>;
-    confirmedPlannedEntries = results[3] as List<LedgerEntry>;
-    panels = results[4] as List<MonthlyPanel>;
-    cashFlows = results[5] as List<CashFlow>;
-    settings = results[6] as AppSettings;
+    cardPaymentStatus = results[1] as CardPaymentStatus;
+    judgment = results[2] as JudgmentState;
+    entries = results[3] as List<LedgerEntry>;
+    confirmedPlannedEntries = results[4] as List<LedgerEntry>;
+    panels = results[5] as List<MonthlyPanel>;
+    cashFlows = results[6] as List<CashFlow>;
+    settings = results[7] as AppSettings;
     monthCloseStatus = freshMonthCloseStatus;
     await _configureNotificationCards();
     ownerDiscountMonth = await api.discountMonth(currentMonth, 'owner');
@@ -281,13 +288,15 @@ class AppState extends ChangeNotifier {
     final results = await Future.wait([
       api.currentEntries(),
       api.summary(),
+      api.currentCardPaymentStatus(),
       api.judgment(),
       api.monthCloseStatus(),
     ]);
     entries = results[0] as List<LedgerEntry>;
     summary = results[1] as Summary;
-    judgment = results[2] as JudgmentState;
-    monthCloseStatus = results[3] as MonthCloseStatus;
+    cardPaymentStatus = results[2] as CardPaymentStatus;
+    judgment = results[3] as JudgmentState;
+    monthCloseStatus = results[4] as MonthCloseStatus;
     await _refreshDiscountMonths();
   }
 
