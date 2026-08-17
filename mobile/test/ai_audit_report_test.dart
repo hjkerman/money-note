@@ -2,6 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:money_note_mobile/src/ai_audit_report.dart';
 import 'package:money_note_mobile/src/models.dart';
 
+const _stubAuditInstructions = '테스트용 회계감사 지침';
+
 LedgerEntry _entry({
   required int id,
   required String date,
@@ -71,6 +73,8 @@ LedgerEntry _plannedEntry({
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   test('실제 데이터가 있고 서버 당월보다 늦지 않은 연월만 선택지로 만든다', () {
     final data = AiAuditReportData(
       latestAllowedMonth: '2026-08',
@@ -97,12 +101,14 @@ void main() {
         ),
       ],
       confirmedPlannedEntries: const [],
+      auditInstructions: _stubAuditInstructions,
     );
 
     expect(data.availableMonths, ['2026-08', '2026-07', '2026-06']);
   });
 
-  test('선택 월의 서버 계산 금액과 회계감사 지침을 Markdown으로 묶는다', () {
+  test('선택 월의 서버 계산 금액과 회계감사 지침을 Markdown으로 묶는다', () async {
+    final auditInstructions = await loadAuditInstructions();
     final data = AiAuditReportData(
       latestAllowedMonth: '2026-08',
       ledgerEntries: [
@@ -177,6 +183,7 @@ void main() {
           amount: 55000,
         ),
       ],
+      auditInstructions: auditInstructions,
     );
 
     final markdown = data.buildMarkdown(
@@ -220,6 +227,7 @@ void main() {
       cashFlows: const [],
       panels: const [],
       confirmedPlannedEntries: const [],
+      auditInstructions: _stubAuditInstructions,
     );
 
     expect(() => data.buildMarkdown('2026-07'), throwsArgumentError);

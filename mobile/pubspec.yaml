@@ -2,7 +2,7 @@ name: money_note_mobile
 description: Money Note 모바일 앱
 publish_to: "none"
 
-version: 2.3.1+11
+version: 2.3.2+12
 
 environment:
   sdk: ">=3.3.0 <4.0.0"
@@ -24,3 +24,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/ai_audit_instructions.md
