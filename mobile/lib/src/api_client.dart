@@ -91,6 +91,10 @@ class MoneyNoteApiClient {
     return _getList('/api/entries/current', LedgerEntry.fromJson);
   }
 
+  Future<List<LedgerEntry>> archiveEntries() {
+    return _getList('/api/entries/archive', LedgerEntry.fromJson);
+  }
+
   Future<List<LedgerEntry>> confirmedPlannedEntries() {
     return _getList(
         '/api/month/current/planned/confirmed', LedgerEntry.fromJson);
@@ -304,6 +308,34 @@ class MoneyNoteApiClient {
     );
   }
 
+  Future<AuthenticatedDownload> openApkDownload() async {
+    final request = http.Request('GET', _uri('/api/admin/apk'));
+    request.headers.addAll(_headers());
+    final response = await _client.send(request);
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      final bytes = await response.stream.toBytes();
+      throw MoneyNoteApiException(
+        _readError(http.Response.bytes(
+          bytes,
+          response.statusCode,
+          headers: response.headers,
+        )),
+      );
+    }
+    final contentType = response.headers['content-type']?.toLowerCase() ?? '';
+    if (!contentType.startsWith('application/vnd.android.package-archive') &&
+        !contentType.startsWith('application/octet-stream')) {
+      throw MoneyNoteApiException('서버가 APK가 아닌 파일을 반환했습니다.');
+    }
+    return AuthenticatedDownload(
+      filename:
+          _readDownloadFilename(response.headers['content-disposition']) ??
+              'money-note.apk',
+      contentLength: response.contentLength,
+      bytes: response.stream,
+    );
+  }
+
   Future<Map<String, dynamic>> closeCurrentMonth(
       {bool allowEarlyClose = false}) {
     return _post('/api/month/current/close',
@@ -424,4 +456,16 @@ class SnapshotDownload {
 
   final String filename;
   final Uint8List bytes;
+}
+
+class AuthenticatedDownload {
+  AuthenticatedDownload({
+    required this.filename,
+    required this.contentLength,
+    required this.bytes,
+  });
+
+  final String filename;
+  final int? contentLength;
+  final Stream<List<int>> bytes;
 }

@@ -80,6 +80,8 @@ mobile/build/app/outputs/flutter-apk/app-release.apk
 
 서버 설정 모달에서 APK 다운로드를 제공하려면 빌드된 APK를 서버의 `MONEY_NOTE_APK_PATH` 위치에 둔다.
 
+모바일 앱 자체에서는 `설정` 탭 맨 아래의 `APK 다운로드`로 서버에 현재 배치된 파일을 직접 받을 수 있다. 버전 확인은 하지 않으며, 기존 모바일 Bearer 인증으로 `/api/admin/apk`를 스트리밍 다운로드한 뒤 package name과 설치된 앱의 서명이 같은 경우에만 Android 설치 화면을 연다.
+
 ## 카드·통행료 알림 수집
 
 Android 앱은 하나의 NotificationListenerService로 우리카드와 고속도로 통행료+ 알림을 관측한다.

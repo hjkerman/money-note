@@ -39,6 +39,7 @@ Money Note는 1인용이지만 인터넷에 공개되는 금융 기록 서비스
 - 루트 파일시스템은 읽기 전용이며 `/tmp`만 임시 쓰기를 허용한다.
 - DB는 호스트 `data/` volume에만 쓴다.
 - APK 디렉터리는 컨테이너에서 읽기 전용이다.
+- 모바일 APK 직접 다운로드는 로그인 Bearer 인증과 HTTPS를 사용한다. 앱은 APK 전체 수신을 확인한 뒤 package name과 현재 설치본의 서명 인증서를 대조하고, 앱 전용 cache의 제한된 FileProvider URI만 Android 설치기에 전달한다.
 - 컨테이너에 `no-new-privileges`를 적용한다.
 - Android 앱은 운영체제 백업을 끈다. 서버 Snapshot이 백업 원본이다.
 - Android release 빌드는 평문 HTTP 통신을 거부한다. 로컬 HTTP 개발 주소는 debug 빌드에서만 사용한다.

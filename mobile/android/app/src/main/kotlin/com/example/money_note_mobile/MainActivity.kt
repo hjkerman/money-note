@@ -25,6 +25,8 @@ class MainActivity : FlutterActivity() {
 
     private var pendingNotificationPermissionResult: MethodChannel.Result? = null
     private var notificationChannel: MethodChannel? = null
+    private var chatGptShareBridge: ChatGptShareBridge? = null
+    private var apkInstallBridge: ApkInstallBridge? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -109,12 +111,30 @@ class MainActivity : FlutterActivity() {
                 }
             }
         }
+        chatGptShareBridge = ChatGptShareBridge(
+            this,
+            flutterEngine.dartExecutor.binaryMessenger,
+        )
+        apkInstallBridge = ApkInstallBridge(
+            this,
+            flutterEngine.dartExecutor.binaryMessenger,
+        )
     }
 
     override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
         notificationChannel?.setMethodCallHandler(null)
         notificationChannel = null
+        chatGptShareBridge?.dispose()
+        chatGptShareBridge = null
+        apkInstallBridge?.dispose()
+        apkInstallBridge = null
         super.cleanUpFlutterEngine(flutterEngine)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        chatGptShareBridge?.onHostResumed()
+        apkInstallBridge?.onHostResumed()
     }
 
     override fun onRequestPermissionsResult(

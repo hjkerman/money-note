@@ -5,6 +5,7 @@ import '../formatters.dart';
 import '../models.dart';
 import '../theme.dart';
 import '../widgets/money_card.dart';
+import 'ai_audit_sheet.dart';
 import 'management_screen.dart';
 import 'notification_import_screen.dart';
 
@@ -57,6 +58,7 @@ class HomeScreen extends StatelessWidget {
           title: '예산심사위원회',
           message: state.judgment?.budget.message ?? '',
           color: moneyGreenSoft,
+          onTap: () => showAiAuditSheet(context, state),
         ),
         if (state.hasOutstandingCardPayment) ...[
           const SizedBox(height: 10),
@@ -249,16 +251,18 @@ class _JudgmentPreviewCard extends StatelessWidget {
     required this.message,
     required this.title,
     this.color,
+    this.onTap,
   });
 
   final String title;
   final String message;
   final Color? color;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final text = message.trim().isEmpty ? '판단 결과를 불러오는 중입니다.' : message.trim();
-    return MoneyCard(
+    final card = MoneyCard(
       color: color ?? moneySurface,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -282,6 +286,16 @@ class _JudgmentPreviewCard extends StatelessWidget {
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
           ),
         ],
+      ),
+    );
+    if (onTap == null) return card;
+    return Semantics(
+      button: true,
+      label: 'ChatGPT에게 회계감사 받기',
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: card,
       ),
     );
   }

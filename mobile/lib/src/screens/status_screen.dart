@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../app_state.dart';
+import '../apk_download_service.dart';
 import '../formatters.dart';
 import '../theme.dart';
 import '../widgets/money_card.dart';
@@ -59,7 +60,72 @@ class StatusScreen extends StatelessWidget {
           const SizedBox(height: 14),
           Text(state.statusMessage, style: const TextStyle(color: moneyMuted)),
         ],
+        const SizedBox(height: 24),
+        _ApkDownloadButton(state: state),
       ],
+    );
+  }
+}
+
+class _ApkDownloadButton extends StatefulWidget {
+  const _ApkDownloadButton({required this.state});
+
+  final AppState state;
+
+  @override
+  State<_ApkDownloadButton> createState() => _ApkDownloadButtonState();
+}
+
+class _ApkDownloadButtonState extends State<_ApkDownloadButton> {
+  final ApkDownloadService _service = ApkDownloadService();
+  bool _downloading = false;
+  double? _progress;
+
+  Future<void> _download() async {
+    if (_downloading) return;
+    setState(() {
+      _downloading = true;
+      _progress = null;
+    });
+    try {
+      await _service.downloadAndInstall(
+        widget.state.api,
+        onProgress: (progress) {
+          if (mounted) setState(() => _progress = progress);
+        },
+      );
+    } on ApkDownloadException catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(error.message)));
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _downloading = false;
+          _progress = null;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final progress = _progress;
+    final label = !_downloading
+        ? 'APK 다운로드'
+        : progress == null
+            ? 'APK 받는 중...'
+            : 'APK 받는 중 ${(progress * 100).round()}%';
+    return FilledButton.icon(
+      onPressed: _downloading ? null : _download,
+      icon: _downloading
+          ? const SizedBox.square(
+              dimension: 18,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : const Icon(Icons.system_update_alt),
+      label: Text(label),
     );
   }
 }
