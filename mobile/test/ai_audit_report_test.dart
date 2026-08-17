@@ -49,6 +49,27 @@ MonthlyPanel _panel({
   );
 }
 
+LedgerEntry _plannedEntry({
+  required int id,
+  required int dueDay,
+  required String place,
+  String item = '',
+  int amount = 15000,
+}) {
+  return LedgerEntry(
+    id: id,
+    bookSection: 'current',
+    entryKind: 'planned',
+    title: item.isEmpty ? place : '[$place] $item',
+    sortOrder: id,
+    usagePlace: place,
+    usageItem: item.isEmpty ? null : item,
+    amountValue: amount,
+    effectiveAmountValue: amount,
+    dueDay: dueDay,
+  );
+}
+
 void main() {
   test('실제 데이터가 있고 서버 당월보다 늦지 않은 연월만 선택지로 만든다', () {
     final data = AiAuditReportData(
@@ -75,6 +96,7 @@ void main() {
           title: '생활비',
         ),
       ],
+      confirmedPlannedEntries: const [],
     );
 
     expect(data.availableMonths, ['2026-08', '2026-07', '2026-06']);
@@ -91,6 +113,12 @@ void main() {
           item: '첫 줄\n둘째 줄',
         ),
         _entry(id: 2, date: '2026-07-31'),
+        _plannedEntry(
+          id: 3,
+          dueDay: 5,
+          place: '음악 서비스',
+          amount: 7900,
+        ),
       ],
       cashFlows: [
         CashFlow(
@@ -123,6 +151,31 @@ void main() {
           date: '2026-08-05',
           title: '가족 사용',
         ),
+        _panel(
+          id: 3,
+          type: 'fixed',
+          date: '2026-06-01',
+          title: '월세',
+          amount: 300000,
+          discount: 0,
+        ),
+        _panel(
+          id: 4,
+          type: 'frozen',
+          date: '2026-08-10',
+          title: '노트북 교체 자금',
+          amount: 500000,
+          discount: 0,
+        ),
+      ],
+      confirmedPlannedEntries: [
+        _plannedEntry(
+          id: 4,
+          dueDay: 15,
+          place: '통신사',
+          item: '휴대전화 요금',
+          amount: 55000,
+        ),
       ],
     );
 
@@ -140,6 +193,13 @@ void main() {
     expect(markdown, contains('-5,000원'));
     expect(markdown, contains('미정산 청구'));
     expect(markdown, contains('미정산 가족카드'));
+    expect(markdown, contains('현재 운영 참고자료'));
+    expect(markdown, contains('월세 | 300,000원'));
+    expect(markdown, contains('매월 5일 | 음악 서비스'));
+    expect(markdown, contains('매월 15일 | 통신사 | 휴대전화 요금 | 55,000원'));
+    expect(markdown, contains('2026-08-10 | 노트북 교체 자금 | 500,000원'));
+    expect(markdown, contains('선택 월 당시의 이력이 아니라 보고서 생성 시점 현재'));
+    expect(markdown, contains('해동하여 삭제한 과거 항목은 포함되지 않으며'));
     expect(markdown, isNot(contains('2026-07-31')));
   });
 
@@ -149,6 +209,7 @@ void main() {
       ledgerEntries: [_entry(id: 1, date: '2026-08-02')],
       cashFlows: const [],
       panels: const [],
+      confirmedPlannedEntries: const [],
     );
 
     expect(() => data.buildMarkdown('2026-07'), throwsArgumentError);
