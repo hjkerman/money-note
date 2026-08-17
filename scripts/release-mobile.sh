@@ -90,7 +90,7 @@ local_sha="$(sha256_file "$APK_PATH")"
 remote_dir="${MONEY_NOTE_DEPLOY_REMOTE_APK_PATH%/*}"
 remote_temp="${MONEY_NOTE_DEPLOY_REMOTE_APK_PATH}.uploading.$(date -u +%Y%m%dT%H%M%SZ).$$"
 target="${MONEY_NOTE_DEPLOY_USER}@${MONEY_NOTE_DEPLOY_HOST}"
-control_path="${TMPDIR:-/tmp}/mn-deploy-$$-%C"
+control_path="/tmp/mn-m-$$-%C"
 
 common_options=(
   -o "ControlMaster=auto"

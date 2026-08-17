@@ -73,7 +73,7 @@ remote_head="$(git rev-parse "origin/$MONEY_NOTE_DEPLOY_BRANCH")"
 [[ "$local_head" == "$remote_head" ]] || die "현재 커밋이 origin/$MONEY_NOTE_DEPLOY_BRANCH 에 push되지 않았습니다."
 
 target="${MONEY_NOTE_DEPLOY_USER}@${MONEY_NOTE_DEPLOY_HOST}"
-control_path="${TMPDIR:-/tmp}/mn-server-deploy-$$-%C"
+control_path="/tmp/mn-s-$$-%C"
 ssh_command=(
   ssh
   -p "$MONEY_NOTE_DEPLOY_PORT"
