@@ -201,8 +201,9 @@ void main() {
     expect(markdown, contains('특정 카드 지출을 과거의 특정 동결액과 연결하지 마세요'));
     expect(markdown, contains('가용 유동성을 평가할 때만 고려하세요'));
     expect(markdown, contains('세 개념을 서로 바꾸어 해석하지 마세요'));
-    expect(markdown, contains('먼저 사용자에게 구체적으로 질문하고'));
-    expect(markdown, contains('답변을 받은 뒤 최종 판단에 반영하세요'));
+    expect(markdown, contains('해당 항목은 판단을 유보하고'));
+    expect(markdown, contains('필요한 추가 맥락을 구체적으로 질문하세요'));
+    expect(markdown, contains('사용자가 답변한 경우 이후 판단에 반영하세요'));
     expect(markdown, contains('가게\\|지점'));
     expect(markdown, contains('첫 줄 둘째 줄'));
     expect(markdown, contains('10,000원 | 120원 | 9,880원'));
