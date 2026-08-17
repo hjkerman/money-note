@@ -144,8 +144,8 @@ elif [[ "$old_deployed" != "$new_head" ]]; then
 fi
 
 if [[ "$frontend_changed" == "1" ]]; then
-  command -v npm >/dev/null 2>&1 || {
-    printf '오류: 서버에 npm이 없습니다.\n' >&2
+  command -v docker >/dev/null 2>&1 || {
+    printf '오류: 서버에 Docker가 없습니다.\n' >&2
     exit 1
   }
   command -v rsync >/dev/null 2>&1 || {
@@ -157,11 +157,14 @@ if [[ "$frontend_changed" == "1" ]]; then
     exit 1
   }
   cd "$repo_path/frontend"
-  if [[ ! -f .env.production ]]; then
-    printf 'VITE_API_BASE_URL=\n' > .env.production
-  fi
-  npm ci --no-audit --no-fund
-  npm run build
+  docker run --rm \
+    --user "$(id -u):$(id -g)" \
+    --env HOME=/tmp \
+    --env VITE_API_BASE_URL= \
+    --volume "$repo_path/frontend:/app" \
+    --workdir /app \
+    node:22-alpine \
+    sh -c 'npm ci --no-audit --no-fund && npm run build'
   [[ -s dist/index.html ]] || {
     printf '오류: frontend/dist/index.html이 생성되지 않았습니다.\n' >&2
     exit 1

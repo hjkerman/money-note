@@ -470,7 +470,7 @@ docker compose up --build -d
 ./scripts/deploy-server.sh
 ```
 
-스크립트는 로컬 커밋이 `origin/main`에 push되었는지 확인한 뒤 SSH로 서버의 `main`을 fast-forward한다. 마지막으로 **실제 배포가 완료된 커밋 해시**를 `/opt/money-note/.git/money-note-deployed-commit`에 기록하고, 그 이후 변경 파일을 기준으로 백엔드와 프론트엔드 중 필요한 영역만 다시 빌드한다. Docker 재빌드, 웹 파일 동기화, API health check가 모두 성공한 뒤에만 이 기록을 갱신한다. 따라서 서버에서 `git pull`만 수행되고 빌드가 실패한 경우에도 다음 실행에서 누락된 배포를 다시 시도한다.
+스크립트는 로컬 커밋이 `origin/main`에 push되었는지 확인한 뒤 SSH로 서버의 `main`을 fast-forward한다. 마지막으로 **실제 배포가 완료된 커밋 해시**를 `/opt/money-note/.git/money-note-deployed-commit`에 기록하고, 그 이후 변경 파일을 기준으로 백엔드와 프론트엔드 중 필요한 영역만 다시 빌드한다. 프론트엔드는 서버에 설치된 Node.js가 아니라 `node:22-alpine` Docker 이미지로 빌드한다. Docker 재빌드, 웹 파일 동기화, API health check가 모두 성공한 뒤에만 이 기록을 갱신한다. 따라서 서버에서 `git pull`만 수행되고 빌드가 실패한 경우에도 다음 실행에서 누락된 배포를 다시 시도한다.
 
 최초 한 번은 로컬에 공용 배포 설정을 만든다.
 
