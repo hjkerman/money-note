@@ -283,17 +283,20 @@ docker compose exec -T api env PYTHONPATH=/app \
 
 ### 7. 웹 프론트엔드 빌드
 
-서버에 Node.js가 없다면 설치한다. Ubuntu에서는 NodeSource나 `nvm` 중 편한 방식을 쓰면 된다. 이미 `node --version`과 `npm --version`이 나오면 넘어간다.
+운영 서버의 Node.js 설치 상태에 빌드가 좌우되지 않도록 `node:22-alpine` 컨테이너에서 빌드한다. 일상 배포의 `scripts/deploy-server.sh`도 같은 방식을 사용한다.
 
 운영 배포에서는 프론트엔드가 API 서버 절대주소를 들고 있지 않게 만든다. `VITE_API_BASE_URL`을 빈 값으로 빌드하면 브라우저가 현재 도메인 기준의 상대경로 `/api/...`, `/share/...`로 요청한다. 그러면 Apache가 내부 백엔드 `127.0.0.1:18080`으로 넘긴다.
 
 ```bash
 cd /opt/money-note/frontend
-npm install
-cat > .env.production <<'EOF'
-VITE_API_BASE_URL=
-EOF
-npm run build
+docker run --rm \
+  --user "$(id -u):$(id -g)" \
+  --env HOME=/tmp \
+  --env VITE_API_BASE_URL= \
+  --volume /opt/money-note/frontend:/app \
+  --workdir /app \
+  node:22-alpine \
+  sh -c 'npm ci --no-audit --no-fund && npm run build'
 ```
 
 빌드 결과는 아래에 생긴다.
@@ -447,7 +450,7 @@ cd /opt/money-note
 docker compose up --build -d
 ```
 
-운영에서 브라우저 개발자 도구를 열었을 때 API 요청 주소가 `https://money.hjkerman.re.kr/api/...` 형태여야 한다. `http://127.0.0.1:18080/api/...`가 보이면 `frontend/.env.production`을 만든 뒤 프론트엔드를 다시 빌드하고 `/var/www/money`에 다시 배치한다.
+운영에서 브라우저 개발자 도구를 열었을 때 API 요청 주소가 `https://money.hjkerman.re.kr/api/...` 형태여야 한다. `http://127.0.0.1:18080/api/...`가 보이면 `VITE_API_BASE_URL`이 빈 값으로 적용되지 않은 빌드다. 위 컨테이너 명령이나 `scripts/deploy-server.sh --force`로 다시 빌드하고 `/var/www/money`에 배치한다.
 
 ### 10. 배포 후 손검증
 
@@ -501,7 +504,7 @@ curl http://localhost:18080/health
 docker compose logs --tail=80 api
 ```
 
-문제가 생기면 우선 `docker compose logs --tail=200 api`와 Apache 로그를 본다. 프론트엔드 화면만 이상하면 `npm run build`, `frontend/.env.production`, `/var/www/money` 배치 여부를 먼저 확인한다.
+문제가 생기면 우선 `docker compose logs --tail=200 api`와 Apache 로그를 본다. 프론트엔드 화면만 이상하면 Node 빌드 컨테이너의 성공 여부, 빈 `VITE_API_BASE_URL`, `/var/www/money` 배치 여부를 먼저 확인한다.
 
 ```bash
 sudo tail -n 120 /var/log/apache2/money-note-error.log
@@ -527,7 +530,6 @@ MONEY_NOTE_CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
 인증 관련 설정:
 
 ```text
-MONEY_NOTE_SESSION_COOKIE_NAME=money_note_session
 MONEY_NOTE_SESSION_DAYS=30
 MONEY_NOTE_MOBILE_SESSION_DAYS=3650
 MONEY_NOTE_COOKIE_SECURE=false
@@ -542,6 +544,8 @@ MONEY_NOTE_PRE_RESTORE_KEEP_COUNT=30
 MONEY_NOTE_TRUST_PROXY_HEADERS=true
 ```
 
+위 목록은 현재 `docker-compose.yml`이 `.env`에서 컨테이너로 전달하는 설정이다. 백엔드는 cookie 이름 `money_note_session`과 KST offset `540`을 기본값으로 지원하지만, 현재 Compose 파일은 두 값을 운영 override로 노출하지 않는다. 이를 바꾸려면 문서의 `.env`만 수정하지 말고 Compose 환경변수 매핑도 함께 추가해야 한다.
+
 운영 HTTPS Origin을 설정하면 `MONEY_NOTE_COOKIE_SECURE=true`가 필수다. CORS Origin은 `*`를 허용하지 않으며 scheme과 host를 포함한 정확한 주소를 쉼표로 나열한다.
 
 웹 로그인 cookie는 `MONEY_NOTE_SESSION_DAYS`를 따른다. 모바일 앱은 `/api/auth/mobile-login`에서 받은 Bearer 토큰을 저장하며 `MONEY_NOTE_MOBILE_SESSION_DAYS`를 따른다. 공유 페이지 PIN 세션은 별도 장기 세션을 사용한다.
@@ -554,7 +558,7 @@ MONEY_NOTE_TODAY=2026-07-01 docker compose up --build -d
 
 `MONEY_NOTE_TODAY`는 월마감, 카드대금, 정기결제 표시처럼 앱 기준일이 필요한 흐름을 검증하기 위한 개발용 override다. 비워두면 실제 오늘 날짜를 사용한다. 운영 서버에서는 설정하지 않는다.
 
-앱 기준일은 기본적으로 KST(+09:00)로 계산한다. 다른 시간대가 필요하면 `MONEY_NOTE_TIMEZONE_OFFSET_MINUTES`에 UTC 기준 분 단위 offset을 지정한다. 한국 시간은 기본값 `540`이다.
+앱 기준일은 기본적으로 KST(+09:00, offset `540`)로 계산한다. 현재 운영 Compose는 이 값을 고정 기본값으로 사용한다.
 
 Android APK 다운로드:
 
@@ -1062,15 +1066,15 @@ cp .env.example .env
 VITE_API_BASE_URL=http://localhost:18080
 ```
 
-운영 도메인에서 정적 파일을 배포하고 `/api/`를 같은 도메인에서 Apache reverse proxy한다면 `frontend/.env.production`에는 아래처럼 빈 값을 둔다.
+운영 도메인에서 정적 파일을 배포하고 `/api/`를 같은 도메인에서 Apache reverse proxy한다면 빌드 환경의 `VITE_API_BASE_URL`을 빈 값으로 둔다.
 
 ```text
 VITE_API_BASE_URL=
 ```
 
-이 값은 빌드 시점에 결과물에 박제된다. 따라서 `.env.production`을 만들거나 수정한 뒤에는 반드시 `npm run build`를 다시 실행하고, 새 `dist/`를 `/var/www/money/`에 다시 복사한다.
+이 값은 빌드 시점에 결과물에 박제된다. `scripts/deploy-server.sh`는 Node 컨테이너에 빈 값을 명시한다. 수동 빌드라면 같은 환경값으로 다시 빌드한 뒤 새 `dist/`를 `/var/www/money/`에 복사한다.
 
-프론트엔드 코드는 운영 도메인에서 기본적으로 상대경로를 사용한다. 그래도 운영 배포에서는 `.env.production`을 명시적으로 만들어 두면 빌드 의도가 분명해진다.
+프론트엔드 코드는 운영 도메인에서 상대경로를 사용한다. `frontend/.env.production` 파일은 자동 배포에 필요하지 않으며, 개발자가 수동 빌드를 반복할 때만 같은 빈 값을 기록하는 선택 사항이다.
 
 운영 빌드 결과가 정상이라면 브라우저에서 API 요청은 현재 도메인 기준의 `/api/...`로 보인다. `127.0.0.1:18080`이 보이면 운영용 환경파일이 적용되지 않은 빌드다.
 

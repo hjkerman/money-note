@@ -15,7 +15,7 @@
 
 - 백엔드: FastAPI + SQLite
 - 프론트엔드: Vite + React + TypeScript
-- 배포: Docker Compose
+- 배포: API는 Docker Compose로 loopback에 바인딩하고, Apache가 HTTPS 정적 웹과 `/api`, `/share` reverse proxy를 담당
 - 모바일 앱: 웹 축소판이 아니라 홈 상태 확인, 빠른 입력, 현금흐름, 당월 내역, 정산과 운영 설정에 집중하는 별도 클라이언트다. 기준 화면은 [모바일 앱 설계](mobile-design.md)에 둔다.
 - 모바일 앱은 서버 DB를 원본으로 사용하므로 앱 시작 시 서버에 연결할 수 없으면 종료 안내를 표시한다.
 
@@ -48,7 +48,7 @@ Android 알림 수집은 `NotificationListenerService` 하나를 공용 입구�
 - `요약 / 인사이트`: 카드대금, 고정지출, 동결자산, 유동성 등 계산값과 장부 전체 변화에 반응하는 예산심사위원회 한 줄 평
 - `당월`: 당월 지출, 청구, 가족카드
 - `고정지출`: 현금성 고정지출과 카드 정기결제
-- `동결`: 사지 말지 보류한 임시 항목. 실제 지출은 당월 지출에 직접 기록하고 동결 항목은 삭제
+- `동결`: 실제로 보유하지만 현재 가용 유동성에서 제외한 금액. 소비 원장과 분리하며 삭제 전까지 월 경계와 무관하게 유지
 - `현금흐름`: 평상시에는 서버 기준 직전 월부터 당월까지의 현금 입출금 기록만 조회한다.
 - `이번달 결제`: 마지막 월마감이 만든 활성 결제 batch의 즉시결제·일부결제 작업함
 - `통계 보기`: 공용 월 선택 아래에서 카드 지출과 현금흐름을 전환해 조회한다.
@@ -100,8 +100,8 @@ Snapshot v4는 카드별 정책 binding, 계산 매개변수, 분류 규칙과 �
 
 - 웹 `App.tsx`: 최상위 상태와 화면 조립
 - 웹 `components/ledger/`: 원장, 패널, 정기결제, 현금흐름 표시 컴포넌트
-- 모바일 `notification_import_screen.dart`: 우리카드 등록 후보 흐름
-- 모바일 `notification_archive_screen.dart`: 우리카드 원문과 통행료 실험 원문 관측
+- 모바일 `lib/src/screens/notification_import_screen.dart`: 우리카드·통행료 로컬 후보 확인과 서버 등록 확정
+- 모바일 `lib/src/screens/notification_archive_screen.dart`: 우리카드·통행료 원문과 파싱 상태 관측
 - 백엔드 `repositories/`: 저장·조회
 - 백엔드 `services/`: 도메인 계산과 위험 작업
 - 백엔드 `routers/`: 인증과 HTTP 입출력

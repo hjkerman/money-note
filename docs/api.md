@@ -342,15 +342,29 @@
 - 새 당월 지출은 기존 planned 항목의 사용처, 사용항목, 금액 구조를 따른다.
 - 원래 planned 항목은 삭제하지 않고 현재 월에 확인된 상태로 숨겨진다.
 - 월마감 후 다음 달에는 같은 planned 항목이 다시 보인다.
+- 선택 요청 본문 `entry_date`를 보내면 그 날짜를 새 지출의 사용일로 사용한다. 생략하면 `due_day`를 기준으로 한 이번 달 날짜를 사용한다.
+- 확인 시 `due_day`는 바뀌지 않는다. `entry_date`는 앱 기준 현재 월의 날짜여야 한다.
+
+선택 요청:
+
+```json
+{
+  "entry_date": "2026-06-17"
+}
+```
 
 응답:
 
 ```json
 {
-  "planned_entry": {},
-  "expense_entry": {}
+  "planned": {},
+  "entry": {}
 }
 ```
+
+### `GET /api/month/current/planned/confirmed`
+
+이번 달에 이미 확인하여 원장에 편입한 카드 정기결제 원본을 조회한다. 응답은 `LedgerEntry` 배열이며, 각 항목의 `entry_date`에는 가능한 경우 이번 달에 생성된 대응 지출의 실제 승인일을 투영한다.
 
 ### `DELETE /api/month/current/planned/{entry_id}`
 

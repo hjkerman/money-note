@@ -1,8 +1,9 @@
 # Money Note Agent Guide
 1. 반드시 읽을 문서
+- docs/project-state.md
 - docs/domain-model.md
-- docs/runbook.md
 - docs/known-issues.md
+- 운영·배포·백업·복원 작업이면 docs/runbook.md
 
 2. 규칙
 - domain-model.md를 단일 진실 원천(Source of Truth)으로 취급
@@ -16,4 +17,4 @@
 - 실패 시에만 tail 출력
 - git diff 전체보다 git diff --stat 우선
 - npm build, backend 검증 수행
-- 사용자가 커밋과 푸시를 함께 요청하면 검증 후 커밋·푸시하고 변경 범위에 맞춰 운영 배포까지 수행할 것. `backend/`, `frontend/`, `docker-compose.yml` 변경은 `scripts/deploy-server.sh`, `mobile/` 변경은 `scripts/release-mobile.sh`를 사용한다. 사용자가 배포 제외를 명시하면 배포하지 않으며, 배포 설정이 없거나 실패하면 그 사실을 명확히 보고할 것.
+- 사용자가 커밋과 푸시를 함께 요청하면 검증 후 커밋·푸시하고 런타임 변경 범위에 맞춰 운영 배포까지 수행할 것. `backend/`, `frontend/`, `docker-compose.yml` 변경은 `scripts/deploy-server.sh`, `mobile/` 변경은 `scripts/release-mobile.sh`를 사용한다. 문서만 바뀐 경우에는 배포하지 않는다. 사용자가 배포 제외를 명시하면 배포하지 않으며, 배포 설정이 없거나 실패하면 그 사실을 명확히 보고할 것.
