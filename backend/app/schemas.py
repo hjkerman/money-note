@@ -247,6 +247,10 @@ class CardDiscountPolicyPatch(BaseModel):
     policy: str = Field(pattern="^(enabled|disabled)$")
 
 
+class TransitDiscountProfilePatch(BaseModel):
+    profile: str = Field(pattern="^(none|owner)$")
+
+
 class PanelDiscountPatch(BaseModel):
     discount_amount: int = Field(ge=0)
 

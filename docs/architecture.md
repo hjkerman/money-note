@@ -56,11 +56,11 @@ Android 알림 수집은 `NotificationListenerService` 하나를 공용 입구�
 
 주요 조작 화면의 테이블은 `panel header -> input form -> table` 구조를 따른다. 월말에 기록이 길어져도 입력창을 찾기 위해 맨 아래까지 내려가지 않도록 하기 위한 구조다.
 
-카드 실결제액 계산은 본인카드, 가족카드, 통행료카드, 교통카드를 독립 객체로 다룬다. 본인카드와 가족카드는 현재 각각 1.2% 청구할인 정책을 가지지만 정책 등록과 월별 `enabled`/`disabled` 상태는 독립적이다. 통행료카드와 교통카드는 자동 할인이 없다. `discount_override=1`인 항목은 카드 종류와 월 상태보다 우선하며, 저장된 할인액이 0원이면 할인 제외로 취급한다.
+카드 실결제액 계산은 본인카드, 가족카드, 통행료카드, 교통카드를 독립 객체로 다룬다. 본인카드와 가족카드는 현재 각각 1.2% 청구할인 정책을 가지지만 정책 등록과 월별 `enabled`/`disabled` 상태는 독립적이다. 통행료카드는 자동 할인이 없다. 교통카드는 월별 프로필에 따라 자동 할인 없음 또는 본인카드 정책 위임을 선택한다. `discount_override=1`인 항목은 카드 종류와 월 상태보다 우선하며, 저장된 할인액이 0원이면 할인 제외로 취급한다.
 
-카드 분류, 사용월별 정책 선택, 자동 할인, 수동 override와 실결제액 계산은 `backend/app/services/card_charge/`만 소유한다. `backend/app/services/discounts.py`는 과거 Python import를 위한 호환층이다. `backend/app/services/presentation.py`는 DB 행을 API 표시 모델로 바꾼다. 프론트엔드와 모바일 모델은 이 투영 필드를 소비할 뿐 같은 규칙을 다시 구현하지 않는다.
+카드 분류, 사용월별 정책 선택, 교통카드 프로필 선택, 자동 할인, 수동 override와 실결제액 계산은 `backend/app/services/card_charge/`만 소유한다. 교통카드의 `owner` 프로필은 카드 정체성을 합치지 않고 본인카드 정책과 월 스위치만 위임받는다. `backend/app/services/discounts.py`는 과거 Python import를 위한 호환층이다. `backend/app/services/presentation.py`는 DB 행을 API 표시 모델로 바꾼다. 프론트엔드와 모바일 모델은 이 투영 필드를 소비할 뿐 같은 규칙을 다시 구현하지 않는다.
 
-Snapshot v4는 카드별 정책 binding, 계산 매개변수, 분류 규칙과 데이터 기준 마지막 월을 `card_charge_policy` 명세로 기록하고 장부 데이터·주요 상단 메타데이터와 함께 해시한다. 복원은 이 명세를 실행하지 않으며 당시 정책이 현재 서버에 보존되어 있는지만 확인한다. 명세의 `covered_through` 이후부터 적용되는 binding 추가는 허용한다. 정책 명세가 없던 Snapshot v3는 하위호환 경로로 복원한다.
+Snapshot v4는 카드별 정책 binding, 계산 매개변수, 프로필 선택 의미, 분류 규칙과 데이터 기준 마지막 월을 `card_charge_policy` 명세로 기록하고 장부 데이터·주요 상단 메타데이터와 함께 해시한다. 교통카드 프로필 선택 이력은 비민감 `app_settings`로 함께 백업한다. 복원은 정책 명세를 실행하지 않으며 당시 정책이 현재 서버에 보존되어 있는지만 확인한다. 명세의 `covered_through` 이후부터 적용되는 binding 추가는 허용한다. Snapshot 파일 형식은 v4만 지원하며, 현재 보유한 v4 백업의 전환을 위해 프로필 선택기가 없던 내부 카드 정책 명세 v1 읽기 경로만 유지한다.
 
 가족카드는 비핵심 feature다. 공용 카드 계산기는 `FAMILY`라는 정책 키만 알며 가족카드 UI, 공유 응답 또는 정산 데이터 구조에 의존하지 않는다. 가족카드 제거 시 정책 등록 하나와 feature 경계만 제거하고 본인 원장·카드대금·유동성 계산은 수정하지 않는 것이 기준이다.
 

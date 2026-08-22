@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from html import escape
 
 from app.repositories.cash_flows import list_cash_flows
@@ -27,13 +28,15 @@ def shared_panel(panel_type: str) -> dict:
         for panel in list_panels(month)
         if panel.get("panel_type") == panel_type and panel.get("title")
     ]
-    total = sum(_panel_net_amount(row) for row in rows)
-    discount_total = sum(_panel_discount_amount(row) for row in rows)
-    minimum_payment_month, minimum_rows = _minimum_payment_rows(rows, panel_type, month)
-    minimum_total = sum(_panel_net_amount(row) for row in minimum_rows)
-    minimum_discount_total = sum(_panel_discount_amount(row) for row in minimum_rows)
-    current_card_total = sum(row.get("amount_value") or 0 for row in list_entries("current"))
     settings = list_settings()
+    total = sum(_panel_net_amount(row, settings) for row in rows)
+    discount_total = sum(_panel_discount_amount(row, settings) for row in rows)
+    minimum_payment_month, minimum_rows = _minimum_payment_rows(rows, panel_type, month)
+    minimum_total = sum(_panel_net_amount(row, settings) for row in minimum_rows)
+    minimum_discount_total = sum(
+        _panel_discount_amount(row, settings) for row in minimum_rows
+    )
+    current_card_total = sum(row.get("amount_value") or 0 for row in list_entries("current"))
     card_limit = _float_setting(settings, "card_limit", 5_800_000)
     label_key, fallback = PANEL_TITLES[panel_type]
     title = list_labels().get(label_key, fallback)
@@ -54,19 +57,23 @@ def shared_panel(panel_type: str) -> dict:
 
 def shared_panel_html(panel_type: str) -> str:
     data = shared_panel(panel_type)
+    settings = list_settings()
     rows_html = "\n".join(
         _row_html(
             row,
             data["panel_type"],
             data["minimum_payment_month"],
             data["month"],
+            settings,
         )
         for row in data["rows"]
     )
     if not rows_html:
         rows_html = '<tr><td colspan="4" class="empty">표시할 항목이 없습니다.</td></tr>'
-    net_total = sum(_panel_net_amount(row) for row in data["rows"])
-    discount_total = sum(_panel_discount_amount(row) for row in data["rows"])
+    net_total = sum(_panel_net_amount(row, settings) for row in data["rows"])
+    discount_total = sum(
+        _panel_discount_amount(row, settings) for row in data["rows"]
+    )
     minimum_total = data["minimum_total"]
     minimum_discount_total = data["minimum_discount_total"]
     minimum_payment_label = _korean_month_label(data["minimum_payment_month"])
@@ -292,10 +299,11 @@ def _row_html(
     panel_type: str,
     minimum_payment_month: str,
     current_month: str,
+    settings: Mapping[str, str],
 ) -> str:
-    discount = _panel_discount_amount(row)
+    discount = _panel_discount_amount(row, settings)
     original = float(row.get("amount_value") or 0)
-    net = _panel_net_amount(row)
+    net = _panel_net_amount(row, settings)
     row_class = (
         ""
         if _is_minimum_payment_row(
@@ -397,14 +405,24 @@ def _discount_text(discount: float) -> str:
     return f"-{format_won(discount)}"
 
 
-def _panel_net_amount(row: dict) -> float:
-    return max(0, float(row.get("amount_value") or 0) - _panel_discount_amount(row))
+def _panel_net_amount(
+    row: dict,
+    settings: Mapping[str, str] | None = None,
+) -> float:
+    return max(
+        0,
+        float(row.get("amount_value") or 0)
+        - _panel_discount_amount(row, settings),
+    )
 
 
-def _panel_discount_amount(row: dict) -> float:
+def _panel_discount_amount(
+    row: dict,
+    settings: Mapping[str, str] | None = None,
+) -> float:
     if row.get("panel_type") not in {"claim", "family_card"}:
         return 0.0
-    settings = list_settings()
+    settings = settings or list_settings()
     scope = "family" if row.get("panel_type") == "family_card" else "owner"
     policy = normalize_discount_policy(
         settings.get(f"card_discount_policy:{scope}:{row.get('month')}", "disabled" if scope == "family" else "enabled"),
@@ -419,6 +437,7 @@ def _panel_discount_amount(row: dict) -> float:
         str(row.get("month") or ""),
         row.get("title"),
         card,
+        settings=settings,
     ).effective_discount_amount
 
 

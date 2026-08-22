@@ -20,6 +20,7 @@ import {
   restoreSnapshot,
   setSharePin,
   updateSetting,
+  updateTransitDiscountProfile,
 } from "../api";
 import { formatMonthLabel, parseAmount } from "../utils";
 
@@ -113,6 +114,22 @@ export function useSettingsHandlers({
     await withRefresh(async () => {
       await updateSetting(key, trimmed);
       setStatus(key === "owner_card_last4" ? "본인 카드 식별값 저장 완료" : "가족카드 식별값 저장 완료");
+    });
+  }
+
+  async function handleTransitDiscountFollowsOwner(enabled: boolean) {
+    const month = monthCloseStatus?.calendar_month;
+    if (!month) {
+      setStatus("서버 기준 월을 확인한 뒤 다시 시도하세요.");
+      return;
+    }
+    await withRefresh(async () => {
+      await updateTransitDiscountProfile(month, enabled ? "owner" : "none");
+      setStatus(
+        enabled
+          ? `${formatMonthLabel(month)}부터 교통카드가 본인카드 할인 정책을 따릅니다.`
+          : `${formatMonthLabel(month)}부터 교통카드 자동 할인을 적용하지 않습니다.`,
+      );
     });
   }
 
@@ -364,6 +381,7 @@ export function useSettingsHandlers({
     handleSharePinSet,
     handleSnapshotDownload,
     handleSnapshotRestore,
+    handleTransitDiscountFollowsOwner,
   };
 }
 

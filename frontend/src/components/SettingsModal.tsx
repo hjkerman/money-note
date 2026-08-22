@@ -25,6 +25,7 @@ export function SettingsModal({
   onSharePinSet,
   onSnapshotDownload,
   onSnapshotRestore,
+  onTransitDiscountFollowsOwnerChange,
   ownerCardLast4Input,
   operationStats,
   passwordForm,
@@ -38,6 +39,7 @@ export function SettingsModal({
   setPasswordForm,
   setResetPassword,
   setScheduledIncomeInput,
+  transitDiscountFollowsOwner,
 }: {
   familyCardLast4Input: string;
   cardLimitInput: string;
@@ -59,6 +61,7 @@ export function SettingsModal({
   onSharePinSet: () => void;
   onSnapshotDownload: () => void;
   onSnapshotRestore: (file: File | null) => void;
+  onTransitDiscountFollowsOwnerChange: (enabled: boolean) => void;
   ownerCardLast4Input: string;
   operationStats: OperationStats | null;
   passwordForm: PasswordForm;
@@ -72,6 +75,7 @@ export function SettingsModal({
   setPasswordForm: Dispatch<SetStateAction<PasswordForm>>;
   setResetPassword: Dispatch<SetStateAction<string>>;
   setScheduledIncomeInput: Dispatch<SetStateAction<string>>;
+  transitDiscountFollowsOwner: boolean;
 }) {
   const snapshotInputRef = useRef<HTMLInputElement | null>(null);
   const [snapshotFile, setSnapshotFile] = useState<File | null>(null);
@@ -171,6 +175,21 @@ export function SettingsModal({
               저장
             </button>
           </label>
+          <section className="settings-row settings-profile-row">
+            <div>
+              <span>교통카드 할인</span>
+              <p>이번 달부터 본인카드의 할인 계산식과 월별 혜택 여부를 함께 따릅니다.</p>
+            </div>
+            <label className="settings-toggle-control">
+              <input
+                type="checkbox"
+                checked={transitDiscountFollowsOwner}
+                onChange={(event) => onTransitDiscountFollowsOwnerChange(event.target.checked)}
+                disabled={isBusy}
+              />
+              <span>본인카드와 동일</span>
+            </label>
+          </section>
           <div className="settings-row">
             <span>가족 공유 PIN</span>
             <button type="button" onClick={onSharePinSet} disabled={isBusy}>

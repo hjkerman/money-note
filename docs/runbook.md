@@ -840,8 +840,8 @@ release manifest는 평문 HTTP 통신을 차단한다. 운영 빌드의 `MONEY_
 Android Gradle 메모:
 
 - 앱 모듈은 `org.jetbrains.kotlin.android` 플러그인을 직접 적용하지 않는다.
-- 루트 설정은 Flutter 플러그인 호환을 위해 Kotlin Gradle Plugin `2.4.10` 버전만 선언한다.
-- Android 빌드 도구는 Android Gradle Plugin `9.1.0`, Gradle `9.3.1`, JDK 17을 사용한다. Kotlin `2.4.10` 공식 호환 범위 안에서 검증한 조합이다.
+- 루트 설정은 Flutter 플러그인 호환을 위해 Kotlin Gradle Plugin `2.2.20` 버전만 선언한다.
+- Android 빌드 도구는 Android Gradle Plugin `8.11.1`, Gradle `8.14.3`, JDK 17을 사용한다. Flutter `3.44.8`에서 Gradle 9 계열은 Money Note와 빈 Flutter 앱 모두 설정 초기화 오류가 발생하므로, 실제 APK 빌드가 검증된 이 조합을 유지한다.
 - `kotlin.compilerOptions` DSL로 JVM target을 지정한다.
 - 일부 Flutter 플러그인이 아직 Kotlin Android 플러그인을 직접 적용하므로 `android.builtInKotlin=false`와 `android.newDsl=false`를 유지한다. 플러그인들이 AGP 내장 Kotlin을 지원하면 두 플래그를 제거하고 빌드를 재검증한다.
 - `share_plus 13.2.1`에서는 과거의 플러그인 자체 Kotlin Gradle Plugin 경고가 재현되지 않는다.
@@ -1035,7 +1035,8 @@ http://127.0.0.1:5173
 
 - `이번달 결제` 탭은 마지막 월마감이 만든 활성 결제 batch를 보여준다. 달력상 직전월을 클라이언트가 추정하지 않는다.
 - 즉시결제는 익월 14일까지 가능하다.
-- 본인카드와 가족카드는 독립된 정책 객체와 월별 혜택 스위치를 가진다. 현재 두 정책은 우연히 같은 1.2% 계산식을 사용하며, 통행료카드와 교통카드는 자동 할인 없음 정책을 사용한다.
+- 본인카드와 가족카드는 독립된 정책 객체와 월별 혜택 스위치를 가진다. 현재 두 정책은 우연히 같은 1.2% 계산식을 사용한다.
+- 통행료카드는 항상 자동 할인 없음이다. 교통카드는 설정에서 현재 월부터 `자동 할인 없음` 또는 `본인카드와 동일`을 선택하며, 후자는 본인카드 계산식과 그 월의 혜택 상태를 함께 따른다.
 - 개별 항목의 `할인 제외`를 누르면 수동 override 0원이 저장된다. 실결제액 직접 수정으로 저장한 수동 override는 카드 종류와 월별 혜택 상태보다 우선한다.
 - 자동 배분 기본 한도는 현재 유동성이며, 날짜 오름차순으로 배분한다.
 - 하이패스/통행료가 여러 건이면 결제 화면에서는 하나의 통합 행으로 보인다. 결제나 이월을 누르면 내부 원본 항목에 순서대로 반영된다.
@@ -1052,6 +1053,8 @@ http://127.0.0.1:5173
 3. 본인카드, 가족카드, 통행료카드, 교통카드는 독립 이력이므로 실제로 바뀐 카드만 수정한다.
 4. `backend/tests/test_card_charge.py`에 변경 전월과 변경 시작월의 계산을 모두 추가한다.
 5. 서버 테스트와 Snapshot 복원 검증 후 백엔드 컨테이너만 재빌드한다. API 응답 형식을 바꾸지 않았다면 웹·모바일 재빌드는 필요 없다.
+
+교통카드를 본인카드와 같은 혜택으로 전환하는 현재 지원 범위에서는 코드 binding을 바꾸지 않는다. 웹 또는 모바일 설정에서 `본인카드와 동일`을 변경하면 서버 기준 현재 월 키가 저장된다. 같은 월의 기존 교통카드 거래도 재계산되며 이전 월은 유지된다.
 
 API 서버 주소는 `frontend/.env`로 지정할 수 있다. 이 파일은 Vite 빌드 시점에 읽힌다.
 
@@ -1119,17 +1122,17 @@ curl -OJ -b /tmp/money-note-cookie.txt \
 
 응답 파일 확장자는 `.money-note-snapshot.json`이며, `schema_version`, `exported_at`, `range`, `card_charge_policy`, `manifest`, `data`를 포함한다.
 
-현재 snapshot 형식은 `schema_version = 4`다. 기존 `schema_version = 3` 파일도 복원할 수 있다.
+현재 snapshot 형식은 `schema_version = 4`이며 v4 파일만 복원한다. 운영에 남은 가장 오래된 백업도 v4이므로 파일 형식 v3 복원 경로는 제거했다.
 
 `manifest`는 canonical JSON 기준 SHA-256 무결성 정보를 담는다. `manifest` 자기 자신과 파생 식별자인 `snapshot_id`는 hash 대상에서 제외하며, `data` 전체 hash, 테이블별 컬럼 목록·row count·table hash, `card_charge_policy` hash, 주요 상단 메타데이터와 정책 명세를 포함한 전체 content hash를 기록한다.
 
-`card_charge_policy`는 카드별 정책 ID, 적용 시작월, 정책 종류와 할인율, 교통·통행 분류 규칙, Snapshot 데이터가 포괄하는 마지막 월 `covered_through`를 담는 검증용 명세다. 복원 시 서버는 이를 실행하지 않고 현재 코드의 정책 레지스트리와 비교한다. 당시 binding이나 분류 규칙이 바뀌었으면 복원을 중단한다. `covered_through` 이후부터 적용되는 새 binding이 현재 서버에 추가된 경우는 허용한다.
+`card_charge_policy`는 카드별 정책 ID, 적용 시작월, 정책 종류와 할인율, 교통카드 프로필 선택 의미, 교통·통행 분류 규칙, Snapshot 데이터가 포괄하는 마지막 월 `covered_through`를 담는 검증용 명세다. 복원 시 서버는 이를 실행하지 않고 현재 코드의 정책 레지스트리와 비교한다. 당시 binding이나 분류 규칙이 바뀌었으면 복원을 중단한다. `covered_through` 이후부터 적용되는 새 binding이 현재 서버에 추가된 경우는 허용한다. 2026-08-20 v4 백업 전환용으로 내부 카드 정책 명세 v1 읽기 경로만 남아 있다.
 
 하위호환 정책:
 
 - 서버는 snapshot 원문 기준으로 manifest를 먼저 검증한다.
 - 버전 4는 manifest 검증 뒤 Snapshot 당시 카드 정책과 분류 규칙이 현재 서버에 보존되어 있는지 확인한다.
-- 버전 3은 카드 정책 명세가 없으므로 기존 manifest와 dry-run 경로로 복원한다.
+- 버전 3 이하는 지원하지 않는다.
 - 검증을 통과한 뒤 현재 서버가 모르는 컬럼은 복원 삽입 전에 무시한다.
 - 현재 서버에 새로 생긴 컬럼이 구버전 snapshot에 없으면 DB 기본값 또는 `NULL`로 복원한다.
 - 금액 컬럼은 현재 DB에서 원화 정수 `INTEGER`로 저장한다.

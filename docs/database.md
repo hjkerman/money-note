@@ -91,7 +91,7 @@ API의 `discount_policy`, `automatic_discount_eligible`, `automatic_discount_amo
 
 API의 할인 정책·자동 할인·유효 할인·실결제 투영 필드는 이 테이블에 저장하지 않는다. 원본 금액과 수동 override만 저장하고 최종값은 서버가 매 조회 때 계산한다.
 
-카드 정책 자체는 DB 컬럼이나 테이블로 저장하지 않는다. 본인·가족·통행료·교통카드의 사용월별 정책 이력은 서버 코드의 `card_charge` 레지스트리가 관리하고, 자주 바뀌는 본인/가족 월별 혜택 여부만 기존 `app_settings`에 저장한다. 이 분리는 카드 교체 시 새 효력 시작월을 추가하면서 과거 Snapshot과 거래를 기존 정책으로 재계산할 수 있게 한다.
+카드 계산식 자체는 DB 컬럼이나 테이블로 저장하지 않는다. 본인·가족·통행료·교통카드의 사용월별 계산식 이력은 서버 코드의 `card_charge` 레지스트리가 관리한다. 본인/가족 월별 혜택 여부와 교통카드의 월별 프로필 선택 이력만 `app_settings`에 저장한다. 이 분리는 카드 교체 시 새 효력 시작월을 추가하면서 과거 Snapshot과 거래를 기존 정책으로 재계산할 수 있게 한다.
 
 ## `app_settings`
 
@@ -105,6 +105,11 @@ API의 할인 정책·자동 할인·유효 할인·실결제 투영 필드는 �
 | `card_limit` | 본인카드와 가족카드 합산 사용률을 판단할 카드 한도 |
 | `owner_card_last4` | 본인회원 카드 끝 4자리 |
 | `family_card_last4` | 가족카드 끝 4자리 |
+| `card_discount_policy:owner:{YYYY-MM}` | 해당 월 본인카드 혜택 `enabled`/`disabled` |
+| `card_discount_policy:family:{YYYY-MM}` | 해당 월 가족카드 혜택 `enabled`/`disabled` |
+| `card_charge_profile:transit:{YYYY-MM}` | 해당 월부터 적용할 교통카드 프로필 `none`/`owner` |
+
+교통카드 프로필은 거래 사용월보다 늦지 않은 가장 최근 설정을 선택한다. `owner`는 본인카드 계산식뿐 아니라 해당 사용월의 본인카드 혜택 상태까지 따른다. 키가 없으면 구버전과 같은 `none`으로 해석한다. 현재 구현은 월 단위 이력이므로 같은 월 안에서 설정 전후 거래를 나누지 않는다.
 
 ## `app_labels`
 

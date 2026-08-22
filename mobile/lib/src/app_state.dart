@@ -28,6 +28,7 @@ class AppState extends ChangeNotifier {
   AppSettings settings = AppSettings(values: const {});
   CardDiscountMonth? ownerDiscountMonth;
   CardDiscountMonth? familyDiscountMonth;
+  TransitDiscountProfileStatus? transitDiscountProfile;
   List<LedgerEntry> entries = [];
   List<LedgerEntry> confirmedPlannedEntries = [];
   List<MonthlyPanel> panels = [];
@@ -182,8 +183,7 @@ class AppState extends ChangeNotifier {
     settings = results[7] as AppSettings;
     monthCloseStatus = freshMonthCloseStatus;
     await _configureNotificationCards();
-    ownerDiscountMonth = await api.discountMonth(currentMonth, 'owner');
-    familyDiscountMonth = await api.discountMonth(currentMonth, 'family');
+    await _refreshDiscountMonths();
     await refreshNotificationInboxState(notify: false);
     if (notify) notifyListeners();
   }
@@ -317,9 +317,11 @@ class AppState extends ChangeNotifier {
     final results = await Future.wait([
       api.discountMonth(month, 'owner'),
       api.discountMonth(month, 'family'),
+      api.transitDiscountProfile(month),
     ]);
-    ownerDiscountMonth = results[0];
-    familyDiscountMonth = results[1];
+    ownerDiscountMonth = results[0] as CardDiscountMonth;
+    familyDiscountMonth = results[1] as CardDiscountMonth;
+    transitDiscountProfile = results[2] as TransitDiscountProfileStatus;
   }
 
   Future<void> refreshNotificationPermissions({bool notify = true}) async {
@@ -724,6 +726,19 @@ class AppState extends ChangeNotifier {
       await api.updateSetting(key, value);
       await refreshSettingsArea(notify: false);
       statusMessage = '설정 저장 완료';
+    });
+  }
+
+  Future<bool> updateTransitDiscountProfile(bool followsOwner) {
+    return _run(() async {
+      transitDiscountProfile = await api.updateTransitDiscountProfile(
+        currentMonth,
+        followsOwner ? 'owner' : 'none',
+      );
+      await refreshSettingsArea(notify: false);
+      statusMessage = followsOwner
+          ? '이번 달부터 교통카드가 본인카드 할인 정책을 따릅니다.'
+          : '이번 달부터 교통카드 자동 할인을 적용하지 않습니다.';
     });
   }
 

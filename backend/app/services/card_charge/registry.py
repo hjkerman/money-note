@@ -11,6 +11,7 @@ from .policies import (
     FlatStatementDiscountPolicy,
     NoAutomaticDiscountPolicy,
 )
+from .profiles import transit_discount_profile_manifest
 
 
 @dataclass(frozen=True)
@@ -19,7 +20,8 @@ class PolicyBinding:
     policy: CardChargePolicy
 
 
-CARD_CHARGE_POLICY_MANIFEST_VERSION = 1
+CARD_CHARGE_POLICY_MANIFEST_VERSION = 2
+LEGACY_CARD_CHARGE_POLICY_MANIFEST_VERSION = 1
 
 
 # 본인·가족은 현재 같은 계산식을 우연히 사용하지만 서로 독립된 정책 이력이다.
@@ -57,6 +59,9 @@ def card_charge_policy_manifest(covered_through: str | None = None) -> dict[str,
     manifest = {
         "schema_version": CARD_CHARGE_POLICY_MANIFEST_VERSION,
         "classifier": card_classifier_manifest(),
+        "profile_selectors": {
+            "transit": transit_discount_profile_manifest(),
+        },
         "cards": {
             card.value: [
                 {
@@ -79,7 +84,13 @@ def card_charge_policy_manifest_compatible(
     """Snapshot 당시 정책은 보존하고 이후 시작하는 binding 추가만 허용한다."""
     if not isinstance(snapshot_manifest, dict):
         return False
-    if set(snapshot_manifest) != {"schema_version", "covered_through", "classifier", "cards"}:
+    schema_version = snapshot_manifest.get("schema_version")
+    expected_keys = {"schema_version", "covered_through", "classifier", "cards"}
+    if schema_version == CARD_CHARGE_POLICY_MANIFEST_VERSION:
+        expected_keys.add("profile_selectors")
+    elif schema_version != LEGACY_CARD_CHARGE_POLICY_MANIFEST_VERSION:
+        return False
+    if set(snapshot_manifest) != expected_keys:
         return False
     snapshot_month = snapshot_manifest.get("covered_through")
     if not isinstance(snapshot_month, str) or not re.fullmatch(
@@ -88,10 +99,11 @@ def card_charge_policy_manifest_compatible(
     ):
         return False
     current = card_charge_policy_manifest()
-    if snapshot_manifest.get("schema_version") != current["schema_version"]:
-        return False
     if snapshot_manifest.get("classifier") != current["classifier"]:
         return False
+    if schema_version == CARD_CHARGE_POLICY_MANIFEST_VERSION:
+        if snapshot_manifest.get("profile_selectors") != current["profile_selectors"]:
+            return False
     snapshot_cards = snapshot_manifest.get("cards")
     current_cards = current["cards"]
     if not isinstance(snapshot_cards, dict) or set(snapshot_cards) != set(current_cards):

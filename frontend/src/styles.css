@@ -1085,6 +1085,30 @@ button.discount-badge:hover:not(:disabled) {
   font-size: 13px;
 }
 
+.settings-profile-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.settings-profile-row p {
+  margin: 4px 0 0;
+  color: #747b6f;
+  font-size: 13px;
+}
+
+.settings-grid .settings-toggle-control {
+  display: inline-flex;
+  grid-template-columns: none;
+  gap: 8px;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.settings-toggle-control input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+
 .danger-zone {
   display: grid;
   gap: 10px;

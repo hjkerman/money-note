@@ -445,6 +445,7 @@ class _MobileSettingsScreenState extends State<MobileSettingsScreen> {
   late final TextEditingController cardLimit;
   late final TextEditingController baseIncome;
   late final TextEditingController interestExpense;
+  late bool transitFollowsOwner;
 
   @override
   void initState() {
@@ -458,6 +459,8 @@ class _MobileSettingsScreenState extends State<MobileSettingsScreen> {
         text: settings['base_next_month_liquidity'] ?? '');
     interestExpense =
         TextEditingController(text: settings['interest_expense'] ?? '');
+    transitFollowsOwner =
+        widget.state.transitDiscountProfile?.followsOwner ?? false;
   }
 
   @override
@@ -507,6 +510,23 @@ class _MobileSettingsScreenState extends State<MobileSettingsScreen> {
             keyboardType: TextInputType.number,
             onSave: () => _save('interest_expense', interestExpense.text),
           ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: MoneyCard(
+              child: SwitchListTile.adaptive(
+                contentPadding: EdgeInsets.zero,
+                title: const Text(
+                  '교통카드 할인',
+                  style: TextStyle(fontWeight: FontWeight.w900),
+                ),
+                subtitle: const Text(
+                  '이번 달부터 본인카드의 할인 계산식과 월별 혜택 여부를 함께 따릅니다.',
+                ),
+                value: transitFollowsOwner,
+                onChanged: widget.state.isBusy ? null : _setTransitProfile,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -514,6 +534,16 @@ class _MobileSettingsScreenState extends State<MobileSettingsScreen> {
 
   Future<void> _save(String key, String value) async {
     await widget.state.updateSetting(key, value.trim());
+  }
+
+  Future<void> _setTransitProfile(bool value) async {
+    setState(() => transitFollowsOwner = value);
+    await widget.state.updateTransitDiscountProfile(value);
+    if (!mounted) return;
+    setState(() {
+      transitFollowsOwner =
+          widget.state.transitDiscountProfile?.followsOwner ?? false;
+    });
   }
 }
 

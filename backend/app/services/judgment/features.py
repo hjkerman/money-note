@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
+
 from app.services.card_charge import DiscountCard, evaluate_stored_charge, normalize_discount_policy
 
 from .common import title_contains
@@ -53,7 +55,10 @@ QUESTIONABLE_CLAIM_WORDS = ("커피", "카페", "빽다방", "편지지", "간�
 DIGNITY_WORDS = ("세탁", "의류", "옷", "미용", "이발", "헤어", "면도", "칫솔", "치약", "샴푸", "비누", "화장품")
 
 
-def panel_net_amount(row: dict) -> float:
+def panel_net_amount(
+    row: dict,
+    settings: Mapping[str, str] | None = None,
+) -> float:
     if row.get("panel_type") != "claim":
         return max(0, float(row.get("amount_value") or 0))
     return max(
@@ -67,6 +72,7 @@ def panel_net_amount(row: dict) -> float:
             str(row.get("month") or ""),
             row.get("title"),
             DiscountCard.OWNER,
+            settings=settings,
         ).effective_discount_amount,
     )
 

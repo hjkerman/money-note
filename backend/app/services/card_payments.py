@@ -133,6 +133,7 @@ def discount_month_status(month: str, scope: str = "owner") -> dict[str, Any]:
     _validate_month(month)
     _validate_discount_scope(scope)
     with session() as conn:
+        settings = _settings_values(conn)
         policy = _discount_policy_value(conn, month, scope)
         rows = [] if scope == "family" else conn.execute(
             """
@@ -171,6 +172,7 @@ def discount_month_status(month: str, scope: str = "owner") -> dict[str, Any]:
             DiscountCard.OWNER,
             merchant=row["usage_place"],
             spending_category=row["spending_category"],
+            settings=settings,
         ).effective_discount_amount
         for row in rows
         if row["payment_key"]
@@ -220,6 +222,7 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
     allocations: list[tuple[str, int]] = []
     seen_keys: set[str] = set()
     with session() as conn:
+        settings = _settings_values(conn)
         for allocation in payload.allocations:
             key = allocation.entry_payment_key
             amount = int(allocation.amount_value)
@@ -292,6 +295,7 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
                     DiscountCard.OWNER,
                     merchant=row["usage_place"],
                     spending_category=row["spending_category"],
+                    settings=settings,
                 ).effective_discount_amount
                 remaining = max(0.0, float(row["amount_value"] or 0) - float(paid or 0) - current_discount)
             if amount > remaining + 0.0001:
@@ -673,6 +677,7 @@ def _payment_rows_for_batch(context: CardPaymentContext) -> list[dict[str, Any]]
         return []
     payment_month = context.payment_month
     with session() as conn:
+        settings = _settings_values(conn)
         rows = conn.execute(
             """
             SELECT ledger_entries.*,
@@ -719,7 +724,10 @@ def _payment_rows_for_batch(context: CardPaymentContext) -> list[dict[str, Any]]
         deferred_from = data.pop("deferred_from_payment_month", None)
         deferred_target = data.pop("deferred_target_payment_month", None)
         usage_month = str(data.get("entry_date") or "")[:7]
-        discount_policy = _setting_value(f"card_discount_policy:owner:{usage_month}") or "enabled"
+        discount_policy = normalize_discount_policy(
+            settings.get(f"card_discount_policy:owner:{usage_month}"),
+            "owner",
+        )
         charge = evaluate_stored_charge(
             original,
             _manual_entry_discount({**data, "override_discount_amount": override_discount}),
@@ -730,6 +738,7 @@ def _payment_rows_for_batch(context: CardPaymentContext) -> list[dict[str, Any]]
             DiscountCard.OWNER,
             merchant=data.get("usage_place"),
             spending_category=data.get("spending_category"),
+            settings=settings,
         )
         discount = charge.effective_discount_amount
         data.update(
@@ -737,7 +746,7 @@ def _payment_rows_for_batch(context: CardPaymentContext) -> list[dict[str, Any]]
                 "original_amount": original,
                 "immediate_paid_amount": immediate,
                 "discount_amount": discount,
-                "discount_policy": discount_policy,
+                "discount_policy": charge.month_policy,
                 "automatic_discount_eligible": charge.automatic_discount_eligible,
                 "automatic_discount_amount": charge.automatic_discount_amount,
                 "effective_discount_amount": discount,
@@ -934,6 +943,13 @@ def _discount_policy_value(conn: Any, month: str, scope: str) -> str:
     ).fetchone()
     value = str(row["value"]) if row else default_discount_policy(scope)
     return normalize_discount_policy(value, scope)
+
+
+def _settings_values(conn: Any) -> dict[str, str]:
+    return {
+        str(row["key"]): str(row["value"])
+        for row in conn.execute("SELECT key, value FROM app_settings").fetchall()
+    }
 
 
 def _next_month(value: date) -> str:

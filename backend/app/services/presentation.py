@@ -65,6 +65,7 @@ def present_ledger_entry(
             DiscountCard.OWNER,
             merchant=data.get("usage_place"),
             spending_category=data.get("spending_category"),
+            settings=settings,
         )
         if is_card_expense
         else None
@@ -74,7 +75,7 @@ def present_ledger_entry(
     effective_discount = charge.effective_discount_amount if charge else 0
     data.update(
         {
-            "discount_policy": policy,
+            "discount_policy": charge.month_policy if charge else policy,
             "automatic_discount_eligible": automatic_eligible,
             "automatic_discount_amount": automatic_discount,
             "effective_discount_amount": effective_discount,
@@ -111,6 +112,10 @@ def present_monthly_panel(
         settings.get(f"card_discount_policy:{scope}:{month}"),
         scope,
     )
+    owner_policy = normalize_discount_policy(
+        settings.get(f"card_discount_policy:owner:{month}"),
+        "owner",
+    )
     amount = int(data.get("amount_value") or 0)
     is_card_panel = panel_type in {"claim", "family_card"}
     default_card = DiscountCard.FAMILY if panel_type == "family_card" else DiscountCard.OWNER
@@ -123,6 +128,7 @@ def present_monthly_panel(
             month,
             data.get("title"),
             default_card,
+            settings=settings,
         )
         if is_card_panel
         else None
@@ -132,7 +138,7 @@ def present_monthly_panel(
     effective_discount = charge.effective_discount_amount if charge else 0
     data.update(
         {
-            "discount_policy": policy,
+            "discount_policy": charge.month_policy if charge else owner_policy,
             "automatic_discount_eligible": automatic_eligible,
             "automatic_discount_amount": automatic_discount,
             "effective_discount_amount": effective_discount,

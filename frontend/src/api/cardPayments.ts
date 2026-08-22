@@ -1,5 +1,14 @@
 import { deleteJson, getJson, patchJson, postJson } from "./client";
-import { CardDiscountMonth, CardDiscountPolicy, CardPaymentEvent, CardPaymentStatus, LedgerEntry, MonthCloseStatus } from "./types";
+import {
+  CardDiscountMonth,
+  CardDiscountPolicy,
+  CardPaymentEvent,
+  CardPaymentStatus,
+  LedgerEntry,
+  MonthCloseStatus,
+  TransitDiscountProfile,
+  TransitDiscountProfileStatus,
+} from "./types";
 
 export async function fetchCurrentCardPayments(): Promise<CardPaymentStatus> {
   return getJson("/api/card-payments/current");
@@ -18,6 +27,19 @@ export async function updateCardDiscountPolicy(
   policy: CardDiscountPolicy,
 ): Promise<CardDiscountMonth> {
   return patchJson(`/api/card-discounts/months/${month}?scope=${scope}`, { policy });
+}
+
+export async function fetchTransitDiscountProfile(
+  month: string,
+): Promise<TransitDiscountProfileStatus> {
+  return getJson(`/api/card-discounts/profiles/transit/${month}`);
+}
+
+export async function updateTransitDiscountProfile(
+  month: string,
+  profile: TransitDiscountProfile,
+): Promise<TransitDiscountProfileStatus> {
+  return patchJson(`/api/card-discounts/profiles/transit/${month}`, { profile });
 }
 
 export async function updateEntryDiscount(entryPaymentKey: string, discountAmount: number): Promise<LedgerEntry> {

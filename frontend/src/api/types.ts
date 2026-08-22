@@ -152,6 +152,14 @@ export type CardPaymentStatus = {
 
 export type CardDiscountPolicy = "enabled" | "disabled";
 
+export type TransitDiscountProfile = "none" | "owner";
+
+export type TransitDiscountProfileStatus = {
+  card: "transit";
+  month: string;
+  profile: TransitDiscountProfile;
+};
+
 export type CardDiscountMonth = {
   month: string;
   scope: "owner" | "family";

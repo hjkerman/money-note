@@ -13,6 +13,13 @@ class DiscountCard(str, Enum):
     TRANSIT = "transit"
 
 
+class TransitDiscountProfile(str, Enum):
+    """교통카드가 사용할 자동 할인 정책의 출처."""
+
+    NONE = "none"
+    OWNER = "owner"
+
+
 @dataclass(frozen=True)
 class CardChargeInput:
     """실결제액 평가에 필요한 저장값과 미래 정책용 거래 문맥."""
@@ -26,6 +33,8 @@ class CardChargeInput:
     spending_category: str | None = None
     override_enabled: bool = False
     override_discount: int | None = None
+    transit_profile: TransitDiscountProfile = TransitDiscountProfile.NONE
+    owner_month_policy: str | None = None
 
 
 @dataclass(frozen=True)
@@ -43,4 +52,5 @@ class CardChargeResult:
     effective_discount_amount: int
     effective_amount: int
     policy_id: str
+    month_policy: str
     reason: str

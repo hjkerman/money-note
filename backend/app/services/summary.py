@@ -4,7 +4,12 @@ from calendar import monthrange
 
 from app.db import session
 from app.repositories.entries import list_entries
-from app.services.card_charge import DiscountCard, evaluate_stored_charge
+from app.repositories.settings import list_settings
+from app.services.card_charge import (
+    DiscountCard,
+    evaluate_stored_charge,
+    normalize_discount_policy,
+)
 from app.services.clock import app_today
 
 
@@ -76,18 +81,20 @@ def panel_total(panel_type: str) -> float:
 
 
 def panel_net_total(panel_type: str) -> float:
+    settings = list_settings()
     with session() as conn:
         rows = conn.execute(
             "SELECT month, title, amount_value, discount_amount, discount_override FROM monthly_panels WHERE panel_type = ?",
             (panel_type,),
         ).fetchall()
     return sum(
-        _panel_effective_amount(row, panel_type)
+        _panel_effective_amount(row, panel_type, settings)
         for row in rows
     )
 
 
 def current_entry_discount_total() -> float:
+    settings = list_settings()
     with session() as conn:
         rows = conn.execute(
             """
@@ -116,25 +123,35 @@ def current_entry_discount_total() -> float:
             row["amount_value"],
             _manual_entry_discount(row),
             bool(row["discount_override"] or row["override_discount_amount"] or row["aux_amount_value"]),
-            setting_text(f"card_discount_policy:owner:{str(row['entry_date'] or '')[:7]}", "enabled"),
+            normalize_discount_policy(
+                settings.get(
+                    f"card_discount_policy:owner:{str(row['entry_date'] or '')[:7]}"
+                ),
+                "owner",
+            ),
             str(row["entry_date"] or "")[:7],
             row["title"],
             DiscountCard.OWNER,
             merchant=row["usage_place"],
             spending_category=row["spending_category"],
+            settings=settings,
         ).effective_discount_amount
         for row in rows
     )
 
 
-def _panel_effective_amount(row: object, panel_type: str) -> int:
+def _panel_effective_amount(
+    row: object,
+    panel_type: str,
+    settings: dict[str, str],
+) -> int:
     if panel_type not in {"claim", "family_card"}:
         return max(0, int(row["amount_value"] or 0))
     scope = "family" if panel_type == "family_card" else "owner"
     card = DiscountCard.FAMILY if panel_type == "family_card" else DiscountCard.OWNER
-    policy = setting_text(
-        f"card_discount_policy:{scope}:{row['month']}",
-        "disabled" if panel_type == "family_card" else "enabled",
+    policy = normalize_discount_policy(
+        settings.get(f"card_discount_policy:{scope}:{row['month']}"),
+        scope,
     )
     return evaluate_stored_charge(
         row["amount_value"],
@@ -144,6 +161,7 @@ def _panel_effective_amount(row: object, panel_type: str) -> int:
         str(row["month"] or ""),
         row["title"],
         card,
+        settings=settings,
     ).effective_amount
 
 

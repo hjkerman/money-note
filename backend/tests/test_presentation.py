@@ -80,6 +80,43 @@ class ServerPresentationTest(unittest.TestCase):
         self.assertEqual(rows["family_card"]["discount_policy"], "disabled")
         self.assertEqual(rows["family_card"]["effective_discount_amount"], 0)
 
+    def test_transit_profile_is_server_driven_and_month_scoped(self) -> None:
+        with session() as conn:
+            conn.execute(
+                """
+                INSERT INTO ledger_entries(
+                    book_section, entry_kind, entry_date, title, amount_value,
+                    sort_order, payment_key
+                )
+                VALUES
+                    ('current', 'expense', '2026-07-31', '대중교통', 10000, 1, 'july-transit'),
+                    ('current', 'expense', '2026-08-01', '대중교통', 10000, 2, 'august-transit'),
+                    ('current', 'expense', '2026-08-02', '하이패스', 10000, 3, 'august-toll')
+                """
+            )
+            conn.executemany(
+                """
+                INSERT INTO app_settings(key, value, updated_at)
+                VALUES (?, ?, CURRENT_TIMESTAMP)
+                """,
+                (
+                    ("card_charge_profile:transit:2026-08", "owner"),
+                    ("card_discount_policy:owner:2026-08", "enabled"),
+                ),
+            )
+
+        rows = {
+            row["payment_key"]: row
+            for row in present_ledger_entries(list_entries("current"))
+        }
+
+        self.assertFalse(rows["july-transit"]["automatic_discount_eligible"])
+        self.assertEqual(rows["july-transit"]["effective_discount_amount"], 0)
+        self.assertTrue(rows["august-transit"]["automatic_discount_eligible"])
+        self.assertEqual(rows["august-transit"]["effective_discount_amount"], 120)
+        self.assertFalse(rows["august-toll"]["automatic_discount_eligible"])
+        self.assertEqual(rows["august-toll"]["effective_discount_amount"], 0)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -74,6 +74,36 @@ class SummaryCalculationTest(unittest.TestCase):
 
         self.assertEqual(panel_net_total("family_card"), 98_800)
 
+    def test_transit_profile_changes_current_month_total_without_rewriting_past(self) -> None:
+        with session() as conn:
+            conn.execute(
+                """
+                INSERT INTO ledger_entries(
+                    book_section, entry_kind, entry_date, title, amount_value,
+                    sort_order, payment_key
+                )
+                VALUES
+                    ('current', 'expense', '2026-07-31', '대중교통', 10000, 1, 'past-transit'),
+                    ('current', 'expense', '2026-08-01', '대중교통', 10000, 2, 'current-transit')
+                """
+            )
+            conn.executemany(
+                """
+                INSERT INTO app_settings(key, value, updated_at)
+                VALUES (?, ?, CURRENT_TIMESTAMP)
+                """,
+                (
+                    ("card_charge_profile:transit:2026-08", "owner"),
+                    ("card_discount_policy:owner:2026-08", "enabled"),
+                ),
+            )
+
+        summary = current_summary_values()
+
+        self.assertEqual(summary["current_spending_total"], 20_000)
+        self.assertEqual(summary["current_discount_total"], 120)
+        self.assertEqual(summary["card_total"], 19_880)
+
     def test_claim_and_family_card_do_not_affect_core_summary(self) -> None:
         with session() as conn:
             conn.execute(

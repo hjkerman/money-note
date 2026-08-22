@@ -57,7 +57,9 @@ def app_judgment(
                 "expense_count": len(expense_entries),
                 "cash_flow_total": sum(float(flow.get("amount_value") or 0) for flow in cash_flows),
                 "cash_flow_count": len(cash_flows),
-                "claim_total": sum(panel_net_amount(row) for row in claim_rows),
+                "claim_total": sum(
+                    panel_net_amount(row, settings) for row in claim_rows
+                ),
                 "claim_count": len(claim_rows),
                 "family_card_total": family_card_total,
                 "family_card_count": len(family_card_rows),

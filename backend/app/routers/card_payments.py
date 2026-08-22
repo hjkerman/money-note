@@ -1,7 +1,17 @@
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.auth import require_user
-from app.schemas import CardDiscountPolicyPatch, CardPaymentEventIn, LateCardEntryIn, PanelDiscountPatch
+from app.schemas import (
+    CardDiscountPolicyPatch,
+    CardPaymentEventIn,
+    LateCardEntryIn,
+    PanelDiscountPatch,
+    TransitDiscountProfilePatch,
+)
+from app.services.card_charge import (
+    set_transit_discount_profile,
+    transit_discount_profile_status,
+)
 from app.services.card_payments import (
     acknowledge_liquidity_reset,
     cancel_toll_deferral,
@@ -43,6 +53,29 @@ def patch_card_discount_month(
 ) -> dict:
     try:
         return set_discount_month_policy(month, patch.policy, scope)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@discounts_router.get("/profiles/transit/{month}")
+def get_transit_discount_profile(
+    month: str,
+    _: dict = Depends(require_user),
+) -> dict[str, str]:
+    try:
+        return transit_discount_profile_status(month)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@discounts_router.patch("/profiles/transit/{month}")
+def patch_transit_discount_profile(
+    month: str,
+    patch: TransitDiscountProfilePatch,
+    _: dict = Depends(require_user),
+) -> dict[str, str]:
+    try:
+        return set_transit_discount_profile(month, patch.profile)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 

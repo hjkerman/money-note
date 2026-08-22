@@ -5,6 +5,7 @@ from unittest.mock import patch
 from app.services.card_charge import (
     CardChargeInput,
     DiscountCard,
+    TransitDiscountProfile,
     evaluate_card_charge,
     evaluate_stored_charge,
     policy_for,
@@ -78,6 +79,98 @@ class CardChargePolicyTest(unittest.TestCase):
         self.assertEqual(toll.effective_discount_amount, 0)
         self.assertEqual(transit.policy_id, "transit-no-automatic-discount")
         self.assertFalse(transit.automatic_discount_eligible)
+
+    def test_transit_owner_profile_follows_owner_formula_and_month_switch(self) -> None:
+        settings = {
+            "card_charge_profile:transit:2026-08": "owner",
+            "card_discount_policy:owner:2026-08": "enabled",
+        }
+        enabled = evaluate_stored_charge(
+            10_000,
+            None,
+            False,
+            "disabled",
+            "2026-08",
+            "대중교통",
+            DiscountCard.OWNER,
+            settings=settings,
+        )
+        settings["card_discount_policy:owner:2026-08"] = "disabled"
+        disabled = evaluate_stored_charge(
+            10_000,
+            None,
+            False,
+            "enabled",
+            "2026-08",
+            "대중교통",
+            DiscountCard.OWNER,
+            settings=settings,
+        )
+
+        self.assertEqual(enabled.policy_id, "owner-flat-statement-1.2")
+        self.assertEqual(enabled.month_policy, "enabled")
+        self.assertEqual(enabled.effective_discount_amount, 120)
+        self.assertTrue(disabled.automatic_discount_eligible)
+        self.assertEqual(disabled.month_policy, "disabled")
+        self.assertEqual(disabled.effective_discount_amount, 0)
+
+    def test_transit_profile_change_only_applies_from_its_effective_month(self) -> None:
+        settings = {
+            "card_charge_profile:transit:2026-08": "owner",
+            "card_discount_policy:owner:2026-07": "enabled",
+            "card_discount_policy:owner:2026-08": "enabled",
+        }
+        july = evaluate_stored_charge(
+            10_000,
+            None,
+            False,
+            "enabled",
+            "2026-07",
+            "교통카드",
+            DiscountCard.OWNER,
+            settings=settings,
+        )
+        august = evaluate_stored_charge(
+            10_000,
+            None,
+            False,
+            "enabled",
+            "2026-08",
+            "교통카드",
+            DiscountCard.OWNER,
+            settings=settings,
+        )
+        toll = evaluate_stored_charge(
+            10_000,
+            None,
+            False,
+            "enabled",
+            "2026-08",
+            "고속도로 통행료",
+            DiscountCard.OWNER,
+            settings=settings,
+        )
+
+        self.assertEqual(july.policy_id, "transit-no-automatic-discount")
+        self.assertEqual(july.effective_discount_amount, 0)
+        self.assertEqual(august.policy_id, "owner-flat-statement-1.2")
+        self.assertEqual(august.effective_discount_amount, 120)
+        self.assertEqual(toll.policy_id, "toll-no-automatic-discount")
+        self.assertFalse(toll.automatic_discount_eligible)
+
+    def test_direct_transit_input_can_select_owner_profile(self) -> None:
+        result = evaluate_card_charge(
+            CardChargeInput(
+                card=DiscountCard.TRANSIT,
+                usage_month="2026-08",
+                original_amount=10_000,
+                month_policy="disabled",
+                owner_month_policy="enabled",
+                transit_profile=TransitDiscountProfile.OWNER,
+            )
+        )
+
+        self.assertEqual(result.effective_discount_amount, 120)
 
     def test_manual_override_wins_for_every_card(self) -> None:
         for card in DiscountCard:

@@ -97,6 +97,7 @@ export function App() {
     settings,
     status,
     summary,
+    transitDiscountProfile,
     withRefresh,
   } = useAppRefresh({
     setCashFlowForm,
@@ -231,6 +232,7 @@ export function App() {
     handleSharePinSet,
     handleSnapshotDownload,
     handleSnapshotRestore,
+    handleTransitDiscountFollowsOwner,
   } = useSettingsHandlers({
     cardLimitInput,
     interestExpenseInput,
@@ -317,18 +319,18 @@ export function App() {
       settings={
         showSettings ? (
           <SettingsModal
-              familyCardLast4Input={familyCardLast4Input}
-              cardLimitInput={cardLimitInput}
-              interestExpenseInput={interestExpenseInput}
-              isBusy={isBusy}
-              onApkDownload={() => void handleApkDownload()}
-              onCardLast4Save={(key, value) => void handleCardLast4Save(key, value)}
+            familyCardLast4Input={familyCardLast4Input}
+            cardLimitInput={cardLimitInput}
+            interestExpenseInput={interestExpenseInput}
+            isBusy={isBusy}
+            onApkDownload={() => void handleApkDownload()}
+            onCardLast4Save={(key, value) => void handleCardLast4Save(key, value)}
             onClose={() => setShowSettings(false)}
             onCardLimitSave={() => void handleCardLimitSave()}
             onInterestExpenseSave={() => void handleInterestExpenseSave()}
-              onLedgerReset={() => void handleLedgerReset()}
-              onOperationStatsLoad={() => void handleOperationStatsLoad()}
-              onPasswordChange={() => void handlePasswordChange()}
+            onLedgerReset={() => void handleLedgerReset()}
+            onOperationStatsLoad={() => void handleOperationStatsLoad()}
+            onPasswordChange={() => void handlePasswordChange()}
             onPreRestoreDelete={(filename) => void handlePreRestoreDelete(filename)}
             onPreRestoreDeleteAll={() => void handlePreRestoreDeleteAll()}
             onPreRestoreList={() => void handlePreRestoreList()}
@@ -337,6 +339,9 @@ export function App() {
             onSharePinSet={() => void handleSharePinSet()}
             onSnapshotDownload={() => void handleSnapshotDownload()}
             onSnapshotRestore={(file) => void handleSnapshotRestore(file)}
+            onTransitDiscountFollowsOwnerChange={(enabled) =>
+              void handleTransitDiscountFollowsOwner(enabled)
+            }
             ownerCardLast4Input={ownerCardLast4Input}
             operationStats={operationStats}
             passwordForm={passwordForm}
@@ -350,6 +355,7 @@ export function App() {
             setPasswordForm={setPasswordForm}
             setResetPassword={setResetPassword}
             setScheduledIncomeInput={setScheduledIncomeInput}
+            transitDiscountFollowsOwner={transitDiscountProfile?.profile === "owner"}
           />
         ) : null
       }

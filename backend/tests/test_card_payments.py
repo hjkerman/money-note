@@ -19,6 +19,10 @@ from app.services.card_payments import (
     set_entry_discount,
     set_discount_month_policy,
 )
+from app.services.card_charge import (
+    set_transit_discount_profile,
+    transit_discount_profile_status,
+)
 
 
 class CardPaymentDeferralTest(unittest.TestCase):
@@ -173,6 +177,27 @@ class CardPaymentDeferralTest(unittest.TestCase):
 
         self.assertEqual(discount_month_status("2026-05", "owner")["policy"], "disabled")
         self.assertEqual(discount_month_status("2026-05", "family")["policy"], "enabled")
+
+    def test_transit_profile_setting_is_inherited_forward_but_not_backward(self) -> None:
+        self.assertEqual(
+            transit_discount_profile_status("2026-07")["profile"],
+            "none",
+        )
+
+        set_transit_discount_profile("2026-08", "owner")
+
+        self.assertEqual(
+            transit_discount_profile_status("2026-07")["profile"],
+            "none",
+        )
+        self.assertEqual(
+            transit_discount_profile_status("2026-08")["profile"],
+            "owner",
+        )
+        self.assertEqual(
+            transit_discount_profile_status("2026-09")["profile"],
+            "owner",
+        )
 
     def test_current_entry_manual_discount_survives_disabled_month_policy(self) -> None:
         with session() as conn:

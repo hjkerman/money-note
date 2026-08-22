@@ -23,8 +23,7 @@ from app.share_auth import SENSITIVE_SHARE_SETTING_KEYS
 
 
 SNAPSHOT_SCHEMA_VERSION = 4
-LEGACY_SNAPSHOT_SCHEMA_VERSIONS = {3}
-SUPPORTED_SNAPSHOT_SCHEMA_VERSIONS = LEGACY_SNAPSHOT_SCHEMA_VERSIONS | {SNAPSHOT_SCHEMA_VERSION}
+SUPPORTED_SNAPSHOT_SCHEMA_VERSIONS = {SNAPSHOT_SCHEMA_VERSION}
 PRE_RESTORE_FILENAME_RE = re.compile(r"^pre_restore-\d{8}T\d{6}Z(?:-\d+)?\.money-note-snapshot\.json$")
 SNAPSHOT_TABLES = [
     "ledger_entries",
@@ -292,24 +291,18 @@ def _validate_snapshot(snapshot: dict[str, Any]) -> None:
     if required_manifest_missing:
         raise ValueError(f"snapshot manifest is missing tables: {', '.join(required_manifest_missing)}")
     policy_context = snapshot.get("card_charge_policy")
-    if schema_version == SNAPSHOT_SCHEMA_VERSION and not isinstance(policy_context, dict):
+    if not isinstance(policy_context, dict):
         raise ValueError("snapshot card_charge_policy is missing")
     expected_manifest = _build_manifest(
         data,
         _manifest_table_columns(manifest),
         table_names=[table for table in SNAPSHOT_TABLES if table in manifest_tables],
-        policy_context=policy_context if schema_version == SNAPSHOT_SCHEMA_VERSION else None,
-        snapshot_metadata=(
-            _snapshot_metadata(snapshot)
-            if schema_version == SNAPSHOT_SCHEMA_VERSION
-            else None
-        ),
+        policy_context=policy_context,
+        snapshot_metadata=_snapshot_metadata(snapshot),
     )
     if manifest != expected_manifest:
         raise ValueError("snapshot manifest mismatch")
-    if schema_version == SNAPSHOT_SCHEMA_VERSION and not card_charge_policy_manifest_compatible(
-        policy_context,
-    ):
+    if not card_charge_policy_manifest_compatible(policy_context):
         raise ValueError("snapshot card charge policy does not match this server")
 
 

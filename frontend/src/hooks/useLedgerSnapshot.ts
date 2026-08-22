@@ -12,6 +12,7 @@ import {
   fetchMonthCloseStatus,
   fetchSettings,
   fetchSummary,
+  fetchTransitDiscountProfile,
 } from "../api";
 import { monthFirstDay, monthLastDay, previousMonthFirstDay } from "../utils";
 
@@ -32,6 +33,7 @@ export async function fetchLedgerSnapshot() {
     cardPayments,
     ownerDiscountMonth,
     familyDiscountMonth,
+    transitDiscountProfile,
   ] = await Promise.all([
     fetchCurrentEntries(),
     fetchConfirmedPlannedEntries(),
@@ -48,6 +50,7 @@ export async function fetchLedgerSnapshot() {
     fetchCurrentCardPayments(),
     fetchCardDiscountMonth(calendarMonth, "owner"),
     fetchCardDiscountMonth(calendarMonth, "family"),
+    fetchTransitDiscountProfile(calendarMonth),
   ]);
 
   return {
@@ -64,6 +67,7 @@ export async function fetchLedgerSnapshot() {
     monthCloseStatus,
     ownerDiscountMonth,
     familyDiscountMonth,
+    transitDiscountProfile,
   };
 }
 

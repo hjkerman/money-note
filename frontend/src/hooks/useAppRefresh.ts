@@ -12,6 +12,7 @@ import {
   PreRestoreBackup,
   Settings,
   Summary,
+  TransitDiscountProfileStatus,
 } from "../api";
 import { useLedgerSnapshot } from "./useLedgerSnapshot";
 import { PanelType } from "../types";
@@ -54,6 +55,7 @@ export function useAppRefresh({
   const [cardPayments, setCardPayments] = useState<CardPaymentStatus | null>(null);
   const [ownerDiscountMonth, setOwnerDiscountMonth] = useState<CardDiscountMonth | null>(null);
   const [familyDiscountMonth, setFamilyDiscountMonth] = useState<CardDiscountMonth | null>(null);
+  const [transitDiscountProfile, setTransitDiscountProfile] = useState<TransitDiscountProfileStatus | null>(null);
   const [monthCloseStatus, setMonthCloseStatus] = useState<MonthCloseStatus | null>(null);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [operationStats, setOperationStats] = useState<OperationStats | null>(null);
@@ -99,6 +101,7 @@ export function useAppRefresh({
       setMonthCloseStatus(snapshot.monthCloseStatus);
       setOwnerDiscountMonth(snapshot.ownerDiscountMonth);
       setFamilyDiscountMonth(snapshot.familyDiscountMonth);
+      setTransitDiscountProfile(snapshot.transitDiscountProfile);
       setExpenseForm((form) => (form.date === today ? { ...form, date: snapshot.monthCloseStatus.calendar_date } : form));
       setCashFlowForm((form) =>
         form.occurredOn === today ? { ...form, occurredOn: snapshot.monthCloseStatus.calendar_date } : form,
@@ -188,6 +191,7 @@ export function useAppRefresh({
     settings,
     status,
     summary,
+    transitDiscountProfile,
     withRefresh,
   };
 }

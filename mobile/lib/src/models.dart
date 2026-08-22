@@ -322,6 +322,25 @@ class CardDiscountMonth {
   }
 }
 
+class TransitDiscountProfileStatus {
+  TransitDiscountProfileStatus({
+    required this.month,
+    required this.profile,
+  });
+
+  final String month;
+  final String profile;
+
+  bool get followsOwner => profile == 'owner';
+
+  factory TransitDiscountProfileStatus.fromJson(Map<String, dynamic> json) {
+    return TransitDiscountProfileStatus(
+      month: json['month'] as String? ?? '',
+      profile: json['profile'] as String? ?? 'none',
+    );
+  }
+}
+
 class MonthCloseStatus {
   MonthCloseStatus({
     required this.calendarDate,

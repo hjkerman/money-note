@@ -131,6 +131,20 @@ class MoneyNoteApiClient {
         CardDiscountMonth.fromJson);
   }
 
+  Future<TransitDiscountProfileStatus> transitDiscountProfile(String month) {
+    return _get('/api/card-discounts/profiles/transit/$month',
+        TransitDiscountProfileStatus.fromJson);
+  }
+
+  Future<TransitDiscountProfileStatus> updateTransitDiscountProfile(
+      String month, String profile) {
+    return _patch(
+      '/api/card-discounts/profiles/transit/$month',
+      {'profile': profile},
+      TransitDiscountProfileStatus.fromJson,
+    );
+  }
+
   Future<MonthCloseStatus> monthCloseStatus() {
     return _get('/api/month/current/status', MonthCloseStatus.fromJson);
   }

@@ -220,7 +220,7 @@
 
 서버 표시 투영 필드:
 
-- `discount_policy`: 해당 사용월 본인카드 할인 정책
+- `discount_policy`: 해당 항목에 실제 적용한 월 혜택 상태. 교통카드 `owner` 프로필이면 본인카드 상태를 반환한다.
 - `automatic_discount_eligible`: 기본 자동 할인 대상 여부
 - `automatic_discount_amount`: 기본 정책상 예상 할인액
 - `effective_discount_amount`: 월 정책과 수동 override를 모두 반영한 최종 할인액
@@ -683,7 +683,8 @@ next_month_liquidity
 - 저장된 정책이 없으면 본인회원 카드는 `enabled`, 가족카드는 `disabled`로 간주한다.
 - `policy = disabled`이면 계산상 할인액은 모두 0원이다.
 - 그 외에는 해당 사용월의 카드 정책을 적용한다. 현재 본인카드와 가족카드는 각각 `floor(amount_value * 0.012)`를 사용한다.
-- 통행료카드와 교통카드는 별도 카드 정책으로 분류하며 자동 할인액은 0원이다.
+- 통행료카드는 별도 카드 정책으로 분류하며 자동 할인액은 항상 0원이다.
+- 교통카드는 월별 프로필이 `none`이면 자동 할인액 0원, `owner`이면 본인카드 계산식과 해당 월 본인카드 혜택 상태를 따른다.
 - `discount_override = 1`이면 기본 할인 계산 대신 저장된 할인액을 쓴다. 저장된 할인액이 0원이면 할인 제외로 취급한다.
 
 ### `PATCH /api/card-discounts/months/{month}?scope=owner|family`
@@ -693,6 +694,28 @@ next_month_liquidity
 ```json
 { "policy": "enabled" }
 ```
+
+### `GET /api/card-discounts/profiles/transit/{month}`
+
+해당 사용월에 유효한 교통카드 할인 프로필을 조회한다. 저장된 이력이 없으면 기존 동작인 `none`을 반환한다.
+
+```json
+{
+  "card": "transit",
+  "month": "2026-08",
+  "profile": "none"
+}
+```
+
+### `PATCH /api/card-discounts/profiles/transit/{month}`
+
+교통카드 프로필을 해당 월부터 적용되는 이력으로 저장한다. `owner`는 본인카드 계산식과 본인카드의 해당 월 혜택 `enabled`/`disabled` 상태를 함께 따른다. `none`은 자동 할인을 적용하지 않는다.
+
+```json
+{ "profile": "owner" }
+```
+
+설정은 월 단위다. 같은 월에 값을 다시 바꾸면 해당 월 키를 덮어쓰므로 그 월의 교통카드 거래 전체가 새 값으로 재계산되며 이전 월은 유지된다. 통행료카드에는 영향을 주지 않는다.
 
 ### `PATCH /api/card-discounts/entries/{entry_payment_key}`
 
@@ -1029,7 +1052,7 @@ GET /api/cash-flows?from=2026-07-01&to=2026-07-31&limit=100
 - `schema_version`
 - `exported_at`
 - `range`
-- `card_charge_policy`: 카드별 정책 이력과 교통·통행 분류 규칙의 검증용 명세
+- `card_charge_policy`: 카드별 정책 이력, 교통카드 프로필 선택 의미와 교통·통행 분류 규칙의 검증용 명세
 - `manifest`: canonical JSON 기준 SHA-256 무결성 정보. `manifest` 자기 자신은 hash 대상에서 제외한다.
 - 전체 `ledger_entries`, `monthly_panels`, `cash_flows`
 - 전체 `card_payment_batches`, `card_payment_batch_items`
@@ -1083,9 +1106,10 @@ JSON snapshot을 복원한다. 현재 비밀번호를 다시 확인하며, 장�
       "scope": "all"
     },
     "card_charge_policy": {
-      "schema_version": 1,
+      "schema_version": 2,
       "covered_through": "2026-06",
       "classifier": {"schema_version": 1},
+      "profile_selectors": {"transit": {"schema_version": 1}},
       "cards": {}
     },
     "manifest": {
@@ -1125,7 +1149,7 @@ JSON snapshot을 복원한다. 현재 비밀번호를 다시 확인하며, 장�
 
 하위호환 정책상 manifest 검증을 통과한 snapshot의 알 수 없는 컬럼은 현재 서버 DB에 삽입하지 않고 무시한다. 구버전 snapshot에 현재 서버의 새 컬럼이 없으면 DB 기본값 또는 `NULL` 허용 정책을 따른다. 단, 필수 테이블 누락, 민감 설정 포함, manifest 불일치, 외래키 오류, 기본값 없는 `NOT NULL` 컬럼 누락은 복원 실패로 처리한다.
 
-현재 서버는 `schema_version = 4`를 생성하고 정책 명세가 없던 `schema_version = 3`도 복원한다. 버전 4의 `card_charge_policy`와 주요 상단 메타데이터는 데이터와 함께 SHA-256 검증 대상이다. Snapshot 당시 정책이나 분류 규칙이 현재 서버에서 바뀌었으면 복원하지 않으며, 명세의 `covered_through` 이후부터 적용되는 새 binding 추가만 허용한다. 이 명세는 Snapshot에서 임의 정책을 실행하기 위한 입력이 아니다.
+현재 서버는 `schema_version = 4`만 생성하고 복원한다. 버전 4의 `card_charge_policy`와 주요 상단 메타데이터는 데이터와 함께 SHA-256 검증 대상이다. 카드 정책 명세 v2는 교통카드 프로필 선택기의 의미도 검증한다. 2026-08-20에 남아 있던 v4 Snapshot 전환을 위해 내부 카드 정책 명세 v1 읽기 경로만 유지하며, 파일 형식 v3 이하는 지원하지 않는다. Snapshot 당시 정책이나 분류 규칙이 현재 서버에서 바뀌었으면 복원하지 않으며, 명세의 `covered_through` 이후부터 적용되는 새 binding 추가만 허용한다. 프로필 선택 이력은 비민감 `app_settings` 데이터로 함께 복원한다. 이 명세는 Snapshot에서 임의 정책을 실행하기 위한 입력이 아니다.
 
 복원은 운영 DB를 건드리기 전에 동일한 삽입 경로로 임시 DB dry-run을 수행한다. 또한 실제 복원 직전 현재 운영 DB를 `pre_restore-...money-note-snapshot.json` 파일로 반드시 저장하고, 이 파일의 manifest 검증에 실패하면 복원을 중단한다.
 

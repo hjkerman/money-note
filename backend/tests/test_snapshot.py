@@ -348,18 +348,45 @@ class SnapshotTest(unittest.TestCase):
 
         self._assert_seed_data_preserved()
 
-    def test_restore_accepts_schema_version_3_snapshot_without_policy_manifest(self) -> None:
+    def test_restore_preserves_transit_profile_history(self) -> None:
         self._seed_data()
-        _, snapshot = export_snapshot(date(2026, 6, 11))
-        snapshot["schema_version"] = 3
-        snapshot.pop("card_charge_policy")
-        snapshot["manifest"] = self._rebuilt_manifest(snapshot["data"])
-        snapshot["snapshot_id"] = snapshot["manifest"]["data_sha256"]
+        with session() as conn:
+            conn.executemany(
+                """
+                INSERT INTO app_settings(key, value, updated_at)
+                VALUES (?, ?, CURRENT_TIMESTAMP)
+                """,
+                (
+                    ("card_charge_profile:transit:2026-08", "owner"),
+                    ("card_charge_profile:transit:2027-01", "none"),
+                ),
+            )
+        _, snapshot = export_snapshot(date(2027, 1, 1))
 
-        restored = restore_snapshot(snapshot)
+        with session() as conn:
+            conn.execute(
+                "DELETE FROM app_settings WHERE key LIKE 'card_charge_profile:transit:%'"
+            )
+        restore_snapshot(snapshot)
 
-        self.assertEqual(restored["ledger_entries"], 3)
-        self.assertEqual(restored["monthly_panels"], 4)
+        with session() as conn:
+            restored = {
+                row["key"]: row["value"]
+                for row in conn.execute(
+                    """
+                    SELECT key, value FROM app_settings
+                    WHERE key LIKE 'card_charge_profile:transit:%'
+                    ORDER BY key
+                    """
+                ).fetchall()
+            }
+        self.assertEqual(
+            restored,
+            {
+                "card_charge_profile:transit:2026-08": "owner",
+                "card_charge_profile:transit:2027-01": "none",
+            },
+        )
 
     def test_restore_rejects_policy_manifest_tampering_without_touching_db(self) -> None:
         self._seed_data()
