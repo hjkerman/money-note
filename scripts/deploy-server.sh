@@ -181,7 +181,18 @@ if [[ "$frontend_changed" == "1" ]]; then
   rsync -a --delete "$repo_path/frontend/dist/" "$web_root/"
 fi
 
-curl --fail --silent --show-error http://127.0.0.1:18080/health >/dev/null
+health_ready=0
+for ((attempt=1; attempt<=30; attempt++)); do
+  if curl --fail --silent http://127.0.0.1:18080/health >/dev/null; then
+    health_ready=1
+    break
+  fi
+  sleep 1
+done
+if [[ "$health_ready" != "1" ]]; then
+  printf '오류: API가 30초 안에 정상 상태가 되지 않았습니다.\n' >&2
+  curl --fail --silent --show-error http://127.0.0.1:18080/health >/dev/null
+fi
 printf '%s\n' "$new_head" > "$deployed_ref.tmp"
 mv -f "$deployed_ref.tmp" "$deployed_ref"
 
