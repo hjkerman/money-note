@@ -60,7 +60,9 @@ Android 알림 수집은 `NotificationListenerService` 하나를 공용 입구�
 
 카드 분류, 사용월별 정책 선택, 교통카드 프로필 선택, 자동 할인, 수동 override와 실결제액 계산은 `backend/app/services/card_charge/`만 소유한다. 교통카드의 `owner` 프로필은 카드 정체성을 합치지 않고 본인카드 정책과 월 스위치만 위임받는다. `backend/app/services/discounts.py`는 과거 Python import를 위한 호환층이다. `backend/app/services/presentation.py`는 DB 행을 API 표시 모델로 바꾼다. 프론트엔드와 모바일 모델은 이 투영 필드를 소비할 뿐 같은 규칙을 다시 구현하지 않는다.
 
-Snapshot v5는 카드별 정책 binding, 계산 매개변수, 프로필 선택 의미, 분류 규칙과 데이터 기준 마지막 월을 `card_charge_policy` 명세로 기록하고 장부 데이터·주요 상단 메타데이터와 함께 해시한다. 교통카드 프로필 선택 이력은 비민감 `app_settings`로 함께 백업한다. 복원은 정책 명세를 실행하지 않으며 당시 정책이 현재 서버에 보존되어 있는지만 확인한다. 명세의 `covered_through` 이후부터 적용되는 binding 추가는 허용한다. v4 파일은 원문 검증 뒤 유동성 key migration을 거쳐 복원하며, 현재 보유한 v4 백업의 전환을 위해 프로필 선택기가 없던 내부 카드 정책 명세 v1 읽기 경로도 유지한다.
+현금성 고정지출 확인은 `monthly_panels`의 미지급 의무를 연결된 음수 `cash_flows` 사실로 원자적으로 전환한다. 확인 전후 잔여 유동성은 같고, 월마감은 템플릿만 재활성화한다. 이 상태 전이는 미래 예산 주기 계산에서도 유지한다.
+
+Snapshot v6은 카드별 정책 binding, 계산 매개변수, 프로필 선택 의미, 분류 규칙과 데이터 기준 마지막 월을 `card_charge_policy` 명세로 기록하고 장부 데이터·주요 상단 메타데이터와 함께 해시한다. 확인된 현금성 고정지출의 현금흐름 연결도 함께 보존한다. 교통카드 프로필 선택 이력은 비민감 `app_settings`로 함께 백업한다. 복원은 정책 명세를 실행하지 않으며 당시 정책이 현재 서버에 보존되어 있는지만 확인한다. 명세의 `covered_through` 이후부터 적용되는 binding 추가는 허용한다. v5의 nullable 연결 필드 누락을 허용하고, v4 파일은 원문 검증 뒤 유동성 key migration을 거쳐 복원한다.
 
 가족카드는 비핵심 feature다. 공용 카드 계산기는 `FAMILY`라는 정책 키만 알며 가족카드 UI, 공유 응답 또는 정산 데이터 구조에 의존하지 않는다. 가족카드 제거 시 정책 등록 하나와 feature 경계만 제거하고 본인 원장·카드대금·유동성 계산은 수정하지 않는 것이 기준이다.
 
@@ -84,7 +86,7 @@ Snapshot v5는 카드별 정책 binding, 계산 매개변수, 프로필 선택 �
 
 결제 심사 기준은 해당 결제월 현금흐름에서 `이달 기준 수입`으로 표시한 입금 합계다. 이달 기준 수입이 없으면 변경 가능한 `scheduled_income` 설정값, 즉 기본 예정 수입을 fallback 심사 기준액으로 사용한다.
 
-Summary와 DB 설정의 표준 이름은 `scheduled_income`, `cash_flow_balance`, `remaining_liquidity`다. 일반 런타임 API에는 과거 alias를 노출하지 않는다. Snapshot v5도 표준 key만 저장하며, v4 restore 경계에서만 원문 검증 후 과거 key를 정규화한다.
+Summary와 DB 설정의 표준 이름은 `scheduled_income`, `cash_flow_balance`, `remaining_liquidity`다. 일반 런타임 API에는 과거 alias를 노출하지 않는다. Snapshot v6도 표준 key만 저장하며, v4 restore 경계에서만 원문 검증 후 과거 key를 정규화한다.
 
 결제 압박 Judgment를 장차 잔여 유동성 기준으로 전환하는 조건과 범위는 [미래 예산 주기 전환](future-budget-cycle-transition.md)에 기록한다.
 

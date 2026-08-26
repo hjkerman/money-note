@@ -23,6 +23,9 @@ export function PanelTable({
   judgment: _judgment,
   onShare,
   form,
+  headerTotal,
+  fixedConfirmationDate,
+  onConfirmFixed,
 }: {
   title: string;
   rows: MonthlyPanel[];
@@ -36,6 +39,9 @@ export function PanelTable({
   judgment?: JudgmentState | null;
   onShare?: () => void;
   form?: ReactNode;
+  headerTotal?: number;
+  fixedConfirmationDate?: string;
+  onConfirmFixed?: (panel: MonthlyPanel, occurredOn: string) => void;
 }) {
   const showDateColumn = rows.some(
     (row) =>
@@ -89,7 +95,7 @@ export function PanelTable({
       <div className="panel-header">
         <h2>{title}</h2>
         <div className="header-actions">
-          <span>{formatWon(sumPanelNetAmounts(rows))}</span>
+          <span>{formatWon(headerTotal ?? sumPanelNetAmounts(rows))}</span>
           {onProcessSelected && rows.length ? (
             <button type="button" onClick={processSelectedRows} disabled={!selectedRows.length}>
               {formatWon(selectedTotal)} 결제 처리
@@ -125,6 +131,8 @@ export function PanelTable({
               {showDateColumn ? <th>{dateColumnLabel}</th> : null}
               <th className="panel-title-cell">세부내역</th>
               <th className="amount">금액</th>
+              {onConfirmFixed ? <th className="date">처리일</th> : null}
+              {onConfirmFixed ? <th className="action-cell">확인</th> : null}
               {onDiscount ? <th className="discount-cell">할인 / 원금</th> : null}
               {onDelete ? <th className="action-cell">삭제</th> : null}
             </tr>
@@ -170,6 +178,13 @@ export function PanelTable({
                       formatWon(discountDisplayEligible ? netAmount : row.amount_value)
                     )}
                   </td>
+                  {onConfirmFixed ? (
+                    <FixedConfirmationCells
+                      panel={row}
+                      defaultDate={fixedConfirmationDate ?? ""}
+                      onConfirm={onConfirmFixed}
+                    />
+                  ) : null}
                   {onDiscount ? (
                     <td className="discount-cell">
                       {discountControlEligible ? (
@@ -221,5 +236,40 @@ export function PanelTable({
         </button>
       ) : null}
     </section>
+  );
+}
+
+function FixedConfirmationCells({
+  panel,
+  defaultDate,
+  onConfirm,
+}: {
+  panel: MonthlyPanel;
+  defaultDate: string;
+  onConfirm: (panel: MonthlyPanel, occurredOn: string) => void;
+}) {
+  const [occurredOn, setOccurredOn] = useState(defaultDate);
+  useEffect(() => setOccurredOn(defaultDate), [defaultDate]);
+  return (
+    <>
+      <td className="date">
+        <input
+          type="date"
+          required
+          value={occurredOn}
+          onChange={(event) => setOccurredOn(event.target.value)}
+          aria-label={`${panel.title} 처리일`}
+        />
+      </td>
+      <td className="action-cell">
+        <button
+          type="button"
+          disabled={!occurredOn}
+          onClick={() => onConfirm(panel, occurredOn)}
+        >
+          확인
+        </button>
+      </td>
+    </>
   );
 }

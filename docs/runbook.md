@@ -1124,7 +1124,7 @@ curl -OJ -b /tmp/money-note-cookie.txt \
 
 응답 파일 확장자는 `.money-note-snapshot.json`이며, `schema_version`, `exported_at`, `range`, `card_charge_policy`, `manifest`, `data`를 포함한다.
 
-현재 snapshot export 형식은 `schema_version = 5`다. v4와 v5를 복원하며 파일 형식 v3 이하는 지원하지 않는다.
+현재 snapshot export 형식은 `schema_version = 6`이다. v6은 확인된 현금성 고정지출과 생성 현금흐름의 연결을 보존한다. v4, v5, v6을 복원하며 v5의 nullable 연결 필드 누락은 허용한다. 파일 형식 v3 이하는 지원하지 않는다.
 
 `manifest`는 canonical JSON 기준 SHA-256 무결성 정보를 담는다. `manifest` 자기 자신과 파생 식별자인 `snapshot_id`는 hash 대상에서 제외하며, `data` 전체 hash, 테이블별 컬럼 목록·row count·table hash, `card_charge_policy` hash, 주요 상단 메타데이터와 정책 명세를 포함한 전체 content hash를 기록한다.
 

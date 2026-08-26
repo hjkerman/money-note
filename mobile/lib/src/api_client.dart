@@ -285,6 +285,15 @@ class MoneyNoteApiClient {
     await _delete('/api/month/current/panels/$panelId');
   }
 
+  Future<Map<String, dynamic>> confirmFixedPanel(
+      int panelId, String occurredOn) {
+    return _post(
+      '/api/month/current/panels/$panelId/confirm-fixed',
+      {'occurred_on': occurredOn},
+      (json) => json,
+    );
+  }
+
   Future<CashFlow> createCashFlow({
     required String occurredOn,
     required String title,

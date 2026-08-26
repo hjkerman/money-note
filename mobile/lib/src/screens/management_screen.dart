@@ -153,6 +153,20 @@ class _PanelManagementScreenState extends State<PanelManagementScreen> {
       animation: widget.state,
       builder: (context, _) {
         final rows = widget.state.panelsByType(widget.panelType);
+        final activeRows = widget.panelType == 'fixed'
+            ? rows
+                .where((panel) =>
+                    panel.confirmedAt == null ||
+                    panel.confirmedCashFlowId == null)
+                .toList()
+            : rows;
+        final confirmedRows = widget.panelType == 'fixed'
+            ? rows
+                .where((panel) =>
+                    panel.confirmedAt != null &&
+                    panel.confirmedCashFlowId != null)
+                .toList()
+            : <MonthlyPanel>[];
         final total =
             rows.fold<int>(0, (sum, panel) => sum + (panel.amountValue ?? 0));
         return Scaffold(
@@ -187,13 +201,31 @@ class _PanelManagementScreenState extends State<PanelManagementScreen> {
                   ),
                 ),
                 SectionTitle('목록',
-                    trailing: Text('${rows.length}건',
+                    trailing: Text('${activeRows.length}건',
                         style: const TextStyle(color: moneyMuted))),
-                if (rows.isEmpty) MoneyCard(child: Text(widget.emptyText)),
-                ...rows.map((panel) => _PanelManagementItem(
-                      panel: panel,
-                      state: widget.state,
-                    )),
+                if (activeRows.isEmpty)
+                  MoneyCard(child: Text(widget.emptyText)),
+                ...activeRows.map((panel) => widget.panelType == 'fixed'
+                    ? _FixedPanelManagementItem(
+                        panel: panel,
+                        state: widget.state,
+                      )
+                    : _PanelManagementItem(
+                        panel: panel,
+                        state: widget.state,
+                      )),
+                if (widget.panelType == 'fixed' &&
+                    confirmedRows.isNotEmpty) ...[
+                  SectionTitle(
+                    '이번 달 처리된 현금성 고정지출',
+                    trailing: Text('${confirmedRows.length}건',
+                        style: const TextStyle(color: moneyMuted)),
+                  ),
+                  ...confirmedRows.map((panel) => _ConfirmedFixedPanelItem(
+                        panel: panel,
+                        state: widget.state,
+                      )),
+                ],
               ],
             ),
           ),
@@ -644,6 +676,141 @@ class _PanelManagementItem extends StatelessWidget {
   String _registrationDateLabel(String? value) {
     final label = shortDate(value);
     return label.isEmpty ? '미상' : label;
+  }
+}
+
+class _FixedPanelManagementItem extends StatefulWidget {
+  const _FixedPanelManagementItem({required this.panel, required this.state});
+
+  final MonthlyPanel panel;
+  final AppState state;
+
+  @override
+  State<_FixedPanelManagementItem> createState() =>
+      _FixedPanelManagementItemState();
+}
+
+class _FixedPanelManagementItemState extends State<_FixedPanelManagementItem> {
+  late String occurredOn;
+
+  @override
+  void initState() {
+    super.initState();
+    occurredOn = widget.state.serverToday;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final panel = widget.panel;
+    final state = widget.state;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: MoneyCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(panel.title,
+                style:
+                    const TextStyle(fontSize: 17, fontWeight: FontWeight.w900)),
+            const SizedBox(height: 8),
+            _Line(label: '예정액', value: won(panel.amountValue)),
+            const SizedBox(height: 8),
+            _DatePickerRow(
+              label: '처리일',
+              value: occurredOn,
+              onChanged: (value) => setState(() => occurredOn = value),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: state.isBusy ? null : () => _confirm(context),
+                    child: const Text('확인 처리'),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed:
+                        state.isBusy ? null : () => state.deletePanel(panel.id),
+                    style: OutlinedButton.styleFrom(foregroundColor: moneyRed),
+                    child: const Text('삭제'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _confirm(BuildContext context) async {
+    final accepted = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('현금성 고정지출 확인'),
+        content: Text(
+          '${widget.panel.title} ${won(widget.panel.amountValue)}을 $occurredOn 현금 지출로 반영할까요?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('취소'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('확인 처리'),
+          ),
+        ],
+      ),
+    );
+    if (accepted == true) {
+      await widget.state.confirmFixedPanel(widget.panel.id, occurredOn);
+    }
+  }
+}
+
+class _ConfirmedFixedPanelItem extends StatelessWidget {
+  const _ConfirmedFixedPanelItem({required this.panel, required this.state});
+
+  final MonthlyPanel panel;
+  final AppState state;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: MoneyCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('처리일 ${shortDate(panel.spentOn)}',
+                style: const TextStyle(
+                    color: moneyMuted,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700)),
+            const SizedBox(height: 4),
+            Text(panel.title,
+                style:
+                    const TextStyle(fontSize: 17, fontWeight: FontWeight.w900)),
+            const SizedBox(height: 8),
+            _Line(label: '처리액', value: won(panel.amountValue)),
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed:
+                    state.isBusy ? null : () => state.deletePanel(panel.id),
+                style: OutlinedButton.styleFrom(foregroundColor: moneyRed),
+                child: const Text('정기지출 해제'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

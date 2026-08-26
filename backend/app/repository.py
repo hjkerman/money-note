@@ -26,12 +26,13 @@ from app.repositories.panels import (
     update_panel,
 )
 from app.repositories.settings import list_settings
-from app.services.panels import complete_panels_by_type
+from app.services.panels import complete_panels_by_type, confirm_fixed_panel
 
 __all__ = [
     "append_planned_entry",
     "complete_panels_by_type",
     "confirm_planned_entry",
+    "confirm_fixed_panel",
     "create_cash_flow",
     "create_entry",
     "create_panel",

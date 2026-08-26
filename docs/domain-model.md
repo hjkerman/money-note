@@ -364,6 +364,8 @@ Claim은 다음에 포함되지 않는다.
 - 소비 통계
 - 잔여 유동성
 
+Claim은 2026년 10월경 제거할 예정인 운영 기능이다. 제거 전까지 현재 도메인 의미와 데이터는 유지하며, 제거 범위와 Snapshot 전환 순서는 [청구 기능 제거 가이드](claim-removal.md)를 따른다.
+
 ---
 
 # 7. 가족카드 (Family Card)
@@ -520,7 +522,11 @@ remaining_liquidity
 
 - `scheduled_income`: DB에 같은 이름으로 저장되는 기본 예정 수입
 - `cash_flow_balance`: DB의 같은 이름인 수동 보정값과 전체 기간 현금흐름 누계의 합
-- `liquidity_fixed_total`: 현금성 고정지출과 아직 원장 지출로 확인되지 않은 카드 정기결제 예정액
+- `liquidity_fixed_total`: 아직 확인되지 않은 현금성 고정지출과 아직 원장 지출로 확인되지 않은 카드 정기결제 예정액
+
+현금성 고정지출은 반복 템플릿이자 미지급 의무다. 확인 전에는 `liquidity_fixed_total`로 한 번 차감하고, 사용자가 처리일을 선택해 확인하면 같은 금액의 음수 `cash_flows`를 생성한 뒤 미지급 의무 차감에서는 제외한다. 따라서 확인 전후 잔여 유동성은 바뀌지 않고, 돈이 나갈 예정이라는 상태만 실제로 나갔다는 사실로 전환된다. `confirmed_at`만 있고 연결된 현금흐름이 없는 구형·불완전 상태는 확인 완료로 보지 않는다.
+
+표시용 `fixed_cash_total`과 고정지출 총합은 확인 여부와 무관한 전체 템플릿 금액이다. 월마감은 템플릿을 다음 주기용 미확인 상태로 돌리지만 이미 기록한 현금흐름은 보존한다. 확인 직후 생성된 현금흐름을 월마감 전에 삭제하면 연결된 템플릿도 미확인 상태로 돌아간다.
 
 `이달 기준 수입` 표시가 있는 현금흐름 입금 합계는 현재 카드 결제 압박 Judgment의 기준 수입이다. Summary의 `scheduled_income`을 대체하지 않는다. 이 둘의 관계를 바꾸는 것은 계산 정책 변경이므로 [미래 예산 주기 전환](future-budget-cycle-transition.md)에 별도로 기록한다.
 
@@ -580,7 +586,7 @@ Money Note는 카드사 알림 자동입력을 고려한다.
 
 Snapshot은 원본 DB를 대체하는 별도 저장소가 아니라, 장부 운용 데이터 전체와 비민감 운영 설정을 JSON 파일로 잠시 옮겨 담는 백업/복원 형식이다.
 
-새 Snapshot 형식은 `schema_version = 5`다. 유동성 설정·라벨 key가 과거 이름인 기존 v4 Snapshot도 계속 복원하며, 파일 형식 v3 이하는 지원하지 않는다.
+새 Snapshot 형식은 `schema_version = 6`이다. v6은 확인된 현금성 고정지출과 생성 현금흐름의 연결을 보존한다. 연결 필드가 없는 v5와 유동성 설정·라벨 key가 과거 이름인 v4 Snapshot도 계속 복원하며, 파일 형식 v3 이하는 지원하지 않는다.
 
 Snapshot은 canonical JSON 기준 SHA-256 manifest를 포함한다.
 
@@ -605,7 +611,7 @@ Manifest 원칙:
 하위호환 원칙:
 
 - restore는 먼저 snapshot 원문 기준으로 manifest를 검증한다.
-- 버전 4와 5는 manifest 검증 후 당시 `card_charge_policy`가 현재 서버에 보존되어 있는지 확인한다. 생성월 이후의 새 binding 추가만 허용한다.
+- 버전 4, 5, 6은 manifest 검증 후 당시 `card_charge_policy`가 현재 서버에 보존되어 있는지 확인한다. 생성월 이후의 새 binding 추가만 허용한다.
 - v4의 `base_next_month_liquidity`, `liquidity_status`, `summary_next_month_liquidity_label`, `summary_liquidity_status_label`은 원문 manifest 검증이 끝난 뒤 각각 현재 표준 key로 정규화한다.
 - Snapshot에 같은 의미의 새 key와 기존 key가 동시에 있고 값이 다르면 복원을 중단한다.
 - 파일 형식 v3 이하는 복원하지 않는다.

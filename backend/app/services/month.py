@@ -123,6 +123,17 @@ def close_current_month(today: date | None = None, allow_early_close: bool = Fal
             """,
             (target_month,),
         )
+        conn.execute(
+            """
+            UPDATE monthly_panels
+            SET spent_on = NULL,
+                confirmed_at = NULL,
+                confirmed_cash_flow_id = NULL,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE panel_type = 'fixed'
+              AND (confirmed_at IS NOT NULL OR confirmed_cash_flow_id IS NOT NULL)
+            """
+        )
         create_month_close_card_payment_batch(conn, target_month)
 
     return {"closed_month": target_month, "archived": archived, "deleted_from_current": deleted}

@@ -132,6 +132,10 @@ class PlannedConfirmIn(BaseModel):
     entry_date: str | None = None
 
 
+class FixedPanelConfirmIn(BaseModel):
+    occurred_on: str
+
+
 class EntryReorder(BaseModel):
     ordered_ids: list[int]
 
@@ -168,6 +172,7 @@ class MonthlyPanel(BaseModel):
     sort_order: int
     due_day: int | None = None
     confirmed_at: str | None = None
+    confirmed_cash_flow_id: int | None = None
     discount_policy: str = "disabled"
     automatic_discount_eligible: bool = False
     automatic_discount_amount: int = 0

@@ -22,6 +22,7 @@ from app.repositories.panels import (
 from app.repositories.settings import list_settings
 from app.schemas import (
     EntryReorder,
+    FixedPanelConfirmIn,
     LedgerEntry,
     MonthCloseIn,
     MonthlyPanel,
@@ -35,7 +36,7 @@ from app.schemas import (
 from app.services.card_payments import current_payment_status
 from app.services.judgment import app_judgment
 from app.services.month import calendar_month_label, close_current_month, month_close_status
-from app.services.panels import complete_panels_by_type
+from app.services.panels import complete_panels_by_type, confirm_fixed_panel
 from app.services.presentation import (
     present_ledger_entries,
     present_ledger_entry,
@@ -91,7 +92,9 @@ def reorder_planned_entries(payload: EntryReorder, _: dict = Depends(require_use
 
 @router.get("/panels", response_model=list[MonthlyPanel])
 def get_current_panels(_: dict = Depends(require_user)) -> list[dict]:
-    return present_monthly_panels(list_panels(calendar_month_label()))
+    return present_monthly_panels(
+        list_panels(calendar_month_label(), include_confirmed_fixed=True),
+    )
 
 
 @router.post("/panels", response_model=MonthlyPanel)
@@ -100,6 +103,24 @@ def post_panel(panel: MonthlyPanelIn, _: dict = Depends(require_user)) -> dict:
         return present_monthly_panel(create_panel(panel))
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@router.post("/panels/{panel_id}/confirm-fixed")
+def post_confirm_fixed_panel(
+    panel_id: int,
+    payload: FixedPanelConfirmIn,
+    _: dict = Depends(require_user),
+) -> dict:
+    try:
+        result = confirm_fixed_panel(panel_id, payload.occurred_on)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    if result is None:
+        raise HTTPException(status_code=404, detail="panel not found")
+    return {
+        "panel": present_monthly_panel(result["panel"]),
+        "cash_flow": result["cash_flow"],
+    }
 
 
 @router.patch("/panels/{panel_id}", response_model=MonthlyPanel)

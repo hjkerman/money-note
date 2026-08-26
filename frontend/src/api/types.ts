@@ -72,6 +72,7 @@ export type MonthlyPanel = {
   sort_order: number;
   due_day: number | null;
   confirmed_at: string | null;
+  confirmed_cash_flow_id?: number | null;
   discount_policy: CardDiscountPolicy;
   automatic_discount_eligible: boolean;
   automatic_discount_amount: number;

@@ -1,7 +1,7 @@
 import { Dispatch, FormEvent, SetStateAction } from "react";
 import { CashFlow, LedgerEntry, MonthlyPanel, Summary } from "../api";
 import { CashFlowPanel, PanelAppendForm, PanelTable, PlannedTable } from "./LedgerTables";
-import { panelLabel, formatWon } from "../utils";
+import { formatDateLabel, formatWon, panelLabel } from "../utils";
 
 type CashFlowForm = { occurredOn: string; direction: string; title: string; amount: string; isPrimaryIncome: boolean };
 type PanelForm = { panel_type: MonthlyPanel["panel_type"]; title: string; spentOn: string; amount: string; dueDay: string };
@@ -11,6 +11,7 @@ export function FixedPanelView({
   active,
   currentMonth,
   handlePanelDelete,
+  handleFixedPanelConfirm,
   handlePanelSubmit,
   handlePlannedConfirm,
   handlePlannedDelete,
@@ -25,10 +26,12 @@ export function FixedPanelView({
   setPanelForm,
   setPlannedForm,
   summary,
+  calendarDate,
 }: {
   active: boolean;
   currentMonth: string;
   handlePanelDelete: (panel: MonthlyPanel) => void;
+  handleFixedPanelConfirm: (panel: MonthlyPanel, occurredOn: string) => void;
   handlePanelSubmit: (event: FormEvent, panelType: MonthlyPanel["panel_type"]) => Promise<void>;
   handlePlannedConfirm: (entry: LedgerEntry, entryDate?: string) => void;
   handlePlannedDelete: (entry: LedgerEntry) => void;
@@ -43,12 +46,23 @@ export function FixedPanelView({
   setPanelForm: Dispatch<SetStateAction<PanelForm>>;
   setPlannedForm: Dispatch<SetStateAction<PlannedForm>>;
   summary: Summary | null;
+  calendarDate: string;
 }) {
+  const fixedPanels = panels.filter((panel) => panel.panel_type === "fixed");
+  const activeFixedPanels = fixedPanels.filter(
+    (panel) => !panel.confirmed_at || !panel.confirmed_cash_flow_id,
+  );
+  const confirmedFixedPanels = fixedPanels.filter((panel) =>
+    Boolean(panel.confirmed_at && panel.confirmed_cash_flow_id),
+  );
   return (
     <section className={active ? "tab-panel active" : "tab-panel"}>
       <PanelTable
         title={panelLabel(labels, "fixed")}
-        rows={panels.filter((panel) => panel.panel_type === "fixed")}
+        rows={activeFixedPanels}
+        headerTotal={summary?.fixed_cash_total ?? 0}
+        fixedConfirmationDate={calendarDate}
+        onConfirmFixed={handleFixedPanelConfirm}
         onDelete={(panel) => handlePanelDelete(panel)}
         form={
           <PanelAppendForm
@@ -59,6 +73,10 @@ export function FixedPanelView({
             handlePanelSubmit={handlePanelSubmit}
           />
         }
+      />
+      <ConfirmedFixedList
+        rows={confirmedFixedPanels}
+        onUnsubscribe={handlePanelDelete}
       />
       <section className="panel">
         <div className="panel-header">
@@ -109,6 +127,48 @@ export function FixedPanelView({
         />
         <ConfirmedPlannedList entries={confirmedPlannedEntries} onUnsubscribe={(entry) => handlePlannedDelete(entry)} />
       </section>
+    </section>
+  );
+}
+
+function ConfirmedFixedList({
+  rows,
+  onUnsubscribe,
+}: {
+  rows: MonthlyPanel[];
+  onUnsubscribe: (panel: MonthlyPanel) => void;
+}) {
+  if (!rows.length) return null;
+  return (
+    <section className="panel compact confirmed-planned-list">
+      <div className="panel-header">
+        <h2>이번 달 처리된 현금성 고정지출</h2>
+        <span>{rows.length}건</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>처리일</th>
+            <th className="panel-title-cell">세부내역</th>
+            <th className="amount">금액</th>
+            <th className="action-cell">정기지출 해제</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.id}>
+              <td className="date">{formatDateLabel(row.spent_on ?? "") || "-"}</td>
+              <td className="panel-title-cell">{row.title}</td>
+              <td className="amount">{formatWon(row.amount_value)}</td>
+              <td className="action-cell">
+                <button type="button" className="danger" onClick={() => onUnsubscribe(row)}>
+                  정기지출 해제
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </section>
   );
 }

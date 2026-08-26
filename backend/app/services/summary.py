@@ -23,8 +23,9 @@ def current_summary_values() -> dict[str, int]:
     entry_discount_total = current_entry_discount_total()
     card_total = max(0, entry_card_total - entry_discount_total)
     fixed_panel_total = panel_total("fixed")
+    pending_fixed_panel_total = panel_total("fixed", only_unconfirmed=True)
     transfer_or_deposit_total = fixed_panel_total + planned_recurring_total
-    liquidity_fixed_total = fixed_panel_total + planned_liquidity_total
+    liquidity_fixed_total = pending_fixed_panel_total + planned_liquidity_total
     frozen_asset_total = panel_total("frozen")
     scheduled_income = setting_float("scheduled_income")
     interest_expense = setting_float("interest_expense")
@@ -71,10 +72,15 @@ def planned_entry_total() -> float:
     return float(row["total"])
 
 
-def panel_total(panel_type: str) -> float:
+def panel_total(panel_type: str, *, only_unconfirmed: bool = False) -> float:
+    confirmation_filter = (
+        " AND (confirmed_at IS NULL OR confirmed_cash_flow_id IS NULL)"
+        if only_unconfirmed
+        else ""
+    )
     with session() as conn:
         row = conn.execute(
-            "SELECT COALESCE(SUM(amount_value), 0) AS total FROM monthly_panels WHERE panel_type = ?",
+            f"SELECT COALESCE(SUM(amount_value), 0) AS total FROM monthly_panels WHERE panel_type = ?{confirmation_filter}",
             (panel_type,),
         ).fetchone()
     return float(row["total"])

@@ -28,8 +28,8 @@ from app.services.liquidity_names import (
 from app.share_auth import SENSITIVE_SHARE_SETTING_KEYS
 
 
-SNAPSHOT_SCHEMA_VERSION = 5
-SUPPORTED_SNAPSHOT_SCHEMA_VERSIONS = {4, SNAPSHOT_SCHEMA_VERSION}
+SNAPSHOT_SCHEMA_VERSION = 6
+SUPPORTED_SNAPSHOT_SCHEMA_VERSIONS = {4, 5, SNAPSHOT_SCHEMA_VERSION}
 PRE_RESTORE_FILENAME_RE = re.compile(r"^pre_restore-\d{8}T\d{6}Z(?:-\d+)?\.money-note-snapshot\.json$")
 SNAPSHOT_TABLES = [
     "ledger_entries",

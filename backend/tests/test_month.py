@@ -9,6 +9,7 @@ from app.config import get_settings
 from app.db import init_db, session
 from app.repository import (
     confirm_planned_entry,
+    confirm_fixed_panel,
     create_entry,
     list_confirmed_planned_entries,
     list_entries,
@@ -151,6 +152,38 @@ class MonthCloseTest(unittest.TestCase):
         self.assertTrue(
             any(entry["id"] == planned_id for entry in list_entries("current", date(2026, 8, 1)))
         )
+
+    def test_month_close_reactivates_fixed_panel_without_deleting_cash_flow(self) -> None:
+        close_current_month(date(2026, 7, 1))
+        with session() as conn:
+            panel_id = conn.execute(
+                """
+                INSERT INTO monthly_panels(month, panel_type, title, amount_value, sort_order)
+                VALUES ('2026-07', 'fixed', '현금 보험료', 40000, 1)
+                """
+            ).lastrowid
+        result = confirm_fixed_panel(panel_id, "2026-07-15")
+        assert result is not None
+        cash_flow_id = result["cash_flow"]["id"]
+
+        close_current_month(date(2026, 7, 27), allow_early_close=True)
+
+        with session() as conn:
+            panel = conn.execute(
+                """
+                SELECT spent_on, confirmed_at, confirmed_cash_flow_id
+                FROM monthly_panels WHERE id = ?
+                """,
+                (panel_id,),
+            ).fetchone()
+            cash_flow = conn.execute(
+                "SELECT amount_value FROM cash_flows WHERE id = ?",
+                (cash_flow_id,),
+            ).fetchone()
+        self.assertIsNone(panel["spent_on"])
+        self.assertIsNone(panel["confirmed_at"])
+        self.assertIsNone(panel["confirmed_cash_flow_id"])
+        self.assertEqual(cash_flow["amount_value"], -40000)
 
     def test_confirmed_planned_entry_keeps_actual_payment_date(self) -> None:
         close_current_month(date(2026, 7, 1))

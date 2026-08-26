@@ -35,7 +35,7 @@ class SnapshotTest(unittest.TestCase):
         filename, snapshot = export_snapshot(date(2026, 6, 11))
 
         self.assertTrue(filename.endswith(".money-note-snapshot.json"))
-        self.assertEqual(snapshot["schema_version"], 5)
+        self.assertEqual(snapshot["schema_version"], 6)
         self.assertEqual(snapshot["range"], {"scope": "all"})
         self.assertEqual(snapshot["manifest"]["algorithm"], "sha256")
         self.assertEqual(
@@ -126,6 +126,57 @@ class SnapshotTest(unittest.TestCase):
         with session() as conn:
             restored = conn.execute("SELECT spent_on FROM monthly_panels WHERE id = 99").fetchone()
         self.assertEqual(restored["spent_on"], "2026-06-18")
+
+    def test_restore_preserves_fixed_confirmation_cash_flow_link(self) -> None:
+        with session() as conn:
+            flow_id = conn.execute(
+                """
+                INSERT INTO cash_flows(occurred_on, title, amount_value, sort_order)
+                VALUES ('2026-06-20', '월세', -100000, 1)
+                """
+            ).lastrowid
+            conn.execute(
+                """
+                INSERT INTO monthly_panels(
+                    id, month, panel_type, title, spent_on, amount_value,
+                    sort_order, confirmed_at, confirmed_cash_flow_id
+                )
+                VALUES (100, '2026-06', 'fixed', '월세', '2026-06-20', 100000,
+                        1, '2026-06-20T00:00:00+00:00', ?)
+                """,
+                (flow_id,),
+            )
+        _, snapshot = export_snapshot(date(2026, 6, 20))
+
+        restore_snapshot(snapshot)
+
+        with session() as conn:
+            panel = conn.execute(
+                "SELECT confirmed_cash_flow_id FROM monthly_panels WHERE id = 100",
+            ).fetchone()
+        self.assertEqual(panel["confirmed_cash_flow_id"], flow_id)
+
+    def test_restore_accepts_v5_snapshot_without_fixed_cash_flow_link(self) -> None:
+        with session() as conn:
+            conn.execute(
+                """
+                INSERT INTO monthly_panels(id, month, panel_type, title, amount_value, sort_order)
+                VALUES (101, '2026-06', 'fixed', '구버전 고정지출', 50000, 1)
+                """
+            )
+        _, snapshot = export_snapshot(date(2026, 6, 20))
+        snapshot["schema_version"] = 5
+        for row in snapshot["data"]["monthly_panels"]:
+            row.pop("confirmed_cash_flow_id", None)
+        self._refresh_manifest(snapshot)
+
+        restore_snapshot(snapshot)
+
+        with session() as conn:
+            panel = conn.execute(
+                "SELECT confirmed_cash_flow_id FROM monthly_panels WHERE id = 101",
+            ).fetchone()
+        self.assertIsNone(panel["confirmed_cash_flow_id"])
 
     def test_restore_keeps_standard_summary_values(self) -> None:
         self._seed_data()
@@ -368,7 +419,7 @@ class SnapshotTest(unittest.TestCase):
         import json
 
         pre_restore = json.loads(backups[0].read_text(encoding="utf-8"))
-        self.assertEqual(pre_restore["schema_version"], 5)
+        self.assertEqual(pre_restore["schema_version"], 6)
         self.assertIn("복원 전 임시 지출", str(pre_restore["data"]["ledger_entries"]))
         pre_restore_setting_keys = {row["key"] for row in pre_restore["data"]["app_settings"]}
         self.assertIn("scheduled_income", pre_restore_setting_keys)

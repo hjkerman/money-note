@@ -16,12 +16,17 @@ PANEL_COLUMNS = [
     "sort_order",
     "due_day",
     "confirmed_at",
+    "confirmed_cash_flow_id",
     "discount_override",
 ]
 
 
 def list_panels(month: str | None = None, include_confirmed_fixed: bool = False) -> list[dict[str, Any]]:
-    filter_confirmed = "" if include_confirmed_fixed else " AND NOT (panel_type = 'fixed' AND confirmed_at IS NOT NULL)"
+    filter_confirmed = (
+        ""
+        if include_confirmed_fixed
+        else " AND NOT (panel_type = 'fixed' AND confirmed_at IS NOT NULL AND confirmed_cash_flow_id IS NOT NULL)"
+    )
     with session() as conn:
         if month:
             rows = conn.execute(

@@ -54,6 +54,7 @@ CREATE TABLE IF NOT EXISTS monthly_panels (
     sort_order INTEGER NOT NULL,
     due_day INTEGER,
     confirmed_at TEXT,
+    confirmed_cash_flow_id INTEGER REFERENCES cash_flows(id) ON DELETE SET NULL,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -263,6 +264,13 @@ def init_db() -> None:
             conn.execute("ALTER TABLE monthly_panels ADD COLUMN discount_override INTEGER NOT NULL DEFAULT 0")
         if "spent_on" not in panel_columns:
             conn.execute("ALTER TABLE monthly_panels ADD COLUMN spent_on TEXT")
+        if "confirmed_cash_flow_id" not in panel_columns:
+            conn.execute(
+                """
+                ALTER TABLE monthly_panels
+                ADD COLUMN confirmed_cash_flow_id INTEGER REFERENCES cash_flows(id) ON DELETE SET NULL
+                """
+            )
         _drop_legacy_column(conn, "monthly_panels", "discount_checked")
         ledger_columns = {
             row["name"]

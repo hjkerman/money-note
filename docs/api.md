@@ -417,7 +417,7 @@
 
 ### `GET /api/month/current/panels`
 
-현재 월 패널 항목을 조회한다. `fixed`는 월 반복 관리 항목으로 항상 포함된다. `frozen`은 사용자가 삭제할 때까지 유지되는 확보 금액 큐이며, `claim`과 `family_card`는 처리 전까지 유지되는 회수 예정 큐다. 따라서 세 타입 모두 등록 월과 무관하게 미처리 항목 전체를 포함한다.
+현재 월 패널 항목을 조회한다. `fixed`는 월 반복 관리 항목으로 확인 전·후 행을 모두 포함한다. `confirmed_at`과 `confirmed_cash_flow_id`가 모두 있는 행만 이번 주기에 현금흐름으로 확인 처리된 템플릿이다. 둘 중 하나라도 없으면 미지급 의무로 취급한다. `frozen`은 사용자가 삭제할 때까지 유지되는 확보 금액 큐이며, `claim`과 `family_card`는 처리 전까지 유지되는 회수 예정 큐다. 따라서 세 타입 모두 등록 월과 무관하게 미처리 항목 전체를 포함한다.
 
 응답:
 
@@ -431,6 +431,9 @@
     "amount_value": 500000,
     "amount_expr": null,
     "sort_order": 4,
+    "spent_on": null,
+    "confirmed_at": null,
+    "confirmed_cash_flow_id": null,
     "discount_policy": "disabled",
     "automatic_discount_eligible": false,
     "automatic_discount_amount": 0,
@@ -461,6 +464,29 @@
 ```
 
 응답: 생성된 `MonthlyPanel`.
+
+### `POST /api/month/current/panels/{panel_id}/confirm-fixed`
+
+현금성 고정지출 템플릿을 선택한 처리일의 실제 현금 유출로 확인한다.
+
+요청:
+
+```json
+{
+  "occurred_on": "2026-08-27"
+}
+```
+
+서버는 같은 트랜잭션에서 `amount_value`의 음수 현금흐름을 만들고, 패널의 `spent_on`, `confirmed_at`, `confirmed_cash_flow_id`를 기록한다. 원래 템플릿 금액과 제목은 바뀌지 않는다. 이미 확인된 항목이나 `fixed`가 아닌 패널은 `422`를 반환한다.
+
+응답:
+
+```json
+{
+  "panel": {"id": 1, "confirmed_cash_flow_id": 42},
+  "cash_flow": {"id": 42, "occurred_on": "2026-08-27", "amount_value": -500000}
+}
+```
 
 ### `PATCH /api/month/current/panels/{panel_id}`
 
@@ -557,7 +583,7 @@
 - `current_spending_total`: 본인 원장의 할인 전 사용금액
 - `current_discount_total`: 본인 원장의 유효 할인액
 - `card_total`: 본인 원장의 할인 후 카드대금
-- `fixed_cash_total`: 현금성 고정지출
+- `fixed_cash_total`: 확인 여부와 무관한 현금성 고정지출 템플릿 총액
 - `claim_*`: 현재 남은 청구 큐의 원금/실부담 합계
 - `family_card_*`: 현재 남은 가족카드 큐의 원금/실결제 합계
 - `visible_cash_flow_total`: 기본 화면 조회 범위인 직전 월 1일부터 당월 말일까지 현금흐름 합계
@@ -580,7 +606,7 @@ remaining_liquidity
   + cash_flow_balance
 ```
 
-`liquidity_fixed_total`은 응답 필드가 아니라 내부 계산값이다. `현금성 고정지출 + 아직 카드 지출로 확인되지 않은 카드 정기결제 예정액`이다.
+`liquidity_fixed_total`은 응답 필드가 아니라 내부 계산값이다. `아직 확인되지 않은 현금성 고정지출 + 아직 카드 지출로 확인되지 않은 카드 정기결제 예정액`이다. 현금성 고정지출을 확인하면 pending 차감은 사라지고 같은 금액의 음수 현금흐름이 생기므로 잔여 유동성에는 계속 한 번만 반영된다.
 
 `card_total`은 본인 당월 카드 지출의 할인 후 금액이다. 청구 탭 금액은 청구 표시 합계와 공유 청구서의 실청구액에는 반영하지만, `remaining_liquidity` 계산에는 넣지 않는다.
 청구와 가족카드는 회수 예정 금액으로 보며, 당월 소비 통계와 `당월` 큰 탭 합계에도 넣지 않는다.
@@ -668,6 +694,7 @@ remaining_liquidity
 - 새 달 기록이 먼저 입력되어 있어도 그대로 남는다.
 - 조기 마감 후 같은 달 날짜로 추가한 일반 지출은 `archive`에 바로 저장된다.
 - `planned` 항목, 즉 카드 정기결제는 현재 월에 남고, 닫힌 달의 확인 상태는 초기화되어 다음 사이클에서 다시 확인할 수 있다.
+- 확인된 현금성 고정지출 템플릿도 미확인 상태로 돌아오지만, 확인 시 생성된 과거 현금흐름은 유지된다.
 
 응답:
 
@@ -1001,7 +1028,7 @@ GET /api/cash-flows?from=2026-07-01&to=2026-07-31&limit=100
 - `owner_card_last4`
 - `family_card_last4`
 
-과거 설정 key로 수정하는 요청은 `404 unknown setting`을 반환한다. Snapshot v5도 현재 DB key만 저장한다.
+과거 설정 key로 수정하는 요청은 `404 unknown setting`을 반환한다. Snapshot v6도 현재 DB key만 저장한다.
 
 ## 앱 표시 라벨
 
@@ -1101,7 +1128,7 @@ JSON snapshot을 복원한다. 현재 비밀번호를 다시 확인하며, 장�
 ```json
 {
   "password": "현재 계정 비밀번호",
-  "snapshot_text": "{\"schema_version\":5,...}"
+  "snapshot_text": "{\"schema_version\":6,...}"
 }
 ```
 
@@ -1111,7 +1138,7 @@ JSON snapshot을 복원한다. 현재 비밀번호를 다시 확인하며, 장�
 {
   "password": "현재 계정 비밀번호",
   "snapshot": {
-    "schema_version": 5,
+    "schema_version": 6,
     "exported_at": "2026-06-11T00:00:00Z",
     "range": {
       "scope": "all"
@@ -1160,7 +1187,7 @@ JSON snapshot을 복원한다. 현재 비밀번호를 다시 확인하며, 장�
 
 하위호환 정책상 manifest 검증을 통과한 snapshot의 알 수 없는 컬럼은 현재 서버 DB에 삽입하지 않고 무시한다. 구버전 snapshot에 현재 서버의 새 컬럼이 없으면 DB 기본값 또는 `NULL` 허용 정책을 따른다. 단, 필수 테이블 누락, 민감 설정 포함, manifest 불일치, 외래키 오류, 기본값 없는 `NOT NULL` 컬럼 누락은 복원 실패로 처리한다.
 
-현재 서버는 `schema_version = 5`를 생성하고 v4와 v5를 복원한다. 두 버전의 `card_charge_policy`와 주요 상단 메타데이터는 데이터와 함께 SHA-256 검증 대상이다. v4는 원문 manifest를 먼저 검증한 뒤 유동성 설정과 라벨의 과거 key를 현재 key로 정규화한다. 같은 의미의 old/new key가 함께 있고 값이 다르면 복원을 중단한다. 카드 정책 명세 v2는 교통카드 프로필 선택기의 의미도 검증한다. 2026-08-20에 남아 있던 v4 Snapshot 전환을 위해 내부 카드 정책 명세 v1 읽기 경로를 유지하며, 파일 형식 v3 이하는 지원하지 않는다. Snapshot 당시 정책이나 분류 규칙이 현재 서버에서 바뀌었으면 복원하지 않으며, 명세의 `covered_through` 이후부터 적용되는 새 binding 추가만 허용한다. 프로필 선택 이력은 비민감 `app_settings` 데이터로 함께 복원한다. 이 명세는 Snapshot에서 임의 정책을 실행하기 위한 입력이 아니다.
+현재 서버는 `schema_version = 6`을 생성하고 v4, v5, v6을 복원한다. v6은 `monthly_panels.confirmed_cash_flow_id`를 포함한다. v5에 이 nullable 필드가 없으면 미연결 상태로 복원한다. 지원 버전의 `card_charge_policy`와 주요 상단 메타데이터는 데이터와 함께 SHA-256 검증 대상이다. v4는 원문 manifest를 먼저 검증한 뒤 유동성 설정과 라벨의 과거 key를 현재 key로 정규화한다. 같은 의미의 old/new key가 함께 있고 값이 다르면 복원을 중단한다. 카드 정책 명세 v2는 교통카드 프로필 선택기의 의미도 검증한다. 2026-08-20에 남아 있던 v4 Snapshot 전환을 위해 내부 카드 정책 명세 v1 읽기 경로를 유지하며, 파일 형식 v3 이하는 지원하지 않는다. Snapshot 당시 정책이나 분류 규칙이 현재 서버에서 바뀌었으면 복원하지 않으며, 명세의 `covered_through` 이후부터 적용되는 새 binding 추가만 허용한다. 프로필 선택 이력은 비민감 `app_settings` 데이터로 함께 복원한다. 이 명세는 Snapshot에서 임의 정책을 실행하기 위한 입력이 아니다.
 
 복원은 운영 DB를 건드리기 전에 동일한 삽입 경로로 임시 DB dry-run을 수행한다. 또한 실제 복원 직전 현재 운영 DB를 `pre_restore-...money-note-snapshot.json` 파일로 반드시 저장하고, 이 파일의 manifest 검증에 실패하면 복원을 중단한다.
 

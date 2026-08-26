@@ -66,5 +66,18 @@ def create_cash_flow(flow: CashFlowIn) -> dict[str, Any]:
 
 def delete_cash_flow(flow_id: int) -> bool:
     with session() as conn:
+        # 확인 직후의 현금 유출을 지우면 고정지출은 다시 미지급 의무가 된다.
+        conn.execute(
+            """
+            UPDATE monthly_panels
+            SET spent_on = NULL,
+                confirmed_at = NULL,
+                confirmed_cash_flow_id = NULL,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE panel_type = 'fixed'
+              AND confirmed_cash_flow_id = ?
+            """,
+            (flow_id,),
+        )
         cursor = conn.execute("DELETE FROM cash_flows WHERE id = ?", (flow_id,))
     return cursor.rowcount > 0

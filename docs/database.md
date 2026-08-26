@@ -75,7 +75,7 @@ API의 `discount_policy`, `automatic_discount_eligible`, `automatic_discount_amo
 | `month` | TEXT | 대상 월 |
 | `panel_type` | TEXT | `fixed`, `frozen`, `claim`, `family_card` |
 | `title` | TEXT | 적요 |
-| `spent_on` | TEXT | 사용일. `frozen`에서는 등록일자 |
+| `spent_on` | TEXT | 사용일. `frozen`에서는 등록일자, 확인된 `fixed`에서는 실제 처리일 |
 | `amount_value` | INTEGER | 금액. 원화 정수 금액 |
 | `discount_amount` | INTEGER | 청구/가족카드 항목의 수동 할인액 override. 원화 정수 금액 |
 | `discount_override` | INTEGER | `1`이면 기본 할인 계산 대신 `discount_amount`를 수동 할인액으로 사용 |
@@ -83,6 +83,7 @@ API의 `discount_policy`, `automatic_discount_eligible`, `automatic_discount_amo
 | `sort_order` | INTEGER | 정렬 순서 |
 | `due_day` | INTEGER | 필요 시 사용하는 결제일 |
 | `confirmed_at` | TEXT | 처리 완료 시각 |
+| `confirmed_cash_flow_id` | INTEGER nullable FK | 확인된 현금성 고정지출이 생성한 `cash_flows.id`. 월마감 후 다음 주기에는 `NULL` |
 
 정렬:
 
@@ -90,6 +91,8 @@ API의 `discount_policy`, `automatic_discount_eligible`, `automatic_discount_amo
 - 같은 날짜 안에서는 `sort_order`, `id` 순이다.
 
 API의 할인 정책·자동 할인·유효 할인·실결제 투영 필드는 이 테이블에 저장하지 않는다. 원본 금액과 수동 override만 저장하고 최종값은 서버가 매 조회 때 계산한다.
+
+`fixed` 확인은 템플릿 삭제가 아니다. 확인 전에는 패널 금액이 잔여 유동성의 미지급 고정 의무이고, 확인 후에는 연결된 음수 현금흐름이 같은 금액을 담당한다. `confirmed_at`과 유효한 `confirmed_cash_flow_id`가 함께 있어야 완료 상태다. 월마감은 확인 필드와 연결만 비워 다음 주기 템플릿을 재활성화하며 기존 현금흐름을 삭제하지 않는다.
 
 카드 계산식 자체는 DB 컬럼이나 테이블로 저장하지 않는다. 본인·가족·통행료·교통카드의 사용월별 계산식 이력은 서버 코드의 `card_charge` 레지스트리가 관리한다. 본인/가족 월별 혜택 여부와 교통카드의 월별 프로필 선택 이력만 `app_settings`에 저장한다. 이 분리는 카드 교체 시 새 효력 시작월을 추가하면서 과거 Snapshot과 거래를 기존 정책으로 재계산할 수 있게 한다.
 

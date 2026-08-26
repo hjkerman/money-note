@@ -6,8 +6,16 @@ from unittest.mock import patch
 
 from app.config import get_settings
 from app.db import init_db, session
-from app.repository import complete_panels_by_type, create_panel, list_panels, update_panel
+from app.repository import (
+    complete_panels_by_type,
+    confirm_fixed_panel,
+    create_panel,
+    delete_cash_flow,
+    list_panels,
+    update_panel,
+)
 from app.schemas import MonthlyPanelIn, MonthlyPanelPatch
+from app.services.summary import current_summary_values
 
 
 class PanelCompletionTest(unittest.TestCase):
@@ -127,6 +135,106 @@ class PanelCompletionTest(unittest.TestCase):
         )
 
         self.assertEqual(created["spent_on"], "2026-06-18")
+
+    def test_fixed_confirmation_moves_pending_obligation_to_cash_flow_once(self) -> None:
+        with session() as conn:
+            panel_id = conn.execute(
+                """
+                INSERT INTO monthly_panels(month, panel_type, title, amount_value, sort_order)
+                VALUES ('2026-06', 'fixed', '월세', 100000, 20)
+                """
+            ).lastrowid
+
+        before = current_summary_values()
+        result = confirm_fixed_panel(panel_id, "2026-06-20")
+        after = current_summary_values()
+
+        self.assertIsNotNone(result)
+        assert result is not None
+        self.assertEqual(result["cash_flow"]["occurred_on"], "2026-06-20")
+        self.assertEqual(result["cash_flow"]["amount_value"], -100000)
+        self.assertEqual(result["panel"]["spent_on"], "2026-06-20")
+        self.assertEqual(
+            result["panel"]["confirmed_cash_flow_id"],
+            result["cash_flow"]["id"],
+        )
+        self.assertEqual(before["remaining_liquidity"], after["remaining_liquidity"])
+        self.assertEqual(before["fixed_cash_total"], after["fixed_cash_total"])
+        self.assertEqual(
+            after["cash_flow_balance"],
+            before["cash_flow_balance"] - 100000,
+        )
+        self.assertFalse(any(row["id"] == panel_id for row in list_panels("2026-06")))
+        self.assertTrue(
+            any(
+                row["id"] == panel_id
+                for row in list_panels("2026-06", include_confirmed_fixed=True)
+            )
+        )
+
+    def test_deleting_generated_cash_flow_restores_pending_fixed_obligation(self) -> None:
+        with session() as conn:
+            panel_id = conn.execute(
+                """
+                INSERT INTO monthly_panels(month, panel_type, title, amount_value, sort_order)
+                VALUES ('2026-06', 'fixed', '관리비', 50000, 21)
+                """
+            ).lastrowid
+        before = current_summary_values()
+        result = confirm_fixed_panel(panel_id, "2026-06-21")
+        assert result is not None
+
+        self.assertTrue(delete_cash_flow(result["cash_flow"]["id"]))
+        after_delete = current_summary_values()
+
+        self.assertEqual(after_delete["remaining_liquidity"], before["remaining_liquidity"])
+        with session() as conn:
+            panel = conn.execute(
+                """
+                SELECT spent_on, confirmed_at, confirmed_cash_flow_id
+                FROM monthly_panels WHERE id = ?
+                """,
+                (panel_id,),
+            ).fetchone()
+        self.assertIsNone(panel["spent_on"])
+        self.assertIsNone(panel["confirmed_at"])
+        self.assertIsNone(panel["confirmed_cash_flow_id"])
+
+    def test_fixed_confirmation_rejects_duplicate_processing(self) -> None:
+        with session() as conn:
+            panel_id = conn.execute(
+                """
+                INSERT INTO monthly_panels(month, panel_type, title, amount_value, sort_order)
+                VALUES ('2026-06', 'fixed', '보험료', 30000, 22)
+                """
+            ).lastrowid
+        confirm_fixed_panel(panel_id, "2026-06-22")
+
+        with self.assertRaisesRegex(ValueError, "이미 확인 처리"):
+            confirm_fixed_panel(panel_id, "2026-06-22")
+
+    def test_unlinked_legacy_confirmation_remains_pending_and_can_be_confirmed(self) -> None:
+        with session() as conn:
+            panel_id = conn.execute(
+                """
+                INSERT INTO monthly_panels(
+                    month, panel_type, title, amount_value, sort_order, confirmed_at
+                )
+                VALUES ('2026-06', 'fixed', '구형 고정지출', 12000, 23, '2026-06-01T00:00:00+00:00')
+                """
+            ).lastrowid
+
+        before = current_summary_values()
+        self.assertTrue(any(row["id"] == panel_id for row in list_panels("2026-06")))
+
+        result = confirm_fixed_panel(panel_id, "2026-06-23")
+        after = current_summary_values()
+
+        self.assertIsNotNone(result)
+        assert result is not None
+        self.assertEqual(result["cash_flow"]["amount_value"], -12000)
+        self.assertIsNotNone(result["panel"]["confirmed_cash_flow_id"])
+        self.assertEqual(before["remaining_liquidity"], after["remaining_liquidity"])
 
 
 if __name__ == "__main__":

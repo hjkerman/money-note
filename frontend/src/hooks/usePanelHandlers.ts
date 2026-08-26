@@ -3,6 +3,7 @@ import {
   clearPanelDiscount,
   CardDiscountPolicy,
   completePanelsByType,
+  confirmFixedPanel,
   createPanel,
   deletePanel,
   MonthlyPanel,
@@ -70,11 +71,33 @@ export function usePanelHandlers({
   }
 
   async function handlePanelDelete(panel: MonthlyPanel) {
-    const confirmed = window.confirm(`${panel.title} 항목을 삭제할까요?`);
+    const isConfirmedFixed =
+      panel.panel_type === "fixed" && Boolean(panel.confirmed_at && panel.confirmed_cash_flow_id);
+    const confirmed = window.confirm(
+      isConfirmedFixed
+        ? `${panel.title} 정기지출을 해제할까요?\n\n이미 기록된 현금흐름은 유지됩니다.`
+        : `${panel.title} 항목을 삭제할까요?`,
+    );
     if (!confirmed) return;
     await withRefresh(async () => {
       await deletePanel(panel.id);
-      setStatus(`${panelLabel(labels, panel.panel_type)} 항목 삭제 완료`);
+      setStatus(
+        isConfirmedFixed
+          ? `${panel.title} 정기지출 해제 완료`
+          : `${panelLabel(labels, panel.panel_type)} 항목 삭제 완료`,
+      );
+    });
+  }
+
+  async function handleFixedPanelConfirm(panel: MonthlyPanel, occurredOn: string) {
+    if (panel.panel_type !== "fixed") return;
+    const confirmed = window.confirm(
+      `${panel.title} ${formatWon(panel.amount_value)}을 ${occurredOn} 현금 지출로 확인 처리할까요?`,
+    );
+    if (!confirmed) return;
+    await withRefresh(async () => {
+      await confirmFixedPanel(panel.id, occurredOn);
+      setStatus(`${panel.title} 현금 지출 반영 완료`);
     });
   }
 
@@ -156,6 +179,7 @@ export function usePanelHandlers({
   return {
     handlePanelComplete,
     handlePanelDelete,
+    handleFixedPanelConfirm,
     handlePanelDiscount,
     handlePanelDiscountClear,
     handlePanelNetAmountEdit,

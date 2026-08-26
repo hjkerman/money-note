@@ -218,10 +218,12 @@ class AppState extends ChangeNotifier {
       _loadRecentCashFlows(freshMonthCloseStatus),
       api.summary(),
       api.judgment(),
+      api.currentPanels(),
     ]);
     cashFlows = results[0] as List<CashFlow>;
     summary = results[1] as Summary;
     judgment = results[2] as JudgmentState;
+    panels = results[3] as List<MonthlyPanel>;
     monthCloseStatus = freshMonthCloseStatus;
     if (notify) notifyListeners();
   }
@@ -251,7 +253,18 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> refreshPanelManagementArea({bool notify = true}) async {
-    await _refreshPanelsAndStatus();
+    final freshMonthCloseStatus = await api.monthCloseStatus();
+    final results = await Future.wait([
+      api.currentPanels(),
+      api.summary(),
+      api.judgment(),
+      _loadRecentCashFlows(freshMonthCloseStatus),
+    ]);
+    panels = results[0] as List<MonthlyPanel>;
+    summary = results[1] as Summary;
+    judgment = results[2] as JudgmentState;
+    cashFlows = results[3] as List<CashFlow>;
+    monthCloseStatus = freshMonthCloseStatus;
     if (notify) notifyListeners();
   }
 
@@ -411,7 +424,7 @@ class AppState extends ChangeNotifier {
         panelType: panelType,
         title: title,
         amount: amount,
-        spentOn: spentOn ?? _today(),
+        spentOn: panelType == 'fixed' ? null : spentOn ?? _today(),
       );
       if (!discountEnabled &&
           !panel.isDiscountIneligible &&
@@ -516,6 +529,14 @@ class AppState extends ChangeNotifier {
       await api.deletePanel(panelId);
       await refreshPanelManagementArea(notify: false);
       statusMessage = '항목 삭제 완료';
+    });
+  }
+
+  Future<void> confirmFixedPanel(int panelId, String occurredOn) async {
+    await _run(() async {
+      await api.confirmFixedPanel(panelId, occurredOn);
+      await refreshPanelManagementArea(notify: false);
+      statusMessage = '현금성 고정지출 확인 완료';
     });
   }
 

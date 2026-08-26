@@ -193,6 +193,8 @@ class MonthlyPanel {
     this.spentOn,
     this.amountValue,
     this.dueDay,
+    this.confirmedAt,
+    this.confirmedCashFlowId,
   });
 
   final int id;
@@ -210,6 +212,8 @@ class MonthlyPanel {
   final String? spentOn;
   final int? amountValue;
   final int? dueDay;
+  final String? confirmedAt;
+  final int? confirmedCashFlowId;
 
   int get effectiveAmount => effectiveAmountValue ?? (amountValue ?? 0);
   bool get isDiscountExcluded =>
@@ -238,6 +242,10 @@ class MonthlyPanel {
       amountValue:
           json['amount_value'] == null ? null : _int(json['amount_value']),
       dueDay: json['due_day'] == null ? null : _int(json['due_day']),
+      confirmedAt: json['confirmed_at'] as String?,
+      confirmedCashFlowId: json['confirmed_cash_flow_id'] == null
+          ? null
+          : _int(json['confirmed_cash_flow_id']),
     );
   }
 }

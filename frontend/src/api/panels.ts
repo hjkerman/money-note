@@ -9,6 +9,7 @@ type MonthlyPanelWrite = Omit<
   | "automatic_discount_amount"
   | "effective_discount_amount"
   | "effective_amount_value"
+  | "confirmed_cash_flow_id"
 >;
 
 export function sharePageUrl(panelType: "claim" | "family_card"): string {
@@ -26,6 +27,15 @@ export async function createPanel(payload: MonthlyPanelWrite): Promise<MonthlyPa
 
 export async function deletePanel(panelId: number): Promise<{ deleted: boolean }> {
   return deleteJson(`/api/month/current/panels/${panelId}`);
+}
+
+export async function confirmFixedPanel(
+  panelId: number,
+  occurredOn: string,
+): Promise<{ panel: MonthlyPanel; cash_flow: { id: number } }> {
+  return postJson(`/api/month/current/panels/${panelId}/confirm-fixed`, {
+    occurred_on: occurredOn,
+  });
 }
 
 export async function updatePanelDiscount(panelId: number, discountAmount: number): Promise<MonthlyPanel> {

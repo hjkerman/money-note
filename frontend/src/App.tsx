@@ -163,6 +163,7 @@ export function App() {
   const {
     handlePanelComplete,
     handlePanelDelete,
+    handleFixedPanelConfirm,
     handlePanelDiscount,
     handlePanelDiscountClear,
     handlePanelNetAmountEdit,
@@ -446,8 +447,10 @@ export function App() {
 
           <FixedPanelView
               active={activePrimaryTab === "fixed"}
+              calendarDate={monthCloseStatus?.calendar_date ?? ""}
               currentMonth={currentMonth}
               handlePanelDelete={(panel) => void handlePanelDelete(panel)}
+              handleFixedPanelConfirm={(panel, occurredOn) => void handleFixedPanelConfirm(panel, occurredOn)}
               handlePanelSubmit={handlePanelSubmit}
               handlePlannedConfirm={(entry, entryDate) => void handlePlannedConfirm(entry, entryDate)}
               handlePlannedDelete={(entry) => void handlePlannedDelete(entry)}
