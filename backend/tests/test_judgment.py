@@ -27,7 +27,7 @@ class JudgmentTest(unittest.TestCase):
             "family_card_count": 0,
             "frozen_total": 0,
             "frozen_count": 0,
-            "next_month_liquidity": 400_000,
+            "remaining_liquidity": 400_000,
             "historical_expense_counts": historical_counts,
         }
 
@@ -65,6 +65,15 @@ class JudgmentTest(unittest.TestCase):
         self.assertEqual(ordinary["level"], "quiet")
         self.assertEqual(many["level"], "steady")
         self.assertNotEqual(ordinary["message"], many["message"])
+
+    def test_budget_accepts_compatibility_liquidity_key(self) -> None:
+        from app.services.judgment import budget_committee_tone
+
+        input_data = self._budget_input(1, [])
+        input_data.pop("remaining_liquidity")
+        input_data["next_month_liquidity"] = -1
+
+        self.assertEqual(budget_committee_tone(input_data)["level"], "danger")
 
     def test_claim_subtitle_distinguishes_medical_and_tiny_claims(self) -> None:
         medical_rows = [

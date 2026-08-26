@@ -13,6 +13,11 @@ settings_router = APIRouter(prefix="/api/settings", tags=["settings"])
 cash_router = APIRouter(prefix="/api/cash-flows", tags=["cash-flows"])
 labels_router = APIRouter(prefix="/api/labels", tags=["labels"])
 
+SETTING_KEY_ALIASES = {
+    "scheduled_income": "base_next_month_liquidity",
+    "cash_flow_balance": "liquidity_status",
+}
+
 
 @settings_router.get("")
 def get_settings_values(_: dict = Depends(require_user)) -> dict[str, str]:
@@ -23,11 +28,17 @@ def get_settings_values(_: dict = Depends(require_user)) -> dict[str, str]:
             "ORDER BY key",
             tuple(SENSITIVE_SHARE_SETTING_KEYS),
         ).fetchall()
-    return {row["key"]: row["value"] for row in rows}
+    values = {row["key"]: row["value"] for row in rows}
+    # 저장 key는 유지하되 새 도메인 이름도 같은 값으로 노출한다.
+    for alias, storage_key in SETTING_KEY_ALIASES.items():
+        values[alias] = values.get(storage_key, "0")
+    return values
 
 
 @settings_router.patch("/{key}")
 def patch_setting(key: str, patch: SettingPatch, _: dict = Depends(require_user)) -> dict[str, str]:
+    requested_key = key
+    key = SETTING_KEY_ALIASES.get(key, key)
     numeric_settings = {"base_next_month_liquidity", "interest_expense", "liquidity_status", "card_limit"}
     card_last4_settings = {"owner_card_last4", "family_card_last4"}
     if key not in numeric_settings | card_last4_settings:
@@ -56,7 +67,7 @@ def patch_setting(key: str, patch: SettingPatch, _: dict = Depends(require_user)
             """,
             (key, value),
         )
-    return {key: value}
+    return {requested_key: value}
 
 
 @cash_router.get("", response_model=list[CashFlow])

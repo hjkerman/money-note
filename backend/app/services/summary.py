@@ -26,19 +26,24 @@ def current_summary_values() -> dict[str, int]:
     transfer_or_deposit_total = fixed_panel_total + planned_recurring_total
     liquidity_fixed_total = fixed_panel_total + planned_liquidity_total
     frozen_asset_total = panel_total("frozen")
-    base_next_month_liquidity = setting_float("base_next_month_liquidity")
+    # DB key는 Snapshot/저장 호환성을 위해 유지하고 내부에서는 중립 용어로 해석한다.
+    scheduled_income = setting_float("base_next_month_liquidity")
     interest_expense = setting_float("interest_expense")
-    liquidity_status = setting_float("liquidity_status") + cash_flow_total()
-    next_month_liquidity = (
-        base_next_month_liquidity
+    cash_flow_balance = setting_float("liquidity_status") + cash_flow_total()
+    remaining_liquidity = (
+        scheduled_income
         - card_total
         - liquidity_fixed_total
         - interest_expense
         - frozen_asset_total
-        + liquidity_status
+        + cash_flow_balance
     )
     return {
-        "base_next_month_liquidity": int(base_next_month_liquidity),
+        "scheduled_income": int(scheduled_income),
+        "cash_flow_balance": int(cash_flow_balance),
+        "remaining_liquidity": int(remaining_liquidity),
+        # 1단계 호환 alias: 기존 클라이언트 제거 전까지 새 key와 같은 값을 반환한다.
+        "base_next_month_liquidity": int(scheduled_income),
         "current_spending_total": int(entry_card_total),
         "current_discount_total": int(entry_discount_total),
         "card_total": int(card_total),
@@ -47,8 +52,8 @@ def current_summary_values() -> dict[str, int]:
         "transfer_or_deposit_total": int(transfer_or_deposit_total),
         "interest_expense": int(interest_expense),
         "frozen_asset_total": int(frozen_asset_total),
-        "liquidity_status": int(liquidity_status),
-        "next_month_liquidity": int(next_month_liquidity),
+        "liquidity_status": int(cash_flow_balance),
+        "next_month_liquidity": int(remaining_liquidity),
         "claim_original_total": int(panel_total("claim")),
         "claim_net_total": int(panel_net_total("claim")),
         "family_card_original_total": int(panel_total("family_card")),

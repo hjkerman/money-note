@@ -2,7 +2,7 @@
 
 이 문서는 새 개발자나 새 작업 세션이 Money Note의 현재 기준선과 문서 읽기 순서를 빠르게 파악하기 위한 체크포인트다. 상세 도메인 규칙, API, 스키마, 운영 절차를 대신하지 않는다.
 
-마지막 코드 대조: 2026-08-22, `main`
+마지막 코드 대조: 2026-08-26, `main`
 
 ## 현재 기준선
 
@@ -23,6 +23,7 @@
 - `claim`과 `family_card`는 소비 원장이 아니라 회수 예정 큐다. 소비 통계와 유동성에 직접 넣지 않으며, 월 경계와 무관하게 처리 또는 삭제 전까지 남는다.
 - `family_card`는 정상 운영 기능이지만 비핵심 기능이다. 제거할 때 원장, 카드대금, 유동성 계산을 고치지 않아도 되는 경계를 유지한다.
 - 월마감은 자동 실행하지 않는다. 사용자의 명시적 실행이 결제 batch와 원장 이동의 기준이다.
+- 유동성 도메인의 표준 이름은 `scheduled_income`, `cash_flow_balance`, `remaining_liquidity`다. DB와 기존 API의 과거 key는 1단계 호환 경계에만 남긴다.
 
 상세 의미는 [도메인 모델](domain-model.md), 계산·모듈 경계는 [아키텍처](architecture.md)를 따른다.
 
@@ -36,6 +37,7 @@
 - **검증 가능한 Snapshot**: canonical JSON 기반 manifest와 SHA-256을 사용하고, 실제 restore 전 dry-run과 mandatory `pre_restore` 생성을 거친다. 구버전 Snapshot은 호환 기본값이 있는 신규 필드의 누락을 허용하고 현재 스키마에 없는 필드는 무시하되, manifest나 필수 테이블·컬럼 오류는 허용하지 않는다.
 
 카드 교체 절차는 [카드 정책 변경](card-policy-change.md), 가족카드 경계는 [가족카드 제거](family-card-removal.md), 백업 안전성은 [실행 방법](runbook.md)과 [보안 운영](security.md)에 상세히 적혀 있다.
+결제 압박 기준을 잔여 유동성으로 전환할 미래 조건은 [미래 예산 주기 전환](future-budget-cycle-transition.md)에 둔다.
 
 ## 의도적으로 하지 않는 것
 
@@ -83,6 +85,7 @@
 | 인증, 비밀정보, 공개 경계와 위협 대응 | `docs/security.md` |
 | HTTP 계약 | `docs/api.md` |
 | SQLite 스키마와 컬럼 의미 | `docs/database.md` |
+| 향후 결제 압박 기준과 예산 주기 전환 조건 | `docs/future-budget-cycle-transition.md` |
 | 손검증과 회귀 시나리오 | `docs/test-plan.md` |
 | 현재 기술 부채와 외부 제약 | `docs/known-issues.md` |
 | Android 화면·UX 기준 | `docs/mobile-design.md` |

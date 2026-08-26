@@ -227,8 +227,8 @@ INSERT OR IGNORE INTO app_labels(key, value) VALUES
 ('summary_transfer_or_deposit_label', '고정지출'),
 ('summary_interest_expense_label', '이자지출'),
 ('summary_frozen_asset_label', '동결자산'),
-('summary_liquidity_status_label', '유동성 현황'),
-('summary_next_month_liquidity_label', '익월 유동성');
+('summary_liquidity_status_label', '현금흐름 반영액'),
+('summary_next_month_liquidity_label', '잔여 유동성');
 """
 
 
@@ -358,6 +358,7 @@ def init_db() -> None:
         )
         conn.execute("DELETE FROM app_settings WHERE key = 'family_card_limit'")
         _normalize_domain_names(conn)
+        _normalize_liquidity_labels(conn)
         _normalize_money_settings(conn)
         _backfill_planned_due_days(conn)
 
@@ -377,6 +378,26 @@ def _normalize_domain_names(conn: sqlite3.Connection) -> None:
         SET key = 'panel_family_card_title', updated_at = CURRENT_TIMESTAMP
         WHERE key = 'panel_settlement_title'
           AND NOT EXISTS (SELECT 1 FROM app_labels WHERE key = 'panel_family_card_title')
+        """
+    )
+
+
+def _normalize_liquidity_labels(conn: sqlite3.Connection) -> None:
+    """과거 기본 라벨만 중립 용어로 바꾸고 사용자 지정 라벨은 보존한다."""
+    conn.execute(
+        """
+        UPDATE app_labels
+        SET value = '현금흐름 반영액', updated_at = CURRENT_TIMESTAMP
+        WHERE key = 'summary_liquidity_status_label'
+          AND value = '유동성 현황'
+        """
+    )
+    conn.execute(
+        """
+        UPDATE app_labels
+        SET value = '잔여 유동성', updated_at = CURRENT_TIMESTAMP
+        WHERE key = 'summary_next_month_liquidity_label'
+          AND value = '익월 유동성'
         """
     )
 

@@ -45,6 +45,10 @@ class SummaryCalculationTest(unittest.TestCase):
 
         summary = current_summary_values()
 
+        self.assertEqual(summary["scheduled_income"], summary["base_next_month_liquidity"])
+        self.assertEqual(summary["cash_flow_balance"], summary["liquidity_status"])
+        self.assertEqual(summary["remaining_liquidity"], summary["next_month_liquidity"])
+
         self.assertEqual(summary["card_total"], 98_800)
         self.assertEqual(summary["current_spending_total"], 100_000)
         self.assertEqual(summary["current_discount_total"], 1_200)

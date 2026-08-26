@@ -48,7 +48,7 @@ class StatusScreen extends StatelessWidget {
           children: [
             Expanded(
                 child: AmountTile(
-                    label: '익월 유동성', amount: won(summary?.nextMonthLiquidity))),
+                    label: '잔여 유동성', amount: won(summary?.remainingLiquidity))),
             const SizedBox(width: 12),
             Expanded(
                 child: AmountTile(

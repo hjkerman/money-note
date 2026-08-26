@@ -73,7 +73,7 @@ export function useSettingsHandlers({
     const amount = parseAmount(scheduledIncomeInput);
     if (amount === null || amount < 0) return;
     await withRefresh(async () => {
-      await updateSetting("base_next_month_liquidity", String(amount));
+      await updateSetting("scheduled_income", String(amount));
       setScheduledIncomeInput(String(amount));
       setStatus("기본 예정 수입 저장 완료");
     });

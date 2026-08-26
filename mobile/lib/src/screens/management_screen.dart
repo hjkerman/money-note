@@ -455,8 +455,8 @@ class _MobileSettingsScreenState extends State<MobileSettingsScreen> {
     familyCard =
         TextEditingController(text: settings['family_card_last4'] ?? '');
     cardLimit = TextEditingController(text: settings['card_limit'] ?? '');
-    baseIncome = TextEditingController(
-        text: settings['base_next_month_liquidity'] ?? '');
+    baseIncome =
+        TextEditingController(text: settings['scheduled_income'] ?? '');
     interestExpense =
         TextEditingController(text: settings['interest_expense'] ?? '');
     transitFollowsOwner =
@@ -502,7 +502,7 @@ class _MobileSettingsScreenState extends State<MobileSettingsScreen> {
             controller: baseIncome,
             label: '기본 예정 수입',
             keyboardType: TextInputType.number,
-            onSave: () => _save('base_next_month_liquidity', baseIncome.text),
+            onSave: () => _save('scheduled_income', baseIncome.text),
           ),
           _SettingField(
             controller: interestExpense,

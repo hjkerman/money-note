@@ -87,8 +87,8 @@ export function CardPaymentPanel({
         </div>
         {status.needs_liquidity_reset ? (
           <div className="payment-alert">
-            <span>결제 안 된 내역 있습니다. 유동성 현황을 재설정하세요.</span>
-            <button type="button" onClick={onAcknowledgeLiquidityReset}>유동성 보정 완료</button>
+            <span>결제 안 된 내역 있습니다. 현금흐름 반영액을 재설정하세요.</span>
+            <button type="button" onClick={onAcknowledgeLiquidityReset}>현금흐름 보정 완료</button>
           </div>
         ) : null}
         <p className="judgment-line">{pressure.message}</p>

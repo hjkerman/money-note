@@ -99,9 +99,9 @@ API의 할인 정책·자동 할인·유효 할인·실결제 투영 필드는 �
 
 | key | 의미 |
 | --- | --- |
-| `base_next_month_liquidity` | 이달 기준 수입 기록이 없을 때 쓰는 기본 예정 수입 |
+| `base_next_month_liquidity` | `scheduled_income`의 호환 저장 key. 기본 예정 수입 |
 | `interest_expense` | 이자 지출 |
-| `liquidity_status` | 현재 유동성 현황 |
+| `liquidity_status` | `cash_flow_balance`의 호환 저장 key. 현금흐름 수동 보정값 |
 | `card_limit` | 본인카드와 가족카드 합산 사용률을 판단할 카드 한도 |
 | `owner_card_last4` | 본인회원 카드 끝 4자리 |
 | `family_card_last4` | 가족카드 끝 4자리 |
@@ -125,7 +125,10 @@ API의 할인 정책·자동 할인·유효 할인·실결제 투영 필드는 �
 | `panel_family_card_title` | 가족카드 제목 |
 | `summary_title` | 요약 제목 |
 | `summary_card_total_label` | 카드대금 라벨 |
-| `summary_next_month_liquidity_label` | 익월 유동성 라벨 |
+| `summary_liquidity_status_label` | 현금흐름 반영액 라벨 |
+| `summary_next_month_liquidity_label` | 잔여 유동성 라벨 |
+
+`base_next_month_liquidity`, `liquidity_status`는 Snapshot과 기존 DB 호환성을 위해 유지한다. 새 API 이름을 별도 row로 중복 저장하지 않는다. 서버는 전자를 `scheduled_income`, 후자를 현금흐름 전체 누계와 합산하기 전의 `cash_flow_balance` 보정값으로 해석한다.
 
 ## `cash_flows`
 

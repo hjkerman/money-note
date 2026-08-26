@@ -51,7 +51,7 @@ export function useCardPaymentHandlers({
 }) {
   function handleAutoAllocate() {
     if (!cardPayments?.immediate_allowed) return;
-    let remainingBudget = Math.max(0, parseAmount(paymentBudget) ?? summary?.liquidity_status ?? 0);
+    let remainingBudget = Math.max(0, parseAmount(paymentBudget) ?? summary?.cash_flow_balance ?? 0);
     const next: Record<string, string> = {};
     for (const row of cardPayments.rows) {
       if (
@@ -224,11 +224,11 @@ export function useCardPaymentHandlers({
   }
 
   async function handleLiquidityResetAcknowledgement() {
-    const confirmed = window.confirm("실제 계좌 잔액에 맞게 유동성 현황을 보정했습니까?");
+    const confirmed = window.confirm("실제 계좌 잔액에 맞게 현금흐름 반영액을 보정했습니까?");
     if (!confirmed) return;
     await withRefresh(async () => {
       await acknowledgeLiquidityReset();
-      setStatus("유동성 보정 완료 확인");
+      setStatus("현금흐름 보정 완료 확인");
     });
   }
 

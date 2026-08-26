@@ -56,8 +56,8 @@ export function CardPaymentView({
     <section className={active ? "tab-panel active" : "tab-panel"}>
       <CardPaymentPanel
         status={cardPayments}
-        fallbackLiquidity={parseSettingNumber(settings, "base_next_month_liquidity", 400_000)}
-        availableLiquidity={summary?.liquidity_status ?? 0}
+        fallbackLiquidity={parseSettingNumber(settings, "scheduled_income", 400_000)}
+        availableLiquidity={summary?.cash_flow_balance ?? 0}
         onAcknowledgeLiquidityReset={() => handleLiquidityResetAcknowledgement()}
         allocations={paymentAllocations}
         setAllocations={setPaymentAllocations}

@@ -53,13 +53,13 @@ class _CashFlowScreenState extends State<CashFlowScreen> {
           children: [
             Expanded(
                 child: AmountTile(
-                    label: '현재 유동성',
-                    amount: won(widget.state.summary?.liquidityStatus))),
+                    label: '현금흐름 반영액',
+                    amount: won(widget.state.summary?.cashFlowBalance))),
             const SizedBox(width: 12),
             Expanded(
                 child: AmountTile(
-                    label: '익월 유동성',
-                    amount: won(widget.state.summary?.nextMonthLiquidity))),
+                    label: '잔여 유동성',
+                    amount: won(widget.state.summary?.remainingLiquidity))),
           ],
         ),
         const SectionTitle('현금 입출금 입력'),

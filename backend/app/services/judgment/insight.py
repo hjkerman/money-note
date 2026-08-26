@@ -43,9 +43,9 @@ def app_judgment(
     owner_card_total = float(summary.get("card_total") or 0)
     today_iso = app_today_iso()
     days_until_due = days_between(today_iso, str(payment_status.get("due_date") or today_iso))
-    reference_liquidity = float(payment_status.get("primary_income_total") or 0)
-    if reference_liquidity <= 0:
-        reference_liquidity = float(settings.get("base_next_month_liquidity") or 400_000)
+    payment_reference_income = float(payment_status.get("primary_income_total") or 0)
+    if payment_reference_income <= 0:
+        payment_reference_income = float(settings.get("base_next_month_liquidity") or 400_000)
 
     return {
         "category_labels": CATEGORY_LABELS,
@@ -65,7 +65,9 @@ def app_judgment(
                 "family_card_count": len(family_card_rows),
                 "frozen_total": sum(float(row.get("amount_value") or 0) for row in frozen_rows),
                 "frozen_count": len(frozen_rows),
-                "next_month_liquidity": float(summary.get("next_month_liquidity") or 0),
+                "remaining_liquidity": float(
+                    summary.get("remaining_liquidity", summary.get("next_month_liquidity", 0)) or 0
+                ),
                 "historical_expense_counts": historical_expense_counts or [],
             }
         ),
@@ -73,7 +75,7 @@ def app_judgment(
         "payment": payment_pressure_tone(
             float(payment_status.get("recorded_remaining_total") or 0),
             days_until_due,
-            reference_liquidity,
+            payment_reference_income,
         ),
     }
 
@@ -96,7 +98,11 @@ def budget_committee_tone(input_data: dict) -> dict[str, str]:
             "level": "quiet",
             "message": say("budget.empty"),
         }
-    if input_data.get("next_month_liquidity", 0) < 0:
+    remaining_liquidity = input_data.get(
+        "remaining_liquidity",
+        input_data.get("next_month_liquidity", 0),
+    )
+    if remaining_liquidity < 0:
         return {
             "level": "danger",
             "message": say("budget.liquidity_danger"),

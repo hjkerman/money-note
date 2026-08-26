@@ -32,8 +32,8 @@ class Summary {
     required this.plannedRecurringTotal,
     required this.fixedCashTotal,
     required this.frozenAssetTotal,
-    required this.liquidityStatus,
-    required this.nextMonthLiquidity,
+    required this.cashFlowBalance,
+    required this.remainingLiquidity,
     required this.claimOriginalTotal,
     required this.claimNetTotal,
     required this.familyCardOriginalTotal,
@@ -47,8 +47,8 @@ class Summary {
   final int plannedRecurringTotal;
   final int fixedCashTotal;
   final int frozenAssetTotal;
-  final int liquidityStatus;
-  final int nextMonthLiquidity;
+  final int cashFlowBalance;
+  final int remainingLiquidity;
   final int claimOriginalTotal;
   final int claimNetTotal;
   final int familyCardOriginalTotal;
@@ -63,8 +63,8 @@ class Summary {
       plannedRecurringTotal: _int(json['planned_recurring_total']),
       fixedCashTotal: _int(json['fixed_cash_total']),
       frozenAssetTotal: _int(json['frozen_asset_total']),
-      liquidityStatus: _int(json['liquidity_status']),
-      nextMonthLiquidity: _int(json['next_month_liquidity']),
+      cashFlowBalance: _int(json['cash_flow_balance']),
+      remainingLiquidity: _int(json['remaining_liquidity']),
       claimOriginalTotal: _int(json['claim_original_total']),
       claimNetTotal: _int(json['claim_net_total']),
       familyCardOriginalTotal: _int(json['family_card_original_total']),

@@ -34,8 +34,8 @@ export function SummaryPanel({
         [labels.summary_transfer_or_deposit_label ?? "고정지출", summary.transfer_or_deposit_total],
         [labels.summary_interest_expense_label ?? "이자지출", summary.interest_expense],
         [labels.summary_frozen_asset_label ?? "동결자산", summary.frozen_asset_total],
-        [labels.summary_liquidity_status_label ?? "유동성 현황", summary.liquidity_status],
-        [labels.summary_next_month_liquidity_label ?? "익월 유동성", summary.next_month_liquidity],
+        [labels.summary_liquidity_status_label ?? "현금흐름 반영액", summary.cash_flow_balance],
+        [labels.summary_next_month_liquidity_label ?? "잔여 유동성", summary.remaining_liquidity],
       ]
     : [];
 
@@ -49,7 +49,7 @@ export function SummaryPanel({
           <p className={`committee-verdict ${committee.level}`}>{committee.message}</p>
           <dl>
             {rows.map(([label, value]) => (
-              <div key={label} className={label === (labels.summary_next_month_liquidity_label ?? "익월 유동성") ? "total" : ""}>
+              <div key={label} className={label === (labels.summary_next_month_liquidity_label ?? "잔여 유동성") ? "total" : ""}>
                 <dt>{label}</dt>
                 <dd>{formatWon(value as number)}</dd>
               </div>

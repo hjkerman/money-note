@@ -12,6 +12,7 @@ from app.services.card_charge import DiscountCard
 from app.services.card_charge.policies import NoAutomaticDiscountPolicy
 from app.services.card_charge.registry import POLICY_TIMELINES, PolicyBinding
 from app.services.snapshot import export_snapshot, restore_snapshot
+from app.services.summary import current_summary_values
 
 
 class SnapshotTest(unittest.TestCase):
@@ -77,6 +78,8 @@ class SnapshotTest(unittest.TestCase):
         self.assertIn("old-key", deferral_keys)
         setting_keys = {row["key"] for row in snapshot["data"]["app_settings"]}
         self.assertIn("base_next_month_liquidity", setting_keys)
+        self.assertNotIn("scheduled_income", setting_keys)
+        self.assertNotIn("cash_flow_balance", setting_keys)
         self.assertNotIn("share_pin_hash", setting_keys)
         self.assertNotIn("share_pin_is_default", setting_keys)
         self.assertNotIn("users", snapshot["data"])
@@ -117,6 +120,17 @@ class SnapshotTest(unittest.TestCase):
         with session() as conn:
             restored = conn.execute("SELECT spent_on FROM monthly_panels WHERE id = 99").fetchone()
         self.assertEqual(restored["spent_on"], "2026-06-18")
+
+    def test_restore_keeps_new_and_compatibility_summary_keys_equal(self) -> None:
+        self._seed_data()
+        _, snapshot = export_snapshot(date(2026, 6, 11))
+
+        restore_snapshot(snapshot)
+        summary = current_summary_values()
+
+        self.assertEqual(summary["scheduled_income"], summary["base_next_month_liquidity"])
+        self.assertEqual(summary["cash_flow_balance"], summary["liquidity_status"])
+        self.assertEqual(summary["remaining_liquidity"], summary["next_month_liquidity"])
 
     def test_restore_truncates_float_money_values_from_legacy_snapshot(self) -> None:
         self._seed_data()

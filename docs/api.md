@@ -31,7 +31,7 @@
 - 모바일은 `/api/auth/mobile-login`의 `session_token`을 `Authorization: Bearer ...`로 보낸다.
 - 변경 API를 호출한 뒤에는 관련 조회 API를 다시 호출해 서버 계산 결과를 화면에 반영한다.
 - 파일 다운로드 API는 JSON이 아니라 blob/file 응답일 수 있다. 대표적으로 snapshot export와 APK 다운로드가 그렇다.
-- `claim`과 `family_card`는 회수 예정 정보이며, 당월 소비 원장/소비 통계/익월 유동성 계산에 직접 넣지 않는다.
+- `claim`과 `family_card`는 회수 예정 정보이며, 당월 소비 원장/소비 통계/잔여 유동성 계산에 직접 넣지 않는다.
 
 ## 상태 확인
 
@@ -525,6 +525,10 @@
 
 ```json
 {
+  "scheduled_income": 400000,
+  "cash_flow_balance": 200000,
+  "remaining_liquidity": -23456,
+
   "base_next_month_liquidity": 400000,
   "current_spending_total": 124956,
   "current_discount_total": 1500,
@@ -546,6 +550,20 @@
 
 이 응답은 웹과 모바일 요약 카드의 권위 있는 합계다. 클라이언트는 조회한 행을 다시 합산해 이 값을 대체하지 않는다.
 
+표준 유동성 key:
+
+- `scheduled_income`: 기본 예정 수입
+- `cash_flow_balance`: 수동 보정값과 전체 기간 현금흐름 누계를 합친 현금흐름 반영액
+- `remaining_liquidity`: 현재 예산 주기에서 이미 약속된 금액을 제외하고 추가로 사용할 수 있는 잔여 유동성
+
+1단계 호환 alias:
+
+- `base_next_month_liquidity` = `scheduled_income`
+- `liquidity_status` = `cash_flow_balance`
+- `next_month_liquidity` = `remaining_liquidity`
+
+호환 alias는 기존 클라이언트를 위해 같은 응답에 유지한다. 웹과 모바일은 표준 key만 사용한다.
+
 - `current_spending_total`: 본인 원장의 할인 전 사용금액
 - `current_discount_total`: 본인 원장의 유효 할인액
 - `card_total`: 본인 원장의 할인 후 카드대금
@@ -558,23 +576,23 @@
 
 `transfer_or_deposit_total`은 기존 API 호환 이름을 유지하지만, 화면에서는 `고정지출`로 표시한다. 이 값은 현금성 고정지출 패널과 `planned_recurring_total`을 합산한다.
 
-익월 유동성 계산에서는 중복 차감을 피하기 위해, 카드 지출로 편입되지 않은 카드 정기결제 예정액만 고정지출 차감분으로 사용한다. 즉 카드 정기결제를 `확인`하면 표시용 고정지출 총합은 유지되지만, 유동성 계산에서는 카드대금으로 이동한다.
+잔여 유동성 계산에서는 중복 차감을 피하기 위해, 카드 지출로 편입되지 않은 카드 정기결제 예정액만 고정지출 차감분으로 사용한다. 즉 카드 정기결제를 `확인`하면 표시용 고정지출 총합은 유지되지만, 유동성 계산에서는 카드대금으로 이동한다.
 
 계산식:
 
 ```text
-next_month_liquidity
-= base_next_month_liquidity
+remaining_liquidity
+= scheduled_income
   - card_total
   - liquidity_fixed_total
   - interest_expense
   - frozen_asset_total
-  + liquidity_status
+  + cash_flow_balance
 ```
 
 `liquidity_fixed_total`은 응답 필드가 아니라 내부 계산값이다. `현금성 고정지출 + 아직 카드 지출로 확인되지 않은 카드 정기결제 예정액`이다.
 
-`card_total`은 본인 당월 카드 지출의 할인 후 금액이다. 청구 탭 금액은 청구 표시 합계와 공유 청구서의 실청구액에는 반영하지만, `next_month_liquidity` 계산에는 넣지 않는다.
+`card_total`은 본인 당월 카드 지출의 할인 후 금액이다. 청구 탭 금액은 청구 표시 합계와 공유 청구서의 실청구액에는 반영하지만, `remaining_liquidity` 계산에는 넣지 않는다.
 청구와 가족카드는 회수 예정 금액으로 보며, 당월 소비 통계와 `당월` 큰 탭 합계에도 넣지 않는다.
 
 ## 판단
@@ -804,7 +822,7 @@ next_month_liquidity
 
 ### `POST /api/card-payments/acknowledge-liquidity-reset`
 
-14일 경과 후 기록상 미결제액을 확인한 사용자가 실제 유동성 현황을 수동 보정했음을 기록한다. 남은 금액 자체를 삭제하거나 0원으로 바꾸는 API는 아니다.
+14일 경과 후 기록상 미결제액을 확인한 사용자가 실제 현금흐름 반영액을 수동 보정했음을 기록한다. 남은 금액 자체를 삭제하거나 0원으로 바꾸는 API는 아니다.
 
 ### `POST /api/card-payments/late-entries`
 
@@ -946,6 +964,8 @@ GET /api/cash-flows?from=2026-07-01&to=2026-07-31&limit=100
 
 ```json
 {
+  "scheduled_income": "400000",
+  "cash_flow_balance": "0",
   "base_next_month_liquidity": "400000",
   "interest_expense": "0",
   "liquidity_status": "0",
@@ -957,9 +977,11 @@ GET /api/cash-flows?from=2026-07-01&to=2026-07-31&limit=100
 
 설정값:
 
-- `base_next_month_liquidity`: 이달 기준 수입 기록이 없을 때 쓰는 기본 예정 수입
+- `scheduled_income`: 기본 예정 수입. `base_next_month_liquidity`와 같은 저장값
+- `cash_flow_balance`: 현금흐름 수동 보정값. `liquidity_status`와 같은 저장값
+- `base_next_month_liquidity`: `scheduled_income`의 1단계 호환 alias
 - `interest_expense`: 이자지출
-- `liquidity_status`: 유동성 현황
+- `liquidity_status`: `cash_flow_balance`의 1단계 호환 alias
 - `card_limit`: 본인카드와 가족카드 합산 사용률을 판단할 카드 한도
 - `owner_card_last4`: 본인회원 카드 끝 4자리. 비워둘 수 있다.
 - `family_card_last4`: 가족카드 끝 4자리. 비워둘 수 있다.
@@ -980,18 +1002,24 @@ GET /api/cash-flows?from=2026-07-01&to=2026-07-31&limit=100
 
 ```json
 {
-  "base_next_month_liquidity": "450000"
+  "scheduled_income": "450000"
 }
 ```
 
 허용 key:
 
+- `scheduled_income`
+- `cash_flow_balance`
 - `base_next_month_liquidity`
 - `interest_expense`
 - `liquidity_status`
 - `card_limit`
 - `owner_card_last4`
 - `family_card_last4`
+
+새 이름으로 수정해도 서버는 기존 DB key에 저장한다. 기존 이름으로 수정하는 요청도 계속 허용한다. 이 API는 path에 key 하나와 body에 값 하나만 받으므로 한 요청에서 새 이름과 호환 이름을 동시에 전달할 수 없다. 따라서 상충값 요청은 현재 HTTP 계약상 성립하지 않는다. 향후 bulk 설정 API를 추가한다면 같은 저장값을 가리키는 두 이름의 값이 다를 때 `422`를 반환해야 한다.
+
+Snapshot은 API alias를 중복 저장하지 않고 기존 `app_settings` DB key만 보존한다.
 
 ## 앱 표시 라벨
 
@@ -1010,7 +1038,7 @@ GET /api/cash-flows?from=2026-07-01&to=2026-07-31&limit=100
   "panel_frozen_title": "동결",
   "panel_claim_title": "청구",
   "panel_family_card_title": "가족카드",
-  "summary_next_month_liquidity_label": "익월 유동성"
+  "summary_next_month_liquidity_label": "잔여 유동성"
 }
 ```
 

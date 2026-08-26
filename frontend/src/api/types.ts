@@ -80,7 +80,9 @@ export type MonthlyPanel = {
 };
 
 export type Summary = {
-  base_next_month_liquidity: number;
+  scheduled_income: number;
+  cash_flow_balance: number;
+  remaining_liquidity: number;
   current_spending_total: number;
   current_discount_total: number;
   card_total: number;
@@ -89,8 +91,6 @@ export type Summary = {
   transfer_or_deposit_total: number;
   interest_expense: number;
   frozen_asset_total: number;
-  liquidity_status: number;
-  next_month_liquidity: number;
   claim_original_total: number;
   claim_net_total: number;
   family_card_original_total: number;

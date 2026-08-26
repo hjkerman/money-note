@@ -93,7 +93,7 @@ export function useAppRefresh({
       setCashFlows(snapshot.cashFlows);
       setSettings(snapshot.settings);
       setInterestExpenseInput(formatIntegerSetting(snapshot.settings.interest_expense));
-      setScheduledIncomeInput(formatIntegerSetting(snapshot.settings.base_next_month_liquidity));
+      setScheduledIncomeInput(formatIntegerSetting(snapshot.settings.scheduled_income));
       setCardLimitInput(formatIntegerSetting(snapshot.settings.card_limit));
       setOwnerCardLast4Input(snapshot.settings.owner_card_last4 ?? "");
       setFamilyCardLast4Input(snapshot.settings.family_card_last4 ?? "");
