@@ -39,7 +39,7 @@
 - **예정된 Claim 제거**: Claim은 2026년 10월경 제거 예정이다. 현재 경계와 전환 순서는 [청구 기능 제거 가이드](claim-removal.md)에 고정한다.
 
 카드 교체 절차는 [카드 정책 변경](card-policy-change.md), 가족카드 경계는 [가족카드 제거](family-card-removal.md), 백업 안전성은 [실행 방법](runbook.md)과 [보안 운영](security.md)에 상세히 적혀 있다.
-결제 압박 기준을 잔여 유동성으로 전환할 미래 조건은 [미래 예산 주기 전환](future-budget-cycle-transition.md)에 둔다.
+미래 예산 주기는 매월 1일~말일이며, 기본 예정 수입을 매달 시작 재원으로 반영하고 현금흐름을 월 범위로 집계한다. 결제 압박 Judgment 기준은 아직 보류한다. 전환 세부사항은 [미래 예산 주기 전환](future-budget-cycle-transition.md)에 둔다.
 
 ## 의도적으로 하지 않는 것
 
