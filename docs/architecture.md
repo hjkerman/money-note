@@ -60,7 +60,7 @@ Android 알림 수집은 `NotificationListenerService` 하나를 공용 입구�
 
 카드 분류, 사용월별 정책 선택, 교통카드 프로필 선택, 자동 할인, 수동 override와 실결제액 계산은 `backend/app/services/card_charge/`만 소유한다. 교통카드의 `owner` 프로필은 카드 정체성을 합치지 않고 본인카드 정책과 월 스위치만 위임받는다. `backend/app/services/discounts.py`는 과거 Python import를 위한 호환층이다. `backend/app/services/presentation.py`는 DB 행을 API 표시 모델로 바꾼다. 프론트엔드와 모바일 모델은 이 투영 필드를 소비할 뿐 같은 규칙을 다시 구현하지 않는다.
 
-Snapshot v4는 카드별 정책 binding, 계산 매개변수, 프로필 선택 의미, 분류 규칙과 데이터 기준 마지막 월을 `card_charge_policy` 명세로 기록하고 장부 데이터·주요 상단 메타데이터와 함께 해시한다. 교통카드 프로필 선택 이력은 비민감 `app_settings`로 함께 백업한다. 복원은 정책 명세를 실행하지 않으며 당시 정책이 현재 서버에 보존되어 있는지만 확인한다. 명세의 `covered_through` 이후부터 적용되는 binding 추가는 허용한다. Snapshot 파일 형식은 v4만 지원하며, 현재 보유한 v4 백업의 전환을 위해 프로필 선택기가 없던 내부 카드 정책 명세 v1 읽기 경로만 유지한다.
+Snapshot v5는 카드별 정책 binding, 계산 매개변수, 프로필 선택 의미, 분류 규칙과 데이터 기준 마지막 월을 `card_charge_policy` 명세로 기록하고 장부 데이터·주요 상단 메타데이터와 함께 해시한다. 교통카드 프로필 선택 이력은 비민감 `app_settings`로 함께 백업한다. 복원은 정책 명세를 실행하지 않으며 당시 정책이 현재 서버에 보존되어 있는지만 확인한다. 명세의 `covered_through` 이후부터 적용되는 binding 추가는 허용한다. v4 파일은 원문 검증 뒤 유동성 key migration을 거쳐 복원하며, 현재 보유한 v4 백업의 전환을 위해 프로필 선택기가 없던 내부 카드 정책 명세 v1 읽기 경로도 유지한다.
 
 가족카드는 비핵심 feature다. 공용 카드 계산기는 `FAMILY`라는 정책 키만 알며 가족카드 UI, 공유 응답 또는 정산 데이터 구조에 의존하지 않는다. 가족카드 제거 시 정책 등록 하나와 feature 경계만 제거하고 본인 원장·카드대금·유동성 계산은 수정하지 않는 것이 기준이다.
 
@@ -82,9 +82,9 @@ Snapshot v4는 카드별 정책 binding, 계산 매개변수, 프로필 선택 �
 청구와 가족카드는 가족에게 돌려받을 금액이므로 내 소비가 아니라 회수 예정 금액으로 취급한다. 청구 탭 금액은 청구 탭 표시 합계와 공유 청구서의 실청구액에만 반영한다. `당월` 큰 탭 합계와 소비 통계, `remaining_liquidity` 계산에는 넣지 않는다.
 - 14일이 지난 뒤에도 기록상 남은 결제금액을 숨기지 않으며, 현금흐름 반영액은 자동 수정하지 않고 사용자의 수동 확인과 보정을 요구한다.
 
-결제 심사 기준은 해당 결제월 현금흐름에서 `이달 기준 수입`으로 표시한 입금 합계다. 이달 기준 수입이 없으면 변경 가능한 `base_next_month_liquidity` 설정값, 즉 기본 예정 수입을 fallback 심사 기준액으로 사용한다.
+결제 심사 기준은 해당 결제월 현금흐름에서 `이달 기준 수입`으로 표시한 입금 합계다. 이달 기준 수입이 없으면 변경 가능한 `scheduled_income` 설정값, 즉 기본 예정 수입을 fallback 심사 기준액으로 사용한다.
 
-Summary의 표준 이름은 `scheduled_income`, `cash_flow_balance`, `remaining_liquidity`다. DB 저장 key와 1단계 API 호환 alias는 각각 `base_next_month_liquidity`, `liquidity_status`, `next_month_liquidity`를 유지한다. 웹과 모바일은 표준 이름만 사용하고, Snapshot은 중복 alias 없이 기존 DB key만 저장한다.
+Summary와 DB 설정의 표준 이름은 `scheduled_income`, `cash_flow_balance`, `remaining_liquidity`다. 일반 런타임 API에는 과거 alias를 노출하지 않는다. Snapshot v5도 표준 key만 저장하며, v4 restore 경계에서만 원문 검증 후 과거 key를 정규화한다.
 
 결제 압박 Judgment를 장차 잔여 유동성 기준으로 전환하는 조건과 범위는 [미래 예산 주기 전환](future-budget-cycle-transition.md)에 기록한다.
 

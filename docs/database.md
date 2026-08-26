@@ -99,9 +99,9 @@ API의 할인 정책·자동 할인·유효 할인·실결제 투영 필드는 �
 
 | key | 의미 |
 | --- | --- |
-| `base_next_month_liquidity` | `scheduled_income`의 호환 저장 key. 기본 예정 수입 |
+| `scheduled_income` | 기본 예정 수입 |
 | `interest_expense` | 이자 지출 |
-| `liquidity_status` | `cash_flow_balance`의 호환 저장 key. 현금흐름 수동 보정값 |
+| `cash_flow_balance` | 현금흐름 수동 보정값. Summary에서는 전체 현금흐름 누계와 합산한다. |
 | `card_limit` | 본인카드와 가족카드 합산 사용률을 판단할 카드 한도 |
 | `owner_card_last4` | 본인회원 카드 끝 4자리 |
 | `family_card_last4` | 가족카드 끝 4자리 |
@@ -125,10 +125,17 @@ API의 할인 정책·자동 할인·유효 할인·실결제 투영 필드는 �
 | `panel_family_card_title` | 가족카드 제목 |
 | `summary_title` | 요약 제목 |
 | `summary_card_total_label` | 카드대금 라벨 |
-| `summary_liquidity_status_label` | 현금흐름 반영액 라벨 |
-| `summary_next_month_liquidity_label` | 잔여 유동성 라벨 |
+| `summary_cash_flow_balance_label` | 현금흐름 반영액 라벨 |
+| `summary_remaining_liquidity_label` | 잔여 유동성 라벨 |
 
-`base_next_month_liquidity`, `liquidity_status`는 Snapshot과 기존 DB 호환성을 위해 유지한다. 새 API 이름을 별도 row로 중복 저장하지 않는다. 서버는 전자를 `scheduled_income`, 후자를 현금흐름 전체 누계와 합산하기 전의 `cash_flow_balance` 보정값으로 해석한다.
+서버 시작 시 기존 DB의 유동성 설정·라벨 key를 트랜잭션 안에서 현재 이름으로 이동한다. 새 key가 없으면 기존 값을 옮기고, 둘이 같은 값이면 새 key를 유지한 뒤 기존 key를 삭제한다. 값이 다르면 조용히 덮어쓰지 않고 시작을 중단한다. 사용자 지정 라벨 값은 key만 이동하고 그대로 보존한다.
+
+구 DB migration 전용 대응표:
+
+- `base_next_month_liquidity` → `scheduled_income`
+- `liquidity_status` → `cash_flow_balance`
+- `summary_liquidity_status_label` → `summary_cash_flow_balance_label`
+- `summary_next_month_liquidity_label` → `summary_remaining_liquidity_label`
 
 ## `cash_flows`
 

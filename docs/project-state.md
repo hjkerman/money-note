@@ -23,7 +23,7 @@
 - `claim`과 `family_card`는 소비 원장이 아니라 회수 예정 큐다. 소비 통계와 유동성에 직접 넣지 않으며, 월 경계와 무관하게 처리 또는 삭제 전까지 남는다.
 - `family_card`는 정상 운영 기능이지만 비핵심 기능이다. 제거할 때 원장, 카드대금, 유동성 계산을 고치지 않아도 되는 경계를 유지한다.
 - 월마감은 자동 실행하지 않는다. 사용자의 명시적 실행이 결제 batch와 원장 이동의 기준이다.
-- 유동성 도메인의 표준 이름은 `scheduled_income`, `cash_flow_balance`, `remaining_liquidity`다. DB와 기존 API의 과거 key는 1단계 호환 경계에만 남긴다.
+- 유동성 도메인과 일반 런타임 API·DB의 표준 이름은 `scheduled_income`, `cash_flow_balance`, `remaining_liquidity`다. 과거 key는 DB/Snapshot migration과 그 전용 테스트에만 남긴다.
 
 상세 의미는 [도메인 모델](domain-model.md), 계산·모듈 경계는 [아키텍처](architecture.md)를 따른다.
 

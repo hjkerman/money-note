@@ -528,8 +528,6 @@
   "scheduled_income": 400000,
   "cash_flow_balance": 200000,
   "remaining_liquidity": -23456,
-
-  "base_next_month_liquidity": 400000,
   "current_spending_total": 124956,
   "current_discount_total": 1500,
   "card_total": 123456,
@@ -538,8 +536,6 @@
   "transfer_or_deposit_total": 500000,
   "interest_expense": 0,
   "frozen_asset_total": 100000,
-  "liquidity_status": 200000,
-  "next_month_liquidity": -23456,
   "claim_original_total": 50000,
   "claim_net_total": 49400,
   "family_card_original_total": 80000,
@@ -556,13 +552,7 @@
 - `cash_flow_balance`: 수동 보정값과 전체 기간 현금흐름 누계를 합친 현금흐름 반영액
 - `remaining_liquidity`: 현재 예산 주기에서 이미 약속된 금액을 제외하고 추가로 사용할 수 있는 잔여 유동성
 
-1단계 호환 alias:
-
-- `base_next_month_liquidity` = `scheduled_income`
-- `liquidity_status` = `cash_flow_balance`
-- `next_month_liquidity` = `remaining_liquidity`
-
-호환 alias는 기존 클라이언트를 위해 같은 응답에 유지한다. 웹과 모바일은 표준 key만 사용한다.
+과거 유동성 alias는 일반 Summary 응답에서 제거됐다. 구버전 이름은 v4 Snapshot restore migration에서만 해석한다.
 
 - `current_spending_total`: 본인 원장의 할인 전 사용금액
 - `current_discount_total`: 본인 원장의 유효 할인액
@@ -966,9 +956,7 @@ GET /api/cash-flows?from=2026-07-01&to=2026-07-31&limit=100
 {
   "scheduled_income": "400000",
   "cash_flow_balance": "0",
-  "base_next_month_liquidity": "400000",
   "interest_expense": "0",
-  "liquidity_status": "0",
   "card_limit": "5800000",
   "owner_card_last4": "",
   "family_card_last4": ""
@@ -977,11 +965,9 @@ GET /api/cash-flows?from=2026-07-01&to=2026-07-31&limit=100
 
 설정값:
 
-- `scheduled_income`: 기본 예정 수입. `base_next_month_liquidity`와 같은 저장값
-- `cash_flow_balance`: 현금흐름 수동 보정값. `liquidity_status`와 같은 저장값
-- `base_next_month_liquidity`: `scheduled_income`의 1단계 호환 alias
+- `scheduled_income`: 기본 예정 수입
+- `cash_flow_balance`: 현금흐름 수동 보정값
 - `interest_expense`: 이자지출
-- `liquidity_status`: `cash_flow_balance`의 1단계 호환 alias
 - `card_limit`: 본인카드와 가족카드 합산 사용률을 판단할 카드 한도
 - `owner_card_last4`: 본인회원 카드 끝 4자리. 비워둘 수 있다.
 - `family_card_last4`: 가족카드 끝 4자리. 비워둘 수 있다.
@@ -1010,16 +996,12 @@ GET /api/cash-flows?from=2026-07-01&to=2026-07-31&limit=100
 
 - `scheduled_income`
 - `cash_flow_balance`
-- `base_next_month_liquidity`
 - `interest_expense`
-- `liquidity_status`
 - `card_limit`
 - `owner_card_last4`
 - `family_card_last4`
 
-새 이름으로 수정해도 서버는 기존 DB key에 저장한다. 기존 이름으로 수정하는 요청도 계속 허용한다. 이 API는 path에 key 하나와 body에 값 하나만 받으므로 한 요청에서 새 이름과 호환 이름을 동시에 전달할 수 없다. 따라서 상충값 요청은 현재 HTTP 계약상 성립하지 않는다. 향후 bulk 설정 API를 추가한다면 같은 저장값을 가리키는 두 이름의 값이 다를 때 `422`를 반환해야 한다.
-
-Snapshot은 API alias를 중복 저장하지 않고 기존 `app_settings` DB key만 보존한다.
+과거 설정 key로 수정하는 요청은 `404 unknown setting`을 반환한다. Snapshot v5도 현재 DB key만 저장한다.
 
 ## 앱 표시 라벨
 
@@ -1038,7 +1020,8 @@ Snapshot은 API alias를 중복 저장하지 않고 기존 `app_settings` DB key
   "panel_frozen_title": "동결",
   "panel_claim_title": "청구",
   "panel_family_card_title": "가족카드",
-  "summary_next_month_liquidity_label": "잔여 유동성"
+  "summary_cash_flow_balance_label": "현금흐름 반영액",
+  "summary_remaining_liquidity_label": "잔여 유동성"
 }
 ```
 
@@ -1058,7 +1041,7 @@ Snapshot은 API alias를 중복 저장하지 않고 기존 `app_settings` DB key
 
 ```json
 {
-  "summary_next_month_liquidity_label": "잔액"
+  "summary_remaining_liquidity_label": "잔액"
 }
 ```
 
@@ -1118,7 +1101,7 @@ JSON snapshot을 복원한다. 현재 비밀번호를 다시 확인하며, 장�
 ```json
 {
   "password": "현재 계정 비밀번호",
-  "snapshot_text": "{\"schema_version\":4,...}"
+  "snapshot_text": "{\"schema_version\":5,...}"
 }
 ```
 
@@ -1128,7 +1111,7 @@ JSON snapshot을 복원한다. 현재 비밀번호를 다시 확인하며, 장�
 {
   "password": "현재 계정 비밀번호",
   "snapshot": {
-    "schema_version": 4,
+    "schema_version": 5,
     "exported_at": "2026-06-11T00:00:00Z",
     "range": {
       "scope": "all"
@@ -1171,13 +1154,13 @@ JSON snapshot을 복원한다. 현재 비밀번호를 다시 확인하며, 장�
 }
 ```
 
-`users`, `auth_sessions`, `share_sessions`, `audit_logs`는 복원 대상이 아니다. snapshot 구조가 맞지 않거나 지원하지 않는 `schema_version`, manifest 불일치, 버전 4의 과거 카드 정책 보존 실패, 필수 테이블/컬럼 누락, 외래키 오류가 있으면 `400`을 반환한다.
+`users`, `auth_sessions`, `share_sessions`, `audit_logs`는 복원 대상이 아니다. snapshot 구조가 맞지 않거나 지원하지 않는 `schema_version`, manifest 불일치, 과거 카드 정책 보존 실패, 필수 테이블/컬럼 누락, 외래키 오류가 있으면 `400`을 반환한다.
 
 요청 본문은 기본 25 MiB로 제한한다. `Content-Length`가 없거나 chunked 전송이어도 누적 본문이 `MONEY_NOTE_SNAPSHOT_RESTORE_MAX_BYTES`를 넘으면 `413`을 반환한다.
 
 하위호환 정책상 manifest 검증을 통과한 snapshot의 알 수 없는 컬럼은 현재 서버 DB에 삽입하지 않고 무시한다. 구버전 snapshot에 현재 서버의 새 컬럼이 없으면 DB 기본값 또는 `NULL` 허용 정책을 따른다. 단, 필수 테이블 누락, 민감 설정 포함, manifest 불일치, 외래키 오류, 기본값 없는 `NOT NULL` 컬럼 누락은 복원 실패로 처리한다.
 
-현재 서버는 `schema_version = 4`만 생성하고 복원한다. 버전 4의 `card_charge_policy`와 주요 상단 메타데이터는 데이터와 함께 SHA-256 검증 대상이다. 카드 정책 명세 v2는 교통카드 프로필 선택기의 의미도 검증한다. 2026-08-20에 남아 있던 v4 Snapshot 전환을 위해 내부 카드 정책 명세 v1 읽기 경로만 유지하며, 파일 형식 v3 이하는 지원하지 않는다. Snapshot 당시 정책이나 분류 규칙이 현재 서버에서 바뀌었으면 복원하지 않으며, 명세의 `covered_through` 이후부터 적용되는 새 binding 추가만 허용한다. 프로필 선택 이력은 비민감 `app_settings` 데이터로 함께 복원한다. 이 명세는 Snapshot에서 임의 정책을 실행하기 위한 입력이 아니다.
+현재 서버는 `schema_version = 5`를 생성하고 v4와 v5를 복원한다. 두 버전의 `card_charge_policy`와 주요 상단 메타데이터는 데이터와 함께 SHA-256 검증 대상이다. v4는 원문 manifest를 먼저 검증한 뒤 유동성 설정과 라벨의 과거 key를 현재 key로 정규화한다. 같은 의미의 old/new key가 함께 있고 값이 다르면 복원을 중단한다. 카드 정책 명세 v2는 교통카드 프로필 선택기의 의미도 검증한다. 2026-08-20에 남아 있던 v4 Snapshot 전환을 위해 내부 카드 정책 명세 v1 읽기 경로를 유지하며, 파일 형식 v3 이하는 지원하지 않는다. Snapshot 당시 정책이나 분류 규칙이 현재 서버에서 바뀌었으면 복원하지 않으며, 명세의 `covered_through` 이후부터 적용되는 새 binding 추가만 허용한다. 프로필 선택 이력은 비민감 `app_settings` 데이터로 함께 복원한다. 이 명세는 Snapshot에서 임의 정책을 실행하기 위한 입력이 아니다.
 
 복원은 운영 DB를 건드리기 전에 동일한 삽입 경로로 임시 DB dry-run을 수행한다. 또한 실제 복원 직전 현재 운영 DB를 `pre_restore-...money-note-snapshot.json` 파일로 반드시 저장하고, 이 파일의 manifest 검증에 실패하면 복원을 중단한다.
 

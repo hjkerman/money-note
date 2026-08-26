@@ -242,6 +242,8 @@ API 컨테이너는 UID/GID `1000`의 비루트 사용자로 실행한다. 다�
 
 DB 파일을 직접 복사한 뒤에는 다음 서버 시작 때 누락 컬럼 보강, 오래된 설정 정리 같은 마이그레이션이 자동으로 실행된다.
 
+유동성 이름 migration은 기존 `app_settings`와 `app_labels` 값을 현재 key로 옮긴 뒤 과거 key를 삭제한다. 새 key와 과거 key가 모두 있고 값이 다르면 데이터를 추측해 덮어쓰지 않고 API 시작을 중단한다. 이 경우 SQLite 하드카피를 보존한 상태에서 두 값을 확인하고 하나의 의도된 값으로 정리한 뒤 다시 시작한다.
+
 ### 5. 서버 컨테이너 실행
 
 ```bash
@@ -1043,7 +1045,7 @@ http://127.0.0.1:5173
 - 결제 화면에서 장부 행을 삭제할 수 있다. 삭제하면 해당 행의 즉시결제, 할인, 이월 참조도 함께 정리된다.
 - 청구 탭의 하이패스/통행료는 집에 청구하는 별도 패널 데이터이므로 결제 화면의 통합 행에 섞이지 않는다.
 - 현금흐름 입금에 `이달 기준 수입`을 표시하면 파산심사위원회의 해당 월 심사 기준으로 사용한다.
-- 이달 기준 수입이 없으면 `base_next_month_liquidity` 설정값, 즉 `기본 예정 수입`을 수입 하한선 겸 fallback 심사 기준액으로 사용하며 설정 화면에서 변경할 수 있다.
+- 이달 기준 수입이 없으면 `scheduled_income` 설정값, 즉 `기본 예정 수입`을 수입 하한선 겸 fallback 심사 기준액으로 사용하며 설정 화면에서 변경할 수 있다.
 - 14일 경과 후 미결제 기록이 있으면 이를 숨기지 않고 안내한다. 사용자가 카드사 내역을 확인하고 현금흐름 반영액을 보정한 뒤 `현금흐름 보정 완료`를 누른다.
 
 카드 교체 또는 할인 정책 변경:
@@ -1122,7 +1124,7 @@ curl -OJ -b /tmp/money-note-cookie.txt \
 
 응답 파일 확장자는 `.money-note-snapshot.json`이며, `schema_version`, `exported_at`, `range`, `card_charge_policy`, `manifest`, `data`를 포함한다.
 
-현재 snapshot 형식은 `schema_version = 4`이며 v4 파일만 복원한다. 운영에 남은 가장 오래된 백업도 v4이므로 파일 형식 v3 복원 경로는 제거했다.
+현재 snapshot export 형식은 `schema_version = 5`다. v4와 v5를 복원하며 파일 형식 v3 이하는 지원하지 않는다.
 
 `manifest`는 canonical JSON 기준 SHA-256 무결성 정보를 담는다. `manifest` 자기 자신과 파생 식별자인 `snapshot_id`는 hash 대상에서 제외하며, `data` 전체 hash, 테이블별 컬럼 목록·row count·table hash, `card_charge_policy` hash, 주요 상단 메타데이터와 정책 명세를 포함한 전체 content hash를 기록한다.
 
@@ -1131,7 +1133,9 @@ curl -OJ -b /tmp/money-note-cookie.txt \
 하위호환 정책:
 
 - 서버는 snapshot 원문 기준으로 manifest를 먼저 검증한다.
-- 버전 4는 manifest 검증 뒤 Snapshot 당시 카드 정책과 분류 규칙이 현재 서버에 보존되어 있는지 확인한다.
+- 버전 4와 5는 manifest 검증 뒤 Snapshot 당시 카드 정책과 분류 규칙이 현재 서버에 보존되어 있는지 확인한다.
+- v4의 과거 유동성 설정·라벨 key는 원문 manifest 검증 뒤 현재 key로 정규화한다.
+- v4에 같은 의미의 과거 key와 현재 key가 함께 있고 값이 다르면 복원을 중단한다.
 - 버전 3 이하는 지원하지 않는다.
 - 검증을 통과한 뒤 현재 서버가 모르는 컬럼은 복원 삽입 전에 무시한다.
 - 현재 서버에 새로 생긴 컬럼이 구버전 snapshot에 없으면 DB 기본값 또는 `NULL`로 복원한다.

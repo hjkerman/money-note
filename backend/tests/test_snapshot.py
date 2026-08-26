@@ -35,7 +35,7 @@ class SnapshotTest(unittest.TestCase):
         filename, snapshot = export_snapshot(date(2026, 6, 11))
 
         self.assertTrue(filename.endswith(".money-note-snapshot.json"))
-        self.assertEqual(snapshot["schema_version"], 4)
+        self.assertEqual(snapshot["schema_version"], 5)
         self.assertEqual(snapshot["range"], {"scope": "all"})
         self.assertEqual(snapshot["manifest"]["algorithm"], "sha256")
         self.assertEqual(
@@ -77,9 +77,15 @@ class SnapshotTest(unittest.TestCase):
         self.assertIn("recent-key", deferral_keys)
         self.assertIn("old-key", deferral_keys)
         setting_keys = {row["key"] for row in snapshot["data"]["app_settings"]}
-        self.assertIn("base_next_month_liquidity", setting_keys)
-        self.assertNotIn("scheduled_income", setting_keys)
-        self.assertNotIn("cash_flow_balance", setting_keys)
+        self.assertIn("scheduled_income", setting_keys)
+        self.assertIn("cash_flow_balance", setting_keys)
+        self.assertNotIn("base_next_month_liquidity", setting_keys)
+        self.assertNotIn("liquidity_status", setting_keys)
+        label_keys = {row["key"] for row in snapshot["data"]["app_labels"]}
+        self.assertIn("summary_cash_flow_balance_label", label_keys)
+        self.assertIn("summary_remaining_liquidity_label", label_keys)
+        self.assertNotIn("summary_liquidity_status_label", label_keys)
+        self.assertNotIn("summary_next_month_liquidity_label", label_keys)
         self.assertNotIn("share_pin_hash", setting_keys)
         self.assertNotIn("share_pin_is_default", setting_keys)
         self.assertNotIn("users", snapshot["data"])
@@ -121,16 +127,103 @@ class SnapshotTest(unittest.TestCase):
             restored = conn.execute("SELECT spent_on FROM monthly_panels WHERE id = 99").fetchone()
         self.assertEqual(restored["spent_on"], "2026-06-18")
 
-    def test_restore_keeps_new_and_compatibility_summary_keys_equal(self) -> None:
+    def test_restore_keeps_standard_summary_values(self) -> None:
         self._seed_data()
+        before = current_summary_values()
         _, snapshot = export_snapshot(date(2026, 6, 11))
 
         restore_snapshot(snapshot)
-        summary = current_summary_values()
+        after = current_summary_values()
 
-        self.assertEqual(summary["scheduled_income"], summary["base_next_month_liquidity"])
-        self.assertEqual(summary["cash_flow_balance"], summary["liquidity_status"])
-        self.assertEqual(summary["remaining_liquidity"], summary["next_month_liquidity"])
+        for key in ("scheduled_income", "cash_flow_balance", "remaining_liquidity", "card_total"):
+            self.assertEqual(after[key], before[key])
+
+    def test_restore_normalizes_v4_liquidity_keys_after_manifest_validation(self) -> None:
+        self._seed_data()
+        with session() as conn:
+            conn.execute("UPDATE app_settings SET value = '550000' WHERE key = 'scheduled_income'")
+            conn.execute(
+                "UPDATE app_labels SET value = '내가 정한 잔액' WHERE key = 'summary_remaining_liquidity_label'"
+            )
+        _, snapshot = export_snapshot(date(2026, 6, 11))
+        self._convert_to_v4_liquidity_keys(snapshot)
+
+        restore_snapshot(snapshot)
+
+        with session() as conn:
+            settings = {
+                row["key"]: row["value"]
+                for row in conn.execute(
+                    "SELECT key, value FROM app_settings WHERE key IN (?, ?, ?, ?)",
+                    ("scheduled_income", "cash_flow_balance", "base_next_month_liquidity", "liquidity_status"),
+                )
+            }
+            labels = {
+                row["key"]: row["value"]
+                for row in conn.execute(
+                    "SELECT key, value FROM app_labels WHERE key LIKE 'summary_%_label'"
+                )
+            }
+        self.assertEqual(settings["scheduled_income"], "550000")
+        self.assertEqual(settings["cash_flow_balance"], "0")
+        self.assertNotIn("base_next_month_liquidity", settings)
+        self.assertNotIn("liquidity_status", settings)
+        self.assertEqual(labels["summary_remaining_liquidity_label"], "내가 정한 잔액")
+        self.assertNotIn("summary_next_month_liquidity_label", labels)
+
+    def test_restore_verifies_v4_manifest_before_liquidity_key_normalization(self) -> None:
+        self._seed_data()
+        _, snapshot = export_snapshot(date(2026, 6, 11))
+        self._convert_to_v4_liquidity_keys(snapshot)
+        next(
+            row
+            for row in snapshot["data"]["app_settings"]
+            if row["key"] == "base_next_month_liquidity"
+        )["value"] = "999999"
+
+        with self.assertRaisesRegex(ValueError, "snapshot manifest mismatch"):
+            restore_snapshot(snapshot)
+
+        self._assert_seed_data_preserved()
+
+    def test_restore_rejects_conflicting_legacy_and_standard_liquidity_keys(self) -> None:
+        self._seed_data()
+        _, snapshot = export_snapshot(date(2026, 6, 11))
+        snapshot["data"]["app_settings"].append(
+            {
+                "key": "base_next_month_liquidity",
+                "value": "999999",
+                "updated_at": "2026-06-11 00:00:00",
+            }
+        )
+        self._refresh_manifest(snapshot)
+
+        with self.assertRaisesRegex(ValueError, "conflicting values"):
+            restore_snapshot(snapshot)
+
+        self._assert_seed_data_preserved()
+
+    def test_restore_deduplicates_equal_legacy_and_standard_liquidity_keys(self) -> None:
+        self._seed_data()
+        _, snapshot = export_snapshot(date(2026, 6, 11))
+        current = next(
+            row for row in snapshot["data"]["app_settings"] if row["key"] == "scheduled_income"
+        )
+        snapshot["data"]["app_settings"].append(
+            {**current, "key": "base_next_month_liquidity"}
+        )
+        self._refresh_manifest(snapshot)
+
+        restore_snapshot(snapshot)
+
+        with session() as conn:
+            keys = {
+                row["key"]
+                for row in conn.execute(
+                    "SELECT key FROM app_settings WHERE key IN ('scheduled_income', 'base_next_month_liquidity')"
+                )
+            }
+        self.assertEqual(keys, {"scheduled_income"})
 
     def test_restore_truncates_float_money_values_from_legacy_snapshot(self) -> None:
         self._seed_data()
@@ -143,7 +236,7 @@ class SnapshotTest(unittest.TestCase):
         next(row for row in snapshot["data"]["card_payment_events"] if row["id"] == 1)["total_amount"] = 500.5
         next(row for row in snapshot["data"]["card_payment_allocations"] if row["id"] == 1)["amount_value"] = 300.4
         for setting in snapshot["data"]["app_settings"]:
-            if setting["key"] == "base_next_month_liquidity":
+            if setting["key"] == "scheduled_income":
                 setting["value"] = "400000.9"
                 break
         self._refresh_manifest(snapshot)
@@ -161,7 +254,7 @@ class SnapshotTest(unittest.TestCase):
             event = conn.execute("SELECT total_amount FROM card_payment_events WHERE id = 1").fetchone()
             allocation = conn.execute("SELECT amount_value FROM card_payment_allocations WHERE id = 1").fetchone()
             setting = conn.execute(
-                "SELECT value FROM app_settings WHERE key = 'base_next_month_liquidity'",
+                "SELECT value FROM app_settings WHERE key = 'scheduled_income'",
             ).fetchone()
         self.assertEqual(ledger["amount_value"], 1000)
         self.assertEqual(ledger["aux_amount_value"], 12)
@@ -262,7 +355,7 @@ class SnapshotTest(unittest.TestCase):
                 """
                 UPDATE app_settings
                 SET value = '999999'
-                WHERE key = 'base_next_month_liquidity'
+                WHERE key = 'scheduled_income'
                 """
             )
 
@@ -272,8 +365,14 @@ class SnapshotTest(unittest.TestCase):
         backup_dir = self.db_path.parent / "snapshot-backups"
         backups = list(backup_dir.glob("pre_restore-*.money-note-snapshot.json"))
         self.assertEqual(len(backups), 1)
-        pre_restore = backups[0].read_text(encoding="utf-8")
-        self.assertIn("복원 전 임시 지출", pre_restore)
+        import json
+
+        pre_restore = json.loads(backups[0].read_text(encoding="utf-8"))
+        self.assertEqual(pre_restore["schema_version"], 5)
+        self.assertIn("복원 전 임시 지출", str(pre_restore["data"]["ledger_entries"]))
+        pre_restore_setting_keys = {row["key"] for row in pre_restore["data"]["app_settings"]}
+        self.assertIn("scheduled_income", pre_restore_setting_keys)
+        self.assertNotIn("base_next_month_liquidity", pre_restore_setting_keys)
         with session() as conn:
             titles = {row["title"] for row in conn.execute("SELECT title FROM ledger_entries").fetchall()}
             self.assertIn("복원된 최근 지출", titles)
@@ -284,7 +383,7 @@ class SnapshotTest(unittest.TestCase):
             audit_count = conn.execute("SELECT COUNT(*) AS count FROM audit_logs").fetchone()["count"]
             pin_hash = conn.execute("SELECT value FROM app_settings WHERE key = 'share_pin_hash'").fetchone()["value"]
             base_income = conn.execute(
-                "SELECT value FROM app_settings WHERE key = 'base_next_month_liquidity'",
+                "SELECT value FROM app_settings WHERE key = 'scheduled_income'",
             ).fetchone()["value"]
         self.assertEqual(user_count, 1)
         self.assertEqual(auth_count, 1)
@@ -541,6 +640,22 @@ class SnapshotTest(unittest.TestCase):
             "content_sha256",
             snapshot["manifest"]["data_sha256"],
         )
+
+    def _convert_to_v4_liquidity_keys(self, snapshot: dict) -> None:
+        snapshot["schema_version"] = 4
+        setting_keys = {
+            "scheduled_income": "base_next_month_liquidity",
+            "cash_flow_balance": "liquidity_status",
+        }
+        label_keys = {
+            "summary_cash_flow_balance_label": "summary_liquidity_status_label",
+            "summary_remaining_liquidity_label": "summary_next_month_liquidity_label",
+        }
+        for row in snapshot["data"]["app_settings"]:
+            row["key"] = setting_keys.get(row["key"], row["key"])
+        for row in snapshot["data"]["app_labels"]:
+            row["key"] = label_keys.get(row["key"], row["key"])
+        self._refresh_manifest(snapshot)
 
     def _assert_seed_data_preserved(self) -> None:
         with session() as conn:

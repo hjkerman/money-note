@@ -140,7 +140,6 @@ class Summary(BaseModel):
     scheduled_income: int
     cash_flow_balance: int
     remaining_liquidity: int
-    base_next_month_liquidity: int
     current_spending_total: int
     current_discount_total: int
     card_total: int
@@ -149,8 +148,6 @@ class Summary(BaseModel):
     transfer_or_deposit_total: int
     interest_expense: int
     frozen_asset_total: int
-    liquidity_status: int
-    next_month_liquidity: int
     claim_original_total: int
     claim_net_total: int
     family_card_original_total: int

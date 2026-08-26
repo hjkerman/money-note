@@ -26,7 +26,7 @@ class SummaryCalculationTest(unittest.TestCase):
         self.env.stop()
         self.temp_dir.cleanup()
 
-    def test_claim_total_does_not_reduce_next_month_liquidity(self) -> None:
+    def test_claim_total_does_not_reduce_remaining_liquidity(self) -> None:
         with session() as conn:
             conn.execute(
                 """
@@ -45,17 +45,15 @@ class SummaryCalculationTest(unittest.TestCase):
 
         summary = current_summary_values()
 
-        self.assertEqual(summary["scheduled_income"], summary["base_next_month_liquidity"])
-        self.assertEqual(summary["cash_flow_balance"], summary["liquidity_status"])
-        self.assertEqual(summary["remaining_liquidity"], summary["next_month_liquidity"])
-
+        for legacy_key in ("base_next_month_liquidity", "liquidity_status", "next_month_liquidity"):
+            self.assertNotIn(legacy_key, summary)
         self.assertEqual(summary["card_total"], 98_800)
         self.assertEqual(summary["current_spending_total"], 100_000)
         self.assertEqual(summary["current_discount_total"], 1_200)
         self.assertEqual(summary["claim_original_total"], 50_000)
         self.assertEqual(summary["claim_net_total"], 49_400)
         self.assertEqual(panel_net_total("claim"), 49_400)
-        self.assertEqual(summary["next_month_liquidity"], 301_200)
+        self.assertEqual(summary["remaining_liquidity"], 301_200)
 
     def test_family_card_total_uses_family_discount_policy(self) -> None:
         with session() as conn:
@@ -124,7 +122,7 @@ class SummaryCalculationTest(unittest.TestCase):
         self.assertEqual(summary["card_total"], 0)
         self.assertEqual(summary["transfer_or_deposit_total"], 0)
         self.assertEqual(summary["frozen_asset_total"], 0)
-        self.assertEqual(summary["next_month_liquidity"], 400_000)
+        self.assertEqual(summary["remaining_liquidity"], 400_000)
         self.assertEqual(summary["claim_original_total"], 80_000)
         self.assertEqual(summary["family_card_original_total"], 90_000)
 
@@ -148,7 +146,7 @@ class SummaryCalculationTest(unittest.TestCase):
         self.assertEqual(before["card_total"], 0)
         self.assertEqual(before["planned_recurring_total"], 30_000)
         self.assertEqual(before["transfer_or_deposit_total"], 30_000)
-        self.assertEqual(before["next_month_liquidity"], 370_000)
+        self.assertEqual(before["remaining_liquidity"], 370_000)
 
         confirm_planned_entry(planned_id)
         after = current_summary_values()
@@ -156,7 +154,7 @@ class SummaryCalculationTest(unittest.TestCase):
         self.assertEqual(after["card_total"], 29_640)
         self.assertEqual(after["planned_recurring_total"], 30_000)
         self.assertEqual(after["transfer_or_deposit_total"], 30_000)
-        self.assertEqual(after["next_month_liquidity"], 370_360)
+        self.assertEqual(after["remaining_liquidity"], 370_360)
 
     def test_immediate_card_payment_reduces_cash_liquidity(self) -> None:
         with session() as conn:
@@ -180,9 +178,9 @@ class SummaryCalculationTest(unittest.TestCase):
         )
         after = current_summary_values()
 
-        self.assertEqual(before["liquidity_status"], 0)
-        self.assertEqual(after["liquidity_status"], -5_000)
-        self.assertEqual(after["next_month_liquidity"], before["next_month_liquidity"] - 5_000)
+        self.assertEqual(before["cash_flow_balance"], 0)
+        self.assertEqual(after["cash_flow_balance"], -5_000)
+        self.assertEqual(after["remaining_liquidity"], before["remaining_liquidity"] - 5_000)
 
 
 if __name__ == "__main__":

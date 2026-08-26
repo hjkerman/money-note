@@ -244,17 +244,19 @@
 ## 설정과 백업
 
 - [ ] 설정 모달에서 기본 예정 수입, 이자지출, 현금흐름 반영액, 카드 한도를 수정할 수 있다.
-- [ ] Summary의 새 key와 1단계 호환 key 값이 각각 일치한다.
+- [ ] Summary와 설정 API는 `scheduled_income`, `cash_flow_balance`, `remaining_liquidity`만 반환하고 과거 alias는 반환하지 않는다.
 - [ ] 웹과 모바일은 `scheduled_income`, `cash_flow_balance`, `remaining_liquidity`만 읽는다.
 - [ ] 과거 기본 라벨만 새 용어로 정규화되고 사용자 지정 라벨은 보존된다.
 - [ ] 설정 모달에서 비밀번호를 변경할 수 있고, 변경 후 새 비밀번호로 다시 로그인할 수 있다.
 - [ ] `snapshot 백업 다운로드`를 누르면 `.money-note-snapshot.json` 파일 하나가 내려받아진다.
-- [ ] 새 snapshot의 `schema_version`은 4이고 `card_charge_policy`, `card_charge_policy_sha256`, `content_sha256`이 포함된다.
+- [ ] 새 snapshot의 `schema_version`은 5이고 `card_charge_policy`, `card_charge_policy_sha256`, `content_sha256`이 포함된다.
 - [ ] snapshot 복원은 현재 비밀번호 없이는 실행되지 않는다.
 - [ ] 잘못된 snapshot 파일을 올리면 복원이 차단되고 기존 화면이 계속 조회된다.
-- [ ] 정책 명세가 변조되거나 현재 서버 정책과 다른 버전 4 snapshot은 복원이 차단되고 기존 DB가 유지된다.
+- [ ] 정책 명세가 변조되거나 현재 서버 정책과 다른 버전 4/5 snapshot은 복원이 차단되고 기존 DB가 유지된다.
 - [ ] 파일 형식 버전 3 이하 snapshot은 지원하지 않는 버전으로 차단되고 기존 DB가 유지된다.
-- [ ] 현행 버전 4 snapshot의 교통카드 프로필 설정 이력이 복원된다.
+- [ ] 버전 4 snapshot은 원문 manifest 검증 후 유동성 key가 현재 이름으로 이동하고 교통카드 프로필 설정 이력이 복원된다.
+- [ ] 같은 의미의 과거/현재 유동성 key 값이 충돌하는 DB 또는 snapshot은 migration을 중단한다.
+- [ ] 버전 5 snapshot export/restore 전후 주요 row count와 예정 수입·현금흐름 반영액·잔여 유동성·카드대금이 같다.
 - [ ] 복원 직전 백업 목록에서 항목을 조회할 수 있다.
 - [ ] 복원 직전 백업의 개별 삭제와 일괄 삭제가 동작한다.
 - [ ] 복원 직전 백업 되돌리기는 현재 비밀번호 없이는 실행되지 않는다.

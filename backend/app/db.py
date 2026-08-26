@@ -1,10 +1,17 @@
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from pathlib import Path
 import re
 import sqlite3
 
 from app.config import get_settings
+from app.services.liquidity_names import (
+    LEGACY_LIQUIDITY_LABEL_KEYS,
+    LEGACY_LIQUIDITY_SETTING_KEYS,
+    LIQUIDITY_LABEL_DEFAULTS,
+    LIQUIDITY_SETTING_DEFAULTS,
+    normalized_legacy_label_value,
+)
 
 
 SCHEMA = """
@@ -202,9 +209,7 @@ CREATE INDEX IF NOT EXISTS idx_audit_logs_occurred
 ON audit_logs(occurred_at DESC, id DESC);
 
 INSERT OR IGNORE INTO app_settings(key, value) VALUES
-('base_next_month_liquidity', '400000'),
 ('interest_expense', '0'),
-('liquidity_status', '0'),
 ('card_limit', '5800000'),
 ('owner_card_last4', ''),
 ('family_card_last4', '');
@@ -226,9 +231,7 @@ INSERT OR IGNORE INTO app_labels(key, value) VALUES
 ('summary_card_total_label', '카드대금'),
 ('summary_transfer_or_deposit_label', '고정지출'),
 ('summary_interest_expense_label', '이자지출'),
-('summary_frozen_asset_label', '동결자산'),
-('summary_liquidity_status_label', '현금흐름 반영액'),
-('summary_next_month_liquidity_label', '잔여 유동성');
+('summary_frozen_asset_label', '동결자산');
 """
 
 
@@ -358,8 +361,8 @@ def init_db() -> None:
         )
         conn.execute("DELETE FROM app_settings WHERE key = 'family_card_limit'")
         _normalize_domain_names(conn)
-        _normalize_liquidity_labels(conn)
         _normalize_money_settings(conn)
+        _migrate_liquidity_names(conn)
         _backfill_planned_due_days(conn)
 
 
@@ -382,23 +385,62 @@ def _normalize_domain_names(conn: sqlite3.Connection) -> None:
     )
 
 
-def _normalize_liquidity_labels(conn: sqlite3.Connection) -> None:
-    """과거 기본 라벨만 중립 용어로 바꾸고 사용자 지정 라벨은 보존한다."""
+def _migrate_liquidity_names(conn: sqlite3.Connection) -> None:
+    """1단계 저장 key를 최종 중립 이름으로 원자적이고 반복 가능하게 옮긴다."""
+    for legacy_key, current_key in LEGACY_LIQUIDITY_SETTING_KEYS.items():
+        _migrate_named_value(
+            conn,
+            "app_settings",
+            legacy_key,
+            current_key,
+            LIQUIDITY_SETTING_DEFAULTS[current_key],
+        )
+    for legacy_key, current_key in LEGACY_LIQUIDITY_LABEL_KEYS.items():
+        _migrate_named_value(
+            conn,
+            "app_labels",
+            legacy_key,
+            current_key,
+            LIQUIDITY_LABEL_DEFAULTS[current_key],
+            normalize_legacy=lambda value, key=legacy_key: normalized_legacy_label_value(key, value),
+        )
+
+
+def _migrate_named_value(
+    conn: sqlite3.Connection,
+    table: str,
+    legacy_key: str,
+    current_key: str,
+    default_value: str,
+    normalize_legacy: Callable[[str], str] | None = None,
+) -> None:
+    rows = {
+        row["key"]: row["value"]
+        for row in conn.execute(
+            f"SELECT key, value FROM {table} WHERE key IN (?, ?)",
+            (legacy_key, current_key),
+        ).fetchall()
+    }
+    legacy_value = rows.get(legacy_key)
+    if legacy_value is not None and normalize_legacy is not None:
+        legacy_value = normalize_legacy(legacy_value)
+    current_value = rows.get(current_key)
+    if legacy_value is not None and current_value is not None and legacy_value != current_value:
+        raise RuntimeError(
+            f"conflicting {table} values for {legacy_key} and {current_key}",
+        )
+    if current_value is not None:
+        conn.execute(f"DELETE FROM {table} WHERE key = ?", (legacy_key,))
+        return
+    if legacy_value is not None:
+        conn.execute(
+            f"UPDATE {table} SET key = ?, value = ?, updated_at = CURRENT_TIMESTAMP WHERE key = ?",
+            (current_key, legacy_value, legacy_key),
+        )
+        return
     conn.execute(
-        """
-        UPDATE app_labels
-        SET value = '현금흐름 반영액', updated_at = CURRENT_TIMESTAMP
-        WHERE key = 'summary_liquidity_status_label'
-          AND value = '유동성 현황'
-        """
-    )
-    conn.execute(
-        """
-        UPDATE app_labels
-        SET value = '잔여 유동성', updated_at = CURRENT_TIMESTAMP
-        WHERE key = 'summary_next_month_liquidity_label'
-          AND value = '익월 유동성'
-        """
+        f"INSERT INTO {table}(key, value, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP)",
+        (current_key, default_value),
     )
 
 
@@ -416,8 +458,10 @@ def _drop_legacy_column(conn: sqlite3.Connection, table: str, column: str) -> No
 def _normalize_money_settings(conn: sqlite3.Connection) -> None:
     """돈 단위 설정값은 기존 소수 표기를 정수 문자열로 정리한다."""
     keys = {
+        "scheduled_income",
         "base_next_month_liquidity",
         "interest_expense",
+        "cash_flow_balance",
         "liquidity_status",
         "card_limit",
     }

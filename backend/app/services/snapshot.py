@@ -4,6 +4,7 @@ import json
 import hashlib
 import os
 import re
+from collections.abc import Callable
 from contextlib import contextmanager
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
@@ -19,11 +20,16 @@ from app.services.card_charge import (
     card_charge_policy_manifest_compatible,
 )
 from app.services.clock import app_today
+from app.services.liquidity_names import (
+    LEGACY_LIQUIDITY_LABEL_KEYS,
+    LEGACY_LIQUIDITY_SETTING_KEYS,
+    normalized_legacy_label_value,
+)
 from app.share_auth import SENSITIVE_SHARE_SETTING_KEYS
 
 
-SNAPSHOT_SCHEMA_VERSION = 4
-SUPPORTED_SNAPSHOT_SCHEMA_VERSIONS = {SNAPSHOT_SCHEMA_VERSION}
+SNAPSHOT_SCHEMA_VERSION = 5
+SUPPORTED_SNAPSHOT_SCHEMA_VERSIONS = {4, SNAPSHOT_SCHEMA_VERSION}
 PRE_RESTORE_FILENAME_RE = re.compile(r"^pre_restore-\d{8}T\d{6}Z(?:-\d+)?\.money-note-snapshot\.json$")
 SNAPSHOT_TABLES = [
     "ledger_entries",
@@ -50,8 +56,10 @@ SNAPSHOT_MONEY_COLUMNS = {
     "card_payment_allocations": {"amount_value"},
 }
 MONEY_SETTING_KEYS = {
+    "scheduled_income",
     "base_next_month_liquidity",
     "interest_expense",
+    "cash_flow_balance",
     "liquidity_status",
     "card_limit",
 }
@@ -316,7 +324,53 @@ def _normalized_snapshot_data(data: dict[str, list[dict[str, Any]]]) -> dict[str
             filtered = {key: value for key, value in row.items() if key in schema_columns and key not in ignored}
             rows.append(_normalize_snapshot_row(table, filtered))
         normalized[table] = rows
+    _normalize_snapshot_key_rows(
+        normalized["app_settings"],
+        LEGACY_LIQUIDITY_SETTING_KEYS,
+        "app_settings",
+    )
+    _normalize_snapshot_key_rows(
+        normalized["app_labels"],
+        LEGACY_LIQUIDITY_LABEL_KEYS,
+        "app_labels",
+        normalize_legacy_value=normalized_legacy_label_value,
+    )
     return normalized
+
+
+def _normalize_snapshot_key_rows(
+    rows: list[dict[str, Any]],
+    migrations: dict[str, str],
+    table: str,
+    normalize_legacy_value: Callable[[str, Any], Any] | None = None,
+) -> None:
+    by_key: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        key = row.get("key")
+        if not isinstance(key, str):
+            continue
+        if key in by_key:
+            raise ValueError(f"snapshot {table} contains duplicate key: {key}")
+        by_key[key] = row
+
+    for legacy_key, current_key in migrations.items():
+        legacy_row = by_key.get(legacy_key)
+        current_row = by_key.get(current_key)
+        if legacy_row is None:
+            continue
+        legacy_value = legacy_row.get("value")
+        if normalize_legacy_value is not None:
+            legacy_value = normalize_legacy_value(legacy_key, legacy_value)
+        if current_row is not None:
+            if legacy_value != current_row.get("value"):
+                raise ValueError(
+                    f"snapshot {table} contains conflicting values for {legacy_key} and {current_key}",
+                )
+            rows.remove(legacy_row)
+            continue
+        legacy_row["key"] = current_key
+        legacy_row["value"] = legacy_value
+        by_key[current_key] = legacy_row
 
 
 def _normalize_snapshot_row(table: str, row: dict[str, Any]) -> dict[str, Any]:

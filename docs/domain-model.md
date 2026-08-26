@@ -518,8 +518,8 @@ remaining_liquidity
   + cash_flow_balance
 ```
 
-- `scheduled_income`: DB의 `base_next_month_liquidity`에 저장되는 기본 예정 수입
-- `cash_flow_balance`: DB의 `liquidity_status` 보정값과 전체 기간 현금흐름 누계의 합
+- `scheduled_income`: DB에 같은 이름으로 저장되는 기본 예정 수입
+- `cash_flow_balance`: DB의 같은 이름인 수동 보정값과 전체 기간 현금흐름 누계의 합
 - `liquidity_fixed_total`: 현금성 고정지출과 아직 원장 지출로 확인되지 않은 카드 정기결제 예정액
 
 `이달 기준 수입` 표시가 있는 현금흐름 입금 합계는 현재 카드 결제 압박 Judgment의 기준 수입이다. Summary의 `scheduled_income`을 대체하지 않는다. 이 둘의 관계를 바꾸는 것은 계산 정책 변경이므로 [미래 예산 주기 전환](future-budget-cycle-transition.md)에 별도로 기록한다.
@@ -580,7 +580,7 @@ Money Note는 카드사 알림 자동입력을 고려한다.
 
 Snapshot은 원본 DB를 대체하는 별도 저장소가 아니라, 장부 운용 데이터 전체와 비민감 운영 설정을 JSON 파일로 잠시 옮겨 담는 백업/복원 형식이다.
 
-Snapshot 형식은 `schema_version = 4`만 지원한다. 운영에 남은 가장 오래된 Snapshot도 v4이므로 파일 형식 v3 복원 경로는 제거했다.
+새 Snapshot 형식은 `schema_version = 5`다. 유동성 설정·라벨 key가 과거 이름인 기존 v4 Snapshot도 계속 복원하며, 파일 형식 v3 이하는 지원하지 않는다.
 
 Snapshot은 canonical JSON 기준 SHA-256 manifest를 포함한다.
 
@@ -605,7 +605,9 @@ Manifest 원칙:
 하위호환 원칙:
 
 - restore는 먼저 snapshot 원문 기준으로 manifest를 검증한다.
-- 버전 4는 manifest 검증 후 당시 `card_charge_policy`가 현재 서버에 보존되어 있는지 확인한다. 생성월 이후의 새 binding 추가만 허용한다.
+- 버전 4와 5는 manifest 검증 후 당시 `card_charge_policy`가 현재 서버에 보존되어 있는지 확인한다. 생성월 이후의 새 binding 추가만 허용한다.
+- v4의 `base_next_month_liquidity`, `liquidity_status`, `summary_next_month_liquidity_label`, `summary_liquidity_status_label`은 원문 manifest 검증이 끝난 뒤 각각 현재 표준 key로 정규화한다.
+- Snapshot에 같은 의미의 새 key와 기존 key가 동시에 있고 값이 다르면 복원을 중단한다.
 - 파일 형식 v3 이하는 복원하지 않는다.
 - 장기 지원 대상은 현행 파일/정책 명세다. 직전 내부 명세 호환은 새 형식 Snapshot을 실제로 확보할 때까지만 전환 경로로 유지하고, 확보 후 코드와 테스트에서 제거한다.
 - 검증을 통과한 뒤 현재 서버 스키마에 없는 컬럼은 무시한다.

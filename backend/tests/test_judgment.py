@@ -66,12 +66,11 @@ class JudgmentTest(unittest.TestCase):
         self.assertEqual(many["level"], "steady")
         self.assertNotEqual(ordinary["message"], many["message"])
 
-    def test_budget_accepts_compatibility_liquidity_key(self) -> None:
+    def test_budget_uses_remaining_liquidity(self) -> None:
         from app.services.judgment import budget_committee_tone
 
         input_data = self._budget_input(1, [])
-        input_data.pop("remaining_liquidity")
-        input_data["next_month_liquidity"] = -1
+        input_data["remaining_liquidity"] = -1
 
         self.assertEqual(budget_committee_tone(input_data)["level"], "danger")
 
@@ -210,7 +209,7 @@ class JudgmentTest(unittest.TestCase):
                 "recorded_remaining_total": 0,
                 "primary_income_total": 400_000,
             },
-            settings={"card_limit": "5800000", "base_next_month_liquidity": "400000"},
+            settings={"card_limit": "5800000", "scheduled_income": "400000"},
         )
 
         self.assertEqual(result["category_labels"]["dignity"], "최소한의 품위유지비")
