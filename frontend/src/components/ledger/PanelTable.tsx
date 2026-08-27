@@ -130,8 +130,8 @@ export function PanelTable({
               ) : null}
               {showDateColumn ? <th>{dateColumnLabel}</th> : null}
               <th className="panel-title-cell">세부내역</th>
-              <th className="amount">금액</th>
               {onConfirmFixed ? <th className="date">처리일</th> : null}
+              <th className="amount">금액</th>
               {onConfirmFixed ? <th className="action-cell">확인</th> : null}
               {onDiscount ? <th className="discount-cell">할인 / 원금</th> : null}
               {onDelete ? <th className="action-cell">삭제</th> : null}
@@ -149,6 +149,17 @@ export function PanelTable({
                 discountControlEligible || (onDiscount && discountOverride),
               );
               const netAmount = panelNetAmount(row);
+              const amountContent = onNetAmountEdit ? (
+                <button
+                  type="button"
+                  className="amount-cell-button"
+                  onClick={() => onNetAmountEdit(row)}
+                >
+                  {formatWon(netAmount)}
+                </button>
+              ) : (
+                formatWon(discountDisplayEligible ? netAmount : row.amount_value)
+              );
               return (
                 <tr key={row.id}>
                   {selectable ? (
@@ -165,26 +176,16 @@ export function PanelTable({
                     <td className="date">{formatDateLabel(row.spent_on ?? "") ?? ""}</td>
                   ) : null}
                   <td className="panel-title-cell">{row.title}</td>
-                  <td className="amount">
-                    {onNetAmountEdit ? (
-                      <button
-                        type="button"
-                        className="amount-cell-button"
-                        onClick={() => onNetAmountEdit(row)}
-                      >
-                        {formatWon(netAmount)}
-                      </button>
-                    ) : (
-                      formatWon(discountDisplayEligible ? netAmount : row.amount_value)
-                    )}
-                  </td>
                   {onConfirmFixed ? (
                     <FixedConfirmationCells
                       panel={row}
                       defaultDate={fixedConfirmationDate ?? ""}
                       onConfirm={onConfirmFixed}
+                      amountContent={amountContent}
                     />
-                  ) : null}
+                  ) : (
+                    <td className="amount">{amountContent}</td>
+                  )}
                   {onDiscount ? (
                     <td className="discount-cell">
                       {discountControlEligible ? (
@@ -243,10 +244,12 @@ function FixedConfirmationCells({
   panel,
   defaultDate,
   onConfirm,
+  amountContent,
 }: {
   panel: MonthlyPanel;
   defaultDate: string;
   onConfirm: (panel: MonthlyPanel, occurredOn: string) => void;
+  amountContent: ReactNode;
 }) {
   const [occurredOn, setOccurredOn] = useState(defaultDate);
   useEffect(() => setOccurredOn(defaultDate), [defaultDate]);
@@ -261,6 +264,7 @@ function FixedConfirmationCells({
           aria-label={`${panel.title} 처리일`}
         />
       </td>
+      <td className="amount">{amountContent}</td>
       <td className="action-cell">
         <button
           type="button"

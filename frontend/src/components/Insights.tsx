@@ -32,9 +32,9 @@ export function SummaryPanel({
     ? [
         [labels.summary_card_total_label ?? "카드대금", summary.card_total],
         [labels.summary_transfer_or_deposit_label ?? "고정지출", summary.transfer_or_deposit_total],
-        [labels.summary_frozen_asset_label ?? "동결자산", summary.frozen_asset_total],
-        [labels.summary_cash_flow_balance_label ?? "현금흐름 반영액", summary.cash_flow_balance],
         [labels.summary_remaining_liquidity_label ?? "잔여 유동성", summary.remaining_liquidity],
+        [labels.summary_cash_flow_balance_label ?? "현금흐름 반영액", summary.cash_flow_balance],
+        [labels.summary_frozen_asset_label ?? "동결자산", summary.frozen_asset_total],
       ]
     : [];
 

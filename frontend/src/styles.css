@@ -563,10 +563,6 @@ th {
   border-bottom: 0;
 }
 
-.summary-panel dl div:last-child {
-  border-right: 0;
-}
-
 .summary-panel dt {
   color: #5d6657;
 }
@@ -578,6 +574,8 @@ th {
 
 .summary-panel .total {
   background: #f2f6ee;
+  grid-row: span 2;
+  align-items: center;
 }
 
 .summary-panel .total dd {
@@ -1614,5 +1612,9 @@ button.discount-badge:hover:not(:disabled) {
 
   .summary-panel dl div:last-child {
     border-bottom: 0;
+  }
+
+  .summary-panel .total {
+    grid-row: auto;
   }
 }
