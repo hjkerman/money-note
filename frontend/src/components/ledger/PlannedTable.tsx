@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import { LedgerEntry } from "../../api";
+import { LedgerEntry, PlannedChargePreview, previewPlannedEntry } from "../../api";
 import { formatWon } from "../../utils";
 
 export function PlannedTable({
@@ -13,7 +13,7 @@ export function PlannedTable({
   entries: LedgerEntry[];
   emptyText: string;
   month: string;
-  onConfirm: (entry: LedgerEntry, entryDate: string) => void;
+  onConfirm: (entry: LedgerEntry, entryDate: string, actualAmount: number) => void;
   onDelete: (entry: LedgerEntry) => void;
 }) {
   if (!entries.length) return <p className="empty">{emptyText}</p>;
@@ -25,7 +25,10 @@ export function PlannedTable({
           <th>사용처</th>
           <th>세부내역</th>
           <th>이번 승인 날짜</th>
-          <th className="amount">금액</th>
+          <th className="amount">예정 원금</th>
+          <th>실제 원금</th>
+          <th className="amount">할인</th>
+          <th className="amount">실결제 예상액</th>
           <th className="action-cell">확인</th>
           <th className="action-cell">삭제</th>
         </tr>
@@ -53,7 +56,7 @@ function PlannedTableRow({
 }: {
   entry: LedgerEntry;
   month: string;
-  onConfirm: (entry: LedgerEntry, entryDate: string) => void;
+  onConfirm: (entry: LedgerEntry, entryDate: string, actualAmount: number) => void;
   onDelete: (entry: LedgerEntry) => void;
 }) {
   const defaultEntryDate = useMemo(
@@ -61,6 +64,23 @@ function PlannedTableRow({
     [entry.due_day, month],
   );
   const [entryDate, setEntryDate] = useState(defaultEntryDate);
+  const [actualAmount, setActualAmount] = useState(String(entry.amount_value ?? 0));
+  const [preview, setPreview] = useState<PlannedChargePreview>(() => entryPreview(entry));
+  const parsedActualAmount = parseNonNegativeInteger(actualAmount);
+
+  useEffect(() => {
+    setActualAmount(String(entry.amount_value ?? 0));
+    setPreview(entryPreview(entry));
+  }, [entry]);
+
+  async function refreshPreview() {
+    if (parsedActualAmount === null) return;
+    try {
+      setPreview(await previewPlannedEntry(entry.id, parsedActualAmount));
+    } catch {
+      // 확인 버튼에서도 서버 미리보기를 다시 검증하므로 입력 중 실패는 조용히 유지한다.
+    }
+  }
   return (
     <tr>
       <td className="date">{entry.due_day ? `매월 ${entry.due_day}일` : "날짜 없음"}</td>
@@ -75,8 +95,26 @@ function PlannedTableRow({
         />
       </td>
       <td className="amount">{formatWon(entry.amount_value)}</td>
+      <td>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          value={actualAmount}
+          onChange={(event) => setActualAmount(event.target.value)}
+          onBlur={() => void refreshPreview()}
+          className="compact-money-input"
+          aria-label={`${entry.title} 실제 원금`}
+        />
+      </td>
+      <td className="amount">{formatWon(preview.effective_discount_amount)}</td>
+      <td className="amount">{formatWon(preview.effective_amount_value)}</td>
       <td className="action-cell">
-        <button type="button" onClick={() => onConfirm(entry, entryDate)}>
+        <button
+          type="button"
+          disabled={!entryDate || parsedActualAmount === null}
+          onClick={() => parsedActualAmount !== null && onConfirm(entry, entryDate, parsedActualAmount)}
+        >
           확인
         </button>
       </td>
@@ -87,6 +125,23 @@ function PlannedTableRow({
       </td>
     </tr>
   );
+}
+
+function entryPreview(entry: LedgerEntry): PlannedChargePreview {
+  return {
+    amount_value: entry.amount_value ?? 0,
+    discount_policy: entry.discount_policy,
+    automatic_discount_eligible: entry.automatic_discount_eligible,
+    effective_discount_amount: entry.effective_discount_amount,
+    effective_amount_value: entry.effective_amount_value ?? entry.amount_value ?? 0,
+  };
+}
+
+function parseNonNegativeInteger(value: string): number | null {
+  const normalized = value.trim();
+  if (!normalized) return null;
+  const parsed = Number(normalized);
+  return Number.isInteger(parsed) && parsed >= 0 ? parsed : null;
 }
 
 function plannedEntryDefaultDate(month: string, dueDay: number | null): string {

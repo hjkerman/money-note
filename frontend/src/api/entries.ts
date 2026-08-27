@@ -1,5 +1,5 @@
 import { deleteJson, getJson, patchJson, postJson } from "./client";
-import { LedgerEntry } from "./types";
+import { LedgerEntry, PlannedChargePreview } from "./types";
 
 type LedgerEntryWrite = Omit<
   LedgerEntry,
@@ -53,7 +53,16 @@ export async function deleteEntry(entryId: number): Promise<{ deleted: boolean }
 
 export async function confirmPlannedEntry(
   entryId: number,
-  payload: { entry_date?: string | null } = {},
+  payload: { entry_date?: string | null; actual_amount?: number | null } = {},
 ): Promise<{ planned: LedgerEntry; entry: LedgerEntry }> {
   return postJson(`/api/month/current/planned/${entryId}/confirm`, payload);
+}
+
+export async function previewPlannedEntry(
+  entryId: number,
+  actualAmount: number,
+): Promise<PlannedChargePreview> {
+  return getJson(
+    `/api/month/current/planned/${entryId}/preview?actual_amount=${encodeURIComponent(actualAmount)}`,
+  );
 }

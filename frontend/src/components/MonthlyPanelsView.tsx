@@ -12,6 +12,7 @@ export function FixedPanelView({
   currentMonth,
   handlePanelDelete,
   handleFixedPanelConfirm,
+  handleFixedPanelConfirmationCancel,
   handlePanelSubmit,
   handlePlannedConfirm,
   handlePlannedDelete,
@@ -31,9 +32,10 @@ export function FixedPanelView({
   active: boolean;
   currentMonth: string;
   handlePanelDelete: (panel: MonthlyPanel) => void;
-  handleFixedPanelConfirm: (panel: MonthlyPanel, occurredOn: string) => void;
+  handleFixedPanelConfirm: (panel: MonthlyPanel, occurredOn: string, actualAmount: number) => void;
+  handleFixedPanelConfirmationCancel: (panel: MonthlyPanel) => void;
   handlePanelSubmit: (event: FormEvent, panelType: MonthlyPanel["panel_type"]) => Promise<void>;
-  handlePlannedConfirm: (entry: LedgerEntry, entryDate?: string) => void;
+  handlePlannedConfirm: (entry: LedgerEntry, entryDate: string, actualAmount: number) => void;
   handlePlannedDelete: (entry: LedgerEntry) => void;
   handlePlannedSubmit: (event: FormEvent) => void;
   isBusy: boolean;
@@ -76,6 +78,7 @@ export function FixedPanelView({
       />
       <ConfirmedFixedList
         rows={confirmedFixedPanels}
+        onCancelConfirmation={handleFixedPanelConfirmationCancel}
         onUnsubscribe={handlePanelDelete}
       />
       <section className="panel">
@@ -122,7 +125,7 @@ export function FixedPanelView({
           entries={plannedEntries}
           emptyText="카드 정기결제 항목이 없습니다."
           month={currentMonth}
-          onConfirm={(entry, entryDate) => handlePlannedConfirm(entry, entryDate)}
+          onConfirm={(entry, entryDate, actualAmount) => handlePlannedConfirm(entry, entryDate, actualAmount)}
           onDelete={(entry) => handlePlannedDelete(entry)}
         />
         <ConfirmedPlannedList entries={confirmedPlannedEntries} onUnsubscribe={(entry) => handlePlannedDelete(entry)} />
@@ -133,9 +136,11 @@ export function FixedPanelView({
 
 function ConfirmedFixedList({
   rows,
+  onCancelConfirmation,
   onUnsubscribe,
 }: {
   rows: MonthlyPanel[];
+  onCancelConfirmation: (panel: MonthlyPanel) => void;
   onUnsubscribe: (panel: MonthlyPanel) => void;
 }) {
   if (!rows.length) return null;
@@ -150,7 +155,9 @@ function ConfirmedFixedList({
           <tr>
             <th>처리일</th>
             <th className="panel-title-cell">세부내역</th>
-            <th className="amount">금액</th>
+            <th className="amount">예정액</th>
+            <th className="amount">실제 출금액</th>
+            <th className="action-cell">확인 취소</th>
             <th className="action-cell">정기지출 해제</th>
           </tr>
         </thead>
@@ -160,6 +167,12 @@ function ConfirmedFixedList({
               <td className="date">{formatDateLabel(row.spent_on ?? "") || "-"}</td>
               <td className="panel-title-cell">{row.title}</td>
               <td className="amount">{formatWon(row.amount_value)}</td>
+              <td className="amount">{formatWon(row.confirmed_amount_value ?? row.amount_value)}</td>
+              <td className="action-cell">
+                <button type="button" onClick={() => onCancelConfirmation(row)}>
+                  확인 취소
+                </button>
+              </td>
               <td className="action-cell">
                 <button type="button" className="danger" onClick={() => onUnsubscribe(row)}>
                   정기지출 해제
@@ -188,7 +201,10 @@ function ConfirmedPlannedList({ entries, onUnsubscribe }: { entries: LedgerEntry
             <th>사용처</th>
             <th>세부내역</th>
             <th>승인일</th>
-            <th className="amount">금액</th>
+            <th className="amount">예정 원금</th>
+            <th className="amount">실제 원금</th>
+            <th className="amount">할인</th>
+            <th className="amount">실결제액</th>
             <th className="action-cell">구독중지</th>
           </tr>
         </thead>
@@ -200,6 +216,9 @@ function ConfirmedPlannedList({ entries, onUnsubscribe }: { entries: LedgerEntry
               <td>{entry.usage_item || "좌동"}</td>
               <td className="date">{confirmedPlannedDate(entry)}</td>
               <td className="amount">{formatWon(entry.amount_value)}</td>
+              <td className="amount">{formatWon(entry.confirmed_amount_value ?? entry.amount_value)}</td>
+              <td className="amount">{formatWon(entry.confirmed_effective_discount_amount ?? 0)}</td>
+              <td className="amount">{formatWon(entry.confirmed_effective_amount_value ?? entry.amount_value)}</td>
               <td className="action-cell">
                 <button type="button" className="danger" onClick={() => onUnsubscribe(entry)}>
                   구독중지

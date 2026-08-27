@@ -6,6 +6,7 @@ import {
   deleteEntry,
   deletePlannedEntry,
   LedgerEntry,
+  previewPlannedEntry,
   SpendingCategory,
   updateEntry,
 } from "../api";
@@ -13,6 +14,7 @@ import {
   displayEntryTitle,
   focusFirstDataInput,
   formatDateLabel,
+  formatWon,
   formatUsageTitle,
   nextSortOrder,
   parseAmount,
@@ -101,14 +103,31 @@ export function useEntryHandlers({
     });
   }
 
-  async function handlePlannedConfirm(entry: LedgerEntry, entryDate?: string) {
-    const dueText = entry.due_day ? `${entry.due_day}일` : "오늘";
+  async function handlePlannedConfirm(entry: LedgerEntry, entryDate: string, actualAmount: number) {
+    if (!Number.isInteger(actualAmount) || actualAmount < 0) {
+      setStatus("실제 원금은 0원 이상의 정수로 입력하세요.");
+      return;
+    }
+    let preview;
+    try {
+      preview = await previewPlannedEntry(entry.id, actualAmount);
+    } catch (error) {
+      setStatus(`정기결제 계산 실패: ${error instanceof Error ? error.message : String(error)}`);
+      return;
+    }
     const confirmed = window.confirm(
-      `${entry.title}을 ${entryDate ?? dueText} 카드 결제 건으로 당월 지출에 넣을까요?`,
+      `${displayEntryTitle(entry)}을 ${entryDate} 카드 결제 건으로 당월 지출에 넣을까요?\n\n` +
+        `예정 원금 ${formatWon(entry.amount_value)}\n` +
+        `실제 원금 ${formatWon(preview.amount_value)}\n` +
+        `할인 ${formatWon(preview.effective_discount_amount)}\n` +
+        `실결제 예상액 ${formatWon(preview.effective_amount_value)}`,
     );
     if (!confirmed) return;
     await withRefresh(async () => {
-      await confirmPlannedEntry(entry.id, { entry_date: entryDate || null });
+      await confirmPlannedEntry(entry.id, {
+        entry_date: entryDate || null,
+        actual_amount: actualAmount,
+      });
       setStatus(`${entry.title} 확인 완료`);
     });
   }

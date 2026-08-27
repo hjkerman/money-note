@@ -89,6 +89,9 @@ class LedgerEntry(LedgerEntryIn):
     effective_amount_value: int | None = None
     is_transport: bool = False
     is_toll: bool = False
+    confirmed_amount_value: int | None = None
+    confirmed_effective_discount_amount: int | None = None
+    confirmed_effective_amount_value: int | None = None
 
 
 class LedgerEntryPatch(BaseModel):
@@ -113,6 +116,7 @@ class LedgerEntryPatch(BaseModel):
 
 class MonthCloseIn(BaseModel):
     allow_early_close: bool = False
+    allow_unconfirmed_recurring: bool = False
     target_month: str | None = Field(default=None, pattern=r"^\d{4}-(?:0[1-9]|1[0-2])$")
 
 
@@ -129,10 +133,24 @@ class PlannedEntryIn(BaseModel):
 
 class PlannedConfirmIn(BaseModel):
     entry_date: date | None = None
+    actual_amount: int | None = Field(default=None, ge=0)
+
+    _integer_money = field_validator("actual_amount", mode="before")(integer_money)
+
+
+class PlannedChargePreview(BaseModel):
+    amount_value: int
+    discount_policy: str
+    automatic_discount_eligible: bool
+    effective_discount_amount: int
+    effective_amount_value: int
 
 
 class FixedPanelConfirmIn(BaseModel):
     occurred_on: date
+    actual_amount: int | None = Field(default=None, ge=0)
+
+    _integer_money = field_validator("actual_amount", mode="before")(integer_money)
 
 
 class EntryReorder(BaseModel):
@@ -176,6 +194,7 @@ class MonthlyPanel(BaseModel):
     automatic_discount_amount: int = 0
     effective_discount_amount: int = 0
     effective_amount_value: int | None = None
+    confirmed_amount_value: int | None = None
 
 
 class MonthlyPanelIn(BaseModel):

@@ -35,6 +35,9 @@ export type LedgerEntry = {
   effective_amount_value: number | null;
   is_transport: boolean;
   is_toll: boolean;
+  confirmed_amount_value?: number | null;
+  confirmed_effective_discount_amount?: number | null;
+  confirmed_effective_amount_value?: number | null;
 };
 
 export type SpendingCategory = "essential" | "questionable" | "dignity";
@@ -78,6 +81,15 @@ export type MonthlyPanel = {
   automatic_discount_amount: number;
   effective_discount_amount: number;
   effective_amount_value: number | null;
+  confirmed_amount_value?: number | null;
+};
+
+export type PlannedChargePreview = {
+  amount_value: number;
+  discount_policy: CardDiscountPolicy;
+  automatic_discount_eligible: boolean;
+  effective_discount_amount: number;
+  effective_amount_value: number;
 };
 
 export type Summary = {
@@ -178,6 +190,14 @@ export type MonthCloseStatus = {
   early_close_available: boolean;
   early_close_start_day: number;
   can_close: boolean;
+  unconfirmed_recurring_items: {
+    kind: "fixed" | "planned";
+    id: number;
+    title: string;
+    detail?: string;
+    amount_value: number;
+    due_day?: number | null;
+  }[];
 };
 
 export type AuditLog = {

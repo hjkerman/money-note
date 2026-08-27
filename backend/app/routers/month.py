@@ -1,7 +1,7 @@
 from calendar import monthrange
 from datetime import date
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.auth import require_user
 from app.db import session
@@ -12,6 +12,7 @@ from app.repositories.entries import (
     delete_planned_entry,
     list_confirmed_planned_entries,
     list_entries,
+    get_entry,
     list_recent_closed_month_expense_counts,
     reorder_current_entries,
 )
@@ -34,6 +35,7 @@ from app.schemas import (
     MonthlyPanelPatch,
     PanelDiscountPatch,
     PlannedConfirmIn,
+    PlannedChargePreview,
     PlannedEntryIn,
     Summary,
 )
@@ -45,6 +47,7 @@ from app.services.panels import complete_panels_by_type, confirm_fixed_panel
 from app.services.presentation import (
     present_ledger_entries,
     present_ledger_entry,
+    present_planned_charge_preview,
     present_monthly_panel,
     present_monthly_panels,
 )
@@ -65,6 +68,7 @@ def post_confirm_planned_entry(entry_id: int, payload: PlannedConfirmIn | None =
         result = confirm_planned_entry(
             entry_id,
             entry_date=payload.entry_date.isoformat() if payload and payload.entry_date else None,
+            actual_amount=payload.actual_amount if payload else None,
         )
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
@@ -74,6 +78,21 @@ def post_confirm_planned_entry(entry_id: int, payload: PlannedConfirmIn | None =
         "planned": present_ledger_entry(result["planned"]),
         "entry": present_ledger_entry(result["entry"]),
     }
+
+
+@router.get("/planned/{entry_id}/preview", response_model=PlannedChargePreview)
+def get_planned_entry_preview(
+    entry_id: int,
+    actual_amount: int = Query(ge=0),
+    _: dict = Depends(require_user),
+) -> dict:
+    entry = get_entry(entry_id)
+    if entry is None:
+        raise HTTPException(status_code=404, detail="planned entry not found")
+    try:
+        return present_planned_charge_preview(entry, actual_amount)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
 @router.get("/planned/confirmed", response_model=list[LedgerEntry])
@@ -120,7 +139,11 @@ def post_confirm_fixed_panel(
     _: dict = Depends(require_user),
 ) -> dict:
     try:
-        result = confirm_fixed_panel(panel_id, payload.occurred_on.isoformat())
+        result = confirm_fixed_panel(
+            panel_id,
+            payload.occurred_on.isoformat(),
+            payload.actual_amount,
+        )
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     if result is None:
@@ -197,6 +220,7 @@ def close_month(payload: MonthCloseIn, _: dict = Depends(require_user)) -> dict:
     try:
         return close_current_month(
             allow_early_close=payload.allow_early_close,
+            allow_unconfirmed_recurring=payload.allow_unconfirmed_recurring,
             target_month=payload.target_month,
         )
     except ValueError as exc:

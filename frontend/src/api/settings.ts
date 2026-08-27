@@ -52,13 +52,18 @@ export async function clearAuditLogs(): Promise<{ deleted: number }> {
   return deleteJson("/api/audit-logs");
 }
 
-export async function closeCurrentMonth(targetMonth: string, allowEarlyClose = false): Promise<{
+export async function closeCurrentMonth(
+  targetMonth: string,
+  allowEarlyClose = false,
+  allowUnconfirmedRecurring = false,
+): Promise<{
   closed_month: string | null;
   archived: number;
   deleted_from_current: number;
 }> {
   return postJson("/api/month/current/close", {
     allow_early_close: allowEarlyClose,
+    allow_unconfirmed_recurring: allowUnconfirmedRecurring,
     target_month: targetMonth,
   });
 }

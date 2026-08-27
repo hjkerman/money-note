@@ -215,9 +215,19 @@ class MoneyNoteApiClient {
   }
 
   Future<Map<String, dynamic>> confirmPlannedEntry(
-      int entryId, String entryDate) {
-    return _post('/api/month/current/planned/$entryId/confirm',
-        {'entry_date': entryDate}, (json) => json);
+      int entryId, String entryDate, int actualAmount) {
+    return _post(
+        '/api/month/current/planned/$entryId/confirm',
+        {'entry_date': entryDate, 'actual_amount': actualAmount},
+        (json) => json);
+  }
+
+  Future<PlannedChargePreview> previewPlannedEntry(
+      int entryId, int actualAmount) {
+    return _get(
+      '/api/month/current/planned/$entryId/preview?actual_amount=$actualAmount',
+      PlannedChargePreview.fromJson,
+    );
   }
 
   Future<void> deletePlannedEntry(int entryId) async {
@@ -286,10 +296,10 @@ class MoneyNoteApiClient {
   }
 
   Future<Map<String, dynamic>> confirmFixedPanel(
-      int panelId, String occurredOn) {
+      int panelId, String occurredOn, int actualAmount) {
     return _post(
       '/api/month/current/panels/$panelId/confirm-fixed',
-      {'occurred_on': occurredOn},
+      {'occurred_on': occurredOn, 'actual_amount': actualAmount},
       (json) => json,
     );
   }
@@ -360,11 +370,14 @@ class MoneyNoteApiClient {
   }
 
   Future<Map<String, dynamic>> closeCurrentMonth(
-      {required String targetMonth, bool allowEarlyClose = false}) {
+      {required String targetMonth,
+      bool allowEarlyClose = false,
+      bool allowUnconfirmedRecurring = false}) {
     return _post(
         '/api/month/current/close',
         {
           'allow_early_close': allowEarlyClose,
+          'allow_unconfirmed_recurring': allowUnconfirmedRecurring,
           'target_month': targetMonth,
         },
         (json) => json);

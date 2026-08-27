@@ -90,7 +90,7 @@ def list_confirmed_planned_entries(today: date | None = None) -> list[dict[str, 
             item = row_to_dict(row)
             expense = conn.execute(
                 """
-                SELECT entry_date
+                SELECT *
                 FROM ledger_entries
                 WHERE source_planned_entry_id = ?
                   AND entry_kind = 'expense'
@@ -104,7 +104,7 @@ def list_confirmed_planned_entries(today: date | None = None) -> list[dict[str, 
                 # v4-v6 Snapshot과 기존 운영 행에는 명시적 관계가 없으므로 이 경계에서만 호환 매칭한다.
                 expense = conn.execute(
                     """
-                    SELECT entry_date
+                    SELECT *
                     FROM ledger_entries
                     WHERE book_section = 'current'
                       AND entry_kind = 'expense'
@@ -127,14 +127,26 @@ def list_confirmed_planned_entries(today: date | None = None) -> list[dict[str, 
                 ).fetchone()
             if expense and expense["entry_date"]:
                 item["entry_date"] = expense["entry_date"]
+                item["_confirmed_expense"] = row_to_dict(expense)
             confirmed_entries.append(item)
     return confirmed_entries
 
 
-def confirm_planned_entry(entry_id: int, today: date | None = None, entry_date: str | None = None) -> dict[str, Any] | None:
+def get_entry(entry_id: int) -> dict[str, Any] | None:
+    with session() as conn:
+        row = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (entry_id,)).fetchone()
+    return row_to_dict(row) if row else None
+
+
+def confirm_planned_entry(
+    entry_id: int,
+    today: date | None = None,
+    entry_date: str | None = None,
+    actual_amount: int | None = None,
+) -> dict[str, Any] | None:
     today = today or app_today()
     confirmed_month = today.strftime("%Y-%m")
-    with session() as conn:
+    with session(transaction_mode="IMMEDIATE") as conn:
         planned = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (entry_id,)).fetchone()
         if planned is None:
             return None
@@ -142,6 +154,9 @@ def confirm_planned_entry(entry_id: int, today: date | None = None, entry_date: 
             raise ValueError("only card recurring entries can be confirmed")
         if planned["confirmed_month"] == confirmed_month:
             raise ValueError("card recurring entry already confirmed")
+        amount = int(planned["amount_value"] if actual_amount is None else actual_amount)
+        if amount < 0:
+            raise ValueError("카드 정기결제 실제 원금은 0원 이상이어야 합니다.")
 
         payment_date = _parse_confirm_entry_date(entry_date, confirmed_month) if entry_date else planned_entry_payment_date(planned["due_day"], today)
         date_label = f"{payment_date:%Y.%m.%d}."
@@ -168,8 +183,8 @@ def confirm_planned_entry(entry_id: int, today: date | None = None, entry_date: 
                 planned["title"],
                 planned["usage_place"],
                 planned["usage_item"],
-                planned["amount_value"],
-                planned["amount_expr"],
+                amount,
+                planned["amount_expr"] if amount == int(planned["amount_value"] or 0) else str(amount),
                 sort_order,
                 entry_id,
             ),
@@ -402,12 +417,38 @@ def update_entry(entry_id: int, patch: LedgerEntryPatch) -> dict[str, Any] | Non
 
 def delete_entry(entry_id: int) -> bool:
     with session() as conn:
-        entry = conn.execute("SELECT payment_key FROM ledger_entries WHERE id = ?", (entry_id,)).fetchone()
+        entry = conn.execute(
+            """
+            SELECT payment_key, source_planned_entry_id, book_section, entry_date
+            FROM ledger_entries
+            WHERE id = ?
+            """,
+            (entry_id,),
+        ).fetchone()
         if entry is None:
             return False
         if entry["payment_key"]:
             _delete_card_payment_references(conn, str(entry["payment_key"]))
         cursor = conn.execute("DELETE FROM ledger_entries WHERE id = ?", (entry_id,))
+        source_planned_entry_id = entry["source_planned_entry_id"]
+        if source_planned_entry_id and entry["book_section"] == "current":
+            planned = conn.execute(
+                "SELECT confirmed_month FROM ledger_entries WHERE id = ? AND entry_kind = 'planned'",
+                (source_planned_entry_id,),
+            ).fetchone()
+            confirmed_month = str(planned["confirmed_month"] or "") if planned else ""
+            if confirmed_month and str(entry["entry_date"] or "").startswith(confirmed_month):
+                conn.execute(
+                    """
+                    UPDATE ledger_entries
+                    SET entry_date = NULL,
+                        confirmed_at = NULL,
+                        confirmed_month = NULL,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE id = ? AND entry_kind = 'planned' AND confirmed_month = ?
+                    """,
+                    (source_planned_entry_id, confirmed_month),
+                )
     return cursor.rowcount > 0
 
 

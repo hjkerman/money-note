@@ -341,10 +341,10 @@
 카드 정기결제 항목을 당월 지출로 편입한다.
 
 - `entry_kind = planned` 항목만 대상이다.
-- 새 당월 지출은 기존 planned 항목의 사용처, 사용항목, 금액 구조를 따른다.
+- 새 당월 지출은 기존 planned 항목의 사용처와 사용항목을 따르며, 요청의 `actual_amount`가 있으면 이번 주기의 실제 원금으로 사용한다. 생략하면 template 예정 원금을 사용한다.
 - 원래 planned 항목은 삭제하지 않고 현재 월에 확인된 상태로 숨겨진다.
 - 새 지출은 `source_planned_entry_id`로 원본 planned 항목을 명시적으로 참조한다. 동일 제목·금액의 수동 지출과 혼동하지 않는다.
-- 월마감 후 다음 달에는 같은 planned 항목이 다시 보인다.
+- 월마감 후 다음 달에는 template 예정 원금을 유지한 같은 planned 항목이 다시 보인다.
 - 선택 요청 본문 `entry_date`를 보내면 그 날짜를 새 지출의 사용일로 사용한다. 생략하면 `due_day`를 기준으로 한 이번 달 날짜를 사용한다.
 - 확인 시 `due_day`는 바뀌지 않는다. `entry_date`는 앱 기준 현재 월의 날짜여야 한다.
 
@@ -352,9 +352,12 @@
 
 ```json
 {
-  "entry_date": "2026-06-17"
+  "entry_date": "2026-06-17",
+  "actual_amount": 52000
 }
 ```
+
+`actual_amount`는 0원 이상이다. 서버는 이 실제 원금에 기존 카드 할인 정책을 적용하여 생성 expense의 할인액과 실결제액을 확정한다. planned template의 `amount_value`와 `due_day`는 바뀌지 않는다. 확인을 잘못했다면 월마감 전에 생성된 원장 expense를 삭제해 template을 미확인 상태로 되돌린 뒤 다시 확인한다.
 
 응답:
 
@@ -365,9 +368,25 @@
 }
 ```
 
+### `GET /api/month/current/planned/{entry_id}/preview?actual_amount=52000`
+
+카드 정기결제의 이번 실제 원금을 저장하지 않고 서버 카드 정책으로 투영한다. Web과 Mobile은 할인 공식을 복제하지 않고 이 응답을 확인 전 preview로 사용한다.
+
+응답:
+
+```json
+{
+  "amount_value": 52000,
+  "discount_policy": "flat_statement",
+  "automatic_discount_eligible": true,
+  "effective_discount_amount": 624,
+  "effective_amount_value": 51376
+}
+```
+
 ### `GET /api/month/current/planned/confirmed`
 
-이번 달에 이미 확인하여 원장에 편입한 카드 정기결제 원본을 조회한다. 응답은 `LedgerEntry` 배열이며, 각 항목의 `entry_date`에는 가능한 경우 이번 달에 생성된 대응 지출의 실제 승인일을 투영한다.
+이번 달에 이미 확인하여 원장에 편입한 카드 정기결제 원본을 조회한다. 응답은 `LedgerEntry` 배열이며, 각 항목의 `entry_date`에는 가능한 경우 이번 달에 생성된 대응 지출의 실제 승인일을 투영한다. `amount_value`는 template 예정 원금이고, `confirmed_amount_value`, `confirmed_effective_discount_amount`, `confirmed_effective_amount_value`는 대응 expense에서 투영한 이번 실제 원금·할인·실결제액이다.
 
 ### `DELETE /api/month/current/planned/{entry_id}`
 
@@ -476,18 +495,19 @@
 
 ```json
 {
-  "occurred_on": "2026-08-27"
+  "occurred_on": "2026-08-27",
+  "actual_amount": 112430
 }
 ```
 
-서버는 같은 트랜잭션에서 `amount_value`의 음수 현금흐름을 만들고, 패널의 `spent_on`, `confirmed_at`, `confirmed_month`, `confirmed_cash_flow_id`를 기록한다. 원래 템플릿 금액과 제목은 바뀌지 않는다. 이미 확인된 항목이나 `fixed`가 아닌 패널은 `422`를 반환한다. 처리일이 서버 기준 오늘보다 미래여도 `422`를 반환하며 예약 확인으로 해석하지 않는다.
+`actual_amount`는 0원 이상이며 생략하면 template `amount_value`를 사용한다. 서버는 같은 트랜잭션에서 실제액의 음수 현금흐름을 만들고, 패널의 `spent_on`, `confirmed_at`, `confirmed_month`, `confirmed_cash_flow_id`를 기록한다. 원래 템플릿 예정액과 제목은 바뀌지 않는다. 응답과 확인 목록의 `confirmed_amount_value`는 연결된 cash flow의 절댓값이다. 이미 확인된 항목이나 `fixed`가 아닌 패널은 `422`를 반환한다. 처리일이 서버 기준 오늘보다 미래여도 `422`를 반환하며 예약 확인으로 해석하지 않는다.
 
 응답:
 
 ```json
 {
-  "panel": {"id": 1, "confirmed_cash_flow_id": 42},
-  "cash_flow": {"id": 42, "occurred_on": "2026-08-27", "amount_value": -500000}
+  "panel": {"id": 1, "amount_value": 150000, "confirmed_amount_value": 112430, "confirmed_cash_flow_id": 42},
+  "cash_flow": {"id": 42, "occurred_on": "2026-08-27", "amount_value": -112430}
 }
 ```
 
@@ -609,7 +629,7 @@ remaining_liquidity
   + cash_flow_balance
 ```
 
-`liquidity_fixed_total`은 응답 필드가 아니라 내부 계산값이다. `아직 확인되지 않은 현금성 고정지출 + 아직 카드 지출로 확인되지 않은 카드 정기결제 예정액`이다. 현금성 고정지출을 확인하면 pending 차감은 사라지고 같은 금액의 음수 현금흐름이 생기므로 잔여 유동성에는 계속 한 번만 반영된다.
+`liquidity_fixed_total`은 응답 필드가 아니라 내부 계산값이다. `아직 확인되지 않은 현금성 고정지출 reserve + 아직 카드 지출로 확인되지 않은 카드 정기결제 예정 원금`이다. 현금성 고정지출을 확인하면 reserve 차감은 사라지고 입력한 실제액의 음수 현금흐름이 생긴다. 실제액이 reserve와 같으면 잔여 유동성은 그대로이고, 다르면 그 차액만 자동으로 조정된다.
 
 `cash_flow_balance`는 `occurred_on <= calendar_date`인 현금흐름만 합산한다. 월마감이 미래 날짜의 `급여` 행을 만들 수 있지만 그 날짜 전에는 Summary 잔액에 반영하지 않는다. 현금흐름 조회 API와 Snapshot에는 행 자체가 그대로 존재한다.
 
@@ -675,11 +695,15 @@ remaining_liquidity
   "is_early_close": false,
   "early_close_available": false,
   "early_close_start_day": 27,
-  "can_close": true
+  "can_close": true,
+  "unconfirmed_recurring_items": [
+    {"kind": "fixed", "id": 7, "title": "관리비", "amount_value": 80000},
+    {"kind": "planned", "id": 12, "title": "통신사", "detail": "통신요금", "amount_value": 55000, "due_day": 15}
+  ]
 }
 ```
 
-`needs_close = true`이면 웹 첫 화면에서 월마감 검토 경고를 표시한다.
+`needs_close = true`이면 웹 첫 화면에서 월마감 검토 경고를 표시한다. `unconfirmed_recurring_items`는 마감 대상 주기의 실제액이 아직 확정되지 않은 현금성 고정지출과 카드 정기결제다.
 
 ### `POST /api/month/current/close`
 
@@ -690,11 +714,14 @@ remaining_liquidity
 ```json
 {
   "allow_early_close": false,
+  "allow_unconfirmed_recurring": false,
   "target_month": "2026-06"
 }
 ```
 
 `target_month`는 재시도할 논리 작업의 월을 고정한다. 현재 Web과 Mobile은 상태 API의 `oldest_open_month`를 반드시 보낸다. 오래된 호환 호출을 위해 생략은 허용하지만, 안정적인 재시도에는 대상 월을 명시해야 한다.
+
+미확인 정기지출이 있으면 `allow_unconfirmed_recurring=false`인 요청은 변경과 pre_restore 생성 전에 `422`로 중단된다. Web과 Mobile은 해당 목록을 보여준 뒤 사용자가 `그래도 월마감`을 선택한 경우에만 `true`로 다시 요청한다. 이 값은 경고를 인지했다는 explicit override이며 미확인 항목을 자동 확인하거나 삭제하지 않는다.
 
 동작:
 

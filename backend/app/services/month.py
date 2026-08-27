@@ -15,6 +15,7 @@ EARLY_CLOSE_START_DAY = 27
 def close_current_month(
     today: date | None = None,
     allow_early_close: bool = False,
+    allow_unconfirmed_recurring: bool = False,
     target_month: str | None = None,
 ) -> dict[str, Any]:
     """현재 장부에서 가장 오래된 미마감 월 하나만 archive로 옮긴다."""
@@ -57,6 +58,10 @@ def close_current_month(
                 raise ValueError(f"현재 달 조기 월마감은 매월 {EARLY_CLOSE_START_DAY}일부터 가능합니다.")
             if not allow_early_close:
                 raise ValueError("현재 달을 조기 월마감하려면 명시적인 확인이 필요합니다.")
+
+        unconfirmed_recurring = _unconfirmed_recurring_items(conn, target_month)
+        if unconfirmed_recurring and not allow_unconfirmed_recurring:
+            raise ValueError("미확인 정기지출이 있습니다. 확인 후 다시 시도하거나 강제 월마감을 명시하세요.")
 
         current_entries = conn.execute(
             """
@@ -182,7 +187,12 @@ def month_close_status(today: date | None = None) -> dict[str, Any]:
         setting = conn.execute(
             "SELECT value FROM app_settings WHERE key = 'last_closed_month'"
         ).fetchone()
-    oldest_open_month = str(row["month"] or "") or None
+        oldest_open_month = str(row["month"] or "") or None
+        unconfirmed_recurring = (
+            _unconfirmed_recurring_items(conn, oldest_open_month)
+            if oldest_open_month
+            else []
+        )
     is_early_close = bool(oldest_open_month and oldest_open_month == calendar_month)
     early_close_available = bool(is_early_close and today.day >= EARLY_CLOSE_START_DAY)
     return {
@@ -195,7 +205,83 @@ def month_close_status(today: date | None = None) -> dict[str, Any]:
         "early_close_available": early_close_available,
         "early_close_start_day": EARLY_CLOSE_START_DAY,
         "can_close": bool(oldest_open_month and (oldest_open_month < calendar_month or early_close_available)),
+        "unconfirmed_recurring_items": unconfirmed_recurring,
     }
+
+
+def _unconfirmed_recurring_items(conn: Any, target_month: str) -> list[dict[str, Any]]:
+    """마감 대상 주기에 실제 발생 금액이 확정되지 않은 반복 템플릿을 반환한다."""
+    fixed_rows = conn.execute(
+        """
+        SELECT p.id, p.title, p.amount_value
+        FROM monthly_panels AS p
+        LEFT JOIN cash_flows AS confirmed_flow
+          ON confirmed_flow.id = p.confirmed_cash_flow_id
+        WHERE p.panel_type = 'fixed'
+          AND p.month <= ?
+          AND NOT (
+            p.confirmed_month = ?
+            AND p.confirmed_at IS NOT NULL
+            AND confirmed_flow.id IS NOT NULL
+          )
+        ORDER BY p.sort_order, p.id
+        """,
+        (target_month, target_month),
+    ).fetchall()
+    planned_rows = conn.execute(
+        """
+        SELECT planned.id, planned.title, planned.amount_value,
+               planned.usage_place, planned.usage_item, planned.due_day
+        FROM ledger_entries AS planned
+        WHERE planned.book_section = 'current'
+          AND planned.entry_kind = 'planned'
+          AND substr(planned.created_at, 1, 7) <= ?
+          AND NOT (
+            planned.confirmed_month = ?
+            AND (
+              EXISTS (
+                SELECT 1
+                FROM ledger_entries AS generated
+                WHERE generated.source_planned_entry_id = planned.id
+                  AND generated.entry_kind = 'expense'
+                  AND generated.entry_date LIKE ?
+              )
+              OR EXISTS (
+                SELECT 1
+                FROM ledger_entries AS legacy_generated
+                WHERE legacy_generated.source_planned_entry_id IS NULL
+                  AND legacy_generated.entry_kind = 'expense'
+                  AND legacy_generated.entry_date LIKE ?
+                  AND legacy_generated.title = planned.title
+                  AND COALESCE(legacy_generated.usage_place, '') = COALESCE(planned.usage_place, '')
+                  AND COALESCE(legacy_generated.usage_item, '') = COALESCE(planned.usage_item, '')
+                  AND COALESCE(legacy_generated.amount_value, 0) = COALESCE(planned.amount_value, 0)
+              )
+            )
+          )
+        ORDER BY COALESCE(planned.due_day, 99), planned.sort_order, planned.id
+        """,
+        (target_month, target_month, f"{target_month}%", f"{target_month}%"),
+    ).fetchall()
+    return [
+        {
+            "kind": "fixed",
+            "id": int(row["id"]),
+            "title": str(row["title"]),
+            "amount_value": int(row["amount_value"] or 0),
+        }
+        for row in fixed_rows
+    ] + [
+        {
+            "kind": "planned",
+            "id": int(row["id"]),
+            "title": str(row["usage_place"] or row["title"]),
+            "detail": str(row["usage_item"] or ""),
+            "amount_value": int(row["amount_value"] or 0),
+            "due_day": int(row["due_day"]) if row["due_day"] is not None else None,
+        }
+        for row in planned_rows
+    ]
 
 
 def current_month_label() -> str:

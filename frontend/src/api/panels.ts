@@ -32,9 +32,11 @@ export async function deletePanel(panelId: number): Promise<{ deleted: boolean }
 export async function confirmFixedPanel(
   panelId: number,
   occurredOn: string,
+  actualAmount?: number,
 ): Promise<{ panel: MonthlyPanel; cash_flow: { id: number } }> {
   return postJson(`/api/month/current/panels/${panelId}/confirm-fixed`, {
     occurred_on: occurredOn,
+    actual_amount: actualAmount,
   });
 }
 

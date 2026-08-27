@@ -15,7 +15,11 @@ def complete_panels_by_type(month: str, panel_type: str) -> int:
         return delete_panels_by_type(month, panel_type, conn)
 
 
-def confirm_fixed_panel(panel_id: int, occurred_on: str) -> dict[str, dict[str, Any]] | None:
+def confirm_fixed_panel(
+    panel_id: int,
+    occurred_on: str,
+    actual_amount: int | None = None,
+) -> dict[str, dict[str, Any]] | None:
     """현금성 고정지출을 미지급 의무에서 실제 현금 유출로 원자적으로 전환한다."""
     try:
         confirmed_date = date.fromisoformat(occurred_on)
@@ -41,7 +45,9 @@ def confirm_fixed_panel(panel_id: int, occurred_on: str) -> dict[str, dict[str, 
         if panel["amount_value"] is None:
             raise ValueError("확인 처리할 금액이 없습니다.")
 
-        amount = int(panel["amount_value"])
+        amount = int(panel["amount_value"] if actual_amount is None else actual_amount)
+        if amount < 0:
+            raise ValueError("현금성 고정지출 실제 출금액은 0원 이상이어야 합니다.")
         next_order = conn.execute(
             "SELECT COALESCE(MAX(sort_order), 0) + 1 AS value FROM cash_flows",
         ).fetchone()["value"]
@@ -75,7 +81,9 @@ def confirm_fixed_panel(panel_id: int, occurred_on: str) -> dict[str, dict[str, 
             "SELECT * FROM cash_flows WHERE id = ?",
             (cash_flow_id,),
         ).fetchone()
+    confirmed_panel_data = row_to_dict(confirmed_panel)
+    confirmed_panel_data["confirmed_amount_value"] = amount
     return {
-        "panel": row_to_dict(confirmed_panel),
+        "panel": confirmed_panel_data,
         "cash_flow": row_to_dict(cash_flow),
     }

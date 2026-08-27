@@ -13,6 +13,7 @@ from app.repository import (
     confirm_fixed_panel,
     create_entry,
     delete_planned_entry,
+    delete_entry,
     list_confirmed_planned_entries,
     list_entries,
     list_recent_closed_month_expense_counts,
@@ -20,6 +21,7 @@ from app.repository import (
 from app.schemas import LedgerEntryIn
 from app.services.card_payments import current_payment_status
 from app.services.month import close_current_month, month_close_status
+from app.services.presentation import present_ledger_entries, present_planned_charge_preview
 from app.services.summary import current_summary_values
 
 
@@ -56,6 +58,78 @@ class MonthCloseTest(unittest.TestCase):
         self.assertEqual(status["calendar_date"], "2026-07-01")
         self.assertTrue(status["needs_close"])
         self.assertEqual(status["oldest_open_month"], "2026-06")
+
+    def test_status_lists_unconfirmed_recurring_items_for_target_cycle(self) -> None:
+        with session() as conn:
+            conn.execute(
+                "UPDATE ledger_entries SET created_at = '2026-06-01 00:00:00' WHERE entry_kind = 'planned'"
+            )
+            conn.execute(
+                """
+                INSERT INTO monthly_panels(month, panel_type, title, amount_value, sort_order)
+                VALUES ('2026-06', 'fixed', '관리비', 80000, 1)
+                """
+            )
+
+        status = month_close_status(date(2026, 7, 1))
+
+        self.assertEqual(
+            [(item["kind"], item["title"], item["amount_value"]) for item in status["unconfirmed_recurring_items"]],
+            [("fixed", "관리비", 80000), ("planned", "정기결제", 30000)],
+        )
+
+    def test_close_requires_explicit_override_for_unconfirmed_recurring_items(self) -> None:
+        with session() as conn:
+            conn.execute(
+                "UPDATE ledger_entries SET created_at = '2026-06-01 00:00:00' WHERE entry_kind = 'planned'"
+            )
+            conn.execute(
+                """
+                INSERT INTO monthly_panels(month, panel_type, title, amount_value, sort_order)
+                VALUES ('2026-06', 'fixed', '관리비', 80000, 1)
+                """
+            )
+
+        with self.assertRaisesRegex(ValueError, "미확인 정기지출"):
+            close_current_month(date(2026, 7, 1), target_month="2026-06")
+        with session() as conn:
+            current = conn.execute(
+                "SELECT book_section FROM ledger_entries WHERE payment_key = 'june-key'"
+            ).fetchone()
+        self.assertEqual(current["book_section"], "current")
+        self.assertFalse((self.db_path.parent / "snapshot-backups").exists())
+
+        result = close_current_month(
+            date(2026, 7, 1),
+            target_month="2026-06",
+            allow_unconfirmed_recurring=True,
+        )
+
+        self.assertEqual(result["closed_month"], "2026-06")
+
+    def test_confirmed_recurring_items_do_not_trigger_month_close_warning(self) -> None:
+        with session() as conn:
+            planned_id = conn.execute(
+                "SELECT id FROM ledger_entries WHERE entry_kind = 'planned'"
+            ).fetchone()["id"]
+            conn.execute(
+                "UPDATE ledger_entries SET created_at = '2026-06-01 00:00:00' WHERE id = ?",
+                (planned_id,),
+            )
+            panel_id = conn.execute(
+                """
+                INSERT INTO monthly_panels(month, panel_type, title, amount_value, sort_order)
+                VALUES ('2026-06', 'fixed', '관리비', 80000, 1)
+                """
+            ).lastrowid
+        confirm_planned_entry(planned_id, date(2026, 6, 20), entry_date="2026-06-15")
+        confirm_fixed_panel(panel_id, "2026-06-20", actual_amount=75000)
+
+        status = month_close_status(date(2026, 7, 1))
+
+        self.assertEqual(status["unconfirmed_recurring_items"], [])
+        result = close_current_month(date(2026, 7, 1), target_month="2026-06")
+        self.assertEqual(result["closed_month"], "2026-06")
 
     def test_status_uses_app_today_override(self) -> None:
         with patch.dict(os.environ, {"MONEY_NOTE_TODAY": "2026-07-01"}):
@@ -364,6 +438,97 @@ class MonthCloseTest(unittest.TestCase):
         self.assertEqual(confirmed[0]["entry_date"], "2026-07-17")
         self.assertEqual(confirmed[0]["due_day"], 15)
         self.assertEqual(result["entry"]["source_planned_entry_id"], planned_id)
+
+    def test_confirmed_planned_entry_uses_actual_principal_and_keeps_template(self) -> None:
+        close_current_month(date(2026, 7, 1))
+        with session() as conn:
+            planned_id = conn.execute(
+                "SELECT id FROM ledger_entries WHERE entry_kind = 'planned'"
+            ).fetchone()["id"]
+
+        with patch.dict(os.environ, {"MONEY_NOTE_TODAY": "2026-07-10"}):
+            get_settings.cache_clear()
+            preview = present_planned_charge_preview(
+                {**next(row for row in list_entries("current") if row["id"] == planned_id)},
+                32000,
+            )
+            result = confirm_planned_entry(
+                planned_id,
+                date(2026, 7, 10),
+                entry_date="2026-07-17",
+                actual_amount=32000,
+            )
+            confirmed = present_ledger_entries(
+                list_confirmed_planned_entries(date(2026, 7, 10))
+            )[0]
+        get_settings.cache_clear()
+
+        self.assertEqual(result["planned"]["amount_value"], 30000)
+        self.assertEqual(result["entry"]["amount_value"], 32000)
+        self.assertEqual(confirmed["amount_value"], 30000)
+        self.assertEqual(confirmed["confirmed_amount_value"], 32000)
+        self.assertEqual(
+            confirmed["confirmed_effective_discount_amount"],
+            preview["effective_discount_amount"],
+        )
+        self.assertEqual(
+            confirmed["confirmed_effective_amount_value"],
+            preview["effective_amount_value"],
+        )
+
+    def test_deleting_confirmed_planned_expense_reactivates_template(self) -> None:
+        close_current_month(date(2026, 7, 1))
+        with session() as conn:
+            planned_id = conn.execute(
+                "SELECT id FROM ledger_entries WHERE entry_kind = 'planned'"
+            ).fetchone()["id"]
+        result = confirm_planned_entry(
+            planned_id,
+            date(2026, 7, 10),
+            entry_date="2026-07-17",
+            actual_amount=28000,
+        )
+
+        self.assertTrue(delete_entry(result["entry"]["id"]))
+
+        with session() as conn:
+            planned = conn.execute(
+                "SELECT amount_value, confirmed_at, confirmed_month FROM ledger_entries WHERE id = ?",
+                (planned_id,),
+            ).fetchone()
+        self.assertEqual(planned["amount_value"], 30000)
+        self.assertIsNone(planned["confirmed_at"])
+        self.assertIsNone(planned["confirmed_month"])
+        self.assertTrue(any(entry["id"] == planned_id for entry in list_entries("current")))
+
+    def test_repeated_planned_confirmation_does_not_create_duplicate_expense(self) -> None:
+        close_current_month(date(2026, 7, 1))
+        with session() as conn:
+            planned_id = conn.execute(
+                "SELECT id FROM ledger_entries WHERE entry_kind = 'planned'"
+            ).fetchone()["id"]
+
+        first = confirm_planned_entry(
+            planned_id,
+            date(2026, 7, 10),
+            entry_date="2026-07-17",
+            actual_amount=28000,
+        )
+        with self.assertRaisesRegex(ValueError, "already confirmed"):
+            confirm_planned_entry(
+                planned_id,
+                date(2026, 7, 10),
+                entry_date="2026-07-17",
+                actual_amount=29000,
+            )
+
+        with session() as conn:
+            generated_count = conn.execute(
+                "SELECT COUNT(*) AS count FROM ledger_entries WHERE source_planned_entry_id = ?",
+                (planned_id,),
+            ).fetchone()["count"]
+        self.assertIsNotNone(first)
+        self.assertEqual(generated_count, 1)
 
     def test_confirmed_planned_entry_ignores_identical_manual_expense(self) -> None:
         close_current_month(date(2026, 7, 1), target_month="2026-06")

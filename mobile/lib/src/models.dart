@@ -110,6 +110,9 @@ class LedgerEntry {
     this.isToll = false,
     this.dueDay,
     this.confirmedMonth,
+    this.confirmedAmountValue,
+    this.confirmedEffectiveDiscountAmount,
+    this.confirmedEffectiveAmountValue,
   });
 
   final int id;
@@ -134,6 +137,9 @@ class LedgerEntry {
   final bool isToll;
   final int? dueDay;
   final String? confirmedMonth;
+  final int? confirmedAmountValue;
+  final int? confirmedEffectiveDiscountAmount;
+  final int? confirmedEffectiveAmountValue;
 
   int get manualDiscount => discountOverride != 0 ? (auxAmountValue ?? 0) : 0;
   bool get isDiscountExcluded =>
@@ -172,6 +178,17 @@ class LedgerEntry {
       isToll: json['is_toll'] as bool? ?? false,
       dueDay: json['due_day'] == null ? null : _int(json['due_day']),
       confirmedMonth: json['confirmed_month'] as String?,
+      confirmedAmountValue: json['confirmed_amount_value'] == null
+          ? null
+          : _int(json['confirmed_amount_value']),
+      confirmedEffectiveDiscountAmount:
+          json['confirmed_effective_discount_amount'] == null
+              ? null
+              : _int(json['confirmed_effective_discount_amount']),
+      confirmedEffectiveAmountValue:
+          json['confirmed_effective_amount_value'] == null
+              ? null
+              : _int(json['confirmed_effective_amount_value']),
     );
   }
 }
@@ -195,6 +212,7 @@ class MonthlyPanel {
     this.dueDay,
     this.confirmedAt,
     this.confirmedCashFlowId,
+    this.confirmedAmountValue,
   });
 
   final int id;
@@ -214,6 +232,7 @@ class MonthlyPanel {
   final int? dueDay;
   final String? confirmedAt;
   final int? confirmedCashFlowId;
+  final int? confirmedAmountValue;
 
   int get effectiveAmount => effectiveAmountValue ?? (amountValue ?? 0);
   bool get isDiscountExcluded =>
@@ -246,6 +265,36 @@ class MonthlyPanel {
       confirmedCashFlowId: json['confirmed_cash_flow_id'] == null
           ? null
           : _int(json['confirmed_cash_flow_id']),
+      confirmedAmountValue: json['confirmed_amount_value'] == null
+          ? null
+          : _int(json['confirmed_amount_value']),
+    );
+  }
+}
+
+class PlannedChargePreview {
+  PlannedChargePreview({
+    required this.amountValue,
+    required this.discountPolicy,
+    required this.automaticDiscountEligible,
+    required this.effectiveDiscountAmount,
+    required this.effectiveAmountValue,
+  });
+
+  final int amountValue;
+  final String discountPolicy;
+  final bool automaticDiscountEligible;
+  final int effectiveDiscountAmount;
+  final int effectiveAmountValue;
+
+  factory PlannedChargePreview.fromJson(Map<String, dynamic> json) {
+    return PlannedChargePreview(
+      amountValue: _int(json['amount_value']),
+      discountPolicy: json['discount_policy'] as String? ?? 'disabled',
+      automaticDiscountEligible:
+          json['automatic_discount_eligible'] as bool? ?? false,
+      effectiveDiscountAmount: _int(json['effective_discount_amount']),
+      effectiveAmountValue: _int(json['effective_amount_value']),
     );
   }
 }
@@ -360,6 +409,7 @@ class MonthCloseStatus {
     required this.canClose,
     this.oldestOpenMonth,
     this.lastClosedMonth,
+    this.unconfirmedRecurringItems = const [],
   });
 
   final String calendarDate;
@@ -371,6 +421,7 @@ class MonthCloseStatus {
   final bool earlyCloseAvailable;
   final int earlyCloseStartDay;
   final bool canClose;
+  final List<UnconfirmedRecurringItem> unconfirmedRecurringItems;
 
   factory MonthCloseStatus.fromJson(Map<String, dynamic> json) {
     return MonthCloseStatus(
@@ -383,6 +434,40 @@ class MonthCloseStatus {
       earlyCloseAvailable: json['early_close_available'] as bool? ?? false,
       earlyCloseStartDay: _int(json['early_close_start_day']),
       canClose: json['can_close'] as bool? ?? false,
+      unconfirmedRecurringItems:
+          (json['unconfirmed_recurring_items'] as List<dynamic>? ?? const [])
+              .whereType<Map<String, dynamic>>()
+              .map(UnconfirmedRecurringItem.fromJson)
+              .toList(),
+    );
+  }
+}
+
+class UnconfirmedRecurringItem {
+  UnconfirmedRecurringItem({
+    required this.kind,
+    required this.id,
+    required this.title,
+    required this.amountValue,
+    this.detail = '',
+    this.dueDay,
+  });
+
+  final String kind;
+  final int id;
+  final String title;
+  final String detail;
+  final int amountValue;
+  final int? dueDay;
+
+  factory UnconfirmedRecurringItem.fromJson(Map<String, dynamic> json) {
+    return UnconfirmedRecurringItem(
+      kind: json['kind'] as String? ?? '',
+      id: _int(json['id']),
+      title: json['title'] as String? ?? '',
+      detail: json['detail'] as String? ?? '',
+      amountValue: _int(json['amount_value']),
+      dueDay: json['due_day'] == null ? null : _int(json['due_day']),
     );
   }
 }

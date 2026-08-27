@@ -464,9 +464,15 @@ class AppState extends ChangeNotifier {
     });
   }
 
-  Future<void> confirmPlannedEntry(int entryId, String entryDate) async {
+  Future<PlannedChargePreview> previewPlannedEntry(
+      int entryId, int actualAmount) {
+    return api.previewPlannedEntry(entryId, actualAmount);
+  }
+
+  Future<void> confirmPlannedEntry(
+      int entryId, String entryDate, int actualAmount) async {
     await _run(() async {
-      await api.confirmPlannedEntry(entryId, entryDate);
+      await api.confirmPlannedEntry(entryId, entryDate, actualAmount);
       await refreshPlannedManagementArea(notify: false);
       statusMessage = '카드 정기결제 확인 완료';
     });
@@ -532,11 +538,20 @@ class AppState extends ChangeNotifier {
     });
   }
 
-  Future<void> confirmFixedPanel(int panelId, String occurredOn) async {
+  Future<void> confirmFixedPanel(
+      int panelId, String occurredOn, int actualAmount) async {
     await _run(() async {
-      await api.confirmFixedPanel(panelId, occurredOn);
+      await api.confirmFixedPanel(panelId, occurredOn, actualAmount);
       await refreshPanelManagementArea(notify: false);
       statusMessage = '현금성 고정지출 확인 완료';
+    });
+  }
+
+  Future<void> cancelFixedPanelConfirmation(int cashFlowId) async {
+    await _run(() async {
+      await api.deleteCashFlow(cashFlowId);
+      await refreshPanelManagementArea(notify: false);
+      statusMessage = '현금성 고정지출 확인 취소 완료';
     });
   }
 
@@ -736,11 +751,13 @@ class AppState extends ChangeNotifier {
   Future<void> closeCurrentMonth({
     required String targetMonth,
     bool allowEarlyClose = false,
+    bool allowUnconfirmedRecurring = false,
   }) async {
     await _run(() async {
       final result = await api.closeCurrentMonth(
         targetMonth: targetMonth,
         allowEarlyClose: allowEarlyClose,
+        allowUnconfirmedRecurring: allowUnconfirmedRecurring,
       );
       await refresh(notify: false);
       statusMessage = '월마감 완료: ${result['closed_month'] ?? '마감할 월 없음'}';

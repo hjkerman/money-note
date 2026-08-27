@@ -62,7 +62,7 @@ Android 알림 수집은 `NotificationListenerService` 하나를 공용 입구�
 
 Summary의 `cash_flow_balance`는 수동 보정값과 `occurred_on <= app_today()`인 현금흐름 누계다. 미래 날짜 현금흐름은 조회와 Snapshot에는 존재할 수 있지만 발생일까지 Active 계좌 잔액에는 반영하지 않는다. 웹과 모바일은 이 날짜 경계를 다시 계산하지 않고 Summary 응답을 사용한다.
 
-현금성 고정지출 확인은 `monthly_panels`의 미지급 의무를 연결된 음수 `cash_flows` 사실로 원자적으로 전환한다. 확인 전에는 Active 계좌 잔액을 줄이지 않고 잔여 유동성에서 pending obligation으로 차감한다. 확인 후에는 pending 차감을 제거하고 실제 출금으로 Active 계좌 잔액을 줄이므로 확인 전후 잔여 유동성은 같다. 월마감은 템플릿만 재활성화한다.
+현금성 고정지출 확인은 `monthly_panels.amount_value`의 reserve를 사용자가 입력한 이번 주기 실제액의 음수 `cash_flows` 사실로 원자적으로 전환한다. 템플릿 금액은 바꾸지 않는다. 실제액이 reserve와 같으면 확인 전후 잔여 유동성이 같고, 차이가 있으면 미사용 reserve가 돌아오거나 초과 지출이 추가 반영된다. 카드 정기결제도 template 예정 원금과 이번 실제 원금을 분리하며, 서버 카드 정책이 실제 원금의 할인과 실결제액을 투영한다. 월마감은 템플릿만 재활성화한다.
 
 Snapshot v7은 카드별 정책 binding, 계산 매개변수, 프로필 선택 의미, 분류 규칙과 데이터 기준 마지막 월을 `card_charge_policy` 명세로 기록하고 장부 데이터·주요 상단 메타데이터와 함께 해시한다. 확인된 현금성 고정지출의 현금흐름 연결·확인 월, 정기결제 원본 관계와 카드 결제 idempotency 정보도 함께 보존한다. 교통카드 프로필 선택 이력은 비민감 `app_settings`로 함께 백업한다. export는 하나의 SQLite read transaction으로 전 테이블을 읽는다. restore, reset, 월마감과 정산 일괄 완료는 write transaction을 먼저 확보하고 같은 transaction의 상태로 pre_restore를 만든 뒤 위험 작업을 수행한다. 복원은 정책 명세를 실행하지 않으며 당시 정책이 현재 서버에 보존되어 있는지만 확인한다. 명세의 `covered_through` 이후부터 적용되는 binding 추가는 허용한다. v4~v6의 nullable 신규 필드 누락을 허용하며, v4 파일은 원문 검증 뒤 유동성 key migration을 거쳐 복원한다.
 
@@ -160,7 +160,7 @@ DB에는 두 필드를 보존하고, `title`에는 사람이 한눈에 읽기 �
 월마감은 `current`에 남은 일반 지출 중 가장 오래된 월 하나만 `archive`로 복사하고 current에서 삭제한다. 새 달 기록을 먼저 입력한 뒤 월마감해도 새 달 기록은 그대로 남는다. 이미 마감된 월 날짜로 일반 지출을 추가하면 다음 달 장부에 섞지 않고 `archive`에 바로 추가한다.
 
 카드 정기결제와 같은 planned 항목은 current에 남는다. 확인으로 생성된 실제 expense는 `source_planned_entry_id`로 원본 template을 참조하며, 제목과 금액이 같은 수동 지출을 대응 행으로 오인하지 않는다. 구버전 행에만 제한된 암시적 fallback을 둔다.
-월마감은 client가 확인한 `target_month`와 transaction 안에서 다시 계산한 가장 오래된 미마감 월이 같은지 확인한다. SQLite write serialization 아래 같은 대상 월의 재시도는 이미 마감된 결과로 끝나며 archive, 급여, 결제 batch가 중복 생성되지 않는다. 같은 트랜잭션에서 닫힌 달의 다음 달 1일자로 설정된 기본 예정 수입만큼의 `급여` 양수 현금흐름을 생성한다. 이 행은 `is_primary_income=1`이며, 원장 archive와 결제 batch 생성 중 하나라도 실패하면 함께 rollback된다. 조기 마감으로 미래 날짜에 생성되면 해당 날짜 전에는 Active 계좌 잔액에 포함하지 않는다. 월마감 직전 pre_restore에는 생성 전 상태가 남는다.
+월마감은 client가 확인한 `target_month`와 transaction 안에서 다시 계산한 가장 오래된 미마감 월이 같은지 확인한다. 같은 transaction에서 대상 주기의 미확인 현금성 고정지출과 카드 정기결제를 다시 검사하며, 항목이 있으면 명시적 `allow_unconfirmed_recurring` 없이는 변경과 pre_restore 생성 전에 중단한다. Web과 Mobile은 상태 응답의 항목을 경고로 보여주고 `그래도 월마감`을 선택한 때만 override를 보낸다. SQLite write serialization 아래 같은 대상 월의 재시도는 이미 마감된 결과로 끝나며 archive, 급여, 결제 batch가 중복 생성되지 않는다. 같은 트랜잭션에서 닫힌 달의 다음 달 1일자로 설정된 기본 예정 수입만큼의 `급여` 양수 현금흐름을 생성한다. 이 행은 `is_primary_income=1`이며, 원장 archive와 결제 batch 생성 중 하나라도 실패하면 함께 rollback된다. 조기 마감으로 미래 날짜에 생성되면 해당 날짜 전에는 Active 계좌 잔액에 포함하지 않는다. 월마감 직전 pre_restore에는 생성 전 상태가 남는다.
 현금성 고정지출 확인은 미래 처리일을 허용하지 않으며, `confirmed_month`로 확인 주기를 기록한다. 월마감은 마감 대상 월의 상태만 reset하므로 밀린 월마감이 이후 주기의 확인을 취소하지 않는다.
 청구와 가족카드는 월마감 및 카드 결제 주기와 독립된 전달용 임시 큐다. 조회·추가·공유·일괄 완료는 행의 저장 월과 무관하게 현재 남은 큐 전체를 대상으로 한다. 사용자가 `일괄 처리 완료`를 누르면 해당 타입의 미정산 항목 전체를 삭제한다.
 

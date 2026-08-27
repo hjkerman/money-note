@@ -22,7 +22,7 @@ import {
   updateSetting,
   updateTransitDiscountProfile,
 } from "../api";
-import { formatMonthLabel, parseAmount } from "../utils";
+import { formatMonthLabel, formatWon, parseAmount } from "../utils";
 
 export function useSettingsHandlers({
   cardLimitInput,
@@ -331,16 +331,23 @@ export function useSettingsHandlers({
       return;
     }
     const isEarlyClose = Boolean(targetMonth && targetMonth === monthCloseStatus?.calendar_month);
+    const unconfirmedItems = monthCloseStatus?.unconfirmed_recurring_items ?? [];
+    const warningLines = unconfirmedItems.map((item) => {
+      const kind = item.kind === "fixed" ? "현금" : "카드";
+      const detail = item.detail ? ` / ${item.detail}` : "";
+      return `- [${kind}] ${item.title}${detail}: ${formatWon(item.amount_value)}`;
+    });
+    const baseMessage = isEarlyClose
+      ? `${formatMonthLabel(targetMonth)}을 조기 월마감할까요?\n\n이후 같은 달 날짜로 추가하는 지출은 전체 기록에 바로 보관됩니다. 청구와 가족카드는 영향을 받지 않습니다.`
+      : `${formatMonthLabel(targetMonth)} 기록만 월마감하여 전체 기록으로 넘길까요?`;
     const confirmed = window.confirm(
-      isEarlyClose
-        ? `${formatMonthLabel(targetMonth!)}을 조기 월마감할까요?\n\n이후 같은 달 날짜로 추가하는 지출은 전체 기록에 바로 보관됩니다. 청구와 가족카드는 영향을 받지 않습니다.`
-        : targetMonth
-        ? `${formatMonthLabel(targetMonth)} 기록만 월마감하여 전체 기록으로 넘길까요?`
-        : "가장 오래된 미마감 월 기록을 전체 기록으로 넘길까요?",
+      unconfirmedItems.length
+        ? `${baseMessage}\n\n아직 확인하지 않은 정기지출이 있습니다.\n${warningLines.join("\n")}\n\n확인을 누르면 미확인 상태를 인지하고 그래도 월마감합니다.`
+        : baseMessage,
     );
     if (!confirmed) return;
     await withRefresh(async () => {
-      const result = await closeCurrentMonth(targetMonth, isEarlyClose);
+      const result = await closeCurrentMonth(targetMonth, isEarlyClose, unconfirmedItems.length > 0);
       setStatus(
         result.closed_month
           ? `${formatMonthLabel(result.closed_month)} 월마감 완료: ${result.archived}개 archive`

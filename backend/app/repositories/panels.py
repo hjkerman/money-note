@@ -25,35 +25,43 @@ def list_panels(month: str | None = None, include_confirmed_fixed: bool = False)
     filter_confirmed = (
         ""
         if include_confirmed_fixed
-        else " AND NOT (panel_type = 'fixed' AND confirmed_at IS NOT NULL AND confirmed_cash_flow_id IS NOT NULL)"
+        else " AND NOT (monthly_panels.panel_type = 'fixed' AND monthly_panels.confirmed_at IS NOT NULL AND monthly_panels.confirmed_cash_flow_id IS NOT NULL)"
     )
     with session() as conn:
         if month:
             rows = conn.execute(
                 f"""
-                SELECT *
+                SELECT monthly_panels.*,
+                       CASE WHEN confirmed_cash_flow.id IS NOT NULL
+                            THEN ABS(confirmed_cash_flow.amount_value) ELSE NULL END AS confirmed_amount_value
                 FROM monthly_panels
-                WHERE (month = ? OR panel_type IN ('fixed', 'frozen', 'claim', 'family_card')){filter_confirmed}
+                LEFT JOIN cash_flows AS confirmed_cash_flow
+                  ON confirmed_cash_flow.id = monthly_panels.confirmed_cash_flow_id
+                WHERE (monthly_panels.month = ? OR monthly_panels.panel_type IN ('fixed', 'frozen', 'claim', 'family_card')){filter_confirmed}
                 ORDER BY
-                  CASE WHEN panel_type = 'fixed' THEN 0 ELSE 1 END,
-                  CASE WHEN spent_on IS NULL THEN 1 ELSE 0 END,
-                  spent_on,
-                  sort_order,
-                  id
+                  CASE WHEN monthly_panels.panel_type = 'fixed' THEN 0 ELSE 1 END,
+                  CASE WHEN monthly_panels.spent_on IS NULL THEN 1 ELSE 0 END,
+                  monthly_panels.spent_on,
+                  monthly_panels.sort_order,
+                  monthly_panels.id
                 """,
                 (month,),
             ).fetchall()
         else:
             rows = conn.execute(
                 f"""
-                SELECT *
+                SELECT monthly_panels.*,
+                       CASE WHEN confirmed_cash_flow.id IS NOT NULL
+                            THEN ABS(confirmed_cash_flow.amount_value) ELSE NULL END AS confirmed_amount_value
                 FROM monthly_panels
+                LEFT JOIN cash_flows AS confirmed_cash_flow
+                  ON confirmed_cash_flow.id = monthly_panels.confirmed_cash_flow_id
                 WHERE 1 = 1{filter_confirmed}
                 ORDER BY
-                  CASE WHEN spent_on IS NULL THEN 1 ELSE 0 END,
-                  spent_on,
-                  sort_order,
-                  id
+                  CASE WHEN monthly_panels.spent_on IS NULL THEN 1 ELSE 0 END,
+                  monthly_panels.spent_on,
+                  monthly_panels.sort_order,
+                  monthly_panels.id
                 """
             ).fetchall()
     return [row_to_dict(row) for row in rows]

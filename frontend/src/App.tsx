@@ -162,6 +162,7 @@ export function App() {
     handlePanelComplete,
     handlePanelDelete,
     handleFixedPanelConfirm,
+    handleFixedPanelConfirmationCancel,
     handlePanelDiscount,
     handlePanelDiscountClear,
     handlePanelNetAmountEdit,
@@ -442,9 +443,10 @@ export function App() {
               calendarDate={monthCloseStatus?.calendar_date ?? ""}
               currentMonth={currentMonth}
               handlePanelDelete={(panel) => void handlePanelDelete(panel)}
-              handleFixedPanelConfirm={(panel, occurredOn) => void handleFixedPanelConfirm(panel, occurredOn)}
+              handleFixedPanelConfirm={(panel, occurredOn, actualAmount) => void handleFixedPanelConfirm(panel, occurredOn, actualAmount)}
+              handleFixedPanelConfirmationCancel={(panel) => void handleFixedPanelConfirmationCancel(panel)}
               handlePanelSubmit={handlePanelSubmit}
-              handlePlannedConfirm={(entry, entryDate) => void handlePlannedConfirm(entry, entryDate)}
+              handlePlannedConfirm={(entry, entryDate, actualAmount) => void handlePlannedConfirm(entry, entryDate, actualAmount)}
               handlePlannedDelete={(entry) => void handlePlannedDelete(entry)}
               handlePlannedSubmit={(event) => void handlePlannedSubmit(event)}
               isBusy={isBusy}

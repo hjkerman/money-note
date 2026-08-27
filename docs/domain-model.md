@@ -527,9 +527,13 @@ remaining_liquidity
 
 `cash_flow_balance`는 아직 출금되지 않은 예정 지출, 미확인 현금성 고정지출, 동결 자금, 미래 급여와 `remaining_liquidity`를 뜻하지 않는다. Active 계좌에 실제로 존재하는 돈과 그중 추가로 사용할 수 있는 돈은 다를 수 있다.
 
-현금성 고정지출은 반복 템플릿이며 미지급 의무다. 확인 전에는 돈이 Active 계좌에 남아 있어 `cash_flow_balance`를 줄이지 않지만, `liquidity_fixed_total`로 `remaining_liquidity`에서 한 번 차감한다. 사용자가 실제 지급을 확인하면 pending obligation을 제거하고 같은 금액의 음수 `cash_flows`를 생성해 `cash_flow_balance`를 줄인다. 따라서 같은 금액을 지급한 것뿐이라면 확인 전후 잔여 유동성은 같고, 돈이 나갈 예정이라는 상태만 실제로 나갔다는 사실로 전환된다. 실제 지급 확인이므로 처리일은 서버 기준 오늘보다 미래일 수 없다. `confirmed_at`만 있고 연결된 현금흐름이 없는 구형·불완전 상태는 확인 완료로 보지 않는다.
+현금성 고정지출은 반복 템플릿이며 미지급 의무다. 템플릿의 `amount_value`는 다음 주기에도 재사용하는 보수적 reserve/upper bound이고, 확인할 때 입력하는 실제 출금액은 이번 주기에 실제 발생한 사실이다. 확인 전에는 template 예정액이 `liquidity_fixed_total`로 `remaining_liquidity`에서 한 번 차감된다. 확인하면 pending obligation을 제거하고 입력한 실제액의 음수 `cash_flows`를 생성해 `cash_flow_balance`를 줄이되, template 예정액은 바꾸지 않는다. 실제액이 예정액보다 작으면 차액이 잔여 유동성으로 돌아오고, 더 크면 초과분만큼 잔여 유동성이 더 줄어든다. 실제액과 예정액이 같을 때만 확인 전후 잔여 유동성이 같다. 이번 주기에 발생하지 않았음을 명시적으로 확정할 수 있도록 실제액 0원도 허용한다. 실제 지급 확인이므로 처리일은 서버 기준 오늘보다 미래일 수 없다. `confirmed_at`만 있고 연결된 현금흐름이 없는 구형·불완전 상태는 확인 완료로 보지 않는다.
 
-표시용 `fixed_cash_total`과 고정지출 총합은 확인 여부와 무관한 전체 템플릿 금액이다. 확인할 때 실제 처리일의 월을 `confirmed_month`로 기록한다. 월마감은 마감 대상 월과 같은 확인 상태만 다음 주기용 미확인 상태로 돌리고 이미 기록한 현금흐름은 보존한다. 따라서 밀린 과거 월마감이 이후 주기에 이미 확인한 템플릿을 되돌리지 않는다. 확인 직후 생성된 현금흐름을 월마감 전에 삭제하면 연결된 템플릿도 미확인 상태로 돌아간다.
+표시용 `fixed_cash_total`과 고정지출 총합은 확인 여부와 실제액에 무관한 전체 템플릿 예정액이다. 확인할 때 실제 처리일의 월을 `confirmed_month`로 기록한다. 월마감은 마감 대상 월과 같은 확인 상태만 다음 주기용 미확인 상태로 돌리고 이미 기록한 현금흐름은 보존한다. 따라서 밀린 과거 월마감이 이후 주기에 이미 확인한 템플릿을 되돌리지 않는다. 확인 직후 생성된 현금흐름을 월마감 전에 삭제하면 연결된 템플릿도 원래 reserve 금액의 미확인 상태로 돌아가므로, 잘못 입력한 실제액은 이 취소 후 다시 확인한다.
+
+카드 정기결제의 template `amount_value`도 다음 주기의 예정 원금이다. 확인할 때 사용자가 이번 주기의 실제 원금을 확정하며, 서버는 그 실제 원금에 기존 카드 할인 정책을 적용해 할인액과 실결제 예상액을 계산하고 생성된 원장 expense에 저장한다. template 예정 원금과 `due_day`는 변경하지 않는다. 잘못 확인한 경우 월마감 전에 생성된 원장 expense를 삭제하면 template이 미확인 상태로 복귀하고 다시 확인할 수 있다.
+
+월마감 대상 주기에 미확인 현금성 고정지출 또는 카드 정기결제가 있으면 서버는 정상 요청을 거부하고 항목 목록을 제공한다. Web과 Mobile은 목록을 보여준 뒤 사용자가 `그래도 월마감`을 명시적으로 선택한 경우에만 override를 보낸다. 이 경고는 실제 미발생이나 청구 지연을 허용하기 위한 soft guard이며 hard block이 아니다. 검사와 override 재확인은 기존 월마감 write transaction 안에서 수행한다.
 
 `이달 기준 수입` 표시가 있는 현금흐름 입금 합계는 현재 카드 결제 압박 Judgment의 기준 수입이다. 월마감이 만든 `급여`도 이 표식을 가진다. 해당 결제월에 기준 수입이 없으면 Judgment만 `scheduled_income`을 fallback으로 사용한다.
 
@@ -590,6 +594,8 @@ Money Note는 카드사 알림 자동입력을 고려한다.
 Snapshot은 원본 DB를 대체하는 별도 저장소가 아니라, 장부 운용 데이터 전체와 비민감 운영 설정을 JSON 파일로 잠시 옮겨 담는 백업/복원 형식이다.
 
 새 Snapshot 형식은 `schema_version = 7`이다. v7은 확인된 현금성 고정지출의 확인 월, 정기결제 원본과 생성 지출의 명시적 관계, 카드 결제 idempotency 정보를 추가로 보존한다. v6의 현금흐름 연결과 v4~v6의 nullable 신규 필드 누락을 계속 허용하며, 유동성 설정·라벨 key가 과거 이름인 v4 Snapshot도 복원한다. 파일 형식 v3 이하는 지원하지 않는다.
+
+정기지출 실제액 확정은 Snapshot schema를 늘리지 않는다. 현금성 고정지출 reserve는 `monthly_panels.amount_value`, 실제 출금은 연결된 `cash_flows.amount_value`, 카드 정기결제 예정 원금은 planned 행, 실제 원금은 `source_planned_entry_id`로 연결된 expense 행에 이미 저장된다. 따라서 Snapshot v7의 기존 테이블·관계 보존만으로 template과 이번 실제액을 모두 export/restore하며 API의 `confirmed_*` 투영값을 중복 저장하지 않는다.
 
 Snapshot은 canonical JSON 기준 SHA-256 manifest를 포함한다.
 

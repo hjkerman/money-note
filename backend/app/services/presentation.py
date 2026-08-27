@@ -34,6 +34,7 @@ def present_ledger_entry(
 ) -> dict[str, Any]:
     """단일 원장 행의 할인 정책과 최종 금액을 서버 기준으로 계산한다."""
     data = dict(entry)
+    confirmed_expense = data.pop("_confirmed_expense", None)
     settings = settings or list_settings()
     event_discounts = event_discounts or {}
     month = str(data.get("entry_date") or app_today().isoformat())[:7]
@@ -43,7 +44,7 @@ def present_ledger_entry(
     )
     payment_key = str(data.get("payment_key") or "")
     amount = int(data.get("amount_value") or 0)
-    is_card_expense = data.get("entry_kind") != "planned" and bool(payment_key)
+    is_card_projection = data.get("entry_kind") == "planned" or bool(payment_key)
     legacy_discount = int(event_discounts.get(payment_key, 0))
     override_enabled = bool(
         data.get("discount_override")
@@ -67,7 +68,7 @@ def present_ledger_entry(
             spending_category=data.get("spending_category"),
             settings=settings,
         )
-        if is_card_expense
+        if is_card_projection
         else None
     )
     automatic_eligible = bool(charge and charge.automatic_discount_eligible)
@@ -88,7 +89,42 @@ def present_ledger_entry(
             "is_toll": toll_title(data.get("title")),
         }
     )
+    if confirmed_expense is not None:
+        confirmed = present_ledger_entry(
+            confirmed_expense,
+            settings=settings,
+            event_discounts=_legacy_entry_discount_events([confirmed_expense]),
+        )
+        data.update(
+            {
+                "confirmed_amount_value": confirmed.get("amount_value"),
+                "confirmed_effective_discount_amount": confirmed.get("effective_discount_amount"),
+                "confirmed_effective_amount_value": confirmed.get("effective_amount_value"),
+            }
+        )
     return data
+
+
+def present_planned_charge_preview(
+    planned: Mapping[str, Any],
+    actual_amount: int,
+) -> dict[str, Any]:
+    """카드 정기결제의 이번 원금을 저장 없이 기존 카드 정책으로 투영한다."""
+    if planned.get("entry_kind") != "planned":
+        raise ValueError("카드 정기결제만 실제 원금을 미리 계산할 수 있습니다.")
+    if actual_amount < 0:
+        raise ValueError("카드 정기결제 실제 원금은 0원 이상이어야 합니다.")
+    projected = dict(planned)
+    projected["amount_value"] = actual_amount
+    projected["entry_date"] = app_today().isoformat()
+    result = present_ledger_entry(projected)
+    return {
+        "amount_value": actual_amount,
+        "discount_policy": str(result["discount_policy"]),
+        "automatic_discount_eligible": bool(result["automatic_discount_eligible"]),
+        "effective_discount_amount": int(result["effective_discount_amount"]),
+        "effective_amount_value": int(result["effective_amount_value"] or 0),
+    }
 
 
 def present_monthly_panels(panels: Iterable[Mapping[str, Any]]) -> list[dict[str, Any]]:

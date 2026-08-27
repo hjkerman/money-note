@@ -94,9 +94,11 @@ API의 `discount_policy`, `automatic_discount_eligible`, `automatic_discount_amo
 
 API의 할인 정책·자동 할인·유효 할인·실결제 투영 필드는 이 테이블에 저장하지 않는다. 원본 금액과 수동 override만 저장하고 최종값은 서버가 매 조회 때 계산한다.
 
-`fixed` 확인은 템플릿 삭제가 아니다. 확인 전에는 패널 금액이 잔여 유동성의 미지급 고정 의무이고, 확인 후에는 연결된 음수 현금흐름이 같은 금액을 담당한다. `confirmed_at`과 유효한 `confirmed_cash_flow_id`가 함께 있어야 완료 상태다. 월마감은 확인 필드와 연결만 비워 다음 주기 템플릿을 재활성화하며 기존 현금흐름을 삭제하지 않는다.
+`fixed` 확인은 템플릿 삭제나 금액 수정이 아니다. `monthly_panels.amount_value`는 다음 주기에도 유지되는 reserve/upper bound다. 이번 주기의 실제 출금액은 연결된 `cash_flows.amount_value`에 음수로 저장하며, API의 `confirmed_amount_value`는 이 연결 행의 절댓값을 조회 시 투영한다. `confirmed_at`과 유효한 `confirmed_cash_flow_id`가 함께 있어야 완료 상태다. 실제액이 reserve와 다르면 그 차이만큼 잔여 유동성이 확인 시 조정된다. 월마감은 확인 필드와 연결만 비워 다음 주기 템플릿을 재활성화하며 기존 현금흐름을 삭제하지 않는다.
 
 확인 처리일은 서버 기준 오늘보다 미래일 수 없다. `confirmed_month`는 실제 처리일의 월이며, 월마감은 마감 대상 월과 같은 값인 템플릿만 reset한다. 따라서 밀린 과거 월마감이 더 나중 주기에 확인한 고정지출을 되돌리지 않는다.
+
+카드 정기결제 template은 `ledger_entries.entry_kind='planned'` 행의 `amount_value`에 예정 원금을 유지한다. 이번 주기 실제 원금은 확인으로 생성된 `expense.amount_value`에 저장되고 `source_planned_entry_id`가 template을 가리킨다. 할인과 실결제액은 기존 원장 필드와 서버 카드 정책을 그대로 사용한다. 따라서 별도 actual 컬럼이나 Snapshot 필드는 없다. Snapshot v7은 기존 `monthly_panels`, `cash_flows`, `ledger_entries` 관계를 함께 보존하므로 reserve와 실제액을 모두 복원한다.
 
 카드 계산식 자체는 DB 컬럼이나 테이블로 저장하지 않는다. 본인·가족·통행료·교통카드의 사용월별 계산식 이력은 서버 코드의 `card_charge` 레지스트리가 관리한다. 본인/가족 월별 혜택 여부와 교통카드의 월별 프로필 선택 이력만 `app_settings`에 저장한다. 이 분리는 카드 교체 시 새 효력 시작월을 추가하면서 과거 Snapshot과 거래를 기존 정책으로 재계산할 수 있게 한다.
 

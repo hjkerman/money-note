@@ -5,6 +5,7 @@ import {
   completePanelsByType,
   confirmFixedPanel,
   createPanel,
+  deleteCashFlow,
   deletePanel,
   MonthlyPanel,
   sharePageUrl,
@@ -89,15 +90,33 @@ export function usePanelHandlers({
     });
   }
 
-  async function handleFixedPanelConfirm(panel: MonthlyPanel, occurredOn: string) {
+  async function handleFixedPanelConfirm(panel: MonthlyPanel, occurredOn: string, actualAmount: number) {
     if (panel.panel_type !== "fixed") return;
+    if (!Number.isInteger(actualAmount) || actualAmount < 0) {
+      setStatus("실제 출금액은 0원 이상의 정수로 입력하세요.");
+      return;
+    }
     const confirmed = window.confirm(
-      `${panel.title} ${formatWon(panel.amount_value)}을 ${occurredOn} 현금 지출로 확인 처리할까요?`,
+      `${panel.title}을 ${occurredOn} 현금 지출로 확인 처리할까요?\n\n` +
+        `예정액 ${formatWon(panel.amount_value)}\n` +
+        `실제 출금액 ${formatWon(actualAmount)}`,
     );
     if (!confirmed) return;
     await withRefresh(async () => {
-      await confirmFixedPanel(panel.id, occurredOn);
+      await confirmFixedPanel(panel.id, occurredOn, actualAmount);
       setStatus(`${panel.title} 현금 지출 반영 완료`);
+    });
+  }
+
+  async function handleFixedPanelConfirmationCancel(panel: MonthlyPanel) {
+    if (panel.panel_type !== "fixed" || !panel.confirmed_cash_flow_id) return;
+    const confirmed = window.confirm(
+      `${panel.title} 확인을 취소할까요?\n\n생성된 현금흐름이 삭제되고 예정액은 다시 미확인 의무로 돌아갑니다.`,
+    );
+    if (!confirmed) return;
+    await withRefresh(async () => {
+      await deleteCashFlow(panel.confirmed_cash_flow_id!);
+      setStatus(`${panel.title} 확인 취소 완료`);
     });
   }
 
@@ -180,6 +199,7 @@ export function usePanelHandlers({
     handlePanelComplete,
     handlePanelDelete,
     handleFixedPanelConfirm,
+    handleFixedPanelConfirmationCancel,
     handlePanelDiscount,
     handlePanelDiscountClear,
     handlePanelNetAmountEdit,

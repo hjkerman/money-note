@@ -812,6 +812,11 @@ th {
   min-width: 138px;
 }
 
+.compact-money-input {
+  width: 126px;
+  min-width: 112px;
+}
+
 .confirmed-planned-list {
   margin-top: 18px;
   padding-top: 14px;

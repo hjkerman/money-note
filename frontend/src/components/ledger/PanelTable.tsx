@@ -41,7 +41,7 @@ export function PanelTable({
   form?: ReactNode;
   headerTotal?: number;
   fixedConfirmationDate?: string;
-  onConfirmFixed?: (panel: MonthlyPanel, occurredOn: string) => void;
+  onConfirmFixed?: (panel: MonthlyPanel, occurredOn: string, actualAmount: number) => void;
 }) {
   const showDateColumn = rows.some(
     (row) =>
@@ -131,7 +131,8 @@ export function PanelTable({
               {showDateColumn ? <th>{dateColumnLabel}</th> : null}
               <th className="panel-title-cell">세부내역</th>
               {onConfirmFixed ? <th className="date">처리일</th> : null}
-              <th className="amount">금액</th>
+              <th className="amount">{onConfirmFixed ? "예정액" : "금액"}</th>
+              {onConfirmFixed ? <th>실제 출금액</th> : null}
               {onConfirmFixed ? <th className="action-cell">확인</th> : null}
               {onDiscount ? <th className="discount-cell">할인 / 원금</th> : null}
               {onDelete ? <th className="action-cell">삭제</th> : null}
@@ -248,11 +249,14 @@ function FixedConfirmationCells({
 }: {
   panel: MonthlyPanel;
   defaultDate: string;
-  onConfirm: (panel: MonthlyPanel, occurredOn: string) => void;
+  onConfirm: (panel: MonthlyPanel, occurredOn: string, actualAmount: number) => void;
   amountContent: ReactNode;
 }) {
   const [occurredOn, setOccurredOn] = useState(defaultDate);
+  const [actualAmount, setActualAmount] = useState(String(panel.amount_value ?? 0));
   useEffect(() => setOccurredOn(defaultDate), [defaultDate]);
+  useEffect(() => setActualAmount(String(panel.amount_value ?? 0)), [panel.amount_value]);
+  const parsedActualAmount = parseNonNegativeInteger(actualAmount);
   return (
     <>
       <td className="date">
@@ -265,15 +269,33 @@ function FixedConfirmationCells({
         />
       </td>
       <td className="amount">{amountContent}</td>
+      <td>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          value={actualAmount}
+          onChange={(event) => setActualAmount(event.target.value)}
+          className="compact-money-input"
+          aria-label={`${panel.title} 실제 출금액`}
+        />
+      </td>
       <td className="action-cell">
         <button
           type="button"
-          disabled={!occurredOn}
-          onClick={() => onConfirm(panel, occurredOn)}
+          disabled={!occurredOn || parsedActualAmount === null}
+          onClick={() => parsedActualAmount !== null && onConfirm(panel, occurredOn, parsedActualAmount)}
         >
           확인
         </button>
       </td>
     </>
   );
+}
+
+function parseNonNegativeInteger(value: string): number | null {
+  const normalized = value.trim();
+  if (!normalized) return null;
+  const parsed = Number(normalized);
+  return Number.isInteger(parsed) && parsed >= 0 ? parsed : null;
 }

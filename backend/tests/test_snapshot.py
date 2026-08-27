@@ -262,7 +262,7 @@ class SnapshotTest(unittest.TestCase):
             flow_id = conn.execute(
                 """
                 INSERT INTO cash_flows(occurred_on, title, amount_value, sort_order)
-                VALUES ('2026-06-20', '월세', -100000, 1)
+                VALUES ('2026-06-20', '변동 공과금', -112430, 1)
                 """
             ).lastrowid
             conn.execute(
@@ -271,7 +271,7 @@ class SnapshotTest(unittest.TestCase):
                     id, month, panel_type, title, spent_on, amount_value,
                     sort_order, confirmed_at, confirmed_cash_flow_id
                 )
-                VALUES (100, '2026-06', 'fixed', '월세', '2026-06-20', 100000,
+                VALUES (100, '2026-06', 'fixed', '변동 공과금', '2026-06-20', 150000,
                         1, '2026-06-20T00:00:00+00:00', ?)
                 """,
                 (flow_id,),
@@ -282,9 +282,15 @@ class SnapshotTest(unittest.TestCase):
 
         with session() as conn:
             panel = conn.execute(
-                "SELECT confirmed_cash_flow_id FROM monthly_panels WHERE id = 100",
+                "SELECT amount_value, confirmed_cash_flow_id FROM monthly_panels WHERE id = 100",
             ).fetchone()
+            flow = conn.execute(
+                "SELECT amount_value FROM cash_flows WHERE id = ?",
+                (flow_id,),
+            ).fetchone()
+        self.assertEqual(panel["amount_value"], 150000)
         self.assertEqual(panel["confirmed_cash_flow_id"], flow_id)
+        self.assertEqual(flow["amount_value"], -112430)
 
     def test_restore_preserves_salary_created_by_month_close(self) -> None:
         with session() as conn:

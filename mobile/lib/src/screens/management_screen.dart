@@ -439,11 +439,21 @@ class MonthCloseManagementScreen extends StatelessWidget {
       ),
     );
     if (firstConfirmed != true || !context.mounted) return;
+    final unconfirmed = status?.unconfirmedRecurringItems ?? const [];
+    final warningText = unconfirmed.map((item) {
+      final kind = item.kind == 'fixed' ? '현금' : '카드';
+      final detail = item.detail.isEmpty ? '' : ' / ${item.detail}';
+      return '[$kind] ${item.title}$detail: ${won(item.amountValue)}';
+    }).join('\n');
     final finalConfirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('정말 월마감'),
-        content: const Text('마감 후에는 이번 달 기록이 전체 기록으로 이동합니다. 정말 진행할까요?'),
+        title: Text(unconfirmed.isEmpty ? '정말 월마감' : '미확인 정기지출'),
+        content: Text(
+          unconfirmed.isEmpty
+              ? '마감 후에는 이번 달 기록이 전체 기록으로 이동합니다. 정말 진행할까요?'
+              : '아직 확인하지 않은 정기지출이 있습니다.\n\n$warningText\n\n먼저 확인하는 것을 권장합니다. 그래도 월마감할까요?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -451,7 +461,7 @@ class MonthCloseManagementScreen extends StatelessWidget {
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('마감 실행'),
+            child: Text(unconfirmed.isEmpty ? '마감 실행' : '그래도 월마감'),
           ),
         ],
       ),
@@ -460,6 +470,7 @@ class MonthCloseManagementScreen extends StatelessWidget {
       await state.closeCurrentMonth(
         targetMonth: targetMonth,
         allowEarlyClose: isEarlyClose,
+        allowUnconfirmedRecurring: unconfirmed.isNotEmpty,
       );
     }
   }
@@ -685,11 +696,20 @@ class _FixedPanelManagementItem extends StatefulWidget {
 
 class _FixedPanelManagementItemState extends State<_FixedPanelManagementItem> {
   late String occurredOn;
+  late final TextEditingController actualAmount;
 
   @override
   void initState() {
     super.initState();
     occurredOn = widget.state.serverToday;
+    actualAmount =
+        TextEditingController(text: (widget.panel.amountValue ?? 0).toString());
+  }
+
+  @override
+  void dispose() {
+    actualAmount.dispose();
+    super.dispose();
   }
 
   @override
@@ -707,6 +727,12 @@ class _FixedPanelManagementItemState extends State<_FixedPanelManagementItem> {
                     const TextStyle(fontSize: 17, fontWeight: FontWeight.w900)),
             const SizedBox(height: 8),
             _Line(label: '예정액', value: won(panel.amountValue)),
+            const SizedBox(height: 8),
+            TextField(
+              controller: actualAmount,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: '실제 출금액'),
+            ),
             const SizedBox(height: 8),
             _DatePickerRow(
               label: '처리일',
@@ -740,12 +766,22 @@ class _FixedPanelManagementItemState extends State<_FixedPanelManagementItem> {
   }
 
   Future<void> _confirm(BuildContext context) async {
+    final parsedAmount =
+        int.tryParse(actualAmount.text.replaceAll(',', '').trim());
+    if (parsedAmount == null || parsedAmount < 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('실제 출금액은 0원 이상의 정수로 입력하세요.')),
+      );
+      return;
+    }
     final accepted = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('현금성 고정지출 확인'),
         content: Text(
-          '${widget.panel.title} ${won(widget.panel.amountValue)}을 $occurredOn 현금 지출로 반영할까요?',
+          '${widget.panel.title}을 $occurredOn 현금 지출로 반영할까요?\n\n'
+          '예정액 ${won(widget.panel.amountValue)}\n'
+          '실제 출금액 ${won(parsedAmount)}',
         ),
         actions: [
           TextButton(
@@ -760,7 +796,8 @@ class _FixedPanelManagementItemState extends State<_FixedPanelManagementItem> {
       ),
     );
     if (accepted == true) {
-      await widget.state.confirmFixedPanel(widget.panel.id, occurredOn);
+      await widget.state
+          .confirmFixedPanel(widget.panel.id, occurredOn, parsedAmount);
     }
   }
 }
@@ -789,16 +826,33 @@ class _ConfirmedFixedPanelItem extends StatelessWidget {
                 style:
                     const TextStyle(fontSize: 17, fontWeight: FontWeight.w900)),
             const SizedBox(height: 8),
-            _Line(label: '처리액', value: won(panel.amountValue)),
+            _Line(label: '예정액', value: won(panel.amountValue)),
+            const SizedBox(height: 4),
+            _Line(
+                label: '실제 출금액',
+                value: won(panel.confirmedAmountValue ?? panel.amountValue)),
             const SizedBox(height: 10),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed:
-                    state.isBusy ? null : () => state.deletePanel(panel.id),
-                style: OutlinedButton.styleFrom(foregroundColor: moneyRed),
-                child: const Text('정기지출 해제'),
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: state.isBusy || panel.confirmedCashFlowId == null
+                        ? null
+                        : () => state.cancelFixedPanelConfirmation(
+                            panel.confirmedCashFlowId!),
+                    child: const Text('확인 취소'),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed:
+                        state.isBusy ? null : () => state.deletePanel(panel.id),
+                    style: OutlinedButton.styleFrom(foregroundColor: moneyRed),
+                    child: const Text('정기지출 해제'),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -819,12 +873,30 @@ class _PlannedEntryItem extends StatefulWidget {
 
 class _PlannedEntryItemState extends State<_PlannedEntryItem> {
   late String entryDate;
+  late final TextEditingController actualAmount;
+  late PlannedChargePreview preview;
 
   @override
   void initState() {
     super.initState();
     entryDate = _plannedEntryDefaultDate(
         widget.state.currentMonth, widget.entry.dueDay);
+    actualAmount =
+        TextEditingController(text: (widget.entry.amountValue ?? 0).toString());
+    preview = PlannedChargePreview(
+      amountValue: widget.entry.amountValue ?? 0,
+      discountPolicy: widget.entry.discountPolicy,
+      automaticDiscountEligible: widget.entry.automaticDiscountEligible,
+      effectiveDiscountAmount: widget.entry.effectiveDiscountAmount,
+      effectiveAmountValue:
+          widget.entry.effectiveAmountValue ?? widget.entry.amountValue ?? 0,
+    );
+  }
+
+  @override
+  void dispose() {
+    actualAmount.dispose();
+    super.dispose();
   }
 
   @override
@@ -845,8 +917,19 @@ class _PlannedEntryItemState extends State<_PlannedEntryItem> {
             const SizedBox(height: 8),
             _Line(label: '예정액', value: won(entry.amountValue)),
             const SizedBox(height: 8),
+            TextField(
+              controller: actualAmount,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: '실제 원금'),
+              onEditingComplete: _refreshPreview,
+            ),
+            const SizedBox(height: 8),
+            _Line(label: '할인', value: won(preview.effectiveDiscountAmount)),
+            const SizedBox(height: 4),
+            _Line(label: '실결제 예상액', value: won(preview.effectiveAmountValue)),
+            const SizedBox(height: 8),
             _DatePickerRow(
-              label: '이번 등록 날짜',
+              label: '이번 승인 날짜',
               value: entryDate,
               onChanged: (value) => setState(() => entryDate = value),
             ),
@@ -855,9 +938,7 @@ class _PlannedEntryItemState extends State<_PlannedEntryItem> {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: state.isBusy
-                        ? null
-                        : () => state.confirmPlannedEntry(entry.id, entryDate),
+                    onPressed: state.isBusy ? null : () => _confirm(context),
                     child: const Text('확인 처리'),
                   ),
                 ),
@@ -877,6 +958,71 @@ class _PlannedEntryItemState extends State<_PlannedEntryItem> {
         ),
       ),
     );
+  }
+
+  Future<void> _refreshPreview() async {
+    final parsedAmount =
+        int.tryParse(actualAmount.text.replaceAll(',', '').trim());
+    if (parsedAmount == null || parsedAmount < 0) return;
+    try {
+      final result =
+          await widget.state.previewPlannedEntry(widget.entry.id, parsedAmount);
+      if (mounted) setState(() => preview = result);
+    } catch (_) {
+      // 확인 단계에서 다시 조회하고 오류를 표시하므로 편집 중 네트워크 실패는 기존 값을 유지한다.
+    }
+  }
+
+  Future<void> _confirm(BuildContext context) async {
+    final parsedAmount =
+        int.tryParse(actualAmount.text.replaceAll(',', '').trim());
+    if (parsedAmount == null || parsedAmount < 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('실제 원금은 0원 이상의 정수로 입력하세요.')),
+      );
+      return;
+    }
+    late final PlannedChargePreview result;
+    try {
+      result =
+          await widget.state.previewPlannedEntry(widget.entry.id, parsedAmount);
+    } catch (error) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('실결제 예상액을 확인하지 못했습니다: $error')),
+        );
+      }
+      return;
+    }
+    if (!context.mounted) return;
+    setState(() => preview = result);
+    final accepted = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('카드 정기결제 확인'),
+        content: Text(
+          '${widget.entry.usagePlace ?? widget.entry.title}을 $entryDate 카드 지출로 반영할까요?\n\n'
+          '예정 원금 ${won(widget.entry.amountValue)}\n'
+          '실제 원금 ${won(result.amountValue)}\n'
+          '할인 ${won(result.effectiveDiscountAmount)}\n'
+          '실결제 예상액 ${won(result.effectiveAmountValue)}',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('취소'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('확인 처리'),
+          ),
+        ],
+      ),
+    );
+    if (accepted == true) {
+      await widget.state
+          .confirmPlannedEntry(widget.entry.id, entryDate, parsedAmount);
+    }
   }
 }
 
@@ -900,7 +1046,21 @@ class _ConfirmedPlannedEntryItem extends StatelessWidget {
             if ((entry.usageItem ?? '').isNotEmpty)
               Text(entry.usageItem!, style: const TextStyle(color: moneyMuted)),
             const SizedBox(height: 8),
-            _Line(label: '예정액', value: won(entry.amountValue)),
+            _Line(label: '예정 원금', value: won(entry.amountValue)),
+            const SizedBox(height: 4),
+            _Line(
+                label: '실제 원금',
+                value: won(entry.confirmedAmountValue ?? entry.amountValue)),
+            const SizedBox(height: 4),
+            _Line(
+                label: '할인',
+                value: won(entry.confirmedEffectiveDiscountAmount ?? 0)),
+            const SizedBox(height: 4),
+            _Line(
+                label: '실결제액',
+                value: won(entry.confirmedEffectiveAmountValue ??
+                    entry.confirmedAmountValue ??
+                    entry.amountValue)),
             const SizedBox(height: 4),
             const Text('이번 달 원장에 편입되었습니다.',
                 style:

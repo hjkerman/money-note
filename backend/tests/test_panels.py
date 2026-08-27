@@ -178,6 +178,88 @@ class PanelCompletionTest(unittest.TestCase):
             )
         )
 
+    def test_fixed_confirmation_releases_unused_reserve_without_changing_template(self) -> None:
+        with session() as conn:
+            panel_id = conn.execute(
+                """
+                INSERT INTO monthly_panels(month, panel_type, title, amount_value, sort_order)
+                VALUES ('2026-06', 'fixed', '공과금', 150000, 25)
+                """
+            ).lastrowid
+
+        before = current_summary_values()
+        result = confirm_fixed_panel(panel_id, "2026-06-20", actual_amount=112430)
+        after = current_summary_values()
+
+        assert result is not None
+        self.assertEqual(result["panel"]["amount_value"], 150000)
+        self.assertEqual(result["panel"]["confirmed_amount_value"], 112430)
+        self.assertEqual(result["cash_flow"]["amount_value"], -112430)
+        self.assertEqual(after["remaining_liquidity"], before["remaining_liquidity"] + 37570)
+        listed = list_panels("2026-06", include_confirmed_fixed=True)
+        confirmed = next(row for row in listed if row["id"] == panel_id)
+        self.assertEqual(confirmed["amount_value"], 150000)
+        self.assertEqual(confirmed["confirmed_amount_value"], 112430)
+
+    def test_fixed_confirmation_charges_actual_amount_above_reserve(self) -> None:
+        with session() as conn:
+            panel_id = conn.execute(
+                """
+                INSERT INTO monthly_panels(month, panel_type, title, amount_value, sort_order)
+                VALUES ('2026-06', 'fixed', '변동 공과금', 150000, 26)
+                """
+            ).lastrowid
+
+        before = current_summary_values()
+        result = confirm_fixed_panel(panel_id, "2026-06-20", actual_amount=162000)
+        after = current_summary_values()
+
+        assert result is not None
+        self.assertEqual(result["panel"]["amount_value"], 150000)
+        self.assertEqual(result["cash_flow"]["amount_value"], -162000)
+        self.assertEqual(after["remaining_liquidity"], before["remaining_liquidity"] - 12000)
+
+    def test_zero_actual_fixed_expense_is_an_explicit_confirmation(self) -> None:
+        with session() as conn:
+            panel_id = conn.execute(
+                """
+                INSERT INTO monthly_panels(month, panel_type, title, amount_value, sort_order)
+                VALUES ('2026-06', 'fixed', '이번 달 미발생', 25000, 27)
+                """
+            ).lastrowid
+
+        before = current_summary_values()
+        result = confirm_fixed_panel(panel_id, "2026-06-20", actual_amount=0)
+        after = current_summary_values()
+
+        assert result is not None
+        self.assertEqual(result["cash_flow"]["amount_value"], 0)
+        self.assertEqual(after["remaining_liquidity"], before["remaining_liquidity"] + 25000)
+
+    def test_deleting_actual_generated_cash_flow_restores_original_reserve(self) -> None:
+        with session() as conn:
+            panel_id = conn.execute(
+                """
+                INSERT INTO monthly_panels(month, panel_type, title, amount_value, sort_order)
+                VALUES ('2026-06', 'fixed', '실제액 취소', 150000, 28)
+                """
+            ).lastrowid
+        before = current_summary_values()
+        result = confirm_fixed_panel(panel_id, "2026-06-20", actual_amount=112430)
+        assert result is not None
+
+        self.assertTrue(delete_cash_flow(result["cash_flow"]["id"]))
+        restored = current_summary_values()
+
+        self.assertEqual(restored["remaining_liquidity"], before["remaining_liquidity"])
+        with session() as conn:
+            panel = conn.execute(
+                "SELECT amount_value, confirmed_cash_flow_id FROM monthly_panels WHERE id = ?",
+                (panel_id,),
+            ).fetchone()
+        self.assertEqual(panel["amount_value"], 150000)
+        self.assertIsNone(panel["confirmed_cash_flow_id"])
+
     def test_deleting_generated_cash_flow_restores_pending_fixed_obligation(self) -> None:
         with session() as conn:
             panel_id = conn.execute(
