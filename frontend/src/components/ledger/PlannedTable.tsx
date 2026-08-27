@@ -25,8 +25,7 @@ export function PlannedTable({
           <th>사용처</th>
           <th>세부내역</th>
           <th>이번 승인 날짜</th>
-          <th className="amount">예정 원금</th>
-          <th>실제 원금</th>
+          <th>원금</th>
           <th className="amount">할인</th>
           <th className="amount">실결제 예상액</th>
           <th className="action-cell">확인</th>
@@ -94,7 +93,6 @@ function PlannedTableRow({
           className="compact-date-input"
         />
       </td>
-      <td className="amount">{formatWon(entry.amount_value)}</td>
       <td>
         <input
           type="number"
@@ -104,7 +102,7 @@ function PlannedTableRow({
           onChange={(event) => setActualAmount(event.target.value)}
           onBlur={() => void refreshPreview()}
           className="compact-money-input"
-          aria-label={`${entry.title} 실제 원금`}
+          aria-label={`${entry.title} 원금`}
         />
       </td>
       <td className="amount">{formatWon(preview.effective_discount_amount)}</td>

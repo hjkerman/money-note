@@ -155,8 +155,7 @@ function ConfirmedFixedList({
           <tr>
             <th>처리일</th>
             <th className="panel-title-cell">세부내역</th>
-            <th className="amount">예정액</th>
-            <th className="amount">실제 출금액</th>
+            <th className="amount">출금액</th>
             <th className="action-cell">확인 취소</th>
             <th className="action-cell">정기지출 해제</th>
           </tr>
@@ -166,7 +165,6 @@ function ConfirmedFixedList({
             <tr key={row.id}>
               <td className="date">{formatDateLabel(row.spent_on ?? "") || "-"}</td>
               <td className="panel-title-cell">{row.title}</td>
-              <td className="amount">{formatWon(row.amount_value)}</td>
               <td className="amount">{formatWon(row.confirmed_amount_value ?? row.amount_value)}</td>
               <td className="action-cell">
                 <button type="button" onClick={() => onCancelConfirmation(row)}>
@@ -201,8 +199,7 @@ function ConfirmedPlannedList({ entries, onUnsubscribe }: { entries: LedgerEntry
             <th>사용처</th>
             <th>세부내역</th>
             <th>승인일</th>
-            <th className="amount">예정 원금</th>
-            <th className="amount">실제 원금</th>
+            <th className="amount">원금</th>
             <th className="amount">할인</th>
             <th className="amount">실결제액</th>
             <th className="action-cell">구독중지</th>
@@ -215,7 +212,6 @@ function ConfirmedPlannedList({ entries, onUnsubscribe }: { entries: LedgerEntry
               <td>{entry.usage_place ?? ""}</td>
               <td>{entry.usage_item || "좌동"}</td>
               <td className="date">{confirmedPlannedDate(entry)}</td>
-              <td className="amount">{formatWon(entry.amount_value)}</td>
               <td className="amount">{formatWon(entry.confirmed_amount_value ?? entry.amount_value)}</td>
               <td className="amount">{formatWon(entry.confirmed_effective_discount_amount ?? 0)}</td>
               <td className="amount">{formatWon(entry.confirmed_effective_amount_value ?? entry.amount_value)}</td>

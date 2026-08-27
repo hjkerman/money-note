@@ -131,8 +131,9 @@ export function PanelTable({
               {showDateColumn ? <th>{dateColumnLabel}</th> : null}
               <th className="panel-title-cell">세부내역</th>
               {onConfirmFixed ? <th className="date">처리일</th> : null}
-              <th className="amount">{onConfirmFixed ? "예정액" : "금액"}</th>
-              {onConfirmFixed ? <th>실제 출금액</th> : null}
+              <th className={onConfirmFixed ? undefined : "amount"}>
+                {onConfirmFixed ? "출금액" : "금액"}
+              </th>
               {onConfirmFixed ? <th className="action-cell">확인</th> : null}
               {onDiscount ? <th className="discount-cell">할인 / 원금</th> : null}
               {onDelete ? <th className="action-cell">삭제</th> : null}
@@ -182,7 +183,6 @@ export function PanelTable({
                       panel={row}
                       defaultDate={fixedConfirmationDate ?? ""}
                       onConfirm={onConfirmFixed}
-                      amountContent={amountContent}
                     />
                   ) : (
                     <td className="amount">{amountContent}</td>
@@ -245,12 +245,10 @@ function FixedConfirmationCells({
   panel,
   defaultDate,
   onConfirm,
-  amountContent,
 }: {
   panel: MonthlyPanel;
   defaultDate: string;
   onConfirm: (panel: MonthlyPanel, occurredOn: string, actualAmount: number) => void;
-  amountContent: ReactNode;
 }) {
   const [occurredOn, setOccurredOn] = useState(defaultDate);
   const [actualAmount, setActualAmount] = useState(String(panel.amount_value ?? 0));
@@ -268,7 +266,6 @@ function FixedConfirmationCells({
           aria-label={`${panel.title} 처리일`}
         />
       </td>
-      <td className="amount">{amountContent}</td>
       <td>
         <input
           type="number"
@@ -277,7 +274,7 @@ function FixedConfirmationCells({
           value={actualAmount}
           onChange={(event) => setActualAmount(event.target.value)}
           className="compact-money-input"
-          aria-label={`${panel.title} 실제 출금액`}
+          aria-label={`${panel.title} 출금액`}
         />
       </td>
       <td className="action-cell">
