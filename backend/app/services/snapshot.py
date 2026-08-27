@@ -28,8 +28,8 @@ from app.services.liquidity_names import (
 from app.share_auth import SENSITIVE_SHARE_SETTING_KEYS
 
 
-SNAPSHOT_SCHEMA_VERSION = 6
-SUPPORTED_SNAPSHOT_SCHEMA_VERSIONS = {4, 5, SNAPSHOT_SCHEMA_VERSION}
+SNAPSHOT_SCHEMA_VERSION = 7
+SUPPORTED_SNAPSHOT_SCHEMA_VERSIONS = {4, 5, 6, SNAPSHOT_SCHEMA_VERSION}
 PRE_RESTORE_FILENAME_RE = re.compile(r"^pre_restore-\d{8}T\d{6}Z(?:-\d+)?\.money-note-snapshot\.json$")
 SNAPSHOT_TABLES = [
     "ledger_entries",
@@ -77,35 +77,39 @@ PRE_RESTORE_BACKUP_DIR = "snapshot-backups"
 
 def export_snapshot(today: date | None = None) -> tuple[str, dict[str, Any]]:
     """장부 운용 데이터 전체와 비민감 운영 설정을 JSON snapshot으로 만든다."""
-    with session() as conn:
-        data = {
-            "ledger_entries": _snapshot_rows(
-                conn,
-                "ledger_entries",
-                "book_section, entry_kind, entry_date, sort_order, id",
+    with session(transaction_mode="DEFERRED") as conn:
+        return _export_snapshot(conn, today)
+
+
+def _export_snapshot(conn: Any, today: date | None = None) -> tuple[str, dict[str, Any]]:
+    data = {
+        "ledger_entries": _snapshot_rows(
+            conn,
+            "ledger_entries",
+            "book_section, entry_kind, entry_date, sort_order, id",
+        ),
+        "monthly_panels": _snapshot_rows(conn, "monthly_panels", "month, panel_type, sort_order, id"),
+        "cash_flows": _snapshot_rows(conn, "cash_flows", "occurred_on, sort_order, id"),
+        "card_payment_batches": _snapshot_rows(conn, "card_payment_batches", "id"),
+        "card_payment_batch_items": _snapshot_rows(conn, "card_payment_batch_items", "batch_id, id"),
+        "card_payment_events": _snapshot_rows(conn, "card_payment_events", "event_date, id"),
+        "card_payment_allocations": _snapshot_rows(conn, "card_payment_allocations", "payment_event_id, id"),
+        "card_payment_deferrals": _snapshot_rows(
+            conn,
+            "card_payment_deferrals",
+            "target_payment_month, entry_payment_key",
+        ),
+        "app_settings": _snapshot_rows(
+            conn,
+            "app_settings",
+            "key",
+            where="key NOT IN ({})".format(
+                ",".join("?" for _ in SENSITIVE_SHARE_SETTING_KEYS)
             ),
-            "monthly_panels": _snapshot_rows(conn, "monthly_panels", "month, panel_type, sort_order, id"),
-            "cash_flows": _snapshot_rows(conn, "cash_flows", "occurred_on, sort_order, id"),
-            "card_payment_batches": _snapshot_rows(conn, "card_payment_batches", "id"),
-            "card_payment_batch_items": _snapshot_rows(conn, "card_payment_batch_items", "batch_id, id"),
-            "card_payment_events": _snapshot_rows(conn, "card_payment_events", "event_date, id"),
-            "card_payment_allocations": _snapshot_rows(conn, "card_payment_allocations", "payment_event_id, id"),
-            "card_payment_deferrals": _snapshot_rows(
-                conn,
-                "card_payment_deferrals",
-                "target_payment_month, entry_payment_key",
-            ),
-            "app_settings": _snapshot_rows(
-                conn,
-                "app_settings",
-                "key",
-                where="key NOT IN ({})".format(
-                    ",".join("?" for _ in SENSITIVE_SHARE_SETTING_KEYS)
-                ),
-                params=tuple(SENSITIVE_SHARE_SETTING_KEYS),
-            ),
-            "app_labels": _snapshot_rows(conn, "app_labels", "key"),
-        }
+            params=tuple(SENSITIVE_SHARE_SETTING_KEYS),
+        ),
+        "app_labels": _snapshot_rows(conn, "app_labels", "key"),
+    }
     exported_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
     policy_context = card_charge_policy_manifest(_snapshot_policy_horizon(data, today))
     snapshot = {
@@ -130,17 +134,20 @@ def restore_snapshot(snapshot: dict[str, Any]) -> dict[str, int]:
     _validate_snapshot(snapshot)
     data = _normalized_snapshot_data(snapshot["data"])
     _dry_run_restore(data)
-    create_pre_restore_backup()
     restored: dict[str, int] = {}
-    with session() as conn:
+    with session(transaction_mode="IMMEDIATE") as conn:
+        create_pre_restore_backup(conn)
         restored = _replace_snapshot_tables(conn, data)
         _raise_if_foreign_key_errors(conn)
     return restored
 
 
-def create_pre_restore_backup() -> Path:
+def create_pre_restore_backup(conn: Any | None = None) -> Path:
     """위험한 장부 변경 직전에 현재 상태를 검증 가능한 pre_restore snapshot으로 저장한다."""
-    return _write_pre_restore_backup()
+    if conn is not None:
+        return _write_pre_restore_backup(conn)
+    with session(transaction_mode="IMMEDIATE") as backup_conn:
+        return _write_pre_restore_backup(backup_conn)
 
 
 def list_pre_restore_backups() -> list[dict[str, Any]]:
@@ -220,7 +227,7 @@ def _snapshot_rows(
 
 def _replace_snapshot_tables(conn: Any, data: dict[str, list[dict[str, Any]]]) -> dict[str, int]:
     restored: dict[str, int] = {}
-    conn.execute("PRAGMA foreign_keys = OFF")
+    conn.execute("PRAGMA defer_foreign_keys = ON")
     for table in LEDGER_TABLES:
         conn.execute(f"DELETE FROM {table}")
     conn.execute(
@@ -232,7 +239,6 @@ def _replace_snapshot_tables(conn: Any, data: dict[str, list[dict[str, Any]]]) -
     conn.execute("DELETE FROM app_labels")
     for table in SNAPSHOT_TABLES:
         restored[table] = _insert_rows(conn, table, data[table])
-    conn.execute("PRAGMA foreign_keys = ON")
     return restored
 
 
@@ -543,13 +549,14 @@ def _raise_if_foreign_key_errors(conn: Any) -> None:
         raise ValueError("snapshot foreign key check failed")
 
 
-def _write_pre_restore_backup() -> Path:
-    filename, snapshot = export_snapshot()
+def _write_pre_restore_backup(conn: Any) -> Path:
+    filename, snapshot = _export_snapshot(conn)
     backup_dir = _pre_restore_backup_dir()
     backup_dir.mkdir(parents=True, exist_ok=True)
     target = _unique_pre_restore_path(backup_dir / filename.replace("money-note-snapshot-", "pre_restore-"))
     _write_json_atomic(target, snapshot)
     _validate_snapshot(json.loads(target.read_text(encoding="utf-8")))
+    _dry_run_restore(_normalized_snapshot_data(snapshot["data"]))
     return target
 
 

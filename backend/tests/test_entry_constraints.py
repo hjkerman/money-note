@@ -65,6 +65,23 @@ class EntryConstraintTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "greater than or equal to zero"):
             update_entry(entry["id"], LedgerEntryPatch(amount_value=-1))
 
+    def test_generic_entry_patch_rejects_state_transition_fields(self) -> None:
+        with self.assertRaises(ValueError):
+            LedgerEntryPatch(entry_kind="planned")
+        with self.assertRaises(ValueError):
+            LedgerEntryPatch(confirmed_month="2026-06")
+
+    def test_entry_schema_rejects_invalid_calendar_date(self) -> None:
+        with self.assertRaises(ValueError):
+            LedgerEntryIn(
+                book_section="current",
+                entry_kind="expense",
+                entry_date="2026-02-30",
+                usage_place="날짜 오류",
+                amount_value=1000,
+                sort_order=1,
+            )
+
     def test_zero_sort_order_is_assigned_like_web_append_order(self) -> None:
         first = create_entry(
             LedgerEntryIn(

@@ -1,18 +1,21 @@
 import copy
+import threading
 from datetime import date
 import os
 from pathlib import Path
+import sqlite3
 import tempfile
 import unittest
 from unittest.mock import patch
 
 from app.config import get_settings
-from app.db import init_db, session
+from app.db import SCHEMA, init_db, session
 from app.services.card_charge import DiscountCard
 from app.services.card_charge.policies import NoAutomaticDiscountPolicy
 from app.services.card_charge.registry import POLICY_TIMELINES, PolicyBinding
 from app.services.month import close_current_month
-from app.services.snapshot import export_snapshot, restore_snapshot
+from app.services.snapshot import SNAPSHOT_SCHEMA_VERSION, export_snapshot, restore_snapshot
+import app.services.snapshot as snapshot_service
 from app.services.summary import current_summary_values
 
 
@@ -36,7 +39,7 @@ class SnapshotTest(unittest.TestCase):
         filename, snapshot = export_snapshot(date(2026, 6, 11))
 
         self.assertTrue(filename.endswith(".money-note-snapshot.json"))
-        self.assertEqual(snapshot["schema_version"], 6)
+        self.assertEqual(snapshot["schema_version"], SNAPSHOT_SCHEMA_VERSION)
         self.assertEqual(snapshot["range"], {"scope": "all"})
         self.assertEqual(snapshot["manifest"]["algorithm"], "sha256")
         self.assertEqual(
@@ -95,6 +98,95 @@ class SnapshotTest(unittest.TestCase):
         self.assertNotIn("auth_sessions", snapshot["data"])
         self.assertNotIn("audit_logs", snapshot["data"])
 
+    def test_snapshot_v7_contains_new_relation_and_idempotency_columns(self) -> None:
+        self._seed_data()
+
+        _, snapshot = export_snapshot(date(2026, 6, 11))
+
+        self.assertIn(
+            "source_planned_entry_id",
+            snapshot["manifest"]["tables"]["ledger_entries"]["columns"],
+        )
+        self.assertIn(
+            "confirmed_month",
+            snapshot["manifest"]["tables"]["monthly_panels"]["columns"],
+        )
+        self.assertIn(
+            "idempotency_key",
+            snapshot["manifest"]["tables"]["card_payment_events"]["columns"],
+        )
+        self.assertIn(
+            "request_fingerprint",
+            snapshot["manifest"]["tables"]["card_payment_events"]["columns"],
+        )
+        event_keys = {
+            row["idempotency_key"] for row in snapshot["data"]["card_payment_events"]
+        }
+        self.assertEqual(event_keys, {"snapshot-payment-recent", "snapshot-payment-old"})
+
+    def test_export_reads_one_consistent_database_state_during_concurrent_write(self) -> None:
+        self._seed_data()
+        ledger_read = threading.Event()
+        writer_inserted = threading.Event()
+        writer_finished = threading.Event()
+        original_snapshot_rows = snapshot_service._snapshot_rows
+
+        def observed_snapshot_rows(conn, table, order_by, where=None, params=()):
+            rows = original_snapshot_rows(conn, table, order_by, where, params)
+            if table == "ledger_entries":
+                ledger_read.set()
+                self.assertTrue(writer_inserted.wait(timeout=2))
+            return rows
+
+        def writer() -> None:
+            self.assertTrue(ledger_read.wait(timeout=2))
+            with session(transaction_mode="IMMEDIATE") as conn:
+                conn.execute(
+                    """
+                    INSERT INTO ledger_entries(
+                        book_section, entry_kind, entry_date, title,
+                        amount_value, sort_order, payment_key
+                    )
+                    VALUES ('current', 'expense', '2026-06-11',
+                            '동시 기록', 7777, 99, 'concurrent-snapshot-key')
+                    """
+                )
+                conn.execute(
+                    """
+                    INSERT INTO monthly_panels(
+                        month, panel_type, title, amount_value, sort_order
+                    )
+                    VALUES ('2026-06', 'claim', '동시 청구', 7777, 99)
+                    """
+                )
+                writer_inserted.set()
+            writer_finished.set()
+
+        thread = threading.Thread(target=writer)
+        thread.start()
+        with patch.object(snapshot_service, "_snapshot_rows", side_effect=observed_snapshot_rows):
+            _, snapshot = export_snapshot(date(2026, 6, 11))
+        thread.join(timeout=3)
+
+        self.assertTrue(writer_finished.is_set())
+        self.assertFalse(
+            any(row["title"] == "동시 기록" for row in snapshot["data"]["ledger_entries"])
+        )
+        self.assertFalse(
+            any(row["title"] == "동시 청구" for row in snapshot["data"]["monthly_panels"])
+        )
+        with session() as conn:
+            self.assertIsNotNone(
+                conn.execute(
+                    "SELECT id FROM ledger_entries WHERE payment_key = 'concurrent-snapshot-key'"
+                ).fetchone()
+            )
+            self.assertIsNotNone(
+                conn.execute(
+                    "SELECT id FROM monthly_panels WHERE title = '동시 청구'"
+                ).fetchone()
+            )
+
     def test_new_database_uses_integer_money_columns(self) -> None:
         expected = {
             "ledger_entries": {"amount_value": "INTEGER", "aux_amount_value": "INTEGER"},
@@ -109,6 +201,41 @@ class SnapshotTest(unittest.TestCase):
                 info = {row["name"]: row["type"].upper() for row in conn.execute(f"PRAGMA table_info({table})")}
                 for column, column_type in columns.items():
                     self.assertEqual(info[column], column_type)
+
+    def test_startup_migrates_v6_database_with_additive_v7_columns(self) -> None:
+        self.db_path.unlink()
+        legacy_schema = (
+            SCHEMA.replace(
+                "    source_planned_entry_id INTEGER REFERENCES ledger_entries(id) ON DELETE SET NULL,\n",
+                "",
+            )
+            .replace("    confirmed_month TEXT,\n    confirmed_cash_flow_id", "    confirmed_cash_flow_id")
+            .replace("    idempotency_key TEXT,\n", "")
+            .replace("    request_fingerprint TEXT,\n", "")
+        )
+        legacy_conn = sqlite3.connect(self.db_path)
+        try:
+            legacy_conn.executescript(legacy_schema)
+            legacy_conn.commit()
+        finally:
+            legacy_conn.close()
+
+        init_db()
+
+        with session() as conn:
+            ledger_columns = {
+                row["name"] for row in conn.execute("PRAGMA table_info(ledger_entries)")
+            }
+            panel_columns = {
+                row["name"] for row in conn.execute("PRAGMA table_info(monthly_panels)")
+            }
+            event_columns = {
+                row["name"] for row in conn.execute("PRAGMA table_info(card_payment_events)")
+            }
+        self.assertIn("source_planned_entry_id", ledger_columns)
+        self.assertIn("confirmed_month", panel_columns)
+        self.assertIn("idempotency_key", event_columns)
+        self.assertIn("request_fingerprint", event_columns)
 
     def test_restore_preserves_frozen_panel_registration_date(self) -> None:
         with session() as conn:
@@ -210,6 +337,34 @@ class SnapshotTest(unittest.TestCase):
                 "SELECT confirmed_cash_flow_id FROM monthly_panels WHERE id = 101",
             ).fetchone()
         self.assertIsNone(panel["confirmed_cash_flow_id"])
+
+    def test_restore_accepts_v6_snapshot_without_v7_columns(self) -> None:
+        self._seed_data()
+        _, snapshot = export_snapshot(date(2026, 6, 11))
+        snapshot["schema_version"] = 6
+        for row in snapshot["data"]["ledger_entries"]:
+            row.pop("source_planned_entry_id", None)
+        for row in snapshot["data"]["monthly_panels"]:
+            row.pop("confirmed_month", None)
+        for row in snapshot["data"]["card_payment_events"]:
+            row.pop("idempotency_key", None)
+            row.pop("request_fingerprint", None)
+        self._refresh_manifest(snapshot)
+
+        restored = restore_snapshot(snapshot)
+
+        self.assertEqual(restored["ledger_entries"], 3)
+        self.assertEqual(restored["monthly_panels"], 4)
+        with session() as conn:
+            planned_sources = conn.execute(
+                "SELECT source_planned_entry_id FROM ledger_entries"
+            ).fetchall()
+            event_keys = conn.execute(
+                "SELECT idempotency_key, request_fingerprint FROM card_payment_events"
+            ).fetchall()
+        self.assertTrue(all(row["source_planned_entry_id"] is None for row in planned_sources))
+        self.assertTrue(all(row["idempotency_key"] is None for row in event_keys))
+        self.assertTrue(all(row["request_fingerprint"] is None for row in event_keys))
 
     def test_restore_keeps_standard_summary_values(self) -> None:
         self._seed_data()
@@ -473,7 +628,7 @@ class SnapshotTest(unittest.TestCase):
         import json
 
         pre_restore = json.loads(backups[0].read_text(encoding="utf-8"))
-        self.assertEqual(pre_restore["schema_version"], 6)
+        self.assertEqual(pre_restore["schema_version"], SNAPSHOT_SCHEMA_VERSION)
         self.assertIn("복원 전 임시 지출", str(pre_restore["data"]["ledger_entries"]))
         pre_restore_setting_keys = {row["key"] for row in pre_restore["data"]["app_settings"]}
         self.assertIn("scheduled_income", pre_restore_setting_keys)
@@ -862,10 +1017,15 @@ class SnapshotTest(unittest.TestCase):
             )
             conn.execute(
                 """
-                INSERT INTO card_payment_events(id, batch_id, event_date, event_type, total_amount, note, cash_flow_id)
+                INSERT INTO card_payment_events(
+                    id, batch_id, event_date, event_type, total_amount, note,
+                    cash_flow_id, idempotency_key, request_fingerprint
+                )
                 VALUES
-                    (1, 1, '2026-06-07', 'immediate', 500, '최근 결제', 1),
-                    (2, 2, '2026-02-07', 'immediate', 700, '오래된 결제', 2)
+                    (1, 1, '2026-06-07', 'immediate', 500, '최근 결제', 1,
+                     'snapshot-payment-recent', 'fingerprint-recent'),
+                    (2, 2, '2026-02-07', 'immediate', 700, '오래된 결제', 2,
+                     'snapshot-payment-old', 'fingerprint-old')
                 """
             )
             conn.execute(

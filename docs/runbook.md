@@ -1037,6 +1037,7 @@ http://127.0.0.1:5173
 
 - `이번달 결제` 탭은 마지막 월마감이 만든 활성 결제 batch를 보여준다. 달력상 직전월을 클라이언트가 추정하지 않는다.
 - 즉시결제는 익월 14일까지 가능하다.
+- 웹은 한 번의 즉시결제 시도에 idempotency key를 만들고 응답 이후 화면 재조회까지 성공할 때까지 같은 key를 유지한다. 네트워크 응답이 끊겨 재시도해도 서버는 같은 결제와 현금흐름을 중복 생성하지 않는다.
 - 본인카드와 가족카드는 독립된 정책 객체와 월별 혜택 스위치를 가진다. 현재 두 정책은 우연히 같은 1.2% 계산식을 사용한다.
 - 통행료카드는 항상 자동 할인 없음이다. 교통카드는 설정에서 현재 월부터 `자동 할인 없음` 또는 `본인카드와 동일`을 선택하며, 후자는 본인카드 계산식과 그 월의 혜택 상태를 함께 따른다.
 - 개별 항목의 `할인 제외`를 누르면 수동 override 0원이 저장된다. 실결제액 직접 수정으로 저장한 수동 override는 카드 종류와 월별 혜택 상태보다 우선한다.
@@ -1047,6 +1048,7 @@ http://127.0.0.1:5173
 - 현금흐름 입금에 `이달 기준 수입`을 표시하면 파산심사위원회의 해당 월 심사 기준으로 사용한다.
 - 이달 기준 수입이 없으면 `scheduled_income` 설정값, 즉 `기본 예정 수입`을 수입 하한선 겸 fallback 심사 기준액으로 사용하며 설정 화면에서 변경할 수 있다.
 - 14일 경과 후 미결제 기록이 있으면 이를 숨기지 않고 안내한다. 사용자가 카드사 내역을 확인하고 현금흐름 반영액을 보정한 뒤 `현금흐름 보정 완료`를 누른다.
+- 카드 즉시결제가 만든 현금흐름을 현금흐름 화면에서 직접 삭제하는 것은 현재 차단하지 않는다. 이 경우 결제 이벤트와 Active 계좌 잔액이 어긋날 수 있으므로 정상 취소는 `이번달 결제`의 이벤트 취소를 사용한다.
 
 카드 교체 또는 할인 정책 변경:
 
@@ -1124,7 +1126,7 @@ curl -OJ -b /tmp/money-note-cookie.txt \
 
 응답 파일 확장자는 `.money-note-snapshot.json`이며, `schema_version`, `exported_at`, `range`, `card_charge_policy`, `manifest`, `data`를 포함한다.
 
-현재 snapshot export 형식은 `schema_version = 6`이다. v6은 확인된 현금성 고정지출과 생성 현금흐름의 연결을 보존한다. v4, v5, v6을 복원하며 v5의 nullable 연결 필드 누락은 허용한다. 파일 형식 v3 이하는 지원하지 않는다.
+현재 snapshot export 형식은 `schema_version = 7`이다. v7은 확인된 현금성 고정지출의 확인 월, 카드 정기결제 원본 관계와 카드 결제 idempotency 정보를 추가로 보존한다. v4, v5, v6, v7을 복원하며 구버전의 nullable 신규 필드 누락은 허용한다. 파일 형식 v3 이하는 지원하지 않는다.
 
 `manifest`는 canonical JSON 기준 SHA-256 무결성 정보를 담는다. `manifest` 자기 자신과 파생 식별자인 `snapshot_id`는 hash 대상에서 제외하며, `data` 전체 hash, 테이블별 컬럼 목록·row count·table hash, `card_charge_policy` hash, 주요 상단 메타데이터와 정책 명세를 포함한 전체 content hash를 기록한다.
 
@@ -1133,7 +1135,7 @@ curl -OJ -b /tmp/money-note-cookie.txt \
 하위호환 정책:
 
 - 서버는 snapshot 원문 기준으로 manifest를 먼저 검증한다.
-- 버전 4와 5는 manifest 검증 뒤 Snapshot 당시 카드 정책과 분류 규칙이 현재 서버에 보존되어 있는지 확인한다.
+- 버전 4~7은 manifest 검증 뒤 Snapshot 당시 카드 정책과 분류 규칙이 현재 서버에 보존되어 있는지 확인한다.
 - v4의 과거 유동성 설정·라벨 key는 원문 manifest 검증 뒤 현재 key로 정규화한다.
 - v4에 같은 의미의 과거 key와 현재 key가 함께 있고 값이 다르면 복원을 중단한다.
 - 버전 3 이하는 지원하지 않는다.
@@ -1148,10 +1150,11 @@ curl -OJ -b /tmp/money-note-cookie.txt \
 
 위험 작업 안전장치:
 
+- 일반 snapshot export는 하나의 SQLite read transaction에서 모든 테이블을 읽어 중간 write가 일부 테이블에만 섞이지 않게 한다.
 - 운영 DB를 수정하기 전에 snapshot 구조와 manifest를 검증한다.
 - 운영 DB를 수정하기 전에 동일한 삽입 경로로 임시 DB dry-run restore를 수행한다.
 - dry-run에서 외래키 오류가 발견되면 복원을 중단한다.
-- 실제 restore 직전 현재 운영 DB를 `data/snapshot-backups/pre_restore-...money-note-snapshot.json` 파일로 반드시 저장한다.
+- 실제 restore 직전 write transaction을 먼저 확보하고, 같은 transaction에서 본 현재 운영 DB를 `data/snapshot-backups/pre_restore-...money-note-snapshot.json` 파일로 반드시 저장한다.
 - `pre_restore` 파일 생성, JSON parse, manifest 검증 중 하나라도 실패하면 복원을 중단한다.
 - 실제 restore 도중 예외가 발생하면 트랜잭션 rollback으로 기존 운영 DB를 보존한다.
 
@@ -1247,12 +1250,13 @@ curl -b /tmp/money-note-cookie.txt \
 ```bash
 curl -X POST http://localhost:18080/api/month/current/close \
   -H 'Content-Type: application/json' \
-  -d '{"allow_early_close":false}'
+  -d '{"allow_early_close":false,"target_month":"2026-06"}'
 ```
 
 동작:
 
 - 카드 정기결제, 즉 `entry_kind = planned`인 항목을 제외한 `current` 기록을 `archive`로 복사한다.
+- `target_month`는 직전 status 조회의 `oldest_open_month`를 사용한다. 동일 target 재시도는 이미 처리된 결과로 끝나며 archive, 급여와 결제 batch를 중복 생성하지 않는다.
 - 카드 정기결제 항목은 당월 기록에 남는다.
 - 월마감 시점의 기본 예정 수입을 닫힌 달의 다음 달 1일자 `급여` 입금으로 한 건 기록한다. 이 행은 `이달 기준 수입`이며 같은 급여를 수동으로 다시 입력하지 않는다.
 - 월마감이 끝나면 해당 월 원장으로 `이번달 결제`용 활성 batch를 새로 만든다.
@@ -1261,7 +1265,8 @@ curl -X POST http://localhost:18080/api/month/current/close \
 - 결제 화면에서 이월한 항목은 다음 달 원장 맨 위에 `[이월] [n월 사용 내역] ...` 형태로 남고, 그 달 월마감 후 다음 결제 batch에 편입된다.
 - 현재 달은 매월 27일부터 `allow_early_close=true`로 조기 마감할 수 있다.
 - 조기 마감 뒤 같은 달 날짜로 추가한 일반 지출은 `archive`에 바로 저장된다.
-- 청구와 가족카드는 월마감과 무관하며, 각 탭의 `일괄 처리 완료`로 현재 전달분을 삭제한다.
+- 현금성 고정지출은 처리일이 오늘 이하일 때만 확인할 수 있다. 월마감은 `confirmed_month`가 마감 대상 월인 상태만 reset하므로 밀린 과거 월마감이 이후 주기 확인을 되돌리지 않는다.
+- 청구와 가족카드는 월마감과 무관하며, 각 탭의 `일괄 처리 완료`로 월 값에 관계없이 현재 남은 전달 큐 전체를 삭제한다.
 - 월마감 실패 시 archive 이동, `급여` 생성, 결제 batch가 모두 rollback된다. 실행 전 mandatory pre_restore는 그대로 남는다.
 
 ## 읽기 전용 공유 화면

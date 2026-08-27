@@ -3,6 +3,8 @@ from __future__ import annotations
 from calendar import monthrange
 from dataclasses import dataclass
 from datetime import date, datetime
+import hashlib
+import json
 from typing import Any
 
 from app.db import session
@@ -207,21 +209,31 @@ def set_discount_month_policy(month: str, policy: str, scope: str = "owner") -> 
 def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = None) -> dict[str, Any]:
     """일부 결제를 포함한 즉시결제 또는 호환용 할인 배분을 기록한다."""
     today = today or app_today()
-    event_date = datetime.strptime(payload.event_date, "%Y-%m-%d").date()
-    context = _active_payment_context(today)
-    if context.batch_id is None:
-        raise ValueError("월마감 후 생성된 결제 작업함이 없습니다.")
-    usage_start = datetime.strptime(f"{context.usage_month}-01", "%Y-%m-%d").date()
-    if event_date < usage_start or event_date > context.due_date:
-        raise ValueError("결제 처리는 월마감 사용월부터 익월 14일까지 가능합니다.")
-    if payload.event_type == "immediate" and event_date > context.due_date:
-        raise ValueError("즉시결제는 매월 14일까지 가능합니다.")
-    if not payload.allocations:
-        raise ValueError("결제 또는 할인액을 배분할 항목이 없습니다.")
-
+    event_date = payload.event_date
+    request_fingerprint = _card_payment_request_fingerprint(payload)
     allocations: list[tuple[str, int]] = []
     seen_keys: set[str] = set()
-    with session() as conn:
+    with session(transaction_mode="IMMEDIATE") as conn:
+        existing = conn.execute(
+            "SELECT * FROM card_payment_events WHERE idempotency_key = ?",
+            (payload.idempotency_key,),
+        ).fetchone()
+        if existing is not None:
+            if existing["request_fingerprint"] != request_fingerprint:
+                raise ValueError("같은 idempotency key에 서로 다른 결제 요청을 사용할 수 없습니다.")
+            return dict(existing)
+
+        context = _active_payment_context(today, conn)
+        if context.batch_id is None:
+            raise ValueError("월마감 후 생성된 결제 작업함이 없습니다.")
+        usage_start = datetime.strptime(f"{context.usage_month}-01", "%Y-%m-%d").date()
+        if event_date < usage_start or event_date > context.due_date:
+            raise ValueError("결제 처리는 월마감 사용월부터 익월 14일까지 가능합니다.")
+        if payload.event_type == "immediate" and event_date > context.due_date:
+            raise ValueError("즉시결제는 매월 14일까지 가능합니다.")
+        if not payload.allocations:
+            raise ValueError("결제 또는 할인액을 배분할 항목이 없습니다.")
+
         settings = _settings_values(conn)
         for allocation in payload.allocations:
             key = allocation.entry_payment_key
@@ -313,16 +325,28 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
                 INSERT INTO cash_flows(occurred_on, title, amount_value, sort_order)
                 VALUES (?, ?, ?, ?)
                 """,
-                (payload.event_date, "카드 즉시결제", -int(total), next_order),
+                (event_date.isoformat(), "카드 즉시결제", -int(total), next_order),
             )
             cash_flow_id = cash_cursor.lastrowid
 
         cursor = conn.execute(
             """
-            INSERT INTO card_payment_events(batch_id, event_date, event_type, total_amount, note, cash_flow_id)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO card_payment_events(
+                batch_id, event_date, event_type, total_amount, note, cash_flow_id,
+                idempotency_key, request_fingerprint
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
-            (context.batch_id, payload.event_date, payload.event_type, int(total), payload.note.strip(), cash_flow_id),
+            (
+                context.batch_id,
+                event_date.isoformat(),
+                payload.event_type,
+                int(total),
+                payload.note.strip(),
+                cash_flow_id,
+                payload.idempotency_key,
+                request_fingerprint,
+            ),
         )
         for key, amount in allocations:
             conn.execute(
@@ -346,6 +370,26 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
             (cursor.lastrowid,),
         ).fetchone()
     return dict(event)
+
+
+def _card_payment_request_fingerprint(payload: CardPaymentEventIn) -> str:
+    normalized = {
+        "event_date": payload.event_date.isoformat(),
+        "event_type": payload.event_type,
+        "note": payload.note.strip(),
+        "allocations": sorted(
+            (
+                {
+                    "entry_payment_key": allocation.entry_payment_key,
+                    "amount_value": int(allocation.amount_value),
+                }
+                for allocation in payload.allocations
+            ),
+            key=lambda item: (item["entry_payment_key"], item["amount_value"]),
+        ),
+    }
+    encoded = json.dumps(normalized, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
 
 
 def set_entry_discount(entry_payment_key: str, amount: int, event_date: str | None = None) -> dict[str, Any]:
@@ -433,10 +477,7 @@ def create_late_card_entry(payload: LateCardEntryIn, today: date | None = None) 
     context = _active_payment_context(today)
     if context.batch_id is None:
         raise ValueError("월마감 후 생성된 결제 작업함이 없습니다.")
-    try:
-        entry_date = datetime.strptime(payload.entry_date, "%Y-%m-%d").date()
-    except ValueError as exc:
-        raise ValueError("전월 보정 날짜 형식이 올바르지 않습니다.") from exc
+    entry_date = payload.entry_date
     if entry_date.strftime("%Y-%m") != context.usage_month:
         raise ValueError(
             "전월 매입 지연 보정은 현재 결제 작업함의 사용월 날짜만 사용할 수 있습니다."
@@ -642,18 +683,13 @@ def cancel_toll_deferral(entry_payment_key: str, today: date | None = None) -> b
     return True
 
 
-def _active_payment_context(today: date) -> CardPaymentContext:
+def _active_payment_context(today: date, conn: Any | None = None) -> CardPaymentContext:
     """달력 추정값이 아니라 마지막 월마감 batch를 기준으로 결제 작업 대상을 찾는다."""
-    with session() as conn:
-        batch = conn.execute(
-            """
-            SELECT *
-            FROM card_payment_batches
-            WHERE status = 'active'
-            ORDER BY id DESC
-            LIMIT 1
-            """
-        ).fetchone()
+    if conn is None:
+        with session() as owned_conn:
+            batch = _active_payment_batch(owned_conn)
+    else:
+        batch = _active_payment_batch(conn)
     if batch is None:
         payment_month = today.strftime("%Y-%m")
         return CardPaymentContext(
@@ -670,6 +706,18 @@ def _active_payment_context(today: date) -> CardPaymentContext:
         payment_month=payment_month,
         due_date=_payment_due_date(payment_month),
     )
+
+
+def _active_payment_batch(conn: Any) -> Any:
+    return conn.execute(
+        """
+        SELECT *
+        FROM card_payment_batches
+        WHERE status = 'active'
+        ORDER BY id DESC
+        LIMIT 1
+        """
+    ).fetchone()
 
 
 def _payment_rows_for_batch(context: CardPaymentContext) -> list[dict[str, Any]]:

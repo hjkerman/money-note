@@ -69,29 +69,6 @@ def title_contains(row: dict, words: tuple[str, ...]) -> bool:
     return any(word in title for word in words)
 
 
-def text_contains(value: str, words: tuple[str, ...]) -> bool:
-    lowered = value.lower()
-    return any(word in lowered for word in words)
-
-
-def safe_float(value: object, default: float = 0) -> float:
-    try:
-        return float(value or default)
-    except (TypeError, ValueError):
-        return default
-
-
-def safe_int(value: object, default: int = 0) -> int:
-    try:
-        return int(value or default)
-    except (TypeError, ValueError):
-        return default
-
-
-def ratio(numerator: float, denominator: float, default: float = 0) -> float:
-    return numerator / denominator if denominator else default
-
-
 def days_between(start_value: str, end_value: str) -> int:
     try:
         return (date.fromisoformat(end_value[:10]) - date.fromisoformat(start_value[:10])).days

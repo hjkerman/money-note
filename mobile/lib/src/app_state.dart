@@ -733,10 +733,15 @@ class AppState extends ChangeNotifier {
     }
   }
 
-  Future<void> closeCurrentMonth({bool allowEarlyClose = false}) async {
+  Future<void> closeCurrentMonth({
+    required String targetMonth,
+    bool allowEarlyClose = false,
+  }) async {
     await _run(() async {
-      final result =
-          await api.closeCurrentMonth(allowEarlyClose: allowEarlyClose);
+      final result = await api.closeCurrentMonth(
+        targetMonth: targetMonth,
+        allowEarlyClose: allowEarlyClose,
+      );
       await refresh(notify: false);
       statusMessage = '월마감 완료: ${result['closed_month'] ?? '마감할 월 없음'}';
     });

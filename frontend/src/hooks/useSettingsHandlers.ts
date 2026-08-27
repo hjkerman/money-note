@@ -326,6 +326,10 @@ export function useSettingsHandlers({
 
   async function handleCloseMonth() {
     const targetMonth = monthCloseStatus?.oldest_open_month;
+    if (!targetMonth) {
+      setStatus("월마감할 기록이 없습니다.");
+      return;
+    }
     const isEarlyClose = Boolean(targetMonth && targetMonth === monthCloseStatus?.calendar_month);
     const confirmed = window.confirm(
       isEarlyClose
@@ -336,7 +340,7 @@ export function useSettingsHandlers({
     );
     if (!confirmed) return;
     await withRefresh(async () => {
-      const result = await closeCurrentMonth(isEarlyClose);
+      const result = await closeCurrentMonth(targetMonth, isEarlyClose);
       setStatus(
         result.closed_month
           ? `${formatMonthLabel(result.closed_month)} 월마감 완료: ${result.archived}개 archive`

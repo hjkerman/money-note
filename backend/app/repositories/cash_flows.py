@@ -53,7 +53,7 @@ def create_cash_flow(flow: CashFlowIn) -> dict[str, Any]:
             VALUES (?, ?, ?, ?, ?)
             """,
             (
-                values["occurred_on"],
+                values["occurred_on"].isoformat(),
                 values["title"],
                 values["amount_value"],
                 values["sort_order"],
@@ -72,6 +72,7 @@ def delete_cash_flow(flow_id: int) -> bool:
             UPDATE monthly_panels
             SET spent_on = NULL,
                 confirmed_at = NULL,
+                confirmed_month = NULL,
                 confirmed_cash_flow_id = NULL,
                 updated_at = CURRENT_TIMESTAMP
             WHERE panel_type = 'fixed'

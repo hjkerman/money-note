@@ -527,9 +527,9 @@ remaining_liquidity
 
 `cash_flow_balance`는 아직 출금되지 않은 예정 지출, 미확인 현금성 고정지출, 동결 자금, 미래 급여와 `remaining_liquidity`를 뜻하지 않는다. Active 계좌에 실제로 존재하는 돈과 그중 추가로 사용할 수 있는 돈은 다를 수 있다.
 
-현금성 고정지출은 반복 템플릿이며 미지급 의무다. 확인 전에는 돈이 Active 계좌에 남아 있어 `cash_flow_balance`를 줄이지 않지만, `liquidity_fixed_total`로 `remaining_liquidity`에서 한 번 차감한다. 사용자가 실제 지급을 확인하면 pending obligation을 제거하고 같은 금액의 음수 `cash_flows`를 생성해 `cash_flow_balance`를 줄인다. 따라서 같은 금액을 지급한 것뿐이라면 확인 전후 잔여 유동성은 같고, 돈이 나갈 예정이라는 상태만 실제로 나갔다는 사실로 전환된다. `confirmed_at`만 있고 연결된 현금흐름이 없는 구형·불완전 상태는 확인 완료로 보지 않는다.
+현금성 고정지출은 반복 템플릿이며 미지급 의무다. 확인 전에는 돈이 Active 계좌에 남아 있어 `cash_flow_balance`를 줄이지 않지만, `liquidity_fixed_total`로 `remaining_liquidity`에서 한 번 차감한다. 사용자가 실제 지급을 확인하면 pending obligation을 제거하고 같은 금액의 음수 `cash_flows`를 생성해 `cash_flow_balance`를 줄인다. 따라서 같은 금액을 지급한 것뿐이라면 확인 전후 잔여 유동성은 같고, 돈이 나갈 예정이라는 상태만 실제로 나갔다는 사실로 전환된다. 실제 지급 확인이므로 처리일은 서버 기준 오늘보다 미래일 수 없다. `confirmed_at`만 있고 연결된 현금흐름이 없는 구형·불완전 상태는 확인 완료로 보지 않는다.
 
-표시용 `fixed_cash_total`과 고정지출 총합은 확인 여부와 무관한 전체 템플릿 금액이다. 월마감은 템플릿을 다음 주기용 미확인 상태로 돌리지만 이미 기록한 현금흐름은 보존한다. 확인 직후 생성된 현금흐름을 월마감 전에 삭제하면 연결된 템플릿도 미확인 상태로 돌아간다.
+표시용 `fixed_cash_total`과 고정지출 총합은 확인 여부와 무관한 전체 템플릿 금액이다. 확인할 때 실제 처리일의 월을 `confirmed_month`로 기록한다. 월마감은 마감 대상 월과 같은 확인 상태만 다음 주기용 미확인 상태로 돌리고 이미 기록한 현금흐름은 보존한다. 따라서 밀린 과거 월마감이 이후 주기에 이미 확인한 템플릿을 되돌리지 않는다. 확인 직후 생성된 현금흐름을 월마감 전에 삭제하면 연결된 템플릿도 미확인 상태로 돌아간다.
 
 `이달 기준 수입` 표시가 있는 현금흐름 입금 합계는 현재 카드 결제 압박 Judgment의 기준 수입이다. 월마감이 만든 `급여`도 이 표식을 가진다. 해당 결제월에 기준 수입이 없으면 Judgment만 `scheduled_income`을 fallback으로 사용한다.
 
@@ -589,7 +589,7 @@ Money Note는 카드사 알림 자동입력을 고려한다.
 
 Snapshot은 원본 DB를 대체하는 별도 저장소가 아니라, 장부 운용 데이터 전체와 비민감 운영 설정을 JSON 파일로 잠시 옮겨 담는 백업/복원 형식이다.
 
-새 Snapshot 형식은 `schema_version = 6`이다. v6은 확인된 현금성 고정지출과 생성 현금흐름의 연결을 보존한다. 연결 필드가 없는 v5와 유동성 설정·라벨 key가 과거 이름인 v4 Snapshot도 계속 복원하며, 파일 형식 v3 이하는 지원하지 않는다.
+새 Snapshot 형식은 `schema_version = 7`이다. v7은 확인된 현금성 고정지출의 확인 월, 정기결제 원본과 생성 지출의 명시적 관계, 카드 결제 idempotency 정보를 추가로 보존한다. v6의 현금흐름 연결과 v4~v6의 nullable 신규 필드 누락을 계속 허용하며, 유동성 설정·라벨 key가 과거 이름인 v4 Snapshot도 복원한다. 파일 형식 v3 이하는 지원하지 않는다.
 
 Snapshot은 canonical JSON 기준 SHA-256 manifest를 포함한다.
 
@@ -614,7 +614,7 @@ Manifest 원칙:
 하위호환 원칙:
 
 - restore는 먼저 snapshot 원문 기준으로 manifest를 검증한다.
-- 버전 4, 5, 6은 manifest 검증 후 당시 `card_charge_policy`가 현재 서버에 보존되어 있는지 확인한다. 생성월 이후의 새 binding 추가만 허용한다.
+- 버전 4, 5, 6, 7은 manifest 검증 후 당시 `card_charge_policy`가 현재 서버에 보존되어 있는지 확인한다. 생성월 이후의 새 binding 추가만 허용한다.
 - v4의 `base_next_month_liquidity`, `liquidity_status`, `summary_next_month_liquidity_label`, `summary_liquidity_status_label`은 원문 manifest 검증이 끝난 뒤 각각 현재 표준 key로 정규화한다.
 - Snapshot에 같은 의미의 새 key와 기존 key가 동시에 있고 값이 다르면 복원을 중단한다.
 - 파일 형식 v3 이하는 복원하지 않는다.
@@ -664,10 +664,11 @@ Snapshot restore는 위험 작업이다.
 
 Restore 안전 원칙:
 
+- export는 하나의 SQLite read transaction에서 모든 테이블을 읽어 하나의 commit 시점만 담는다.
 - 운영 DB를 수정하기 전에 snapshot 구조와 manifest를 검증한다.
 - 운영 DB를 수정하기 전에 동일한 삽입 경로로 임시 DB dry-run restore를 수행한다.
 - dry-run에서 외래키 오류가 발생하면 운영 DB를 건드리지 않는다.
-- 실제 restore 직전 현재 운영 DB를 `pre_restore` snapshot으로 반드시 저장한다.
+- 실제 restore, reset, 월마감과 정산 일괄 완료는 write transaction을 먼저 확보한다. 같은 transaction의 현재 운영 DB를 `pre_restore` snapshot으로 반드시 저장한 뒤 위험 변경을 수행해, backup 이후 다른 write가 끼어들었다가 삭제되는 경로를 막는다.
 - `pre_restore` 파일 생성, JSON parse, manifest 검증 중 하나라도 실패하면 restore를 중단한다.
 - 실제 restore 도중 예외가 발생하면 트랜잭션 rollback으로 기존 운영 DB를 보존한다.
 - `pre_restore`는 서버의 DB 디렉터리 아래 `snapshot-backups/`에 저장한다.

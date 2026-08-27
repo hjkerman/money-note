@@ -181,6 +181,7 @@ class SummaryCalculationTest(unittest.TestCase):
         before = current_summary_values()
         create_card_payment_event(
             CardPaymentEventIn(
+                idempotency_key="summary-payment-0001",
                 event_date="2026-06-05",
                 event_type="immediate",
                 allocations=[CardPaymentAllocationIn(entry_payment_key="paid-key", amount_value=5000)],

@@ -41,13 +41,13 @@
 4. 새 policy class는 할인 계산뿐 아니라 `snapshot_definition()`으로 안정적인 정책 ID, 종류와 계산 매개변수를 반환해야 한다.
 5. 분류 키워드나 우선순위를 바꾸면 `card_classifier_manifest()` 명세도 실제 로직과 함께 갱신한다.
 6. `backend/tests/test_card_charge.py`에 변경 직전 월과 시작월의 예상값을 추가한다.
-7. 백엔드 전체 테스트와 Snapshot v4/v5/v6 복원 테스트를 실행한다.
+7. 백엔드 전체 테스트와 지원 Snapshot v4~v7 복원 테스트를 실행한다.
 8. 배포 직후 새 Snapshot을 내려받아 `card_charge_policy`에 새 시작월 binding이 있고 과거 binding이 남아 있는지 확인한다.
 9. API 응답 형식을 바꾸지 않았다면 백엔드 컨테이너만 재빌드해 배포한다.
 
-Snapshot v4, v5, v6은 생성 당시 정책 명세를 데이터와 함께 해시한다. 과거 binding을 덮어쓰면 기존 Snapshot과 현재 서버 정책이 달라져 복원이 차단되는 것이 정상이다. 복원을 통과시키려고 과거 Snapshot을 편집하지 말고, 기존 binding을 되살린 뒤 새 시작월 binding을 추가한다.
+지원하는 Snapshot v4~v7은 생성 당시 정책 명세를 데이터와 함께 해시한다. 과거 binding을 덮어쓰면 기존 Snapshot과 현재 서버 정책이 달라져 복원이 차단되는 것이 정상이다. 복원을 통과시키려고 과거 Snapshot을 편집하지 말고, 기존 binding을 되살린 뒤 새 시작월 binding을 추가한다.
 
-Snapshot 생성월 이후부터 적용되는 새 binding을 타임라인 끝에 추가하는 것은 기존 v4/v5/v6 Snapshot 복원을 막지 않는다. 반대로 기존 Snapshot 생성월 이전이나 같은 월부터 적용되는 binding을 뒤늦게 추가하면 과거 금액을 재해석하므로 복원이 차단된다.
+Snapshot 생성월 이후부터 적용되는 새 binding을 타임라인 끝에 추가하는 것은 기존 지원 Snapshot 복원을 막지 않는다. 반대로 기존 Snapshot 생성월 이전이나 같은 월부터 적용되는 binding을 뒤늦게 추가하면 과거 금액을 재해석하므로 복원이 차단된다.
 
 예를 들어 본인카드만 2027년 3월부터 자동 할인 없는 카드로 바뀐다면 개념상 다음처럼 추가한다.
 

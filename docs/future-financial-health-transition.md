@@ -63,6 +63,8 @@
 
 현행 입력값과 분기 순서는 [Judgment 문구 관리](judgment-messages.md)의 `현행 Judgment 데이터 흐름`을 기준으로 한다. 정책을 결정한 뒤 입력 feature와 등급 경계를 테스트로 먼저 고정하고 문구 pool을 수정한다.
 
+명시적 미래 TODO: 재무 건전화 전환 시 current ledger의 `card_total`, 활성 payment batch의 미결제 채무, 실제 결제 cash flow를 최신 repo 전체에서 다시 추적하고, 각 채무를 상태 전이 중 정확히 한 번만 `remaining_liquidity`에 반영하는 모델을 결정한다. 단순히 batch `remaining_amount`를 현행 식에 더하지 않는다.
+
 ## 전환 전 검증
 
 - 실제 Snapshot 사본으로 전환 전후 잔여 유동성을 비교한다.

@@ -47,7 +47,7 @@ backend/app/services/judgment/
 | --- | --- | --- |
 | `entries` | `book_section=current` 행. `app_judgment`는 planned를 제외한 expense만 소비 건수·총액에 사용 | `budget` |
 | `panels` | 달력상 현재 월 패널과 월 경계에 무관하게 유지되는 fixed/frozen/claim/family_card | `budget`, `credit` |
-| `cash_flows` | 기간 필터 없는 전체 현금흐름 | `budget` |
+| `cash_flows` | 서버 기준일이 속한 달의 1일~말일 현금흐름 | `budget` |
 | `summary` | 서버가 계산한 카드대금·잔여 유동성 등 | `budget`, `credit` |
 | `payment_status` | 마지막 월마감이 만든 활성 카드 결제 batch | `payment` |
 | `settings` | 카드 한도, 기본 예정 수입, 카드 할인 정책 등 | `credit`, `payment`, 패널 실부담 계산 |
@@ -58,7 +58,7 @@ backend/app/services/judgment/
 입력 feature:
 
 - 본인 원장 expense의 사용금액 총액과 건수
-- 전체 기간 현금흐름 총액과 건수
+- 현재 예산 주기, 즉 서버 기준 당월 현금흐름 총액과 건수
 - Claim 실부담액과 건수
 - Family Card 원금 총액과 건수
 - 동결 총액과 건수
@@ -77,7 +77,7 @@ backend/app/services/judgment/
 8. 본인 소비 총액이 100만원 이상이면 `warning`
 9. 나머지는 `quiet`
 
-월마감으로 생성된 `급여`는 일반 현금흐름이며 `is_primary_income=1`인 양수 행이다. 따라서 `budget`에서는 전체 현금흐름 총액·건수에 포함되고, Summary에서는 `cash_flow_balance`를 통해 잔여 유동성에도 반영된다.
+월마감으로 생성된 `급여`는 일반 현금흐름이며 `is_primary_income=1`인 양수 행이다. 발생일이 서버 기준 당월에 속하면 `budget`의 현금흐름 총액·건수에 포함된다. Summary의 `cash_flow_balance`는 이와 별개로 서버 기준일까지 실제 발생한 전체 기간 누계를 유지한다.
 
 ### `credit`: 카드 한도 감시
 

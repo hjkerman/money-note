@@ -62,6 +62,8 @@ def list_panels(month: str | None = None, include_confirmed_fixed: bool = False)
 def create_panel(panel: MonthlyPanelIn) -> dict[str, Any]:
     _validate_panel_create(panel)
     values = panel.model_dump()
+    if values.get("spent_on") is not None:
+        values["spent_on"] = values["spent_on"].isoformat()
     placeholders = ", ".join("?" for _ in PANEL_COLUMNS)
     columns = ", ".join(PANEL_COLUMNS)
     with session() as conn:
@@ -103,22 +105,42 @@ def update_panel(panel_id: int, patch: MonthlyPanelPatch) -> dict[str, Any] | No
     return row_to_dict(row) if row else None
 
 
+def set_panel_discount(panel_id: int, discount_amount: int, discount_override: int) -> dict[str, Any] | None:
+    with session() as conn:
+        conn.execute(
+            """
+            UPDATE monthly_panels
+            SET discount_amount = ?, discount_override = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+            """,
+            (discount_amount, discount_override, panel_id),
+        )
+        row = conn.execute("SELECT * FROM monthly_panels WHERE id = ?", (panel_id,)).fetchone()
+    return row_to_dict(row) if row else None
+
+
 def delete_panel(panel_id: int) -> bool:
     with session() as conn:
         cursor = conn.execute("DELETE FROM monthly_panels WHERE id = ?", (panel_id,))
     return cursor.rowcount > 0
 
 
-def delete_panels_by_type(month: str, panel_type: str) -> int:
-    with session() as conn:
-        if panel_type in {"claim", "family_card"}:
-            cursor = conn.execute(
-                "DELETE FROM monthly_panels WHERE panel_type = ?",
-                (panel_type,),
-            )
-            return cursor.rowcount
+def delete_panels_by_type(month: str, panel_type: str, conn: Any | None = None) -> int:
+    if conn is not None:
+        return _delete_panels_by_type(conn, month, panel_type)
+    with session() as owned_conn:
+        return _delete_panels_by_type(owned_conn, month, panel_type)
+
+
+def _delete_panels_by_type(conn: Any, month: str, panel_type: str) -> int:
+    if panel_type in {"claim", "family_card"}:
         cursor = conn.execute(
-            "DELETE FROM monthly_panels WHERE month = ? AND panel_type = ?",
-            (month, panel_type),
+            "DELETE FROM monthly_panels WHERE panel_type = ?",
+            (panel_type,),
         )
+        return cursor.rowcount
+    cursor = conn.execute(
+        "DELETE FROM monthly_panels WHERE month = ? AND panel_type = ?",
+        (month, panel_type),
+    )
     return cursor.rowcount

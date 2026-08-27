@@ -1,4 +1,4 @@
-import { Dispatch, FormEvent, SetStateAction } from "react";
+import { Dispatch, FormEvent, SetStateAction, useRef } from "react";
 import {
   acknowledgeLiquidityReset,
   cancelTollDeferral,
@@ -49,6 +49,8 @@ export function useCardPaymentHandlers({
   summary: Summary | null;
   withRefresh: (action: () => Promise<void>) => Promise<void>;
 }) {
+  const pendingPaymentRequest = useRef<{ fingerprint: string; key: string } | null>(null);
+
   function handleAutoAllocate() {
     if (!cardPayments?.immediate_allowed) return;
     let remainingBudget = Math.max(0, parseAmount(paymentBudget) ?? summary?.cash_flow_balance ?? 0);
@@ -89,16 +91,28 @@ export function useCardPaymentHandlers({
     const total = allocations.reduce((sum, allocation) => sum + allocation.amount_value, 0);
     const confirmed = window.confirm(`즉시결제 ${formatWon(total)}을 선택한 사용내역에 반영할까요?`);
     if (!confirmed) return;
+    const requestPayload = {
+      event_date: cardPayments.calendar_date,
+      event_type: "immediate" as const,
+      note: "",
+      allocations,
+    };
+    const requestFingerprint = JSON.stringify(requestPayload);
+    if (pendingPaymentRequest.current?.fingerprint !== requestFingerprint) {
+      pendingPaymentRequest.current = {
+        fingerprint: requestFingerprint,
+        key: createIdempotencyKey(),
+      };
+    }
     await withRefresh(async () => {
       await createCardPaymentEvent({
-        event_date: cardPayments.calendar_date,
-        event_type: "immediate",
-        note: "",
-        allocations,
+        ...requestPayload,
+        idempotency_key: pendingPaymentRequest.current!.key,
       });
-      setPaymentAllocations({});
-      setStatus("즉시결제 반영 완료");
     });
+    pendingPaymentRequest.current = null;
+    setPaymentAllocations({});
+    setStatus("즉시결제 반영 완료");
   }
 
   async function handleDiscountPolicyChange(scope: "owner" | "family", month: string, policy: CardDiscountPolicy) {
@@ -260,4 +274,9 @@ export function useCardPaymentHandlers({
     handlePaymentSelection,
     handleTollDeferral,
   };
+}
+
+function createIdempotencyKey(): string {
+  if (typeof crypto.randomUUID === "function") return crypto.randomUUID();
+  return `web-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }

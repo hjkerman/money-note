@@ -12,8 +12,8 @@ from app.repository import (
     create_panel,
     delete_cash_flow,
     list_panels,
-    update_panel,
 )
+from app.repositories.panels import set_panel_discount
 from app.schemas import MonthlyPanelIn, MonthlyPanelPatch
 from app.services.summary import current_summary_values
 
@@ -88,10 +88,16 @@ class PanelCompletionTest(unittest.TestCase):
         self.assertEqual(remaining_family_card, 1)
 
     def test_claim_discount_is_stored_separately_from_original_amount(self) -> None:
-        updated = update_panel(1, MonthlyPanelPatch(discount_amount=120))
+        updated = set_panel_discount(1, 120, 1)
 
         self.assertEqual(updated["amount_value"], 1000)
         self.assertEqual(updated["discount_amount"], 120)
+
+    def test_generic_panel_patch_rejects_state_transition_fields(self) -> None:
+        with self.assertRaises(ValueError):
+            MonthlyPanelPatch(panel_type="family_card")
+        with self.assertRaises(ValueError):
+            MonthlyPanelPatch(confirmed_at="2026-06-01T00:00:00Z")
 
     def test_panel_special_characters_round_trip(self) -> None:
         title = "[병원] O'Reilly <진료> & 약값 / 괄호()"
@@ -212,6 +218,32 @@ class PanelCompletionTest(unittest.TestCase):
 
         with self.assertRaisesRegex(ValueError, "이미 확인 처리"):
             confirm_fixed_panel(panel_id, "2026-06-22")
+
+    def test_fixed_confirmation_rejects_future_processing_date(self) -> None:
+        with session() as conn:
+            panel_id = conn.execute(
+                """
+                INSERT INTO monthly_panels(month, panel_type, title, amount_value, sort_order)
+                VALUES ('2026-06', 'fixed', '미래 보험료', 30000, 24)
+                """
+            ).lastrowid
+
+        with patch.dict(os.environ, {"MONEY_NOTE_TODAY": "2026-06-20"}):
+            get_settings.cache_clear()
+            with self.assertRaisesRegex(ValueError, "미래 날짜"):
+                confirm_fixed_panel(panel_id, "2026-06-21")
+        get_settings.cache_clear()
+
+        with session() as conn:
+            panel = conn.execute(
+                "SELECT confirmed_cash_flow_id FROM monthly_panels WHERE id = ?",
+                (panel_id,),
+            ).fetchone()
+            flow_count = conn.execute(
+                "SELECT COUNT(*) AS count FROM cash_flows WHERE title = '미래 보험료'",
+            ).fetchone()["count"]
+        self.assertIsNone(panel["confirmed_cash_flow_id"])
+        self.assertEqual(flow_count, 0)
 
     def test_unlinked_legacy_confirmation_remains_pending_and_can_be_confirmed(self) -> None:
         with session() as conn:

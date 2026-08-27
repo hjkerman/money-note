@@ -1,4 +1,5 @@
 from datetime import date
+from concurrent.futures import ThreadPoolExecutor
 import os
 from pathlib import Path
 import tempfile
@@ -95,6 +96,7 @@ class CardPaymentDeferralTest(unittest.TestCase):
 
         create_card_payment_event(
             CardPaymentEventIn(
+                idempotency_key="deferral-payment-0001",
                 event_date="2026-06-04",
                 event_type="immediate",
                 allocations=[
@@ -113,6 +115,7 @@ class CardPaymentDeferralTest(unittest.TestCase):
 
         create_card_payment_event(
             CardPaymentEventIn(
+                idempotency_key="toll-payment-000001",
                 event_date="2026-06-04",
                 event_type="immediate",
                 allocations=[
@@ -275,6 +278,130 @@ class CardPaymentDeferralTest(unittest.TestCase):
         self.assertEqual(status["calendar_date"], "2026-07-01")
         self.assertEqual(status["payment_month"], "2026-06")
         self.assertEqual(status["usage_month"], "2026-05")
+
+    def test_same_idempotency_key_reuses_successful_payment(self) -> None:
+        payload = CardPaymentEventIn(
+            idempotency_key="retry-payment-000001",
+            event_date="2026-06-04",
+            event_type="immediate",
+            allocations=[
+                CardPaymentAllocationIn(entry_payment_key="normal-key", amount_value=1000)
+            ],
+        )
+
+        first = create_card_payment_event(payload, date(2026, 6, 4))
+        retried = create_card_payment_event(payload, date(2026, 6, 4))
+
+        self.assertEqual(retried["id"], first["id"])
+        with session() as conn:
+            event_count = conn.execute(
+                "SELECT COUNT(*) AS count FROM card_payment_events WHERE idempotency_key = ?",
+                (payload.idempotency_key,),
+            ).fetchone()["count"]
+            flow_count = conn.execute(
+                "SELECT COUNT(*) AS count FROM cash_flows WHERE title = '카드 즉시결제'",
+            ).fetchone()["count"]
+        self.assertEqual(event_count, 1)
+        self.assertEqual(flow_count, 1)
+
+    def test_same_idempotency_key_rejects_different_payload(self) -> None:
+        first = CardPaymentEventIn(
+            idempotency_key="mismatch-payment-001",
+            event_date="2026-06-04",
+            event_type="immediate",
+            allocations=[
+                CardPaymentAllocationIn(entry_payment_key="normal-key", amount_value=1000)
+            ],
+        )
+        changed = CardPaymentEventIn(
+            idempotency_key=first.idempotency_key,
+            event_date="2026-06-04",
+            event_type="immediate",
+            allocations=[
+                CardPaymentAllocationIn(entry_payment_key="normal-key", amount_value=1100)
+            ],
+        )
+        create_card_payment_event(first, date(2026, 6, 4))
+
+        with self.assertRaisesRegex(ValueError, "서로 다른 결제 요청"):
+            create_card_payment_event(changed, date(2026, 6, 4))
+
+    def test_different_keys_create_independent_partial_payments(self) -> None:
+        for suffix in ("one", "two"):
+            create_card_payment_event(
+                CardPaymentEventIn(
+                    idempotency_key=f"independent-payment-{suffix}",
+                    event_date="2026-06-04",
+                    event_type="immediate",
+                    allocations=[
+                        CardPaymentAllocationIn(
+                            entry_payment_key="normal-key",
+                            amount_value=1000,
+                        )
+                    ],
+                ),
+                date(2026, 6, 4),
+            )
+
+        row = next(
+            row
+            for row in current_payment_status(date(2026, 6, 4))["rows"]
+            if row["payment_key"] == "normal-key"
+        )
+        self.assertEqual(row["remaining_amount"], 7_880)
+
+    def test_concurrent_retry_creates_one_payment(self) -> None:
+        payload = CardPaymentEventIn(
+            idempotency_key="concurrent-retry-0001",
+            event_date="2026-06-04",
+            event_type="immediate",
+            allocations=[
+                CardPaymentAllocationIn(entry_payment_key="normal-key", amount_value=1000)
+            ],
+        )
+
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            results = list(
+                executor.map(
+                    lambda _: create_card_payment_event(payload, date(2026, 6, 4)),
+                    range(2),
+                )
+            )
+
+        self.assertEqual({result["id"] for result in results}, {results[0]["id"]})
+        with session() as conn:
+            count = conn.execute(
+                "SELECT COUNT(*) AS count FROM card_payment_events WHERE idempotency_key = ?",
+                (payload.idempotency_key,),
+            ).fetchone()["count"]
+        self.assertEqual(count, 1)
+
+    def test_concurrent_overpayment_allows_only_one_request(self) -> None:
+        def submit(index: int) -> str:
+            try:
+                create_card_payment_event(
+                    CardPaymentEventIn(
+                        idempotency_key=f"competing-payment-{index:04d}",
+                        event_date="2026-06-04",
+                        event_type="immediate",
+                        allocations=[
+                            CardPaymentAllocationIn(
+                                entry_payment_key="normal-key",
+                                amount_value=9000,
+                            )
+                        ],
+                    ),
+                    date(2026, 6, 4),
+                )
+            except ValueError as exc:
+                return str(exc)
+            return "ok"
+
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            outcomes = list(executor.map(submit, range(2)))
+
+        self.assertEqual(outcomes.count("ok"), 1)
+        self.assertEqual(sum("초과" in outcome for outcome in outcomes), 1)
 
 
 if __name__ == "__main__":

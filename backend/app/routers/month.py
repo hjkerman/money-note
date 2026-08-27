@@ -1,3 +1,6 @@
+from calendar import monthrange
+from datetime import date
+
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.auth import require_user
@@ -17,6 +20,7 @@ from app.repositories.panels import (
     delete_panel,
     delete_panels_by_type,
     list_panels,
+    set_panel_discount,
     update_panel,
 )
 from app.repositories.settings import list_settings
@@ -35,6 +39,7 @@ from app.schemas import (
 )
 from app.services.card_payments import current_payment_status
 from app.services.judgment import app_judgment
+from app.services.clock import app_today
 from app.services.month import calendar_month_label, close_current_month, month_close_status
 from app.services.panels import complete_panels_by_type, confirm_fixed_panel
 from app.services.presentation import (
@@ -57,7 +62,10 @@ def post_planned_entry(entry: PlannedEntryIn, _: dict = Depends(require_user)) -
 @router.post("/planned/{entry_id}/confirm")
 def post_confirm_planned_entry(entry_id: int, payload: PlannedConfirmIn | None = None, _: dict = Depends(require_user)) -> dict:
     try:
-        result = confirm_planned_entry(entry_id, entry_date=payload.entry_date if payload else None)
+        result = confirm_planned_entry(
+            entry_id,
+            entry_date=payload.entry_date.isoformat() if payload and payload.entry_date else None,
+        )
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     if result is None:
@@ -112,7 +120,7 @@ def post_confirm_fixed_panel(
     _: dict = Depends(require_user),
 ) -> dict:
     try:
-        result = confirm_fixed_panel(panel_id, payload.occurred_on)
+        result = confirm_fixed_panel(panel_id, payload.occurred_on.isoformat())
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     if result is None:
@@ -125,15 +133,6 @@ def post_confirm_fixed_panel(
 
 @router.patch("/panels/{panel_id}", response_model=MonthlyPanel)
 def patch_panel(panel_id: int, patch: MonthlyPanelPatch, _: dict = Depends(require_user)) -> dict:
-    if patch.discount_amount is not None:
-        with session() as conn:
-            current = conn.execute("SELECT * FROM monthly_panels WHERE id = ?", (panel_id,)).fetchone()
-        if current is None:
-            raise HTTPException(status_code=404, detail="panel not found")
-        if current["panel_type"] != "claim":
-            raise HTTPException(status_code=422, detail="청구 항목에만 본인회원 카드 할인을 적용할 수 있습니다.")
-        if patch.discount_amount > float(current["amount_value"] or 0):
-            raise HTTPException(status_code=422, detail="할인액은 원래 청구금액을 초과할 수 없습니다.")
     panel = update_panel(panel_id, patch)
     if panel is None:
         raise HTTPException(status_code=404, detail="panel not found")
@@ -150,7 +149,7 @@ def patch_panel_discount(panel_id: int, patch: PanelDiscountPatch, _: dict = Dep
         raise HTTPException(status_code=422, detail="청구 또는 가족카드 항목에만 카드 할인을 적용할 수 있습니다.")
     if patch.discount_amount > float(panel["amount_value"] or 0):
         raise HTTPException(status_code=422, detail="할인액은 원래 청구금액을 초과할 수 없습니다.")
-    updated = update_panel(panel_id, MonthlyPanelPatch(discount_amount=patch.discount_amount, discount_override=1))
+    updated = set_panel_discount(panel_id, patch.discount_amount, 1)
     if updated is None:
         raise HTTPException(status_code=404, detail="panel not found")
     return present_monthly_panel(updated)
@@ -158,7 +157,7 @@ def patch_panel_discount(panel_id: int, patch: PanelDiscountPatch, _: dict = Dep
 
 @router.delete("/panels/{panel_id}/discount")
 def remove_panel_discount(panel_id: int, _: dict = Depends(require_user)) -> dict[str, bool]:
-    updated = update_panel(panel_id, MonthlyPanelPatch(discount_amount=0, discount_override=0))
+    updated = set_panel_discount(panel_id, 0, 0)
     if updated is None:
         raise HTTPException(status_code=404, detail="panel not found")
     return {"deleted": True}
@@ -196,7 +195,10 @@ def current_summary(_: dict = Depends(require_user)) -> Summary:
 @router.post("/close")
 def close_month(payload: MonthCloseIn, _: dict = Depends(require_user)) -> dict:
     try:
-        return close_current_month(allow_early_close=payload.allow_early_close)
+        return close_current_month(
+            allow_early_close=payload.allow_early_close,
+            target_month=payload.target_month,
+        )
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
@@ -208,10 +210,13 @@ def get_month_close_status(_: dict = Depends(require_user)) -> dict:
 
 @judgment_router.get("/current")
 def current_judgment(_: dict = Depends(require_user)) -> dict:
+    today = app_today()
+    cycle_start = date(today.year, today.month, 1)
+    cycle_end = date(today.year, today.month, monthrange(today.year, today.month)[1])
     return app_judgment(
         list_entries("current"),
         list_panels(calendar_month_label()),
-        list_cash_flows(),
+        list_cash_flows(date_from=cycle_start, date_to=cycle_end),
         current_summary_values(),
         current_payment_status(),
         list_settings(),

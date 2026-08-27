@@ -360,9 +360,14 @@ class MoneyNoteApiClient {
   }
 
   Future<Map<String, dynamic>> closeCurrentMonth(
-      {bool allowEarlyClose = false}) {
-    return _post('/api/month/current/close',
-        {'allow_early_close': allowEarlyClose}, (json) => json);
+      {required String targetMonth, bool allowEarlyClose = false}) {
+    return _post(
+        '/api/month/current/close',
+        {
+          'allow_early_close': allowEarlyClose,
+          'target_month': targetMonth,
+        },
+        (json) => json);
   }
 
   Future<Map<String, dynamic>> restoreSnapshot({

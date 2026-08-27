@@ -19,11 +19,9 @@ RESET_TABLES = [
 def reset_ledger_data() -> dict[str, int]:
     """계정과 설정은 남기고 사용자가 입력한 장부 운용 데이터만 비운다."""
     deleted: dict[str, int] = {}
-    create_pre_restore_backup()
-    with session() as conn:
-        conn.execute("PRAGMA foreign_keys = OFF")
+    with session(transaction_mode="IMMEDIATE") as conn:
+        create_pre_restore_backup(conn)
         for table in RESET_TABLES:
             cursor = conn.execute(f"DELETE FROM {table}")
             deleted[table] = cursor.rowcount if cursor.rowcount is not None else 0
-        conn.execute("PRAGMA foreign_keys = ON")
     return deleted

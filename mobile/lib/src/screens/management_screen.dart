@@ -456,8 +456,11 @@ class MonthCloseManagementScreen extends StatelessWidget {
         ],
       ),
     );
-    if (finalConfirmed == true) {
-      await state.closeCurrentMonth(allowEarlyClose: isEarlyClose);
+    if (finalConfirmed == true && targetMonth != null) {
+      await state.closeCurrentMonth(
+        targetMonth: targetMonth,
+        allowEarlyClose: isEarlyClose,
+      );
     }
   }
 }

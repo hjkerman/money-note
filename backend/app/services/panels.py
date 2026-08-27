@@ -4,13 +4,15 @@ from typing import Any
 from app.db import session
 from app.repositories.common import row_to_dict
 from app.repositories.panels import delete_panels_by_type
+from app.services.clock import app_today
 from app.services.snapshot import create_pre_restore_backup
 
 
 def complete_panels_by_type(month: str, panel_type: str) -> int:
     """청구·가족카드 전달분을 지우기 전에 복원 가능한 서버 snapshot을 남긴다."""
-    create_pre_restore_backup()
-    return delete_panels_by_type(month, panel_type)
+    with session(transaction_mode="IMMEDIATE") as conn:
+        create_pre_restore_backup(conn)
+        return delete_panels_by_type(month, panel_type, conn)
 
 
 def confirm_fixed_panel(panel_id: int, occurred_on: str) -> dict[str, dict[str, Any]] | None:
@@ -20,7 +22,12 @@ def confirm_fixed_panel(panel_id: int, occurred_on: str) -> dict[str, dict[str, 
     except ValueError:
         raise ValueError("처리일은 YYYY-MM-DD 형식이어야 합니다.") from None
 
-    with session() as conn:
+    today = app_today()
+    if confirmed_date > today:
+        raise ValueError("미래 날짜로 현금성 고정지출을 확인할 수 없습니다.")
+
+    confirmed_month = confirmed_date.strftime("%Y-%m")
+    with session(transaction_mode="IMMEDIATE") as conn:
         panel = conn.execute(
             "SELECT * FROM monthly_panels WHERE id = ?",
             (panel_id,),
@@ -51,11 +58,12 @@ def confirm_fixed_panel(panel_id: int, occurred_on: str) -> dict[str, dict[str, 
             UPDATE monthly_panels
             SET spent_on = ?,
                 confirmed_at = ?,
+                confirmed_month = ?,
                 confirmed_cash_flow_id = ?,
                 updated_at = CURRENT_TIMESTAMP
             WHERE id = ? AND confirmed_cash_flow_id IS NULL
             """,
-            (confirmed_date.isoformat(), confirmed_at, cash_flow_id, panel_id),
+            (confirmed_date.isoformat(), confirmed_at, confirmed_month, cash_flow_id, panel_id),
         )
         if updated.rowcount != 1:
             raise ValueError("현금성 고정지출 확인 상태가 이미 변경되었습니다.")

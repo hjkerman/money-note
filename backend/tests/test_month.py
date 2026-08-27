@@ -1,4 +1,5 @@
 from datetime import date
+from concurrent.futures import ThreadPoolExecutor
 import os
 from pathlib import Path
 import tempfile
@@ -11,6 +12,7 @@ from app.repository import (
     confirm_planned_entry,
     confirm_fixed_panel,
     create_entry,
+    delete_planned_entry,
     list_confirmed_planned_entries,
     list_entries,
     list_recent_closed_month_expense_counts,
@@ -65,7 +67,7 @@ class MonthCloseTest(unittest.TestCase):
         self.assertTrue(status["needs_close"])
 
     def test_close_archives_only_oldest_month(self) -> None:
-        result = close_current_month(date(2026, 7, 1))
+        result = close_current_month(date(2026, 7, 1), target_month="2026-06")
 
         self.assertEqual(result["closed_month"], "2026-06")
         self.assertEqual(result["archived"], 1)
@@ -86,6 +88,48 @@ class MonthCloseTest(unittest.TestCase):
         self.assertEqual(july["book_section"], "current")
         self.assertEqual(planned, 1)
         self.assertFalse(month_close_status(date(2026, 7, 1))["needs_close"])
+
+    def test_same_target_month_replay_is_idempotent(self) -> None:
+        first = close_current_month(date(2026, 7, 1), target_month="2026-06")
+        replay = close_current_month(date(2026, 7, 1), target_month="2026-06")
+
+        self.assertEqual(first["archived"], 1)
+        self.assertTrue(replay["already_closed"])
+        with session() as conn:
+            archive_count = conn.execute(
+                "SELECT COUNT(*) AS count FROM ledger_entries WHERE payment_key = 'june-key'",
+            ).fetchone()["count"]
+            salary_count = conn.execute(
+                "SELECT COUNT(*) AS count FROM cash_flows WHERE title = '급여' AND occurred_on = '2026-07-01'",
+            ).fetchone()["count"]
+            batch_count = conn.execute(
+                "SELECT COUNT(*) AS count FROM card_payment_batches WHERE usage_month = '2026-06'",
+            ).fetchone()["count"]
+        self.assertEqual(archive_count, 1)
+        self.assertEqual(salary_count, 1)
+        self.assertEqual(batch_count, 1)
+
+    def test_concurrent_same_target_month_closes_once(self) -> None:
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            results = list(
+                executor.map(
+                    lambda _: close_current_month(
+                        date(2026, 7, 1),
+                        target_month="2026-06",
+                    ),
+                    range(2),
+                )
+            )
+
+        self.assertEqual(sum(result.get("archived", 0) for result in results), 1)
+        self.assertEqual(sum(bool(result.get("already_closed")) for result in results), 1)
+        with session() as conn:
+            self.assertEqual(
+                conn.execute(
+                    "SELECT COUNT(*) AS count FROM ledger_entries WHERE payment_key = 'june-key'",
+                ).fetchone()["count"],
+                1,
+            )
 
     def test_close_records_scheduled_income_as_next_cycle_salary(self) -> None:
         before = current_summary_values()
@@ -224,9 +268,18 @@ class MonthCloseTest(unittest.TestCase):
                 "SELECT entry_date, confirmed_at, confirmed_month FROM ledger_entries WHERE id = ?",
                 (planned_id,),
             ).fetchone()
+            archived_generated = conn.execute(
+                """
+                SELECT source_planned_entry_id
+                FROM ledger_entries
+                WHERE book_section = 'archive' AND source_planned_entry_id = ?
+                """,
+                (planned_id,),
+            ).fetchone()
         self.assertIsNone(planned["entry_date"])
         self.assertIsNone(planned["confirmed_at"])
         self.assertIsNone(planned["confirmed_month"])
+        self.assertEqual(archived_generated["source_planned_entry_id"], planned_id)
 
         self.assertTrue(
             any(entry["id"] == planned_id for entry in list_entries("current", date(2026, 8, 1)))
@@ -264,6 +317,33 @@ class MonthCloseTest(unittest.TestCase):
         self.assertIsNone(panel["confirmed_cash_flow_id"])
         self.assertEqual(cash_flow["amount_value"], -40000)
 
+    def test_delayed_close_does_not_reset_later_fixed_expense_confirmation(self) -> None:
+        close_current_month(date(2026, 7, 1), target_month="2026-06")
+        with session() as conn:
+            panel_id = conn.execute(
+                """
+                INSERT INTO monthly_panels(month, panel_type, title, amount_value, sort_order)
+                VALUES ('2026-08', 'fixed', '8월 관리비', 50000, 5)
+                """
+            ).lastrowid
+        with patch.dict(os.environ, {"MONEY_NOTE_TODAY": "2026-08-05"}):
+            get_settings.cache_clear()
+            result = confirm_fixed_panel(panel_id, "2026-08-05")
+            assert result is not None
+            close_current_month(date(2026, 8, 5), target_month="2026-07")
+        get_settings.cache_clear()
+
+        with session() as conn:
+            panel = conn.execute(
+                """
+                SELECT confirmed_month, confirmed_cash_flow_id
+                FROM monthly_panels WHERE id = ?
+                """,
+                (panel_id,),
+            ).fetchone()
+        self.assertEqual(panel["confirmed_month"], "2026-08")
+        self.assertEqual(panel["confirmed_cash_flow_id"], result["cash_flow"]["id"])
+
     def test_confirmed_planned_entry_keeps_actual_payment_date(self) -> None:
         close_current_month(date(2026, 7, 1))
         with session() as conn:
@@ -283,6 +363,56 @@ class MonthCloseTest(unittest.TestCase):
         self.assertEqual(result["entry"]["entry_date"], "2026-07-17")
         self.assertEqual(confirmed[0]["entry_date"], "2026-07-17")
         self.assertEqual(confirmed[0]["due_day"], 15)
+        self.assertEqual(result["entry"]["source_planned_entry_id"], planned_id)
+
+    def test_confirmed_planned_entry_ignores_identical_manual_expense(self) -> None:
+        close_current_month(date(2026, 7, 1), target_month="2026-06")
+        with session() as conn:
+            planned_id = conn.execute(
+                "SELECT id FROM ledger_entries WHERE entry_kind = 'planned'"
+            ).fetchone()["id"]
+            conn.execute(
+                """
+                INSERT INTO ledger_entries(
+                    book_section, entry_kind, entry_date, title, amount_value,
+                    sort_order, payment_key
+                )
+                VALUES ('current', 'expense', '2026-07-03', '정기결제', 30000,
+                        4, 'manual-lookalike')
+                """
+            )
+
+        confirm_planned_entry(
+            planned_id,
+            date(2026, 7, 10),
+            entry_date="2026-07-17",
+        )
+        confirmed = list_confirmed_planned_entries(date(2026, 7, 10))
+
+        self.assertEqual(confirmed[0]["entry_date"], "2026-07-17")
+
+    def test_deleting_planned_template_keeps_generated_expense(self) -> None:
+        close_current_month(date(2026, 7, 1), target_month="2026-06")
+        with session() as conn:
+            planned_id = conn.execute(
+                "SELECT id FROM ledger_entries WHERE entry_kind = 'planned'"
+            ).fetchone()["id"]
+        result = confirm_planned_entry(
+            planned_id,
+            date(2026, 7, 10),
+            entry_date="2026-07-17",
+        )
+        generated_id = result["entry"]["id"]
+
+        self.assertTrue(delete_planned_entry(planned_id))
+
+        with session() as conn:
+            generated = conn.execute(
+                "SELECT source_planned_entry_id FROM ledger_entries WHERE id = ?",
+                (generated_id,),
+            ).fetchone()
+        self.assertIsNotNone(generated)
+        self.assertIsNone(generated["source_planned_entry_id"])
 
     def test_entry_for_closed_month_is_added_to_archive(self) -> None:
         close_current_month(date(2026, 7, 1))

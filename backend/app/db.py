@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS ledger_entries (
     due_day INTEGER,
     confirmed_at TEXT,
     confirmed_month TEXT,
+    source_planned_entry_id INTEGER REFERENCES ledger_entries(id) ON DELETE SET NULL,
     spending_category TEXT,
     payment_key TEXT,
     discount_override INTEGER NOT NULL DEFAULT 0,
@@ -54,6 +55,7 @@ CREATE TABLE IF NOT EXISTS monthly_panels (
     sort_order INTEGER NOT NULL,
     due_day INTEGER,
     confirmed_at TEXT,
+    confirmed_month TEXT,
     confirmed_cash_flow_id INTEGER REFERENCES cash_flows(id) ON DELETE SET NULL,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -117,6 +119,8 @@ CREATE TABLE IF NOT EXISTS card_payment_events (
     total_amount INTEGER NOT NULL,
     note TEXT NOT NULL DEFAULT '',
     cash_flow_id INTEGER REFERENCES cash_flows(id) ON DELETE SET NULL,
+    idempotency_key TEXT,
+    request_fingerprint TEXT,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -269,6 +273,18 @@ def init_db() -> None:
                 ADD COLUMN confirmed_cash_flow_id INTEGER REFERENCES cash_flows(id) ON DELETE SET NULL
                 """
             )
+        if "confirmed_month" not in panel_columns:
+            conn.execute("ALTER TABLE monthly_panels ADD COLUMN confirmed_month TEXT")
+        conn.execute(
+            """
+            UPDATE monthly_panels
+            SET confirmed_month = substr(spent_on, 1, 7)
+            WHERE panel_type = 'fixed'
+              AND confirmed_cash_flow_id IS NOT NULL
+              AND confirmed_month IS NULL
+              AND spent_on GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
+            """
+        )
         _drop_legacy_column(conn, "monthly_panels", "discount_checked")
         ledger_columns = {
             row["name"]
@@ -278,6 +294,13 @@ def init_db() -> None:
             conn.execute("ALTER TABLE ledger_entries ADD COLUMN confirmed_at TEXT")
         if "confirmed_month" not in ledger_columns:
             conn.execute("ALTER TABLE ledger_entries ADD COLUMN confirmed_month TEXT")
+        if "source_planned_entry_id" not in ledger_columns:
+            conn.execute(
+                """
+                ALTER TABLE ledger_entries
+                ADD COLUMN source_planned_entry_id INTEGER REFERENCES ledger_entries(id) ON DELETE SET NULL
+                """
+            )
         if "due_day" not in ledger_columns:
             conn.execute("ALTER TABLE ledger_entries ADD COLUMN due_day INTEGER")
         if "spending_category" not in ledger_columns:
@@ -333,6 +356,24 @@ def init_db() -> None:
                 ADD COLUMN batch_id INTEGER REFERENCES card_payment_batches(id) ON DELETE CASCADE
                 """,
             )
+        if "idempotency_key" not in event_columns:
+            conn.execute("ALTER TABLE card_payment_events ADD COLUMN idempotency_key TEXT")
+        if "request_fingerprint" not in event_columns:
+            conn.execute("ALTER TABLE card_payment_events ADD COLUMN request_fingerprint TEXT")
+        conn.execute(
+            """
+            CREATE UNIQUE INDEX IF NOT EXISTS idx_card_payment_events_idempotency
+            ON card_payment_events(idempotency_key)
+            WHERE idempotency_key IS NOT NULL
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_ledger_source_planned
+            ON ledger_entries(source_planned_entry_id)
+            WHERE source_planned_entry_id IS NOT NULL
+            """
+        )
         for column, column_type in {
             "original_book_section": "TEXT",
             "original_entry_date": "TEXT",
@@ -520,9 +561,14 @@ def _backfill_planned_due_days(conn: sqlite3.Connection) -> None:
 
 
 @contextmanager
-def session() -> Iterator[sqlite3.Connection]:
+def session(transaction_mode: str | None = None) -> Iterator[sqlite3.Connection]:
     conn = connect()
     try:
+        if transaction_mode is not None:
+            normalized_mode = transaction_mode.strip().upper()
+            if normalized_mode not in {"DEFERRED", "IMMEDIATE", "EXCLUSIVE"}:
+                raise ValueError("unsupported SQLite transaction mode")
+            conn.execute(f"BEGIN {normalized_mode}")
         yield conn
         conn.commit()
     except Exception:

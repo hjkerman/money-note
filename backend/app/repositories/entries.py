@@ -92,24 +92,39 @@ def list_confirmed_planned_entries(today: date | None = None) -> list[dict[str, 
                 """
                 SELECT entry_date
                 FROM ledger_entries
-                WHERE book_section = 'current'
+                WHERE source_planned_entry_id = ?
                   AND entry_kind = 'expense'
                   AND entry_date LIKE ?
-                  AND title = ?
-                  AND COALESCE(usage_place, '') = COALESCE(?, '')
-                  AND COALESCE(usage_item, '') = COALESCE(?, '')
-                  AND COALESCE(amount_value, 0) = COALESCE(?, 0)
                 ORDER BY id DESC
                 LIMIT 1
                 """,
-                (
-                    f"{confirmed_month}%",
-                    row["title"],
-                    row["usage_place"],
-                    row["usage_item"],
-                    row["amount_value"],
-                ),
+                (row["id"], f"{confirmed_month}%"),
             ).fetchone()
+            if expense is None:
+                # v4-v6 Snapshot과 기존 운영 행에는 명시적 관계가 없으므로 이 경계에서만 호환 매칭한다.
+                expense = conn.execute(
+                    """
+                    SELECT entry_date
+                    FROM ledger_entries
+                    WHERE book_section = 'current'
+                      AND entry_kind = 'expense'
+                      AND entry_date LIKE ?
+                      AND title = ?
+                      AND COALESCE(usage_place, '') = COALESCE(?, '')
+                      AND COALESCE(usage_item, '') = COALESCE(?, '')
+                      AND COALESCE(amount_value, 0) = COALESCE(?, 0)
+                      AND source_planned_entry_id IS NULL
+                    ORDER BY id DESC
+                    LIMIT 1
+                    """,
+                    (
+                        f"{confirmed_month}%",
+                        row["title"],
+                        row["usage_place"],
+                        row["usage_item"],
+                        row["amount_value"],
+                    ),
+                ).fetchone()
             if expense and expense["entry_date"]:
                 item["entry_date"] = expense["entry_date"]
             confirmed_entries.append(item)
@@ -142,9 +157,10 @@ def confirm_planned_entry(entry_id: int, today: date | None = None, entry_date: 
             """
             INSERT INTO ledger_entries(
                 book_section, entry_kind, entry_date, date_label, group_label, title,
-                usage_place, usage_item, amount_value, amount_expr, sort_order, payment_key
+                usage_place, usage_item, amount_value, amount_expr, sort_order, payment_key,
+                source_planned_entry_id
             )
-            VALUES ('current', 'expense', ?, ?, NULL, ?, ?, ?, ?, ?, ?, lower(hex(randomblob(16))))
+            VALUES ('current', 'expense', ?, ?, NULL, ?, ?, ?, ?, ?, ?, lower(hex(randomblob(16))), ?)
             """,
             (
                 payment_date.isoformat(),
@@ -155,6 +171,7 @@ def confirm_planned_entry(entry_id: int, today: date | None = None, entry_date: 
                 planned["amount_value"],
                 planned["amount_expr"],
                 sort_order,
+                entry_id,
             ),
         )
         conn.execute(
@@ -188,6 +205,8 @@ def planned_entry_payment_date(due_day: int | None, today: date | None = None) -
 
 def create_entry(entry: LedgerEntryIn) -> dict[str, Any]:
     values = entry.model_dump()
+    if values.get("entry_date") is not None:
+        values["entry_date"] = values["entry_date"].isoformat()
     _validate_structured_entry(values)
     if values["entry_kind"] != "planned" and not values.get("payment_key"):
         values["payment_key"] = None
@@ -358,6 +377,8 @@ def reorder_current_entries(ordered_ids: list[int], entry_kind: str | None = Non
 
 def update_entry(entry_id: int, patch: LedgerEntryPatch) -> dict[str, Any] | None:
     values = patch.model_dump(exclude_unset=True)
+    if values.get("entry_date") is not None:
+        values["entry_date"] = values["entry_date"].isoformat()
     if not values:
         with session() as conn:
             row = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (entry_id,)).fetchone()

@@ -1,7 +1,8 @@
 from decimal import Decimal, InvalidOperation
+from datetime import date
 from typing import Any
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 def integer_money(value: object) -> object:
@@ -58,7 +59,7 @@ class AuthUser(BaseModel):
 class LedgerEntryIn(BaseModel):
     book_section: str = Field(pattern="^(current|archive)$")
     entry_kind: str = "expense"
-    entry_date: str | None = None
+    entry_date: date | None = None
     date_label: str | None = None
     group_label: str | None = None
     title: str = ""
@@ -91,8 +92,9 @@ class LedgerEntry(LedgerEntryIn):
 
 
 class LedgerEntryPatch(BaseModel):
-    entry_kind: str | None = None
-    entry_date: str | None = None
+    model_config = ConfigDict(extra="forbid")
+
+    entry_date: date | None = None
     date_label: str | None = None
     group_label: str | None = None
     title: str | None = None
@@ -104,17 +106,14 @@ class LedgerEntryPatch(BaseModel):
     aux_amount_expr: str | None = None
     extra_value: str | None = None
     sort_order: int | None = None
-    due_day: int | None = None
-    confirmed_at: str | None = None
-    confirmed_month: str | None = None
     spending_category: str | None = None
-    discount_override: int | None = None
 
     _integer_money = field_validator("amount_value", "aux_amount_value", mode="before")(integer_money)
 
 
 class MonthCloseIn(BaseModel):
     allow_early_close: bool = False
+    target_month: str | None = Field(default=None, pattern=r"^\d{4}-(?:0[1-9]|1[0-2])$")
 
 
 class PlannedEntryIn(BaseModel):
@@ -129,11 +128,11 @@ class PlannedEntryIn(BaseModel):
 
 
 class PlannedConfirmIn(BaseModel):
-    entry_date: str | None = None
+    entry_date: date | None = None
 
 
 class FixedPanelConfirmIn(BaseModel):
-    occurred_on: str
+    occurred_on: date
 
 
 class EntryReorder(BaseModel):
@@ -163,7 +162,7 @@ class MonthlyPanel(BaseModel):
     month: str
     panel_type: str
     title: str
-    spent_on: str | None = None
+    spent_on: date | None = None
     amount_value: int | None = None
     discount_amount: int = 0
     discount_override: int = 0
@@ -183,7 +182,7 @@ class MonthlyPanelIn(BaseModel):
     month: str
     panel_type: str
     title: str = ""
-    spent_on: str | None = None
+    spent_on: date | None = None
     amount_value: int | None = Field(default=None, ge=0)
     discount_amount: int = Field(default=0, ge=0)
     discount_override: int = 0
@@ -195,19 +194,15 @@ class MonthlyPanelIn(BaseModel):
 
 
 class MonthlyPanelPatch(BaseModel):
-    month: str | None = None
-    panel_type: str | None = None
+    model_config = ConfigDict(extra="forbid")
+
     title: str | None = None
-    spent_on: str | None = None
     amount_value: int | None = Field(default=None, ge=0)
-    discount_amount: int | None = Field(default=None, ge=0)
-    discount_override: int | None = None
     amount_expr: str | None = None
     sort_order: int | None = None
     due_day: int | None = None
-    confirmed_at: str | None = None
 
-    _integer_money = field_validator("amount_value", "discount_amount", mode="before")(integer_money)
+    _integer_money = field_validator("amount_value", mode="before")(integer_money)
 
 
 class SettingPatch(BaseModel):
@@ -216,7 +211,7 @@ class SettingPatch(BaseModel):
 
 class CashFlow(BaseModel):
     id: int
-    occurred_on: str
+    occurred_on: date
     title: str
     amount_value: int
     sort_order: int
@@ -224,7 +219,7 @@ class CashFlow(BaseModel):
 
 
 class CashFlowIn(BaseModel):
-    occurred_on: str
+    occurred_on: date
     title: str = ""
     amount_value: int
     sort_order: int
@@ -241,7 +236,8 @@ class CardPaymentAllocationIn(BaseModel):
 
 
 class CardPaymentEventIn(BaseModel):
-    event_date: str
+    idempotency_key: str = Field(min_length=16, max_length=128, pattern=r"^[A-Za-z0-9._:-]+$")
+    event_date: date
     event_type: str = Field(pattern="^(immediate|discount)$")
     note: str = ""
     allocations: list[CardPaymentAllocationIn]
@@ -262,7 +258,7 @@ class PanelDiscountPatch(BaseModel):
 
 
 class LateCardEntryIn(BaseModel):
-    entry_date: str
+    entry_date: date
     usage_place: str | None = None
     usage_item: str | None = None
     amount_value: int = Field(ge=0)

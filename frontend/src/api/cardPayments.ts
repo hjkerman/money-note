@@ -55,6 +55,7 @@ export async function fetchMonthCloseStatus(): Promise<MonthCloseStatus> {
 }
 
 export async function createCardPaymentEvent(payload: {
+  idempotency_key: string;
   event_date: string;
   event_type: "immediate" | "discount";
   note: string;

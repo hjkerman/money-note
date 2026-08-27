@@ -1,4 +1,6 @@
+from datetime import date
 import unittest
+from unittest.mock import patch
 
 from app.services.judgment import (
     app_judgment,
@@ -216,6 +218,28 @@ class JudgmentTest(unittest.TestCase):
         self.assertEqual(result["claim_categories"], {})
         self.assertIn("budget", result)
         self.assertIn("payment", result)
+
+    def test_current_judgment_reads_cash_flow_from_current_budget_cycle_only(self) -> None:
+        with (
+            patch("app.routers.month.app_today", return_value=date(2026, 6, 15)),
+            patch("app.routers.month.list_entries", return_value=[]),
+            patch("app.routers.month.list_panels", return_value=[]),
+            patch("app.routers.month.list_cash_flows", return_value=[]) as list_flows,
+            patch("app.routers.month.current_summary_values", return_value={}),
+            patch("app.routers.month.current_payment_status", return_value={}),
+            patch("app.routers.month.list_settings", return_value={}),
+            patch("app.routers.month.list_recent_closed_month_expense_counts", return_value=[]),
+            patch("app.routers.month.app_judgment", return_value={"ok": True}),
+        ):
+            from app.routers.month import current_judgment
+
+            result = current_judgment({})
+
+        self.assertEqual(result, {"ok": True})
+        list_flows.assert_called_once_with(
+            date_from=date(2026, 6, 1),
+            date_to=date(2026, 6, 30),
+        )
 
 
 if __name__ == "__main__":
