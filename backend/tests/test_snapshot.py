@@ -80,6 +80,7 @@ class SnapshotTest(unittest.TestCase):
         setting_keys = {row["key"] for row in snapshot["data"]["app_settings"]}
         self.assertIn("scheduled_income", setting_keys)
         self.assertIn("cash_flow_balance", setting_keys)
+        self.assertNotIn("interest_expense", setting_keys)
         self.assertNotIn("base_next_month_liquidity", setting_keys)
         self.assertNotIn("liquidity_status", setting_keys)
         label_keys = {row["key"] for row in snapshot["data"]["app_labels"]}
@@ -87,6 +88,7 @@ class SnapshotTest(unittest.TestCase):
         self.assertIn("summary_remaining_liquidity_label", label_keys)
         self.assertNotIn("summary_liquidity_status_label", label_keys)
         self.assertNotIn("summary_next_month_liquidity_label", label_keys)
+        self.assertNotIn("summary_interest_expense_label", label_keys)
         self.assertNotIn("share_pin_hash", setting_keys)
         self.assertNotIn("share_pin_is_default", setting_keys)
         self.assertNotIn("users", snapshot["data"])
@@ -219,6 +221,27 @@ class SnapshotTest(unittest.TestCase):
 
         for key in ("scheduled_income", "cash_flow_balance", "remaining_liquidity", "card_total"):
             self.assertEqual(after[key], before[key])
+
+    def test_restore_discards_retired_setting_and_label_after_manifest_validation(self) -> None:
+        self._seed_data()
+        with session() as conn:
+            conn.execute("INSERT INTO app_settings(key, value) VALUES ('interest_expense', '12345')")
+            conn.execute(
+                "INSERT INTO app_labels(key, value) VALUES ('summary_interest_expense_label', 'retired')"
+            )
+        _, snapshot = export_snapshot(date(2026, 6, 11))
+
+        restore_snapshot(snapshot)
+
+        with session() as conn:
+            setting = conn.execute(
+                "SELECT 1 FROM app_settings WHERE key = 'interest_expense'"
+            ).fetchone()
+            label = conn.execute(
+                "SELECT 1 FROM app_labels WHERE key = 'summary_interest_expense_label'"
+            ).fetchone()
+        self.assertIsNone(setting)
+        self.assertIsNone(label)
 
     def test_restore_normalizes_v4_liquidity_keys_after_manifest_validation(self) -> None:
         self._seed_data()

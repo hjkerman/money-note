@@ -77,7 +77,7 @@ backend/app/services/judgment/
 8. 본인 소비 총액이 100만원 이상이면 `warning`
 9. 나머지는 `quiet`
 
-월마감으로 생성된 `급여`는 일반 현금흐름이자 `is_primary_income=1`인 양수 행이다. 따라서 `budget`에서는 전체 현금흐름 총액·건수에 포함되고, Summary에서는 `cash_flow_balance`를 통해 잔여 유동성에도 반영된다.
+월마감으로 생성된 `급여`는 일반 현금흐름이며 `is_primary_income=1`인 양수 행이다. 따라서 `budget`에서는 전체 현금흐름 총액·건수에 포함되고, Summary에서는 `cash_flow_balance`를 통해 잔여 유동성에도 반영된다.
 
 ### `credit`: 카드 한도 감시
 

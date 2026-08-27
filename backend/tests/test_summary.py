@@ -119,12 +119,22 @@ class SummaryCalculationTest(unittest.TestCase):
 
         summary = current_summary_values()
 
+        self.assertNotIn("interest_expense", summary)
         self.assertEqual(summary["card_total"], 0)
         self.assertEqual(summary["transfer_or_deposit_total"], 0)
         self.assertEqual(summary["frozen_asset_total"], 0)
         self.assertEqual(summary["remaining_liquidity"], 400_000)
         self.assertEqual(summary["claim_original_total"], 80_000)
         self.assertEqual(summary["family_card_original_total"], 90_000)
+
+    def test_retired_setting_does_not_affect_summary(self) -> None:
+        with session() as conn:
+            conn.execute("INSERT INTO app_settings(key, value) VALUES ('interest_expense', '50000')")
+
+        summary = current_summary_values()
+
+        self.assertNotIn("interest_expense", summary)
+        self.assertEqual(summary["remaining_liquidity"], 400_000)
 
     def test_planned_card_payment_counts_as_fixed_until_confirmed(self) -> None:
         with session() as conn:

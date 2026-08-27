@@ -42,7 +42,7 @@ class SharePanelTest(unittest.TestCase):
                 VALUES
                     ('2026-06', 'claim', '지난달 병원비', '2026-06-22', 1000, 100, 1, 1),
                     ('2026-07', 'claim', '이번 달 커피', '2026-07-02', 2000, 200, 1, 2),
-                    ('2026-07', 'claim', '전세대출이자', '2026-07-03', 300, 0, 0, 3)
+                    ('2026-07', 'claim', '이번 달 추가 항목', '2026-07-03', 300, 0, 0, 3)
                 """
             )
 
@@ -55,7 +55,7 @@ class SharePanelTest(unittest.TestCase):
         data = shared_panel("claim")
 
         self.assertEqual(data["minimum_payment_month"], "2026-07")
-        self.assertEqual(data["minimum_total"], 1200)
+        self.assertEqual(data["minimum_total"], 900)
         self.assertEqual(data["minimum_discount_total"], 100)
         self.assertEqual(data["total"], 3000)
         self.assertEqual(data["discount_total"], 300)
@@ -66,18 +66,18 @@ class SharePanelTest(unittest.TestCase):
                 """
                 DELETE FROM monthly_panels
                 WHERE panel_type = 'claim'
-                  AND title IN ('지난달 병원비', '전세대출이자')
+                  AND title = '지난달 병원비'
                 """
             )
 
         data = shared_panel("claim")
 
         self.assertEqual(data["minimum_payment_month"], "2026-08")
-        self.assertEqual(data["minimum_total"], 1800)
+        self.assertEqual(data["minimum_total"], 2100)
         self.assertEqual(data["minimum_discount_total"], 200)
-        self.assertIn("2026년 8월 최소 결제 금액: 1,800원", shared_panel_html("claim"))
+        self.assertIn("2026년 8월 최소 결제 금액: 2,100원", shared_panel_html("claim"))
 
-    def test_interest_exception_applies_only_to_claim(self) -> None:
+    def test_family_card_minimum_payment_uses_the_same_cycle_rule(self) -> None:
         with session() as conn:
             conn.execute(
                 """
@@ -86,7 +86,7 @@ class SharePanelTest(unittest.TestCase):
                 )
                 VALUES
                     ('2026-06', 'family_card', '지난달 가족카드', '2026-06-22', 1000, 1),
-                    ('2026-07', 'family_card', '이자라는 단어', '2026-07-03', 300, 2)
+                    ('2026-07', 'family_card', '이번 달 가족카드', '2026-07-03', 300, 2)
                 """
             )
 
@@ -114,7 +114,7 @@ class SharePanelTest(unittest.TestCase):
         self.assertEqual(data["minimum_total"], 5000)
         self.assertIn("2027년 1월 최소 결제 금액: 5,000원", shared_panel_html("claim"))
 
-    def test_shared_panel_html_dims_current_month_non_interest_rows(self) -> None:
+    def test_shared_panel_html_dims_current_month_rows(self) -> None:
         html = shared_panel_html("claim")
 
         self.assertIn("최소 결제", html)
@@ -125,13 +125,13 @@ class SharePanelTest(unittest.TestCase):
         self.assertIn('class="share-table-wrap"', html)
         self.assertIn("body.minimum-mode tr.deferable-row", html)
         self.assertIn("display: none", html)
-        self.assertIn("2026년 7월 최소 결제 금액: 1,200원", html)
+        self.assertIn("2026년 7월 최소 결제 금액: 900원", html)
         self.assertIn('data-full="-300원"', html)
         self.assertIn('data-minimum="-100원"', html)
         self.assertIn('data-full="3,000원"', html)
-        self.assertIn('data-minimum="1,200원"', html)
+        self.assertIn('data-minimum="900원"', html)
         self.assertIn('<td>합계</td>\n            <td class="money"></td>', html)
-        self.assertEqual(html.count('class="deferable-row"'), 1)
+        self.assertEqual(html.count('class="deferable-row"'), 2)
         self.assertIn("이번 달 커피", html)
 
     def test_share_unlock_redirect_is_safe_inside_inline_script(self) -> None:

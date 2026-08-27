@@ -18,7 +18,6 @@
   + 누적 현금흐름(cash_flow_balance)
   - card_total
   - liquidity_fixed_total
-  - interest_expense
   - frozen_asset_total
 ```
 
@@ -37,7 +36,6 @@
 = cash_flow_balance
   - card_total
   - liquidity_fixed_total
-  - interest_expense
   - frozen_asset_total
 ```
 

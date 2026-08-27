@@ -560,7 +560,6 @@
   "planned_recurring_total": 68990,
   "fixed_cash_total": 431010,
   "transfer_or_deposit_total": 500000,
-  "interest_expense": 0,
   "frozen_asset_total": 100000,
   "claim_original_total": 50000,
   "claim_net_total": 49400,
@@ -601,7 +600,6 @@ remaining_liquidity
 = scheduled_income
   - card_total
   - liquidity_fixed_total
-  - interest_expense
   - frozen_asset_total
   + cash_flow_balance
 ```
@@ -927,7 +925,7 @@ remaining_liquidity
 
 공유 페이지에는 `최소 결제` 버튼이 있다. 서버는 각 미정산 행의 사용월 다음 달을 카드 결제 회차로 보고, 남아 있는 행 중 가장 이른 회차를 `minimum_payment_month`로 반환한다. 버튼을 누르면 해당 회차의 행만 표시하고 할인액과 실결제 합계를 다시 계산한다. 그 회차의 행을 모두 처리해 삭제하면 다음으로 이른 회차가 자동으로 최소 결제 대상이 된다.
 
-`claim`의 제목에 `이자`가 들어간 행은 전세대출이자이므로 결제 회차와 무관하게 현재 최소 결제에 포함한다. 이 예외는 `family_card`에는 적용하지 않는다. 공유 페이지의 안내는 `2026년 8월 최소 결제 금액`처럼 결제 연월을 함께 표시한다. 다시 `전체 보기`를 누르면 모든 미정산 항목을 표시한다.
+공유 페이지의 안내는 `2026년 8월 최소 결제 금액`처럼 결제 연월을 함께 표시한다. 다시 `전체 보기`를 누르면 모든 미정산 항목을 표시한다.
 
 ### `POST /api/share/pin`
 
@@ -987,7 +985,6 @@ GET /api/cash-flows?from=2026-07-01&to=2026-07-31&limit=100
 {
   "scheduled_income": "400000",
   "cash_flow_balance": "0",
-  "interest_expense": "0",
   "card_limit": "5800000",
   "owner_card_last4": "",
   "family_card_last4": ""
@@ -998,7 +995,6 @@ GET /api/cash-flows?from=2026-07-01&to=2026-07-31&limit=100
 
 - `scheduled_income`: 기본 예정 수입
 - `cash_flow_balance`: 현금흐름 수동 보정값
-- `interest_expense`: 이자지출
 - `card_limit`: 본인카드와 가족카드 합산 사용률을 판단할 카드 한도
 - `owner_card_last4`: 본인회원 카드 끝 4자리. 비워둘 수 있다.
 - `family_card_last4`: 가족카드 끝 4자리. 비워둘 수 있다.
@@ -1027,12 +1023,11 @@ GET /api/cash-flows?from=2026-07-01&to=2026-07-31&limit=100
 
 - `scheduled_income`
 - `cash_flow_balance`
-- `interest_expense`
 - `card_limit`
 - `owner_card_last4`
 - `family_card_last4`
 
-과거 설정 key로 수정하는 요청은 `404 unknown setting`을 반환한다. Snapshot v6도 현재 DB key만 저장한다.
+과거 또는 제거된 설정 key로 수정하는 요청은 `404 unknown setting`을 반환한다. Snapshot v6도 현재 DB key만 저장하며, 복원 파일에 제거된 설정·라벨이 있으면 manifest 검증 후 버린다.
 
 ## 앱 표시 라벨
 

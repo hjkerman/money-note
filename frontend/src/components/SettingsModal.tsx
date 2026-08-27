@@ -7,13 +7,11 @@ type PasswordForm = { currentPassword: string; newPassword: string };
 export function SettingsModal({
   familyCardLast4Input,
   cardLimitInput,
-  interestExpenseInput,
   isBusy,
   onCardLast4Save,
   onApkDownload,
   onClose,
   onCardLimitSave,
-  onInterestExpenseSave,
   onLedgerReset,
   onOperationStatsLoad,
   onPasswordChange,
@@ -34,7 +32,6 @@ export function SettingsModal({
   scheduledIncomeInput,
   setFamilyCardLast4Input,
   setCardLimitInput,
-  setInterestExpenseInput,
   setOwnerCardLast4Input,
   setPasswordForm,
   setResetPassword,
@@ -43,13 +40,11 @@ export function SettingsModal({
 }: {
   familyCardLast4Input: string;
   cardLimitInput: string;
-  interestExpenseInput: string;
   isBusy: boolean;
   onCardLast4Save: (key: "owner_card_last4" | "family_card_last4", value: string) => void;
   onApkDownload: () => void;
   onClose: () => void;
   onCardLimitSave: () => void;
-  onInterestExpenseSave: () => void;
   onLedgerReset: () => void;
   onOperationStatsLoad: () => void;
   onPasswordChange: () => void;
@@ -70,7 +65,6 @@ export function SettingsModal({
   scheduledIncomeInput: string;
   setFamilyCardLast4Input: Dispatch<SetStateAction<string>>;
   setCardLimitInput: Dispatch<SetStateAction<string>>;
-  setInterestExpenseInput: Dispatch<SetStateAction<string>>;
   setOwnerCardLast4Input: Dispatch<SetStateAction<string>>;
   setPasswordForm: Dispatch<SetStateAction<PasswordForm>>;
   setResetPassword: Dispatch<SetStateAction<string>>;
@@ -108,21 +102,6 @@ export function SettingsModal({
               placeholder="기본 예정 수입"
             />
             <button type="button" onClick={onScheduledIncomeSave} disabled={isBusy}>
-              저장
-            </button>
-          </label>
-          <label>
-            <span>이자지출</span>
-            <input
-              type="number"
-              min="0"
-              step="1"
-              value={interestExpenseInput}
-              onChange={(event) => setInterestExpenseInput(event.target.value)}
-              inputMode="numeric"
-              placeholder="이자지출"
-            />
-            <button type="button" onClick={onInterestExpenseSave} disabled={isBusy}>
               저장
             </button>
           </label>

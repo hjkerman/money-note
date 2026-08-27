@@ -150,7 +150,6 @@ class Summary(BaseModel):
     planned_recurring_total: int
     fixed_cash_total: int
     transfer_or_deposit_total: int
-    interest_expense: int
     frozen_asset_total: int
     claim_original_total: int
     claim_net_total: int

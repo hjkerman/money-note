@@ -28,13 +28,11 @@ def current_summary_values() -> dict[str, int]:
     liquidity_fixed_total = pending_fixed_panel_total + planned_liquidity_total
     frozen_asset_total = panel_total("frozen")
     scheduled_income = setting_float("scheduled_income")
-    interest_expense = setting_float("interest_expense")
     cash_flow_balance = setting_float("cash_flow_balance") + cash_flow_total()
     remaining_liquidity = (
         scheduled_income
         - card_total
         - liquidity_fixed_total
-        - interest_expense
         - frozen_asset_total
         + cash_flow_balance
     )
@@ -48,7 +46,6 @@ def current_summary_values() -> dict[str, int]:
         "planned_recurring_total": int(planned_recurring_total),
         "fixed_cash_total": int(fixed_panel_total),
         "transfer_or_deposit_total": int(transfer_or_deposit_total),
-        "interest_expense": int(interest_expense),
         "frozen_asset_total": int(frozen_asset_total),
         "claim_original_total": int(panel_total("claim")),
         "claim_net_total": int(panel_net_total("claim")),

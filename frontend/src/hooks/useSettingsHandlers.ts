@@ -26,7 +26,6 @@ import { formatMonthLabel, parseAmount } from "../utils";
 
 export function useSettingsHandlers({
   cardLimitInput,
-  interestExpenseInput,
   monthCloseStatus,
   passwordForm,
   resetPassword,
@@ -34,7 +33,6 @@ export function useSettingsHandlers({
   setAuditLogs,
   setAuthUser,
   setCardLimitInput,
-  setInterestExpenseInput,
   setIsBusy,
   setOperationStats,
   setPasswordForm,
@@ -48,7 +46,6 @@ export function useSettingsHandlers({
   withRefresh,
 }: {
   cardLimitInput: string;
-  interestExpenseInput: string;
   monthCloseStatus: MonthCloseStatus | null;
   passwordForm: { currentPassword: string; newPassword: string };
   resetPassword: string;
@@ -56,7 +53,6 @@ export function useSettingsHandlers({
   setAuditLogs: (logs: Awaited<ReturnType<typeof fetchAuditLogs>>) => void;
   setAuthUser: Dispatch<SetStateAction<AuthUser | null>>;
   setCardLimitInput: (value: string) => void;
-  setInterestExpenseInput: (value: string) => void;
   setIsBusy: (busy: boolean) => void;
   setOperationStats: (stats: OperationStats | null) => void;
   setPasswordForm: (value: { currentPassword: string; newPassword: string }) => void;
@@ -76,19 +72,6 @@ export function useSettingsHandlers({
       await updateSetting("scheduled_income", String(amount));
       setScheduledIncomeInput(String(amount));
       setStatus("기본 예정 수입 저장 완료");
-    });
-  }
-
-  async function handleInterestExpenseSave() {
-    const amount = parseAmount(interestExpenseInput);
-    if (amount === null || amount < 0) {
-      setStatus("이자지출은 0원 이상의 숫자로 입력하세요.");
-      return;
-    }
-    await withRefresh(async () => {
-      await updateSetting("interest_expense", String(amount));
-      setInterestExpenseInput(String(amount));
-      setStatus("이자지출 저장 완료");
     });
   }
 
@@ -369,7 +352,6 @@ export function useSettingsHandlers({
     handleCardLast4Save,
     handleCloseMonth,
     handleCardLimitSave,
-    handleInterestExpenseSave,
     handleLedgerReset,
     handlePasswordChange,
     handleOperationStatsLoad,

@@ -58,7 +58,6 @@ SNAPSHOT_MONEY_COLUMNS = {
 MONEY_SETTING_KEYS = {
     "scheduled_income",
     "base_next_month_liquidity",
-    "interest_expense",
     "cash_flow_balance",
     "liquidity_status",
     "card_limit",
@@ -335,6 +334,14 @@ def _normalized_snapshot_data(data: dict[str, list[dict[str, Any]]]) -> dict[str
         "app_labels",
         normalize_legacy_value=normalized_legacy_label_value,
     )
+    normalized["app_settings"] = [
+        row for row in normalized["app_settings"] if row.get("key") != "interest_expense"
+    ]
+    normalized["app_labels"] = [
+        row
+        for row in normalized["app_labels"]
+        if row.get("key") != "summary_interest_expense_label"
+    ]
     return normalized
 
 

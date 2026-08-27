@@ -90,7 +90,6 @@ export type Summary = {
   planned_recurring_total: number;
   fixed_cash_total: number;
   transfer_or_deposit_total: number;
-  interest_expense: number;
   frozen_asset_total: number;
   claim_original_total: number;
   claim_net_total: number;

@@ -66,7 +66,6 @@ export function useAppRefresh({
   const [settings, setSettings] = useState<Settings>({});
   const [status, setStatus] = useState("서버와 통신 준비 중");
   const [isBusy, setIsBusy] = useState(false);
-  const [interestExpenseInput, setInterestExpenseInput] = useState("");
   const [scheduledIncomeInput, setScheduledIncomeInput] = useState("");
   const [cardLimitInput, setCardLimitInput] = useState("");
   const [ownerCardLast4Input, setOwnerCardLast4Input] = useState("");
@@ -92,7 +91,6 @@ export function useAppRefresh({
       setLabels(snapshot.labels);
       setCashFlows(snapshot.cashFlows);
       setSettings(snapshot.settings);
-      setInterestExpenseInput(formatIntegerSetting(snapshot.settings.interest_expense));
       setScheduledIncomeInput(formatIntegerSetting(snapshot.settings.scheduled_income));
       setCardLimitInput(formatIntegerSetting(snapshot.settings.card_limit));
       setOwnerCardLast4Input(snapshot.settings.owner_card_last4 ?? "");
@@ -161,7 +159,6 @@ export function useAppRefresh({
     confirmedPlannedEntries,
     familyCardLast4Input,
     familyDiscountMonth,
-    interestExpenseInput,
     isBusy,
     judgment,
     labels,
@@ -179,7 +176,6 @@ export function useAppRefresh({
     setAuditLogs,
     setCardLimitInput,
     setFamilyCardLast4Input,
-    setInterestExpenseInput,
     setIsBusy,
     setOwnerCardLast4Input,
     setOperationStats,

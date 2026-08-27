@@ -67,7 +67,6 @@ export function App() {
     entries,
     familyCardLast4Input,
     familyDiscountMonth,
-    interestExpenseInput,
     isBusy,
     judgment,
     labels,
@@ -85,7 +84,6 @@ export function App() {
     setAuditLogs,
     setCardLimitInput,
     setFamilyCardLast4Input,
-    setInterestExpenseInput,
     setIsBusy,
     setOwnerCardLast4Input,
     setOperationStats,
@@ -221,7 +219,6 @@ export function App() {
     handleCardLast4Save,
     handleCloseMonth,
     handleCardLimitSave,
-    handleInterestExpenseSave,
     handleLedgerReset,
     handleOperationStatsLoad,
     handlePasswordChange,
@@ -236,7 +233,6 @@ export function App() {
     handleTransitDiscountFollowsOwner,
   } = useSettingsHandlers({
     cardLimitInput,
-    interestExpenseInput,
     monthCloseStatus,
     passwordForm,
     resetPassword,
@@ -244,7 +240,6 @@ export function App() {
     setAuditLogs,
     setAuthUser,
     setCardLimitInput,
-    setInterestExpenseInput,
     setIsBusy,
     setOperationStats,
     setPasswordForm,
@@ -322,13 +317,11 @@ export function App() {
           <SettingsModal
             familyCardLast4Input={familyCardLast4Input}
             cardLimitInput={cardLimitInput}
-            interestExpenseInput={interestExpenseInput}
             isBusy={isBusy}
             onApkDownload={() => void handleApkDownload()}
             onCardLast4Save={(key, value) => void handleCardLast4Save(key, value)}
             onClose={() => setShowSettings(false)}
             onCardLimitSave={() => void handleCardLimitSave()}
-            onInterestExpenseSave={() => void handleInterestExpenseSave()}
             onLedgerReset={() => void handleLedgerReset()}
             onOperationStatsLoad={() => void handleOperationStatsLoad()}
             onPasswordChange={() => void handlePasswordChange()}
@@ -351,7 +344,6 @@ export function App() {
             scheduledIncomeInput={scheduledIncomeInput}
             setFamilyCardLast4Input={setFamilyCardLast4Input}
             setCardLimitInput={setCardLimitInput}
-            setInterestExpenseInput={setInterestExpenseInput}
             setOwnerCardLast4Input={setOwnerCardLast4Input}
             setPasswordForm={setPasswordForm}
             setResetPassword={setResetPassword}

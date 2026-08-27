@@ -476,7 +476,6 @@ class _MobileSettingsScreenState extends State<MobileSettingsScreen> {
   late final TextEditingController familyCard;
   late final TextEditingController cardLimit;
   late final TextEditingController baseIncome;
-  late final TextEditingController interestExpense;
   late bool transitFollowsOwner;
 
   @override
@@ -489,8 +488,6 @@ class _MobileSettingsScreenState extends State<MobileSettingsScreen> {
     cardLimit = TextEditingController(text: settings['card_limit'] ?? '');
     baseIncome =
         TextEditingController(text: settings['scheduled_income'] ?? '');
-    interestExpense =
-        TextEditingController(text: settings['interest_expense'] ?? '');
     transitFollowsOwner =
         widget.state.transitDiscountProfile?.followsOwner ?? false;
   }
@@ -501,7 +498,6 @@ class _MobileSettingsScreenState extends State<MobileSettingsScreen> {
     familyCard.dispose();
     cardLimit.dispose();
     baseIncome.dispose();
-    interestExpense.dispose();
     super.dispose();
   }
 
@@ -535,12 +531,6 @@ class _MobileSettingsScreenState extends State<MobileSettingsScreen> {
             label: '기본 예정 수입',
             keyboardType: TextInputType.number,
             onSave: () => _save('scheduled_income', baseIncome.text),
-          ),
-          _SettingField(
-            controller: interestExpense,
-            label: '이자 지출',
-            keyboardType: TextInputType.number,
-            onSave: () => _save('interest_expense', interestExpense.text),
           ),
           Padding(
             padding: const EdgeInsets.only(bottom: 10),

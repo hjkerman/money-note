@@ -418,8 +418,6 @@ Family Card:
 
 공유 페이지의 최소 결제 회차는 별도 상태로 저장하지 않는다. 서버는 남아 있는 각 행의 `spent_on` 사용월 다음 달을 결제 회차로 계산하고, 가장 이른 회차를 현재 최소 결제 대상으로 선택한다. 해당 회차의 행이 모두 처리되어 삭제되면 다음 회차가 자동으로 선택된다.
 
-Claim의 `이자` 포함 행은 전세대출이자이므로 회차와 무관하게 최소 결제에 포함한다. 이 예외는 Family Card에 적용하지 않는다.
-
 ---
 
 ## 중요
@@ -515,7 +513,6 @@ remaining_liquidity
 = scheduled_income
   - card_total
   - liquidity_fixed_total
-  - interest_expense
   - frozen_asset_total
   + cash_flow_balance
 ```
@@ -530,7 +527,7 @@ remaining_liquidity
 
 `cash_flow_balance`는 아직 출금되지 않은 예정 지출, 미확인 현금성 고정지출, 동결 자금, 미래 급여와 `remaining_liquidity`를 뜻하지 않는다. Active 계좌에 실제로 존재하는 돈과 그중 추가로 사용할 수 있는 돈은 다를 수 있다.
 
-현금성 고정지출은 반복 템플릿이자 미지급 의무다. 확인 전에는 돈이 Active 계좌에 남아 있어 `cash_flow_balance`를 줄이지 않지만, `liquidity_fixed_total`로 `remaining_liquidity`에서 한 번 차감한다. 사용자가 실제 지급을 확인하면 pending obligation을 제거하고 같은 금액의 음수 `cash_flows`를 생성해 `cash_flow_balance`를 줄인다. 따라서 같은 금액을 지급한 것뿐이라면 확인 전후 잔여 유동성은 같고, 돈이 나갈 예정이라는 상태만 실제로 나갔다는 사실로 전환된다. `confirmed_at`만 있고 연결된 현금흐름이 없는 구형·불완전 상태는 확인 완료로 보지 않는다.
+현금성 고정지출은 반복 템플릿이며 미지급 의무다. 확인 전에는 돈이 Active 계좌에 남아 있어 `cash_flow_balance`를 줄이지 않지만, `liquidity_fixed_total`로 `remaining_liquidity`에서 한 번 차감한다. 사용자가 실제 지급을 확인하면 pending obligation을 제거하고 같은 금액의 음수 `cash_flows`를 생성해 `cash_flow_balance`를 줄인다. 따라서 같은 금액을 지급한 것뿐이라면 확인 전후 잔여 유동성은 같고, 돈이 나갈 예정이라는 상태만 실제로 나갔다는 사실로 전환된다. `confirmed_at`만 있고 연결된 현금흐름이 없는 구형·불완전 상태는 확인 완료로 보지 않는다.
 
 표시용 `fixed_cash_total`과 고정지출 총합은 확인 여부와 무관한 전체 템플릿 금액이다. 월마감은 템플릿을 다음 주기용 미확인 상태로 돌리지만 이미 기록한 현금흐름은 보존한다. 확인 직후 생성된 현금흐름을 월마감 전에 삭제하면 연결된 템플릿도 미확인 상태로 돌아간다.
 

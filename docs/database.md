@@ -17,7 +17,7 @@
 
 - `ledger_entries`: 당월/전체 지출, 카드 정기결제, 전월 매입 지연 보정
 - `monthly_panels`: 현금성 고정지출, 동결, 청구, 가족카드
-- `app_settings`: 유동성, 이자지출, 카드 한도 등 설정값
+- `app_settings`: 유동성, 카드 한도 등 설정값
 - `app_labels`: 화면 표시 문구
 - `cash_flows`: 현금 입출금
 - `card_payment_batches`: 월마감이 만든 이번달 결제 작업함
@@ -103,7 +103,6 @@ API의 할인 정책·자동 할인·유효 할인·실결제 투영 필드는 �
 | key | 의미 |
 | --- | --- |
 | `scheduled_income` | 다음 월마감 때 실제 `급여` 현금 유입으로 확정할 기본 예정 수입. 현행 Summary에서는 아직 들어오지 않은 다음 급여로도 한 번 선반영 |
-| `interest_expense` | 이자 지출 |
 | `cash_flow_balance` | Active 계좌의 초기·수동 보정값. Summary에서는 서버 기준일까지 발생한 현금흐름 누계와 합산한다. |
 | `card_limit` | 본인카드와 가족카드 합산 사용률을 판단할 카드 한도 |
 | `owner_card_last4` | 본인회원 카드 끝 4자리 |

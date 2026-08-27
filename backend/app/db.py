@@ -210,7 +210,6 @@ CREATE INDEX IF NOT EXISTS idx_audit_logs_occurred
 ON audit_logs(occurred_at DESC, id DESC);
 
 INSERT OR IGNORE INTO app_settings(key, value) VALUES
-('interest_expense', '0'),
 ('card_limit', '5800000'),
 ('owner_card_last4', ''),
 ('family_card_last4', '');
@@ -231,7 +230,6 @@ INSERT OR IGNORE INTO app_labels(key, value) VALUES
 ('summary_title', '요약'),
 ('summary_card_total_label', '카드대금'),
 ('summary_transfer_or_deposit_label', '고정지출'),
-('summary_interest_expense_label', '이자지출'),
 ('summary_frozen_asset_label', '동결자산');
 """
 
@@ -368,6 +366,8 @@ def init_db() -> None:
             """
         )
         conn.execute("DELETE FROM app_settings WHERE key = 'family_card_limit'")
+        conn.execute("DELETE FROM app_settings WHERE key = 'interest_expense'")
+        conn.execute("DELETE FROM app_labels WHERE key = 'summary_interest_expense_label'")
         _normalize_domain_names(conn)
         _normalize_money_settings(conn)
         _migrate_liquidity_names(conn)
@@ -468,7 +468,6 @@ def _normalize_money_settings(conn: sqlite3.Connection) -> None:
     keys = {
         "scheduled_income",
         "base_next_month_liquidity",
-        "interest_expense",
         "cash_flow_balance",
         "liquidity_status",
         "card_limit",

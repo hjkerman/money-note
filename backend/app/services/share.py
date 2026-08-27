@@ -31,7 +31,7 @@ def shared_panel(panel_type: str) -> dict:
     settings = list_settings()
     total = sum(_panel_net_amount(row, settings) for row in rows)
     discount_total = sum(_panel_discount_amount(row, settings) for row in rows)
-    minimum_payment_month, minimum_rows = _minimum_payment_rows(rows, panel_type, month)
+    minimum_payment_month, minimum_rows = _minimum_payment_rows(rows, month)
     minimum_total = sum(_panel_net_amount(row, settings) for row in minimum_rows)
     minimum_discount_total = sum(
         _panel_discount_amount(row, settings) for row in minimum_rows
@@ -61,7 +61,6 @@ def shared_panel_html(panel_type: str) -> str:
     rows_html = "\n".join(
         _row_html(
             row,
-            data["panel_type"],
             data["minimum_payment_month"],
             data["month"],
             settings,
@@ -296,7 +295,6 @@ def shared_panel_html(panel_type: str) -> str:
 
 def _row_html(
     row: dict,
-    panel_type: str,
     minimum_payment_month: str,
     current_month: str,
     settings: Mapping[str, str],
@@ -306,12 +304,7 @@ def _row_html(
     net = _panel_net_amount(row, settings)
     row_class = (
         ""
-        if _is_minimum_payment_row(
-            row,
-            panel_type,
-            minimum_payment_month,
-            current_month,
-        )
+        if _payment_month(row, current_month) == minimum_payment_month
         else ' class="deferable-row"'
     )
     return (
@@ -339,7 +332,6 @@ def _spent_on_short_label(row: dict) -> str:
 
 def _minimum_payment_rows(
     rows: list[dict],
-    panel_type: str,
     current_month: str,
 ) -> tuple[str, list[dict]]:
     payment_months = [_payment_month(row, current_month) for row in rows]
@@ -349,26 +341,9 @@ def _minimum_payment_rows(
     minimum_rows = [
         row
         for row in rows
-        if _is_minimum_payment_row(
-            row,
-            panel_type,
-            minimum_payment_month,
-            current_month,
-        )
+        if _payment_month(row, current_month) == minimum_payment_month
     ]
     return minimum_payment_month, minimum_rows
-
-
-def _is_minimum_payment_row(
-    row: dict,
-    panel_type: str,
-    minimum_payment_month: str,
-    current_month: str,
-) -> bool:
-    title = str(row.get("title") or "")
-    if panel_type == "claim" and "이자" in title:
-        return True
-    return _payment_month(row, current_month) == minimum_payment_month
 
 
 def _payment_month(row: dict, current_month: str) -> str:

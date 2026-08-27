@@ -33,6 +33,7 @@ class SettingsVisibilityTest(unittest.TestCase):
         self.assertIn("card_limit", values)
         self.assertEqual(values["scheduled_income"], "400000")
         self.assertEqual(values["cash_flow_balance"], "0")
+        self.assertNotIn("interest_expense", values)
         self.assertNotIn("base_next_month_liquidity", values)
         self.assertNotIn("liquidity_status", values)
         self.assertNotIn("share_pin_hash", values)
@@ -137,11 +138,30 @@ class SettingsVisibilityTest(unittest.TestCase):
             }
         self.assertEqual(keys, {"scheduled_income"})
 
-    def test_legacy_setting_paths_are_removed(self) -> None:
-        for key in ("base_next_month_liquidity", "liquidity_status"):
+    def test_removed_setting_paths_are_rejected(self) -> None:
+        for key in ("base_next_month_liquidity", "liquidity_status", "interest_expense"):
             with self.assertRaises(HTTPException) as context:
                 patch_setting(key, SettingPatch(value="1"), {})
             self.assertEqual(context.exception.status_code, 404)
+
+    def test_init_removes_retired_setting_and_label(self) -> None:
+        with session() as conn:
+            conn.execute("INSERT INTO app_settings(key, value) VALUES ('interest_expense', '12345')")
+            conn.execute(
+                "INSERT INTO app_labels(key, value) VALUES ('summary_interest_expense_label', 'retired')"
+            )
+
+        init_db()
+
+        with session() as conn:
+            setting = conn.execute(
+                "SELECT 1 FROM app_settings WHERE key = 'interest_expense'"
+            ).fetchone()
+            label = conn.execute(
+                "SELECT 1 FROM app_labels WHERE key = 'summary_interest_expense_label'"
+            ).fetchone()
+        self.assertIsNone(setting)
+        self.assertIsNone(label)
 
 
 if __name__ == "__main__":
