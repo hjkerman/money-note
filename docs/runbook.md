@@ -1254,6 +1254,7 @@ curl -X POST http://localhost:18080/api/month/current/close \
 
 - 카드 정기결제, 즉 `entry_kind = planned`인 항목을 제외한 `current` 기록을 `archive`로 복사한다.
 - 카드 정기결제 항목은 당월 기록에 남는다.
+- 월마감 시점의 기본 예정 수입을 닫힌 달의 다음 달 1일자 `급여` 입금으로 한 건 기록한다. 이 행은 `이달 기준 수입`이며 같은 급여를 수동으로 다시 입력하지 않는다.
 - 월마감이 끝나면 해당 월 원장으로 `이번달 결제`용 활성 batch를 새로 만든다.
 - 결제 화면은 달력상 직전월을 자동 조회하지 않고, 마지막 월마감이 만든 활성 batch만 보여준다.
 - 새 월마감이 실행되면 이전 결제 batch와 그 즉시결제/할인 배분은 임시 작업 데이터로 보고 삭제한다.
@@ -1261,6 +1262,7 @@ curl -X POST http://localhost:18080/api/month/current/close \
 - 현재 달은 매월 27일부터 `allow_early_close=true`로 조기 마감할 수 있다.
 - 조기 마감 뒤 같은 달 날짜로 추가한 일반 지출은 `archive`에 바로 저장된다.
 - 청구와 가족카드는 월마감과 무관하며, 각 탭의 `일괄 처리 완료`로 현재 전달분을 삭제한다.
+- 월마감 실패 시 archive 이동, `급여` 생성, 결제 batch가 모두 rollback된다. 실행 전 mandatory pre_restore는 그대로 남는다.
 
 ## 읽기 전용 공유 화면
 

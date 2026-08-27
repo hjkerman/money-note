@@ -60,7 +60,7 @@ Android 알림 수집은 `NotificationListenerService` 하나를 공용 입구�
 
 카드 분류, 사용월별 정책 선택, 교통카드 프로필 선택, 자동 할인, 수동 override와 실결제액 계산은 `backend/app/services/card_charge/`만 소유한다. 교통카드의 `owner` 프로필은 카드 정체성을 합치지 않고 본인카드 정책과 월 스위치만 위임받는다. `backend/app/services/discounts.py`는 과거 Python import를 위한 호환층이다. `backend/app/services/presentation.py`는 DB 행을 API 표시 모델로 바꾼다. 프론트엔드와 모바일 모델은 이 투영 필드를 소비할 뿐 같은 규칙을 다시 구현하지 않는다.
 
-현금성 고정지출 확인은 `monthly_panels`의 미지급 의무를 연결된 음수 `cash_flows` 사실로 원자적으로 전환한다. 확인 전후 잔여 유동성은 같고, 월마감은 템플릿만 재활성화한다. 이 상태 전이는 미래 예산 주기 계산에서도 유지한다.
+현금성 고정지출 확인은 `monthly_panels`의 미지급 의무를 연결된 음수 `cash_flows` 사실로 원자적으로 전환한다. 확인 전후 잔여 유동성은 같고, 월마감은 템플릿만 재활성화한다.
 
 Snapshot v6은 카드별 정책 binding, 계산 매개변수, 프로필 선택 의미, 분류 규칙과 데이터 기준 마지막 월을 `card_charge_policy` 명세로 기록하고 장부 데이터·주요 상단 메타데이터와 함께 해시한다. 확인된 현금성 고정지출의 현금흐름 연결도 함께 보존한다. 교통카드 프로필 선택 이력은 비민감 `app_settings`로 함께 백업한다. 복원은 정책 명세를 실행하지 않으며 당시 정책이 현재 서버에 보존되어 있는지만 확인한다. 명세의 `covered_through` 이후부터 적용되는 binding 추가는 허용한다. v5의 nullable 연결 필드 누락을 허용하고, v4 파일은 원문 검증 뒤 유동성 key migration을 거쳐 복원한다.
 
@@ -88,7 +88,7 @@ Snapshot v6은 카드별 정책 binding, 계산 매개변수, 프로필 선택 �
 
 Summary와 DB 설정의 표준 이름은 `scheduled_income`, `cash_flow_balance`, `remaining_liquidity`다. 일반 런타임 API에는 과거 alias를 노출하지 않는다. Snapshot v6도 표준 key만 저장하며, v4 restore 경계에서만 원문 검증 후 과거 key를 정규화한다.
 
-결제 압박 Judgment를 장차 잔여 유동성 기준으로 전환하는 조건과 범위는 [미래 예산 주기 전환](future-budget-cycle-transition.md)에 기록한다.
+결제 압박 Judgment를 장차 확보된 재원 기준으로 전환하는 조건과 범위는 [미래 재무 건전화 전환](future-financial-health-transition.md)에 기록한다.
 
 ## 인증 흐름
 
@@ -154,6 +154,7 @@ DB에는 두 필드를 보존하고, `title`에는 사람이 한눈에 읽기 �
 월마감은 `current`에 남은 일반 지출 중 가장 오래된 월 하나만 `archive`로 복사하고 current에서 삭제한다. 새 달 기록을 먼저 입력한 뒤 월마감해도 새 달 기록은 그대로 남는다. 이미 마감된 월 날짜로 일반 지출을 추가하면 다음 달 장부에 섞지 않고 `archive`에 바로 추가한다.
 
 카드 정기결제와 같은 planned 항목은 current에 남는다.
+월마감은 같은 트랜잭션에서 닫힌 달의 다음 달 1일자로 설정된 기본 예정 수입만큼의 `급여` 양수 현금흐름을 생성한다. 이 행은 `is_primary_income=1`이며, 원장 archive와 결제 batch 생성 중 하나라도 실패하면 함께 rollback된다. 월마감 직전 pre_restore에는 생성 전 상태가 남는다.
 청구와 가족카드는 월마감 및 카드 결제 주기와 독립된 전달용 임시 큐다. 조회·추가·공유·일괄 완료는 미마감 장부가 아니라 달력상 현재 연-월을 기준으로 한다. 사용자가 `일괄 처리 완료`를 누르면 해당 월·타입의 현재 항목을 삭제한다.
 
 청구는 회수 예정 금액이므로 소비 분류 대상에서 제외한다. 본인용 청구 입력 표와 통계에는 자동 분류를 표시하지 않는다.

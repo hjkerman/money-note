@@ -11,6 +11,7 @@ from app.db import init_db, session
 from app.services.card_charge import DiscountCard
 from app.services.card_charge.policies import NoAutomaticDiscountPolicy
 from app.services.card_charge.registry import POLICY_TIMELINES, PolicyBinding
+from app.services.month import close_current_month
 from app.services.snapshot import export_snapshot, restore_snapshot
 from app.services.summary import current_summary_values
 
@@ -155,6 +156,36 @@ class SnapshotTest(unittest.TestCase):
                 "SELECT confirmed_cash_flow_id FROM monthly_panels WHERE id = 100",
             ).fetchone()
         self.assertEqual(panel["confirmed_cash_flow_id"], flow_id)
+
+    def test_restore_preserves_salary_created_by_month_close(self) -> None:
+        with session() as conn:
+            conn.execute(
+                """
+                INSERT INTO ledger_entries(
+                    book_section, entry_kind, entry_date, title, amount_value, sort_order, payment_key
+                )
+                VALUES ('current', 'expense', '2026-06-30', '마감 대상', 1000, 1, 'salary-snapshot-key')
+                """
+            )
+        close_current_month(date(2026, 7, 1))
+        _, snapshot = export_snapshot(date(2026, 7, 1))
+
+        with session() as conn:
+            conn.execute("DELETE FROM cash_flows WHERE title = '급여'")
+        restore_snapshot(snapshot)
+
+        with session() as conn:
+            salary = conn.execute(
+                """
+                SELECT occurred_on, amount_value, is_primary_income
+                FROM cash_flows WHERE title = '급여'
+                """
+            ).fetchone()
+        self.assertEqual(dict(salary), {
+            "occurred_on": "2026-07-01",
+            "amount_value": 400_000,
+            "is_primary_income": 1,
+        })
 
     def test_restore_accepts_v5_snapshot_without_fixed_cash_flow_link(self) -> None:
         with session() as conn:

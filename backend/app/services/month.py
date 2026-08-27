@@ -134,6 +134,7 @@ def close_current_month(today: date | None = None, allow_early_close: bool = Fal
               AND (confirmed_at IS NOT NULL OR confirmed_cash_flow_id IS NOT NULL)
             """
         )
+        _record_scheduled_income(conn, target_month)
         create_month_close_card_payment_batch(conn, target_month)
 
     return {"closed_month": target_month, "archived": archived, "deleted_from_current": deleted}
@@ -192,3 +193,36 @@ def current_month_label() -> str:
 def calendar_month_label(today: date | None = None) -> str:
     """동결·청구·가족카드처럼 월마감과 무관한 기능에 달력상 현재 월을 제공한다."""
     return (today or app_today()).strftime("%Y-%m")
+
+
+def _record_scheduled_income(conn: Any, closed_month: str) -> None:
+    """월마감 시 다음 예산 주기의 기본 예정 수입을 실제 급여 입금으로 확정한다."""
+    row = conn.execute(
+        "SELECT value FROM app_settings WHERE key = 'scheduled_income'",
+    ).fetchone()
+    if row is None:
+        return
+    try:
+        amount = int(str(row["value"]))
+    except ValueError:
+        raise ValueError("기본 예정 수입은 원 단위 정수여야 합니다.") from None
+    if amount < 0:
+        raise ValueError("기본 예정 수입은 0원 이상이어야 합니다.")
+    if amount == 0:
+        return
+
+    next_cycle = date.fromisoformat(f"{closed_month}-01")
+    if next_cycle.month == 12:
+        occurred_on = date(next_cycle.year + 1, 1, 1)
+    else:
+        occurred_on = date(next_cycle.year, next_cycle.month + 1, 1)
+    next_order = conn.execute(
+        "SELECT COALESCE(MAX(sort_order), 0) + 1 AS value FROM cash_flows",
+    ).fetchone()["value"]
+    conn.execute(
+        """
+        INSERT INTO cash_flows(occurred_on, title, amount_value, sort_order, is_primary_income)
+        VALUES (?, '급여', ?, ?, 1)
+        """,
+        (occurred_on.isoformat(), amount, int(next_order)),
+    )

@@ -39,6 +39,87 @@ backend/app/services/judgment/
 
 문구만 바꾸는 작업이라면 Python 파일을 수정하지 않는다. 분기 조건이나 feature 계산을 바꿔야 할 때만 Python 파일을 수정한다.
 
+## 현행 Judgment 데이터 흐름
+
+`GET /api/judgment/current`가 서버에서 다음 데이터를 모아 `app_judgment()`에 전달한다.
+
+| 입력 | 실제 범위 | 주요 사용처 |
+| --- | --- | --- |
+| `entries` | `book_section=current` 행. `app_judgment`는 planned를 제외한 expense만 소비 건수·총액에 사용 | `budget` |
+| `panels` | 달력상 현재 월 패널과 월 경계에 무관하게 유지되는 fixed/frozen/claim/family_card | `budget`, `credit` |
+| `cash_flows` | 기간 필터 없는 전체 현금흐름 | `budget` |
+| `summary` | 서버가 계산한 카드대금·잔여 유동성 등 | `budget`, `credit` |
+| `payment_status` | 마지막 월마감이 만든 활성 카드 결제 batch | `payment` |
+| `settings` | 카드 한도, 기본 예정 수입, 카드 할인 정책 등 | `credit`, `payment`, 패널 실부담 계산 |
+| `historical_expense_counts` | 최근 마감된 최대 3개월의 본인 원장 지출 건수 | `budget`의 많은 사용내역 기준 |
+
+### `budget`: 예산심사위원회
+
+입력 feature:
+
+- 본인 원장 expense의 사용금액 총액과 건수
+- 전체 기간 현금흐름 총액과 건수
+- Claim 실부담액과 건수
+- Family Card 원금 총액과 건수
+- 동결 총액과 건수
+- Summary의 `remaining_liquidity`
+- 최근 마감 월 지출 건수
+
+분기는 다음 우선순서다.
+
+1. 전체 활동 건수가 0이면 `quiet`
+2. 잔여 유동성이 음수면 `danger`
+3. 현금흐름 순유출 절댓값이 본인 소비 총액보다 크면 `warning`
+4. 동결 총액이 본인 소비 총액보다 크면 `steady`
+5. Claim과 Family Card 합계가 본인 소비 총액보다 크면 `steady`
+6. 현재 지출 건수가 최근 마감 월 기준치를 넘으면 `steady`
+7. 현금흐름 순유입이 본인 소비 총액보다 크면 `quiet`
+8. 본인 소비 총액이 100만원 이상이면 `warning`
+9. 나머지는 `quiet`
+
+월마감으로 생성된 `급여`는 일반 현금흐름이자 `is_primary_income=1`인 양수 행이다. 따라서 `budget`에서는 전체 현금흐름 총액·건수에 포함되고, Summary에서는 `cash_flow_balance`를 통해 잔여 유동성에도 반영된다.
+
+### `credit`: 카드 한도 감시
+
+- 본인카드 금액은 Summary의 할인 후 `card_total`이다.
+- Family Card 금액은 현재 패널의 원금 합계다.
+- 두 금액의 합을 `card_limit`으로 나눈다.
+- 사용률 80% 이상 또는 50% 이상은 `danger`, 30% 이상은 `warning`, 10% 이상은 `steady`, 그 미만은 `quiet`다.
+
+Family Card는 이 판단의 최소 연결부에만 들어간다. 향후 기능 제거 시 본인 원장·Summary·유동성 계산을 바꾸지 않고 이 합산 입력만 제거할 수 있어야 한다.
+
+### `payment`: 파산심사위원회
+
+입력 feature:
+
+- 활성 결제 batch에서 이월 제외 후 남은 결제액
+- 결제월 14일까지 남은 날짜
+- 같은 결제월에 `is_primary_income=1`인 양수 현금흐름 합계
+- 위 기준 수입이 0원이면 설정의 `scheduled_income` fallback
+
+월마감이 만든 `급여`의 발생월과 활성 batch 결제월이 같으면 실제 기준 수입으로 사용된다. 해당 월 급여가 아직 없으면 기본 예정 수입을 fallback으로 사용한다.
+
+분기는 다음 우선순서다.
+
+1. 남은 결제액이 0원 이하면 `quiet`
+2. 결제일이 지났거나 당일이면 `danger`
+3. 기준 수입의 200% 이상, 또는 2일 이내이면서 100% 이상이면 `danger`
+4. 5일 이내이면서 75% 이상이면 `warning`
+5. 기준 수입의 100% 이상이면 `warning`
+6. 5일 이내이거나 기준 수입의 50% 이상이면 `steady`
+7. 나머지는 `quiet`
+
+구체 구현은 `backend/app/services/judgment/insight.py`의 `payment_pressure_tone()`과 테스트가 단일 기준이다.
+
+### 공유 화면 Judgment
+
+- `/share/claim` subtitle은 Claim 행의 건수·총액·소액·의료·정신건강·교통·최대 항목 비중을 본다.
+- Claim 장부 note는 직전 월 1일부터 공유 월 말일까지의 본인 원장과 현금흐름을 관찰하지만 개인 카드 총액과 현금흐름 정확한 숫자는 문구에 노출하지 않는다.
+- `/share/family_card` subtitle은 Family Card 총액, 본인카드 총액, 카드 한도, 양쪽 비중, 최대 항목 비중과 건수를 본다.
+- 본인 앱, Claim, Family Card는 서로 다른 YAML pool을 사용한다.
+
+Judgment 입력 범위나 우선순위를 바꾸는 것은 문구 수정이 아니라 정책 변경이다. 먼저 이 절을 갱신하고 테스트를 추가한 뒤 Python 로직을 바꾼다.
+
 ## 수정 원칙
 
 - 본인 앱, 청구 공유, 가족카드 공유 문구 pool을 섞지 않는다.
@@ -118,7 +199,7 @@ backend/app/services/judgment/
 - 잔여 유동성이 마이너스이면 가족에게 미안한 상황, 적자 보전 요청 가능성, 보정 필요성을 분명히 드러낸다.
 - 카드 결제일이 가까운 경우에는 결제 압박을 읽을 수 있어야 한다.
 - 카드 한도 사용률 문구는 본인 카드와 가족카드의 결합 부담을 혼동하지 않는다.
-- 미래 예산 주기 전환에서는 문구를 수정하기 전에 결제 압박 기준값, 결제일 긴급도, 0원·음수 재원, 실제 수입의 역할을 먼저 결정한다. 결정 목록은 [미래 예산 주기 전환](future-budget-cycle-transition.md)을 따른다.
+- 미래 재무 건전화 전환에서는 문구를 수정하기 전에 결제 압박 기준값, 결제일 긴급도, 0원·음수 재원, 실제 수입의 역할을 먼저 결정한다. 결정 목록은 [미래 재무 건전화 전환](future-financial-health-transition.md)을 따른다.
 
 ### 사용 내역이 많은 달
 

@@ -36,10 +36,11 @@
 - **보수적인 파일 분리**: 상태 전이와 트랜잭션을 공유하는 큰 모듈은 파일 크기만 줄이기 위해 쪼개지 않는다. 먼저 특성 테스트와 명확한 경계가 있어야 한다.
 - **검증 가능한 Snapshot**: canonical JSON 기반 manifest와 SHA-256을 사용하고, 실제 restore 전 dry-run과 mandatory `pre_restore` 생성을 거친다. 구버전 Snapshot은 호환 기본값이 있는 신규 필드의 누락을 허용하고 현재 스키마에 없는 필드는 무시하되, manifest나 필수 테이블·컬럼 오류는 허용하지 않는다.
 - **현금성 고정지출 확인**: 확인 전에는 미지급 의무로 잔여 유동성에 반영하고, 확인 시 실제 처리일의 음수 현금흐름으로 원자적으로 전환한다. 표시용 정기지출 총액은 줄지 않으며 월마감 후 템플릿만 다시 활성화된다.
+- **월마감 급여 확정**: 월마감 성공 시 기본 예정 수입을 닫힌 달의 다음 달 1일자 실제 `급여` 현금흐름으로 기록한다. 현재 Summary는 그 누계와 별도로 다음 급여 예정액을 한 번 선반영한다.
 - **예정된 Claim 제거**: Claim은 2026년 10월경 제거 예정이다. 현재 경계와 전환 순서는 [청구 기능 제거 가이드](claim-removal.md)에 고정한다.
 
 카드 교체 절차는 [카드 정책 변경](card-policy-change.md), 가족카드 경계는 [가족카드 제거](family-card-removal.md), 백업 안전성은 [실행 방법](runbook.md)과 [보안 운영](security.md)에 상세히 적혀 있다.
-미래 예산 주기는 매월 1일~말일이며, 기본 예정 수입을 매달 시작 재원으로 반영하고 현금흐름을 월 범위로 집계한다. 결제 압박 Judgment 기준은 아직 보류한다. 전환 세부사항은 [미래 예산 주기 전환](future-budget-cycle-transition.md)에 둔다.
+예산 주기는 현재도 매월 1일~말일이다. 미래 재무 건전화 시에는 실제 급여 현금흐름을 유지하면서 다음 급여 예정액의 직접 선반영만 제거한다. 결제 압박 Judgment 기준은 아직 보류하며 [미래 재무 건전화 전환](future-financial-health-transition.md)에 둔다.
 
 ## 의도적으로 하지 않는 것
 
@@ -87,7 +88,7 @@
 | 인증, 비밀정보, 공개 경계와 위협 대응 | `docs/security.md` |
 | HTTP 계약 | `docs/api.md` |
 | SQLite 스키마와 컬럼 의미 | `docs/database.md` |
-| 향후 결제 압박 기준과 예산 주기 전환 조건 | `docs/future-budget-cycle-transition.md` |
+| 향후 결제 압박 기준과 재무 건전화 전환 조건 | `docs/future-financial-health-transition.md` |
 | 손검증과 회귀 시나리오 | `docs/test-plan.md` |
 | 현재 기술 부채와 외부 제약 | `docs/known-issues.md` |
 | Android 화면·UX 기준 | `docs/mobile-design.md` |

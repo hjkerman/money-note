@@ -18,6 +18,7 @@ from app.repository import (
 from app.schemas import LedgerEntryIn
 from app.services.card_payments import current_payment_status
 from app.services.month import close_current_month, month_close_status
+from app.services.summary import current_summary_values
 
 
 class MonthCloseTest(unittest.TestCase):
@@ -85,6 +86,69 @@ class MonthCloseTest(unittest.TestCase):
         self.assertEqual(july["book_section"], "current")
         self.assertEqual(planned, 1)
         self.assertFalse(month_close_status(date(2026, 7, 1))["needs_close"])
+
+    def test_close_records_scheduled_income_as_next_cycle_salary(self) -> None:
+        before = current_summary_values()
+
+        close_current_month(date(2026, 7, 1))
+
+        with session() as conn:
+            salary = conn.execute(
+                """
+                SELECT occurred_on, title, amount_value, is_primary_income
+                FROM cash_flows
+                WHERE title = '급여'
+                """
+            ).fetchone()
+        after = current_summary_values()
+        self.assertEqual(dict(salary), {
+            "occurred_on": "2026-07-01",
+            "title": "급여",
+            "amount_value": 400_000,
+            "is_primary_income": 1,
+        })
+        self.assertEqual(after["cash_flow_balance"], before["cash_flow_balance"] + 400_000)
+
+    def test_each_close_records_the_current_scheduled_income_once(self) -> None:
+        close_current_month(date(2026, 7, 1))
+        with session() as conn:
+            conn.execute(
+                "UPDATE app_settings SET value = '550000' WHERE key = 'scheduled_income'",
+            )
+
+        close_current_month(date(2026, 7, 27), allow_early_close=True)
+
+        with session() as conn:
+            salaries = conn.execute(
+                """
+                SELECT occurred_on, amount_value
+                FROM cash_flows
+                WHERE title = '급여'
+                ORDER BY occurred_on, id
+                """
+            ).fetchall()
+        self.assertEqual(
+            [dict(row) for row in salaries],
+            [
+                {"occurred_on": "2026-07-01", "amount_value": 400_000},
+                {"occurred_on": "2026-08-01", "amount_value": 550_000},
+            ],
+        )
+
+    @patch("app.services.month.create_month_close_card_payment_batch", side_effect=RuntimeError("batch failed"))
+    def test_close_failure_rolls_back_salary_and_ledger_changes(self, _: object) -> None:
+        with self.assertRaisesRegex(RuntimeError, "batch failed"):
+            close_current_month(date(2026, 7, 1))
+
+        with session() as conn:
+            salary_count = conn.execute(
+                "SELECT COUNT(*) AS count FROM cash_flows WHERE title = '급여'",
+            ).fetchone()["count"]
+            june = conn.execute(
+                "SELECT book_section FROM ledger_entries WHERE payment_key = 'june-key'",
+            ).fetchone()
+        self.assertEqual(salary_count, 0)
+        self.assertEqual(june["book_section"], "current")
 
     def test_recent_closed_month_expense_counts_ignore_current_and_planned_entries(self) -> None:
         close_current_month(date(2026, 7, 1))
