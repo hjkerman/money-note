@@ -182,6 +182,30 @@ class SummaryCalculationTest(unittest.TestCase):
         self.assertEqual(after["cash_flow_balance"], -5_000)
         self.assertEqual(after["remaining_liquidity"], before["remaining_liquidity"] - 5_000)
 
+    def test_future_cash_flow_is_excluded_until_its_occurrence_date(self) -> None:
+        with session() as conn:
+            conn.execute(
+                """
+                INSERT INTO cash_flows(occurred_on, title, amount_value, sort_order, is_primary_income)
+                VALUES
+                    ('2026-07-26', '이미 발생한 입금', 1000, 1, 0),
+                    ('2026-08-01', '미래 급여', 5000, 2, 1)
+                """
+            )
+
+        with patch.dict(os.environ, {"MONEY_NOTE_TODAY": "2026-07-27"}):
+            get_settings.cache_clear()
+            before_occurrence = current_summary_values()
+        with patch.dict(os.environ, {"MONEY_NOTE_TODAY": "2026-08-01"}):
+            get_settings.cache_clear()
+            on_occurrence = current_summary_values()
+        get_settings.cache_clear()
+
+        self.assertEqual(before_occurrence["cash_flow_balance"], 1_000)
+        self.assertEqual(before_occurrence["remaining_liquidity"], 401_000)
+        self.assertEqual(on_occurrence["cash_flow_balance"], 6_000)
+        self.assertEqual(on_occurrence["remaining_liquidity"], 406_000)
+
 
 if __name__ == "__main__":
     unittest.main()

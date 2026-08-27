@@ -135,6 +135,21 @@ class MonthCloseTest(unittest.TestCase):
             ],
         )
 
+    def test_early_close_salary_affects_balance_only_from_next_cycle_date(self) -> None:
+        close_current_month(date(2026, 7, 1))
+        close_current_month(date(2026, 7, 27), allow_early_close=True)
+
+        with patch.dict(os.environ, {"MONEY_NOTE_TODAY": "2026-07-27"}):
+            get_settings.cache_clear()
+            before_next_cycle = current_summary_values()
+        with patch.dict(os.environ, {"MONEY_NOTE_TODAY": "2026-08-01"}):
+            get_settings.cache_clear()
+            on_next_cycle = current_summary_values()
+        get_settings.cache_clear()
+
+        self.assertEqual(before_next_cycle["cash_flow_balance"], 400_000)
+        self.assertEqual(on_next_cycle["cash_flow_balance"], 800_000)
+
     @patch("app.services.month.create_month_close_card_payment_batch", side_effect=RuntimeError("batch failed"))
     def test_close_failure_rolls_back_salary_and_ledger_changes(self, _: object) -> None:
         with self.assertRaisesRegex(RuntimeError, "batch failed"):

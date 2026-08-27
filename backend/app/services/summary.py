@@ -192,8 +192,16 @@ def setting_text(key: str, fallback: str = "") -> str:
 
 
 def cash_flow_total() -> float:
+    today = app_today().isoformat()
     with session() as conn:
-        row = conn.execute("SELECT COALESCE(SUM(amount_value), 0) AS total FROM cash_flows").fetchone()
+        row = conn.execute(
+            """
+            SELECT COALESCE(SUM(amount_value), 0) AS total
+            FROM cash_flows
+            WHERE occurred_on <= ?
+            """,
+            (today,),
+        ).fetchone()
     return float(row["total"])
 
 

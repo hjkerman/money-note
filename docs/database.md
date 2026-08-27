@@ -104,7 +104,7 @@ API의 할인 정책·자동 할인·유효 할인·실결제 투영 필드는 �
 | --- | --- |
 | `scheduled_income` | 다음 월마감 때 실제 `급여` 현금 유입으로 확정할 기본 예정 수입. 현행 Summary에서는 아직 들어오지 않은 다음 급여로도 한 번 선반영 |
 | `interest_expense` | 이자 지출 |
-| `cash_flow_balance` | 현금흐름 수동 보정값. Summary에서는 전체 현금흐름 누계와 합산한다. |
+| `cash_flow_balance` | Active 계좌의 초기·수동 보정값. Summary에서는 서버 기준일까지 발생한 현금흐름 누계와 합산한다. |
 | `card_limit` | 본인카드와 가족카드 합산 사용률을 판단할 카드 한도 |
 | `owner_card_last4` | 본인회원 카드 끝 4자리 |
 | `family_card_last4` | 가족카드 끝 4자리 |
@@ -153,7 +153,7 @@ API의 할인 정책·자동 할인·유효 할인·실결제 투영 필드는 �
 | `sort_order` | INTEGER | 정렬 순서 |
 | `is_primary_income` | INTEGER | 이달 기준 수입이면 `1` |
 
-월마감이 성공하면 닫힌 달의 다음 달 1일자로 `title='급여'`, `amount_value=scheduled_income`, `is_primary_income=1`인 행을 생성한다. 별도 누적 설정은 사용하지 않는다. 이 행은 일반 현금흐름과 동일하게 Snapshot 및 pre_restore에 포함되고 장부 전체 초기화 대상이다.
+월마감이 성공하면 닫힌 달의 다음 달 1일자로 `title='급여'`, `amount_value=scheduled_income`, `is_primary_income=1`인 행을 생성한다. 별도 누적 설정은 사용하지 않는다. 미래 날짜 행은 발생일 전 Summary의 `cash_flow_balance`에서 제외한다. 이 행은 일반 현금흐름과 동일하게 Snapshot 및 pre_restore에 포함되고 장부 전체 초기화 대상이다.
 
 ## 카드 결제 테이블
 
