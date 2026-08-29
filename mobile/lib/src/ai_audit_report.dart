@@ -19,6 +19,7 @@ Future<String> loadAuditInstructions({AssetBundle? assetBundle}) async {
 class AiAuditReportData {
   AiAuditReportData({
     required this.latestAllowedMonth,
+    required this.summary,
     required this.ledgerEntries,
     required this.cashFlows,
     required this.panels,
@@ -27,6 +28,7 @@ class AiAuditReportData {
   });
 
   final String latestAllowedMonth;
+  final Summary summary;
   final List<LedgerEntry> ledgerEntries;
   final List<CashFlow> cashFlows;
   final List<MonthlyPanel> panels;
@@ -38,6 +40,7 @@ class AiAuditReportData {
     required String latestAllowedMonth,
   }) async {
     final results = await Future.wait([
+      api.summary(),
       api.currentEntries(),
       api.archiveEntries(),
       api.cashFlows(),
@@ -47,14 +50,15 @@ class AiAuditReportData {
     ]);
     return AiAuditReportData(
       latestAllowedMonth: latestAllowedMonth,
+      summary: results[0] as Summary,
       ledgerEntries: [
-        ...(results[0] as List<LedgerEntry>),
         ...(results[1] as List<LedgerEntry>),
+        ...(results[2] as List<LedgerEntry>),
       ],
-      cashFlows: results[2] as List<CashFlow>,
-      panels: results[3] as List<MonthlyPanel>,
-      confirmedPlannedEntries: results[4] as List<LedgerEntry>,
-      auditInstructions: results[5] as String,
+      cashFlows: results[3] as List<CashFlow>,
+      panels: results[4] as List<MonthlyPanel>,
+      confirmedPlannedEntries: results[5] as List<LedgerEntry>,
+      auditInstructions: results[6] as String,
     );
   }
 
@@ -151,6 +155,12 @@ class AiAuditReportData {
       '',
       _panelTable(familyCards, netLabel: '실결제액'),
       '',
+      '## 현재 재무 상태',
+      '',
+      '> 아래 값은 선택 월 당시의 historical snapshot이 아니라 보고서 생성 시점 현재의 Money Note 상태입니다.',
+      '',
+      _currentFinancialStateTable(summary),
+      '',
       '## 현재 운영 참고자료',
       '',
       '> 아래 항목은 선택 월 당시의 이력이 아니라 보고서 생성 시점 현재 설정과 미삭제 목록입니다.',
@@ -177,6 +187,17 @@ class AiAuditReportData {
       months.add(month);
     }
   }
+}
+
+String _currentFinancialStateTable(Summary summary) {
+  return _markdownTable(
+    const ['항목', '금액'],
+    [
+      ['Active 계좌 잔액', won(summary.cashFlowBalance)],
+      ['잔여 유동성', won(summary.remainingLiquidity)],
+    ],
+    numericColumns: const {1},
+  );
 }
 
 String _fixedExpenseTable(List<MonthlyPanel> rows) {

@@ -4,6 +4,27 @@ import 'package:money_note_mobile/src/models.dart';
 
 const _stubAuditInstructions = '테스트용 회계감사 지침';
 
+Summary _summary({
+  int cashFlowBalance = 700000,
+  int remainingLiquidity = 300000,
+}) {
+  return Summary(
+    cardTotal: 0,
+    currentSpendingTotal: 0,
+    currentDiscountTotal: 0,
+    plannedRecurringTotal: 0,
+    fixedCashTotal: 0,
+    frozenAssetTotal: 0,
+    cashFlowBalance: cashFlowBalance,
+    remainingLiquidity: remainingLiquidity,
+    claimOriginalTotal: 0,
+    claimNetTotal: 0,
+    familyCardOriginalTotal: 0,
+    familyCardNetTotal: 0,
+    visibleCashFlowTotal: 0,
+  );
+}
+
 LedgerEntry _entry({
   required int id,
   required String date,
@@ -78,6 +99,7 @@ void main() {
   test('실제 데이터가 있고 서버 당월보다 늦지 않은 연월만 선택지로 만든다', () {
     final data = AiAuditReportData(
       latestAllowedMonth: '2026-08',
+      summary: _summary(),
       ledgerEntries: [
         _entry(id: 1, date: '2026-06-01'),
         _entry(id: 2, date: '2026-09-01'),
@@ -111,6 +133,7 @@ void main() {
     final auditInstructions = await loadAuditInstructions();
     final data = AiAuditReportData(
       latestAllowedMonth: '2026-08',
+      summary: _summary(),
       ledgerEntries: [
         _entry(
           id: 1,
@@ -199,8 +222,14 @@ void main() {
     expect(markdown, contains('품목명만을 근거로 사용자의 소비 분류가 잘못되었다고 판단하지 마세요'));
     expect(markdown, contains('목적이나 귀속 월을 추적하지 않습니다'));
     expect(markdown, contains('특정 카드 지출을 과거의 특정 동결액과 연결하지 마세요'));
-    expect(markdown, contains('가용 유동성을 평가할 때만 고려하세요'));
+    expect(markdown, contains('잔여 유동성을 평가할 때만 고려하세요'));
     expect(markdown, contains('세 개념을 서로 바꾸어 해석하지 마세요'));
+    expect(markdown, contains('## 현재 재무 상태'));
+    expect(markdown, contains('| Active 계좌 잔액 | 700,000원 |'));
+    expect(markdown, contains('| 잔여 유동성 | 300,000원 |'));
+    expect(
+        markdown, contains('선택 월의 현금흐름 합계는 현재 Active 계좌 잔액이나 현재 잔여 유동성이 아닙니다'));
+    expect(markdown, contains('계산은 Money Note 서버가, 해석은 회계감사가 담당합니다'));
     expect(markdown, contains('해당 항목은 판단을 유보하고'));
     expect(markdown, contains('필요한 추가 맥락을 구체적으로 질문하세요'));
     expect(markdown, contains('사용자가 답변한 경우 이후 판단에 반영하세요'));
@@ -217,13 +246,129 @@ void main() {
     expect(markdown, contains('매월 15일 | 통신사 | 휴대전화 요금 | 55,000원'));
     expect(markdown, contains('2026-08-10 | 노트북 교체 자금 | 500,000원'));
     expect(markdown, contains('선택 월 당시의 이력이 아니라 보고서 생성 시점 현재'));
+    expect(markdown, contains('template의 예정 부담'));
+    expect(markdown, contains('확인된 현금성 고정지출의 실제 출금액은 현금흐름에'));
+    expect(markdown, contains('확정된 카드 정기결제의 실제 원금은 본인 카드 지출에'));
     expect(markdown, contains('해동하여 삭제한 과거 항목은 포함되지 않으며'));
     expect(markdown, isNot(contains('2026-07-31')));
+  });
+
+  test('과거 월 현금흐름과 보고서 생성 시점 Summary를 구분한다', () {
+    final data = AiAuditReportData(
+      latestAllowedMonth: '2026-08',
+      summary: _summary(
+        cashFlowBalance: 700000,
+        remainingLiquidity: 300000,
+      ),
+      ledgerEntries: [_entry(id: 1, date: '2026-05-02')],
+      cashFlows: [
+        CashFlow(
+          id: 1,
+          occurredOn: '2026-05-01',
+          title: '선택 월 현금흐름',
+          amountValue: 100000,
+          sortOrder: 1,
+          isPrimaryIncome: false,
+        ),
+      ],
+      panels: const [],
+      confirmedPlannedEntries: const [],
+      auditInstructions: _stubAuditInstructions,
+    );
+
+    final markdown = data.buildMarkdown(
+      '2026-05',
+      generatedAt: DateTime.parse('2026-08-17T12:00:00+09:00'),
+    );
+
+    expect(markdown, contains('| 2026-05-01 | 선택 월 현금흐름 | +100,000원 |'));
+    expect(markdown, contains('| Active 계좌 잔액 | 700,000원 |'));
+    expect(markdown, contains('| 잔여 유동성 | 300,000원 |'));
+    expect(markdown, contains('선택 월 당시의 historical snapshot이 아니라'));
+  });
+
+  test('확정된 실제액과 현재 template 예정액을 서로 다른 영역에 출력한다', () {
+    final data = AiAuditReportData(
+      latestAllowedMonth: '2026-08',
+      summary: _summary(),
+      ledgerEntries: [
+        _entry(
+          id: 1,
+          date: '2026-08-12',
+          place: '통신사',
+          item: '확정된 카드 정기결제',
+          amount: 12000,
+          discount: 144,
+        ),
+        _plannedEntry(
+          id: 2,
+          dueDay: 12,
+          place: '통신사',
+          item: '카드 정기결제 template',
+          amount: 15000,
+        ),
+      ],
+      cashFlows: [
+        CashFlow(
+          id: 1,
+          occurredOn: '2026-08-05',
+          title: '확인된 현금성 고정지출',
+          amountValue: -275000,
+          sortOrder: 1,
+          isPrimaryIncome: false,
+        ),
+      ],
+      panels: [
+        _panel(
+          id: 1,
+          type: 'fixed',
+          date: '2026-08-01',
+          title: '현금성 고정지출 template',
+          amount: 300000,
+          discount: 0,
+        ),
+      ],
+      confirmedPlannedEntries: const [],
+      auditInstructions: _stubAuditInstructions,
+    );
+
+    final markdown = data.buildMarkdown('2026-08');
+
+    expect(
+      markdown,
+      contains('통신사 | 확정된 카드 정기결제 | 최소한의 품위유지비 | 12,000원 | 144원 | 11,856원'),
+    );
+    expect(markdown, contains('확인된 현금성 고정지출 | -275,000원'));
+    expect(markdown, contains('현금성 고정지출 template | 300,000원'));
+    expect(
+      markdown,
+      contains('매월 12일 | 통신사 | 카드 정기결제 template | 15,000원'),
+    );
+  });
+
+  test('현재 운영 참고자료가 비어 있어도 Summary를 포함한다', () {
+    final data = AiAuditReportData(
+      latestAllowedMonth: '2026-08',
+      summary: _summary(),
+      ledgerEntries: [_entry(id: 1, date: '2026-08-02')],
+      cashFlows: const [],
+      panels: const [],
+      confirmedPlannedEntries: const [],
+      auditInstructions: _stubAuditInstructions,
+    );
+
+    final markdown = data.buildMarkdown('2026-08');
+
+    expect(markdown, contains('| Active 계좌 잔액 | 700,000원 |'));
+    expect(markdown, contains('_현재 설정된 현금성 고정지출 없음_'));
+    expect(markdown, contains('_현재 설정된 카드 정기결제 없음_'));
+    expect(markdown, contains('_현재 남아 있는 동결 금액 없음_'));
   });
 
   test('데이터가 없는 연월의 보고서 생성을 거부한다', () {
     final data = AiAuditReportData(
       latestAllowedMonth: '2026-08',
+      summary: _summary(),
       ledgerEntries: [_entry(id: 1, date: '2026-08-02')],
       cashFlows: const [],
       panels: const [],
