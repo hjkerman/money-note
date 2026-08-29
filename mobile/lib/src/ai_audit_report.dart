@@ -161,6 +161,13 @@ class AiAuditReportData {
       '',
       _currentFinancialStateTable(summary),
       '',
+      '## 재무 운용 기준',
+      '',
+      '- 기준 월 수입은 Money Note에 설정된 사용자의 주 수입 기준입니다.',
+      '- 현재는 이미 확보된 현금만으로 생활하는 단계가 아니라, 아직 입금되지 않은 다음 급여 예정액을 현재 신용카드 사용의 재원으로 선반영하는 과도기적 운용 상태입니다.',
+      '- 따라서 현재 잔여 유동성에는 아직 실제 입금되지 않은 다음 급여 예정액이 포함될 수 있습니다.',
+      '- 장기적인 운용 목표는 다음 급여를 현재 소비의 재원으로 미리 사용하지 않고, 이미 확보된 현금 범위에서 다음 예산 주기를 운영할 수 있는 상태로 전환하는 것입니다.',
+      '',
       '## 현재 운영 참고자료',
       '',
       '> 아래 항목은 선택 월 당시의 이력이 아니라 보고서 생성 시점 현재 설정과 미삭제 목록입니다.',
@@ -193,6 +200,7 @@ String _currentFinancialStateTable(Summary summary) {
   return _markdownTable(
     const ['항목', '금액'],
     [
+      ['기준 월 수입', won(summary.scheduledIncome)],
       ['Active 계좌 잔액', won(summary.cashFlowBalance)],
       ['잔여 유동성', won(summary.remainingLiquidity)],
     ],

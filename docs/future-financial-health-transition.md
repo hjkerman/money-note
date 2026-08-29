@@ -65,6 +65,18 @@
 
 명시적 미래 TODO: 재무 건전화 전환 시 current ledger의 `card_total`, 활성 payment batch의 미결제 채무, 실제 결제 cash flow를 최신 repo 전체에서 다시 추적하고, 각 채무를 상태 전이 중 정확히 한 번만 `remaining_liquidity`에 반영하는 모델을 결정한다. 단순히 batch `remaining_amount`를 현행 식에 더하지 않는다.
 
+## AI 회계감사 Export 의존성
+
+모바일의 ChatGPT/AI 회계감사 Markdown은 현재 `scheduled_income`의 다음 급여 선반영을 의도된 과도기 운용 모델로 설명한다. 따라서 재무 건전화 전환 시 Summary 계산만 바꾸고 감사 자료를 그대로 두면 AI가 종료된 모델을 현재 사실로 해석하게 된다.
+
+전환 시 다음을 한 작업으로 검토한다.
+
+- `mobile/lib/src/ai_audit_report.dart`의 `재무 운용 기준`에서 다음 급여 선반영 설명을 제거하거나 건전화 이후 설명으로 바꾼다.
+- `mobile/assets/ai_audit_instructions.md`의 과도기 모델, 다음 급여 담보, 미래 목표 문구를 현재 상태에 맞게 바꾼다.
+- `scheduled_income`을 감사 기준선으로 계속 제공할지, 실제 주 수입 이력을 다른 방식으로 제공할지 재검토한다.
+- `remaining_liquidity`의 설명을 건전화 이후 공식 semantics에 맞게 갱신한다.
+- AI가 더 이상 obsolete한 과도기 모델을 기준으로 감사하지 않는지 회귀 테스트로 확인한다.
+
 ## 전환 전 검증
 
 - 실제 Snapshot 사본으로 전환 전후 잔여 유동성을 비교한다.
@@ -74,3 +86,4 @@
 - 수동으로 같은 급여를 중복 입력하지 않는 운영 규칙을 확인한다.
 - current ledger `card_total`, batch `remaining_amount`, 즉시결제 현금 유출이 계산과 판단에서 이중 차감되지 않는지 확인한다.
 - 웹과 모바일이 서버 Summary와 Judgment를 그대로 표시하는지 확인한다.
+- ChatGPT/AI 회계감사 Markdown과 지침이 전환 이후 재무 모델을 설명하는지 확인한다.

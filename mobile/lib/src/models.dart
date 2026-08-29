@@ -26,6 +26,7 @@ class AuthUser {
 
 class Summary {
   Summary({
+    required this.scheduledIncome,
     required this.cardTotal,
     required this.currentSpendingTotal,
     required this.currentDiscountTotal,
@@ -41,6 +42,7 @@ class Summary {
     required this.visibleCashFlowTotal,
   });
 
+  final int scheduledIncome;
   final int cardTotal;
   final int currentSpendingTotal;
   final int currentDiscountTotal;
@@ -57,6 +59,7 @@ class Summary {
 
   factory Summary.fromJson(Map<String, dynamic> json) {
     return Summary(
+      scheduledIncome: _int(json['scheduled_income']),
       cardTotal: _int(json['card_total']),
       currentSpendingTotal: _int(json['current_spending_total']),
       currentDiscountTotal: _int(json['current_discount_total']),
