@@ -34,6 +34,13 @@ class SummaryCalculationTest(unittest.TestCase):
         self.env.stop()
         self.temp_dir.cleanup()
 
+    def test_scheduled_income_is_prefunded_before_cash_realization(self) -> None:
+        summary = current_summary_values()
+
+        self.assertEqual(summary["scheduled_income"], 400_000)
+        self.assertEqual(summary["cash_flow_balance"], 0)
+        self.assertEqual(summary["remaining_liquidity"], 400_000)
+
     def test_claim_total_does_not_reduce_remaining_liquidity(self) -> None:
         with session() as conn:
             conn.execute(
@@ -61,7 +68,7 @@ class SummaryCalculationTest(unittest.TestCase):
         self.assertEqual(summary["claim_original_total"], 50_000)
         self.assertEqual(summary["claim_net_total"], 49_400)
         self.assertEqual(panel_net_total("claim"), 49_400)
-        self.assertEqual(summary["remaining_liquidity"], -98_800)
+        self.assertEqual(summary["remaining_liquidity"], 301_200)
 
     def test_family_card_total_uses_family_discount_policy(self) -> None:
         with session() as conn:
@@ -131,7 +138,7 @@ class SummaryCalculationTest(unittest.TestCase):
         self.assertEqual(summary["card_total"], 0)
         self.assertEqual(summary["transfer_or_deposit_total"], 0)
         self.assertEqual(summary["frozen_asset_total"], 0)
-        self.assertEqual(summary["remaining_liquidity"], 0)
+        self.assertEqual(summary["remaining_liquidity"], 400_000)
         self.assertEqual(summary["claim_original_total"], 80_000)
         self.assertEqual(summary["family_card_original_total"], 90_000)
 
@@ -142,7 +149,7 @@ class SummaryCalculationTest(unittest.TestCase):
         summary = current_summary_values()
 
         self.assertNotIn("interest_expense", summary)
-        self.assertEqual(summary["remaining_liquidity"], 0)
+        self.assertEqual(summary["remaining_liquidity"], 400_000)
 
     def test_planned_card_payment_counts_as_fixed_until_confirmed(self) -> None:
         with session() as conn:
@@ -164,7 +171,7 @@ class SummaryCalculationTest(unittest.TestCase):
         self.assertEqual(before["card_total"], 0)
         self.assertEqual(before["planned_recurring_total"], 30_000)
         self.assertEqual(before["transfer_or_deposit_total"], 30_000)
-        self.assertEqual(before["remaining_liquidity"], -30_000)
+        self.assertEqual(before["remaining_liquidity"], 370_000)
 
         confirm_planned_entry(planned_id)
         after = current_summary_values()
@@ -172,7 +179,7 @@ class SummaryCalculationTest(unittest.TestCase):
         self.assertEqual(after["card_total"], 29_640)
         self.assertEqual(after["planned_recurring_total"], 30_000)
         self.assertEqual(after["transfer_or_deposit_total"], 30_000)
-        self.assertEqual(after["remaining_liquidity"], -29_640)
+        self.assertEqual(after["remaining_liquidity"], 370_360)
 
     def test_month_close_and_immediate_payments_keep_card_liability_counted_once(self) -> None:
         with session() as conn:
@@ -244,6 +251,9 @@ class SummaryCalculationTest(unittest.TestCase):
     def test_immediate_card_payment_replaces_unpaid_liability_with_cash_outflow(self) -> None:
         with session() as conn:
             conn.execute(
+                "UPDATE app_settings SET value = '0' WHERE key = 'scheduled_income'"
+            )
+            conn.execute(
                 """
                 INSERT INTO ledger_entries(
                     book_section, entry_kind, entry_date, title, amount_value,
@@ -274,6 +284,9 @@ class SummaryCalculationTest(unittest.TestCase):
     def test_deferred_card_liability_moves_from_active_batch_to_current_ledger(self) -> None:
         with session() as conn:
             conn.execute(
+                "UPDATE app_settings SET value = '0' WHERE key = 'scheduled_income'"
+            )
+            conn.execute(
                 """
                 INSERT INTO ledger_entries(
                     book_section, entry_kind, entry_date, title, amount_value,
@@ -296,6 +309,9 @@ class SummaryCalculationTest(unittest.TestCase):
 
     def test_acknowledged_statement_payment_uses_reconciled_cash_balance_only(self) -> None:
         with session() as conn:
+            conn.execute(
+                "UPDATE app_settings SET value = '0' WHERE key = 'scheduled_income'"
+            )
             conn.execute(
                 """
                 INSERT INTO ledger_entries(
@@ -342,9 +358,9 @@ class SummaryCalculationTest(unittest.TestCase):
         get_settings.cache_clear()
 
         self.assertEqual(before_occurrence["cash_flow_balance"], 1_000)
-        self.assertEqual(before_occurrence["remaining_liquidity"], 1_000)
+        self.assertEqual(before_occurrence["remaining_liquidity"], 401_000)
         self.assertEqual(on_occurrence["cash_flow_balance"], 6_000)
-        self.assertEqual(on_occurrence["remaining_liquidity"], 6_000)
+        self.assertEqual(on_occurrence["remaining_liquidity"], 406_000)
 
 
 if __name__ == "__main__":

@@ -39,14 +39,14 @@
 - **미확인 정기지출 월마감 경고**: 월마감 상태와 transaction 안에서 대상 주기의 미확인 현금성 고정지출·카드 정기결제를 검사한다. 기본 월마감은 중단하고, Web/Mobile에서 항목을 확인한 뒤 명시적으로 override한 경우만 진행한다.
 - **월마감·즉시결제 재시도 안전성**: Web과 Mobile은 월마감 대상 월을 명시하고, 즉시결제 기능을 가진 Web은 결제 idempotency key를 보낸다. 서버는 SQLite write transaction 안에서 최신 상태를 다시 확인하여 archive·급여·batch 중복과 동시 초과결제를 막는다.
 - **정기결제 원본 관계**: 확인으로 생성된 원장 지출은 planned 템플릿 id를 명시적으로 참조한다. 동일 제목·금액의 수동 지출을 승인 내역으로 오인하지 않는다.
-- **월마감 급여 확정**: 월마감 성공 시 기본 예정 수입을 월마감 실행일의 실제 `급여` 현금흐름으로 기록해 Active 계좌 잔액에 즉시 반영한다. 기본 예정 수입 설정은 다음 월마감에도 재사용하지만 잔여 유동성에 직접 더하지 않는다.
+- **월마감 급여 확정**: 월마감 성공 시 기본 예정 수입을 월마감 실행일의 실제 `급여` 현금흐름으로 기록해 Active 계좌 잔액에 즉시 반영한다. 현행 Summary는 그 누계와 별도로 그 이후 받을 다음 급여 예정액을 한 번 선반영한다.
 - **Active 계좌 잔액**: `cash_flow_balance`는 수동 보정값과 서버 기준일까지 실제 발생한 현금흐름 누계다. 월마감 급여는 실행일에 즉시 포함하며, 사용자가 입력한 미래 날짜 현금흐름은 발생일 전 잔액에 포함하지 않는다.
-- **AI 회계감사의 현행 모델 의존성**: 모바일 감사 Markdown은 서버 Summary의 `scheduled_income`, `cash_flow_balance`, `remaining_liquidity`를 현재 재무 상태로 제공한다. 예정 수입은 평가 기준선일 뿐 잔여 유동성에 직접 포함되지 않음을 설명하며, 재무 모델 변경 시 [미래 재무 건전화 전환](future-financial-health-transition.md)의 절차에 따라 같이 갱신한다.
+- **AI 회계감사의 현행 모델 의존성**: 모바일 감사 Markdown은 서버 Summary의 `scheduled_income`, `cash_flow_balance`, `remaining_liquidity`를 현재 재무 상태로 제공하고 다음 급여 선반영을 과도기 운용 모델로 설명한다. 재무 건전화 전환 시 [미래 재무 건전화 전환](future-financial-health-transition.md)의 절차에 따라 같이 갱신한다.
 - **카드 의무의 단일 반영**: 카드 사용은 월마감 전 `card_total`, 월마감 후 활성 결제 batch의 이월 제외 미결제액으로 잔여 유동성에 이어서 반영된다. 즉시결제는 현금과 미결제액을 함께 줄이고, 결제일 후 수동 잔액 보정 완료는 이미 실제 잔액에 반영된 batch 채무의 Summary 재차감을 멈춘다.
 - **예정된 Claim 제거**: Claim은 2026년 10월경 제거 예정이다. 현재 경계와 전환 순서는 [청구 기능 제거 가이드](claim-removal.md)에 고정한다.
 
 카드 교체 절차는 [카드 정책 변경](card-policy-change.md), 가족카드 경계는 [가족카드 제거](family-card-removal.md), 백업 안전성은 [실행 방법](runbook.md)과 [보안 운영](security.md)에 상세히 적혀 있다.
-예산 주기는 현재도 매월 1일~말일이다. 예정 수입의 직접 선반영은 이미 제거했으며, 결제 압박 Judgment와 카드채무의 미래 기준은 아직 보류하여 [미래 재무 건전화 전환](future-financial-health-transition.md)에 둔다.
+예산 주기는 현재도 매월 1일~말일이다. 미래 재무 건전화 시에는 실제 급여 현금흐름을 유지하면서 다음 급여 예정액의 직접 선반영만 제거한다. 결제 압박 Judgment 기준은 아직 보류하며 [미래 재무 건전화 전환](future-financial-health-transition.md)에 둔다.
 
 ## 의도적으로 하지 않는 것
 
