@@ -1,4 +1,5 @@
 import os
+from datetime import date
 from pathlib import Path
 import tempfile
 import unittest
@@ -8,7 +9,14 @@ from app.config import get_settings
 from app.db import init_db, session
 from app.repository import confirm_planned_entry
 from app.schemas import CardPaymentAllocationIn, CardPaymentEventIn
-from app.services.card_payments import create_card_payment_event, create_month_close_card_payment_batch
+from app.services.card_payments import (
+    acknowledge_liquidity_reset,
+    create_card_payment_event,
+    create_month_close_card_payment_batch,
+    current_payment_status,
+    defer_toll_payment,
+)
+from app.services.month import close_current_month
 from app.services.summary import current_summary_values, panel_net_total
 
 
@@ -166,14 +174,82 @@ class SummaryCalculationTest(unittest.TestCase):
         self.assertEqual(after["transfer_or_deposit_total"], 30_000)
         self.assertEqual(after["remaining_liquidity"], -29_640)
 
-    def test_immediate_card_payment_reduces_cash_liquidity(self) -> None:
+    def test_month_close_and_immediate_payments_keep_card_liability_counted_once(self) -> None:
+        with session() as conn:
+            conn.execute(
+                "UPDATE app_settings SET value = '0' WHERE key = 'scheduled_income'"
+            )
+            conn.execute(
+                """
+                INSERT INTO ledger_entries(
+                    book_section, entry_kind, entry_date, title, amount_value,
+                    aux_amount_value, discount_override, sort_order, payment_key
+                )
+                VALUES ('current', 'expense', '2026-08-20', '당월 카드 사용', 100000, 0, 1, 1, 'close-key')
+                """
+            )
+
+        with patch.dict(os.environ, {"MONEY_NOTE_TODAY": "2026-08-31"}):
+            get_settings.cache_clear()
+            before_close = current_summary_values()
+            close_current_month(
+                date(2026, 8, 31),
+                allow_early_close=True,
+                target_month="2026-08",
+            )
+            after_close = current_summary_values()
+            after_close_status = current_payment_status(date(2026, 8, 31))
+
+            create_card_payment_event(
+                CardPaymentEventIn(
+                    idempotency_key="summary-close-payment-0001",
+                    event_date="2026-08-31",
+                    event_type="immediate",
+                    allocations=[
+                        CardPaymentAllocationIn(entry_payment_key="close-key", amount_value=40_000)
+                    ],
+                )
+            )
+            after_partial_payment = current_summary_values()
+            partial_status = current_payment_status(date(2026, 8, 31))
+
+            create_card_payment_event(
+                CardPaymentEventIn(
+                    idempotency_key="summary-close-payment-0002",
+                    event_date="2026-08-31",
+                    event_type="immediate",
+                    allocations=[
+                        CardPaymentAllocationIn(entry_payment_key="close-key", amount_value=60_000)
+                    ],
+                )
+            )
+            after_full_payment = current_summary_values()
+            full_status = current_payment_status(date(2026, 8, 31))
+        get_settings.cache_clear()
+
+        self.assertEqual(before_close["card_total"], 100_000)
+        self.assertEqual(before_close["remaining_liquidity"], -100_000)
+        self.assertEqual(after_close["card_total"], 0)
+        self.assertEqual(after_close_status["recorded_remaining_total"], 100_000)
+        self.assertEqual(after_close["remaining_liquidity"], before_close["remaining_liquidity"])
+
+        self.assertEqual(after_partial_payment["cash_flow_balance"], -40_000)
+        self.assertEqual(partial_status["recorded_remaining_total"], 60_000)
+        self.assertEqual(after_partial_payment["remaining_liquidity"], after_close["remaining_liquidity"])
+
+        self.assertEqual(after_full_payment["cash_flow_balance"], -100_000)
+        self.assertEqual(full_status["recorded_remaining_total"], 0)
+        self.assertEqual(after_full_payment["remaining_liquidity"], after_close["remaining_liquidity"])
+
+    def test_immediate_card_payment_replaces_unpaid_liability_with_cash_outflow(self) -> None:
         with session() as conn:
             conn.execute(
                 """
                 INSERT INTO ledger_entries(
-                    book_section, entry_kind, entry_date, title, amount_value, sort_order, payment_key
+                    book_section, entry_kind, entry_date, title, amount_value,
+                    aux_amount_value, discount_override, sort_order, payment_key
                 )
-                VALUES ('archive', 'expense', '2026-05-05', '전월 카드 사용', 10000, 1, 'paid-key')
+                VALUES ('archive', 'expense', '2026-05-05', '전월 카드 사용', 10000, 0, 1, 1, 'paid-key')
                 """
             )
             create_month_close_card_payment_batch(conn, "2026-05")
@@ -190,8 +266,61 @@ class SummaryCalculationTest(unittest.TestCase):
         after = current_summary_values()
 
         self.assertEqual(before["cash_flow_balance"], 0)
+        self.assertEqual(before["remaining_liquidity"], -10_000)
         self.assertEqual(after["cash_flow_balance"], -5_000)
-        self.assertEqual(after["remaining_liquidity"], before["remaining_liquidity"] - 5_000)
+        self.assertEqual(current_payment_status()["recorded_remaining_total"], 5_000)
+        self.assertEqual(after["remaining_liquidity"], before["remaining_liquidity"])
+
+    def test_deferred_card_liability_moves_from_active_batch_to_current_ledger(self) -> None:
+        with session() as conn:
+            conn.execute(
+                """
+                INSERT INTO ledger_entries(
+                    book_section, entry_kind, entry_date, title, amount_value,
+                    aux_amount_value, discount_override, sort_order, payment_key
+                )
+                VALUES ('archive', 'expense', '2026-05-05', '이월할 카드 사용', 10000, 0, 1, 1, 'defer-key')
+                """
+            )
+            create_month_close_card_payment_batch(conn, "2026-05")
+
+        before = current_summary_values()
+        defer_toll_payment("defer-key", date(2026, 6, 4))
+        after = current_summary_values()
+        status = current_payment_status(date(2026, 6, 4))
+
+        self.assertEqual(before["card_total"], 0)
+        self.assertEqual(status["recorded_remaining_total"], 0)
+        self.assertEqual(after["card_total"], 10_000)
+        self.assertEqual(after["remaining_liquidity"], before["remaining_liquidity"])
+
+    def test_acknowledged_statement_payment_uses_reconciled_cash_balance_only(self) -> None:
+        with session() as conn:
+            conn.execute(
+                """
+                INSERT INTO ledger_entries(
+                    book_section, entry_kind, entry_date, title, amount_value,
+                    aux_amount_value, discount_override, sort_order, payment_key
+                )
+                VALUES ('archive', 'expense', '2026-05-05', '정기 카드 결제', 10000, 0, 1, 1, 'settled-key')
+                """
+            )
+            create_month_close_card_payment_batch(conn, "2026-05")
+
+        before_reconciliation = current_summary_values()
+        with session() as conn:
+            conn.execute(
+                "UPDATE app_settings SET value = '-10000' WHERE key = 'cash_flow_balance'"
+            )
+        before_acknowledgment = current_summary_values()
+        acknowledge_liquidity_reset(date(2026, 6, 15))
+        after_acknowledgment = current_summary_values()
+
+        self.assertEqual(before_reconciliation["remaining_liquidity"], -10_000)
+        self.assertEqual(before_acknowledgment["remaining_liquidity"], -20_000)
+        self.assertEqual(current_payment_status(date(2026, 6, 15))["recorded_remaining_total"], 10_000)
+        self.assertEqual(after_acknowledgment["cash_flow_balance"], -10_000)
+        self.assertEqual(after_acknowledgment["remaining_liquidity"], -10_000)
 
     def test_future_cash_flow_is_excluded_until_its_occurrence_date(self) -> None:
         with session() as conn:

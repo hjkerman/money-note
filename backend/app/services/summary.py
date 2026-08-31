@@ -10,6 +10,7 @@ from app.services.card_charge import (
     evaluate_stored_charge,
     normalize_discount_policy,
 )
+from app.services.card_payments import active_card_payment_unpaid_total
 from app.services.clock import app_today
 
 
@@ -22,6 +23,7 @@ def current_summary_values() -> dict[str, int]:
     planned_recurring_total = planned_entry_total()
     entry_discount_total = current_entry_discount_total()
     card_total = max(0, entry_card_total - entry_discount_total)
+    active_card_payment_unpaid = active_card_payment_unpaid_total()
     fixed_panel_total = panel_total("fixed")
     pending_fixed_panel_total = panel_total("fixed", only_unconfirmed=True)
     transfer_or_deposit_total = fixed_panel_total + planned_recurring_total
@@ -32,6 +34,7 @@ def current_summary_values() -> dict[str, int]:
     remaining_liquidity = (
         cash_flow_balance
         - card_total
+        - active_card_payment_unpaid
         - liquidity_fixed_total
         - frozen_asset_total
     )

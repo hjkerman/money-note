@@ -512,9 +512,14 @@ Family Card:
 remaining_liquidity
 = cash_flow_balance
   - card_total
+  - active_card_payment_unpaid_total
   - liquidity_fixed_total
   - frozen_asset_total
 ```
+
+카드 의무는 사용 시점부터 실제 지급까지 정확히 한 번 차감한다. 월마감 전에는 당월 원장의 할인 후 `card_total`이 의무를 나타내고, 월마감으로 원장이 archive로 이동하면 활성 결제 batch의 할인·즉시결제를 반영한 미결제액 `active_card_payment_unpaid_total`이 그 자리를 이어받는다. 즉시결제는 같은 금액만큼 미결제액과 `cash_flow_balance`를 함께 줄이므로 잔여 유동성을 다시 줄이지 않는다. 이월 항목은 당월 원장으로 돌아와 `card_total`에 포함되므로 활성 batch 미결제액에서는 제외한다.
+
+결제일 경과 후 사용자가 실제 계좌 잔액을 수동 보정하고 해당 결제월의 `현금흐름 보정 완료`를 확인하면, 활성 batch의 기록상 잔액은 결제 화면에 보존하되 Summary에서는 이미 실제 잔액에 반영된 의무로 보아 다시 차감하지 않는다. `active_card_payment_unpaid_total`은 이 상태 전이용 내부 계산값이며 Summary 응답에 중복 노출하지 않는다.
 
 - `scheduled_income`: DB에 같은 이름으로 저장되는 기본 예정 수입. 월마감 급여 생성과 Judgment 기준선에 쓰는 반복 설정값이며 잔여 유동성에 직접 더하지 않는다.
 - `cash_flow_balance`: Money Note가 추적하는 Active 계좌의 실제 잔액. DB의 같은 이름인 수동 보정값과 서버 기준일 현재까지 발생한 현금흐름 누계의 합

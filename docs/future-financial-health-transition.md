@@ -16,6 +16,7 @@
 현재 remaining_liquidity
 = 누적 현금흐름(cash_flow_balance)
   - card_total
+  - active_card_payment_unpaid_total
   - liquidity_fixed_total
   - frozen_asset_total
 ```
@@ -34,6 +35,7 @@
 remaining_liquidity
 = cash_flow_balance
   - card_total
+  - active_card_payment_unpaid_total
   - liquidity_fixed_total
   - frozen_asset_total
 ```
@@ -53,8 +55,8 @@ remaining_liquidity
 현재 본인 앱 Judgment는 `budget`, `credit`, `payment` 세 축을 반환한다. 건전화 전환 전에 다음을 결정한다.
 
 1. `payment`가 계속 해당 결제월의 `이달 기준 수입`을 분모로 볼지, 이미 확보된 잔여 유동성으로 결제 가능 여부를 볼지 결정한다.
-2. current ledger 기반 Summary의 `card_total`, 월마감 이후 활성 결제 batch의 `remaining_amount`, 즉시결제·선결제가 만드는 음수 cash flow는 서로 다른 상태다. 현재 구현의 어떤 카드채무가 `remaining_liquidity`에 이미 반영됐다고 단정하지 않는다.
-3. 건전화 전환 직전에 당시 코드를 다시 검토하여 카드 사용·결제 batch·실제 출금을 한 번만 반영하는 기준을 정한다. 이번 문서에서는 미래 카드대금 계산식을 확정하지 않는다.
+2. current ledger 기반 Summary의 `card_total`, 월마감 이후 활성 결제 batch의 이월 제외 미결제액, 즉시결제·선결제가 만드는 음수 cash flow는 하나의 카드 의무가 이동하는 서로 다른 상태다. 현재 구현은 원장과 batch 사이에서 의무를 인계하고, 즉시결제 시 batch 미결제액과 현금을 함께 줄여 한 번만 반영한다.
+3. 건전화 전환 직전에 이 상태 전이가 당시 결제 방식에도 맞는지 다시 검토한다. 특히 결제일 경과 후 실제 계좌 잔액 수동 보정과 보정 완료 확인의 의미를 유지할지 결정한다.
 4. 잔여 유동성 0원, 음수, 결제일까지 14일·5일·2일·당일·연체 상태의 등급을 정한다.
 5. `budget`과 `payment`가 같은 부족 상태를 중복 경고할지 역할을 분리한다.
 6. 실제 급여가 설정 금액과 달랐을 때 차이를 Judgment가 지적할지 결정한다.
@@ -62,7 +64,7 @@ remaining_liquidity
 
 현행 입력값과 분기 순서는 [Judgment 문구 관리](judgment-messages.md)의 `현행 Judgment 데이터 흐름`을 기준으로 한다. 정책을 결정한 뒤 입력 feature와 등급 경계를 테스트로 먼저 고정하고 문구 pool을 수정한다.
 
-명시적 미래 TODO: 재무 건전화 전환 시 current ledger의 `card_total`, 활성 payment batch의 미결제 채무, 실제 결제 cash flow를 최신 repo 전체에서 다시 추적하고, 각 채무를 상태 전이 중 정확히 한 번만 `remaining_liquidity`에 반영하는 모델을 결정한다. 단순히 batch `remaining_amount`를 현행 식에 더하지 않는다.
+2026-08-31 현재 구현은 current ledger의 `card_total`, 활성 payment batch의 이월 제외 미결제 채무, 실제 결제 cash flow를 상태별로 추적해 각 채무를 정확히 한 번 `remaining_liquidity`에 반영한다. 미래 전환에서는 이 invariant를 보존하되 당시의 실제 카드 결제·잔액 보정 방식과 다시 대조한다.
 
 ## AI 회계감사 Export 의존성
 

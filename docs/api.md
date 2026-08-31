@@ -624,6 +624,7 @@
 remaining_liquidity
 = cash_flow_balance
   - card_total
+  - active_card_payment_unpaid_total
   - liquidity_fixed_total
   - frozen_asset_total
 ```
@@ -636,6 +637,8 @@ remaining_liquidity
 
 `card_total`은 본인 당월 카드 지출의 할인 후 금액이다. 청구 탭 금액은 청구 표시 합계와 공유 청구서의 실청구액에는 반영하지만, `remaining_liquidity` 계산에는 넣지 않는다.
 청구와 가족카드는 회수 예정 금액으로 보며, 당월 소비 통계와 `당월` 큰 탭 합계에도 넣지 않는다.
+
+`active_card_payment_unpaid_total`은 응답 필드가 아니라 활성 결제 batch의 내부 미지급 채무 합계다. 월마감 전 `card_total`이 담당하던 카드 의무를 월마감 후 이어받는다. 이월되어 당월 원장에 다시 들어간 항목은 중복 차감을 피하기 위해 제외한다. 즉시결제 시에는 연결된 음수 현금흐름과 같은 금액만큼 이 합계가 줄어 잔여 유동성이 유지된다. 결제일 경과 후 실제 계좌 잔액을 수동 보정하고 해당 결제월의 보정 완료를 확인한 경우에는 기록상 잔액을 결제 API에 남겨도 Summary에서 다시 차감하지 않는다.
 
 ## 판단
 

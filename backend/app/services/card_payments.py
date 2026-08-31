@@ -34,7 +34,7 @@ def current_payment_status(today: date | None = None) -> dict[str, Any]:
     context = _active_payment_context(today)
     rows = _payment_rows_for_batch(context)
     payable_rows = [row for row in rows if not row["is_deferred"]]
-    recorded_remaining_total = sum(row["remaining_amount"] for row in payable_rows)
+    recorded_remaining_total = _remaining_total(payable_rows)
     is_after_due = today > context.due_date
     liquidity_reset_acknowledged = _setting_value("card_payment_liquidity_reset_ack_month") == context.payment_month
     return {
@@ -55,6 +55,19 @@ def current_payment_status(today: date | None = None) -> dict[str, Any]:
         "rows": rows,
         "events": _events_for_batch(context.batch_id),
     }
+
+
+def active_card_payment_unpaid_total(today: date | None = None) -> int:
+    """현재 원장으로 이월되지 않은 활성 결제 batch의 미지급 채무다."""
+    context = _active_payment_context(today or app_today())
+    if _setting_value("card_payment_liquidity_reset_ack_month") == context.payment_month:
+        return 0
+    payable_rows = [row for row in _payment_rows_for_batch(context) if not row["is_deferred"]]
+    return _remaining_total(payable_rows)
+
+
+def _remaining_total(rows: list[dict[str, Any]]) -> int:
+    return sum(int(row.get("remaining_amount") or 0) for row in rows)
 
 
 def create_month_close_card_payment_batch(conn: Any, usage_month: str) -> int:
