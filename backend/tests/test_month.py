@@ -205,7 +205,7 @@ class MonthCloseTest(unittest.TestCase):
                 1,
             )
 
-    def test_close_records_scheduled_income_as_next_cycle_salary(self) -> None:
+    def test_close_records_scheduled_income_on_close_date(self) -> None:
         before = current_summary_values()
 
         close_current_month(date(2026, 7, 1))
@@ -249,24 +249,55 @@ class MonthCloseTest(unittest.TestCase):
             [dict(row) for row in salaries],
             [
                 {"occurred_on": "2026-07-01", "amount_value": 400_000},
-                {"occurred_on": "2026-08-01", "amount_value": 550_000},
+                {"occurred_on": "2026-07-27", "amount_value": 550_000},
             ],
         )
 
-    def test_early_close_salary_affects_balance_only_from_next_cycle_date(self) -> None:
+    def test_early_close_salary_affects_balance_immediately(self) -> None:
         close_current_month(date(2026, 7, 1))
         close_current_month(date(2026, 7, 27), allow_early_close=True)
 
         with patch.dict(os.environ, {"MONEY_NOTE_TODAY": "2026-07-27"}):
             get_settings.cache_clear()
-            before_next_cycle = current_summary_values()
+            on_close_date = current_summary_values()
         with patch.dict(os.environ, {"MONEY_NOTE_TODAY": "2026-08-01"}):
             get_settings.cache_clear()
             on_next_cycle = current_summary_values()
         get_settings.cache_clear()
 
-        self.assertEqual(before_next_cycle["cash_flow_balance"], 400_000)
+        self.assertEqual(on_close_date["cash_flow_balance"], 800_000)
         self.assertEqual(on_next_cycle["cash_flow_balance"], 800_000)
+
+    def test_delayed_close_records_salary_on_actual_execution_date(self) -> None:
+        close_current_month(date(2026, 7, 5), target_month="2026-06")
+
+        with session() as conn:
+            salary = conn.execute(
+                "SELECT occurred_on, amount_value FROM cash_flows WHERE title = '급여'",
+            ).fetchone()
+
+        self.assertEqual(dict(salary), {"occurred_on": "2026-07-05", "amount_value": 400_000})
+
+    def test_two_different_month_closes_on_same_day_each_record_salary(self) -> None:
+        close_current_month(date(2026, 7, 27), target_month="2026-06")
+        close_current_month(
+            date(2026, 7, 27),
+            allow_early_close=True,
+            target_month="2026-07",
+        )
+
+        with session() as conn:
+            salary_count = conn.execute(
+                """
+                SELECT COUNT(*) AS count
+                FROM cash_flows
+                WHERE occurred_on = '2026-07-27'
+                  AND title = '급여'
+                  AND is_primary_income = 1
+                """,
+            ).fetchone()["count"]
+
+        self.assertEqual(salary_count, 2)
 
     @patch("app.services.month.create_month_close_card_payment_batch", side_effect=RuntimeError("batch failed"))
     def test_close_failure_rolls_back_salary_and_ledger_changes(self, _: object) -> None:

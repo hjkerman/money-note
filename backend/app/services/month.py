@@ -164,7 +164,7 @@ def close_current_month(
             """,
             (target_month,),
         )
-        _record_scheduled_income(conn, target_month)
+        _record_scheduled_income(conn, today)
         create_month_close_card_payment_batch(conn, target_month)
 
     return {"closed_month": target_month, "archived": archived, "deleted_from_current": deleted}
@@ -306,8 +306,8 @@ def calendar_month_label(today: date | None = None) -> str:
     return (today or app_today()).strftime("%Y-%m")
 
 
-def _record_scheduled_income(conn: Any, closed_month: str) -> None:
-    """월마감 시 다음 예산 주기의 기본 예정 수입을 실제 급여 입금으로 확정한다."""
+def _record_scheduled_income(conn: Any, closed_on: date) -> None:
+    """월마감 실행일에 다음 예산 주기의 기본 예정 수입을 실제 급여 입금으로 확정한다."""
     row = conn.execute(
         "SELECT value FROM app_settings WHERE key = 'scheduled_income'",
     ).fetchone()
@@ -322,22 +322,6 @@ def _record_scheduled_income(conn: Any, closed_month: str) -> None:
     if amount == 0:
         return
 
-    next_cycle = date.fromisoformat(f"{closed_month}-01")
-    if next_cycle.month == 12:
-        occurred_on = date(next_cycle.year + 1, 1, 1)
-    else:
-        occurred_on = date(next_cycle.year, next_cycle.month + 1, 1)
-    existing = conn.execute(
-        """
-        SELECT id
-        FROM cash_flows
-        WHERE occurred_on = ? AND title = '급여' AND is_primary_income = 1
-        LIMIT 1
-        """,
-        (occurred_on.isoformat(),),
-    ).fetchone()
-    if existing is not None:
-        return
     next_order = conn.execute(
         "SELECT COALESCE(MAX(sort_order), 0) + 1 AS value FROM cash_flows",
     ).fetchone()["value"]
@@ -346,5 +330,5 @@ def _record_scheduled_income(conn: Any, closed_month: str) -> None:
         INSERT INTO cash_flows(occurred_on, title, amount_value, sort_order, is_primary_income)
         VALUES (?, '급여', ?, ?, 1)
         """,
-        (occurred_on.isoformat(), amount, int(next_order)),
+        (closed_on.isoformat(), amount, int(next_order)),
     )
