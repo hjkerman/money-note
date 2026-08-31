@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
 
 import '../app_state.dart';
+import '../apk_download_controller.dart';
 import '../apk_download_service.dart';
-import '../apk_install_bridge.dart';
 import '../formatters.dart';
 import '../theme.dart';
 import '../widgets/money_card.dart';
 import 'management_screen.dart';
 
 class StatusScreen extends StatelessWidget {
-  const StatusScreen({required this.state, super.key});
+  const StatusScreen({
+    required this.state,
+    required this.apkDownloadController,
+    super.key,
+  });
 
   final AppState state;
+  final ApkDownloadController apkDownloadController;
 
   @override
   Widget build(BuildContext context) {
@@ -62,101 +67,75 @@ class StatusScreen extends StatelessWidget {
           Text(state.statusMessage, style: const TextStyle(color: moneyMuted)),
         ],
         const SizedBox(height: 24),
-        _ApkDownloadButton(state: state),
+        _ApkDownloadButton(
+          state: state,
+          controller: apkDownloadController,
+        ),
       ],
     );
   }
 }
 
-class _ApkDownloadButton extends StatefulWidget {
-  const _ApkDownloadButton({required this.state});
+class _ApkDownloadButton extends StatelessWidget {
+  const _ApkDownloadButton({
+    required this.state,
+    required this.controller,
+  });
 
   final AppState state;
+  final ApkDownloadController controller;
 
-  @override
-  State<_ApkDownloadButton> createState() => _ApkDownloadButtonState();
-}
-
-class _ApkDownloadButtonState extends State<_ApkDownloadButton> {
-  final ApkDownloadService _service = ApkDownloadService();
-  final ApkInstallBridge _installBridge = ApkInstallBridge();
-  InstalledAppVersion? _installedVersion;
-  bool _downloading = false;
-  double? _progress;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadInstalledVersion();
-  }
-
-  Future<void> _loadInstalledVersion() async {
-    final version = await _installBridge.installedVersion();
-    if (mounted) setState(() => _installedVersion = version);
-  }
-
-  Future<void> _download() async {
-    if (_downloading) return;
-    setState(() {
-      _downloading = true;
-      _progress = null;
-    });
+  Future<void> _download(BuildContext context) async {
     try {
-      await _service.downloadAndInstall(
-        widget.state.api,
-        onProgress: (progress) {
-          if (mounted) setState(() => _progress = progress);
-        },
-      );
+      await controller.download(state.api);
     } on ApkDownloadException catch (error) {
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(error.message)));
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _downloading = false;
-          _progress = null;
-        });
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final progress = _progress;
-    final label = !_downloading
-        ? 'APK 다운로드'
-        : progress == null
-            ? 'APK 받는 중...'
-            : 'APK 받는 중 ${(progress * 100).round()}%';
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (_installedVersion case final version?) ...[
-          Text(
-            '현재 설치 버전 ${version.label}',
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: moneyMuted,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (context, _) {
+        final progress = controller.progress;
+        final label = !controller.isDownloading
+            ? 'APK 다운로드'
+            : progress == null
+                ? 'APK 받는 중...'
+                : 'APK 받는 중 ${(progress * 100).round()}%';
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (controller.installedVersion case final version?) ...[
+              Text(
+                '현재 설치 버전 ${version.label}',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: moneyMuted,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+            FilledButton.icon(
+              onPressed:
+                  controller.isDownloading ? null : () => _download(context),
+              icon: controller.isDownloading
+                  ? const SizedBox.square(
+                      dimension: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.system_update_alt),
+              label: Text(label),
             ),
-          ),
-          const SizedBox(height: 8),
-        ],
-        FilledButton.icon(
-          onPressed: _downloading ? null : _download,
-          icon: _downloading
-              ? const SizedBox.square(
-                  dimension: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Icon(Icons.system_update_alt),
-          label: Text(label),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 }

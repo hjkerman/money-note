@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../app_state.dart';
+import '../apk_download_controller.dart';
 import '../theme.dart';
 import 'cash_flow_screen.dart';
 import 'family_screen.dart';
@@ -24,6 +25,7 @@ class HomeShell extends StatefulWidget {
 class _HomeShellState extends State<HomeShell> {
   int index = 0;
   late final PageController _pageController;
+  late final ApkDownloadController _apkDownloadController;
   late int _seenNotificationImportOpenGeneration;
   late int _seenNotificationArchiveOpenGeneration;
 
@@ -31,6 +33,7 @@ class _HomeShellState extends State<HomeShell> {
   void initState() {
     super.initState();
     _pageController = PageController();
+    _apkDownloadController = ApkDownloadController()..initialize();
     _seenNotificationImportOpenGeneration =
         widget.state.notificationImportOpenGeneration;
     _seenNotificationArchiveOpenGeneration =
@@ -49,6 +52,7 @@ class _HomeShellState extends State<HomeShell> {
 
   @override
   void dispose() {
+    _apkDownloadController.dispose();
     _pageController.dispose();
     super.dispose();
   }
@@ -81,7 +85,10 @@ class _HomeShellState extends State<HomeShell> {
       FamilyScreen(state: widget.state),
       MonthEntriesScreen(state: widget.state),
       CashFlowScreen(state: widget.state),
-      StatusScreen(state: widget.state),
+      StatusScreen(
+        state: widget.state,
+        apkDownloadController: _apkDownloadController,
+      ),
     ];
 
     return Scaffold(
