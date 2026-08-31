@@ -598,7 +598,7 @@
 
 표준 유동성 key:
 
-- `scheduled_income`: 월마감 실행일의 실제 `급여`로 확정되며, 현행 계산에서는 아직 들어오지 않은 다음 급여로 한 번 선반영되는 기본 예정 수입
+- `scheduled_income`: 월마감 실행일의 실제 `급여`를 생성하고 Judgment 기준선으로 사용하는 기본 예정 수입. 설정값 자체는 잔여 유동성에 직접 더하지 않음
 - `cash_flow_balance`: 수동 보정값과 서버 기준일 현재까지 발생한 현금흐름 누계를 합친 Active 계좌의 실제 잔액. 미래 날짜 현금흐름은 제외
 - `remaining_liquidity`: 현재 예산 주기에서 이미 약속된 금액을 제외하고 추가로 사용할 수 있는 잔여 유동성
 
@@ -622,12 +622,13 @@
 
 ```text
 remaining_liquidity
-= scheduled_income
+= cash_flow_balance
   - card_total
   - liquidity_fixed_total
   - frozen_asset_total
-  + cash_flow_balance
 ```
+
+`scheduled_income`은 반복 기준값이므로 응답과 설정에 계속 남지만 자산은 아니다. 월마감 전에는 잔여 유동성에 포함하지 않고, 월마감 실행일에 생성된 `급여` 현금흐름이 `cash_flow_balance`를 통해 한 번만 반영된다.
 
 `liquidity_fixed_total`은 응답 필드가 아니라 내부 계산값이다. `아직 확인되지 않은 현금성 고정지출 reserve + 아직 카드 지출로 확인되지 않은 카드 정기결제 예정 원금`이다. 현금성 고정지출을 확인하면 reserve 차감은 사라지고 입력한 실제액의 음수 현금흐름이 생긴다. 실제액이 reserve와 같으면 잔여 유동성은 그대로이고, 다르면 그 차액만 자동으로 조정된다.
 

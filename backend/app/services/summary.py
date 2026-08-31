@@ -30,11 +30,10 @@ def current_summary_values() -> dict[str, int]:
     scheduled_income = setting_float("scheduled_income")
     cash_flow_balance = setting_float("cash_flow_balance") + cash_flow_total()
     remaining_liquidity = (
-        scheduled_income
+        cash_flow_balance
         - card_total
         - liquidity_fixed_total
         - frozen_asset_total
-        + cash_flow_balance
     )
     return {
         "scheduled_income": int(scheduled_income),

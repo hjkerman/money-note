@@ -227,6 +227,25 @@ class MonthCloseTest(unittest.TestCase):
         })
         self.assertEqual(after["cash_flow_balance"], before["cash_flow_balance"] + 400_000)
 
+    def test_close_realizes_scheduled_income_in_liquidity_exactly_once(self) -> None:
+        with session() as conn:
+            conn.execute("DELETE FROM ledger_entries WHERE entry_kind = 'planned'")
+            conn.execute("UPDATE ledger_entries SET amount_value = 0, aux_amount_value = 0")
+
+        with patch.dict(os.environ, {"MONEY_NOTE_TODAY": "2026-07-01"}):
+            get_settings.cache_clear()
+            before = current_summary_values()
+            close_current_month(date(2026, 7, 1), target_month="2026-06")
+            after = current_summary_values()
+        get_settings.cache_clear()
+
+        self.assertEqual(before["scheduled_income"], 400_000)
+        self.assertEqual(before["cash_flow_balance"], 0)
+        self.assertEqual(before["remaining_liquidity"], 0)
+        self.assertEqual(after["scheduled_income"], 400_000)
+        self.assertEqual(after["cash_flow_balance"], 400_000)
+        self.assertEqual(after["remaining_liquidity"], 400_000)
+
     def test_each_close_records_the_current_scheduled_income_once(self) -> None:
         close_current_month(date(2026, 7, 1))
         with session() as conn:

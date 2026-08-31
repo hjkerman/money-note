@@ -510,20 +510,19 @@ Family Card:
 
 ```text
 remaining_liquidity
-= scheduled_income
+= cash_flow_balance
   - card_total
   - liquidity_fixed_total
   - frozen_asset_total
-  + cash_flow_balance
 ```
 
-- `scheduled_income`: DB에 같은 이름으로 저장되는 기본 예정 수입
+- `scheduled_income`: DB에 같은 이름으로 저장되는 기본 예정 수입. 월마감 급여 생성과 Judgment 기준선에 쓰는 반복 설정값이며 잔여 유동성에 직접 더하지 않는다.
 - `cash_flow_balance`: Money Note가 추적하는 Active 계좌의 실제 잔액. DB의 같은 이름인 수동 보정값과 서버 기준일 현재까지 발생한 현금흐름 누계의 합
 - `liquidity_fixed_total`: 아직 확인되지 않은 현금성 고정지출과 아직 원장 지출로 확인되지 않은 카드 정기결제 예정액
 
 예산 주기는 매월 1일부터 말일까지다. 월마감은 사용자가 해당 주기의 소비를 끝내고 다음 카드대금에 쓸 자금을 실제로 꺼내는 사건이다. 월마감이 성공하면 설정의 `scheduled_income`과 같은 금액의 양수 현금흐름 `급여`를 **월마감 실행일**로 만들고 `is_primary_income=1`로 표시한다. 따라서 생성 즉시 `cash_flow_balance`에 포함된다. 월마감 시점의 금액을 확정하므로 이후 설정 변경은 과거 급여 행을 바꾸지 않는다.
 
-현재 계산식의 별도 `scheduled_income` 항은 아직 현금흐름으로 확정되지 않은 다음 급여를 한 번 선반영한다. 월마감 실행일에 그 급여가 실제 현금흐름이 되면, 설정값은 다시 그 다음 급여의 예정액 역할을 한다. 이는 다음 급여를 담보로 현재 카드 사용을 감당하는 현행 운용을 의도적으로 표현한다.
+`scheduled_income`은 월마감마다 같은 설정을 다시 사용할 수 있도록 보존하지만 그 자체는 현금이 아니다. 월마감 전에는 잔여 유동성에 들어가지 않고, 월마감 실행일에 생성된 `급여`가 `cash_flow_balance`를 통해 정확히 한 번 반영된다. 설정값과 실현된 현금흐름을 동시에 더하지 않는다.
 
 `cash_flow_balance`는 아직 출금되지 않은 예정 지출, 미확인 현금성 고정지출, 동결 자금, 미래 급여와 `remaining_liquidity`를 뜻하지 않는다. Active 계좌에 실제로 존재하는 돈과 그중 추가로 사용할 수 있는 돈은 다를 수 있다.
 
@@ -537,7 +536,7 @@ remaining_liquidity
 
 `이달 기준 수입` 표시가 있는 현금흐름 입금 합계는 현재 카드 결제 압박 Judgment의 기준 수입이다. 월마감이 만든 `급여`도 이 표식을 가진다. 급여 발생월은 월마감 실행일의 달이므로 말일 마감 뒤 다음 달 결제 batch에는 같은 달 기준 수입이 없을 수 있으며, 이 경우 Judgment는 `scheduled_income`을 fallback으로 사용한다. 이 기준의 미래 변경은 [미래 재무 건전화 전환](future-financial-health-transition.md)에서 결정한다.
 
-다음 급여를 미리 담보로 쓰지 않게 되는 미래에는 월 주기와 실제 급여 현금흐름은 유지하고 계산식에서 별도 `scheduled_income` 선반영만 제거한다. 전환 조건은 [미래 재무 건전화 전환](future-financial-health-transition.md)에 기록한다.
+`scheduled_income` 직접 선반영은 2026-08-31 이중계상 수정에서 제거했다. 카드 결제 압박과 더 장기적인 운용 전환에서 다시 결정할 사항은 [미래 재무 건전화 전환](future-financial-health-transition.md)에 기록한다.
 
 ---
 

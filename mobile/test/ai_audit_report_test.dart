@@ -254,14 +254,14 @@ void main() {
     expect(markdown, contains('| Active 계좌 잔액 | 700,000원 |'));
     expect(markdown, contains('| 잔여 유동성 | 300,000원 |'));
     expect(markdown, contains('## 재무 운용 기준'));
-    expect(markdown, contains('다음 급여 예정액을 현재 신용카드 사용의 재원으로 선반영하는'));
-    expect(markdown, contains('이미 확보된 현금 범위에서 다음 예산 주기를 운영'));
+    expect(markdown, contains('기본 예정 수입 설정값 자체는 현재 자산이나 잔여 유동성에 직접 포함되지 않습니다'));
+    expect(markdown, contains('실제 급여 현금흐름이 생성되면 Active 계좌 잔액과 잔여 유동성에 한 번 반영됩니다'));
     expect(
         markdown, contains('선택 월의 현금흐름 합계는 현재 Active 계좌 잔액이나 현재 잔여 유동성이 아닙니다'));
     expect(markdown, contains('계산은 Money Note 서버가, 해석은 회계감사가 담당합니다'));
     expect(markdown, contains('`scheduled_income`은 Money Note에 설정된 기준 월 수입'));
-    expect(markdown, contains('장부 오류, 현금흐름 중복 또는 Summary 버그로 판단하지 마세요'));
-    expect(markdown, contains('현재 소비 패턴의 지속 가능성을 자동으로 보장하지는 않습니다'));
+    expect(markdown, contains('예정 수입 설정값을 현재 재무 상태에 다시 더하거나'));
+    expect(markdown, contains('기준 월 수입이 소비 지속 가능성을 자동으로 보장하지는 않습니다'));
     expect(markdown, contains('문제가 없다면 억지로 지출 축소를 권하지 마세요'));
     expect(markdown, contains('해당 항목은 판단을 유보하고'));
     expect(markdown, contains('필요한 추가 맥락을 구체적으로 질문하세요'));

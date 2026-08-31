@@ -10,12 +10,11 @@
 - 월마감 시점의 설정 금액을 기록하므로 이후 기본 예정 수입을 바꾸어도 이미 기록된 급여는 바뀌지 않는다.
 - Summary의 `cash_flow_balance`는 Money Note가 추적하는 Active 계좌의 실제 잔액이다. 정확히는 수동 보정값과 `occurred_on <= app_today()`인 전체 기간 현금흐름 누계다.
 - 월마감 급여는 실행일에 생성되어 즉시 `cash_flow_balance`에 들어가고 이후 누계에 남는다. 사용자가 별도로 입력한 미래 날짜 현금흐름은 여전히 발생일 전 잔액에서 제외한다.
-- 현재 Summary는 이 누계와 별도로 `scheduled_income`을 한 번 더 더한다. 이 항은 아직 현금흐름으로 확정되지 않은 다음 급여를 현재 카드 사용의 재원으로 선반영한다.
+- `scheduled_income`은 월마감 급여를 생성하고 수입 기준선으로 사용하는 반복 설정값이다. 설정값 자체는 자산이 아니며 Summary의 잔여 유동성에 직접 더하지 않는다.
 
 ```text
 현재 remaining_liquidity
-= 다음 급여 예정액(scheduled_income)
-  + 누적 현금흐름(cash_flow_balance)
+= 누적 현금흐름(cash_flow_balance)
   - card_total
   - liquidity_fixed_total
   - frozen_asset_total
@@ -25,14 +24,14 @@
 
 `cash_flow_balance`는 예정 지출, 미확인 고정 의무, 동결, 미래 급여와 잔여 유동성을 포함하는 포괄 지표가 아니다. Active 계좌에 실제로 있는 돈과 그중 자유롭게 쓸 수 있는 돈은 다를 수 있다.
 
-## 미래 전환 조건
+## 2026-08-31 반영된 전환
 
-다음 급여를 미리 담보로 잡지 않고, 이미 확보된 현금 범위 안에서만 카드를 사용하기 시작하면 `scheduled_income`의 직접 선반영을 잔여 유동성 계산에서 제거한다.
+월마감 급여를 즉시 현금흐름으로 확정하면서 기존 공식이 `scheduled_income`과 같은 금액의 `cash_flow_balance`를 동시에 더하는 이중계상 문제가 확인됐다. 이에 `scheduled_income` 직접 선반영을 제거했다. 설정값은 삭제하거나 0으로 만들지 않고 다음 월마감 급여 생성과 Judgment 기준선으로 유지한다.
 
-전환 후 후보 계산:
+현재 계산:
 
 ```text
-건전화 이후 remaining_liquidity
+remaining_liquidity
 = cash_flow_balance
   - card_total
   - liquidity_fixed_total
@@ -47,7 +46,7 @@
 - 현금성 정기지출의 미확인 의무 → 실제 출금 전환. 확인 전후 `remaining_liquidity`는 같아야 한다.
 - Claim과 Family Card를 유동성에 직접 포함하지 않는 정책
 
-즉 미래 변경의 핵심은 “월별 현금흐름만 다시 계산”이 아니라, 아직 들어오지 않은 다음 급여를 직접 더하는 `scheduled_income` 항을 제거하는 것이다.
+따라서 `scheduled_income` 제거는 더 이상 미래 작업이 아니다. 향후 재무 건전화 전환에서는 월마감 시 실제 자금이 들어오는 현재 상태 전이와 카드채무·즉시결제 현금 유출을 당시 운용에 맞게 한 번씩만 반영하는지를 다시 검토한다.
 
 ## Judgment에서 결정할 것
 
@@ -67,12 +66,12 @@
 
 ## AI 회계감사 Export 의존성
 
-모바일의 ChatGPT/AI 회계감사 Markdown은 현재 `scheduled_income`의 다음 급여 선반영을 의도된 과도기 운용 모델로 설명한다. 따라서 재무 건전화 전환 시 Summary 계산만 바꾸고 감사 자료를 그대로 두면 AI가 종료된 모델을 현재 사실로 해석하게 된다.
+모바일의 ChatGPT/AI 회계감사 Markdown은 `scheduled_income`을 소비 평가 기준선으로 제공하되 현재 자산이나 잔여 유동성에 직접 포함하지 않는다고 설명한다. 재무 모델을 다시 바꿀 때 Summary만 수정하고 감사 자료를 그대로 두면 AI가 오래된 모델을 현재 사실로 해석하게 된다.
 
 전환 시 다음을 한 작업으로 검토한다.
 
-- `mobile/lib/src/ai_audit_report.dart`의 `재무 운용 기준`에서 다음 급여 선반영 설명을 제거하거나 건전화 이후 설명으로 바꾼다.
-- `mobile/assets/ai_audit_instructions.md`의 과도기 모델, 다음 급여 담보, 미래 목표 문구를 현재 상태에 맞게 바꾼다.
+- `mobile/lib/src/ai_audit_report.dart`의 `재무 운용 기준`을 당시 모델에 맞게 바꾼다.
+- `mobile/assets/ai_audit_instructions.md`의 기준 수입과 잔여 유동성 관계를 당시 모델에 맞게 바꾼다.
 - `scheduled_income`을 감사 기준선으로 계속 제공할지, 실제 주 수입 이력을 다른 방식으로 제공할지 재검토한다.
 - `remaining_liquidity`의 설명을 건전화 이후 공식 semantics에 맞게 갱신한다.
 - AI가 더 이상 obsolete한 과도기 모델을 기준으로 감사하지 않는지 회귀 테스트로 확인한다.
