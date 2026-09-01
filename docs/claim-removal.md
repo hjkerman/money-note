@@ -1,6 +1,6 @@
 # 청구 기능 제거 가이드
 
-`claim`은 사용자가 가족에게 돌려받을 금액을 관리하는 회수 예정 큐다. 2026년 10월경 제거할 예정이며, 제거 시점에는 남은 청구 데이터 전체 삭제를 허용한다. 이 문서는 지금 기능을 제거하라는 지시가 아니라, 제거 당일 핵심 원장과 유동성을 건드리지 않고 작업하기 위한 경계 지도다.
+`claim`은 사용자가 가족에게 돌려받을 금액을 관리하는 회수 예정 큐다. 제거 자체는 확정되어 있지만 시점은 정하지 않는다. 사용자가 일상 생활비뿐 아니라 예외적인 큰 지출까지 가족 지원 없이 자체 소득과 자산으로 감당할 수 있는 현실적 경제적 독립 상태가 되었을 때 제거한다. 그전까지는 정상적인 support/recovery 기능이다. 이 문서는 지금 기능을 제거하라는 지시가 아니라, 제거 당일 핵심 원장과 유동성을 건드리지 않고 작업하기 위한 경계 지도다.
 
 ## 현재 경계
 
@@ -9,11 +9,11 @@
 - API: 패널 CRUD/선택 삭제/일괄 처리, Summary의 `claim_original_total`·`claim_net_total`, `/api/share/claim`, `/share/claim`.
 - 웹: 당월 `청구` 탭, 공유 링크, 선택/일괄 처리, 할인과 실청구액 수정, Summary 타입.
 - 모바일: `정산` 화면의 청구 분기, 알림 후보의 `청구 사용` 경로, 회계감사 Markdown의 청구 절.
-- Judgment: `judgment/claim.py`, claim 메시지 pool, 공유 subtitle·ledger note, 본인 앱 판단의 claim 보조 feature.
+- Judgment: `judgment/claim.py`, claim 메시지 pool과 공유 subtitle·ledger note. 본인 앱의 소비·신용 압박 Judgment에는 Claim 금액을 넣지 않는다.
 - 설정과 라벨: `panel_claim_title`. 별도의 claim 전용 민감 설정은 없다.
 - Snapshot: `monthly_panels`의 claim 행과 `app_labels.panel_claim_title`이 일반 데이터로 포함된다.
 
-Claim은 `ledger_entries`, 카드 결제 batch, 현금흐름, 잔여 유동성에 직접 포함되지 않는다. `card_payments._clear_owner_discounts_for_month()`의 claim 할인 초기화와 Judgment 보조 입력은 제거 시 함께 정리해야 하는 얕은 연결부다.
+Claim은 `ledger_entries`, 카드 결제 batch, 현금흐름, 잔여 유동성이나 본인 앱의 소비·신용 압박 Judgment에 직접 포함되지 않는다. `card_payments._clear_owner_discounts_for_month()`의 claim 할인 초기화와 공유 Judgment는 제거 시 함께 정리해야 하는 얕은 연결부다.
 
 현재 단순 문자열 검색 기준 영향 범위는 60개 파일이다(백엔드 26, 웹 12, 모바일 8, 문서 14). 이 수에는 공용 패널·할인·문서 파일도 포함되므로 모두 삭제 대상이라는 뜻은 아니다. 제거 작업에서는 아래 경계별로 claim 분기만 걷어내고 `family_card`가 함께 쓰는 기반은 남긴다.
 
@@ -21,7 +21,7 @@ Claim은 `ledger_entries`, 카드 결제 batch, 현금흐름, 잔여 유동성�
 
 - 백엔드 저장·API: `app/db.py`, `app/schemas.py`, `repositories/panels.py`, `routers/month.py`, `services/panels.py`, `services/presentation.py`
 - 백엔드 공유: `routers/share.py`, `services/share.py`, `share_auth.py`. 공유 인증과 세션은 Family Card가 계속 사용한다.
-- 백엔드 계산·판단: `services/summary.py`, `services/card_payments.py`, `services/card_charge/policies.py`, `services/judgment/claim.py`, `services/judgment/features.py`, `services/judgment/insight.py`, claim 메시지 파일
+- 백엔드 계산·판단: `services/summary.py`, `services/card_payments.py`, `services/card_charge/policies.py`, `services/judgment/claim.py`, `services/judgment/features.py`, claim 메시지 파일
 - 백엔드 보조·테스트: `scripts/clean_panel_dates.py`와 panel/share/summary/presentation/judgment/snapshot 테스트
 - 웹: `CurrentMonthView.tsx`, `PanelAppendForm.tsx`, `PanelTable.tsx`, `useAppDerivedState.ts`, `usePanelHandlers.ts`, 설정 handler, API/type/util/style와 관련 테스트
 - 모바일: `family_screen.dart`, `notification_import_screen.dart`, `app_state.dart`, 모델, 회계감사 보고서·템플릿·테스트
@@ -40,7 +40,7 @@ Claim은 `ledger_entries`, 카드 결제 batch, 현금흐름, 잔여 유동성�
 2. `/share/claim`과 `/api/share/claim`, claim 전용 공유 HTML·최소결제·ledger note를 제거한다. 공유 PIN과 `share_sessions`는 가족카드 공유에 계속 필요하므로 유지한다.
 3. 패널 API의 허용 타입과 완료 처리 타입에서 `claim`을 제거한다.
 4. Summary의 `claim_original_total`, `claim_net_total`과 Pydantic·TypeScript·Dart 응답 필드를 함께 제거한다.
-5. Judgment의 claim feature, public re-export, 메시지 파일과 본인 앱의 claim 보조 분기를 제거한다. Judgment 응답의 `claim_categories`도 웹과 함께 제거한다.
+5. 공유 Judgment의 claim feature, public re-export와 메시지 파일을 제거한다. 호환 응답의 `claim_categories`도 웹과 함께 제거한다.
 6. 웹의 청구 탭, form/handler/type/CSS 분기와 공유 버튼을 제거한다.
 7. 모바일 정산 화면을 가족카드 전용으로 단순화하고 알림 후보의 `청구 사용` 라우팅을 제거한다.
 8. 모바일 회계감사 Markdown과 안내 문구에서 청구 데이터 조회·출력을 제거한다.

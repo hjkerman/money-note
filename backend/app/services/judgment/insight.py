@@ -3,12 +3,10 @@ from __future__ import annotations
 from math import ceil
 from statistics import median
 
-from app.services.card_charge import normalize_discount_policy
 from app.services.clock import app_today_iso
 
 from .categories import CATEGORY_LABELS, spending_stat_tones
 from .common import days_between, judgment_message
-from .features import panel_net_amount
 
 
 DEFAULT_MANY_EXPENSE_THRESHOLD = 120
@@ -25,21 +23,8 @@ def app_judgment(
 ) -> dict:
     """본체 웹앱에서 쓰는 모든 판단 문구를 한 번에 만든다."""
     expense_entries = [entry for entry in entries if entry.get("entry_kind") != "planned"]
-    claim_rows = [
-        {
-            **panel,
-            "discount_policy": normalize_discount_policy(
-                settings.get(f"card_discount_policy:owner:{panel.get('month')}", "enabled"),
-                "owner",
-            ),
-        }
-        for panel in panels
-        if panel.get("panel_type") == "claim"
-    ]
-    family_card_rows = [panel for panel in panels if panel.get("panel_type") == "family_card"]
     frozen_rows = [panel for panel in panels if panel.get("panel_type") == "frozen"]
     card_limit = float(settings.get("card_limit") or 5_800_000)
-    family_card_total = sum(float(row.get("amount_value") or 0) for row in family_card_rows)
     owner_card_total = float(summary.get("card_total") or 0)
     today_iso = app_today_iso()
     days_until_due = days_between(today_iso, str(payment_status.get("due_date") or today_iso))
@@ -57,19 +42,17 @@ def app_judgment(
                 "expense_count": len(expense_entries),
                 "cash_flow_total": sum(float(flow.get("amount_value") or 0) for flow in cash_flows),
                 "cash_flow_count": len(cash_flows),
-                "claim_total": sum(
-                    panel_net_amount(row, settings) for row in claim_rows
-                ),
-                "claim_count": len(claim_rows),
-                "family_card_total": family_card_total,
-                "family_card_count": len(family_card_rows),
+                "claim_total": 0,
+                "claim_count": 0,
+                "family_card_total": 0,
+                "family_card_count": 0,
                 "frozen_total": sum(float(row.get("amount_value") or 0) for row in frozen_rows),
                 "frozen_count": len(frozen_rows),
                 "remaining_liquidity": float(summary.get("remaining_liquidity", 0) or 0),
                 "historical_expense_counts": historical_expense_counts or [],
             }
         ),
-        "credit": credit_usage_tone((owner_card_total + family_card_total) / card_limit if card_limit > 0 else 0),
+        "credit": credit_usage_tone(owner_card_total / card_limit if card_limit > 0 else 0),
         "payment": payment_pressure_tone(
             float(payment_status.get("recorded_remaining_total") or 0),
             days_until_due,
@@ -83,8 +66,6 @@ def budget_committee_tone(input_data: dict) -> dict[str, str]:
     activity_count = (
         input_data["expense_count"]
         + input_data["cash_flow_count"]
-        + input_data["claim_count"]
-        + input_data["family_card_count"]
         + input_data["frozen_count"]
     )
 
@@ -111,11 +92,6 @@ def budget_committee_tone(input_data: dict) -> dict[str, str]:
         return {
             "level": "steady",
             "message": say("budget.frozen"),
-        }
-    if input_data["claim_total"] + input_data["family_card_total"] > input_data["expense_total"] and input_data["claim_count"] + input_data["family_card_count"] > 0:
-        return {
-            "level": "steady",
-            "message": say("budget.family_presence"),
         }
     if input_data["expense_count"] >= many_expense_threshold(
         input_data.get("historical_expense_counts")

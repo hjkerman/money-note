@@ -529,6 +529,7 @@ def _dry_run_restore(data: dict[str, list[dict[str, Any]]]) -> None:
     with _schema_connection() as conn:
         _replace_snapshot_tables(conn, data)
         _raise_if_foreign_key_errors(conn)
+        _validate_financial_relationships(conn)
 
 
 @contextmanager
@@ -547,6 +548,54 @@ def _raise_if_foreign_key_errors(conn: Any) -> None:
     errors = conn.execute("PRAGMA foreign_key_check").fetchall()
     if errors:
         raise ValueError("snapshot foreign key check failed")
+
+
+def _validate_financial_relationships(conn: Any) -> None:
+    duplicate_key = conn.execute(
+        """
+        SELECT payment_key
+        FROM ledger_entries
+        WHERE payment_key IS NOT NULL
+        GROUP BY payment_key
+        HAVING COUNT(*) > 1
+        LIMIT 1
+        """
+    ).fetchone()
+    if duplicate_key is not None:
+        raise ValueError("snapshot contains duplicate ledger payment_key")
+
+    active_batch_count = conn.execute(
+        "SELECT COUNT(*) AS count FROM card_payment_batches WHERE status = 'active'"
+    ).fetchone()["count"]
+    if int(active_batch_count) > 1:
+        raise ValueError("snapshot contains multiple active card payment batches")
+
+    allocation_mismatch = conn.execute(
+        """
+        SELECT card_payment_events.id
+        FROM card_payment_events
+        LEFT JOIN card_payment_allocations
+          ON card_payment_allocations.payment_event_id = card_payment_events.id
+        GROUP BY card_payment_events.id
+        HAVING card_payment_events.total_amount != COALESCE(SUM(card_payment_allocations.amount_value), 0)
+        LIMIT 1
+        """
+    ).fetchone()
+    if allocation_mismatch is not None:
+        raise ValueError("snapshot card payment event total does not match allocations")
+
+    cash_flow_mismatch = conn.execute(
+        """
+        SELECT card_payment_events.id
+        FROM card_payment_events
+        JOIN cash_flows ON cash_flows.id = card_payment_events.cash_flow_id
+        WHERE card_payment_events.event_type = 'immediate'
+          AND cash_flows.amount_value != -card_payment_events.total_amount
+        LIMIT 1
+        """
+    ).fetchone()
+    if cash_flow_mismatch is not None:
+        raise ValueError("snapshot immediate card payment does not match linked cash flow")
 
 
 def _write_pre_restore_backup(conn: Any) -> Path:

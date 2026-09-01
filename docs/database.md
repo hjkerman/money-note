@@ -56,7 +56,7 @@
 | `confirmed_month` | TEXT | 카드 정기결제를 확인한 대상 월 |
 | `source_planned_entry_id` | INTEGER nullable FK | 카드 정기결제 확인으로 생성된 지출이 참조하는 원본 planned 템플릿 id. 템플릿 삭제 시 `NULL` |
 | `spending_category` | TEXT | `essential`, `questionable`, `dignity`, 또는 `NULL` |
-| `payment_key` | TEXT | 카드 결제/할인 배분용 안정 키 |
+| `payment_key` | TEXT | 카드 결제/할인 배분용 전역 안정 키. planned 이외의 공식 생성 경로는 중복을 거부한다. |
 | `discount_override` | INTEGER | `1`이면 기본 할인 계산 대신 `aux_amount_value`를 수동 할인액으로 사용 |
 
 정렬:
@@ -65,6 +65,8 @@
 - 일반 지출은 `entry_date`, `sort_order`, `id` 순
 
 API의 `discount_policy`, `automatic_discount_eligible`, `automatic_discount_amount`, `effective_discount_amount`, `effective_amount_value`, `is_transport`, `is_toll`은 이 테이블 컬럼이 아니다. 서버의 `card_charge` 모듈이 원본 금액, 사용월, 카드 종류, 월 정책과 수동 override를 결합해 응답에만 덧붙인다.
+
+`payment_key`에는 현재 DB `UNIQUE` 제약을 두지 않는다. 월마감 transaction이 current 행을 archive로 복사한 뒤 원본을 삭제하는 짧은 구간에는 같은 key가 두 행에 공존하므로 즉시 UNIQUE 제약은 정상 월마감을 깨뜨린다. 대신 공식 생성 경로가 `IMMEDIATE` transaction 안에서 중복을 차단하고, Snapshot restore dry-run이 최종 상태의 중복 key를 거부한다.
 
 ## `monthly_panels`
 
@@ -110,7 +112,7 @@ API의 할인 정책·자동 할인·유효 할인·실결제 투영 필드는 �
 | --- | --- |
 | `scheduled_income` | 다음 월마감 실행일에 실제 `급여` 현금 유입으로 확정할 기본 예정 수입. 현행 Summary에서는 아직 들어오지 않은 다음 급여로도 한 번 선반영 |
 | `cash_flow_balance` | Active 계좌의 초기·수동 보정값. Summary에서는 서버 기준일까지 발생한 현금흐름 누계와 합산한다. |
-| `card_limit` | 본인카드와 가족카드 합산 사용률을 판단할 카드 한도 |
+| `card_limit` | 본인카드 사용률 Judgment의 기준 카드 한도 |
 | `owner_card_last4` | 본인회원 카드 끝 4자리 |
 | `family_card_last4` | 가족카드 끝 4자리 |
 | `card_discount_policy:owner:{YYYY-MM}` | 해당 월 본인카드 혜택 `enabled`/`disabled` |
@@ -255,3 +257,7 @@ API의 할인 정책·자동 할인·유효 할인·실결제 투영 필드는 �
 - nullable idempotency key의 부분 unique index와 planned 관계 조회 index
 
 기존에 연결된 현금성 고정지출은 유효한 `spent_on`에서 `confirmed_month`를 backfill한다. 과거 정기결제 지출은 관계를 추측해 DB에 기록하지 않으며, 조회 경계에서만 기존 제목·금액 매칭을 호환 fallback으로 사용한다. 구버전 카드 결제 이벤트의 idempotency 필드는 `NULL`로 남는다.
+
+## Snapshot 관계 검증
+
+restore dry-run은 최종 적재 상태에서 non-null `payment_key` 중복, 복수 active batch, 이벤트 총액과 allocation 합계 불일치, 연결된 즉시결제 현금흐름 금액 불일치를 거부한다. 이는 명백한 관계 손상만 막는 검사이며 Summary 전체나 Judgment를 재계산하지 않는다. 검증은 실제 DB 교체와 mandatory `pre_restore` 생성 전에 끝난다.

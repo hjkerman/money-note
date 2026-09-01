@@ -498,9 +498,9 @@ class SnapshotTest(unittest.TestCase):
         next(row for row in snapshot["data"]["ledger_entries"] if row["id"] == 1)["aux_amount_value"] = 12.8
         next(row for row in snapshot["data"]["monthly_panels"] if row["id"] == 1)["amount_value"] = 2000.7
         next(row for row in snapshot["data"]["monthly_panels"] if row["id"] == 1)["discount_amount"] = 24.9
-        next(row for row in snapshot["data"]["cash_flows"] if row["id"] == 1)["amount_value"] = -5000.6
+        next(row for row in snapshot["data"]["cash_flows"] if row["id"] == 1)["amount_value"] = -500.6
         next(row for row in snapshot["data"]["card_payment_events"] if row["id"] == 1)["total_amount"] = 500.5
-        next(row for row in snapshot["data"]["card_payment_allocations"] if row["id"] == 1)["amount_value"] = 300.4
+        next(row for row in snapshot["data"]["card_payment_allocations"] if row["id"] == 1)["amount_value"] = 500.4
         for setting in snapshot["data"]["app_settings"]:
             if setting["key"] == "scheduled_income":
                 setting["value"] = "400000.9"
@@ -526,9 +526,9 @@ class SnapshotTest(unittest.TestCase):
         self.assertEqual(ledger["aux_amount_value"], 12)
         self.assertEqual(panel["amount_value"], 2000)
         self.assertEqual(panel["discount_amount"], 24)
-        self.assertEqual(cash_flow["amount_value"], -5000)
+        self.assertEqual(cash_flow["amount_value"], -500)
         self.assertEqual(event["total_amount"], 500)
-        self.assertEqual(allocation["amount_value"], 300)
+        self.assertEqual(allocation["amount_value"], 500)
         self.assertEqual(setting["value"], "400000")
 
     def test_export_omits_legacy_discount_checked_columns(self) -> None:
@@ -843,6 +843,54 @@ class SnapshotTest(unittest.TestCase):
 
         self._assert_seed_data_preserved()
 
+    def test_restore_rejects_duplicate_payment_key_without_touching_db(self) -> None:
+        self._seed_data()
+        _, snapshot = export_snapshot(date(2026, 6, 11))
+        broken = copy.deepcopy(snapshot)
+        next(row for row in broken["data"]["ledger_entries"] if row["id"] == 2)["payment_key"] = "recent-key"
+        self._refresh_manifest(broken)
+
+        with self.assertRaisesRegex(ValueError, "duplicate ledger payment_key"):
+            restore_snapshot(broken)
+
+        self._assert_seed_data_preserved()
+
+    def test_restore_rejects_multiple_active_payment_batches_without_touching_db(self) -> None:
+        self._seed_data()
+        _, snapshot = export_snapshot(date(2026, 6, 11))
+        broken = copy.deepcopy(snapshot)
+        next(row for row in broken["data"]["card_payment_batches"] if row["id"] == 2)["status"] = "active"
+        self._refresh_manifest(broken)
+
+        with self.assertRaisesRegex(ValueError, "multiple active card payment batches"):
+            restore_snapshot(broken)
+
+        self._assert_seed_data_preserved()
+
+    def test_restore_rejects_payment_allocation_mismatch_without_touching_db(self) -> None:
+        self._seed_data()
+        _, snapshot = export_snapshot(date(2026, 6, 11))
+        broken = copy.deepcopy(snapshot)
+        next(row for row in broken["data"]["card_payment_allocations"] if row["id"] == 1)["amount_value"] = 499
+        self._refresh_manifest(broken)
+
+        with self.assertRaisesRegex(ValueError, "event total does not match allocations"):
+            restore_snapshot(broken)
+
+        self._assert_seed_data_preserved()
+
+    def test_restore_rejects_payment_cash_flow_mismatch_without_touching_db(self) -> None:
+        self._seed_data()
+        _, snapshot = export_snapshot(date(2026, 6, 11))
+        broken = copy.deepcopy(snapshot)
+        next(row for row in broken["data"]["cash_flows"] if row["id"] == 1)["amount_value"] = -499
+        self._refresh_manifest(broken)
+
+        with self.assertRaisesRegex(ValueError, "payment does not match linked cash flow"):
+            restore_snapshot(broken)
+
+        self._assert_seed_data_preserved()
+
     def _rebuilt_manifest(
         self,
         data: dict,
@@ -1001,8 +1049,8 @@ class SnapshotTest(unittest.TestCase):
                 """
                 INSERT INTO cash_flows(id, occurred_on, title, amount_value, sort_order)
                 VALUES
-                    (1, '2026-06-06', '최근 현금', 5000, 1),
-                    (2, '2026-02-06', '오래된 현금', 6000, 2)
+                    (1, '2026-06-06', '최근 현금', -500, 1),
+                    (2, '2026-02-06', '오래된 현금', -700, 2)
                 """
             )
             conn.execute(
@@ -1010,7 +1058,7 @@ class SnapshotTest(unittest.TestCase):
                 INSERT INTO card_payment_batches(id, usage_month, source, status)
                 VALUES
                     (1, '2026-05', 'month_close', 'active'),
-                    (2, '2026-01', 'month_close', 'active')
+                    (2, '2026-01', 'month_close', 'completed')
                 """
             )
             conn.execute(

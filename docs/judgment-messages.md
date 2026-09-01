@@ -46,7 +46,7 @@ backend/app/services/judgment/
 | 입력 | 실제 범위 | 주요 사용처 |
 | --- | --- | --- |
 | `entries` | `book_section=current` 행. `app_judgment`는 planned를 제외한 expense만 소비 건수·총액에 사용 | `budget` |
-| `panels` | 달력상 현재 월 패널과 월 경계에 무관하게 유지되는 fixed/frozen/claim/family_card | `budget`, `credit` |
+| `panels` | 달력상 현재 월 패널과 월 경계에 무관하게 유지되는 fixed/frozen/claim/family_card. 본인 앱 판단은 frozen만 사용 | `budget` |
 | `cash_flows` | 서버 기준일이 속한 달의 1일~말일 현금흐름 | `budget` |
 | `summary` | 서버가 계산한 카드대금·잔여 유동성 등 | `budget`, `credit` |
 | `payment_status` | 마지막 월마감이 만든 활성 카드 결제 batch | `payment` |
@@ -59,8 +59,6 @@ backend/app/services/judgment/
 
 - 본인 원장 expense의 사용금액 총액과 건수
 - 현재 예산 주기, 즉 서버 기준 당월 현금흐름 총액과 건수
-- Claim 실부담액과 건수
-- Family Card 원금 총액과 건수
 - 동결 총액과 건수
 - Summary의 `remaining_liquidity`
 - 최근 마감 월 지출 건수
@@ -71,22 +69,20 @@ backend/app/services/judgment/
 2. 잔여 유동성이 음수면 `danger`
 3. 현금흐름 순유출 절댓값이 본인 소비 총액보다 크면 `warning`
 4. 동결 총액이 본인 소비 총액보다 크면 `steady`
-5. Claim과 Family Card 합계가 본인 소비 총액보다 크면 `steady`
-6. 현재 지출 건수가 최근 마감 월 기준치를 넘으면 `steady`
-7. 현금흐름 순유입이 본인 소비 총액보다 크면 `quiet`
-8. 본인 소비 총액이 100만원 이상이면 `warning`
-9. 나머지는 `quiet`
+5. 현재 지출 건수가 최근 마감 월 기준치를 넘으면 `steady`
+6. 현금흐름 순유입이 본인 소비 총액보다 크면 `quiet`
+7. 본인 소비 총액이 100만원 이상이면 `warning`
+8. 나머지는 `quiet`
 
 월마감으로 생성된 `급여`는 실행일에 발생한 일반 현금흐름이며 `is_primary_income=1`인 양수 행이다. 발생일이 서버 기준 당월에 속하면 `budget`의 현금흐름 총액·건수에 포함된다. Summary의 `cash_flow_balance`는 이와 별개로 서버 기준일까지 실제 발생한 전체 기간 누계를 유지한다.
 
 ### `credit`: 카드 한도 감시
 
 - 본인카드 금액은 Summary의 할인 후 `card_total`이다.
-- Family Card 금액은 현재 패널의 원금 합계다.
-- 두 금액의 합을 `card_limit`으로 나눈다.
+- 이 금액만 `card_limit`으로 나눈다.
 - 사용률 80% 이상 또는 50% 이상은 `danger`, 30% 이상은 `warning`, 10% 이상은 `steady`, 그 미만은 `quiet`다.
 
-Family Card는 이 판단의 최소 연결부에만 들어간다. 향후 기능 제거 시 본인 원장·Summary·유동성 계산을 바꾸지 않고 이 합산 입력만 제거할 수 있어야 한다.
+Claim과 Family Card는 가족이 부담할 회수 예정 금액이므로 본인 앱의 소비·신용 압박 판단에 넣지 않는다. 두 기능을 제거해도 본인 원장·Summary·유동성·핵심 Judgment는 바뀌지 않아야 한다. 각 공유 화면의 전용 Judgment는 현재처럼 별도로 유지한다.
 
 ### `payment`: 파산심사위원회
 

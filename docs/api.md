@@ -305,6 +305,8 @@
 
 금전 기록을 삭제한다.
 
+즉시결제 allocation이 한 건이라도 있는 카드 원장 항목은 일부·전액 여부와 무관하게 `409`로 거부한다. 이미 지급한 거래의 현금 출금 이력을 일반 원장 편집으로 다시 쓰지 않기 위한 규칙이다. 미결제 항목과 할인 처리만 있는 항목은 기존처럼 삭제할 수 있다.
+
 응답:
 
 ```json
@@ -636,6 +638,8 @@ remaining_liquidity
 
 `cash_flow_balance`는 `occurred_on <= calendar_date`인 현금흐름만 합산한다. 월마감 자동 `급여`는 실행일로 생성되므로 즉시 잔액에 반영된다. 사용자가 별도로 입력한 미래 날짜 현금흐름은 기존대로 해당 날짜 전 Summary 잔액에서 제외되며, 현금흐름 조회 API와 Snapshot에는 행 자체가 그대로 존재한다.
 
+Summary의 모든 구성값은 하나의 SQLite read transaction에서 계산한다. 한 응답 안의 예정 수입, 실제 잔액, 카드 의무, 고정 의무, 동결과 잔여 유동성이 서로 다른 commit 시점에서 섞이지 않는다.
+
 `card_total`은 본인 당월 카드 지출의 할인 후 금액이다. 청구 탭 금액은 청구 표시 합계와 공유 청구서의 실청구액에는 반영하지만, `remaining_liquidity` 계산에는 넣지 않는다.
 청구와 가족카드는 회수 예정 금액으로 보며, 당월 소비 통계와 `당월` 큰 탭 합계에도 넣지 않는다.
 
@@ -666,8 +670,8 @@ remaining_liquidity
   ],
   "claim_categories": {},
   "budget": {
-    "level": "steady",
-    "message": "청구와 가족카드가 당월 지출보다 활발합니다. 가족이라는 제도가 회계상으로도 실재합니다."
+    "level": "quiet",
+    "message": "장부는 대체로 평온합니다. 소비는 있었고 재난으로 분류되지는 않았습니다."
   },
   "credit": {
     "level": "warning",
@@ -725,6 +729,8 @@ remaining_liquidity
 ```
 
 `target_month`는 재시도할 논리 작업의 월을 고정한다. 현재 Web과 Mobile은 상태 API의 `oldest_open_month`를 반드시 보낸다. 오래된 호환 호출을 위해 생략은 허용하지만, 안정적인 재시도에는 대상 월을 명시해야 한다.
+
+`oldest_open_month`는 원장 행 존재 여부만으로 결정하지 않는다. `last_closed_month`가 있으면 그 다음 예산 주기를 우선하므로 카드 지출이 0건인 달도 정상적으로 월마감할 수 있다. 빈 달도 급여 생성, 반복 템플릿 reset, 활성 결제 batch 생성과 동일 target 재시도 idempotency를 그대로 수행한다.
 
 미확인 정기지출이 있으면 `allow_unconfirmed_recurring=false`인 요청은 변경과 pre_restore 생성 전에 `422`로 중단된다. Web과 Mobile은 해당 목록을 보여준 뒤 사용자가 `그래도 월마감`을 선택한 경우에만 `true`로 다시 요청한다. 이 값은 경고를 인지했다는 explicit override이며 미확인 항목을 자동 확인하거나 삭제하지 않는다.
 
@@ -1020,6 +1026,8 @@ GET /api/cash-flows?from=2026-07-01&to=2026-07-31&limit=100
 
 현금 입출금 기록을 삭제한다.
 
+카드 즉시결제 이벤트에 연결된 현금흐름은 `409`로 거부한다. 해당 출금을 취소하려면 `DELETE /api/card-payments/events/{event_id}`를 사용해야 하며, 이 전용 경로가 결제 이벤트·allocation·연결 현금흐름을 함께 삭제한다. 일반 수동 현금흐름과 현금성 고정지출의 기존 삭제/재활성화 동작은 유지한다.
+
 ## 서버 설정
 
 ### `GET /api/settings`
@@ -1042,7 +1050,7 @@ GET /api/cash-flows?from=2026-07-01&to=2026-07-31&limit=100
 
 - `scheduled_income`: 기본 예정 수입
 - `cash_flow_balance`: 현금흐름 수동 보정값
-- `card_limit`: 본인카드와 가족카드 합산 사용률을 판단할 카드 한도
+- `card_limit`: 본인카드 사용률 Judgment의 기준 카드 한도. 가족 부담 지출은 본인 신용 압박에 합산하지 않는다.
 - `owner_card_last4`: 본인회원 카드 끝 4자리. 비워둘 수 있다.
 - `family_card_last4`: 가족카드 끝 4자리. 비워둘 수 있다.
 
@@ -1236,6 +1244,8 @@ JSON snapshot을 복원한다. 현재 비밀번호를 다시 확인하며, 장�
 현재 서버는 `schema_version = 7`을 생성하고 v4, v5, v6, v7을 복원한다. v6은 `monthly_panels.confirmed_cash_flow_id`를 포함하고, v7은 `ledger_entries.source_planned_entry_id`, `monthly_panels.confirmed_month`, `card_payment_events.idempotency_key`, `request_fingerprint`를 추가로 보존한다. 구버전에서 이 nullable 필드가 없으면 미연결 또는 비-idempotent 과거 행으로 복원한다. 지원 버전의 `card_charge_policy`와 주요 상단 메타데이터는 데이터와 함께 SHA-256 검증 대상이다. v4는 원문 manifest를 먼저 검증한 뒤 유동성 설정과 라벨의 과거 key를 현재 key로 정규화한다. 같은 의미의 old/new key가 함께 있고 값이 다르면 복원을 중단한다. 카드 정책 명세 v2는 교통카드 프로필 선택기의 의미도 검증한다. 2026-08-20에 남아 있던 v4 Snapshot 전환을 위해 내부 카드 정책 명세 v1 읽기 경로를 유지하며, 파일 형식 v3 이하는 지원하지 않는다. Snapshot 당시 정책이나 분류 규칙이 현재 서버에서 바뀌었으면 복원하지 않으며, 명세의 `covered_through` 이후부터 적용되는 새 binding 추가만 허용한다. 프로필 선택 이력은 비민감 `app_settings` 데이터로 함께 복원한다. 이 명세는 Snapshot에서 임의 정책을 실행하기 위한 입력이 아니다.
 
 Snapshot export는 하나의 SQLite read transaction에서 모든 테이블을 읽어 서로 다른 commit 시점이 섞이지 않게 한다. 복원은 운영 DB를 건드리기 전에 동일한 삽입 경로로 임시 DB dry-run을 수행한다. 실제 복원은 write transaction을 먼저 확보한 뒤 같은 transaction의 운영 상태로 `pre_restore-...money-note-snapshot.json` 파일을 반드시 저장하고 데이터를 교체한다. 이 파일의 manifest·dry-run 검증에 실패하면 복원을 중단한다.
+
+dry-run은 외래키뿐 아니라 명백한 핵심 관계 손상도 거부한다. 현재 검사는 중복된 non-null `ledger_entries.payment_key`, 복수 active 결제 batch, 결제 이벤트 총액과 allocation 합계 불일치, 즉시결제 이벤트와 연결 현금흐름 절댓값 불일치다. Summary나 Judgment를 다시 계산하는 두 번째 회계 엔진은 두지 않는다.
 
 월마감, 장부 전체 초기화, 청구 일괄 처리 완료, 가족카드 일괄 처리 완료도 실행 직전 현재 장부 상태를 `pre_restore` snapshot으로 자동 저장한다.
 

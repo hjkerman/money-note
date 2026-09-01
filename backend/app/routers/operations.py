@@ -78,7 +78,11 @@ def post_cash_flow(flow: CashFlowIn, _: dict = Depends(require_user)) -> dict:
 
 @cash_router.delete("/{flow_id}")
 def remove_cash_flow(flow_id: int, _: dict = Depends(require_user)) -> dict[str, bool]:
-    if not delete_cash_flow(flow_id):
+    try:
+        deleted = delete_cash_flow(flow_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    if not deleted:
         raise HTTPException(status_code=404, detail="cash flow not found")
     return {"deleted": True}
 

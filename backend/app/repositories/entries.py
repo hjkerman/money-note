@@ -2,7 +2,7 @@ from datetime import date, datetime
 from typing import Any
 
 from app.db import session
-from app.repositories.common import row_to_dict
+from app.repositories.common import ensure_payment_key_available, new_payment_key, row_to_dict
 from app.schemas import LedgerEntryIn, LedgerEntryPatch, PlannedEntryIn
 from app.services.clock import app_today
 
@@ -30,24 +30,34 @@ ENTRY_COLUMNS = [
 ]
 
 
-def list_entries(section: str, today: date | None = None) -> list[dict[str, Any]]:
+def list_entries(
+    section: str,
+    today: date | None = None,
+    conn: Any | None = None,
+) -> list[dict[str, Any]]:
     current_month = (today or app_today()).strftime("%Y-%m")
-    filter_confirmed_planned = " AND NOT (entry_kind = 'planned' AND COALESCE(confirmed_month, '') = ?)" if section == "current" else ""
+    filter_confirmed_planned = (
+        " AND NOT (entry_kind = 'planned' AND COALESCE(confirmed_month, '') = ?)"
+        if section == "current"
+        else ""
+    )
     params: tuple[Any, ...] = (section, current_month) if section == "current" else (section,)
-    with session() as conn:
-        rows = conn.execute(
-            f"""
-            SELECT *
-            FROM ledger_entries
-            WHERE book_section = ?{filter_confirmed_planned}
-            ORDER BY
-              CASE WHEN entry_kind = 'planned' THEN COALESCE(due_day, 99) ELSE 0 END,
-              CASE WHEN entry_kind = 'planned' THEN NULL ELSE entry_date END,
-              sort_order,
-              id
-            """,
-            params,
-        ).fetchall()
+    if conn is None:
+        with session() as owned_conn:
+            return list_entries(section, today, owned_conn)
+    rows = conn.execute(
+        f"""
+        SELECT *
+        FROM ledger_entries
+        WHERE book_section = ?{filter_confirmed_planned}
+        ORDER BY
+          CASE WHEN entry_kind = 'planned' THEN COALESCE(due_day, 99) ELSE 0 END,
+          CASE WHEN entry_kind = 'planned' THEN NULL ELSE entry_date END,
+          sort_order,
+          id
+        """,
+        params,
+    ).fetchall()
     return [row_to_dict(row) for row in rows]
 
 
@@ -168,6 +178,7 @@ def confirm_planned_entry(
             """
         ).fetchone()["sort_order"]
         sort_order = int(max_order or 2) + 1
+        payment_key = new_payment_key(conn)
         cursor = conn.execute(
             """
             INSERT INTO ledger_entries(
@@ -175,7 +186,7 @@ def confirm_planned_entry(
                 usage_place, usage_item, amount_value, amount_expr, sort_order, payment_key,
                 source_planned_entry_id
             )
-            VALUES ('current', 'expense', ?, ?, NULL, ?, ?, ?, ?, ?, ?, lower(hex(randomblob(16))), ?)
+            VALUES ('current', 'expense', ?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 payment_date.isoformat(),
@@ -186,6 +197,7 @@ def confirm_planned_entry(
                 amount,
                 planned["amount_expr"] if amount == int(planned["amount_value"] or 0) else str(amount),
                 sort_order,
+                payment_key,
                 entry_id,
             ),
         )
@@ -223,11 +235,14 @@ def create_entry(entry: LedgerEntryIn) -> dict[str, Any]:
     if values.get("entry_date") is not None:
         values["entry_date"] = values["entry_date"].isoformat()
     _validate_structured_entry(values)
-    if values["entry_kind"] != "planned" and not values.get("payment_key"):
-        values["payment_key"] = None
     placeholders = ", ".join("?" for _ in ENTRY_COLUMNS)
     columns = ", ".join(ENTRY_COLUMNS)
-    with session() as conn:
+    with session(transaction_mode="IMMEDIATE") as conn:
+        if values["entry_kind"] != "planned":
+            if values.get("payment_key"):
+                ensure_payment_key_available(conn, str(values["payment_key"]))
+            else:
+                values["payment_key"] = new_payment_key(conn)
         # 이미 마감한 달의 뒤늦은 지출은 다음 달 장부에 섞지 않고 전체 기록에 바로 보관한다.
         if values["book_section"] == "current" and values["entry_kind"] != "planned" and values.get("entry_date"):
             setting = conn.execute(
@@ -254,15 +269,6 @@ def create_entry(entry: LedgerEntryIn) -> dict[str, Any]:
             f"INSERT INTO ledger_entries ({columns}) VALUES ({placeholders})",
             tuple(values[column] for column in ENTRY_COLUMNS),
         )
-        if values["entry_kind"] != "planned" and not values.get("payment_key"):
-            conn.execute(
-                """
-                UPDATE ledger_entries
-                SET payment_key = lower(hex(randomblob(16)))
-                WHERE id = ?
-                """,
-                (cursor.lastrowid,),
-            )
         row = conn.execute(
             "SELECT * FROM ledger_entries WHERE id = ?",
             (cursor.lastrowid,),
@@ -416,7 +422,7 @@ def update_entry(entry_id: int, patch: LedgerEntryPatch) -> dict[str, Any] | Non
 
 
 def delete_entry(entry_id: int) -> bool:
-    with session() as conn:
+    with session(transaction_mode="IMMEDIATE") as conn:
         entry = conn.execute(
             """
             SELECT payment_key, source_planned_entry_id, book_section, entry_date
@@ -428,6 +434,21 @@ def delete_entry(entry_id: int) -> bool:
         if entry is None:
             return False
         if entry["payment_key"]:
+            paid = conn.execute(
+                """
+                SELECT 1
+                FROM card_payment_allocations
+                JOIN card_payment_events
+                  ON card_payment_events.id = card_payment_allocations.payment_event_id
+                WHERE card_payment_allocations.entry_payment_key = ?
+                  AND card_payment_events.event_type = 'immediate'
+                  AND card_payment_allocations.amount_value > 0
+                LIMIT 1
+                """,
+                (entry["payment_key"],),
+            ).fetchone()
+            if paid is not None:
+                raise ValueError("일부라도 결제된 카드 사용내역은 일반 원장 삭제로 지울 수 없습니다.")
             _delete_card_payment_references(conn, str(entry["payment_key"]))
         cursor = conn.execute("DELETE FROM ledger_entries WHERE id = ?", (entry_id,))
         source_planned_entry_id = entry["source_planned_entry_id"]

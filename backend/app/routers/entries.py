@@ -36,6 +36,10 @@ def patch_entry(entry_id: int, patch: LedgerEntryPatch, _: dict = Depends(requir
 
 @router.delete("/{entry_id}")
 def remove_entry(entry_id: int, _: dict = Depends(require_user)) -> dict[str, bool]:
-    if not delete_entry(entry_id):
+    try:
+        deleted = delete_entry(entry_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    if not deleted:
         raise HTTPException(status_code=404, detail="entry not found")
     return {"deleted": True}

@@ -6,14 +6,15 @@ import unittest
 from unittest.mock import patch
 
 from app.config import get_settings
-from app.db import init_db, session
-from app.repository import confirm_planned_entry
+from app.db import connect, init_db, session
+from app.repository import confirm_planned_entry, delete_cash_flow
 from app.schemas import CardPaymentAllocationIn, CardPaymentEventIn
 from app.services.card_payments import (
     acknowledge_liquidity_reset,
     create_card_payment_event,
     create_month_close_card_payment_batch,
     current_payment_status,
+    delete_card_payment_event,
     defer_toll_payment,
 )
 from app.services.month import close_current_month
@@ -39,6 +40,13 @@ class SummaryCalculationTest(unittest.TestCase):
 
         self.assertEqual(summary["scheduled_income"], 400_000)
         self.assertEqual(summary["cash_flow_balance"], 0)
+        self.assertEqual(summary["remaining_liquidity"], 400_000)
+
+    def test_summary_uses_one_database_connection(self) -> None:
+        with patch("app.db.connect", wraps=connect) as mocked_connect:
+            summary = current_summary_values()
+
+        self.assertEqual(mocked_connect.call_count, 1)
         self.assertEqual(summary["remaining_liquidity"], 400_000)
 
     def test_claim_total_does_not_reduce_remaining_liquidity(self) -> None:
@@ -280,6 +288,74 @@ class SummaryCalculationTest(unittest.TestCase):
         self.assertEqual(after["cash_flow_balance"], -5_000)
         self.assertEqual(current_payment_status()["recorded_remaining_total"], 5_000)
         self.assertEqual(after["remaining_liquidity"], before["remaining_liquidity"])
+
+    def test_payment_cash_flow_requires_authoritative_payment_cancellation(self) -> None:
+        with session() as conn:
+            conn.execute("UPDATE app_settings SET value = '0' WHERE key = 'scheduled_income'")
+            conn.execute(
+                """
+                INSERT INTO ledger_entries(
+                    book_section, entry_kind, entry_date, title, amount_value,
+                    aux_amount_value, discount_override, sort_order, payment_key
+                )
+                VALUES ('archive', 'expense', '2026-05-05', '결제 취소 검증', 10000, 0, 1, 1, 'cancel-key')
+                """
+            )
+            create_month_close_card_payment_batch(conn, "2026-05")
+
+        before_payment = current_summary_values()
+        event = create_card_payment_event(
+            CardPaymentEventIn(
+                idempotency_key="summary-payment-cancel-0001",
+                event_date="2026-06-05",
+                event_type="immediate",
+                allocations=[CardPaymentAllocationIn(entry_payment_key="cancel-key", amount_value=4000)],
+            )
+        )
+        after_payment = current_summary_values()
+        status_after_payment = current_payment_status()
+
+        with self.assertRaisesRegex(ValueError, "결제 기록 취소"):
+            delete_cash_flow(event["cash_flow_id"])
+
+        after_rejected_delete = current_summary_values()
+        status_after_rejected_delete = current_payment_status()
+        with session() as conn:
+            cash_flow = conn.execute(
+                "SELECT amount_value FROM cash_flows WHERE id = ?",
+                (event["cash_flow_id"],),
+            ).fetchone()
+            allocation = conn.execute(
+                "SELECT amount_value FROM card_payment_allocations WHERE payment_event_id = ?",
+                (event["id"],),
+            ).fetchone()
+            stored_event = conn.execute(
+                "SELECT total_amount FROM card_payment_events WHERE id = ?",
+                (event["id"],),
+            ).fetchone()
+
+        self.assertEqual(after_payment, after_rejected_delete)
+        self.assertEqual(status_after_payment["recorded_remaining_total"], 6000)
+        self.assertEqual(status_after_rejected_delete["recorded_remaining_total"], 6000)
+        self.assertEqual(cash_flow["amount_value"], -4000)
+        self.assertEqual(allocation["amount_value"], 4000)
+        self.assertEqual(stored_event["total_amount"], 4000)
+
+        self.assertTrue(delete_card_payment_event(event["id"]))
+        after_authoritative_cancel = current_summary_values()
+        with session() as conn:
+            self.assertIsNone(
+                conn.execute("SELECT 1 FROM cash_flows WHERE id = ?", (event["cash_flow_id"],)).fetchone()
+            )
+            self.assertIsNone(
+                conn.execute("SELECT 1 FROM card_payment_events WHERE id = ?", (event["id"],)).fetchone()
+            )
+        self.assertEqual(current_payment_status()["recorded_remaining_total"], 10_000)
+        self.assertEqual(after_authoritative_cancel["cash_flow_balance"], 0)
+        self.assertEqual(
+            after_authoritative_cancel["remaining_liquidity"],
+            before_payment["remaining_liquidity"],
+        )
 
     def test_deferred_card_liability_moves_from_active_batch_to_current_ledger(self) -> None:
         with session() as conn:

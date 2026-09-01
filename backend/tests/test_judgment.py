@@ -219,6 +219,39 @@ class JudgmentTest(unittest.TestCase):
         self.assertIn("budget", result)
         self.assertIn("payment", result)
 
+    def test_owner_judgment_excludes_claim_and_family_borne_spending(self) -> None:
+        common = {
+            "entries": [
+                {"entry_kind": "expense", "amount_value": 100_000, "spending_category": "dignity"},
+            ],
+            "cash_flows": [],
+            "summary": {"card_total": 98_800, "remaining_liquidity": 301_200},
+            "payment_status": {
+                "due_date": "2026-06-14",
+                "recorded_remaining_total": 0,
+                "primary_income_total": 400_000,
+            },
+            "settings": {"card_limit": "5800000", "scheduled_income": "400000"},
+        }
+
+        without_family_borne_spending = app_judgment(panels=[], **common)
+        with_family_borne_spending = app_judgment(
+            panels=[
+                {"id": 1, "panel_type": "claim", "title": "가족 청구", "amount_value": 5_000_000},
+                {"id": 2, "panel_type": "family_card", "title": "가족카드", "amount_value": 5_000_000},
+            ],
+            **common,
+        )
+
+        self.assertEqual(
+            with_family_borne_spending["budget"]["level"],
+            without_family_borne_spending["budget"]["level"],
+        )
+        self.assertEqual(
+            with_family_borne_spending["credit"]["level"],
+            without_family_borne_spending["credit"]["level"],
+        )
+
     def test_current_judgment_reads_cash_flow_from_current_budget_cycle_only(self) -> None:
         with (
             patch("app.routers.month.app_today", return_value=date(2026, 6, 15)),

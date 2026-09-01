@@ -8,6 +8,7 @@ import json
 from typing import Any
 
 from app.db import session
+from app.repositories.common import new_payment_key
 from app.schemas import CardPaymentEventIn, LateCardEntryIn
 from app.services.card_charge import (
     DiscountCard,
@@ -57,12 +58,12 @@ def current_payment_status(today: date | None = None) -> dict[str, Any]:
     }
 
 
-def active_card_payment_unpaid_total(today: date | None = None) -> int:
+def active_card_payment_unpaid_total(today: date | None = None, conn: Any | None = None) -> int:
     """현재 원장으로 이월되지 않은 활성 결제 batch의 미지급 채무다."""
-    context = _active_payment_context(today or app_today())
-    if _setting_value("card_payment_liquidity_reset_ack_month") == context.payment_month:
+    context = _active_payment_context(today or app_today(), conn)
+    if _setting_value("card_payment_liquidity_reset_ack_month", conn) == context.payment_month:
         return 0
-    payable_rows = [row for row in _payment_rows_for_batch(context) if not row["is_deferred"]]
+    payable_rows = [row for row in _payment_rows_for_batch(context, conn) if not row["is_deferred"]]
     return _remaining_total(payable_rows)
 
 
@@ -502,7 +503,7 @@ def create_late_card_entry(payload: LateCardEntryIn, today: date | None = None) 
     title = _usage_title(usage_place, usage_item)
     if not title:
         raise ValueError("사용처 또는 세부내역을 입력하세요.")
-    with session() as conn:
+    with session(transaction_mode="IMMEDIATE") as conn:
         sort_order = conn.execute(
             """
             SELECT COALESCE(MAX(sort_order), 0) + 1 AS value
@@ -510,6 +511,7 @@ def create_late_card_entry(payload: LateCardEntryIn, today: date | None = None) 
             WHERE book_section = 'archive'
             """
         ).fetchone()["value"]
+        payment_key = new_payment_key(conn)
         cursor = conn.execute(
             """
             INSERT INTO ledger_entries(
@@ -517,7 +519,7 @@ def create_late_card_entry(payload: LateCardEntryIn, today: date | None = None) 
                 usage_place, usage_item, amount_value, sort_order, payment_key
             )
             VALUES (
-                'archive', 'late_expense', ?, ?, NULL, ?, ?, ?, ?, ?, lower(hex(randomblob(16)))
+                'archive', 'late_expense', ?, ?, NULL, ?, ?, ?, ?, ?, ?
             )
             """,
             (
@@ -528,6 +530,7 @@ def create_late_card_entry(payload: LateCardEntryIn, today: date | None = None) 
                 usage_item or None,
                 int(payload.amount_value),
                 sort_order,
+                payment_key,
             ),
         )
         payment_key_row = conn.execute(
@@ -733,14 +736,19 @@ def _active_payment_batch(conn: Any) -> Any:
     ).fetchone()
 
 
-def _payment_rows_for_batch(context: CardPaymentContext) -> list[dict[str, Any]]:
+def _payment_rows_for_batch(
+    context: CardPaymentContext,
+    conn: Any | None = None,
+) -> list[dict[str, Any]]:
     if context.batch_id is None:
         return []
+    if conn is None:
+        with session() as owned_conn:
+            return _payment_rows_for_batch(context, owned_conn)
     payment_month = context.payment_month
-    with session() as conn:
-        settings = _settings_values(conn)
-        rows = conn.execute(
-            """
+    settings = _settings_values(conn)
+    rows = conn.execute(
+        """
             SELECT ledger_entries.*,
                    card_payment_deferrals.from_payment_month AS deferred_from_payment_month,
                    card_payment_deferrals.target_payment_month AS deferred_target_payment_month,
@@ -773,9 +781,9 @@ def _payment_rows_for_batch(context: CardPaymentContext) -> list[dict[str, Any]]
               ledger_entries.entry_date,
               ledger_entries.sort_order,
               ledger_entries.id
-            """,
-            (context.batch_id, payment_month, payment_month),
-        ).fetchall()
+        """,
+        (context.batch_id, payment_month, payment_month),
+    ).fetchall()
     result = []
     for row in rows:
         data = dict(row)
@@ -1073,7 +1081,9 @@ def _primary_income_total(payment_month: str) -> float:
     return float(row["total"])
 
 
-def _setting_value(key: str) -> str:
-    with session() as conn:
-        row = conn.execute("SELECT value FROM app_settings WHERE key = ?", (key,)).fetchone()
+def _setting_value(key: str, conn: Any | None = None) -> str:
+    if conn is None:
+        with session() as owned_conn:
+            return _setting_value(key, owned_conn)
+    row = conn.execute("SELECT value FROM app_settings WHERE key = ?", (key,)).fetchone()
     return str(row["value"]) if row else ""

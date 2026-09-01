@@ -65,7 +65,13 @@ def create_cash_flow(flow: CashFlowIn) -> dict[str, Any]:
 
 
 def delete_cash_flow(flow_id: int) -> bool:
-    with session() as conn:
+    with session(transaction_mode="IMMEDIATE") as conn:
+        payment_event = conn.execute(
+            "SELECT 1 FROM card_payment_events WHERE cash_flow_id = ? LIMIT 1",
+            (flow_id,),
+        ).fetchone()
+        if payment_event is not None:
+            raise ValueError("카드 즉시결제 현금흐름은 결제 기록 취소로만 되돌릴 수 있습니다.")
         # 확인 직후의 현금 유출을 지우면 고정지출은 다시 미지급 의무가 된다.
         conn.execute(
             """

@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime
 from typing import Any
 
 from app.db import session
-from app.services.clock import app_today
+from app.services.clock import app_month_for_utc_timestamp, app_today
 from app.services.card_payments import create_month_close_card_payment_batch
 from app.services.snapshot import create_pre_restore_backup
 
@@ -26,16 +26,7 @@ def close_current_month(
             "SELECT value FROM app_settings WHERE key = 'last_closed_month'"
         ).fetchone()
         last_closed_month = str(last_closed_row["value"]) if last_closed_row else None
-        target_row = conn.execute(
-            """
-            SELECT MIN(substr(entry_date, 1, 7)) AS month
-            FROM ledger_entries
-            WHERE book_section = 'current'
-              AND entry_kind != 'planned'
-              AND entry_date IS NOT NULL
-            """
-        ).fetchone()
-        actual_target_month = str(target_row["month"] or "")
+        actual_target_month = _oldest_open_month(conn, today, last_closed_month)
         if requested_month and actual_target_month != requested_month:
             if last_closed_month and requested_month <= last_closed_month:
                 return {
@@ -175,19 +166,11 @@ def month_close_status(today: date | None = None) -> dict[str, Any]:
     today = today or app_today()
     calendar_month = today.strftime("%Y-%m")
     with session() as conn:
-        row = conn.execute(
-            """
-            SELECT MIN(substr(entry_date, 1, 7)) AS month
-            FROM ledger_entries
-            WHERE book_section = 'current'
-              AND entry_kind != 'planned'
-              AND entry_date IS NOT NULL
-            """
-        ).fetchone()
         setting = conn.execute(
             "SELECT value FROM app_settings WHERE key = 'last_closed_month'"
         ).fetchone()
-        oldest_open_month = str(row["month"] or "") or None
+        last_closed_month = str(setting["value"]) if setting else None
+        oldest_open_month = _oldest_open_month(conn, today, last_closed_month) or None
         unconfirmed_recurring = (
             _unconfirmed_recurring_items(conn, oldest_open_month)
             if oldest_open_month
@@ -199,7 +182,7 @@ def month_close_status(today: date | None = None) -> dict[str, Any]:
         "calendar_date": today.isoformat(),
         "calendar_month": calendar_month,
         "oldest_open_month": oldest_open_month,
-        "last_closed_month": str(setting["value"]) if setting else None,
+        "last_closed_month": last_closed_month,
         "needs_close": bool(oldest_open_month and oldest_open_month < calendar_month),
         "is_early_close": is_early_close,
         "early_close_available": early_close_available,
@@ -231,11 +214,11 @@ def _unconfirmed_recurring_items(conn: Any, target_month: str) -> list[dict[str,
     planned_rows = conn.execute(
         """
         SELECT planned.id, planned.title, planned.amount_value,
-               planned.usage_place, planned.usage_item, planned.due_day
+               planned.usage_place, planned.usage_item, planned.due_day,
+               planned.created_at
         FROM ledger_entries AS planned
         WHERE planned.book_section = 'current'
           AND planned.entry_kind = 'planned'
-          AND substr(planned.created_at, 1, 7) <= ?
           AND NOT (
             planned.confirmed_month = ?
             AND (
@@ -261,8 +244,13 @@ def _unconfirmed_recurring_items(conn: Any, target_month: str) -> list[dict[str,
           )
         ORDER BY COALESCE(planned.due_day, 99), planned.sort_order, planned.id
         """,
-        (target_month, target_month, f"{target_month}%", f"{target_month}%"),
+        (target_month, f"{target_month}%", f"{target_month}%"),
     ).fetchall()
+    planned_rows = [
+        row
+        for row in planned_rows
+        if app_month_for_utc_timestamp(str(row["created_at"])) <= target_month
+    ]
     return [
         {
             "kind": "fixed",
@@ -299,6 +287,36 @@ def current_month_label() -> str:
     if row and row["entry_date"]:
         return str(row["entry_date"])[:7]
     return app_today().strftime("%Y-%m")
+
+
+def _oldest_open_month(
+    conn: Any,
+    today: date,
+    last_closed_month: str | None,
+) -> str:
+    """원장 행이 없어도 예산 주기 상태에서 다음 마감 대상을 찾는다."""
+    calendar_month = today.strftime("%Y-%m")
+    row = conn.execute(
+        """
+        SELECT MIN(substr(entry_date, 1, 7)) AS month
+        FROM ledger_entries
+        WHERE book_section = 'current'
+          AND entry_kind != 'planned'
+          AND entry_date IS NOT NULL
+        """
+    ).fetchone()
+    entry_month = str(row["month"] or "")
+    if last_closed_month:
+        next_cycle = _next_month(last_closed_month)
+        return next_cycle if next_cycle <= calendar_month else ""
+    return entry_month or calendar_month
+
+
+def _next_month(month: str) -> str:
+    parsed = datetime.strptime(month, "%Y-%m")
+    if parsed.month == 12:
+        return f"{parsed.year + 1}-01"
+    return f"{parsed.year}-{parsed.month + 1:02d}"
 
 
 def calendar_month_label(today: date | None = None) -> str:

@@ -176,7 +176,22 @@ class EntryConstraintTest(unittest.TestCase):
         visible = list_entries("current")
         self.assertTrue(any(row["usage_place"] == special_place and row["usage_item"] == special_item for row in visible))
 
-    def test_delete_entry_cleans_card_payment_allocations_and_cash_flow(self) -> None:
+    def test_unpaid_entry_can_be_deleted(self) -> None:
+        entry = create_entry(
+            LedgerEntryIn(
+                book_section="current",
+                entry_kind="expense",
+                entry_date="2026-06-04",
+                usage_place="미결제",
+                amount_value=1000,
+                sort_order=1,
+            )
+        )
+
+        self.assertTrue(delete_entry(entry["id"]))
+        self.assertFalse(any(row["id"] == entry["id"] for row in list_entries("current")))
+
+    def test_partially_paid_entry_cannot_be_deleted(self) -> None:
         first = create_entry(
             LedgerEntryIn(
                 book_section="archive",
@@ -216,7 +231,8 @@ class EntryConstraintTest(unittest.TestCase):
                 (event_id,),
             )
 
-        self.assertTrue(delete_entry(first["id"]))
+        with self.assertRaisesRegex(ValueError, "일부라도 결제"):
+            delete_entry(first["id"])
 
         with session() as conn:
             event = conn.execute("SELECT total_amount FROM card_payment_events WHERE id = ?", (event_id,)).fetchone()
@@ -224,9 +240,81 @@ class EntryConstraintTest(unittest.TestCase):
             allocation_count = conn.execute(
                 "SELECT COUNT(*) AS count FROM card_payment_allocations WHERE entry_payment_key = 'first-key'"
             ).fetchone()["count"]
-        self.assertEqual(event["total_amount"], 2000)
-        self.assertEqual(cash_flow["amount_value"], -2000)
-        self.assertEqual(allocation_count, 0)
+            entry = conn.execute("SELECT id FROM ledger_entries WHERE id = ?", (first["id"],)).fetchone()
+        self.assertEqual(event["total_amount"], 3000)
+        self.assertEqual(cash_flow["amount_value"], -3000)
+        self.assertEqual(allocation_count, 1)
+        self.assertIsNotNone(entry)
+
+    def test_fully_paid_entry_cannot_be_deleted(self) -> None:
+        entry = create_entry(
+            LedgerEntryIn(
+                book_section="archive",
+                entry_kind="expense",
+                entry_date="2026-05-04",
+                usage_place="전액 결제",
+                amount_value=1000,
+                sort_order=1,
+                payment_key="fully-paid-key",
+            )
+        )
+        with session() as conn:
+            cash_flow_id = conn.execute(
+                "INSERT INTO cash_flows(occurred_on, title, amount_value, sort_order) VALUES ('2026-06-05', '카드 즉시결제', -1000, 1)"
+            ).lastrowid
+            event_id = conn.execute(
+                "INSERT INTO card_payment_events(event_date, event_type, total_amount, cash_flow_id) VALUES ('2026-06-05', 'immediate', 1000, ?)",
+                (cash_flow_id,),
+            ).lastrowid
+            conn.execute(
+                "INSERT INTO card_payment_allocations(payment_event_id, entry_payment_key, amount_value) VALUES (?, 'fully-paid-key', 1000)",
+                (event_id,),
+            )
+
+        with self.assertRaisesRegex(ValueError, "일부라도 결제"):
+            delete_entry(entry["id"])
+
+        with session() as conn:
+            self.assertIsNotNone(conn.execute("SELECT 1 FROM ledger_entries WHERE id = ?", (entry["id"],)).fetchone())
+            self.assertIsNotNone(conn.execute("SELECT 1 FROM card_payment_events WHERE id = ?", (event_id,)).fetchone())
+            self.assertIsNotNone(conn.execute("SELECT 1 FROM cash_flows WHERE id = ?", (cash_flow_id,)).fetchone())
+
+    def test_payment_key_is_generated_uniquely_and_duplicate_input_is_rejected(self) -> None:
+        first = create_entry(
+            LedgerEntryIn(
+                book_section="current",
+                entry_kind="expense",
+                entry_date="2026-06-04",
+                usage_place="자동 키 첫째",
+                amount_value=1000,
+                sort_order=1,
+            )
+        )
+        second = create_entry(
+            LedgerEntryIn(
+                book_section="current",
+                entry_kind="expense",
+                entry_date="2026-06-04",
+                usage_place="자동 키 둘째",
+                amount_value=1000,
+                sort_order=2,
+            )
+        )
+        self.assertTrue(first["payment_key"])
+        self.assertNotEqual(first["payment_key"], second["payment_key"])
+
+        with self.assertRaisesRegex(ValueError, "이미 사용 중"):
+            create_entry(
+                LedgerEntryIn(
+                    book_section="archive",
+                    entry_kind="expense",
+                    entry_date="2026-05-04",
+                    usage_place="중복 키",
+                    amount_value=1000,
+                    sort_order=3,
+                    payment_key=first["payment_key"],
+                )
+            )
 
 
 if __name__ == "__main__":

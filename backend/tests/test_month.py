@@ -78,6 +78,35 @@ class MonthCloseTest(unittest.TestCase):
             [("fixed", "관리비", 80000), ("planned", "정기결제", 30000)],
         )
 
+    def test_planned_activation_month_uses_kst_at_utc_month_boundary(self) -> None:
+        with session() as conn:
+            conn.execute(
+                """
+                INSERT INTO app_settings(key, value, updated_at)
+                VALUES ('last_closed_month', '2026-07', CURRENT_TIMESTAMP)
+                ON CONFLICT(key) DO UPDATE SET value = excluded.value
+                """
+            )
+            conn.execute(
+                "UPDATE ledger_entries SET created_at = '2026-08-31 15:05:00' WHERE entry_kind = 'planned'"
+            )
+
+        after_kst_month_start = month_close_status(date(2026, 9, 1))
+        self.assertEqual(after_kst_month_start["oldest_open_month"], "2026-08")
+        self.assertFalse(
+            any(item["kind"] == "planned" for item in after_kst_month_start["unconfirmed_recurring_items"])
+        )
+
+        with session() as conn:
+            conn.execute(
+                "UPDATE ledger_entries SET created_at = '2026-08-31 14:59:59' WHERE entry_kind = 'planned'"
+            )
+
+        before_kst_month_start = month_close_status(date(2026, 9, 1))
+        self.assertTrue(
+            any(item["kind"] == "planned" for item in before_kst_month_start["unconfirmed_recurring_items"])
+        )
+
     def test_close_requires_explicit_override_for_unconfirmed_recurring_items(self) -> None:
         with session() as conn:
             conn.execute(
@@ -182,6 +211,70 @@ class MonthCloseTest(unittest.TestCase):
         self.assertEqual(archive_count, 1)
         self.assertEqual(salary_count, 1)
         self.assertEqual(batch_count, 1)
+
+    def test_empty_month_close_advances_cycle_and_is_idempotent(self) -> None:
+        with session() as conn:
+            conn.execute("DELETE FROM ledger_entries WHERE entry_kind != 'planned'")
+            conn.execute(
+                """
+                INSERT INTO app_settings(key, value, updated_at)
+                VALUES ('last_closed_month', '2026-06', CURRENT_TIMESTAMP)
+                ON CONFLICT(key) DO UPDATE SET value = excluded.value
+                """
+            )
+
+        status = month_close_status(date(2026, 8, 1))
+        first = close_current_month(date(2026, 8, 1), target_month="2026-07")
+        replay = close_current_month(date(2026, 8, 1), target_month="2026-07")
+
+        self.assertEqual(status["oldest_open_month"], "2026-07")
+        self.assertTrue(status["needs_close"])
+        self.assertEqual(first["archived"], 0)
+        self.assertEqual(first["deleted_from_current"], 0)
+        self.assertTrue(replay["already_closed"])
+        with session() as conn:
+            last_closed = conn.execute(
+                "SELECT value FROM app_settings WHERE key = 'last_closed_month'"
+            ).fetchone()["value"]
+            salary_count = conn.execute(
+                "SELECT COUNT(*) AS count FROM cash_flows WHERE title = '급여' AND occurred_on = '2026-08-01'"
+            ).fetchone()["count"]
+            batch_count = conn.execute(
+                "SELECT COUNT(*) AS count FROM card_payment_batches WHERE usage_month = '2026-07'"
+            ).fetchone()["count"]
+        self.assertEqual(last_closed, "2026-07")
+        self.assertEqual(salary_count, 1)
+        self.assertEqual(batch_count, 1)
+
+    def test_empty_current_month_can_close_early_and_multiple_empty_cycles_can_close_same_day(self) -> None:
+        with session() as conn:
+            conn.execute("DELETE FROM ledger_entries WHERE entry_kind != 'planned'")
+            conn.execute(
+                """
+                INSERT INTO app_settings(key, value, updated_at)
+                VALUES ('last_closed_month', '2026-05', CURRENT_TIMESTAMP)
+                ON CONFLICT(key) DO UPDATE SET value = excluded.value
+                """
+            )
+
+        delayed = close_current_month(date(2026, 7, 27), target_month="2026-06")
+        early = close_current_month(
+            date(2026, 7, 27),
+            allow_early_close=True,
+            target_month="2026-07",
+        )
+
+        self.assertEqual(delayed["archived"], 0)
+        self.assertEqual(early["archived"], 0)
+        with session() as conn:
+            salaries = conn.execute(
+                """
+                SELECT amount_value FROM cash_flows
+                WHERE title = '급여' AND occurred_on = '2026-07-27'
+                ORDER BY id
+                """
+            ).fetchall()
+        self.assertEqual([row["amount_value"] for row in salaries], [400_000, 400_000])
 
     def test_concurrent_same_target_month_closes_once(self) -> None:
         with ThreadPoolExecutor(max_workers=2) as executor:
