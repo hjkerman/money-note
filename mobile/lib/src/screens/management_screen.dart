@@ -207,6 +207,7 @@ class _PanelManagementScreenState extends State<PanelManagementScreen> {
                   MoneyCard(child: Text(widget.emptyText)),
                 ...activeRows.map((panel) => widget.panelType == 'fixed'
                     ? _FixedPanelManagementItem(
+                        key: ValueKey('fixed-recurring-${panel.id}'),
                         panel: panel,
                         state: widget.state,
                       )
@@ -330,8 +331,11 @@ class _PlannedEntryManagementScreenState
                         style: const TextStyle(color: moneyMuted))),
                 if (rows.isEmpty)
                   const MoneyCard(child: Text('카드 정기결제가 없습니다.')),
-                ...rows.map((entry) =>
-                    _PlannedEntryItem(entry: entry, state: widget.state)),
+                ...rows.map((entry) => _PlannedEntryItem(
+                      key: ValueKey('planned-recurring-${entry.id}'),
+                      entry: entry,
+                      state: widget.state,
+                    )),
                 SectionTitle('이번 달 확인 처리됨',
                     trailing: Text('${confirmedRows.length}건',
                         style: const TextStyle(color: moneyMuted))),
@@ -684,7 +688,11 @@ class _PanelManagementItem extends StatelessWidget {
 }
 
 class _FixedPanelManagementItem extends StatefulWidget {
-  const _FixedPanelManagementItem({required this.panel, required this.state});
+  const _FixedPanelManagementItem({
+    required this.panel,
+    required this.state,
+    super.key,
+  });
 
   final MonthlyPanel panel;
   final AppState state;
@@ -729,6 +737,7 @@ class _FixedPanelManagementItemState extends State<_FixedPanelManagementItem> {
             _Line(label: '예정액', value: won(panel.amountValue)),
             const SizedBox(height: 8),
             TextField(
+              key: ValueKey('fixed-recurring-amount-${panel.id}'),
               controller: actualAmount,
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(labelText: '실제 출금액'),
@@ -862,7 +871,11 @@ class _ConfirmedFixedPanelItem extends StatelessWidget {
 }
 
 class _PlannedEntryItem extends StatefulWidget {
-  const _PlannedEntryItem({required this.entry, required this.state});
+  const _PlannedEntryItem({
+    required this.entry,
+    required this.state,
+    super.key,
+  });
 
   final LedgerEntry entry;
   final AppState state;
@@ -918,6 +931,7 @@ class _PlannedEntryItemState extends State<_PlannedEntryItem> {
             _Line(label: '예정액', value: won(entry.amountValue)),
             const SizedBox(height: 8),
             TextField(
+              key: ValueKey('planned-recurring-amount-${entry.id}'),
               controller: actualAmount,
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(labelText: '실제 원금'),
