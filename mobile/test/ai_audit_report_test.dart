@@ -272,7 +272,12 @@ void main() {
     expect(markdown, contains('10,000원 | 120원 | 9,880원'));
     expect(markdown, contains('+400,000원'));
     expect(markdown, contains('-5,000원'));
-    expect(markdown, contains('미정산 청구'));
+    expect(markdown, contains('청구 내역'));
+    expect(markdown, contains('- 항목 수: 1건'));
+    expect(markdown, contains('- 총 청구액: 19,760원'));
+    expect(markdown, contains('가족이 최종 부담하기로 하여 나중에 회수할 금액'));
+    expect(markdown, contains('두 건의 독립된 소비로 중복 계산하지 마세요'));
+    expect(markdown, contains('청구와는 별도 domain'));
     expect(markdown, contains('미정산 가족카드'));
     expect(markdown, contains('현재 운영 참고자료'));
     expect(markdown, contains('월세 | 300,000원'));
@@ -321,6 +326,119 @@ void main() {
     expect(markdown, contains('| Active 계좌 잔액 | 700,000원 |'));
     expect(markdown, contains('| 잔여 유동성 | 300,000원 |'));
     expect(markdown, contains('선택 월 당시의 historical snapshot이 아니라'));
+  });
+
+  test('선택 월의 현재 미정산 Claim 합계와 개별 내역만 한 번씩 출력한다', () {
+    final data = AiAuditReportData(
+      latestAllowedMonth: '2026-09',
+      summary: _summary(
+        scheduledIncome: 1459200,
+        cashFlowBalance: 700000,
+        remainingLiquidity: 300000,
+      ),
+      ledgerEntries: [
+        _entry(
+          id: 1,
+          date: '2026-09-03',
+          place: '병원',
+          item: '가족 진료비',
+          amount: 30000,
+          discount: 360,
+        ),
+      ],
+      cashFlows: const [],
+      panels: [
+        _panel(
+          id: 10,
+          type: 'claim',
+          date: '2026-09-03',
+          title: '가족 진료비',
+          amount: 30000,
+          discount: 360,
+        ),
+        _panel(
+          id: 11,
+          type: 'claim',
+          date: '2026-09-05',
+          title: '가족 약값',
+          amount: 10000,
+          discount: 120,
+        ),
+        _panel(
+          id: 12,
+          type: 'claim',
+          date: '2026-08-31',
+          title: '범위 밖 청구',
+          amount: 50000,
+          discount: 600,
+        ),
+      ],
+      confirmedPlannedEntries: const [],
+      auditInstructions: _stubAuditInstructions,
+    );
+
+    final markdown = data.buildMarkdown('2026-09');
+
+    expect(markdown, contains('## 청구 내역'));
+    expect(markdown, contains('- 항목 수: 2건'));
+    expect(markdown, contains('- 총 청구액: 39,520원'));
+    expect(
+      markdown,
+      contains('| 2026-09-03 | 가족 진료비 | 30,000원 | 360원 | 29,640원 |'),
+    );
+    expect(
+      markdown,
+      contains('| 2026-09-05 | 가족 약값 | 10,000원 | 120원 | 9,880원 |'),
+    );
+    expect(markdown, isNot(contains('범위 밖 청구')));
+    expect(
+      RegExp(r'\| 2026-09-03 \| 가족 진료비 \| 30,000원 \| 360원 \| 29,640원 \|')
+          .allMatches(markdown)
+          .length,
+      1,
+    );
+    expect(
+      markdown,
+      contains('본인 카드 지출과 같은 경제적 소비를 나타낼 수 있으므로 독립된 소비로 다시 합산하지 않습니다'),
+    );
+    expect(markdown, contains('| 기준 월 수입 | 1,459,200원 |'));
+    expect(markdown, contains('| Active 계좌 잔액 | 700,000원 |'));
+    expect(markdown, contains('| 잔여 유동성 | 300,000원 |'));
+  });
+
+  test('선택 월 Claim이 없으면 0건과 0원을 명시한다', () {
+    final data = AiAuditReportData(
+      latestAllowedMonth: '2026-09',
+      summary: _summary(),
+      ledgerEntries: [_entry(id: 1, date: '2026-09-01')],
+      cashFlows: const [],
+      panels: [
+        _panel(
+          id: 1,
+          type: 'family_card',
+          date: '2026-09-02',
+          title: '가족카드 사용',
+        ),
+        _panel(
+          id: 2,
+          type: 'claim',
+          date: '2026-08-31',
+          title: '다른 달 청구',
+        ),
+      ],
+      confirmedPlannedEntries: const [],
+      auditInstructions: _stubAuditInstructions,
+    );
+
+    final markdown = data.buildMarkdown('2026-09');
+
+    expect(markdown, contains('## 청구 내역'));
+    expect(markdown, contains('- 항목 수: 0건'));
+    expect(markdown, contains('- 총 청구액: 0원'));
+    expect(markdown, contains('_선택 월에 현재 남아 있는 미정산 청구 없음_'));
+    expect(markdown, contains('## 미정산 가족카드'));
+    expect(markdown, contains('가족카드 사용'));
+    expect(markdown, isNot(contains('다른 달 청구')));
   });
 
   test('확정된 실제액과 현재 template 예정액을 서로 다른 영역에 출력한다', () {

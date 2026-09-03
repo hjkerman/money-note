@@ -143,11 +143,15 @@ class AiAuditReportData {
       '',
       _cashFlowTable(monthCashFlows),
       '',
-      '## 미정산 청구',
+      '## 청구 내역',
       '',
-      '> 처리 완료된 청구는 Money-Note 운영 정책에 따라 삭제되므로 현재 남아 있는 미정산 항목만 표시됩니다.',
+      '> 가족이 최종 부담하기로 한 회수 예정 정보입니다. 본인 카드 지출과 같은 경제적 소비를 나타낼 수 있으므로 독립된 소비로 다시 합산하지 않습니다.',
+      '>',
+      '> 선택 월 사용일에 해당하면서 현재 남아 있는 미정산 항목만 표시됩니다. 처리 완료된 청구는 Money-Note 운영 정책에 따라 삭제됩니다.',
       '',
-      _panelTable(claims, netLabel: '실청구액'),
+      _claimSummary(claims),
+      '',
+      _claimTable(claims),
       '',
       '## 미정산 가족카드',
       '',
@@ -274,6 +278,22 @@ String _cashFlowTable(List<CashFlow> rows) {
         ]),
     numericColumns: const {2},
   );
+}
+
+String _claimSummary(List<MonthlyPanel> rows) {
+  final total = rows.fold<int>(
+    0,
+    (sum, panel) => sum + panel.effectiveAmount,
+  );
+  return [
+    '- 항목 수: ${rows.length}건',
+    '- 총 청구액: ${won(total)}',
+  ].join('\n');
+}
+
+String _claimTable(List<MonthlyPanel> rows) {
+  if (rows.isEmpty) return '_선택 월에 현재 남아 있는 미정산 청구 없음_';
+  return _panelTable(rows, netLabel: '실청구액');
 }
 
 String _panelTable(List<MonthlyPanel> rows, {required String netLabel}) {
