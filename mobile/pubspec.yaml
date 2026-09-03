@@ -2,7 +2,7 @@ name: money_note_mobile
 description: Money Note 모바일 앱
 publish_to: "none"
 
-version: 2.3.4+14
+version: 2.4.0+15
 
 environment:
   sdk: ">=3.3.0 <4.0.0"
