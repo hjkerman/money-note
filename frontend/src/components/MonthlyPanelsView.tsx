@@ -145,7 +145,7 @@ function ConfirmedFixedList({
 }) {
   if (!rows.length) return null;
   return (
-    <section className="panel compact confirmed-planned-list">
+    <section className="panel compact">
       <div className="panel-header">
         <h2>이번 달 처리된 현금성 고정지출</h2>
         <span>{rows.length}건</span>
