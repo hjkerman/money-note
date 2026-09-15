@@ -390,6 +390,7 @@ class AppState extends ChangeNotifier {
     required bool discountEnabled,
     String? spendingCategory,
     String? entryDate,
+    String? candidateRegistrationKey,
   }) async {
     return _run(() async {
       final resolvedEntryDate =
@@ -400,7 +401,22 @@ class AppState extends ChangeNotifier {
         usageItem: usageItem,
         amount: amount,
         spendingCategory: normalizeSpendingCategory(spendingCategory),
+        candidateRegistrationKey: candidateRegistrationKey,
       );
+      if (candidateRegistrationKey != null) {
+        try {
+          if (!discountEnabled &&
+              !entry.isDiscountIneligible &&
+              entry.paymentKey != null) {
+            await api.excludeEntryDiscount(entry.paymentKey!);
+          }
+          await refreshInputArea(notify: false);
+          statusMessage = '지출 추가 완료';
+        } catch (_) {
+          statusMessage = '지출은 저장됐습니다. 화면 갱신 또는 할인 설정을 다시 확인하세요.';
+        }
+        return;
+      }
       if (!discountEnabled &&
           !entry.isDiscountIneligible &&
           entry.paymentKey != null) {
@@ -417,6 +433,7 @@ class AppState extends ChangeNotifier {
     required int amount,
     bool discountEnabled = true,
     String? spentOn,
+    String? candidateRegistrationKey,
   }) async {
     return _run(() async {
       final panel = await api.createPanel(
@@ -425,7 +442,22 @@ class AppState extends ChangeNotifier {
         title: title,
         amount: amount,
         spentOn: panelType == 'fixed' ? null : spentOn ?? _today(),
+        candidateRegistrationKey: candidateRegistrationKey,
       );
+      if (candidateRegistrationKey != null) {
+        try {
+          if (!discountEnabled &&
+              !panel.isDiscountIneligible &&
+              (panelType == 'claim' || panelType == 'family_card')) {
+            await api.excludePanelDiscount(panel.id);
+          }
+          await refreshSettlementArea(notify: false);
+          statusMessage = '정산 내역 등록 완료';
+        } catch (_) {
+          statusMessage = '정산 내역은 저장됐습니다. 화면 갱신 또는 할인 설정을 다시 확인하세요.';
+        }
+        return;
+      }
       if (!discountEnabled &&
           !panel.isDiscountIneligible &&
           (panelType == 'claim' || panelType == 'family_card')) {

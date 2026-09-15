@@ -67,6 +67,18 @@ def active_card_payment_unpaid_total(today: date | None = None, conn: Any | None
     return _remaining_total(payable_rows)
 
 
+def closed_month_payment_batch_id(conn: Any, entry_month: str, today: date) -> int:
+    context = _active_payment_context(today, conn)
+    if context.batch_id is None or context.usage_month != entry_month:
+        raise ValueError("마감한 달의 지출을 현재 결제 작업함에 안전하게 연결할 수 없습니다.")
+    if today > context.due_date or _setting_value("card_payment_liquidity_reset_ack_month", conn) == context.payment_month:
+        raise ValueError("이미 정산된 결제월에는 과거 카드 지출을 추가할 수 없습니다.")
+    rows = [row for row in _payment_rows_for_batch(context, conn) if not row["is_deferred"]]
+    if rows and _remaining_total(rows) == 0:
+        raise ValueError("완납된 결제 작업함에는 과거 카드 지출을 추가할 수 없습니다.")
+    return context.batch_id
+
+
 def _remaining_total(rows: list[dict[str, Any]]) -> int:
     return sum(int(row.get("remaining_amount") or 0) for row in rows)
 
@@ -236,6 +248,9 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
             if existing["request_fingerprint"] != request_fingerprint:
                 raise ValueError("같은 idempotency key에 서로 다른 결제 요청을 사용할 수 없습니다.")
             return dict(existing)
+
+        if event_date > today:
+            raise ValueError("실제 카드 결제일은 서버 기준 오늘 이후일 수 없습니다.")
 
         context = _active_payment_context(today, conn)
         if context.batch_id is None:
@@ -488,14 +503,7 @@ def acknowledge_liquidity_reset(today: date | None = None) -> dict[str, str]:
 def create_late_card_entry(payload: LateCardEntryIn, today: date | None = None) -> dict[str, Any]:
     """카드사 매입 지연으로 확인된 결제 작업함 사용월 내역을 archive와 batch에 추가한다."""
     today = today or app_today()
-    context = _active_payment_context(today)
-    if context.batch_id is None:
-        raise ValueError("월마감 후 생성된 결제 작업함이 없습니다.")
     entry_date = payload.entry_date
-    if entry_date.strftime("%Y-%m") != context.usage_month:
-        raise ValueError(
-            "전월 매입 지연 보정은 현재 결제 작업함의 사용월 날짜만 사용할 수 있습니다."
-        )
     if payload.amount_value <= 0:
         raise ValueError("전월 보정 금액은 0원보다 커야 합니다.")
     usage_place = (payload.usage_place or "").strip()
@@ -504,6 +512,12 @@ def create_late_card_entry(payload: LateCardEntryIn, today: date | None = None) 
     if not title:
         raise ValueError("사용처 또는 세부내역을 입력하세요.")
     with session(transaction_mode="IMMEDIATE") as conn:
+        context = _active_payment_context(today, conn)
+        if context.batch_id is None:
+            raise ValueError("월마감 후 생성된 결제 작업함이 없습니다.")
+        if entry_date.strftime("%Y-%m") != context.usage_month:
+            raise ValueError("전월 매입 지연 보정은 현재 결제 작업함의 사용월 날짜만 사용할 수 있습니다.")
+        closed_month_payment_batch_id(conn, context.usage_month, today)
         sort_order = conn.execute(
             """
             SELECT COALESCE(MAX(sort_order), 0) + 1 AS value
@@ -545,14 +559,14 @@ def create_late_card_entry(payload: LateCardEntryIn, today: date | None = None) 
 def defer_toll_payment(entry_payment_key: str, today: date | None = None) -> dict[str, str]:
     """카드 사용내역의 미처리액을 다음 결제월로 한 번 이월한다."""
     today = today or app_today()
-    context = _active_payment_context(today)
-    if context.batch_id is None:
-        raise ValueError("월마감 후 생성된 결제 작업함이 없습니다.")
-    if today > context.due_date:
-        raise ValueError("이월 선택은 매월 14일까지 가능합니다.")
-    payment_month = context.payment_month
-    target_payment_month = _next_month_from_month(payment_month)
-    with session() as conn:
+    with session(transaction_mode="IMMEDIATE") as conn:
+        context = _active_payment_context(today, conn)
+        if context.batch_id is None:
+            raise ValueError("월마감 후 생성된 결제 작업함이 없습니다.")
+        if today > context.due_date:
+            raise ValueError("이월 선택은 매월 14일까지 가능합니다.")
+        payment_month = context.payment_month
+        target_payment_month = _next_month_from_month(payment_month)
         row = conn.execute(
             """
             SELECT ledger_entries.book_section,
@@ -586,6 +600,20 @@ def defer_toll_payment(entry_payment_key: str, today: date | None = None) -> dic
         ).fetchone()["total"]
         if float(allocated or 0) > 0:
             raise ValueError("이미 일부결제 또는 할인이 반영된 항목은 이월할 수 없습니다.")
+        previous = conn.execute(
+            "SELECT from_payment_month, target_payment_month FROM card_payment_deferrals WHERE entry_payment_key = ?",
+            (entry_payment_key,),
+        ).fetchone()
+        if previous and previous["from_payment_month"] == payment_month:
+            if previous["target_payment_month"] != target_payment_month:
+                raise ValueError("이미 다른 결제월로 이월된 내역입니다.")
+            if row["book_section"] != "current" or row["entry_date"] != f"{payment_month}-01":
+                raise ValueError("이월 기록과 원장 상태가 일치하지 않습니다.")
+            return {
+                "entry_payment_key": entry_payment_key,
+                "from_payment_month": payment_month,
+                "target_payment_month": target_payment_month,
+            }
         conn.execute(
             """
             INSERT INTO card_payment_deferrals(

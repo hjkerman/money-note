@@ -5,6 +5,8 @@ from app.db import session
 from app.repositories.common import ensure_payment_key_available, new_payment_key, row_to_dict
 from app.schemas import LedgerEntryIn, LedgerEntryPatch, PlannedEntryIn
 from app.services.clock import app_today
+from app.services.card_payments import closed_month_payment_batch_id, _add_card_payment_batch_item
+from app.repositories.notification_registration import existing_registration, registration_fingerprint, save_registration
 
 
 ENTRY_COLUMNS = [
@@ -238,18 +240,34 @@ def create_entry(entry: LedgerEntryIn) -> dict[str, Any]:
     placeholders = ", ".join("?" for _ in ENTRY_COLUMNS)
     columns = ", ".join(ENTRY_COLUMNS)
     with session(transaction_mode="IMMEDIATE") as conn:
+        late_batch_id = None
+        registration_key = entry.candidate_registration_key
+        fingerprint = registration_fingerprint("ledger", values) if registration_key else None
+        if registration_key:
+            registered_id = existing_registration(conn, registration_key, "ledger", fingerprint)
+            if registered_id is not None:
+                registered = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (registered_id,)).fetchone()
+                if registered is None:
+                    raise ValueError("이미 등록 후 삭제된 알림 후보입니다.")
+                return row_to_dict(registered)
         if values["entry_kind"] != "planned":
             if values.get("payment_key"):
                 ensure_payment_key_available(conn, str(values["payment_key"]))
             else:
                 values["payment_key"] = new_payment_key(conn)
-        # 이미 마감한 달의 뒤늦은 지출은 다음 달 장부에 섞지 않고 전체 기록에 바로 보관한다.
-        if values["book_section"] == "current" and values["entry_kind"] != "planned" and values.get("entry_date"):
+        # 마감 월의 새 카드 사용은 귀속 가능한 미결제 batch에만 기록한다.
+        if values["entry_kind"] in {"expense", "late_expense"} and values.get("entry_date"):
             setting = conn.execute(
                 "SELECT value FROM app_settings WHERE key = 'last_closed_month'"
             ).fetchone()
             entry_month = str(values["entry_date"])[:7]
+            if values["entry_kind"] == "late_expense" and (not setting or entry_month > str(setting["value"])):
+                raise ValueError("마감 전 사용월은 일반 지출로 등록해야 합니다.")
             if setting and entry_month <= str(setting["value"]):
+                if int(values.get("amount_value") or 0) <= 0:
+                    raise ValueError("마감한 달의 카드 지출은 양수 사용금액으로만 등록할 수 있습니다.")
+                late_batch_id = closed_month_payment_batch_id(conn, entry_month, app_today())
+                values["entry_kind"] = "late_expense"
                 values["book_section"] = "archive"
                 next_order = conn.execute(
                     "SELECT COALESCE(MAX(sort_order), 0) + 1 AS next_order FROM ledger_entries WHERE book_section = 'archive'"
@@ -269,6 +287,10 @@ def create_entry(entry: LedgerEntryIn) -> dict[str, Any]:
             f"INSERT INTO ledger_entries ({columns}) VALUES ({placeholders})",
             tuple(values[column] for column in ENTRY_COLUMNS),
         )
+        if late_batch_id is not None:
+            _add_card_payment_batch_item(conn, late_batch_id, int(cursor.lastrowid), str(values["payment_key"]))
+        if registration_key:
+            save_registration(conn, registration_key, "ledger", int(cursor.lastrowid), fingerprint)
         row = conn.execute(
             "SELECT * FROM ledger_entries WHERE id = ?",
             (cursor.lastrowid,),

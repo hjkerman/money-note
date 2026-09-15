@@ -246,6 +246,8 @@
 
 `book_section = current`, `entry_kind = expense`인 일반 지출은 `entry_date`, `usage_place`, `amount_value`가 필수다. `usage_item`은 비워둘 수 있다.
 현금흐름을 제외한 사용자 입력 금액은 0 이상이어야 한다.
+마감된 사용월의 일반 카드 입력은 활성 결제 작업함에 안전하게 귀속할 수 있을 때만 `late_expense`와 batch 항목으로 함께 등록한다. 완납, 결제기한 경과, 다른 사용월은 `422`로 거부한다. `book_section=archive` 지정으로 우회할 수 없다.
+알림 후보 등록에는 선택적 `candidate_registration_key`(`알림 출처:안정 후보 ID`)를 전달한다. 같은 키·같은 내용의 재시도는 원래 행을 반환하고, 다른 내용이나 청구/가족카드 대상 재사용은 `422`다. 이 키는 응답에 노출하지 않는다.
 
 요청:
 
@@ -472,6 +474,7 @@
 ### `POST /api/month/current/panels`
 
 패널 항목을 생성한다.
+알림 후보를 `claim` 또는 `family_card`로 등록할 때만 선택적 `candidate_registration_key`를 사용할 수 있다. 원장 등록과 같은 서버 키를 공유하므로 한 후보를 두 대상에 중복 등록하지 않는다.
 
 요청:
 
@@ -503,6 +506,8 @@
 ```
 
 `actual_amount`는 0원 이상이며 생략하면 template `amount_value`를 사용한다. 서버는 같은 트랜잭션에서 실제액의 음수 현금흐름을 만들고, 패널의 `spent_on`, `confirmed_at`, `confirmed_month`, `confirmed_cash_flow_id`를 기록한다. 원래 템플릿 예정액과 제목은 바뀌지 않는다. 응답과 확인 목록의 `confirmed_amount_value`는 연결된 cash flow의 절댓값이다. 이미 확인된 항목이나 `fixed`가 아닌 패널은 `422`를 반환한다. 처리일이 서버 기준 오늘보다 미래여도 `422`를 반환하며 예약 확인으로 해석하지 않는다.
+
+이미 월마감한 달의 처리일도 `422`로 거부한다. 마감 전 열린 달의 과거 처리일은 허용한다.
 
 응답:
 
@@ -863,6 +868,8 @@ Summary의 모든 구성값은 하나의 SQLite read transaction에서 계산한
 
 `idempotency_key`는 16~128자의 영문·숫자와 `._:-`로 구성한다. 같은 key와 같은 payload를 재전송하면 새 이벤트나 현금흐름을 만들지 않고 기존 성공 결과를 반환한다. 같은 key에 다른 payload를 보내면 `422`를 반환한다. 서버는 write transaction 안에서 활성 batch와 최신 remaining amount를 다시 계산하므로 서로 다른 key의 동시 요청도 초과결제를 만들 수 없다.
 
+새 실제 결제 이벤트의 `event_date`가 서버 기준 오늘 이후이면 `422`로 거부한다. 오늘과 허용 범위의 과거 날짜는 가능하다.
+
 - `event_type = immediate`: 연결된 현금흐름 출금을 생성한다.
 - `event_type = discount`: 호환용이다. 원래 사용금액은 유지하고 남은 결제금액만 줄인다.
 - 하나의 항목에 남은 금액 일부만 배분할 수 있다.
@@ -919,6 +926,8 @@ Summary의 모든 구성값은 하나의 SQLite read transaction에서 계산한
 ### `POST /api/card-payments/deferrals/{entry_payment_key}`
 
 카드 사용내역을 다음 결제월로 이월한다. 매월 14일까지, 아직 결제나 할인이 반영되지 않은 항목에만 사용할 수 있다. 적요 문자열로 이월 가능 여부를 제한하지 않는다.
+
+같은 결제월에 이미 이월한 항목을 다시 요청하면 첫 이월의 원래 날짜·적요·영역을 보존하고 성공 결과만 재전송한다. 다음 결제월에서 새로 이월하는 것은 별개의 상태 전이다.
 
 이월 시 원본 장부 행을 현재 월 사용내역 맨 앞으로 옮기고 날짜 표시를 비우며 적요 앞에 `[이월]`을 붙인다. 이월 항목은 현재 결제월 합계와 자동 배분에서 제외된다.
 
@@ -1241,11 +1250,13 @@ JSON snapshot을 복원한다. 현재 비밀번호를 다시 확인하며, 장�
 
 하위호환 정책상 manifest 검증을 통과한 snapshot의 알 수 없는 컬럼은 현재 서버 DB에 삽입하지 않고 무시한다. 구버전 snapshot에 현재 서버의 새 컬럼이 없으면 DB 기본값 또는 `NULL` 허용 정책을 따른다. 단, 필수 테이블 누락, 민감 설정 포함, manifest 불일치, 외래키 오류, 기본값 없는 `NOT NULL` 컬럼 누락은 복원 실패로 처리한다.
 
+최신 v7 export는 `notification_candidate_registrations`도 보존한다. 이 표가 없는 기존 v4-v7 Snapshot은 빈 표로 복원한다.
+
 현재 서버는 `schema_version = 7`을 생성하고 v4, v5, v6, v7을 복원한다. v6은 `monthly_panels.confirmed_cash_flow_id`를 포함하고, v7은 `ledger_entries.source_planned_entry_id`, `monthly_panels.confirmed_month`, `card_payment_events.idempotency_key`, `request_fingerprint`를 추가로 보존한다. 구버전에서 이 nullable 필드가 없으면 미연결 또는 비-idempotent 과거 행으로 복원한다. 지원 버전의 `card_charge_policy`와 주요 상단 메타데이터는 데이터와 함께 SHA-256 검증 대상이다. v4는 원문 manifest를 먼저 검증한 뒤 유동성 설정과 라벨의 과거 key를 현재 key로 정규화한다. 같은 의미의 old/new key가 함께 있고 값이 다르면 복원을 중단한다. 카드 정책 명세 v2는 교통카드 프로필 선택기의 의미도 검증한다. 2026-08-20에 남아 있던 v4 Snapshot 전환을 위해 내부 카드 정책 명세 v1 읽기 경로를 유지하며, 파일 형식 v3 이하는 지원하지 않는다. Snapshot 당시 정책이나 분류 규칙이 현재 서버에서 바뀌었으면 복원하지 않으며, 명세의 `covered_through` 이후부터 적용되는 새 binding 추가만 허용한다. 프로필 선택 이력은 비민감 `app_settings` 데이터로 함께 복원한다. 이 명세는 Snapshot에서 임의 정책을 실행하기 위한 입력이 아니다.
 
 Snapshot export는 하나의 SQLite read transaction에서 모든 테이블을 읽어 서로 다른 commit 시점이 섞이지 않게 한다. 복원은 운영 DB를 건드리기 전에 동일한 삽입 경로로 임시 DB dry-run을 수행한다. 실제 복원은 write transaction을 먼저 확보한 뒤 같은 transaction의 운영 상태로 `pre_restore-...money-note-snapshot.json` 파일을 반드시 저장하고 데이터를 교체한다. 이 파일의 manifest·dry-run 검증에 실패하면 복원을 중단한다.
 
-dry-run은 외래키뿐 아니라 명백한 핵심 관계 손상도 거부한다. 현재 검사는 중복된 non-null `ledger_entries.payment_key`, 복수 active 결제 batch, 결제 이벤트 총액과 allocation 합계 불일치, 즉시결제 이벤트와 연결 현금흐름 절댓값 불일치다. Summary나 Judgment를 다시 계산하는 두 번째 회계 엔진은 두지 않는다.
+dry-run은 외래키뿐 아니라 명백한 핵심 관계 손상도 거부한다. 현재 검사는 중복된 non-null `ledger_entries.payment_key`, 복수 active 결제 batch, 결제 이벤트 총액과 allocation 합계 불일치, 양수 즉시결제 이벤트의 현금흐름 연결 누락, 즉시결제 이벤트와 연결 현금흐름 절댓값 불일치다. Summary나 Judgment를 다시 계산하는 두 번째 회계 엔진은 두지 않는다.
 
 월마감, 장부 전체 초기화, 청구 일괄 처리 완료, 가족카드 일괄 처리 완료도 실행 직전 현재 장부 상태를 `pre_restore` snapshot으로 자동 저장한다.
 

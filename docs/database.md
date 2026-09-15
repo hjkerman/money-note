@@ -25,14 +25,19 @@
 - `card_payment_events`: 즉시결제/할인액 처리 이벤트
 - `card_payment_allocations`: 결제/할인 이벤트의 항목별 배분
 - `card_payment_deferrals`: 통행료/하이패스 이월 상태
+- `notification_candidate_registrations`: 알림 후보의 등록 키, 등록 대상, 원장/패널 ID와 요청 지문. 같은 후보를 중복 등록하지 않게 하는 비금융 메타데이터
 - `users`: 본체 사용자 계정
 - `auth_sessions`: 본체 로그인 세션
 - `share_sessions`: 가족 공유 페이지 세션
 - `audit_logs`: 변경 API 감사 로그
 
+`notification_candidate_registrations.registration_key`는 알림 출처와 안정 후보 ID를 결합한 전역 유일 키다. `target`, `target_id`, `request_fingerprint`는 첫 서버 쓰기와 같은 transaction에 기록한다. 월마감이 원장 행을 복사할 때 새 `target_id`로 옮기며, 사용자가 기록을 삭제한 뒤에도 등록 메타데이터는 남아 같은 후보 재전송으로 소비를 다시 만들지 않는다. 기존 Snapshot에 이 표가 없어도 빈 표로 복원한다.
+
 ## `ledger_entries`
 
 장부의 중심 테이블이다.
+
+마감 월의 새 일반 지출은 활성 결제 작업함의 사용월과 일치하고 미결제·결제기한 내인 경우에만 `late_expense`로 보관하며 같은 transaction에서 batch에 연결한다. 완납 또는 안전하게 귀속할 작업함이 없는 과거 월 입력은 거부한다.
 
 | 컬럼 | 타입 | 설명 |
 | --- | --- | --- |

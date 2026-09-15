@@ -294,6 +294,7 @@ class _CandidateCard extends StatefulWidget {
 }
 
 class _CandidateCardState extends State<_CandidateCard> {
+  bool registered = false;
   late final TextEditingController date;
   late final TextEditingController place;
   late final TextEditingController item;
@@ -325,6 +326,7 @@ class _CandidateCardState extends State<_CandidateCard> {
 
   @override
   Widget build(BuildContext context) {
+    if (registered) return const SizedBox.shrink();
     final showCategory = target == 'ledger';
     final discountValue = discountEnabled ?? _defaultDiscountEnabled();
     final targetOptions = widget.candidate.isFamilyCard
@@ -454,6 +456,7 @@ class _CandidateCardState extends State<_CandidateCard> {
       return;
     }
 
+    final registrationKey = widget.candidate.registrationKey;
     final success = target == 'ledger'
         ? await widget.state.createExpense(
             usagePlace: place.text,
@@ -464,6 +467,7 @@ class _CandidateCardState extends State<_CandidateCard> {
                 : discountEnabled ?? _defaultDiscountEnabled(),
             spendingCategory: spendingCategory,
             entryDate: date.text.trim(),
+            candidateRegistrationKey: registrationKey,
           )
         : await widget.state.createPanel(
             panelType: target,
@@ -473,10 +477,16 @@ class _CandidateCardState extends State<_CandidateCard> {
                 ? false
                 : discountEnabled ?? _defaultDiscountEnabled(),
             spentOn: date.text.trim(),
+            candidateRegistrationKey: registrationKey,
           );
     if (!success) return;
-    await widget.bridge.deleteCandidate(widget.candidate.id);
-    await widget.onChanged();
+    if (mounted) setState(() => registered = true);
+    try {
+      await widget.bridge.deleteCandidate(widget.candidate.id);
+      await widget.onChanged();
+    } catch (_) {
+      // Server registration is committed; a local/inbox refresh failure must not expose a retry button.
+    }
   }
 
   Future<void> _delete() async {

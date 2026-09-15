@@ -40,10 +40,11 @@ SNAPSHOT_TABLES = [
     "card_payment_events",
     "card_payment_allocations",
     "card_payment_deferrals",
+    "notification_candidate_registrations",
     "app_settings",
     "app_labels",
 ]
-OPTIONAL_SNAPSHOT_TABLES = {"card_payment_batches", "card_payment_batch_items"}
+OPTIONAL_SNAPSHOT_TABLES = {"card_payment_batches", "card_payment_batch_items", "notification_candidate_registrations"}
 LEGACY_SNAPSHOT_COLUMNS = {
     "ledger_entries": {"discount_checked"},
     "monthly_panels": {"discount_checked"},
@@ -63,6 +64,7 @@ MONEY_SETTING_KEYS = {
     "card_limit",
 }
 LEDGER_TABLES = [
+    "notification_candidate_registrations",
     "card_payment_batch_items",
     "card_payment_deferrals",
     "card_payment_allocations",
@@ -99,6 +101,7 @@ def _export_snapshot(conn: Any, today: date | None = None) -> tuple[str, dict[st
             "card_payment_deferrals",
             "target_payment_month, entry_payment_key",
         ),
+        "notification_candidate_registrations": _snapshot_rows(conn, "notification_candidate_registrations", "registration_key"),
         "app_settings": _snapshot_rows(
             conn,
             "app_settings",
@@ -583,6 +586,20 @@ def _validate_financial_relationships(conn: Any) -> None:
     ).fetchone()
     if allocation_mismatch is not None:
         raise ValueError("snapshot card payment event total does not match allocations")
+
+    missing_payment_cash_flow = conn.execute(
+        """
+        SELECT card_payment_events.id
+        FROM card_payment_events
+        LEFT JOIN cash_flows ON cash_flows.id = card_payment_events.cash_flow_id
+        WHERE card_payment_events.event_type = 'immediate'
+          AND card_payment_events.total_amount > 0
+          AND cash_flows.id IS NULL
+        LIMIT 1
+        """
+    ).fetchone()
+    if missing_payment_cash_flow is not None:
+        raise ValueError("snapshot immediate card payment has no linked cash flow")
 
     cash_flow_mismatch = conn.execute(
         """

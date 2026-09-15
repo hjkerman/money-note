@@ -61,6 +61,14 @@ CREATE TABLE IF NOT EXISTS monthly_panels (
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS notification_candidate_registrations (
+    registration_key TEXT PRIMARY KEY,
+    target TEXT NOT NULL CHECK (target IN ('ledger', 'claim', 'family_card')),
+    target_id INTEGER NOT NULL,
+    request_fingerprint TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS app_settings (
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL,

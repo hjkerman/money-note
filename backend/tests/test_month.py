@@ -722,25 +722,34 @@ class MonthCloseTest(unittest.TestCase):
         self.assertIsNotNone(generated)
         self.assertIsNone(generated["source_planned_entry_id"])
 
-    def test_entry_for_closed_month_is_added_to_archive(self) -> None:
+    def test_entry_for_closed_month_is_added_to_archive_and_active_batch(self) -> None:
         close_current_month(date(2026, 7, 1))
         close_current_month(date(2026, 7, 27), allow_early_close=True)
 
-        entry = create_entry(
-            LedgerEntryIn(
-                book_section="current",
-                entry_kind="expense",
-                entry_date="2026-07-31",
-                date_label="2026.07.31.",
-                title="[카드사] 마감 후 매입",
-                usage_place="카드사",
-                amount_value=12_345,
-                sort_order=99,
+        with patch.dict(os.environ, {"MONEY_NOTE_TODAY": "2026-08-01"}):
+            get_settings.cache_clear()
+            entry = create_entry(
+                LedgerEntryIn(
+                    book_section="current",
+                    entry_kind="expense",
+                    entry_date="2026-07-31",
+                    date_label="2026.07.31.",
+                    title="[카드사] 마감 후 매입",
+                    usage_place="카드사",
+                    amount_value=12_345,
+                    sort_order=99,
+                )
             )
-        )
+        get_settings.cache_clear()
 
         self.assertEqual(entry["book_section"], "archive")
+        self.assertEqual(entry["entry_kind"], "late_expense")
         self.assertEqual(entry["entry_date"], "2026-07-31")
+        with session() as conn:
+            self.assertEqual(
+                conn.execute("SELECT COUNT(*) FROM card_payment_batch_items WHERE entry_id = ?", (entry["id"],)).fetchone()[0],
+                1,
+            )
 
 
 if __name__ == "__main__":

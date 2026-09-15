@@ -520,6 +520,7 @@ class CardNotificationCandidate {
   bool get isOwnerCard => cardRole == 'owner';
   bool get isFamilyCard => cardRole == 'family';
   bool get isHighwayToll => source == 'highway_toll';
+  String get registrationKey => '$source:$id';
 
   factory CardNotificationCandidate.fromJson(Map<String, dynamic> json) {
     return CardNotificationCandidate(

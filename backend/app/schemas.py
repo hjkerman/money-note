@@ -77,6 +77,7 @@ class LedgerEntryIn(BaseModel):
     spending_category: str | None = None
     payment_key: str | None = None
     discount_override: int = 0
+    candidate_registration_key: str | None = Field(default=None, min_length=1, max_length=100, exclude=True)
 
     _integer_money = field_validator("amount_value", "aux_amount_value", mode="before")(integer_money)
 
@@ -208,6 +209,7 @@ class MonthlyPanelIn(BaseModel):
     amount_expr: str | None = None
     sort_order: int
     due_day: int | None = None
+    candidate_registration_key: str | None = Field(default=None, min_length=1, max_length=100, exclude=True)
 
     _integer_money = field_validator("amount_value", "discount_amount", mode="before")(integer_money)
 

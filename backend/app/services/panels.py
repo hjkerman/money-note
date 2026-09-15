@@ -32,6 +32,9 @@ def confirm_fixed_panel(
 
     confirmed_month = confirmed_date.strftime("%Y-%m")
     with session(transaction_mode="IMMEDIATE") as conn:
+        closed = conn.execute("SELECT value FROM app_settings WHERE key = 'last_closed_month'").fetchone()
+        if closed and confirmed_month <= str(closed["value"]):
+            raise ValueError("이미 마감한 달의 현금성 고정지출은 확인할 수 없습니다.")
         panel = conn.execute(
             "SELECT * FROM monthly_panels WHERE id = ?",
             (panel_id,),

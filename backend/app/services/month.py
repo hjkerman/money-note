@@ -75,7 +75,7 @@ def close_current_month(
         next_order = int(next_order_row["next_order"])
 
         for entry in current_entries:
-            conn.execute(
+            archived_entry = conn.execute(
                 """
                 INSERT INTO ledger_entries (
                     book_section, entry_kind, entry_date, date_label, group_label, title, usage_place, usage_item,
@@ -108,6 +108,10 @@ def close_current_month(
                     entry["payment_key"],
                     entry["discount_override"],
                 ),
+            )
+            conn.execute(
+                "UPDATE notification_candidate_registrations SET target_id = ? WHERE target = 'ledger' AND target_id = ?",
+                (int(archived_entry.lastrowid), int(entry["id"])),
             )
             next_order += 1
             archived += 1

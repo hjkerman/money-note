@@ -3,6 +3,7 @@ from typing import Any
 from app.db import session
 from app.repositories.common import row_to_dict
 from app.schemas import MonthlyPanelIn, MonthlyPanelPatch
+from app.repositories.notification_registration import existing_registration, registration_fingerprint, save_registration
 
 
 PANEL_COLUMNS = [
@@ -74,11 +75,25 @@ def create_panel(panel: MonthlyPanelIn) -> dict[str, Any]:
         values["spent_on"] = values["spent_on"].isoformat()
     placeholders = ", ".join("?" for _ in PANEL_COLUMNS)
     columns = ", ".join(PANEL_COLUMNS)
-    with session() as conn:
+    with session(transaction_mode="IMMEDIATE") as conn:
+        registration_key = panel.candidate_registration_key
+        target = values["panel_type"]
+        fingerprint = registration_fingerprint(target, values) if registration_key else None
+        if registration_key:
+            if target not in {"claim", "family_card"}:
+                raise ValueError("알림 후보는 청구 또는 가족카드로만 등록할 수 있습니다.")
+            registered_id = existing_registration(conn, registration_key, target, fingerprint)
+            if registered_id is not None:
+                registered = conn.execute("SELECT * FROM monthly_panels WHERE id = ?", (registered_id,)).fetchone()
+                if registered is None:
+                    raise ValueError("이미 등록 후 삭제된 알림 후보입니다.")
+                return row_to_dict(registered)
         cursor = conn.execute(
             f"INSERT INTO monthly_panels ({columns}) VALUES ({placeholders})",
             tuple(values.get(column) for column in PANEL_COLUMNS),
         )
+        if registration_key:
+            save_registration(conn, registration_key, target, int(cursor.lastrowid), fingerprint)
         row = conn.execute(
             "SELECT * FROM monthly_panels WHERE id = ?",
             (cursor.lastrowid,),

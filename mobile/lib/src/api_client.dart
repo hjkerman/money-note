@@ -155,6 +155,7 @@ class MoneyNoteApiClient {
     required String usageItem,
     required int amount,
     String? spendingCategory,
+    String? candidateRegistrationKey,
   }) {
     return _post(
         '/api/entries',
@@ -178,6 +179,8 @@ class MoneyNoteApiClient {
           'due_day': null,
           'confirmed_at': null,
           'spending_category': spendingCategory,
+          if (candidateRegistrationKey != null)
+            'candidate_registration_key': candidateRegistrationKey,
         },
         LedgerEntry.fromJson);
   }
@@ -254,6 +257,7 @@ class MoneyNoteApiClient {
     required String title,
     required int amount,
     String? spentOn,
+    String? candidateRegistrationKey,
   }) {
     return _post(
         '/api/month/current/panels',
@@ -269,6 +273,8 @@ class MoneyNoteApiClient {
           'sort_order': 0,
           'due_day': null,
           'confirmed_at': null,
+          if (candidateRegistrationKey != null)
+            'candidate_registration_key': candidateRegistrationKey,
         },
         MonthlyPanel.fromJson);
   }

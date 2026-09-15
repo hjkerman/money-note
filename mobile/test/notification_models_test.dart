@@ -18,6 +18,7 @@ void main() {
     expect(candidate.usageItem, '');
     expect(candidate.amount, 450);
     expect(candidate.isHighwayToll, isFalse);
+    expect(candidate.registrationKey, 'woori_card:legacy');
   });
 
   test('금액 미확인 통행료 후보 JSON을 빈 금액으로 읽는다', () {
@@ -36,5 +37,6 @@ void main() {
     expect(candidate.isHighwayToll, isTrue);
     expect(candidate.amount, isNull);
     expect(candidate.usageItem, '미지정-고양');
+    expect(candidate.registrationKey, 'highway_toll:toll');
   });
 }
