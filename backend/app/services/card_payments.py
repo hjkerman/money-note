@@ -33,8 +33,9 @@ def current_payment_status(today: date | None = None) -> dict[str, Any]:
     """최근 월마감이 생성한 카드 결제 작업함과 결제 현황을 반환한다."""
     today = today or app_today()
     context = _active_payment_context(today)
-    rows = _payment_rows_for_batch(context)
-    payable_rows = [row for row in rows if not row["is_deferred"]]
+    item_rows = _payment_rows_for_batch(context)
+    payable_rows = [row for row in item_rows if not row["is_deferred"]]
+    rows = _group_toll_rows(item_rows)
     recorded_remaining_total = _remaining_total(payable_rows)
     is_after_due = today > context.due_date
     liquidity_reset_acknowledged = _setting_value("card_payment_liquidity_reset_ack_month") == context.payment_month
@@ -866,7 +867,7 @@ def _payment_rows_for_batch(
             }
         )
         result.append(data)
-    return _group_toll_rows(result)
+    return result
 
 
 def _group_toll_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -874,12 +875,43 @@ def _group_toll_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     if len(toll_rows) <= 1:
         return rows
 
+    # Keep presentation groups homogeneous so partial defer/payment stays actionable.
+    states: dict[tuple[bool, bool, bool], list[dict[str, Any]]] = {}
+    for row in toll_rows:
+        state = (
+            bool(row.get("is_deferred")),
+            bool(row.get("is_carried_over")),
+            bool(row.get("immediate_paid_amount")),
+        )
+        states.setdefault(state, []).append(row)
+    if len(states) > 1:
+        grouped_by_id: dict[int, dict[str, Any]] = {}
+        subgroup_ids: dict[int, set[int]] = {}
+        for state_rows in states.values():
+            grouped = _group_toll_rows(state_rows)[0]
+            ids = {int(row["id"]) for row in state_rows}
+            for item_id in ids:
+                grouped_by_id[item_id] = grouped
+                subgroup_ids[item_id] = ids
+        result = []
+        inserted_ids: set[int] = set()
+        for row in rows:
+            item_id = int(row["id"])
+            if item_id in inserted_ids:
+                continue
+            if item_id in grouped_by_id:
+                result.append(grouped_by_id[item_id])
+                inserted_ids.update(subgroup_ids[item_id])
+            else:
+                result.append(row)
+        return result
+
     first = toll_rows[0]
     grouped = {**first}
     grouped.update(
         {
-            "id": -abs(sum(int(row["id"]) for row in toll_rows)),
-            "payment_key": f"group:toll:{first.get('entry_date') or ''}",
+            "id": -int(first["id"]),
+            "payment_key": f"group:toll:{first['id']}",
             "payment_keys": [row["payment_key"] for row in toll_rows if row.get("payment_key")],
             "entry_ids": [row["id"] for row in toll_rows],
             "payment_parts": [

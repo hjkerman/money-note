@@ -14,10 +14,12 @@ from app.schemas import CardPaymentAllocationIn, CardPaymentEventIn, LateCardEnt
 from app.routers.entries import post_entry
 from app.routers.month import post_panel
 from app.services.card_payments import (
+    active_card_payment_unpaid_total,
     cancel_toll_deferral,
     create_card_payment_event,
     create_month_close_card_payment_batch,
     create_late_card_entry,
+    current_payment_status,
     defer_toll_payment,
 )
 from app.services.panels import confirm_fixed_panel
@@ -75,6 +77,141 @@ class FinancialStateGapTest(unittest.TestCase):
             ),
             date(2026, 9, 1),
         )
+
+    def _close_grouped_toll_batch(self) -> None:
+        with session() as conn:
+            for order, (key, title, amount) in enumerate(
+                (("toll-a", "하이패스 A", 100000), ("toll-b", "통행료 B", 20000)), start=1
+            ):
+                conn.execute(
+                    "INSERT INTO ledger_entries(book_section, entry_kind, entry_date, title, amount_value, sort_order, payment_key) "
+                    "VALUES ('archive', 'expense', '2026-08-10', ?, ?, ?, ?)",
+                    (title, amount, order, key),
+                )
+            create_month_close_card_payment_batch(conn, "2026-08")
+            conn.execute("INSERT INTO app_settings(key, value) VALUES ('last_closed_month', '2026-08')")
+
+    def _assert_toll_finances(self, current: int, batch: int, cash: int = 1000000) -> None:
+        summary = current_summary_values()
+        self.assertEqual(summary["cash_flow_balance"], cash)
+        self.assertEqual(summary["card_total"], current)
+        self.assertEqual(active_card_payment_unpaid_total(date(2026, 9, 1)), batch)
+        self.assertEqual(current_payment_status(date(2026, 9, 1))["recorded_remaining_total"], batch)
+        self.assertEqual(summary["remaining_liquidity"], cash - current - batch)
+
+    def test_grouped_toll_partial_defer_counts_each_obligation_once(self) -> None:
+        self._close_grouped_toll_batch()
+        self._assert_toll_finances(0, 120000)
+        defer_toll_payment("toll-a", date(2026, 9, 1))
+        self._assert_toll_finances(100000, 20000)
+        rows = current_payment_status(date(2026, 9, 1))["rows"]
+        self.assertEqual([row["payment_keys"] for row in rows], [["toll-b"], ["toll-a"]])
+        self.assertEqual([row["is_deferred"] for row in rows], [False, True])
+
+    def test_grouped_toll_full_defer_keeps_only_current_liability(self) -> None:
+        self._close_grouped_toll_batch()
+        defer_toll_payment("toll-a", date(2026, 9, 1))
+        defer_toll_payment("toll-b", date(2026, 9, 1))
+        self._assert_toll_finances(120000, 0)
+        rows = current_payment_status(date(2026, 9, 1))["rows"]
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(set(rows[0]["payment_keys"]), {"toll-a", "toll-b"})
+        self.assertTrue(rows[0]["is_deferred"])
+
+    def test_grouped_toll_partial_retry_keeps_origin_and_liability(self) -> None:
+        self._close_grouped_toll_batch()
+        first = defer_toll_payment("toll-a", date(2026, 9, 1))
+        self.assertEqual(defer_toll_payment("toll-a", date(2026, 9, 1)), first)
+        self._assert_toll_finances(100000, 20000)
+        with session() as conn:
+            origin = conn.execute(
+                "SELECT original_entry_date FROM card_payment_deferrals WHERE entry_payment_key = 'toll-a'"
+            ).fetchone()[0]
+        self.assertEqual(origin, "2026-08-10")
+
+    def test_grouped_toll_partial_defer_then_cancel_restores_original(self) -> None:
+        self._close_grouped_toll_batch()
+        defer_toll_payment("toll-a", date(2026, 9, 1))
+        self.assertTrue(cancel_toll_deferral("toll-a", date(2026, 9, 1)))
+        self._assert_toll_finances(0, 120000)
+        with session() as conn:
+            row = conn.execute(
+                "SELECT book_section, entry_date FROM ledger_entries WHERE payment_key = 'toll-a'"
+            ).fetchone()
+        self.assertEqual((row["book_section"], row["entry_date"]), ("archive", "2026-08-10"))
+
+    def test_grouped_toll_full_defer_then_partial_cancel(self) -> None:
+        self._close_grouped_toll_batch()
+        defer_toll_payment("toll-a", date(2026, 9, 1))
+        defer_toll_payment("toll-b", date(2026, 9, 1))
+        self.assertTrue(cancel_toll_deferral("toll-a", date(2026, 9, 1)))
+        self._assert_toll_finances(20000, 100000)
+        rows = current_payment_status(date(2026, 9, 1))["rows"]
+        self.assertEqual([row["is_deferred"] for row in rows], [False, True])
+
+    def test_grouped_toll_paid_sibling_rejection_preserves_partial_defer(self) -> None:
+        self._close_grouped_toll_batch()
+        self._pay("toll-b", 5000)
+        rows = current_payment_status(date(2026, 9, 1))["rows"]
+        self.assertEqual([row["payment_keys"] for row in rows], [["toll-a"], ["toll-b"]])
+        defer_toll_payment("toll-a", date(2026, 9, 1))
+        with self.assertRaisesRegex(ValueError, "이미 일부결제"):
+            defer_toll_payment("toll-b", date(2026, 9, 1))
+        self._assert_toll_finances(100000, 15000, cash=995000)
+        rows = current_payment_status(date(2026, 9, 1))["rows"]
+        self.assertEqual([row["payment_keys"] for row in rows], [["toll-b"], ["toll-a"]])
+
+    def test_grouped_toll_mixed_subgroups_keep_distinct_ui_identity(self) -> None:
+        self._close_grouped_toll_batch()
+        with session() as conn:
+            batch_id = conn.execute("SELECT id FROM card_payment_batches WHERE status = 'active'").fetchone()[0]
+            for order, (key, amount) in enumerate((("toll-c", 3000), ("toll-d", 4000)), start=3):
+                entry_id = conn.execute(
+                    "INSERT INTO ledger_entries(book_section, entry_kind, entry_date, title, amount_value, sort_order, payment_key) "
+                    "VALUES ('archive', 'expense', '2026-08-11', '통행료 추가', ?, ?, ?)",
+                    (amount, order, key),
+                ).lastrowid
+                conn.execute(
+                    "INSERT INTO card_payment_batch_items(batch_id, entry_id, entry_payment_key) VALUES (?, ?, ?)",
+                    (batch_id, entry_id, key),
+                )
+        defer_toll_payment("toll-a", date(2026, 9, 1))
+        defer_toll_payment("toll-b", date(2026, 9, 1))
+        self._assert_toll_finances(120000, 7000)
+        rows = current_payment_status(date(2026, 9, 1))["rows"]
+        self.assertEqual(len(rows), 2)
+        self.assertTrue(all(row["is_group"] for row in rows))
+        self.assertEqual([row["is_deferred"] for row in rows], [False, True])
+        self.assertEqual([row["remaining_amount"] for row in rows], [7000, 120000])
+        self.assertEqual(len({row["payment_key"] for row in rows}), 2)
+        self.assertEqual(len({row["id"] for row in rows}), 2)
+
+    def test_grouped_toll_settled_current_part_does_not_revive_closed_cycle(self) -> None:
+        self._close_grouped_toll_batch()
+        defer_toll_payment("toll-a", date(2026, 9, 1))
+        self._pay("toll-b", 20000)
+        self._assert_toll_finances(100000, 0, cash=980000)
+        with self.assertRaisesRegex(ValueError, "완납"):
+            create_entry(self._entry())
+        with session() as conn:
+            self.assertEqual(conn.execute("SELECT COUNT(*) FROM ledger_entries").fetchone()[0], 2)
+
+    def test_grouped_toll_interrupted_second_operation_is_financially_valid(self) -> None:
+        self._close_grouped_toll_batch()
+        defer_toll_payment("toll-a", date(2026, 9, 1))
+        with self.assertRaises(ConnectionError):
+            raise ConnectionError("second request did not reach server")
+        self._assert_toll_finances(100000, 20000)
+        with session() as conn:
+            self.assertEqual(conn.execute("SELECT COUNT(*) FROM card_payment_deferrals").fetchone()[0], 1)
+
+    def test_non_toll_deferral_stays_ungrouped_and_exact_once(self) -> None:
+        self._close_august_batch()
+        self._assert_toll_finances(0, 100000)
+        defer_toll_payment("existing-key", date(2026, 9, 1))
+        self._assert_toll_finances(98800, 0)
+        self.assertTrue(cancel_toll_deferral("existing-key", date(2026, 9, 1)))
+        self._assert_toll_finances(0, 100000)
 
     def test_generic_closed_expense_joins_batch_exactly_once(self) -> None:
         self._close_august_batch()
