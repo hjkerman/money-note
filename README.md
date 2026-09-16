@@ -44,21 +44,21 @@
 
 ## 빠른 시작
 
-처음 배포하는 경우에는 [실행 방법](docs/runbook.md)의 `홈서버 첫 배포 절차`를 먼저 읽는 것을 권장합니다.
+이 서버의 개발·배포는 [실행 방법](docs/runbook.md)의 서버 내 개발·배포 절을 먼저 읽습니다. 개발 checkout과 `/opt/money-note` production은 별도 영역입니다.
 
-서버를 시작합니다.
+runbook에 따라 개발 `.venv`를 준비한 뒤, 격리된 개발 API를 시작합니다.
 
 ```bash
-docker compose up --build -d
+./scripts/dev-server.sh
 ```
 
-API는 `http://localhost:18080`에서 접근할 수 있습니다.
+API는 `http://localhost:18081`에서 접근할 수 있습니다.
 
 웹 프론트엔드는 별도로 실행합니다.
 
 ```bash
 cd frontend
-npm install
+npm ci
 npm run dev
 ```
 
@@ -72,14 +72,14 @@ http://127.0.0.1:5173
 
 ```bash
 cd frontend
-npm install
+npm ci
 npm run dev
 ```
 
 개발 서버는 기본적으로 `http://localhost:5173`에서 실행됩니다. API 주소는 필요하면 `.env`에서 바꿉니다.
 
 ```bash
-VITE_API_BASE_URL=http://localhost:18080
+VITE_API_BASE_URL=http://localhost:18081
 ```
 
 정적 배포 파일을 생성합니다.
@@ -88,7 +88,7 @@ VITE_API_BASE_URL=http://localhost:18080
 npm run build
 ```
 
-생성된 `frontend/dist/`를 홈서버의 `/var/www/...` 아래에 배치하고, Apache가 `/api/`와 `/share/`를 백엔드 컨테이너로 넘기게 합니다.
+서버 배포는 개발 checkout의 `scripts/deploy-server.sh`를 사용합니다. 기본 dry-run이며, clean commit의 격리 빌드와 검증 뒤 명시적 `--apply`만 production을 갱신합니다. staging·rollback·보관 한도는 runbook을 따릅니다.
 
 ## 문서
 
@@ -107,19 +107,20 @@ npm run build
 ## API 호출 예시
 
 ```bash
-curl http://localhost:18080/health
-curl http://localhost:18080/api/month/current/summary
-curl http://localhost:18080/api/entries/current
-curl http://localhost:18080/api/month/current/panels
-curl http://localhost:18080/api/share/claim
-curl http://localhost:18080/api/share/family_card
-curl -OJ http://localhost:18080/api/admin/snapshot
+curl http://localhost:18081/health
+curl http://localhost:18081/api/month/current/summary
+curl http://localhost:18081/api/entries/current
+curl http://localhost:18081/api/month/current/panels
+curl http://localhost:18081/api/share/claim
+curl http://localhost:18081/api/share/family_card
+curl -OJ http://localhost:18081/api/admin/snapshot
 ```
 
 로그인이 필요한 API는 브라우저 세션 또는 `Authorization: Bearer ...` 헤더가 필요합니다.
 
-## Docker 데이터
+## Production 데이터
 
 - `data/`: SQLite DB 저장
 - 컨테이너 내부 DB 경로: `/app/data/money-note.sqlite3`
-- 호스트 기준 DB 경로: `data/money-note.sqlite3`
+- production 호스트 DB: `/opt/money-note/data/money-note.sqlite3`
+- 개발 DB: checkout의 `work/dev-data/money-note.sqlite3`; 운영 데이터를 복사하지 않습니다.

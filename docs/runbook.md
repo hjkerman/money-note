@@ -1,92 +1,102 @@
 # 실행 방법
 
-이 문서는 `money-note`를 로컬 개발 환경과 홈서버 배포 환경에서 실행하는 방법을 모아둔다.
+## 서버 내 개발·배포 경계
 
-## 전제
+이 서버에는 실제 Money Note가 운영 중이다. Codex는 Git working copy에서 개발하고, production은 사용자가 명시적으로 요청한 deployment operation으로만 변경한다. 커밋이나 push만으로 배포하지 않는다.
 
-필요한 런타임:
+| 영역 | 이 서버의 경로/역할 |
+| --- | --- |
+| 개발 Git working copy | `/home/hjkerman/codex/money-note` |
+| 개발 Python/Node | checkout의 `.venv/`, `frontend/node_modules/` |
+| 개발 API/DB | `127.0.0.1:18081`, checkout의 `work/dev-data/money-note.sqlite3` |
+| 빌드 staging | checkout의 `work/deploy/<commit-prefix>-<attempt>/` |
+| Production deployment | `/opt/money-note`; 기존 Git 메타데이터는 legacy 배포 기록이며 개발/pull/build에 사용하지 않음 |
+| Production API | Compose project `money-note`, service `api`, container `money-note-api-1`, `127.0.0.1:18080` |
+| 정적 웹 | Apache `www-data`, `/var/www/money` |
+| 영속 데이터 | `/opt/money-note/data/money-note.sqlite3`, 같은 data 안의 `snapshot-backups/` |
+| 운영 설정 | `/opt/money-note/.env`; 개발 checkout에 복사하지 않음 |
+| 배포 제어·복구 사본 | `/opt/money-note/.local-deploy/`; 성공 commit/runtime, pending journal, release Compose와 직전 artifact 백업 |
+| Android APK | `/opt/money-note/downloads/money-note.apk`; API에 read-only mount |
 
-- Docker 또는 Colima/Docker Compose
-- Node.js와 npm
-- Git
-- Apache HTTP Server
+`data/`는 UID/GID 1000:1000, 디렉터리 0700, DB와 `.env`는 0600으로 보호한다. 테스트·감사에는 production DB나 Snapshot 사본을 사용하지 않는다. 개발 checkout에서 기본 `docker compose up`을 실행하면 운영 project/port와 충돌할 수 있으므로 개발 API는 아래 전용 명령을 사용한다.
 
-현재 개발 환경에서 확인한 버전:
+## 전제와 개발환경 초기화
 
-```bash
-node --version
-npm --version
-docker compose version
-```
+서버 개발에는 Python 3.12 이상, pip driver, Node.js 22와 npm, Git, Bash가 필요하다. 서버 배포 빌드는 기존 Docker Engine/Compose를 사용하며 Apache 설정 자체는 변경하지 않는다. 배포 제어 코드는 Python 표준 라이브러리만 사용한다. SSH/SCP/rsync는 새 배포 경로의 prerequisite가 아니다.
 
-## 데이터 디렉터리
-
-repo 루트에서 아래 디렉터리를 사용한다.
-
-```text
-data/
-```
-
-- `data/`: SQLite DB 저장
-
-이 디렉터리들은 개인 데이터가 들어가므로 git에 올리지 않는다.
-
-## 백엔드 서버 실행
-
-Docker Compose로 백엔드를 빌드하고 실행한다.
+현재 서버에는 `/usr/bin/python3` 3.12가 있지만 ensurepip가 없다. 기존 사용자 Python의 pip가 지원하는 `--python`으로 대상 venv에만 설치하면 system package 설치 없이 준비할 수 있다. 시스템/Conda/production Python의 의존성을 upgrade하지 않는다.
 
 ```bash
-docker compose up --build -d
+cd /home/hjkerman/codex/money-note
+/usr/bin/python3 -m venv --without-pip .venv
+python3 -m pip --python .venv install --require-hashes -r backend/requirements-dev.lock
+mkdir -p work/npm-cache
+npm --prefix frontend ci --cache "$PWD/work/npm-cache" --no-audit --no-fund
 ```
 
-접속 주소:
+이 venv에는 pip 자체가 없어도 검증·개발 서버를 실행할 수 있다. 의존성을 다시 설치할 때도 같은 외부 pip driver의 `--python .venv`를 사용한다. 이 경로가 없는 다른 호스트에서는 Python 3.12의 venv/pip prerequisite부터 운영자에게 확인한다.
 
-```text
-http://localhost:18080
-```
-
-상태 확인:
+개발 frontend만 별도 API에 연결한다. 아래 파일은 Git과 배포 archive에서 제외된다.
 
 ```bash
-curl http://localhost:18080/health
+cat > frontend/.env.development.local <<'EOF'
+VITE_API_BASE_URL=http://127.0.0.1:18081
+EOF
+./scripts/dev-server.sh
 ```
 
-기대 응답:
+다른 터미널에서 `npm --prefix frontend run dev`를 실행하면 `http://127.0.0.1:5173`에서 접속한다. 개발 API health는 `http://127.0.0.1:18081/health`다. `dev-server.sh`는 상속된 Money Note 운영 변수를 제거하고 개발 DB·loopback port를 고정한다. 개발 DB는 처음 기동할 때 빈 상태로 생성되며, 필요한 개발 계정도 이 DB에 별도로 만든다.
 
-```json
-{"status":"ok"}
-```
+## 서버 local deployment
 
-로그 확인:
+진입점은 `scripts/deploy-server.sh`이며 `scripts/local_deploy.py`가 파일 경계와 복구를 담당한다. shell 환경파일을 실행하지 않고 `.env.deploy`의 branch/API 주소를 literal로 읽는다. 기존 SSH 설정 파일은 새 예제로 교체한다. 기본 branch `main`과 현재 운영 API 주소를 쓰면 설정 파일은 생략해도 된다.
 
 ```bash
-docker compose logs --tail=80 api
+./scripts/deploy-server.sh --dry-run
+./scripts/deploy-server.sh --stage-only --force
 ```
 
-컨테이너 상태 확인:
+- 기본값/`--dry-run`: committed HEAD, 경로, 운영 container/mount와 배포 범위를 읽는다. 빌드·production 쓰기·service 조작·fetch·push를 수행하지 않는다. 작업 중 변경은 배포 대상이 아니며 실제 빌드에는 clean checkout이 필요하다.
+- `--stage-only`: clean commit의 allowlist만 staging한다. frontend는 `node:22-alpine`, backend는 고유 `money-note-local:<attempt>` 이미지로 빌드한다. Compose 설정의 고정 DB·downloads mount와 loopback port를 검사하되 컨테이너를 교체하지 않는다. 로컬 빌드 이미지/cache는 생성된다.
+- `--apply`: 사용자가 production 배포를 명시적으로 요청한 경우에만 실행한다. clean branch의 로컬 commit이면 되며 push나 SSH는 필요 없다.
 
 ```bash
-docker compose ps
+./scripts/deploy-server.sh --apply
 ```
 
-중지:
+최초 local 배포는 양쪽을 빌드한다. 이후 `.local-deploy/current.json`의 성공 commit 이후 변경 영역만 빌드하며, `--force`는 양쪽을 다시 빌드한다. production의 기존 `.git/money-note-deployed-commit`과 소스 tree는 더 이상 갱신하지 않는다.
+
+배포 순서:
+
+1. Git commit에서 backend 실행 파일·잠긴 의존성·Compose와 frontend 빌드 입력만 archive한다. DB, data/downloads, secret, `.env`와 링크를 build archive에 넣지 않는다.
+2. 필요한 모든 빌드를 완료하고 `index.html`, JavaScript, `.well-known/assetlinks.json`, 비루트 이미지와 Compose mount를 확인한다. 실패하면 운영 artifact를 교체하지 않는다.
+3. 빌드는 checkout lock으로 중복 실행을 막는다. 배포 lock을 잡고 빌드 중 production이 바뀌지 않았는지 확인한다. 직전 runtime 이미지/Compose와 교체할 웹 파일을 private control 영역에 보관하고 pending journal을 남긴다.
+4. `--project-name money-note --project-directory /opt/money-note --env-file /opt/money-note/.env`를 명시해 준비한 이미지로 `api`만 교체한다. `--no-build --pull never --no-deps`를 사용하고 Apache·다른 서비스는 restart/reload하지 않는다.
+5. API 이미지와 health를 확인한 뒤 웹 자산을 배치하고 `index.html`을 마지막에 원자적으로 교체한다. 기존 hashed asset은 복구/열린 화면을 위해 보관 한도까지 유지한다.
+6. 성공 marker를 원자적으로 갱신하고 pending을 해제한 다음 아래 보관 정책을 적용한다.
+
+API 컨테이너 교체에는 짧은 중단이 있다. 웹의 각 파일 교체는 원자적이며 전체 API+웹이 하나의 원자적 transaction인 것은 아니다. DB·config는 제자리에 보존한다. 새 API 시작은 기존 additive migration을 실행할 수 있으므로 스키마 변경 릴리스에서는 이전 이미지와의 호환성을 먼저 검토한다.
+
+### 복구와 배포 사본 보관 한도
+
+**현재 배포 + 직전 성공 배포 1개분**만 유지한다. 다음 배포가 성공하고 health까지 확인된 뒤 그보다 오래된 release/rollback 디렉터리, 이 workflow가 만든 Docker 이미지와 관리하는 웹 hashed asset, 개발 staging을 정리한다. APK도 현재 파일과 직전 파일 1개만 보관한다. DB Snapshot은 이 보관 정책과 별개다.
+
+전역 `docker prune`을 사용하지 않으며, legacy/다른 서비스 이미지와 production DB·Snapshot·설정은 정리하지 않는다. Docker의 공용 build cache도 삭제하지 않는다. 실패한 build staging은 다음 성공 배포에서 정리하며, 실패·중단 상태의 복구본은 먼저 보존한다. cleanup 실패 경고가 나오면 배포 성공과 정리 실패를 구분하고, 다음 성공 배포에서 정리를 재시도한다.
+
+일반 배포 실패는 직전 이미지와 웹 파일로 rollback한다. 강제 종료 등으로 pending journal이 남았거나 rollback 자체가 실패하면 새 publication을 차단한다. 출력된 attempt를 사용해 계획을 먼저 확인하고 명시적으로 복구한다. 아래 ID는 예시다.
 
 ```bash
-docker compose down
+./scripts/deploy-server.sh --rollback 96acd45fdf30-example1
+./scripts/deploy-server.sh --rollback 96acd45fdf30-example1 --apply
 ```
 
-## 홈서버 첫 배포 절차
+현재 또는 중단된 마지막 attempt만 복구할 수 있다. **artifact rollback은 DB restore가 아니다.** DB를 자동으로 과거 사본으로 덮지 않는다. 스키마 호환 문제는 운영자가 별도 복구 판단을 해야 한다. 초기 legacy 이미지의 태그는 새 workflow 소유가 아니므로 자동 삭제하지 않는다.
 
-Ubuntu 24.04 홈서버에 처음 올릴 때의 기준 절차다. `docker run`에 익숙한 사람이라면, 이 프로젝트에서는 `docker compose`가 긴 `docker run ...` 명령을 파일로 저장해 두고 반복 실행하는 역할이라고 보면 된다.
+현재 서버의 개발 사용자 UID 1000은 production 및 웹 루트에 쓰기 권한이 있어 추가 chown이 필요하지 않다. 다른 계정으로 운영할 때는 이 두 배포 영역과 Docker 접근 권한을 운영자가 사전에 확인하며, `/var/www` 전체나 data 권한을 넓히지 않는다.
 
-요즘 소규모 개인 서버 배포에서는 서버에서 `git clone` 또는 `git pull`로 코드를 받는 방식도 여전히 흔하다. 다만 중요한 원칙은 코드와 운영 설정/데이터를 분리하는 것이다.
+## 기존 운영 구성 참고
 
-- 코드: Git repo에서 받는다.
-- 설정: 서버의 `.env`에 둔다.
-- 데이터: 서버의 `data/`에 둔다.
-- 웹 빌드 산출물: `frontend/dist/`를 `/var/www/...`로 복사하고 Apache로 서비스한다.
-
-즉, 서버에 repo를 두되 `.env`, SQLite DB, snapshot 백업 같은 운영 파일은 git에 올리지 않는다. 이 프로젝트는 1인 홈서버 서비스라서, 별도 CI/CD 없이 `git pull -> docker compose up --build -d -> frontend build -> /var/www 배치` 흐름을 기본 배포 방식으로 삼는다.
+아래 환경설정·Apache·계정·복원 명령은 이미 운영 중인 서버의 구성 참고와 명시적인 운영 작업용이다. 개발환경 bootstrap으로 실행하지 않는다. 신규 서버 구축은 현재 local 배포 스크립트의 범위가 아니며, 이 스크립트는 기존 운영 DB·config·API·웹 디렉터리를 전제로 한다.
 
 ## 운영 안정화 원칙
 
@@ -133,33 +143,19 @@ docker compose version
 sudo usermod -aG docker "$USER"
 ```
 
-### 2. 서버에 코드 받기
+### 2. 코드와 운영 영역
 
-예시는 `/opt/money-note`에 배포하는 방식이다. 다른 경로를 써도 되지만, 이후 명령의 경로를 같이 바꾼다.
-
-```bash
-sudo mkdir -p /opt/money-note
-sudo chown "$USER":"$USER" /opt/money-note
-git clone git@github.com:hjkerman/money-note.git /opt/money-note
-cd /opt/money-note
-```
-
-이미 받아둔 repo를 갱신할 때는 새로 clone하지 않고 아래만 실행한다.
-
-```bash
-cd /opt/money-note
-git pull
-```
+소스는 별도 개발 checkout에서 관리한다. 서버에서의 clone·pull·Codex 작업 경로는 `/home/hjkerman/codex/money-note`다. `/opt/money-note`에서 개발하거나 Git pull로 운영 소스를 갱신하지 않는다. 일상 배포는 위 `서버 local deployment` 절을 따른다.
 
 ### 3. 서버 설정 파일 만들기
 
-repo 루트에 서버용 `.env` 파일을 만든다. 이 파일은 `docker compose`가 자동으로 읽으며, git에 올리지 않는다.
+운영자가 명시적으로 설정을 변경할 때만 production 루트의 `.env`를 편집한다. 개발용으로 복사하지 않는다. 이 파일은 `docker compose`가 자동으로 읽으며, git에 올리지 않는다.
 
 주의:
 
 - 이 `.env`는 `/opt/money-note/.env`다.
 - 프론트엔드 개발용 `frontend/.env`와 다른 파일이다.
-- 서버 비밀값, 운영 도메인, cookie 설정은 repo 루트 `.env`에 둔다.
+- 서버 비밀값, 운영 도메인, cookie 설정은 production 루트 `.env`에 둔다.
 - `.gitignore`에 `.env`가 들어 있으므로 실수로 git에 올라가지 않는다.
 
 복사해서 바로 만들려면 아래처럼 한다.
@@ -210,21 +206,16 @@ MONEY_NOTE_CORS_ORIGINS=https://money.hjkerman.re.kr,http://localhost:5173,http:
 
 `docker-compose.yml`은 위 값을 자동으로 읽어 컨테이너에 전달한다.
 
-적용될 값을 확인하려면 아래 명령을 쓴다.
+운영 설정을 출력하거나 개발환경으로 복사하지 않는다. local 배포 스크립트가 Compose 설정을 메모리에서 검증한다. 명시적으로 요청한 `.env` 변경을 적용할 때도 개발 checkout에서 배포한다.
 
 ```bash
-docker compose config
-```
-
-`.env`를 수정한 뒤 이미 서버가 떠 있다면 다시 올린다.
-
-```bash
-docker compose up --build -d
+cd /home/hjkerman/codex/money-note
+./scripts/deploy-server.sh --force --apply
 ```
 
 ### 4. 데이터 디렉터리 확인
 
-SQLite DB는 repo 루트의 `data/`에 저장된다.
+운영 SQLite DB는 `/opt/money-note/data/`에 저장된다. 개발 DB와 분리한다.
 
 ```bash
 mkdir -p /opt/money-note/data
@@ -244,17 +235,14 @@ DB 파일을 직접 복사한 뒤에는 다음 서버 시작 때 누락 컬럼 �
 
 유동성 이름 migration은 기존 `app_settings`와 `app_labels` 값을 현재 key로 옮긴 뒤 과거 key를 삭제한다. 새 key와 과거 key가 모두 있고 값이 다르면 데이터를 추측해 덮어쓰지 않고 API 시작을 중단한다. 이 경우 SQLite 하드카피를 보존한 상태에서 두 값을 확인하고 하나의 의도된 값으로 정리한 뒤 다시 시작한다.
 
-### 5. 서버 컨테이너 실행
+### 5. 서버 컨테이너 배포와 확인
 
-```bash
-cd /opt/money-note
-docker compose up --build -d
-```
+운영 소스에서 직접 빌드하지 않는다. 컨테이너 교체는 이 문서 앞부분의 local deployment 절에서만 수행한다.
 
 정상 여부 확인:
 
 ```bash
-docker compose ps
+docker ps --filter name=money-note-api-1
 curl http://localhost:18080/health
 ```
 
@@ -267,7 +255,7 @@ curl http://localhost:18080/health
 로그 확인:
 
 ```bash
-docker compose logs --tail=80 api
+docker logs --tail=80 money-note-api-1
 ```
 
 ### 6. 관리자 계정 만들기
@@ -283,55 +271,9 @@ docker compose exec -T api env PYTHONPATH=/app \
 
 사용자명과 비밀번호는 실제 값으로 바꾼다. 비밀번호는 12자 이상이어야 하며 평문 저장되지 않고 해시만 저장된다. `--replace`로 재설정하면 기존 웹·모바일 세션도 모두 종료한다.
 
-### 7. 웹 프론트엔드 빌드
+### 7. 웹 프론트엔드 빌드와 배치
 
-운영 서버의 Node.js 설치 상태에 빌드가 좌우되지 않도록 `node:22-alpine` 컨테이너에서 빌드한다. 일상 배포의 `scripts/deploy-server.sh`도 같은 방식을 사용한다.
-
-운영 배포에서는 프론트엔드가 API 서버 절대주소를 들고 있지 않게 만든다. `VITE_API_BASE_URL`을 빈 값으로 빌드하면 브라우저가 현재 도메인 기준의 상대경로 `/api/...`, `/share/...`로 요청한다. 그러면 Apache가 내부 백엔드 `127.0.0.1:18080`으로 넘긴다.
-
-```bash
-cd /opt/money-note/frontend
-docker run --rm \
-  --user "$(id -u):$(id -g)" \
-  --env HOME=/tmp \
-  --env VITE_API_BASE_URL= \
-  --volume /opt/money-note/frontend:/app \
-  --workdir /app \
-  node:22-alpine \
-  sh -c 'npm ci --no-audit --no-fund && npm run build'
-```
-
-빌드 결과는 아래에 생긴다.
-
-```text
-/opt/money-note/frontend/dist/
-```
-
-### 8. 웹 파일 배치
-
-운영 Apache의 `DocumentRoot`인 `/var/www/money`에 배치한다.
-
-```bash
-sudo mkdir -p /var/www/money
-sudo rsync -a --delete /opt/money-note/frontend/dist/ /var/www/money/
-```
-
-이 단계까지 끝나면 백엔드는 `localhost:18080`, 프론트엔드 정적 파일은 `/var/www/money`에 있는 상태다.
-
-Android 앱과 Google 비밀번호 관리자를 웹 도메인에 연결하려면 프론트엔드 빌드 결과에 아래 파일이 반드시 포함되어야 한다.
-
-```text
-/var/www/money/.well-known/assetlinks.json
-```
-
-배치 후 서버에서 확인한다.
-
-```bash
-test -f /var/www/money/.well-known/assetlinks.json
-curl -s https://money.hjkerman.re.kr/.well-known/assetlinks.json
-```
-
-브라우저나 `curl`에서 JSON 배열이 그대로 보이면 된다. `404`, HTML, `index.html` 내용이 보이면 Apache rewrite나 파일 배치가 잘못된 것이다.
+개발 checkout의 `scripts/deploy-server.sh --stage-only`가 별도 staging에서 frontend를 빌드한다. 운영 빌드는 `VITE_API_BASE_URL`을 비워 same-origin API를 사용하며, `--apply`만 `/var/www/money`에 배치한다. `.well-known/assetlinks.json`도 필수 산출물이다. production의 `frontend/`에서 npm이나 Docker 빌드를 실행하지 않는다.
 
 ### 9. Apache reverse proxy 연결
 
@@ -445,14 +387,9 @@ sudo apache2ctl configtest
 sudo systemctl reload apache2
 ```
 
-인증서는 `certbot` 등으로 별도 적용한다. HTTPS 적용 뒤에는 repo 루트 `.env`에서 `MONEY_NOTE_COOKIE_SECURE=true`를 사용하고, 서버 컨테이너를 다시 올린다.
+인증서는 `certbot` 등으로 별도 적용한다. 명시적으로 요청한 HTTPS 설정 작업에서는 production `.env`의 `MONEY_NOTE_COOKIE_SECURE=true`를 확인하고, 설정 반영도 개발 checkout의 local deployment 절을 따른다.
 
-```bash
-cd /opt/money-note
-docker compose up --build -d
-```
-
-운영에서 브라우저 개발자 도구를 열었을 때 API 요청 주소가 `https://money.hjkerman.re.kr/api/...` 형태여야 한다. `http://127.0.0.1:18080/api/...`가 보이면 `VITE_API_BASE_URL`이 빈 값으로 적용되지 않은 빌드다. 위 컨테이너 명령이나 `scripts/deploy-server.sh --force`로 다시 빌드하고 `/var/www/money`에 배치한다.
+운영에서 브라우저 개발자 도구를 열었을 때 API 요청 주소가 `https://money.hjkerman.re.kr/api/...` 형태여야 한다. `http://127.0.0.1:18080/api/...`가 보이면 `VITE_API_BASE_URL`이 빈 값으로 적용되지 않은 빌드다. 명시적으로 요청한 운영 배포에서 `scripts/deploy-server.sh --force --apply`로 다시 빌드·검증·배치한다.
 
 ### 10. 배포 후 손검증
 
@@ -462,56 +399,25 @@ docker compose up --build -d
 2. 새 당월 지출 1건 추가 후 즉시 표시
 3. 설정에서 snapshot 백업 다운로드 가능
 4. 청구 공유 링크와 가족카드 공유 링크가 PIN 화면을 거쳐 열림
-5. `docker compose logs --tail=80 api`에 반복 오류가 없음
+5. `docker logs --tail=80 money-note-api-1`에 반복 오류가 없음
 6. 로그인 cookie에 `HttpOnly`, `Secure`, `SameSite=Lax`가 설정됨
 7. 웹 로그인 응답 JSON의 `session_token`이 `null`임
 8. 기본 공유 PIN `0000` 경고가 사라지도록 운영 PIN을 변경함
 
 ### 11. 업데이트 절차
 
-일상적인 업데이트는 개발 Mac의 repo 루트에서 아래 한 줄로 수행한다.
+이 문서 앞부분의 `서버 local deployment` 절이 일상 배포의 단일 기준이다. SSH 배포, production Git pull, production frontend build와 수동 rsync는 이전 절차다.
+
+운영 health와 로그의 읽기 전용 확인:
 
 ```bash
-./scripts/deploy-server.sh
+curl --fail http://127.0.0.1:18080/health
+docker logs --tail=80 money-note-api-1
+tail -n 120 /var/log/apache2/money-error.log
+tail -n 120 /var/log/apache2/money-access.log
 ```
 
-스크립트는 로컬 커밋이 `origin/main`에 push되었는지 확인한 뒤 SSH로 서버의 `main`을 fast-forward한다. 마지막으로 **실제 배포가 완료된 커밋 해시**를 `/opt/money-note/.git/money-note-deployed-commit`에 기록하고, 그 이후 변경 파일을 기준으로 백엔드와 프론트엔드 중 필요한 영역만 다시 빌드한다. 프론트엔드는 서버에 설치된 Node.js가 아니라 `node:22-alpine` Docker 이미지로 빌드한다. Docker 재빌드, 웹 파일 동기화, API health check가 모두 성공한 뒤에만 이 기록을 갱신한다. 따라서 서버에서 `git pull`만 수행되고 빌드가 실패한 경우에도 다음 실행에서 누락된 배포를 다시 시도한다.
-
-최초 한 번은 로컬에 공용 배포 설정을 만든다.
-
-```bash
-cp .env.deploy.example .env.deploy
-chmod 600 .env.deploy
-```
-
-`.env.deploy`에서 SSH host/user와 서버 경로를 실제 값으로 바꾼다. 이 파일은 서버의 서비스용 `.env`와 별개이며 Git에서 제외된다. SSH 개인키 내용이나 암호를 넣지 말고, 필요하면 `MONEY_NOTE_DEPLOY_IDENTITY_FILE`에 로컬 key file 경로만 둔다.
-
-또한 서버에서 배포 사용자가 Apache 웹 루트에 직접 동기화할 수 있도록 최초 한 번만 권한을 정리한다.
-
-```bash
-sudo chown -R "$USER":www-data /var/www/money
-sudo chmod -R u+rwX,go+rX /var/www/money
-```
-
-그 뒤에는 서버 셸에 들어가 `git pull`, `npm run build`, `rsync`를 직접 실행할 필요가 없다. 변경 파일 판정과 관계없이 프론트엔드와 백엔드를 모두 다시 배포하려면 다음을 사용한다.
-
-```bash
-./scripts/deploy-server.sh --force
-```
-
-수동 점검이 필요할 때만 서버에서 아래를 확인한다.
-
-```bash
-curl http://localhost:18080/health
-docker compose logs --tail=80 api
-```
-
-문제가 생기면 우선 `docker compose logs --tail=200 api`와 Apache 로그를 본다. 프론트엔드 화면만 이상하면 Node 빌드 컨테이너의 성공 여부, 빈 `VITE_API_BASE_URL`, `/var/www/money` 배치 여부를 먼저 확인한다.
-
-```bash
-sudo tail -n 120 /var/log/apache2/money-note-error.log
-sudo tail -n 120 /var/log/apache2/money-note-access.log
-```
+container 교체, Apache reload와 DB 변경은 별도 명시적 운영 작업이다.
 
 ## 백엔드 환경변수
 
@@ -555,10 +461,11 @@ MONEY_NOTE_TRUST_PROXY_HEADERS=true
 날짜 민감 기능 검증:
 
 ```bash
-MONEY_NOTE_TODAY=2026-07-01 docker compose up --build -d
+cd /home/hjkerman/codex/money-note/backend
+../.venv/bin/python -m pytest -q tests/test_toll_freeze_audit.py
 ```
 
-`MONEY_NOTE_TODAY`는 월마감, 카드대금, 정기결제 표시처럼 앱 기준일이 필요한 흐름을 검증하기 위한 개발용 override다. 비워두면 실제 오늘 날짜를 사용한다. 운영 서버에서는 설정하지 않는다.
+`MONEY_NOTE_TODAY`는 테스트 fixture가 임시 DB 안에서 월마감, 카드대금, 정기결제 기준일을 고정하는 개발용 override다. 비워두면 실제 오늘 날짜를 사용한다. 운영 서버에서는 설정하지 않는다.
 
 앱 기준일은 기본적으로 KST(+09:00, offset `540`)로 계산한다. 현재 운영 Compose는 이 값을 고정 기본값으로 사용한다.
 
@@ -569,20 +476,7 @@ MONEY_NOTE_APK_PATH=/app/downloads/money-note.apk
 MONEY_NOTE_APK_FILENAME=money-note.apk
 ```
 
-`MONEY_NOTE_APK_PATH`는 컨테이너 안에서 보이는 APK 파일 경로다. `docker-compose.yml`은 기본으로 서버 repo의 `./downloads` 디렉터리를 컨테이너의 `/app/downloads`에 연결한다.
-
-따라서 서버에서는 아래처럼 APK를 둔다.
-
-```bash
-mkdir -p /opt/money-note/downloads
-cp money-note.apk /opt/money-note/downloads/money-note.apk
-```
-
-그 뒤 `/opt/money-note/.env`에 위 값을 넣고 서버를 다시 올린다.
-
-```bash
-docker compose up --build -d
-```
+`MONEY_NOTE_APK_PATH`는 컨테이너 안에서 보이는 APK 파일 경로다. local deployment는 production의 `downloads/`를 `/app/downloads`에 read-only로 연결한다. 일상 APK 교체는 아래 `한 명령으로 모바일 release 배포` 절의 `scripts/release-mobile.sh --apply`를 사용한다. 기존 설정을 유지한 APK 파일 교체에는 API 재시작이 필요 없다.
 
 웹에서는 `설정 -> Android 앱 설치 파일 -> APK 다운로드` 버튼으로 내려받는다. APK 파일이 아직 없거나 `MONEY_NOTE_APK_PATH`가 비어 있으면 다운로드는 `apk file not found`로 실패한다.
 
@@ -645,7 +539,7 @@ Android 에뮬레이터에서 개발 머신의 `localhost`는 `10.0.2.2`로 접�
 
 ```bash
 cd mobile
-flutter run --dart-define=MONEY_NOTE_API_BASE_URL=http://10.0.2.2:18080
+flutter run --dart-define=MONEY_NOTE_API_BASE_URL=http://10.0.2.2:18081
 ```
 
 실제 서버에 붙일 때는 운영 도메인을 넣는다.
@@ -755,49 +649,21 @@ mobile/build/app/outputs/flutter-apk/app-release.apk
 
 ### 6. 서버에서 APK 다운로드 제공
 
-빌드한 APK를 서버 repo의 `downloads/`에 둔다.
-
-```bash
-mkdir -p /opt/money-note/downloads
-cp mobile/build/app/outputs/flutter-apk/app-release.apk /opt/money-note/downloads/money-note.apk
-```
-
-서버 `.env`에는 아래를 둔다.
-
-```text
-MONEY_NOTE_APK_PATH=/app/downloads/money-note.apk
-MONEY_NOTE_APK_FILENAME=money-note.apk
-```
-
-서버를 다시 올린다.
-
-```bash
-cd /opt/money-note
-docker compose up --build -d
-```
-
-웹 설정 모달의 `Android 앱 설치 파일` 영역에서 APK를 내려받을 수 있다.
+API는 `/opt/money-note/downloads/money-note.apk`를 read-only mount로 제공한다. 운영 `.env`의 `MONEY_NOTE_APK_PATH=/app/downloads/money-note.apk` 설정은 기존 값을 유지한다. APK 파일 교체에는 API 컨테이너 재시작이 필요 없다.
 
 ### 6.1. 한 명령으로 모바일 release 배포
 
-일상적인 모바일 배포는 repo 루트의 `scripts/release-mobile.sh`를 사용한다. 이 스크립트는 작업 트리가 깨끗한지 확인하고 Flutter 정적 분석·테스트·release 빌드를 수행한 뒤, APK를 서버 임시 경로로 `scp` 전송한다. 로컬과 원격의 SHA-256이 같을 때만 `/opt/money-note/downloads/money-note.apk`로 원자적으로 교체한다. Docker의 `downloads/` bind mount에는 즉시 반영되므로 컨테이너를 재시작하지 않는다.
-
-서버 배포와 같은 `.env.deploy`를 사용한다. 아직 만들지 않았다면 예제를 복사하고 실제 SSH 정보를 입력한다.
+서버 개발 checkout에서 `scripts/release-mobile.sh`를 사용한다. 기본값은 dry-run, `--stage-only`는 검증·서명 빌드, 명시적 `--apply`만 local APK publication이다. SHA-256 검증 후 같은 downloads 디렉터리에서 원자적으로 교체하며, 직전 APK 1개를 private control 영역에 보관한다.
 
 ```bash
-cp .env.deploy.example .env.deploy
-chmod 600 .env.deploy
+./scripts/release-mobile.sh --dry-run
+./scripts/release-mobile.sh --stage-only
+./scripts/release-mobile.sh --apply
 ```
 
-`MONEY_NOTE_DEPLOY_IDENTITY_FILE`에는 SSH 개인키 내용이나 암호가 아니라 로컬 key file 경로만 적는다. 비워두면 SSH config와 `ssh-agent`를 사용한다. YubiKey FIDO2 SSH key를 쓸 때는 OpenSSH가 생성한 key-handle file 경로를 적고 PIN·터치는 OpenSSH에 맡긴다. Android release JKS 설정은 기존 `mobile/android/key.properties`에 두거나 같은 환경파일의 `MONEY_NOTE_KEYSTORE_*` 값을 사용한다.
+빌드에는 Flutter, Android SDK와 JDK 17, 기존 release 서명키와 private `mobile/android/key.properties`(0600)가 필요하다. Flutter analyze/test/release build를 통과해야 publication할 수 있다. 이 서버에 도구나 서명키가 없으면 중단하며 임의로 system package를 설치하거나 production 설정을 복사하지 않는다. 알려진 도구 조합은 `known-issues.md`를 따른다.
 
-모바일 버전은 자동으로 올리지 않는다. `mobile/pubspec.yaml`의 버전을 확인한 뒤 다음 한 줄로 배포한다.
-
-```bash
-./scripts/release-mobile.sh
-```
-
-스크립트는 Git commit이나 push를 수행하지 않는다. 에이전트 작업에서는 모바일 검증 및 release 빌드, 커밋, push를 마친 뒤 같은 커밋의 작업 트리가 깨끗한 상태에서 이 스크립트를 실행한다. 모바일 변경이 없는 push에는 APK를 다시 배포하지 않는다.
+`.env.deploy`의 선택적 API 주소와 branch 외에 SSH 자격 증명은 필요 없다. 기존 `.env.deploy`의 SSH/keystore 변수를 shell로 source하지 않는다. 서명 정보는 기존 Android key.properties로 관리한다. 모바일 버전은 자동으로 올리지 않으며 commit/push도 스크립트가 수행하지 않는다.
 
 ### 7. 변경 후 에뮬레이터에 다시 띄우기
 
@@ -826,7 +692,7 @@ flutter run -d emulator-5554 --dart-define=MONEY_NOTE_API_BASE_URL=https://money
 로컬 Docker 서버에 붙일 때는 Android 에뮬레이터에서 호스트 머신을 `10.0.2.2`로 본다.
 
 ```bash
-flutter run -d emulator-5554 --dart-define=MONEY_NOTE_API_BASE_URL=http://10.0.2.2:18080
+flutter run -d emulator-5554 --dart-define=MONEY_NOTE_API_BASE_URL=http://10.0.2.2:18081
 ```
 
 이미 `flutter run`이 붙어 있는 상태에서 소스만 바꿨다면 터미널에서 `r`을 눌러 빠르게 반영한다. 앱을 완전히 다시 시작해야 하면 `R`을 누른다. 실행 연결은 끊고 앱은 에뮬레이터에 남기려면 `d`를 누른다.
@@ -837,7 +703,7 @@ flutter run -d emulator-5554 --dart-define=MONEY_NOTE_API_BASE_URL=http://10.0.2
 flutter build apk --release --dart-define=MONEY_NOTE_API_BASE_URL=https://money.hjkerman.re.kr
 ```
 
-release manifest는 평문 HTTP 통신을 차단한다. 운영 빌드의 `MONEY_NOTE_API_BASE_URL`은 반드시 `https://` 주소여야 하며, 로컬 `http://10.0.2.2:18080`은 debug 실행에만 사용한다.
+release manifest는 평문 HTTP 통신을 차단한다. 운영 빌드의 `MONEY_NOTE_API_BASE_URL`은 반드시 `https://` 주소여야 하며, 로컬 `http://10.0.2.2:18081`은 debug 실행에만 사용한다.
 
 Android Gradle 메모:
 
@@ -1070,7 +936,7 @@ cp .env.example .env
 `frontend/.env` 예시:
 
 ```text
-VITE_API_BASE_URL=http://localhost:18080
+VITE_API_BASE_URL=http://localhost:18081
 ```
 
 운영 도메인에서 정적 파일을 배포하고 `/api/`를 같은 도메인에서 Apache reverse proxy한다면 빌드 환경의 `VITE_API_BASE_URL`을 빈 값으로 둔다.
@@ -1079,35 +945,15 @@ VITE_API_BASE_URL=http://localhost:18080
 VITE_API_BASE_URL=
 ```
 
-이 값은 빌드 시점에 결과물에 박제된다. `scripts/deploy-server.sh`는 Node 컨테이너에 빈 값을 명시한다. 수동 빌드라면 같은 환경값으로 다시 빌드한 뒤 새 `dist/`를 `/var/www/money/`에 복사한다.
+이 값은 빌드 시점에 결과물에 박제된다. `scripts/deploy-server.sh`는 Node 컨테이너에 빈 값을 명시한다. 개발 checkout의 수동 빌드는 검증용이며 운영 배치는 local deployment 절을 따른다.
 
 프론트엔드 코드는 운영 도메인에서 상대경로를 사용한다. `frontend/.env.production` 파일은 자동 배포에 필요하지 않으며, 개발자가 수동 빌드를 반복할 때만 같은 빈 값을 기록하는 선택 사항이다.
 
-운영 빌드 결과가 정상이라면 브라우저에서 API 요청은 현재 도메인 기준의 `/api/...`로 보인다. `127.0.0.1:18080`이 보이면 운영용 환경파일이 적용되지 않은 빌드다.
+운영 빌드 결과가 정상이라면 브라우저에서 API 요청은 현재 도메인 기준의 `/api/...`로 보인다. `127.0.0.1:18081`이 보이면 운영용 환경파일이 적용되지 않은 빌드다.
 
 ## 웹 프론트엔드 정적 빌드
 
-```bash
-cd frontend
-npm run build
-```
-
-산출물:
-
-```text
-frontend/dist/
-```
-
-홈서버에서 웹으로 배포할 때는 `frontend/dist/`의 내용을 Apache `DocumentRoot`인 `/var/www/...` 아래에 배치한다.
-
-예시:
-
-```bash
-sudo mkdir -p /var/www/money
-sudo rsync -a --delete frontend/dist/ /var/www/money/
-```
-
-인증서, Apache reverse proxy, 도메인 연결은 서버 운영 환경에서 별도로 설정한다.
+개발 checkout에서 `npm --prefix frontend run build`로 TypeScript와 production bundle을 검증한다. 운영 배치는 위 local deployment 절의 명시적 `--apply`를 사용하며, 빌드 결과를 수동 rsync하지 않는다.
 
 ## Snapshot 백업과 복원
 
@@ -1305,57 +1151,25 @@ http://localhost:18080/share/family_card
 
 ## 자주 쓰는 개발 검증
 
-백엔드 문법 검사:
+모두 개발 checkout에서 실행한다. 테스트 fixture가 새 임시 SQLite를 만들며, 운영 API에는 검증용 변경 요청을 보내지 않는다.
 
 ```bash
-PYTHONPYCACHEPREFIX=/private/tmp/money-note-pycache python3 -m compileall backend/app
+cd /home/hjkerman/codex/money-note/backend
+../.venv/bin/python -m pytest -q tests/test_financial_state_gaps.py tests/test_toll_freeze_audit.py
+../.venv/bin/python -m pytest -q
+../.venv/bin/python -m ruff check app tests
+cd ..
+.venv/bin/python -m ruff check scripts/local_deploy.py scripts/tests
+.venv/bin/python -m pytest -q scripts/tests
+bash -n scripts/deploy-server.sh scripts/release-mobile.sh scripts/dev-server.sh
+npm --prefix frontend test
+npm --prefix frontend run build
+./scripts/deploy-server.sh --dry-run
 ```
 
-프론트엔드 빌드:
+`npm run build`에 TypeScript `tsc -b` 검증이 포함된다. 개발 `.env.development.local`은 production build에서 로드되지 않는다. shellcheck가 이미 설치되어 있으면 shell 스크립트도 검사한다. 배포 테스트의 Docker/health는 대역이며 파일 교체·복구·보관 한도는 실제 임시 파일로 검증한다. 실제 production 배포·restart·DB migration은 이 검증에 포함하지 않는다.
 
-```bash
-cd frontend
-npm run build
-```
-
-서버 health check:
-
-```bash
-curl http://localhost:18080/health
-```
-
-비로그인 조작 차단 확인:
-
-```bash
-curl -i -X POST http://localhost:18080/api/month/current/planned \
-  -H 'Content-Type: application/json' \
-  -d '{"title":"unauth test","amount_value":1}'
-```
-
-로그인 확인:
-
-```bash
-curl -c /tmp/money-note-cookie.txt \
-  -H 'Content-Type: application/json' \
-  -d '{"username":"your-username","password":"your-password"}' \
-  http://localhost:18080/api/auth/login
-
-curl -b /tmp/money-note-cookie.txt http://localhost:18080/api/auth/me
-```
-
-Bearer token 인증 확인:
-
-```bash
-TOKEN="$(curl -s \
-  -H 'Content-Type: application/json' \
-  -d '{"username":"your-username","password":"your-password"}' \
-  http://localhost:18080/api/auth/mobile-login \
-  | python3 -c 'import json,sys; print(json.load(sys.stdin)["session_token"])')"
-
-curl -H "Authorization: Bearer $TOKEN" http://localhost:18080/api/auth/me
-```
-
-전체 보안 설정과 남는 위험은 [보안 운영](security.md)을 함께 확인한다.
+Flutter/Android 검증은 해당 toolchain이 준비된 개발 환경에서 `flutter analyze`, `flutter test`, debug APK 빌드와 `./gradlew :app:testDebugUnitTest`를 수행한다. 서버의 API/web 작업만을 위해 모바일 toolchain을 설치하지 않는다.
 
 ## 관리 로그
 

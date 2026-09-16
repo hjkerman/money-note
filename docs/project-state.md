@@ -70,10 +70,10 @@
 
 ## 운영 및 배포
 
-- 운영 repo 기준 경로는 `/opt/money-note`다.
+- 서버 개발 Git working copy는 `/home/hjkerman/codex/money-note`다. `/opt/money-note`는 별도 production deployment 영역이며, 남아 있는 Git 메타데이터로 개발하거나 pull/build하지 않는다.
 - API는 Docker Compose로 `127.0.0.1:18080`에만 바인딩하고, Apache가 HTTPS 정적 웹과 `/api`, `/share` reverse proxy를 담당한다.
-- 서버 배포 진입점은 로컬 repo의 `scripts/deploy-server.sh`다. 변경 범위를 판별해 백엔드 컨테이너와 Apache 웹 루트를 갱신한다.
-- Android release 진입점은 `scripts/release-mobile.sh`다. 검증과 서명 빌드 후 APK를 서버의 `downloads/money-note.apk`로 원자적으로 교체한다.
+- 서버 배포 진입점은 개발 checkout의 `scripts/deploy-server.sh`다. 기본 dry-run, `--stage-only`는 격리 빌드, 명시적 `--apply`만 production을 변경한다. push 없이 로컬의 깨끗한 커밋을 배포하며 운영 설정과 DB는 제자리에 보존한다.
+- Android release 진입점은 `scripts/release-mobile.sh`다. 같은 local 모드로 검증·서명 빌드 후 `--apply`에서만 운영 APK를 원자적으로 교체한다. 도구 설치와 배포 사본 보관 정책은 runbook에만 유지한다.
 - 운영 DB, Snapshot 파일, `.env`, `.env.deploy`, 서명키와 SSH 키는 Git에 넣지 않는다.
 - 첫 배포, 장애 복구, Snapshot restore, 수동 검증 명령은 [실행 방법](runbook.md)이 운영 절차의 단일 기준이다.
 

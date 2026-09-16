@@ -40,8 +40,10 @@ Money Note는 1인용이지만 인터넷에 공개되는 금융 기록 서비스
 - DB는 호스트 `data/` volume에만 쓴다.
 - APK 디렉터리는 컨테이너에서 읽기 전용이다.
 - 모바일 APK 직접 다운로드는 로그인 Bearer 인증과 HTTPS를 사용한다. 앱은 APK 전체 수신을 확인한 뒤 package name과 현재 설치본의 서명 인증서를 대조하고, 앱 전용 cache의 제한된 FileProvider URI만 Android 설치기에 전달한다.
-- 모바일 release 배포는 서버 최종 경로에 직접 쓰지 않는다. 임시 파일의 SHA-256을 검증한 뒤 같은 디렉터리에서 원자적으로 교체한다. `.env.deploy`에는 연결 정보와 key file 경로만 두며 SSH 개인키 내용이나 암호는 저장하지 않는다.
-- 서버 배포는 push된 커밋만 `git merge --ff-only`로 반영한다. 서버 작업 트리가 더럽거나 웹 루트에 쓸 수 없으면 기존 서비스 파일을 덮지 않고 중단한다.
+- 모바일 release 배포는 임시 파일의 SHA-256을 검증한 뒤 같은 downloads 디렉터리에서 원자적으로 교체한다. `.env.deploy`는 branch/API 주소만 담는 literal 설정이며 shell로 실행하지 않는다. Android 서명 정보는 Git에서 제외된 private `mobile/android/key.properties`에 둔다.
+- 서버 배포는 별도 개발 checkout의 깨끗한 커밋을 allowlist로 staging한 뒤 수행한다. 기본 dry-run이며 명시적 `--apply`만 production을 변경한다. push/SSH와 production Git pull은 배포 조건이 아니다.
+- production `.env`, DB, Snapshot과 downloads mount는 고정 경로로 유지한다. 배포 코드는 영속 데이터를 복사·복원·정리하지 않는다. 실패 시 artifact rollback과 중단 journal을 사용하며, 보관 한도는 runbook을 따른다.
+- artifact rollback은 DB 복원이 아니다. 서버 시작 시 additive migration이 실행될 수 있으므로 스키마를 변경한 릴리스는 배포 전에 이전 이미지와의 호환성을 검토한다.
 - 컨테이너에 `no-new-privileges`를 적용한다.
 - Android 앱은 운영체제 백업을 끈다. 서버 Snapshot이 백업 원본이다.
 - Android release 빌드는 평문 HTTP 통신을 거부한다. 로컬 HTTP 개발 주소는 debug 빌드에서만 사용한다.

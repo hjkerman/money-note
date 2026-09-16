@@ -1,6 +1,7 @@
 .DS_Store
 .env
 frontend/.env.production
+frontend/.env.*.local
 .venv/
 __pycache__/
 *.py[cod]
@@ -13,6 +14,7 @@ dist/
 *.sh
 !scripts/deploy-server.sh
 !scripts/release-mobile.sh
+!scripts/dev-server.sh
 *.apk
 secrets/
 
