@@ -418,7 +418,10 @@ class _CandidateCardState extends State<_CandidateCard> {
               children: [
                 Expanded(
                   child: FilledButton(
-                    onPressed: widget.state.isBusy ? null : _register,
+                    onPressed: widget.state.isBusy ||
+                            (widget.state.isOffline && target != 'ledger')
+                        ? null
+                        : _register,
                     child: const Text('등록'),
                   ),
                 ),

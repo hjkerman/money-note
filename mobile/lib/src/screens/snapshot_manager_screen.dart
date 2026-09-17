@@ -141,7 +141,7 @@ class _SnapshotCard extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: state.isBusy ? null : () => _restore(context),
+                    onPressed: state.canUseOnlineWrites ? () => _restore(context) : null,
                     child: const Text('복원'),
                   ),
                 ),

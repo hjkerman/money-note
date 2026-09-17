@@ -17,7 +17,7 @@
 - 프론트엔드: Vite + React + TypeScript
 - 배포: API는 Docker Compose로 loopback에 바인딩하고, Apache가 HTTPS 정적 웹과 `/api`, `/share` reverse proxy를 담당
 - 모바일 앱: 웹 축소판이 아니라 홈 상태 확인, 빠른 입력, 현금흐름, 당월 내역, 정산과 운영 설정에 집중하는 별도 클라이언트다. 기준 화면은 [모바일 앱 설계](mobile-design.md)에 둔다.
-- 모바일 앱은 서버 DB를 원본으로 사용하므로 앱 시작 시 서버에 연결할 수 없으면 종료 안내를 표시한다.
+- 모바일 앱은 서버 DB를 원본으로 사용한다. 검증된 마지막 정상 baseline이 있을 때만 제한된 Offline Mode를 명시적으로 선택할 수 있으며, 없으면 종료 또는 온라인 동기화를 안내한다.
 
 ## 데이터 흐름
 
@@ -28,6 +28,8 @@
 5. 웹과 모바일은 변경 직후 관련 조회 API를 다시 호출해 서버 확정 상태를 반영한다.
 6. 필요하면 장부 운용 데이터 전체와 비민감 운영 설정을 JSON snapshot으로 내보내거나 복원한다.
 7. 변경 API 요청은 요청 본문 없이 감사 로그에 남고, 본체 웹의 `관리 로그`에서 조회·초기화한다.
+
+모바일 Offline Mode는 서버 state를 복제한 별도 원본이 아니다. ONLINE 동기화가 완전히 성공할 때 원자적으로 교체한 baseline과 authoritative input만 담은 durable journal로 임시 view를 만들며, derived financial value는 `오프라인 예상값`으로만 표시한다. health check가 복구를 확인해도 자동 sync/replay하지 않고 `RECONCILIATION_REQUIRED` read-only 상태로 전환한다. 상세 계약과 Phase 2 경계는 [모바일 Offline Mode](offline-mode.md)를 따른다.
 
 ### Android 알림 수집
 
@@ -114,6 +116,7 @@ Summary와 DB 설정의 표준 이름은 `scheduled_income`, `cash_flow_balance`
 
 - 웹 `App.tsx`: 최상위 상태와 화면 조립
 - 웹 `components/ledger/`: 원장, 패널, 정기결제, 현금흐름 표시 컴포넌트
+- 모바일 `lib/src/offline/`: offline baseline, append-only journal, display-only projection과 Phase 2 reconciliation bundle
 - 모바일 `lib/src/screens/notification_import_screen.dart`: 우리카드·통행료 로컬 후보 확인과 서버 등록 확정
 - 모바일 `lib/src/screens/notification_archive_screen.dart`: 우리카드·통행료 원문과 파싱 상태 관측
 - 백엔드 `repositories/`: 저장·조회

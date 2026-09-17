@@ -53,12 +53,16 @@ class _CashFlowScreenState extends State<CashFlowScreen> {
           children: [
             Expanded(
                 child: AmountTile(
-                    label: '현금흐름 반영액',
+                    label: widget.state.financialValuesAreEstimated
+                        ? '현금흐름 반영액(예상)'
+                        : '현금흐름 반영액',
                     amount: won(widget.state.summary?.cashFlowBalance))),
             const SizedBox(width: 12),
             Expanded(
                 child: AmountTile(
-                    label: '잔여 유동성',
+                    label: widget.state.financialValuesAreEstimated
+                        ? '잔여 유동성(예상)'
+                        : '잔여 유동성',
                     amount: won(widget.state.summary?.remainingLiquidity))),
           ],
         ),
@@ -108,7 +112,7 @@ class _CashFlowScreenState extends State<CashFlowScreen> {
               ],
               const SizedBox(height: 12),
               ElevatedButton(
-                  onPressed: widget.state.isBusy ? null : _submit,
+                  onPressed: widget.state.canCreateCashFlow ? _submit : null,
                   child: const Text('현금흐름 추가')),
             ],
           ),
@@ -208,6 +212,9 @@ class _CashFlowCard extends StatelessWidget {
                   Text(flow.title,
                       style: const TextStyle(
                           fontSize: 16, fontWeight: FontWeight.w900)),
+                  if (flow.isOfflinePending)
+                    const Text('오프라인 보관 중',
+                        style: TextStyle(color: moneyMuted)),
                   if (flow.isPrimaryIncome)
                     const Text('이달 기준 수입', style: TextStyle(color: moneyMuted)),
                 ],
@@ -222,7 +229,7 @@ class _CashFlowCard extends StatelessWidget {
             ),
             IconButton(
               onPressed:
-                  state.isBusy ? null : () => state.deleteCashFlow(flow.id),
+                  state.canUseOnlineWrites ? () => state.deleteCashFlow(flow.id) : null,
               icon: const Icon(Icons.delete_outline),
               tooltip: '삭제',
             ),

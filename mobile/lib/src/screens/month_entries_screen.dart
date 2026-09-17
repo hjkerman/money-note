@@ -23,7 +23,8 @@ class MonthEntriesScreen extends StatelessWidget {
             style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
         const SizedBox(height: 14),
         AmountTile(
-            label: '월 지출', amount: won(state.summary?.currentSpendingTotal)),
+            label: state.financialValuesAreEstimated ? '월 지출(예상)' : '월 지출',
+            amount: won(state.summary?.currentSpendingTotal)),
         const SectionTitle('카드 지출 입력'),
         ExpenseInputCard(state: state),
         SectionTitle('전체 지출',
@@ -92,6 +93,7 @@ class _MonthEntryCard extends StatelessWidget {
                             Text(entry.usageItem!,
                                 style: const TextStyle(color: moneyMuted)),
                           if (_isTransport(entry)) const _Badge('교통'),
+                          if (entry.isOfflinePending) const _Badge('오프라인 보관 중'),
                           if (_isToll(entry)) const _Badge('통행료'),
                         ],
                       ),
@@ -132,7 +134,7 @@ class _MonthEntryCard extends StatelessWidget {
                         child: Text(option.label),
                       ))
                   .toList(),
-              onChanged: state.isBusy
+              onChanged: !state.canUseOnlineWrites
                   ? null
                   : (value) => state.updateExpenseCategory(entry.id, value),
             ),
@@ -143,7 +145,7 @@ class _MonthEntryCard extends StatelessWidget {
                   if (canToggleDiscount)
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: state.isBusy ? null : _toggleDiscount,
+                        onPressed: state.canUseOnlineWrites ? _toggleDiscount : null,
                         child:
                             Text(entry.isDiscountExcluded ? '할인 적용' : '할인 제외'),
                       ),
@@ -154,7 +156,7 @@ class _MonthEntryCard extends StatelessWidget {
                     Expanded(
                       child: OutlinedButton(
                         onPressed:
-                            state.isBusy ? null : () => _editNetAmount(context),
+                            state.canUseOnlineWrites ? () => _editNetAmount(context) : null,
                         child: const Text('실결제액 수정'),
                       ),
                     ),
@@ -162,7 +164,7 @@ class _MonthEntryCard extends StatelessWidget {
               ),
             const SizedBox(height: 10),
             OutlinedButton(
-              onPressed: state.isBusy ? null : () => _confirmDelete(context),
+              onPressed: state.canUseOnlineWrites ? () => _confirmDelete(context) : null,
               style: OutlinedButton.styleFrom(foregroundColor: moneyRed),
               child: const Text('삭제'),
             ),

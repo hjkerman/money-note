@@ -113,6 +113,21 @@ Money Note의 모든 계산은 다음 원칙을 따른다.
 클라이언트가 이 값을 자체 계산으로 보정하면 서버와 화면의 의미가 갈라지므로 금지한다.
 
 ---
+## 원칙 6
+
+모바일 Offline Mode는 서버 authoritative 원칙의 예외가 아니라 임시 기록 경계다.
+
+- baseline은 완전히 성공한 마지막 정상 서버 동기화 응답을 모바일 로컬 표현으로 원자적으로 보존한 것이다. Snapshot을 mutable offline database로 사용하지 않는다.
+- offline journal에는 카드 사용, 현금 입출금, 현금성 고정지출 확인, 카드 정기결제 확인의 authoritative input만 append한다.
+- Offline 화면의 잔여 유동성·카드대금·월 지출·현금흐름 반영액은 허용 operation의 명백한 delta만 적용한 display-only estimate다. 할인 engine, 기준 월 판정, server-only transition을 클라이언트에 복제하지 않는다.
+- estimate는 `오프라인 예상값`으로 표시하고 journal, Snapshot restore 또는 reconciliation payload에 넣지 않는다.
+- 서버 복구 확인은 자동 reconciliation 권한이 아니다. 모바일은 `RECONCILIATION_REQUIRED`로 전환하여 모든 write를 막고 사용자의 적용/폐기 선택을 저장한다.
+- Phase 1은 replay와 discard를 실행하지 않으며 baseline, journal, recovery metadata를 자동 삭제하지 않는다.
+
+상세 상태 머신, operation matrix, 저장 형식과 Snapshot 재사용 계획은 [모바일 Offline Mode](offline-mode.md)를 따른다.
+
+---
+
 
 # 3. 원장 (ledger_entries)
 

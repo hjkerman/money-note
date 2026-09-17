@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
@@ -23,6 +25,8 @@ class MoneyNoteApiClient {
 
   final http.Client _client;
   final String baseUrl;
+
+  void Function()? onServerUnavailable;
 
   Uri sharePageUri(String panelType) => _uri('/share/$panelType');
 
@@ -72,9 +76,9 @@ class MoneyNoteApiClient {
   Future<AuthUser> me() => _get('/api/auth/me', AuthUser.fromJson);
 
   Future<void> health() async {
-    final response = await _client.get(_uri('/health'));
+    final response = await _request(() => _client.get(_uri('/health')));
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw MoneyNoteApiException('서버 상태 확인에 실패했습니다.');
+      _throwServerUnavailable('서버 상태 확인에 실패했습니다.');
     }
   }
 
@@ -334,9 +338,12 @@ class MoneyNoteApiClient {
   }
 
   Future<SnapshotDownload> downloadSnapshot() async {
-    final response =
-        await _client.get(_uri('/api/admin/snapshot'), headers: _headers());
+    final response = await _request(
+        () => _client.get(_uri('/api/admin/snapshot'), headers: _headers()));
     if (response.statusCode < 200 || response.statusCode >= 300) {
+      if (response.statusCode >= 500) {
+        _throwServerUnavailable('서버에서 스냅샷을 받을 수 없습니다.');
+      }
       throw MoneyNoteApiException(_readError(response));
     }
     return SnapshotDownload(
@@ -350,9 +357,22 @@ class MoneyNoteApiClient {
   Future<AuthenticatedDownload> openApkDownload() async {
     final request = http.Request('GET', _uri('/api/admin/apk'));
     request.headers.addAll(_headers());
-    final response = await _client.send(request);
+    late final http.StreamedResponse response;
+    try {
+      response =
+          await _client.send(request).timeout(const Duration(seconds: 20));
+    } on TimeoutException {
+      _throwServerUnavailable('서버 응답 시간이 초과되었습니다.');
+    } on SocketException {
+      _throwServerUnavailable('서버에 연결할 수 없습니다.');
+    } on http.ClientException {
+      _throwServerUnavailable('서버에 연결할 수 없습니다.');
+    }
     if (response.statusCode < 200 || response.statusCode >= 300) {
       final bytes = await response.stream.toBytes();
+      if (response.statusCode >= 500) {
+        _throwServerUnavailable('서버에서 APK를 받을 수 없습니다.');
+      }
       throw MoneyNoteApiException(
         _readError(http.Response.bytes(
           bytes,
@@ -399,13 +419,15 @@ class MoneyNoteApiClient {
 
   Future<T> _get<T>(
       String path, T Function(Map<String, dynamic>) parser) async {
-    final response = await _client.get(_uri(path), headers: _headers());
+    final response =
+        await _request(() => _client.get(_uri(path), headers: _headers()));
     return parser(_parseMap(response));
   }
 
   Future<List<T>> _getList<T>(
       String path, T Function(Map<String, dynamic>) parser) async {
-    final response = await _client.get(_uri(path), headers: _headers());
+    final response =
+        await _request(() => _client.get(_uri(path), headers: _headers()));
     final decoded = _parseJson(response);
     if (decoded is! List) throw MoneyNoteApiException('응답 형식이 올바르지 않습니다.');
     return decoded.map((item) => parser(item as Map<String, dynamic>)).toList();
@@ -413,27 +435,41 @@ class MoneyNoteApiClient {
 
   Future<T> _post<T>(String path, Map<String, dynamic> body,
       T Function(Map<String, dynamic>) parser) async {
-    final response = await _client.post(
-      _uri(path),
-      headers: {'Content-Type': 'application/json', ..._headers()},
-      body: jsonEncode(body),
-    );
+    final response = await _request(() => _client.post(
+          _uri(path),
+          headers: {'Content-Type': 'application/json', ..._headers()},
+          body: jsonEncode(body),
+        ));
     return parser(_parseMap(response));
   }
 
   Future<T> _patch<T>(String path, Map<String, dynamic> body,
       T Function(Map<String, dynamic>) parser) async {
-    final response = await _client.patch(
-      _uri(path),
-      headers: {'Content-Type': 'application/json', ..._headers()},
-      body: jsonEncode(body),
-    );
+    final response = await _request(() => _client.patch(
+          _uri(path),
+          headers: {'Content-Type': 'application/json', ..._headers()},
+          body: jsonEncode(body),
+        ));
     return parser(_parseMap(response));
   }
 
   Future<void> _delete(String path) async {
-    final response = await _client.delete(_uri(path), headers: _headers());
+    final response =
+        await _request(() => _client.delete(_uri(path), headers: _headers()));
     _parseJson(response);
+  }
+
+  Future<http.Response> _request(
+      Future<http.Response> Function() request) async {
+    try {
+      return await request().timeout(const Duration(seconds: 15));
+    } on TimeoutException {
+      _throwServerUnavailable('서버 응답 시간이 초과되었습니다.');
+    } on SocketException {
+      _throwServerUnavailable('서버에 연결할 수 없습니다.');
+    } on http.ClientException {
+      _throwServerUnavailable('서버에 연결할 수 없습니다.');
+    }
   }
 
   Uri _uri(String path) => Uri.parse('$baseUrl$path');
@@ -455,6 +491,9 @@ class MoneyNoteApiClient {
 
   dynamic _parseJson(http.Response response) {
     if (response.statusCode < 200 || response.statusCode >= 300) {
+      if (response.statusCode >= 500) {
+        _throwServerUnavailable(_readError(response));
+      }
       throw MoneyNoteApiException(_readError(response));
     }
     if (response.body.isEmpty) return <String, dynamic>{};
@@ -487,6 +526,11 @@ class MoneyNoteApiClient {
     if (quotedMatch != null) return quotedMatch.group(1);
     return null;
   }
+
+  Never _throwServerUnavailable(String message) {
+    onServerUnavailable?.call();
+    throw MoneyNoteConnectionException(message);
+  }
 }
 
 class MoneyNoteApiException implements Exception {
@@ -496,6 +540,10 @@ class MoneyNoteApiException implements Exception {
 
   @override
   String toString() => message;
+}
+
+class MoneyNoteConnectionException extends MoneyNoteApiException {
+  MoneyNoteConnectionException(super.message);
 }
 
 class SnapshotDownload {

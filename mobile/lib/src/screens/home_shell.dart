@@ -92,15 +92,26 @@ class _HomeShellState extends State<HomeShell> {
     ];
 
     return Scaffold(
-      body: PageView(
-        controller: _pageController,
-        onPageChanged: (value) => unawaited(_handlePageChanged(value)),
-        children: [
-          for (var screenIndex = 0;
-              screenIndex < screens.length;
-              screenIndex += 1)
-            _bodyForIndex(screens[screenIndex], screenIndex),
-        ],
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            if (widget.state.isOffline) _OfflineBanner(state: widget.state),
+            Expanded(
+              child: PageView(
+                controller: _pageController,
+                onPageChanged: (value) =>
+                    unawaited(_handlePageChanged(value)),
+                children: [
+                  for (var screenIndex = 0;
+                      screenIndex < screens.length;
+                      screenIndex += 1)
+                    _bodyForIndex(screens[screenIndex], screenIndex),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: index,
@@ -172,6 +183,44 @@ class _HomeShellState extends State<HomeShell> {
         builder: (_) => CapturedNotificationLogScreen(
           state: widget.state,
           initialSource: widget.state.notificationArchiveSource,
+        ),
+      ),
+    );
+  }
+}
+
+class _OfflineBanner extends StatelessWidget {
+  const _OfflineBanner({required this.state});
+
+  final AppState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final syncedAt = state.lastSuccessfulSyncAt?.toLocal();
+    final timestamp = syncedAt == null
+        ? '알 수 없음'
+        : '${syncedAt.month.toString().padLeft(2, '0')}/${syncedAt.day.toString().padLeft(2, '0')} '
+            '${syncedAt.hour.toString().padLeft(2, '0')}:${syncedAt.minute.toString().padLeft(2, '0')}';
+    return Material(
+      color: const Color(0xFFFFF1C7),
+      child: InkWell(
+        onTap: state.isBusy ? null : () => state.checkServerRecovery(),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Row(
+            children: [
+              const Icon(Icons.cloud_off, size: 20),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  '오프라인 · 마지막 동기화 $timestamp · '
+                  '${state.financialEstimateLabel} · 변경 ${state.pendingOfflineOperationCount}건',
+                  style: const TextStyle(fontWeight: FontWeight.w800),
+                ),
+              ),
+              const Icon(Icons.refresh, size: 20),
+            ],
+          ),
         ),
       ),
     );

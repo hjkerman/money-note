@@ -31,12 +31,14 @@ class HomeScreen extends StatelessWidget {
         Row(
           children: [
             Expanded(
-                child:
-                    AmountTile(label: '카드대금', amount: won(summary?.cardTotal))),
+                child: AmountTile(
+                    label: state.financialValuesAreEstimated ? '카드대금(예상)' : '카드대금',
+                    amount: won(summary?.cardTotal))),
             const SizedBox(width: 12),
             Expanded(
                 child: AmountTile(
-                    label: '월 지출', amount: won(summary?.currentSpendingTotal))),
+                    label: state.financialValuesAreEstimated ? '월 지출(예상)' : '월 지출',
+                    amount: won(summary?.currentSpendingTotal))),
           ],
         ),
         const SizedBox(height: 12),
@@ -44,7 +46,10 @@ class HomeScreen extends StatelessWidget {
           children: [
             Expanded(
                 child: AmountTile(
-                    label: '잔여 유동성', amount: won(summary?.remainingLiquidity))),
+                    label: state.financialValuesAreEstimated
+                        ? '잔여 유동성(예상)'
+                        : '잔여 유동성',
+                    amount: won(summary?.remainingLiquidity))),
             const SizedBox(width: 12),
             Expanded(
                 child: AmountTile(
@@ -58,7 +63,7 @@ class HomeScreen extends StatelessWidget {
           title: '예산심사위원회',
           message: state.judgment?.budget.message ?? '',
           color: moneyGreenSoft,
-          onTap: () => showAiAuditSheet(context, state),
+          onTap: state.isOnline ? () => showAiAuditSheet(context, state) : null,
         ),
         if (state.hasOutstandingCardPayment) ...[
           const SizedBox(height: 10),
@@ -201,7 +206,7 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
           ),
           const SizedBox(height: 16),
           ElevatedButton(
-              onPressed: widget.state.isBusy ? null : _submit,
+              onPressed: widget.state.canCreateCardExpense ? _submit : null,
               child: const Text('지출 추가')),
           const SizedBox(height: 10),
           OutlinedButton(
@@ -424,6 +429,9 @@ class _RecentEntryCard extends StatelessWidget {
                   Text(entry.usagePlace ?? entry.title,
                       style: const TextStyle(
                           fontSize: 16, fontWeight: FontWeight.w800)),
+                  if (entry.isOfflinePending)
+                    const Text('오프라인 보관 중',
+                        style: TextStyle(color: moneyMuted)),
                   if ((entry.usageItem ?? '').isNotEmpty)
                     Text(entry.usageItem!,
                         style: const TextStyle(color: moneyMuted)),

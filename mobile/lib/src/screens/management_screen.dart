@@ -195,7 +195,7 @@ class _PanelManagementScreenState extends State<PanelManagementScreen> {
                       ),
                       const SizedBox(height: 14),
                       ElevatedButton(
-                          onPressed: widget.state.isBusy ? null : _submit,
+                          onPressed: widget.state.canUseOnlineWrites ? _submit : null,
                           child: const Text('추가')),
                     ],
                   ),
@@ -321,7 +321,7 @@ class _PlannedEntryManagementScreenState
                       ),
                       const SizedBox(height: 14),
                       ElevatedButton(
-                          onPressed: widget.state.isBusy ? null : _submit,
+                          onPressed: widget.state.canUseOnlineWrites ? _submit : null,
                           child: const Text('정기결제 추가')),
                     ],
                   ),
@@ -395,10 +395,12 @@ class MonthCloseManagementScreen extends StatelessWidget {
               children: [
                 _Line(label: '서버 기준 날짜', value: status?.calendarDate ?? '-'),
                 _Line(label: '마감 대상', value: status?.oldestOpenMonth ?? '-'),
-                _Line(label: '마감 가능', value: canClose ? '가능' : '아직 아님'),
+                _Line(label: '마감 가능', value: state.isOnline && canClose ? '가능' : '사용 불가'),
                 const SizedBox(height: 12),
                 Text(
-                  canClose
+                  !state.isOnline
+                      ? '월마감은 온라인에서만 사용할 수 있습니다.'
+                      : canClose
                       ? '월마감은 복원 전 백업을 먼저 남긴 뒤 실행됩니다.'
                       : '월마감은 서버 기준으로 가능한 때에만 사용할 수 있습니다.',
                   style: const TextStyle(
@@ -409,7 +411,7 @@ class MonthCloseManagementScreen extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           FilledButton(
-            onPressed: state.isBusy || !canClose
+            onPressed: !state.canUseOnlineWrites || !canClose
                 ? null
                 : () => _confirmMonthClose(context),
             child: const Text('월마감 실행'),
@@ -530,25 +532,33 @@ class _MobileSettingsScreenState extends State<MobileSettingsScreen> {
             controller: ownerCard,
             label: '본인 카드번호 뒤 4자리',
             keyboardType: TextInputType.number,
-            onSave: () => _save('owner_card_last4', ownerCard.text),
+            onSave: widget.state.canUseOnlineWrites
+                ? () => _save('owner_card_last4', ownerCard.text)
+                : null,
           ),
           _SettingField(
             controller: familyCard,
             label: '가족카드 번호 뒤 4자리',
             keyboardType: TextInputType.number,
-            onSave: () => _save('family_card_last4', familyCard.text),
+            onSave: widget.state.canUseOnlineWrites
+                ? () => _save('family_card_last4', familyCard.text)
+                : null,
           ),
           _SettingField(
             controller: cardLimit,
             label: '카드 한도',
             keyboardType: TextInputType.number,
-            onSave: () => _save('card_limit', cardLimit.text),
+            onSave: widget.state.canUseOnlineWrites
+                ? () => _save('card_limit', cardLimit.text)
+                : null,
           ),
           _SettingField(
             controller: baseIncome,
             label: '기본 예정 수입',
             keyboardType: TextInputType.number,
-            onSave: () => _save('scheduled_income', baseIncome.text),
+            onSave: widget.state.canUseOnlineWrites
+                ? () => _save('scheduled_income', baseIncome.text)
+                : null,
           ),
           Padding(
             padding: const EdgeInsets.only(bottom: 10),
@@ -563,7 +573,7 @@ class _MobileSettingsScreenState extends State<MobileSettingsScreen> {
                   '이번 달부터 본인카드의 할인 계산식과 월별 혜택 여부를 함께 따릅니다.',
                 ),
                 value: transitFollowsOwner,
-                onChanged: widget.state.isBusy ? null : _setTransitProfile,
+                onChanged: widget.state.canUseOnlineWrites ? _setTransitProfile : null,
               ),
             ),
           ),
@@ -671,7 +681,7 @@ class _PanelManagementItem extends StatelessWidget {
                 style: const TextStyle(fontWeight: FontWeight.w900)),
             IconButton(
               onPressed:
-                  state.isBusy ? null : () => state.deletePanel(panel.id),
+                  state.canUseOnlineWrites ? () => state.deletePanel(panel.id) : null,
               icon: const Icon(Icons.delete_outline),
               tooltip: '삭제',
             ),
@@ -753,7 +763,7 @@ class _FixedPanelManagementItemState extends State<_FixedPanelManagementItem> {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: state.isBusy ? null : () => _confirm(context),
+                    onPressed: state.canConfirmRecurring ? () => _confirm(context) : null,
                     child: const Text('확인 처리'),
                   ),
                 ),
@@ -761,7 +771,7 @@ class _FixedPanelManagementItemState extends State<_FixedPanelManagementItem> {
                 Expanded(
                   child: OutlinedButton(
                     onPressed:
-                        state.isBusy ? null : () => state.deletePanel(panel.id),
+                        state.canUseOnlineWrites ? () => state.deletePanel(panel.id) : null,
                     style: OutlinedButton.styleFrom(foregroundColor: moneyRed),
                     child: const Text('삭제'),
                   ),
@@ -825,6 +835,9 @@ class _ConfirmedFixedPanelItem extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (panel.isOfflinePending)
+              const Text('오프라인 보관 중',
+                  style: TextStyle(color: moneyMuted)),
             Text('처리일 ${shortDate(panel.spentOn)}',
                 style: const TextStyle(
                     color: moneyMuted,
@@ -845,7 +858,7 @@ class _ConfirmedFixedPanelItem extends StatelessWidget {
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: state.isBusy || panel.confirmedCashFlowId == null
+                    onPressed: !state.canUseOnlineWrites || panel.confirmedCashFlowId == null
                         ? null
                         : () => state.cancelFixedPanelConfirmation(
                             panel.confirmedCashFlowId!),
@@ -856,7 +869,7 @@ class _ConfirmedFixedPanelItem extends StatelessWidget {
                 Expanded(
                   child: OutlinedButton(
                     onPressed:
-                        state.isBusy ? null : () => state.deletePanel(panel.id),
+                        state.canUseOnlineWrites ? () => state.deletePanel(panel.id) : null,
                     style: OutlinedButton.styleFrom(foregroundColor: moneyRed),
                     child: const Text('정기지출 해제'),
                   ),
@@ -938,9 +951,9 @@ class _PlannedEntryItemState extends State<_PlannedEntryItem> {
               onEditingComplete: _refreshPreview,
             ),
             const SizedBox(height: 8),
-            _Line(label: '할인', value: won(preview.effectiveDiscountAmount)),
+            _Line(label: state.isOffline ? '할인(추정 불가)' : '할인', value: won(preview.effectiveDiscountAmount)),
             const SizedBox(height: 4),
-            _Line(label: '실결제 예상액', value: won(preview.effectiveAmountValue)),
+            _Line(label: state.isOffline ? '실결제 예상액(할인 미반영)' : '실결제 예상액', value: won(preview.effectiveAmountValue)),
             const SizedBox(height: 8),
             _DatePickerRow(
               label: '이번 승인 날짜',
@@ -952,14 +965,14 @@ class _PlannedEntryItemState extends State<_PlannedEntryItem> {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: state.isBusy ? null : () => _confirm(context),
+                    onPressed: state.canConfirmRecurring ? () => _confirm(context) : null,
                     child: const Text('확인 처리'),
                   ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: state.isBusy
+                    onPressed: !state.canUseOnlineWrites
                         ? null
                         : () => state.deletePlannedEntry(entry.id),
                     style: OutlinedButton.styleFrom(foregroundColor: moneyRed),
@@ -1054,6 +1067,9 @@ class _ConfirmedPlannedEntryItem extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (entry.isOfflinePending)
+              const Text('오프라인 보관 중',
+                  style: TextStyle(color: moneyMuted)),
             Text('${entry.dueDay ?? '-'}일 ${entry.usagePlace ?? entry.title}',
                 style:
                     const TextStyle(fontSize: 17, fontWeight: FontWeight.w900)),
@@ -1150,7 +1166,7 @@ class _SettingField extends StatelessWidget {
   final TextEditingController controller;
   final String label;
   final TextInputType keyboardType;
-  final VoidCallback onSave;
+  final VoidCallback? onSave;
 
   @override
   Widget build(BuildContext context) {
@@ -1162,6 +1178,7 @@ class _SettingField extends StatelessWidget {
             Expanded(
               child: TextField(
                 controller: controller,
+                enabled: onSave != null,
                 keyboardType: keyboardType,
                 decoration: InputDecoration(labelText: label),
               ),

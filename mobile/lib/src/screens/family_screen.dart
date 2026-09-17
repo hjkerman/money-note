@@ -121,7 +121,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
               ),
               const SizedBox(height: 14),
               ElevatedButton(
-                  onPressed: widget.state.isBusy ? null : _submit,
+                  onPressed: widget.state.canUseOnlineWrites ? _submit : null,
                   child: Text(isClaim ? '청구 추가' : '가족카드 추가')),
             ],
           ),
@@ -140,7 +140,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
             const SizedBox(width: 10),
             Expanded(
               child: ElevatedButton(
-                onPressed: widget.state.isBusy || rows.isEmpty
+                onPressed: !widget.state.canUseOnlineWrites || rows.isEmpty
                     ? null
                     : () => widget.state.completePanelType(panelType),
                 child: const Text('일괄 처리 완료'),
@@ -314,7 +314,7 @@ class _FamilyItem extends StatelessWidget {
                   if (discountEligible)
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: state.isBusy ? null : _toggleDiscount,
+                        onPressed: state.canUseOnlineWrites ? _toggleDiscount : null,
                         child:
                             Text(panel.isDiscountExcluded ? '할인 적용' : '할인 제외'),
                       ),
@@ -325,7 +325,7 @@ class _FamilyItem extends StatelessWidget {
                     Expanded(
                       child: OutlinedButton(
                         onPressed:
-                            state.isBusy ? null : () => _editNetAmount(context),
+                            state.canUseOnlineWrites ? () => _editNetAmount(context) : null,
                         child: const Text('실결제액 수정'),
                       ),
                     ),
@@ -335,7 +335,7 @@ class _FamilyItem extends StatelessWidget {
             ],
             OutlinedButton(
               onPressed:
-                  state.isBusy ? null : () => state.deletePanel(panel.id),
+                  state.canUseOnlineWrites ? () => state.deletePanel(panel.id) : null,
               style: OutlinedButton.styleFrom(foregroundColor: moneyRed),
               child: const Text('삭제'),
             ),

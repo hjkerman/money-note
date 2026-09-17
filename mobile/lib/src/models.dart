@@ -116,6 +116,7 @@ class LedgerEntry {
     this.confirmedAmountValue,
     this.confirmedEffectiveDiscountAmount,
     this.confirmedEffectiveAmountValue,
+    this.isOfflinePending = false,
   });
 
   final int id;
@@ -143,6 +144,7 @@ class LedgerEntry {
   final int? confirmedAmountValue;
   final int? confirmedEffectiveDiscountAmount;
   final int? confirmedEffectiveAmountValue;
+  final bool isOfflinePending;
 
   int get manualDiscount => discountOverride != 0 ? (auxAmountValue ?? 0) : 0;
   bool get isDiscountExcluded =>
@@ -216,6 +218,7 @@ class MonthlyPanel {
     this.confirmedAt,
     this.confirmedCashFlowId,
     this.confirmedAmountValue,
+    this.isOfflinePending = false,
   });
 
   final int id;
@@ -236,6 +239,7 @@ class MonthlyPanel {
   final String? confirmedAt;
   final int? confirmedCashFlowId;
   final int? confirmedAmountValue;
+  final bool isOfflinePending;
 
   int get effectiveAmount => effectiveAmountValue ?? (amountValue ?? 0);
   bool get isDiscountExcluded =>
@@ -310,6 +314,7 @@ class CashFlow {
     required this.amountValue,
     required this.sortOrder,
     required this.isPrimaryIncome,
+    this.isOfflinePending = false,
   });
 
   final int id;
@@ -318,6 +323,7 @@ class CashFlow {
   final int amountValue;
   final int sortOrder;
   final bool isPrimaryIncome;
+  final bool isOfflinePending;
 
   factory CashFlow.fromJson(Map<String, dynamic> json) {
     return CashFlow(
