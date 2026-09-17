@@ -707,6 +707,7 @@ class AppState extends ChangeNotifier {
     required String usageItem,
     required int amount,
     required bool discountEnabled,
+    int? netAmountOverride,
     String? spendingCategory,
     String? entryDate,
     String? candidateRegistrationKey,
@@ -715,6 +716,13 @@ class AppState extends ChangeNotifier {
       final resolvedEntryDate =
           entryDate == null || entryDate.isEmpty ? serverToday : entryDate;
       final normalizedCategory = normalizeSpendingCategory(spendingCategory);
+      if (netAmountOverride != null &&
+          (netAmountOverride < 0 || netAmountOverride > amount)) {
+        throw MoneyNoteApiException('실결제액은 0원 이상이고 원금을 초과할 수 없습니다.');
+      }
+      final discountOverrideAmount = netAmountOverride == null
+          ? null
+          : amount - netAmountOverride;
       if (isOffline) {
         final trimmedPlace = usagePlace.trim();
         final trimmedItem = usageItem.trim();
@@ -732,6 +740,8 @@ class AppState extends ChangeNotifier {
             'amount_value': amount,
             'spending_category': normalizedCategory,
             'discount_enabled': discountEnabled,
+            if (discountOverrideAmount != null)
+              'discount_override_amount': discountOverrideAmount,
             if (candidateRegistrationKey != null)
               'candidate_registration_key': candidateRegistrationKey,
           },
@@ -750,7 +760,12 @@ class AppState extends ChangeNotifier {
       );
       if (candidateRegistrationKey != null) {
         try {
-          if (!discountEnabled &&
+          if (discountOverrideAmount != null && entry.paymentKey != null) {
+            await api.updateEntryDiscount(
+              entry.paymentKey!,
+              discountOverrideAmount,
+            );
+          } else if (!discountEnabled &&
               !entry.isDiscountIneligible &&
               entry.paymentKey != null) {
             await api.excludeEntryDiscount(entry.paymentKey!);
@@ -762,7 +777,12 @@ class AppState extends ChangeNotifier {
         }
         return;
       }
-      if (!discountEnabled &&
+      if (discountOverrideAmount != null && entry.paymentKey != null) {
+        await api.updateEntryDiscount(
+          entry.paymentKey!,
+          discountOverrideAmount,
+        );
+      } else if (!discountEnabled &&
           !entry.isDiscountIneligible &&
           entry.paymentKey != null) {
         await api.excludeEntryDiscount(entry.paymentKey!);

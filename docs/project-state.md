@@ -11,7 +11,7 @@
 - Android 앱은 빠른 입력, 현금흐름, 당월 내역, 정산, 운영 설정을 담당하는 실사용 클라이언트다. 웹의 축소판이 아니며 같은 서버 API를 사용한다.
 - 웹은 전체 장부 관리, 카드 결제 작업함, 공유 화면, 통계, 백업·복원과 관리 기능을 제공한다.
 - 우리카드와 고속도로 통행료+ 알림 수집은 실사용 중이지만 외부 앱의 알림 형식과 Android 리스너 상태에 의존한다. 원문·후보는 서버 데이터가 아니라 모바일 로컬 보조자료다.
-- Android Offline Mode Phase 1은 마지막 정상 서버 baseline과 durable local journal로 카드 사용, 현금 입출금, 정기지출 확인만 임시 기록한다. 복구 시 자동 replay하지 않고 reconciliation-required read-only 상태로 멈춘다.
+- Android Offline Mode Phase 1.5는 마지막 정상 서버 baseline과 durable local journal로 카드 사용(사용자 실결제 override 포함), 현금 입출금, 정기지출 확인만 임시 기록한다. 설정 변경은 Offline에서 금지하며 복구 시 자동 replay하지 않고 reconciliation-required read-only 상태로 멈춘다.
 - 현재 유지보수의 중심은 버그와 무결성, 보안·배포, 카드 정책 이력, Judgment 문구, Android 알림 형식 변화 대응과 문서 일치다.
 
 ## 깨뜨리면 안 되는 경계

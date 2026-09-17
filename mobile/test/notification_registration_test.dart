@@ -7,6 +7,7 @@ class _RegistrationApi extends MoneyNoteApiClient {
   _RegistrationApi() : super(baseUrl: 'https://example.invalid');
 
   String? lastKey;
+  int? lastDiscountAmount;
 
   @override
   Future<LedgerEntry> createExpense({
@@ -29,6 +30,25 @@ class _RegistrationApi extends MoneyNoteApiClient {
       usageItem: usageItem,
       amountValue: amount,
       paymentKey: 'entry-1',
+    );
+  }
+
+  @override
+  Future<LedgerEntry> updateEntryDiscount(
+      String entryPaymentKey, int discountAmount) async {
+    lastDiscountAmount = discountAmount;
+    return LedgerEntry(
+      id: 1,
+      bookSection: 'current',
+      entryKind: 'expense',
+      title: '가게',
+      sortOrder: 1,
+      amountValue: 1000,
+      paymentKey: entryPaymentKey,
+      auxAmountValue: discountAmount,
+      discountOverride: 1,
+      effectiveDiscountAmount: discountAmount,
+      effectiveAmountValue: 1000 - discountAmount,
     );
   }
 
@@ -86,6 +106,25 @@ void main() {
 
     expect(success, isTrue);
     expect(api.lastKey, 'woori_card:card-a');
+    expect(state.statusMessage, contains('저장됐습니다'));
+  });
+
+  test('온라인 실결제액 입력은 할인 override endpoint 입력으로 변환한다', () async {
+    final api = _RegistrationApi();
+    final state = _FailingRefreshState(api);
+
+    final success = await state.createExpense(
+      usagePlace: '가게',
+      usageItem: '지출',
+      amount: 1000,
+      discountEnabled: true,
+      netAmountOverride: 700,
+      entryDate: '2026-09-01',
+      candidateRegistrationKey: 'woori_card:card-b',
+    );
+
+    expect(success, isTrue);
+    expect(api.lastDiscountAmount, 300);
     expect(state.statusMessage, contains('저장됐습니다'));
   });
 

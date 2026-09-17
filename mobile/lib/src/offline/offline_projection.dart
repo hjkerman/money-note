@@ -31,6 +31,7 @@ class OfflineProjection {
     final original = baseline.summary;
     var cardTotal = original.cardTotal;
     var spendingTotal = original.currentSpendingTotal;
+    var discountTotal = original.currentDiscountTotal;
     var cashFlowBalance = original.cashFlowBalance;
     var remainingLiquidity = original.remainingLiquidity;
     final projectionTime = projectedAt ?? DateTime.now();
@@ -42,6 +43,15 @@ class OfflineProjection {
       switch (operation.type) {
         case OfflineOperationType.createCardExpense:
           final amount = _int(payload['amount_value']);
+          final requestedOverride =
+              _nullableInt(payload['discount_override_amount']);
+          final hasValidOverride = requestedOverride != null &&
+              requestedOverride >= 0 &&
+              requestedOverride <= amount;
+          final discountEnabled = payload['discount_enabled'] != false;
+          final appliedDiscount = hasValidOverride ? requestedOverride : 0;
+          final effectiveAmount = amount - appliedDiscount;
+          final hasExplicitPaymentInput = hasValidOverride || !discountEnabled;
           final entryDate = payload['entry_date']?.toString() ?? '';
           final usagePlace = payload['usage_place']?.toString() ?? '';
           final usageItem = payload['usage_item']?.toString() ?? '';
@@ -56,13 +66,22 @@ class OfflineProjection {
             usageItem: usageItem.isEmpty ? null : usageItem,
             amountValue: amount,
             spendingCategory: payload['spending_category'] as String?,
-            discountPolicy: 'offline_unknown',
+            auxAmountValue:
+                hasExplicitPaymentInput ? appliedDiscount : null,
+            discountOverride: hasExplicitPaymentInput ? 1 : 0,
+            discountPolicy: hasExplicitPaymentInput
+                ? 'offline_override'
+                : 'offline_unknown',
+            effectiveDiscountAmount: appliedDiscount,
+            effectiveAmountValue: effectiveAmount,
             isOfflinePending: true,
           ));
           spendingTotal += amount;
-          cardTotal += amount;
-          remainingLiquidity -= amount;
-          usesConservativeCardEstimate = true;
+          discountTotal += appliedDiscount;
+          cardTotal += effectiveAmount;
+          remainingLiquidity -= effectiveAmount;
+          usesConservativeCardEstimate = usesConservativeCardEstimate ||
+              (!hasExplicitPaymentInput && discountEnabled);
           break;
         case OfflineOperationType.createCashFlow:
           final amount = _int(payload['amount_value']);
@@ -170,7 +189,7 @@ class OfflineProjection {
         scheduledIncome: original.scheduledIncome,
         cardTotal: cardTotal,
         currentSpendingTotal: spendingTotal,
-        currentDiscountTotal: original.currentDiscountTotal,
+        currentDiscountTotal: discountTotal,
         plannedRecurringTotal: original.plannedRecurringTotal,
         fixedCashTotal: original.fixedCashTotal,
         frozenAssetTotal: original.frozenAssetTotal,
@@ -202,4 +221,11 @@ int _int(Object? value) {
   if (value is int) return value;
   if (value is num) return value.toInt();
   return int.tryParse(value?.toString() ?? '') ?? 0;
+}
+
+int? _nullableInt(Object? value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value.toString());
 }

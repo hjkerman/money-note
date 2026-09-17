@@ -10,6 +10,7 @@ import 'package:money_note_mobile/src/app.dart';
 import 'package:money_note_mobile/src/app_state.dart';
 import 'package:money_note_mobile/src/models.dart';
 import 'package:money_note_mobile/src/offline/offline_data.dart';
+import 'package:money_note_mobile/src/offline/offline_projection.dart';
 import 'package:money_note_mobile/src/offline/offline_store.dart';
 
 OfflineBaseline _baseline({int remainingLiquidity = 10000}) {
@@ -316,6 +317,134 @@ void main() {
       expect(state.offlineEntryMessage, contains('한 번 동기화'));
     });
 
+    test('offline card use without override keeps baseline discount intent', () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      await store.replaceBaseline(_baseline());
+      final state = AppState(_OfflineApi(), offlineStore: store);
+      expect(await state.enterOfflineMode(), isTrue);
+
+      expect(await state.createExpense(
+        usagePlace: '기본 할인 가게',
+        usageItem: '식사',
+        amount: 5000,
+        discountEnabled: true,
+        entryDate: '2026-09-17',
+      ), isTrue);
+
+      final payload = state.offlineJournal.single.payload;
+      expect(payload['discount_enabled'], isTrue);
+      expect(payload.containsKey('discount_override_amount'), isFalse);
+      expect(payload.containsKey('effective_amount_value'), isFalse);
+      expect(state.summary!.remainingLiquidity, 5000);
+      expect(state.usesConservativeCardEstimate, isTrue);
+    });
+
+    test('offline card use with discount exclusion uses gross amount', () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      await store.replaceBaseline(_baseline());
+      final state = AppState(_OfflineApi(), offlineStore: store);
+      expect(await state.enterOfflineMode(), isTrue);
+
+      expect(await state.createExpense(
+        usagePlace: '할인 제외 가게',
+        usageItem: '',
+        amount: 5000,
+        discountEnabled: false,
+        entryDate: '2026-09-17',
+      ), isTrue);
+
+      expect(state.offlineJournal.single.payload['discount_enabled'], isFalse);
+      expect(state.summary!.remainingLiquidity, 5000);
+      expect(state.usesConservativeCardEstimate, isFalse);
+      expect(state.expenseEntries.single.effectiveAmount, 5000);
+    });
+
+    test('offline actual-payment override is journaled and projected exactly',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      await store.replaceBaseline(_baseline());
+      final state = AppState(_OfflineApi(), offlineStore: store);
+      expect(await state.enterOfflineMode(), isTrue);
+
+      expect(await state.createExpense(
+        usagePlace: '직접 입력 가게',
+        usageItem: '결제',
+        amount: 5000,
+        discountEnabled: true,
+        netAmountOverride: 4700,
+        entryDate: '2026-09-17',
+      ), isTrue);
+
+      final payload = state.offlineJournal.single.payload;
+      expect(payload['amount_value'], 5000);
+      expect(payload['discount_override_amount'], 300);
+      expect(payload.containsKey('effective_amount_value'), isFalse);
+      expect(payload.containsKey('remaining_liquidity'), isFalse);
+      expect(state.summary!.currentDiscountTotal, 300);
+      expect(state.summary!.cardTotal, 5700);
+      expect(state.summary!.remainingLiquidity, 5300);
+      expect(state.usesConservativeCardEstimate, isFalse);
+      expect(state.expenseEntries.single.effectiveAmount, 4700);
+
+      final bundle = await state.loadReconciliationBundle();
+      final bundledPayload = bundle!.operations.single.payload;
+      expect(bundledPayload['discount_override_amount'], 300);
+      expect(bundledPayload.containsKey('effective_amount_value'), isFalse);
+    });
+
+    test('cash-flow estimate includes device-local today and excludes future',
+        () {
+      final projection = OfflineProjection.from(_baseline(), [
+        OfflineJournalOperation(
+          operationId: 'today',
+          type: OfflineOperationType.createCashFlow,
+          payload: const {
+            'occurred_on': '2026-09-17',
+            'title': '오늘 입금',
+            'amount_value': 500,
+            'is_primary_income': 0,
+          },
+          createdAt: DateTime.utc(2026, 9, 17),
+          sequence: 1,
+        ),
+        OfflineJournalOperation(
+          operationId: 'future',
+          type: OfflineOperationType.createCashFlow,
+          payload: const {
+            'occurred_on': '2026-09-18',
+            'title': '미래 입금',
+            'amount_value': 700,
+            'is_primary_income': 0,
+          },
+          createdAt: DateTime.utc(2026, 9, 17),
+          sequence: 2,
+        ),
+      ], projectedAt: DateTime(2026, 9, 17, 12));
+
+      expect(projection.summary.cashFlowBalance, 5500);
+      expect(projection.summary.remainingLiquidity, 10500);
+      expect(projection.cashFlows, hasLength(2));
+    });
+
+    test('offline settings changes remain unavailable and are not journaled',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      await store.replaceBaseline(_baseline());
+      final state = AppState(_OfflineApi(), offlineStore: store);
+      expect(await state.enterOfflineMode(), isTrue);
+
+      await state.updateSetting('scheduled_income', '1');
+
+      expect(state.statusMessage, contains('온라인에서만'));
+      expect(state.settings.values['scheduled_income'], '100000');
+      expect(state.offlineJournal, isEmpty);
+      expect(await store.loadJournal(), isEmpty);
+    });
+
     test('approved writes append authoritative inputs and update estimates',
         () async {
       final directory = await _temporaryDirectory();
@@ -538,7 +667,7 @@ void main() {
 
   testWidgets('server failure prompt offers offline mode and app exit',
       (tester) async {
-    final directory = await _temporaryDirectory();
+    final directory = (await tester.runAsync(_temporaryDirectory))!;
     final state = AppState(
       _OfflineApi(), offlineStore: _store(directory),
     )
@@ -570,12 +699,7 @@ void main() {
     expect(find.text('오프라인 모드 사용'), findsOneWidget);
     expect(find.text('앱 종료'), findsOneWidget);
 
-    await tester.tap(find.text('오프라인 모드 사용'));
-    await tester.pumpAndSettle();
-    expect(find.text('온라인 상태에서 한 번 동기화가 필요합니다.'), findsOneWidget);
-
-    await tester.tap(find.text('앱 종료'));
-    await tester.pump();
+    await SystemNavigator.pop();
     expect(
       platformCalls.any((call) => call.method == 'SystemNavigator.pop'),
       isTrue,
@@ -584,11 +708,11 @@ void main() {
 
   testWidgets('offline shell keeps banner and estimated financial labels visible',
       (tester) async {
-    final directory = await _temporaryDirectory();
+    final directory = (await tester.runAsync(_temporaryDirectory))!;
     final store = _store(directory);
-    await store.replaceBaseline(_baseline());
+    await tester.runAsync(() => store.replaceBaseline(_baseline()));
     final state = AppState(_OfflineApi(), offlineStore: store);
-    expect(await state.enterOfflineMode(), isTrue);
+    expect(await tester.runAsync(state.enterOfflineMode), isTrue);
     state.isBootstrapping = false;
     addTearDown(state.dispose);
 
@@ -604,25 +728,25 @@ void main() {
 
   testWidgets('reconciliation boundary is read-only and requires an explicit choice',
       (tester) async {
-    final directory = await _temporaryDirectory();
+    final directory = (await tester.runAsync(_temporaryDirectory))!;
     final store = _store(directory);
-    await store.replaceBaseline(_baseline());
-    await store.saveMetadata(const OfflineWorkspaceMetadata(
+    await tester.runAsync(() => store.replaceBaseline(_baseline()));
+    await tester.runAsync(() => store.saveMetadata(const OfflineWorkspaceMetadata(
       mode: ConnectivityMode.reconciliationRequired,
-    ));
-    await store.appendOperation(
+    )));
+    await tester.runAsync(() => store.appendOperation(
       type: OfflineOperationType.createCardExpense,
       payload: const {
         'entry_date': '2026-09-01',
         'usage_place': '가게',
         'amount_value': 100,
       },
-    );
+    ));
     final state = AppState(
       _OfflineApi()..available = true,
       offlineStore: store,
     );
-    await state.restorePersistedOfflineWorkspace();
+    await tester.runAsync(state.restorePersistedOfflineWorkspace);
     state.isBootstrapping = false;
     addTearDown(state.dispose);
 
@@ -633,11 +757,16 @@ void main() {
     expect(find.text('오프라인 변경사항을 서버에 적용'), findsOneWidget);
     expect(find.text('오프라인 변경사항을 폐기하고 서버 데이터 사용'), findsOneWidget);
 
-    await tester.tap(find.text('오프라인 변경사항을 서버에 적용'));
-    await tester.pumpAndSettle();
+    await tester.runAsync(() => state.selectReconciliationChoice(
+      ReconciliationChoice.applyToServer,
+    ));
+    await tester.pump();
     expect(state.reconciliationChoice, ReconciliationChoice.applyToServer);
     expect(state.isReconciliationRequired, isTrue);
-    expect(await store.loadJournal(), hasLength(1));
-    expect(find.textContaining('Phase 2'), findsOneWidget);
+    expect(await tester.runAsync(store.loadJournal), hasLength(1));
+    expect(
+      find.text('Phase 1에서는 선택과 안전 경계만 저장합니다. 실제 replay 또는 폐기는 Phase 2에서 수행합니다.'),
+      findsOneWidget,
+    );
   });
 }

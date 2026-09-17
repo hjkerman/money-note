@@ -1,6 +1,6 @@
 # 모바일 Offline Mode
 
-이 문서는 모바일 Offline Mode Phase 1의 저장 경계, 상태 머신, 표시용 projection과 Phase 2 reconciliation 계약을 설명한다. 금융 도메인의 단일 진실 원천은 계속 서버 DB와 서버 API 계산 결과다.
+이 문서는 모바일 Offline Mode Phase 1/1.5의 저장 경계, 상태 머신, 표시용 projection과 Phase 2 atomic reconciliation 계약을 설명한다. 금융 도메인의 단일 진실 원천은 계속 서버 DB와 서버 API 계산 결과다.
 
 ## Phase 1 상태 머신
 
@@ -33,17 +33,17 @@ journal row의 schema version은 1이며 다음을 가진다.
 - 단조 증가 `sequence`
 - Phase 1에서는 `pending`만 허용하는 `status`
 
-journal payload에는 `remaining_liquidity`, `card_total`, 할인액, 실결제액 같은 derived value를 넣지 않는다. 마지막 append가 crash로 잘린 경우 완성되지 않은 마지막 줄만 무시하고 다음 append 전에 그 꼬리를 잘라내며, 그 이전 줄의 손상·중복 id·순서 역전은 오류로 취급한다. Phase 1에는 baseline, journal, recovery metadata cleanup을 실행하는 경로가 없다.
+journal payload에는 `remaining_liquidity`, `card_total`, 서버가 계산한 할인액·실결제액 같은 derived value를 넣지 않는다. 다만 사용자가 카드 사용 등록 시 직접 입력한 실결제액은 authoritative input이며, 기존 online API와 losslessly 호환되는 수동 할인 입력 `discount_override_amount = 원금 - 사용자 입력 실결제액`으로 보존한다. 마지막 append가 crash로 잘린 경우 완성되지 않은 마지막 줄만 무시하고 다음 append 전에 그 꼬리를 잘라내며, 그 이전 줄의 손상·중복 id·순서 역전은 오류로 취급한다. Phase 1에는 baseline, journal, recovery metadata cleanup을 실행하는 경로가 없다.
 
 ## 지원 operation matrix
 
 | 기능 | ONLINE | OFFLINE | RECONCILIATION_REQUIRED |
 | --- | --- | --- | --- |
-| 카드 사용 기록 | 서버 write | `CREATE_CARD_EXPENSE` journal | 금지 |
+| 카드 사용 기록(할인 선택·사용자 실결제 override 포함) | 서버 write | `CREATE_CARD_EXPENSE` journal | 금지 |
 | 현금 입금/출금 | 서버 write | `CREATE_CASH_FLOW` journal | 금지 |
 | 현금성 고정지출 확인 | 서버 write | `CONFIRM_FIXED_EXPENSE` journal | 금지 |
 | 카드 정기결제 확인 | 서버 write | `CONFIRM_PLANNED_CARD_EXPENSE` journal | 금지 |
-| 월마감, 카드 이월/결제 전이, 할인·실결제 override, 삭제·취소, 정산 완료, 설정 변경, Snapshot restore | 서버 write | 금지 | 금지 |
+| 월마감, 카드 이월/결제 전이, 기존 항목의 할인·실결제 수정, 삭제·취소, 정산 완료, 설정 변경, Snapshot restore | 서버 write | 금지 | 금지 |
 
 알림 후보의 본인카드 원장 등록은 카드 사용 기록과 같은 journal 경로를 쓴다. Claim과 Family Card 등록은 server-only다.
 
@@ -53,12 +53,23 @@ OFFLINE 화면은 baseline에 journal을 sequence 순으로 투영한다. 이 �
 
 최소 projection은 다음 delta만 적용한다.
 
-- 카드 사용: current ledger 원금과 카드대금에 gross amount를 더하고 잔여 유동성에서 같은 금액을 뺀다. 할인 engine을 복제하지 않으므로 보수적 예상이다.
-- 현금 입출금: 기기 local date 기준 발생한 signed amount만 현금흐름 반영액과 잔여 유동성에 더한다.
+- 카드 사용: baseline의 마지막 authoritative 할인 월 상태를 신규 입력의 기본 할인 의도로 사용한다. 사용자가 실결제액을 직접 입력했다면 그 값을 가장 정확한 입력으로 투영하고, 직접 입력이 없다면 할인 engine을 복제하지 않고 gross amount를 쓰는 보수적 fallback으로 표시한다.
+- 현금 입출금: server clock을 사용할 수 없으므로 projection 시점의 device-local date를 기준으로 `occurred_on <= local today`인 signed amount만 현금흐름 반영액과 잔여 유동성에 더한다. 미래 날짜 건은 목록에는 보이지만 그 날짜 전까지 합계에 반영하지 않는다.
 - 현금성 고정지출 확인: pending reserve를 제거하고 실제 출금액을 반영하여 잔여 유동성에 `reserve - actual`을 더한다.
 - 카드 정기결제 확인: template reserve를 제거하고 할인 미반영 gross 실제 원금을 반영하여 잔여 유동성에 `reserve - actual`을 더한다.
 
-서버 날짜, 할인 정책 또는 다른 transition을 확실히 재현할 수 없는 부분은 stale/estimated 표시를 유지한다. journal에는 위 계산 결과를 쓰지 않는다. reconciliation 후 Summary는 서버가 다시 계산해야 한다.
+서버 날짜, 할인 정책 또는 다른 transition을 확실히 재현할 수 없는 부분은 stale/estimated 표시를 유지한다. 기기 clock/timezone을 서버와 맞추는 subsystem은 두지 않는다. journal에는 위 계산 결과를 쓰지 않으며 reconciliation 후 서버 날짜와 기존 정책으로 Summary를 다시 계산해야 한다.
+
+## Phase 2 replay completeness
+
+| Operation | stable target/identity와 authoritative input |
+| --- | --- |
+| 카드 사용 | operation id, 사용일, 사용처·내용, 원금, 분류, 할인 적용 의도, optional 수동 할인 입력, optional 알림 후보 key |
+| 현금 입출금 | operation id, 발생일, 제목, signed amount, primary-income 여부 |
+| 현금성 고정지출 확인 | operation id, baseline panel id, 발생일, 실제 금액 |
+| 카드 정기결제 확인 | operation id, baseline planned-entry id, 발생일, 실제 원금 |
+
+모든 row는 `sequence`, `created_at`, `pending` status를 가진다. Phase 2는 이 input을 하나의 server transaction과 idempotency 경계에서 검증·적용해야 하며 Phase 1.5에는 replay나 임시 sequential sync를 추가하지 않는다.
 
 ## Phase 2 reconciliation interface
 

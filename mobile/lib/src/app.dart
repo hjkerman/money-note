@@ -129,9 +129,9 @@ class _ServerUnavailableView extends StatelessWidget {
                   child: const Text('오프라인 모드 사용'),
                 ),
                 const SizedBox(height: 10),
-                OutlinedButton(
+                const OutlinedButton(
                   onPressed: SystemNavigator.pop,
-                  child: const Text('앱 종료'),
+                  child: Text('앱 종료'),
                 ),
               ],
             ),

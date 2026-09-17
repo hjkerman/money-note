@@ -119,6 +119,7 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
   final place = TextEditingController();
   final item = TextEditingController();
   final amount = TextEditingController();
+  final netAmountOverride = TextEditingController();
   final placeFocus = FocusNode();
   bool? discountEnabled;
   String? spendingCategory;
@@ -135,6 +136,7 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
     place.dispose();
     item.dispose();
     amount.dispose();
+    netAmountOverride.dispose();
     placeFocus.dispose();
     super.dispose();
   }
@@ -204,6 +206,17 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
             onChanged: (value) =>
                 setState(() => discountEnabled = value ?? false),
           ),
+          const SizedBox(height: 8),
+          TextField(
+            controller: netAmountOverride,
+            keyboardType: TextInputType.number,
+            textInputAction: TextInputAction.done,
+            decoration: const InputDecoration(
+              labelText: '실결제액 직접 입력(선택)',
+              helperText: '입력하면 할인 적용 선택보다 우선합니다.',
+            ),
+            onSubmitted: (_) => _submit(),
+          ),
           const SizedBox(height: 16),
           ElevatedButton(
               onPressed: widget.state.canCreateCardExpense ? _submit : null,
@@ -224,7 +237,14 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
 
   Future<void> _submit() async {
     final parsedAmount = int.tryParse(amount.text.replaceAll(',', '').trim());
-    if (place.text.trim().isEmpty || parsedAmount == null || parsedAmount < 0) {
+    final netText = netAmountOverride.text.replaceAll(',', '').trim();
+    final parsedNetAmount = netText.isEmpty ? null : int.tryParse(netText);
+    if (place.text.trim().isEmpty ||
+        parsedAmount == null ||
+        parsedAmount < 0 ||
+        (netText.isNotEmpty && parsedNetAmount == null) ||
+        (parsedNetAmount != null &&
+            (parsedNetAmount < 0 || parsedNetAmount > parsedAmount))) {
       return;
     }
     await widget.state.createExpense(
@@ -233,12 +253,14 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
       amount: parsedAmount,
       discountEnabled: discountEnabled ??
           (widget.state.ownerDiscountMonth?.isEnabled ?? true),
+      netAmountOverride: parsedNetAmount,
       spendingCategory: spendingCategory,
       entryDate: selectedDate,
     );
     place.clear();
     item.clear();
     amount.clear();
+    netAmountOverride.clear();
     spendingCategory = null;
     setState(() => selectedDate = widget.state.serverToday);
     placeFocus.requestFocus();
