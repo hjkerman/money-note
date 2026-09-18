@@ -54,6 +54,20 @@ def policy_for(card: DiscountCard, usage_month: str) -> CardChargePolicy:
     return max(candidates, key=lambda binding: binding.effective_from).policy
 
 
+def card_charge_projection_policy(
+    card: DiscountCard,
+    usage_month: str,
+) -> dict[str, Any]:
+    """Offline 표시 추정에 필요한 서버 정책 descriptor를 반환한다."""
+    definition = policy_for(card, usage_month).snapshot_definition()
+    policy_type = definition.get("type")
+    return {
+        "schema_version": 1,
+        **definition,
+        "rounding": "floor" if policy_type == "flat_statement" else "none",
+    }
+
+
 def card_charge_policy_manifest(covered_through: str | None = None) -> dict[str, Any]:
     """과거 Snapshot을 같은 카드 정책으로 복원할 수 있는지 검증할 명세를 만든다."""
     manifest = {

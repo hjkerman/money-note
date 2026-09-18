@@ -49,9 +49,19 @@ class OfflineProjection {
               requestedOverride >= 0 &&
               requestedOverride <= amount;
           final discountEnabled = payload['discount_enabled'] != false;
-          final appliedDiscount = hasValidOverride ? requestedOverride : 0;
+          final policyDiscount = hasValidOverride || !discountEnabled
+              ? null
+              : _estimateAutomaticDiscount(
+                  baseline.ownerDiscountMonth,
+                  amount,
+                );
+          final appliedDiscount = hasValidOverride
+              ? requestedOverride
+              : (discountEnabled ? policyDiscount ?? 0 : 0);
           final effectiveAmount = amount - appliedDiscount;
           final hasExplicitPaymentInput = hasValidOverride || !discountEnabled;
+          final hasResolvedEstimate =
+              hasExplicitPaymentInput || policyDiscount != null;
           final entryDate = payload['entry_date']?.toString() ?? '';
           final usagePlace = payload['usage_place']?.toString() ?? '';
           final usageItem = payload['usage_item']?.toString() ?? '';
@@ -66,12 +76,13 @@ class OfflineProjection {
             usageItem: usageItem.isEmpty ? null : usageItem,
             amountValue: amount,
             spendingCategory: payload['spending_category'] as String?,
-            auxAmountValue:
-                hasExplicitPaymentInput ? appliedDiscount : null,
+            auxAmountValue: hasExplicitPaymentInput ? appliedDiscount : null,
             discountOverride: hasExplicitPaymentInput ? 1 : 0,
             discountPolicy: hasExplicitPaymentInput
                 ? 'offline_override'
-                : 'offline_unknown',
+                : policyDiscount != null
+                    ? baseline.ownerDiscountMonth.policy
+                    : 'offline_unknown',
             effectiveDiscountAmount: appliedDiscount,
             effectiveAmountValue: effectiveAmount,
             isOfflinePending: true,
@@ -80,8 +91,8 @@ class OfflineProjection {
           discountTotal += appliedDiscount;
           cardTotal += effectiveAmount;
           remainingLiquidity -= effectiveAmount;
-          usesConservativeCardEstimate = usesConservativeCardEstimate ||
-              (!hasExplicitPaymentInput && discountEnabled);
+          usesConservativeCardEstimate =
+              usesConservativeCardEstimate || !hasResolvedEstimate;
           break;
         case OfflineOperationType.createCashFlow:
           final amount = _int(payload['amount_value']);
@@ -208,6 +219,41 @@ class OfflineProjection {
       usesConservativeCardEstimate: usesConservativeCardEstimate,
     );
   }
+}
+
+int? _estimateAutomaticDiscount(
+  CardDiscountMonth discountMonth,
+  int amount,
+) {
+  if (amount < 0 || !discountMonth.isEnabled) {
+    return amount < 0 ? null : 0;
+  }
+  final policy = discountMonth.projectionPolicy;
+  if (policy == null || policy.schemaVersion != 1 || policy.policyId.isEmpty) {
+    return null;
+  }
+  if (policy.type == 'no_automatic_discount') return 0;
+  if (policy.type != 'flat_statement' || policy.rounding != 'floor') {
+    return null;
+  }
+  return _floorDecimalRate(amount, policy.rate);
+}
+
+int? _floorDecimalRate(int amount, String? rawRate) {
+  final match = RegExp(r'^(0|[1-9]\d*)(?:\.(\d+))?$').firstMatch(rawRate ?? '');
+  if (match == null) return null;
+  final fraction = match.group(2) ?? '';
+  if (fraction.length > 9) return null;
+  var denominator = 1;
+  for (var index = 0; index < fraction.length; index += 1) {
+    denominator *= 10;
+  }
+  final whole = int.tryParse(match.group(1)!);
+  final fractional = fraction.isEmpty ? 0 : int.tryParse(fraction);
+  if (whole == null || fractional == null) return null;
+  final numerator = whole * denominator + fractional;
+  if (numerator < 0 || numerator > denominator) return null;
+  return amount * numerator ~/ denominator;
 }
 
 bool _hasOccurred(String occurredOn, DateTime projectedAt) {

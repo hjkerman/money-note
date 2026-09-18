@@ -13,7 +13,20 @@ import 'package:money_note_mobile/src/offline/offline_data.dart';
 import 'package:money_note_mobile/src/offline/offline_projection.dart';
 import 'package:money_note_mobile/src/offline/offline_store.dart';
 
-OfflineBaseline _baseline({int remainingLiquidity = 10000}) {
+CardDiscountProjectionPolicy _flatProjectionPolicy(String scope) {
+  return CardDiscountProjectionPolicy(
+    schemaVersion: 1,
+    policyId: '$scope-flat-statement-1.2',
+    type: 'flat_statement',
+    rounding: 'floor',
+    rate: '0.012',
+  );
+}
+
+OfflineBaseline _baseline({
+  int remainingLiquidity = 10000,
+  bool includeProjectionPolicy = true,
+}) {
   return OfflineBaseline(
     syncedAt: DateTime.utc(2026, 9, 17, 3, 14),
     user: AuthUser(
@@ -59,10 +72,20 @@ OfflineBaseline _baseline({int remainingLiquidity = 10000}) {
       'family_card_last4': '5678',
       'scheduled_income': '100000',
     }),
-    ownerDiscountMonth:
-        CardDiscountMonth(month: '2026-09', scope: 'owner', policy: 'enabled'),
-    familyDiscountMonth:
-        CardDiscountMonth(month: '2026-09', scope: 'family', policy: 'enabled'),
+    ownerDiscountMonth: CardDiscountMonth(
+      month: '2026-09',
+      scope: 'owner',
+      policy: 'enabled',
+      projectionPolicy:
+          includeProjectionPolicy ? _flatProjectionPolicy('owner') : null,
+    ),
+    familyDiscountMonth: CardDiscountMonth(
+      month: '2026-09',
+      scope: 'family',
+      policy: 'enabled',
+      projectionPolicy:
+          includeProjectionPolicy ? _flatProjectionPolicy('family') : null,
+    ),
     transitDiscountProfile:
         TransitDiscountProfileStatus(month: '2026-09', profile: 'owner'),
     entries: [
@@ -227,6 +250,10 @@ void main() {
       expect(restored.syncedAt, DateTime.utc(2026, 9, 17, 3, 14));
       expect(restored.user.sessionToken, isNull);
       expect(
+        restored.ownerDiscountMonth.projectionPolicy!.rate,
+        '0.012',
+      );
+      expect(
         directory
             .listSync(recursive: true)
             .whereType<File>()
@@ -336,7 +363,34 @@ void main() {
       expect(payload['discount_enabled'], isTrue);
       expect(payload.containsKey('discount_override_amount'), isFalse);
       expect(payload.containsKey('effective_amount_value'), isFalse);
+      expect(state.summary!.currentDiscountTotal, 60);
+      expect(state.summary!.cardTotal, 5940);
+      expect(state.summary!.remainingLiquidity, 5060);
+      expect(state.expenseEntries.single.effectiveAmount, 4940);
+      expect(state.usesConservativeCardEstimate, isFalse);
+    });
+
+    test('missing baseline discount policy falls back to gross estimate',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      await store.replaceBaseline(
+        _baseline(includeProjectionPolicy: false),
+      );
+      final state = AppState(_OfflineApi(), offlineStore: store);
+      expect(await state.enterOfflineMode(), isTrue);
+
+      expect(await state.createExpense(
+        usagePlace: '정책 미확인 가게',
+        usageItem: '',
+        amount: 5000,
+        discountEnabled: true,
+        entryDate: '2026-09-17',
+      ), isTrue);
+
+      expect(state.summary!.currentDiscountTotal, 0);
       expect(state.summary!.remainingLiquidity, 5000);
+      expect(state.expenseEntries.single.effectiveAmount, 5000);
       expect(state.usesConservativeCardEstimate, isTrue);
     });
 
@@ -493,7 +547,7 @@ void main() {
           OfflineOperationType.confirmPlannedCardExpense,
         },
       );
-      expect(state.summary!.remainingLiquidity, 10700);
+      expect(state.summary!.remainingLiquidity, 10701);
       expect(state.financialValuesAreEstimated, isTrue);
       expect(state.usesConservativeCardEstimate, isTrue);
       expect(state.expenseEntries.where((entry) => entry.isOfflinePending),

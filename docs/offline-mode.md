@@ -53,12 +53,14 @@ OFFLINE 화면은 baseline에 journal을 sequence 순으로 투영한다. 이 �
 
 최소 projection은 다음 delta만 적용한다.
 
-- 카드 사용: baseline의 마지막 authoritative 할인 월 상태를 신규 입력의 기본 할인 의도로 사용한다. 사용자가 실결제액을 직접 입력했다면 그 값을 가장 정확한 입력으로 투영하고, 직접 입력이 없다면 할인 engine을 복제하지 않고 gross amount를 쓰는 보수적 fallback으로 표시한다.
+- 카드 사용: baseline의 마지막 authoritative 할인 월 상태를 신규 입력의 기본 할인 의도로 사용한다. 사용자가 실결제액을 직접 입력했다면 그 값을 가장 정확한 입력으로 투영한다. 직접 입력이 없고 할인 의도가 켜져 있으면 baseline에 서버가 포함한 버전드 `projection_policy` descriptor를 해석해 표시용 할인액을 계산한다. 모바일은 할인율·카드 분류·정책 선택 규칙을 자체 보유하지 않으며 descriptor가 없거나 schema, 정책 종류, 반올림 방식 또는 rate를 이해할 수 없으면 gross amount를 쓰는 보수적 fallback으로 표시한다.
 - 현금 입출금: server clock을 사용할 수 없으므로 projection 시점의 device-local date를 기준으로 `occurred_on <= local today`인 signed amount만 현금흐름 반영액과 잔여 유동성에 더한다. 미래 날짜 건은 목록에는 보이지만 그 날짜 전까지 합계에 반영하지 않는다.
 - 현금성 고정지출 확인: pending reserve를 제거하고 실제 출금액을 반영하여 잔여 유동성에 `reserve - actual`을 더한다.
 - 카드 정기결제 확인: template reserve를 제거하고 할인 미반영 gross 실제 원금을 반영하여 잔여 유동성에 `reserve - actual`을 더한다.
 
 서버 날짜, 할인 정책 또는 다른 transition을 확실히 재현할 수 없는 부분은 stale/estimated 표시를 유지한다. 기기 clock/timezone을 서버와 맞추는 subsystem은 두지 않는다. journal에는 위 계산 결과를 쓰지 않으며 reconciliation 후 서버 날짜와 기존 정책으로 Summary를 다시 계산해야 한다.
+
+`projection_policy`는 마지막 동기화 당시의 표시 정확도를 높이는 서버 소유 descriptor일 뿐 서버의 authoritative 계산 결과가 아니다. journal과 Phase 2 replay payload에는 descriptor나 그 계산 결과를 넣지 않는다.
 
 ## Phase 2 replay completeness
 

@@ -772,12 +772,27 @@ Summary의 모든 구성값은 하나의 SQLite read transaction에서 계산한
 - `scope=owner`: 본인회원 카드. 당월 지출과 청구에 적용한다.
 - `scope=family`: 가족카드. 가족카드에 적용한다.
 - `policy`: `enabled`, `disabled`
+- `projection_policy`: Offline baseline이 신규 카드 사용의 display-only estimate에만 사용하는 버전드 서버 정책 descriptor. authoritative 계산 결과나 write/replay 입력이 아니다. 클라이언트가 schema, 정책 종류, 반올림 방식 또는 매개변수를 이해하지 못하면 gross amount fallback을 사용한다.
 - 저장된 정책이 없으면 본인회원 카드는 `enabled`, 가족카드는 `disabled`로 간주한다.
 - `policy = disabled`이면 계산상 할인액은 모두 0원이다.
 - 그 외에는 해당 사용월의 카드 정책을 적용한다. 현재 본인카드와 가족카드는 각각 `floor(amount_value * 0.012)`를 사용한다.
 - 통행료카드는 별도 카드 정책으로 분류하며 자동 할인액은 항상 0원이다.
 - 교통카드는 월별 프로필이 `none`이면 자동 할인액 0원, `owner`이면 본인카드 계산식과 해당 월 본인카드 혜택 상태를 따른다.
 - `discount_override = 1`이면 기본 할인 계산 대신 저장된 할인액을 쓴다. 저장된 할인액이 0원이면 할인 제외로 취급한다.
+
+응답의 정책 descriptor 예시:
+
+```json
+{
+  "projection_policy": {
+    "schema_version": 1,
+    "policy_id": "owner-flat-statement-1.2",
+    "type": "flat_statement",
+    "parameters": { "rate": "0.012" },
+    "rounding": "floor"
+  }
+}
+```
 
 ### `PATCH /api/card-discounts/months/{month}?scope=owner|family`
 

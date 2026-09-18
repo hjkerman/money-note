@@ -12,6 +12,7 @@ from app.repositories.common import new_payment_key
 from app.schemas import CardPaymentEventIn, LateCardEntryIn
 from app.services.card_charge import (
     DiscountCard,
+    card_charge_projection_policy,
     default_discount_policy,
     evaluate_stored_charge,
     normalize_discount_policy,
@@ -210,6 +211,10 @@ def discount_month_status(month: str, scope: str = "owner") -> dict[str, Any]:
         "month": month,
         "scope": scope,
         "policy": policy,
+        "projection_policy": card_charge_projection_policy(
+            DiscountCard.OWNER if scope == "owner" else DiscountCard.FAMILY,
+            month,
+        ),
         "discounts": discounts,
         "discount_total": sum(discounts.values()),
     }

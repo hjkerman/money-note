@@ -178,8 +178,16 @@ class CardPaymentDeferralTest(unittest.TestCase):
         set_discount_month_policy("2026-05", "disabled", "owner")
         set_discount_month_policy("2026-05", "enabled", "family")
 
-        self.assertEqual(discount_month_status("2026-05", "owner")["policy"], "disabled")
+        owner = discount_month_status("2026-05", "owner")
+        self.assertEqual(owner["policy"], "disabled")
         self.assertEqual(discount_month_status("2026-05", "family")["policy"], "enabled")
+        self.assertEqual(owner["projection_policy"]["schema_version"], 1)
+        self.assertEqual(owner["projection_policy"]["type"], "flat_statement")
+        self.assertEqual(
+            owner["projection_policy"]["parameters"]["rate"],
+            "0.012",
+        )
+        self.assertEqual(owner["projection_policy"]["rounding"], "floor")
 
     def test_transit_profile_setting_is_inherited_forward_but_not_backward(self) -> None:
         self.assertEqual(

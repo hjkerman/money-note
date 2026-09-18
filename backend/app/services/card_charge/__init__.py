@@ -19,6 +19,7 @@ from .policies import DEFAULT_CARD_DISCOUNT_RATE, flat_statement_discount
 from .registry import (
     card_charge_policy_manifest,
     card_charge_policy_manifest_compatible,
+    card_charge_projection_policy,
     policy_for,
 )
 from .profiles import (
@@ -37,6 +38,7 @@ __all__ = [
     "TransitDiscountProfile",
     "card_charge_policy_manifest",
     "card_charge_policy_manifest_compatible",
+    "card_charge_projection_policy",
     "classify_discount_card",
     "default_discount_policy",
     "discount_ineligible_title",

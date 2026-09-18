@@ -366,24 +366,59 @@ String? normalizeSpendingCategory(String? value) {
   return null;
 }
 
+class CardDiscountProjectionPolicy {
+  const CardDiscountProjectionPolicy({
+    required this.schemaVersion,
+    required this.policyId,
+    required this.type,
+    required this.rounding,
+    this.rate,
+  });
+
+  final int schemaVersion;
+  final String policyId;
+  final String type;
+  final String rounding;
+  final String? rate;
+
+  factory CardDiscountProjectionPolicy.fromJson(Map<String, dynamic> json) {
+    final parameters = json['parameters'];
+    return CardDiscountProjectionPolicy(
+      schemaVersion: _int(json['schema_version']),
+      policyId: json['policy_id'] as String? ?? '',
+      type: json['type'] as String? ?? '',
+      rounding: json['rounding'] as String? ?? '',
+      rate: parameters is Map<String, dynamic>
+          ? parameters['rate']?.toString()
+          : null,
+    );
+  }
+}
+
 class CardDiscountMonth {
   CardDiscountMonth({
     required this.month,
     required this.scope,
     required this.policy,
+    this.projectionPolicy,
   });
 
   final String month;
   final String scope;
   final String policy;
+  final CardDiscountProjectionPolicy? projectionPolicy;
 
   bool get isEnabled => policy == 'enabled';
 
   factory CardDiscountMonth.fromJson(Map<String, dynamic> json) {
+    final projectionPolicy = json['projection_policy'];
     return CardDiscountMonth(
       month: json['month'] as String? ?? '',
       scope: json['scope'] as String? ?? '',
       policy: json['policy'] as String? ?? 'disabled',
+      projectionPolicy: projectionPolicy is Map<String, dynamic>
+          ? CardDiscountProjectionPolicy.fromJson(projectionPolicy)
+          : null,
     );
   }
 }

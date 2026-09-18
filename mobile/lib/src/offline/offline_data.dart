@@ -374,6 +374,21 @@ Map<String, dynamic> _cardDiscountMonthToJson(CardDiscountMonth value) => {
       'month': value.month,
       'scope': value.scope,
       'policy': value.policy,
+      if (value.projectionPolicy != null)
+        'projection_policy':
+            _cardDiscountProjectionPolicyToJson(value.projectionPolicy!),
+    };
+
+Map<String, dynamic> _cardDiscountProjectionPolicyToJson(
+        CardDiscountProjectionPolicy value) =>
+    {
+      'schema_version': value.schemaVersion,
+      'policy_id': value.policyId,
+      'type': value.type,
+      'rounding': value.rounding,
+      'parameters': {
+        if (value.rate != null) 'rate': value.rate,
+      },
     };
 
 Map<String, dynamic> _transitDiscountProfileToJson(
