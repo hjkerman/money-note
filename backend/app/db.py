@@ -179,6 +179,31 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     status_code INTEGER NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS offline_reconciliations (
+    reconciliation_id TEXT PRIMARY KEY,
+    request_digest TEXT NOT NULL,
+    baseline_fingerprint TEXT NOT NULL,
+    pre_server_fingerprint TEXT NOT NULL,
+    result_fingerprint TEXT,
+    server_changed INTEGER NOT NULL,
+    server_artifact_filename TEXT NOT NULL,
+    operation_count INTEGER NOT NULL,
+    result_json TEXT,
+    status TEXT NOT NULL CHECK (status IN ('pending', 'committed')),
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    committed_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS offline_reconciliation_operations (
+    operation_id TEXT PRIMARY KEY,
+    reconciliation_id TEXT NOT NULL
+        REFERENCES offline_reconciliations(reconciliation_id) ON DELETE RESTRICT,
+    sequence INTEGER NOT NULL,
+    operation_digest TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(reconciliation_id, sequence)
+);
+
 CREATE INDEX IF NOT EXISTS idx_ledger_section_order
 ON ledger_entries(book_section, sort_order);
 
@@ -220,6 +245,9 @@ ON card_payment_deferrals(target_payment_month);
 
 CREATE INDEX IF NOT EXISTS idx_audit_logs_occurred
 ON audit_logs(occurred_at DESC, id DESC);
+
+CREATE INDEX IF NOT EXISTS idx_offline_reconciliation_committed
+ON offline_reconciliations(committed_at DESC, reconciliation_id);
 
 INSERT OR IGNORE INTO app_settings(key, value) VALUES
 ('card_limit', '5800000'),
@@ -566,6 +594,19 @@ def _backfill_planned_due_days(conn: sqlite3.Connection) -> None:
                 """,
                 (due_day, row["id"]),
             )
+
+
+@contextmanager
+def borrowed_or_new_session(
+    conn: sqlite3.Connection | None,
+    transaction_mode: str | None = None,
+) -> Iterator[sqlite3.Connection]:
+    """기존 transaction을 재사용하고, 없을 때만 새 session을 소유한다."""
+    if conn is not None:
+        yield conn
+        return
+    with session(transaction_mode=transaction_mode) as owned_conn:
+        yield owned_conn
 
 
 @contextmanager

@@ -3,18 +3,21 @@ import '../models.dart';
 enum ConnectivityMode {
   online,
   offline,
-  reconciliationRequired;
+  reconciliationRequired,
+  reconciliationFinalizing;
 
   String get storageValue => switch (this) {
         online => 'ONLINE',
         offline => 'OFFLINE',
         reconciliationRequired => 'RECONCILIATION_REQUIRED',
+        reconciliationFinalizing => 'RECONCILIATION_FINALIZING',
       };
 
   static ConnectivityMode fromStorageValue(Object? value) {
     return switch (value) {
       'OFFLINE' => offline,
       'RECONCILIATION_REQUIRED' => reconciliationRequired,
+      'RECONCILIATION_FINALIZING' => reconciliationFinalizing,
       _ => online,
     };
   }
@@ -62,44 +65,132 @@ enum OfflineOperationType {
   }
 }
 
+enum ReconciliationPhase {
+  none,
+  preparing,
+  ready,
+  mobileRequestPending,
+  mobileCommitted,
+  serverWinsFinalizing;
+
+  String get storageValue => switch (this) {
+        none => 'NONE',
+        preparing => 'PREPARING',
+        ready => 'READY',
+        mobileRequestPending => 'MOBILE_REQUEST_PENDING',
+        mobileCommitted => 'MOBILE_COMMITTED',
+        serverWinsFinalizing => 'SERVER_WINS_FINALIZING',
+      };
+
+  static ReconciliationPhase fromStorageValue(Object? value) {
+    return switch (value) {
+      'PREPARING' => preparing,
+      'READY' => ready,
+      'MOBILE_REQUEST_PENDING' => mobileRequestPending,
+      'MOBILE_COMMITTED' => mobileCommitted,
+      'SERVER_WINS_FINALIZING' => serverWinsFinalizing,
+      _ => none,
+    };
+  }
+}
+
+enum ServerCommitStatus {
+  none,
+  unknown,
+  committed;
+
+  String get storageValue => switch (this) {
+        none => 'NONE',
+        unknown => 'UNKNOWN',
+        committed => 'COMMITTED',
+      };
+
+  static ServerCommitStatus fromStorageValue(Object? value) {
+    return switch (value) {
+      'UNKNOWN' => unknown,
+      'COMMITTED' => committed,
+      _ => none,
+    };
+  }
+}
+
 class OfflineWorkspaceMetadata {
   const OfflineWorkspaceMetadata({
     required this.mode,
     this.reconciliationChoice,
+    this.reconciliationId,
+    this.phase = ReconciliationPhase.none,
+    this.serverCommitStatus = ServerCommitStatus.none,
+    this.serverChanged = false,
+    this.currentServerFingerprint,
+    this.serverArtifactFilename,
+    this.mobileArtifactFilename,
+    this.mobileArtifactSha256,
+    this.confirmServerChanged = false,
   });
 
-  static const schemaVersion = 1;
+  static const schemaVersion = 2;
 
   final ConnectivityMode mode;
   final ReconciliationChoice? reconciliationChoice;
+  final String? reconciliationId;
+  final ReconciliationPhase phase;
+  final ServerCommitStatus serverCommitStatus;
+  final bool serverChanged;
+  final String? currentServerFingerprint;
+  final String? serverArtifactFilename;
+  final String? mobileArtifactFilename;
+  final String? mobileArtifactSha256;
+  final bool confirmServerChanged;
+
+  bool get hasVerifiedRecoveryPoints =>
+      serverArtifactFilename != null &&
+      mobileArtifactFilename != null &&
+      mobileArtifactSha256 != null;
 
   Map<String, dynamic> toJson() => {
         'schema_version': schemaVersion,
         'mode': mode.storageValue,
         'reconciliation_choice': reconciliationChoice?.storageValue,
+        'reconciliation_id': reconciliationId,
+        'phase': phase.storageValue,
+        'server_commit_status': serverCommitStatus.storageValue,
+        'server_changed': serverChanged,
+        'current_server_fingerprint': currentServerFingerprint,
+        'server_artifact_filename': serverArtifactFilename,
+        'mobile_artifact_filename': mobileArtifactFilename,
+        'mobile_artifact_sha256': mobileArtifactSha256,
+        'confirm_server_changed': confirmServerChanged,
       };
 
   factory OfflineWorkspaceMetadata.fromJson(Map<String, dynamic> json) {
-    if (json['schema_version'] != schemaVersion) {
+    final version = json['schema_version'];
+    if (version != 1 && version != schemaVersion) {
       throw const FormatException('unsupported offline state schema');
+    }
+    if (version == 1) {
+      return OfflineWorkspaceMetadata(
+        mode: ConnectivityMode.fromStorageValue(json['mode']),
+        reconciliationChoice: ReconciliationChoice.fromStorageValue(
+          json['reconciliation_choice'],
+        ),
+      );
     }
     return OfflineWorkspaceMetadata(
       mode: ConnectivityMode.fromStorageValue(json['mode']),
       reconciliationChoice:
           ReconciliationChoice.fromStorageValue(json['reconciliation_choice']),
-    );
-  }
-
-  OfflineWorkspaceMetadata copyWith({
-    ConnectivityMode? mode,
-    ReconciliationChoice? reconciliationChoice,
-    bool clearReconciliationChoice = false,
-  }) {
-    return OfflineWorkspaceMetadata(
-      mode: mode ?? this.mode,
-      reconciliationChoice: clearReconciliationChoice
-          ? null
-          : reconciliationChoice ?? this.reconciliationChoice,
+      reconciliationId: _nullableString(json['reconciliation_id']),
+      phase: ReconciliationPhase.fromStorageValue(json['phase']),
+      serverCommitStatus:
+          ServerCommitStatus.fromStorageValue(json['server_commit_status']),
+      serverChanged: json['server_changed'] == true,
+      currentServerFingerprint:
+          _nullableString(json['current_server_fingerprint']),
+      serverArtifactFilename: _nullableString(json['server_artifact_filename']),
+      mobileArtifactFilename: _nullableString(json['mobile_artifact_filename']),
+      mobileArtifactSha256: _nullableString(json['mobile_artifact_sha256']),
+      confirmServerChanged: json['confirm_server_changed'] == true,
     );
   }
 }
@@ -178,9 +269,11 @@ class OfflineBaseline {
     required this.confirmedPlannedEntries,
     required this.panels,
     required this.cashFlows,
+    this.authoritativeSnapshot,
+    this.serverStateFingerprint,
   });
 
-  static const schemaVersion = 1;
+  static const schemaVersion = 2;
 
   final DateTime syncedAt;
   final AuthUser user;
@@ -196,9 +289,18 @@ class OfflineBaseline {
   final List<LedgerEntry> confirmedPlannedEntries;
   final List<MonthlyPanel> panels;
   final List<CashFlow> cashFlows;
+  final Map<String, dynamic>? authoritativeSnapshot;
+  final String? serverStateFingerprint;
+
+  bool get supportsAtomicReconciliation =>
+      authoritativeSnapshot != null &&
+      serverStateFingerprint != null &&
+      RegExp(r'^[0-9a-f]{64}$').hasMatch(serverStateFingerprint!);
 
   Map<String, dynamic> toJson() => {
         'schema_version': schemaVersion,
+        'authoritative_snapshot': authoritativeSnapshot,
+        'server_state_fingerprint': serverStateFingerprint,
         'synced_at': syncedAt.toUtc().toIso8601String(),
         'user': _authUserToJson(user),
         'summary': _summaryToJson(summary),
@@ -218,7 +320,8 @@ class OfflineBaseline {
       };
 
   factory OfflineBaseline.fromJson(Map<String, dynamic> json) {
-    if (json['schema_version'] != schemaVersion) {
+    final version = json['schema_version'];
+    if (version != 1 && version != schemaVersion) {
       throw const FormatException('unsupported offline baseline schema');
     }
     final syncedAt = DateTime.tryParse(json['synced_at']?.toString() ?? '');
@@ -247,6 +350,13 @@ class OfflineBaseline {
           .toList(),
       panels: _list(json, 'panels').map(MonthlyPanel.fromJson).toList(),
       cashFlows: _list(json, 'cash_flows').map(CashFlow.fromJson).toList(),
+      authoritativeSnapshot:
+          json['authoritative_snapshot'] is Map<String, dynamic>
+              ? Map<String, dynamic>.unmodifiable(
+                  json['authoritative_snapshot'] as Map<String, dynamic>,
+                )
+              : null,
+      serverStateFingerprint: _nullableString(json['server_state_fingerprint']),
     );
   }
 }
@@ -255,12 +365,22 @@ class OfflineReconciliationBundle {
   const OfflineReconciliationBundle({
     required this.baseline,
     required this.operations,
-    required this.choice,
+    required this.metadata,
   });
 
   final OfflineBaseline baseline;
   final List<OfflineJournalOperation> operations;
-  final ReconciliationChoice? choice;
+  final OfflineWorkspaceMetadata metadata;
+
+  ReconciliationChoice? get choice => metadata.reconciliationChoice;
+}
+
+String? _nullableString(Object? value) {
+  if (value == null) return null;
+  if (value is! String || value.isEmpty) {
+    throw const FormatException('invalid metadata string');
+  }
+  return value;
 }
 
 Map<String, dynamic> _map(Map<String, dynamic> json, String key) {

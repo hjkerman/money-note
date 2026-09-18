@@ -417,6 +417,63 @@ class MoneyNoteApiClient {
         {'password': password, 'snapshot_text': snapshotText}, (json) => json);
   }
 
+  Future<Map<String, dynamic>> offlineReconciliationBaseline() {
+    return _get('/api/offline-reconciliation/baseline', (json) => json);
+  }
+
+  Future<Map<String, dynamic>> offlineReconciliationStatus({
+    required String baselineFingerprint,
+    String? reconciliationId,
+  }) {
+    final query = <String, String>{
+      'baseline_fingerprint': baselineFingerprint,
+      if (reconciliationId != null) 'reconciliation_id': reconciliationId,
+    };
+    final encoded = Uri(queryParameters: query).query;
+    return _get('/api/offline-reconciliation/status?$encoded', (json) => json);
+  }
+
+  Future<Map<String, dynamic>> createOfflineServerRecovery({
+    required String reconciliationId,
+    required String baselineFingerprint,
+  }) {
+    return _post(
+      '/api/offline-reconciliation/server-recovery',
+      {
+        'reconciliation_id': reconciliationId,
+        'baseline_fingerprint': baselineFingerprint,
+      },
+      (json) => json,
+    );
+  }
+
+  Future<Map<String, dynamic>> reconcileOfflineMobileWins({
+    required String reconciliationId,
+    required String baselineFingerprint,
+    required Map<String, dynamic> baselineSnapshot,
+    required List<Map<String, dynamic>> operations,
+    required String mobileArtifactSha256,
+    required String expectedServerFingerprint,
+    required bool confirmServerChanged,
+    required String password,
+  }) {
+    return _post(
+      '/api/offline-reconciliation/mobile-wins',
+      {
+        'schema_version': 1,
+        'reconciliation_id': reconciliationId,
+        'baseline_fingerprint': baselineFingerprint,
+        'baseline_snapshot': baselineSnapshot,
+        'operations': operations,
+        'mobile_artifact_sha256': mobileArtifactSha256,
+        'expected_server_fingerprint': expectedServerFingerprint,
+        'confirm_server_changed': confirmServerChanged,
+        'password': password,
+      },
+      (json) => json,
+    );
+  }
+
   Future<T> _get<T>(
       String path, T Function(Map<String, dynamic>) parser) async {
     final response =
@@ -494,23 +551,45 @@ class MoneyNoteApiClient {
       if (response.statusCode >= 500) {
         _throwServerUnavailable(_readError(response));
       }
-      throw MoneyNoteApiException(_readError(response));
+      throw _readApiException(response);
     }
     if (response.body.isEmpty) return <String, dynamic>{};
     return jsonDecode(utf8.decode(response.bodyBytes));
   }
 
+  MoneyNoteApiException _readApiException(http.Response response) {
+    try {
+      final decoded = jsonDecode(utf8.decode(response.bodyBytes));
+      final detail = decoded is Map ? decoded['detail'] : null;
+      if (detail is Map) {
+        final values = Map<String, dynamic>.from(detail);
+        return MoneyNoteApiException(
+          values['message']?.toString() ?? _readError(response),
+          code: values['code']?.toString(),
+          details: values,
+        );
+      }
+    } catch (_) {
+      // Fall through to the existing short error message.
+    }
+    return MoneyNoteApiException(_readError(response));
+  }
+
   String _readError(http.Response response) {
     try {
       final decoded = jsonDecode(utf8.decode(response.bodyBytes));
-      if (decoded is Map && decoded['detail'] is String) {
-        if (decoded['detail'] == 'invalid username or password') {
+      if (decoded is Map) {
+        final detail = decoded['detail'];
+        if (detail is Map && detail['message'] is String) {
+          return detail['message'] as String;
+        }
+        if (detail == 'invalid username or password') {
           return '아이디 또는 비밀번호가 맞지 않습니다.';
         }
-        if (decoded['detail'] == 'authentication required') {
+        if (detail == 'authentication required') {
           return '로그인이 필요합니다.';
         }
-        return decoded['detail'] as String;
+        if (detail is String) return detail;
       }
     } catch (_) {
       // 서버가 JSON이 아닌 오류를 줄 때도 사용자에게는 짧게 보여준다.
@@ -534,9 +613,15 @@ class MoneyNoteApiClient {
 }
 
 class MoneyNoteApiException implements Exception {
-  MoneyNoteApiException(this.message);
+  MoneyNoteApiException(
+    this.message, {
+    this.code,
+    this.details = const {},
+  });
 
   final String message;
+  final String? code;
+  final Map<String, dynamic> details;
 
   @override
   String toString() => message;

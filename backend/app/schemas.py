@@ -1,6 +1,6 @@
 from decimal import Decimal, InvalidOperation
-from datetime import date
-from typing import Any
+from datetime import date, datetime
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -42,6 +42,56 @@ class SnapshotRestoreIn(BaseModel):
 
 class PreRestoreRestoreIn(BaseModel):
     password: str
+
+
+class OfflineRecoveryPointIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    reconciliation_id: str = Field(
+        min_length=16,
+        max_length=128,
+        pattern=r"^[A-Za-z0-9._:-]+$",
+    )
+    baseline_fingerprint: str = Field(pattern=r"^[0-9a-f]{64}$")
+
+
+class OfflineReconciliationOperationIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: Literal[1]
+    operation_id: str = Field(
+        min_length=16,
+        max_length=128,
+        pattern=r"^[A-Za-z0-9._:-]+$",
+    )
+    operation_type: Literal[
+        "CREATE_CARD_EXPENSE",
+        "CREATE_CASH_FLOW",
+        "CONFIRM_FIXED_EXPENSE",
+        "CONFIRM_PLANNED_CARD_EXPENSE",
+    ]
+    payload: dict[str, Any]
+    created_at: datetime
+    sequence: int = Field(ge=1)
+    status: Literal["pending"]
+
+
+class OfflineMobileWinsIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: Literal[1]
+    reconciliation_id: str = Field(
+        min_length=16,
+        max_length=128,
+        pattern=r"^[A-Za-z0-9._:-]+$",
+    )
+    baseline_fingerprint: str = Field(pattern=r"^[0-9a-f]{64}$")
+    baseline_snapshot: dict[str, Any]
+    operations: list[OfflineReconciliationOperationIn]
+    mobile_artifact_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    expected_server_fingerprint: str = Field(pattern=r"^[0-9a-f]{64}$")
+    confirm_server_changed: bool = False
+    password: str = Field(min_length=1, max_length=1024)
 
 
 class SharePinIn(BaseModel):

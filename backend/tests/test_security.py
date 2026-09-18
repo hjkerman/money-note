@@ -113,6 +113,44 @@ class SecurityPolicyTest(unittest.TestCase):
 
         self.assertEqual(sent[0]["status"], 413)
 
+    def test_mobile_wins_uses_bounded_snapshot_body_limit(self) -> None:
+        async def consume_body(scope, receive, send) -> None:
+            await receive()
+            await send({"type": "http.response.start", "status": 200, "headers": []})
+            await send({"type": "http.response.body", "body": b"ok"})
+
+        sent = []
+
+        async def receive():
+            return {
+                "type": "http.request",
+                "body": b"123456789",
+                "more_body": False,
+            }
+
+        async def send(message):
+            sent.append(message)
+
+        middleware = ApiBodyLimitMiddleware(
+            consume_body,
+            api_max_bytes=8,
+            snapshot_max_bytes=10,
+        )
+        asyncio.run(
+            middleware(
+                {
+                    "type": "http",
+                    "method": "POST",
+                    "path": "/api/offline-reconciliation/mobile-wins",
+                    "headers": [],
+                },
+                receive,
+                send,
+            )
+        )
+
+        self.assertEqual(sent[0]["status"], 200)
+
     def test_api_body_limit_rejects_non_snapshot_oversize_body(self) -> None:
         async def consume_body(scope, receive, send) -> None:
             await receive()

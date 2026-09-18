@@ -117,7 +117,7 @@ Money Note의 모든 계산은 다음 원칙을 따른다.
 
 모바일 Offline Mode는 서버 authoritative 원칙의 예외가 아니라 임시 기록 경계다.
 
-- baseline은 완전히 성공한 마지막 정상 서버 동기화 응답을 모바일 로컬 표현으로 원자적으로 보존한 것이다. Snapshot을 mutable offline database로 사용하지 않는다.
+- baseline은 완전히 성공한 마지막 정상 서버 동기화 응답과 같은 시점의 검증된 authoritative Snapshot B를 모바일에 원자적으로 보존한 것이다. Snapshot을 mutable offline database로 사용하지 않는다.
 - offline journal에는 카드 사용, 현금 입출금, 현금성 고정지출 확인, 카드 정기결제 확인의 authoritative input만 append한다. 카드 사용 시 사용자가 직접 입력한 실결제액은 수동 override input이며 서버 계산 결과와 구분한다.
 - Offline 화면의 잔여 유동성·카드대금·월 지출·현금흐름 반영액은 허용 operation의 명백한 delta만 적용한 display-only estimate다. 기준 월 판정과 server-only transition을 클라이언트에 복제하지 않는다.
 - 신규 본인카드 사용의 자동 할인 estimate는 마지막 정상 baseline에 서버가 포함한 버전드 projection descriptor만 해석할 수 있다. 모바일에 할인율·카드 분류·정책 선택 규칙을 하드코딩하지 않으며, descriptor가 없거나 알 수 없는 형식이면 gross amount로 보수적으로 표시한다.
@@ -125,7 +125,7 @@ Money Note의 모든 계산은 다음 원칙을 따른다.
 - 현금흐름 estimate는 device-local today까지 발생한 건만 반영하며 reconciliation 후 서버가 authoritative 날짜·정책으로 다시 계산한다.
 - estimate는 `오프라인 예상값`으로 표시하고 journal, Snapshot restore 또는 reconciliation payload에 넣지 않는다.
 - 서버 복구 확인은 자동 reconciliation 권한이 아니다. 모바일은 `RECONCILIATION_REQUIRED`로 전환하여 모든 write를 막고 사용자의 적용/폐기 선택을 저장한다.
-- Phase 1/1.5는 replay와 discard를 실행하지 않으며 baseline, journal, recovery metadata를 자동 삭제하지 않는다. atomic reconciliation은 Phase 2 책임이다.
+- Phase 2 Mobile Wins는 server-side 단일 transaction에서 정확히 `Apply(B, J)`를 실행하고 Server Wins는 J를 replay하지 않는다. 양쪽 recovery point 검증과 explicit confirmation 없이는 시작하지 않으며, committed 결과 확인과 fresh authoritative rebuild 전에는 journal과 recovery metadata를 삭제하지 않는다.
 
 상세 상태 머신, operation matrix, 저장 형식과 Snapshot 재사용 계획은 [모바일 Offline Mode](offline-mode.md)를 따른다.
 

@@ -29,7 +29,7 @@
 6. 필요하면 장부 운용 데이터 전체와 비민감 운영 설정을 JSON snapshot으로 내보내거나 복원한다.
 7. 변경 API 요청은 요청 본문 없이 감사 로그에 남고, 본체 웹의 `관리 로그`에서 조회·초기화한다.
 
-모바일 Offline Mode는 서버 state를 복제한 별도 원본이 아니다. ONLINE 동기화가 완전히 성공할 때 원자적으로 교체한 baseline과 authoritative input만 담은 durable journal로 임시 view를 만들며, derived financial value는 `오프라인 예상값`으로만 표시한다. health check가 복구를 확인해도 자동 sync/replay하지 않고 `RECONCILIATION_REQUIRED` read-only 상태로 전환한다. 상세 계약과 Phase 2 경계는 [모바일 Offline Mode](offline-mode.md)를 따른다.
+모바일 Offline Mode는 서버 state를 복제한 별도 원본이 아니다. ONLINE 동기화가 완전히 성공할 때 원자적으로 교체한 authoritative Snapshot baseline B와 input-only journal J로 임시 view를 만들며, derived financial value는 `오프라인 예상값`으로만 표시한다. 복구 후 사용자가 authority를 선택하고 양쪽 recovery point를 검증한다. Mobile Wins는 server-side 단일 transaction의 `Apply(B, J)`, Server Wins는 fresh server rebuild이며 commit ambiguity와 sync failure는 durable `RECONCILIATION_FINALIZING`에서 재개한다. 상세 계약은 [모바일 Offline Mode](offline-mode.md)를 따른다.
 
 ### Android 알림 수집
 

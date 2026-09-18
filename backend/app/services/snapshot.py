@@ -30,7 +30,9 @@ from app.share_auth import SENSITIVE_SHARE_SETTING_KEYS
 
 SNAPSHOT_SCHEMA_VERSION = 7
 SUPPORTED_SNAPSHOT_SCHEMA_VERSIONS = {4, 5, 6, SNAPSHOT_SCHEMA_VERSION}
-PRE_RESTORE_FILENAME_RE = re.compile(r"^pre_restore-\d{8}T\d{6}Z(?:-\d+)?\.money-note-snapshot\.json$")
+PRE_RESTORE_FILENAME_RE = re.compile(
+    r"^(?:pre_restore|pre_reconcile_server)-\d{8}T\d{6}Z(?:-\d+)?\.money-note-snapshot\.json$"
+)
 SNAPSHOT_TABLES = [
     "ledger_entries",
     "monthly_panels",
@@ -132,6 +134,50 @@ def _export_snapshot(conn: Any, today: date | None = None) -> tuple[str, dict[st
     return filename, snapshot
 
 
+def export_snapshot_from_connection(
+    conn: Any,
+    today: date | None = None,
+) -> tuple[str, dict[str, Any]]:
+    """호출자가 소유한 read/write transaction의 authoritative Snapshot을 만든다."""
+    return _export_snapshot(conn, today)
+
+
+def snapshot_state_fingerprint(snapshot: dict[str, Any]) -> str:
+    """export 시각과 무관한 authoritative 금융 상태 fingerprint를 반환한다."""
+    return _stable_hash(
+        {
+            "schema_version": snapshot.get("schema_version"),
+            "range": snapshot.get("range"),
+            "card_charge_policy": snapshot.get("card_charge_policy"),
+            "data": snapshot.get("data"),
+        }
+    )
+
+
+def validate_reconciliation_snapshot(
+    snapshot: dict[str, Any],
+) -> dict[str, list[dict[str, Any]]]:
+    """Mobile Wins baseline Snapshot을 일반 restore와 같은 경계로 검증한다."""
+    _validate_snapshot(snapshot)
+    data = _normalized_snapshot_data(snapshot["data"])
+    _dry_run_restore(data)
+    return data
+
+
+def replace_reconciliation_snapshot(
+    conn: Any,
+    data: dict[str, list[dict[str, Any]]],
+) -> dict[str, int]:
+    """검증된 baseline을 호출자가 소유한 transaction 안에서 교체한다."""
+    return _replace_snapshot_tables(conn, data)
+
+
+def validate_reconciled_financial_state(conn: Any) -> None:
+    """replay 완료 상태의 FK와 금융 관계 invariant를 검증한다."""
+    _raise_if_foreign_key_errors(conn)
+    _validate_financial_relationships(conn)
+
+
 def restore_snapshot(snapshot: dict[str, Any]) -> dict[str, int]:
     """JSON snapshot을 검증하고 임시 복원에 성공한 뒤 운영 DB를 교체한다."""
     _validate_snapshot(snapshot)
@@ -151,6 +197,14 @@ def create_pre_restore_backup(conn: Any | None = None) -> Path:
         return _write_pre_restore_backup(conn)
     with session(transaction_mode="IMMEDIATE") as backup_conn:
         return _write_pre_restore_backup(backup_conn)
+
+
+def create_pre_reconcile_server_backup(conn: Any | None = None) -> Path:
+    """reconciliation 직전 서버 상태를 검증 가능한 recovery point로 저장한다."""
+    if conn is not None:
+        return _write_snapshot_backup(conn, "pre_reconcile_server")
+    with session(transaction_mode="IMMEDIATE") as backup_conn:
+        return _write_snapshot_backup(backup_conn, "pre_reconcile_server")
 
 
 def list_pre_restore_backups() -> list[dict[str, Any]]:
@@ -616,13 +670,19 @@ def _validate_financial_relationships(conn: Any) -> None:
 
 
 def _write_pre_restore_backup(conn: Any) -> Path:
+    return _write_snapshot_backup(conn, "pre_restore")
+
+
+def _write_snapshot_backup(conn: Any, prefix: str) -> Path:
     filename, snapshot = _export_snapshot(conn)
     backup_dir = _pre_restore_backup_dir()
     backup_dir.mkdir(parents=True, exist_ok=True)
-    target = _unique_pre_restore_path(backup_dir / filename.replace("money-note-snapshot-", "pre_restore-"))
+    suffix = filename.removeprefix("money-note-snapshot-")
+    target = _unique_pre_restore_path(backup_dir / f"{prefix}-{suffix}")
     _write_json_atomic(target, snapshot)
-    _validate_snapshot(json.loads(target.read_text(encoding="utf-8")))
-    _dry_run_restore(_normalized_snapshot_data(snapshot["data"]))
+    stored = json.loads(target.read_text(encoding="utf-8"))
+    _validate_snapshot(stored)
+    _dry_run_restore(_normalized_snapshot_data(stored["data"]))
     return target
 
 

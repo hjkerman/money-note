@@ -106,7 +106,11 @@ class ApiBodyLimitMiddleware:
             return
         max_bytes = (
             self.snapshot_max_bytes
-            if path == "/api/admin/snapshot/restore"
+            if path
+            in {
+                "/api/admin/snapshot/restore",
+                "/api/offline-reconciliation/mobile-wins",
+            }
             else self.api_max_bytes
         )
 

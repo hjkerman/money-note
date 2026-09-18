@@ -7,7 +7,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.auth import current_user_from_request
 from app.config import get_settings
 from app.db import init_db
-from app.routers import admin, audit, auth, card_payments, entries, month, operations, share
+from app.routers import (
+    admin,
+    audit,
+    auth,
+    card_payments,
+    entries,
+    month,
+    offline_reconciliation,
+    operations,
+    share,
+)
 from app.services.audit import record_audit_log
 from app.security import ApiBodyLimitMiddleware
 from app.services.maintenance import run_startup_maintenance
@@ -117,6 +127,7 @@ app.include_router(card_payments.payments_router)
 app.include_router(card_payments.discounts_router)
 app.include_router(share.api_router)
 app.include_router(share.page_router)
+app.include_router(offline_reconciliation.router)
 app.include_router(operations.settings_router)
 app.include_router(operations.cash_router)
 app.include_router(operations.labels_router)

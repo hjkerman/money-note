@@ -2,7 +2,7 @@
 
 이 문서는 새 개발자나 새 작업 세션이 Money Note의 현재 기준선과 문서 읽기 순서를 빠르게 파악하기 위한 체크포인트다. 상세 도메인 규칙, API, 스키마, 운영 절차를 대신하지 않는다.
 
-마지막 코드 대조: 2026-09-01, `main`
+마지막 코드 대조: 2026-09-19, `main`
 
 ## 현재 기준선
 
@@ -11,7 +11,7 @@
 - Android 앱은 빠른 입력, 현금흐름, 당월 내역, 정산, 운영 설정을 담당하는 실사용 클라이언트다. 웹의 축소판이 아니며 같은 서버 API를 사용한다.
 - 웹은 전체 장부 관리, 카드 결제 작업함, 공유 화면, 통계, 백업·복원과 관리 기능을 제공한다.
 - 우리카드와 고속도로 통행료+ 알림 수집은 실사용 중이지만 외부 앱의 알림 형식과 Android 리스너 상태에 의존한다. 원문·후보는 서버 데이터가 아니라 모바일 로컬 보조자료다.
-- Android Offline Mode Phase 1.5는 마지막 정상 서버 baseline과 durable local journal로 카드 사용(사용자 실결제 override 포함), 현금 입출금, 정기지출 확인만 임시 기록한다. 설정 변경은 Offline에서 금지하며 복구 시 자동 replay하지 않고 reconciliation-required read-only 상태로 멈춘다.
+- Android Offline Mode Phase 2는 검증된 authoritative Snapshot baseline B와 durable input journal J를 보존한다. 서버 복구 시 사용자가 Mobile Wins 또는 Server Wins를 명시적으로 확인하며, 양쪽 recovery artifact가 검증된 뒤에만 atomic `Apply(B, J)` 또는 fresh server rebuild를 실행한다.
 - 현재 유지보수의 중심은 버그와 무결성, 보안·배포, 카드 정책 이력, Judgment 문구, Android 알림 형식 변화 대응과 문서 일치다.
 
 ## 깨뜨리면 안 되는 경계
@@ -21,7 +21,7 @@
 - 카드 종류 분류와 할인 정책, 수동 override, 실결제액 계산의 소유자는 `backend/app/services/card_charge/`다.
 - 모바일 로컬 알림 원문·후보·처리 이력은 관측과 입력 보조용이다. 사용자가 등록을 확정해 기존 API로 전송하기 전에는 장부 사실이 아니다.
 - Snapshot은 서버 장부와 비민감 운영 설정의 이동·복구 형식이다. 모바일 로컬 후보, 사용자 계정, 인증 세션, 공유 세션, 감사 로그와 비밀번호·해시는 포함하지 않는다.
-- Offline baseline과 journal은 Snapshot과 분리된 모바일 임시 작업 상태다. reconciliation 전체 성공과 fresh server sync 전에는 자동 삭제하지 않으며 Snapshot을 mutable offline DB로 쓰지 않는다.
+- Offline baseline과 journal은 Snapshot과 분리된 모바일 임시 작업 상태다. atomic commit 확인, fresh server sync, mobile rebuild와 fresh baseline 성공 전에는 삭제하지 않는다. retained recovery artifact와 durable server idempotency history는 성공 cleanup 대상이 아니다.
 - `claim`과 `family_card`는 소비 원장이 아니라 회수 예정 큐다. 소비 통계와 유동성에 직접 넣지 않으며, 월 경계와 무관하게 처리 또는 삭제 전까지 남는다.
 - `claim`과 `family_card`는 정상 운영 중인 비핵심 기능이며 제거 자체는 확정되어 있다. 특정 날짜가 아니라 사용자가 생활비와 예외적인 큰 지출까지 가족 지원 없이 감당할 수 있는 현실적 경제적 독립 상태가 제거 조건이다.
 - 월마감은 자동 실행하지 않는다. 사용자의 명시적 실행이 결제 batch와 원장 이동의 기준이다.

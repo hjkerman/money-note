@@ -1011,6 +1011,9 @@ curl -OJ -b /tmp/money-note-cookie.txt \
 - 장부 전체 초기화
 - 청구 일괄 처리 완료
 - 가족카드 일괄 처리 완료
+- Offline Mobile Wins 또는 Server Wins 시작 전
+
+Offline reconciliation recovery point는 `pre_reconcile_server-<UTC timestamp>[-N].money-note-snapshot.json` 이름으로 같은 `data/snapshot-backups` 위치에 저장되고 기존 목록·manifest 검증·startup 보관 개수 정책에 참여한다. 성공 직후 삭제하지 않는다.
 
 따라서 실수로 큰 변경을 실행한 경우 설정 모달의 `복원 전 백업` 섹션에서 직전 상태로 되돌릴 수 있다.
 

@@ -29,7 +29,7 @@ Money Note는 1인용이지만 인터넷에 공개되는 금융 기록 서비스
 - 브라우저 변경 요청은 허용한 Origin 또는 같은 Origin만 받는다.
 - `MONEY_NOTE_CORS_ORIGINS=*`는 기동 시 거부한다.
 - 운영 HTTPS Origin을 설정하면 `MONEY_NOTE_COOKIE_SECURE=true`가 아니면 기동하지 않는다.
-- 일반 변경 API 본문은 기본 1 MiB, Snapshot restore 본문은 기본 25 MiB를 넘으면 `Content-Length` 유무와 관계없이 `413`으로 거부한다.
+- 일반 변경 API 본문은 기본 1 MiB, Snapshot restore와 Offline Mobile Wins 본문은 기본 25 MiB를 넘으면 `Content-Length` 유무와 관계없이 `413`으로 거부한다.
 - API와 공유 응답은 캐시 금지, 프레임 차단, MIME 추측 차단, referrer 차단 헤더를 사용한다.
 - 공유 HTML은 사용자 입력을 HTML escape한 뒤 출력한다.
 
@@ -58,6 +58,9 @@ Money Note는 1인용이지만 인터넷에 공개되는 금융 기록 서비스
 - 정책 명세는 검증 자료일 뿐 Snapshot에서 읽어 실행하지 않는다.
 - 실제 DB를 바꾸기 직전에 mandatory `pre_restore`를 원자적으로 생성하고 다시 검증한다.
 - restore 트랜잭션 실패 시 운영 DB 변경을 rollback한다.
+- Mobile Wins는 현재 비밀번호를 다시 확인하고, 검증된 baseline과 journal만 server-side 단일 transaction으로 적용한다.
+- `pre_reconcile_server-*`는 기존 Snapshot manifest/dry-run 검증과 `pre_restore` retention을 공유한다.
+- mobile recovery bundle은 앱 전용 저장소에 baseline, ordered journal, identity와 manifest를 보존하며 서버 Snapshot schema나 자동 restore 입력으로 사용하지 않는다.
 
 ## 운영 필수값
 

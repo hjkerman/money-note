@@ -26,9 +26,20 @@ CardDiscountProjectionPolicy _flatProjectionPolicy(String scope) {
 OfflineBaseline _baseline({
   int remainingLiquidity = 10000,
   bool includeProjectionPolicy = true,
+  bool includeAuthority = true,
 }) {
   return OfflineBaseline(
     syncedAt: DateTime.utc(2026, 9, 17, 3, 14),
+    authoritativeSnapshot: includeAuthority
+        ? const {
+            'schema_version': 2,
+            'exported_at': '2026-09-17T03:14:00Z',
+            'data': <String, dynamic>{},
+          }
+        : null,
+    serverStateFingerprint: includeAuthority
+        ? 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+        : null,
     user: AuthUser(
       id: 1,
       username: 'owner',
@@ -119,7 +130,8 @@ OfflineBaseline _baseline({
 }
 
 Future<Directory> _temporaryDirectory() async {
-  final directory = await Directory.systemTemp.createTemp('money-note-offline-');
+  final directory =
+      await Directory.systemTemp.createTemp('money-note-offline-');
   addTearDown(() async {
     if (await directory.exists()) {
       await directory.delete(recursive: true);
@@ -146,6 +158,16 @@ class _OfflineApi extends MoneyNoteApiClient {
   int healthCalls = 0;
   int stateFetchCalls = 0;
   int remainingLiquidity = 10000;
+  bool failServerRecovery = false;
+  bool serverChanged = false;
+  bool committed = false;
+  bool loseMobileWinsResponse = false;
+  bool failMobileWinsBeforeCommit = false;
+  int mobileWinsCalls = 0;
+  int reconciliationStatusCalls = 0;
+
+  static const currentFingerprint =
+      'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
 
   @override
   Future<void> health() async {
@@ -228,6 +250,77 @@ class _OfflineApi extends MoneyNoteApiClient {
     stateFetchCalls += 1;
     return _baseline().transitDiscountProfile;
   }
+
+  @override
+  Future<Map<String, dynamic>> offlineReconciliationBaseline() async => {
+        'snapshot': const {
+          'schema_version': 2,
+          'exported_at': '2026-09-17T03:14:00Z',
+          'data': <String, dynamic>{},
+        },
+        'state_fingerprint':
+            committed ? currentFingerprint : _baseline().serverStateFingerprint,
+      };
+
+  @override
+  Future<Map<String, dynamic>> createOfflineServerRecovery({
+    required String reconciliationId,
+    required String baselineFingerprint,
+  }) async {
+    if (failServerRecovery) {
+      throw MoneyNoteApiException('server recovery failed');
+    }
+    return {
+      'server_artifact_filename':
+          'pre_reconcile_server-20260917-$reconciliationId.money-note-snapshot.json',
+      'current_server_fingerprint':
+          serverChanged ? currentFingerprint : baselineFingerprint,
+      'server_changed': serverChanged,
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> reconcileOfflineMobileWins({
+    required String reconciliationId,
+    required String baselineFingerprint,
+    required Map<String, dynamic> baselineSnapshot,
+    required List<Map<String, dynamic>> operations,
+    required String mobileArtifactSha256,
+    required String expectedServerFingerprint,
+    required bool confirmServerChanged,
+    required String password,
+  }) async {
+    mobileWinsCalls += 1;
+    if (failMobileWinsBeforeCommit) {
+      throw MoneyNoteConnectionException('request failed before commit');
+    }
+    committed = true;
+    if (loseMobileWinsResponse) {
+      throw MoneyNoteConnectionException('response lost');
+    }
+    return {
+      'status': 'committed',
+      'reconciliation_id': reconciliationId,
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> offlineReconciliationStatus({
+    required String baselineFingerprint,
+    String? reconciliationId,
+  }) async {
+    reconciliationStatusCalls += 1;
+    return {
+      'server_changed': serverChanged,
+      'current_server_fingerprint': currentFingerprint,
+      'reconciliation': committed
+          ? {
+              'status': 'committed',
+              'reconciliation_id': reconciliationId,
+            }
+          : null,
+    };
+  }
 }
 
 void main() {
@@ -239,8 +332,8 @@ void main() {
       final directory = await _temporaryDirectory();
       final firstStore = _store(directory);
       await firstStore.replaceBaseline(_baseline(remainingLiquidity: 10000));
-      expect((await firstStore.loadBaseline())!.summary.remainingLiquidity,
-          10000);
+      expect(
+          (await firstStore.loadBaseline())!.summary.remainingLiquidity, 10000);
 
       await firstStore.replaceBaseline(_baseline(remainingLiquidity: 9000));
       final restartedStore = _store(directory);
@@ -292,8 +385,8 @@ void main() {
       expect(restored.map((operation) => operation.sequence), [1, 2]);
       expect(restored.map((operation) => operation.operationId).toSet(),
           hasLength(2));
-      expect(restored.every((operation) => operation.status == 'pending'),
-          isTrue);
+      expect(
+          restored.every((operation) => operation.status == 'pending'), isTrue);
       await expectLater(
         store.appendOperation(
           type: OfflineOperationType.createCashFlow,
@@ -302,8 +395,7 @@ void main() {
         throwsArgumentError,
       );
 
-      final journal = File(
-          '${directory.path}/offline-mode/journal.ndjson');
+      final journal = File('${directory.path}/offline-mode/journal.ndjson');
       await journal.writeAsString(
         'interrupted-json-row',
         mode: FileMode.append,
@@ -344,20 +436,23 @@ void main() {
       expect(state.offlineEntryMessage, contains('한 번 동기화'));
     });
 
-    test('offline card use without override keeps baseline discount intent', () async {
+    test('offline card use without override keeps baseline discount intent',
+        () async {
       final directory = await _temporaryDirectory();
       final store = _store(directory);
       await store.replaceBaseline(_baseline());
       final state = AppState(_OfflineApi(), offlineStore: store);
       expect(await state.enterOfflineMode(), isTrue);
 
-      expect(await state.createExpense(
-        usagePlace: '기본 할인 가게',
-        usageItem: '식사',
-        amount: 5000,
-        discountEnabled: true,
-        entryDate: '2026-09-17',
-      ), isTrue);
+      expect(
+          await state.createExpense(
+            usagePlace: '기본 할인 가게',
+            usageItem: '식사',
+            amount: 5000,
+            discountEnabled: true,
+            entryDate: '2026-09-17',
+          ),
+          isTrue);
 
       final payload = state.offlineJournal.single.payload;
       expect(payload['discount_enabled'], isTrue);
@@ -380,13 +475,15 @@ void main() {
       final state = AppState(_OfflineApi(), offlineStore: store);
       expect(await state.enterOfflineMode(), isTrue);
 
-      expect(await state.createExpense(
-        usagePlace: '정책 미확인 가게',
-        usageItem: '',
-        amount: 5000,
-        discountEnabled: true,
-        entryDate: '2026-09-17',
-      ), isTrue);
+      expect(
+          await state.createExpense(
+            usagePlace: '정책 미확인 가게',
+            usageItem: '',
+            amount: 5000,
+            discountEnabled: true,
+            entryDate: '2026-09-17',
+          ),
+          isTrue);
 
       expect(state.summary!.currentDiscountTotal, 0);
       expect(state.summary!.remainingLiquidity, 5000);
@@ -394,20 +491,23 @@ void main() {
       expect(state.usesConservativeCardEstimate, isTrue);
     });
 
-    test('offline card use with discount exclusion uses gross amount', () async {
+    test('offline card use with discount exclusion uses gross amount',
+        () async {
       final directory = await _temporaryDirectory();
       final store = _store(directory);
       await store.replaceBaseline(_baseline());
       final state = AppState(_OfflineApi(), offlineStore: store);
       expect(await state.enterOfflineMode(), isTrue);
 
-      expect(await state.createExpense(
-        usagePlace: '할인 제외 가게',
-        usageItem: '',
-        amount: 5000,
-        discountEnabled: false,
-        entryDate: '2026-09-17',
-      ), isTrue);
+      expect(
+          await state.createExpense(
+            usagePlace: '할인 제외 가게',
+            usageItem: '',
+            amount: 5000,
+            discountEnabled: false,
+            entryDate: '2026-09-17',
+          ),
+          isTrue);
 
       expect(state.offlineJournal.single.payload['discount_enabled'], isFalse);
       expect(state.summary!.remainingLiquidity, 5000);
@@ -423,14 +523,16 @@ void main() {
       final state = AppState(_OfflineApi(), offlineStore: store);
       expect(await state.enterOfflineMode(), isTrue);
 
-      expect(await state.createExpense(
-        usagePlace: '직접 입력 가게',
-        usageItem: '결제',
-        amount: 5000,
-        discountEnabled: true,
-        netAmountOverride: 4700,
-        entryDate: '2026-09-17',
-      ), isTrue);
+      expect(
+          await state.createExpense(
+            usagePlace: '직접 입력 가게',
+            usageItem: '결제',
+            amount: 5000,
+            discountEnabled: true,
+            netAmountOverride: 4700,
+            entryDate: '2026-09-17',
+          ),
+          isTrue);
 
       final payload = state.offlineJournal.single.payload;
       expect(payload['amount_value'], 5000);
@@ -451,32 +553,35 @@ void main() {
 
     test('cash-flow estimate includes device-local today and excludes future',
         () {
-      final projection = OfflineProjection.from(_baseline(), [
-        OfflineJournalOperation(
-          operationId: 'today',
-          type: OfflineOperationType.createCashFlow,
-          payload: const {
-            'occurred_on': '2026-09-17',
-            'title': '오늘 입금',
-            'amount_value': 500,
-            'is_primary_income': 0,
-          },
-          createdAt: DateTime.utc(2026, 9, 17),
-          sequence: 1,
-        ),
-        OfflineJournalOperation(
-          operationId: 'future',
-          type: OfflineOperationType.createCashFlow,
-          payload: const {
-            'occurred_on': '2026-09-18',
-            'title': '미래 입금',
-            'amount_value': 700,
-            'is_primary_income': 0,
-          },
-          createdAt: DateTime.utc(2026, 9, 17),
-          sequence: 2,
-        ),
-      ], projectedAt: DateTime(2026, 9, 17, 12));
+      final projection = OfflineProjection.from(
+          _baseline(),
+          [
+            OfflineJournalOperation(
+              operationId: 'today',
+              type: OfflineOperationType.createCashFlow,
+              payload: const {
+                'occurred_on': '2026-09-17',
+                'title': '오늘 입금',
+                'amount_value': 500,
+                'is_primary_income': 0,
+              },
+              createdAt: DateTime.utc(2026, 9, 17),
+              sequence: 1,
+            ),
+            OfflineJournalOperation(
+              operationId: 'future',
+              type: OfflineOperationType.createCashFlow,
+              payload: const {
+                'occurred_on': '2026-09-18',
+                'title': '미래 입금',
+                'amount_value': 700,
+                'is_primary_income': 0,
+              },
+              createdAt: DateTime.utc(2026, 9, 17),
+              sequence: 2,
+            ),
+          ],
+          projectedAt: DateTime(2026, 9, 17, 12));
 
       expect(projection.summary.cashFlowBalance, 5500);
       expect(projection.summary.remainingLiquidity, 10500);
@@ -552,8 +657,8 @@ void main() {
       expect(state.usesConservativeCardEstimate, isTrue);
       expect(state.expenseEntries.where((entry) => entry.isOfflinePending),
           hasLength(2));
-      expect(state.cashFlows.where((flow) => flow.isOfflinePending),
-          hasLength(3));
+      expect(
+          state.cashFlows.where((flow) => flow.isOfflinePending), hasLength(3));
       expect(
         state.offlineJournal.every((operation) =>
             !operation.payload.containsKey('remaining_liquidity') &&
@@ -568,7 +673,8 @@ void main() {
       expect((await _store(directory).loadJournal()), hasLength(5));
     });
 
-    test('offline refresh and restart use health only, then require reconciliation',
+    test(
+        'offline refresh and restart use health only, then require reconciliation',
         () async {
       final directory = await _temporaryDirectory();
       final store = _store(directory);
@@ -587,7 +693,8 @@ void main() {
       );
 
       final unavailableApi = _OfflineApi();
-      final restarted = AppState(unavailableApi, offlineStore: _store(directory));
+      final restarted =
+          AppState(unavailableApi, offlineStore: _store(directory));
       expect(await restarted.restorePersistedOfflineWorkspace(), isTrue);
       expect(restarted.isOffline, isTrue);
       expect(restarted.offlineJournal, hasLength(1));
@@ -606,8 +713,7 @@ void main() {
       expect(unavailableApi.stateFetchCalls, 0);
 
       final recoveredApi = _OfflineApi()..available = true;
-      final recovered =
-          AppState(recoveredApi, offlineStore: _store(directory));
+      final recovered = AppState(recoveredApi, offlineStore: _store(directory));
       expect(await recovered.restorePersistedOfflineWorkspace(), isTrue);
       expect(recovered.isReconciliationRequired, isTrue);
       expect(recoveredApi.healthCalls, 1);
@@ -656,17 +762,26 @@ void main() {
       expect(state.isReconciliationRequired, isTrue);
       expect(await store.loadBaseline(), isNotNull);
       expect(await store.loadJournal(), hasLength(1));
+
+      final restarted = AppState(api, offlineStore: _store(directory));
+      expect(await restarted.restorePersistedOfflineWorkspace(), isTrue);
+      expect(
+          restarted.reconciliationChoice, ReconciliationChoice.applyToServer);
+      expect(restarted.reconciliationRecoveryReady, isTrue);
+      expect(api.mobileWinsCalls, 0);
+      expect(api.stateFetchCalls, 0);
+      expect(await store.loadJournal(), hasLength(1));
     });
   });
 
   group('online refresh baseline and connection classification', () {
-    test('successful refresh replaces baseline; incomplete refresh preserves it',
+    test(
+        'successful refresh replaces baseline; incomplete refresh preserves it',
         () async {
       final directory = await _temporaryDirectory();
       final api = _OfflineApi()..available = true;
       final store = _store(directory);
-      final state = AppState(api, offlineStore: store)
-        ..user = _baseline().user;
+      final state = AppState(api, offlineStore: store)..user = _baseline().user;
 
       await state.refresh();
       expect((await store.loadBaseline())!.summary.remainingLiquidity, 10000);
@@ -723,7 +838,8 @@ void main() {
       (tester) async {
     final directory = (await tester.runAsync(_temporaryDirectory))!;
     final state = AppState(
-      _OfflineApi(), offlineStore: _store(directory),
+      _OfflineApi(),
+      offlineStore: _store(directory),
     )
       ..isBootstrapping = false
       ..serverFailurePromptPending = true;
@@ -760,7 +876,8 @@ void main() {
     );
   });
 
-  testWidgets('offline shell keeps banner and estimated financial labels visible',
+  testWidgets(
+      'offline shell keeps banner and estimated financial labels visible',
       (tester) async {
     final directory = (await tester.runAsync(_temporaryDirectory))!;
     final store = _store(directory);
@@ -780,22 +897,24 @@ void main() {
     expect(find.text('잔여 유동성(예상)').hitTestable(), findsOneWidget);
   });
 
-  testWidgets('reconciliation boundary is read-only and requires an explicit choice',
+  testWidgets(
+      'reconciliation boundary is read-only and requires an explicit choice',
       (tester) async {
     final directory = (await tester.runAsync(_temporaryDirectory))!;
     final store = _store(directory);
     await tester.runAsync(() => store.replaceBaseline(_baseline()));
-    await tester.runAsync(() => store.saveMetadata(const OfflineWorkspaceMetadata(
-      mode: ConnectivityMode.reconciliationRequired,
-    )));
+    await tester
+        .runAsync(() => store.saveMetadata(const OfflineWorkspaceMetadata(
+              mode: ConnectivityMode.reconciliationRequired,
+            )));
     await tester.runAsync(() => store.appendOperation(
-      type: OfflineOperationType.createCardExpense,
-      payload: const {
-        'entry_date': '2026-09-01',
-        'usage_place': '가게',
-        'amount_value': 100,
-      },
-    ));
+          type: OfflineOperationType.createCardExpense,
+          payload: const {
+            'entry_date': '2026-09-01',
+            'usage_place': '가게',
+            'amount_value': 100,
+          },
+        ));
     final state = AppState(
       _OfflineApi()..available = true,
       offlineStore: store,
@@ -812,15 +931,632 @@ void main() {
     expect(find.text('오프라인 변경사항을 폐기하고 서버 데이터 사용'), findsOneWidget);
 
     await tester.runAsync(() => state.selectReconciliationChoice(
-      ReconciliationChoice.applyToServer,
-    ));
+          ReconciliationChoice.applyToServer,
+        ));
     await tester.pump();
     expect(state.reconciliationChoice, ReconciliationChoice.applyToServer);
     expect(state.isReconciliationRequired, isTrue);
     expect(await tester.runAsync(store.loadJournal), hasLength(1));
+    expect(find.textContaining('양쪽 recovery point가 검증되었습니다'), findsOneWidget);
+    expect(find.text('Mobile Wins 최종 실행'), findsOneWidget);
+  });
+  testWidgets('server change shows an additional destructive confirmation',
+      (tester) async {
+    final directory = (await tester.runAsync(_temporaryDirectory))!;
+    final store = _store(directory);
+    await tester.runAsync(() => store.replaceBaseline(_baseline()));
+    await tester.runAsync(() => store.saveMetadata(
+          const OfflineWorkspaceMetadata(
+            mode: ConnectivityMode.reconciliationRequired,
+          ),
+        ));
+    await tester.runAsync(() => store.appendOperation(
+          type: OfflineOperationType.createCardExpense,
+          payload: const {
+            'entry_date': '2026-09-01',
+            'usage_place': '가게',
+            'amount_value': 100,
+          },
+        ));
+    final state = AppState(
+      _OfflineApi()
+        ..available = true
+        ..serverChanged = true,
+      offlineStore: store,
+    );
+    await tester.runAsync(state.restorePersistedOfflineWorkspace);
+    state.isBootstrapping = false;
+    addTearDown(state.dispose);
+    await tester.pumpWidget(MoneyNoteApp(
+      stateOverride: state,
+      bootstrapOnStart: false,
+    ));
+
+    await tester.runAsync(() => state.selectReconciliationChoice(
+          ReconciliationChoice.applyToServer,
+        ));
+    await tester.pump();
     expect(
-      find.text('Phase 1에서는 선택과 안전 경계만 저장합니다. 실제 replay 또는 폐기는 Phase 2에서 수행합니다.'),
+      find.text('오프라인 모드 시작 이후 서버 데이터도 변경되었습니다.'),
       findsOneWidget,
     );
+
+    await tester.tap(find.text('Mobile Wins 최종 실행'));
+    await tester.pumpAndSettle();
+    expect(find.text('Mobile Wins를 실행할까요?'), findsOneWidget);
+    expect(find.textContaining('오프라인 진입 직전 기준 B를 복원'), findsOneWidget);
+
+    await tester.tap(find.text('Mobile Wins 계속'));
+    await tester.pumpAndSettle();
+    expect(find.text('서버 변경도 덮어쓸까요?'), findsOneWidget);
+    expect(find.textContaining('Apply(B, J)'), findsOneWidget);
+  });
+
+  group('Phase 2 reconciliation recovery', () {
+    test('same timestamp recovery retries never overwrite an artifact',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(
+        directory,
+        clock: () => DateTime.utc(2026, 9, 18, 1, 2, 3),
+      );
+      final baseline = _baseline();
+      await store.replaceBaseline(baseline);
+      await store.appendOperation(
+        type: OfflineOperationType.createCashFlow,
+        payload: const {
+          'occurred_on': '2026-09-01',
+          'title': '입금',
+          'amount_value': 500,
+          'is_primary_income': 0,
+        },
+      );
+      const metadata = OfflineWorkspaceMetadata(
+        mode: ConnectivityMode.reconciliationRequired,
+        reconciliationChoice: ReconciliationChoice.applyToServer,
+        reconciliationId: 'reconcile-immutable-0001',
+        phase: ReconciliationPhase.preparing,
+      );
+      final operations = await store.loadJournal();
+
+      final first = await store.createMobileRecoveryArtifact(
+        baseline: baseline,
+        operations: operations,
+        metadata: metadata,
+      );
+      final second = await store.createMobileRecoveryArtifact(
+        baseline: baseline,
+        operations: operations,
+        metadata: metadata,
+      );
+
+      expect(second.filename, isNot(first.filename));
+      expect(await store.listMobileRecoveryArtifacts(), hasLength(2));
+      expect(
+        await store.verifyMobileRecoveryArtifact(first.filename),
+        first.sha256,
+      );
+      expect(
+        await store.verifyMobileRecoveryArtifact(second.filename),
+        second.sha256,
+      );
+    });
+
+    test('server recovery failure prevents destructive reconciliation',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      await store.replaceBaseline(_baseline());
+      await store.saveMetadata(const OfflineWorkspaceMetadata(
+        mode: ConnectivityMode.reconciliationRequired,
+      ));
+      await store.appendOperation(
+        type: OfflineOperationType.createCashFlow,
+        payload: const {
+          'occurred_on': '2026-09-01',
+          'title': '입금',
+          'amount_value': 500,
+          'is_primary_income': 0,
+        },
+      );
+      final api = _OfflineApi()
+        ..available = true
+        ..failServerRecovery = true;
+      final state = AppState(api, offlineStore: store);
+      await state.restorePersistedOfflineWorkspace();
+
+      await state.selectReconciliationChoice(
+        ReconciliationChoice.applyToServer,
+      );
+
+      expect(await state.reconcileMobileWins(password: 'password'), isFalse);
+      expect(api.mobileWinsCalls, 0);
+      expect(await store.loadJournal(), hasLength(1));
+      expect(await store.listMobileRecoveryArtifacts(), isEmpty);
+      expect(state.isReconciliationRequired, isTrue);
+    });
+
+    test('mobile recovery failure prevents destructive reconciliation',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = OfflineStore(
+        directoryProvider: () async => directory,
+        beforeMobileRecoveryWrite: () async {
+          throw const OfflinePersistenceException('injected write failure');
+        },
+      );
+      await store.replaceBaseline(_baseline());
+      await store.saveMetadata(const OfflineWorkspaceMetadata(
+        mode: ConnectivityMode.reconciliationRequired,
+      ));
+      await store.appendOperation(
+        type: OfflineOperationType.createCashFlow,
+        payload: const {
+          'occurred_on': '2026-09-01',
+          'title': '입금',
+          'amount_value': 500,
+          'is_primary_income': 0,
+        },
+      );
+      final api = _OfflineApi()..available = true;
+      final state = AppState(api, offlineStore: store);
+      await state.restorePersistedOfflineWorkspace();
+
+      await state.selectReconciliationChoice(
+        ReconciliationChoice.applyToServer,
+      );
+
+      expect(await state.reconcileMobileWins(password: 'password'), isFalse);
+      expect(api.mobileWinsCalls, 0);
+      expect(await store.loadJournal(), hasLength(1));
+      expect(await store.listMobileRecoveryArtifacts(), isEmpty);
+      expect(state.isReconciliationRequired, isTrue);
+    });
+
+    test('legacy baseline blocks Mobile Wins but preserves safe Server Wins',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      await store.replaceBaseline(_baseline(includeAuthority: false));
+      await store.saveMetadata(const OfflineWorkspaceMetadata(
+        mode: ConnectivityMode.reconciliationRequired,
+      ));
+      await store.appendOperation(
+        type: OfflineOperationType.createCashFlow,
+        payload: const {
+          'occurred_on': '2026-09-01',
+          'title': '입금',
+          'amount_value': 500,
+          'is_primary_income': 0,
+        },
+      );
+      final api = _OfflineApi()..available = true;
+      final state = AppState(api, offlineStore: store);
+      await state.restorePersistedOfflineWorkspace();
+
+      await state.selectReconciliationChoice(
+        ReconciliationChoice.applyToServer,
+      );
+      expect(state.statusMessage, contains('Mobile Wins를 안전하게 실행할 수 없습니다'));
+      expect(api.mobileWinsCalls, 0);
+      expect(await store.listMobileRecoveryArtifacts(), isEmpty);
+
+      await state.selectReconciliationChoice(
+        ReconciliationChoice.discardAndUseServer,
+      );
+      final ready = await store.loadMetadata();
+      expect(ready.phase, ReconciliationPhase.ready);
+      expect(ready.serverChanged, isTrue);
+      expect(ready.hasVerifiedRecoveryPoints, isTrue);
+      expect(await store.loadJournal(), hasLength(1));
+
+      expect(await state.reconcileServerWins(), isTrue);
+      expect(state.isOnline, isTrue);
+      expect(await store.loadJournal(), isEmpty);
+      expect(await store.listMobileRecoveryArtifacts(), hasLength(1));
+    });
+
+    test('persisted recovery preparation resumes after restart', () async {
+      final directory = await _temporaryDirectory();
+      final failingStore = OfflineStore(
+        directoryProvider: () async => directory,
+        beforeMobileRecoveryWrite: () async {
+          throw const OfflinePersistenceException('injected write failure');
+        },
+      );
+      await failingStore.replaceBaseline(_baseline());
+      await failingStore.saveMetadata(const OfflineWorkspaceMetadata(
+        mode: ConnectivityMode.reconciliationRequired,
+      ));
+      await failingStore.appendOperation(
+        type: OfflineOperationType.createCashFlow,
+        payload: const {
+          'occurred_on': '2026-09-01',
+          'title': '입금',
+          'amount_value': 500,
+          'is_primary_income': 0,
+        },
+      );
+      final api = _OfflineApi()..available = true;
+      final state = AppState(api, offlineStore: failingStore);
+      await state.restorePersistedOfflineWorkspace();
+      await state.selectReconciliationChoice(
+        ReconciliationChoice.applyToServer,
+      );
+      final reconciliationId =
+          (await failingStore.loadMetadata()).reconciliationId;
+
+      final restartedStore = _store(directory);
+      final restarted = AppState(api, offlineStore: restartedStore);
+      await restarted.restorePersistedOfflineWorkspace();
+      final resumed = await restartedStore.loadMetadata();
+
+      expect(resumed.reconciliationId, reconciliationId);
+      expect(resumed.phase, ReconciliationPhase.ready);
+      expect(resumed.hasVerifiedRecoveryPoints, isTrue);
+      expect(await restartedStore.loadJournal(), hasLength(1));
+      expect(
+        await restartedStore.listMobileRecoveryArtifacts(),
+        hasLength(1),
+      );
+      expect(restarted.isReconciliationRequired, isTrue);
+    });
+
+    test('mobile recovery bundle is immutable and detects corruption',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      await store.replaceBaseline(_baseline());
+      await store.saveMetadata(const OfflineWorkspaceMetadata(
+        mode: ConnectivityMode.reconciliationRequired,
+      ));
+      await store.appendOperation(
+        type: OfflineOperationType.createCashFlow,
+        payload: const {
+          'occurred_on': '2026-09-01',
+          'title': '입금',
+          'amount_value': 500,
+          'is_primary_income': 0,
+        },
+      );
+      final state = AppState(
+        _OfflineApi()..available = true,
+        offlineStore: store,
+      );
+      await state.restorePersistedOfflineWorkspace();
+      await state.selectReconciliationChoice(
+        ReconciliationChoice.applyToServer,
+      );
+      final metadata = await store.loadMetadata();
+      final artifacts = await store.listMobileRecoveryArtifacts();
+      final baseline = await store.loadBaseline();
+      final operations = await store.loadJournal();
+
+      expect(metadata.mobileArtifactFilename, isNotNull);
+      expect(artifacts, hasLength(1));
+      expect(
+        await store.verifyMobileRecoveryArtifact(
+          metadata.mobileArtifactFilename!,
+          expectedReconciliationId: metadata.reconciliationId,
+          expectedBaseline: baseline,
+          expectedOperations: operations,
+        ),
+        metadata.mobileArtifactSha256,
+      );
+      await expectLater(
+        store.verifyMobileRecoveryArtifact(
+          metadata.mobileArtifactFilename!,
+          expectedReconciliationId: 'reconcile-different-lineage',
+          expectedBaseline: baseline,
+          expectedOperations: operations,
+        ),
+        throwsA(isA<OfflinePersistenceException>()),
+      );
+      await expectLater(
+        store.verifyMobileRecoveryArtifact(
+          metadata.mobileArtifactFilename!,
+          expectedReconciliationId: metadata.reconciliationId,
+          expectedBaseline: _baseline(remainingLiquidity: 99999),
+          expectedOperations: operations,
+        ),
+        throwsA(isA<OfflinePersistenceException>()),
+      );
+
+      await artifacts.single.writeAsString(
+        'corrupt',
+        mode: FileMode.append,
+        flush: true,
+      );
+      await expectLater(
+        store.verifyMobileRecoveryArtifact(metadata.mobileArtifactFilename!),
+        throwsA(isA<OfflinePersistenceException>()),
+      );
+      expect(await store.loadJournal(), hasLength(1));
+    });
+
+    test('commit response loss resumes by status without duplicate replay',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      await store.replaceBaseline(_baseline());
+      await store.saveMetadata(const OfflineWorkspaceMetadata(
+        mode: ConnectivityMode.reconciliationRequired,
+      ));
+      await store.appendOperation(
+        type: OfflineOperationType.createCardExpense,
+        payload: const {
+          'entry_date': '2026-09-01',
+          'usage_place': '가게',
+          'amount_value': 100,
+        },
+      );
+      final api = _OfflineApi()
+        ..available = true
+        ..loseMobileWinsResponse = true;
+      final state = AppState(api, offlineStore: store);
+      await state.restorePersistedOfflineWorkspace();
+      await state.selectReconciliationChoice(
+        ReconciliationChoice.applyToServer,
+      );
+
+      expect(
+        await state.reconcileMobileWins(password: 'password'),
+        isFalse,
+      );
+      expect(state.isReconciliationFinalizing, isTrue);
+      expect(state.mobileCommitIsUnknown, isTrue);
+      expect(api.mobileWinsCalls, 1);
+      expect(await store.loadJournal(), hasLength(1));
+
+      final restarted = AppState(api, offlineStore: _store(directory));
+      expect(await restarted.restorePersistedOfflineWorkspace(), isTrue);
+
+      expect(restarted.isOnline, isTrue);
+      expect(api.reconciliationStatusCalls, 1);
+      expect(api.mobileWinsCalls, 1);
+      expect(await store.loadJournal(), isEmpty);
+      expect(await store.listMobileRecoveryArtifacts(), hasLength(1));
+      expect((await store.loadBaseline())!.serverStateFingerprint,
+          _OfflineApi.currentFingerprint);
+    });
+    test('cleanup-boundary crash never replays a committed journal', () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      await store.replaceBaseline(_baseline());
+      await store.saveMetadata(const OfflineWorkspaceMetadata(
+        mode: ConnectivityMode.reconciliationRequired,
+      ));
+      await store.appendOperation(
+        type: OfflineOperationType.createCardExpense,
+        payload: const {
+          'entry_date': '2026-09-01',
+          'usage_place': '가게',
+          'amount_value': 100,
+        },
+      );
+      final api = _OfflineApi()
+        ..available = true
+        ..loseMobileWinsResponse = true;
+      final state = AppState(api, offlineStore: store);
+      await state.restorePersistedOfflineWorkspace();
+      await state.selectReconciliationChoice(
+        ReconciliationChoice.applyToServer,
+      );
+      expect(
+        await state.reconcileMobileWins(password: 'password'),
+        isFalse,
+      );
+      final pending = await store.loadMetadata();
+      await store.saveMetadata(OfflineWorkspaceMetadata(
+        mode: ConnectivityMode.reconciliationFinalizing,
+        reconciliationChoice: ReconciliationChoice.applyToServer,
+        reconciliationId: pending.reconciliationId,
+        phase: ReconciliationPhase.mobileCommitted,
+        serverCommitStatus: ServerCommitStatus.committed,
+        serverChanged: pending.serverChanged,
+        currentServerFingerprint: pending.currentServerFingerprint,
+        serverArtifactFilename: pending.serverArtifactFilename,
+        mobileArtifactFilename: pending.mobileArtifactFilename,
+        mobileArtifactSha256: pending.mobileArtifactSha256,
+        confirmServerChanged: pending.confirmServerChanged,
+      ));
+      await store.deleteJournal();
+
+      final restarted = AppState(api, offlineStore: _store(directory));
+      await restarted.restorePersistedOfflineWorkspace();
+
+      expect(restarted.isOnline, isTrue);
+      expect(api.mobileWinsCalls, 1);
+      expect(api.reconciliationStatusCalls, 0);
+      expect(await store.loadJournal(), isEmpty);
+      expect(await store.listMobileRecoveryArtifacts(), hasLength(1));
+    });
+
+    test('uncommitted request restarts with the same persisted choice and id',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      await store.replaceBaseline(_baseline());
+      await store.saveMetadata(const OfflineWorkspaceMetadata(
+        mode: ConnectivityMode.reconciliationRequired,
+      ));
+      await store.appendOperation(
+        type: OfflineOperationType.createCashFlow,
+        payload: const {
+          'occurred_on': '2026-09-01',
+          'title': '입금',
+          'amount_value': 500,
+          'is_primary_income': 0,
+        },
+      );
+      final api = _OfflineApi()
+        ..available = true
+        ..failMobileWinsBeforeCommit = true;
+      final state = AppState(api, offlineStore: store);
+      await state.restorePersistedOfflineWorkspace();
+      await state.selectReconciliationChoice(
+        ReconciliationChoice.applyToServer,
+      );
+      final reconciliationId = (await store.loadMetadata()).reconciliationId;
+
+      expect(
+        await state.reconcileMobileWins(password: 'password'),
+        isFalse,
+      );
+      expect(api.committed, isFalse);
+
+      final restarted = AppState(api, offlineStore: _store(directory));
+      await restarted.restorePersistedOfflineWorkspace();
+      expect(restarted.isReconciliationFinalizing, isTrue);
+      expect(
+          restarted.reconciliationChoice, ReconciliationChoice.applyToServer);
+      expect((await store.loadMetadata()).reconciliationId, reconciliationId);
+      expect(await store.loadJournal(), hasLength(1));
+
+      api.failMobileWinsBeforeCommit = false;
+      expect(
+        await restarted.resumeReconciliationFinalization(
+          password: 'password',
+        ),
+        isTrue,
+      );
+      expect(api.mobileWinsCalls, 2);
+      expect(restarted.isOnline, isTrue);
+      expect(await store.loadJournal(), isEmpty);
+    });
+
+    test('post-commit sync failure preserves journal until restart finalizes',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      await store.replaceBaseline(_baseline());
+      await store.saveMetadata(const OfflineWorkspaceMetadata(
+        mode: ConnectivityMode.reconciliationRequired,
+      ));
+      await store.appendOperation(
+        type: OfflineOperationType.createCardExpense,
+        payload: const {
+          'entry_date': '2026-09-01',
+          'usage_place': '가게',
+          'amount_value': 100,
+        },
+      );
+      final api = _OfflineApi()..available = true;
+      final state = AppState(api, offlineStore: store);
+      await state.restorePersistedOfflineWorkspace();
+      await state.selectReconciliationChoice(
+        ReconciliationChoice.applyToServer,
+      );
+      api.failJudgment = true;
+
+      expect(
+        await state.reconcileMobileWins(password: 'password'),
+        isFalse,
+      );
+      expect(state.isReconciliationFinalizing, isTrue);
+      expect(state.mobileCommitIsCommitted, isTrue);
+      expect(api.mobileWinsCalls, 1);
+      expect(await store.loadJournal(), hasLength(1));
+
+      api.failJudgment = false;
+      final restarted = AppState(api, offlineStore: _store(directory));
+      await restarted.restorePersistedOfflineWorkspace();
+
+      expect(restarted.isOnline, isTrue);
+      expect(api.mobileWinsCalls, 1);
+      expect(await store.loadJournal(), isEmpty);
+      expect(await store.listMobileRecoveryArtifacts(), hasLength(1));
+    });
+
+    test(
+        'Server Wins fetch failure preserves offline state and restart progress',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      await store.replaceBaseline(_baseline());
+      await store.saveMetadata(const OfflineWorkspaceMetadata(
+        mode: ConnectivityMode.reconciliationRequired,
+      ));
+      await store.appendOperation(
+        type: OfflineOperationType.createCashFlow,
+        payload: const {
+          'occurred_on': '2026-09-01',
+          'title': '입금',
+          'amount_value': 500,
+          'is_primary_income': 0,
+        },
+      );
+      final api = _OfflineApi()..available = true;
+      final state = AppState(api, offlineStore: store);
+      await state.restorePersistedOfflineWorkspace();
+      await state.selectReconciliationChoice(
+        ReconciliationChoice.discardAndUseServer,
+      );
+      api.failJudgment = true;
+
+      expect(await state.reconcileServerWins(), isFalse);
+      expect(state.isReconciliationFinalizing, isTrue);
+      expect(state.summary!.remainingLiquidity, 10500);
+      expect(await store.loadJournal(), hasLength(1));
+
+      final restarted = AppState(api, offlineStore: _store(directory));
+      await restarted.restorePersistedOfflineWorkspace();
+      expect(restarted.isReconciliationFinalizing, isTrue);
+      expect(await store.loadJournal(), hasLength(1));
+
+      api.failJudgment = false;
+      expect(
+        await restarted.resumeReconciliationFinalization(),
+        isTrue,
+      );
+      expect(restarted.isOnline, isTrue);
+      expect(api.mobileWinsCalls, 0);
+      expect(await store.loadJournal(), isEmpty);
+      expect(await store.listMobileRecoveryArtifacts(), hasLength(1));
+    });
+
+    test('server change requires additional Mobile Wins confirmation',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      await store.replaceBaseline(_baseline());
+      await store.saveMetadata(const OfflineWorkspaceMetadata(
+        mode: ConnectivityMode.reconciliationRequired,
+      ));
+      await store.appendOperation(
+        type: OfflineOperationType.createCardExpense,
+        payload: const {
+          'entry_date': '2026-09-01',
+          'usage_place': '가게',
+          'amount_value': 100,
+        },
+      );
+      final api = _OfflineApi()
+        ..available = true
+        ..serverChanged = true;
+      final state = AppState(api, offlineStore: store);
+      await state.restorePersistedOfflineWorkspace();
+      await state.selectReconciliationChoice(
+        ReconciliationChoice.applyToServer,
+      );
+
+      expect(state.reconciliationServerChanged, isTrue);
+      expect(
+        await state.reconcileMobileWins(password: 'password'),
+        isFalse,
+      );
+      expect(api.mobileWinsCalls, 0);
+      expect(await store.loadJournal(), hasLength(1));
+
+      expect(
+        await state.reconcileMobileWins(
+          password: 'password',
+          confirmServerChanged: true,
+        ),
+        isTrue,
+      );
+      expect(api.mobileWinsCalls, 1);
+      expect(state.isOnline, isTrue);
+    });
   });
 }

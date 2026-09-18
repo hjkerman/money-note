@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Any
 
-from app.db import session
+from app.db import borrowed_or_new_session, session
 from app.repositories.common import row_to_dict
 from app.schemas import CashFlowIn
 
@@ -44,9 +44,9 @@ def list_cash_flows(
     return [row_to_dict(row) for row in rows]
 
 
-def create_cash_flow(flow: CashFlowIn) -> dict[str, Any]:
+def create_cash_flow(flow: CashFlowIn, conn: Any | None = None) -> dict[str, Any]:
     values = flow.model_dump()
-    with session() as conn:
+    with borrowed_or_new_session(conn) as conn:
         cursor = conn.execute(
             """
             INSERT INTO cash_flows(occurred_on, title, amount_value, sort_order, is_primary_income)

@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from typing import Any
 
-from app.db import session
+from app.db import borrowed_or_new_session, session
 from app.repositories.common import ensure_payment_key_available, new_payment_key, row_to_dict
 from app.schemas import LedgerEntryIn, LedgerEntryPatch, PlannedEntryIn
 from app.services.clock import app_today
@@ -155,10 +155,11 @@ def confirm_planned_entry(
     today: date | None = None,
     entry_date: str | None = None,
     actual_amount: int | None = None,
+    conn: Any | None = None,
 ) -> dict[str, Any] | None:
     today = today or app_today()
     confirmed_month = today.strftime("%Y-%m")
-    with session(transaction_mode="IMMEDIATE") as conn:
+    with borrowed_or_new_session(conn, transaction_mode="IMMEDIATE") as conn:
         planned = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (entry_id,)).fetchone()
         if planned is None:
             return None
@@ -232,14 +233,14 @@ def planned_entry_payment_date(due_day: int | None, today: date | None = None) -
     return date(today.year, today.month, min(day, 28 if today.month == 2 else 30 if today.month in {4, 6, 9, 11} else 31))
 
 
-def create_entry(entry: LedgerEntryIn) -> dict[str, Any]:
+def create_entry(entry: LedgerEntryIn, conn: Any | None = None) -> dict[str, Any]:
     values = entry.model_dump()
     if values.get("entry_date") is not None:
         values["entry_date"] = values["entry_date"].isoformat()
     _validate_structured_entry(values)
     placeholders = ", ".join("?" for _ in ENTRY_COLUMNS)
     columns = ", ".join(ENTRY_COLUMNS)
-    with session(transaction_mode="IMMEDIATE") as conn:
+    with borrowed_or_new_session(conn, transaction_mode="IMMEDIATE") as conn:
         late_batch_id = None
         registration_key = entry.candidate_registration_key
         fingerprint = registration_fingerprint("ledger", values) if registration_key else None

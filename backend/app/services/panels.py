@@ -1,7 +1,7 @@
 from datetime import date, datetime, timezone
 from typing import Any
 
-from app.db import session
+from app.db import borrowed_or_new_session, session
 from app.repositories.common import row_to_dict
 from app.repositories.panels import delete_panels_by_type
 from app.services.clock import app_today
@@ -19,6 +19,9 @@ def confirm_fixed_panel(
     panel_id: int,
     occurred_on: str,
     actual_amount: int | None = None,
+    *,
+    conn: Any | None = None,
+    today: date | None = None,
 ) -> dict[str, dict[str, Any]] | None:
     """현금성 고정지출을 미지급 의무에서 실제 현금 유출로 원자적으로 전환한다."""
     try:
@@ -26,12 +29,12 @@ def confirm_fixed_panel(
     except ValueError:
         raise ValueError("처리일은 YYYY-MM-DD 형식이어야 합니다.") from None
 
-    today = app_today()
+    today = today or app_today()
     if confirmed_date > today:
         raise ValueError("미래 날짜로 현금성 고정지출을 확인할 수 없습니다.")
 
     confirmed_month = confirmed_date.strftime("%Y-%m")
-    with session(transaction_mode="IMMEDIATE") as conn:
+    with borrowed_or_new_session(conn, transaction_mode="IMMEDIATE") as conn:
         closed = conn.execute("SELECT value FROM app_settings WHERE key = 'last_closed_month'").fetchone()
         if closed and confirmed_month <= str(closed["value"]):
             raise ValueError("이미 마감한 달의 현금성 고정지출은 확인할 수 없습니다.")

@@ -1152,6 +1152,43 @@ GET /api/cash-flows?from=2026-07-01&to=2026-07-31&limit=100
 
 허용 key는 현재 DB의 `app_labels`에 존재하는 key다.
 
+## Offline reconciliation
+
+모든 endpoint는 본체 세션 또는 모바일 Bearer 인증을 요구한다. baseline Snapshot과 journal을 포함하는 Mobile Wins 요청은 Snapshot restore와 같은 기본 25 MiB body limit을 사용한다.
+
+### `GET /api/offline-reconciliation/baseline`
+
+정상 ONLINE refresh가 offline-ready baseline을 만들 때 같은 SQLite read transaction에서 authoritative Snapshot과 export 시각을 제외한 canonical state fingerprint를 반환한다. 모바일은 Summary나 projection을 이 Snapshot에 써 넣지 않는다.
+
+### `GET /api/offline-reconciliation/status?baseline_fingerprint=...&reconciliation_id=...`
+
+현재 server fingerprint, baseline 이후 변경 여부와 optional durable reconciliation result를 반환한다. response loss 뒤 같은 ID의 committed outcome을 판정하는 권위 있는 조회 경로다.
+
+### `GET /api/offline-reconciliation/result/{reconciliation_id}`
+
+저장된 reconciliation result를 반환하며 없는 ID는 `404`다.
+
+### `POST /api/offline-reconciliation/server-recovery`
+
+`reconciliation_id`와 `baseline_fingerprint`를 받아 현재 S의 검증된 `pre_reconcile_server-*` Snapshot을 만들고 filename, current fingerprint, `server_changed`를 반환한다. 생성 또는 재검증 실패 시 destructive reconciliation은 시작할 수 없다.
+
+### `POST /api/offline-reconciliation/mobile-wins`
+
+현재 비밀번호 재확인이 필요한 destructive endpoint다. 요청은 schema version 1, stable reconciliation ID, B fingerprint/Snapshot, ordered operation rows, mobile artifact SHA-256, 준비 때 본 expected server fingerprint와 server-change 추가 확인 여부를 포함한다.
+
+Operation type은 다음 네 가지뿐이다.
+
+- `CREATE_CARD_EXPENSE`
+- `CREATE_CASH_FLOW`
+- `CONFIRM_FIXED_EXPENSE`
+- `CONFIRM_PLANNED_CARD_EXPENSE`
+
+payload에는 online API에 전달할 authoritative input만 허용한다. `remaining_liquidity`, Summary, effective/automatic discount 같은 client-derived 값은 `400`으로 거부한다. sequence는 1부터 연속이어야 한다.
+
+서버 현재 fingerprint가 expected 값과 달라졌거나 `S != B`인데 추가 확인이 없으면 `409`와 `code=server_state_changed`, 최신 fingerprint를 반환한다. 같은 reconciliation ID의 logical digest가 다르면 `409`와 `code=reconciliation_digest_mismatch`다. 동일 ID·동일 payload가 이미 committed면 저장된 동일 result를 반환하고 J를 다시 적용하지 않는다.
+
+성공 응답은 committed status, baseline/pre-server/result fingerprint, conflict 여부, server artifact 이름, operation results, authoritative Summary와 commit 시각을 포함한다. 전체 baseline replacement, ordered replay, invariant 검증과 result/idempotency 기록은 하나의 SQLite `IMMEDIATE` transaction이다.
+
 ## 관리자 작업
 
 ### `GET /api/admin/snapshot`

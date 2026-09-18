@@ -7,7 +7,7 @@ import hashlib
 import json
 from typing import Any
 
-from app.db import session
+from app.db import borrowed_or_new_session, session
 from app.repositories.common import new_payment_key
 from app.schemas import CardPaymentEventIn, LateCardEntryIn
 from app.services.card_charge import (
@@ -427,12 +427,17 @@ def _card_payment_request_fingerprint(payload: CardPaymentEventIn) -> str:
     return hashlib.sha256(encoded).hexdigest()
 
 
-def set_entry_discount(entry_payment_key: str, amount: int, event_date: str | None = None) -> dict[str, Any]:
+def set_entry_discount(
+    entry_payment_key: str,
+    amount: int,
+    event_date: str | None = None,
+    conn: Any | None = None,
+) -> dict[str, Any]:
     """당월 사용내역의 개별 할인 예외를 저장한다."""
     if amount < 0:
         raise ValueError("할인액은 0원 이상이어야 합니다.")
     event_date = event_date or app_today().isoformat()
-    with session() as conn:
+    with borrowed_or_new_session(conn) as conn:
         row = conn.execute(
             """
             SELECT id, title, amount_value, entry_date

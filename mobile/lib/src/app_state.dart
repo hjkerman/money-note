@@ -53,6 +53,8 @@ class AppState extends ChangeNotifier {
   String offlineEntryMessage = '';
   bool usesConservativeCardEstimate = false;
   OfflineBaseline? _offlineBaseline;
+  OfflineWorkspaceMetadata _offlineMetadata =
+      const OfflineWorkspaceMetadata(mode: ConnectivityMode.online);
   bool _isForegroundRefreshRunning = false;
   int notificationImportOpenGeneration = 0;
   int notificationArchiveOpenGeneration = 0;
@@ -64,6 +66,18 @@ class AppState extends ChangeNotifier {
   bool get isOffline => connectivityMode == ConnectivityMode.offline;
   bool get isReconciliationRequired =>
       connectivityMode == ConnectivityMode.reconciliationRequired;
+  bool get isReconciliationFinalizing =>
+      connectivityMode == ConnectivityMode.reconciliationFinalizing;
+  bool get reconciliationServerChanged => _offlineMetadata.serverChanged;
+  bool get reconciliationRecoveryReady =>
+      _offlineMetadata.phase == ReconciliationPhase.ready &&
+      _offlineMetadata.hasVerifiedRecoveryPoints;
+  bool get mobileCommitIsUnknown =>
+      _offlineMetadata.serverCommitStatus == ServerCommitStatus.unknown;
+  bool get mobileCommitIsCommitted =>
+      _offlineMetadata.serverCommitStatus == ServerCommitStatus.committed;
+  bool get isServerWinsFinalizing =>
+      _offlineMetadata.phase == ReconciliationPhase.serverWinsFinalizing;
   bool get hasOfflineBaseline => _offlineBaseline != null;
   bool get canUseOnlineWrites => isOnline && !isBusy;
   bool get canCreateCardExpense => (isOnline || isOffline) && !isBusy;
@@ -72,9 +86,8 @@ class AppState extends ChangeNotifier {
   bool get financialValuesAreEstimated => !isOnline;
   int get pendingOfflineOperationCount => offlineJournal.length;
 
-  String get financialEstimateLabel => usesConservativeCardEstimate
-      ? '오프라인 보수적 예상값'
-      : '오프라인 예상값';
+  String get financialEstimateLabel =>
+      usesConservativeCardEstimate ? '오프라인 보수적 예상값' : '오프라인 예상값';
 
   bool get hasOutstandingCardPayment =>
       (cardPaymentStatus?.effectiveRemainingTotal ?? 0) > 0;
@@ -171,6 +184,7 @@ class AppState extends ChangeNotifier {
   Future<bool> restorePersistedOfflineWorkspace({bool notify = true}) async {
     try {
       final metadata = await offlineStore.loadMetadata();
+      _offlineMetadata = metadata;
       connectivityMode = metadata.mode;
       reconciliationChoice = metadata.reconciliationChoice;
       _offlineBaseline = await offlineStore.loadBaseline();
@@ -198,6 +212,12 @@ class AppState extends ChangeNotifier {
     }
     _restoreOfflineProjection(baseline);
     await checkServerRecovery(notify: false);
+    final persistedChoice = _offlineMetadata.reconciliationChoice;
+    if (isReconciliationRequired &&
+        _offlineMetadata.phase == ReconciliationPhase.preparing &&
+        persistedChoice != null) {
+      await _prepareReconciliation(persistedChoice);
+    }
     if (notify) notifyListeners();
     return true;
   }
@@ -236,6 +256,13 @@ class AppState extends ChangeNotifier {
       await checkServerRecovery(notify: notify);
       return;
     }
+    await _refreshAuthoritativeState(notify: notify);
+  }
+
+  Future<void> _refreshAuthoritativeState({
+    bool notify = true,
+    bool allowBaselineWhileFinalizing = false,
+  }) async {
     await refreshNotificationPermissions(notify: false);
     final freshMonthCloseStatus = await api.monthCloseStatus();
     final results = await Future.wait([
@@ -278,12 +305,13 @@ class AppState extends ChangeNotifier {
     monthCloseStatus = freshMonthCloseStatus;
     ownerDiscountMonth = discountResults[0] as CardDiscountMonth;
     familyDiscountMonth = discountResults[1] as CardDiscountMonth;
-    transitDiscountProfile =
-        discountResults[2] as TransitDiscountProfileStatus;
+    transitDiscountProfile = discountResults[2] as TransitDiscountProfileStatus;
     usesConservativeCardEstimate = false;
     await _configureNotificationCards();
     await refreshNotificationInboxState(notify: false);
-    await _persistCompleteBaseline();
+    await _persistCompleteBaseline(
+      allowWhileFinalizing: allowBaselineWhileFinalizing,
+    );
     if (notify) notifyListeners();
   }
 
@@ -475,8 +503,12 @@ class AppState extends ChangeNotifier {
     transitDiscountProfile = results[2] as TransitDiscountProfileStatus;
   }
 
-  Future<void> _persistCompleteBaseline() async {
-    if (!isOnline) return;
+  Future<void> _persistCompleteBaseline({
+    bool allowWhileFinalizing = false,
+  }) async {
+    if (!isOnline && !(allowWhileFinalizing && isReconciliationFinalizing)) {
+      return;
+    }
     final currentUser = user;
     final currentSummary = summary;
     final currentCardPaymentStatus = cardPaymentStatus;
@@ -495,8 +527,18 @@ class AppState extends ChangeNotifier {
         currentTransitDiscountProfile == null) {
       return;
     }
+    final authoritative = await api.offlineReconciliationBaseline();
+    final snapshot = authoritative['snapshot'];
+    final fingerprint = authoritative['state_fingerprint'];
+    if (snapshot is! Map<String, dynamic> ||
+        fingerprint is! String ||
+        !RegExp(r'^[0-9a-f]{64}$').hasMatch(fingerprint)) {
+      throw MoneyNoteApiException('오프라인 기준 Snapshot 응답이 올바르지 않습니다.');
+    }
     final baseline = OfflineBaseline(
       syncedAt: DateTime.now().toUtc(),
+      authoritativeSnapshot: Map<String, dynamic>.unmodifiable(snapshot),
+      serverStateFingerprint: fingerprint,
       user: currentUser,
       summary: currentSummary,
       cardPaymentStatus: currentCardPaymentStatus,
@@ -549,10 +591,17 @@ class AppState extends ChangeNotifier {
         notifyListeners();
         return false;
       }
+      if (!baseline.supportsAtomicReconciliation) {
+        offlineEntryMessage = '안전한 오프라인 기준 데이터를 만들려면 온라인에서 다시 동기화하세요.';
+        notifyListeners();
+        return false;
+      }
       final journal = await offlineStore.loadJournal();
-      await offlineStore.saveMetadata(const OfflineWorkspaceMetadata(
+      const metadata = OfflineWorkspaceMetadata(
         mode: ConnectivityMode.offline,
-      ));
+      );
+      await offlineStore.saveMetadata(metadata);
+      _offlineMetadata = metadata;
       _offlineBaseline = baseline;
       offlineJournal = journal;
       connectivityMode = ConnectivityMode.offline;
@@ -573,12 +622,18 @@ class AppState extends ChangeNotifier {
 
   Future<void> checkServerRecovery({bool notify = true}) async {
     if (isOnline) return;
+    if (isReconciliationFinalizing) {
+      await resumeReconciliationFinalization(notify: notify);
+      return;
+    }
     try {
       await api.health();
       if (isOffline) {
-        await offlineStore.saveMetadata(const OfflineWorkspaceMetadata(
+        const metadata = OfflineWorkspaceMetadata(
           mode: ConnectivityMode.reconciliationRequired,
-        ));
+        );
+        await offlineStore.saveMetadata(metadata);
+        _offlineMetadata = metadata;
         connectivityMode = ConnectivityMode.reconciliationRequired;
         reconciliationChoice = null;
         statusMessage = '서버 연결이 복구되어 조정이 필요합니다.';
@@ -593,22 +648,452 @@ class AppState extends ChangeNotifier {
     if (notify) notifyListeners();
   }
 
-  Future<void> selectReconciliationChoice(
-      ReconciliationChoice choice) async {
+  Future<void> selectReconciliationChoice(ReconciliationChoice choice) async {
+    if (isBusy) return;
+    isBusy = true;
+    notifyListeners();
+    try {
+      await _prepareReconciliation(choice);
+    } finally {
+      isBusy = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> _prepareReconciliation(ReconciliationChoice choice) async {
     if (!isReconciliationRequired) return;
-    await offlineStore.saveMetadata(OfflineWorkspaceMetadata(
+    final baseline = _offlineBaseline;
+    if (baseline == null) {
+      statusMessage = '보존할 오프라인 기준 데이터가 없어 조정을 시작할 수 없습니다.';
+      notifyListeners();
+      return;
+    }
+    if (choice == ReconciliationChoice.applyToServer &&
+        !baseline.supportsAtomicReconciliation) {
+      statusMessage =
+          '이 오프라인 작업은 Phase 2 이전 기준으로 시작되어 Mobile Wins를 안전하게 실행할 수 없습니다. Server Wins로 recovery bundle을 보존할 수 있습니다.';
+      notifyListeners();
+      return;
+    }
+    final fingerprint = baseline.serverStateFingerprint ??
+        offlineStore.recoveryLineageFingerprint(baseline);
+
+    final reconciliationId = _offlineMetadata.reconciliationChoice == choice
+        ? _offlineMetadata.reconciliationId ??
+            offlineStore.newReconciliationId()
+        : offlineStore.newReconciliationId();
+    final preparing = OfflineWorkspaceMetadata(
       mode: ConnectivityMode.reconciliationRequired,
       reconciliationChoice: choice,
-    ));
-    reconciliationChoice = choice;
-    statusMessage = choice == ReconciliationChoice.applyToServer
-        ? '서버 적용 선택을 저장했습니다. 실제 조정은 Phase 2에서 지원합니다.'
-        : '서버 데이터 사용 선택을 저장했습니다. 실제 조정은 Phase 2에서 지원합니다.';
+      reconciliationId: reconciliationId,
+      phase: ReconciliationPhase.preparing,
+    );
+    await _saveOfflineMetadata(preparing);
+    statusMessage = '조정 전 복구 지점을 준비하고 있습니다.';
+    notifyListeners();
+
+    try {
+      final serverRecovery = await api.createOfflineServerRecovery(
+        reconciliationId: reconciliationId,
+        baselineFingerprint: fingerprint,
+      );
+      final currentFingerprint = serverRecovery['current_server_fingerprint'];
+      final serverFilename = serverRecovery['server_artifact_filename'];
+      if (currentFingerprint is! String ||
+          !RegExp(r'^[0-9a-f]{64}$').hasMatch(currentFingerprint) ||
+          serverFilename is! String ||
+          serverFilename.isEmpty) {
+        throw MoneyNoteApiException('서버 recovery artifact 응답이 올바르지 않습니다.');
+      }
+      final withServerRecovery = OfflineWorkspaceMetadata(
+        mode: ConnectivityMode.reconciliationRequired,
+        reconciliationChoice: choice,
+        reconciliationId: reconciliationId,
+        phase: ReconciliationPhase.preparing,
+        serverChanged: serverRecovery['server_changed'] == true ||
+            !baseline.supportsAtomicReconciliation,
+        currentServerFingerprint: currentFingerprint,
+        serverArtifactFilename: serverFilename,
+      );
+      await _saveOfflineMetadata(withServerRecovery);
+
+      final mobileRecovery = await offlineStore.createMobileRecoveryArtifact(
+        baseline: baseline,
+        operations: offlineJournal,
+        metadata: withServerRecovery,
+      );
+      final ready = OfflineWorkspaceMetadata(
+        mode: ConnectivityMode.reconciliationRequired,
+        reconciliationChoice: choice,
+        reconciliationId: reconciliationId,
+        phase: ReconciliationPhase.ready,
+        serverChanged: withServerRecovery.serverChanged,
+        currentServerFingerprint: currentFingerprint,
+        serverArtifactFilename: serverFilename,
+        mobileArtifactFilename: mobileRecovery.filename,
+        mobileArtifactSha256: mobileRecovery.sha256,
+      );
+      await _saveOfflineMetadata(ready);
+      statusMessage = ready.serverChanged
+          ? '오프라인 모드 시작 이후 서버 데이터도 변경되었습니다. 최종 실행에는 추가 확인이 필요합니다.'
+          : '양쪽 recovery point가 검증되었습니다. 최종 실행 확인이 필요합니다.';
+    } catch (error) {
+      statusMessage = error is MoneyNoteApiException
+          ? error.message
+          : 'recovery point 준비에 실패했습니다: $error';
+    }
     notifyListeners();
   }
 
   Future<OfflineReconciliationBundle?> loadReconciliationBundle() {
     return offlineStore.loadReconciliationBundle();
+  }
+
+  Future<bool> reconcileMobileWins({
+    required String password,
+    bool confirmServerChanged = false,
+  }) async {
+    if (isBusy) return false;
+    isBusy = true;
+    notifyListeners();
+    try {
+      return await _reconcileMobileWins(
+        password: password,
+        confirmServerChanged: confirmServerChanged,
+      );
+    } finally {
+      isBusy = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> _reconcileMobileWins({
+    required String password,
+    bool confirmServerChanged = false,
+  }) async {
+    final metadata = _offlineMetadata;
+    if (!isReconciliationRequired ||
+        metadata.reconciliationChoice != ReconciliationChoice.applyToServer ||
+        metadata.phase != ReconciliationPhase.ready ||
+        !metadata.hasVerifiedRecoveryPoints) {
+      statusMessage = '양쪽 recovery point를 먼저 준비하고 검증해야 합니다.';
+      notifyListeners();
+      return false;
+    }
+    if (metadata.serverChanged && !confirmServerChanged) {
+      statusMessage = '서버 데이터 변경을 확인한 뒤 Mobile Wins를 다시 실행하세요.';
+      notifyListeners();
+      return false;
+    }
+    final baseline = _offlineBaseline;
+    if (baseline == null) {
+      statusMessage = '오프라인 기준 데이터가 없어 Mobile Wins를 실행할 수 없습니다.';
+      notifyListeners();
+      return false;
+    }
+    try {
+      final verified = await offlineStore.verifyMobileRecoveryArtifact(
+        metadata.mobileArtifactFilename!,
+        expectedReconciliationId: metadata.reconciliationId,
+        expectedBaseline: baseline,
+        expectedOperations: offlineJournal,
+      );
+      if (verified != metadata.mobileArtifactSha256) {
+        statusMessage = 'mobile recovery artifact 검증 결과가 일치하지 않습니다.';
+        notifyListeners();
+        return false;
+      }
+    } on OfflinePersistenceException catch (error) {
+      statusMessage = error.message;
+      notifyListeners();
+      return false;
+    }
+    final pending = OfflineWorkspaceMetadata(
+      mode: ConnectivityMode.reconciliationFinalizing,
+      reconciliationChoice: metadata.reconciliationChoice,
+      reconciliationId: metadata.reconciliationId,
+      phase: ReconciliationPhase.mobileRequestPending,
+      serverCommitStatus: ServerCommitStatus.unknown,
+      serverChanged: metadata.serverChanged,
+      currentServerFingerprint: metadata.currentServerFingerprint,
+      serverArtifactFilename: metadata.serverArtifactFilename,
+      mobileArtifactFilename: metadata.mobileArtifactFilename,
+      mobileArtifactSha256: metadata.mobileArtifactSha256,
+      confirmServerChanged: confirmServerChanged,
+    );
+    await _saveOfflineMetadata(pending);
+    statusMessage = 'Mobile Wins commit 결과를 확인하고 있습니다.';
+    notifyListeners();
+    return _submitMobileWins(password);
+  }
+
+  Future<bool> _submitMobileWins(String password) async {
+    final metadata = _offlineMetadata;
+    final baseline = _offlineBaseline;
+    final reconciliationId = metadata.reconciliationId;
+    final baselineFingerprint = baseline?.serverStateFingerprint;
+    final snapshot = baseline?.authoritativeSnapshot;
+    final currentFingerprint = metadata.currentServerFingerprint;
+    final mobileSha = metadata.mobileArtifactSha256;
+    if (baseline == null ||
+        reconciliationId == null ||
+        baselineFingerprint == null ||
+        snapshot == null ||
+        currentFingerprint == null ||
+        mobileSha == null) {
+      statusMessage = 'Mobile Wins 복구 정보가 불완전합니다.';
+      notifyListeners();
+      return false;
+    }
+
+    try {
+      final result = await api.reconcileOfflineMobileWins(
+        reconciliationId: reconciliationId,
+        baselineFingerprint: baselineFingerprint,
+        baselineSnapshot: snapshot,
+        operations:
+            offlineJournal.map((operation) => operation.toJson()).toList(),
+        mobileArtifactSha256: mobileSha,
+        expectedServerFingerprint: currentFingerprint,
+        confirmServerChanged: metadata.confirmServerChanged,
+        password: password,
+      );
+      if (result['status'] != 'committed' ||
+          result['reconciliation_id'] != reconciliationId) {
+        throw MoneyNoteApiException(
+          '서버가 committed reconciliation 결과를 반환하지 않았습니다.',
+        );
+      }
+      await _markMobileCommitConfirmed();
+      return await _finalizeCommittedMobileWins();
+    } on MoneyNoteConnectionException {
+      statusMessage =
+          '서버 응답을 받지 못했습니다. 동일 reconciliation ID로 commit 여부를 확인합니다.';
+      notifyListeners();
+      return false;
+    } on MoneyNoteApiException catch (error) {
+      final conflict = error.code == 'server_state_changed';
+      final reportedFingerprint = error.details['current_server_fingerprint'];
+      final ready = OfflineWorkspaceMetadata(
+        mode: ConnectivityMode.reconciliationRequired,
+        reconciliationChoice: ReconciliationChoice.applyToServer,
+        reconciliationId: reconciliationId,
+        phase: ReconciliationPhase.ready,
+        serverCommitStatus: ServerCommitStatus.none,
+        serverChanged: conflict || metadata.serverChanged,
+        currentServerFingerprint: reportedFingerprint is String
+            ? reportedFingerprint
+            : currentFingerprint,
+        serverArtifactFilename: metadata.serverArtifactFilename,
+        mobileArtifactFilename: metadata.mobileArtifactFilename,
+        mobileArtifactSha256: metadata.mobileArtifactSha256,
+      );
+      await _saveOfflineMetadata(ready);
+      statusMessage = conflict
+          ? '오프라인 모드 시작 이후 서버 데이터도 변경되었습니다. 추가 확인 후 다시 실행하세요.'
+          : error.message;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> reconcileServerWins() async {
+    if (isBusy) return false;
+    isBusy = true;
+    notifyListeners();
+    try {
+      return await _reconcileServerWins();
+    } finally {
+      isBusy = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> _reconcileServerWins() async {
+    final metadata = _offlineMetadata;
+    if (!isReconciliationRequired ||
+        metadata.reconciliationChoice !=
+            ReconciliationChoice.discardAndUseServer ||
+        metadata.phase != ReconciliationPhase.ready ||
+        !metadata.hasVerifiedRecoveryPoints) {
+      statusMessage = '양쪽 recovery point를 먼저 준비하고 검증해야 합니다.';
+      notifyListeners();
+      return false;
+    }
+    final baseline = _offlineBaseline;
+    if (baseline == null) {
+      statusMessage = '오프라인 기준 데이터가 없어 Server Wins를 실행할 수 없습니다.';
+      notifyListeners();
+      return false;
+    }
+    try {
+      final verified = await offlineStore.verifyMobileRecoveryArtifact(
+        metadata.mobileArtifactFilename!,
+        expectedReconciliationId: metadata.reconciliationId,
+        expectedBaseline: baseline,
+        expectedOperations: offlineJournal,
+      );
+      if (verified != metadata.mobileArtifactSha256) {
+        statusMessage = 'mobile recovery artifact 검증 결과가 일치하지 않습니다.';
+        notifyListeners();
+        return false;
+      }
+    } on OfflinePersistenceException catch (error) {
+      statusMessage = error.message;
+      notifyListeners();
+      return false;
+    }
+    final finalizing = OfflineWorkspaceMetadata(
+      mode: ConnectivityMode.reconciliationFinalizing,
+      reconciliationChoice: metadata.reconciliationChoice,
+      reconciliationId: metadata.reconciliationId,
+      phase: ReconciliationPhase.serverWinsFinalizing,
+      serverChanged: metadata.serverChanged,
+      currentServerFingerprint: metadata.currentServerFingerprint,
+      serverArtifactFilename: metadata.serverArtifactFilename,
+      mobileArtifactFilename: metadata.mobileArtifactFilename,
+      mobileArtifactSha256: metadata.mobileArtifactSha256,
+    );
+    await _saveOfflineMetadata(finalizing);
+    return _finalizeServerWins();
+  }
+
+  Future<bool> resumeReconciliationFinalization({
+    String? password,
+    bool notify = true,
+  }) async {
+    if (isBusy) return false;
+    isBusy = true;
+    if (notify) notifyListeners();
+    try {
+      return await _resumeReconciliationFinalization(
+        password: password,
+        notify: notify,
+      );
+    } finally {
+      isBusy = false;
+      if (notify) notifyListeners();
+    }
+  }
+
+  Future<bool> _resumeReconciliationFinalization({
+    String? password,
+    bool notify = true,
+  }) async {
+    if (!isReconciliationFinalizing) return false;
+    try {
+      await api.health();
+      if (_offlineMetadata.phase == ReconciliationPhase.serverWinsFinalizing) {
+        return await _finalizeServerWins(notify: notify);
+      }
+      if (_offlineMetadata.serverCommitStatus == ServerCommitStatus.committed) {
+        return await _finalizeCommittedMobileWins(notify: notify);
+      }
+
+      final baselineFingerprint = _offlineBaseline?.serverStateFingerprint;
+      final reconciliationId = _offlineMetadata.reconciliationId;
+      if (baselineFingerprint == null || reconciliationId == null) {
+        statusMessage = 'reconciliation status를 확인할 identity가 없습니다.';
+        if (notify) notifyListeners();
+        return false;
+      }
+      final status = await api.offlineReconciliationStatus(
+        baselineFingerprint: baselineFingerprint,
+        reconciliationId: reconciliationId,
+      );
+      final reconciliation = status['reconciliation'];
+      if (reconciliation is Map && reconciliation['status'] == 'committed') {
+        await _markMobileCommitConfirmed();
+        return await _finalizeCommittedMobileWins(notify: notify);
+      }
+      if (password != null && password.isNotEmpty) {
+        return await _submitMobileWins(password);
+      }
+      statusMessage =
+          '서버 commit은 아직 확인되지 않았습니다. 같은 Mobile Wins를 재시도하려면 비밀번호를 입력하세요.';
+    } on MoneyNoteConnectionException {
+      statusMessage = '서버 commit 여부 확인을 기다리는 중입니다.';
+    } catch (error) {
+      statusMessage =
+          error is MoneyNoteApiException ? error.message : error.toString();
+    }
+    if (notify) notifyListeners();
+    return false;
+  }
+
+  Future<void> _markMobileCommitConfirmed() async {
+    final metadata = _offlineMetadata;
+    await _saveOfflineMetadata(OfflineWorkspaceMetadata(
+      mode: ConnectivityMode.reconciliationFinalizing,
+      reconciliationChoice: ReconciliationChoice.applyToServer,
+      reconciliationId: metadata.reconciliationId,
+      phase: ReconciliationPhase.mobileCommitted,
+      serverCommitStatus: ServerCommitStatus.committed,
+      serverChanged: metadata.serverChanged,
+      currentServerFingerprint: metadata.currentServerFingerprint,
+      serverArtifactFilename: metadata.serverArtifactFilename,
+      mobileArtifactFilename: metadata.mobileArtifactFilename,
+      mobileArtifactSha256: metadata.mobileArtifactSha256,
+      confirmServerChanged: metadata.confirmServerChanged,
+    ));
+  }
+
+  Future<bool> _finalizeCommittedMobileWins({bool notify = true}) async {
+    try {
+      await _refreshAuthoritativeState(
+        notify: false,
+        allowBaselineWhileFinalizing: true,
+      );
+      await _completeLocalReconciliation();
+      statusMessage = 'Mobile Wins 조정과 최신 상태 동기화를 완료했습니다.';
+      if (notify) notifyListeners();
+      return true;
+    } catch (error) {
+      final baseline = _offlineBaseline;
+      if (baseline != null) _restoreOfflineProjection(baseline);
+      statusMessage = '서버 반영은 완료되었지만 최신 상태 동기화를 기다리는 중입니다.';
+      if (notify) notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> _finalizeServerWins({bool notify = true}) async {
+    try {
+      await _refreshAuthoritativeState(
+        notify: false,
+        allowBaselineWhileFinalizing: true,
+      );
+      await _completeLocalReconciliation();
+      statusMessage = 'Server Wins 조정과 최신 상태 동기화를 완료했습니다.';
+      if (notify) notifyListeners();
+      return true;
+    } catch (error) {
+      final baseline = _offlineBaseline;
+      if (baseline != null) _restoreOfflineProjection(baseline);
+      statusMessage = '서버 상태를 가져오지 못해 기존 오프라인 상태를 보존했습니다.';
+      if (notify) notifyListeners();
+      return false;
+    }
+  }
+
+  Future<void> _completeLocalReconciliation() async {
+    await offlineStore.deleteJournal();
+    const online = OfflineWorkspaceMetadata(mode: ConnectivityMode.online);
+    await offlineStore.saveMetadata(online);
+    _offlineMetadata = online;
+    offlineJournal = const [];
+    connectivityMode = ConnectivityMode.online;
+    reconciliationChoice = null;
+    networkUnavailable = false;
+    serverFailurePromptPending = false;
+    usesConservativeCardEstimate = false;
+  }
+
+  Future<void> _saveOfflineMetadata(OfflineWorkspaceMetadata metadata) async {
+    await offlineStore.saveMetadata(metadata);
+    _offlineMetadata = metadata;
+    connectivityMode = metadata.mode;
+    reconciliationChoice = metadata.reconciliationChoice;
   }
 
   void _restoreOfflineProjection(OfflineBaseline baseline) {
@@ -623,8 +1108,7 @@ class AppState extends ChangeNotifier {
     familyDiscountMonth = baseline.familyDiscountMonth;
     transitDiscountProfile = baseline.transitDiscountProfile;
     entries = List.from(projection.entries);
-    confirmedPlannedEntries =
-        List.from(projection.confirmedPlannedEntries);
+    confirmedPlannedEntries = List.from(projection.confirmedPlannedEntries);
     panels = List.from(projection.panels);
     cashFlows = List.from(projection.cashFlows);
     lastSuccessfulSyncAt = baseline.syncedAt;
@@ -720,9 +1204,8 @@ class AppState extends ChangeNotifier {
           (netAmountOverride < 0 || netAmountOverride > amount)) {
         throw MoneyNoteApiException('실결제액은 0원 이상이고 원금을 초과할 수 없습니다.');
       }
-      final discountOverrideAmount = netAmountOverride == null
-          ? null
-          : amount - netAmountOverride;
+      final discountOverrideAmount =
+          netAmountOverride == null ? null : amount - netAmountOverride;
       if (isOffline) {
         final trimmedPlace = usagePlace.trim();
         final trimmedItem = usageItem.trim();
@@ -1082,9 +1565,8 @@ class AppState extends ChangeNotifier {
             'is_primary_income': isIncome && isPrimaryIncome ? 1 : 0,
           },
         );
-        statusMessage = isIncome
-            ? '오프라인 현금 입금을 기기에 보관했습니다.'
-            : '오프라인 현금 출금을 기기에 보관했습니다.';
+        statusMessage =
+            isIncome ? '오프라인 현금 입금을 기기에 보관했습니다.' : '오프라인 현금 출금을 기기에 보관했습니다.';
         return;
       }
       _requireOnline('현금흐름 기록');
