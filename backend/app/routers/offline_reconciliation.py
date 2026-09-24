@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from app.auth import require_user, verify_user_password
 from app.schemas import OfflineMobileWinsIn, OfflineRecoveryPointIn
 from app.services.offline_reconciliation import (
+    LegacyReconciliationIdentityError,
     ReconciliationConflictError,
     ReconciliationDigestMismatchError,
     apply_mobile_wins,
@@ -84,6 +85,14 @@ def post_offline_mobile_wins(
             status_code=409,
             detail={
                 "code": "reconciliation_digest_mismatch",
+                "message": str(exc),
+            },
+        ) from exc
+    except LegacyReconciliationIdentityError as exc:
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "code": "legacy_reconciliation_identity_unverifiable",
                 "message": str(exc),
             },
         ) from exc

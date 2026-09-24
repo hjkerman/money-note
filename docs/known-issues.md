@@ -59,17 +59,10 @@ Judgment 문구는 현재 대부분 서버에서 완성된 문장으로 내려�
 - 리스너 연결 공백 중 게시된 알림은 재연결 시 Android 알림창에 아직 남아 있어야 회수할 수 있다. 카드사 알림이 이미 지워진 뒤에는 앱이 사후 복원할 원문이 없다.
 - 후불 하이패스카드나 차량 하이패스 단말기를 직접 읽는 방식은 폐쇄형 통신 규격, 별도 하드웨어, 카드 보안과 차량 장치 개조 가능성 때문에 현재 구현 후보에서 제외한다.
 
-## Offline reconciliation committed-retry validation 순서
-
-Freeze audit의 Low finding L1은 이번 correctness hardening에서 의도적으로 defer했다. 이미 committed된 `reconciliation_id`를 동일 logical payload로 재시도할 때 서버는 저장된 committed result를 baseline Snapshot bytes/manifest 재검증보다 먼저 반환한다. 따라서 baseline bytes를 변조하고 과거 manifest hash를 그대로 둔 비정상 retry도 새 financial mutation이나 replay 없이 기존 result를 받는다.
-
-현재 경로는 duplicate write나 추가 financial state 변경을 만들지 않으므로 H1-H5/M1-M5 수정보다 우선하지 않았다. 후속 수정은 committed fast path에서도 request digest 계산에 필요한 baseline artifact validation을 먼저 수행하되, 정상 response-loss retry의 idempotent result 반환과 transaction 경계를 바꾸지 않는 최소 변경으로 한다.
-
-이 항목은 해결됨 목록으로 이동하기 전 adversarial retry test를 추가해야 한다.
-
-
 ## 해결됨
 
+- Offline freeze audit의 L1: committed reconciliation POST 재시도에서도 baseline Snapshot manifest·compatibility와 실제 state fingerprint를 먼저 검증한다. 서버 계산 버전 1 request fingerprint가 같은 ID의 authoritative B/J에 결합되며, 다른 요청은 `409`다. 기존 fingerprint 없는 committed row는 POST replay를 거절하고 `/status` 조회로 commit 결과를 복구한다.
+- 가족카드 알림의 할인 체크 기본값은 `가족 사용`/`본인 사용` 등록 대상이 아니라 알림에 매칭된 가족카드 정책을 따른다. 후보별 명시적 체크 변경은 등록 대상과 탭 전환에도 유지한다.
 - 카드 즉시결제로 자동 생성된 현금흐름은 일반 현금흐름 삭제로 지울 수 없고, 일부라도 실제 결제된 원장 행도 일반 삭제를 거부한다. 결제 이벤트 취소만 현금흐름과 allocation을 함께 되돌린다.
 - 고속도로 통행료+ 원문 표본을 바탕으로 별도 파서와 로컬 후보 생성 경로를 추가했다. 후보 등록 전 서버에는 아무 것도 전송하지 않는다.
 - 네이버 지도 통행료 수집 실험은 가계부가 내비게이션 유지보수팀으로 전직하기 직전에 명예롭게 철수했다.

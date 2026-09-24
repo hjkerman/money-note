@@ -30,6 +30,7 @@ from app.services.summary import _current_summary_values
 
 
 FailureInjector = Callable[[str, int | None], None]
+_REQUEST_FINGERPRINT_VERSION = 1
 
 _FORBIDDEN_DERIVED_KEYS = {
     "remaining_liquidity",
@@ -51,6 +52,10 @@ class ReconciliationConflictError(ValueError):
 
 
 class ReconciliationDigestMismatchError(ValueError):
+    pass
+
+
+class LegacyReconciliationIdentityError(ValueError):
     pass
 
 
@@ -111,16 +116,18 @@ def apply_mobile_wins(
     """B를 복원하고 ordered J를 적용해 하나의 transaction으로 commit한다."""
     operations = list(payload.operations)
     _validate_operation_order(operations)
-    request_digest = _request_digest(payload)
-
-    existing = _load_reconciliation(payload.reconciliation_id)
-    if existing is not None:
-        return _existing_result(existing, request_digest)
-
+    # Validate the actual baseline before consulting an already committed ID.
+    # A stale manifest hash must never turn altered baseline bytes into a retry.
     baseline_data = validate_reconciliation_snapshot(payload.baseline_snapshot)
     actual_baseline_fingerprint = snapshot_state_fingerprint(payload.baseline_snapshot)
     if actual_baseline_fingerprint != payload.baseline_fingerprint:
         raise ValueError("baseline fingerprint does not match baseline snapshot")
+    request_fingerprint = _request_fingerprint(payload)
+    request_digest = _request_digest(payload)
+
+    existing = _load_reconciliation(payload.reconciliation_id)
+    if existing is not None:
+        return _existing_result(existing, request_fingerprint)
 
     result: dict[str, Any] | None = None
     with session(transaction_mode="IMMEDIATE") as conn:
@@ -129,7 +136,7 @@ def apply_mobile_wins(
             (payload.reconciliation_id,),
         ).fetchone()
         if existing is not None:
-            return _existing_result(existing, request_digest)
+            return _existing_result(existing, request_fingerprint)
 
         _, current_snapshot = export_snapshot_from_connection(conn)
         current_fingerprint = snapshot_state_fingerprint(current_snapshot)
@@ -143,15 +150,18 @@ def apply_mobile_wins(
         conn.execute(
             """
             INSERT INTO offline_reconciliations(
-                reconciliation_id, request_digest, baseline_fingerprint,
+                reconciliation_id, request_digest, fingerprint_version,
+                request_fingerprint, baseline_fingerprint,
                 pre_server_fingerprint, server_changed,
                 server_artifact_filename, operation_count, status
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
             """,
             (
                 payload.reconciliation_id,
                 request_digest,
+                _REQUEST_FINGERPRINT_VERSION,
+                request_fingerprint,
                 payload.baseline_fingerprint,
                 current_fingerprint,
                 1 if server_changed else 0,
@@ -204,6 +214,8 @@ def apply_mobile_wins(
             "reconciliation_id": payload.reconciliation_id,
             "status": "committed",
             "request_digest": request_digest,
+            "fingerprint_version": _REQUEST_FINGERPRINT_VERSION,
+            "request_fingerprint": request_fingerprint,
             "baseline_fingerprint": payload.baseline_fingerprint,
             "pre_server_fingerprint": current_fingerprint,
             "result_fingerprint": result_fingerprint,
@@ -440,6 +452,28 @@ def _request_digest(payload: OfflineMobileWinsIn) -> str:
     )
 
 
+def _request_fingerprint(payload: OfflineMobileWinsIn) -> str:
+    """Bind an ID to the validated financial request, not retry transport metadata."""
+    return _stable_hash(
+        {
+            "fingerprint_version": _REQUEST_FINGERPRINT_VERSION,
+            "mode": "mobile_wins",
+            "schema_version": payload.schema_version,
+            "baseline_fingerprint": payload.baseline_fingerprint,
+            "operations": [
+                {
+                    "schema_version": operation.schema_version,
+                    "sequence": operation.sequence,
+                    "operation_id": operation.operation_id,
+                    "operation_type": operation.operation_type,
+                    "payload": operation.payload,
+                }
+                for operation in payload.operations
+            ],
+        }
+    )
+
+
 def _load_reconciliation(reconciliation_id: str) -> Any | None:
     with session() as conn:
         return conn.execute(
@@ -448,10 +482,16 @@ def _load_reconciliation(reconciliation_id: str) -> Any | None:
         ).fetchone()
 
 
-def _existing_result(record: Any, request_digest: str) -> dict[str, Any]:
-    if str(record["request_digest"]) != request_digest:
+def _existing_result(record: Any, request_fingerprint: str) -> dict[str, Any]:
+    if record["fingerprint_version"] is None or record["request_fingerprint"] is None:
+        raise LegacyReconciliationIdentityError(
+            "legacy reconciliation request identity cannot be verified; query its committed status"
+        )
+    if record["fingerprint_version"] != _REQUEST_FINGERPRINT_VERSION:
+        raise ReconciliationDigestMismatchError("unsupported reconciliation fingerprint version")
+    if str(record["request_fingerprint"]) != request_fingerprint:
         raise ReconciliationDigestMismatchError(
-            "same reconciliation_id cannot be used with a different logical payload"
+            "same reconciliation_id cannot be used with a different logical request"
         )
     result = _record_result(record)
     if result is None or result.get("status") != "committed":

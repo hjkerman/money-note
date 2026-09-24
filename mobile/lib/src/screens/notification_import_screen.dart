@@ -9,9 +9,10 @@ import '../widgets/money_card.dart';
 import 'notification_archive_screen.dart';
 
 class NotificationImportScreen extends StatefulWidget {
-  const NotificationImportScreen({required this.state, super.key});
+  const NotificationImportScreen({required this.state, this.bridge, super.key});
 
   final AppState state;
+  final NotificationBridge? bridge;
 
   @override
   State<NotificationImportScreen> createState() =>
@@ -19,7 +20,7 @@ class NotificationImportScreen extends StatefulWidget {
 }
 
 class _NotificationImportScreenState extends State<NotificationImportScreen> {
-  final bridge = NotificationBridge();
+  late final bridge = widget.bridge ?? NotificationBridge();
   late Future<_NotificationInboxData> inboxFuture;
   bool manualNoticeDismissed = false;
 
@@ -186,7 +187,11 @@ class _CandidateList extends StatelessWidget {
                     ),
                   ),
                 ...group.items.map((candidate) => _CandidateCard(
-                      key: ValueKey(candidate.id),
+                      key: ValueKey((
+                        candidate.registrationKey,
+                        candidate.cardRole,
+                        candidate.cardLast4
+                      )),
                       state: state,
                       bridge: bridge,
                       candidate: candidate,
@@ -293,7 +298,8 @@ class _CandidateCard extends StatefulWidget {
   State<_CandidateCard> createState() => _CandidateCardState();
 }
 
-class _CandidateCardState extends State<_CandidateCard> {
+class _CandidateCardState extends State<_CandidateCard>
+    with AutomaticKeepAliveClientMixin<_CandidateCard> {
   bool registered = false;
   late final TextEditingController date;
   late final TextEditingController place;
@@ -302,6 +308,9 @@ class _CandidateCardState extends State<_CandidateCard> {
   late String target;
   bool? discountEnabled;
   String? spendingCategory;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -326,6 +335,7 @@ class _CandidateCardState extends State<_CandidateCard> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     if (registered) return const SizedBox.shrink();
     final showCategory = target == 'ledger';
     final discountValue = discountEnabled ?? _defaultDiscountEnabled();
@@ -357,7 +367,6 @@ class _CandidateCardState extends State<_CandidateCard> {
               onSelectionChanged: (value) {
                 setState(() {
                   target = value.first;
-                  discountEnabled = null;
                 });
               },
             ),
@@ -405,12 +414,15 @@ class _CandidateCardState extends State<_CandidateCard> {
             ],
             if (!widget.candidate.isHighwayToll) ...[
               const SizedBox(height: 8),
-              CheckboxListTile(
-                contentPadding: EdgeInsets.zero,
-                title: const Text('할인 적용'),
-                value: discountValue,
-                onChanged: (value) =>
-                    setState(() => discountEnabled = value ?? false),
+              Material(
+                type: MaterialType.transparency,
+                child: CheckboxListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('할인 적용'),
+                  value: discountValue,
+                  onChanged: (value) =>
+                      setState(() => discountEnabled = value ?? false),
+                ),
               ),
             ],
             const SizedBox(height: 12),
@@ -444,7 +456,7 @@ class _CandidateCardState extends State<_CandidateCard> {
   }
 
   bool _defaultDiscountEnabled() {
-    if (target == 'family_card') {
+    if (widget.candidate.isFamilyCard) {
       return widget.state.familyDiscountMonth?.isEnabled ?? false;
     }
     return widget.state.ownerDiscountMonth?.isEnabled ?? true;

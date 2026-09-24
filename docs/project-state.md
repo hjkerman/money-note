@@ -2,7 +2,7 @@
 
 이 문서는 새 개발자나 새 작업 세션이 Money Note의 현재 기준선과 문서 읽기 순서를 빠르게 파악하기 위한 체크포인트다. 상세 도메인 규칙, API, 스키마, 운영 절차를 대신하지 않는다.
 
-마지막 코드 대조: 2026-09-24, `main`
+마지막 코드 대조: 2026-09-25, `main`
 
 ## 현재 기준선
 
@@ -13,6 +13,8 @@
 - 우리카드와 고속도로 통행료+ 알림 수집은 실사용 중이지만 외부 앱의 알림 형식과 Android 리스너 상태에 의존한다. 원문·후보는 서버 데이터가 아니라 모바일 로컬 보조자료다.
 - Android Offline Mode Phase 2는 검증된 authoritative Snapshot baseline B와 durable input journal J를 보존한다. 서버 복구 시 사용자가 Mobile Wins 또는 Server Wins를 명시적으로 확인하며, 양쪽 recovery artifact가 검증된 뒤에만 atomic `Apply(B, J)` 또는 fresh server rebuild를 실행한다.
 - Offline baseline은 fingerprint-bracketed coherent refresh에서만 설치하고 offline epoch 동안 고정한다. journal append는 byte-framed serial critical section이며 persistence corruption은 fail closed한다. committed reconciliation을 포함한 schema v3 baseline은 같은 J를 다시 projection하지 않는다.
+- Mobile Wins reconciliation ID는 서버가 검증된 B와 ordered authoritative J에서 계산한 버전드 request fingerprint에 결합한다. committed 재시도도 baseline을 먼저 검증하고, legacy fingerprint 없는 row는 POST 재실행 없이 status 조회로 복구한다.
+- 우리카드 알림의 할인 체크 기본값은 등록 대상과 독립적으로 알림에 매칭된 본인카드 또는 가족카드 정책을 따른다. 서버 할인 계산의 소유권은 그대로 유지된다.
 - 현재 유지보수의 중심은 버그와 무결성, 보안·배포, 카드 정책 이력, Judgment 문구, Android 알림 형식 변화 대응과 문서 일치다.
 
 ## 깨뜨리면 안 되는 경계

@@ -116,7 +116,9 @@ Phase 2 도입 전에 이미 OFFLINE이었던 schema v1 baseline에는 authorita
 6. foreign key와 금융 관계 invariant, Summary를 검증하고 durable reconciliation result와 operation identity를 기록한다.
 7. 모두 성공하면 commit하고 하나라도 실패하면 S로 rollback한다.
 
-`offline_reconciliations`는 `reconciliation_id`, logical request digest, baseline/pre-server/result fingerprint, artifact 이름, status/result와 commit 시각을 보존한다. 같은 ID와 같은 digest의 재시도는 저장된 committed result를 반환하고 replay하지 않는다. 같은 ID와 다른 digest는 거부한다. `offline_reconciliation_operations.operation_id`는 reconciliation 간에도 전역 중복을 거부한다.
+`offline_reconciliations`는 `reconciliation_id`, 기존 진단용 request digest, 버전 1의 서버 계산 request fingerprint, baseline/pre-server/result fingerprint, artifact 이름, status/result와 commit 시각을 보존한다. request fingerprint는 Mobile Wins mode, request/operation schema version, 검증된 authoritative B의 state fingerprint, 순서가 있는 operation의 sequence/ID/type/authoritative payload를 UTF-8·정렬 키 canonical JSON으로 SHA-256 해시한다. export 시각, 모바일 recovery artifact hash, 비밀번호, 예상 S fingerprint와 확인 플래그, operation 생성 시각 및 display-only 값은 financial request identity가 아니다. 서버는 최초 요청과 committed POST 재시도 모두에서 B의 manifest·compatibility·실제 fingerprint를 먼저 검증한다. 같은 ID·같은 semantic request는 저장된 committed result를 반환하고 replay하지 않으며 다른 요청은 `409`로 거부한다. `offline_reconciliation_operations.operation_id`는 reconciliation 간에도 전역 중복을 거부한다.
+
+기존 버전의 committed row에는 새 fingerprint가 없다. 이 row의 POST 재시도는 동일 요청임을 증명할 수 없어 `409`로 fail closed하며 어떤 J도 재실행하지 않는다. 모바일은 기존 `/status`의 committed 결과로 response-loss finalization을 계속할 수 있다. 이 경로에서도 fresh authoritative state와 baseline을 다시 받아야 ONLINE으로 돌아간다.
 
 요청 응답이 유실되면 모바일은 `RECONCILIATION_FINALIZING`과 `UNKNOWN` commit 상태를 유지하고 `/status`에서 같은 ID를 조회한다. committed면 replay 없이 fresh sync만 수행한다. 미commit이면 저장된 같은 선택·ID·payload만 재시도할 수 있으며 authority 선택 화면으로 돌아가지 않는다.
 

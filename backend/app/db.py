@@ -182,6 +182,8 @@ CREATE TABLE IF NOT EXISTS audit_logs (
 CREATE TABLE IF NOT EXISTS offline_reconciliations (
     reconciliation_id TEXT PRIMARY KEY,
     request_digest TEXT NOT NULL,
+    fingerprint_version INTEGER,
+    request_fingerprint TEXT,
     baseline_fingerprint TEXT NOT NULL,
     pre_server_fingerprint TEXT NOT NULL,
     result_fingerprint TEXT,
@@ -396,6 +398,14 @@ def init_db() -> None:
             conn.execute("ALTER TABLE card_payment_events ADD COLUMN idempotency_key TEXT")
         if "request_fingerprint" not in event_columns:
             conn.execute("ALTER TABLE card_payment_events ADD COLUMN request_fingerprint TEXT")
+        reconciliation_columns = {
+            row["name"]
+            for row in conn.execute("PRAGMA table_info(offline_reconciliations)").fetchall()
+        }
+        if "fingerprint_version" not in reconciliation_columns:
+            conn.execute("ALTER TABLE offline_reconciliations ADD COLUMN fingerprint_version INTEGER")
+        if "request_fingerprint" not in reconciliation_columns:
+            conn.execute("ALTER TABLE offline_reconciliations ADD COLUMN request_fingerprint TEXT")
         conn.execute(
             """
             CREATE UNIQUE INDEX IF NOT EXISTS idx_card_payment_events_idempotency

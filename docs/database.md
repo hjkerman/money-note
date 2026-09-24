@@ -30,7 +30,7 @@
 - `auth_sessions`: 본체 로그인 세션
 - `share_sessions`: 가족 공유 페이지 세션
 - `audit_logs`: 변경 API 감사 로그
-- `offline_reconciliations`: Mobile Wins 요청 digest, server conflict/recovery identity와 committed result
+- `offline_reconciliations`: Mobile Wins 요청 digest·버전드 semantic fingerprint, server conflict/recovery identity와 committed result
 - `offline_reconciliation_operations`: 전역 stable operation ID와 reconciliation 내 sequence
 
 `notification_candidate_registrations.registration_key`는 알림 출처와 안정 후보 ID를 결합한 전역 유일 키다. `target`, `target_id`, `request_fingerprint`는 첫 서버 쓰기와 같은 transaction에 기록한다. 월마감이 원장 행을 복사할 때 새 `target_id`로 옮기며, 사용자가 기록을 삭제한 뒤에도 등록 메타데이터는 남아 같은 후보 재전송으로 소비를 다시 만들지 않는다. 기존 Snapshot에 이 표가 없어도 빈 표로 복원한다.
@@ -245,6 +245,8 @@ Mobile Wins 논리 요청과 authoritative outcome을 durable하게 보존한다
 | --- | --- | --- |
 | `reconciliation_id` | TEXT PK | 모바일이 생성해 재시도에 유지하는 stable identity |
 | `request_digest` | TEXT | baseline, ordered journal, mobile artifact identity의 canonical SHA-256 |
+| `fingerprint_version` | INTEGER nullable | 서버 계산 semantic request fingerprint 버전. 기존 record는 `NULL` |
+| `request_fingerprint` | TEXT nullable | 검증된 B와 ordered authoritative J를 결합한 SHA-256. 기존 record는 `NULL` |
 | `baseline_fingerprint` | TEXT | Offline 진입 직전 B의 canonical authoritative-state fingerprint |
 | `pre_server_fingerprint` | TEXT | destructive transaction 직전 S fingerprint |
 | `result_fingerprint` | TEXT nullable | committed `Apply(B, J)` 결과 fingerprint |
@@ -255,7 +257,7 @@ Mobile Wins 논리 요청과 authoritative outcome을 durable하게 보존한다
 | `status` | TEXT | transaction 안의 `pending` 또는 durable `committed` |
 | `committed_at` | TEXT nullable | commit outcome 시각 |
 
-같은 reconciliation ID와 같은 digest는 기존 committed result를 재사용한다. 같은 ID와 다른 digest는 거부한다. `pending`은 financial replacement와 같은 transaction 안에서만 존재하므로 rollback 뒤 durable 중간 상태로 남지 않는다.
+새 record에서 같은 reconciliation ID와 같은 버전드 request fingerprint는 기존 committed result를 재사용한다. 같은 ID의 다른 semantic request는 거부한다. 기존 `NULL` fingerprint record는 POST 재시도를 fail closed하고 `/status`에서 committed result만 조회한다. `pending`은 financial replacement와 같은 transaction 안에서만 존재하므로 rollback 뒤 durable 중간 상태로 남지 않는다.
 
 ### `offline_reconciliation_operations`
 
@@ -289,6 +291,7 @@ Mobile Wins 논리 요청과 authoritative outcome을 durable하게 보존한다
 - `card_payment_events.request_fingerprint`
 
 Phase 2의 `offline_reconciliations`, `offline_reconciliation_operations`와 인덱스도 `CREATE TABLE/INDEX IF NOT EXISTS`로 additive 생성한다.
+- 기존 Phase 2 `offline_reconciliations` 표에는 nullable `fingerprint_version`, `request_fingerprint` 컬럼만 추가한다. 기존 committed row를 추정해 backfill하지 않는다.
 - nullable idempotency key의 부분 unique index와 planned 관계 조회 index
 
 기존에 연결된 현금성 고정지출은 유효한 `spent_on`에서 `confirmed_month`를 backfill한다. 과거 정기결제 지출은 관계를 추측해 DB에 기록하지 않으며, 조회 경계에서만 기존 제목·금액 매칭을 호환 fallback으로 사용한다. 구버전 카드 결제 이벤트의 idempotency 필드는 `NULL`로 남는다.

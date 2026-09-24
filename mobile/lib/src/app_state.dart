@@ -1279,16 +1279,21 @@ class AppState extends ChangeNotifier {
         candidateRegistrationKey: candidateRegistrationKey,
       );
       if (candidateRegistrationKey != null) {
-        try {
-          if (!discountEnabled &&
-              !panel.isDiscountIneligible &&
-              (panelType == 'claim' || panelType == 'family_card')) {
+        if (!discountEnabled &&
+            !panel.isDiscountIneligible &&
+            (panelType == 'claim' || panelType == 'family_card')) {
+          try {
             await api.excludePanelDiscount(panel.id);
+          } catch (_) {
+            throw MoneyNoteApiException(
+                '정산 내역은 저장됐지만 할인 제외를 확인하지 못했습니다. 동일 후보로 다시 등록하세요.');
           }
+        }
+        try {
           await refreshSettlementArea(notify: false);
           statusMessage = '정산 내역 등록 완료';
         } catch (_) {
-          statusMessage = '정산 내역은 저장됐습니다. 화면 갱신 또는 할인 설정을 다시 확인하세요.';
+          statusMessage = '정산 내역은 저장됐습니다. 최신 화면 동기화는 다시 시도하세요.';
         }
         return;
       }

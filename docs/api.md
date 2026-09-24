@@ -1185,7 +1185,7 @@ Operation type은 다음 네 가지뿐이다.
 
 payload에는 online API에 전달할 authoritative input만 허용한다. `remaining_liquidity`, Summary, effective/automatic discount 같은 client-derived 값은 `400`으로 거부한다. sequence는 1부터 연속이어야 한다.
 
-서버 현재 fingerprint가 expected 값과 달라졌거나 `S != B`인데 추가 확인이 없으면 `409`와 `code=server_state_changed`, 최신 fingerprint를 반환한다. 같은 reconciliation ID의 logical digest가 다르면 `409`와 `code=reconciliation_digest_mismatch`다. 동일 ID·동일 payload가 이미 committed면 저장된 동일 result를 반환하고 J를 다시 적용하지 않는다.
+서버 현재 fingerprint가 expected 값과 달라졌거나 `S != B`인데 추가 확인이 없으면 `409`와 `code=server_state_changed`, 최신 fingerprint를 반환한다. 서버는 committed POST 재시도에서도 baseline Snapshot을 먼저 검증하고, 검증된 B와 ordered authoritative J의 버전 1 canonical request fingerprint를 계산한다. 같은 reconciliation ID에 다른 semantic request가 들어오면 `409`와 `code=reconciliation_digest_mismatch`다. 같은 ID·같은 semantic request는 저장된 result를 반환하고 J를 다시 적용하지 않는다. fingerprint가 없는 기존 committed record의 POST 재시도는 `409`와 `code=legacy_reconciliation_identity_unverifiable`로 거절하며 `/status`에서는 기존 committed outcome을 계속 조회할 수 있다.
 
 성공 응답은 committed status, baseline/pre-server/result fingerprint, conflict 여부, server artifact 이름, operation results, authoritative Summary와 commit 시각을 포함한다. 전체 baseline replacement, ordered replay, invariant 검증과 result/idempotency 기록은 하나의 SQLite `IMMEDIATE` transaction이다.
 

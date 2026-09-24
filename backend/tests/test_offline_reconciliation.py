@@ -1,6 +1,8 @@
 import copy
+import json
 import os
 from pathlib import Path
+import sqlite3
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -13,6 +15,7 @@ from app.config import get_settings
 from app.db import init_db, session
 from app.schemas import OfflineMobileWinsIn
 from app.services.offline_reconciliation import (
+    LegacyReconciliationIdentityError,
     ReconciliationConflictError,
     ReconciliationDigestMismatchError,
     apply_mobile_wins,
@@ -20,6 +23,8 @@ from app.services.offline_reconciliation import (
     inspect_reconciliation,
 )
 from app.services.snapshot import (
+    _build_manifest,
+    _snapshot_metadata,
     read_pre_restore_backup,
     snapshot_state_fingerprint,
 )
@@ -110,6 +115,200 @@ class OfflineReconciliationTest(unittest.TestCase):
             apply_mobile_wins(changed)
 
         self.assertEqual(self._financial_counts()["cash_flows"], 1)
+
+    def test_committed_retry_validates_baseline_before_returning_result(self) -> None:
+        payload = self._payload(
+            self._abc_operations(), expected_server_fingerprint=self._fingerprint()
+        )
+        committed = apply_mobile_wins(payload)
+        before = self._fingerprint()
+        counts = self._financial_counts()
+        changed_snapshot = copy.deepcopy(payload.baseline_snapshot)
+        changed_snapshot["data"]["ledger_entries"][0]["amount_value"] += 1234
+        changed = payload.model_copy(update={"baseline_snapshot": changed_snapshot})
+
+        with self.assertRaisesRegex(ValueError, "snapshot manifest mismatch"):
+            apply_mobile_wins(changed)
+
+        self.assertEqual(self._fingerprint(), before)
+        self.assertEqual(self._financial_counts(), counts)
+        self.assertEqual(
+            inspect_reconciliation(self.baseline_fingerprint, payload.reconciliation_id)[
+                "reconciliation"
+            ],
+            committed,
+        )
+
+    def test_same_semantic_retry_ignores_json_key_order_and_transport_metadata(self) -> None:
+        payload = self._payload(
+            self._abc_operations(), expected_server_fingerprint=self._fingerprint()
+        )
+        committed = apply_mobile_wins(payload)
+        counts = self._financial_counts()
+        reordered_snapshot = json.loads(
+            json.dumps(payload.baseline_snapshot, ensure_ascii=False, sort_keys=True)
+        )
+        reordered_snapshot["exported_at"] = "2026-09-20T00:00:00Z"
+        reordered_snapshot["manifest"] = _build_manifest(
+            reordered_snapshot["data"],
+            policy_context=reordered_snapshot["card_charge_policy"],
+            snapshot_metadata=_snapshot_metadata(reordered_snapshot),
+        )
+        reordered_snapshot["snapshot_id"] = reordered_snapshot["manifest"][
+            "content_sha256"
+        ]
+        changed_operations = [
+            operation.model_copy(
+                update={
+                    "payload": dict(reversed(list(operation.payload.items()))),
+                    "created_at": operation.created_at.replace(year=2025),
+                }
+            )
+            for operation in payload.operations
+        ]
+        retry = payload.model_copy(
+            update={
+                "baseline_snapshot": reordered_snapshot,
+                "operations": changed_operations,
+                "mobile_artifact_sha256": "b" * 64,
+                "expected_server_fingerprint": "c" * 64,
+                "confirm_server_changed": True,
+                "password": "different-transport-password",
+            }
+        )
+
+        self.assertEqual(apply_mobile_wins(retry), committed)
+        self.assertEqual(self._financial_counts(), counts)
+        self.assertEqual(committed["fingerprint_version"], 1)
+        self.assertEqual(len(committed["request_fingerprint"]), 64)
+
+    def test_changed_same_id_returns_http_conflict(self) -> None:
+        payload = self._payload(
+            self._abc_operations(), expected_server_fingerprint=self._fingerprint()
+        ).model_copy(update={"password": "test-password-123"})
+        apply_mobile_wins(payload)
+        changed_operations = [operation.model_dump(mode="json") for operation in payload.operations]
+        changed_operations[0]["payload"]["amount_value"] += 1
+        changed = OfflineMobileWinsIn.model_validate(
+            {**payload.model_dump(mode="json"), "operations": changed_operations}
+        )
+
+        with self.assertRaises(HTTPException) as raised:
+            post_offline_mobile_wins(changed, self.user)
+        self.assertEqual(raised.exception.status_code, 409)
+        self.assertEqual(
+            raised.exception.detail["code"], "reconciliation_digest_mismatch"
+        )
+
+    def test_same_id_changed_semantic_fields_are_rejected_without_replay(self) -> None:
+        payload = self._payload(
+            self._full_operations(), expected_server_fingerprint=self._fingerprint()
+        )
+        apply_mobile_wins(payload)
+        before = self._fingerprint()
+        counts = self._financial_counts()
+        original_operations = [operation.model_dump(mode="json") for operation in payload.operations]
+
+        changed_snap = export_offline_baseline()
+        cases = {}
+        changed_order = copy.deepcopy(original_operations)
+        changed_order[0], changed_order[1] = changed_order[1], changed_order[0]
+        changed_order[0]["sequence"], changed_order[1]["sequence"] = 1, 2
+        cases["order"] = {"operations": changed_order}
+        changed_id = copy.deepcopy(original_operations)
+        changed_id[0]["operation_id"] = "offline-operation-changed"
+        cases["operation_id"] = {"operations": changed_id}
+        changed_amount = copy.deepcopy(original_operations)
+        changed_amount[0]["payload"]["amount_value"] += 1
+        cases["amount"] = {"operations": changed_amount}
+        changed_date = copy.deepcopy(original_operations)
+        changed_date[3]["payload"]["occurred_on"] = "2026-09-11"
+        cases["date"] = {"operations": changed_date}
+        changed_target = copy.deepcopy(original_operations)
+        changed_target[5]["payload"]["panel_id"] = 2
+        cases["target"] = {"operations": changed_target}
+        cases["baseline"] = {
+            "baseline_snapshot": changed_snap["snapshot"],
+            "baseline_fingerprint": changed_snap["state_fingerprint"],
+        }
+
+        for name, changes in cases.items():
+            with self.subTest(name=name):
+                changed = payload.model_copy(update=changes)
+                if "operations" in changes:
+                    changed = changed.model_copy(
+                        update={
+                            "operations": [
+                                type(payload.operations[0]).model_validate(operation)
+                                for operation in changes["operations"]
+                            ]
+                        }
+                    )
+                with self.assertRaises(ReconciliationDigestMismatchError):
+                    apply_mobile_wins(changed)
+                self.assertEqual(self._fingerprint(), before)
+                self.assertEqual(self._financial_counts(), counts)
+
+    def test_retry_after_restart_uses_durable_request_fingerprint(self) -> None:
+        payload = self._payload(
+            self._abc_operations(), expected_server_fingerprint=self._fingerprint()
+        )
+        committed = apply_mobile_wins(payload)
+        counts = self._financial_counts()
+
+        init_db()
+
+        self.assertEqual(apply_mobile_wins(payload), committed)
+        self.assertEqual(self._financial_counts(), counts)
+
+    def test_legacy_record_without_fingerprint_fails_closed_but_status_is_available(self) -> None:
+        payload = self._payload(
+            self._abc_operations(), expected_server_fingerprint=self._fingerprint()
+        )
+        committed = apply_mobile_wins(payload)
+        counts = self._financial_counts()
+        with session() as conn:
+            conn.execute(
+                "UPDATE offline_reconciliations "
+                "SET fingerprint_version = NULL, request_fingerprint = NULL "
+                "WHERE reconciliation_id = ?",
+                (payload.reconciliation_id,),
+            )
+
+        with self.assertRaises(LegacyReconciliationIdentityError):
+            apply_mobile_wins(payload)
+        with self.assertRaises(HTTPException) as raised:
+            post_offline_mobile_wins(
+                payload.model_copy(update={"password": "test-password-123"}), self.user
+            )
+        self.assertEqual(raised.exception.status_code, 409)
+        self.assertEqual(
+            raised.exception.detail["code"],
+            "legacy_reconciliation_identity_unverifiable",
+        )
+        self.assertEqual(self._financial_counts(), counts)
+        self.assertEqual(
+            inspect_reconciliation(self.baseline_fingerprint, payload.reconciliation_id)[
+                "reconciliation"
+            ],
+            committed,
+        )
+
+    @unittest.skipIf(sqlite3.sqlite_version_info < (3, 35), "SQLite DROP COLUMN unavailable")
+    def test_init_db_adds_fingerprint_columns_to_phase_2_table(self) -> None:
+        with session() as conn:
+            conn.execute("ALTER TABLE offline_reconciliations DROP COLUMN request_fingerprint")
+            conn.execute("ALTER TABLE offline_reconciliations DROP COLUMN fingerprint_version")
+
+        init_db()
+
+        with session() as conn:
+            columns = {
+                row["name"]
+                for row in conn.execute("PRAGMA table_info(offline_reconciliations)")
+            }
+        self.assertIn("request_fingerprint", columns)
+        self.assertIn("fingerprint_version", columns)
 
     def test_operation_id_cannot_be_replayed_under_a_new_reconciliation(self) -> None:
         first = self._payload(
