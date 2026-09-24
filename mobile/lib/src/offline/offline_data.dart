@@ -4,21 +4,25 @@ enum ConnectivityMode {
   online,
   offline,
   reconciliationRequired,
-  reconciliationFinalizing;
+  reconciliationFinalizing,
+  persistenceRecoveryBlocked;
 
   String get storageValue => switch (this) {
         online => 'ONLINE',
         offline => 'OFFLINE',
         reconciliationRequired => 'RECONCILIATION_REQUIRED',
         reconciliationFinalizing => 'RECONCILIATION_FINALIZING',
+        persistenceRecoveryBlocked => 'PERSISTENCE_RECOVERY_BLOCKED',
       };
 
   static ConnectivityMode fromStorageValue(Object? value) {
     return switch (value) {
       'OFFLINE' => offline,
+      'ONLINE' => online,
       'RECONCILIATION_REQUIRED' => reconciliationRequired,
       'RECONCILIATION_FINALIZING' => reconciliationFinalizing,
-      _ => online,
+      'PERSISTENCE_RECOVERY_BLOCKED' => persistenceRecoveryBlocked,
+      _ => throw const FormatException('unknown connectivity mode'),
     };
   }
 }
@@ -36,7 +40,8 @@ enum ReconciliationChoice {
     return switch (value) {
       'APPLY_TO_SERVER' => applyToServer,
       'DISCARD_AND_USE_SERVER' => discardAndUseServer,
-      _ => null,
+      null => null,
+      _ => throw const FormatException('unknown reconciliation choice'),
     };
   }
 }
@@ -85,11 +90,12 @@ enum ReconciliationPhase {
   static ReconciliationPhase fromStorageValue(Object? value) {
     return switch (value) {
       'PREPARING' => preparing,
+      'NONE' => none,
       'READY' => ready,
       'MOBILE_REQUEST_PENDING' => mobileRequestPending,
       'MOBILE_COMMITTED' => mobileCommitted,
       'SERVER_WINS_FINALIZING' => serverWinsFinalizing,
-      _ => none,
+      _ => throw const FormatException('unknown reconciliation phase'),
     };
   }
 }
@@ -109,7 +115,8 @@ enum ServerCommitStatus {
     return switch (value) {
       'UNKNOWN' => unknown,
       'COMMITTED' => committed,
-      _ => none,
+      'NONE' => none,
+      _ => throw const FormatException('unknown server commit status'),
     };
   }
 }
@@ -271,9 +278,10 @@ class OfflineBaseline {
     required this.cashFlows,
     this.authoritativeSnapshot,
     this.serverStateFingerprint,
+    this.resolvedReconciliationId,
   });
 
-  static const schemaVersion = 2;
+  static const schemaVersion = 3;
 
   final DateTime syncedAt;
   final AuthUser user;
@@ -291,6 +299,7 @@ class OfflineBaseline {
   final List<CashFlow> cashFlows;
   final Map<String, dynamic>? authoritativeSnapshot;
   final String? serverStateFingerprint;
+  final String? resolvedReconciliationId;
 
   bool get supportsAtomicReconciliation =>
       authoritativeSnapshot != null &&
@@ -301,6 +310,7 @@ class OfflineBaseline {
         'schema_version': schemaVersion,
         'authoritative_snapshot': authoritativeSnapshot,
         'server_state_fingerprint': serverStateFingerprint,
+        'resolved_reconciliation_id': resolvedReconciliationId,
         'synced_at': syncedAt.toUtc().toIso8601String(),
         'user': _authUserToJson(user),
         'summary': _summaryToJson(summary),
@@ -321,7 +331,7 @@ class OfflineBaseline {
 
   factory OfflineBaseline.fromJson(Map<String, dynamic> json) {
     final version = json['schema_version'];
-    if (version != 1 && version != schemaVersion) {
+    if (version != 1 && version != 2 && version != schemaVersion) {
       throw const FormatException('unsupported offline baseline schema');
     }
     final syncedAt = DateTime.tryParse(json['synced_at']?.toString() ?? '');
@@ -357,6 +367,9 @@ class OfflineBaseline {
                 )
               : null,
       serverStateFingerprint: _nullableString(json['server_state_fingerprint']),
+      resolvedReconciliationId: version == schemaVersion
+          ? _nullableString(json['resolved_reconciliation_id'])
+          : null,
     );
   }
 }

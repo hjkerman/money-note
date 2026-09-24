@@ -81,6 +81,9 @@ class _MoneyNoteAppState extends State<MoneyNoteApp>
         body: Center(child: CircularProgressIndicator()),
       );
     }
+    if (state.isPersistenceRecoveryBlocked) {
+      return _PersistenceRecoveryBlockedView(state: state);
+    }
     if (state.serverFailurePromptPending) {
       return _ServerUnavailableView(state: state);
     }
@@ -94,6 +97,54 @@ class _MoneyNoteAppState extends State<MoneyNoteApp>
       return LoginScreen(state: state);
     }
     return HomeShell(state: state);
+  }
+}
+
+class _PersistenceRecoveryBlockedView extends StatelessWidget {
+  const _PersistenceRecoveryBlockedView({required this.state});
+
+  final AppState state;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Icon(Icons.lock_outline, size: 52),
+                const SizedBox(height: 14),
+                const Text(
+                  '오프라인 저장소 복구가 필요합니다',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  '기존 baseline 또는 journal을 안전하게 해석할 수 없어 금융 작업을 차단했습니다. 저장 파일을 덮어쓰거나 삭제하지 않습니다.',
+                  textAlign: TextAlign.center,
+                ),
+                if (state.offlineEntryMessage.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  Text(state.offlineEntryMessage,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Colors.red)),
+                ],
+                const SizedBox(height: 20),
+                const OutlinedButton(
+                  onPressed: SystemNavigator.pop,
+                  child: Text('앱 종료'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 

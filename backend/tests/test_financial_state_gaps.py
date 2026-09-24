@@ -277,6 +277,58 @@ class FinancialStateGapTest(unittest.TestCase):
             self.assertEqual(conn.execute("SELECT COUNT(*) FROM ledger_entries").fetchone()[0], 2)
             self.assertEqual(conn.execute("SELECT COUNT(*) FROM notification_candidate_registrations").fetchone()[0], 2)
 
+    def test_initial_actual_payment_override_is_atomic_and_authoritative(self) -> None:
+        payload = self._entry("woori_card:initial-override", amount=10000)
+        payload.discount_override_amount = 3000
+
+        created = create_entry(payload)
+        summary = current_summary_values()
+
+        self.assertEqual(created["aux_amount_value"], 3000)
+        self.assertEqual(created["discount_override"], 1)
+        self.assertEqual(summary["card_total"], 7000)
+        self.assertEqual(summary["remaining_liquidity"], 993000)
+        retry = create_entry(payload)
+        self.assertEqual(retry["id"], created["id"])
+
+        changed = self._entry("woori_card:initial-override", amount=10000)
+        changed.discount_override_amount = 2000
+        with self.assertRaisesRegex(ValueError, "다른 내용"):
+            create_entry(changed)
+
+    def test_initial_discount_exclusion_is_part_of_create_transaction(self) -> None:
+        payload = self._entry(amount=10000)
+        payload.discount_enabled = False
+
+        created = create_entry(payload)
+        self.assertEqual(created["aux_amount_value"], 0)
+        self.assertEqual(created["discount_override"], 1)
+        self.assertEqual(current_summary_values()["card_total"], 10000)
+
+    def test_initial_override_failure_rolls_back_entry_and_registration(self) -> None:
+        payload = self._entry("woori_card:rollback-override", amount=10000)
+        payload.discount_override_amount = 3000
+
+        with patch(
+            "app.repositories.entries.set_entry_discount",
+            side_effect=ValueError("injected override failure"),
+        ):
+            with self.assertRaisesRegex(ValueError, "injected override failure"):
+                create_entry(payload)
+
+        with session() as conn:
+            self.assertEqual(
+                conn.execute("SELECT COUNT(*) FROM ledger_entries").fetchone()[0],
+                0,
+            )
+            self.assertEqual(
+                conn.execute(
+                    "SELECT COUNT(*) FROM notification_candidate_registrations"
+                ).fetchone()[0],
+                0,
+            )
+        self.assertEqual(current_summary_values()["card_total"], 0)
+
     def test_web_and_mobile_share_entry_api_and_key_is_request_only(self) -> None:
         self._close_august_batch()
         first = post_entry(self._entry("woori_card:api-shared"), _={})

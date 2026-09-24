@@ -9,8 +9,14 @@ def registration_fingerprint(target: str, values: dict[str, Any]) -> str:
         if target == "ledger"
         else ("month", "panel_type", "title", "spent_on", "amount_value")
     )
+    if target == "ledger":
+        fields += tuple(
+            field for field in ("discount_enabled", "discount_override_amount") if field in values
+        )
     payload = [target, *(values.get(field) for field in fields)]
-    return hashlib.sha256(json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode()).hexdigest()
+    return hashlib.sha256(
+        json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode()
+    ).hexdigest()
 
 
 def existing_registration(conn: Any, key: str, target: str, fingerprint: str) -> int | None:

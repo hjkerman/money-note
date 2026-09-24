@@ -7,9 +7,10 @@
 상태는 앱 전용 문서 저장소의 `offline-mode/state.json`에 원자적으로 보존한다.
 
 - `ONLINE`: 서버가 authoritative하다. foreground refresh, pull-to-refresh, 정상 상태 동기화가 성공하면 offline baseline을 교체한다.
-- `OFFLINE`: 마지막 정상 baseline과 append-only journal로 제한된 로컬 화면을 만든다. foreground와 pull-to-refresh는 `/health`만 호출하며 서버 state/snapshot을 fetch하거나 적용하지 않는다.
+- `OFFLINE`: 해당 offline epoch가 시작될 때 고정한 baseline B와 append-only journal로 제한된 로컬 화면을 만든다. epoch가 끝날 때까지 이미 시작된 ONLINE refresh를 포함한 어떤 경로도 B를 교체하지 않는다. foreground와 pull-to-refresh는 `/health`만 호출하며 서버 state/snapshot을 fetch하거나 적용하지 않는다.
 - `RECONCILIATION_REQUIRED`: health check로 서버 복구를 확인했지만 어느 상태를 사용할지 결정·실행하지 않은 read-only 상태다. 앱 재시작 뒤에도 유지한다.
 - `RECONCILIATION_FINALIZING`: authority 선택과 양쪽 recovery point 검증 뒤 실행 결과를 확정하거나 fresh authoritative sync를 기다리는 durable 상태다. commit 상태는 `UNKNOWN` 또는 `COMMITTED`로 별도 보존한다.
+- `PERSISTENCE_RECOVERY_BLOCKED`: baseline/state/journal lineage를 신뢰할 수 없을 때 사용하는 fail-closed 상태다. 금융 mutation, 정상 refresh에 의한 baseline 교체, reconciliation 실행과 파일 cleanup을 모두 금지하고 복구 필요 UI만 표시한다.
 
 
 정상 API operation의 transport 실패, timeout 또는 HTTP 5xx는 사용자에게 Offline Mode 사용 여부를 묻는다. HTTP 4xx와 같은 application validation 오류는 연결 실패로 분류하지 않는다. 사용자가 Offline Mode를 거절하면 앱을 종료한다. 사용자는 설정 탭에서도 서버 연결 없이 의도적으로 Offline Mode를 시작할 수 있지만, 검증된 baseline이 없으면 온라인에서 한 번 동기화하라는 안내만 표시한다.
@@ -25,7 +26,7 @@
 - `state.json`: connectivity mode, reconciliation choice/ID/phase, server conflict와 commit/finalization 상태, recovery artifact identity.
 - `recovery/`: 검증된 immutable mobile recovery bundle. 정상 성공 뒤에도 retention 대상으로 남긴다.
 
-baseline 후보는 Summary, card payment status, Judgment, month status, settings, 할인 월/프로필, 원장, 정기결제 확인 목록, 패널, 현금흐름이 모두 정상 응답한 뒤 임시 파일에 flush·JSON 검증하고 rename한다. 도중 요청이나 후처리가 실패하면 기존 baseline은 유지한다. area refresh는 갱신 대상 응답이 모두 성공하고 나머지 in-memory state가 이미 완성된 baseline에서 온 경우에만 새 한 벌을 만든다.
+모든 foreground/manual/area refresh는 동일한 full authoritative refresh 경계를 사용한다. 먼저 authoritative Snapshot fingerprint를 읽고, Summary·card payment status·Judgment·month status·settings·할인 월/프로필·원장·정기결제 확인 목록·패널·현금흐름을 모두 임시 candidate로 받은 뒤 Snapshot fingerprint를 다시 읽는다. 전후 fingerprint가 다르면 mixed generation candidate를 설치하지 않고 전체를 재시도한다. 전후가 같고 refresh 시작 때의 lineage generation과 현재 mode가 그대로일 때만 lineage lock 안에서 임시 파일 flush·JSON 검증·rename 후 화면 상태를 교체한다. 도중 실패나 OFFLINE 전이는 기존 baseline을 유지한다.
 
 journal row의 schema version은 1이며 다음을 가진다.
 
@@ -36,7 +37,11 @@ journal row의 schema version은 1이며 다음을 가진다.
 - 단조 증가 `sequence`
 - Phase 1에서는 `pending`만 허용하는 `status`
 
-journal payload에는 `remaining_liquidity`, `card_total`, 서버가 계산한 할인액·실결제액 같은 derived value를 넣지 않는다. 다만 사용자가 카드 사용 등록 시 직접 입력한 실결제액은 authoritative input이며, 기존 online API와 losslessly 호환되는 수동 할인 입력 `discount_override_amount = 원금 - 사용자 입력 실결제액`으로 보존한다. 마지막 append가 crash로 잘린 경우 완성되지 않은 마지막 줄만 무시하고 다음 append 전에 그 꼬리를 잘라내며, 그 이전 줄의 손상·중복 id·순서 역전은 오류로 취급한다. Phase 2 cleanup은 reconciliation commit/authoritative rebuild/fresh baseline이 모두 끝난 뒤에만 journal을 삭제한다.
+journal payload에는 `remaining_liquidity`, `card_total`, 서버가 계산한 할인액·실결제액 같은 derived value를 넣지 않는다. 다만 사용자가 카드 사용 등록 시 직접 입력한 실결제액은 authoritative input이며, 기존 online API와 losslessly 호환되는 수동 할인 입력 `discount_override_amount = 원금 - 사용자 입력 실결제액`으로 보존한다.
+
+NDJSON framing은 byte 단위다. newline으로 끝나는 각 complete record와 EOF까지 유효한 JSON인 마지막 record를 모두 durable record로 인정한다. 유효한 EOF record 뒤에 append할 때는 newline을 먼저 보완하며 절대 삭제하지 않는다. UTF-8 또는 JSON이 잘린 마지막 tail만 격리·truncate하고 그 앞 complete record는 보존한다. newline으로 완료된 손상 row, 중복 id, sequence 역전은 자동 무시하지 않고 `PERSISTENCE_RECOVERY_BLOCKED`로 fail closed한다. tail recovery, sequence 배정, operation id 생성, flush까지 append 전체를 한 in-process serial critical section에서 수행하고, disk append 성공 뒤에만 in-memory projection을 갱신한다.
+
+Phase 2 cleanup은 reconciliation commit/authoritative rebuild/fresh baseline이 모두 끝난 뒤에만 journal을 삭제한다.
 
 ## 지원 operation matrix
 
@@ -49,6 +54,10 @@ journal payload에는 `remaining_liquidity`, `card_total`, 서버가 계산한 �
 | 월마감, 카드 이월/결제 전이, 기존 항목의 할인·실결제 수정, 삭제·취소, 정산 완료, 설정 변경, Snapshot restore | 서버 write | 금지 | 금지 |
 
 알림 후보의 본인카드 원장 등록은 카드 사용 기록과 같은 journal 경로를 쓴다. Claim과 Family Card 등록은 server-only다.
+
+ONLINE 카드 사용 등록은 최초 `POST /api/entries` request에 optional `discount_enabled=false` 또는 사용자가 입력한 `discount_override_amount`를 함께 보낸다. 서버는 원장 row 생성과 initial manual override를 기존 card-charge/domain helper로 같은 SQLite transaction에서 적용한다. 자동 할인/default-discount는 input을 생략해 기존 서버 계산을 그대로 사용하며, 별도 PATCH 실패로 user intent만 부분 commit되는 경로를 만들지 않는다.
+
+카드·현금·정기 항목 등록 form은 button과 keyboard submit이 같은 local single-flight를 공유하고 AppState mutation도 재진입을 거부한다. submit 시작 때 draft snapshot을 고정하며 저장 성공 뒤 현재 draft가 그 snapshot과 동일할 때만 clear한다. 실패한 draft와 이전 request가 진행되는 동안 사용자가 입력한 새 draft는 보존한다. 정기지출 확인 form도 single-flight이며, 비동기 실결제 preview 중 금액이나 날짜가 바뀌면 오래된 preview를 확정하지 않고 현재 입력으로 다시 확인하게 한다.
 
 ## Display-only estimate
 
@@ -113,6 +122,8 @@ Phase 2 도입 전에 이미 OFFLINE이었던 schema v1 baseline에는 authorita
 
 commit 뒤 fresh state fetch, mobile rebuild 또는 새 baseline 저장이 실패하면 `MOBILE_COMMITTED` finalizing 상태와 journal/recovery metadata를 유지한다. 서버 반영 완료를 UI에 표시하되 ONLINE으로 가장하지 않고, 재시작이나 연결 회복 때 fresh sync/finalization만 재시도한다.
 
+fresh baseline schema v3에는 그 baseline이 이미 포함한 `resolved_reconciliation_id`를 기록한다. baseline 저장 뒤 journal cleanup이 실패하거나 process가 종료되어도 같은 finalizing identity의 J는 새 baseline 위에 projection하지 않는다. 다음 시작은 server replay가 아니라 cleanup/finalization만 재개한다.
+
 ### Server Wins
 
 Server Wins는 server financial state를 쓰거나 J를 replay하지 않는다. 양쪽 artifact를 검증한 뒤 current server state 전체를 fetch·검증하고 모바일 상태와 fresh offline-ready baseline을 교체한다. fetch/rebuild/baseline 저장 중 하나라도 실패하면 기존 offline projection, journal, metadata와 artifacts를 보존하고 `SERVER_WINS_FINALIZING`에서 재시도한다.
@@ -121,7 +132,9 @@ Server Wins는 server financial state를 쓰거나 J를 replay하지 않는다. 
 
 Mobile Wins는 atomic server commit 확인, fresh authoritative fetch, mobile rebuild와 fresh baseline 저장까지 성공해야 완료다. Server Wins도 fresh fetch/rebuild/baseline 저장까지 성공해야 한다. 그 뒤에만 journal을 삭제하고 transient reconciliation metadata를 ONLINE으로 교체한다. crash가 baseline 저장과 journal 삭제 사이, journal 삭제와 ONLINE metadata 저장 사이에 발생해도 committed/finalizing identity 때문에 journal을 replay하지 않는다. retained recovery artifacts와 server idempotency history는 cleanup 대상이 아니다.
 
+일반 `enterOfflineMode()`는 `ONLINE`에서만 허용한다. `RECONCILIATION_REQUIRED`, `RECONCILIATION_FINALIZING`, commit unknown/committed-finalize-pending, `PERSISTENCE_RECOVERY_BLOCKED`에서는 state layer가 전이를 거부해 reconciliation identity와 lineage를 보존한다.
 ## Snapshot subsystem 재사용
+
 
 Snapshot은 Offline Mode의 mutable database나 journal이 아니다. reconciliation 직전에 server recovery artifact를 만드는 용도로 기존 export/validation/compatibility/restore-safety semantics를 그대로 재사용한다.
 

@@ -32,12 +32,14 @@ class HomeScreen extends StatelessWidget {
           children: [
             Expanded(
                 child: AmountTile(
-                    label: state.financialValuesAreEstimated ? '카드대금(예상)' : '카드대금',
+                    label:
+                        state.financialValuesAreEstimated ? '카드대금(예상)' : '카드대금',
                     amount: won(summary?.cardTotal))),
             const SizedBox(width: 12),
             Expanded(
                 child: AmountTile(
-                    label: state.financialValuesAreEstimated ? '월 지출(예상)' : '월 지출',
+                    label:
+                        state.financialValuesAreEstimated ? '월 지출(예상)' : '월 지출',
                     amount: won(summary?.currentSpendingTotal))),
           ],
         ),
@@ -124,6 +126,7 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
   bool? discountEnabled;
   String? spendingCategory;
   late String selectedDate;
+  bool _submitInFlight = false;
 
   @override
   void initState() {
@@ -198,13 +201,16 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
             }),
           ),
           const SizedBox(height: 8),
-          CheckboxListTile(
-            contentPadding: EdgeInsets.zero,
-            title: const Text('할인 적용'),
-            subtitle: const Text('체크를 끄면 이 항목은 할인 제외로 등록합니다.'),
-            value: discountValue,
-            onChanged: (value) =>
-                setState(() => discountEnabled = value ?? false),
+          Material(
+            color: Colors.transparent,
+            child: CheckboxListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('할인 적용'),
+              subtitle: const Text('체크를 끄면 이 항목은 할인 제외로 등록합니다.'),
+              value: discountValue,
+              onChanged: (value) =>
+                  setState(() => discountEnabled = value ?? false),
+            ),
           ),
           const SizedBox(height: 8),
           TextField(
@@ -219,8 +225,11 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
           ),
           const SizedBox(height: 16),
           ElevatedButton(
-              onPressed: widget.state.canCreateCardExpense ? _submit : null,
-              child: const Text('지출 추가')),
+            onPressed: widget.state.canCreateCardExpense && !_submitInFlight
+                ? _submit
+                : null,
+            child: const Text('지출 추가'),
+          ),
           const SizedBox(height: 10),
           OutlinedButton(
             onPressed: () => Navigator.of(context).push(
@@ -236,10 +245,19 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
   }
 
   Future<void> _submit() async {
-    final parsedAmount = int.tryParse(amount.text.replaceAll(',', '').trim());
-    final netText = netAmountOverride.text.replaceAll(',', '').trim();
+    if (_submitInFlight) return;
+    final submittedPlace = place.text;
+    final submittedItem = item.text;
+    final submittedAmount = amount.text;
+    final submittedNetAmount = netAmountOverride.text;
+    final submittedDate = selectedDate;
+    final submittedDiscountEnabled = discountEnabled;
+    final submittedCategory = spendingCategory;
+    final parsedAmount =
+        int.tryParse(submittedAmount.replaceAll(',', '').trim());
+    final netText = submittedNetAmount.replaceAll(',', '').trim();
     final parsedNetAmount = netText.isEmpty ? null : int.tryParse(netText);
-    if (place.text.trim().isEmpty ||
+    if (submittedPlace.trim().isEmpty ||
         parsedAmount == null ||
         parsedAmount < 0 ||
         (netText.isNotEmpty && parsedNetAmount == null) ||
@@ -247,23 +265,39 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
             (parsedNetAmount < 0 || parsedNetAmount > parsedAmount))) {
       return;
     }
-    await widget.state.createExpense(
-      usagePlace: place.text,
-      usageItem: item.text,
+    setState(() => _submitInFlight = true);
+    final saved = await widget.state.createExpense(
+      usagePlace: submittedPlace,
+      usageItem: submittedItem,
       amount: parsedAmount,
-      discountEnabled: discountEnabled ??
+      discountEnabled: submittedDiscountEnabled ??
           (widget.state.ownerDiscountMonth?.isEnabled ?? true),
       netAmountOverride: parsedNetAmount,
-      spendingCategory: spendingCategory,
-      entryDate: selectedDate,
+      spendingCategory: submittedCategory,
+      entryDate: submittedDate,
     );
-    place.clear();
-    item.clear();
-    amount.clear();
-    netAmountOverride.clear();
-    spendingCategory = null;
-    setState(() => selectedDate = widget.state.serverToday);
-    placeFocus.requestFocus();
+    if (!mounted) return;
+    final draftIsUnchanged = place.text == submittedPlace &&
+        item.text == submittedItem &&
+        amount.text == submittedAmount &&
+        netAmountOverride.text == submittedNetAmount &&
+        selectedDate == submittedDate &&
+        discountEnabled == submittedDiscountEnabled &&
+        spendingCategory == submittedCategory;
+    if (saved && draftIsUnchanged) {
+      place.clear();
+      item.clear();
+      amount.clear();
+      netAmountOverride.clear();
+      setState(() {
+        _submitInFlight = false;
+        spendingCategory = null;
+        selectedDate = widget.state.serverToday;
+      });
+      placeFocus.requestFocus();
+      return;
+    }
+    setState(() => _submitInFlight = false);
   }
 }
 

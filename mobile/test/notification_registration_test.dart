@@ -8,6 +8,7 @@ class _RegistrationApi extends MoneyNoteApiClient {
 
   String? lastKey;
   int? lastDiscountAmount;
+  int discountPatchCalls = 0;
 
   @override
   Future<LedgerEntry> createExpense({
@@ -15,10 +16,13 @@ class _RegistrationApi extends MoneyNoteApiClient {
     required String usagePlace,
     required String usageItem,
     required int amount,
+    required bool discountEnabled,
+    int? discountOverrideAmount,
     String? spendingCategory,
     String? candidateRegistrationKey,
   }) async {
     lastKey = candidateRegistrationKey;
+    lastDiscountAmount = discountOverrideAmount;
     return LedgerEntry(
       id: 1,
       bookSection: 'current',
@@ -37,6 +41,7 @@ class _RegistrationApi extends MoneyNoteApiClient {
   Future<LedgerEntry> updateEntryDiscount(
       String entryPaymentKey, int discountAmount) async {
     lastDiscountAmount = discountAmount;
+    discountPatchCalls += 1;
     return LedgerEntry(
       id: 1,
       bookSection: 'current',
@@ -109,7 +114,7 @@ void main() {
     expect(state.statusMessage, contains('저장됐습니다'));
   });
 
-  test('온라인 실결제액 입력은 할인 override endpoint 입력으로 변환한다', () async {
+  test('온라인 실결제액 입력은 최초 create request에 원자적으로 포함한다', () async {
     final api = _RegistrationApi();
     final state = _FailingRefreshState(api);
 
@@ -126,6 +131,7 @@ void main() {
     expect(success, isTrue);
     expect(api.lastDiscountAmount, 300);
     expect(state.statusMessage, contains('저장됐습니다'));
+    expect(api.discountPatchCalls, 0);
   });
 
   test('후보 청구도 저장 응답과 갱신 실패를 분리한다', () async {

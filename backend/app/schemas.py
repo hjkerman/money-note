@@ -128,8 +128,12 @@ class LedgerEntryIn(BaseModel):
     payment_key: str | None = None
     discount_override: int = 0
     candidate_registration_key: str | None = Field(default=None, min_length=1, max_length=100, exclude=True)
+    discount_enabled: bool | None = Field(default=None, exclude=True)
+    discount_override_amount: int | None = Field(default=None, ge=0, exclude=True)
 
-    _integer_money = field_validator("amount_value", "aux_amount_value", mode="before")(integer_money)
+    _integer_money = field_validator(
+        "amount_value", "aux_amount_value", "discount_override_amount", mode="before"
+    )(integer_money)
 
 class LedgerEntry(LedgerEntryIn):
     id: int

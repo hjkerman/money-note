@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -12,6 +14,9 @@ import 'package:money_note_mobile/src/models.dart';
 import 'package:money_note_mobile/src/offline/offline_data.dart';
 import 'package:money_note_mobile/src/offline/offline_projection.dart';
 import 'package:money_note_mobile/src/offline/offline_store.dart';
+import 'package:money_note_mobile/src/screens/cash_flow_screen.dart';
+import 'package:money_note_mobile/src/screens/input_screen.dart';
+import 'package:money_note_mobile/src/screens/management_screen.dart';
 
 CardDiscountProjectionPolicy _flatProjectionPolicy(String scope) {
   return CardDiscountProjectionPolicy(
@@ -323,6 +328,163 @@ class _OfflineApi extends MoneyNoteApiClient {
   }
 }
 
+class _DelayedRefreshApi extends _OfflineApi {
+  final summaryRequested = Completer<void>();
+  final releaseSummary = Completer<void>();
+
+  @override
+  Future<Summary> summary() async {
+    if (!summaryRequested.isCompleted) summaryRequested.complete();
+    await releaseSummary.future;
+    return super.summary();
+  }
+}
+
+class _ChangingBaselineApi extends _OfflineApi {
+  int baselineCalls = 0;
+
+  @override
+  Future<Map<String, dynamic>> offlineReconciliationBaseline() async {
+    baselineCalls += 1;
+    final fingerprint = baselineCalls == 1
+        ? _baseline().serverStateFingerprint
+        : _OfflineApi.currentFingerprint;
+    if (baselineCalls == 2) remainingLiquidity = 9000;
+    return {
+      'snapshot': const {
+        'schema_version': 2,
+        'exported_at': '2026-09-17T03:14:00Z',
+        'data': <String, dynamic>{},
+      },
+      'state_fingerprint': fingerprint,
+    };
+  }
+}
+
+class _FailingDeleteJournalStore extends OfflineStore {
+  _FailingDeleteJournalStore(Directory directory)
+      : super(directoryProvider: () async => directory);
+
+  bool failNextDelete = true;
+
+  @override
+  Future<void> deleteJournal() async {
+    if (failNextDelete) {
+      failNextDelete = false;
+      throw const OfflinePersistenceException(
+        'injected journal cleanup failure',
+      );
+    }
+    await super.deleteJournal();
+  }
+}
+
+class _FailingBaselineStore extends OfflineStore {
+  _FailingBaselineStore(Directory directory)
+      : super(directoryProvider: () async => directory);
+
+  bool failNextReplace = false;
+
+  @override
+  Future<void> replaceBaseline(OfflineBaseline baseline) async {
+    if (failNextReplace) {
+      failNextReplace = false;
+      throw const OfflinePersistenceException(
+        'injected fresh baseline persistence failure',
+      );
+    }
+    await super.replaceBaseline(baseline);
+  }
+}
+
+class _DelayedMutationApi extends _OfflineApi {
+  final cashCreateRequested = Completer<void>();
+  final cashCreateResult = Completer<CashFlow>();
+  int cashCreateCalls = 0;
+
+  @override
+  Future<CashFlow> createCashFlow({
+    required String occurredOn,
+    required String title,
+    required int amount,
+    required bool isPrimaryIncome,
+  }) {
+    cashCreateCalls += 1;
+    if (!cashCreateRequested.isCompleted) cashCreateRequested.complete();
+    return cashCreateResult.future;
+  }
+}
+
+class _FormAppState extends AppState {
+  _FormAppState() : super(_OfflineApi());
+
+  Completer<bool> expenseCompletion = Completer<bool>();
+  Completer<bool> cashCompletion = Completer<bool>();
+  Completer<bool> panelCompletion = Completer<bool>();
+  Completer<PlannedChargePreview> plannedPreviewCompletion =
+      Completer<PlannedChargePreview>();
+  Completer<bool> plannedConfirmCompletion = Completer<bool>();
+  int expenseCalls = 0;
+  int cashCalls = 0;
+  int panelCalls = 0;
+  int plannedPreviewCalls = 0;
+  int plannedConfirmCalls = 0;
+
+  @override
+  Future<bool> createExpense({
+    required String usagePlace,
+    required String usageItem,
+    required int amount,
+    required bool discountEnabled,
+    int? netAmountOverride,
+    String? spendingCategory,
+    String? entryDate,
+    String? candidateRegistrationKey,
+  }) {
+    expenseCalls += 1;
+    return expenseCompletion.future;
+  }
+
+  @override
+  Future<bool> createCashFlow({
+    required String occurredOn,
+    required String title,
+    required int amount,
+    required bool isIncome,
+    required bool isPrimaryIncome,
+  }) {
+    cashCalls += 1;
+    return cashCompletion.future;
+  }
+
+  @override
+  Future<bool> createPanel({
+    required String panelType,
+    required String title,
+    required int amount,
+    bool discountEnabled = true,
+    String? spentOn,
+    String? candidateRegistrationKey,
+  }) {
+    panelCalls += 1;
+    return panelCompletion.future;
+  }
+
+  @override
+  Future<PlannedChargePreview> previewPlannedEntry(
+      int entryId, int actualAmount) {
+    plannedPreviewCalls += 1;
+    return plannedPreviewCompletion.future;
+  }
+
+  @override
+  Future<bool> confirmPlannedEntry(
+      int entryId, String entryDate, int actualAmount) {
+    plannedConfirmCalls += 1;
+    return plannedConfirmCompletion.future;
+  }
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -423,6 +585,146 @@ void main() {
         }),
         isTrue,
       );
+    });
+    test('valid EOF record remains durable when the next record is appended',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      for (final amount in [-500, -700]) {
+        await store.appendOperation(
+          type: OfflineOperationType.createCashFlow,
+          payload: {
+            'occurred_on': '2026-09-17',
+            'title': '현금',
+            'amount_value': amount,
+            'is_primary_income': 0,
+          },
+        );
+      }
+      final journal = File('${directory.path}/offline-mode/journal.ndjson');
+      final bytes = await journal.readAsBytes();
+      expect(bytes.last, 0x0a);
+      await journal.writeAsBytes(bytes.sublist(0, bytes.length - 1),
+          flush: true);
+
+      expect(
+        (await _store(directory).loadJournal())
+            .map((operation) => operation.payload['amount_value']),
+        [-500, -700],
+      );
+
+      await _store(directory).appendOperation(
+        type: OfflineOperationType.createCashFlow,
+        payload: const {
+          'occurred_on': '2026-09-17',
+          'title': '추가',
+          'amount_value': -300,
+          'is_primary_income': 0,
+        },
+      );
+      final restarted = await _store(directory).loadJournal();
+      expect(restarted.map((operation) => operation.sequence), [1, 2, 3]);
+      expect(
+        restarted.map((operation) => operation.payload['amount_value']),
+        [-500, -700, -300],
+      );
+    });
+
+    test('truncated JSON and UTF-8 tails preserve every complete record',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      await store.appendOperation(
+        type: OfflineOperationType.createCashFlow,
+        payload: const {
+          'occurred_on': '2026-09-17',
+          'title': '정상',
+          'amount_value': 500,
+          'is_primary_income': 0,
+        },
+      );
+      final journal = File('${directory.path}/offline-mode/journal.ndjson');
+      final koreanPrefix = utf8.encode('한').sublist(0, 2);
+      await journal.writeAsBytes(koreanPrefix,
+          mode: FileMode.append, flush: true);
+
+      final recovered = await _store(directory).loadJournal();
+      expect(recovered, hasLength(1));
+      expect(recovered.single.payload['amount_value'], 500);
+
+      await _store(directory).appendOperation(
+        type: OfflineOperationType.createCashFlow,
+        payload: const {
+          'occurred_on': '2026-09-17',
+          'title': '복구 후',
+          'amount_value': 700,
+          'is_primary_income': 0,
+        },
+      );
+      final restarted = await _store(directory).loadJournal();
+      expect(restarted.map((operation) => operation.sequence), [1, 2]);
+      expect(restarted.map((operation) => operation.payload['amount_value']),
+          [500, 700]);
+
+      await journal.writeAsString('{"schema_version":',
+          mode: FileMode.append, flush: true);
+      expect(await _store(directory).loadJournal(), hasLength(2));
+      await _store(directory).appendOperation(
+        type: OfflineOperationType.createCashFlow,
+        payload: const {
+          'occurred_on': '2026-09-17',
+          'title': '두 번째 복구 후',
+          'amount_value': 300,
+          'is_primary_income': 0,
+        },
+      );
+      expect(await _store(directory).loadJournal(), hasLength(3));
+    });
+
+    test('concurrent appends serialize sequence allocation and durable writes',
+        () async {
+      final directory = await _temporaryDirectory();
+      final firstWriteEntered = Completer<void>();
+      final releaseFirstWrite = Completer<void>();
+      var hookCalls = 0;
+      final store = OfflineStore(
+        directoryProvider: () async => directory,
+        beforeJournalAppendWrite: () async {
+          hookCalls += 1;
+          if (hookCalls == 1) {
+            firstWriteEntered.complete();
+            await releaseFirstWrite.future;
+          }
+        },
+      );
+
+      final first = store.appendOperation(
+        type: OfflineOperationType.createCashFlow,
+        payload: const {
+          'occurred_on': '2026-09-17',
+          'title': 'A',
+          'amount_value': -500,
+          'is_primary_income': 0,
+        },
+      );
+      await firstWriteEntered.future;
+      final second = store.appendOperation(
+        type: OfflineOperationType.createCashFlow,
+        payload: const {
+          'occurred_on': '2026-09-17',
+          'title': 'B',
+          'amount_value': -700,
+          'is_primary_income': 0,
+        },
+      );
+      releaseFirstWrite.complete();
+
+      final appended = await Future.wait([first, second]);
+      expect(appended.map((operation) => operation.sequence), [1, 2]);
+      final restarted = await _store(directory).loadJournal();
+      expect(restarted.map((operation) => operation.sequence), [1, 2]);
+      expect(restarted.map((operation) => operation.payload['amount_value']),
+          [-500, -700]);
     });
   });
 
@@ -772,6 +1074,81 @@ void main() {
       expect(api.stateFetchCalls, 0);
       expect(await store.loadJournal(), hasLength(1));
     });
+    test('untrusted complete journal corruption fails closed on restart',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      await store.replaceBaseline(_baseline());
+      await store.saveMetadata(const OfflineWorkspaceMetadata(
+        mode: ConnectivityMode.offline,
+      ));
+      await store.appendOperation(
+        type: OfflineOperationType.createCashFlow,
+        payload: const {
+          'occurred_on': '2026-09-17',
+          'title': '정상',
+          'amount_value': 500,
+          'is_primary_income': 0,
+        },
+      );
+      final journal = File('${directory.path}/offline-mode/journal.ndjson');
+      await journal.writeAsString('not-json\n',
+          mode: FileMode.append, flush: true);
+      final before = await journal.readAsBytes();
+
+      final api = _OfflineApi()..available = true;
+      final state = AppState(api, offlineStore: _store(directory));
+      expect(await state.restorePersistedOfflineWorkspace(), isTrue);
+      expect(state.isPersistenceRecoveryBlocked, isTrue);
+      expect(state.isOnline, isFalse);
+      expect(state.canCreateCashFlow, isFalse);
+
+      expect(
+        await state.createCashFlow(
+          occurredOn: '2026-09-17',
+          title: '금지',
+          amount: 1,
+          isIncome: true,
+          isPrimaryIncome: false,
+        ),
+        isFalse,
+      );
+      await state.refresh();
+      expect(api.stateFetchCalls, 0);
+      expect(await journal.readAsBytes(), before);
+    });
+
+    test('finalizing reconciliation rejects ordinary Offline re-entry',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      await store.replaceBaseline(_baseline());
+      await store.saveMetadata(const OfflineWorkspaceMetadata(
+        mode: ConnectivityMode.reconciliationFinalizing,
+        reconciliationChoice: ReconciliationChoice.applyToServer,
+        reconciliationId: 'reconcile-finalizing-identity',
+        phase: ReconciliationPhase.mobileCommitted,
+        serverCommitStatus: ServerCommitStatus.committed,
+      ));
+      await store.appendOperation(
+        type: OfflineOperationType.createCashFlow,
+        payload: const {
+          'occurred_on': '2026-09-17',
+          'title': '대기 중',
+          'amount_value': -500,
+          'is_primary_income': 0,
+        },
+      );
+      final state = AppState(_OfflineApi(), offlineStore: store);
+      expect(await state.restorePersistedOfflineWorkspace(), isTrue);
+      expect(state.isReconciliationFinalizing, isTrue);
+
+      expect(await state.enterOfflineMode(), isFalse);
+      final metadata = await store.loadMetadata();
+      expect(metadata.mode, ConnectivityMode.reconciliationFinalizing);
+      expect(metadata.reconciliationId, 'reconcile-finalizing-identity');
+      expect(await store.loadJournal(), hasLength(1));
+    });
   });
 
   group('online refresh baseline and connection classification', () {
@@ -831,6 +1208,125 @@ void main() {
         throwsA(isA<MoneyNoteApiException>()),
       );
       expect(validationState.serverFailurePromptPending, isFalse);
+    });
+    test('late ONLINE refresh cannot replace a frozen Offline lineage',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      await store.replaceBaseline(_baseline(remainingLiquidity: 10000));
+      final api = _DelayedRefreshApi()..available = true;
+      final state = AppState(api, offlineStore: store)..user = _baseline().user;
+
+      final delayedRefresh = state.refresh();
+      await api.summaryRequested.future;
+      expect(await state.enterOfflineMode(), isTrue);
+      expect(
+        await state.createCashFlow(
+          occurredOn: '2026-09-17',
+          title: '오프라인 출금',
+          amount: 500,
+          isIncome: false,
+          isPrimaryIncome: false,
+        ),
+        isTrue,
+      );
+      api.remainingLiquidity = 11234;
+      api.releaseSummary.complete();
+
+      await expectLater(delayedRefresh, throwsA(isA<MoneyNoteApiException>()));
+      expect(state.isOffline, isTrue);
+      expect(state.summary!.remainingLiquidity, 9500);
+      expect(
+        (await store.loadBaseline())!.summary.remainingLiquidity,
+        10000,
+      );
+      expect(await store.loadJournal(), hasLength(1));
+    });
+
+    test('mixed display and Snapshot generations are rejected and retried',
+        () async {
+      final directory = await _temporaryDirectory();
+      final api = _ChangingBaselineApi()..available = true;
+      final store = _store(directory);
+      final state = AppState(api, offlineStore: store)..user = _baseline().user;
+
+      await state.refresh();
+
+      expect(api.baselineCalls, 4);
+      expect(state.summary!.remainingLiquidity, 9000);
+      final installed = await store.loadBaseline();
+      expect(installed!.summary.remainingLiquidity, 9000);
+      expect(installed.serverStateFingerprint, _OfflineApi.currentFingerprint);
+    });
+    test('AppState mutation single-flight rejects concurrent re-entry',
+        () async {
+      final directory = await _temporaryDirectory();
+      final api = _DelayedMutationApi()..available = true;
+      final state = AppState(api, offlineStore: _store(directory))
+        ..user = _baseline().user;
+
+      final first = state.createCashFlow(
+        occurredOn: '2026-09-17',
+        title: '한 번만 저장',
+        amount: 500,
+        isIncome: true,
+        isPrimaryIncome: false,
+      );
+      await api.cashCreateRequested.future;
+      final duplicate = await state.createCashFlow(
+        occurredOn: '2026-09-17',
+        title: '중복 진입',
+        amount: 500,
+        isIncome: true,
+        isPrimaryIncome: false,
+      );
+      expect(duplicate, isFalse);
+      expect(api.cashCreateCalls, 1);
+
+      api.cashCreateResult.complete(CashFlow(
+        id: 1,
+        occurredOn: '2026-09-17',
+        title: '한 번만 저장',
+        amountValue: 500,
+        sortOrder: 1,
+        isPrimaryIncome: false,
+      ));
+      expect(await first, isTrue);
+      expect(api.cashCreateCalls, 1);
+    });
+
+    test('offline append failure leaves journal and projection unchanged',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = OfflineStore(
+        directoryProvider: () async => directory,
+        beforeJournalAppendWrite: () async {
+          throw const OfflinePersistenceException(
+              'injected journal disk failure');
+        },
+      );
+      await store.replaceBaseline(_baseline(remainingLiquidity: 10000));
+      await store.saveMetadata(const OfflineWorkspaceMetadata(
+        mode: ConnectivityMode.offline,
+      ));
+      final state = AppState(_OfflineApi(), offlineStore: store);
+      expect(await state.restorePersistedOfflineWorkspace(), isTrue);
+
+      expect(
+        await state.createCashFlow(
+          occurredOn: '2026-09-17',
+          title: '기록되면 안 됨',
+          amount: 500,
+          isIncome: false,
+          isPrimaryIncome: false,
+        ),
+        isFalse,
+      );
+
+      expect(state.isOffline, isTrue);
+      expect(state.offlineJournal, isEmpty);
+      expect(state.summary!.remainingLiquidity, 10000);
+      expect(await store.loadJournal(), isEmpty);
     });
   });
 
@@ -990,6 +1486,164 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('서버 변경도 덮어쓸까요?'), findsOneWidget);
     expect(find.textContaining('Apply(B, J)'), findsOneWidget);
+  });
+
+  testWidgets('expense keyboard and button re-entry produces one submit',
+      (tester) async {
+    final state = _FormAppState();
+    addTearDown(state.dispose);
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(body: ExpenseInputCard(state: state)),
+    ));
+    final fields = find.byType(TextField);
+    await tester.enterText(fields.at(0), '가게');
+    await tester.enterText(fields.at(1), '500');
+
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.tap(find.text('지출 추가'));
+    expect(state.expenseCalls, 1);
+
+    state.expenseCompletion.complete(true);
+    await tester.pumpAndSettle();
+    expect(tester.widget<TextField>(fields.at(0)).controller!.text, isEmpty);
+    expect(tester.widget<TextField>(fields.at(1)).controller!.text, isEmpty);
+  });
+
+  testWidgets('expense failure and stale completion preserve the current draft',
+      (tester) async {
+    final state = _FormAppState();
+    addTearDown(state.dispose);
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(body: ExpenseInputCard(state: state)),
+    ));
+    final fields = find.byType(TextField);
+    await tester.enterText(fields.at(0), '가게');
+    await tester.enterText(fields.at(1), '500');
+    await tester.tap(find.text('지출 추가'));
+    state.expenseCompletion.complete(false);
+    await tester.pumpAndSettle();
+
+    expect(tester.widget<TextField>(fields.at(0)).controller!.text, '가게');
+    expect(tester.widget<TextField>(fields.at(1)).controller!.text, '500');
+
+    state.expenseCompletion = Completer<bool>();
+    await tester.tap(find.text('지출 추가'));
+    await tester.enterText(fields.at(1), '700');
+    state.expenseCompletion.complete(true);
+    await tester.pumpAndSettle();
+
+    expect(state.expenseCalls, 2);
+    expect(tester.widget<TextField>(fields.at(0)).controller!.text, '가게');
+    expect(tester.widget<TextField>(fields.at(1)).controller!.text, '700');
+  });
+
+  testWidgets('cash-flow save failure preserves its draft', (tester) async {
+    final state = _FormAppState();
+    addTearDown(state.dispose);
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(body: CashFlowScreen(state: state)),
+    ));
+    final fields = find.byType(TextField);
+    await tester.enterText(fields.at(0), '현금 draft');
+    await tester.enterText(fields.at(1), '500');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    state.cashCompletion.complete(false);
+    await tester.pumpAndSettle();
+
+    expect(state.cashCalls, 1);
+    expect(tester.widget<TextField>(fields.at(0)).controller!.text, '현금 draft');
+    expect(tester.widget<TextField>(fields.at(1)).controller!.text, '500');
+  });
+
+  testWidgets(
+      'recurring panel submit is single-flight and preserves failed or newer drafts',
+      (tester) async {
+    final state = _FormAppState();
+    addTearDown(state.dispose);
+    await tester.pumpWidget(MaterialApp(
+      home: PanelManagementScreen(
+        state: state,
+        panelType: 'fixed',
+        title: '현금성 고정지출',
+        inputLabel: '지출 내용',
+        emptyText: '없음',
+      ),
+    ));
+    final fields = find.byType(TextField);
+    await tester.enterText(fields.at(0), '관리비');
+    await tester.enterText(fields.at(1), '500');
+
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.tap(find.text('추가'));
+    expect(state.panelCalls, 1);
+    state.panelCompletion.complete(false);
+    await tester.pumpAndSettle();
+
+    expect(tester.widget<TextField>(fields.at(0)).controller!.text, '관리비');
+    expect(tester.widget<TextField>(fields.at(1)).controller!.text, '500');
+
+    state.panelCompletion = Completer<bool>();
+    await tester.tap(find.text('추가'));
+    await tester.enterText(fields.at(1), '700');
+    state.panelCompletion.complete(true);
+    await tester.pumpAndSettle();
+
+    expect(state.panelCalls, 2);
+    expect(tester.widget<TextField>(fields.at(0)).controller!.text, '관리비');
+    expect(tester.widget<TextField>(fields.at(1)).controller!.text, '700');
+  });
+
+  testWidgets(
+      'recurring confirmation rejects stale preview and preserves the newer amount',
+      (tester) async {
+    final state = _FormAppState()
+      ..monthCloseStatus = _baseline().monthCloseStatus
+      ..entries = [
+        LedgerEntry(
+          id: 17,
+          bookSection: 'current',
+          entryKind: 'planned',
+          title: '정기 구독',
+          sortOrder: 1,
+          usagePlace: '구독처',
+          amountValue: 500,
+          dueDay: 17,
+          discountPolicy: 'enabled',
+          automaticDiscountEligible: true,
+          effectiveDiscountAmount: 6,
+          effectiveAmountValue: 494,
+        ),
+      ];
+    addTearDown(state.dispose);
+    await tester.pumpWidget(MaterialApp(
+      home: PlannedEntryManagementScreen(state: state),
+    ));
+    final amountField =
+        find.byKey(const ValueKey('planned-recurring-amount-17'));
+    await tester.drag(find.byType(ListView), const Offset(0, -600));
+    await tester.pumpAndSettle();
+    expect(amountField, findsOneWidget);
+
+    await tester.tap(find.widgetWithText(ElevatedButton, '확인 처리'));
+    await tester.tap(find.widgetWithText(ElevatedButton, '확인 처리'));
+    expect(state.plannedPreviewCalls, 1);
+
+    await tester.enterText(amountField, '700');
+    state.plannedPreviewCompletion.complete(PlannedChargePreview(
+      amountValue: 500,
+      discountPolicy: 'enabled',
+      automaticDiscountEligible: true,
+      effectiveDiscountAmount: 6,
+      effectiveAmountValue: 494,
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.text('입력이 변경되었습니다. 현재 값으로 다시 확인하세요.'), findsOneWidget);
+    expect(state.plannedConfirmCalls, 0);
+    expect(
+      tester.widget<TextField>(amountField).controller!.text,
+      '700',
+    );
   });
 
   group('Phase 2 reconciliation recovery', () {
@@ -1466,6 +2120,107 @@ void main() {
       expect(api.mobileWinsCalls, 1);
       expect(await store.loadJournal(), isEmpty);
       expect(await store.listMobileRecoveryArtifacts(), hasLength(1));
+    });
+
+    test(
+        'fresh baseline persistence failure preserves finalizing lineage for restart',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _FailingBaselineStore(directory);
+      await store.replaceBaseline(_baseline(remainingLiquidity: 10000));
+      await store.saveMetadata(const OfflineWorkspaceMetadata(
+        mode: ConnectivityMode.reconciliationFinalizing,
+        reconciliationChoice: ReconciliationChoice.applyToServer,
+        reconciliationId: 'reconcile-baseline-write-failure',
+        phase: ReconciliationPhase.mobileCommitted,
+        serverCommitStatus: ServerCommitStatus.committed,
+      ));
+      await store.appendOperation(
+        type: OfflineOperationType.createCashFlow,
+        payload: const {
+          'occurred_on': '2026-09-17',
+          'title': '이미 반영된 출금',
+          'amount_value': -500,
+          'is_primary_income': 0,
+        },
+      );
+      final api = _OfflineApi()
+        ..available = true
+        ..committed = true
+        ..remainingLiquidity = 9500;
+      store.failNextReplace = true;
+      final state = AppState(api, offlineStore: store);
+
+      expect(await state.restorePersistedOfflineWorkspace(), isTrue);
+      expect(state.isReconciliationFinalizing, isTrue);
+      expect(state.mobileCommitIsCommitted, isTrue);
+      expect(await store.loadJournal(), hasLength(1));
+      final preserved = await store.loadBaseline();
+      expect(preserved!.summary.remainingLiquidity, 10000);
+      expect(preserved.resolvedReconciliationId, isNull);
+
+      final restarted = AppState(api, offlineStore: _store(directory));
+      expect(await restarted.restorePersistedOfflineWorkspace(), isTrue);
+      expect(restarted.isOnline, isTrue);
+      expect(api.mobileWinsCalls, 0);
+      expect(await store.loadJournal(), isEmpty);
+      final fresh = await store.loadBaseline();
+      expect(fresh!.summary.remainingLiquidity, 9500);
+      expect(
+          fresh.resolvedReconciliationId, 'reconcile-baseline-write-failure');
+    });
+
+    test(
+        'cleanup failure never reprojects committed journal onto fresh baseline',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _FailingDeleteJournalStore(directory);
+      await store.replaceBaseline(_baseline(remainingLiquidity: 10000));
+      await store.saveMetadata(const OfflineWorkspaceMetadata(
+        mode: ConnectivityMode.reconciliationFinalizing,
+        reconciliationChoice: ReconciliationChoice.applyToServer,
+        reconciliationId: 'reconcile-cleanup-failure',
+        phase: ReconciliationPhase.mobileCommitted,
+        serverCommitStatus: ServerCommitStatus.committed,
+      ));
+      await store.appendOperation(
+        type: OfflineOperationType.createCashFlow,
+        payload: const {
+          'occurred_on': '2026-09-17',
+          'title': '이미 반영된 출금',
+          'amount_value': -500,
+          'is_primary_income': 0,
+        },
+      );
+      final api = _OfflineApi()
+        ..available = true
+        ..committed = true
+        ..remainingLiquidity = 9500;
+      final state = AppState(api, offlineStore: store);
+
+      expect(await state.restorePersistedOfflineWorkspace(), isTrue);
+      expect(state.isReconciliationFinalizing, isTrue);
+      expect(state.summary!.remainingLiquidity, 9500);
+      expect(await store.loadJournal(), hasLength(1));
+      final fresh = await store.loadBaseline();
+      expect(fresh!.resolvedReconciliationId, 'reconcile-cleanup-failure');
+      expect(fresh.summary.remainingLiquidity, 9500);
+
+      api.available = false;
+      final restarted = AppState(api, offlineStore: _store(directory));
+      expect(await restarted.restorePersistedOfflineWorkspace(), isTrue);
+      expect(restarted.isReconciliationFinalizing, isTrue);
+      expect(restarted.summary!.remainingLiquidity, 9500);
+      expect(await store.loadJournal(), hasLength(1));
+
+      api.available = true;
+      expect(await restarted.resumeReconciliationFinalization(), isTrue);
+      expect(restarted.isOnline, isTrue);
+      expect(await store.loadJournal(), isEmpty);
+      expect(
+        (await store.loadBaseline())!.summary.remainingLiquidity,
+        9500,
+      );
     });
 
     test(

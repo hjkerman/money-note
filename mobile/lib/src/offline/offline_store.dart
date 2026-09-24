@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
@@ -9,16 +10,19 @@ import 'offline_data.dart';
 
 typedef OfflineDirectoryProvider = Future<Directory> Function();
 typedef MobileRecoveryWriteHook = Future<void> Function();
+typedef JournalAppendWriteHook = Future<void> Function();
 
 class OfflineStore {
   OfflineStore({
     OfflineDirectoryProvider? directoryProvider,
     DateTime Function()? clock,
     MobileRecoveryWriteHook? beforeMobileRecoveryWrite,
+    JournalAppendWriteHook? beforeJournalAppendWrite,
   })  : _directoryProvider =
             directoryProvider ?? getApplicationDocumentsDirectory,
         _clock = clock ?? DateTime.now,
-        _beforeMobileRecoveryWrite = beforeMobileRecoveryWrite;
+        _beforeMobileRecoveryWrite = beforeMobileRecoveryWrite,
+        _beforeJournalAppendWrite = beforeJournalAppendWrite;
 
   static const _directoryName = 'offline-mode';
   static const _recoveryDirectoryName = 'recovery';
@@ -30,7 +34,9 @@ class OfflineStore {
   final OfflineDirectoryProvider _directoryProvider;
   final DateTime Function() _clock;
   final MobileRecoveryWriteHook? _beforeMobileRecoveryWrite;
+  final JournalAppendWriteHook? _beforeJournalAppendWrite;
   final Random _random = Random.secure();
+  Future<void>? _journalAppendTail;
 
   Future<OfflineWorkspaceMetadata> loadMetadata() async {
     final file = await _file(_stateFilename);
@@ -44,6 +50,8 @@ class OfflineStore {
       }
       return OfflineWorkspaceMetadata.fromJson(decoded);
     } on FormatException catch (error) {
+      throw OfflinePersistenceException('오프라인 상태 파일을 읽을 수 없습니다: $error');
+    } on FileSystemException catch (error) {
       throw OfflinePersistenceException('오프라인 상태 파일을 읽을 수 없습니다: $error');
     }
   }
@@ -63,6 +71,8 @@ class OfflineStore {
       return OfflineBaseline.fromJson(decoded);
     } on FormatException catch (error) {
       throw OfflinePersistenceException('오프라인 기준 데이터를 읽을 수 없습니다: $error');
+    } on FileSystemException catch (error) {
+      throw OfflinePersistenceException('오프라인 기준 데이터를 읽을 수 없습니다: $error');
     }
   }
 
@@ -71,59 +81,43 @@ class OfflineStore {
   }
 
   Future<List<OfflineJournalOperation>> loadJournal() async {
-    final file = await _file(_journalFilename);
-    if (!await file.exists()) return const [];
-    final text = await file.readAsString();
-    final lines = text.split('\n');
-    final operations = <OfflineJournalOperation>[];
-    final ids = <String>{};
-    var previousSequence = 0;
-    for (var index = 0; index < lines.length; index += 1) {
-      final line = lines[index].trim();
-      if (line.isEmpty) continue;
-      try {
-        final decoded = jsonDecode(line);
-        if (decoded is! Map<String, dynamic>) {
-          throw const FormatException('journal row must be an object');
-        }
-        final operation = OfflineJournalOperation.fromJson(decoded);
-        if (operation.sequence <= previousSequence ||
-            !ids.add(operation.operationId)) {
-          throw const FormatException('journal ordering is invalid');
-        }
-        previousSequence = operation.sequence;
-        operations.add(operation);
-      } on FormatException catch (error) {
-        final isInterruptedFinalAppend =
-            index == lines.length - 1 && !text.endsWith('\n');
-        if (isInterruptedFinalAppend) break;
-        throw OfflinePersistenceException('오프라인 journal을 읽을 수 없습니다: $error');
-      }
-    }
-    return List.unmodifiable(operations);
+    final pendingAppend = _journalAppendTail;
+    if (pendingAppend != null) await pendingAppend;
+    return _loadJournalFile(await _file(_journalFilename));
   }
 
   Future<OfflineJournalOperation> appendOperation({
     required OfflineOperationType type,
     required Map<String, dynamic> payload,
   }) async {
-    final file = await _file(_journalFilename);
-    await _discardInterruptedTail(file);
-    _rejectDerivedFinancialValues(payload);
-    final operations = await loadJournal();
-    final operation = OfflineJournalOperation(
-      operationId: _operationId(),
-      type: type,
-      payload: Map<String, dynamic>.unmodifiable(payload),
-      createdAt: _clock().toUtc(),
-      sequence: operations.isEmpty ? 1 : operations.last.sequence + 1,
-    );
-    await file.writeAsString(
-      '${jsonEncode(operation.toJson())}\n',
-      mode: FileMode.append,
-      flush: true,
-    );
-    return operation;
+    final previous = _journalAppendTail;
+    final completed = Completer<void>();
+    final current = completed.future;
+    _journalAppendTail = current;
+    if (previous != null) await previous;
+    try {
+      final file = await _file(_journalFilename);
+      await _repairJournalTail(file);
+      _rejectDerivedFinancialValues(payload);
+      final operations = await _loadJournalFile(file);
+      final operation = OfflineJournalOperation(
+        operationId: _operationId(),
+        type: type,
+        payload: Map<String, dynamic>.unmodifiable(payload),
+        createdAt: _clock().toUtc(),
+        sequence: operations.isEmpty ? 1 : operations.last.sequence + 1,
+      );
+      await _beforeJournalAppendWrite?.call();
+      await file.writeAsString(
+        '${jsonEncode(operation.toJson())}\n',
+        mode: FileMode.append,
+        flush: true,
+      );
+      return operation;
+    } finally {
+      completed.complete();
+      if (identical(_journalAppendTail, current)) _journalAppendTail = null;
+    }
   }
 
   Future<OfflineReconciliationBundle?> loadReconciliationBundle() async {
@@ -312,15 +306,76 @@ class OfflineStore {
     }
   }
 
-  Future<void> _discardInterruptedTail(File file) async {
+  Future<List<OfflineJournalOperation>> _loadJournalFile(File file) async {
+    if (!await file.exists()) return const [];
+    try {
+      final bytes = await file.readAsBytes();
+      final operations = <OfflineJournalOperation>[];
+      final ids = <String>{};
+      var previousSequence = 0;
+      var start = 0;
+      for (var index = 0; index <= bytes.length; index += 1) {
+        final atEnd = index == bytes.length;
+        if (!atEnd && bytes[index] != 0x0a) continue;
+        if (index == start) {
+          start = index + 1;
+          continue;
+        }
+        final isUnterminatedTail =
+            atEnd && bytes.isNotEmpty && bytes.last != 0x0a;
+        OfflineJournalOperation operation;
+        try {
+          operation = _decodeJournalRecord(bytes.sublist(start, index));
+        } on FormatException catch (error) {
+          if (isUnterminatedTail) break;
+          throw OfflinePersistenceException('오프라인 journal을 읽을 수 없습니다: $error');
+        }
+        if (operation.sequence <= previousSequence ||
+            !ids.add(operation.operationId)) {
+          throw const OfflinePersistenceException(
+              '오프라인 journal 순서 또는 operation id가 올바르지 않습니다.');
+        }
+        previousSequence = operation.sequence;
+        operations.add(operation);
+        start = index + 1;
+      }
+      return List.unmodifiable(operations);
+    } on FileSystemException catch (error) {
+      throw OfflinePersistenceException('오프라인 journal을 읽을 수 없습니다: $error');
+    }
+  }
+
+  OfflineJournalOperation _decodeJournalRecord(List<int> bytes) {
+    final line = utf8.decode(bytes, allowMalformed: false).trim();
+    if (line.isEmpty) throw const FormatException('journal row is empty');
+    final decoded = jsonDecode(line);
+    if (decoded is! Map<String, dynamic>) {
+      throw const FormatException('journal row must be an object');
+    }
+    return OfflineJournalOperation.fromJson(decoded);
+  }
+
+  Future<void> _repairJournalTail(File file) async {
     if (!await file.exists()) return;
     final bytes = await file.readAsBytes();
     if (bytes.isEmpty || bytes.last == 0x0a) return;
 
     final lastNewline = bytes.lastIndexOf(0x0a);
+    final tail = bytes.sublist(lastNewline + 1);
+    var validRecord = false;
+    try {
+      _decodeJournalRecord(tail);
+      validRecord = true;
+    } on FormatException {
+      // A crash may leave only the final NDJSON record incomplete.
+    }
     final journal = await file.open(mode: FileMode.append);
     try {
-      await journal.truncate(lastNewline + 1);
+      if (validRecord) {
+        await journal.writeByte(0x0a);
+      } else {
+        await journal.truncate(lastNewline + 1);
+      }
       await journal.flush();
     } finally {
       await journal.close();

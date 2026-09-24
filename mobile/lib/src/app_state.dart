@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -47,6 +48,8 @@ class AppState extends ChangeNotifier {
       const NotificationCandidateCounts.empty();
   ConnectivityMode connectivityMode = ConnectivityMode.online;
   ReconciliationChoice? reconciliationChoice;
+  int _lineageGeneration = 0;
+  Future<void>? _lineageTail;
   DateTime? lastSuccessfulSyncAt;
   List<OfflineJournalOperation> offlineJournal = const [];
   bool serverFailurePromptPending = false;
@@ -61,6 +64,8 @@ class AppState extends ChangeNotifier {
   String notificationArchiveSource = 'woori_card';
 
   bool get isLoggedIn => user != null;
+  bool get isPersistenceRecoveryBlocked =>
+      connectivityMode == ConnectivityMode.persistenceRecoveryBlocked;
 
   bool get isOnline => connectivityMode == ConnectivityMode.online;
   bool get isOffline => connectivityMode == ConnectivityMode.offline;
@@ -191,10 +196,16 @@ class AppState extends ChangeNotifier {
       offlineJournal = await offlineStore.loadJournal();
       lastSuccessfulSyncAt = _offlineBaseline?.syncedAt;
     } on OfflinePersistenceException catch (error) {
-      connectivityMode = ConnectivityMode.online;
+      const blocked = OfflineWorkspaceMetadata(
+        mode: ConnectivityMode.persistenceRecoveryBlocked,
+      );
+      _offlineMetadata = blocked;
+      connectivityMode = blocked.mode;
+      reconciliationChoice = null;
+      _lineageGeneration += 1;
       offlineEntryMessage = error.message;
       if (notify) notifyListeners();
-      return false;
+      return true;
     }
 
     if (isOnline) {
@@ -204,13 +215,21 @@ class AppState extends ChangeNotifier {
 
     final baseline = _offlineBaseline;
     if (baseline == null) {
-      connectivityMode = ConnectivityMode.online;
-      serverFailurePromptPending = true;
-      offlineEntryMessage = '온라인 상태에서 한 번 동기화가 필요합니다.';
+      const blocked = OfflineWorkspaceMetadata(
+        mode: ConnectivityMode.persistenceRecoveryBlocked,
+      );
+      _offlineMetadata = blocked;
+      connectivityMode = blocked.mode;
+      _lineageGeneration += 1;
+      offlineEntryMessage = '오프라인 lineage의 기준 데이터를 찾을 수 없어 복구가 필요합니다.';
       if (notify) notifyListeners();
       return true;
     }
-    _restoreOfflineProjection(baseline);
+    if (_journalWasResolvedByBaseline(baseline)) {
+      _restoreAuthoritativeBaseline(baseline);
+    } else {
+      _restoreOfflineProjection(baseline);
+    }
     await checkServerRecovery(notify: false);
     final persistedChoice = _offlineMetadata.reconciliationChoice;
     if (isReconciliationRequired &&
@@ -263,7 +282,86 @@ class AppState extends ChangeNotifier {
     bool notify = true,
     bool allowBaselineWhileFinalizing = false,
   }) async {
+    if (!_refreshModeAllowed(allowBaselineWhileFinalizing)) {
+      throw MoneyNoteApiException(
+          '현재 상태에서는 authoritative refresh를 설치할 수 없습니다.');
+    }
+    final generation = _lineageGeneration;
     await refreshNotificationPermissions(notify: false);
+
+    for (var attempt = 0; attempt < 3; attempt += 1) {
+      final before = await _readAuthoritativeBaselineEnvelope();
+      final candidate = await _fetchAuthoritativeStateCandidate();
+      final after = await _readAuthoritativeBaselineEnvelope();
+      if (before.fingerprint != after.fingerprint) continue;
+
+      await _withLineageLock(() async {
+        if (generation != _lineageGeneration ||
+            !_refreshModeAllowed(allowBaselineWhileFinalizing)) {
+          throw MoneyNoteApiException(
+            '상태가 변경되어 오래된 authoritative refresh 결과를 폐기했습니다.',
+          );
+        }
+        final baseline = OfflineBaseline(
+          syncedAt: DateTime.now().toUtc(),
+          authoritativeSnapshot: after.snapshot,
+          serverStateFingerprint: after.fingerprint,
+          resolvedReconciliationId: isReconciliationFinalizing
+              ? _offlineMetadata.reconciliationId
+              : null,
+          user: candidate.user,
+          summary: candidate.summary,
+          cardPaymentStatus: candidate.cardPaymentStatus,
+          judgment: candidate.judgment,
+          monthCloseStatus: candidate.monthCloseStatus,
+          settings: candidate.settings,
+          ownerDiscountMonth: candidate.ownerDiscountMonth,
+          familyDiscountMonth: candidate.familyDiscountMonth,
+          transitDiscountProfile: candidate.transitDiscountProfile,
+          entries: candidate.entries,
+          confirmedPlannedEntries: candidate.confirmedPlannedEntries,
+          panels: candidate.panels,
+          cashFlows: candidate.cashFlows,
+        );
+        await offlineStore.replaceBaseline(baseline);
+        _offlineBaseline = baseline;
+        user = candidate.user;
+        summary = candidate.summary;
+        cardPaymentStatus = candidate.cardPaymentStatus;
+        judgment = candidate.judgment;
+        entries = candidate.entries;
+        confirmedPlannedEntries = candidate.confirmedPlannedEntries;
+        panels = candidate.panels;
+        cashFlows = candidate.cashFlows;
+        settings = candidate.settings;
+        monthCloseStatus = candidate.monthCloseStatus;
+        ownerDiscountMonth = candidate.ownerDiscountMonth;
+        familyDiscountMonth = candidate.familyDiscountMonth;
+        transitDiscountProfile = candidate.transitDiscountProfile;
+        lastSuccessfulSyncAt = baseline.syncedAt;
+        usesConservativeCardEstimate = false;
+        offlineEntryMessage = '';
+      });
+      await _configureNotificationCards();
+      await refreshNotificationInboxState(notify: false);
+      if (notify) notifyListeners();
+      return;
+    }
+
+    throw MoneyNoteApiException(
+      '동기화 중 서버 데이터가 계속 변경되어 coherent offline baseline을 만들지 못했습니다.',
+    );
+  }
+
+  bool _refreshModeAllowed(bool allowBaselineWhileFinalizing) =>
+      isOnline || (allowBaselineWhileFinalizing && isReconciliationFinalizing);
+
+  Future<_AuthoritativeStateCandidate>
+      _fetchAuthoritativeStateCandidate() async {
+    final currentUser = user;
+    if (currentUser == null) {
+      throw MoneyNoteApiException('로그인 사용자 정보가 없습니다.');
+    }
     final freshMonthCloseStatus = await api.monthCloseStatus();
     final results = await Future.wait([
       api.summary(),
@@ -294,25 +392,38 @@ class AppState extends ChangeNotifier {
       api.transitDiscountProfile(freshMonth),
     ]);
 
-    summary = freshSummary;
-    cardPaymentStatus = freshCardPaymentStatus;
-    judgment = freshJudgment;
-    entries = freshEntries;
-    confirmedPlannedEntries = freshConfirmedPlannedEntries;
-    panels = freshPanels;
-    cashFlows = freshCashFlows;
-    settings = freshSettings;
-    monthCloseStatus = freshMonthCloseStatus;
-    ownerDiscountMonth = discountResults[0] as CardDiscountMonth;
-    familyDiscountMonth = discountResults[1] as CardDiscountMonth;
-    transitDiscountProfile = discountResults[2] as TransitDiscountProfileStatus;
-    usesConservativeCardEstimate = false;
-    await _configureNotificationCards();
-    await refreshNotificationInboxState(notify: false);
-    await _persistCompleteBaseline(
-      allowWhileFinalizing: allowBaselineWhileFinalizing,
+    return _AuthoritativeStateCandidate(
+      user: currentUser,
+      summary: freshSummary,
+      cardPaymentStatus: freshCardPaymentStatus,
+      judgment: freshJudgment,
+      entries: List.unmodifiable(freshEntries),
+      confirmedPlannedEntries: List.unmodifiable(freshConfirmedPlannedEntries),
+      panels: List.unmodifiable(freshPanels),
+      cashFlows: List.unmodifiable(freshCashFlows),
+      settings: freshSettings,
+      monthCloseStatus: freshMonthCloseStatus,
+      ownerDiscountMonth: discountResults[0] as CardDiscountMonth,
+      familyDiscountMonth: discountResults[1] as CardDiscountMonth,
+      transitDiscountProfile:
+          discountResults[2] as TransitDiscountProfileStatus,
     );
-    if (notify) notifyListeners();
+  }
+
+  Future<_AuthoritativeBaselineEnvelope>
+      _readAuthoritativeBaselineEnvelope() async {
+    final authoritative = await api.offlineReconciliationBaseline();
+    final snapshot = authoritative['snapshot'];
+    final fingerprint = authoritative['state_fingerprint'];
+    if (snapshot is! Map<String, dynamic> ||
+        fingerprint is! String ||
+        !RegExp(r'^[0-9a-f]{64}$').hasMatch(fingerprint)) {
+      throw MoneyNoteApiException('오프라인 기준 Snapshot 응답이 올바르지 않습니다.');
+    }
+    return _AuthoritativeBaselineEnvelope(
+      snapshot: Map<String, dynamic>.unmodifiable(snapshot),
+      fingerprint: fingerprint,
+    );
   }
 
   Future<void> resumeFromBackground() async {
@@ -342,10 +453,7 @@ class AppState extends ChangeNotifier {
       await checkServerRecovery(notify: notify);
       return;
     }
-    await refreshNotificationPermissions(notify: false);
-    await refreshNotificationInboxState(notify: false);
-    await _refreshEntriesAndStatus();
-    if (notify) notifyListeners();
+    await _refreshAuthoritativeState(notify: notify);
   }
 
   Future<void> refreshCashArea({bool notify = true}) async {
@@ -353,20 +461,7 @@ class AppState extends ChangeNotifier {
       await checkServerRecovery(notify: notify);
       return;
     }
-    final freshMonthCloseStatus = await api.monthCloseStatus();
-    final results = await Future.wait([
-      _loadRecentCashFlows(freshMonthCloseStatus),
-      api.summary(),
-      api.judgment(),
-      api.currentPanels(),
-    ]);
-    cashFlows = results[0] as List<CashFlow>;
-    summary = results[1] as Summary;
-    judgment = results[2] as JudgmentState;
-    panels = results[3] as List<MonthlyPanel>;
-    monthCloseStatus = freshMonthCloseStatus;
-    await _persistCompleteBaseline();
-    if (notify) notifyListeners();
+    await _refreshAuthoritativeState(notify: notify);
   }
 
   Future<List<CashFlow>> _loadRecentCashFlows(MonthCloseStatus status) {
@@ -387,9 +482,7 @@ class AppState extends ChangeNotifier {
       await checkServerRecovery(notify: notify);
       return;
     }
-    await refreshNotificationInboxState(notify: false);
-    await _refreshEntriesAndStatus();
-    if (notify) notifyListeners();
+    await _refreshAuthoritativeState(notify: notify);
   }
 
   Future<void> refreshSettlementArea({bool notify = true}) async {
@@ -397,8 +490,7 @@ class AppState extends ChangeNotifier {
       await checkServerRecovery(notify: notify);
       return;
     }
-    await _refreshPanelsAndStatus();
-    if (notify) notifyListeners();
+    await _refreshAuthoritativeState(notify: notify);
   }
 
   Future<void> refreshPanelManagementArea({bool notify = true}) async {
@@ -406,20 +498,7 @@ class AppState extends ChangeNotifier {
       await checkServerRecovery(notify: notify);
       return;
     }
-    final freshMonthCloseStatus = await api.monthCloseStatus();
-    final results = await Future.wait([
-      api.currentPanels(),
-      api.summary(),
-      api.judgment(),
-      _loadRecentCashFlows(freshMonthCloseStatus),
-    ]);
-    panels = results[0] as List<MonthlyPanel>;
-    summary = results[1] as Summary;
-    judgment = results[2] as JudgmentState;
-    cashFlows = results[3] as List<CashFlow>;
-    monthCloseStatus = freshMonthCloseStatus;
-    await _persistCompleteBaseline();
-    if (notify) notifyListeners();
+    await _refreshAuthoritativeState(notify: notify);
   }
 
   Future<void> refreshPlannedManagementArea({bool notify = true}) async {
@@ -427,18 +506,7 @@ class AppState extends ChangeNotifier {
       await checkServerRecovery(notify: notify);
       return;
     }
-    final results = await Future.wait([
-      api.currentEntries(),
-      api.confirmedPlannedEntries(),
-      api.summary(),
-      api.judgment(),
-    ]);
-    entries = results[0] as List<LedgerEntry>;
-    confirmedPlannedEntries = results[1] as List<LedgerEntry>;
-    summary = results[2] as Summary;
-    judgment = results[3] as JudgmentState;
-    await _persistCompleteBaseline();
-    if (notify) notifyListeners();
+    await _refreshAuthoritativeState(notify: notify);
   }
 
   Future<void> refreshSettingsArea({bool notify = true}) async {
@@ -446,117 +514,7 @@ class AppState extends ChangeNotifier {
       await checkServerRecovery(notify: notify);
       return;
     }
-    final results = await Future.wait([
-      api.settings(),
-      api.summary(),
-      api.judgment(),
-    ]);
-    settings = results[0] as AppSettings;
-    summary = results[1] as Summary;
-    judgment = results[2] as JudgmentState;
-    await _configureNotificationCards();
-    await _refreshDiscountMonths();
-    await refreshNotificationInboxState(notify: false);
-    await _persistCompleteBaseline();
-    if (notify) notifyListeners();
-  }
-
-  Future<void> _refreshEntriesAndStatus() async {
-    final results = await Future.wait([
-      api.currentEntries(),
-      api.summary(),
-      api.currentCardPaymentStatus(),
-      api.judgment(),
-      api.monthCloseStatus(),
-    ]);
-    entries = results[0] as List<LedgerEntry>;
-    summary = results[1] as Summary;
-    cardPaymentStatus = results[2] as CardPaymentStatus;
-    judgment = results[3] as JudgmentState;
-    monthCloseStatus = results[4] as MonthCloseStatus;
-    await _refreshDiscountMonths();
-    await _persistCompleteBaseline();
-  }
-
-  Future<void> _refreshPanelsAndStatus() async {
-    final results = await Future.wait([
-      api.currentPanels(),
-      api.summary(),
-      api.judgment(),
-    ]);
-    panels = results[0] as List<MonthlyPanel>;
-    summary = results[1] as Summary;
-    judgment = results[2] as JudgmentState;
-    await _refreshDiscountMonths();
-    await _persistCompleteBaseline();
-  }
-
-  Future<void> _refreshDiscountMonths() async {
-    final month = currentMonth;
-    final results = await Future.wait([
-      api.discountMonth(month, 'owner'),
-      api.discountMonth(month, 'family'),
-      api.transitDiscountProfile(month),
-    ]);
-    ownerDiscountMonth = results[0] as CardDiscountMonth;
-    familyDiscountMonth = results[1] as CardDiscountMonth;
-    transitDiscountProfile = results[2] as TransitDiscountProfileStatus;
-  }
-
-  Future<void> _persistCompleteBaseline({
-    bool allowWhileFinalizing = false,
-  }) async {
-    if (!isOnline && !(allowWhileFinalizing && isReconciliationFinalizing)) {
-      return;
-    }
-    final currentUser = user;
-    final currentSummary = summary;
-    final currentCardPaymentStatus = cardPaymentStatus;
-    final currentJudgment = judgment;
-    final currentMonthCloseStatus = monthCloseStatus;
-    final currentOwnerDiscountMonth = ownerDiscountMonth;
-    final currentFamilyDiscountMonth = familyDiscountMonth;
-    final currentTransitDiscountProfile = transitDiscountProfile;
-    if (currentUser == null ||
-        currentSummary == null ||
-        currentCardPaymentStatus == null ||
-        currentJudgment == null ||
-        currentMonthCloseStatus == null ||
-        currentOwnerDiscountMonth == null ||
-        currentFamilyDiscountMonth == null ||
-        currentTransitDiscountProfile == null) {
-      return;
-    }
-    final authoritative = await api.offlineReconciliationBaseline();
-    final snapshot = authoritative['snapshot'];
-    final fingerprint = authoritative['state_fingerprint'];
-    if (snapshot is! Map<String, dynamic> ||
-        fingerprint is! String ||
-        !RegExp(r'^[0-9a-f]{64}$').hasMatch(fingerprint)) {
-      throw MoneyNoteApiException('오프라인 기준 Snapshot 응답이 올바르지 않습니다.');
-    }
-    final baseline = OfflineBaseline(
-      syncedAt: DateTime.now().toUtc(),
-      authoritativeSnapshot: Map<String, dynamic>.unmodifiable(snapshot),
-      serverStateFingerprint: fingerprint,
-      user: currentUser,
-      summary: currentSummary,
-      cardPaymentStatus: currentCardPaymentStatus,
-      judgment: currentJudgment,
-      monthCloseStatus: currentMonthCloseStatus,
-      settings: settings,
-      ownerDiscountMonth: currentOwnerDiscountMonth,
-      familyDiscountMonth: currentFamilyDiscountMonth,
-      transitDiscountProfile: currentTransitDiscountProfile,
-      entries: List.unmodifiable(entries),
-      confirmedPlannedEntries: List.unmodifiable(confirmedPlannedEntries),
-      panels: List.unmodifiable(panels),
-      cashFlows: List.unmodifiable(cashFlows),
-    );
-    await offlineStore.replaceBaseline(baseline);
-    _offlineBaseline = baseline;
-    lastSuccessfulSyncAt = baseline.syncedAt;
-    offlineEntryMessage = '';
+    await _refreshAuthoritativeState(notify: notify);
   }
 
   String _monthFor(
@@ -583,36 +541,44 @@ class AppState extends ChangeNotifier {
   }
 
   Future<bool> enterOfflineMode() async {
-    if (isReconciliationRequired) return false;
-    try {
-      final baseline = await offlineStore.loadBaseline();
-      if (baseline == null) {
-        offlineEntryMessage = '온라인 상태에서 한 번 동기화가 필요합니다.';
-        notifyListeners();
-        return false;
-      }
-      if (!baseline.supportsAtomicReconciliation) {
-        offlineEntryMessage = '안전한 오프라인 기준 데이터를 만들려면 온라인에서 다시 동기화하세요.';
-        notifyListeners();
-        return false;
-      }
-      final journal = await offlineStore.loadJournal();
-      const metadata = OfflineWorkspaceMetadata(
-        mode: ConnectivityMode.offline,
-      );
-      await offlineStore.saveMetadata(metadata);
-      _offlineMetadata = metadata;
-      _offlineBaseline = baseline;
-      offlineJournal = journal;
-      connectivityMode = ConnectivityMode.offline;
-      reconciliationChoice = null;
-      serverFailurePromptPending = false;
-      networkUnavailable = false;
-      offlineEntryMessage = '';
-      _restoreOfflineProjection(baseline);
-      statusMessage = '오프라인 모드로 전환했습니다.';
+    if (!isOnline) {
+      offlineEntryMessage = '현재 조정 또는 복구 상태에서는 오프라인 모드로 전환할 수 없습니다.';
       notifyListeners();
-      return true;
+      return false;
+    }
+    try {
+      return await _withLineageLock(() async {
+        if (!isOnline) return false;
+        final baseline = await offlineStore.loadBaseline();
+        if (baseline == null) {
+          offlineEntryMessage = '온라인 상태에서 한 번 동기화가 필요합니다.';
+          notifyListeners();
+          return false;
+        }
+        if (!baseline.supportsAtomicReconciliation) {
+          offlineEntryMessage = '안전한 오프라인 기준 데이터를 만들려면 온라인에서 다시 동기화하세요.';
+          notifyListeners();
+          return false;
+        }
+        final journal = await offlineStore.loadJournal();
+        const metadata = OfflineWorkspaceMetadata(
+          mode: ConnectivityMode.offline,
+        );
+        await offlineStore.saveMetadata(metadata);
+        _offlineMetadata = metadata;
+        _offlineBaseline = baseline;
+        offlineJournal = journal;
+        connectivityMode = ConnectivityMode.offline;
+        reconciliationChoice = null;
+        _lineageGeneration += 1;
+        serverFailurePromptPending = false;
+        networkUnavailable = false;
+        offlineEntryMessage = '';
+        _restoreOfflineProjection(baseline);
+        statusMessage = '오프라인 모드로 전환했습니다.';
+        notifyListeners();
+        return true;
+      });
     } on OfflinePersistenceException catch (error) {
       offlineEntryMessage = error.message;
       notifyListeners();
@@ -621,6 +587,11 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> checkServerRecovery({bool notify = true}) async {
+    if (isPersistenceRecoveryBlocked) {
+      statusMessage = '오프라인 저장소 복구가 필요합니다. 앱에서 금융 작업을 진행할 수 없습니다.';
+      if (notify) notifyListeners();
+      return;
+    }
     if (isOnline) return;
     if (isReconciliationFinalizing) {
       await resumeReconciliationFinalization(notify: notify);
@@ -632,10 +603,7 @@ class AppState extends ChangeNotifier {
         const metadata = OfflineWorkspaceMetadata(
           mode: ConnectivityMode.reconciliationRequired,
         );
-        await offlineStore.saveMetadata(metadata);
-        _offlineMetadata = metadata;
-        connectivityMode = ConnectivityMode.reconciliationRequired;
-        reconciliationChoice = null;
+        await _saveOfflineMetadata(metadata);
         statusMessage = '서버 연결이 복구되어 조정이 필요합니다.';
       } else {
         statusMessage = '서버 연결을 확인했습니다. 조정을 완료해야 합니다.';
@@ -1050,7 +1018,13 @@ class AppState extends ChangeNotifier {
       return true;
     } catch (error) {
       final baseline = _offlineBaseline;
-      if (baseline != null) _restoreOfflineProjection(baseline);
+      if (baseline != null) {
+        if (_journalWasResolvedByBaseline(baseline)) {
+          _restoreAuthoritativeBaseline(baseline);
+        } else {
+          _restoreOfflineProjection(baseline);
+        }
+      }
       statusMessage = '서버 반영은 완료되었지만 최신 상태 동기화를 기다리는 중입니다.';
       if (notify) notifyListeners();
       return false;
@@ -1069,7 +1043,13 @@ class AppState extends ChangeNotifier {
       return true;
     } catch (error) {
       final baseline = _offlineBaseline;
-      if (baseline != null) _restoreOfflineProjection(baseline);
+      if (baseline != null) {
+        if (_journalWasResolvedByBaseline(baseline)) {
+          _restoreAuthoritativeBaseline(baseline);
+        } else {
+          _restoreOfflineProjection(baseline);
+        }
+      }
       statusMessage = '서버 상태를 가져오지 못해 기존 오프라인 상태를 보존했습니다.';
       if (notify) notifyListeners();
       return false;
@@ -1084,6 +1064,7 @@ class AppState extends ChangeNotifier {
     offlineJournal = const [];
     connectivityMode = ConnectivityMode.online;
     reconciliationChoice = null;
+    _lineageGeneration += 1;
     networkUnavailable = false;
     serverFailurePromptPending = false;
     usesConservativeCardEstimate = false;
@@ -1094,6 +1075,33 @@ class AppState extends ChangeNotifier {
     _offlineMetadata = metadata;
     connectivityMode = metadata.mode;
     reconciliationChoice = metadata.reconciliationChoice;
+    _lineageGeneration += 1;
+  }
+
+  bool _journalWasResolvedByBaseline(OfflineBaseline baseline) {
+    final resolvedId = baseline.resolvedReconciliationId;
+    return resolvedId != null &&
+        resolvedId == _offlineMetadata.reconciliationId &&
+        (_offlineMetadata.serverCommitStatus == ServerCommitStatus.committed ||
+            _offlineMetadata.phase == ReconciliationPhase.serverWinsFinalizing);
+  }
+
+  void _restoreAuthoritativeBaseline(OfflineBaseline baseline) {
+    user = baseline.user;
+    summary = baseline.summary;
+    cardPaymentStatus = baseline.cardPaymentStatus;
+    judgment = baseline.judgment;
+    monthCloseStatus = baseline.monthCloseStatus;
+    settings = baseline.settings;
+    ownerDiscountMonth = baseline.ownerDiscountMonth;
+    familyDiscountMonth = baseline.familyDiscountMonth;
+    transitDiscountProfile = baseline.transitDiscountProfile;
+    entries = List.from(baseline.entries);
+    confirmedPlannedEntries = List.from(baseline.confirmedPlannedEntries);
+    panels = List.from(baseline.panels);
+    cashFlows = List.from(baseline.cashFlows);
+    lastSuccessfulSyncAt = baseline.syncedAt;
+    usesConservativeCardEstimate = false;
   }
 
   void _restoreOfflineProjection(OfflineBaseline baseline) {
@@ -1233,45 +1241,22 @@ class AppState extends ChangeNotifier {
         return;
       }
       _requireOnline('카드 사용 기록');
-      final entry = await api.createExpense(
+      await api.createExpense(
         date: resolvedEntryDate,
         usagePlace: usagePlace,
         usageItem: usageItem,
         amount: amount,
+        discountEnabled: discountEnabled,
+        discountOverrideAmount: discountOverrideAmount,
         spendingCategory: normalizedCategory,
         candidateRegistrationKey: candidateRegistrationKey,
       );
-      if (candidateRegistrationKey != null) {
-        try {
-          if (discountOverrideAmount != null && entry.paymentKey != null) {
-            await api.updateEntryDiscount(
-              entry.paymentKey!,
-              discountOverrideAmount,
-            );
-          } else if (!discountEnabled &&
-              !entry.isDiscountIneligible &&
-              entry.paymentKey != null) {
-            await api.excludeEntryDiscount(entry.paymentKey!);
-          }
-          await refreshInputArea(notify: false);
-          statusMessage = '지출 추가 완료';
-        } catch (_) {
-          statusMessage = '지출은 저장됐습니다. 화면 갱신 또는 할인 설정을 다시 확인하세요.';
-        }
-        return;
+      try {
+        await refreshInputArea(notify: false);
+        statusMessage = '지출 추가 완료';
+      } catch (_) {
+        statusMessage = '지출은 저장됐습니다. 최신 화면 동기화는 다시 시도하세요.';
       }
-      if (discountOverrideAmount != null && entry.paymentKey != null) {
-        await api.updateEntryDiscount(
-          entry.paymentKey!,
-          discountOverrideAmount,
-        );
-      } else if (!discountEnabled &&
-          !entry.isDiscountIneligible &&
-          entry.paymentKey != null) {
-        await api.excludeEntryDiscount(entry.paymentKey!);
-      }
-      await refreshInputArea(notify: false);
-      statusMessage = '지출 추가 완료';
     });
   }
 
@@ -1312,28 +1297,32 @@ class AppState extends ChangeNotifier {
           (panelType == 'claim' || panelType == 'family_card')) {
         await api.excludePanelDiscount(panel.id);
       }
-      if (panelType == 'fixed' || panelType == 'frozen') {
-        await refreshPanelManagementArea(notify: false);
-      } else {
-        await refreshSettlementArea(notify: false);
+      try {
+        if (panelType == 'fixed' || panelType == 'frozen') {
+          await refreshPanelManagementArea(notify: false);
+        } else {
+          await refreshSettlementArea(notify: false);
+        }
+        statusMessage = switch (panelType) {
+          'claim' => '청구 추가 완료',
+          'family_card' => '가족카드 추가 완료',
+          'fixed' => '현금성 고정지출 추가 완료',
+          'frozen' => '동결 금액 추가 완료',
+          _ => '항목 추가 완료',
+        };
+      } catch (_) {
+        statusMessage = '항목은 저장됐습니다. 최신 화면 동기화는 다시 시도하세요.';
       }
-      statusMessage = switch (panelType) {
-        'claim' => '청구 추가 완료',
-        'family_card' => '가족카드 추가 완료',
-        'fixed' => '현금성 고정지출 추가 완료',
-        'frozen' => '동결 금액 추가 완료',
-        _ => '항목 추가 완료',
-      };
     });
   }
 
-  Future<void> createPlannedEntry({
+  Future<bool> createPlannedEntry({
     required int dueDay,
     required String usagePlace,
     required String usageItem,
     required int amount,
   }) async {
-    await _run(() async {
+    return _run(() async {
       _requireOnline('정기결제 등록');
       await api.createPlannedEntry(
         dueDay: dueDay,
@@ -1341,8 +1330,12 @@ class AppState extends ChangeNotifier {
         usageItem: usageItem,
         amount: amount,
       );
-      await refreshPlannedManagementArea(notify: false);
-      statusMessage = '카드 정기결제 추가 완료';
+      try {
+        await refreshPlannedManagementArea(notify: false);
+        statusMessage = '카드 정기결제 추가 완료';
+      } catch (_) {
+        statusMessage = '카드 정기결제는 저장됐습니다. 최신 화면 동기화는 다시 시도하세요.';
+      }
     });
   }
 
@@ -1361,9 +1354,9 @@ class AppState extends ChangeNotifier {
     return api.previewPlannedEntry(entryId, actualAmount);
   }
 
-  Future<void> confirmPlannedEntry(
+  Future<bool> confirmPlannedEntry(
       int entryId, String entryDate, int actualAmount) async {
-    await _run(() async {
+    return _run(() async {
       if (isOffline) {
         if (!plannedEntries.any((entry) => entry.id == entryId)) {
           throw MoneyNoteApiException('이미 확인했거나 찾을 수 없는 정기결제입니다.');
@@ -1387,8 +1380,12 @@ class AppState extends ChangeNotifier {
       }
       _requireOnline('정기결제 확인');
       await api.confirmPlannedEntry(entryId, entryDate, actualAmount);
-      await refreshPlannedManagementArea(notify: false);
-      statusMessage = '카드 정기결제 확인 완료';
+      try {
+        await refreshPlannedManagementArea(notify: false);
+        statusMessage = '카드 정기결제 확인 완료';
+      } catch (_) {
+        statusMessage = '정기결제 확인은 저장됐습니다. 최신 화면 동기화는 다시 시도하세요.';
+      }
     });
   }
 
@@ -1459,9 +1456,9 @@ class AppState extends ChangeNotifier {
     });
   }
 
-  Future<void> confirmFixedPanel(
+  Future<bool> confirmFixedPanel(
       int panelId, String occurredOn, int actualAmount) async {
-    await _run(() async {
+    return _run(() async {
       if (isOffline) {
         if (actualAmount < 0) {
           throw MoneyNoteApiException('현금성 고정지출 실제 출금액은 0원 이상이어야 합니다.');
@@ -1488,8 +1485,12 @@ class AppState extends ChangeNotifier {
       }
       _requireOnline('현금성 고정지출 확인');
       await api.confirmFixedPanel(panelId, occurredOn, actualAmount);
-      await refreshPanelManagementArea(notify: false);
-      statusMessage = '현금성 고정지출 확인 완료';
+      try {
+        await refreshPanelManagementArea(notify: false);
+        statusMessage = '현금성 고정지출 확인 완료';
+      } catch (_) {
+        statusMessage = '고정지출 확인은 저장됐습니다. 최신 화면 동기화는 다시 시도하세요.';
+      }
     });
   }
 
@@ -1546,14 +1547,14 @@ class AppState extends ChangeNotifier {
     );
   }
 
-  Future<void> createCashFlow({
+  Future<bool> createCashFlow({
     required String occurredOn,
     required String title,
     required int amount,
     required bool isIncome,
     required bool isPrimaryIncome,
   }) async {
-    await _run(() async {
+    return _run(() async {
       final signedAmount = isIncome ? amount : -amount;
       if (isOffline) {
         await _appendOfflineOperation(
@@ -1576,8 +1577,12 @@ class AppState extends ChangeNotifier {
         amount: signedAmount,
         isPrimaryIncome: isIncome && isPrimaryIncome,
       );
-      await refreshCashArea(notify: false);
-      statusMessage = '현금흐름 추가 완료';
+      try {
+        await refreshCashArea(notify: false);
+        statusMessage = '현금흐름 추가 완료';
+      } catch (_) {
+        statusMessage = '현금흐름은 저장됐습니다. 최신 화면 동기화는 다시 시도하세요.';
+      }
     });
   }
 
@@ -1758,7 +1763,26 @@ class AppState extends ChangeNotifier {
     });
   }
 
+  Future<T> _withLineageLock<T>(Future<T> Function() action) async {
+    final previous = _lineageTail;
+    final completed = Completer<void>();
+    final current = completed.future;
+    _lineageTail = current;
+    if (previous != null) await previous;
+    try {
+      return await action();
+    } finally {
+      completed.complete();
+      if (identical(_lineageTail, current)) _lineageTail = null;
+    }
+  }
+
   Future<bool> _run(Future<void> Function() action) async {
+    if (isBusy) {
+      statusMessage = '이미 저장 중입니다.';
+      notifyListeners();
+      return false;
+    }
     isBusy = true;
     statusMessage = '';
     notifyListeners();
@@ -1812,6 +1836,48 @@ class AppState extends ChangeNotifier {
     final now = DateTime.now();
     return '${now.year.toString().padLeft(4, '0')}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}-${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}${now.second.toString().padLeft(2, '0')}${now.millisecond.toString().padLeft(3, '0')}';
   }
+}
+
+class _AuthoritativeBaselineEnvelope {
+  const _AuthoritativeBaselineEnvelope({
+    required this.snapshot,
+    required this.fingerprint,
+  });
+
+  final Map<String, dynamic> snapshot;
+  final String fingerprint;
+}
+
+class _AuthoritativeStateCandidate {
+  const _AuthoritativeStateCandidate({
+    required this.user,
+    required this.summary,
+    required this.cardPaymentStatus,
+    required this.judgment,
+    required this.monthCloseStatus,
+    required this.settings,
+    required this.ownerDiscountMonth,
+    required this.familyDiscountMonth,
+    required this.transitDiscountProfile,
+    required this.entries,
+    required this.confirmedPlannedEntries,
+    required this.panels,
+    required this.cashFlows,
+  });
+
+  final AuthUser user;
+  final Summary summary;
+  final CardPaymentStatus cardPaymentStatus;
+  final JudgmentState judgment;
+  final MonthCloseStatus monthCloseStatus;
+  final AppSettings settings;
+  final CardDiscountMonth ownerDiscountMonth;
+  final CardDiscountMonth familyDiscountMonth;
+  final TransitDiscountProfileStatus transitDiscountProfile;
+  final List<LedgerEntry> entries;
+  final List<LedgerEntry> confirmedPlannedEntries;
+  final List<MonthlyPanel> panels;
+  final List<CashFlow> cashFlows;
 }
 
 class LocalSnapshotInfo {

@@ -158,6 +158,8 @@ class MoneyNoteApiClient {
     required String usagePlace,
     required String usageItem,
     required int amount,
+    required bool discountEnabled,
+    int? discountOverrideAmount,
     String? spendingCategory,
     String? candidateRegistrationKey,
   }) {
@@ -183,6 +185,10 @@ class MoneyNoteApiClient {
           'due_day': null,
           'confirmed_at': null,
           'spending_category': spendingCategory,
+          if (discountOverrideAmount != null)
+            'discount_override_amount': discountOverrideAmount
+          else if (!discountEnabled)
+            'discount_enabled': false,
           if (candidateRegistrationKey != null)
             'candidate_registration_key': candidateRegistrationKey,
         },

@@ -21,6 +21,7 @@ class _CashFlowScreenState extends State<CashFlowScreen> {
   bool isIncome = true;
   bool isPrimaryIncome = false;
   late String selectedDate;
+  bool _submitInFlight = false;
 
   @override
   void initState() {
@@ -101,18 +102,23 @@ class _CashFlowScreenState extends State<CashFlowScreen> {
               ),
               if (isIncome) ...[
                 const SizedBox(height: 8),
-                CheckboxListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: const Text('이달 기준 수입'),
-                  subtitle: const Text('예산심사위원회의 이번 달 기준 수입으로 봅니다.'),
-                  value: isPrimaryIncome,
-                  onChanged: (value) =>
-                      setState(() => isPrimaryIncome = value ?? false),
+                Material(
+                  color: Colors.transparent,
+                  child: CheckboxListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('이달 기준 수입'),
+                    subtitle: const Text('예산심사위원회의 이번 달 기준 수입으로 봅니다.'),
+                    value: isPrimaryIncome,
+                    onChanged: (value) =>
+                        setState(() => isPrimaryIncome = value ?? false),
+                  ),
                 ),
               ],
               const SizedBox(height: 12),
               ElevatedButton(
-                  onPressed: widget.state.canCreateCashFlow ? _submit : null,
+                  onPressed: widget.state.canCreateCashFlow && !_submitInFlight
+                      ? _submit
+                      : null,
                   child: const Text('현금흐름 추가')),
             ],
           ),
@@ -127,23 +133,44 @@ class _CashFlowScreenState extends State<CashFlowScreen> {
   }
 
   Future<void> _submit() async {
-    final parsedAmount = int.tryParse(amount.text.replaceAll(',', '').trim());
-    if (title.text.trim().isEmpty || parsedAmount == null || parsedAmount < 0) {
+    if (_submitInFlight) return;
+    final submittedTitle = title.text;
+    final submittedAmount = amount.text;
+    final submittedDate = selectedDate;
+    final submittedIsIncome = isIncome;
+    final submittedIsPrimaryIncome = isPrimaryIncome;
+    final parsedAmount =
+        int.tryParse(submittedAmount.replaceAll(',', '').trim());
+    if (submittedTitle.trim().isEmpty ||
+        parsedAmount == null ||
+        parsedAmount < 0) {
       return;
     }
-    await widget.state.createCashFlow(
-      occurredOn: selectedDate,
-      title: title.text,
+    setState(() => _submitInFlight = true);
+    final saved = await widget.state.createCashFlow(
+      occurredOn: submittedDate,
+      title: submittedTitle,
       amount: parsedAmount,
-      isIncome: isIncome,
-      isPrimaryIncome: isPrimaryIncome,
+      isIncome: submittedIsIncome,
+      isPrimaryIncome: submittedIsPrimaryIncome,
     );
-    title.clear();
-    amount.clear();
-    setState(() {
-      isPrimaryIncome = false;
-      selectedDate = widget.state.serverToday;
-    });
+    if (!mounted) return;
+    final draftIsUnchanged = title.text == submittedTitle &&
+        amount.text == submittedAmount &&
+        selectedDate == submittedDate &&
+        isIncome == submittedIsIncome &&
+        isPrimaryIncome == submittedIsPrimaryIncome;
+    if (saved && draftIsUnchanged) {
+      title.clear();
+      amount.clear();
+      setState(() {
+        _submitInFlight = false;
+        isPrimaryIncome = false;
+        selectedDate = widget.state.serverToday;
+      });
+      return;
+    }
+    setState(() => _submitInFlight = false);
   }
 }
 
@@ -228,8 +255,9 @@ class _CashFlowCard extends StatelessWidget {
                   color: isIncome ? moneyGreen : moneyRed),
             ),
             IconButton(
-              onPressed:
-                  state.canUseOnlineWrites ? () => state.deleteCashFlow(flow.id) : null,
+              onPressed: state.canUseOnlineWrites
+                  ? () => state.deleteCashFlow(flow.id)
+                  : null,
               icon: const Icon(Icons.delete_outline),
               tooltip: '삭제',
             ),

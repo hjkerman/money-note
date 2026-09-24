@@ -16,7 +16,6 @@ from app.schemas import (
     OfflineReconciliationOperationIn,
     OfflineRecoveryPointIn,
 )
-from app.services.card_payments import set_entry_discount
 from app.services.clock import app_today
 from app.services.panels import confirm_fixed_panel
 from app.services.snapshot import (
@@ -293,6 +292,12 @@ def _apply_card_expense(conn: Any, payload: dict[str, Any]) -> dict[str, Any]:
     discount_enabled = payload["discount_enabled"]
     if not isinstance(discount_enabled, bool):
         raise ValueError("discount_enabled must be boolean")
+    override = payload.get("discount_override_amount")
+    discount_amount = None
+    if override is not None:
+        discount_amount = _integer(override, "discount override")
+        if discount_amount < 0 or discount_amount > amount:
+            raise ValueError("discount override is outside the original amount")
 
     entry = create_entry(
         LedgerEntryIn(
@@ -314,21 +319,14 @@ def _apply_card_expense(conn: Any, payload: dict[str, Any]) -> dict[str, Any]:
             confirmed_at=None,
             spending_category=payload["spending_category"],
             candidate_registration_key=payload.get("candidate_registration_key"),
+            discount_enabled=discount_enabled,
+            discount_override_amount=discount_amount,
         ),
         conn=conn,
     )
     payment_key = str(entry.get("payment_key") or "")
     if not payment_key:
         raise ValueError("created card expense has no payment identity")
-
-    override = payload.get("discount_override_amount")
-    if override is not None:
-        discount_amount = _integer(override, "discount override")
-        if discount_amount < 0 or discount_amount > amount:
-            raise ValueError("discount override is outside the original amount")
-        set_entry_discount(payment_key, discount_amount, conn=conn)
-    elif not discount_enabled:
-        set_entry_discount(payment_key, 0, conn=conn)
     return {"target_id": int(entry["id"]), "payment_key": payment_key}
 
 

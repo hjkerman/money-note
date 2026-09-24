@@ -139,6 +139,7 @@ class PanelManagementScreen extends StatefulWidget {
 class _PanelManagementScreenState extends State<PanelManagementScreen> {
   final title = TextEditingController();
   final amount = TextEditingController();
+  bool _submitInFlight = false;
 
   @override
   void dispose() {
@@ -195,7 +196,10 @@ class _PanelManagementScreenState extends State<PanelManagementScreen> {
                       ),
                       const SizedBox(height: 14),
                       ElevatedButton(
-                          onPressed: widget.state.canUseOnlineWrites ? _submit : null,
+                          onPressed: widget.state.canUseOnlineWrites &&
+                                  !_submitInFlight
+                              ? _submit
+                              : null,
                           child: const Text('추가')),
                     ],
                   ),
@@ -236,18 +240,34 @@ class _PanelManagementScreenState extends State<PanelManagementScreen> {
   }
 
   Future<void> _submit() async {
-    final parsedAmount = int.tryParse(amount.text.replaceAll(',', '').trim());
-    if (title.text.trim().isEmpty || parsedAmount == null || parsedAmount < 0) {
+    if (_submitInFlight) return;
+    final submittedTitle = title.text;
+    final submittedAmount = amount.text;
+    final parsedAmount =
+        int.tryParse(submittedAmount.replaceAll(',', '').trim());
+    if (submittedTitle.trim().isEmpty ||
+        parsedAmount == null ||
+        parsedAmount < 0) {
       return;
     }
-    await widget.state.createPanel(
-      panelType: widget.panelType,
-      title: title.text,
-      amount: parsedAmount,
-      discountEnabled: true,
-    );
-    title.clear();
-    amount.clear();
+    setState(() => _submitInFlight = true);
+    try {
+      final saved = await widget.state.createPanel(
+        panelType: widget.panelType,
+        title: submittedTitle,
+        amount: parsedAmount,
+        discountEnabled: true,
+      );
+      if (mounted &&
+          saved &&
+          title.text == submittedTitle &&
+          amount.text == submittedAmount) {
+        title.clear();
+        amount.clear();
+      }
+    } finally {
+      if (mounted) setState(() => _submitInFlight = false);
+    }
   }
 }
 
@@ -267,6 +287,7 @@ class _PlannedEntryManagementScreenState
   final usagePlace = TextEditingController();
   final usageItem = TextEditingController();
   final amount = TextEditingController();
+  bool _submitInFlight = false;
 
   @override
   void dispose() {
@@ -321,7 +342,10 @@ class _PlannedEntryManagementScreenState
                       ),
                       const SizedBox(height: 14),
                       ElevatedButton(
-                          onPressed: widget.state.canUseOnlineWrites ? _submit : null,
+                          onPressed: widget.state.canUseOnlineWrites &&
+                                  !_submitInFlight
+                              ? _submit
+                              : null,
                           child: const Text('정기결제 추가')),
                     ],
                   ),
@@ -352,26 +376,44 @@ class _PlannedEntryManagementScreenState
   }
 
   Future<void> _submit() async {
-    final parsedDueDay = int.tryParse(dueDay.text.trim());
-    final parsedAmount = int.tryParse(amount.text.replaceAll(',', '').trim());
+    if (_submitInFlight) return;
+    final submittedDueDay = dueDay.text;
+    final submittedPlace = usagePlace.text;
+    final submittedItem = usageItem.text;
+    final submittedAmount = amount.text;
+    final parsedDueDay = int.tryParse(submittedDueDay.trim());
+    final parsedAmount =
+        int.tryParse(submittedAmount.replaceAll(',', '').trim());
     if (parsedDueDay == null ||
         parsedDueDay < 1 ||
         parsedDueDay > 31 ||
-        usagePlace.text.trim().isEmpty ||
+        submittedPlace.trim().isEmpty ||
         parsedAmount == null ||
         parsedAmount < 0) {
       return;
     }
-    await widget.state.createPlannedEntry(
-      dueDay: parsedDueDay,
-      usagePlace: usagePlace.text,
-      usageItem: usageItem.text,
-      amount: parsedAmount,
-    );
-    dueDay.clear();
-    usagePlace.clear();
-    usageItem.clear();
-    amount.clear();
+    setState(() => _submitInFlight = true);
+    try {
+      final saved = await widget.state.createPlannedEntry(
+        dueDay: parsedDueDay,
+        usagePlace: submittedPlace,
+        usageItem: submittedItem,
+        amount: parsedAmount,
+      );
+      if (mounted &&
+          saved &&
+          dueDay.text == submittedDueDay &&
+          usagePlace.text == submittedPlace &&
+          usageItem.text == submittedItem &&
+          amount.text == submittedAmount) {
+        dueDay.clear();
+        usagePlace.clear();
+        usageItem.clear();
+        amount.clear();
+      }
+    } finally {
+      if (mounted) setState(() => _submitInFlight = false);
+    }
   }
 }
 
@@ -715,6 +757,7 @@ class _FixedPanelManagementItem extends StatefulWidget {
 class _FixedPanelManagementItemState extends State<_FixedPanelManagementItem> {
   late String occurredOn;
   late final TextEditingController actualAmount;
+  bool _confirmInFlight = false;
 
   @override
   void initState() {
@@ -763,7 +806,9 @@ class _FixedPanelManagementItemState extends State<_FixedPanelManagementItem> {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: state.canConfirmRecurring ? () => _confirm(context) : null,
+                    onPressed: state.canConfirmRecurring && !_confirmInFlight
+                        ? () => _confirm(context)
+                        : null,
                     child: const Text('확인 처리'),
                   ),
                 ),
@@ -785,38 +830,46 @@ class _FixedPanelManagementItemState extends State<_FixedPanelManagementItem> {
   }
 
   Future<void> _confirm(BuildContext context) async {
+    if (_confirmInFlight) return;
+    final submittedAmount = actualAmount.text;
+    final submittedDate = occurredOn;
     final parsedAmount =
-        int.tryParse(actualAmount.text.replaceAll(',', '').trim());
+        int.tryParse(submittedAmount.replaceAll(',', '').trim());
     if (parsedAmount == null || parsedAmount < 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('실제 출금액은 0원 이상의 정수로 입력하세요.')),
       );
       return;
     }
-    final accepted = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('현금성 고정지출 확인'),
-        content: Text(
-          '${widget.panel.title}을 $occurredOn 현금 지출로 반영할까요?\n\n'
-          '예정액 ${won(widget.panel.amountValue)}\n'
-          '실제 출금액 ${won(parsedAmount)}',
+    setState(() => _confirmInFlight = true);
+    try {
+      final accepted = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('현금성 고정지출 확인'),
+          content: Text(
+            '${widget.panel.title}을 $submittedDate 현금 지출로 반영할까요?\n\n'
+            '예정액 ${won(widget.panel.amountValue)}\n'
+            '실제 출금액 ${won(parsedAmount)}',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('취소'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('확인 처리'),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('취소'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('확인 처리'),
-          ),
-        ],
-      ),
-    );
-    if (accepted == true) {
-      await widget.state
-          .confirmFixedPanel(widget.panel.id, occurredOn, parsedAmount);
+      );
+      if (accepted == true) {
+        await widget.state
+            .confirmFixedPanel(widget.panel.id, submittedDate, parsedAmount);
+      }
+    } finally {
+      if (mounted) setState(() => _confirmInFlight = false);
     }
   }
 }
@@ -901,6 +954,7 @@ class _PlannedEntryItemState extends State<_PlannedEntryItem> {
   late String entryDate;
   late final TextEditingController actualAmount;
   late PlannedChargePreview preview;
+  bool _confirmInFlight = false;
 
   @override
   void initState() {
@@ -965,7 +1019,9 @@ class _PlannedEntryItemState extends State<_PlannedEntryItem> {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: state.canConfirmRecurring ? () => _confirm(context) : null,
+                    onPressed: state.canConfirmRecurring && !_confirmInFlight
+                        ? () => _confirm(context)
+                        : null,
                     child: const Text('확인 처리'),
                   ),
                 ),
@@ -1001,14 +1057,18 @@ class _PlannedEntryItemState extends State<_PlannedEntryItem> {
   }
 
   Future<void> _confirm(BuildContext context) async {
+    if (_confirmInFlight) return;
+    final submittedAmount = actualAmount.text;
+    final submittedDate = entryDate;
     final parsedAmount =
-        int.tryParse(actualAmount.text.replaceAll(',', '').trim());
+        int.tryParse(submittedAmount.replaceAll(',', '').trim());
     if (parsedAmount == null || parsedAmount < 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('실제 원금은 0원 이상의 정수로 입력하세요.')),
       );
       return;
     }
+    setState(() => _confirmInFlight = true);
     late final PlannedChargePreview result;
     try {
       result =
@@ -1019,16 +1079,24 @@ class _PlannedEntryItemState extends State<_PlannedEntryItem> {
           SnackBar(content: Text('실결제 예상액을 확인하지 못했습니다: $error')),
         );
       }
+      if (mounted) setState(() => _confirmInFlight = false);
       return;
     }
     if (!context.mounted) return;
+    if (actualAmount.text != submittedAmount || entryDate != submittedDate) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('입력이 변경되었습니다. 현재 값으로 다시 확인하세요.')),
+      );
+      setState(() => _confirmInFlight = false);
+      return;
+    }
     setState(() => preview = result);
     final accepted = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('카드 정기결제 확인'),
         content: Text(
-          '${widget.entry.usagePlace ?? widget.entry.title}을 $entryDate 카드 지출로 반영할까요?\n\n'
+          '${widget.entry.usagePlace ?? widget.entry.title}을 $submittedDate 카드 지출로 반영할까요?\n\n'
           '예정 원금 ${won(widget.entry.amountValue)}\n'
           '실제 원금 ${won(result.amountValue)}\n'
           '할인 ${won(result.effectiveDiscountAmount)}\n'
@@ -1048,8 +1116,9 @@ class _PlannedEntryItemState extends State<_PlannedEntryItem> {
     );
     if (accepted == true) {
       await widget.state
-          .confirmPlannedEntry(widget.entry.id, entryDate, parsedAmount);
+          .confirmPlannedEntry(widget.entry.id, submittedDate, parsedAmount);
     }
+    if (mounted) setState(() => _confirmInFlight = false);
   }
 }
 

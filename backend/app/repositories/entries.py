@@ -5,8 +5,16 @@ from app.db import borrowed_or_new_session, session
 from app.repositories.common import ensure_payment_key_available, new_payment_key, row_to_dict
 from app.schemas import LedgerEntryIn, LedgerEntryPatch, PlannedEntryIn
 from app.services.clock import app_today
-from app.services.card_payments import closed_month_payment_batch_id, _add_card_payment_batch_item
-from app.repositories.notification_registration import existing_registration, registration_fingerprint, save_registration
+from app.services.card_payments import (
+    closed_month_payment_batch_id,
+    _add_card_payment_batch_item,
+    set_entry_discount,
+)
+from app.repositories.notification_registration import (
+    existing_registration,
+    registration_fingerprint,
+    save_registration,
+)
 
 
 ENTRY_COLUMNS = [
@@ -234,6 +242,8 @@ def planned_entry_payment_date(due_day: int | None, today: date | None = None) -
 
 
 def create_entry(entry: LedgerEntryIn, conn: Any | None = None) -> dict[str, Any]:
+    initial_discount_enabled = entry.discount_enabled
+    initial_discount_override_amount = entry.discount_override_amount
     values = entry.model_dump()
     if values.get("entry_date") is not None:
         values["entry_date"] = values["entry_date"].isoformat()
@@ -242,12 +252,26 @@ def create_entry(entry: LedgerEntryIn, conn: Any | None = None) -> dict[str, Any
     columns = ", ".join(ENTRY_COLUMNS)
     with borrowed_or_new_session(conn, transaction_mode="IMMEDIATE") as conn:
         late_batch_id = None
+        if (
+            initial_discount_enabled is not None or initial_discount_override_amount is not None
+        ) and (entry.entry_kind not in {"expense", "late_expense"}):
+            raise ValueError("initial discount intent is only valid for card expenses")
+
         registration_key = entry.candidate_registration_key
-        fingerprint = registration_fingerprint("ledger", values) if registration_key else None
+        fingerprint_values = dict(values)
+        if initial_discount_override_amount is not None:
+            fingerprint_values["discount_override_amount"] = initial_discount_override_amount
+        elif initial_discount_enabled is False:
+            fingerprint_values["discount_enabled"] = False
+        fingerprint = (
+            registration_fingerprint("ledger", fingerprint_values) if registration_key else None
+        )
         if registration_key:
             registered_id = existing_registration(conn, registration_key, "ledger", fingerprint)
             if registered_id is not None:
-                registered = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (registered_id,)).fetchone()
+                registered = conn.execute(
+                    "SELECT * FROM ledger_entries WHERE id = ?", (registered_id,)
+                ).fetchone()
                 if registered is None:
                     raise ValueError("이미 등록 후 삭제된 알림 후보입니다.")
                 return row_to_dict(registered)
@@ -262,11 +286,15 @@ def create_entry(entry: LedgerEntryIn, conn: Any | None = None) -> dict[str, Any
                 "SELECT value FROM app_settings WHERE key = 'last_closed_month'"
             ).fetchone()
             entry_month = str(values["entry_date"])[:7]
-            if values["entry_kind"] == "late_expense" and (not setting or entry_month > str(setting["value"])):
+            if values["entry_kind"] == "late_expense" and (
+                not setting or entry_month > str(setting["value"])
+            ):
                 raise ValueError("마감 전 사용월은 일반 지출로 등록해야 합니다.")
             if setting and entry_month <= str(setting["value"]):
                 if int(values.get("amount_value") or 0) <= 0:
-                    raise ValueError("마감한 달의 카드 지출은 양수 사용금액으로만 등록할 수 있습니다.")
+                    raise ValueError(
+                        "마감한 달의 카드 지출은 양수 사용금액으로만 등록할 수 있습니다."
+                    )
                 late_batch_id = closed_month_payment_batch_id(conn, entry_month, app_today())
                 values["entry_kind"] = "late_expense"
                 values["book_section"] = "archive"
@@ -289,7 +317,15 @@ def create_entry(entry: LedgerEntryIn, conn: Any | None = None) -> dict[str, Any
             tuple(values[column] for column in ENTRY_COLUMNS),
         )
         if late_batch_id is not None:
-            _add_card_payment_batch_item(conn, late_batch_id, int(cursor.lastrowid), str(values["payment_key"]))
+            _add_card_payment_batch_item(
+                conn, late_batch_id, int(cursor.lastrowid), str(values["payment_key"])
+            )
+        if initial_discount_override_amount is not None:
+            set_entry_discount(
+                str(values["payment_key"]), initial_discount_override_amount, conn=conn
+            )
+        elif initial_discount_enabled is False:
+            set_entry_discount(str(values["payment_key"]), 0, conn=conn)
         if registration_key:
             save_registration(conn, registration_key, "ledger", int(cursor.lastrowid), fingerprint)
         row = conn.execute(

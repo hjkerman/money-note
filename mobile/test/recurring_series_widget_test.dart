@@ -37,17 +37,19 @@ class _RecurringTestState extends AppState {
   }
 
   @override
-  Future<void> confirmPlannedEntry(
+  Future<bool> confirmPlannedEntry(
       int entryId, String entryDate, int actualAmount) async {
     confirmedPlannedId = entryId;
     confirmedPlannedAmount = actualAmount;
+    return true;
   }
 
   @override
-  Future<void> confirmFixedPanel(
+  Future<bool> confirmFixedPanel(
       int panelId, String occurredOn, int actualAmount) async {
     confirmedFixedId = panelId;
     confirmedFixedAmount = actualAmount;
+    return true;
   }
 }
 
