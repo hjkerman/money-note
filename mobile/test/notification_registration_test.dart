@@ -7,9 +7,11 @@ class _RegistrationApi extends MoneyNoteApiClient {
   _RegistrationApi() : super(baseUrl: 'https://example.invalid');
 
   String? lastKey;
+  String? lastPanelMonth;
   int? lastDiscountAmount;
   int discountPatchCalls = 0;
   int panelDiscountPatchCalls = 0;
+  bool? lastInitialDiscountEnabled;
   bool failPanelDiscount = false;
 
   @override
@@ -67,8 +69,11 @@ class _RegistrationApi extends MoneyNoteApiClient {
     required int amount,
     String? spentOn,
     String? candidateRegistrationKey,
+    bool? initialDiscountEnabled,
   }) async {
     lastKey = candidateRegistrationKey;
+    lastInitialDiscountEnabled = initialDiscountEnabled;
+    lastPanelMonth = month;
     return MonthlyPanel(
       id: 2,
       month: month,
@@ -76,7 +81,7 @@ class _RegistrationApi extends MoneyNoteApiClient {
       title: title,
       sortOrder: 1,
       discountAmount: 0,
-      discountOverride: 0,
+      discountOverride: initialDiscountEnabled == false ? 1 : 0,
       automaticDiscountEligible: true,
       amountValue: amount,
       spentOn: spentOn,
@@ -173,7 +178,7 @@ void main() {
     expect(state.statusMessage, contains('저장됐습니다'));
   });
 
-  test('가족 사용 후보의 명시적 할인 제외는 패널 할인 요청으로 전달한다', () async {
+  test('가족 사용 후보의 명시적 할인 제외는 최초 생성 요청에 포함한다', () async {
     final api = _RegistrationApi();
     final state = _FailingRefreshState(api);
 
@@ -188,10 +193,29 @@ void main() {
 
     expect(success, isTrue);
     expect(api.lastKey, 'woori_card:family-no-discount');
-    expect(api.panelDiscountPatchCalls, 1);
+    expect(api.lastInitialDiscountEnabled, isFalse);
+    expect(api.panelDiscountPatchCalls, 0);
   });
 
-  test('가족 사용 후보의 할인 제외 실패는 후보를 남겨 같은 key로 재시도한다', () async {
+  test('과거 가족카드 알림은 거래월과 할인 의도를 최초 생성에 함께 보낸다', () async {
+    final api = _RegistrationApi();
+    final state = _FailingRefreshState(api);
+    expect(
+        await state.createPanel(
+          panelType: 'family_card',
+          title: '가게',
+          amount: 10000,
+          discountEnabled: true,
+          spentOn: '2026-08-31',
+          candidateRegistrationKey: 'woori_card:historical-family',
+        ),
+        isTrue);
+    expect(api.lastPanelMonth, '2026-08');
+    expect(api.lastInitialDiscountEnabled, isTrue);
+    expect(api.panelDiscountPatchCalls, 0);
+  });
+
+  test('가족 사용 후보의 할인 제외는 PATCH 실패 여부와 무관하게 원자적으로 생성한다', () async {
     final api = _RegistrationApi()..failPanelDiscount = true;
     final state = _FailingRefreshState(api);
     Future<bool> register() => state.createPanel(
@@ -203,12 +227,11 @@ void main() {
           candidateRegistrationKey: 'woori_card:family-retry',
         );
 
-    expect(await register(), isFalse);
-    expect(state.statusMessage, contains('동일 후보로 다시 등록'));
-    expect(api.lastKey, 'woori_card:family-retry');
-    api.failPanelDiscount = false;
     expect(await register(), isTrue);
     expect(api.lastKey, 'woori_card:family-retry');
-    expect(api.panelDiscountPatchCalls, 2);
+    expect(await register(), isTrue);
+    expect(api.lastKey, 'woori_card:family-retry');
+    expect(api.lastInitialDiscountEnabled, isFalse);
+    expect(api.panelDiscountPatchCalls, 0);
   });
 }

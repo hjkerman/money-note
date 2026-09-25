@@ -100,6 +100,21 @@ class OfflineStore {
       await _repairJournalTail(file);
       _rejectDerivedFinancialValues(payload);
       final operations = await _loadJournalFile(file);
+      final registrationKey = payload['candidate_registration_key'];
+      if (registrationKey is String && registrationKey.isNotEmpty) {
+        for (final existing in operations) {
+          if (existing.payload['candidate_registration_key'] != registrationKey) {
+            continue;
+          }
+          if (existing.type == type &&
+              _canonicalJson(existing.payload) == _canonicalJson(payload)) {
+            return existing;
+          }
+          throw const OfflinePersistenceException(
+            '이미 등록한 알림 후보를 다른 내용이나 등록 대상으로 다시 사용할 수 없습니다.',
+          );
+        }
+      }
       final operation = OfflineJournalOperation(
         operationId: _operationId(),
         type: type,

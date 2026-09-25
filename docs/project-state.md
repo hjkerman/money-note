@@ -12,9 +12,9 @@
 - 웹은 전체 장부 관리, 카드 결제 작업함, 공유 화면, 통계, 백업·복원과 관리 기능을 제공한다.
 - 우리카드와 고속도로 통행료+ 알림 수집은 실사용 중이지만 외부 앱의 알림 형식과 Android 리스너 상태에 의존한다. 원문·후보는 서버 데이터가 아니라 모바일 로컬 보조자료다.
 - Android Offline Mode Phase 2는 검증된 authoritative Snapshot baseline B와 durable input journal J를 보존한다. 서버 복구 시 사용자가 Mobile Wins 또는 Server Wins를 명시적으로 확인하며, 양쪽 recovery artifact가 검증된 뒤에만 atomic `Apply(B, J)` 또는 fresh server rebuild를 실행한다.
-- Offline baseline은 fingerprint-bracketed coherent refresh에서만 설치하고 offline epoch 동안 고정한다. journal append는 byte-framed serial critical section이며 persistence corruption은 fail closed한다. committed reconciliation을 포함한 schema v3 baseline은 같은 J를 다시 projection하지 않는다.
+- Offline baseline은 Snapshot fingerprint·단조 증가 서버 revision·서버 기준일을 함께 확인한 coherent refresh에서만 설치하고 offline epoch 동안 고정한다. 겹친 ONLINE refresh는 최신 요청만 설치하며 orphan B/J metadata는 fail closed한다. journal append는 byte-framed serial critical section이며 같은 알림 후보의 중복 append를 방지한다. committed reconciliation을 포함한 schema v4 baseline은 같은 J를 다시 projection하지 않는다.
 - Mobile Wins reconciliation ID는 서버가 검증된 B와 ordered authoritative J에서 계산한 버전드 request fingerprint에 결합한다. committed 재시도도 baseline을 먼저 검증하고, legacy fingerprint 없는 row는 POST 재실행 없이 status 조회로 복구한다.
-- 우리카드 알림의 할인 체크 기본값은 등록 대상과 독립적으로 알림에 매칭된 본인카드 또는 가족카드 정책을 따른다. 서버 할인 계산의 소유권은 그대로 유지된다.
+- 우리카드 알림의 할인 체크 기본값은 등록 대상과 독립적으로 알림에 매칭된 본인카드 또는 가족카드의 거래 사용월 정책을 따른다. Claim/Family Card 알림의 최초 할인 제외 입력은 패널 생성과 한 transaction에서 처리한다. 서버 할인 계산의 소유권은 그대로 유지된다.
 - 현재 유지보수의 중심은 버그와 무결성, 보안·배포, 카드 정책 이력, Judgment 문구, Android 알림 형식 변화 대응과 문서 일치다.
 
 ## 깨뜨리면 안 되는 경계

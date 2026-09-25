@@ -49,6 +49,7 @@ class AppState extends ChangeNotifier {
   ConnectivityMode connectivityMode = ConnectivityMode.online;
   ReconciliationChoice? reconciliationChoice;
   int _lineageGeneration = 0;
+  int _refreshRequestGeneration = 0;
   Future<void>? _lineageTail;
   DateTime? lastSuccessfulSyncAt;
   List<OfflineJournalOperation> offlineJournal = const [];
@@ -84,6 +85,48 @@ class AppState extends ChangeNotifier {
   bool get isServerWinsFinalizing =>
       _offlineMetadata.phase == ReconciliationPhase.serverWinsFinalizing;
   bool get hasOfflineBaseline => _offlineBaseline != null;
+
+  bool? cachedNotificationDiscountDefault(String date, String scope) {
+    if (scope != 'owner' && scope != 'family') return null;
+    if (!RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(date) ||
+        DateTime.tryParse(date) == null) {
+      return null;
+    }
+    final month = date.substring(0, 7);
+    final current =
+        scope == 'family' ? familyDiscountMonth : ownerDiscountMonth;
+    if (current?.month == month) return current!.isEnabled;
+    if (!isOffline) return null;
+    final baseline = _offlineBaseline;
+    final data = baseline?.authoritativeSnapshot?['data'];
+    if (data is! Map) return null;
+    final settingsRows = data['app_settings'];
+    if (settingsRows is! List) return null;
+    final key = 'card_discount_policy:$scope:$month';
+    for (final row in settingsRows) {
+      if (row is Map && row['key'] == key) {
+        final value = row['value'];
+        if (value == 'enabled') return true;
+        if (value == 'disabled') return false;
+        return null;
+      }
+    }
+    final fallback = baseline?.discountPolicyDefaults[scope];
+    if (fallback == 'enabled') return true;
+    if (fallback == 'disabled') return false;
+    return null;
+  }
+
+  Future<bool?> notificationDiscountDefault(String date, String scope) async {
+    final cached = cachedNotificationDiscountDefault(date, scope);
+    if (cached != null || !isOnline) return cached;
+    if (!RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(date) ||
+        DateTime.tryParse(date) == null) {
+      return null;
+    }
+    return (await api.discountMonth(date.substring(0, 7), scope)).isEnabled;
+  }
+
   bool get canUseOnlineWrites => isOnline && !isBusy;
   bool get canCreateCardExpense => (isOnline || isOffline) && !isBusy;
   bool get canCreateCashFlow => (isOnline || isOffline) && !isBusy;
@@ -195,6 +238,40 @@ class AppState extends ChangeNotifier {
       _offlineBaseline = await offlineStore.loadBaseline();
       offlineJournal = await offlineStore.loadJournal();
       lastSuccessfulSyncAt = _offlineBaseline?.syncedAt;
+      final baseline = _offlineBaseline;
+      final resolved = baseline?.resolvedReconciliationId != null &&
+          baseline!.resolvedReconciliationId == metadata.reconciliationId &&
+          metadata.mode == ConnectivityMode.reconciliationFinalizing;
+      final validFinalizing = switch (metadata.phase) {
+        ReconciliationPhase.mobileRequestPending =>
+          metadata.reconciliationChoice == ReconciliationChoice.applyToServer &&
+              metadata.serverCommitStatus == ServerCommitStatus.unknown,
+        ReconciliationPhase.mobileCommitted =>
+          metadata.reconciliationChoice == ReconciliationChoice.applyToServer &&
+              metadata.serverCommitStatus == ServerCommitStatus.committed,
+        ReconciliationPhase.serverWinsFinalizing =>
+          metadata.reconciliationChoice ==
+                  ReconciliationChoice.discardAndUseServer &&
+              metadata.serverCommitStatus == ServerCommitStatus.none,
+        _ => false,
+      };
+      if ((offlineJournal.isNotEmpty &&
+              (metadata.mode == ConnectivityMode.online || baseline == null)) ||
+          (metadata.mode == ConnectivityMode.reconciliationFinalizing &&
+              (metadata.reconciliationId == null || !validFinalizing)) ||
+          (metadata.mode == ConnectivityMode.reconciliationRequired &&
+              metadata.phase != ReconciliationPhase.none &&
+              (metadata.reconciliationChoice == null ||
+                  metadata.reconciliationId == null)) ||
+          (metadata.baselineLineageFingerprint != null &&
+              baseline != null &&
+              !resolved &&
+              metadata.baselineLineageFingerprint !=
+                  offlineStore.recoveryLineageFingerprint(baseline))) {
+        throw const OfflinePersistenceException(
+          '오프라인 기준 데이터와 journal의 lineage를 확인할 수 없어 복구가 필요합니다.',
+        );
+      }
     } on OfflinePersistenceException catch (error) {
       const blocked = OfflineWorkspaceMetadata(
         mode: ConnectivityMode.persistenceRecoveryBlocked,
@@ -287,16 +364,23 @@ class AppState extends ChangeNotifier {
           '현재 상태에서는 authoritative refresh를 설치할 수 없습니다.');
     }
     final generation = _lineageGeneration;
+    final refreshRequest = ++_refreshRequestGeneration;
     await refreshNotificationPermissions(notify: false);
 
     for (var attempt = 0; attempt < 3; attempt += 1) {
       final before = await _readAuthoritativeBaselineEnvelope();
       final candidate = await _fetchAuthoritativeStateCandidate();
       final after = await _readAuthoritativeBaselineEnvelope();
-      if (before.fingerprint != after.fingerprint) continue;
+      if (before.fingerprint != after.fingerprint ||
+          before.revision != after.revision ||
+          before.evaluationDate != after.evaluationDate ||
+          candidate.monthCloseStatus.calendarDate != after.evaluationDate) {
+        continue;
+      }
 
       await _withLineageLock(() async {
         if (generation != _lineageGeneration ||
+            refreshRequest != _refreshRequestGeneration ||
             !_refreshModeAllowed(allowBaselineWhileFinalizing)) {
           throw MoneyNoteApiException(
             '상태가 변경되어 오래된 authoritative refresh 결과를 폐기했습니다.',
@@ -309,6 +393,7 @@ class AppState extends ChangeNotifier {
           resolvedReconciliationId: isReconciliationFinalizing
               ? _offlineMetadata.reconciliationId
               : null,
+          discountPolicyDefaults: after.discountPolicyDefaults,
           user: candidate.user,
           summary: candidate.summary,
           cardPaymentStatus: candidate.cardPaymentStatus,
@@ -415,14 +500,27 @@ class AppState extends ChangeNotifier {
     final authoritative = await api.offlineReconciliationBaseline();
     final snapshot = authoritative['snapshot'];
     final fingerprint = authoritative['state_fingerprint'];
+    final revision = authoritative['state_revision'];
+    final evaluationDate = authoritative['evaluation_date'];
+    final rawDefaults = authoritative['discount_policy_defaults'];
     if (snapshot is! Map<String, dynamic> ||
         fingerprint is! String ||
-        !RegExp(r'^[0-9a-f]{64}$').hasMatch(fingerprint)) {
+        !RegExp(r'^[0-9a-f]{64}$').hasMatch(fingerprint) ||
+        revision is! int ||
+        revision < 0 ||
+        evaluationDate is! String ||
+        DateTime.tryParse(evaluationDate) == null ||
+        rawDefaults is! Map ||
+        !{'enabled', 'disabled'}.contains(rawDefaults['owner']) ||
+        !{'enabled', 'disabled'}.contains(rawDefaults['family'])) {
       throw MoneyNoteApiException('오프라인 기준 Snapshot 응답이 올바르지 않습니다.');
     }
     return _AuthoritativeBaselineEnvelope(
       snapshot: Map<String, dynamic>.unmodifiable(snapshot),
       fingerprint: fingerprint,
+      revision: revision,
+      evaluationDate: evaluationDate,
+      discountPolicyDefaults: Map<String, String>.from(rawDefaults),
     );
   }
 
@@ -561,8 +659,15 @@ class AppState extends ChangeNotifier {
           return false;
         }
         final journal = await offlineStore.loadJournal();
-        const metadata = OfflineWorkspaceMetadata(
+        if (journal.isNotEmpty) {
+          throw const OfflinePersistenceException(
+            '기존 오프라인 기록이 남아 있어 새 epoch를 시작할 수 없습니다.',
+          );
+        }
+        final metadata = OfflineWorkspaceMetadata(
           mode: ConnectivityMode.offline,
+          baselineLineageFingerprint:
+              offlineStore.recoveryLineageFingerprint(baseline),
         );
         await offlineStore.saveMetadata(metadata);
         _offlineMetadata = metadata;
@@ -1071,10 +1176,20 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> _saveOfflineMetadata(OfflineWorkspaceMetadata metadata) async {
-    await offlineStore.saveMetadata(metadata);
-    _offlineMetadata = metadata;
-    connectivityMode = metadata.mode;
-    reconciliationChoice = metadata.reconciliationChoice;
+    final lineage = _offlineMetadata.baselineLineageFingerprint ??
+        (_offlineBaseline == null
+            ? null
+            : offlineStore.recoveryLineageFingerprint(_offlineBaseline!));
+    final persisted = metadata.mode == ConnectivityMode.online
+        ? metadata
+        : OfflineWorkspaceMetadata.fromJson({
+            ...metadata.toJson(),
+            'baseline_lineage_fingerprint': lineage,
+          });
+    await offlineStore.saveMetadata(persisted);
+    _offlineMetadata = persisted;
+    connectivityMode = persisted.mode;
+    reconciliationChoice = persisted.reconciliationChoice;
     _lineageGeneration += 1;
   }
 
@@ -1132,7 +1247,10 @@ class AppState extends ChangeNotifier {
     }
     final operation =
         await offlineStore.appendOperation(type: type, payload: payload);
-    offlineJournal = List.unmodifiable([...offlineJournal, operation]);
+    if (!offlineJournal
+        .any((row) => row.operationId == operation.operationId)) {
+      offlineJournal = List.unmodifiable([...offlineJournal, operation]);
+    }
     final baseline = _offlineBaseline;
     if (baseline == null) {
       throw MoneyNoteApiException('오프라인 기준 데이터가 없습니다.');
@@ -1270,25 +1388,26 @@ class AppState extends ChangeNotifier {
   }) async {
     return _run(() async {
       _requireOnline('패널 항목 등록');
+      final candidateDate = spentOn?.trim();
+      if (candidateRegistrationKey != null &&
+          (candidateDate == null ||
+              !RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(candidateDate) ||
+              DateTime.tryParse(candidateDate) == null)) {
+        throw MoneyNoteApiException('알림 후보의 사용일을 확인할 수 없습니다.');
+      }
       final panel = await api.createPanel(
-        month: currentMonth,
+        month: candidateRegistrationKey == null
+            ? currentMonth
+            : candidateDate!.substring(0, 7),
         panelType: panelType,
         title: title,
         amount: amount,
         spentOn: panelType == 'fixed' ? null : spentOn ?? _today(),
         candidateRegistrationKey: candidateRegistrationKey,
+        initialDiscountEnabled:
+            candidateRegistrationKey == null ? null : discountEnabled,
       );
       if (candidateRegistrationKey != null) {
-        if (!discountEnabled &&
-            !panel.isDiscountIneligible &&
-            (panelType == 'claim' || panelType == 'family_card')) {
-          try {
-            await api.excludePanelDiscount(panel.id);
-          } catch (_) {
-            throw MoneyNoteApiException(
-                '정산 내역은 저장됐지만 할인 제외를 확인하지 못했습니다. 동일 후보로 다시 등록하세요.');
-          }
-        }
         try {
           await refreshSettlementArea(notify: false);
           statusMessage = '정산 내역 등록 완료';
@@ -1847,10 +1966,16 @@ class _AuthoritativeBaselineEnvelope {
   const _AuthoritativeBaselineEnvelope({
     required this.snapshot,
     required this.fingerprint,
+    required this.revision,
+    required this.evaluationDate,
+    required this.discountPolicyDefaults,
   });
 
   final Map<String, dynamic> snapshot;
   final String fingerprint;
+  final int revision;
+  final String evaluationDate;
+  final Map<String, String> discountPolicyDefaults;
 }
 
 class _AuthoritativeStateCandidate {

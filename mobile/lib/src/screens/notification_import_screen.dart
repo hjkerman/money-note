@@ -307,6 +307,9 @@ class _CandidateCardState extends State<_CandidateCard>
   late final TextEditingController amount;
   late String target;
   bool? discountEnabled;
+  bool? policyDefault;
+  int policyLookupGeneration = 0;
+  String? policyError;
   String? spendingCategory;
 
   @override
@@ -322,6 +325,8 @@ class _CandidateCardState extends State<_CandidateCard>
       text: widget.candidate.amount?.toString() ?? '',
     );
     target = widget.candidate.isFamilyCard ? 'family_card' : 'ledger';
+    date.addListener(_refreshPolicyDefault);
+    _refreshPolicyDefault();
   }
 
   @override
@@ -338,7 +343,7 @@ class _CandidateCardState extends State<_CandidateCard>
     super.build(context);
     if (registered) return const SizedBox.shrink();
     final showCategory = target == 'ledger';
-    final discountValue = discountEnabled ?? _defaultDiscountEnabled();
+    final discountValue = discountEnabled ?? policyDefault;
     final targetOptions = widget.candidate.isFamilyCard
         ? const [
             ButtonSegment(value: 'family_card', label: Text('가족 사용')),
@@ -419,19 +424,24 @@ class _CandidateCardState extends State<_CandidateCard>
                 child: CheckboxListTile(
                   contentPadding: EdgeInsets.zero,
                   title: const Text('할인 적용'),
+                  tristate: true,
                   value: discountValue,
                   onChanged: (value) =>
                       setState(() => discountEnabled = value ?? false),
                 ),
               ),
             ],
+            if (policyError != null && discountEnabled == null)
+              Text(policyError!, style: const TextStyle(color: moneyMuted)),
             const SizedBox(height: 12),
             Row(
               children: [
                 Expanded(
                   child: FilledButton(
                     onPressed: widget.state.isBusy ||
-                            (widget.state.isOffline && target != 'ledger')
+                            (widget.state.isOffline && target != 'ledger') ||
+                            (!widget.candidate.isHighwayToll &&
+                                discountValue == null)
                         ? null
                         : _register,
                     child: const Text('등록'),
@@ -455,11 +465,39 @@ class _CandidateCardState extends State<_CandidateCard>
     );
   }
 
-  bool _defaultDiscountEnabled() {
-    if (widget.candidate.isFamilyCard) {
-      return widget.state.familyDiscountMonth?.isEnabled ?? false;
+  void _refreshPolicyDefault() {
+    if (widget.candidate.isHighwayToll) return;
+    final generation = ++policyLookupGeneration;
+    final dateValue = date.text.trim();
+    final scope = widget.candidate.isFamilyCard ? 'family' : 'owner';
+    final cached = widget.state.cachedNotificationDiscountDefault(
+      dateValue,
+      scope,
+    );
+    if (mounted) {
+      setState(() {
+        policyDefault = cached;
+        policyError =
+            cached == null ? '사용월 할인 정책을 확인 중입니다. 필요하면 직접 선택하세요.' : null;
+      });
+    } else {
+      policyDefault = cached;
     }
-    return widget.state.ownerDiscountMonth?.isEnabled ?? true;
+    if (cached != null) return;
+    widget.state.notificationDiscountDefault(dateValue, scope).then((value) {
+      if (!mounted || generation != policyLookupGeneration) return;
+      setState(() {
+        policyDefault = value;
+        policyError =
+            value == null ? '사용월 정책을 확인할 수 없습니다. 할인 적용 여부를 직접 선택하세요.' : null;
+      });
+    }).catchError((Object _) {
+      if (!mounted || generation != policyLookupGeneration) return;
+      setState(() {
+        policyDefault = null;
+        policyError = '사용월 정책을 확인할 수 없습니다. 할인 적용 여부를 직접 선택하세요.';
+      });
+    });
   }
 
   Future<void> _register() async {
@@ -472,14 +510,15 @@ class _CandidateCardState extends State<_CandidateCard>
     }
 
     final registrationKey = widget.candidate.registrationKey;
+    final selectedDiscount = discountEnabled ?? policyDefault;
+    if (!widget.candidate.isHighwayToll && selectedDiscount == null) return;
     final success = target == 'ledger'
         ? await widget.state.createExpense(
             usagePlace: place.text,
             usageItem: item.text,
             amount: parsedAmount,
-            discountEnabled: widget.candidate.isHighwayToll
-                ? false
-                : discountEnabled ?? _defaultDiscountEnabled(),
+            discountEnabled:
+                widget.candidate.isHighwayToll ? false : selectedDiscount!,
             spendingCategory: spendingCategory,
             entryDate: date.text.trim(),
             candidateRegistrationKey: registrationKey,
@@ -488,9 +527,8 @@ class _CandidateCardState extends State<_CandidateCard>
             panelType: target,
             title: _panelTitle(place.text, item.text),
             amount: parsedAmount,
-            discountEnabled: widget.candidate.isHighwayToll
-                ? false
-                : discountEnabled ?? _defaultDiscountEnabled(),
+            discountEnabled:
+                widget.candidate.isHighwayToll ? false : selectedDiscount!,
             spentOn: date.text.trim(),
             candidateRegistrationKey: registrationKey,
           );

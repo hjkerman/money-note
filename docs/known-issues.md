@@ -61,6 +61,7 @@ Judgment 문구는 현재 대부분 서버에서 완성된 문장으로 내려�
 
 ## 해결됨
 
+- N1–N6 final freeze blocker 수정: pending J와 유실·손상된 state/B 조합은 복구 차단하고, 알림 할인 기본값은 거래 사용월·원래 카드 기준으로 가져온다. Claim/Family Card 알림의 최초 할인 입력은 생성과 원자적으로 저장하고 등록 key가 그 입력을 식별한다. 서버 단조 revision과 기준일은 A→B→A mixed refresh를 거부하며 최신 refresh 요청만 baseline을 설치한다. 오프라인 알림 후보는 durable J에서 key와 payload를 비교해 중복 투영을 막는다. 각 감사 반례는 backend/Flutter 회귀 테스트로 고정했다.
 - Offline freeze audit의 L1: committed reconciliation POST 재시도에서도 baseline Snapshot manifest·compatibility와 실제 state fingerprint를 먼저 검증한다. 서버 계산 버전 1 request fingerprint가 같은 ID의 authoritative B/J에 결합되며, 다른 요청은 `409`다. 기존 fingerprint 없는 committed row는 POST replay를 거절하고 `/status` 조회로 commit 결과를 복구한다.
 - 가족카드 알림의 할인 체크 기본값은 `가족 사용`/`본인 사용` 등록 대상이 아니라 알림에 매칭된 가족카드 정책을 따른다. 후보별 명시적 체크 변경은 등록 대상과 탭 전환에도 유지한다.
 - 카드 즉시결제로 자동 생성된 현금흐름은 일반 현금흐름 삭제로 지울 수 없고, 일부라도 실제 결제된 원장 행도 일반 삭제를 거부한다. 결제 이벤트 취소만 현금흐름과 allocation을 함께 되돌린다.

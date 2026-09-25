@@ -265,6 +265,12 @@ class _OfflineApi extends MoneyNoteApiClient {
         },
         'state_fingerprint':
             committed ? currentFingerprint : _baseline().serverStateFingerprint,
+        'state_revision': committed ? 2 : 1,
+        'evaluation_date': '2026-09-17',
+        'discount_policy_defaults': const {
+          'owner': 'enabled',
+          'family': 'disabled'
+        },
       };
 
   @override
@@ -357,7 +363,52 @@ class _ChangingBaselineApi extends _OfflineApi {
         'data': <String, dynamic>{},
       },
       'state_fingerprint': fingerprint,
+      'state_revision': baselineCalls == 1 ? 1 : 2,
+      'evaluation_date': '2026-09-17',
+      'discount_policy_defaults': const {
+        'owner': 'enabled',
+        'family': 'disabled'
+      },
     };
+  }
+}
+
+class _AbaRefreshApi extends _OfflineApi {
+  int envelopeCalls = 0;
+  bool changeEvaluationDate = false;
+
+  @override
+  Future<Map<String, dynamic>> offlineReconciliationBaseline() async {
+    envelopeCalls += 1;
+    final result = await super.offlineReconciliationBaseline();
+    if (envelopeCalls == 1) remainingLiquidity = 101234;
+    if (envelopeCalls == 2) remainingLiquidity = 100000;
+    return {
+      ...result,
+      'state_revision': envelopeCalls == 1 ? 1 : 3,
+      'evaluation_date': changeEvaluationDate && envelopeCalls > 1
+          ? '2026-09-18'
+          : '2026-09-17',
+    };
+  }
+}
+
+class _OverlappingRefreshApi extends _OfflineApi {
+  final firstRequested = Completer<void>();
+  final secondRequested = Completer<void>();
+  final firstResult = Completer<Summary>();
+  final secondResult = Completer<Summary>();
+  int summaryCalls = 0;
+
+  @override
+  Future<Summary> summary() {
+    summaryCalls += 1;
+    if (summaryCalls == 1) {
+      firstRequested.complete();
+      return firstResult.future;
+    }
+    secondRequested.complete();
+    return secondResult.future;
   }
 }
 
@@ -487,6 +538,207 @@ class _FormAppState extends AppState {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  group('N1 orphan lineage fails closed', () {
+    test('baseline only and empty journal remain valid ONLINE startup',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      await store.replaceBaseline(_baseline());
+      expect(
+          await AppState(_OfflineApi(), offlineStore: store)
+              .restorePersistedOfflineWorkspace(),
+          isFalse);
+      await File('${directory.path}/offline-mode/journal.ndjson')
+          .writeAsString('', flush: true);
+      expect(
+          await AppState(_OfflineApi(), offlineStore: _store(directory))
+              .restorePersistedOfflineWorkspace(),
+          isFalse);
+    });
+
+    test('missing state with pending -500 never attaches J to S=101234',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      await store.replaceBaseline(_baseline(remainingLiquidity: 100000));
+      await store.appendOperation(
+        type: OfflineOperationType.createCashFlow,
+        payload: const {
+          'occurred_on': '2026-09-17',
+          'title': '현금',
+          'amount_value': -500,
+          'is_primary_income': 0,
+        },
+      );
+      final api = _OfflineApi()
+        ..available = true
+        ..remainingLiquidity = 101234;
+      final state = AppState(api, offlineStore: _store(directory));
+      expect(await state.restorePersistedOfflineWorkspace(), isTrue);
+      expect(state.isPersistenceRecoveryBlocked, isTrue);
+      await state.refresh();
+      expect(await state.enterOfflineMode(), isFalse);
+      expect((await store.loadBaseline())!.summary.remainingLiquidity, 100000);
+      expect(await store.loadJournal(), hasLength(1));
+    });
+
+    test('pending J with missing B or corrupt state is recovery blocked',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      await store.appendOperation(
+        type: OfflineOperationType.createCashFlow,
+        payload: const {
+          'occurred_on': '2026-09-17',
+          'title': '현금',
+          'amount_value': -500,
+          'is_primary_income': 0
+        },
+      );
+      final missingBaseline = AppState(_OfflineApi(), offlineStore: store);
+      expect(await missingBaseline.restorePersistedOfflineWorkspace(), isTrue);
+      expect(missingBaseline.isPersistenceRecoveryBlocked, isTrue);
+      await store.replaceBaseline(_baseline());
+      await File('${directory.path}/offline-mode/state.json')
+          .writeAsString('{corrupt', flush: true);
+      final corrupt = AppState(_OfflineApi(), offlineStore: _store(directory));
+      expect(await corrupt.restorePersistedOfflineWorkspace(), isTrue);
+      expect(corrupt.isPersistenceRecoveryBlocked, isTrue);
+    });
+
+    test('valid B/state/J lineage restores but altered B blocks', () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      await store.replaceBaseline(_baseline(remainingLiquidity: 100000));
+      final original = AppState(_OfflineApi(), offlineStore: store);
+      expect(await original.enterOfflineMode(), isTrue);
+      expect(
+          await original.createCashFlow(
+            occurredOn: '2026-09-17',
+            title: '현금',
+            amount: 500,
+            isIncome: false,
+            isPrimaryIncome: false,
+          ),
+          isTrue);
+      final valid = AppState(_OfflineApi(), offlineStore: _store(directory));
+      expect(await valid.restorePersistedOfflineWorkspace(), isTrue);
+      expect(valid.isOffline, isTrue);
+      expect(valid.summary!.remainingLiquidity, 99500);
+      await store.replaceBaseline(_baseline(remainingLiquidity: 101234));
+      final mismatch = AppState(_OfflineApi(), offlineStore: _store(directory));
+      expect(await mismatch.restorePersistedOfflineWorkspace(), isTrue);
+      expect(mismatch.isPersistenceRecoveryBlocked, isTrue);
+    });
+    test('incomplete finalizing commit metadata is recovery blocked', () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      await store.replaceBaseline(_baseline());
+      await store.appendOperation(
+        type: OfflineOperationType.createCashFlow,
+        payload: const {
+          'occurred_on': '2026-09-17',
+          'title': '현금',
+          'amount_value': -500,
+          'is_primary_income': 0
+        },
+      );
+      await store.saveMetadata(const OfflineWorkspaceMetadata(
+        mode: ConnectivityMode.reconciliationFinalizing,
+        reconciliationChoice: ReconciliationChoice.applyToServer,
+        reconciliationId: 'reconcile-damaged-finalizing',
+        phase: ReconciliationPhase.mobileCommitted,
+        serverCommitStatus: ServerCommitStatus.none,
+      ));
+      final state = AppState(_OfflineApi(), offlineStore: _store(directory));
+      expect(await state.restorePersistedOfflineWorkspace(), isTrue);
+      expect(state.isPersistenceRecoveryBlocked, isTrue);
+      expect(await store.loadJournal(), hasLength(1));
+    });
+  });
+
+  group('N5 offline notification candidate identity', () {
+    Map<String, dynamic> candidatePayload(
+            {int amount = 1000, bool discount = true}) =>
+        {
+          'book_section': 'current',
+          'entry_kind': 'expense',
+          'entry_date': '2026-09-17',
+          'title': '[가게] 식사',
+          'usage_place': '가게',
+          'usage_item': '식사',
+          'amount_value': amount,
+          'spending_category': null,
+          'discount_enabled': discount,
+          'candidate_registration_key': 'woori_card:orphan-candidate',
+        };
+
+    test('same key and payload survive restart with one durable operation',
+        () async {
+      final directory = await _temporaryDirectory();
+      final first = _store(directory);
+      final operation = await first.appendOperation(
+        type: OfflineOperationType.createCardExpense,
+        payload: candidatePayload(),
+      );
+      final restarted = _store(directory);
+      final retry = await restarted.appendOperation(
+        type: OfflineOperationType.createCardExpense,
+        payload: candidatePayload(),
+      );
+      expect(retry.operationId, operation.operationId);
+      expect(await restarted.loadJournal(), hasLength(1));
+      for (final changed in [
+        candidatePayload(amount: 2000),
+        candidatePayload(discount: false)
+      ]) {
+        await expectLater(
+          restarted.appendOperation(
+              type: OfflineOperationType.createCardExpense, payload: changed),
+          throwsA(isA<OfflinePersistenceException>()),
+        );
+      }
+      expect(await restarted.loadJournal(), hasLength(1));
+    });
+
+    test(
+        'concurrent duplicate registration is one durable J and one projection',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      final operations = await Future.wait([
+        store.appendOperation(
+            type: OfflineOperationType.createCardExpense,
+            payload: candidatePayload()),
+        store.appendOperation(
+            type: OfflineOperationType.createCardExpense,
+            payload: candidatePayload()),
+      ]);
+      expect(operations[0].operationId, operations[1].operationId);
+      expect(await store.loadJournal(), hasLength(1));
+
+      await store.replaceBaseline(_baseline(remainingLiquidity: 100000));
+      await store.saveMetadata(
+          const OfflineWorkspaceMetadata(mode: ConnectivityMode.offline));
+      final state = AppState(_OfflineApi(), offlineStore: store);
+      expect(await state.restorePersistedOfflineWorkspace(), isTrue);
+      expect(state.offlineJournal, hasLength(1));
+      expect(state.summary!.remainingLiquidity, 99012);
+      expect(
+          await state.createExpense(
+            usagePlace: '가게',
+            usageItem: '식사',
+            amount: 1000,
+            discountEnabled: true,
+            entryDate: '2026-09-17',
+            candidateRegistrationKey: 'woori_card:orphan-candidate',
+          ),
+          isTrue);
+      expect(state.offlineJournal, hasLength(1));
+      expect(state.summary!.remainingLiquidity, 99012);
+    });
+  });
 
   group('durable offline store', () {
     test('baseline is atomically replaced and survives a new store instance',
@@ -1257,6 +1509,66 @@ void main() {
       final installed = await store.loadBaseline();
       expect(installed!.summary.remainingLiquidity, 9000);
       expect(installed.serverStateFingerprint, _OfflineApi.currentFingerprint);
+    });
+    test('A-B-A with equal fingerprint rejects middle display by revision',
+        () async {
+      final directory = await _temporaryDirectory();
+      final api = _AbaRefreshApi()..available = true;
+      final store = _store(directory);
+      final state = AppState(api, offlineStore: store)..user = _baseline().user;
+      await state.refresh();
+      expect(api.envelopeCalls, 4);
+      expect(state.summary!.remainingLiquidity, 100000);
+      expect((await store.loadBaseline())!.summary.remainingLiquidity, 100000);
+    });
+
+    test('evaluation date change rejects stale display even without DB change',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      await store.replaceBaseline(_baseline(remainingLiquidity: 10000));
+      final api = _AbaRefreshApi()
+        ..available = true
+        ..changeEvaluationDate = true;
+      final state = AppState(api, offlineStore: store)..user = _baseline().user;
+      await expectLater(state.refresh(), throwsA(isA<MoneyNoteApiException>()));
+      expect((await store.loadBaseline())!.summary.remainingLiquidity, 10000);
+    });
+
+    test('newer ONLINE refresh wins when its response completes first',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      final api = _OverlappingRefreshApi()..available = true;
+      final state = AppState(api, offlineStore: store)..user = _baseline().user;
+      final first = state.refresh();
+      await api.firstRequested.future;
+      final second = state.refresh();
+      await api.secondRequested.future;
+      api.secondResult.complete(_baseline(remainingLiquidity: 101234).summary);
+      await second;
+      api.firstResult.complete(_baseline(remainingLiquidity: 100000).summary);
+      await expectLater(first, throwsA(isA<MoneyNoteApiException>()));
+      expect(state.summary!.remainingLiquidity, 101234);
+      expect((await store.loadBaseline())!.summary.remainingLiquidity, 101234);
+    });
+
+    test('newer ONLINE refresh wins when older response completes first',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      final api = _OverlappingRefreshApi()..available = true;
+      final state = AppState(api, offlineStore: store)..user = _baseline().user;
+      final first = state.refresh();
+      await api.firstRequested.future;
+      final second = state.refresh();
+      await api.secondRequested.future;
+      api.firstResult.complete(_baseline(remainingLiquidity: 100000).summary);
+      await expectLater(first, throwsA(isA<MoneyNoteApiException>()));
+      api.secondResult.complete(_baseline(remainingLiquidity: 101234).summary);
+      await second;
+      expect(state.summary!.remainingLiquidity, 101234);
+      expect((await store.loadBaseline())!.summary.remainingLiquidity, 101234);
     });
     test('AppState mutation single-flight rejects concurrent re-entry',
         () async {

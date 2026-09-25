@@ -32,6 +32,7 @@
 - `audit_logs`: 변경 API 감사 로그
 - `offline_reconciliations`: Mobile Wins 요청 digest·버전드 semantic fingerprint, server conflict/recovery identity와 committed result
 - `offline_reconciliation_operations`: 전역 stable operation ID와 reconciliation 내 sequence
+- `authoritative_state_revision`: Snapshot 대상 표의 committed row 변경마다 증가하는 서버 단조 revision. 모바일 coherent refresh의 A→B→A 검출용이며 Snapshot에는 포함하지 않는다.
 
 `notification_candidate_registrations.registration_key`는 알림 출처와 안정 후보 ID를 결합한 전역 유일 키다. `target`, `target_id`, `request_fingerprint`는 첫 서버 쓰기와 같은 transaction에 기록한다. 월마감이 원장 행을 복사할 때 새 `target_id`로 옮기며, 사용자가 기록을 삭제한 뒤에도 등록 메타데이터는 남아 같은 후보 재전송으로 소비를 다시 만들지 않는다. 기존 Snapshot에 이 표가 없어도 빈 표로 복원한다.
 
@@ -291,6 +292,7 @@ Mobile Wins 논리 요청과 authoritative outcome을 durable하게 보존한다
 - `card_payment_events.request_fingerprint`
 
 Phase 2의 `offline_reconciliations`, `offline_reconciliation_operations`와 인덱스도 `CREATE TABLE/INDEX IF NOT EXISTS`로 additive 생성한다.
+- `authoritative_state_revision` 단일 row와 Snapshot 대상 표의 INSERT/UPDATE/DELETE trigger도 additive 생성한다. SQLite transaction rollback은 revision 증가도 함께 rollback한다.
 - 기존 Phase 2 `offline_reconciliations` 표에는 nullable `fingerprint_version`, `request_fingerprint` 컬럼만 추가한다. 기존 committed row를 추정해 backfill하지 않는다.
 - nullable idempotency key의 부분 unique index와 planned 관계 조회 index
 

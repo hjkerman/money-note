@@ -17,6 +17,7 @@ from app.schemas import (
     OfflineRecoveryPointIn,
 )
 from app.services.clock import app_today
+from app.services.card_charge import default_discount_policy
 from app.services.panels import confirm_fixed_panel
 from app.services.snapshot import (
     create_pre_reconcile_server_backup,
@@ -62,10 +63,20 @@ class LegacyReconciliationIdentityError(ValueError):
 def export_offline_baseline() -> dict[str, Any]:
     """Mobile baseline B에 결합할 검증 가능한 authoritative Snapshot을 반환한다."""
     with session(transaction_mode="DEFERRED") as conn:
-        _, snapshot = export_snapshot_from_connection(conn)
+        evaluation_date = app_today()
+        _, snapshot = export_snapshot_from_connection(conn, evaluation_date)
+        revision = conn.execute(
+            "SELECT revision FROM authoritative_state_revision WHERE id = 1"
+        ).fetchone()["revision"]
         return {
             "snapshot": snapshot,
             "state_fingerprint": snapshot_state_fingerprint(snapshot),
+            "state_revision": revision,
+            "evaluation_date": evaluation_date.isoformat(),
+            "discount_policy_defaults": {
+                "owner": default_discount_policy("owner"),
+                "family": default_discount_policy("family"),
+            },
         }
 
 

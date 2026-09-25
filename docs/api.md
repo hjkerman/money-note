@@ -475,6 +475,7 @@
 
 패널 항목을 생성한다.
 알림 후보를 `claim` 또는 `family_card`로 등록할 때만 선택적 `candidate_registration_key`를 사용할 수 있다. 원장 등록과 같은 서버 키를 공유하므로 한 후보를 두 대상에 중복 등록하지 않는다.
+알림 후보의 `month`는 후보의 거래 사용월이다. 최초 할인 제외는 `discount_override = 1`, `discount_amount = 0`을 생성 요청에 함께 넣는다. 이 두 값도 등록 key의 요청 지문에 결합되며 동일 key의 변경된 할인 입력은 `422`다. 구버전 지문은 저장된 패널의 최종 할인 입력과 일치할 때만 안전하게 새 지문으로 승격한다.
 
 요청:
 
@@ -1158,7 +1159,7 @@ GET /api/cash-flows?from=2026-07-01&to=2026-07-31&limit=100
 
 ### `GET /api/offline-reconciliation/baseline`
 
-정상 ONLINE refresh가 offline-ready baseline을 만들 때 같은 SQLite read transaction에서 authoritative Snapshot과 export 시각을 제외한 canonical state fingerprint를 반환한다. 모바일은 Summary나 projection을 이 Snapshot에 써 넣지 않는다.
+정상 ONLINE refresh가 offline-ready baseline을 만들 때 같은 SQLite read transaction에서 authoritative Snapshot, export 시각을 제외한 canonical `state_fingerprint`, 단조 증가 `state_revision`, 서버 `evaluation_date` 및 서버가 정의한 `discount_policy_defaults`를 반환한다. 모바일은 여러 화면 응답을 받기 전후에 fingerprint/revision/date를 비교해 mixed generation과 A→B→A를 거부한다. Summary나 projection을 이 Snapshot에 써 넣지 않는다.
 
 ### `GET /api/offline-reconciliation/status?baseline_fingerprint=...&reconciliation_id=...`
 

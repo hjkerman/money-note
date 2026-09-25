@@ -268,6 +268,7 @@ class MoneyNoteApiClient {
     required int amount,
     String? spentOn,
     String? candidateRegistrationKey,
+    bool? initialDiscountEnabled,
   }) {
     return _post(
         '/api/month/current/panels',
@@ -278,7 +279,7 @@ class MoneyNoteApiClient {
           'spent_on': spentOn,
           'amount_value': amount,
           'discount_amount': 0,
-          'discount_override': 0,
+          'discount_override': initialDiscountEnabled == false ? 1 : 0,
           'amount_expr': null,
           'sort_order': 0,
           'due_day': null,

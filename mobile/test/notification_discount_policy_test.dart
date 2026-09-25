@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,6 +15,8 @@ class _CandidateBridge extends NotificationBridge {
   _CandidateBridge(this.candidates);
 
   final List<CardNotificationCandidate> candidates;
+  bool failDelete = false;
+  int deleteAttempts = 0;
 
   @override
   Future<List<CardNotificationCandidate>> listCandidates() async => candidates;
@@ -26,6 +29,8 @@ class _CandidateBridge extends NotificationBridge {
 
   @override
   Future<void> deleteCandidate(String id) async {
+    deleteAttempts += 1;
+    if (failDelete) throw StateError('injected candidate deletion failure');
     candidates.removeWhere((candidate) => candidate.id == id);
   }
 }
@@ -48,6 +53,16 @@ class _RecordingState extends AppState {
   String? registeredTarget;
   bool? registeredDiscount;
   String? registeredKey;
+  final Map<String, bool> historicalDefaults = {};
+  final Map<String, Completer<bool?>> pendingDefaults = {};
+
+  @override
+  Future<bool?> notificationDiscountDefault(String date, String scope) async {
+    final key = '$scope:${date.substring(0, 7)}';
+    final pending = pendingDefaults[key];
+    if (pending != null) return pending.future;
+    return historicalDefaults[key];
+  }
 
   @override
   Future<bool> createExpense({
@@ -94,14 +109,15 @@ class _NoRefreshState extends AppState {
   }
 }
 
-CardNotificationCandidate _candidate(String id, String role) =>
+CardNotificationCandidate _candidate(String id, String role,
+        {String date = '2026-09-15'}) =>
     CardNotificationCandidate(
       id: id,
       source: 'woori_card',
       capturedAt: 1,
       cardLast4: role == 'family' ? '5678' : '1234',
       cardRole: role,
-      entryDate: '2026-09-15',
+      entryDate: date,
       amount: 1000,
       merchant: '가게',
       usageItem: '식사',
@@ -135,6 +151,106 @@ Future<void> _showCandidate(
 }
 
 void main() {
+  testWidgets(
+      'candidate deletion failure keeps native evidence after successful submit',
+      (tester) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(1200, 2400);
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final state = _RecordingState(ownerDiscount: true, familyDiscount: false);
+    final bridge = _CandidateBridge([_candidate('delete-failure', 'owner')])
+      ..failDelete = true;
+    await tester.pumpWidget(MaterialApp(
+      home: NotificationImportScreen(state: state, bridge: bridge),
+    ));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('등록'));
+    await tester.pumpAndSettle();
+    expect(state.registeredKey, 'woori_card:delete-failure');
+    expect(bridge.deleteAttempts, 1);
+    expect(bridge.candidates, hasLength(1));
+    expect(find.text('등록'), findsNothing);
+  });
+
+  test('historical default requests the transaction month from server',
+      () async {
+    final requested = <String>[];
+    final api = MoneyNoteApiClient(
+      baseUrl: 'https://example.invalid',
+      client: MockClient((request) async {
+        requested.add(request.url.toString());
+        return http.Response(
+            jsonEncode({
+              'month': '2026-08',
+              'scope': 'family',
+              'policy': 'enabled',
+            }),
+            200,
+            headers: {'content-type': 'application/json'});
+      }),
+    );
+    final state = AppState(api)
+      ..familyDiscountMonth = CardDiscountMonth(
+        month: '2026-09',
+        scope: 'family',
+        policy: 'disabled',
+      );
+    expect(await state.notificationDiscountDefault('2026-08-31', 'family'),
+        isTrue);
+    expect(requested.single,
+        contains('/api/card-discounts/months/2026-08?scope=family'));
+  });
+
+  testWidgets(
+      'August Main ON beats September Main OFF for historical candidate',
+      (tester) async {
+    final state = _RecordingState(ownerDiscount: false, familyDiscount: false)
+      ..historicalDefaults['owner:2026-08'] = true;
+    await _showCandidate(
+        tester, state, [_candidate('aug-owner', 'owner', date: '2026-08-31')],
+        family: false);
+    expect(_checkboxValue(tester), isTrue);
+    await tester.tap(find.text('등록'));
+    await tester.pumpAndSettle();
+    expect(state.registeredDiscount, isTrue);
+  });
+
+  testWidgets('Family historical month default survives usage ownership switch',
+      (tester) async {
+    final state = _RecordingState(ownerDiscount: true, familyDiscount: false)
+      ..historicalDefaults['family:2026-08'] = true;
+    await _showCandidate(
+        tester, state, [_candidate('aug-family', 'family', date: '2026-08-31')],
+        family: true);
+    expect(_checkboxValue(tester), isTrue);
+    await tester.tap(find.text('본인 사용'));
+    await tester.pumpAndSettle();
+    expect(_checkboxValue(tester), isTrue);
+    await tester.tap(find.text('등록'));
+    await tester.pumpAndSettle();
+    expect(state.registeredTarget, 'ledger');
+    expect(state.registeredDiscount, isTrue);
+  });
+
+  testWidgets(
+      'stale policy result from previous date cannot change current default',
+      (tester) async {
+    final state = _RecordingState(ownerDiscount: false, familyDiscount: false);
+    final old = Completer<bool?>();
+    state.pendingDefaults['owner:2026-08'] = old;
+    state.historicalDefaults['owner:2026-07'] = false;
+    await _showCandidate(
+        tester, state, [_candidate('date-switch', 'owner', date: '2026-08-31')],
+        family: false);
+    await tester.enterText(find.byType(TextField).first, '2026-07-31');
+    await tester.pumpAndSettle();
+    expect(_checkboxValue(tester), isFalse);
+    old.complete(true);
+    await tester.pumpAndSettle();
+    expect(_checkboxValue(tester), isFalse);
+  });
+
   for (final testCase in [
     (
       role: 'owner',

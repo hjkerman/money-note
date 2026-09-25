@@ -134,9 +134,10 @@ class OfflineWorkspaceMetadata {
     this.mobileArtifactFilename,
     this.mobileArtifactSha256,
     this.confirmServerChanged = false,
+    this.baselineLineageFingerprint,
   });
 
-  static const schemaVersion = 2;
+  static const schemaVersion = 3;
 
   final ConnectivityMode mode;
   final ReconciliationChoice? reconciliationChoice;
@@ -149,6 +150,7 @@ class OfflineWorkspaceMetadata {
   final String? mobileArtifactFilename;
   final String? mobileArtifactSha256;
   final bool confirmServerChanged;
+  final String? baselineLineageFingerprint;
 
   bool get hasVerifiedRecoveryPoints =>
       serverArtifactFilename != null &&
@@ -168,11 +170,12 @@ class OfflineWorkspaceMetadata {
         'mobile_artifact_filename': mobileArtifactFilename,
         'mobile_artifact_sha256': mobileArtifactSha256,
         'confirm_server_changed': confirmServerChanged,
+        'baseline_lineage_fingerprint': baselineLineageFingerprint,
       };
 
   factory OfflineWorkspaceMetadata.fromJson(Map<String, dynamic> json) {
     final version = json['schema_version'];
-    if (version != 1 && version != schemaVersion) {
+    if (version != 1 && version != 2 && version != schemaVersion) {
       throw const FormatException('unsupported offline state schema');
     }
     if (version == 1) {
@@ -198,6 +201,8 @@ class OfflineWorkspaceMetadata {
       mobileArtifactFilename: _nullableString(json['mobile_artifact_filename']),
       mobileArtifactSha256: _nullableString(json['mobile_artifact_sha256']),
       confirmServerChanged: json['confirm_server_changed'] == true,
+      baselineLineageFingerprint:
+          _nullableString(json['baseline_lineage_fingerprint']),
     );
   }
 }
@@ -279,9 +284,10 @@ class OfflineBaseline {
     this.authoritativeSnapshot,
     this.serverStateFingerprint,
     this.resolvedReconciliationId,
+    this.discountPolicyDefaults = const {},
   });
 
-  static const schemaVersion = 3;
+  static const schemaVersion = 4;
 
   final DateTime syncedAt;
   final AuthUser user;
@@ -300,6 +306,7 @@ class OfflineBaseline {
   final Map<String, dynamic>? authoritativeSnapshot;
   final String? serverStateFingerprint;
   final String? resolvedReconciliationId;
+  final Map<String, String> discountPolicyDefaults;
 
   bool get supportsAtomicReconciliation =>
       authoritativeSnapshot != null &&
@@ -311,6 +318,7 @@ class OfflineBaseline {
         'authoritative_snapshot': authoritativeSnapshot,
         'server_state_fingerprint': serverStateFingerprint,
         'resolved_reconciliation_id': resolvedReconciliationId,
+        'discount_policy_defaults': discountPolicyDefaults,
         'synced_at': syncedAt.toUtc().toIso8601String(),
         'user': _authUserToJson(user),
         'summary': _summaryToJson(summary),
@@ -331,7 +339,10 @@ class OfflineBaseline {
 
   factory OfflineBaseline.fromJson(Map<String, dynamic> json) {
     final version = json['schema_version'];
-    if (version != 1 && version != 2 && version != schemaVersion) {
+    if (version != 1 &&
+        version != 2 &&
+        version != 3 &&
+        version != schemaVersion) {
       throw const FormatException('unsupported offline baseline schema');
     }
     final syncedAt = DateTime.tryParse(json['synced_at']?.toString() ?? '');
@@ -367,9 +378,12 @@ class OfflineBaseline {
                 )
               : null,
       serverStateFingerprint: _nullableString(json['server_state_fingerprint']),
-      resolvedReconciliationId: version == schemaVersion
+      resolvedReconciliationId: version >= 3
           ? _nullableString(json['resolved_reconciliation_id'])
           : null,
+      discountPolicyDefaults: json['discount_policy_defaults'] is Map
+          ? Map<String, String>.from(json['discount_policy_defaults'] as Map)
+          : const {},
     );
   }
 }

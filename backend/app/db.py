@@ -275,6 +275,24 @@ INSERT OR IGNORE INTO app_labels(key, value) VALUES
 ('summary_frozen_asset_label', '동결자산');
 """
 
+# Snapshot에 포함되는 테이블의 모든 committed 변경을 세는 서버 소유 세대다.
+# 값이 A -> B -> A로 돌아와도 감소하지 않으며 Snapshot 형식에는 넣지 않는다.
+AUTHORITATIVE_REVISION_TABLES = (
+    "ledger_entries", "monthly_panels", "cash_flows", "card_payment_batches",
+    "card_payment_batch_items", "card_payment_events", "card_payment_allocations",
+    "card_payment_deferrals", "notification_candidate_registrations",
+    "app_settings", "app_labels",
+)
+SCHEMA += "\nCREATE TABLE IF NOT EXISTS authoritative_state_revision (id INTEGER PRIMARY KEY CHECK (id = 1), revision INTEGER NOT NULL);\n"
+SCHEMA += "\nINSERT OR IGNORE INTO authoritative_state_revision(id, revision) VALUES (1, 0);\n"
+for _table in AUTHORITATIVE_REVISION_TABLES:
+    for _event in ("INSERT", "UPDATE", "DELETE"):
+        SCHEMA += (
+            f"\nCREATE TRIGGER IF NOT EXISTS revision_{_table}_{_event.lower()} "
+            f"AFTER {_event} ON {_table} BEGIN "
+            "UPDATE authoritative_state_revision SET revision = revision + 1 WHERE id = 1; END;\n"
+        )
+
 
 def connect() -> sqlite3.Connection:
     settings = get_settings()

@@ -3,12 +3,14 @@ import json
 from typing import Any
 
 
-def registration_fingerprint(target: str, values: dict[str, Any]) -> str:
+def registration_fingerprint(target: str, values: dict[str, Any], *, legacy_panel: bool = False) -> str:
     fields = (
         ("entry_date", "usage_place", "usage_item", "title", "amount_value", "spending_category")
         if target == "ledger"
         else ("month", "panel_type", "title", "spent_on", "amount_value")
     )
+    if target != "ledger" and not legacy_panel:
+        fields += ("discount_override", "discount_amount")
     if target == "ledger":
         fields += tuple(
             field for field in ("discount_enabled", "discount_override_amount") if field in values

@@ -82,7 +82,28 @@ def create_panel(panel: MonthlyPanelIn) -> dict[str, Any]:
         if registration_key:
             if target not in {"claim", "family_card"}:
                 raise ValueError("알림 후보는 청구 또는 가족카드로만 등록할 수 있습니다.")
-            registered_id = existing_registration(conn, registration_key, target, fingerprint)
+            try:
+                registered_id = existing_registration(conn, registration_key, target, fingerprint)
+            except ValueError:
+                # 구버전 registration fingerprint는 초기 할인 입력을 포함하지 않았다.
+                # 저장된 최종 금융 입력까지 일치하는 경우에만 새 identity로 승격한다.
+                legacy = conn.execute(
+                    "SELECT target, target_id, request_fingerprint FROM notification_candidate_registrations WHERE registration_key = ?",
+                    (registration_key,),
+                ).fetchone()
+                legacy_fingerprint = registration_fingerprint(target, values, legacy_panel=True)
+                if legacy is None or legacy["target"] != target or legacy["request_fingerprint"] != legacy_fingerprint:
+                    raise
+                stored = conn.execute(
+                    "SELECT * FROM monthly_panels WHERE id = ?", (legacy["target_id"],)
+                ).fetchone()
+                if stored is None or int(stored["discount_override"]) != int(values["discount_override"]) or int(stored["discount_amount"]) != int(values["discount_amount"]):
+                    raise ValueError("이미 등록한 알림 후보의 할인 입력이 현재 요청과 다릅니다.") from None
+                conn.execute(
+                    "UPDATE notification_candidate_registrations SET request_fingerprint = ? WHERE registration_key = ?",
+                    (fingerprint, registration_key),
+                )
+                registered_id = int(legacy["target_id"])
             if registered_id is not None:
                 registered = conn.execute("SELECT * FROM monthly_panels WHERE id = ?", (registered_id,)).fetchone()
                 if registered is None:

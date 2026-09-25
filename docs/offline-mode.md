@@ -21,12 +21,14 @@
 
 새 generic sync framework나 mutable Snapshot DB를 도입하지 않는다. 기존 `path_provider` 기반 앱 전용 저장소에 상태 파일과 별도 recovery directory를 둔다.
 
-- `baseline.json`: 마지막으로 완성된 서버 상태 한 벌, 같은 시점의 authoritative Snapshot B와 canonical server-state fingerprint, `synced_at`. 세션 토큰은 저장하지 않는다.
+- `baseline.json`: 마지막으로 완성된 서버 상태 한 벌, 같은 시점의 authoritative Snapshot B와 canonical server-state fingerprint, 서버가 제공한 월별 할인 기본값, `synced_at`. 세션 토큰은 저장하지 않는다.
 - `journal.ndjson`: 한 줄에 한 operation인 append-only journal.
-- `state.json`: connectivity mode, reconciliation choice/ID/phase, server conflict와 commit/finalization 상태, recovery artifact identity.
+- `state.json`: connectivity mode, B lineage fingerprint, reconciliation choice/ID/phase, server conflict와 commit/finalization 상태, recovery artifact identity.
 - `recovery/`: 검증된 immutable mobile recovery bundle. 정상 성공 뒤에도 retention 대상으로 남긴다.
 
-모든 foreground/manual/area refresh는 동일한 full authoritative refresh 경계를 사용한다. 먼저 authoritative Snapshot fingerprint를 읽고, Summary·card payment status·Judgment·month status·settings·할인 월/프로필·원장·정기결제 확인 목록·패널·현금흐름을 모두 임시 candidate로 받은 뒤 Snapshot fingerprint를 다시 읽는다. 전후 fingerprint가 다르면 mixed generation candidate를 설치하지 않고 전체를 재시도한다. 전후가 같고 refresh 시작 때의 lineage generation과 현재 mode가 그대로일 때만 lineage lock 안에서 임시 파일 flush·JSON 검증·rename 후 화면 상태를 교체한다. 도중 실패나 OFFLINE 전이는 기존 baseline을 유지한다.
+모든 foreground/manual/area refresh는 동일한 full authoritative refresh 경계를 사용한다. 서버는 authoritative Snapshot과 단조 증가 `state_revision`, `evaluation_date`, 카드별 월 정책 기본값을 한 read transaction에서 반환한다. Summary·card payment status·Judgment·month status·settings·할인 월/프로필·원장·정기결제 확인 목록·패널·현금흐름을 임시 candidate로 받은 뒤 envelope를 다시 읽는다. 전후 fingerprint/revision/date가 모두 같고 화면의 서버 기준일도 일치해야 coherent generation으로 인정한다. revision은 Snapshot 대상 테이블의 INSERT/UPDATE/DELETE마다 같은 SQLite transaction에서 증가하므로 A→B→A 해시 복귀도 감지한다. refresh마다 별도 request generation을 부여하여 먼저 시작한 요청이 나중 요청의 설치 결과를 덮지 못하게 한다. lineage generation, mode, request generation을 설치 직전 lock 안에서 재검증한다. 도중 실패나 OFFLINE 전이는 기존 baseline을 유지한다.
+
+시작 시 B·J·metadata를 함께 검증한다. pending J와 누락된/ONLINE metadata, B 누락, B lineage hash 불일치, finalizing commit metadata 손상은 `PERSISTENCE_RECOVERY_BLOCKED`로 fail closed하며 증거 파일을 삭제하거나 정상 ONLINE refresh를 진행하지 않는다. B만 있거나 J가 비어 있고 state가 없는 정상 온라인 준비 상태는 계속 허용한다. 과거 state schema v1/v2는 읽되 새 상태 저장부터 lineage fingerprint를 기록한다.
 
 journal row의 schema version은 1이며 다음을 가진다.
 
@@ -54,6 +56,12 @@ Phase 2 cleanup은 reconciliation commit/authoritative rebuild/fresh baseline이
 | 월마감, 카드 이월/결제 전이, 기존 항목의 할인·실결제 수정, 삭제·취소, 정산 완료, 설정 변경, Snapshot restore | 서버 write | 금지 | 금지 |
 
 알림 후보의 본인카드 원장 등록은 카드 사용 기록과 같은 journal 경로를 쓴다. Claim과 Family Card 등록은 server-only다.
+
+알림 할인 체크 기본값은 등록 대상이 아니라 원래 알림의 카드 정체성과 **거래 사용월**의 서버 정책으로 결정한다. 온라인 과거월은 월별 서버 API를 조회한다. 오프라인은 frozen B의 월 정책 설정과 서버가 B에 실어 준 기본값만 사용하고, 구버전 B 등으로 정책을 알 수 없으면 current-month 값으로 대체하지 않고 사용자의 명시적 선택을 요구한다. 후보 날짜를 편집해 사용월이 바뀌면 새 정책을 조회하고 오래된 비동기 응답은 버린다. 명시적으로 선택한 체크값은 등록 대상 전환에도 유지한다. Claim/Family Card 후보는 패널의 `month`도 거래 사용월로 보낸다.
+
+알림 후보의 Claim/Family Card 최초 생성 요청은 할인 제외 의도를 `discount_override=1, discount_amount=0`으로 **같은 서버 transaction**에 포함한다. 알림 등록 key의 서버 fingerprint에도 할인 override와 금액이 포함되어, 응답 유실 후 동일 입력은 같은 결과를 반환하고 달라진 금융 입력은 거절한다. 구버전 fingerprint의 후보는 기존 패널에 저장된 최종 할인 입력까지 일치할 때만 새 fingerprint로 승격한다. 기존 일반 패널의 후속 할인 수정 endpoint는 유지한다.
+
+오프라인 본인카드 후보는 journal append critical section에서 `candidate_registration_key`를 기존 durable J와 비교한다. 같은 key·같은 operation type·같은 authoritative payload면 기존 `operation_id`를 돌려주며 새 row나 projection delta를 만들지 않는다. 같은 key의 변경된 금액·날짜·할인·등록 대상은 충돌로 거절한다. native 후보 삭제 실패는 journal append 성공을 되돌리지 않으며, 재시작 후 재시도에도 이 규칙이 적용된다.
 
 ONLINE 카드 사용 등록은 최초 `POST /api/entries` request에 optional `discount_enabled=false` 또는 사용자가 입력한 `discount_override_amount`를 함께 보낸다. 서버는 원장 row 생성과 initial manual override를 기존 card-charge/domain helper로 같은 SQLite transaction에서 적용한다. 자동 할인/default-discount는 input을 생략해 기존 서버 계산을 그대로 사용하며, 별도 PATCH 실패로 user intent만 부분 commit되는 경로를 만들지 않는다.
 
@@ -124,7 +132,7 @@ Phase 2 도입 전에 이미 OFFLINE이었던 schema v1 baseline에는 authorita
 
 commit 뒤 fresh state fetch, mobile rebuild 또는 새 baseline 저장이 실패하면 `MOBILE_COMMITTED` finalizing 상태와 journal/recovery metadata를 유지한다. 서버 반영 완료를 UI에 표시하되 ONLINE으로 가장하지 않고, 재시작이나 연결 회복 때 fresh sync/finalization만 재시도한다.
 
-fresh baseline schema v3에는 그 baseline이 이미 포함한 `resolved_reconciliation_id`를 기록한다. baseline 저장 뒤 journal cleanup이 실패하거나 process가 종료되어도 같은 finalizing identity의 J는 새 baseline 위에 projection하지 않는다. 다음 시작은 server replay가 아니라 cleanup/finalization만 재개한다.
+fresh baseline schema v4에는 그 baseline이 이미 포함한 `resolved_reconciliation_id`를 기록한다. baseline 저장 뒤 journal cleanup이 실패하거나 process가 종료되어도 같은 finalizing identity의 J는 새 baseline 위에 projection하지 않는다. 다음 시작은 server replay가 아니라 cleanup/finalization만 재개한다.
 
 ### Server Wins
 
