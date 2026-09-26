@@ -17,6 +17,8 @@ const hasOwn = (record: object, key: PropertyKey) => Object.prototype.hasOwnProp
 
 export function CardPaymentPanel({
   status,
+  hasPendingPayment,
+  onConfirmPendingPayment,
   fallbackLiquidity,
   availableLiquidity,
   onAcknowledgeLiquidityReset,
@@ -38,6 +40,8 @@ export function CardPaymentPanel({
   isBusy,
 }: {
   status: CardPaymentStatus | null;
+  hasPendingPayment: boolean;
+  onConfirmPendingPayment: () => void;
   fallbackLiquidity: number;
   availableLiquidity: number;
   onAcknowledgeLiquidityReset: () => void;
@@ -77,6 +81,12 @@ export function CardPaymentPanel({
   };
   return (
     <section className="payment-stack">
+      {hasPendingPayment ? (
+        <section className="panel payment-alert">
+          <span>이전 즉시결제 결과가 미확정입니다. 새 결제 전에 같은 요청으로 반영 여부를 확인하세요.</span>
+          <button type="button" disabled={isBusy} onClick={onConfirmPendingPayment}>미확정 즉시결제 확인</button>
+        </section>
+      ) : null}
       <section className={`panel payment-overview ${pressure.level}`}>
         <div className="panel-header">
           <div>

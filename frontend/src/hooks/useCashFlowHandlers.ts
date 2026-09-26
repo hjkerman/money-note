@@ -13,7 +13,7 @@ export function useCashFlowHandlers({
   cashFlows: CashFlow[];
   setCashFlowForm: (value: { occurredOn: string; direction: string; title: string; amount: string; isPrimaryIncome: boolean }) => void;
   setStatus: (value: string) => void;
-  withRefresh: (action: () => Promise<void>) => Promise<void>;
+  withRefresh: (action: () => Promise<void>) => Promise<boolean>;
 }) {
   async function handleCashFlowSubmit(event: FormEvent) {
     event.preventDefault();

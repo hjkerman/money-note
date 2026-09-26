@@ -113,12 +113,14 @@ export function useAppRefresh({
           : form,
       );
       setStatus("동기화 완료");
+      return true;
     } catch (error) {
       if (isAuthRequiredError(error)) {
         authRequiredHandler.current();
-        return;
+        return false;
       }
       setStatus(`서버 통신 실패: ${error instanceof Error ? error.message : String(error)}`);
+      return false;
     } finally {
       setIsBusy(false);
     }
@@ -139,10 +141,11 @@ export function useAppRefresh({
       setIsBusy(true);
       try {
         await action();
-        await refresh();
+        return await refresh();
       } catch (error) {
         setStatus(`작업 실패: ${error instanceof Error ? error.message : String(error)}`);
         setIsBusy(false);
+        return false;
       }
     },
     [refresh],

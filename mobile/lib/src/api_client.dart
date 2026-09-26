@@ -574,12 +574,14 @@ class MoneyNoteApiClient {
           values['message']?.toString() ?? _readError(response),
           code: values['code']?.toString(),
           details: values,
+          statusCode: response.statusCode,
         );
       }
     } catch (_) {
       // Fall through to the existing short error message.
     }
-    return MoneyNoteApiException(_readError(response));
+    return MoneyNoteApiException(_readError(response),
+        statusCode: response.statusCode);
   }
 
   String _readError(http.Response response) {
@@ -624,11 +626,13 @@ class MoneyNoteApiException implements Exception {
     this.message, {
     this.code,
     this.details = const {},
+    this.statusCode,
   });
 
   final String message;
   final String? code;
   final Map<String, dynamic> details;
+  final int? statusCode;
 
   @override
   String toString() => message;

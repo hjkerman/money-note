@@ -1004,6 +1004,37 @@ void main() {
   });
 
   group('durable offline store', () {
+    test('unresolved registration key must not bind an unrelated new draft',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      final first = <String, dynamic>{
+        'month': '2026-09',
+        'panel_type': 'claim',
+        'title': '첫 번째 생활비',
+        'spent_on': '2026-09-17',
+        'amount_value': 500,
+        'discount_enabled': false,
+      };
+      final other = <String, dynamic>{
+        ...first,
+        'title': '별개 지출',
+        'amount_value': 700
+      };
+      expect(
+          await store.reserveManualPanelRetryKey(first,
+              preferredKey: 'manual-panel-first'),
+          'manual-panel-first');
+      final restarted = _store(directory);
+      await expectLater(
+          restarted.reserveManualPanelRetryKey(other,
+              preferredKey: 'manual-panel-other'),
+          throwsA(isA<OfflinePersistenceException>()));
+      expect((await restarted.loadPendingManualPanelRetry())!.key,
+          'manual-panel-first');
+      expect((await restarted.loadPendingManualPanelRetry())!.input, first);
+    });
+
     test('unknown manual panel result keeps one identity across edited drafts',
         () async {
       final directory = await _temporaryDirectory();
@@ -1020,16 +1051,85 @@ void main() {
       final firstKey = await store.reserveManualPanelRetryKey(first,
           preferredKey: 'manual-panel-original');
       final restarted = _store(directory);
-      expect(
-          await restarted.reserveManualPanelRetryKey(changed,
+      await expectLater(
+          restarted.reserveManualPanelRetryKey(changed,
               preferredKey: 'manual-panel-new'),
+          throwsA(isA<OfflinePersistenceException>()));
+      expect(
+          await restarted.reserveManualPanelRetryKey(first,
+              preferredKey: 'manual-panel-other-process'),
           firstKey);
       expect(await restarted.reserveManualPanelRetryKey(first), firstKey);
-      await restarted.completeManualPanelRetryKey(changed, firstKey);
+      await expectLater(
+          restarted.completeManualPanelRetryKey(changed, firstKey),
+          throwsA(isA<OfflinePersistenceException>()));
+      await restarted.completeManualPanelRetryKey(first, firstKey);
       expect(
           await restarted.reserveManualPanelRetryKey(first,
               preferredKey: 'manual-panel-fresh'),
           'manual-panel-fresh');
+    });
+
+    test('manual retry cleanup failure retains original input and key',
+        () async {
+      final directory = await _temporaryDirectory();
+      final failingStore = OfflineStore(
+        directoryProvider: () async => directory,
+        beforeManualRetryCleanup: () async =>
+            throw StateError('cleanup failed'),
+      );
+      final input = <String, dynamic>{
+        'month': '2026-09',
+        'panel_type': 'family_card',
+        'title': '이전 가족카드',
+        'spent_on': '2026-09-17',
+        'amount_value': 10000,
+        'discount_enabled': false,
+      };
+      final key = await failingStore.reserveManualPanelRetryKey(input,
+          preferredKey: 'manual-panel-cleanup');
+      await expectLater(failingStore.completeManualPanelRetryKey(input, key),
+          throwsA(isA<StateError>()));
+      final restarted = _store(directory);
+      expect((await restarted.loadPendingManualPanelRetry())!.input, input);
+      expect(await restarted.hasPendingManualPanelRetry(), isTrue);
+      await restarted.completeManualPanelRetryKey(input, key);
+      expect(await restarted.hasPendingManualPanelRetry(), isFalse);
+      expect(
+          await restarted.reserveManualPanelRetryKey(
+              {...input, 'title': '새 가족카드'},
+              preferredKey: 'manual-panel-new'),
+          'manual-panel-new');
+    });
+    test('legacy digest-only manual retry accepts exact input but not edits',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      final input = <String, dynamic>{
+        'month': '2026-09',
+        'panel_type': 'claim',
+        'title': '이전 형식',
+        'spent_on': '2026-09-17',
+        'amount_value': 500,
+        'discount_enabled': true,
+      };
+      const key = 'manual-panel-legacy';
+      await store.reserveManualPanelRetryKey(input, preferredKey: key);
+      final retryFile =
+          File('${directory.path}/offline-mode/manual-panel-retries.json');
+      final v2 = jsonDecode(await retryFile.readAsString()) as Map;
+      await retryFile.writeAsString(jsonEncode({
+        'schema_version': 1,
+        'keys': {v2['input_digest']: key},
+      }));
+      final restarted = _store(directory);
+      expect((await restarted.loadPendingManualPanelRetry())!.input, isNull);
+      expect(await restarted.reserveManualPanelRetryKey(input), key);
+      await expectLater(
+          restarted.reserveManualPanelRetryKey({...input, 'amount_value': 700}),
+          throwsA(isA<OfflinePersistenceException>()));
+      await restarted.completeManualPanelRetryKey(input, key);
+      expect(await restarted.hasPendingManualPanelRetry(), isFalse);
     });
     test('baseline is atomically replaced and survives a new store instance',
         () async {
@@ -1330,6 +1430,21 @@ void main() {
       expect(await state.enterOfflineMode(), isFalse);
       expect(state.isOnline, isTrue);
       expect(state.offlineEntryMessage, contains('재시도 기록을 읽을 수 없습니다'));
+      expect(await retryFile.exists(), isTrue);
+    });
+
+    test('malformed manual retry identity blocks normal startup refresh',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      await store.replaceBaseline(_baseline());
+      final retryFile =
+          File('${directory.path}/offline-mode/manual-panel-retries.json');
+      await retryFile.writeAsString(
+          '{"schema_version":2,"key":"x","input_digest":"bad","input":{}}');
+      final state = AppState(_OfflineApi(), offlineStore: store);
+      expect(await state.restorePersistedOfflineWorkspace(), isTrue);
+      expect(state.isPersistenceRecoveryBlocked, isTrue);
       expect(await retryFile.exists(), isTrue);
     });
 

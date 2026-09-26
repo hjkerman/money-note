@@ -54,6 +54,7 @@ class AppState extends ChangeNotifier {
   DateTime? lastSuccessfulSyncAt;
   List<OfflineJournalOperation> offlineJournal = const [];
   bool serverFailurePromptPending = false;
+  bool manualPanelRetryPending = false;
   String offlineEntryMessage = '';
   bool usesConservativeCardEstimate = false;
   OfflineBaseline? _offlineBaseline;
@@ -232,6 +233,7 @@ class AppState extends ChangeNotifier {
 
   Future<bool> restorePersistedOfflineWorkspace({bool notify = true}) async {
     try {
+      manualPanelRetryPending = await offlineStore.hasPendingManualPanelRetry();
       final metadata = await offlineStore.loadMetadata();
       _offlineMetadata = metadata;
       connectivityMode = metadata.mode;
@@ -1519,22 +1521,41 @@ class AppState extends ChangeNotifier {
               'discount_enabled': discountEnabled,
             }
           : null;
+      final hadManualRetry = manualInput != null
+          ? await offlineStore.hasPendingManualPanelRetry()
+          : false;
+      if (manualInput != null) manualPanelRetryPending = hadManualRetry;
       final registrationKey = manualInput == null
           ? candidateRegistrationKey
           : await offlineStore.reserveManualPanelRetryKey(manualInput,
               preferredKey: manualRegistrationKey);
-      await api.createPanel(
-        month: month,
-        panelType: panelType,
-        title: title,
-        amount: amount,
-        spentOn: actualSpentOn,
-        candidateRegistrationKey: registrationKey,
-        initialDiscountEnabled:
-            panelType == 'claim' || panelType == 'family_card'
-                ? discountEnabled
-                : null,
-      );
+      if (manualInput != null) manualPanelRetryPending = true;
+      try {
+        await api.createPanel(
+          month: month,
+          panelType: panelType,
+          title: title,
+          amount: amount,
+          spentOn: actualSpentOn,
+          candidateRegistrationKey: registrationKey,
+          initialDiscountEnabled:
+              panelType == 'claim' || panelType == 'family_card'
+                  ? discountEnabled
+                  : null,
+        );
+      } on MoneyNoteApiException catch (error) {
+        // A first request explicitly rejected by validation cannot have
+        // committed. Network ambiguity, 2xx parse failures and conflicts keep
+        // their identity until the original result is confirmed.
+        if (manualInput != null &&
+            !hadManualRetry &&
+            (error.statusCode == 400 || error.statusCode == 422)) {
+          await offlineStore.completeManualPanelRetryKey(
+              manualInput, registrationKey!);
+          manualPanelRetryPending = false;
+        }
+        rethrow;
+      }
       if (candidateRegistrationKey != null) {
         try {
           await refreshSettlementArea(notify: false);
@@ -1553,6 +1574,7 @@ class AppState extends ChangeNotifier {
         if (manualInput != null) {
           await offlineStore.completeManualPanelRetryKey(
               manualInput, registrationKey!);
+          manualPanelRetryPending = false;
         }
         statusMessage = switch (panelType) {
           'claim' => '청구 추가 완료',
@@ -1567,6 +1589,50 @@ class AppState extends ChangeNotifier {
       }
     });
   }
+
+  Future<bool> confirmPendingManualPanelRegistration() => _run(() async {
+        _requireOnline('미확정 정산 등록 확인');
+        final pending = await offlineStore.loadPendingManualPanelRetry();
+        if (pending == null) {
+          manualPanelRetryPending = false;
+          statusMessage = '확인이 필요한 수동 정산 등록이 없습니다.';
+          return;
+        }
+        manualPanelRetryPending = true;
+        final input = pending.input;
+        if (input == null) {
+          throw MoneyNoteApiException(
+              '이전 형식의 미확정 등록입니다. 원래 입력을 그대로 다시 제출해 확인하세요.');
+        }
+        final month = input['month'];
+        final panelType = input['panel_type'];
+        final title = input['title'];
+        final spentOn = input['spent_on'];
+        final amount = input['amount_value'];
+        final discountEnabled = input['discount_enabled'];
+        if (month is! String ||
+            (panelType != 'claim' && panelType != 'family_card') ||
+            title is! String ||
+            spentOn is! String ||
+            amount is! int ||
+            discountEnabled is! bool) {
+          throw const OfflinePersistenceException(
+              '미확정 정산 등록 입력을 확인할 수 없어 자동 재시도를 중단했습니다.');
+        }
+        await api.createPanel(
+          month: month,
+          panelType: panelType as String,
+          title: title,
+          amount: amount,
+          spentOn: spentOn,
+          candidateRegistrationKey: pending.key,
+          initialDiscountEnabled: discountEnabled,
+        );
+        await refreshSettlementArea(notify: false);
+        await offlineStore.completeManualPanelRetryKey(input, pending.key);
+        manualPanelRetryPending = false;
+        statusMessage = '이전 수동 정산 등록 결과와 최신 상태를 확인했습니다.';
+      });
 
   Future<bool> createPlannedEntry({
     required int dueDay,

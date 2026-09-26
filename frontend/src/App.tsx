@@ -189,6 +189,7 @@ export function App() {
     withRefresh,
   });
   const {
+    confirmPendingPayment,
     handleAutoAllocate,
     handleCardPaymentDiscountToggle,
     handleCardPaymentRowDelete,
@@ -201,6 +202,7 @@ export function App() {
     handleLiquidityResetAcknowledgement,
     handlePaymentSelection,
     handleTollDeferral,
+    hasPendingPayment,
   } = useCardPaymentHandlers({
     cardPayments,
     lateEntryForm,
@@ -211,6 +213,7 @@ export function App() {
     setPaymentAllocations,
     setStatus,
     summary,
+    userId: authUser?.id ?? null,
     withRefresh,
   });
   const {
@@ -469,6 +472,8 @@ export function App() {
               handleCardPaymentDiscountToggle={(row, exclude) => void handleCardPaymentDiscountToggle(row, exclude)}
               handleCardPaymentRowDelete={(row) => void handleCardPaymentRowDelete(row)}
               handleCardPaymentSubmit={() => void handleCardPaymentSubmit()}
+              confirmPendingPayment={() => void confirmPendingPayment()}
+              hasPendingPayment={hasPendingPayment}
               handleDiscountPolicyChange={(scope, month, policy) => void handleDiscountPolicyChange(scope, month, policy)}
               handleLateEntrySubmit={handleLateEntrySubmit}
               handleLiquidityResetAcknowledgement={() => void handleLiquidityResetAcknowledgement()}

@@ -128,6 +128,15 @@ class _FamilyScreenState extends State<FamilyScreen> {
                 ),
               ),
               const SizedBox(height: 14),
+              if (widget.state.manualPanelRetryPending) ...[
+                OutlinedButton(
+                  onPressed: widget.state.canUseOnlineWrites && !_saving
+                      ? _confirmPendingRegistration
+                      : null,
+                  child: const Text('이전 미확정 등록 확인'),
+                ),
+                const SizedBox(height: 8),
+              ],
               ElevatedButton(
                   onPressed: widget.state.canUseOnlineWrites && !_saving
                       ? _submit
@@ -219,6 +228,33 @@ class _FamilyScreenState extends State<FamilyScreen> {
         discountEnabled = null;
         setState(() => selectedDate = widget.state.serverToday);
       }
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  Future<void> _confirmPendingRegistration() async {
+    if (_saving || !widget.state.canUseOnlineWrites) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('이전 등록 확인'),
+        content: const Text(
+            '결과를 받지 못한 이전 정산 항목을 같은 등록 번호로 다시 확인합니다. 첫 요청이 서버에 도착하지 않았다면 이번에 등록될 수 있습니다.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('취소')),
+          ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('확인')),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted || _saving) return;
+    setState(() => _saving = true);
+    try {
+      await widget.state.confirmPendingManualPanelRegistration();
     } finally {
       if (mounted) setState(() => _saving = false);
     }

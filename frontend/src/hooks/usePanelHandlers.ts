@@ -35,7 +35,7 @@ export function usePanelHandlers({
   panels: MonthlyPanel[];
   setPanelForm: (value: { panel_type: PanelType; title: string; spentOn: string; amount: string; dueDay: string }) => void;
   setStatus: (value: string) => void;
-  withRefresh: (action: () => Promise<void>) => Promise<void>;
+  withRefresh: (action: () => Promise<void>) => Promise<boolean>;
 }) {
   async function handlePanelSubmit(event: FormEvent, panelType = panelForm.panel_type) {
     event.preventDefault();

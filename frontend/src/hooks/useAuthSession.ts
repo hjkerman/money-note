@@ -14,7 +14,7 @@ export function useAuthSession({
 }: {
   loginForm: LoginForm;
   onLogoutClear: () => void;
-  onRefresh: () => Promise<void>;
+  onRefresh: () => Promise<boolean>;
   setIsBusy: Dispatch<SetStateAction<boolean>>;
   setLoginForm: Dispatch<SetStateAction<LoginForm>>;
   setStatus: Dispatch<SetStateAction<string>>;

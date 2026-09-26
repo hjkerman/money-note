@@ -1,4 +1,4 @@
-import { Dispatch, FormEvent, SetStateAction, useRef } from "react";
+import { Dispatch, FormEvent, SetStateAction, useEffect, useRef, useState } from "react";
 import {
   acknowledgeLiquidityReset,
   cancelTollDeferral,
@@ -15,6 +15,7 @@ import {
   updateCardDiscountPolicy,
   updateEntryDiscount,
 } from "../api";
+import { ApiResponseError } from "../api/client";
 import {
   displayEntryTitle,
   focusFirstDataInput,
@@ -36,6 +37,7 @@ export function useCardPaymentHandlers({
   setPaymentAllocations,
   setStatus,
   summary,
+  userId,
   withRefresh,
 }: {
   cardPayments: CardPaymentStatus | null;
@@ -47,9 +49,47 @@ export function useCardPaymentHandlers({
   setPaymentAllocations: Dispatch<SetStateAction<Record<string, string>>>;
   setStatus: (value: string) => void;
   summary: Summary | null;
-  withRefresh: (action: () => Promise<void>) => Promise<void>;
+  userId: number | null;
+  withRefresh: (action: () => Promise<void>) => Promise<boolean>;
 }) {
-  const pendingPaymentRequest = useRef<{ fingerprint: string; key: string } | null>(null);
+  const [pendingPaymentRequest, setPendingPaymentRequest] = useState<PendingPayment | "corrupt" | null>(
+    () => userId === null ? null : readPendingPayment(userId),
+  );
+  const pendingPaymentRef = useRef(pendingPaymentRequest);
+  const paymentInFlight = useRef(false);
+  useEffect(() => {
+    const pending = userId === null ? null : readPendingPayment(userId);
+    pendingPaymentRef.current = pending;
+    setPendingPaymentRequest(pending);
+  }, [userId]);
+
+  async function confirmPendingPayment() {
+    const pending = pendingPaymentRef.current;
+    if (pending === "corrupt") {
+      setStatus("이전 결제 재시도 정보를 읽을 수 없습니다. 저장소 복구 후 다시 시도해 주세요.");
+      return;
+    }
+    if (paymentInFlight.current || !userId || !pending) return;
+    if (!window.confirm("이전 결제가 서버에 없었다면 지금 원래 금액으로 새로 반영됩니다. 동일 요청을 확인할까요?")) return;
+    paymentInFlight.current = true;
+    try {
+      const confirmed = await withRefresh(async () => {
+        await sendPendingPayment(pending, userId);
+      });
+      if (!confirmed) return;
+      try {
+        localStorage.removeItem(pendingPaymentStorageKey(userId));
+        pendingPaymentRef.current = null;
+        setPendingPaymentRequest(null);
+        clearOnlySubmittedAllocations(pending);
+        setStatus("즉시결제 반영 완료");
+      } catch {
+        setStatus("즉시결제는 반영됐지만 재시도 정보 정리에 실패했습니다. 다시 확인해 주세요.");
+      }
+    } finally {
+      paymentInFlight.current = false;
+    }
+  }
 
   function handleAutoAllocate() {
     if (!cardPayments?.immediate_allowed) return;
@@ -83,7 +123,7 @@ export function useCardPaymentHandlers({
   }
 
   async function handleCardPaymentSubmit() {
-    if (!cardPayments?.immediate_allowed) return;
+    if (!cardPayments?.immediate_allowed || paymentInFlight.current || !userId) return;
     const allocations = Object.entries(paymentAllocations)
       .flatMap(([payment_key, amountText]) => expandCardPaymentAllocation(payment_key, parseAmount(amountText) ?? 0))
       .filter((allocation) => allocation.amount_value > 0);
@@ -98,21 +138,78 @@ export function useCardPaymentHandlers({
       allocations,
     };
     const requestFingerprint = JSON.stringify(requestPayload);
-    if (pendingPaymentRequest.current?.fingerprint !== requestFingerprint) {
-      pendingPaymentRequest.current = {
+    if (pendingPaymentRef.current === "corrupt") {
+      setStatus("이전 결제 재시도 정보를 읽을 수 없습니다. 복구 후 결제를 진행해 주세요.");
+      return;
+    }
+    if (pendingPaymentRef.current && pendingPaymentRef.current.fingerprint !== requestFingerprint) {
+      setStatus("이전 미확정 즉시결제를 먼저 확인해야 새 결제를 진행할 수 있습니다.");
+      return;
+    }
+    let pending = pendingPaymentRef.current;
+    if (!pending) {
+      pending = {
         fingerprint: requestFingerprint,
         key: createIdempotencyKey(),
+        payload: requestPayload,
+        draftAllocations: { ...paymentAllocations },
       };
+      try {
+        localStorage.setItem(pendingPaymentStorageKey(userId), JSON.stringify(pending));
+      } catch {
+        setStatus("재시도 정보를 저장할 수 없어 결제를 시작하지 않았습니다.");
+        return;
+      }
+      pendingPaymentRef.current = pending;
+      setPendingPaymentRequest(pending);
     }
-    await withRefresh(async () => {
-      await createCardPaymentEvent({
-        ...requestPayload,
-        idempotency_key: pendingPaymentRequest.current!.key,
+    paymentInFlight.current = true;
+    try {
+      const confirmed = await withRefresh(async () => {
+        await sendPendingPayment(pending, userId);
       });
-    });
-    pendingPaymentRequest.current = null;
-    setPaymentAllocations({});
-    setStatus("즉시결제 반영 완료");
+      if (!confirmed) return;
+      try {
+        localStorage.removeItem(pendingPaymentStorageKey(userId));
+        pendingPaymentRef.current = null;
+        setPendingPaymentRequest(null);
+        clearOnlySubmittedAllocations(pending);
+        setStatus("즉시결제 반영 완료");
+      } catch {
+        setStatus("즉시결제는 반영됐지만 재시도 정보 정리에 실패했습니다. 다시 확인해 주세요.");
+      }
+    } finally {
+      paymentInFlight.current = false;
+    }
+  }
+
+  async function sendPendingPayment(pending: PendingPayment, paymentUserId: number) {
+    try {
+      await createCardPaymentEvent({ ...pending.payload, idempotency_key: pending.key });
+    } catch (error) {
+      // The server checks the idempotency record before validation. A 400/422
+      // therefore proves this exact key did not commit, unlike a lost response.
+      if (
+        error instanceof ApiResponseError &&
+        (error.status === 400 || error.status === 422) &&
+        !error.message.includes("같은 idempotency key")
+      ) {
+        try {
+          localStorage.removeItem(pendingPaymentStorageKey(paymentUserId));
+          pendingPaymentRef.current = null;
+          setPendingPaymentRequest(null);
+        } catch {
+          // Keep the durable record if cleanup fails; never replace its key.
+        }
+      }
+      throw error;
+    }
+  }
+
+  function clearOnlySubmittedAllocations(pending: PendingPayment) {
+    setPaymentAllocations((current) =>
+      JSON.stringify(current) === JSON.stringify(pending.draftAllocations) ? {} : current,
+    );
   }
 
   async function handleDiscountPolicyChange(scope: "owner" | "family", month: string, policy: CardDiscountPolicy) {
@@ -265,6 +362,8 @@ export function useCardPaymentHandlers({
     handleCardPaymentDiscountToggle,
     handleCardPaymentRowDelete,
     handleCardPaymentSubmit,
+    confirmPendingPayment,
+    hasPendingPayment: pendingPaymentRequest !== null,
     handleCurrentEntryDiscount,
     handleCurrentEntryDiscountClear,
     handleCurrentEntryNetAmountEdit,
@@ -274,6 +373,44 @@ export function useCardPaymentHandlers({
     handlePaymentSelection,
     handleTollDeferral,
   };
+}
+
+type PaymentPayload = {
+  event_date: string;
+  event_type: "immediate";
+  note: string;
+  allocations: { entry_payment_key: string; amount_value: number }[];
+};
+type PendingPayment = {
+  fingerprint: string;
+  key: string;
+  payload: PaymentPayload;
+  draftAllocations: Record<string, string>;
+};
+
+function pendingPaymentStorageKey(userId: number): string {
+  return `money-note-pending-card-payment-v1:${userId}`;
+}
+
+function readPendingPayment(userId: number): PendingPayment | "corrupt" | null {
+  try {
+    const raw = localStorage.getItem(pendingPaymentStorageKey(userId));
+    if (!raw) return null;
+    const pending = JSON.parse(raw) as PendingPayment;
+    if (
+      typeof pending.key !== "string" ||
+      pending.key.length < 16 ||
+      typeof pending.fingerprint !== "string" ||
+      !pending.payload ||
+      !pending.draftAllocations ||
+      typeof pending.draftAllocations !== "object" ||
+      Array.isArray(pending.draftAllocations) ||
+      JSON.stringify(pending.payload) !== pending.fingerprint
+    ) return "corrupt";
+    return pending;
+  } catch {
+    return "corrupt";
+  }
 }
 
 function createIdempotencyKey(): string {

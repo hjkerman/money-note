@@ -63,7 +63,7 @@ export function useSettingsHandlers({
   setShowAuditLogs: (value: boolean) => void;
   setStatus: (value: string) => void;
   showAuditLogs: boolean;
-  withRefresh: (action: () => Promise<void>) => Promise<void>;
+  withRefresh: (action: () => Promise<void>) => Promise<boolean>;
 }) {
   async function handleScheduledIncomeSave() {
     const amount = parseAmount(scheduledIncomeInput);

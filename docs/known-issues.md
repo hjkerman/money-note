@@ -61,7 +61,9 @@ Judgment 문구는 현재 대부분 서버에서 완성된 문장으로 내려�
 
 ## 해결됨
 
+- 웹 즉시결제에서 서버 응답 유실 시 공용 refresh wrapper가 오류를 삼킨 뒤 화면이 성공으로 표시하고 재시도 key를 버리는 경로를 재현·수정했다. 사용자별 브라우저 저장소에 원래 요청·draft·key를 먼저 보존하고, 응답·새 조회가 성공한 뒤에만 정리한다. 처리 중 사용자가 새로 편집한 draft는 늦게 완료된 요청이 지우지 않는다. 재시작 후 명시적 확인은 같은 key로 재시도하며, 저장소 오류 시 결제를 시작하지 않는다. 명확한 HTTP 400/422 거절은 미commit이므로 key를 해제한다.
 - 최종 재감사의 수동 Claim/Family Card 등록·정산 draft·lineage·baseline/J 알림 중복·legacy 할인 fingerprint·Flutter 정산 화면 assertion 경로를 닫았다. 수동 패널 최초 할인 제외는 한 생성 transaction에 저장되고, 구버전 원장 등록 fingerprint는 저장된 금융 입력을 확인할 수 있을 때만 안전하게 승격한다. 오프라인 baseline에 이미 확정된 후보는 J나 예상값에 재반영하지 않는다. 기존 finding과 검증 반례는 테스트에 보존한다.
+- 후속 final audit에서 미확정 수동 정산 key가 별개의 새 draft에 붙는 반례와 최초 HTTP 400 검증 거절 뒤 key가 남아 입력 수정이 막히는 반례를 재현했다. schema v2는 원래 입력을 보존하며 새 입력을 fail-closed로 막고, 정산 화면에서 원래 요청을 명시적으로 확인한 뒤 key를 정리한다. 최초 400/422 거절은 key를 정리하되 이전 결과가 모호한 경우는 보존한다. schema v1의 digest-only 기록은 원래 입력을 복원할 수 없으므로 정확한 재입력 또는 수동 복구가 필요하다.
 
 - N1–N6 final freeze blocker 수정: pending J와 유실·손상된 state/B 조합은 복구 차단하고, 알림 할인 기본값은 거래 사용월·원래 카드 기준으로 가져온다. Claim/Family Card 알림의 최초 할인 입력은 생성과 원자적으로 저장하고 등록 key가 그 입력을 식별한다. 서버 단조 revision과 기준일은 A→B→A mixed refresh를 거부하며 최신 refresh 요청만 baseline을 설치한다. 오프라인 알림 후보는 durable J에서 key와 payload를 비교해 중복 투영을 막는다. 각 감사 반례는 backend/Flutter 회귀 테스트로 고정했다.
 - Offline freeze audit의 L1: committed reconciliation POST 재시도에서도 baseline Snapshot manifest·compatibility와 실제 state fingerprint를 먼저 검증한다. 서버 계산 버전 1 request fingerprint가 같은 ID의 authoritative B/J에 결합되며, 다른 요청은 `409`다. 기존 fingerprint 없는 committed row는 POST replay를 거절하고 `/status` 조회로 commit 결과를 복구한다.

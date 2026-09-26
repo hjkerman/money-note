@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:money_note_mobile/src/api_client.dart';
 import 'package:money_note_mobile/src/app_state.dart';
 import 'package:money_note_mobile/src/models.dart';
@@ -139,6 +141,62 @@ class _SuccessfulPanelRefreshState extends AppState {
 }
 
 void main() {
+  test(
+      'definitively rejected first manual create must not strand its retry key',
+      () async {
+    final directory =
+        await Directory.systemTemp.createTemp('money-note-manual-reject-');
+    addTearDown(() async => directory.delete(recursive: true));
+    final store = OfflineStore(directoryProvider: () async => directory);
+    final api = MoneyNoteApiClient(
+      baseUrl: 'https://example.invalid',
+      client: MockClient((request) async => http.Response(
+          '{"detail":"invalid panel"}', 400,
+          headers: {'content-type': 'application/json'})),
+    );
+    final state = AppState(api, offlineStore: store);
+    expect(
+        await state.createPanel(
+          panelType: 'claim',
+          title: '거절될 청구',
+          amount: 500,
+          spentOn: '2026-09-17',
+          manualRegistrationKey: 'manual-panel-rejected',
+        ),
+        isFalse);
+    expect(await store.hasPendingManualPanelRetry(), isFalse);
+  });
+
+  test('a later validation error cannot discard an already ambiguous retry',
+      () async {
+    final directory =
+        await Directory.systemTemp.createTemp('money-note-ambiguous-reject-');
+    addTearDown(() async => directory.delete(recursive: true));
+    OfflineStore store() =>
+        OfflineStore(directoryProvider: () async => directory);
+    final first = _SuccessfulPanelRefreshState(
+        _RegistrationApi()..losePanelResponseOnce = true,
+        offlineStore: store());
+    Future<bool> submit(AppState state) => state.createPanel(
+          panelType: 'claim',
+          title: '미확정 청구',
+          amount: 500,
+          spentOn: '2026-09-17',
+          manualRegistrationKey: 'manual-panel-ambiguous',
+        );
+    expect(await submit(first), isFalse);
+    final rejecting = AppState(
+      MoneyNoteApiClient(
+        baseUrl: 'https://example.invalid',
+        client: MockClient((request) async =>
+            http.Response('{"detail":"invalid panel"}', 400)),
+      ),
+      offlineStore: store(),
+    );
+    expect(await submit(rejecting), isFalse);
+    expect(await store().hasPendingManualPanelRetry(), isTrue);
+  });
+
   test('후보 원장은 저장 응답 이후 갱신 실패에도 성공으로 처리한다', () async {
     final api = _RegistrationApi();
     final state = _FailingRefreshState(api);
@@ -282,5 +340,84 @@ void main() {
     expect(api.panelDiscountPatchCalls, 0);
     expect(await submit(recovered, 'manual-panel-new-intent'), isTrue);
     expect(api.panelKeys.last, 'manual-panel-new-intent');
+  });
+
+  test('미확정 수동 등록은 재시작 후 원래 입력으로만 확인하고 새 draft key를 오염시키지 않는다', () async {
+    final directory =
+        await Directory.systemTemp.createTemp('money-note-manual-recovery-');
+    addTearDown(() async => directory.delete(recursive: true));
+    OfflineStore store() =>
+        OfflineStore(directoryProvider: () async => directory);
+    final api = _RegistrationApi()..losePanelResponseOnce = true;
+    final first = _SuccessfulPanelRefreshState(api, offlineStore: store());
+    expect(
+        await first.createPanel(
+          panelType: 'family_card',
+          title: '이전 가족카드',
+          amount: 10000,
+          discountEnabled: false,
+          spentOn: '2026-09-17',
+          manualRegistrationKey: 'manual-panel-old',
+        ),
+        isFalse);
+    final restarted = _SuccessfulPanelRefreshState(api, offlineStore: store());
+    expect(await restarted.restorePersistedOfflineWorkspace(), isFalse);
+    expect(restarted.manualPanelRetryPending, isTrue);
+    expect(
+        await restarted.createPanel(
+          panelType: 'family_card',
+          title: '별개 가족카드',
+          amount: 700,
+          discountEnabled: true,
+          spentOn: '2026-09-17',
+          manualRegistrationKey: 'manual-panel-new',
+        ),
+        isFalse);
+    expect(api.panelKeys, ['manual-panel-old']);
+    expect(await restarted.confirmPendingManualPanelRegistration(), isTrue);
+    expect(api.panelKeys, ['manual-panel-old', 'manual-panel-old']);
+    expect(restarted.manualPanelRetryPending, isFalse);
+    expect(
+        await restarted.createPanel(
+          panelType: 'family_card',
+          title: '별개 가족카드',
+          amount: 700,
+          discountEnabled: true,
+          spentOn: '2026-09-17',
+          manualRegistrationKey: 'manual-panel-new',
+        ),
+        isTrue);
+    expect(api.panelKeys.last, 'manual-panel-new');
+  });
+
+  test('authoritative refresh 뒤 retry-key cleanup 실패는 restart 확인으로 복구한다',
+      () async {
+    final directory =
+        await Directory.systemTemp.createTemp('money-note-manual-cleanup-');
+    addTearDown(() async => directory.delete(recursive: true));
+    final api = _RegistrationApi();
+    final failingStore = OfflineStore(
+      directoryProvider: () async => directory,
+      beforeManualRetryCleanup: () async => throw StateError('cleanup failed'),
+    );
+    final first = _SuccessfulPanelRefreshState(api, offlineStore: failingStore);
+    expect(
+        await first.createPanel(
+          panelType: 'claim',
+          title: '기존 청구',
+          amount: 500,
+          spentOn: '2026-09-17',
+          manualRegistrationKey: 'manual-panel-cleanup',
+        ),
+        isFalse);
+    expect(first.manualPanelRetryPending, isTrue);
+    expect(api.panelKeys, ['manual-panel-cleanup']);
+    final recovered = _SuccessfulPanelRefreshState(api,
+        offlineStore: OfflineStore(directoryProvider: () async => directory));
+    expect(await recovered.restorePersistedOfflineWorkspace(), isFalse);
+    expect(recovered.manualPanelRetryPending, isTrue);
+    expect(await recovered.confirmPendingManualPanelRegistration(), isTrue);
+    expect(api.panelKeys, ['manual-panel-cleanup', 'manual-panel-cleanup']);
+    expect(recovered.manualPanelRetryPending, isFalse);
   });
 }

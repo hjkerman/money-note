@@ -36,7 +36,7 @@ export function useEntryHandlers({
   setExpenseForm: (value: { date: string; usagePlace: string; usageItem: string; spendingCategory: string; amount: string }) => void;
   setPlannedForm: (value: { dueDay: string; usagePlace: string; usageItem: string; amount: string }) => void;
   setStatus: (value: string) => void;
-  withRefresh: (action: () => Promise<void>) => Promise<void>;
+  withRefresh: (action: () => Promise<void>) => Promise<boolean>;
 }) {
   async function handleExpenseSubmit(event: FormEvent) {
     event.preventDefault();

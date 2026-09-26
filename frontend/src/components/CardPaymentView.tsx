@@ -8,11 +8,13 @@ type LateEntryForm = { date: string; usagePlace: string; usageItem: string; amou
 export function CardPaymentView({
   active,
   cardPayments,
+  confirmPendingPayment,
   currentMonth,
   handleAutoAllocate,
   handleCardPaymentDiscountToggle,
   handleCardPaymentRowDelete,
   handleCardPaymentSubmit,
+  hasPendingPayment,
   handleDiscountPolicyChange,
   handleLateEntrySubmit,
   handleLiquidityResetAcknowledgement,
@@ -31,11 +33,13 @@ export function CardPaymentView({
 }: {
   active: boolean;
   cardPayments: CardPaymentStatus | null;
+  confirmPendingPayment: () => void;
   currentMonth: string;
   handleAutoAllocate: () => void;
   handleCardPaymentDiscountToggle: (row: CardPaymentRow, exclude: boolean) => void;
   handleCardPaymentRowDelete: (row: CardPaymentRow) => void;
   handleCardPaymentSubmit: () => void;
+  hasPendingPayment: boolean;
   handleDiscountPolicyChange: (scope: "owner" | "family", month: string, policy: CardDiscountPolicy) => void;
   handleLateEntrySubmit: (event: FormEvent) => Promise<void>;
   handleLiquidityResetAcknowledgement: () => void;
@@ -56,6 +60,8 @@ export function CardPaymentView({
     <section className={active ? "tab-panel active" : "tab-panel"}>
       <CardPaymentPanel
         status={cardPayments}
+        hasPendingPayment={hasPendingPayment}
+        onConfirmPendingPayment={confirmPendingPayment}
         fallbackLiquidity={parseSettingNumber(settings, "scheduled_income", 400_000)}
         availableLiquidity={summary?.cash_flow_balance ?? 0}
         onAcknowledgeLiquidityReset={() => handleLiquidityResetAcknowledgement()}

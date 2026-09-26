@@ -11,6 +11,17 @@ import 'offline_data.dart';
 typedef OfflineDirectoryProvider = Future<Directory> Function();
 typedef MobileRecoveryWriteHook = Future<void> Function();
 typedef JournalAppendWriteHook = Future<void> Function();
+typedef ManualRetryCleanupHook = Future<void> Function();
+
+class PendingManualPanelRetry {
+  const PendingManualPanelRetry(this.key, this.input, this.digest,
+      [this.legacyDigests = const {}]);
+
+  final String key;
+  final Map<String, dynamic>? input;
+  final String? digest;
+  final Set<String> legacyDigests;
+}
 
 class OfflineStore {
   OfflineStore({
@@ -18,11 +29,13 @@ class OfflineStore {
     DateTime Function()? clock,
     MobileRecoveryWriteHook? beforeMobileRecoveryWrite,
     JournalAppendWriteHook? beforeJournalAppendWrite,
+    ManualRetryCleanupHook? beforeManualRetryCleanup,
   })  : _directoryProvider =
             directoryProvider ?? getApplicationDocumentsDirectory,
         _clock = clock ?? DateTime.now,
         _beforeMobileRecoveryWrite = beforeMobileRecoveryWrite,
-        _beforeJournalAppendWrite = beforeJournalAppendWrite;
+        _beforeJournalAppendWrite = beforeJournalAppendWrite,
+        _beforeManualRetryCleanup = beforeManualRetryCleanup;
 
   static const _directoryName = 'offline-mode';
   static const _recoveryDirectoryName = 'recovery';
@@ -36,6 +49,7 @@ class OfflineStore {
   final DateTime Function() _clock;
   final MobileRecoveryWriteHook? _beforeMobileRecoveryWrite;
   final JournalAppendWriteHook? _beforeJournalAppendWrite;
+  final ManualRetryCleanupHook? _beforeManualRetryCleanup;
   final Random _random = Random.secure();
   Future<void>? _journalAppendTail;
 
@@ -84,55 +98,80 @@ class OfflineStore {
   Future<String> reserveManualPanelRetryKey(Map<String, dynamic> input,
       {String? preferredKey}) async {
     final file = await _file(_manualPanelRetryFilename);
-    final keys = await _loadManualPanelRetryKeys(file);
-    final digest =
-        sha256.convert(utf8.encode(_canonicalJson(input))).toString();
-    final existing = keys[digest];
-    if (existing != null) return existing;
-    // Keep one unresolved logical create identity even if the form is edited.
-    // A changed financial input then conflicts if the first request committed.
-    final key = keys.isNotEmpty
-        ? keys.values.first
-        : preferredKey ?? 'manual-panel-${_operationId()}';
-    keys[digest] = key;
-    await _writeJsonAtomic(file, {'schema_version': 1, 'keys': keys});
+    final pending = await _loadManualPanelRetry(file);
+    final digest = _manualPanelInputDigest(input);
+    if (pending != null) {
+      if (pending.digest == digest || pending.legacyDigests.contains(digest)) {
+        return pending.key;
+      }
+      throw const OfflinePersistenceException(
+        '이전 수동 정산 등록의 결과가 미확정입니다. 먼저 이전 등록을 확인한 뒤 새 항목을 저장하세요.',
+      );
+    }
+    final key = preferredKey ?? 'manual-panel-${_operationId()}';
+    await _writeJsonAtomic(file, {
+      'schema_version': 2,
+      'key': key,
+      'input_digest': digest,
+      'input': input,
+    });
     return key;
   }
 
   Future<bool> hasPendingManualPanelRetry() async {
-    final keys =
-        await _loadManualPanelRetryKeys(await _file(_manualPanelRetryFilename));
-    return keys.isNotEmpty;
+    return await loadPendingManualPanelRetry() != null;
   }
+
+  Future<PendingManualPanelRetry?> loadPendingManualPanelRetry() async =>
+      _loadManualPanelRetry(await _file(_manualPanelRetryFilename));
 
   Future<void> completeManualPanelRetryKey(
       Map<String, dynamic> input, String key) async {
     final file = await _file(_manualPanelRetryFilename);
-    final keys = await _loadManualPanelRetryKeys(file);
-    final digest =
-        sha256.convert(utf8.encode(_canonicalJson(input))).toString();
-    if (keys[digest] != key) {
+    final pending = await _loadManualPanelRetry(file);
+    final digest = _manualPanelInputDigest(input);
+    if (pending == null ||
+        pending.key != key ||
+        (pending.digest != digest && !pending.legacyDigests.contains(digest))) {
       throw const OfflinePersistenceException(
           '수동 정산 재시도 identity가 변경되어 확인이 필요합니다.');
     }
-    keys.removeWhere((_, value) => value == key);
-    if (keys.isEmpty) {
-      await file.delete();
-    } else {
-      await _writeJsonAtomic(file, {'schema_version': 1, 'keys': keys});
-    }
+    await _beforeManualRetryCleanup?.call();
+    await file.delete();
   }
 
-  Future<Map<String, String>> _loadManualPanelRetryKeys(File file) async {
-    if (!await file.exists()) return {};
+  String _manualPanelInputDigest(Map<String, dynamic> input) =>
+      sha256.convert(utf8.encode(_canonicalJson(input))).toString();
+
+  Future<PendingManualPanelRetry?> _loadManualPanelRetry(File file) async {
+    if (!await file.exists()) return null;
     try {
       final decoded = jsonDecode(await file.readAsString());
-      if (decoded is! Map<String, dynamic> ||
-          decoded['schema_version'] != 1 ||
-          decoded['keys'] is! Map) {
+      if (decoded is! Map<String, dynamic>) {
         throw const FormatException('manual panel retry state is invalid');
       }
-      return Map<String, String>.from(decoded['keys'] as Map);
+      if (decoded['schema_version'] == 1 && decoded['keys'] is Map) {
+        final keys = Map<String, String>.from(decoded['keys'] as Map);
+        if (keys.isEmpty) return null;
+        if (keys.values.toSet().length != 1) {
+          throw const FormatException('manual panel retry keys disagree');
+        }
+        return PendingManualPanelRetry(
+            keys.values.first, null, null, keys.keys.toSet());
+      }
+      final input = decoded['input'];
+      final key = decoded['key'];
+      final digest = decoded['input_digest'];
+      if (decoded['schema_version'] != 2 ||
+          key is! String ||
+          key.isEmpty ||
+          input is! Map<String, dynamic> ||
+          digest is! String ||
+          digest != _manualPanelInputDigest(input)) {
+        throw const FormatException('manual panel retry state is invalid');
+      }
+      return PendingManualPanelRetry(
+          key, Map<String, dynamic>.unmodifiable(input), digest);
     } on FormatException catch (error) {
       throw OfflinePersistenceException('수동 정산 재시도 기록을 읽을 수 없습니다: $error');
     } on TypeError catch (error) {

@@ -2,9 +2,19 @@ const LEGACY_SESSION_TOKEN_KEY = "money-note-session-token";
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? defaultApiBaseUrl();
 
+export class ApiResponseError extends Error {
+  constructor(message: string, readonly status: number) {
+    super(message);
+  }
+}
+
 if (typeof window !== "undefined") {
   // 웹 인증은 HttpOnly cookie만 사용한다. 과거 버전이 남긴 Bearer 토큰도 즉시 제거한다.
-  window.localStorage.removeItem(LEGACY_SESSION_TOKEN_KEY);
+  try {
+    window.localStorage.removeItem(LEGACY_SESSION_TOKEN_KEY);
+  } catch {
+    // Storage can be disabled. The legacy token is never sent by this client.
+  }
 }
 
 export async function getJson<T>(path: string): Promise<T> {
@@ -72,7 +82,7 @@ function defaultApiBaseUrl(): string {
 async function parseResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     const detail = await response.text();
-    throw new Error(readableErrorMessage(response.status, detail));
+    throw new ApiResponseError(readableErrorMessage(response.status, detail), response.status);
   }
   return response.json() as Promise<T>;
 }

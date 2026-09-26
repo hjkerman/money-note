@@ -12,6 +12,15 @@ class _PanelState extends AppState {
 
   final calls = <String>[];
   final pending = <Completer<bool>>[];
+  bool recoveryCalled = false;
+
+  @override
+  Future<bool> confirmPendingManualPanelRegistration() async {
+    recoveryCalled = true;
+    manualPanelRetryPending = false;
+    notifyListeners();
+    return true;
+  }
 
   @override
   Future<bool> createPanel({
@@ -89,5 +98,23 @@ void main() {
       expect(find.text('700'), findsOneWidget);
       await tester.pumpWidget(const SizedBox());
     }
+  });
+
+  testWidgets('pending registration recovery is explicit and keeps a new draft',
+      (tester) async {
+    final state = _PanelState()..manualPanelRetryPending = true;
+    await show(tester, state);
+    await tester.enterText(find.byType(TextField).at(0), '새 가족 지출');
+    await tester.enterText(find.byType(TextField).at(1), '700');
+    await tester.ensureVisible(find.text('이전 미확정 등록 확인'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('이전 미확정 등록 확인'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('첫 요청이 서버에 도착하지 않았다면'), findsOneWidget);
+    expect(state.recoveryCalled, isFalse);
+    await tester.tap(find.text('확인'));
+    await tester.pumpAndSettle();
+    expect(state.recoveryCalled, isTrue);
+    expect(find.text('700'), findsOneWidget);
   });
 }
