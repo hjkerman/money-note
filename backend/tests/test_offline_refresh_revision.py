@@ -118,6 +118,40 @@ class RefreshRevisionTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "다른 내용"):
             create_panel(on_payload)
 
+    def test_manual_claim_family_initial_exclusion_is_atomic_and_idempotent(self) -> None:
+        for target in ("claim", "family_card"):
+            with self.subTest(target=target):
+                key = f"manual-panel:{target}:one"
+                payload = MonthlyPanelIn(
+                    month="2026-09", panel_type=target, title="생활비",
+                    spent_on="2026-09-17", amount_value=10000, sort_order=0,
+                    discount_override=1, discount_amount=0,
+                    candidate_registration_key=key,
+                )
+                invalid = payload.model_copy(update={"title": ""})
+                with self.assertRaisesRegex(ValueError, "세부내역"):
+                    create_panel(invalid)
+                # Failure after the row (and its initial discount intent) is inserted
+                # still rolls back the whole logical create.
+                with patch("app.repositories.panels.save_registration", side_effect=RuntimeError("after insert")):
+                    with self.assertRaisesRegex(RuntimeError, "after insert"):
+                        create_panel(payload)
+                with session() as conn:
+                    self.assertEqual(conn.execute(
+                        "SELECT COUNT(*) FROM monthly_panels WHERE panel_type = ?", (target,)
+                    ).fetchone()[0], 0)
+                created = create_panel(payload)  # Treat response as lost.
+                retry = create_panel(payload)
+                self.assertEqual(retry["id"], created["id"])
+                self.assertEqual(present_monthly_panel(retry)["effective_amount_value"], 10000)
+                payload.discount_override = 0
+                with self.assertRaisesRegex(ValueError, "다른 내용"):
+                    create_panel(payload)
+                with session() as conn:
+                    self.assertEqual(conn.execute(
+                        "SELECT COUNT(*) FROM monthly_panels WHERE panel_type = ?", (target,)
+                    ).fetchone()[0], 1)
+
     def test_legacy_candidate_retry_is_upgraded_only_when_final_discount_matches(self) -> None:
         payload = MonthlyPanelIn(
             month="2026-09", panel_type="family_card", title="가게",

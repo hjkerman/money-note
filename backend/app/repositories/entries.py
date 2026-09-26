@@ -12,6 +12,7 @@ from app.services.card_payments import (
 )
 from app.repositories.notification_registration import (
     existing_registration,
+    legacy_ledger_registration_fingerprint,
     registration_fingerprint,
     save_registration,
 )
@@ -241,6 +242,32 @@ def planned_entry_payment_date(due_day: int | None, today: date | None = None) -
     return date(today.year, today.month, min(day, 28 if today.month == 2 else 30 if today.month in {4, 6, 9, 11} else 31))
 
 
+def _same_legacy_registered_entry(
+    stored: Any, values: dict[str, Any],
+    initial_discount_enabled: bool | None, initial_discount_override_amount: int | None,
+) -> bool:
+    # An old digest omitted some authoritative fields. Upgrade only when the
+    # currently stored row proves the same final input; otherwise fail closed.
+    fields = (
+        "book_section", "entry_kind", "entry_date", "date_label", "group_label",
+        "title", "usage_place", "usage_item", "amount_value", "amount_expr",
+        "aux_amount_expr", "extra_value", "due_day", "confirmed_at",
+        "spending_category",
+    )
+    if any(stored[field] != values.get(field) for field in fields):
+        return False
+    if values.get("payment_key") is not None and stored["payment_key"] != values["payment_key"]:
+        return False
+    if initial_discount_override_amount is not None:
+        expected_override, expected_aux = 1, initial_discount_override_amount
+    elif initial_discount_enabled is False:
+        expected_override, expected_aux = 1, 0
+    else:
+        expected_override = int(values.get("discount_override") or 0)
+        expected_aux = values.get("aux_amount_value")
+    return int(stored["discount_override"]) == expected_override and stored["aux_amount_value"] == expected_aux
+
+
 def create_entry(entry: LedgerEntryIn, conn: Any | None = None) -> dict[str, Any]:
     initial_discount_enabled = entry.discount_enabled
     initial_discount_override_amount = entry.discount_override_amount
@@ -258,6 +285,8 @@ def create_entry(entry: LedgerEntryIn, conn: Any | None = None) -> dict[str, Any
             raise ValueError("initial discount intent is only valid for card expenses")
 
         registration_key = entry.candidate_registration_key
+        if registration_key and entry.entry_kind not in {"expense", "late_expense"}:
+            raise ValueError("알림 후보 등록 key는 카드 지출에만 사용할 수 있습니다.")
         fingerprint_values = dict(values)
         if initial_discount_override_amount is not None:
             fingerprint_values["discount_override_amount"] = initial_discount_override_amount
@@ -267,7 +296,25 @@ def create_entry(entry: LedgerEntryIn, conn: Any | None = None) -> dict[str, Any
             registration_fingerprint("ledger", fingerprint_values) if registration_key else None
         )
         if registration_key:
-            registered_id = existing_registration(conn, registration_key, "ledger", fingerprint)
+            try:
+                registered_id = existing_registration(conn, registration_key, "ledger", fingerprint)
+            except ValueError:
+                old = conn.execute(
+                    "SELECT target, target_id, request_fingerprint FROM notification_candidate_registrations WHERE registration_key = ?",
+                    (registration_key,),
+                ).fetchone()
+                stored = conn.execute(
+                    "SELECT * FROM ledger_entries WHERE id = ?", (old["target_id"],)
+                ).fetchone() if old is not None and old["target"] == "ledger" else None
+                if (old is None or stored is None or
+                    old["request_fingerprint"] != legacy_ledger_registration_fingerprint(fingerprint_values) or
+                    not _same_legacy_registered_entry(stored, values, initial_discount_enabled, initial_discount_override_amount)):
+                    raise
+                conn.execute(
+                    "UPDATE notification_candidate_registrations SET request_fingerprint = ? WHERE registration_key = ?",
+                    (fingerprint, registration_key),
+                )
+                registered_id = int(old["target_id"])
             if registered_id is not None:
                 registered = conn.execute(
                     "SELECT * FROM ledger_entries WHERE id = ?", (registered_id,)

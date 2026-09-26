@@ -89,6 +89,7 @@ class _RecordingState extends AppState {
     bool discountEnabled = true,
     String? spentOn,
     String? candidateRegistrationKey,
+    String? manualRegistrationKey,
   }) async {
     registeredTarget = panelType;
     registeredDiscount = discountEnabled;

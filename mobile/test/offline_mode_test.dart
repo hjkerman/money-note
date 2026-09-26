@@ -32,19 +32,49 @@ OfflineBaseline _baseline({
   int remainingLiquidity = 10000,
   bool includeProjectionPolicy = true,
   bool includeAuthority = true,
+  bool registeredCandidate = false,
+  bool legacyRegisteredCandidate = false,
+  String? resolvedReconciliationId,
 }) {
   return OfflineBaseline(
     syncedAt: DateTime.utc(2026, 9, 17, 3, 14),
     authoritativeSnapshot: includeAuthority
-        ? const {
+        ? {
             'schema_version': 2,
             'exported_at': '2026-09-17T03:14:00Z',
-            'data': <String, dynamic>{},
+            'data': <String, dynamic>{
+              'notification_candidate_registrations': [
+                if (registeredCandidate || legacyRegisteredCandidate)
+                  {
+                    'registration_key': 'woori_card:orphan-candidate',
+                    'target': 'ledger',
+                    'target_id': 41,
+                    'request_fingerprint': legacyRegisteredCandidate
+                        ? 'ee32b8775b2becc65724d7f1c7da75e08ab00daa40c31a14acff98e635a0030a'
+                        : '91a7f4cce506f90bb3bb45f23db994b2aa2b269a5e583d9e023976fc9aa0477f',
+                  },
+              ],
+              if (legacyRegisteredCandidate)
+                'ledger_entries': [
+                  {
+                    'id': 41,
+                    'entry_date': '2026-09-17',
+                    'title': '[가게] 식사',
+                    'usage_place': '가게',
+                    'usage_item': '식사',
+                    'amount_value': 1000,
+                    'spending_category': null,
+                    'discount_override': 0,
+                    'aux_amount_value': null,
+                  },
+                ],
+            },
           }
         : null,
     serverStateFingerprint: includeAuthority
         ? 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
         : null,
+    resolvedReconciliationId: resolvedReconciliationId,
     user: AuthUser(
       id: 1,
       username: 'owner',
@@ -153,6 +183,44 @@ OfflineStore _store(
     directoryProvider: () async => directory,
     clock: clock,
   );
+}
+
+Future<void> _saveLinkedMetadata(
+    OfflineStore store, OfflineWorkspaceMetadata metadata) async {
+  final baseline = await store.loadBaseline();
+  await store.saveMetadata(OfflineWorkspaceMetadata.fromJson({
+    ...metadata.toJson(),
+    'baseline_lineage_fingerprint':
+        baseline == null ? null : store.recoveryLineageFingerprint(baseline),
+  }));
+}
+
+Future<void> _saveCommittedFixture(OfflineStore store, String id) async {
+  final baseline = (await store.loadBaseline())!;
+  final artifact = await store.createMobileRecoveryArtifact(
+    baseline: baseline,
+    operations: await store.loadJournal(),
+    metadata: OfflineWorkspaceMetadata(
+      mode: ConnectivityMode.reconciliationRequired,
+      reconciliationChoice: ReconciliationChoice.applyToServer,
+      reconciliationId: id,
+      phase: ReconciliationPhase.preparing,
+    ),
+  );
+  await _saveLinkedMetadata(
+      store,
+      OfflineWorkspaceMetadata(
+        mode: ConnectivityMode.reconciliationFinalizing,
+        reconciliationChoice: ReconciliationChoice.applyToServer,
+        reconciliationId: id,
+        phase: ReconciliationPhase.mobileCommitted,
+        serverCommitStatus: ServerCommitStatus.committed,
+        currentServerFingerprint:
+            'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        serverArtifactFilename: 'server.snapshot',
+        mobileArtifactFilename: artifact.filename,
+        mobileArtifactSha256: artifact.sha256,
+      ));
 }
 
 class _OfflineApi extends MoneyNoteApiClient {
@@ -516,6 +584,7 @@ class _FormAppState extends AppState {
     bool discountEnabled = true,
     String? spentOn,
     String? candidateRegistrationKey,
+    String? manualRegistrationKey,
   }) {
     panelCalls += 1;
     return panelCompletion.future;
@@ -631,6 +700,108 @@ void main() {
       expect(await mismatch.restorePersistedOfflineWorkspace(), isTrue);
       expect(mismatch.isPersistenceRecoveryBlocked, isTrue);
     });
+
+    test('incomplete and contradictory persisted metadata fails closed',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      await store.replaceBaseline(_baseline(remainingLiquidity: 100000));
+      await store.appendOperation(
+        type: OfflineOperationType.createCashFlow,
+        payload: const {
+          'occurred_on': '2026-09-17',
+          'title': '현금',
+          'amount_value': -500,
+          'is_primary_income': 0,
+        },
+      );
+      final invalid = [
+        const OfflineWorkspaceMetadata(mode: ConnectivityMode.offline),
+        const OfflineWorkspaceMetadata(
+          mode: ConnectivityMode.offline,
+          reconciliationChoice: ReconciliationChoice.applyToServer,
+          reconciliationId: 'reconcile-resolved-conflict',
+          phase: ReconciliationPhase.mobileCommitted,
+          serverCommitStatus: ServerCommitStatus.committed,
+        ),
+        const OfflineWorkspaceMetadata(
+          mode: ConnectivityMode.reconciliationRequired,
+          reconciliationChoice: ReconciliationChoice.applyToServer,
+          reconciliationId: 'reconcile-impossible-status',
+          serverCommitStatus: ServerCommitStatus.committed,
+        ),
+        const OfflineWorkspaceMetadata(
+          mode: ConnectivityMode.reconciliationFinalizing,
+          reconciliationChoice: ReconciliationChoice.applyToServer,
+          phase: ReconciliationPhase.mobileCommitted,
+          serverCommitStatus: ServerCommitStatus.committed,
+        ),
+        const OfflineWorkspaceMetadata(
+          mode: ConnectivityMode.offline,
+          mobileArtifactFilename: 'partial-mobile-bundle',
+        ),
+        const OfflineWorkspaceMetadata(
+          mode: ConnectivityMode.offline,
+          serverChanged: true,
+        ),
+      ];
+      for (var index = 0; index < invalid.length; index++) {
+        if (index == 0) {
+          await store.saveMetadata(invalid[index]);
+        } else {
+          await _saveLinkedMetadata(store, invalid[index]);
+        }
+        final state = AppState(_OfflineApi(), offlineStore: _store(directory));
+        expect(await state.restorePersistedOfflineWorkspace(), isTrue);
+        expect(state.isPersistenceRecoveryBlocked, isTrue);
+        expect(await state.enterOfflineMode(), isFalse);
+        expect(
+            await state.createCashFlow(
+              occurredOn: '2026-09-17',
+              title: '금지',
+              amount: 1,
+              isIncome: false,
+              isPrimaryIncome: false,
+            ),
+            isFalse);
+        expect(await store.loadJournal(), hasLength(1));
+      }
+    });
+    test('finalizing with a different valid journal is recovery blocked',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      await store.replaceBaseline(_baseline());
+      final original = await store.appendOperation(
+        type: OfflineOperationType.createCashFlow,
+        payload: const {
+          'occurred_on': '2026-09-17',
+          'title': '현금',
+          'amount_value': -500,
+          'is_primary_income': 0,
+        },
+      );
+      await _saveCommittedFixture(store, 'reconcile-journal-identity');
+      final changed = OfflineJournalOperation(
+        operationId: original.operationId,
+        type: original.type,
+        payload: const {
+          'occurred_on': '2026-09-17',
+          'title': '현금',
+          'amount_value': -700,
+          'is_primary_income': 0,
+        },
+        createdAt: original.createdAt,
+        sequence: original.sequence,
+      );
+      await File('${directory.path}/offline-mode/journal.ndjson')
+          .writeAsString('${jsonEncode(changed.toJson())}\n', flush: true);
+      final state = AppState(_OfflineApi(), offlineStore: _store(directory));
+      expect(await state.restorePersistedOfflineWorkspace(), isTrue);
+      expect(state.isPersistenceRecoveryBlocked, isTrue);
+      expect(await store.loadJournal(), hasLength(1));
+    });
+
     test('incomplete finalizing commit metadata is recovery blocked', () async {
       final directory = await _temporaryDirectory();
       final store = _store(directory);
@@ -644,13 +815,15 @@ void main() {
           'is_primary_income': 0
         },
       );
-      await store.saveMetadata(const OfflineWorkspaceMetadata(
-        mode: ConnectivityMode.reconciliationFinalizing,
-        reconciliationChoice: ReconciliationChoice.applyToServer,
-        reconciliationId: 'reconcile-damaged-finalizing',
-        phase: ReconciliationPhase.mobileCommitted,
-        serverCommitStatus: ServerCommitStatus.none,
-      ));
+      await _saveLinkedMetadata(
+          store,
+          const OfflineWorkspaceMetadata(
+            mode: ConnectivityMode.reconciliationFinalizing,
+            reconciliationChoice: ReconciliationChoice.applyToServer,
+            reconciliationId: 'reconcile-damaged-finalizing',
+            phase: ReconciliationPhase.mobileCommitted,
+            serverCommitStatus: ServerCommitStatus.none,
+          ));
       final state = AppState(_OfflineApi(), offlineStore: _store(directory));
       expect(await state.restorePersistedOfflineWorkspace(), isTrue);
       expect(state.isPersistenceRecoveryBlocked, isTrue);
@@ -703,6 +876,96 @@ void main() {
     });
 
     test(
+        'candidate already in authoritative baseline never enters J or projection',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      await store.replaceBaseline(_baseline(
+        remainingLiquidity: 99000,
+        registeredCandidate: true,
+      ));
+      final state = AppState(_OfflineApi(), offlineStore: store);
+      expect(await state.enterOfflineMode(), isTrue);
+      Future<bool> register({int amount = 1000, bool discount = true}) =>
+          state.createExpense(
+            usagePlace: '가게',
+            usageItem: '식사',
+            amount: amount,
+            discountEnabled: discount,
+            entryDate: '2026-09-17',
+            candidateRegistrationKey: 'woori_card:orphan-candidate',
+          );
+      expect(await register(), isTrue);
+      expect(state.summary!.remainingLiquidity, 99000);
+      expect(await store.loadJournal(), isEmpty);
+      final restarted =
+          AppState(_OfflineApi(), offlineStore: _store(directory));
+      expect(await restarted.restorePersistedOfflineWorkspace(), isTrue);
+      expect(
+          await restarted.createExpense(
+            usagePlace: '가게',
+            usageItem: '식사',
+            amount: 1000,
+            discountEnabled: true,
+            entryDate: '2026-09-17',
+            candidateRegistrationKey: 'woori_card:orphan-candidate',
+          ),
+          isTrue);
+      expect(restarted.summary!.remainingLiquidity, 99000);
+      expect(await store.loadJournal(), isEmpty);
+      expect(await register(amount: 2000), isFalse);
+      expect(await register(discount: false), isFalse);
+    });
+
+    test(
+        'old baseline registration hash needs matching stored authoritative row',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      await store.replaceBaseline(_baseline(
+          remainingLiquidity: 99000, legacyRegisteredCandidate: true));
+      final state = AppState(_OfflineApi(), offlineStore: store);
+      expect(await state.enterOfflineMode(), isTrue);
+      Future<bool> register(int amount) => state.createExpense(
+            usagePlace: '가게',
+            usageItem: '식사',
+            amount: amount,
+            discountEnabled: true,
+            entryDate: '2026-09-17',
+            candidateRegistrationKey: 'woori_card:orphan-candidate',
+          );
+      expect(await register(1000), isTrue);
+      expect(state.summary!.remainingLiquidity, 99000);
+      expect(await store.loadJournal(), isEmpty);
+      expect(await register(2000), isFalse);
+    });
+
+    test(
+        'baseline candidate already assigned to Family cannot be appended as ledger',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      final json = _baseline(registeredCandidate: true).toJson();
+      final data = (json['authoritative_snapshot'] as Map)['data'] as Map;
+      (data['notification_candidate_registrations'] as List).single['target'] =
+          'family_card';
+      await store.replaceBaseline(OfflineBaseline.fromJson(json));
+      final state = AppState(_OfflineApi(), offlineStore: store);
+      expect(await state.enterOfflineMode(), isTrue);
+      expect(
+          await state.createExpense(
+            usagePlace: '가게',
+            usageItem: '식사',
+            amount: 1000,
+            discountEnabled: true,
+            entryDate: '2026-09-17',
+            candidateRegistrationKey: 'woori_card:orphan-candidate',
+          ),
+          isFalse);
+      expect(await store.loadJournal(), isEmpty);
+    });
+
+    test(
         'concurrent duplicate registration is one durable J and one projection',
         () async {
       final directory = await _temporaryDirectory();
@@ -719,7 +982,7 @@ void main() {
       expect(await store.loadJournal(), hasLength(1));
 
       await store.replaceBaseline(_baseline(remainingLiquidity: 100000));
-      await store.saveMetadata(
+      await _saveLinkedMetadata(store,
           const OfflineWorkspaceMetadata(mode: ConnectivityMode.offline));
       final state = AppState(_OfflineApi(), offlineStore: store);
       expect(await state.restorePersistedOfflineWorkspace(), isTrue);
@@ -741,6 +1004,33 @@ void main() {
   });
 
   group('durable offline store', () {
+    test('unknown manual panel result keeps one identity across edited drafts',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      final first = {
+        'month': '2026-09',
+        'panel_type': 'claim',
+        'title': '생활비',
+        'spent_on': '2026-09-17',
+        'amount_value': 500,
+        'discount_enabled': false,
+      };
+      final changed = {...first, 'amount_value': 700};
+      final firstKey = await store.reserveManualPanelRetryKey(first,
+          preferredKey: 'manual-panel-original');
+      final restarted = _store(directory);
+      expect(
+          await restarted.reserveManualPanelRetryKey(changed,
+              preferredKey: 'manual-panel-new'),
+          firstKey);
+      expect(await restarted.reserveManualPanelRetryKey(first), firstKey);
+      await restarted.completeManualPanelRetryKey(changed, firstKey);
+      expect(
+          await restarted.reserveManualPanelRetryKey(first,
+              preferredKey: 'manual-panel-fresh'),
+          'manual-panel-fresh');
+    });
     test('baseline is atomically replaced and survives a new store instance',
         () async {
       final directory = await _temporaryDirectory();
@@ -990,6 +1280,59 @@ void main() {
       expect(state.offlineEntryMessage, contains('한 번 동기화'));
     });
 
+    test('unconfirmed manual registration blocks offline epoch across restart',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      await store.replaceBaseline(_baseline());
+      const input = <String, dynamic>{
+        'month': '2026-09',
+        'panel_type': 'claim',
+        'title': '미확인 청구',
+        'spent_on': '2026-09-17',
+        'amount_value': 500,
+        'discount_enabled': false,
+      };
+      final key = await store.reserveManualPanelRetryKey(input);
+      final restartedStore = _store(directory);
+      final state = AppState(_OfflineApi(), offlineStore: restartedStore);
+
+      expect(await state.enterOfflineMode(), isFalse);
+      expect(state.isOnline, isTrue);
+      expect(state.offlineEntryMessage, contains('저장 결과를 확인하지 못한'));
+      expect(await restartedStore.hasPendingManualPanelRetry(), isTrue);
+      await restartedStore.completeManualPanelRetryKey(input, key);
+      expect(await state.enterOfflineMode(), isTrue);
+    });
+
+    test('in-flight online write cannot race a new offline epoch', () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      await store.replaceBaseline(_baseline());
+      final state = AppState(_OfflineApi(), offlineStore: store)..isBusy = true;
+      expect(await state.enterOfflineMode(), isFalse);
+      expect(state.offlineEntryMessage, contains('저장 또는 상태 전환'));
+      expect((await store.loadMetadata()).mode, ConnectivityMode.online);
+      state.isBusy = false;
+      expect(await state.enterOfflineMode(), isTrue);
+    });
+
+    test('malformed manual retry identity fails closed on offline entry',
+        () async {
+      final directory = await _temporaryDirectory();
+      final store = _store(directory);
+      await store.replaceBaseline(_baseline());
+      final retryFile =
+          File('${directory.path}/offline-mode/manual-panel-retries.json');
+      await retryFile.writeAsString('{"schema_version":1,"keys":{"draft":42}}');
+      final state = AppState(_OfflineApi(), offlineStore: store);
+
+      expect(await state.enterOfflineMode(), isFalse);
+      expect(state.isOnline, isTrue);
+      expect(state.offlineEntryMessage, contains('재시도 기록을 읽을 수 없습니다'));
+      expect(await retryFile.exists(), isTrue);
+    });
+
     test('offline card use without override keeps baseline discount intent',
         () async {
       final directory = await _temporaryDirectory();
@@ -1233,9 +1576,11 @@ void main() {
       final directory = await _temporaryDirectory();
       final store = _store(directory);
       await store.replaceBaseline(_baseline());
-      await store.saveMetadata(const OfflineWorkspaceMetadata(
-        mode: ConnectivityMode.offline,
-      ));
+      await _saveLinkedMetadata(
+          store,
+          const OfflineWorkspaceMetadata(
+            mode: ConnectivityMode.offline,
+          ));
       await store.appendOperation(
         type: OfflineOperationType.createCashFlow,
         payload: const {
@@ -1291,9 +1636,11 @@ void main() {
       final directory = await _temporaryDirectory();
       final store = _store(directory);
       await store.replaceBaseline(_baseline());
-      await store.saveMetadata(const OfflineWorkspaceMetadata(
-        mode: ConnectivityMode.reconciliationRequired,
-      ));
+      await _saveLinkedMetadata(
+          store,
+          const OfflineWorkspaceMetadata(
+            mode: ConnectivityMode.reconciliationRequired,
+          ));
       await store.appendOperation(
         type: OfflineOperationType.createCardExpense,
         payload: const {
@@ -1331,9 +1678,11 @@ void main() {
       final directory = await _temporaryDirectory();
       final store = _store(directory);
       await store.replaceBaseline(_baseline());
-      await store.saveMetadata(const OfflineWorkspaceMetadata(
-        mode: ConnectivityMode.offline,
-      ));
+      await _saveLinkedMetadata(
+          store,
+          const OfflineWorkspaceMetadata(
+            mode: ConnectivityMode.offline,
+          ));
       await store.appendOperation(
         type: OfflineOperationType.createCashFlow,
         payload: const {
@@ -1375,13 +1724,6 @@ void main() {
       final directory = await _temporaryDirectory();
       final store = _store(directory);
       await store.replaceBaseline(_baseline());
-      await store.saveMetadata(const OfflineWorkspaceMetadata(
-        mode: ConnectivityMode.reconciliationFinalizing,
-        reconciliationChoice: ReconciliationChoice.applyToServer,
-        reconciliationId: 'reconcile-finalizing-identity',
-        phase: ReconciliationPhase.mobileCommitted,
-        serverCommitStatus: ServerCommitStatus.committed,
-      ));
       await store.appendOperation(
         type: OfflineOperationType.createCashFlow,
         payload: const {
@@ -1391,6 +1733,7 @@ void main() {
           'is_primary_income': 0,
         },
       );
+      await _saveCommittedFixture(store, 'reconcile-finalizing-identity');
       final state = AppState(_OfflineApi(), offlineStore: store);
       expect(await state.restorePersistedOfflineWorkspace(), isTrue);
       expect(state.isReconciliationFinalizing, isTrue);
@@ -1618,9 +1961,11 @@ void main() {
         },
       );
       await store.replaceBaseline(_baseline(remainingLiquidity: 10000));
-      await store.saveMetadata(const OfflineWorkspaceMetadata(
-        mode: ConnectivityMode.offline,
-      ));
+      await _saveLinkedMetadata(
+          store,
+          const OfflineWorkspaceMetadata(
+            mode: ConnectivityMode.offline,
+          ));
       final state = AppState(_OfflineApi(), offlineStore: store);
       expect(await state.restorePersistedOfflineWorkspace(), isTrue);
 
@@ -1711,10 +2056,11 @@ void main() {
     final directory = (await tester.runAsync(_temporaryDirectory))!;
     final store = _store(directory);
     await tester.runAsync(() => store.replaceBaseline(_baseline()));
-    await tester
-        .runAsync(() => store.saveMetadata(const OfflineWorkspaceMetadata(
-              mode: ConnectivityMode.reconciliationRequired,
-            )));
+    await tester.runAsync(() => _saveLinkedMetadata(
+        store,
+        const OfflineWorkspaceMetadata(
+          mode: ConnectivityMode.reconciliationRequired,
+        )));
     await tester.runAsync(() => store.appendOperation(
           type: OfflineOperationType.createCardExpense,
           payload: const {
@@ -1753,7 +2099,8 @@ void main() {
     final directory = (await tester.runAsync(_temporaryDirectory))!;
     final store = _store(directory);
     await tester.runAsync(() => store.replaceBaseline(_baseline()));
-    await tester.runAsync(() => store.saveMetadata(
+    await tester.runAsync(() => _saveLinkedMetadata(
+          store,
           const OfflineWorkspaceMetadata(
             mode: ConnectivityMode.reconciliationRequired,
           ),
@@ -2013,9 +2360,11 @@ void main() {
       final directory = await _temporaryDirectory();
       final store = _store(directory);
       await store.replaceBaseline(_baseline());
-      await store.saveMetadata(const OfflineWorkspaceMetadata(
-        mode: ConnectivityMode.reconciliationRequired,
-      ));
+      await _saveLinkedMetadata(
+          store,
+          const OfflineWorkspaceMetadata(
+            mode: ConnectivityMode.reconciliationRequired,
+          ));
       await store.appendOperation(
         type: OfflineOperationType.createCashFlow,
         payload: const {
@@ -2052,9 +2401,11 @@ void main() {
         },
       );
       await store.replaceBaseline(_baseline());
-      await store.saveMetadata(const OfflineWorkspaceMetadata(
-        mode: ConnectivityMode.reconciliationRequired,
-      ));
+      await _saveLinkedMetadata(
+          store,
+          const OfflineWorkspaceMetadata(
+            mode: ConnectivityMode.reconciliationRequired,
+          ));
       await store.appendOperation(
         type: OfflineOperationType.createCashFlow,
         payload: const {
@@ -2084,9 +2435,11 @@ void main() {
       final directory = await _temporaryDirectory();
       final store = _store(directory);
       await store.replaceBaseline(_baseline(includeAuthority: false));
-      await store.saveMetadata(const OfflineWorkspaceMetadata(
-        mode: ConnectivityMode.reconciliationRequired,
-      ));
+      await _saveLinkedMetadata(
+          store,
+          const OfflineWorkspaceMetadata(
+            mode: ConnectivityMode.reconciliationRequired,
+          ));
       await store.appendOperation(
         type: OfflineOperationType.createCashFlow,
         payload: const {
@@ -2131,9 +2484,11 @@ void main() {
         },
       );
       await failingStore.replaceBaseline(_baseline());
-      await failingStore.saveMetadata(const OfflineWorkspaceMetadata(
-        mode: ConnectivityMode.reconciliationRequired,
-      ));
+      await _saveLinkedMetadata(
+          failingStore,
+          const OfflineWorkspaceMetadata(
+            mode: ConnectivityMode.reconciliationRequired,
+          ));
       await failingStore.appendOperation(
         type: OfflineOperationType.createCashFlow,
         payload: const {
@@ -2173,9 +2528,11 @@ void main() {
       final directory = await _temporaryDirectory();
       final store = _store(directory);
       await store.replaceBaseline(_baseline());
-      await store.saveMetadata(const OfflineWorkspaceMetadata(
-        mode: ConnectivityMode.reconciliationRequired,
-      ));
+      await _saveLinkedMetadata(
+          store,
+          const OfflineWorkspaceMetadata(
+            mode: ConnectivityMode.reconciliationRequired,
+          ));
       await store.appendOperation(
         type: OfflineOperationType.createCashFlow,
         payload: const {
@@ -2245,9 +2602,11 @@ void main() {
       final directory = await _temporaryDirectory();
       final store = _store(directory);
       await store.replaceBaseline(_baseline());
-      await store.saveMetadata(const OfflineWorkspaceMetadata(
-        mode: ConnectivityMode.reconciliationRequired,
-      ));
+      await _saveLinkedMetadata(
+          store,
+          const OfflineWorkspaceMetadata(
+            mode: ConnectivityMode.reconciliationRequired,
+          ));
       await store.appendOperation(
         type: OfflineOperationType.createCardExpense,
         payload: const {
@@ -2289,9 +2648,11 @@ void main() {
       final directory = await _temporaryDirectory();
       final store = _store(directory);
       await store.replaceBaseline(_baseline());
-      await store.saveMetadata(const OfflineWorkspaceMetadata(
-        mode: ConnectivityMode.reconciliationRequired,
-      ));
+      await _saveLinkedMetadata(
+          store,
+          const OfflineWorkspaceMetadata(
+            mode: ConnectivityMode.reconciliationRequired,
+          ));
       await store.appendOperation(
         type: OfflineOperationType.createCardExpense,
         payload: const {
@@ -2313,19 +2674,24 @@ void main() {
         isFalse,
       );
       final pending = await store.loadMetadata();
-      await store.saveMetadata(OfflineWorkspaceMetadata(
-        mode: ConnectivityMode.reconciliationFinalizing,
-        reconciliationChoice: ReconciliationChoice.applyToServer,
-        reconciliationId: pending.reconciliationId,
-        phase: ReconciliationPhase.mobileCommitted,
-        serverCommitStatus: ServerCommitStatus.committed,
-        serverChanged: pending.serverChanged,
-        currentServerFingerprint: pending.currentServerFingerprint,
-        serverArtifactFilename: pending.serverArtifactFilename,
-        mobileArtifactFilename: pending.mobileArtifactFilename,
-        mobileArtifactSha256: pending.mobileArtifactSha256,
-        confirmServerChanged: pending.confirmServerChanged,
-      ));
+      await _saveLinkedMetadata(
+          store,
+          OfflineWorkspaceMetadata(
+            mode: ConnectivityMode.reconciliationFinalizing,
+            reconciliationChoice: ReconciliationChoice.applyToServer,
+            reconciliationId: pending.reconciliationId,
+            phase: ReconciliationPhase.mobileCommitted,
+            serverCommitStatus: ServerCommitStatus.committed,
+            serverChanged: pending.serverChanged,
+            currentServerFingerprint: pending.currentServerFingerprint,
+            serverArtifactFilename: pending.serverArtifactFilename,
+            mobileArtifactFilename: pending.mobileArtifactFilename,
+            mobileArtifactSha256: pending.mobileArtifactSha256,
+            confirmServerChanged: pending.confirmServerChanged,
+          ));
+      await store.replaceBaseline(_baseline(
+          remainingLiquidity: 9900,
+          resolvedReconciliationId: pending.reconciliationId));
       await store.deleteJournal();
 
       final restarted = AppState(api, offlineStore: _store(directory));
@@ -2343,9 +2709,11 @@ void main() {
       final directory = await _temporaryDirectory();
       final store = _store(directory);
       await store.replaceBaseline(_baseline());
-      await store.saveMetadata(const OfflineWorkspaceMetadata(
-        mode: ConnectivityMode.reconciliationRequired,
-      ));
+      await _saveLinkedMetadata(
+          store,
+          const OfflineWorkspaceMetadata(
+            mode: ConnectivityMode.reconciliationRequired,
+          ));
       await store.appendOperation(
         type: OfflineOperationType.createCashFlow,
         payload: const {
@@ -2396,9 +2764,11 @@ void main() {
       final directory = await _temporaryDirectory();
       final store = _store(directory);
       await store.replaceBaseline(_baseline());
-      await store.saveMetadata(const OfflineWorkspaceMetadata(
-        mode: ConnectivityMode.reconciliationRequired,
-      ));
+      await _saveLinkedMetadata(
+          store,
+          const OfflineWorkspaceMetadata(
+            mode: ConnectivityMode.reconciliationRequired,
+          ));
       await store.appendOperation(
         type: OfflineOperationType.createCardExpense,
         payload: const {
@@ -2440,13 +2810,6 @@ void main() {
       final directory = await _temporaryDirectory();
       final store = _FailingBaselineStore(directory);
       await store.replaceBaseline(_baseline(remainingLiquidity: 10000));
-      await store.saveMetadata(const OfflineWorkspaceMetadata(
-        mode: ConnectivityMode.reconciliationFinalizing,
-        reconciliationChoice: ReconciliationChoice.applyToServer,
-        reconciliationId: 'reconcile-baseline-write-failure',
-        phase: ReconciliationPhase.mobileCommitted,
-        serverCommitStatus: ServerCommitStatus.committed,
-      ));
       await store.appendOperation(
         type: OfflineOperationType.createCashFlow,
         payload: const {
@@ -2456,6 +2819,7 @@ void main() {
           'is_primary_income': 0,
         },
       );
+      await _saveCommittedFixture(store, 'reconcile-baseline-write-failure');
       final api = _OfflineApi()
         ..available = true
         ..committed = true
@@ -2488,13 +2852,6 @@ void main() {
       final directory = await _temporaryDirectory();
       final store = _FailingDeleteJournalStore(directory);
       await store.replaceBaseline(_baseline(remainingLiquidity: 10000));
-      await store.saveMetadata(const OfflineWorkspaceMetadata(
-        mode: ConnectivityMode.reconciliationFinalizing,
-        reconciliationChoice: ReconciliationChoice.applyToServer,
-        reconciliationId: 'reconcile-cleanup-failure',
-        phase: ReconciliationPhase.mobileCommitted,
-        serverCommitStatus: ServerCommitStatus.committed,
-      ));
       await store.appendOperation(
         type: OfflineOperationType.createCashFlow,
         payload: const {
@@ -2504,6 +2861,7 @@ void main() {
           'is_primary_income': 0,
         },
       );
+      await _saveCommittedFixture(store, 'reconcile-cleanup-failure');
       final api = _OfflineApi()
         ..available = true
         ..committed = true
@@ -2541,9 +2899,11 @@ void main() {
       final directory = await _temporaryDirectory();
       final store = _store(directory);
       await store.replaceBaseline(_baseline());
-      await store.saveMetadata(const OfflineWorkspaceMetadata(
-        mode: ConnectivityMode.reconciliationRequired,
-      ));
+      await _saveLinkedMetadata(
+          store,
+          const OfflineWorkspaceMetadata(
+            mode: ConnectivityMode.reconciliationRequired,
+          ));
       await store.appendOperation(
         type: OfflineOperationType.createCashFlow,
         payload: const {
@@ -2587,9 +2947,11 @@ void main() {
       final directory = await _temporaryDirectory();
       final store = _store(directory);
       await store.replaceBaseline(_baseline());
-      await store.saveMetadata(const OfflineWorkspaceMetadata(
-        mode: ConnectivityMode.reconciliationRequired,
-      ));
+      await _saveLinkedMetadata(
+          store,
+          const OfflineWorkspaceMetadata(
+            mode: ConnectivityMode.reconciliationRequired,
+          ));
       await store.appendOperation(
         type: OfflineOperationType.createCardExpense,
         payload: const {

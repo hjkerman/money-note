@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:money_note_mobile/src/api_client.dart';
 import 'package:money_note_mobile/src/app_state.dart';
 import 'package:money_note_mobile/src/models.dart';
+import 'package:money_note_mobile/src/offline/offline_store.dart';
 
 class _RegistrationApi extends MoneyNoteApiClient {
   _RegistrationApi() : super(baseUrl: 'https://example.invalid');
@@ -13,6 +16,8 @@ class _RegistrationApi extends MoneyNoteApiClient {
   int panelDiscountPatchCalls = 0;
   bool? lastInitialDiscountEnabled;
   bool failPanelDiscount = false;
+  bool losePanelResponseOnce = false;
+  final panelKeys = <String?>[];
 
   @override
   Future<LedgerEntry> createExpense({
@@ -72,8 +77,13 @@ class _RegistrationApi extends MoneyNoteApiClient {
     bool? initialDiscountEnabled,
   }) async {
     lastKey = candidateRegistrationKey;
+    panelKeys.add(candidateRegistrationKey);
     lastInitialDiscountEnabled = initialDiscountEnabled;
     lastPanelMonth = month;
+    if (losePanelResponseOnce) {
+      losePanelResponseOnce = false;
+      throw MoneyNoteConnectionException('injected response loss');
+    }
     return MonthlyPanel(
       id: 2,
       month: month,
@@ -108,7 +118,7 @@ class _RegistrationApi extends MoneyNoteApiClient {
 }
 
 class _FailingRefreshState extends AppState {
-  _FailingRefreshState(super.api);
+  _FailingRefreshState(super.api, {super.offlineStore});
 
   @override
   Future<void> refreshInputArea({bool notify = true}) async {
@@ -119,6 +129,13 @@ class _FailingRefreshState extends AppState {
   Future<void> refreshSettlementArea({bool notify = true}) async {
     throw StateError('refresh failed');
   }
+}
+
+class _SuccessfulPanelRefreshState extends AppState {
+  _SuccessfulPanelRefreshState(super.api, {super.offlineStore});
+
+  @override
+  Future<void> refreshSettlementArea({bool notify = true}) async {}
 }
 
 void main() {
@@ -233,5 +250,37 @@ void main() {
     expect(api.lastKey, 'woori_card:family-retry');
     expect(api.lastInitialDiscountEnabled, isFalse);
     expect(api.panelDiscountPatchCalls, 0);
+  });
+
+  test('수동 정산 응답 유실 후 재시작해도 같은 durable key로 재시도한다', () async {
+    final directory =
+        await Directory.systemTemp.createTemp('money-note-manual-panel-');
+    addTearDown(() async => directory.delete(recursive: true));
+    OfflineStore store() =>
+        OfflineStore(directoryProvider: () async => directory);
+    final api = _RegistrationApi()..losePanelResponseOnce = true;
+    final first = _FailingRefreshState(api, offlineStore: store());
+    Future<bool> submit(AppState state, String preferred) => state.createPanel(
+          panelType: 'claim',
+          title: '생활비',
+          amount: 10000,
+          discountEnabled: false,
+          spentOn: '2026-09-17',
+          manualRegistrationKey: preferred,
+        );
+    expect(await submit(first, 'manual-panel-original'), isFalse);
+    expect(api.panelKeys, ['manual-panel-original']);
+    final restarted = _FailingRefreshState(api, offlineStore: store());
+    expect(await submit(restarted, 'manual-panel-new-process'), isFalse);
+    expect(api.panelKeys, ['manual-panel-original', 'manual-panel-original']);
+    expect(await store().hasPendingManualPanelRetry(), isTrue);
+    final recovered = _SuccessfulPanelRefreshState(api, offlineStore: store());
+    expect(await submit(recovered, 'manual-panel-after-refresh'), isTrue);
+    expect(api.panelKeys.last, 'manual-panel-original');
+    expect(await store().hasPendingManualPanelRetry(), isFalse);
+    expect(api.lastInitialDiscountEnabled, isFalse);
+    expect(api.panelDiscountPatchCalls, 0);
+    expect(await submit(recovered, 'manual-panel-new-intent'), isTrue);
+    expect(api.panelKeys.last, 'manual-panel-new-intent');
   });
 }

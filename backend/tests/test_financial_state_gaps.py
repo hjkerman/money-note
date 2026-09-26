@@ -296,6 +296,75 @@ class FinancialStateGapTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "다른 내용"):
             create_entry(changed)
 
+    def test_legacy_discount_input_is_part_of_registration_identity(self) -> None:
+        payload = self._entry("woori_card:legacy-discount", amount=10000)
+        payload.discount_override = 1
+        payload.aux_amount_value = 3000
+        first = create_entry(payload)
+        self.assertEqual(first["aux_amount_value"], 3000)
+        self.assertEqual(create_entry(payload)["id"], first["id"])
+        same_meaning = self._entry("woori_card:legacy-discount", amount=10000)
+        same_meaning.discount_override_amount = 3000
+        self.assertEqual(create_entry(same_meaning)["id"], first["id"])
+        for changed in (2000, 0):
+            payload.aux_amount_value = changed
+            with self.assertRaisesRegex(ValueError, "다른 내용"):
+                create_entry(payload)
+        with session() as conn:
+            self.assertEqual(conn.execute("SELECT COUNT(*) FROM ledger_entries").fetchone()[0], 1)
+
+    def test_old_ledger_registration_digest_upgrades_only_with_matching_financial_input(self) -> None:
+        from app.repositories.notification_registration import legacy_ledger_registration_fingerprint
+
+        payload = self._entry("woori_card:old-ledger-digest", amount=10000)
+        payload.discount_override = 1
+        payload.aux_amount_value = 3000
+        first = create_entry(payload)
+        old_values = payload.model_dump()
+        old_values["entry_date"] = old_values["entry_date"].isoformat()
+        old_digest = legacy_ledger_registration_fingerprint(old_values)
+        with session() as conn:
+            conn.execute(
+                "UPDATE notification_candidate_registrations SET request_fingerprint = ? WHERE registration_key = ?",
+                (old_digest, "woori_card:old-ledger-digest"),
+            )
+        changed = payload.model_copy(update={"aux_amount_value": 2000})
+        with self.assertRaisesRegex(ValueError, "다른 내용"):
+            create_entry(changed)
+        self.assertEqual(create_entry(payload)["id"], first["id"])
+        with session() as conn:
+            digest = conn.execute(
+                "SELECT request_fingerprint FROM notification_candidate_registrations WHERE registration_key = ?",
+                ("woori_card:old-ledger-digest",),
+            ).fetchone()[0]
+        self.assertNotEqual(digest, old_digest)
+
+    def test_registration_fingerprint_binds_each_authoritative_ledger_dimension(self) -> None:
+        original = self._entry("woori_card:dimension-matrix", amount=10000)
+        created = create_entry(original)
+        equivalent = original.model_copy(update={"discount_enabled": True})
+        self.assertEqual(create_entry(equivalent)["id"], created["id"])
+        changed = (
+            {"amount_value": 11000},
+            {"entry_date": date(2026, 8, 21)},
+            {"usage_place": "다른 가게"},
+            {"usage_item": "다른 사용"},
+            {"title": "[다른 가게] 지출"},
+            {"spending_category": "생활비"},
+            {"book_section": "archive"},
+            {"discount_enabled": False},
+            {"discount_override": 1, "aux_amount_value": 0},
+            {"payment_key": "different-payment-key"},
+        )
+        for patch_values in changed:
+            with self.subTest(patch_values=patch_values):
+                with self.assertRaisesRegex(ValueError, "다른 내용"):
+                    create_entry(original.model_copy(update=patch_values))
+        with self.assertRaisesRegex(ValueError, "카드 지출"):
+            create_entry(original.model_copy(update={"entry_kind": "planned", "due_day": 10}))
+        with session() as conn:
+            self.assertEqual(conn.execute("SELECT COUNT(*) FROM ledger_entries").fetchone()[0], 1)
+
     def test_initial_discount_exclusion_is_part_of_create_transaction(self) -> None:
         payload = self._entry(amount=10000)
         payload.discount_enabled = False

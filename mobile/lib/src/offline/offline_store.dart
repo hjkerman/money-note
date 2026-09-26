@@ -29,6 +29,7 @@ class OfflineStore {
   static const _baselineFilename = 'baseline.json';
   static const _stateFilename = 'state.json';
   static const _journalFilename = 'journal.ndjson';
+  static const _manualPanelRetryFilename = 'manual-panel-retries.json';
   static const _mobileRecoveryKeepCount = 30;
 
   final OfflineDirectoryProvider _directoryProvider;
@@ -80,6 +81,67 @@ class OfflineStore {
     await _writeJsonAtomic(await _file(_baselineFilename), baseline.toJson());
   }
 
+  Future<String> reserveManualPanelRetryKey(Map<String, dynamic> input,
+      {String? preferredKey}) async {
+    final file = await _file(_manualPanelRetryFilename);
+    final keys = await _loadManualPanelRetryKeys(file);
+    final digest =
+        sha256.convert(utf8.encode(_canonicalJson(input))).toString();
+    final existing = keys[digest];
+    if (existing != null) return existing;
+    // Keep one unresolved logical create identity even if the form is edited.
+    // A changed financial input then conflicts if the first request committed.
+    final key = keys.isNotEmpty
+        ? keys.values.first
+        : preferredKey ?? 'manual-panel-${_operationId()}';
+    keys[digest] = key;
+    await _writeJsonAtomic(file, {'schema_version': 1, 'keys': keys});
+    return key;
+  }
+
+  Future<bool> hasPendingManualPanelRetry() async {
+    final keys =
+        await _loadManualPanelRetryKeys(await _file(_manualPanelRetryFilename));
+    return keys.isNotEmpty;
+  }
+
+  Future<void> completeManualPanelRetryKey(
+      Map<String, dynamic> input, String key) async {
+    final file = await _file(_manualPanelRetryFilename);
+    final keys = await _loadManualPanelRetryKeys(file);
+    final digest =
+        sha256.convert(utf8.encode(_canonicalJson(input))).toString();
+    if (keys[digest] != key) {
+      throw const OfflinePersistenceException(
+          '수동 정산 재시도 identity가 변경되어 확인이 필요합니다.');
+    }
+    keys.removeWhere((_, value) => value == key);
+    if (keys.isEmpty) {
+      await file.delete();
+    } else {
+      await _writeJsonAtomic(file, {'schema_version': 1, 'keys': keys});
+    }
+  }
+
+  Future<Map<String, String>> _loadManualPanelRetryKeys(File file) async {
+    if (!await file.exists()) return {};
+    try {
+      final decoded = jsonDecode(await file.readAsString());
+      if (decoded is! Map<String, dynamic> ||
+          decoded['schema_version'] != 1 ||
+          decoded['keys'] is! Map) {
+        throw const FormatException('manual panel retry state is invalid');
+      }
+      return Map<String, String>.from(decoded['keys'] as Map);
+    } on FormatException catch (error) {
+      throw OfflinePersistenceException('수동 정산 재시도 기록을 읽을 수 없습니다: $error');
+    } on TypeError catch (error) {
+      throw OfflinePersistenceException('수동 정산 재시도 기록을 읽을 수 없습니다: $error');
+    } on FileSystemException catch (error) {
+      throw OfflinePersistenceException('수동 정산 재시도 기록을 읽을 수 없습니다: $error');
+    }
+  }
+
   Future<List<OfflineJournalOperation>> loadJournal() async {
     final pendingAppend = _journalAppendTail;
     if (pendingAppend != null) await pendingAppend;
@@ -89,6 +151,7 @@ class OfflineStore {
   Future<OfflineJournalOperation> appendOperation({
     required OfflineOperationType type,
     required Map<String, dynamic> payload,
+    OfflineBaseline? baseline,
   }) async {
     final previous = _journalAppendTail;
     final completed = Completer<void>();
@@ -102,8 +165,15 @@ class OfflineStore {
       final operations = await _loadJournalFile(file);
       final registrationKey = payload['candidate_registration_key'];
       if (registrationKey is String && registrationKey.isNotEmpty) {
+        final authoritativeBaseline = baseline ?? await loadBaseline();
+        if (authoritativeBaseline != null &&
+            _baselineHasRegistration(
+                authoritativeBaseline, registrationKey, type, payload)) {
+          throw const AlreadyRegisteredInBaselineException();
+        }
         for (final existing in operations) {
-          if (existing.payload['candidate_registration_key'] != registrationKey) {
+          if (existing.payload['candidate_registration_key'] !=
+              registrationKey) {
             continue;
           }
           if (existing.type == type &&
@@ -133,6 +203,124 @@ class OfflineStore {
       completed.complete();
       if (identical(_journalAppendTail, current)) _journalAppendTail = null;
     }
+  }
+
+  bool _baselineHasRegistration(OfflineBaseline baseline, String key,
+      OfflineOperationType type, Map<String, dynamic> payload) {
+    final rows = baseline.authoritativeSnapshot?['data'];
+    if (rows is! Map) {
+      throw const OfflinePersistenceException(
+          '기준 데이터의 알림 등록 identity를 확인할 수 없습니다.');
+    }
+    final registrations = rows['notification_candidate_registrations'];
+    if (registrations is! List) {
+      throw const OfflinePersistenceException(
+          '기준 데이터의 알림 등록 identity를 확인할 수 없습니다.');
+    }
+    for (final registration in registrations) {
+      if (registration is! Map || registration['registration_key'] != key) {
+        continue;
+      }
+      if (type != OfflineOperationType.createCardExpense ||
+          registration['target'] != 'ledger') {
+        throw const OfflinePersistenceException(
+          '이미 등록한 알림 후보의 등록 대상이 다릅니다.',
+        );
+      }
+      final expected = _ledgerRegistrationFingerprint(payload);
+      if (registration['request_fingerprint'] != expected &&
+          !(registration['request_fingerprint'] ==
+                  _legacyLedgerRegistrationFingerprint(payload) &&
+              _matchesStoredBaselineRegistration(
+                  rows, registration, payload))) {
+        throw const OfflinePersistenceException(
+          '이미 등록한 알림 후보의 금융 입력이 현재 요청과 다릅니다.',
+        );
+      }
+      return true;
+    }
+    return false;
+  }
+
+  bool _matchesStoredBaselineRegistration(
+      Map rows, Map registration, Map<String, dynamic> payload) {
+    final entries = rows['ledger_entries'];
+    if (entries is! List) return false;
+    for (final entry in entries) {
+      if (entry is! Map || entry['id'] != registration['target_id']) continue;
+      for (final field in [
+        'entry_date',
+        'title',
+        'usage_place',
+        'usage_item',
+        'amount_value',
+        'spending_category',
+      ]) {
+        if (entry[field] != payload[field]) return false;
+      }
+      final requestedOverride = payload['discount_override_amount'];
+      if (requestedOverride != null) {
+        return entry['discount_override'] == 1 &&
+            entry['aux_amount_value'] == requestedOverride;
+      }
+      if (payload['discount_enabled'] == false) {
+        return entry['discount_override'] == 1 &&
+            (entry['aux_amount_value'] ?? 0) == 0;
+      }
+      return entry['discount_override'] == 0;
+    }
+    return false;
+  }
+
+  String _ledgerRegistrationFingerprint(Map<String, dynamic> payload) {
+    final override = payload['discount_override_amount'];
+    final discount = override != null
+        ? ['manual', override]
+        : payload['discount_enabled'] == false
+            ? ['manual', 0]
+            : ['automatic'];
+    // Mirrors the server's authoritative-input identity, not its discount engine.
+    final values = [
+      'ledger',
+      payload['book_section'],
+      payload['entry_kind'],
+      payload['entry_date'],
+      null,
+      null,
+      payload['title'],
+      payload['usage_place'],
+      payload['usage_item'],
+      payload['amount_value'],
+      null,
+      null,
+      null,
+      0,
+      null,
+      null,
+      payload['spending_category'],
+      null,
+      null,
+      discount,
+    ];
+    return sha256.convert(utf8.encode(jsonEncode(values))).toString();
+  }
+
+  String _legacyLedgerRegistrationFingerprint(Map<String, dynamic> payload) {
+    final values = <Object?>[
+      'ledger',
+      payload['entry_date'],
+      payload['usage_place'],
+      payload['usage_item'],
+      payload['title'],
+      payload['amount_value'],
+      payload['spending_category'],
+    ];
+    if (payload['discount_override_amount'] != null) {
+      values.add(payload['discount_override_amount']);
+    } else if (payload['discount_enabled'] == false) {
+      values.add(false);
+    }
+    return sha256.convert(utf8.encode(jsonEncode(values))).toString();
   }
 
   Future<OfflineReconciliationBundle?> loadReconciliationBundle() async {
@@ -475,4 +663,9 @@ class OfflinePersistenceException implements Exception {
 
   @override
   String toString() => message;
+}
+
+class AlreadyRegisteredInBaselineException extends OfflinePersistenceException {
+  const AlreadyRegisteredInBaselineException()
+      : super('이미 서버 기준 데이터에 등록된 알림 후보입니다.');
 }

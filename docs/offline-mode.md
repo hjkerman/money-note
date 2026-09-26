@@ -28,7 +28,9 @@
 
 모든 foreground/manual/area refresh는 동일한 full authoritative refresh 경계를 사용한다. 서버는 authoritative Snapshot과 단조 증가 `state_revision`, `evaluation_date`, 카드별 월 정책 기본값을 한 read transaction에서 반환한다. Summary·card payment status·Judgment·month status·settings·할인 월/프로필·원장·정기결제 확인 목록·패널·현금흐름을 임시 candidate로 받은 뒤 envelope를 다시 읽는다. 전후 fingerprint/revision/date가 모두 같고 화면의 서버 기준일도 일치해야 coherent generation으로 인정한다. revision은 Snapshot 대상 테이블의 INSERT/UPDATE/DELETE마다 같은 SQLite transaction에서 증가하므로 A→B→A 해시 복귀도 감지한다. refresh마다 별도 request generation을 부여하여 먼저 시작한 요청이 나중 요청의 설치 결과를 덮지 못하게 한다. lineage generation, mode, request generation을 설치 직전 lock 안에서 재검증한다. 도중 실패나 OFFLINE 전이는 기존 baseline을 유지한다.
 
-시작 시 B·J·metadata를 함께 검증한다. pending J와 누락된/ONLINE metadata, B 누락, B lineage hash 불일치, finalizing commit metadata 손상은 `PERSISTENCE_RECOVERY_BLOCKED`로 fail closed하며 증거 파일을 삭제하거나 정상 ONLINE refresh를 진행하지 않는다. B만 있거나 J가 비어 있고 state가 없는 정상 온라인 준비 상태는 계속 허용한다. 과거 state schema v1/v2는 읽되 새 상태 저장부터 lineage fingerprint를 기록한다.
+시작 시 B·J·metadata를 함께 검증한다. pending J와 누락된/ONLINE metadata, B 누락, B lineage hash 불일치, finalizing commit metadata 손상은 `PERSISTENCE_RECOVERY_BLOCKED`로 fail closed하며 증거 파일을 삭제하거나 정상 ONLINE refresh를 진행하지 않는다. B만 있거나 J가 비어 있고 state가 없는 정상 온라인 준비 상태는 계속 허용한다. 과거 state schema v1/v2는 파싱할 수 있지만 pending J가 있고 B lineage를 증명할 fingerprint가 없다면 임의로 수선하거나 replay하지 않고 복구 차단한다.
+
+persisted-state consistency는 mode별 allow-list다. `ONLINE`은 J와 reconciliation metadata가 없어야 한다. `OFFLINE`은 B lineage가 필수이며 선택·commit·artifact metadata가 없어야 한다. `RECONCILIATION_REQUIRED`의 `NONE`은 선택/ID가 없어야 하고, `PREPARING`/`READY`는 선택/ID가 필수이며 `READY`는 두 artifact와 서버 fingerprint가 필수다. `RECONCILIATION_FINALIZING`은 선택/ID와 검증된 artifact가 필수이며 Mobile request-pending/unknown, Mobile committed/committed, Server Wins finalizing/none의 조합만 허용한다. 서로 모순되는 상태는 정상 Offline 작업을 재개하지 않는다. `READY`와 finalizing 재시작에서는 mobile recovery bundle의 manifest·ID·ordered J를 다시 확인한다. fresh resolved B 설치 뒤에는 원래 B 대신 reconciliation ID를 확인하며, 성공 cleanup 중 J가 이미 삭제된 경우만 빈 J를 허용한다.
 
 journal row의 schema version은 1이며 다음을 가진다.
 
@@ -63,9 +65,13 @@ Phase 2 cleanup은 reconciliation commit/authoritative rebuild/fresh baseline이
 
 오프라인 본인카드 후보는 journal append critical section에서 `candidate_registration_key`를 기존 durable J와 비교한다. 같은 key·같은 operation type·같은 authoritative payload면 기존 `operation_id`를 돌려주며 새 row나 projection delta를 만들지 않는다. 같은 key의 변경된 금액·날짜·할인·등록 대상은 충돌로 거절한다. native 후보 삭제 실패는 journal append 성공을 되돌리지 않으며, 재시작 후 재시도에도 이 규칙이 적용된다.
 
+같은 critical section은 B의 authoritative Snapshot에 포함된 `notification_candidate_registrations`도 조회한다. key가 이미 서버에서 확정됐고 request fingerprint가 동일하면 J를 추가하거나 estimate를 다시 차감하지 않는다. 다른 금융 입력·등록 대상은 명시적 충돌로 거절한다. 과거 약한 fingerprint는 key가 가리키는 저장 원장 행까지 입력을 대조할 수 있을 때만 이미 처리된 후보로 인정한다. identity table이 없는 B는 추측해서 중복 처리하지 않고 후보 등록을 거절한다.
+
 ONLINE 카드 사용 등록은 최초 `POST /api/entries` request에 optional `discount_enabled=false` 또는 사용자가 입력한 `discount_override_amount`를 함께 보낸다. 서버는 원장 row 생성과 initial manual override를 기존 card-charge/domain helper로 같은 SQLite transaction에서 적용한다. 자동 할인/default-discount는 input을 생략해 기존 서버 계산을 그대로 사용하며, 별도 PATCH 실패로 user intent만 부분 commit되는 경로를 만들지 않는다.
 
 카드·현금·정기 항목 등록 form은 button과 keyboard submit이 같은 local single-flight를 공유하고 AppState mutation도 재진입을 거부한다. submit 시작 때 draft snapshot을 고정하며 저장 성공 뒤 현재 draft가 그 snapshot과 동일할 때만 clear한다. 실패한 draft와 이전 request가 진행되는 동안 사용자가 입력한 새 draft는 보존한다. 정기지출 확인 form도 single-flight이며, 비동기 실결제 preview 중 금액이나 날짜가 바뀌면 오래된 preview를 확정하지 않고 현재 입력으로 다시 확인하게 한다.
+
+수동 Claim/Family Card 정산도 같은 규칙을 따른다. 최초 할인 적용/제외 의도는 패널 생성 요청의 `discount_override`/`discount_amount`로 보내고 별도 금융 PATCH를 후속 실행하지 않는다. 화면의 한 draft는 저장 중 single-flight이며, 앱 전용 `manual-panel-retries.json`에 등록 key를 원자적으로 보존해 응답 유실 후 앱 재시작을 거쳐도 동일 입력을 같은 key로 재시도한다. 결과가 불명확한 동안 draft를 수정해도 같은 key를 사용하므로 이전 요청이 commit됐다면 서버 fingerprint가 변경 입력을 충돌로 거절한다. 서버 성공 응답과 coherent authoritative refresh가 모두 성공한 뒤에만 해당 임시 key를 지운다. 서버 저장 중이거나 결과가 불명확한 수동 등록 key가 남아 있으면 기존 baseline으로 새 오프라인 epoch를 시작할 수 없다. 온라인에서 같은 등록을 재시도해 결과와 새 baseline을 확정해야 한다. 실패 시 draft를 유지하고, 늦게 완료된 이전 요청은 사용자가 새로 입력한 draft를 지우지 않는다. 자동 할인액과 실부담액은 서버가 계산한다.
 
 ## Display-only estimate
 

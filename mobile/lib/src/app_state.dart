@@ -60,6 +60,7 @@ class AppState extends ChangeNotifier {
   OfflineWorkspaceMetadata _offlineMetadata =
       const OfflineWorkspaceMetadata(mode: ConnectivityMode.online);
   bool _isForegroundRefreshRunning = false;
+  bool _offlineEntryInProgress = false;
   int notificationImportOpenGeneration = 0;
   int notificationArchiveOpenGeneration = 0;
   String notificationArchiveSource = 'woori_card';
@@ -242,35 +243,25 @@ class AppState extends ChangeNotifier {
       final resolved = baseline?.resolvedReconciliationId != null &&
           baseline!.resolvedReconciliationId == metadata.reconciliationId &&
           metadata.mode == ConnectivityMode.reconciliationFinalizing;
-      final validFinalizing = switch (metadata.phase) {
-        ReconciliationPhase.mobileRequestPending =>
-          metadata.reconciliationChoice == ReconciliationChoice.applyToServer &&
-              metadata.serverCommitStatus == ServerCommitStatus.unknown,
-        ReconciliationPhase.mobileCommitted =>
-          metadata.reconciliationChoice == ReconciliationChoice.applyToServer &&
-              metadata.serverCommitStatus == ServerCommitStatus.committed,
-        ReconciliationPhase.serverWinsFinalizing =>
-          metadata.reconciliationChoice ==
-                  ReconciliationChoice.discardAndUseServer &&
-              metadata.serverCommitStatus == ServerCommitStatus.none,
-        _ => false,
-      };
-      if ((offlineJournal.isNotEmpty &&
-              (metadata.mode == ConnectivityMode.online || baseline == null)) ||
-          (metadata.mode == ConnectivityMode.reconciliationFinalizing &&
-              (metadata.reconciliationId == null || !validFinalizing)) ||
-          (metadata.mode == ConnectivityMode.reconciliationRequired &&
-              metadata.phase != ReconciliationPhase.none &&
-              (metadata.reconciliationChoice == null ||
-                  metadata.reconciliationId == null)) ||
-          (metadata.baselineLineageFingerprint != null &&
-              baseline != null &&
-              !resolved &&
-              metadata.baselineLineageFingerprint !=
-                  offlineStore.recoveryLineageFingerprint(baseline))) {
+      if (!_isConsistentPersistedLineage(metadata, baseline, resolved)) {
         throw const OfflinePersistenceException(
           '오프라인 기준 데이터와 journal의 lineage를 확인할 수 없어 복구가 필요합니다.',
         );
+      }
+      if (metadata.hasVerifiedRecoveryPoints &&
+          (metadata.phase == ReconciliationPhase.ready ||
+              metadata.mode == ConnectivityMode.reconciliationFinalizing)) {
+        final digest = await offlineStore.verifyMobileRecoveryArtifact(
+          metadata.mobileArtifactFilename!,
+          expectedReconciliationId: metadata.reconciliationId,
+          expectedBaseline: resolved ? null : baseline,
+          expectedOperations:
+              resolved && offlineJournal.isEmpty ? null : offlineJournal,
+        );
+        if (digest != metadata.mobileArtifactSha256) {
+          throw const OfflinePersistenceException(
+              '오프라인 journal과 recovery artifact의 identity가 일치하지 않습니다.');
+        }
       }
     } on OfflinePersistenceException catch (error) {
       const blocked = OfflineWorkspaceMetadata(
@@ -316,6 +307,100 @@ class AppState extends ChangeNotifier {
     }
     if (notify) notifyListeners();
     return true;
+  }
+
+  bool _isConsistentPersistedLineage(OfflineWorkspaceMetadata metadata,
+      OfflineBaseline? baseline, bool resolved) {
+    final mode = metadata.mode;
+    final phase = metadata.phase;
+    final choice = metadata.reconciliationChoice;
+    final id = metadata.reconciliationId;
+    final commit = metadata.serverCommitStatus;
+    final hasChoiceAndId = choice != null && id != null && id.isNotEmpty;
+    final noChoiceOrId = choice == null && id == null;
+    final hasServerArtifact = metadata.serverArtifactFilename != null;
+    final anyMobileArtifact = metadata.mobileArtifactFilename != null ||
+        metadata.mobileArtifactSha256 != null;
+    final hasMobileArtifact = metadata.mobileArtifactFilename != null &&
+        metadata.mobileArtifactSha256 != null;
+    if (mode == ConnectivityMode.persistenceRecoveryBlocked) return true;
+    if (mode == ConnectivityMode.online) {
+      return offlineJournal.isEmpty &&
+          noChoiceOrId &&
+          phase == ReconciliationPhase.none &&
+          commit == ServerCommitStatus.none &&
+          metadata.baselineLineageFingerprint == null &&
+          !hasServerArtifact &&
+          !anyMobileArtifact &&
+          metadata.currentServerFingerprint == null &&
+          !metadata.serverChanged &&
+          !metadata.confirmServerChanged;
+    }
+    if (baseline == null ||
+        metadata.baselineLineageFingerprint == null ||
+        (!resolved &&
+            metadata.baselineLineageFingerprint !=
+                offlineStore.recoveryLineageFingerprint(baseline)) ||
+        (baseline.resolvedReconciliationId != null &&
+            mode == ConnectivityMode.reconciliationFinalizing &&
+            !resolved)) {
+      return false;
+    }
+    if (mode == ConnectivityMode.offline) {
+      return noChoiceOrId &&
+          phase == ReconciliationPhase.none &&
+          commit == ServerCommitStatus.none &&
+          !hasServerArtifact &&
+          !anyMobileArtifact &&
+          metadata.currentServerFingerprint == null &&
+          !metadata.serverChanged &&
+          !metadata.confirmServerChanged;
+    }
+    if (mode == ConnectivityMode.reconciliationRequired) {
+      if (commit != ServerCommitStatus.none || metadata.confirmServerChanged) {
+        return false;
+      }
+      if (phase == ReconciliationPhase.none) {
+        return noChoiceOrId &&
+            !hasServerArtifact &&
+            !anyMobileArtifact &&
+            metadata.currentServerFingerprint == null &&
+            !metadata.serverChanged;
+      }
+      if (!hasChoiceAndId || resolved) return false;
+      if (phase == ReconciliationPhase.preparing) {
+        return !anyMobileArtifact &&
+            (!hasServerArtifact || metadata.currentServerFingerprint != null);
+      }
+      return phase == ReconciliationPhase.ready &&
+          hasServerArtifact &&
+          hasMobileArtifact &&
+          metadata.currentServerFingerprint != null &&
+          !metadata.confirmServerChanged;
+    }
+    if (mode != ConnectivityMode.reconciliationFinalizing ||
+        !hasChoiceAndId ||
+        !hasServerArtifact ||
+        !hasMobileArtifact ||
+        metadata.currentServerFingerprint == null) {
+      return false;
+    }
+    return switch (phase) {
+      ReconciliationPhase.mobileRequestPending =>
+        choice == ReconciliationChoice.applyToServer &&
+            commit == ServerCommitStatus.unknown &&
+            !resolved &&
+            (!metadata.serverChanged || metadata.confirmServerChanged),
+      ReconciliationPhase.mobileCommitted =>
+        choice == ReconciliationChoice.applyToServer &&
+            commit == ServerCommitStatus.committed &&
+            (!metadata.serverChanged || metadata.confirmServerChanged),
+      ReconciliationPhase.serverWinsFinalizing =>
+        choice == ReconciliationChoice.discardAndUseServer &&
+            commit == ServerCommitStatus.none &&
+            !metadata.confirmServerChanged,
+      _ => false,
+    };
   }
 
   Future<void> login(String username, String password) async {
@@ -639,14 +724,26 @@ class AppState extends ChangeNotifier {
   }
 
   Future<bool> enterOfflineMode() async {
+    if (_offlineEntryInProgress || isBusy) {
+      offlineEntryMessage = '저장 또는 상태 전환이 진행 중입니다. 완료 후 다시 시도하세요.';
+      notifyListeners();
+      return false;
+    }
     if (!isOnline) {
       offlineEntryMessage = '현재 조정 또는 복구 상태에서는 오프라인 모드로 전환할 수 없습니다.';
       notifyListeners();
       return false;
     }
+    _offlineEntryInProgress = true;
     try {
       return await _withLineageLock(() async {
         if (!isOnline) return false;
+        if (await offlineStore.hasPendingManualPanelRetry()) {
+          offlineEntryMessage =
+              '저장 결과를 확인하지 못한 정산 항목이 있습니다. 온라인에서 같은 항목을 다시 저장해 결과를 확인한 뒤 오프라인 모드로 전환하세요.';
+          notifyListeners();
+          return false;
+        }
         final baseline = await offlineStore.loadBaseline();
         if (baseline == null) {
           offlineEntryMessage = '온라인 상태에서 한 번 동기화가 필요합니다.';
@@ -688,6 +785,8 @@ class AppState extends ChangeNotifier {
       offlineEntryMessage = error.message;
       notifyListeners();
       return false;
+    } finally {
+      _offlineEntryInProgress = false;
     }
   }
 
@@ -1238,28 +1337,35 @@ class AppState extends ChangeNotifier {
     usesConservativeCardEstimate = projection.usesConservativeCardEstimate;
   }
 
-  Future<void> _appendOfflineOperation(
+  Future<bool> _appendOfflineOperation(
     OfflineOperationType type,
     Map<String, dynamic> payload,
   ) async {
     if (!isOffline) {
       throw MoneyNoteApiException('오프라인 기록을 추가할 수 없는 상태입니다.');
     }
-    final operation =
-        await offlineStore.appendOperation(type: type, payload: payload);
-    if (!offlineJournal
-        .any((row) => row.operationId == operation.operationId)) {
-      offlineJournal = List.unmodifiable([...offlineJournal, operation]);
-    }
     final baseline = _offlineBaseline;
     if (baseline == null) {
       throw MoneyNoteApiException('오프라인 기준 데이터가 없습니다.');
     }
+    late final OfflineJournalOperation operation;
+    try {
+      operation = await offlineStore.appendOperation(
+          type: type, payload: payload, baseline: baseline);
+    } on AlreadyRegisteredInBaselineException catch (error) {
+      statusMessage = error.message;
+      return false;
+    }
+    if (!offlineJournal
+        .any((row) => row.operationId == operation.operationId)) {
+      offlineJournal = List.unmodifiable([...offlineJournal, operation]);
+    }
     _restoreOfflineProjection(baseline);
+    return true;
   }
 
   void _requireOnline(String operation) {
-    if (isOnline) return;
+    if (isOnline && !_offlineEntryInProgress) return;
     if (isReconciliationRequired) {
       throw MoneyNoteApiException('서버 조정을 완료하기 전에는 쓸 수 없습니다.');
     }
@@ -1335,7 +1441,7 @@ class AppState extends ChangeNotifier {
       if (isOffline) {
         final trimmedPlace = usagePlace.trim();
         final trimmedItem = usageItem.trim();
-        await _appendOfflineOperation(
+        if (!await _appendOfflineOperation(
           OfflineOperationType.createCardExpense,
           {
             'book_section': 'current',
@@ -1354,7 +1460,9 @@ class AppState extends ChangeNotifier {
             if (candidateRegistrationKey != null)
               'candidate_registration_key': candidateRegistrationKey,
           },
-        );
+        )) {
+          return;
+        }
         statusMessage = '오프라인 지출을 기기에 보관했습니다.';
         return;
       }
@@ -1385,6 +1493,7 @@ class AppState extends ChangeNotifier {
     bool discountEnabled = true,
     String? spentOn,
     String? candidateRegistrationKey,
+    String? manualRegistrationKey,
   }) async {
     return _run(() async {
       _requireOnline('패널 항목 등록');
@@ -1395,17 +1504,36 @@ class AppState extends ChangeNotifier {
               DateTime.tryParse(candidateDate) == null)) {
         throw MoneyNoteApiException('알림 후보의 사용일을 확인할 수 없습니다.');
       }
-      final panel = await api.createPanel(
-        month: candidateRegistrationKey == null
-            ? currentMonth
-            : candidateDate!.substring(0, 7),
+      final month = candidateRegistrationKey == null
+          ? currentMonth
+          : candidateDate!.substring(0, 7);
+      final actualSpentOn = panelType == 'fixed' ? null : spentOn ?? _today();
+      final manualInput = candidateRegistrationKey == null &&
+              (panelType == 'claim' || panelType == 'family_card')
+          ? <String, dynamic>{
+              'month': month,
+              'panel_type': panelType,
+              'title': title.trim(),
+              'spent_on': actualSpentOn,
+              'amount_value': amount,
+              'discount_enabled': discountEnabled,
+            }
+          : null;
+      final registrationKey = manualInput == null
+          ? candidateRegistrationKey
+          : await offlineStore.reserveManualPanelRetryKey(manualInput,
+              preferredKey: manualRegistrationKey);
+      await api.createPanel(
+        month: month,
         panelType: panelType,
         title: title,
         amount: amount,
-        spentOn: panelType == 'fixed' ? null : spentOn ?? _today(),
-        candidateRegistrationKey: candidateRegistrationKey,
+        spentOn: actualSpentOn,
+        candidateRegistrationKey: registrationKey,
         initialDiscountEnabled:
-            candidateRegistrationKey == null ? null : discountEnabled,
+            panelType == 'claim' || panelType == 'family_card'
+                ? discountEnabled
+                : null,
       );
       if (candidateRegistrationKey != null) {
         try {
@@ -1416,16 +1544,15 @@ class AppState extends ChangeNotifier {
         }
         return;
       }
-      if (!discountEnabled &&
-          !panel.isDiscountIneligible &&
-          (panelType == 'claim' || panelType == 'family_card')) {
-        await api.excludePanelDiscount(panel.id);
-      }
       try {
         if (panelType == 'fixed' || panelType == 'frozen') {
           await refreshPanelManagementArea(notify: false);
         } else {
           await refreshSettlementArea(notify: false);
+        }
+        if (manualInput != null) {
+          await offlineStore.completeManualPanelRetryKey(
+              manualInput, registrationKey!);
         }
         statusMessage = switch (panelType) {
           'claim' => '청구 추가 완료',
@@ -1435,6 +1562,7 @@ class AppState extends ChangeNotifier {
           _ => '항목 추가 완료',
         };
       } catch (_) {
+        if (manualInput != null) rethrow;
         statusMessage = '항목은 저장됐습니다. 최신 화면 동기화는 다시 시도하세요.';
       }
     });

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import '../app_state.dart';
@@ -21,6 +23,9 @@ class _FamilyScreenState extends State<FamilyScreen> {
   final amount = TextEditingController();
   bool? discountEnabled;
   late String selectedDate;
+  bool _saving = false;
+  String? _retryDraft;
+  String? _retryKey;
 
   @override
   void initState() {
@@ -111,17 +116,22 @@ class _FamilyScreenState extends State<FamilyScreen> {
                 onSubmitted: (_) => _submit(),
               ),
               const SizedBox(height: 8),
-              CheckboxListTile(
-                contentPadding: EdgeInsets.zero,
-                title: const Text('할인 적용'),
-                subtitle: const Text('체크를 끄면 이 항목은 할인 제외로 등록합니다.'),
-                value: discountValue,
-                onChanged: (value) =>
-                    setState(() => discountEnabled = value ?? false),
+              Material(
+                color: moneySurface,
+                child: CheckboxListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('할인 적용'),
+                  subtitle: const Text('체크를 끄면 이 항목은 할인 제외로 등록합니다.'),
+                  value: discountValue,
+                  onChanged: (value) =>
+                      setState(() => discountEnabled = value ?? false),
+                ),
               ),
               const SizedBox(height: 14),
               ElevatedButton(
-                  onPressed: widget.state.canUseOnlineWrites ? _submit : null,
+                  onPressed: widget.state.canUseOnlineWrites && !_saving
+                      ? _submit
+                      : null,
                   child: Text(isClaim ? '청구 추가' : '가족카드 추가')),
             ],
           ),
@@ -163,22 +173,60 @@ class _FamilyScreenState extends State<FamilyScreen> {
   }
 
   Future<void> _submit() async {
+    if (_saving || !widget.state.canUseOnlineWrites) return;
     final parsedAmount = int.tryParse(amount.text.replaceAll(',', '').trim());
     if (title.text.trim().isEmpty || parsedAmount == null || parsedAmount < 0) {
       return;
     }
-    await widget.state.createPanel(
-      panelType: panelType,
-      title: title.text,
-      amount: parsedAmount,
-      discountEnabled: discountEnabled ?? _defaultDiscountEnabled(),
-      spentOn: selectedDate,
+    final submittedPanelType = panelType;
+    final submittedTitle = title.text;
+    final submittedAmount = amount.text;
+    final submittedDate = selectedDate;
+    final submittedDiscount = discountEnabled ?? _defaultDiscountEnabled();
+    final submittedDraft = _draftIdentity(
+      submittedPanelType,
+      submittedTitle,
+      submittedAmount,
+      submittedDate,
+      submittedDiscount,
     );
-    title.clear();
-    amount.clear();
-    discountEnabled = null;
-    setState(() => selectedDate = widget.state.serverToday);
+    if (_retryDraft != submittedDraft) {
+      _retryDraft = submittedDraft;
+      final random = Random.secure();
+      final bytes = List<int>.generate(16, (_) => random.nextInt(256));
+      _retryKey =
+          'manual-panel-${bytes.map((value) => value.toRadixString(16).padLeft(2, '0')).join()}';
+    }
+    setState(() => _saving = true);
+    try {
+      final success = await widget.state.createPanel(
+        panelType: submittedPanelType,
+        title: submittedTitle,
+        amount: parsedAmount,
+        discountEnabled: submittedDiscount,
+        spentOn: submittedDate,
+        manualRegistrationKey: _retryKey,
+      );
+      if (!success) return;
+      _retryDraft = null;
+      _retryKey = null;
+      if (!mounted) return;
+      if (_draftIdentity(panelType, title.text, amount.text, selectedDate,
+              discountEnabled ?? _defaultDiscountEnabled()) ==
+          submittedDraft) {
+        title.clear();
+        amount.clear();
+        discountEnabled = null;
+        setState(() => selectedDate = widget.state.serverToday);
+      }
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
   }
+
+  String _draftIdentity(String type, String text, String amountText,
+          String date, bool discount) =>
+      '$type\u0000$text\u0000$amountText\u0000$date\u0000$discount';
 
   bool _defaultDiscountEnabled() {
     if (panelType == 'family_card') {
@@ -314,7 +362,8 @@ class _FamilyItem extends StatelessWidget {
                   if (discountEligible)
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: state.canUseOnlineWrites ? _toggleDiscount : null,
+                        onPressed:
+                            state.canUseOnlineWrites ? _toggleDiscount : null,
                         child:
                             Text(panel.isDiscountExcluded ? '할인 적용' : '할인 제외'),
                       ),
@@ -324,8 +373,9 @@ class _FamilyItem extends StatelessWidget {
                   if (canEditNetAmount)
                     Expanded(
                       child: OutlinedButton(
-                        onPressed:
-                            state.canUseOnlineWrites ? () => _editNetAmount(context) : null,
+                        onPressed: state.canUseOnlineWrites
+                            ? () => _editNetAmount(context)
+                            : null,
                         child: const Text('실결제액 수정'),
                       ),
                     ),
@@ -334,8 +384,9 @@ class _FamilyItem extends StatelessWidget {
               const SizedBox(height: 10),
             ],
             OutlinedButton(
-              onPressed:
-                  state.canUseOnlineWrites ? () => state.deletePanel(panel.id) : null,
+              onPressed: state.canUseOnlineWrites
+                  ? () => state.deletePanel(panel.id)
+                  : null,
               style: OutlinedButton.styleFrom(foregroundColor: moneyRed),
               child: const Text('삭제'),
             ),

@@ -31,6 +31,8 @@
 
 모바일 Offline Mode는 서버 state를 복제한 별도 원본이 아니다. ONLINE 동기화가 완전히 성공할 때 원자적으로 교체한 authoritative Snapshot baseline B와 input-only journal J로 임시 view를 만들며, derived financial value는 `오프라인 예상값`으로만 표시한다. 복구 후 사용자가 authority를 선택하고 양쪽 recovery point를 검증한다. Mobile Wins는 server-side 단일 transaction의 `Apply(B, J)`, Server Wins는 fresh server rebuild이며 commit ambiguity와 sync failure는 durable `RECONCILIATION_FINALIZING`에서 재개한다. 상세 계약은 [모바일 Offline Mode](offline-mode.md)를 따른다.
 
+오프라인 후보 등록의 중복 identity는 서버 Snapshot B의 등록 record와 durable J 전체에서 확인한다. 모순된 persisted mode/phase/commit 조합이나 복구 bundle과 다른 J는 fail closed한다. 수동 Claim/Family Card 생성은 최초 할인 의도를 패널 INSERT에 포함하며, 기존 할인 변경 API는 생성 이후 사용자의 별도 수정에만 사용한다.
+
 ### Android 알림 수집
 
 Android 알림 수집은 `NotificationListenerService` 하나를 공용 입구로 사용한다. 출처마다 리스너 서비스를 따로 만들지 않는다. 리스너가 받은 알림은 패키지명으로 분류한 뒤 출처별 처리 경로로 보낸다.
