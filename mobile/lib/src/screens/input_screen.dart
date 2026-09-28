@@ -5,6 +5,7 @@ import '../formatters.dart';
 import '../models.dart';
 import '../theme.dart';
 import '../widgets/money_card.dart';
+import '../widgets/date_picker_row.dart';
 import 'ai_audit_sheet.dart';
 import 'management_screen.dart';
 import 'notification_import_screen.dart';
@@ -151,7 +152,7 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
     return MoneyCard(
       child: Column(
         children: [
-          _DatePickerRow(
+          DatePickerRow(
             label: '사용 일자',
             value: selectedDate,
             onChanged: (value) => setState(() => selectedDate = value),
@@ -416,44 +417,6 @@ class _PermissionWarningCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _DatePickerRow extends StatelessWidget {
-  const _DatePickerRow({
-    required this.label,
-    required this.value,
-    required this.onChanged,
-  });
-
-  final String label;
-  final String value;
-  final ValueChanged<String> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return OutlinedButton(
-      onPressed: () async {
-        final initialDate = DateTime.tryParse(value) ?? DateTime.now();
-        final picked = await showDatePicker(
-          context: context,
-          initialDate: initialDate,
-          firstDate: DateTime(2020, 1, 1),
-          lastDate: DateTime(2100, 12, 31),
-        );
-        if (picked == null) return;
-        onChanged(
-            '${picked.year.toString().padLeft(4, '0')}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}');
-      },
-      child: Row(
-        children: [
-          Text(label),
-          const Spacer(),
-          Text(shortDate(value),
-              style: const TextStyle(fontWeight: FontWeight.w900)),
-        ],
       ),
     );
   }

@@ -259,6 +259,8 @@ export function App() {
 
   useEffect(() => {
     void checkAuth();
+    // Authentication is intentionally checked once on mount, not after every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -267,6 +269,8 @@ export function App() {
 
   useEffect(() => {
     if (showSettings) void handleOperationStatsLoad();
+    // Loading is tied to the settings-open transition, not handler identity.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showSettings]);
 
   useEffect(() => {
@@ -276,7 +280,7 @@ export function App() {
     };
     window.addEventListener("keydown", closeOnEscape);
     return () => window.removeEventListener("keydown", closeOnEscape);
-  }, [showStats]);
+  }, [showStats, setShowStats]);
 
   if (!authChecked) {
     return <InitialLoadingView />;

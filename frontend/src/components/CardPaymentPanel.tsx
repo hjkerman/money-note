@@ -2,7 +2,6 @@ import { FormEvent } from "react";
 import { CardDiscountPolicy, CardPaymentRow, CardPaymentStatus, JudgmentState } from "../api";
 import { DiscountPolicyBar } from "./Insights";
 import {
-  daysBetween,
   displayEntryTitle,
   displayEntryDateLabel,
   formatDateLabel,
