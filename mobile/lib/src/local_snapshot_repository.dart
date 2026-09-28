@@ -15,6 +15,9 @@ class LocalSnapshotRepository {
             directoryProvider ?? getApplicationDocumentsDirectory;
 
   static const _maxLocalSnapshots = 30;
+  // Shared by repository instances in this isolate so another save cannot
+  // mistake an active temporary write for an abandoned one.
+  static final Set<String> _activeTemporaryPaths = <String>{};
   final SnapshotDirectoryProvider _directoryProvider;
 
   Future<List<LocalSnapshotInfo>> save(Uint8List bytes) async {
@@ -27,6 +30,7 @@ class LocalSnapshotRepository {
     final basename = 'money-note-snapshot-${timestampForFilename()}-$suffix';
     final temporary = File('${directory.path}/.$basename.pending');
     final backup = File('${directory.path}/$basename.money-note-snapshot.json');
+    _activeTemporaryPaths.add(temporary.path);
     try {
       await temporary.create(exclusive: true);
       await temporary.writeAsBytes(bytes, flush: true);
@@ -39,6 +43,8 @@ class LocalSnapshotRepository {
         if (await temporary.exists()) await temporary.delete();
       } on FileSystemException {
         // A failed cleanup must not conceal a successfully published backup.
+      } finally {
+        _activeTemporaryPaths.remove(temporary.path);
       }
     }
   }
@@ -146,7 +152,9 @@ class LocalSnapshotRepository {
           continue;
         }
         try {
-          if ((await entity.stat()).modified.isBefore(cutoff)) {
+          if (_activeTemporaryPaths.contains(entity.path)) continue;
+          if ((await entity.stat()).modified.isBefore(cutoff) &&
+              !_activeTemporaryPaths.contains(entity.path)) {
             await entity.delete();
           }
         } on FileSystemException {

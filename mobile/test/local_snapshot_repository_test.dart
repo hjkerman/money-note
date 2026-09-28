@@ -65,6 +65,94 @@ class InterruptedSnapshotFile implements File {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+class PausedSnapshotFile implements File {
+  PausedSnapshotFile(this.delegate, this.written, this.resume);
+
+  final File delegate;
+  final Completer<String> written;
+  final Completer<void> resume;
+
+  @override
+  String get path => delegate.path;
+
+  @override
+  Future<File> create({bool recursive = false, bool exclusive = false}) =>
+      delegate.create(recursive: recursive, exclusive: exclusive);
+
+  @override
+  Future<File> writeAsBytes(List<int> bytes,
+      {FileMode mode = FileMode.write, bool flush = false}) async {
+    await delegate.writeAsBytes(bytes, mode: mode, flush: flush);
+    await delegate.setLastModified(DateTime.utc(2020));
+    written.complete(path);
+    await resume.future;
+    return delegate;
+  }
+
+  @override
+  Future<Uint8List> readAsBytes() => delegate.readAsBytes();
+
+  @override
+  Future<File> rename(String newPath) => delegate.rename(newPath);
+
+  @override
+  Future<bool> exists() => delegate.exists();
+
+  @override
+  Future<FileSystemEntity> delete({bool recursive = false}) =>
+      delegate.delete(recursive: recursive);
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class UndeletableStaleFile implements File {
+  UndeletableStaleFile(this.delegate);
+
+  final File delegate;
+
+  @override
+  String get path => delegate.path;
+
+  @override
+  Uri get uri => delegate.uri;
+
+  @override
+  Future<FileStat> stat() => delegate.stat();
+
+  @override
+  Future<FileSystemEntity> delete({bool recursive = false}) =>
+      throw FileSystemException('injected stale cleanup failure', path);
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class StaleCleanupFailureDirectory implements Directory {
+  StaleCleanupFailureDirectory(this.delegate);
+
+  final Directory delegate;
+
+  @override
+  String get path => delegate.path;
+
+  @override
+  Future<bool> exists() => delegate.exists();
+
+  @override
+  List<FileSystemEntity> listSync(
+          {bool recursive = false, bool followLinks = true}) =>
+      delegate
+          .listSync(recursive: recursive, followLinks: followLinks)
+          .map((entity) => entity is File && entity.path.endsWith('.pending')
+              ? UndeletableStaleFile(entity)
+              : entity)
+          .toList();
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 class ShareSelectionRepository extends LocalSnapshotRepository {
   ShareSelectionRepository(Directory directory)
       : super(directoryProvider: () async => directory);
@@ -224,5 +312,59 @@ void main() {
     final saved = await repository.save(validSnapshotBytes);
     expect(saved, hasLength(1));
     expect(await pending.exists(), isFalse);
+  });
+
+  test('a second repository never cleans up an aged active pending write',
+      () async {
+    final first =
+        LocalSnapshotRepository(directoryProvider: () async => directory);
+    final second =
+        LocalSnapshotRepository(directoryProvider: () async => directory);
+    final written = Completer<String>();
+    final resume = Completer<void>();
+    final parentZone = Zone.current;
+    final firstSave = IOOverrides.runZoned(() => first.save(validSnapshotBytes),
+        createFile: (path) {
+      final real = parentZone.run(() => File(path));
+      return path.endsWith('.pending')
+          ? PausedSnapshotFile(real, written, resume)
+          : real;
+    });
+    final activePath = await written.future;
+    try {
+      final secondResult = await second.save(validSnapshotBytes);
+      expect(secondResult, hasLength(1));
+      expect(await File(activePath).exists(), isTrue);
+    } finally {
+      resume.complete();
+    }
+    final completed = await firstSave;
+    expect(completed, hasLength(2));
+    expect(await first.list(), hasLength(2));
+    expect(await File(activePath).exists(), isFalse);
+    expect(
+        Directory('${directory.path}/snapshots')
+            .listSync()
+            .whereType<File>()
+            .where((file) => file.path.endsWith('.pending')),
+        isEmpty);
+  });
+
+  test('stale cleanup failure does not prevent a valid publication', () async {
+    final snapshots = await Directory('${directory.path}/snapshots').create();
+    final stale = File('${snapshots.path}/.money-note-snapshot-stale.pending');
+    await stale.writeAsString('{', flush: true);
+    await stale.setLastModified(DateTime.utc(2020));
+    final repository =
+        LocalSnapshotRepository(directoryProvider: () async => directory);
+    final parentZone = Zone.current;
+    final listed = await IOOverrides.runZoned(
+        () => repository.save(validSnapshotBytes), createDirectory: (path) {
+      final real = parentZone.run(() => Directory(path));
+      return path == snapshots.path ? StaleCleanupFailureDirectory(real) : real;
+    });
+    expect(listed, hasLength(1));
+    expect(await stale.exists(), isTrue);
+    expect(await repository.list(), hasLength(1));
   });
 }
