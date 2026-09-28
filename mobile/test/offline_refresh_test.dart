@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -108,17 +109,47 @@ class DelayedMutationApiFake extends OfflineApiFake {
   }
 }
 
+class FailingRefreshBaselineStore extends OfflineStore {
+  FailingRefreshBaselineStore(Directory directory)
+      : super(directoryProvider: () async => directory);
+
+  @override
+  Future<void> replaceBaseline(OfflineBaseline baseline) async {
+    throw const OfflinePersistenceException(
+        'injected baseline install failure');
+  }
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('online refresh baseline and connection classification', () {
+    test('baseline persistence must finish before fresh UI state is installed',
+        () async {
+      final directory = await temporaryDirectoryFixture();
+      final seeded = offlineStoreFixture(directory);
+      await seeded.replaceBaseline(baselineFixture(remainingLiquidity: 10000));
+      final api = OfflineApiFake()
+        ..available = true
+        ..remainingLiquidity = 9000;
+      final state =
+          AppState(api, offlineStore: FailingRefreshBaselineStore(directory))
+            ..user = baselineFixture().user;
+
+      await expectLater(
+          state.refresh(), throwsA(isA<OfflinePersistenceException>()));
+      expect(state.summary, isNull);
+      expect((await seeded.loadBaseline())!.summary.remainingLiquidity, 10000);
+    });
+
     test(
         'successful refresh replaces baseline; incomplete refresh preserves it',
         () async {
       final directory = await temporaryDirectoryFixture();
       final api = OfflineApiFake()..available = true;
       final store = offlineStoreFixture(directory);
-      final state = AppState(api, offlineStore: store)..user = baselineFixture().user;
+      final state = AppState(api, offlineStore: store)
+        ..user = baselineFixture().user;
 
       await state.refresh();
       expect((await store.loadBaseline())!.summary.remainingLiquidity, 10000);
@@ -175,7 +206,8 @@ void main() {
       final store = offlineStoreFixture(directory);
       await store.replaceBaseline(baselineFixture(remainingLiquidity: 10000));
       final api = DelayedRefreshApiFake()..available = true;
-      final state = AppState(api, offlineStore: store)..user = baselineFixture().user;
+      final state = AppState(api, offlineStore: store)
+        ..user = baselineFixture().user;
 
       final delayedRefresh = state.refresh();
       await api.summaryRequested.future;
@@ -208,7 +240,8 @@ void main() {
       final directory = await temporaryDirectoryFixture();
       final api = ChangingBaselineApiFake()..available = true;
       final store = offlineStoreFixture(directory);
-      final state = AppState(api, offlineStore: store)..user = baselineFixture().user;
+      final state = AppState(api, offlineStore: store)
+        ..user = baselineFixture().user;
 
       await state.refresh();
 
@@ -216,14 +249,16 @@ void main() {
       expect(state.summary!.remainingLiquidity, 9000);
       final installed = await store.loadBaseline();
       expect(installed!.summary.remainingLiquidity, 9000);
-      expect(installed.serverStateFingerprint, OfflineApiFake.currentFingerprint);
+      expect(
+          installed.serverStateFingerprint, OfflineApiFake.currentFingerprint);
     });
     test('A-B-A with equal fingerprint rejects middle display by revision',
         () async {
       final directory = await temporaryDirectoryFixture();
       final api = AbaRefreshApiFake()..available = true;
       final store = offlineStoreFixture(directory);
-      final state = AppState(api, offlineStore: store)..user = baselineFixture().user;
+      final state = AppState(api, offlineStore: store)
+        ..user = baselineFixture().user;
       await state.refresh();
       expect(api.envelopeCalls, 4);
       expect(state.summary!.remainingLiquidity, 100000);
@@ -238,7 +273,8 @@ void main() {
       final api = AbaRefreshApiFake()
         ..available = true
         ..changeEvaluationDate = true;
-      final state = AppState(api, offlineStore: store)..user = baselineFixture().user;
+      final state = AppState(api, offlineStore: store)
+        ..user = baselineFixture().user;
       await expectLater(state.refresh(), throwsA(isA<MoneyNoteApiException>()));
       expect((await store.loadBaseline())!.summary.remainingLiquidity, 10000);
     });
@@ -248,14 +284,17 @@ void main() {
       final directory = await temporaryDirectoryFixture();
       final store = offlineStoreFixture(directory);
       final api = OverlappingRefreshApiFake()..available = true;
-      final state = AppState(api, offlineStore: store)..user = baselineFixture().user;
+      final state = AppState(api, offlineStore: store)
+        ..user = baselineFixture().user;
       final first = state.refresh();
       await api.firstRequested.future;
       final second = state.refresh();
       await api.secondRequested.future;
-      api.secondResult.complete(baselineFixture(remainingLiquidity: 101234).summary);
+      api.secondResult
+          .complete(baselineFixture(remainingLiquidity: 101234).summary);
       await second;
-      api.firstResult.complete(baselineFixture(remainingLiquidity: 100000).summary);
+      api.firstResult
+          .complete(baselineFixture(remainingLiquidity: 100000).summary);
       await expectLater(first, throwsA(isA<MoneyNoteApiException>()));
       expect(state.summary!.remainingLiquidity, 101234);
       expect((await store.loadBaseline())!.summary.remainingLiquidity, 101234);
@@ -266,14 +305,17 @@ void main() {
       final directory = await temporaryDirectoryFixture();
       final store = offlineStoreFixture(directory);
       final api = OverlappingRefreshApiFake()..available = true;
-      final state = AppState(api, offlineStore: store)..user = baselineFixture().user;
+      final state = AppState(api, offlineStore: store)
+        ..user = baselineFixture().user;
       final first = state.refresh();
       await api.firstRequested.future;
       final second = state.refresh();
       await api.secondRequested.future;
-      api.firstResult.complete(baselineFixture(remainingLiquidity: 100000).summary);
+      api.firstResult
+          .complete(baselineFixture(remainingLiquidity: 100000).summary);
       await expectLater(first, throwsA(isA<MoneyNoteApiException>()));
-      api.secondResult.complete(baselineFixture(remainingLiquidity: 101234).summary);
+      api.secondResult
+          .complete(baselineFixture(remainingLiquidity: 101234).summary);
       await second;
       expect(state.summary!.remainingLiquidity, 101234);
       expect((await store.loadBaseline())!.summary.remainingLiquidity, 101234);

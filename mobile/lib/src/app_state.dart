@@ -1,11 +1,11 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import 'api_client.dart';
+import 'coherent_refresh_coordinator.dart';
+import 'local_snapshot_repository.dart';
 import 'models.dart';
 import 'notification_bridge.dart';
 import 'offline/offline_data.dart';
@@ -13,16 +13,19 @@ import 'offline/offline_lineage_validator.dart';
 import 'offline/offline_projection.dart';
 import 'offline/offline_store.dart';
 
+export 'local_snapshot_repository.dart' show LocalSnapshotInfo;
+
 class AppState extends ChangeNotifier {
-  AppState(this.api, {OfflineStore? offlineStore})
-      : offlineStore = offlineStore ?? OfflineStore() {
+  AppState(this.api,
+      {OfflineStore? offlineStore, LocalSnapshotRepository? snapshotRepository})
+      : offlineStore = offlineStore ?? OfflineStore(),
+        _snapshotRepository = snapshotRepository ?? LocalSnapshotRepository() {
     api.onServerUnavailable = _requestOfflinePrompt;
   }
 
-  static const int _maxLocalSnapshots = 30;
-
   final MoneyNoteApiClient api;
   final OfflineStore offlineStore;
+  final LocalSnapshotRepository _snapshotRepository;
   final NotificationBridge notificationBridge = NotificationBridge();
 
   bool isBootstrapping = true;
@@ -50,7 +53,9 @@ class AppState extends ChangeNotifier {
   ConnectivityMode connectivityMode = ConnectivityMode.online;
   ReconciliationChoice? reconciliationChoice;
   int _lineageGeneration = 0;
-  int _refreshRequestGeneration = 0;
+  late final CoherentRefreshCoordinator _refreshCoordinator =
+      CoherentRefreshCoordinator(api,
+          localToday: _localToday, formatDate: _formatDate);
   Future<void>? _lineageTail;
   DateTime? lastSuccessfulSyncAt;
   List<OfflineJournalOperation> offlineJournal = const [];
@@ -370,166 +375,67 @@ class AppState extends ChangeNotifier {
       throw MoneyNoteApiException(
           '현재 상태에서는 authoritative refresh를 설치할 수 없습니다.');
     }
-    final generation = _lineageGeneration;
-    final refreshRequest = ++_refreshRequestGeneration;
+    final ticket = _refreshCoordinator.begin(_lineageGeneration);
     await refreshNotificationPermissions(notify: false);
+    final bundle = await _refreshCoordinator.acquire(() => user);
+    final candidate = bundle.candidate;
+    final after = bundle.envelope;
 
-    for (var attempt = 0; attempt < 3; attempt += 1) {
-      final before = await _readAuthoritativeBaselineEnvelope();
-      final candidate = await _fetchAuthoritativeStateCandidate();
-      final after = await _readAuthoritativeBaselineEnvelope();
-      if (before.fingerprint != after.fingerprint ||
-          before.revision != after.revision ||
-          before.evaluationDate != after.evaluationDate ||
-          candidate.monthCloseStatus.calendarDate != after.evaluationDate) {
-        continue;
+    await _withLineageLock(() async {
+      if (!_refreshCoordinator.mayInstall(ticket,
+          currentLineageGeneration: _lineageGeneration,
+          modeAllowed: _refreshModeAllowed(allowBaselineWhileFinalizing))) {
+        throw MoneyNoteApiException(
+            '상태가 변경되어 오래된 authoritative refresh 결과를 폐기했습니다.');
       }
-
-      await _withLineageLock(() async {
-        if (generation != _lineageGeneration ||
-            refreshRequest != _refreshRequestGeneration ||
-            !_refreshModeAllowed(allowBaselineWhileFinalizing)) {
-          throw MoneyNoteApiException(
-            '상태가 변경되어 오래된 authoritative refresh 결과를 폐기했습니다.',
-          );
-        }
-        final baseline = OfflineBaseline(
-          syncedAt: DateTime.now().toUtc(),
-          authoritativeSnapshot: after.snapshot,
-          serverStateFingerprint: after.fingerprint,
-          resolvedReconciliationId: isReconciliationFinalizing
-              ? _offlineMetadata.reconciliationId
-              : null,
-          discountPolicyDefaults: after.discountPolicyDefaults,
-          user: candidate.user,
-          summary: candidate.summary,
-          cardPaymentStatus: candidate.cardPaymentStatus,
-          judgment: candidate.judgment,
-          monthCloseStatus: candidate.monthCloseStatus,
-          settings: candidate.settings,
-          ownerDiscountMonth: candidate.ownerDiscountMonth,
-          familyDiscountMonth: candidate.familyDiscountMonth,
-          transitDiscountProfile: candidate.transitDiscountProfile,
-          entries: candidate.entries,
-          confirmedPlannedEntries: candidate.confirmedPlannedEntries,
-          panels: candidate.panels,
-          cashFlows: candidate.cashFlows,
-        );
-        await offlineStore.replaceBaseline(baseline);
-        _offlineBaseline = baseline;
-        user = candidate.user;
-        summary = candidate.summary;
-        cardPaymentStatus = candidate.cardPaymentStatus;
-        judgment = candidate.judgment;
-        entries = candidate.entries;
-        confirmedPlannedEntries = candidate.confirmedPlannedEntries;
-        panels = candidate.panels;
-        cashFlows = candidate.cashFlows;
-        settings = candidate.settings;
-        monthCloseStatus = candidate.monthCloseStatus;
-        ownerDiscountMonth = candidate.ownerDiscountMonth;
-        familyDiscountMonth = candidate.familyDiscountMonth;
-        transitDiscountProfile = candidate.transitDiscountProfile;
-        lastSuccessfulSyncAt = baseline.syncedAt;
-        usesConservativeCardEstimate = false;
-        offlineEntryMessage = '';
-      });
-      await _configureNotificationCards();
-      await refreshNotificationInboxState(notify: false);
-      if (notify) notifyListeners();
-      return;
-    }
-
-    throw MoneyNoteApiException(
-      '동기화 중 서버 데이터가 계속 변경되어 coherent offline baseline을 만들지 못했습니다.',
-    );
+      final baseline = OfflineBaseline(
+        syncedAt: DateTime.now().toUtc(),
+        authoritativeSnapshot: after.snapshot,
+        serverStateFingerprint: after.fingerprint,
+        resolvedReconciliationId: isReconciliationFinalizing
+            ? _offlineMetadata.reconciliationId
+            : null,
+        discountPolicyDefaults: after.discountPolicyDefaults,
+        user: candidate.user,
+        summary: candidate.summary,
+        cardPaymentStatus: candidate.cardPaymentStatus,
+        judgment: candidate.judgment,
+        monthCloseStatus: candidate.monthCloseStatus,
+        settings: candidate.settings,
+        ownerDiscountMonth: candidate.ownerDiscountMonth,
+        familyDiscountMonth: candidate.familyDiscountMonth,
+        transitDiscountProfile: candidate.transitDiscountProfile,
+        entries: candidate.entries,
+        confirmedPlannedEntries: candidate.confirmedPlannedEntries,
+        panels: candidate.panels,
+        cashFlows: candidate.cashFlows,
+      );
+      await offlineStore.replaceBaseline(baseline);
+      _offlineBaseline = baseline;
+      user = candidate.user;
+      summary = candidate.summary;
+      cardPaymentStatus = candidate.cardPaymentStatus;
+      judgment = candidate.judgment;
+      entries = candidate.entries;
+      confirmedPlannedEntries = candidate.confirmedPlannedEntries;
+      panels = candidate.panels;
+      cashFlows = candidate.cashFlows;
+      settings = candidate.settings;
+      monthCloseStatus = candidate.monthCloseStatus;
+      ownerDiscountMonth = candidate.ownerDiscountMonth;
+      familyDiscountMonth = candidate.familyDiscountMonth;
+      transitDiscountProfile = candidate.transitDiscountProfile;
+      lastSuccessfulSyncAt = baseline.syncedAt;
+      usesConservativeCardEstimate = false;
+      offlineEntryMessage = '';
+    });
+    await _configureNotificationCards();
+    await refreshNotificationInboxState(notify: false);
+    if (notify) notifyListeners();
   }
 
   bool _refreshModeAllowed(bool allowBaselineWhileFinalizing) =>
       isOnline || (allowBaselineWhileFinalizing && isReconciliationFinalizing);
-
-  Future<_AuthoritativeStateCandidate>
-      _fetchAuthoritativeStateCandidate() async {
-    final currentUser = user;
-    if (currentUser == null) {
-      throw MoneyNoteApiException('로그인 사용자 정보가 없습니다.');
-    }
-    final freshMonthCloseStatus = await api.monthCloseStatus();
-    final results = await Future.wait([
-      api.summary(),
-      api.currentCardPaymentStatus(),
-      api.judgment(),
-      api.currentEntries(),
-      api.confirmedPlannedEntries(),
-      api.currentPanels(),
-      _loadRecentCashFlows(freshMonthCloseStatus),
-      api.settings(),
-    ]);
-    final freshSummary = results[0] as Summary;
-    final freshCardPaymentStatus = results[1] as CardPaymentStatus;
-    final freshJudgment = results[2] as JudgmentState;
-    final freshEntries = results[3] as List<LedgerEntry>;
-    final freshConfirmedPlannedEntries = results[4] as List<LedgerEntry>;
-    final freshPanels = results[5] as List<MonthlyPanel>;
-    final freshCashFlows = results[6] as List<CashFlow>;
-    final freshSettings = results[7] as AppSettings;
-    final freshMonth = _monthFor(
-      freshMonthCloseStatus,
-      freshEntries,
-      freshPanels,
-    );
-    final discountResults = await Future.wait([
-      api.discountMonth(freshMonth, 'owner'),
-      api.discountMonth(freshMonth, 'family'),
-      api.transitDiscountProfile(freshMonth),
-    ]);
-
-    return _AuthoritativeStateCandidate(
-      user: currentUser,
-      summary: freshSummary,
-      cardPaymentStatus: freshCardPaymentStatus,
-      judgment: freshJudgment,
-      entries: List.unmodifiable(freshEntries),
-      confirmedPlannedEntries: List.unmodifiable(freshConfirmedPlannedEntries),
-      panels: List.unmodifiable(freshPanels),
-      cashFlows: List.unmodifiable(freshCashFlows),
-      settings: freshSettings,
-      monthCloseStatus: freshMonthCloseStatus,
-      ownerDiscountMonth: discountResults[0] as CardDiscountMonth,
-      familyDiscountMonth: discountResults[1] as CardDiscountMonth,
-      transitDiscountProfile:
-          discountResults[2] as TransitDiscountProfileStatus,
-    );
-  }
-
-  Future<_AuthoritativeBaselineEnvelope>
-      _readAuthoritativeBaselineEnvelope() async {
-    final authoritative = await api.offlineReconciliationBaseline();
-    final snapshot = authoritative['snapshot'];
-    final fingerprint = authoritative['state_fingerprint'];
-    final revision = authoritative['state_revision'];
-    final evaluationDate = authoritative['evaluation_date'];
-    final rawDefaults = authoritative['discount_policy_defaults'];
-    if (snapshot is! Map<String, dynamic> ||
-        fingerprint is! String ||
-        !RegExp(r'^[0-9a-f]{64}$').hasMatch(fingerprint) ||
-        revision is! int ||
-        revision < 0 ||
-        evaluationDate is! String ||
-        DateTime.tryParse(evaluationDate) == null ||
-        rawDefaults is! Map ||
-        !{'enabled', 'disabled'}.contains(rawDefaults['owner']) ||
-        !{'enabled', 'disabled'}.contains(rawDefaults['family'])) {
-      throw MoneyNoteApiException('오프라인 기준 Snapshot 응답이 올바르지 않습니다.');
-    }
-    return _AuthoritativeBaselineEnvelope(
-      snapshot: Map<String, dynamic>.unmodifiable(snapshot),
-      fingerprint: fingerprint,
-      revision: revision,
-      evaluationDate: evaluationDate,
-      discountPolicyDefaults: Map<String, String>.from(rawDefaults),
-    );
-  }
 
   Future<void> resumeFromBackground() async {
     if (!isLoggedIn || isBootstrapping || _isForegroundRefreshRunning) return;
@@ -567,19 +473,6 @@ class AppState extends ChangeNotifier {
       return;
     }
     await _refreshAuthoritativeState(notify: notify);
-  }
-
-  Future<List<CashFlow>> _loadRecentCashFlows(MonthCloseStatus status) {
-    final serverDate = DateTime.tryParse(status.calendarDate);
-    if (serverDate == null) {
-      throw MoneyNoteApiException('서버 기준 날짜를 확인할 수 없습니다.');
-    }
-    final dateFrom = DateTime(serverDate.year, serverDate.month - 1, 1);
-    final dateTo = DateTime(serverDate.year, serverDate.month + 1, 0);
-    return api.cashFlows(
-      dateFrom: _formatDate(dateFrom),
-      dateTo: _formatDate(dateTo),
-    );
   }
 
   Future<void> refreshEntriesArea({bool notify = true}) async {
@@ -620,22 +513,6 @@ class AppState extends ChangeNotifier {
       return;
     }
     await _refreshAuthoritativeState(notify: notify);
-  }
-
-  String _monthFor(
-    MonthCloseStatus status,
-    List<LedgerEntry> freshEntries,
-    List<MonthlyPanel> freshPanels,
-  ) {
-    if (status.calendarMonth.length >= 7) {
-      return status.calendarMonth.substring(0, 7);
-    }
-    for (final entry in freshEntries.reversed) {
-      final date = entry.entryDate;
-      if (date != null && date.length >= 7) return date.substring(0, 7);
-    }
-    if (freshPanels.isNotEmpty) return freshPanels.last.month;
-    return _localToday().substring(0, 7);
   }
 
   void _requestOfflinePrompt() {
@@ -1837,12 +1714,7 @@ class AppState extends ChangeNotifier {
     if (!isOnline) return;
     try {
       final snapshot = await api.downloadSnapshot();
-      final directory = await _snapshotDirectory();
-      final backup = File(
-          '${directory.path}/money-note-snapshot-${_timestampForFilename()}.money-note-snapshot.json');
-      await backup.writeAsBytes(snapshot.bytes, flush: true);
-      await _pruneLocalSnapshots();
-      localSnapshots = await listLocalSnapshots();
+      localSnapshots = await _snapshotRepository.save(snapshot.bytes);
     } catch (_) {
       // 자동 백업 실패는 앱 실행을 막지 않는다. 상태 화면의 스냅샷 관리에서 다시 확인한다.
     }
@@ -1859,7 +1731,8 @@ class AppState extends ChangeNotifier {
         throw MoneyNoteApiException('공유할 스냅샷이 없습니다.');
       }
       snapshots.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-      final current = await _safeSnapshotFile(snapshots.first.filename);
+      final current =
+          await _snapshotRepository.safeFile(snapshots.first.filename);
       await SharePlus.instance.share(
         ShareParams(
           files: [
@@ -1876,13 +1749,14 @@ class AppState extends ChangeNotifier {
 
   Future<void> shareLocalSnapshot(String filename) async {
     await _run(() async {
-      final snapshot = await _safeSnapshotFile(filename);
+      final snapshot = await _snapshotRepository.safeFile(filename);
       await SharePlus.instance.share(
         ShareParams(
           files: [
             XFile(snapshot.path,
                 mimeType: 'application/json',
-                name: 'money-note-snapshot-${_timestampForFilename()}.json')
+                name:
+                    'money-note-snapshot-${_snapshotRepository.timestampForFilename()}.json')
           ],
           text: 'Money-Note 스냅샷 백업',
         ),
@@ -1897,10 +1771,9 @@ class AppState extends ChangeNotifier {
   }) async {
     await _run(() async {
       _requireOnline('스냅샷 복원');
-      final snapshot = await _safeSnapshotFile(filename);
       await api.restoreSnapshot(
         password: password,
-        snapshotText: await snapshot.readAsString(),
+        snapshotText: await _snapshotRepository.readText(filename),
       );
       await refresh(notify: false);
       statusMessage = '스냅샷 복원 완료';
@@ -1909,10 +1782,7 @@ class AppState extends ChangeNotifier {
 
   Future<void> deleteLocalSnapshot(String filename) async {
     await _run(() async {
-      final snapshot = await _safeSnapshotFile(filename);
-      if (await snapshot.exists()) {
-        await snapshot.delete();
-      }
+      await _snapshotRepository.delete(filename);
       localSnapshots = await listLocalSnapshots();
       statusMessage = '스냅샷 삭제 완료';
     });
@@ -1920,46 +1790,14 @@ class AppState extends ChangeNotifier {
 
   Future<void> deleteAllLocalSnapshots() async {
     await _run(() async {
-      for (final snapshot in await listLocalSnapshots()) {
-        final file = await _safeSnapshotFile(snapshot.filename);
-        if (await file.exists()) {
-          await file.delete();
-        }
-      }
+      await _snapshotRepository.deleteAll();
       localSnapshots = [];
       statusMessage = '스냅샷 전체 삭제 완료';
     });
   }
 
-  Future<List<LocalSnapshotInfo>> listLocalSnapshots() async {
-    final directory = await _snapshotDirectory();
-    final items = <LocalSnapshotInfo>[];
-    final files = directory
-        .listSync()
-        .whereType<File>()
-        .where((file) => file.path.endsWith('.money-note-snapshot.json'))
-        .toList();
-    for (final file in files) {
-      final stat = await file.stat();
-      items.add(LocalSnapshotInfo(
-        filename: file.uri.pathSegments.last,
-        sizeBytes: stat.size,
-        updatedAt: stat.modified,
-      ));
-    }
-    items.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-    return items;
-  }
-
-  Future<void> _pruneLocalSnapshots() async {
-    final snapshots = await listLocalSnapshots();
-    for (final snapshot in snapshots.skip(_maxLocalSnapshots)) {
-      final file = await _safeSnapshotFile(snapshot.filename);
-      if (await file.exists()) {
-        await file.delete();
-      }
-    }
-  }
+  Future<List<LocalSnapshotInfo>> listLocalSnapshots() =>
+      _snapshotRepository.list();
 
   Future<void> closeCurrentMonth({
     required String targetMonth,
@@ -2049,89 +1887,4 @@ class AppState extends ChangeNotifier {
   String _formatDate(DateTime value) {
     return '${value.year.toString().padLeft(4, '0')}-${value.month.toString().padLeft(2, '0')}-${value.day.toString().padLeft(2, '0')}';
   }
-
-  Future<Directory> _snapshotDirectory() async {
-    final base = await getApplicationDocumentsDirectory();
-    final directory = Directory('${base.path}/snapshots');
-    if (!await directory.exists()) {
-      await directory.create(recursive: true);
-    }
-    return directory;
-  }
-
-  Future<File> _safeSnapshotFile(String filename) async {
-    final allowed = (await listLocalSnapshots())
-        .map((snapshot) => snapshot.filename)
-        .toSet();
-    if (!allowed.contains(filename)) {
-      throw MoneyNoteApiException('알 수 없는 스냅샷 파일입니다.');
-    }
-    final directory = await _snapshotDirectory();
-    return File('${directory.path}/$filename');
-  }
-
-  String _timestampForFilename() {
-    final now = DateTime.now();
-    return '${now.year.toString().padLeft(4, '0')}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}-${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}${now.second.toString().padLeft(2, '0')}${now.millisecond.toString().padLeft(3, '0')}';
-  }
-}
-
-class _AuthoritativeBaselineEnvelope {
-  const _AuthoritativeBaselineEnvelope({
-    required this.snapshot,
-    required this.fingerprint,
-    required this.revision,
-    required this.evaluationDate,
-    required this.discountPolicyDefaults,
-  });
-
-  final Map<String, dynamic> snapshot;
-  final String fingerprint;
-  final int revision;
-  final String evaluationDate;
-  final Map<String, String> discountPolicyDefaults;
-}
-
-class _AuthoritativeStateCandidate {
-  const _AuthoritativeStateCandidate({
-    required this.user,
-    required this.summary,
-    required this.cardPaymentStatus,
-    required this.judgment,
-    required this.monthCloseStatus,
-    required this.settings,
-    required this.ownerDiscountMonth,
-    required this.familyDiscountMonth,
-    required this.transitDiscountProfile,
-    required this.entries,
-    required this.confirmedPlannedEntries,
-    required this.panels,
-    required this.cashFlows,
-  });
-
-  final AuthUser user;
-  final Summary summary;
-  final CardPaymentStatus cardPaymentStatus;
-  final JudgmentState judgment;
-  final MonthCloseStatus monthCloseStatus;
-  final AppSettings settings;
-  final CardDiscountMonth ownerDiscountMonth;
-  final CardDiscountMonth familyDiscountMonth;
-  final TransitDiscountProfileStatus transitDiscountProfile;
-  final List<LedgerEntry> entries;
-  final List<LedgerEntry> confirmedPlannedEntries;
-  final List<MonthlyPanel> panels;
-  final List<CashFlow> cashFlows;
-}
-
-class LocalSnapshotInfo {
-  LocalSnapshotInfo({
-    required this.filename,
-    required this.sizeBytes,
-    required this.updatedAt,
-  });
-
-  final String filename;
-  final int sizeBytes;
-  final DateTime updatedAt;
 }

@@ -31,6 +31,8 @@
 
 모바일 Offline Mode는 서버 state를 복제한 별도 원본이 아니다. ONLINE 동기화가 완전히 성공할 때 원자적으로 교체한 authoritative Snapshot baseline B와 input-only journal J로 임시 view를 만들며, derived financial value는 `오프라인 예상값`으로만 표시한다. 복구 후 사용자가 authority를 선택하고 양쪽 recovery point를 검증한다. Mobile Wins는 server-side 단일 transaction의 `Apply(B, J)`, Server Wins는 fresh server rebuild이며 commit ambiguity와 sync failure는 durable `RECONCILIATION_FINALIZING`에서 재개한다. 상세 계약은 [모바일 Offline Mode](offline-mode.md)를 따른다.
 
+모바일 `AppState`는 UI-facing 상태 전이, lineage lock, baseline 설치와 reconciliation 순서를 소유한다. `coherent_refresh_coordinator.dart`는 요청 generation 및 Snapshot fingerprint·revision·기준일이 일치하는 응답 묶음의 취득만 담당하며, 설치 가능 여부를 AppState의 현재 lineage/mode와 함께 다시 검사한다. `local_snapshot_repository.dart`는 앱 내부의 일반 Snapshot 파일 목록·경로 검증·최근 30개 보관을 담당한다. Offline baseline/journal과 mobile recovery bundle의 원자적 파일 저장·검증·보관은 계속 `offline_store.dart`가 소유한다.
+
 오프라인 후보 등록의 중복 identity는 서버 Snapshot B의 등록 record와 durable J 전체에서 확인한다. 모순된 persisted mode/phase/commit 조합이나 복구 bundle과 다른 J는 fail closed한다. 수동 Claim/Family Card 생성은 최초 할인 의도를 패널 INSERT에 포함하며, 기존 할인 변경 API는 생성 이후 사용자의 별도 수정에만 사용한다.
 
 ### Android 알림 수집
