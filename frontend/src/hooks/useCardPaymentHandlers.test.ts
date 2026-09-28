@@ -60,6 +60,12 @@ it("retains the immediate-payment retry key and draft after a lost response", as
   expect(statuses).not.toContain("즉시결제 반영 완료");
   expect(setPaymentAllocations).not.toHaveBeenCalled();
   expect(storage.size).toBe(1);
+  expect([...storage.entries()]).toEqual([["money-note-pending-card-payment-v1:1", JSON.stringify({
+    fingerprint: JSON.stringify({ event_date: "2026-09-17", event_type: "immediate", note: "", allocations: [{ entry_payment_key: "payment-1", amount_value: 500 }] }),
+    key: "retry-key-1-00000000",
+    payload: { event_date: "2026-09-17", event_type: "immediate", note: "", allocations: [{ entry_payment_key: "payment-1", amount_value: 500 }] },
+    draftAllocations: { "payment-1": "500" },
+  })]]);
 
   await handlers!.handleCardPaymentSubmit();
   expect(api.createCardPaymentEvent).toHaveBeenCalledTimes(2);

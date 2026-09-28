@@ -9,6 +9,7 @@ import 'api_client.dart';
 import 'models.dart';
 import 'notification_bridge.dart';
 import 'offline/offline_data.dart';
+import 'offline/offline_lineage_validator.dart';
 import 'offline/offline_projection.dart';
 import 'offline/offline_store.dart';
 
@@ -313,96 +314,15 @@ class AppState extends ChangeNotifier {
 
   bool _isConsistentPersistedLineage(OfflineWorkspaceMetadata metadata,
       OfflineBaseline? baseline, bool resolved) {
-    final mode = metadata.mode;
-    final phase = metadata.phase;
-    final choice = metadata.reconciliationChoice;
-    final id = metadata.reconciliationId;
-    final commit = metadata.serverCommitStatus;
-    final hasChoiceAndId = choice != null && id != null && id.isNotEmpty;
-    final noChoiceOrId = choice == null && id == null;
-    final hasServerArtifact = metadata.serverArtifactFilename != null;
-    final anyMobileArtifact = metadata.mobileArtifactFilename != null ||
-        metadata.mobileArtifactSha256 != null;
-    final hasMobileArtifact = metadata.mobileArtifactFilename != null &&
-        metadata.mobileArtifactSha256 != null;
-    if (mode == ConnectivityMode.persistenceRecoveryBlocked) return true;
-    if (mode == ConnectivityMode.online) {
-      return offlineJournal.isEmpty &&
-          noChoiceOrId &&
-          phase == ReconciliationPhase.none &&
-          commit == ServerCommitStatus.none &&
-          metadata.baselineLineageFingerprint == null &&
-          !hasServerArtifact &&
-          !anyMobileArtifact &&
-          metadata.currentServerFingerprint == null &&
-          !metadata.serverChanged &&
-          !metadata.confirmServerChanged;
-    }
-    if (baseline == null ||
-        metadata.baselineLineageFingerprint == null ||
-        (!resolved &&
-            metadata.baselineLineageFingerprint !=
-                offlineStore.recoveryLineageFingerprint(baseline)) ||
-        (baseline.resolvedReconciliationId != null &&
-            mode == ConnectivityMode.reconciliationFinalizing &&
-            !resolved)) {
-      return false;
-    }
-    if (mode == ConnectivityMode.offline) {
-      return noChoiceOrId &&
-          phase == ReconciliationPhase.none &&
-          commit == ServerCommitStatus.none &&
-          !hasServerArtifact &&
-          !anyMobileArtifact &&
-          metadata.currentServerFingerprint == null &&
-          !metadata.serverChanged &&
-          !metadata.confirmServerChanged;
-    }
-    if (mode == ConnectivityMode.reconciliationRequired) {
-      if (commit != ServerCommitStatus.none || metadata.confirmServerChanged) {
-        return false;
-      }
-      if (phase == ReconciliationPhase.none) {
-        return noChoiceOrId &&
-            !hasServerArtifact &&
-            !anyMobileArtifact &&
-            metadata.currentServerFingerprint == null &&
-            !metadata.serverChanged;
-      }
-      if (!hasChoiceAndId || resolved) return false;
-      if (phase == ReconciliationPhase.preparing) {
-        return !anyMobileArtifact &&
-            (!hasServerArtifact || metadata.currentServerFingerprint != null);
-      }
-      return phase == ReconciliationPhase.ready &&
-          hasServerArtifact &&
-          hasMobileArtifact &&
-          metadata.currentServerFingerprint != null &&
-          !metadata.confirmServerChanged;
-    }
-    if (mode != ConnectivityMode.reconciliationFinalizing ||
-        !hasChoiceAndId ||
-        !hasServerArtifact ||
-        !hasMobileArtifact ||
-        metadata.currentServerFingerprint == null) {
-      return false;
-    }
-    return switch (phase) {
-      ReconciliationPhase.mobileRequestPending =>
-        choice == ReconciliationChoice.applyToServer &&
-            commit == ServerCommitStatus.unknown &&
-            !resolved &&
-            (!metadata.serverChanged || metadata.confirmServerChanged),
-      ReconciliationPhase.mobileCommitted =>
-        choice == ReconciliationChoice.applyToServer &&
-            commit == ServerCommitStatus.committed &&
-            (!metadata.serverChanged || metadata.confirmServerChanged),
-      ReconciliationPhase.serverWinsFinalizing =>
-        choice == ReconciliationChoice.discardAndUseServer &&
-            commit == ServerCommitStatus.none &&
-            !metadata.confirmServerChanged,
-      _ => false,
-    };
+    return isConsistentPersistedLineage(
+      metadata: metadata,
+      baseline: baseline,
+      resolved: resolved,
+      journalIsEmpty: offlineJournal.isEmpty,
+      baselineFingerprint: baseline == null || resolved
+          ? null
+          : offlineStore.recoveryLineageFingerprint(baseline),
+    );
   }
 
   Future<void> login(String username, String password) async {

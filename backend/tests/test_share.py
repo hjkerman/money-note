@@ -134,6 +134,30 @@ class SharePanelTest(unittest.TestCase):
         self.assertEqual(html.count('class="deferable-row"'), 2)
         self.assertIn("이번 달 커피", html)
 
+    def test_shared_panel_html_escapes_untrusted_text_and_keeps_one_inline_script(self) -> None:
+        attack = '</script><script>alert("x")</script><img src=x onerror=alert(1)>'
+        with session() as conn:
+            conn.execute(
+                "UPDATE app_labels SET value = ? WHERE key = 'panel_claim_title'",
+                (attack,),
+            )
+            conn.execute(
+                "UPDATE monthly_panels SET title = ? WHERE title = '이번 달 커피'",
+                (attack,),
+            )
+        with patch("app.services.share.shared_panel_subtitle", return_value=attack), patch(
+            "app.services.share._ledger_note", return_value=attack
+        ):
+            html = shared_panel_html("claim")
+        self.assertNotIn(attack, html)
+        self.assertNotIn("<img src=x", html)
+        self.assertIn("&lt;/script&gt;&lt;script&gt;alert(&quot;x&quot;)", html)
+        self.assertEqual(html.count("<script>"), 1)
+        self.assertEqual(html.count("</script>"), 1)
+        self.assertIn('id="minimumToggle"', html)
+        self.assertIn('id="discountTotal"', html)
+        self.assertIn('id="netTotal"', html)
+
     def test_share_unlock_redirect_is_safe_inside_inline_script(self) -> None:
         html = share_unlock_html("/share/</script><script>alert(1)</script>")
 

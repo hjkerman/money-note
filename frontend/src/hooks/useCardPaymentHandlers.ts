@@ -26,6 +26,9 @@ import {
   parseAmount,
   sumPaymentAllocationInputs,
 } from "../utils";
+import { PendingPaymentStore, type PendingPayment } from "./PendingPaymentStore";
+
+const pendingPaymentStore = new PendingPaymentStore(() => localStorage);
 
 export function useCardPaymentHandlers({
   cardPayments,
@@ -53,12 +56,12 @@ export function useCardPaymentHandlers({
   withRefresh: (action: () => Promise<void>) => Promise<boolean>;
 }) {
   const [pendingPaymentRequest, setPendingPaymentRequest] = useState<PendingPayment | "corrupt" | null>(
-    () => userId === null ? null : readPendingPayment(userId),
+    () => userId === null ? null : pendingPaymentStore.read(userId),
   );
   const pendingPaymentRef = useRef(pendingPaymentRequest);
   const paymentInFlight = useRef(false);
   useEffect(() => {
-    const pending = userId === null ? null : readPendingPayment(userId);
+    const pending = userId === null ? null : pendingPaymentStore.read(userId);
     pendingPaymentRef.current = pending;
     setPendingPaymentRequest(pending);
   }, [userId]);
@@ -78,7 +81,7 @@ export function useCardPaymentHandlers({
       });
       if (!confirmed) return;
       try {
-        localStorage.removeItem(pendingPaymentStorageKey(userId));
+        pendingPaymentStore.clear(userId);
         pendingPaymentRef.current = null;
         setPendingPaymentRequest(null);
         clearOnlySubmittedAllocations(pending);
@@ -137,7 +140,7 @@ export function useCardPaymentHandlers({
       note: "",
       allocations,
     };
-    const requestFingerprint = JSON.stringify(requestPayload);
+    const requestFingerprint = PendingPaymentStore.fingerprint(requestPayload);
     if (pendingPaymentRef.current === "corrupt") {
       setStatus("이전 결제 재시도 정보를 읽을 수 없습니다. 복구 후 결제를 진행해 주세요.");
       return;
@@ -148,14 +151,9 @@ export function useCardPaymentHandlers({
     }
     let pending = pendingPaymentRef.current;
     if (!pending) {
-      pending = {
-        fingerprint: requestFingerprint,
-        key: createIdempotencyKey(),
-        payload: requestPayload,
-        draftAllocations: { ...paymentAllocations },
-      };
+      pending = pendingPaymentStore.create(requestPayload, paymentAllocations);
       try {
-        localStorage.setItem(pendingPaymentStorageKey(userId), JSON.stringify(pending));
+        pendingPaymentStore.save(userId, pending);
       } catch {
         setStatus("재시도 정보를 저장할 수 없어 결제를 시작하지 않았습니다.");
         return;
@@ -170,7 +168,7 @@ export function useCardPaymentHandlers({
       });
       if (!confirmed) return;
       try {
-        localStorage.removeItem(pendingPaymentStorageKey(userId));
+        pendingPaymentStore.clear(userId);
         pendingPaymentRef.current = null;
         setPendingPaymentRequest(null);
         clearOnlySubmittedAllocations(pending);
@@ -195,7 +193,7 @@ export function useCardPaymentHandlers({
         !error.message.includes("같은 idempotency key")
       ) {
         try {
-          localStorage.removeItem(pendingPaymentStorageKey(paymentUserId));
+          pendingPaymentStore.clear(paymentUserId);
           pendingPaymentRef.current = null;
           setPendingPaymentRequest(null);
         } catch {
@@ -373,47 +371,4 @@ export function useCardPaymentHandlers({
     handlePaymentSelection,
     handleTollDeferral,
   };
-}
-
-type PaymentPayload = {
-  event_date: string;
-  event_type: "immediate";
-  note: string;
-  allocations: { entry_payment_key: string; amount_value: number }[];
-};
-type PendingPayment = {
-  fingerprint: string;
-  key: string;
-  payload: PaymentPayload;
-  draftAllocations: Record<string, string>;
-};
-
-function pendingPaymentStorageKey(userId: number): string {
-  return `money-note-pending-card-payment-v1:${userId}`;
-}
-
-function readPendingPayment(userId: number): PendingPayment | "corrupt" | null {
-  try {
-    const raw = localStorage.getItem(pendingPaymentStorageKey(userId));
-    if (!raw) return null;
-    const pending = JSON.parse(raw) as PendingPayment;
-    if (
-      typeof pending.key !== "string" ||
-      pending.key.length < 16 ||
-      typeof pending.fingerprint !== "string" ||
-      !pending.payload ||
-      !pending.draftAllocations ||
-      typeof pending.draftAllocations !== "object" ||
-      Array.isArray(pending.draftAllocations) ||
-      JSON.stringify(pending.payload) !== pending.fingerprint
-    ) return "corrupt";
-    return pending;
-  } catch {
-    return "corrupt";
-  }
-}
-
-function createIdempotencyKey(): string {
-  if (typeof crypto.randomUUID === "function") return crypto.randomUUID();
-  return `web-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }

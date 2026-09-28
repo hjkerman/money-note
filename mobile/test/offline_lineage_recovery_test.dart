@@ -10,6 +10,101 @@ import 'support/offline_mode_fixtures.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  test('persisted lineage mode/phase allow-list is fail-closed', () async {
+    const linked = 'linked';
+    final cases =
+        <({String name, OfflineWorkspaceMetadata metadata, bool accepted})>[
+      (
+        name: 'online clean',
+        metadata: const OfflineWorkspaceMetadata(mode: ConnectivityMode.online),
+        accepted: true
+      ),
+      (
+        name: 'offline linked',
+        metadata: const OfflineWorkspaceMetadata(
+            mode: ConnectivityMode.offline, baselineLineageFingerprint: linked),
+        accepted: true
+      ),
+      (
+        name: 'reconciliation awaiting choice',
+        metadata: const OfflineWorkspaceMetadata(
+            mode: ConnectivityMode.reconciliationRequired,
+            baselineLineageFingerprint: linked),
+        accepted: true
+      ),
+      (
+        name: 'offline missing lineage',
+        metadata:
+            const OfflineWorkspaceMetadata(mode: ConnectivityMode.offline),
+        accepted: false
+      ),
+      (
+        name: 'online with choice',
+        metadata: const OfflineWorkspaceMetadata(
+            mode: ConnectivityMode.online,
+            reconciliationChoice: ReconciliationChoice.applyToServer),
+        accepted: false
+      ),
+      (
+        name: 'offline with choice',
+        metadata: const OfflineWorkspaceMetadata(
+            mode: ConnectivityMode.offline,
+            baselineLineageFingerprint: linked,
+            reconciliationChoice: ReconciliationChoice.applyToServer),
+        accepted: false
+      ),
+      (
+        name: 'required committed',
+        metadata: const OfflineWorkspaceMetadata(
+            mode: ConnectivityMode.reconciliationRequired,
+            baselineLineageFingerprint: linked,
+            serverCommitStatus: ServerCommitStatus.committed),
+        accepted: false
+      ),
+      (
+        name: 'preparing without id',
+        metadata: const OfflineWorkspaceMetadata(
+            mode: ConnectivityMode.reconciliationRequired,
+            baselineLineageFingerprint: linked,
+            phase: ReconciliationPhase.preparing,
+            reconciliationChoice: ReconciliationChoice.applyToServer),
+        accepted: false
+      ),
+      (
+        name: 'finalizing without artifacts',
+        metadata: const OfflineWorkspaceMetadata(
+            mode: ConnectivityMode.reconciliationFinalizing,
+            baselineLineageFingerprint: linked,
+            phase: ReconciliationPhase.mobileCommitted,
+            reconciliationChoice: ReconciliationChoice.applyToServer,
+            reconciliationId: 'r1',
+            serverCommitStatus: ServerCommitStatus.committed),
+        accepted: false
+      ),
+    ];
+    for (final item in cases) {
+      final directory = await temporaryDirectoryFixture();
+      final store = offlineStoreFixture(directory);
+      await store.replaceBaseline(baselineFixture());
+      final metadata = item.metadata.baselineLineageFingerprint == linked
+          ? OfflineWorkspaceMetadata.fromJson({
+              ...item.metadata.toJson(),
+              'baseline_lineage_fingerprint': store
+                  .recoveryLineageFingerprint((await store.loadBaseline())!),
+            })
+          : item.metadata;
+      await store.saveMetadata(metadata);
+      final state = AppState(OfflineApiFake(),
+          offlineStore: offlineStoreFixture(directory));
+      await state.restorePersistedOfflineWorkspace();
+      expect(state.isPersistenceRecoveryBlocked, !item.accepted,
+          reason: item.name);
+      if (!item.accepted) {
+        expect((await store.loadBaseline()) != null, isTrue, reason: item.name);
+      }
+    }
+  });
+
   group('N1 orphan lineage fails closed', () {
     test('baseline only and empty journal remain valid ONLINE startup',
         () async {
@@ -23,7 +118,8 @@ void main() {
       await File('${directory.path}/offline-mode/journal.ndjson')
           .writeAsString('', flush: true);
       expect(
-          await AppState(OfflineApiFake(), offlineStore: offlineStoreFixture(directory))
+          await AppState(OfflineApiFake(),
+                  offlineStore: offlineStoreFixture(directory))
               .restorePersistedOfflineWorkspace(),
           isFalse);
     });
@@ -73,7 +169,8 @@ void main() {
       await store.replaceBaseline(baselineFixture());
       await File('${directory.path}/offline-mode/state.json')
           .writeAsString('{corrupt', flush: true);
-      final corrupt = AppState(OfflineApiFake(), offlineStore: offlineStoreFixture(directory));
+      final corrupt = AppState(OfflineApiFake(),
+          offlineStore: offlineStoreFixture(directory));
       expect(await corrupt.restorePersistedOfflineWorkspace(), isTrue);
       expect(corrupt.isPersistenceRecoveryBlocked, isTrue);
     });
@@ -93,12 +190,14 @@ void main() {
             isPrimaryIncome: false,
           ),
           isTrue);
-      final valid = AppState(OfflineApiFake(), offlineStore: offlineStoreFixture(directory));
+      final valid = AppState(OfflineApiFake(),
+          offlineStore: offlineStoreFixture(directory));
       expect(await valid.restorePersistedOfflineWorkspace(), isTrue);
       expect(valid.isOffline, isTrue);
       expect(valid.summary!.remainingLiquidity, 99500);
       await store.replaceBaseline(baselineFixture(remainingLiquidity: 101234));
-      final mismatch = AppState(OfflineApiFake(), offlineStore: offlineStoreFixture(directory));
+      final mismatch = AppState(OfflineApiFake(),
+          offlineStore: offlineStoreFixture(directory));
       expect(await mismatch.restorePersistedOfflineWorkspace(), isTrue);
       expect(mismatch.isPersistenceRecoveryBlocked, isTrue);
     });
@@ -153,7 +252,8 @@ void main() {
         } else {
           await saveLinkedMetadata(store, invalid[index]);
         }
-        final state = AppState(OfflineApiFake(), offlineStore: offlineStoreFixture(directory));
+        final state = AppState(OfflineApiFake(),
+            offlineStore: offlineStoreFixture(directory));
         expect(await state.restorePersistedOfflineWorkspace(), isTrue);
         expect(state.isPersistenceRecoveryBlocked, isTrue);
         expect(await state.enterOfflineMode(), isFalse);
@@ -198,7 +298,8 @@ void main() {
       );
       await File('${directory.path}/offline-mode/journal.ndjson')
           .writeAsString('${jsonEncode(changed.toJson())}\n', flush: true);
-      final state = AppState(OfflineApiFake(), offlineStore: offlineStoreFixture(directory));
+      final state = AppState(OfflineApiFake(),
+          offlineStore: offlineStoreFixture(directory));
       expect(await state.restorePersistedOfflineWorkspace(), isTrue);
       expect(state.isPersistenceRecoveryBlocked, isTrue);
       expect(await store.loadJournal(), hasLength(1));
@@ -226,7 +327,8 @@ void main() {
             phase: ReconciliationPhase.mobileCommitted,
             serverCommitStatus: ServerCommitStatus.none,
           ));
-      final state = AppState(OfflineApiFake(), offlineStore: offlineStoreFixture(directory));
+      final state = AppState(OfflineApiFake(),
+          offlineStore: offlineStoreFixture(directory));
       expect(await state.restorePersistedOfflineWorkspace(), isTrue);
       expect(state.isPersistenceRecoveryBlocked, isTrue);
       expect(await store.loadJournal(), hasLength(1));
