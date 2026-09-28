@@ -114,9 +114,109 @@ class FailingRefreshBaselineStore extends OfflineStore {
       : super(directoryProvider: () async => directory);
 
   @override
-  Future<void> replaceBaseline(OfflineBaseline baseline) async {
+  Future<void> replaceBaseline(OfflineBaseline baseline,
+      {void Function()? beforePublish}) async {
     throw const OfflinePersistenceException(
         'injected baseline install failure');
+  }
+}
+
+class PausedRefreshBaselineStore extends OfflineStore {
+  PausedRefreshBaselineStore(Directory directory)
+      : super(directoryProvider: () async => directory);
+
+  final saving = Completer<void>();
+  final release = Completer<void>();
+
+  @override
+  Future<void> replaceBaseline(OfflineBaseline baseline,
+      {void Function()? beforePublish}) async {
+    saving.complete();
+    await release.future;
+    await super.replaceBaseline(baseline, beforePublish: beforePublish);
+  }
+}
+
+class PausedBaselineTemporaryFile implements File {
+  PausedBaselineTemporaryFile(this.delegate, this.flushed, this.release);
+
+  final File delegate;
+  final Completer<void> flushed;
+  final Completer<void> release;
+
+  @override
+  String get path => delegate.path;
+
+  @override
+  Future<File> writeAsString(String value,
+      {FileMode mode = FileMode.write,
+      Encoding encoding = utf8,
+      bool flush = false}) async {
+    await delegate.writeAsString(value,
+        mode: mode, encoding: encoding, flush: true);
+    flushed.complete();
+    await release.future;
+    return delegate;
+  }
+
+  @override
+  Future<String> readAsString({Encoding encoding = utf8}) =>
+      delegate.readAsString(encoding: encoding);
+
+  @override
+  File renameSync(String newPath) => delegate.renameSync(newPath);
+
+  @override
+  Future<bool> exists() => delegate.exists();
+
+  @override
+  Future<FileSystemEntity> delete({bool recursive = false}) =>
+      delegate.delete(recursive: recursive);
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class SessionRefreshApiFake extends OfflineApiFake {
+  final firstSummaryRequested = Completer<void>();
+  final firstSummaryResult = Completer<Summary>();
+  bool delayFirstSummary = false;
+  int summaryCalls = 0;
+
+  @override
+  Future<Summary> summary() async {
+    summaryCalls += 1;
+    if (delayFirstSummary && summaryCalls == 1) {
+      firstSummaryRequested.complete();
+      return firstSummaryResult.future;
+    }
+    return super.summary();
+  }
+
+  @override
+  Future<void> logout() async {}
+
+  @override
+  Future<AuthUser> login(String username, String password) async => AuthUser(
+        id: 2,
+        username: username,
+        displayName: 'New session',
+        sharePinNeedsChange: false,
+      );
+
+  @override
+  Future<SnapshotDownload> downloadSnapshot() async =>
+      throw StateError('skip unrelated launch backup');
+}
+
+class PausedLogoutApiFake extends SessionRefreshApiFake {
+  final logoutStarted = Completer<void>();
+  final finishLogout = Completer<void>();
+
+  @override
+  Future<void> logout() async {
+    logoutStarted.complete();
+    await finishLogout.future;
   }
 }
 
@@ -124,6 +224,137 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('online refresh baseline and connection classification', () {
+    test('logout during baseline write prevents stale disk and UI install',
+        () async {
+      final directory = await temporaryDirectoryFixture();
+      final seeded = offlineStoreFixture(directory);
+      await seeded.replaceBaseline(baselineFixture(remainingLiquidity: 100000));
+      final store = PausedRefreshBaselineStore(directory);
+      final api = SessionRefreshApiFake()
+        ..available = true
+        ..remainingLiquidity = 99500;
+      final state = AppState(api, offlineStore: store)
+        ..user = baselineFixture().user;
+
+      final pending = state.refresh();
+      final rejection =
+          expectLater(pending, throwsA(isA<MoneyNoteApiException>()));
+      await store.saving.future;
+      await state.logout();
+      expect(state.isLoggedIn, isFalse);
+      store.release.complete();
+      await rejection;
+      expect(state.user, isNull);
+      expect(state.summary, isNull);
+      expect((await seeded.loadBaseline())!.summary.remainingLiquidity, 100000);
+    });
+
+    test('logout after temporary baseline flush cancels final publication',
+        () async {
+      final directory = await temporaryDirectoryFixture();
+      final store = offlineStoreFixture(directory);
+      await store.replaceBaseline(baselineFixture(remainingLiquidity: 100000));
+      final api = SessionRefreshApiFake()
+        ..available = true
+        ..remainingLiquidity = 99500;
+      final state = AppState(api, offlineStore: store)
+        ..user = baselineFixture().user;
+      final flushed = Completer<void>();
+      final release = Completer<void>();
+      final parentZone = Zone.current;
+      final pending =
+          IOOverrides.runZoned(() => state.refresh(), createFile: (path) {
+        final real = parentZone.run(() => File(path));
+        return path.startsWith(directory.path) && path.endsWith('.tmp')
+            ? PausedBaselineTemporaryFile(real, flushed, release)
+            : real;
+      });
+      final rejection =
+          expectLater(pending, throwsA(isA<MoneyNoteApiException>()));
+      await flushed.future;
+      await state.logout();
+      release.complete();
+      await rejection;
+      expect(state.isLoggedIn, isFalse);
+      expect(state.summary, isNull);
+      expect((await store.loadBaseline())!.summary.remainingLiquidity, 100000);
+    });
+
+    test('logout invalidates a late network refresh', () async {
+      final directory = await temporaryDirectoryFixture();
+      final store = offlineStoreFixture(directory);
+      await store.replaceBaseline(baselineFixture(remainingLiquidity: 100000));
+      final api = SessionRefreshApiFake()
+        ..available = true
+        ..delayFirstSummary = true;
+      final state = AppState(api, offlineStore: store)
+        ..user = baselineFixture().user;
+
+      final pending = state.refresh();
+      final rejection =
+          expectLater(pending, throwsA(isA<MoneyNoteApiException>()));
+      await api.firstSummaryRequested.future;
+      await state.logout();
+      api.firstSummaryResult.complete(baselineFixture().summary);
+      await rejection;
+      expect(state.isLoggedIn, isFalse);
+      expect(state.summary, isNull);
+      expect((await store.loadBaseline())!.summary.remainingLiquidity, 100000);
+    });
+
+    test('refresh started during logout cannot install after logout completes',
+        () async {
+      final directory = await temporaryDirectoryFixture();
+      final store = offlineStoreFixture(directory);
+      await store.replaceBaseline(baselineFixture(remainingLiquidity: 100000));
+      final api = PausedLogoutApiFake()
+        ..available = true
+        ..delayFirstSummary = true;
+      final state = AppState(api, offlineStore: store)
+        ..user = baselineFixture().user;
+
+      final loggingOut = state.logout();
+      await api.logoutStarted.future;
+      final pending = state.refresh();
+      final rejection =
+          expectLater(pending, throwsA(isA<MoneyNoteApiException>()));
+      await api.firstSummaryRequested.future;
+      api.finishLogout.complete();
+      await loggingOut;
+      api.firstSummaryResult.complete(baselineFixture().summary);
+      await rejection;
+      expect(state.isLoggedIn, isFalse);
+      expect(state.summary, isNull);
+      expect((await store.loadBaseline())!.summary.remainingLiquidity, 100000);
+    });
+
+    test('late old-session response cannot overwrite a new login refresh',
+        () async {
+      final directory = await temporaryDirectoryFixture();
+      final store = offlineStoreFixture(directory);
+      final api = SessionRefreshApiFake()
+        ..available = true
+        ..delayFirstSummary = true;
+      final state = AppState(api, offlineStore: store)
+        ..user = baselineFixture().user;
+
+      final oldRefresh = state.refresh();
+      final rejection =
+          expectLater(oldRefresh, throwsA(isA<MoneyNoteApiException>()));
+      await api.firstSummaryRequested.future;
+      await state.logout();
+      api.remainingLiquidity = 99500;
+      await state.login('new-owner', 'test-password');
+      expect(state.user!.username, 'new-owner');
+      expect(state.summary!.remainingLiquidity, 99500);
+      api.firstSummaryResult
+          .complete(baselineFixture(remainingLiquidity: 100000).summary);
+      await rejection;
+      expect(state.user!.username, 'new-owner');
+      expect(state.summary!.remainingLiquidity, 99500);
+      expect((await store.loadBaseline())!.user.username, 'new-owner');
+    });
+
     test('baseline persistence must finish before fresh UI state is installed',
         () async {
       final directory = await temporaryDirectoryFixture();

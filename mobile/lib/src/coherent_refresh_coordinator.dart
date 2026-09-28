@@ -2,9 +2,11 @@ import 'api_client.dart';
 import 'models.dart';
 
 class RefreshTicket {
-  const RefreshTicket(this.lineageGeneration, this.requestGeneration);
+  const RefreshTicket(this.lineageGeneration, this.authenticationGeneration,
+      this.requestGeneration);
 
   final int lineageGeneration;
+  final int authenticationGeneration;
   final int requestGeneration;
 }
 
@@ -20,12 +22,18 @@ class CoherentRefreshCoordinator {
   final String Function(DateTime) _formatDate;
   int _requestGeneration = 0;
 
-  RefreshTicket begin(int lineageGeneration) =>
-      RefreshTicket(lineageGeneration, ++_requestGeneration);
+  RefreshTicket begin(int lineageGeneration, int authenticationGeneration) =>
+      RefreshTicket(
+          lineageGeneration, authenticationGeneration, ++_requestGeneration);
+
+  void invalidateAuthentication() => _requestGeneration += 1;
 
   bool mayInstall(RefreshTicket ticket,
-          {required int currentLineageGeneration, required bool modeAllowed}) =>
+          {required int currentLineageGeneration,
+          required int currentAuthenticationGeneration,
+          required bool modeAllowed}) =>
       ticket.lineageGeneration == currentLineageGeneration &&
+      ticket.authenticationGeneration == currentAuthenticationGeneration &&
       ticket.requestGeneration == _requestGeneration &&
       modeAllowed;
 

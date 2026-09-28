@@ -53,6 +53,7 @@ class AppState extends ChangeNotifier {
   ConnectivityMode connectivityMode = ConnectivityMode.online;
   ReconciliationChoice? reconciliationChoice;
   int _lineageGeneration = 0;
+  int _authenticationGeneration = 0;
   late final CoherentRefreshCoordinator _refreshCoordinator =
       CoherentRefreshCoordinator(api,
           localToday: _localToday, formatDate: _formatDate);
@@ -334,7 +335,10 @@ class AppState extends ChangeNotifier {
     await _run(() async {
       await api.health();
       networkUnavailable = false;
-      user = await api.login(username, password);
+      final authenticated = await api.login(username, password);
+      _authenticationGeneration += 1;
+      _refreshCoordinator.invalidateAuthentication();
+      user = authenticated;
       await refresh(notify: false);
       await saveLaunchSnapshot();
       await consumeLaunchTarget(notify: false);
@@ -345,7 +349,15 @@ class AppState extends ChangeNotifier {
   Future<void> logout() async {
     await _run(() async {
       _requireOnline('로그아웃');
-      await api.logout();
+      _authenticationGeneration += 1;
+      _refreshCoordinator.invalidateAuthentication();
+      try {
+        await api.logout();
+      } finally {
+        // A refresh started while logout was awaiting the server is stale too.
+        _authenticationGeneration += 1;
+        _refreshCoordinator.invalidateAuthentication();
+      }
       user = null;
       summary = null;
       cardPaymentStatus = null;
@@ -375,19 +387,25 @@ class AppState extends ChangeNotifier {
       throw MoneyNoteApiException(
           '현재 상태에서는 authoritative refresh를 설치할 수 없습니다.');
     }
-    final ticket = _refreshCoordinator.begin(_lineageGeneration);
+    final ticket = _refreshCoordinator.begin(
+        _lineageGeneration, _authenticationGeneration);
     await refreshNotificationPermissions(notify: false);
     final bundle = await _refreshCoordinator.acquire(() => user);
     final candidate = bundle.candidate;
     final after = bundle.envelope;
-
-    await _withLineageLock(() async {
-      if (!_refreshCoordinator.mayInstall(ticket,
-          currentLineageGeneration: _lineageGeneration,
-          modeAllowed: _refreshModeAllowed(allowBaselineWhileFinalizing))) {
+    bool mayInstall() => _refreshCoordinator.mayInstall(ticket,
+        currentLineageGeneration: _lineageGeneration,
+        currentAuthenticationGeneration: _authenticationGeneration,
+        modeAllowed: _refreshModeAllowed(allowBaselineWhileFinalizing));
+    void requireInstallAuthority() {
+      if (!mayInstall()) {
         throw MoneyNoteApiException(
             '상태가 변경되어 오래된 authoritative refresh 결과를 폐기했습니다.');
       }
+    }
+
+    await _withLineageLock(() async {
+      requireInstallAuthority();
       final baseline = OfflineBaseline(
         syncedAt: DateTime.now().toUtc(),
         authoritativeSnapshot: after.snapshot,
@@ -410,7 +428,9 @@ class AppState extends ChangeNotifier {
         panels: candidate.panels,
         cashFlows: candidate.cashFlows,
       );
-      await offlineStore.replaceBaseline(baseline);
+      await offlineStore.replaceBaseline(baseline,
+          beforePublish: requireInstallAuthority);
+      requireInstallAuthority();
       _offlineBaseline = baseline;
       user = candidate.user;
       summary = candidate.summary;

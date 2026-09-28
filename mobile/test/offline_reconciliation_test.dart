@@ -32,14 +32,15 @@ class FailingBaselineStore extends OfflineStore {
   bool failNextReplace = false;
 
   @override
-  Future<void> replaceBaseline(OfflineBaseline baseline) async {
+  Future<void> replaceBaseline(OfflineBaseline baseline,
+      {void Function()? beforePublish}) async {
     if (failNextReplace) {
       failNextReplace = false;
       throw const OfflinePersistenceException(
         'injected fresh baseline persistence failure',
       );
     }
-    await super.replaceBaseline(baseline);
+    await super.replaceBaseline(baseline, beforePublish: beforePublish);
   }
 }
 

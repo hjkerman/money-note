@@ -91,8 +91,10 @@ class OfflineStore {
     }
   }
 
-  Future<void> replaceBaseline(OfflineBaseline baseline) async {
-    await _writeJsonAtomic(await _file(_baselineFilename), baseline.toJson());
+  Future<void> replaceBaseline(OfflineBaseline baseline,
+      {void Function()? beforePublish}) async {
+    await _writeJsonAtomic(await _file(_baselineFilename), baseline.toJson(),
+        beforePublish: beforePublish);
   }
 
   Future<String> reserveManualPanelRetryKey(Map<String, dynamic> input,
@@ -633,15 +635,21 @@ class OfflineStore {
     return File('${directory.path}/$filename');
   }
 
-  Future<void> _writeJsonAtomic(
-      File target, Map<String, dynamic> payload) async {
+  Future<void> _writeJsonAtomic(File target, Map<String, dynamic> payload,
+      {void Function()? beforePublish}) async {
     final temporary = File(
         '${target.path}.${_clock().microsecondsSinceEpoch}.${_random.nextInt(1 << 32)}.tmp');
     try {
       await temporary.writeAsString(jsonEncode(payload), flush: true);
       // Parse the fully flushed candidate before it can replace the valid file.
       jsonDecode(await temporary.readAsString());
-      await temporary.rename(target.path);
+      if (beforePublish == null) {
+        await temporary.rename(target.path);
+      } else {
+        // No async gap between the last authority check and publication.
+        beforePublish();
+        temporary.renameSync(target.path);
+      }
     } finally {
       if (await temporary.exists()) {
         await temporary.delete();
