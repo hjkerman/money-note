@@ -1,11 +1,10 @@
 import os
-from pathlib import Path
-import tempfile
 import unittest
 from unittest.mock import patch
 
+from tests.db_fixture import IsolatedDatabaseTestCase
 from app.config import get_settings
-from app.db import init_db, session
+from app.db import session
 from app.repository import (
     complete_panels_by_type,
     confirm_fixed_panel,
@@ -18,14 +17,9 @@ from app.schemas import MonthlyPanelIn, MonthlyPanelPatch
 from app.services.summary import current_summary_values
 
 
-class PanelCompletionTest(unittest.TestCase):
+class PanelCompletionTest(IsolatedDatabaseTestCase):
     def setUp(self) -> None:
-        self.temp_dir = tempfile.TemporaryDirectory()
-        self.db_path = Path(self.temp_dir.name) / "money-note.sqlite3"
-        self.env = patch.dict(os.environ, {"MONEY_NOTE_DB_PATH": str(self.db_path)})
-        self.env.start()
-        get_settings.cache_clear()
-        init_db()
+        super().setUp()
         with session() as conn:
             conn.execute(
                 """
@@ -38,10 +32,6 @@ class PanelCompletionTest(unittest.TestCase):
                 """
             )
 
-    def tearDown(self) -> None:
-        get_settings.cache_clear()
-        self.env.stop()
-        self.temp_dir.cleanup()
 
     def test_bulk_completion_deletes_only_selected_delivery_queue(self) -> None:
         completed = complete_panels_by_type("2026-06", "claim")

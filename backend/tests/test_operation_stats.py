@@ -1,29 +1,12 @@
-import os
-from pathlib import Path
-import tempfile
 import unittest
-from unittest.mock import patch
 
-from app.config import get_settings
-from app.db import init_db, session
+from tests.db_fixture import IsolatedDatabaseTestCase
+from app.db import session
 from app.services.operation_stats import operation_data_stats
 from app.services.snapshot import create_pre_restore_backup
 
 
-class OperationStatsTest(unittest.TestCase):
-    def setUp(self) -> None:
-        self.temp_dir = tempfile.TemporaryDirectory()
-        self.db_path = Path(self.temp_dir.name) / "money-note.sqlite3"
-        self.env = patch.dict(os.environ, {"MONEY_NOTE_DB_PATH": str(self.db_path)})
-        self.env.start()
-        get_settings.cache_clear()
-        init_db()
-
-    def tearDown(self) -> None:
-        get_settings.cache_clear()
-        self.env.stop()
-        self.temp_dir.cleanup()
-
+class OperationStatsTest(IsolatedDatabaseTestCase):
     def test_operation_stats_reports_table_counts_and_backup_sizes(self) -> None:
         with session() as conn:
             conn.execute(

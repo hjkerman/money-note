@@ -1,10 +1,6 @@
-import os
-from pathlib import Path
-import tempfile
 import unittest
-from unittest.mock import patch
 
-from app.config import get_settings
+from tests.db_fixture import IsolatedDatabaseTestCase
 from app.db import init_db, session
 from app.routers.operations import get_settings_values, patch_setting
 from app.schemas import SettingPatch
@@ -12,20 +8,11 @@ from app.share_auth import ensure_default_share_pin
 from fastapi import HTTPException
 
 
-class SettingsVisibilityTest(unittest.TestCase):
+class SettingsVisibilityTest(IsolatedDatabaseTestCase):
     def setUp(self) -> None:
-        self.temp_dir = tempfile.TemporaryDirectory()
-        self.db_path = Path(self.temp_dir.name) / "money-note.sqlite3"
-        self.env = patch.dict(os.environ, {"MONEY_NOTE_DB_PATH": str(self.db_path)})
-        self.env.start()
-        get_settings.cache_clear()
-        init_db()
+        super().setUp()
         ensure_default_share_pin()
 
-    def tearDown(self) -> None:
-        get_settings.cache_clear()
-        self.env.stop()
-        self.temp_dir.cleanup()
 
     def test_settings_api_projection_excludes_share_pin_state(self) -> None:
         values = get_settings_values({})

@@ -1,12 +1,11 @@
 import os
 from datetime import date
-from pathlib import Path
-import tempfile
 import unittest
 from unittest.mock import patch
 
+from tests.db_fixture import IsolatedDatabaseTestCase
 from app.config import get_settings
-from app.db import connect, init_db, session
+from app.db import connect, session
 from app.repository import confirm_planned_entry, delete_cash_flow
 from app.schemas import CardPaymentAllocationIn, CardPaymentEventIn
 from app.services.card_payments import (
@@ -21,20 +20,7 @@ from app.services.month import close_current_month
 from app.services.summary import current_summary_values, panel_net_total
 
 
-class SummaryCalculationTest(unittest.TestCase):
-    def setUp(self) -> None:
-        self.temp_dir = tempfile.TemporaryDirectory()
-        self.db_path = Path(self.temp_dir.name) / "money-note.sqlite3"
-        self.env = patch.dict(os.environ, {"MONEY_NOTE_DB_PATH": str(self.db_path)})
-        self.env.start()
-        get_settings.cache_clear()
-        init_db()
-
-    def tearDown(self) -> None:
-        get_settings.cache_clear()
-        self.env.stop()
-        self.temp_dir.cleanup()
-
+class SummaryCalculationTest(IsolatedDatabaseTestCase):
     def test_scheduled_income_is_prefunded_before_cash_realization(self) -> None:
         summary = current_summary_values()
 
