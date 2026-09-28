@@ -1,12 +1,3 @@
-from collections.abc import Iterator
-from contextlib import contextmanager
-from pathlib import Path
-import sqlite3
-
-from app.config import get_settings
-
-
-SCHEMA = """
 CREATE TABLE IF NOT EXISTS ledger_entries (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     book_section TEXT NOT NULL CHECK (book_section IN ('current', 'archive')),
@@ -17,16 +8,15 @@ CREATE TABLE IF NOT EXISTS ledger_entries (
     title TEXT NOT NULL DEFAULT '',
     usage_place TEXT,
     usage_item TEXT,
-    amount_value INTEGER,
+    amount_value REAL,
     amount_expr TEXT,
-    aux_amount_value INTEGER,
+    aux_amount_value REAL,
     aux_amount_expr TEXT,
     extra_value TEXT,
     sort_order INTEGER NOT NULL,
     due_day INTEGER,
     confirmed_at TEXT,
     confirmed_month TEXT,
-    source_planned_entry_id INTEGER REFERENCES ledger_entries(id) ON DELETE SET NULL,
     spending_category TEXT,
     payment_key TEXT,
     discount_override INTEGER NOT NULL DEFAULT 0,
@@ -40,25 +30,15 @@ CREATE TABLE IF NOT EXISTS monthly_panels (
     panel_type TEXT NOT NULL,
     title TEXT NOT NULL DEFAULT '',
     spent_on TEXT,
-    amount_value INTEGER,
-    discount_amount INTEGER NOT NULL DEFAULT 0,
+    amount_value REAL,
+    discount_amount REAL NOT NULL DEFAULT 0,
     discount_override INTEGER NOT NULL DEFAULT 0,
     amount_expr TEXT,
     sort_order INTEGER NOT NULL,
     due_day INTEGER,
     confirmed_at TEXT,
-    confirmed_month TEXT,
-    confirmed_cash_flow_id INTEGER REFERENCES cash_flows(id) ON DELETE SET NULL,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS notification_candidate_registrations (
-    registration_key TEXT PRIMARY KEY,
-    target TEXT NOT NULL CHECK (target IN ('ledger', 'claim', 'family_card')),
-    target_id INTEGER NOT NULL,
-    request_fingerprint TEXT NOT NULL,
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS app_settings (
@@ -104,7 +84,7 @@ CREATE TABLE IF NOT EXISTS cash_flows (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     occurred_on TEXT NOT NULL,
     title TEXT NOT NULL DEFAULT '',
-    amount_value INTEGER NOT NULL,
+    amount_value REAL NOT NULL,
     sort_order INTEGER NOT NULL,
     is_primary_income INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -113,39 +93,19 @@ CREATE TABLE IF NOT EXISTS cash_flows (
 
 CREATE TABLE IF NOT EXISTS card_payment_events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    batch_id INTEGER REFERENCES card_payment_batches(id) ON DELETE CASCADE,
     event_date TEXT NOT NULL,
     event_type TEXT NOT NULL CHECK (event_type IN ('immediate', 'discount')),
-    total_amount INTEGER NOT NULL,
+    total_amount REAL NOT NULL,
     note TEXT NOT NULL DEFAULT '',
     cash_flow_id INTEGER REFERENCES cash_flows(id) ON DELETE SET NULL,
-    idempotency_key TEXT,
-    request_fingerprint TEXT,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS card_payment_batches (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    usage_month TEXT NOT NULL,
-    source TEXT NOT NULL DEFAULT 'month_close',
-    status TEXT NOT NULL DEFAULT 'active',
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS card_payment_batch_items (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    batch_id INTEGER NOT NULL REFERENCES card_payment_batches(id) ON DELETE CASCADE,
-    entry_id INTEGER NOT NULL REFERENCES ledger_entries(id) ON DELETE CASCADE,
-    entry_payment_key TEXT NOT NULL,
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(batch_id, entry_payment_key)
 );
 
 CREATE TABLE IF NOT EXISTS card_payment_allocations (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     payment_event_id INTEGER NOT NULL REFERENCES card_payment_events(id) ON DELETE CASCADE,
     entry_payment_key TEXT NOT NULL,
-    amount_value INTEGER NOT NULL CHECK (amount_value >= 0),
+    amount_value REAL NOT NULL CHECK (amount_value >= 0),
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -169,33 +129,6 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     method TEXT NOT NULL,
     path TEXT NOT NULL,
     status_code INTEGER NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS offline_reconciliations (
-    reconciliation_id TEXT PRIMARY KEY,
-    request_digest TEXT NOT NULL,
-    fingerprint_version INTEGER,
-    request_fingerprint TEXT,
-    baseline_fingerprint TEXT NOT NULL,
-    pre_server_fingerprint TEXT NOT NULL,
-    result_fingerprint TEXT,
-    server_changed INTEGER NOT NULL,
-    server_artifact_filename TEXT NOT NULL,
-    operation_count INTEGER NOT NULL,
-    result_json TEXT,
-    status TEXT NOT NULL CHECK (status IN ('pending', 'committed')),
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    committed_at TEXT
-);
-
-CREATE TABLE IF NOT EXISTS offline_reconciliation_operations (
-    operation_id TEXT PRIMARY KEY,
-    reconciliation_id TEXT NOT NULL
-        REFERENCES offline_reconciliations(reconciliation_id) ON DELETE RESTRICT,
-    sequence INTEGER NOT NULL,
-    operation_digest TEXT NOT NULL,
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(reconciliation_id, sequence)
 );
 
 CREATE INDEX IF NOT EXISTS idx_ledger_section_order
@@ -225,25 +158,16 @@ ON card_payment_allocations(entry_payment_key);
 CREATE INDEX IF NOT EXISTS idx_card_payment_events_date
 ON card_payment_events(event_date, id);
 
-CREATE INDEX IF NOT EXISTS idx_card_payment_batches_active
-ON card_payment_batches(status, id);
-
-CREATE INDEX IF NOT EXISTS idx_card_payment_batch_items_batch
-ON card_payment_batch_items(batch_id, entry_id);
-
-CREATE INDEX IF NOT EXISTS idx_card_payment_batch_items_key
-ON card_payment_batch_items(entry_payment_key);
-
 CREATE INDEX IF NOT EXISTS idx_card_payment_deferrals_target
 ON card_payment_deferrals(target_payment_month);
 
 CREATE INDEX IF NOT EXISTS idx_audit_logs_occurred
 ON audit_logs(occurred_at DESC, id DESC);
 
-CREATE INDEX IF NOT EXISTS idx_offline_reconciliation_committed
-ON offline_reconciliations(committed_at DESC, reconciliation_id);
-
 INSERT OR IGNORE INTO app_settings(key, value) VALUES
+('base_next_month_liquidity', '400000'),
+('interest_expense', '0'),
+('liquidity_status', '0'),
 ('card_limit', '5800000'),
 ('owner_card_last4', ''),
 ('family_card_last4', '');
@@ -264,71 +188,7 @@ INSERT OR IGNORE INTO app_labels(key, value) VALUES
 ('summary_title', '요약'),
 ('summary_card_total_label', '카드대금'),
 ('summary_transfer_or_deposit_label', '고정지출'),
-('summary_frozen_asset_label', '동결자산');
-"""
-
-# Snapshot에 포함되는 테이블의 모든 committed 변경을 세는 서버 소유 세대다.
-# 값이 A -> B -> A로 돌아와도 감소하지 않으며 Snapshot 형식에는 넣지 않는다.
-AUTHORITATIVE_REVISION_TABLES = (
-    "ledger_entries", "monthly_panels", "cash_flows", "card_payment_batches",
-    "card_payment_batch_items", "card_payment_events", "card_payment_allocations",
-    "card_payment_deferrals", "notification_candidate_registrations",
-    "app_settings", "app_labels",
-)
-SCHEMA += "\nCREATE TABLE IF NOT EXISTS authoritative_state_revision (id INTEGER PRIMARY KEY CHECK (id = 1), revision INTEGER NOT NULL);\n"
-SCHEMA += "\nINSERT OR IGNORE INTO authoritative_state_revision(id, revision) VALUES (1, 0);\n"
-for _table in AUTHORITATIVE_REVISION_TABLES:
-    for _event in ("INSERT", "UPDATE", "DELETE"):
-        SCHEMA += (
-            f"\nCREATE TRIGGER IF NOT EXISTS revision_{_table}_{_event.lower()} "
-            f"AFTER {_event} ON {_table} BEGIN "
-            "UPDATE authoritative_state_revision SET revision = revision + 1 WHERE id = 1; END;\n"
-        )
-
-
-def connect() -> sqlite3.Connection:
-    settings = get_settings()
-    Path(settings.db_path).parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(settings.db_path)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA foreign_keys = ON")
-    return conn
-
-
-def init_db() -> None:
-    """Create a fresh schema or upgrade a recognized historical SQLite database."""
-    from app.db_migrations import initialize_database
-
-    with connect() as conn:
-        initialize_database(conn, SCHEMA)
-
-
-@contextmanager
-def borrowed_or_new_session(
-    conn: sqlite3.Connection | None,
-    transaction_mode: str | None = None,
-) -> Iterator[sqlite3.Connection]:
-    """기존 transaction을 재사용하고, 없을 때만 새 session을 소유한다."""
-    if conn is not None:
-        yield conn
-        return
-    with session(transaction_mode=transaction_mode) as owned_conn:
-        yield owned_conn
-
-
-@contextmanager
-def session(transaction_mode: str | None = None) -> Iterator[sqlite3.Connection]:
-    conn = connect()
-    try:
-        if transaction_mode is not None:
-            normalized_mode = transaction_mode.strip().upper()
-            if normalized_mode not in {"DEFERRED", "IMMEDIATE", "EXCLUSIVE"}:
-                raise ValueError("unsupported SQLite transaction mode")
-            conn.execute(f"BEGIN {normalized_mode}")
-        yield conn
-        conn.commit()
-    except Exception:
-        conn.rollback()
-        raise
-    finally:
-        conn.close()
+('summary_interest_expense_label', '이자지출'),
+('summary_frozen_asset_label', '동결자산'),
+('summary_liquidity_status_label', '유동성 현황'),
+('summary_next_month_liquidity_label', '익월 유동성');

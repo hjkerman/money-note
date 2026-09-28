@@ -17,6 +17,50 @@ from app.services.summary import current_summary_values
 
 
 class SnapshotTest(IsolatedDatabaseTestCase):
+    def test_supported_snapshot_versions_restore_then_restart_and_reexport(self) -> None:
+        with session() as conn:
+            conn.execute(
+                "INSERT INTO ledger_entries(id, book_section, entry_kind, entry_date, title, "
+                "amount_value, sort_order, payment_key) VALUES "
+                "(11, 'current', 'expense', '2026-06-11', 'Versioned card', 10000, 1, 'snapshot-card-11')"
+            )
+            conn.execute(
+                "INSERT INTO cash_flows(id, occurred_on, title, amount_value, sort_order) "
+                "VALUES (21, '2026-06-11', 'Versioned cash', -500, 1)"
+            )
+        _, original = export_snapshot(date(2026, 6, 11))
+        for version in (4, 5, 6, 7):
+            with self.subTest(snapshot_version=version):
+                snapshot = copy.deepcopy(original)
+                if version == 4:
+                    self._convert_to_v4_liquidity_keys(snapshot)
+                else:
+                    snapshot["schema_version"] = version
+                    if version == 5:
+                        for row in snapshot["data"]["monthly_panels"]:
+                            row.pop("confirmed_cash_flow_id", None)
+                    if version <= 6:
+                        for row in snapshot["data"]["ledger_entries"]:
+                            row.pop("source_planned_entry_id", None)
+                        for row in snapshot["data"]["monthly_panels"]:
+                            row.pop("confirmed_month", None)
+                        for row in snapshot["data"]["card_payment_events"]:
+                            row.pop("idempotency_key", None)
+                            row.pop("request_fingerprint", None)
+                    self._refresh_manifest(snapshot)
+                restore_snapshot(snapshot)
+                init_db()
+                _, current = export_snapshot(date(2026, 6, 11))
+                self.assertEqual(current["schema_version"], SNAPSHOT_SCHEMA_VERSION)
+                self.assertEqual(
+                    [(row["id"], row["amount_value"]) for row in current["data"]["ledger_entries"]],
+                    [(11, 10000)],
+                )
+                self.assertEqual(
+                    [(row["id"], row["amount_value"]) for row in current["data"]["cash_flows"]],
+                    [(21, -500)],
+                )
+
     def test_export_contains_all_ledger_data_and_excludes_sensitive_auth_state(self) -> None:
         self._seed_data()
 

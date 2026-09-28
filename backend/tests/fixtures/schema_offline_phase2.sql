@@ -1,12 +1,3 @@
-from collections.abc import Iterator
-from contextlib import contextmanager
-from pathlib import Path
-import sqlite3
-
-from app.config import get_settings
-
-
-SCHEMA = """
 CREATE TABLE IF NOT EXISTS ledger_entries (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     book_section TEXT NOT NULL CHECK (book_section IN ('current', 'archive')),
@@ -174,8 +165,6 @@ CREATE TABLE IF NOT EXISTS audit_logs (
 CREATE TABLE IF NOT EXISTS offline_reconciliations (
     reconciliation_id TEXT PRIMARY KEY,
     request_digest TEXT NOT NULL,
-    fingerprint_version INTEGER,
-    request_fingerprint TEXT,
     baseline_fingerprint TEXT NOT NULL,
     pre_server_fingerprint TEXT NOT NULL,
     result_fingerprint TEXT,
@@ -265,70 +254,3 @@ INSERT OR IGNORE INTO app_labels(key, value) VALUES
 ('summary_card_total_label', '카드대금'),
 ('summary_transfer_or_deposit_label', '고정지출'),
 ('summary_frozen_asset_label', '동결자산');
-"""
-
-# Snapshot에 포함되는 테이블의 모든 committed 변경을 세는 서버 소유 세대다.
-# 값이 A -> B -> A로 돌아와도 감소하지 않으며 Snapshot 형식에는 넣지 않는다.
-AUTHORITATIVE_REVISION_TABLES = (
-    "ledger_entries", "monthly_panels", "cash_flows", "card_payment_batches",
-    "card_payment_batch_items", "card_payment_events", "card_payment_allocations",
-    "card_payment_deferrals", "notification_candidate_registrations",
-    "app_settings", "app_labels",
-)
-SCHEMA += "\nCREATE TABLE IF NOT EXISTS authoritative_state_revision (id INTEGER PRIMARY KEY CHECK (id = 1), revision INTEGER NOT NULL);\n"
-SCHEMA += "\nINSERT OR IGNORE INTO authoritative_state_revision(id, revision) VALUES (1, 0);\n"
-for _table in AUTHORITATIVE_REVISION_TABLES:
-    for _event in ("INSERT", "UPDATE", "DELETE"):
-        SCHEMA += (
-            f"\nCREATE TRIGGER IF NOT EXISTS revision_{_table}_{_event.lower()} "
-            f"AFTER {_event} ON {_table} BEGIN "
-            "UPDATE authoritative_state_revision SET revision = revision + 1 WHERE id = 1; END;\n"
-        )
-
-
-def connect() -> sqlite3.Connection:
-    settings = get_settings()
-    Path(settings.db_path).parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(settings.db_path)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA foreign_keys = ON")
-    return conn
-
-
-def init_db() -> None:
-    """Create a fresh schema or upgrade a recognized historical SQLite database."""
-    from app.db_migrations import initialize_database
-
-    with connect() as conn:
-        initialize_database(conn, SCHEMA)
-
-
-@contextmanager
-def borrowed_or_new_session(
-    conn: sqlite3.Connection | None,
-    transaction_mode: str | None = None,
-) -> Iterator[sqlite3.Connection]:
-    """기존 transaction을 재사용하고, 없을 때만 새 session을 소유한다."""
-    if conn is not None:
-        yield conn
-        return
-    with session(transaction_mode=transaction_mode) as owned_conn:
-        yield owned_conn
-
-
-@contextmanager
-def session(transaction_mode: str | None = None) -> Iterator[sqlite3.Connection]:
-    conn = connect()
-    try:
-        if transaction_mode is not None:
-            normalized_mode = transaction_mode.strip().upper()
-            if normalized_mode not in {"DEFERRED", "IMMEDIATE", "EXCLUSIVE"}:
-                raise ValueError("unsupported SQLite transaction mode")
-            conn.execute(f"BEGIN {normalized_mode}")
-        yield conn
-        conn.commit()
-    except Exception:
-        conn.rollback()
-        raise
-    finally:
-        conn.close()

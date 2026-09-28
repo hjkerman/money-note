@@ -2,6 +2,8 @@
 
 이 문서는 현재 구현된 SQLite DB 기준이다. 서버 DB가 source of truth다.
 
+Startup의 DB `PRAGMA user_version`과 역사적 schema 업그레이드 계약은 [DB migration](database-migrations.md)에 둔다. Snapshot JSON `schema_version`과는 독립적이다.
+
 ## 공통 규칙
 
 - 날짜는 `YYYY-MM-DD` 문자열이다.

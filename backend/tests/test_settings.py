@@ -62,6 +62,7 @@ class SettingsVisibilityTest(IsolatedDatabaseTestCase):
             conn.execute(
                 "INSERT INTO app_labels(key, value) VALUES ('summary_liquidity_status_label', '내 통장 사정')"
             )
+            conn.execute("PRAGMA user_version = 0")  # Synthetic unversioned legacy DB.
 
         init_db()
         init_db()
@@ -94,6 +95,7 @@ class SettingsVisibilityTest(IsolatedDatabaseTestCase):
             conn.execute(
                 "INSERT INTO app_settings(key, value) VALUES ('base_next_month_liquidity', '999999')"
             )
+            conn.execute("PRAGMA user_version = 0")
 
         with self.assertRaisesRegex(RuntimeError, "conflicting app_settings values"):
             init_db()
@@ -113,6 +115,7 @@ class SettingsVisibilityTest(IsolatedDatabaseTestCase):
             conn.execute(
                 "INSERT INTO app_settings(key, value) VALUES ('base_next_month_liquidity', '400000')"
             )
+            conn.execute("PRAGMA user_version = 0")
 
         init_db()
 
@@ -137,6 +140,7 @@ class SettingsVisibilityTest(IsolatedDatabaseTestCase):
             conn.execute(
                 "INSERT INTO app_labels(key, value) VALUES ('summary_interest_expense_label', 'retired')"
             )
+            conn.execute("PRAGMA user_version = 0")
 
         init_db()
 

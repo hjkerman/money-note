@@ -14,6 +14,7 @@
 ## 구성
 
 - 백엔드: FastAPI + SQLite
+- DB startup은 `PRAGMA user_version`으로 빈 DB, 인정된 unversioned DB, 현재 DB를 구분하고 단계별 SQLite transaction에서 업그레이드한다. 상세 계약은 [DB migration](database-migrations.md)에 둔다.
 - 프론트엔드: Vite + React + TypeScript
 - 배포: API는 Docker Compose로 loopback에 바인딩하고, Apache가 HTTPS 정적 웹과 `/api`, `/share` reverse proxy를 담당
 - 모바일 앱: 웹 축소판이 아니라 홈 상태 확인, 빠른 입력, 현금흐름, 당월 내역, 정산과 운영 설정에 집중하는 별도 클라이언트다. 기준 화면은 [모바일 앱 설계](mobile-design.md)에 둔다.

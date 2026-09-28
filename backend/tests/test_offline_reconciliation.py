@@ -299,6 +299,7 @@ class OfflineReconciliationTest(unittest.TestCase):
         with session() as conn:
             conn.execute("ALTER TABLE offline_reconciliations DROP COLUMN request_fingerprint")
             conn.execute("ALTER TABLE offline_reconciliations DROP COLUMN fingerprint_version")
+            conn.execute("PRAGMA user_version = 0")  # Synthetic unversioned Phase 2 DB.
 
         init_db()
 
