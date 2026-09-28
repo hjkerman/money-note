@@ -15,7 +15,7 @@
 
 Claim은 `ledger_entries`, 카드 결제 batch, 현금흐름, 잔여 유동성이나 본인 앱의 소비·신용 압박 Judgment에 직접 포함되지 않는다. `card_payments._clear_owner_discounts_for_month()`의 claim 할인 초기화와 공유 Judgment는 제거 시 함께 정리해야 하는 얕은 연결부다.
 
-현재 단순 문자열 검색 기준 영향 범위는 60개 파일이다(백엔드 26, 웹 12, 모바일 8, 문서 14). 이 수에는 공용 패널·할인·문서 파일도 포함되므로 모두 삭제 대상이라는 뜻은 아니다. 제거 작업에서는 아래 경계별로 claim 분기만 걷어내고 `family_card`가 함께 쓰는 기반은 남긴다.
+영향 파일 수는 코드와 문서가 바뀔 때마다 달라지므로 고정하지 않는다. 제거 작업을 시작할 때 해당 커밋에서 `rg -l -i 'claim|청구' backend frontend/src mobile/lib mobile/test docs | sort`로 후보 목록을 다시 측정하고 아래 경계 지도와 대조한다. 단순 문자열 검색에는 공용 패널·할인·테스트·문서도 포함되므로 결과 전체가 삭제 대상은 아니다. claim 분기만 걷어내고 `family_card`가 함께 쓰는 기반은 남긴다.
 
 ## 코드 위치 지도
 

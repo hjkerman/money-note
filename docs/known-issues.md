@@ -40,10 +40,14 @@ Judgment 문구는 현재 대부분 서버에서 완성된 문장으로 내려�
 - `android.newDsl=false`도 Flutter 호환을 위해 유지한다. 이 두 호환 플래그를 제거할 때는 `flutter clean`, 정적 분석, 테스트, debug/release APK 빌드를 모두 다시 수행한다.
 - 프론트엔드 운영 의존성 audit은 깨끗하다. 개발 도구 의존성에서만 낮은 등급 경고가 남는 경우에는 Vite/Vitest 상류 수정과 함께 갱신하며, 운영 번들 취약점과 구분한다.
 
-## 구조상 남은 큰 파일
+## 구조상 남은 큰 파일과 결합 경계
 
-- `backend/app/services/card_payments.py`는 활성 batch 생성, 즉시결제 트랜잭션, 이월과 통합 표시가 한 상태 전이를 공유해 아직 크다. 억지로 파일만 쪼개면 트랜잭션 경계가 흐려질 가능성이 더 크므로, 다음 분리는 결제 상태 전이 특성 테스트를 먼저 보강한 뒤 수행한다.
-- `mobile/lib/src/app_state.dart`는 서버 영역별 새로고침을 조율하는 최상위 상태 저장소다. 도메인 계산은 서버에 두되, 화면별 상태 객체를 추가로 나눌 때는 현재의 변경 후 재조회 계약을 먼저 고정한다.
+아래는 줄 수 순위나 결함 목록이 아니라 현재 책임이 집중된 대표 경계다. 파일 크기와 영향 범위는 각 리팩터링 시작 커밋에서 다시 측정한다. 분리 자체보다 [T0 correctness 계약](project-state.md#t0-리팩터링-correctness-계약)과 실패·동시성 특성 테스트 유지가 우선이다.
+
+- `backend/app/services/card_payments.py`는 활성 batch, 즉시결제·취소·이월의 같은 금융 상태 전이를 다룬다. `backend/app/services/offline_reconciliation.py`는 B 복원·ordered J 적용·idempotency record를 하나의 write transaction에 묶는다. 공통 함수를 추출하더라도 transaction 소유권이나 중복 방지 경계를 갈라서는 안 된다.
+- `backend/app/services/snapshot.py`와 `backend/app/db.py`는 Snapshot manifest·호환성·복구 및 schema/startup migration 경계를 가진다. 파일 분리만을 위해 검증 순서, `pre_restore`, 지원 버전 또는 rollback 의미를 바꾸지 않는다.
+- `mobile/lib/src/app_state.dart`는 coherent refresh generation, OFFLINE lineage, 조정 finalization과 화면 상태를 조율하고 `mobile/lib/src/offline/offline_store.dart`는 baseline·journal·recovery artifact의 durable 파일 경계를 맡는다. 분리 전에 stale response, crash/restart, 손상 tail, commit-response-loss 반례를 고정한다.
+- `mobile/lib/src/screens/management_screen.dart`와 `mobile/lib/src/screens/notification_import_screen.dart`에는 여러 입력·확인 흐름이 모여 있다. 화면을 나누더라도 single-flight 제출, 새 draft 보존, 할인 의도·알림 후보 identity를 서버에 전달하는 계약을 widget 테스트로 유지한다.
 
 ## 카드 정책 이력의 현재 한계
 

@@ -2,7 +2,7 @@
 
 이 문서는 새 개발자나 새 작업 세션이 Money Note의 현재 기준선과 문서 읽기 순서를 빠르게 파악하기 위한 체크포인트다. 상세 도메인 규칙, API, 스키마, 운영 절차를 대신하지 않는다.
 
-마지막 코드 대조: 2026-09-25, `main`
+마지막 기능 코드 대조: 2026-09-28, `ad300fafc622f1bf551031d25b23a8a65cf0c057` (T0 시작 시 `main` = `origin/main`, 운영 배포 기준)
 
 ## 현재 기준선
 
@@ -33,6 +33,19 @@
 - 유동성 도메인과 일반 런타임 API·DB의 표준 이름은 `scheduled_income`, `cash_flow_balance`, `remaining_liquidity`다. 과거 key는 DB/Snapshot migration과 그 전용 테스트에만 남긴다.
 
 상세 의미는 [도메인 모델](domain-model.md), 계산·모듈 경계는 [아키텍처](architecture.md)를 따른다.
+
+## T0 리팩터링 correctness 계약
+
+다음은 새 설계 제안이 아니라 현재 구현의 회귀 방지 경계다. 파일을 분리하거나 책임을 옮기기 전에 관련 실패·재시작·동시성 테스트로 같은 의미를 고정한다. 금융 의미는 [도메인 모델](domain-model.md), 상태와 저장 세부사항은 [Offline Mode](offline-mode.md), 복원 안전성은 [실행 방법](runbook.md)을 따른다.
+
+- **서버 권위:** DB와 서버 API의 할인·실결제액·Summary·기준일 계산이 authoritative하다. 모바일 Offline projection과 서버가 제공한 표시용 정책 descriptor는 화면 예상값일 뿐 journal, reconciliation payload 또는 서버 금융 원본이 아니다.
+- **coherent baseline:** ONLINE refresh의 화면 상태와 authoritative Snapshot은 같은 server fingerprint·단조 revision·기준일 generation이어야 한다. 오래된 비동기 응답과 불완전한 refresh는 valid baseline을 교체하지 못하며, OFFLINE epoch의 B는 끝까지 고정된다.
+- **journal과 lineage:** authoritative user input만 stable operation ID와 순서로 durable append한다. 유효한 EOF record와 앞선 정상 기록을 보존하고 append 전체를 직렬화한다. 손상·누락된 B/J/state나 모순된 reconciliation metadata는 ONLINE으로 fail-open하지 않고 금융 mutation·cleanup을 차단한다.
+- **조정과 복구:** 양쪽 recovery point의 생성·검증 및 명시적 선택·확인 없이는 destructive reconciliation을 시작하지 않는다. Mobile Wins는 서버의 단일 transaction에서 `Apply(B, J)`를 적용하고 실패 시 S로 rollback하며, Server Wins는 J를 replay하지 않는다.
+- **재시도와 응답 유실:** stable reconciliation ID는 검증된 B와 ordered J의 logical fingerprint에 결합되고 operation ID 중복은 거부한다. commit 뒤 HTTP 응답을 잃으면 같은 ID의 status/result로 결과를 확인하고 재적용하지 않는다. fresh authoritative rebuild·새 baseline 설치 전에는 committed journal과 복구 metadata를 버리거나 정상 ONLINE으로 가장하지 않는다.
+- **금융 입력의 원자성:** 카드 사용 생성과 최초 사용자 할인/실결제 override, 정산 패널 생성과 최초 할인 의도, 정기지출 확인, 카드 결제·월마감 상태 전이는 각 서버 business transaction 경계를 유지한다. 사용자의 한 입력만 부분 commit되거나 같은 요청이 중복 금융 기록을 만들면 안 된다.
+- **비동기 draft:** 버튼·키보드 등 동일 제출은 single-flight이며, 실패한 draft와 이전 요청 중 사용자가 새로 쓴 draft를 보존한다. 성공한 바로 그 입력과 현재 draft가 같을 때만 지운다. 응답 유실의 retry identity와 원래 authoritative 입력은 결과 확인 전까지 유지한다.
+- **Snapshot:** manifest·카드 정책 호환성·지원 schema 검증과 임시 DB dry-run, 위험 작업 직전 `pre_restore` 생성·검증, transaction rollback 및 복구 artifact 보존을 약화하지 않는다. 모바일 recovery bundle은 서버 Snapshot이나 display projection을 임의의 restore 입력으로 바꾸지 않는다.
 
 ## 주요 설계 결정
 
