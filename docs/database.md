@@ -284,9 +284,9 @@ Mobile Wins 논리 요청과 authoritative outcome을 durable하게 보존한다
 
 변경 API의 사용자, 메서드, 경로, 상태 코드만 저장한다. 요청 본문, 비밀번호, 세션 토큰은 저장하지 않는다.
 
-## 시작 시 additive migration
+## Versioned startup migration
 
-기존 운영 DB는 서버 시작 시 파괴적 재생성 없이 다음 nullable 컬럼과 인덱스를 추가한다.
+인정된 **unversioned legacy DB**만 `PRAGMA user_version` 0→1→2→3의 transaction 단계에서 다음 컬럼·인덱스를 보강한다. 이미 version 3인 DB는 이 backfill을 매 startup 재실행하지 않고 현재 구조를 검증한다. 지원 구조와 거부 조건은 [DB migration](database-migrations.md)을 따른다.
 
 - `ledger_entries.source_planned_entry_id`
 - `monthly_panels.confirmed_month`
@@ -298,7 +298,7 @@ Phase 2의 `offline_reconciliations`, `offline_reconciliation_operations`와 인
 - 기존 Phase 2 `offline_reconciliations` 표에는 nullable `fingerprint_version`, `request_fingerprint` 컬럼만 추가한다. 기존 committed row를 추정해 backfill하지 않는다.
 - nullable idempotency key의 부분 unique index와 planned 관계 조회 index
 
-기존에 연결된 현금성 고정지출은 유효한 `spent_on`에서 `confirmed_month`를 backfill한다. 과거 정기결제 지출은 관계를 추측해 DB에 기록하지 않으며, 조회 경계에서만 기존 제목·금액 매칭을 호환 fallback으로 사용한다. 구버전 카드 결제 이벤트의 idempotency 필드는 `NULL`로 남는다.
+Legacy DB migration에서는 기존에 연결된 현금성 고정지출의 유효한 `spent_on`에서 `confirmed_month`를 backfill한다. **이미 version 3인 DB에 복원하는 v6 Snapshot**은 별도 Snapshot import 경계에서 같은 역사적 의미를 복원한다. 과거 정기결제 지출은 관계를 추측해 DB에 기록하지 않으며, 조회 경계에서만 기존 제목·금액 매칭을 호환 fallback으로 사용한다. 구버전 카드 결제 이벤트의 idempotency 필드는 `NULL`로 남는다.
 
 ## Snapshot 관계 검증
 

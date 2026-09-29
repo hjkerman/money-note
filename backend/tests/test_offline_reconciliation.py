@@ -294,16 +294,20 @@ class OfflineReconciliationTest(unittest.TestCase):
             committed,
         )
 
-    @unittest.skipIf(sqlite3.sqlite_version_info < (3, 35), "SQLite DROP COLUMN unavailable")
     def test_init_db_adds_fingerprint_columns_to_phase_2_table(self) -> None:
-        with session() as conn:
-            conn.execute("ALTER TABLE offline_reconciliations DROP COLUMN request_fingerprint")
-            conn.execute("ALTER TABLE offline_reconciliations DROP COLUMN fingerprint_version")
-            conn.execute("PRAGMA user_version = 0")  # Synthetic unversioned Phase 2 DB.
+        # Use the committed Phase 2 schema; removing two fields from the
+        # current revisioned schema creates a state that never shipped.
+        self.db_path.unlink()
+        legacy_schema = (
+            Path(__file__).parent / "fixtures" / "schema_offline_phase2.sql"
+        ).read_text(encoding="utf-8")
+        with sqlite3.connect(self.db_path) as conn:
+            conn.executescript(legacy_schema)
 
         init_db()
 
         with session() as conn:
+            self.assertEqual(conn.execute("PRAGMA user_version").fetchone()[0], 3)
             columns = {
                 row["name"]
                 for row in conn.execute("PRAGMA table_info(offline_reconciliations)")

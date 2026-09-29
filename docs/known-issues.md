@@ -65,6 +65,7 @@ Judgment 문구는 현재 대부분 서버에서 완성된 문장으로 내려�
 
 ## 해결됨
 
+- T5 독립 감사 F1/F2: 실제 v6 Snapshot의 연결된 현금성 고정지출은 import 경계에서 확인 월을 검증·복원하여 다음 월마감 reserve를 유지한다. 모든 지원 era에서 존재한 금융 컬럼이 빠진 unversioned DB와 version 3의 누락 컬럼은 승격/기동을 거부한다. 실제 v6 exporter fixture, v4~v7 lifecycle, 손상 DB, migration crash 회귀로 고정했다.
 - T4.5 감사의 Low: 일반 모바일 Snapshot 저장 중인 `.pending` 경로를 프로세스 내 active set으로 추적하고, 다른 save의 하루 경과 cleanup에서 제외한다. 중단된 과거 `.pending` 정리와 실패한 cleanup의 정상 save 비차단은 그대로 유지한다. 두 repository 인스턴스가 겹치는 테스트로 고정했다.
 - 웹 즉시결제에서 서버 응답 유실 시 공용 refresh wrapper가 오류를 삼킨 뒤 화면이 성공으로 표시하고 재시도 key를 버리는 경로를 재현·수정했다. 사용자별 브라우저 저장소에 원래 요청·draft·key를 먼저 보존하고, 응답·새 조회가 성공한 뒤에만 정리한다. 처리 중 사용자가 새로 편집한 draft는 늦게 완료된 요청이 지우지 않는다. 재시작 후 명시적 확인은 같은 key로 재시도하며, 저장소 오류 시 결제를 시작하지 않는다. 명확한 HTTP 400/422 거절은 미commit이므로 key를 해제한다.
 - 최종 재감사의 수동 Claim/Family Card 등록·정산 draft·lineage·baseline/J 알림 중복·legacy 할인 fingerprint·Flutter 정산 화면 assertion 경로를 닫았다. 수동 패널 최초 할인 제외는 한 생성 transaction에 저장되고, 구버전 원장 등록 fingerprint는 저장된 금융 입력을 확인할 수 있을 때만 안전하게 승격한다. 오프라인 baseline에 이미 확정된 후보는 J나 예상값에 재반영하지 않는다. 기존 finding과 검증 반례는 테스트에 보존한다.

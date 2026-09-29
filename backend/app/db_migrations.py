@@ -36,8 +36,9 @@ def _apply_schema(conn: sqlite3.Connection, schema: str, kinds: set[str]) -> Non
             conn.execute(statement)
 
 
+@lru_cache(maxsize=1)
 def _expected_tables_and_columns(schema: str) -> dict[str, set[str]]:
-    # Introspection of the current SQL is only needed once for unversioned DBs.
+    # SCHEMA is the current column contract; build it once per process.
     with sqlite3.connect(":memory:") as reference:
         _apply_schema(reference, schema, {"CREATE TABLE"})
         names = [row[0] for row in reference.execute(
@@ -55,35 +56,45 @@ def _table_names(conn: sqlite3.Connection) -> set[str]:
     )}
 
 
-@lru_cache(maxsize=1)
-def _legacy_required_columns() -> dict[str, set[str]]:
+# Only these columns were absent from recognized pre-versioned schemas and
+# have a defined migration-001 addition. Every other current column, including
+# financial values and identities, must already be present in an existing DB.
+LEGACY_ADDITIVE_COLUMNS = {
+    "ledger_entries": {"discount_override", "source_planned_entry_id"},
+    "monthly_panels": {"discount_override", "confirmed_cash_flow_id", "confirmed_month"},
+    "card_payment_events": {"batch_id", "idempotency_key", "request_fingerprint"},
+    "offline_reconciliations": {"fingerprint_version", "request_fingerprint"},
+}
+
+
+def _legacy_required_columns(expected: dict[str, set[str]]) -> dict[str, set[str]]:
     return {
-        "ledger_entries": {"id", "book_section", "entry_kind", "title", "amount_value", "sort_order", "payment_key"},
-        "monthly_panels": {"id", "month", "panel_type", "amount_value", "sort_order"},
-        "cash_flows": {"id", "occurred_on", "amount_value", "sort_order"},
-        "app_settings": {"key", "value"},
-        "app_labels": {"key", "value"},
-        "users": {"id", "username", "password_hash"},
-        "auth_sessions": {"id", "user_id", "session_token_hash"},
-        "share_sessions": {"id", "session_token_hash"},
-        "card_payment_events": {"id", "event_date", "event_type", "total_amount"},
-        "card_payment_allocations": {"id", "payment_event_id", "entry_payment_key", "amount_value"},
-        "card_payment_deferrals": {"entry_payment_key", "from_payment_month", "target_payment_month"},
-        "audit_logs": {"id", "occurred_at"},
+        table: columns - LEGACY_ADDITIVE_COLUMNS.get(table, set())
+        for table, columns in expected.items()
     }
 
 
 def _admit_unversioned_legacy(conn: sqlite3.Connection, schema: str) -> None:
     expected = _expected_tables_and_columns(schema)
     present = _table_names(conn)
-    if not set(_legacy_required_columns()).issubset(present):
+    required = _legacy_required_columns(expected)
+    historical_core_tables = {
+        "ledger_entries", "monthly_panels", "cash_flows", "app_settings", "app_labels",
+        "users", "auth_sessions", "share_sessions", "card_payment_events",
+        "card_payment_allocations", "card_payment_deferrals", "audit_logs",
+    }
+    if not historical_core_tables.issubset(present):
         raise RuntimeError("unknown unversioned database schema: missing historical core tables")
     if present - set(expected) - {"installments"}:
         raise RuntimeError("unknown unversioned database schema: unfamiliar tables")
+    # A revision table identifies the current unversioned era: its schema was
+    # already complete, so missing newer columns cannot be treated as legacy.
+    current_era = "authoritative_state_revision" in present
     for table in present & set(expected):
         actual = {row[1] for row in conn.execute(f"PRAGMA table_info({table})")}
         allowed = expected[table] | ({"discount_checked"} if table in {"ledger_entries", "monthly_panels"} else set())
-        if not actual.issubset(allowed) or not _legacy_required_columns().get(table, set()).issubset(actual):
+        required_columns = expected[table] if current_era else required[table]
+        if not actual.issubset(allowed) or not required_columns.issubset(actual):
             raise RuntimeError(f"unknown unversioned database schema: {table} columns")
     if "card_payment_batch_items" in present and "card_payment_batches" not in present:
         raise RuntimeError("unknown unversioned database schema: orphan payment batch items")
@@ -92,19 +103,12 @@ def _admit_unversioned_legacy(conn: sqlite3.Connection, schema: str) -> None:
 
 
 def _validate_current_schema(conn: sqlite3.Connection, schema: str) -> None:
-    expected_tables = set(re.findall(r"CREATE TABLE IF NOT EXISTS ([a-z_]+)", schema))
+    expected = _expected_tables_and_columns(schema)
+    expected_tables = set(expected)
     present = _table_names(conn)
     if not expected_tables.issubset(present):
         raise RuntimeError("current database version has missing tables")
-    critical_columns = {
-        "ledger_entries": {"payment_key", "source_planned_entry_id", "discount_override"},
-        "monthly_panels": {"confirmed_cash_flow_id", "confirmed_month", "discount_override"},
-        "card_payment_events": {"batch_id", "idempotency_key", "request_fingerprint"},
-        "offline_reconciliations": {"fingerprint_version", "request_fingerprint", "status"},
-        "offline_reconciliation_operations": {"operation_id", "reconciliation_id"},
-        "authoritative_state_revision": {"id", "revision"},
-    }
-    for table, required in critical_columns.items():
+    for table, required in expected.items():
         actual = {row[1] for row in conn.execute(f"PRAGMA table_info({table})")}
         if not required.issubset(actual):
             raise RuntimeError(f"current database version has missing {table} columns")

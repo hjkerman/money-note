@@ -59,6 +59,41 @@ class VersionedMigrationTest(IsolatedDatabaseTestCase):
             self.assertEqual(conn.execute("PRAGMA user_version").fetchone()[0], 0)
             self.assertEqual(conn.execute("SELECT amount_value FROM ledger_entries WHERE id = 11").fetchone()[0], 10000)
 
+    def _assert_missing_financial_column_fails_closed(self, table: str, column: str) -> None:
+        # Current SCHEMA without a marker represents the T4.5 unversioned shape.
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute("PRAGMA user_version = 0")
+            conn.execute(
+                "INSERT INTO ledger_entries(id, book_section, entry_kind, title, amount_value, sort_order) "
+                "VALUES (11, 'current', 'expense', 'Synthetic card', 10000, 1)"
+            )
+            conn.execute(f"ALTER TABLE {table} DROP COLUMN {column}")
+        with self.assertRaisesRegex(RuntimeError, "unknown unversioned database schema"):
+            init_db()
+        with sqlite3.connect(self.db_path) as conn:
+            self.assertEqual(conn.execute("PRAGMA user_version").fetchone()[0], 0)
+            self.assertEqual(conn.execute("SELECT amount_value FROM ledger_entries WHERE id = 11").fetchone()[0], 10000)
+            self.assertNotIn(column, {row[1] for row in conn.execute(f"PRAGMA table_info({table})")})
+
+    def test_unversioned_missing_ledger_aux_amount_fails_closed(self) -> None:
+        self._assert_missing_financial_column_fails_closed("ledger_entries", "aux_amount_value")
+
+    def test_unversioned_missing_cash_title_fails_closed(self) -> None:
+        self._assert_missing_financial_column_fails_closed("cash_flows", "title")
+
+    def test_current_unversioned_shape_cannot_lose_confirmed_month(self) -> None:
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute("PRAGMA user_version = 0")
+            conn.execute("ALTER TABLE monthly_panels DROP COLUMN confirmed_month")
+        with self.assertRaisesRegex(RuntimeError, "unknown unversioned database schema"):
+            init_db()
+        with sqlite3.connect(self.db_path) as conn:
+            self.assertEqual(conn.execute("PRAGMA user_version").fetchone()[0], 0)
+            self.assertNotIn(
+                "confirmed_month",
+                {row[1] for row in conn.execute("PRAGMA table_info(monthly_panels)")},
+            )
+
     def test_interrupted_data_migration_rolls_back_and_restart_resumes(self) -> None:
         self._seed_historical("pre_batch")
         original = db_migrations.MIGRATIONS
@@ -108,3 +143,16 @@ class VersionedMigrationTest(IsolatedDatabaseTestCase):
             conn.execute("DROP INDEX idx_card_payment_events_idempotency")
         with self.assertRaisesRegex(RuntimeError, "missing critical indexes"):
             init_db()
+
+    def test_claimed_current_version_with_missing_financial_columns_fails_closed(self) -> None:
+        for table, column in (("ledger_entries", "aux_amount_value"), ("cash_flows", "title")):
+            with self.subTest(table=table, column=column):
+                with sqlite3.connect(self.db_path) as conn:
+                    conn.execute(f"ALTER TABLE {table} DROP COLUMN {column}")
+                with self.assertRaisesRegex(RuntimeError, f"missing {table} columns"):
+                    init_db()
+                with sqlite3.connect(self.db_path) as conn:
+                    self.assertEqual(conn.execute("PRAGMA user_version").fetchone()[0], 3)
+                    self.assertNotIn(column, {row[1] for row in conn.execute(f"PRAGMA table_info({table})")})
+                self.db_path.unlink()
+                init_db()
