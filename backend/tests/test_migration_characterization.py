@@ -86,6 +86,12 @@ class MigrationCharacterizationTest(IsolatedDatabaseTestCase):
                     self.assertEqual(conn.execute("PRAGMA integrity_check").fetchone()[0], "ok")
                     self.assertEqual(conn.execute("PRAGMA foreign_key_check").fetchall(), [])
                 first_summary = current_summary_values()
+                self.assertEqual(first_summary["scheduled_income"], 400000)
+                self.assertEqual(first_summary["cash_flow_balance"], -500)
+                self.assertEqual(first_summary["card_total"], 9880)
+                self.assertEqual(first_summary["planned_recurring_total"], 3000)
+                self.assertEqual(first_summary["remaining_liquidity"], 386620)
+                self.assertEqual(first_summary["family_card_original_total"], 2000)
                 init_db()
                 init_db()
                 with session() as conn:

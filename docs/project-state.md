@@ -82,7 +82,8 @@
 
 ## 기술 부채와 제한
 
-- `backend/app/services/card_payments.py`와 `mobile/lib/src/app_state.dart`는 크지만 각각 결제 트랜잭션과 영역별 새로고침 조율을 책임진다. 분리는 선행 특성 테스트가 필요하다.
+- `backend/app/services/card_payments.py`는 결제·이월·취소의 transaction command를 유지하고, read model은 `card_payment_reads.py`가 소유한다. `mobile/lib/src/app_state.dart`는 영역별 새로고침과 Offline lineage 조율을 계속 담당한다. 추가 분리는 선행 특성 테스트가 필요하다.
+- DB startup은 [versioned migration](database-migrations.md)의 `PRAGMA user_version` 계약을 따르며, 구 DB/Snapshot 지원 판정은 [호환성 inventory](compatibility-inventory.md)에 둔다.
 - 로그인·공유 PIN 실패 제한은 단일 API 프로세스 메모리에 있다. 현재 배포에는 맞지만 다중 인스턴스에는 적합하지 않다.
 - Android 알림 수집은 리스너가 끊긴 동안 알림창에서 사라진 원문을 복구할 수 없고, 외부 앱 문구 변경에 파서 보강이 필요할 수 있다.
 - 카드 정책 이력은 현재 월 단위라 같은 달 안의 설정 시각 전후 거래나 서로 다른 범용카드 동시 사용을 구분하지 못한다.

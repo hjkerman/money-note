@@ -44,8 +44,8 @@ Judgment 문구는 현재 대부분 서버에서 완성된 문장으로 내려�
 
 아래는 줄 수 순위나 결함 목록이 아니라 현재 책임이 집중된 대표 경계다. 파일 크기와 영향 범위는 각 리팩터링 시작 커밋에서 다시 측정한다. 분리 자체보다 [T0 correctness 계약](project-state.md#t0-리팩터링-correctness-계약)과 실패·동시성 특성 테스트 유지가 우선이다.
 
-- `backend/app/services/card_payments.py`는 활성 batch, 즉시결제·취소·이월의 같은 금융 상태 전이를 다룬다. `backend/app/services/offline_reconciliation.py`는 B 복원·ordered J 적용·idempotency record를 하나의 write transaction에 묶는다. 공통 함수를 추출하더라도 transaction 소유권이나 중복 방지 경계를 갈라서는 안 된다.
-- `backend/app/services/snapshot.py`와 `backend/app/db.py`는 Snapshot manifest·호환성·복구 및 schema/startup migration 경계를 가진다. 파일 분리만을 위해 검증 순서, `pre_restore`, 지원 버전 또는 rollback 의미를 바꾸지 않는다.
+- `backend/app/services/card_payments.py`는 결제·취소·이월 command의 금융 transaction을 여전히 소유한다. 활성 batch 조회·행 투영·통행료 그룹화는 `card_payment_reads.py`로 분리했다. `backend/app/services/offline_reconciliation.py`는 B 복원·ordered J 적용·idempotency record를 하나의 write transaction에 묶는다. 이 transaction 소유권은 추가 분리의 대상이 아니다.
+- `backend/app/services/snapshot.py`는 Snapshot manifest·호환성·복구를 소유한다. `backend/app/db_migrations.py`는 versioned startup migration을 소유한다. `pre_restore`, 지원 Snapshot 버전 또는 rollback 의미를 바꾸지 않는다.
 - `mobile/lib/src/app_state.dart`는 coherent refresh generation, OFFLINE lineage, 조정 finalization과 화면 상태를 조율하고 `mobile/lib/src/offline/offline_store.dart`는 baseline·journal·recovery artifact의 durable 파일 경계를 맡는다. 분리 전에 stale response, crash/restart, 손상 tail, commit-response-loss 반례를 고정한다.
 - `mobile/lib/src/screens/management_screen.dart`와 `mobile/lib/src/screens/notification_import_screen.dart`에는 여러 입력·확인 흐름이 모여 있다. 화면을 나누더라도 single-flight 제출, 새 draft 보존, 할인 의도·알림 후보 identity를 서버에 전달하는 계약을 widget 테스트로 유지한다.
 
@@ -65,6 +65,7 @@ Judgment 문구는 현재 대부분 서버에서 완성된 문장으로 내려�
 
 ## 해결됨
 
+- T4.5 감사의 Low: 일반 모바일 Snapshot 저장 중인 `.pending` 경로를 프로세스 내 active set으로 추적하고, 다른 save의 하루 경과 cleanup에서 제외한다. 중단된 과거 `.pending` 정리와 실패한 cleanup의 정상 save 비차단은 그대로 유지한다. 두 repository 인스턴스가 겹치는 테스트로 고정했다.
 - 웹 즉시결제에서 서버 응답 유실 시 공용 refresh wrapper가 오류를 삼킨 뒤 화면이 성공으로 표시하고 재시도 key를 버리는 경로를 재현·수정했다. 사용자별 브라우저 저장소에 원래 요청·draft·key를 먼저 보존하고, 응답·새 조회가 성공한 뒤에만 정리한다. 처리 중 사용자가 새로 편집한 draft는 늦게 완료된 요청이 지우지 않는다. 재시작 후 명시적 확인은 같은 key로 재시도하며, 저장소 오류 시 결제를 시작하지 않는다. 명확한 HTTP 400/422 거절은 미commit이므로 key를 해제한다.
 - 최종 재감사의 수동 Claim/Family Card 등록·정산 draft·lineage·baseline/J 알림 중복·legacy 할인 fingerprint·Flutter 정산 화면 assertion 경로를 닫았다. 수동 패널 최초 할인 제외는 한 생성 transaction에 저장되고, 구버전 원장 등록 fingerprint는 저장된 금융 입력을 확인할 수 있을 때만 안전하게 승격한다. 오프라인 baseline에 이미 확정된 후보는 J나 예상값에 재반영하지 않는다. 기존 finding과 검증 반례는 테스트에 보존한다.
 - 후속 final audit에서 미확정 수동 정산 key가 별개의 새 draft에 붙는 반례와 최초 HTTP 400 검증 거절 뒤 key가 남아 입력 수정이 막히는 반례를 재현했다. schema v2는 원래 입력을 보존하며 새 입력을 fail-closed로 막고, 정산 화면에서 원래 요청을 명시적으로 확인한 뒤 key를 정리한다. 최초 400/422 거절은 key를 정리하되 이전 결과가 모호한 경우는 보존한다. schema v1의 digest-only 기록은 원래 입력을 복원할 수 없으므로 정확한 재입력 또는 수동 복구가 필요하다.

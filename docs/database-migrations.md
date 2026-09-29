@@ -52,6 +52,8 @@
 
 Unknown table/column 또는 핵심 구조가 빠진 unversioned DB는 fresh로 오인하지 않는다. `installments`는 과거 삭제 경로라 유일한 추가 허용 표다. 이전 단계에서 crash한 버전 1·2는 해당 단계 이후만 재개한다. 테스트는 부분 금융 UPDATE·최종 index 설치 실패를 주입하고 version marker와 데이터 rollback을 확인한다.
 
+네 historical fixture에는 동일한 합성 금융 입력을 넣는다. 예정 수입 400,000원, 카드 지출 10,000원(서버 계산 할인 120원), planned 카드 정기결제 3,000원, 현금 유출 500원, 별도 Family Card 표시 2,000원이다. 업그레이드와 재시작 후 `current_summary_values()`의 기대값은 카드 부담 9,880원, 현금흐름 −500원, 잔여 유동성 386,620원, Family Card 원금 표시 2,000원이다. Family Card 표시는 잔여 유동성에 합산하지 않는다. 테스트는 원본 금융 행의 금액·ID, due-day backfill과 이 기대값을 함께 고정한다.
+
 ## Snapshot과 배포
 
 Snapshot v4/v5/v6/v7은 계속 지원한다. Restore는 현재 DB의 데이터 테이블을 서버 transaction 안에서 교체하며 DB 파일의 `user_version`을 Snapshot에서 가져오지 않는다. 기존 DB가 unversioned라면 **먼저 startup migration**이 끝나야 restore endpoint가 제공된다. Restore의 임시 dry-run DB는 현재 `SCHEMA`를 사용하지만 서비스 DB로 승격하지 않는다. Restore 후 재기동은 버전 3의 최소 sanity check만 수행하며, 현재 export는 v7이다.

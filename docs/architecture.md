@@ -132,7 +132,7 @@ Summary와 DB 설정의 표준 이름은 `scheduled_income`, `cash_flow_balance`
 - 백엔드 `services/`: 도메인 계산과 위험 작업
 - 백엔드 `routers/`: 인증과 HTTP 입출력
 
-`backend/app/repository.py`와 `frontend/src/components/LedgerTables.tsx`는 기존 import를 보호하는 호환 re-export 계층이다. 새 구현을 이 파일에 다시 쌓지 않는다.
+`backend/app/repository.py`와 `frontend/src/components/LedgerTables.tsx`는 기존 import를 보호하는 호환 re-export 계층이다. 새 구현을 이 파일에 다시 쌓지 않는다. 현재 사용 근거와 보류 판정은 [호환성 inventory](compatibility-inventory.md)에 둔다.
 
 ## 판단 모듈
 
