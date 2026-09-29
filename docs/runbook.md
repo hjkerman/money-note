@@ -972,7 +972,7 @@ curl -OJ -b /tmp/money-note-cookie.txt \
 
 응답 파일 확장자는 `.money-note-snapshot.json`이며, `schema_version`, `exported_at`, `range`, `card_charge_policy`, `manifest`, `data`를 포함한다.
 
-현재 snapshot export 형식은 `schema_version = 7`이다. v7은 확인된 현금성 고정지출의 확인 월, 카드 정기결제 원본 관계와 카드 결제 idempotency 정보를 추가로 보존한다. v4, v5, v6, v7을 복원하며 구버전의 nullable 신규 필드 누락은 허용한다. 파일 형식 v3 이하는 지원하지 않는다.
+현재 snapshot export 형식은 `schema_version = 7`이다. v7은 확인된 현금성 고정지출의 확인 월, 카드 정기결제 원본 관계와 카드 결제 idempotency 정보를 추가로 보존한다. v4, v5, v6, v7을 복원하며 구버전 필드 누락은 의미를 보존할 수 있을 때만 허용한다. 파일 형식 v3 이하는 지원하지 않는다.
 
 `manifest`는 canonical JSON 기준 SHA-256 무결성 정보를 담는다. `manifest` 자기 자신과 파생 식별자인 `snapshot_id`는 hash 대상에서 제외하며, `data` 전체 hash, 테이블별 컬럼 목록·row count·table hash, `card_charge_policy` hash, 주요 상단 메타데이터와 정책 명세를 포함한 전체 content hash를 기록한다.
 
@@ -984,9 +984,10 @@ curl -OJ -b /tmp/money-note-cookie.txt \
 - 버전 4~7은 manifest 검증 뒤 Snapshot 당시 카드 정책과 분류 규칙이 현재 서버에 보존되어 있는지 확인한다.
 - v4의 과거 유동성 설정·라벨 key는 원문 manifest 검증 뒤 현재 key로 정규화한다.
 - v4에 같은 의미의 과거 key와 현재 key가 함께 있고 값이 다르면 복원을 중단한다.
+- v6에서 확인된 현금성 고정지출의 연결과 날짜가 유효하면 원문 검증 후 확인 월을 복원한다. 날짜가 불명확하면 추측하지 않고 복원을 중단한다. v7의 확인 월이 연결과 모순되어도 중단한다.
 - 버전 3 이하는 지원하지 않는다.
 - 검증을 통과한 뒤 현재 서버가 모르는 컬럼은 복원 삽입 전에 무시한다.
-- 현재 서버에 새로 생긴 컬럼이 구버전 snapshot에 없으면 DB 기본값 또는 `NULL`로 복원한다.
+- 현재 서버에 새로 생긴 컬럼이 구버전 snapshot에 없으면 필요한 호환 의미를 먼저 검증·복원하고, 나머지 필드만 DB 기본값 또는 `NULL`로 복원한다.
 - 금액 컬럼은 현재 DB에서 원화 정수 `INTEGER`로 저장한다.
 - 구버전 snapshot/백업 JSON에 `1000.0`, `1000.9`처럼 float 금액이 있으면 검증 통과 후 DB 삽입 직전에 소수점 아래를 절삭해 `1000`으로 정규화한다.
 - 필수 테이블 누락, 민감 설정 포함, manifest 불일치, 외래키 오류는 계속 복원 실패로 처리한다.

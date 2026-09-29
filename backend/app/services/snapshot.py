@@ -159,7 +159,7 @@ def validate_reconciliation_snapshot(
 ) -> dict[str, list[dict[str, Any]]]:
     """Mobile Wins baseline Snapshot을 일반 restore와 같은 경계로 검증한다."""
     _validate_snapshot(snapshot)
-    data = _normalized_snapshot_data(snapshot["data"])
+    data = _normalized_snapshot_data(snapshot["data"], snapshot["schema_version"])
     _dry_run_restore(data)
     return data
 
@@ -181,7 +181,7 @@ def validate_reconciled_financial_state(conn: Any) -> None:
 def restore_snapshot(snapshot: dict[str, Any]) -> dict[str, int]:
     """JSON snapshot을 검증하고 임시 복원에 성공한 뒤 운영 DB를 교체한다."""
     _validate_snapshot(snapshot)
-    data = _normalized_snapshot_data(snapshot["data"])
+    data = _normalized_snapshot_data(snapshot["data"], snapshot["schema_version"])
     _dry_run_restore(data)
     restored: dict[str, int] = {}
     with session(transaction_mode="IMMEDIATE") as conn:
@@ -376,7 +376,9 @@ def _validate_snapshot(snapshot: dict[str, Any]) -> None:
         raise ValueError("snapshot card charge policy does not match this server")
 
 
-def _normalized_snapshot_data(data: dict[str, list[dict[str, Any]]]) -> dict[str, list[dict[str, Any]]]:
+def _normalized_snapshot_data(
+    data: dict[str, list[dict[str, Any]]], schema_version: int,
+) -> dict[str, list[dict[str, Any]]]:
     normalized: dict[str, list[dict[str, Any]]] = {}
     for table in SNAPSHOT_TABLES:
         schema_columns = set(_schema_columns(table))
@@ -386,6 +388,28 @@ def _normalized_snapshot_data(data: dict[str, list[dict[str, Any]]]) -> dict[str
             filtered = {key: value for key, value in row.items() if key in schema_columns and key not in ignored}
             rows.append(_normalize_snapshot_row(table, filtered))
         normalized[table] = rows
+    # v6 recorded a fixed confirmation's cash-flow link and spent_on date,
+    # but not its month. Import can target an already-versioned DB, so the
+    # historical meaning must be restored here, after manifest validation.
+    for panel in normalized["monthly_panels"]:
+        if panel.get("panel_type") != "fixed" or panel.get("confirmed_cash_flow_id") is None:
+            continue
+        if schema_version < 6:
+            raise ValueError("snapshot version cannot represent a fixed confirmation link")
+        spent_on = panel.get("spent_on")
+        if not isinstance(spent_on, str) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", spent_on):
+            raise ValueError("confirmed fixed expense has no valid spent_on date")
+        try:
+            date.fromisoformat(spent_on)
+        except ValueError:
+            raise ValueError("confirmed fixed expense has no valid spent_on date") from None
+        confirmed_month = spent_on[:7]
+        if panel.get("confirmed_at") is None:
+            raise ValueError("confirmed fixed expense has no confirmation timestamp")
+        if schema_version == 6 and panel.get("confirmed_month") is None:
+            panel["confirmed_month"] = confirmed_month
+        elif panel.get("confirmed_month") != confirmed_month:
+            raise ValueError("confirmed fixed expense has inconsistent confirmed_month")
     _normalize_snapshot_key_rows(
         normalized["app_settings"],
         LEGACY_LIQUIDITY_SETTING_KEYS,
@@ -682,7 +706,7 @@ def _write_snapshot_backup(conn: Any, prefix: str) -> Path:
     _write_json_atomic(target, snapshot)
     stored = json.loads(target.read_text(encoding="utf-8"))
     _validate_snapshot(stored)
-    _dry_run_restore(_normalized_snapshot_data(stored["data"]))
+    _dry_run_restore(_normalized_snapshot_data(stored["data"], stored["schema_version"]))
     return target
 
 

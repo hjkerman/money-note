@@ -75,7 +75,7 @@ Summary의 `cash_flow_balance`는 수동 보정값과 `occurred_on <= app_today(
 
 현금성 고정지출 확인은 `monthly_panels.amount_value`의 reserve를 사용자가 입력한 이번 주기 실제액의 음수 `cash_flows` 사실로 원자적으로 전환한다. 템플릿 금액은 바꾸지 않는다. 실제액이 reserve와 같으면 확인 전후 잔여 유동성이 같고, 차이가 있으면 미사용 reserve가 돌아오거나 초과 지출이 추가 반영된다. 카드 정기결제도 template 예정 원금과 이번 실제 원금을 분리하며, 서버 카드 정책이 실제 원금의 할인과 실결제액을 투영한다. 월마감은 템플릿만 재활성화한다.
 
-Snapshot v7은 카드별 정책 binding, 계산 매개변수, 프로필 선택 의미, 분류 규칙과 데이터 기준 마지막 월을 `card_charge_policy` 명세로 기록하고 장부 데이터·주요 상단 메타데이터와 함께 해시한다. 확인된 현금성 고정지출의 현금흐름 연결·확인 월, 정기결제 원본 관계와 카드 결제 idempotency 정보도 함께 보존한다. 교통카드 프로필 선택 이력은 비민감 `app_settings`로 함께 백업한다. export는 하나의 SQLite read transaction으로 전 테이블을 읽는다. restore, reset, 월마감과 정산 일괄 완료는 write transaction을 먼저 확보하고 같은 transaction의 상태로 pre_restore를 만든 뒤 위험 작업을 수행한다. 복원은 정책 명세를 실행하지 않으며 당시 정책이 현재 서버에 보존되어 있는지만 확인한다. 명세의 `covered_through` 이후부터 적용되는 binding 추가는 허용한다. v4~v6의 nullable 신규 필드 누락을 허용하며, v4 파일은 원문 검증 뒤 유동성 key migration을 거쳐 복원한다.
+Snapshot v7은 카드별 정책 binding, 계산 매개변수, 프로필 선택 의미, 분류 규칙과 데이터 기준 마지막 월을 `card_charge_policy` 명세로 기록하고 장부 데이터·주요 상단 메타데이터와 함께 해시한다. 확인된 현금성 고정지출의 현금흐름 연결·확인 월, 정기결제 원본 관계와 카드 결제 idempotency 정보도 함께 보존한다. 교통카드 프로필 선택 이력은 비민감 `app_settings`로 함께 백업한다. export는 하나의 SQLite read transaction으로 전 테이블을 읽는다. restore, reset, 월마감과 정산 일괄 완료는 write transaction을 먼저 확보하고 같은 transaction의 상태로 pre_restore를 만든 뒤 위험 작업을 수행한다. 복원은 정책 명세를 실행하지 않으며 당시 정책이 현재 서버에 보존되어 있는지만 확인한다. 명세의 `covered_through` 이후부터 적용되는 binding 추가는 허용한다. v4 파일은 원문 검증 뒤 유동성 key를 옮기고, v6의 연결된 현금성 고정지출은 유효한 처리일에서 확인 월을 복원한다. 이 데이터 호환 보정은 DB schema version migration과 독립이다.
 
 가족카드는 비핵심 feature다. 공용 카드 계산기는 `FAMILY`라는 정책 키만 알며 가족카드 UI, 공유 응답 또는 정산 데이터 구조에 의존하지 않는다. 가족카드 제거 시 정책 등록 하나와 feature 경계만 제거하고 본인 원장·카드대금·유동성 계산은 수정하지 않는 것이 기준이다.
 

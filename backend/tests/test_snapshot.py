@@ -1,12 +1,14 @@
 import copy
 import threading
 from datetime import date
+import json
+from pathlib import Path
 import sqlite3
 import unittest
 from unittest.mock import patch
 
 from tests.db_fixture import IsolatedDatabaseTestCase
-from app.db import SCHEMA, init_db, session
+from app.db import init_db, session
 from app.services.card_charge import DiscountCard
 from app.services.card_charge.policies import NoAutomaticDiscountPolicy
 from app.services.card_charge.registry import POLICY_TIMELINES, PolicyBinding
@@ -34,6 +36,15 @@ class SnapshotTest(IsolatedDatabaseTestCase):
                 snapshot = copy.deepcopy(original)
                 if version == 4:
                     self._convert_to_v4_liquidity_keys(snapshot)
+                    for panel in snapshot["data"]["monthly_panels"]:
+                        panel.pop("confirmed_month", None)
+                        panel.pop("confirmed_cash_flow_id", None)
+                    for entry in snapshot["data"]["ledger_entries"]:
+                        entry.pop("source_planned_entry_id", None)
+                    for event in snapshot["data"]["card_payment_events"]:
+                        event.pop("idempotency_key", None)
+                        event.pop("request_fingerprint", None)
+                    self._refresh_manifest(snapshot)
                 else:
                     snapshot["schema_version"] = version
                     if version == 5:
@@ -232,15 +243,11 @@ class SnapshotTest(IsolatedDatabaseTestCase):
 
     def test_startup_migrates_v6_database_with_additive_v7_columns(self) -> None:
         self.db_path.unlink()
+        # The committed 53ff6e1 v6-era schema has no revision table. Removing
+        # columns from today's SCHEMA would invent an impossible historical era.
         legacy_schema = (
-            SCHEMA.replace(
-                "    source_planned_entry_id INTEGER REFERENCES ledger_entries(id) ON DELETE SET NULL,\n",
-                "",
-            )
-            .replace("    confirmed_month TEXT,\n    confirmed_cash_flow_id", "    confirmed_cash_flow_id")
-            .replace("    idempotency_key TEXT,\n", "")
-            .replace("    request_fingerprint TEXT,\n", "")
-        )
+            Path(__file__).parent / "fixtures" / "schema_fixed_expenses.sql"
+        ).read_text(encoding="utf-8")
         legacy_conn = sqlite3.connect(self.db_path)
         try:
             legacy_conn.executescript(legacy_schema)
@@ -297,10 +304,10 @@ class SnapshotTest(IsolatedDatabaseTestCase):
                 """
                 INSERT INTO monthly_panels(
                     id, month, panel_type, title, spent_on, amount_value,
-                    sort_order, confirmed_at, confirmed_cash_flow_id
+                    sort_order, confirmed_at, confirmed_month, confirmed_cash_flow_id
                 )
                 VALUES (100, '2026-06', 'fixed', '변동 공과금', '2026-06-20', 150000,
-                        1, '2026-06-20T00:00:00+00:00', ?)
+                        1, '2026-06-20T00:00:00+00:00', '2026-06', ?)
                 """,
                 (flow_id,),
             )
@@ -399,6 +406,126 @@ class SnapshotTest(IsolatedDatabaseTestCase):
         self.assertTrue(all(row["source_planned_entry_id"] is None for row in planned_sources))
         self.assertTrue(all(row["idempotency_key"] is None for row in event_keys))
         self.assertTrue(all(row["request_fingerprint"] is None for row in event_keys))
+
+    def test_real_v6_confirmed_fixed_survives_restore_restart_and_month_close(self) -> None:
+        # Exported by 53ff6e1 from synthetic cash=100000 and a confirmed fixed=5000.
+        fixture = Path(__file__).parent / "fixtures" / "snapshot_v6_confirmed_fixed.json"
+        snapshot = json.loads(fixture.read_text(encoding="utf-8"))
+        self.assertEqual(snapshot["schema_version"], 6)
+        self.assertNotIn("confirmed_month", snapshot["data"]["monthly_panels"][0])
+
+        restore_snapshot(snapshot)
+        init_db()  # A version-3 database must still preserve imported v6 meaning.
+        with session() as conn:
+            fixed = conn.execute(
+                "SELECT confirmed_month, confirmed_cash_flow_id FROM monthly_panels WHERE id = 31"
+            ).fetchone()
+            self.assertEqual(fixed["confirmed_month"], "2026-06")
+            self.assertIsNotNone(fixed["confirmed_cash_flow_id"])
+
+        close_current_month(date(2026, 7, 1), target_month="2026-06")
+        with session() as conn:
+            fixed = conn.execute(
+                "SELECT confirmed_at, confirmed_cash_flow_id FROM monthly_panels WHERE id = 31"
+            ).fetchone()
+            self.assertIsNone(fixed["confirmed_at"])
+            self.assertIsNone(fixed["confirmed_cash_flow_id"])
+        with patch("app.services.summary.app_today", return_value=date(2026, 7, 1)):
+            summary = current_summary_values()
+        self.assertEqual(summary["cash_flow_balance"], 95_000)
+        self.assertEqual(summary["remaining_liquidity"], 90_000)
+
+        _, current = export_snapshot(date(2026, 7, 1))
+        self.assertEqual(current["schema_version"], 7)
+        restore_snapshot(current)
+        init_db()
+        with patch("app.services.summary.app_today", return_value=date(2026, 7, 1)):
+            self.assertEqual(current_summary_values()["remaining_liquidity"], 90_000)
+
+    def test_unconfirmed_fixed_lifecycle_survives_each_supported_snapshot_version(self) -> None:
+        with session() as conn:
+            conn.execute("UPDATE app_settings SET value = '0' WHERE key = 'scheduled_income'")
+            conn.execute("UPDATE app_settings SET value = '100000' WHERE key = 'cash_flow_balance'")
+            conn.execute(
+                "INSERT OR REPLACE INTO app_settings(key, value) VALUES('last_closed_month', '2026-05')"
+            )
+            conn.execute(
+                "INSERT INTO monthly_panels(id, month, panel_type, title, amount_value, sort_order) "
+                "VALUES (31, '2026-06', 'fixed', 'Synthetic reserve', 5000, 1)"
+            )
+        _, original = export_snapshot(date(2026, 6, 15))
+        for version in (4, 5, 6, 7):
+            with self.subTest(snapshot_version=version):
+                snapshot = copy.deepcopy(original)
+                if version == 4:
+                    self._convert_to_v4_liquidity_keys(snapshot)
+                    for panel in snapshot["data"]["monthly_panels"]:
+                        panel.pop("confirmed_month", None)
+                        panel.pop("confirmed_cash_flow_id", None)
+                    self._refresh_manifest(snapshot)
+                elif version < 7:
+                    snapshot["schema_version"] = version
+                    for panel in snapshot["data"]["monthly_panels"]:
+                        panel.pop("confirmed_month", None)
+                        if version == 5:
+                            panel.pop("confirmed_cash_flow_id", None)
+                    self._refresh_manifest(snapshot)
+                restore_snapshot(snapshot)
+                init_db()
+                close_current_month(
+                    date(2026, 7, 1), target_month="2026-06", allow_unconfirmed_recurring=True
+                )
+                with patch("app.services.summary.app_today", return_value=date(2026, 7, 1)):
+                    summary = current_summary_values()
+                self.assertEqual(summary["cash_flow_balance"], 100_000)
+                self.assertEqual(summary["remaining_liquidity"], 95_000)
+                _, current = export_snapshot(date(2026, 7, 1))
+                restore_snapshot(current)
+                init_db()
+                with patch("app.services.summary.app_today", return_value=date(2026, 7, 1)):
+                    self.assertEqual(current_summary_values()["remaining_liquidity"], 95_000)
+
+    def test_ambiguous_v6_confirmation_is_rejected_before_restore(self) -> None:
+        fixture = Path(__file__).parent / "fixtures" / "snapshot_v6_confirmed_fixed.json"
+        original = json.loads(fixture.read_text(encoding="utf-8"))
+        with session() as conn:
+            conn.execute(
+                "INSERT INTO cash_flows(id, occurred_on, title, amount_value, sort_order) "
+                "VALUES (91, '2026-06-11', 'Existing state', -700, 1)"
+            )
+        for spent_on in ("unknown", "2026-02-30"):
+            with self.subTest(spent_on=spent_on):
+                invalid = copy.deepcopy(original)
+                invalid["data"]["monthly_panels"][0]["spent_on"] = spent_on
+                self._refresh_manifest(invalid)
+                with self.assertRaisesRegex(ValueError, "valid spent_on"):
+                    restore_snapshot(invalid)
+                with session() as conn:
+                    self.assertEqual(conn.execute("SELECT amount_value FROM cash_flows WHERE id = 91").fetchone()[0], -700)
+                    self.assertEqual(conn.execute("SELECT COUNT(*) FROM monthly_panels").fetchone()[0], 0)
+
+    def test_current_snapshot_does_not_reconstruct_missing_fixed_confirmation_month(self) -> None:
+        fixture = Path(__file__).parent / "fixtures" / "snapshot_v6_confirmed_fixed.json"
+        restore_snapshot(json.loads(fixture.read_text(encoding="utf-8")))
+        _, current = export_snapshot(date(2026, 6, 15))
+        self.assertEqual(current["schema_version"], 7)
+        invalid = copy.deepcopy(current)
+        invalid["data"]["monthly_panels"][0]["confirmed_month"] = None
+        self._refresh_manifest(invalid)
+        with self.assertRaisesRegex(ValueError, "inconsistent confirmed_month"):
+            restore_snapshot(invalid)
+        with session() as conn:
+            self.assertEqual(conn.execute("SELECT confirmed_month FROM monthly_panels WHERE id = 31").fetchone()[0], "2026-06")
+
+    def test_v5_snapshot_cannot_claim_a_v6_fixed_confirmation_link(self) -> None:
+        fixture = Path(__file__).parent / "fixtures" / "snapshot_v6_confirmed_fixed.json"
+        impossible = json.loads(fixture.read_text(encoding="utf-8"))
+        impossible["schema_version"] = 5
+        self._refresh_manifest(impossible)
+        with self.assertRaisesRegex(ValueError, "cannot represent a fixed confirmation link"):
+            restore_snapshot(impossible)
+        with session() as conn:
+            self.assertEqual(conn.execute("SELECT COUNT(*) FROM monthly_panels").fetchone()[0], 0)
 
     def test_restore_keeps_standard_summary_values(self) -> None:
         self._seed_data()
