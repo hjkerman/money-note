@@ -101,6 +101,7 @@ export type Summary = {
   card_total: number;
   planned_recurring_total: number;
   fixed_cash_total: number;
+  fixed_cash_processed_total: number;
   transfer_or_deposit_total: number;
   frozen_asset_total: number;
   claim_original_total: number;

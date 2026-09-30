@@ -33,7 +33,7 @@ export function CashFlowPanel({
     <section className="panel">
       <div className="panel-header">
         <h2>현금흐름</h2>
-        <span>{formatWon(total)}</span>
+        <span>전체 잔액 {formatWon(total)}</span>
       </div>
       <form className="cash-flow-form" onSubmit={(event) => void onSubmit(event)}>
         <input

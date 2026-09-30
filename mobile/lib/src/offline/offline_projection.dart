@@ -33,6 +33,7 @@ class OfflineProjection {
     var spendingTotal = original.currentSpendingTotal;
     var discountTotal = original.currentDiscountTotal;
     var cashFlowBalance = original.cashFlowBalance;
+    var fixedCashProcessedTotal = original.fixedCashProcessedTotal;
     var remainingLiquidity = original.remainingLiquidity;
     final projectionTime = projectedAt ?? DateTime.now();
     var usesConservativeCardEstimate = false;
@@ -150,6 +151,7 @@ class OfflineProjection {
           ));
           final reserve = panel.amountValue ?? 0;
           cashFlowBalance -= actualAmount;
+          fixedCashProcessedTotal += actualAmount;
           remainingLiquidity += reserve - actualAmount;
           break;
         case OfflineOperationType.confirmPlannedCardExpense:
@@ -203,6 +205,7 @@ class OfflineProjection {
         currentDiscountTotal: discountTotal,
         plannedRecurringTotal: original.plannedRecurringTotal,
         fixedCashTotal: original.fixedCashTotal,
+        fixedCashProcessedTotal: fixedCashProcessedTotal,
         frozenAssetTotal: original.frozenAssetTotal,
         cashFlowBalance: cashFlowBalance,
         remainingLiquidity: remainingLiquidity,

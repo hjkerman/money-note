@@ -43,6 +43,7 @@ class OfflineReconciliationTest(unittest.TestCase):
             {
                 "MONEY_NOTE_DB_PATH": str(self.db_path),
                 "MONEY_NOTE_TIMEZONE": "Asia/Seoul",
+                "MONEY_NOTE_TODAY": "2026-09-20",
             },
         )
         self.env.start()
@@ -436,6 +437,7 @@ class OfflineReconciliationTest(unittest.TestCase):
                 "card_total": 67748,
                 "planned_recurring_total": 12000,
                 "fixed_cash_total": 40000,
+                "fixed_cash_processed_total": 38000,
                 "transfer_or_deposit_total": 52000,
                 "frozen_asset_total": 0,
                 "claim_original_total": 0,

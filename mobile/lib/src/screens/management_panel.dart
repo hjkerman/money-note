@@ -52,8 +52,7 @@ class _PanelManagementScreenState extends State<PanelManagementScreen> {
                     panel.confirmedCashFlowId != null)
                 .toList()
             : <MonthlyPanel>[];
-        final total =
-            rows.fold<int>(0, (sum, panel) => sum + (panel.amountValue ?? 0));
+        final summary = widget.state.summary;
         return Scaffold(
           appBar: AppBar(title: Text(widget.title)),
           body: RefreshIndicator(
@@ -62,7 +61,17 @@ class _PanelManagementScreenState extends State<PanelManagementScreen> {
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 96),
               children: [
-                AmountTile(label: '합계', amount: won(total)),
+                AmountTile(
+                  label: widget.panelType == 'fixed'
+                      ? widget.state.financialValuesAreEstimated
+                          ? '처리액 / 전체 고정지출액(예상)'
+                          : '처리액 / 전체 고정지출액'
+                      : '합계',
+                  amount: widget.panelType == 'fixed'
+                      ? '${won(summary?.fixedCashProcessedTotal)} / 총 ${won(summary?.fixedCashTotal)}'
+                      : won(rows.fold<int>(
+                          0, (sum, panel) => sum + (panel.amountValue ?? 0))),
+                ),
                 const SectionTitle('등록'),
                 MoneyCard(
                   child: Column(
@@ -187,8 +196,9 @@ class _PanelManagementItem extends StatelessWidget {
             Text(won(panel.amountValue),
                 style: const TextStyle(fontWeight: FontWeight.w900)),
             IconButton(
-              onPressed:
-                  state.canUseOnlineWrites ? () => state.deletePanel(panel.id) : null,
+              onPressed: state.canUseOnlineWrites
+                  ? () => state.deletePanel(panel.id)
+                  : null,
               icon: const Icon(Icons.delete_outline),
               tooltip: '삭제',
             ),
@@ -280,8 +290,9 @@ class _FixedPanelManagementItemState extends State<_FixedPanelManagementItem> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: OutlinedButton(
-                    onPressed:
-                        state.canUseOnlineWrites ? () => state.deletePanel(panel.id) : null,
+                    onPressed: state.canUseOnlineWrites
+                        ? () => state.deletePanel(panel.id)
+                        : null,
                     style: OutlinedButton.styleFrom(foregroundColor: moneyRed),
                     child: const Text('삭제'),
                   ),
@@ -354,8 +365,7 @@ class _ConfirmedFixedPanelItem extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (panel.isOfflinePending)
-              const Text('오프라인 보관 중',
-                  style: TextStyle(color: moneyMuted)),
+              const Text('오프라인 보관 중', style: TextStyle(color: moneyMuted)),
             Text('처리일 ${shortDate(panel.spentOn)}',
                 style: const TextStyle(
                     color: moneyMuted,
@@ -376,7 +386,8 @@ class _ConfirmedFixedPanelItem extends StatelessWidget {
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: !state.canUseOnlineWrites || panel.confirmedCashFlowId == null
+                    onPressed: !state.canUseOnlineWrites ||
+                            panel.confirmedCashFlowId == null
                         ? null
                         : () => state.cancelFixedPanelConfirmation(
                             panel.confirmedCashFlowId!),
@@ -386,8 +397,9 @@ class _ConfirmedFixedPanelItem extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: OutlinedButton(
-                    onPressed:
-                        state.canUseOnlineWrites ? () => state.deletePanel(panel.id) : null,
+                    onPressed: state.canUseOnlineWrites
+                        ? () => state.deletePanel(panel.id)
+                        : null,
                     style: OutlinedButton.styleFrom(foregroundColor: moneyRed),
                     child: const Text('정기지출 해제'),
                   ),

@@ -16,6 +16,7 @@ Summary _summary({
     currentDiscountTotal: 0,
     plannedRecurringTotal: 0,
     fixedCashTotal: 0,
+    fixedCashProcessedTotal: 0,
     frozenAssetTotal: 0,
     cashFlowBalance: cashFlowBalance,
     remainingLiquidity: remainingLiquidity,

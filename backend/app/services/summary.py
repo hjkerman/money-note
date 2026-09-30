@@ -35,6 +35,7 @@ def _current_summary_values(conn: Any) -> dict[str, int]:
     card_total = max(0, entry_card_total - entry_discount_total)
     active_card_payment_unpaid = active_card_payment_unpaid_total(conn=conn)
     fixed_panel_total = panel_total("fixed", conn=conn)
+    fixed_cash_processed_total = processed_fixed_cash_total(conn)
     pending_fixed_panel_total = panel_total("fixed", only_unconfirmed=True, conn=conn)
     transfer_or_deposit_total = fixed_panel_total + planned_recurring_total
     liquidity_fixed_total = pending_fixed_panel_total + planned_liquidity_total
@@ -58,6 +59,7 @@ def _current_summary_values(conn: Any) -> dict[str, int]:
         "card_total": int(card_total),
         "planned_recurring_total": int(planned_recurring_total),
         "fixed_cash_total": int(fixed_panel_total),
+        "fixed_cash_processed_total": int(fixed_cash_processed_total),
         "transfer_or_deposit_total": int(transfer_or_deposit_total),
         "frozen_asset_total": int(frozen_asset_total),
         "claim_original_total": int(panel_total("claim", conn=conn)),
@@ -103,6 +105,20 @@ def panel_total(
         (panel_type,),
     ).fetchone()
     return float(row["total"])
+
+
+def processed_fixed_cash_total(conn: Any) -> int:
+    """Confirmed fixed expenses' actual cash outflow, not template reserve."""
+    row = conn.execute(
+        """
+        SELECT COALESCE(SUM(-cash_flows.amount_value), 0) AS total
+        FROM monthly_panels
+        JOIN cash_flows ON cash_flows.id = monthly_panels.confirmed_cash_flow_id
+        WHERE monthly_panels.panel_type = 'fixed'
+          AND monthly_panels.confirmed_at IS NOT NULL
+        """
+    ).fetchone()
+    return int(row["total"])
 
 
 def panel_net_total(panel_type: str, conn: Any | None = None) -> float:

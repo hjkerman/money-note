@@ -32,6 +32,7 @@ class Summary {
     required this.currentDiscountTotal,
     required this.plannedRecurringTotal,
     required this.fixedCashTotal,
+    required this.fixedCashProcessedTotal,
     required this.frozenAssetTotal,
     required this.cashFlowBalance,
     required this.remainingLiquidity,
@@ -48,6 +49,7 @@ class Summary {
   final int currentDiscountTotal;
   final int plannedRecurringTotal;
   final int fixedCashTotal;
+  final int fixedCashProcessedTotal;
   final int frozenAssetTotal;
   final int cashFlowBalance;
   final int remainingLiquidity;
@@ -65,6 +67,7 @@ class Summary {
       currentDiscountTotal: _int(json['current_discount_total']),
       plannedRecurringTotal: _int(json['planned_recurring_total']),
       fixedCashTotal: _int(json['fixed_cash_total']),
+      fixedCashProcessedTotal: _int(json['fixed_cash_processed_total']),
       frozenAssetTotal: _int(json['frozen_asset_total']),
       cashFlowBalance: _int(json['cash_flow_balance']),
       remainingLiquidity: _int(json['remaining_liquidity']),

@@ -76,6 +76,7 @@ OfflineBaseline baselineFixture({
       currentDiscountTotal: 0,
       plannedRecurringTotal: 1500,
       fixedCashTotal: 1000,
+      fixedCashProcessedTotal: 0,
       frozenAssetTotal: 0,
       cashFlowBalance: 5000,
       remainingLiquidity: remainingLiquidity,
@@ -319,8 +320,9 @@ class OfflineApiFake extends MoneyNoteApiClient {
           'exported_at': '2026-09-17T03:14:00Z',
           'data': <String, dynamic>{},
         },
-        'state_fingerprint':
-            committed ? currentFingerprint : baselineFixture().serverStateFingerprint,
+        'state_fingerprint': committed
+            ? currentFingerprint
+            : baselineFixture().serverStateFingerprint,
         'state_revision': committed ? 2 : 1,
         'evaluation_date': '2026-09-17',
         'discount_policy_defaults': const {

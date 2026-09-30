@@ -211,6 +211,9 @@ class PanelCompletionTest(IsolatedDatabaseTestCase):
         after = current_summary_values()
 
         assert result is not None
+        self.assertEqual(before["fixed_cash_processed_total"], 0)
+        self.assertEqual(after["fixed_cash_processed_total"], 112430)
+        self.assertEqual(after["fixed_cash_total"], before["fixed_cash_total"])
         self.assertEqual(result["panel"]["amount_value"], 150000)
         self.assertEqual(result["panel"]["confirmed_amount_value"], 112430)
         self.assertEqual(result["cash_flow"]["amount_value"], -112430)
@@ -253,6 +256,7 @@ class PanelCompletionTest(IsolatedDatabaseTestCase):
 
         assert result is not None
         self.assertEqual(result["cash_flow"]["amount_value"], 0)
+        self.assertEqual(after["fixed_cash_processed_total"], 0)
         self.assertEqual(after["remaining_liquidity"], before["remaining_liquidity"] + 25000)
 
     def test_deleting_actual_generated_cash_flow_restores_original_reserve(self) -> None:
@@ -271,6 +275,7 @@ class PanelCompletionTest(IsolatedDatabaseTestCase):
         restored = current_summary_values()
 
         self.assertEqual(restored["remaining_liquidity"], before["remaining_liquidity"])
+        self.assertEqual(restored["fixed_cash_processed_total"], before["fixed_cash_processed_total"])
         with session() as conn:
             panel = conn.execute(
                 "SELECT amount_value, confirmed_cash_flow_id FROM monthly_panels WHERE id = ?",

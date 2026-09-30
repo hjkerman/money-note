@@ -208,6 +208,27 @@ void main() {
     expect(state.confirmedFixedAmount, 11500);
   });
 
+  testWidgets('현금성 고정지출은 서버 실제 처리액과 전체 예정액을 함께 표시한다', (tester) async {
+    _useTallTestSurface(tester);
+    final state = _RecurringTestState();
+    state.summary = Summary.fromJson({
+      'fixed_cash_total': 10000,
+      'fixed_cash_processed_total': 8000,
+    });
+
+    await tester.pumpWidget(MaterialApp(
+      home: PanelManagementScreen(
+        state: state,
+        panelType: 'fixed',
+        title: '현금성 고정지출',
+        inputLabel: '지출 내용',
+        emptyText: '현금성 고정지출이 없습니다.',
+      ),
+    ));
+
+    expect(find.text('8,000원 / 총 10,000원'), findsOneWidget);
+  });
+
   testWidgets('빈 실제 원금은 label이나 기본 문구 대신 저장되지 않는다', (tester) async {
     _useTallTestSurface(tester);
     final state = _RecurringTestState();

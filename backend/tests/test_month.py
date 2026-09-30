@@ -52,6 +52,44 @@ class MonthCloseTest(unittest.TestCase):
         self.env.stop()
         self.temp_dir.cleanup()
 
+    def test_close_preserves_prior_cash_and_records_income_once(self) -> None:
+        with session() as conn:
+            conn.execute("UPDATE app_settings SET value = '1459200' WHERE key = 'scheduled_income'")
+            conn.executemany(
+                "INSERT INTO cash_flows(occurred_on, title, amount_value, sort_order) VALUES (?, ?, ?, ?)",
+                [
+                    ("2026-05-01", "prior income", 500_000, 1),
+                    ("2026-06-30", "prior expenses", -202_796, 2),
+                ],
+            )
+
+        with patch.dict(os.environ, {"MONEY_NOTE_TODAY": "2026-07-01"}):
+            get_settings.cache_clear()
+            before = current_summary_values()
+            close_current_month(
+                date(2026, 7, 1), target_month="2026-06", allow_unconfirmed_recurring=True,
+            )
+            after = current_summary_values()
+            close_current_month(
+                date(2026, 7, 1), target_month="2026-06", allow_unconfirmed_recurring=True,
+            )
+        get_settings.cache_clear()
+
+        self.assertEqual(before["cash_flow_balance"], 297_204)
+        self.assertEqual(after["cash_flow_balance"], 1_756_404)
+        with session() as conn:
+            rows = conn.execute(
+                "SELECT occurred_on, amount_value FROM cash_flows ORDER BY id"
+            ).fetchall()
+        self.assertEqual(
+            [(row["occurred_on"], row["amount_value"]) for row in rows],
+            [
+                ("2026-05-01", 500_000),
+                ("2026-06-30", -202_796),
+                ("2026-07-01", 1_459_200),
+            ],
+        )
+
     def test_status_warns_about_oldest_open_month(self) -> None:
         status = month_close_status(date(2026, 7, 1))
 

@@ -62,7 +62,7 @@ export function FixedPanelView({
       <PanelTable
         title={panelLabel(labels, "fixed")}
         rows={activeFixedPanels}
-        headerTotal={summary?.fixed_cash_total ?? 0}
+        headerAmountText={`${formatWon(summary?.fixed_cash_processed_total ?? 0)} / 총 ${formatWon(summary?.fixed_cash_total ?? 0)}`}
         fixedConfirmationDate={calendarDate}
         onConfirmFixed={handleFixedPanelConfirm}
         onDelete={(panel) => handlePanelDelete(panel)}
@@ -298,7 +298,7 @@ export function CashFlowView({
     <section className={active ? "tab-panel active" : "tab-panel"}>
       <CashFlowPanel
         rows={cashFlows}
-        total={summary?.visible_cash_flow_total ?? 0}
+        total={summary?.cash_flow_balance ?? 0}
         form={cashFlowForm}
         setForm={setCashFlowForm}
         onSubmit={handleCashFlowSubmit}

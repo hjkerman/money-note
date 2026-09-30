@@ -221,6 +221,7 @@ class Summary(BaseModel):
     card_total: int
     planned_recurring_total: int
     fixed_cash_total: int
+    fixed_cash_processed_total: int
     transfer_or_deposit_total: int
     frozen_asset_total: int
     claim_original_total: int

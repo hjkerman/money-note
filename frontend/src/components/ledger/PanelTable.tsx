@@ -24,6 +24,7 @@ export function PanelTable({
   onShare,
   form,
   headerTotal,
+  headerAmountText,
   fixedConfirmationDate,
   onConfirmFixed,
 }: {
@@ -40,6 +41,7 @@ export function PanelTable({
   onShare?: () => void;
   form?: ReactNode;
   headerTotal?: number;
+  headerAmountText?: string;
   fixedConfirmationDate?: string;
   onConfirmFixed?: (panel: MonthlyPanel, occurredOn: string, actualAmount: number) => void;
 }) {
@@ -95,7 +97,7 @@ export function PanelTable({
       <div className="panel-header">
         <h2>{title}</h2>
         <div className="header-actions">
-          <span>{formatWon(headerTotal ?? sumPanelNetAmounts(rows))}</span>
+          <span>{headerAmountText ?? formatWon(headerTotal ?? sumPanelNetAmounts(rows))}</span>
           {onProcessSelected && rows.length ? (
             <button type="button" onClick={processSelectedRows} disabled={!selectedRows.length}>
               {formatWon(selectedTotal)} 결제 처리

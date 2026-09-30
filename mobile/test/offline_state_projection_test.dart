@@ -13,7 +13,8 @@ void main() {
   group('offline state machine and projection', () {
     test('no baseline rejects deliberate offline entry', () async {
       final directory = await temporaryDirectoryFixture();
-      final state = AppState(OfflineApiFake(), offlineStore: offlineStoreFixture(directory));
+      final state = AppState(OfflineApiFake(),
+          offlineStore: offlineStoreFixture(directory));
 
       expect(await state.enterOfflineMode(), isFalse);
       expect(state.isOnline, isTrue);
@@ -49,7 +50,8 @@ void main() {
       final directory = await temporaryDirectoryFixture();
       final store = offlineStoreFixture(directory);
       await store.replaceBaseline(baselineFixture());
-      final state = AppState(OfflineApiFake(), offlineStore: store)..isBusy = true;
+      final state = AppState(OfflineApiFake(), offlineStore: store)
+        ..isBusy = true;
       expect(await state.enterOfflineMode(), isFalse);
       expect(state.offlineEntryMessage, contains('저장 또는 상태 전환'));
       expect((await store.loadMetadata()).mode, ConnectivityMode.online);
@@ -305,6 +307,8 @@ void main() {
         },
       );
       expect(state.summary!.remainingLiquidity, 10701);
+      expect(state.summary!.fixedCashProcessedTotal, 800);
+      expect(state.summary!.fixedCashTotal, 1000);
       expect(state.financialValuesAreEstimated, isTrue);
       expect(state.usesConservativeCardEstimate, isTrue);
       expect(state.expenseEntries.where((entry) => entry.isOfflinePending),
@@ -322,7 +326,8 @@ void main() {
       await state.closeCurrentMonth(targetMonth: '2026-09');
       expect(state.offlineJournal, hasLength(beforeClose));
       expect(state.statusMessage, contains('온라인에서만'));
-      expect((await offlineStoreFixture(directory).loadJournal()), hasLength(5));
+      expect(
+          (await offlineStoreFixture(directory).loadJournal()), hasLength(5));
     });
 
     test(
@@ -347,8 +352,8 @@ void main() {
       );
 
       final unavailableApi = OfflineApiFake();
-      final restarted =
-          AppState(unavailableApi, offlineStore: offlineStoreFixture(directory));
+      final restarted = AppState(unavailableApi,
+          offlineStore: offlineStoreFixture(directory));
       expect(await restarted.restorePersistedOfflineWorkspace(), isTrue);
       expect(restarted.isOffline, isTrue);
       expect(restarted.offlineJournal, hasLength(1));
@@ -367,7 +372,8 @@ void main() {
       expect(unavailableApi.stateFetchCalls, 0);
 
       final recoveredApi = OfflineApiFake()..available = true;
-      final recovered = AppState(recoveredApi, offlineStore: offlineStoreFixture(directory));
+      final recovered =
+          AppState(recoveredApi, offlineStore: offlineStoreFixture(directory));
       expect(await recovered.restorePersistedOfflineWorkspace(), isTrue);
       expect(recovered.isReconciliationRequired, isTrue);
       expect(recoveredApi.healthCalls, 1);
@@ -419,7 +425,8 @@ void main() {
       expect(await store.loadBaseline(), isNotNull);
       expect(await store.loadJournal(), hasLength(1));
 
-      final restarted = AppState(api, offlineStore: offlineStoreFixture(directory));
+      final restarted =
+          AppState(api, offlineStore: offlineStoreFixture(directory));
       expect(await restarted.restorePersistedOfflineWorkspace(), isTrue);
       expect(
           restarted.reconciliationChoice, ReconciliationChoice.applyToServer);

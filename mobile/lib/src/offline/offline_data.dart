@@ -444,6 +444,7 @@ Map<String, dynamic> _summaryToJson(Summary value) => {
       'current_discount_total': value.currentDiscountTotal,
       'planned_recurring_total': value.plannedRecurringTotal,
       'fixed_cash_total': value.fixedCashTotal,
+      'fixed_cash_processed_total': value.fixedCashProcessedTotal,
       'frozen_asset_total': value.frozenAssetTotal,
       'cash_flow_balance': value.cashFlowBalance,
       'remaining_liquidity': value.remainingLiquidity,
