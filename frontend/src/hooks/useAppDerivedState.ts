@@ -70,16 +70,16 @@ export function useAppDerivedState({
       {
         id: "cash",
         label: "현금흐름",
-        total: summary?.visible_cash_flow_total ?? 0,
+        total: summary?.cash_flow_balance ?? 0,
       },
     ],
     [
       cardPayments?.effective_remaining_total,
       labels,
+      summary?.cash_flow_balance,
       summary?.current_spending_total,
       summary?.frozen_asset_total,
       summary?.transfer_or_deposit_total,
-      summary?.visible_cash_flow_total,
     ],
   );
   const currentSubTabs: { id: CurrentTab; label: string; total: number }[] = useMemo(

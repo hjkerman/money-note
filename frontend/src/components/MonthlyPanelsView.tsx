@@ -298,7 +298,7 @@ export function CashFlowView({
     <section className={active ? "tab-panel active" : "tab-panel"}>
       <CashFlowPanel
         rows={cashFlows}
-        total={summary?.visible_cash_flow_total ?? 0}
+        total={summary?.cash_flow_balance ?? 0}
         form={cashFlowForm}
         setForm={setCashFlowForm}
         onSubmit={handleCashFlowSubmit}
