@@ -1,5 +1,8 @@
 from datetime import date
 import unittest
+from unittest.mock import patch
+
+from app.db import session
 
 from tests.db_fixture import IsolatedDatabaseTestCase
 from app.repository import create_cash_flow, list_cash_flows
@@ -48,6 +51,18 @@ class CashFlowQueryTest(IsolatedDatabaseTestCase):
             list_cash_flows(date_from="2026-07-01", date_to="2026-06-01")
         with self.assertRaisesRegex(ValueError, "1 이상"):
             list_cash_flows(limit=0)
+
+    def test_failed_create_response_does_not_commit_a_cash_flow(self) -> None:
+        with patch("app.repositories.cash_flows.row_to_dict", side_effect=RuntimeError("response failed")):
+            with self.assertRaisesRegex(RuntimeError, "response failed"):
+                create_cash_flow(CashFlowIn(
+                    occurred_on="2026-06-11", title="Failed response", amount_value=-500,
+                    sort_order=5,
+                ))
+        with session() as conn:
+            self.assertEqual(conn.execute(
+                "SELECT COUNT(*) FROM cash_flows WHERE title = 'Failed response'"
+            ).fetchone()[0], 0)
 
 
 if __name__ == "__main__":

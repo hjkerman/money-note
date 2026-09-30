@@ -406,7 +406,7 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
             "SELECT * FROM card_payment_events WHERE id = ?",
             (cursor.lastrowid,),
         ).fetchone()
-    return dict(event)
+        return dict(event)
 
 
 def _card_payment_request_fingerprint(payload: CardPaymentEventIn) -> str:
@@ -462,7 +462,7 @@ def set_entry_discount(
             (int(amount), entry_payment_key),
         )
         updated = conn.execute("SELECT * FROM ledger_entries WHERE payment_key = ?", (entry_payment_key,)).fetchone()
-    return dict(updated)
+        return dict(updated)
 
 
 def clear_entry_discount(entry_payment_key: str) -> bool:
@@ -566,7 +566,7 @@ def create_late_card_entry(payload: LateCardEntryIn, today: date | None = None) 
         ).fetchone()
         _add_card_payment_batch_item(conn, context.batch_id, int(cursor.lastrowid), str(payment_key_row["payment_key"]))
         row = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (cursor.lastrowid,)).fetchone()
-    return dict(row)
+        return dict(row)
 
 
 def defer_toll_payment(entry_payment_key: str, today: date | None = None) -> dict[str, str]:

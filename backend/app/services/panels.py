@@ -87,9 +87,9 @@ def confirm_fixed_panel(
             "SELECT * FROM cash_flows WHERE id = ?",
             (cash_flow_id,),
         ).fetchone()
-    confirmed_panel_data = row_to_dict(confirmed_panel)
-    confirmed_panel_data["confirmed_amount_value"] = amount
-    return {
-        "panel": confirmed_panel_data,
-        "cash_flow": row_to_dict(cash_flow),
-    }
+        confirmed_panel_data = row_to_dict(confirmed_panel)
+        confirmed_panel_data["confirmed_amount_value"] = amount
+        return {
+            "panel": confirmed_panel_data,
+            "cash_flow": row_to_dict(cash_flow),
+        }

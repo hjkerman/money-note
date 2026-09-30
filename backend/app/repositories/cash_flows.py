@@ -61,7 +61,7 @@ def create_cash_flow(flow: CashFlowIn, conn: Any | None = None) -> dict[str, Any
             ),
         )
         row = conn.execute("SELECT * FROM cash_flows WHERE id = ?", (cursor.lastrowid,)).fetchone()
-    return row_to_dict(row)
+        return row_to_dict(row)
 
 
 def delete_cash_flow(flow_id: int) -> bool:

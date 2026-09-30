@@ -119,7 +119,7 @@ def create_panel(panel: MonthlyPanelIn) -> dict[str, Any]:
             "SELECT * FROM monthly_panels WHERE id = ?",
             (cursor.lastrowid,),
         ).fetchone()
-    return row_to_dict(row)
+        return row_to_dict(row)
 
 
 def _validate_panel_create(panel: MonthlyPanelIn) -> None:
@@ -146,7 +146,7 @@ def update_panel(panel_id: int, patch: MonthlyPanelPatch) -> dict[str, Any] | No
             params,
         )
         row = conn.execute("SELECT * FROM monthly_panels WHERE id = ?", (panel_id,)).fetchone()
-    return row_to_dict(row) if row else None
+        return row_to_dict(row) if row else None
 
 
 def set_panel_discount(panel_id: int, discount_amount: int, discount_override: int) -> dict[str, Any] | None:
@@ -160,7 +160,7 @@ def set_panel_discount(panel_id: int, discount_amount: int, discount_override: i
             (discount_amount, discount_override, panel_id),
         )
         row = conn.execute("SELECT * FROM monthly_panels WHERE id = ?", (panel_id,)).fetchone()
-    return row_to_dict(row) if row else None
+        return row_to_dict(row) if row else None
 
 
 def delete_panel(panel_id: int) -> bool:

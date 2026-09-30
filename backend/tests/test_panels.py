@@ -1,5 +1,6 @@
 import os
 import unittest
+from datetime import date
 from unittest.mock import patch
 
 from tests.db_fixture import IsolatedDatabaseTestCase
@@ -31,6 +32,34 @@ class PanelCompletionTest(IsolatedDatabaseTestCase):
                     ('2026-06', 'frozen', '동결 하나', 4000, 1)
                 """
             )
+
+    def test_failed_create_response_does_not_commit_panel(self) -> None:
+        with patch("app.repositories.panels.row_to_dict", side_effect=RuntimeError("response failed")):
+            with self.assertRaisesRegex(RuntimeError, "response failed"):
+                create_panel(MonthlyPanelIn(
+                    month="2026-06", panel_type="claim", title="Failed response",
+                    amount_value=1200, sort_order=9,
+                ))
+        with session() as conn:
+            self.assertEqual(conn.execute(
+                "SELECT COUNT(*) FROM monthly_panels WHERE title = 'Failed response'"
+            ).fetchone()[0], 0)
+
+    def test_failed_confirmation_response_rolls_back_fixed_and_cash(self) -> None:
+        panel = create_panel(MonthlyPanelIn(
+            month="2026-06", panel_type="fixed", title="Rent", amount_value=5000,
+            sort_order=9,
+        ))
+        with patch("app.services.panels.row_to_dict", side_effect=RuntimeError("response failed")):
+            with self.assertRaisesRegex(RuntimeError, "response failed"):
+                confirm_fixed_panel(panel["id"], "2026-06-11", today=date(2026, 6, 11))
+        with session() as conn:
+            self.assertIsNone(conn.execute(
+                "SELECT confirmed_cash_flow_id FROM monthly_panels WHERE id = ?", (panel["id"],)
+            ).fetchone()[0])
+            self.assertEqual(conn.execute(
+                "SELECT COUNT(*) FROM cash_flows WHERE title = 'Rent'"
+            ).fetchone()[0], 0)
 
 
     def test_bulk_completion_deletes_only_selected_delivery_queue(self) -> None:

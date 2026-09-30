@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 
 from tests.db_fixture import IsolatedDatabaseTestCase
 from app.db import init_db, session
@@ -7,6 +8,18 @@ from app.schemas import LedgerEntryIn, LedgerEntryPatch, PlannedEntryIn
 
 
 class EntryConstraintTest(IsolatedDatabaseTestCase):
+    def test_failed_create_response_does_not_commit_a_card_expense(self) -> None:
+        with patch("app.repositories.entries.row_to_dict", side_effect=RuntimeError("response failed")):
+            with self.assertRaisesRegex(RuntimeError, "response failed"):
+                create_entry(LedgerEntryIn(
+                    book_section="current", entry_kind="expense", entry_date="2026-06-11",
+                    usage_place="Store", amount_value=10000, sort_order=1,
+                ))
+        with session() as conn:
+            self.assertEqual(conn.execute(
+                "SELECT COUNT(*) FROM ledger_entries WHERE amount_value = 10000"
+            ).fetchone()[0], 0)
+
     def test_current_expense_allows_only_usage_item_to_be_missing(self) -> None:
         entry = create_entry(
             LedgerEntryIn(
