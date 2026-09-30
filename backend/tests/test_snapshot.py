@@ -9,6 +9,8 @@ from unittest.mock import patch
 
 from tests.db_fixture import IsolatedDatabaseTestCase
 from app.db import init_db, session
+from app import db_migrations
+from app.repositories.entries import confirm_planned_entry, delete_entry
 from app.services.card_charge import DiscountCard
 from app.services.card_charge.policies import NoAutomaticDiscountPolicy
 from app.services.card_charge.registry import POLICY_TIMELINES, PolicyBinding
@@ -19,6 +21,260 @@ from app.services.summary import current_summary_values
 
 
 class SnapshotTest(IsolatedDatabaseTestCase):
+    def test_failed_migration_restart_then_legacy_restore_and_recurring_cancel(self) -> None:
+        from tests.test_migration_characterization import FIXTURE_DIRECTORY
+
+        self.db_path.unlink()
+        with sqlite3.connect(self.db_path) as conn:
+            conn.executescript((FIXTURE_DIRECTORY / "schema_pre_batch.sql").read_text())
+            conn.execute(
+                "INSERT INTO ledger_entries(id, book_section, entry_kind, title, amount_value, "
+                "payment_key, sort_order) VALUES "
+                "(11, 'current', 'expense', 'Before migration', 10000, 'before-11', 1)"
+            )
+        original = db_migrations.MIGRATIONS
+
+        def fail_after_schema_work(conn: sqlite3.Connection, schema: str) -> None:
+            original[0](conn, schema)
+            raise OSError("injected migration write failure")
+
+        with patch.object(db_migrations, "MIGRATIONS", (fail_after_schema_work, *original[1:])):
+            with self.assertRaisesRegex(OSError, "injected migration write failure"):
+                init_db()
+        with sqlite3.connect(self.db_path) as conn:
+            self.assertEqual(conn.execute("PRAGMA user_version").fetchone()[0], 0)
+            self.assertEqual(conn.execute(
+                "SELECT amount_value FROM ledger_entries WHERE id = 11"
+            ).fetchone()[0], 10000)
+        init_db()
+        fixture = Path(__file__).parent / "fixtures" / "snapshot_v6_recurring.json"
+        restore_snapshot(json.loads(fixture.read_text(encoding="utf-8")))
+        init_db()
+        self.assertTrue(delete_entry(42))
+        with patch("app.services.summary.app_today", return_value=date(2026, 6, 11)):
+            self.assertEqual(current_summary_values()["remaining_liquidity"], 95_000)
+
+    def test_historical_recurring_cancellation_restores_reserve_and_roundtrips(self) -> None:
+        # These synthetic files were exported by the actual v4-v7 historical exporters.
+        for version in (4, 5, 6, 7):
+            with self.subTest(snapshot_version=version):
+                fixture = Path(__file__).parent / "fixtures" / f"snapshot_v{version}_recurring.json"
+                snapshot = json.loads(fixture.read_text(encoding="utf-8"))
+                self.assertEqual(snapshot["schema_version"], version)
+                restore_snapshot(snapshot)
+                init_db()
+                self.assertTrue(delete_entry(42))
+                with session() as conn:
+                    planned = conn.execute(
+                        "SELECT confirmed_at, confirmed_month FROM ledger_entries WHERE id = 41"
+                    ).fetchone()
+                    self.assertIsNone(planned["confirmed_at"])
+                    self.assertIsNone(planned["confirmed_month"])
+                with patch("app.services.summary.app_today", return_value=date(2026, 6, 11)):
+                    self.assertEqual(current_summary_values()["remaining_liquidity"], 95_000)
+                confirmed = confirm_planned_entry(41, today=date(2026, 6, 11))
+                self.assertIsNotNone(confirmed)
+                self.assertEqual(confirmed["entry"]["source_planned_entry_id"], 41)
+                _, current = export_snapshot(date(2026, 6, 11))
+                self.assertEqual(current["schema_version"], 7)
+                restore_snapshot(current)
+                init_db()
+                self.assertTrue(delete_entry(confirmed["entry"]["id"]))
+                with session() as conn:
+                    self.assertIsNone(conn.execute(
+                        "SELECT confirmed_month FROM ledger_entries WHERE id = 41"
+                    ).fetchone()[0])
+
+    def test_ambiguous_legacy_recurring_cancellation_rolls_back(self) -> None:
+        fixture = Path(__file__).parent / "fixtures" / "snapshot_v6_recurring.json"
+        original = json.loads(fixture.read_text(encoding="utf-8"))
+        for duplicate_kind in ("planned", "expense"):
+            with self.subTest(duplicate_kind=duplicate_kind):
+                snapshot = copy.deepcopy(original)
+                duplicate = copy.deepcopy(next(
+                    row for row in snapshot["data"]["ledger_entries"]
+                    if row["entry_kind"] == duplicate_kind
+                ))
+                duplicate["id"] = 43
+                if duplicate_kind == "expense":
+                    duplicate["payment_key"] = "duplicate-legacy-candidate"
+                    duplicate["entry_date"] = "2026-06-12"
+                snapshot["data"]["ledger_entries"].append(duplicate)
+                self._refresh_manifest(snapshot)
+                restore_snapshot(snapshot)
+                with self.assertRaisesRegex(ValueError, "ambiguous legacy recurring"):
+                    delete_entry(42)
+                with session() as conn:
+                    self.assertIsNotNone(conn.execute("SELECT 1 FROM ledger_entries WHERE id = 42").fetchone())
+                    self.assertEqual(conn.execute(
+                        "SELECT confirmed_month FROM ledger_entries WHERE id = 41"
+                    ).fetchone()[0], "2026-06")
+
+    def test_older_confirmed_row_without_planned_date_requires_unique_month_match(self) -> None:
+        fixture = Path(__file__).parent / "fixtures" / "snapshot_v4_recurring.json"
+        snapshot = json.loads(fixture.read_text(encoding="utf-8"))
+        planned = next(row for row in snapshot["data"]["ledger_entries"] if row["id"] == 41)
+        planned["entry_date"] = None  # possible pre-v4 confirmation carried into a v4 export
+        self._refresh_manifest(snapshot)
+        restore_snapshot(snapshot)
+        self.assertTrue(delete_entry(42))
+        with session() as conn:
+            self.assertIsNone(conn.execute(
+                "SELECT confirmed_month FROM ledger_entries WHERE id = 41"
+            ).fetchone()[0])
+        with patch("app.services.summary.app_today", return_value=date(2026, 6, 11)):
+            self.assertEqual(current_summary_values()["remaining_liquidity"], 95_000)
+
+    def test_legacy_recurring_export_as_v7_then_cancel_keeps_legacy_meaning(self) -> None:
+        for version in (4, 5, 6):
+            with self.subTest(snapshot_version=version):
+                fixture = Path(__file__).parent / "fixtures" / f"snapshot_v{version}_recurring.json"
+                restore_snapshot(json.loads(fixture.read_text(encoding="utf-8")))
+                _, current = export_snapshot(date(2026, 6, 11))
+                self.assertEqual(current["schema_version"], 7)
+                restore_snapshot(current)
+                init_db()
+                self.assertTrue(delete_entry(42))
+                with session() as conn:
+                    self.assertIsNone(conn.execute(
+                        "SELECT confirmed_month FROM ledger_entries WHERE id = 41"
+                    ).fetchone()[0])
+                with patch("app.services.summary.app_today", return_value=date(2026, 6, 11)):
+                    self.assertEqual(current_summary_values()["remaining_liquidity"], 95_000)
+
+    def test_unresolved_legacy_recurring_cancellation_fails_before_delete(self) -> None:
+        fixture = Path(__file__).parent / "fixtures" / "snapshot_v6_recurring.json"
+        restore_snapshot(json.loads(fixture.read_text(encoding="utf-8")))
+        with session() as conn:
+            conn.execute("UPDATE ledger_entries SET amount_value = 4000 WHERE id = 42")
+        with self.assertRaisesRegex(ValueError, "unresolved legacy recurring"):
+            delete_entry(42)
+        with session() as conn:
+            self.assertEqual(conn.execute(
+                "SELECT amount_value FROM ledger_entries WHERE id = 42"
+            ).fetchone()[0], 4000)
+            self.assertEqual(conn.execute(
+                "SELECT confirmed_month FROM ledger_entries WHERE id = 41"
+            ).fetchone()[0], "2026-06")
+
+    def test_unrelated_expense_with_no_legacy_match_still_deletes(self) -> None:
+        fixture = Path(__file__).parent / "fixtures" / "snapshot_v6_recurring.json"
+        restore_snapshot(json.loads(fixture.read_text(encoding="utf-8")))
+        with session() as conn:
+            conn.execute(
+                "INSERT INTO ledger_entries(id, book_section, entry_kind, entry_date, title, "
+                "amount_value, sort_order, payment_key) VALUES "
+                "(43, 'current', 'expense', '2026-06-12', 'Unrelated cash', 1000, 3, 'unrelated')"
+            )
+        self.assertTrue(delete_entry(43))
+        with session() as conn:
+            self.assertEqual(conn.execute(
+                "SELECT confirmed_month FROM ledger_entries WHERE id = 41"
+            ).fetchone()[0], "2026-06")
+            self.assertIsNotNone(conn.execute("SELECT 1 FROM ledger_entries WHERE id = 42").fetchone())
+
+    def test_legacy_recurring_delete_and_confirmation_reset_are_one_transaction(self) -> None:
+        fixture = Path(__file__).parent / "fixtures" / "snapshot_v6_recurring.json"
+        restore_snapshot(json.loads(fixture.read_text(encoding="utf-8")))
+        with session() as conn:
+            conn.execute(
+                "CREATE TRIGGER reject_recurring_reset BEFORE UPDATE OF confirmed_month "
+                "ON ledger_entries WHEN OLD.id = 41 BEGIN SELECT RAISE(ABORT, 'injected reset failure'); END"
+            )
+        with self.assertRaisesRegex(sqlite3.IntegrityError, "injected reset failure"):
+            delete_entry(42)
+        with session() as conn:
+            self.assertIsNotNone(conn.execute("SELECT 1 FROM ledger_entries WHERE id = 42").fetchone())
+            self.assertEqual(conn.execute(
+                "SELECT confirmed_month FROM ledger_entries WHERE id = 41"
+            ).fetchone()[0], "2026-06")
+
+    def test_fixed_snapshot_relationships_reject_contradictions_without_restoring(self) -> None:
+        fixture = Path(__file__).parent / "fixtures" / "snapshot_v6_confirmed_fixed.json"
+        legacy = json.loads(fixture.read_text(encoding="utf-8"))
+        restore_snapshot(legacy)
+        _, current = export_snapshot(date(2026, 6, 11))
+        with session() as conn:
+            conn.execute(
+                "INSERT INTO cash_flows(id, occurred_on, title, amount_value, sort_order) "
+                "VALUES (91, '2026-06-11', 'Existing destination', -700, 91)"
+            )
+        for source in (legacy, current):
+            for mutation in (
+                "duplicate", "wrong_flow_date", "wrong_role", "missing_flow",
+                "wrong_month", "payment_flow_reused",
+            ):
+                with self.subTest(version=source["schema_version"], mutation=mutation):
+                    invalid = copy.deepcopy(source)
+                    panel = invalid["data"]["monthly_panels"][0]
+                    if mutation == "duplicate":
+                        duplicate = copy.deepcopy(panel)
+                        duplicate["id"] = 32
+                        invalid["data"]["monthly_panels"].append(duplicate)
+                    elif mutation == "wrong_flow_date":
+                        invalid["data"]["cash_flows"][0]["occurred_on"] = "2026-07-01"
+                    elif mutation == "wrong_role":
+                        invalid["data"]["cash_flows"][0]["amount_value"] = 5000
+                    elif mutation == "wrong_month":
+                        panel["confirmed_month"] = "2026-05"
+                    elif mutation == "payment_flow_reused":
+                        flow_id = invalid["data"]["cash_flows"][0]["id"]
+                        invalid["data"]["card_payment_events"].append({
+                            "id": 91, "event_date": "2026-06-11", "event_type": "immediate",
+                            "total_amount": 5000, "cash_flow_id": flow_id,
+                        })
+                        invalid["data"]["card_payment_allocations"].append({
+                            "id": 91, "payment_event_id": 91,
+                            "entry_payment_key": "synthetic-payment", "amount_value": 5000,
+                        })
+                    else:
+                        panel["confirmed_cash_flow_id"] = 9999
+                    self._refresh_manifest(invalid)
+                    with self.assertRaises(ValueError):
+                        restore_snapshot(invalid)
+                    init_db()
+                    with session() as conn:
+                        self.assertEqual(conn.execute("PRAGMA user_version").fetchone()[0], 3)
+                        self.assertEqual(conn.execute(
+                            "SELECT amount_value FROM cash_flows WHERE id = 91"
+                        ).fetchone()[0], -700)
+
+    def test_fixed_snapshot_allows_actual_amount_different_from_reserve(self) -> None:
+        fixture = Path(__file__).parent / "fixtures" / "snapshot_v6_confirmed_fixed.json"
+        snapshot = json.loads(fixture.read_text(encoding="utf-8"))
+        snapshot["data"]["cash_flows"][0]["amount_value"] = -3000
+        self._refresh_manifest(snapshot)
+        restore_snapshot(snapshot)
+        with session() as conn:
+            self.assertEqual(conn.execute(
+                "SELECT amount_value FROM monthly_panels WHERE id = 31"
+            ).fetchone()[0], 5000)
+            self.assertEqual(conn.execute(
+                "SELECT amount_value FROM cash_flows WHERE id = 1"
+            ).fetchone()[0], -3000)
+        _, current = export_snapshot(date(2026, 6, 11))
+        restore_snapshot(current)
+        with session() as conn:
+            self.assertEqual(conn.execute(
+                "SELECT amount_value FROM cash_flows WHERE id = 1"
+            ).fetchone()[0], -3000)
+
+    def test_migrated_historical_db_then_legacy_snapshot_recurring_delete(self) -> None:
+        from tests.test_migration_characterization import FIXTURE_DIRECTORY
+
+        fixture = Path(__file__).parent / "fixtures" / "snapshot_v6_recurring.json"
+        for era in ("pre_batch", "offline_phase2"):
+            with self.subTest(era=era):
+                self.db_path.unlink()
+                with sqlite3.connect(self.db_path) as conn:
+                    conn.executescript((FIXTURE_DIRECTORY / f"schema_{era}.sql").read_text())
+                init_db()
+                restore_snapshot(json.loads(fixture.read_text(encoding="utf-8")))
+                init_db()
+                self.assertTrue(delete_entry(42))
+                with patch("app.services.summary.app_today", return_value=date(2026, 6, 11)):
+                    self.assertEqual(current_summary_values()["remaining_liquidity"], 95_000)
+
     def test_supported_snapshot_versions_restore_then_restart_and_reexport(self) -> None:
         with session() as conn:
             conn.execute(

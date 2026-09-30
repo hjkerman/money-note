@@ -632,6 +632,41 @@ def _raise_if_foreign_key_errors(conn: Any) -> None:
 
 
 def _validate_financial_relationships(conn: Any) -> None:
+    duplicate_fixed_flow = conn.execute(
+        """
+        SELECT confirmed_cash_flow_id
+        FROM monthly_panels
+        WHERE confirmed_cash_flow_id IS NOT NULL
+        GROUP BY confirmed_cash_flow_id
+        HAVING COUNT(*) > 1
+        LIMIT 1
+        """
+    ).fetchone()
+    if duplicate_fixed_flow is not None:
+        raise ValueError("snapshot contains duplicate fixed cash flow confirmation")
+    invalid_fixed_flow = conn.execute(
+        """
+        SELECT monthly_panels.id
+        FROM monthly_panels
+        LEFT JOIN cash_flows ON cash_flows.id = monthly_panels.confirmed_cash_flow_id
+        WHERE monthly_panels.confirmed_cash_flow_id IS NOT NULL
+          AND (monthly_panels.panel_type != 'fixed'
+               OR monthly_panels.confirmed_at IS NULL
+               OR monthly_panels.spent_on IS NULL
+               OR monthly_panels.confirmed_month != substr(monthly_panels.spent_on, 1, 7)
+               OR cash_flows.id IS NULL
+               OR cash_flows.occurred_on != monthly_panels.spent_on
+               OR cash_flows.amount_value > 0
+               OR cash_flows.is_primary_income != 0
+               OR EXISTS (
+                   SELECT 1 FROM card_payment_events
+                   WHERE card_payment_events.cash_flow_id = monthly_panels.confirmed_cash_flow_id
+               ))
+        LIMIT 1
+        """
+    ).fetchone()
+    if invalid_fixed_flow is not None:
+        raise ValueError("snapshot fixed cash flow confirmation is inconsistent")
     duplicate_key = conn.execute(
         """
         SELECT payment_key

@@ -531,7 +531,8 @@ def delete_entry(entry_id: int) -> bool:
     with session(transaction_mode="IMMEDIATE") as conn:
         entry = conn.execute(
             """
-            SELECT payment_key, source_planned_entry_id, book_section, entry_date
+            SELECT payment_key, source_planned_entry_id, book_section, entry_kind,
+                   entry_date, title, usage_place, usage_item, amount_value
             FROM ledger_entries
             WHERE id = ?
             """,
@@ -539,6 +540,9 @@ def delete_entry(entry_id: int) -> bool:
         ).fetchone()
         if entry is None:
             return False
+        source_planned_entry_id = entry["source_planned_entry_id"]
+        if source_planned_entry_id is None:
+            source_planned_entry_id = _legacy_recurring_source(conn, entry_id, entry)
         if entry["payment_key"]:
             paid = conn.execute(
                 """
@@ -557,7 +561,6 @@ def delete_entry(entry_id: int) -> bool:
                 raise ValueError("일부라도 결제된 카드 사용내역은 일반 원장 삭제로 지울 수 없습니다.")
             _delete_card_payment_references(conn, str(entry["payment_key"]))
         cursor = conn.execute("DELETE FROM ledger_entries WHERE id = ?", (entry_id,))
-        source_planned_entry_id = entry["source_planned_entry_id"]
         if source_planned_entry_id and entry["book_section"] == "current":
             planned = conn.execute(
                 "SELECT confirmed_month FROM ledger_entries WHERE id = ? AND entry_kind = 'planned'",
@@ -577,6 +580,80 @@ def delete_entry(entry_id: int) -> bool:
                     (source_planned_entry_id, confirmed_month),
                 )
     return cursor.rowcount > 0
+
+
+def _legacy_recurring_source(conn: Any, entry_id: int, entry: Any) -> int | None:
+    """Find the sole v4-v6 confirmation source before any destructive write.
+
+    Those Snapshots omit source_planned_entry_id. The confirmed month and the
+    same fields used by the historical compatibility read can identify a
+    unique relationship; an original planned date, if present, must also match.
+    Older confirmed rows may have no planned date, so expense candidates are
+    checked across the whole month before clearing anything.
+    """
+    if (entry["book_section"] != "current" or entry["entry_kind"] != "expense"
+            or not entry["entry_date"]):
+        return None
+    month = str(entry["entry_date"])[:7]
+    matching_fields = (
+        entry["entry_date"], entry["title"], entry["usage_place"],
+        entry["usage_item"], entry["amount_value"],
+    )
+    planned = conn.execute(
+        """
+        SELECT id FROM ledger_entries
+        WHERE book_section = 'current' AND entry_kind = 'planned'
+          AND confirmed_month = ? AND confirmed_at IS NOT NULL
+          AND (entry_date = ? OR entry_date IS NULL) AND title = ?
+          AND COALESCE(usage_place, '') = COALESCE(?, '')
+          AND COALESCE(usage_item, '') = COALESCE(?, '')
+          AND COALESCE(amount_value, 0) = COALESCE(?, 0)
+        """,
+        (month, *matching_fields),
+    ).fetchall()
+    if not planned:
+        # A legacy generated row may have been edited after confirmation.
+        # If either its date or amount still points at a confirmed template,
+        # the absent explicit source cannot be safely inferred on deletion.
+        plausible = conn.execute(
+            """
+            SELECT 1 FROM ledger_entries
+            WHERE book_section = 'current' AND entry_kind = 'planned'
+              AND confirmed_month = ? AND confirmed_at IS NOT NULL
+              AND title = ?
+              AND COALESCE(usage_place, '') = COALESCE(?, '')
+              AND COALESCE(usage_item, '') = COALESCE(?, '')
+              AND (entry_date IS NULL OR entry_date = ?
+                   OR COALESCE(amount_value, 0) = COALESCE(?, 0))
+            LIMIT 1
+            """,
+            (month, entry["title"], entry["usage_place"], entry["usage_item"],
+             entry["entry_date"], entry["amount_value"]),
+        ).fetchone()
+        if plausible is not None:
+            raise ValueError("unresolved legacy recurring confirmation: source is not provable")
+        return None
+    if len(planned) != 1:
+        raise ValueError("ambiguous legacy recurring confirmation: multiple planned sources")
+    candidates = conn.execute(
+        """
+        SELECT id FROM ledger_entries
+        WHERE book_section = 'current' AND entry_kind = 'expense'
+          AND source_planned_entry_id IS NULL
+          AND entry_date LIKE ? AND title = ?
+          AND COALESCE(usage_place, '') = COALESCE(?, '')
+          AND COALESCE(usage_item, '') = COALESCE(?, '')
+          AND COALESCE(amount_value, 0) = COALESCE(?, 0)
+        """,
+        (f"{month}%", *matching_fields[1:]),
+    ).fetchall()
+    explicit = conn.execute(
+        "SELECT 1 FROM ledger_entries WHERE source_planned_entry_id = ? AND entry_kind = 'expense' LIMIT 1",
+        (planned[0]["id"],),
+    ).fetchone()
+    if len(candidates) != 1 or candidates[0]["id"] != entry_id or explicit is not None:
+        raise ValueError("ambiguous legacy recurring confirmation: multiple expense candidates")
+    return int(planned[0]["id"])
 
 
 def _validate_structured_entry(values: dict[str, Any]) -> None:

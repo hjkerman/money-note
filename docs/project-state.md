@@ -2,7 +2,7 @@
 
 이 문서는 새 개발자나 새 작업 세션이 Money Note의 현재 기준선과 문서 읽기 순서를 빠르게 파악하기 위한 체크포인트다. 상세 도메인 규칙, API, 스키마, 운영 절차를 대신하지 않는다.
 
-마지막 기능 코드 대조: 2026-09-29, T5 후속 Snapshot 복원·DB admission 경계 (운영 배포 기준이 아닌 개발 checkout)
+마지막 기능 코드 대조: 2026-09-30, T5 R1–R4 Snapshot 관계·DB admission 경계 (운영 배포 기준이 아닌 개발 checkout)
 
 ## 현재 기준선
 
@@ -18,6 +18,7 @@
 - 수동 Claim/Family Card의 최초 할인 의도도 생성 요청과 같은 transaction에 담는다. 정산 폼은 중복 제출과 늦은 응답으로 인한 새 draft 삭제를 막는다. 미확정 등록은 원래 authoritative 입력과 등록 key를 함께 보존해 명시적으로 확인하며, 다른 draft가 이전 key를 재사용하지 못한다. 오프라인 알림 후보는 pending J뿐 아니라 B의 확정 등록 identity를 검사한다. 재시작 시 reconciliation metadata는 mode/phase/commit/artifact 조합과 recovery bundle의 J까지 검증한다.
 - 웹 즉시결제는 사용자별 로컬 재시도 기록에 원래 요청·입력 draft·idempotency key를 서버 요청 전에 저장한다. HTTP 응답 또는 후속 조회가 실패하면 성공으로 표시하거나 입력을 지우지 않고, 재시작 후 명시적 확인에서 같은 요청·key를 사용한다. 성공해도 사용자가 처리 중 새로 편집한 draft는 지우지 않는다. 서버가 명확히 400/422로 거절한 경우만 해당 key를 정리한다.
 - T5의 DB `user_version`은 schema 구조에만 적용된다. 구버전 Snapshot은 이미 현재 구조인 DB에 데이터를 다시 넣을 수 있으므로, v6의 확인된 현금성 고정지출 확인 월은 Snapshot import에서 유효한 처리일로 복원한다. 손상된 unversioned 금융 핵심 컬럼은 추측해 보강하거나 version 3으로 승인하지 않는다.
+- 현재-unversioned admission은 시대별 필수 테이블과 PK/UNIQUE/FK를 migration의 `CREATE IF NOT EXISTS` 전에 검증한다. v4~v6 Snapshot 정기결제 취소는 유일한 historical source만 한 transaction에서 해제하며, Snapshot fixed 확인 링크의 소유·날짜 모순은 dry-run에서 거부한다.
 - 현재 유지보수의 중심은 버그와 무결성, 보안·배포, 카드 정책 이력, Judgment 문구, Android 알림 형식 변화 대응과 문서 일치다.
 
 ## 깨뜨리면 안 되는 경계

@@ -65,6 +65,7 @@ Judgment 문구는 현재 대부분 서버에서 완성된 문장으로 내려�
 
 ## 해결됨
 
+- T5 최종 독립 감사 R1–R4: `user_version=0`의 세대별 필수 테이블·PK/UNIQUE/FK 계약을 CREATE 전에 검증해 손상된 current-looking DB의 자동 빈 테이블 재생성·승격을 막는다. 과거 v4~v6 카드 정기결제 생성 지출은 관계를 유일하게 증명할 때만 원본 confirmation과 같은 transaction에서 취소하고, 모호한 경우 fail closed한다. Snapshot dry-run은 고정지출 cash-flow 링크 중복·날짜·역할 모순을 복원 전 거부한다. 실제 과거 exporter의 합성 fixture와 손상 schema/restore rollback 회귀로 고정했다.
 - T5 독립 감사 F1/F2: 실제 v6 Snapshot의 연결된 현금성 고정지출은 import 경계에서 확인 월을 검증·복원하여 다음 월마감 reserve를 유지한다. 모든 지원 era에서 존재한 금융 컬럼이 빠진 unversioned DB와 version 3의 누락 컬럼은 승격/기동을 거부한다. 실제 v6 exporter fixture, v4~v7 lifecycle, 손상 DB, migration crash 회귀로 고정했다.
 - T4.5 감사의 Low: 일반 모바일 Snapshot 저장 중인 `.pending` 경로를 프로세스 내 active set으로 추적하고, 다른 save의 하루 경과 cleanup에서 제외한다. 중단된 과거 `.pending` 정리와 실패한 cleanup의 정상 save 비차단은 그대로 유지한다. 두 repository 인스턴스가 겹치는 테스트로 고정했다.
 - 웹 즉시결제에서 서버 응답 유실 시 공용 refresh wrapper가 오류를 삼킨 뒤 화면이 성공으로 표시하고 재시도 key를 버리는 경로를 재현·수정했다. 사용자별 브라우저 저장소에 원래 요청·draft·key를 먼저 보존하고, 응답·새 조회가 성공한 뒤에만 정리한다. 처리 중 사용자가 새로 편집한 draft는 늦게 완료된 요청이 지우지 않는다. 재시작 후 명시적 확인은 같은 key로 재시도하며, 저장소 오류 시 결제를 시작하지 않는다. 명확한 HTTP 400/422 거절은 미commit이므로 key를 해제한다.
