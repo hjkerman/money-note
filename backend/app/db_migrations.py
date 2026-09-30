@@ -66,6 +66,60 @@ LEGACY_ADDITIVE_COLUMNS = {
     "offline_reconciliations": {"fingerprint_version", "request_fingerprint"},
 }
 
+# Supported unversioned eras add whole persistence families in this order.
+# A newer marker cannot be used to excuse a missing earlier relationship table.
+CORE_TABLES = frozenset({
+    "ledger_entries", "monthly_panels", "cash_flows", "app_settings", "app_labels",
+    "users", "auth_sessions", "share_sessions", "card_payment_events",
+    "card_payment_allocations", "card_payment_deferrals", "audit_logs",
+})
+BATCH_TABLES = frozenset({"card_payment_batches", "card_payment_batch_items"})
+OFFLINE_TABLES = frozenset({
+    "notification_candidate_registrations", "offline_reconciliations",
+    "offline_reconciliation_operations",
+})
+REVISION_TABLES = frozenset({"authoritative_state_revision"})
+
+# Identity and relationships present in every supported era in which their
+# table/column exists. Migration 001 adds the later source/link columns.
+PRIMARY_KEYS = {
+    "ledger_entries": ("id",), "monthly_panels": ("id",),
+    "cash_flows": ("id",), "app_settings": ("key",),
+    "app_labels": ("key",), "users": ("id",),
+    "auth_sessions": ("id",), "share_sessions": ("id",),
+    "card_payment_events": ("id",), "card_payment_allocations": ("id",),
+    "card_payment_deferrals": ("entry_payment_key",), "audit_logs": ("id",),
+    "card_payment_batches": ("id",), "card_payment_batch_items": ("id",),
+    "notification_candidate_registrations": ("registration_key",),
+    "offline_reconciliations": ("reconciliation_id",),
+    "offline_reconciliation_operations": ("operation_id",),
+    "authoritative_state_revision": ("id",),
+}
+UNIQUE_IDENTITIES = {
+    "users": (("username",),),
+    "auth_sessions": (("session_token_hash",),),
+    "share_sessions": (("session_token_hash",),),
+    "card_payment_batch_items": (("batch_id", "entry_payment_key"),),
+    "offline_reconciliation_operations": (("reconciliation_id", "sequence"),),
+}
+FOREIGN_KEYS = {
+    "auth_sessions": (("user_id", "users", "id", "CASCADE"),),
+    "card_payment_allocations": (("payment_event_id", "card_payment_events", "id", "CASCADE"),),
+    "card_payment_events": (
+        ("cash_flow_id", "cash_flows", "id", "SET NULL"),
+        ("batch_id", "card_payment_batches", "id", "CASCADE"),
+    ),
+    "card_payment_batch_items": (
+        ("batch_id", "card_payment_batches", "id", "CASCADE"),
+        ("entry_id", "ledger_entries", "id", "CASCADE"),
+    ),
+    "monthly_panels": (("confirmed_cash_flow_id", "cash_flows", "id", "SET NULL"),),
+    "ledger_entries": (("source_planned_entry_id", "ledger_entries", "id", "SET NULL"),),
+    "offline_reconciliation_operations": (
+        ("reconciliation_id", "offline_reconciliations", "reconciliation_id", "RESTRICT"),
+    ),
+}
+
 
 def _legacy_required_columns(expected: dict[str, set[str]]) -> dict[str, set[str]]:
     return {
@@ -78,28 +132,112 @@ def _admit_unversioned_legacy(conn: sqlite3.Connection, schema: str) -> None:
     expected = _expected_tables_and_columns(schema)
     present = _table_names(conn)
     required = _legacy_required_columns(expected)
-    historical_core_tables = {
-        "ledger_entries", "monthly_panels", "cash_flows", "app_settings", "app_labels",
-        "users", "auth_sessions", "share_sessions", "card_payment_events",
-        "card_payment_allocations", "card_payment_deferrals", "audit_logs",
-    }
-    if not historical_core_tables.issubset(present):
+    if not CORE_TABLES.issubset(present):
         raise RuntimeError("unknown unversioned database schema: missing historical core tables")
     if present - set(expected) - {"installments"}:
         raise RuntimeError("unknown unversioned database schema: unfamiliar tables")
-    # A revision table identifies the current unversioned era: its schema was
-    # already complete, so missing newer columns cannot be treated as legacy.
+    revision_triggers = conn.execute(
+        "SELECT 1 FROM sqlite_master WHERE type = 'trigger' AND name LIKE 'revision_%' LIMIT 1"
+    ).fetchone()
+    if revision_triggers is not None and "authoritative_state_revision" not in present:
+        raise RuntimeError("unknown unversioned database schema: missing revision state table")
+    columns = {
+        table: {row[1] for row in conn.execute(f"PRAGMA table_info({table})")}
+        for table in present & set(expected)
+    }
+    # Marker columns prevent a damaged newer DB from being mistaken for a
+    # predecessor merely because one of its required tables disappeared.
+    offline_marker = bool(present & OFFLINE_TABLES) or any((
+        "source_planned_entry_id" in columns["ledger_entries"],
+        "confirmed_month" in columns["monthly_panels"],
+        "idempotency_key" in columns["card_payment_events"],
+    ))
+    batch_marker = bool(present & BATCH_TABLES) or any((
+        "batch_id" in columns["card_payment_events"],
+        "confirmed_cash_flow_id" in columns["monthly_panels"],
+    ))
     current_era = "authoritative_state_revision" in present
+    if current_era:
+        # This era already had the complete runtime schema. Do not let the
+        # numbered CREATE IF NOT EXISTS path repair away evidence of damage.
+        try:
+            _validate_current_schema(conn, schema)
+        except RuntimeError as exc:
+            raise RuntimeError(f"unknown unversioned database schema: {exc}") from exc
+    era_tables = CORE_TABLES
+    if batch_marker or offline_marker or current_era:
+        era_tables |= BATCH_TABLES
+    if offline_marker or current_era:
+        era_tables |= OFFLINE_TABLES
+    if current_era:
+        era_tables |= REVISION_TABLES
+    if not era_tables.issubset(present):
+        raise RuntimeError("unknown unversioned database schema: missing era-required tables")
     for table in present & set(expected):
-        actual = {row[1] for row in conn.execute(f"PRAGMA table_info({table})")}
+        actual = columns[table]
         allowed = expected[table] | ({"discount_checked"} if table in {"ledger_entries", "monthly_panels"} else set())
         required_columns = expected[table] if current_era else required[table]
         if not actual.issubset(allowed) or not required_columns.issubset(actual):
             raise RuntimeError(f"unknown unversioned database schema: {table} columns")
-    if "card_payment_batch_items" in present and "card_payment_batches" not in present:
-        raise RuntimeError("unknown unversioned database schema: orphan payment batch items")
-    if "offline_reconciliation_operations" in present and "offline_reconciliations" not in present:
-        raise RuntimeError("unknown unversioned database schema: orphan reconciliation operations")
+    _validate_critical_structure(conn, era_tables, columns, "unknown unversioned database schema")
+
+
+def _has_unique_columns(conn: sqlite3.Connection, table: str, columns: tuple[str, ...]) -> bool:
+    return any(
+        index[2] and not index[4]
+        and tuple(row[2] for row in conn.execute(f"PRAGMA index_info({index[1]})")) == columns
+        for index in conn.execute(f"PRAGMA index_list({table})")
+    )
+
+
+def _validate_critical_structure(
+    conn: sqlite3.Connection, tables: set[str] | frozenset[str],
+    columns: dict[str, set[str]], error_prefix: str,
+) -> None:
+    for table in tables:
+        actual_pk_rows = sorted(
+            (row for row in conn.execute(f"PRAGMA table_info({table})") if row[5]),
+            key=lambda row: row[5],
+        )
+        actual_pk = tuple(row[1] for row in actual_pk_rows)
+        if actual_pk != PRIMARY_KEYS[table] or any(
+            row[2].upper() != ("INTEGER" if row[1] == "id" else "TEXT")
+            for row in actual_pk_rows
+        ):
+            raise RuntimeError(f"{error_prefix}: {table} primary key")
+        for unique_columns in UNIQUE_IDENTITIES.get(table, ()):
+            if not _has_unique_columns(conn, table, unique_columns):
+                raise RuntimeError(f"{error_prefix}: {table} unique identity")
+        expected_fks = {
+            relationship for relationship in FOREIGN_KEYS.get(table, ())
+            if relationship[0] in columns[table]
+        }
+        actual_fks = {
+            (row[3], row[2], row[4], row[6])
+            for row in conn.execute(f"PRAGMA foreign_key_list({table})")
+        }
+        if actual_fks != expected_fks:
+            raise RuntimeError(f"{error_prefix}: {table} foreign keys")
+    if "idempotency_key" in columns["card_payment_events"]:
+        indexes = {
+            row[1]: row for row in conn.execute("PRAGMA index_list(card_payment_events)")
+        }
+        index = indexes.get("idx_card_payment_events_idempotency")
+        if index is not None and (
+            not index[2] or not index[4]
+            or tuple(row[2] for row in conn.execute(
+                "PRAGMA index_info(idx_card_payment_events_idempotency)"
+            )) != ("idempotency_key",)
+            or not re.search(
+                r"\bWHERE\s+idempotency_key\s+IS\s+NOT\s+NULL\s*$",
+                str(conn.execute(
+                    "SELECT sql FROM sqlite_master WHERE type = 'index' AND name = ?",
+                    ("idx_card_payment_events_idempotency",),
+                ).fetchone()[0]),
+                re.IGNORECASE,
+            )
+        ):
+            raise RuntimeError(f"{error_prefix}: card payment idempotency index")
 
 
 def _validate_current_schema(conn: sqlite3.Connection, schema: str) -> None:
@@ -112,6 +250,7 @@ def _validate_current_schema(conn: sqlite3.Connection, schema: str) -> None:
         actual = {row[1] for row in conn.execute(f"PRAGMA table_info({table})")}
         if not required.issubset(actual):
             raise RuntimeError(f"current database version has missing {table} columns")
+    _validate_critical_structure(conn, expected_tables, expected, "current database version has invalid")
     names = {row[0] for row in conn.execute("SELECT name FROM sqlite_master WHERE type IN ('index', 'trigger')")}
     required_objects = set(re.findall(
         r"CREATE (?:UNIQUE )?INDEX IF NOT EXISTS ([a-z_]+)|CREATE TRIGGER IF NOT EXISTS ([a-z_]+)",
@@ -121,19 +260,8 @@ def _validate_current_schema(conn: sqlite3.Connection, schema: str) -> None:
     required_names.update({"idx_ledger_payment_key", "idx_ledger_source_planned", "idx_card_payment_events_idempotency"})
     if not required_names.issubset(names):
         raise RuntimeError("current database version has missing critical indexes or triggers")
-    for table, columns in (
-        ("users", ("username",)),
-        ("auth_sessions", ("session_token_hash",)),
-        ("card_payment_batch_items", ("batch_id", "entry_payment_key")),
-        ("offline_reconciliation_operations", ("reconciliation_id", "sequence")),
-    ):
-        unique = False
-        for index in conn.execute(f"PRAGMA index_list({table})"):
-            if index[2] and tuple(row[2] for row in conn.execute(f"PRAGMA index_info({index[1]})")) == columns:
-                unique = True
-                break
-        if not unique:
-            raise RuntimeError(f"current database version has missing {table} unique constraint")
+    # The named partial index is checked for uniqueness, columns and predicate
+    # above; unlike table-level identity constraints it is intentionally partial.
 
 
 def _extra_indexes(conn: sqlite3.Connection) -> None:
