@@ -25,6 +25,7 @@ from app.services.liquidity_names import (
     LEGACY_LIQUIDITY_SETTING_KEYS,
     normalized_legacy_label_value,
 )
+from app.services.legacy_recurring import infer_legacy_recurring_sources
 from app.share_auth import SENSITIVE_SHARE_SETTING_KEYS
 
 
@@ -388,11 +389,35 @@ def _normalized_snapshot_data(
             filtered = {key: value for key, value in row.items() if key in schema_columns and key not in ignored}
             rows.append(_normalize_snapshot_row(table, filtered))
         normalized[table] = rows
+    if schema_version < 7:
+        # Historical exporters had no source ID. Materialize only a unique,
+        # unchanged confirmation before any later user edit can erase its
+        # evidence. Ambiguous rows remain unbound and mutation fails closed.
+        sources = infer_legacy_recurring_sources(normalized["ledger_entries"])
+        for row in normalized["ledger_entries"]:
+            if row.get("id") in sources:
+                row["source_planned_entry_id"] = sources[row["id"]]
     # v6 recorded a fixed confirmation's cash-flow link and spent_on date,
     # but not its month. Import can target an already-versioned DB, so the
     # historical meaning must be restored here, after manifest validation.
     for panel in normalized["monthly_panels"]:
-        if panel.get("panel_type") != "fixed" or panel.get("confirmed_cash_flow_id") is None:
+        if panel.get("panel_type") != "fixed":
+            continue
+        confirmed_at = panel.get("confirmed_at")
+        linked = panel.get("confirmed_cash_flow_id") is not None
+        if confirmed_at is not None or linked:
+            if not isinstance(confirmed_at, str) or not re.fullmatch(
+                r"\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})?",
+                confirmed_at,
+            ):
+                raise ValueError("confirmed fixed expense has no valid confirmation timestamp")
+            try:
+                datetime.fromisoformat(confirmed_at.replace("Z", "+00:00"))
+            except ValueError:
+                raise ValueError("confirmed fixed expense has no valid confirmation timestamp") from None
+        if not linked:
+            if schema_version >= 6 and (confirmed_at is not None or panel.get("confirmed_month") is not None):
+                raise ValueError("confirmed fixed expense has no cash-flow relationship")
             continue
         if schema_version < 6:
             raise ValueError("snapshot version cannot represent a fixed confirmation link")
@@ -404,8 +429,6 @@ def _normalized_snapshot_data(
         except ValueError:
             raise ValueError("confirmed fixed expense has no valid spent_on date") from None
         confirmed_month = spent_on[:7]
-        if panel.get("confirmed_at") is None:
-            raise ValueError("confirmed fixed expense has no confirmation timestamp")
         if schema_version == 6 and panel.get("confirmed_month") is None:
             panel["confirmed_month"] = confirmed_month
         elif panel.get("confirmed_month") != confirmed_month:

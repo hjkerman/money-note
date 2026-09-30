@@ -65,6 +65,7 @@ Judgment 문구는 현재 대부분 서버에서 완성된 문장으로 내려�
 
 ## 해결됨
 
+- T5 N1–N5/L1: v4~v6 정기결제 생성 지출의 source 관계는 복원 또는 기존 미결합 행 수정 전에 원래 확인 시각·변경 전 행·유일성을 확인해 영속화한다. 삭제 시 mutable 필드로 새 관계를 추측하지 않고, 현행 명시적 source를 legacy 후보에서 제외한다. 알림 도입 전/후와 Offline Phase 2의 실제 historical schema를 별도 era로 인정하되 시대별 필수 금융 컬럼 누락은 복구값을 추측하지 않고 거부한다. 자동 ID 표의 rowid alias/AUTOINCREMENT 계약과 Snapshot fixed 확인 timestamp의 실제 날짜·시각도 검증한다. 합성 historical fixture, 손상 컬럼 매트릭스, 삭제/수정·복원 lifecycle 및 강제 종료 회귀로 고정한다.
 - T5 최종 독립 감사 R1–R4: `user_version=0`의 세대별 필수 테이블·PK/UNIQUE/FK 계약을 CREATE 전에 검증해 손상된 current-looking DB의 자동 빈 테이블 재생성·승격을 막는다. 과거 v4~v6 카드 정기결제 생성 지출은 관계를 유일하게 증명할 때만 원본 confirmation과 같은 transaction에서 취소하고, 모호한 경우 fail closed한다. Snapshot dry-run은 고정지출 cash-flow 링크 중복·날짜·역할 모순을 복원 전 거부한다. 실제 과거 exporter의 합성 fixture와 손상 schema/restore rollback 회귀로 고정했다.
 - T5 독립 감사 F1/F2: 실제 v6 Snapshot의 연결된 현금성 고정지출은 import 경계에서 확인 월을 검증·복원하여 다음 월마감 reserve를 유지한다. 모든 지원 era에서 존재한 금융 컬럼이 빠진 unversioned DB와 version 3의 누락 컬럼은 승격/기동을 거부한다. 실제 v6 exporter fixture, v4~v7 lifecycle, 손상 DB, migration crash 회귀로 고정했다.
 - T4.5 감사의 Low: 일반 모바일 Snapshot 저장 중인 `.pending` 경로를 프로세스 내 active set으로 추적하고, 다른 save의 하루 경과 cleanup에서 제외한다. 중단된 과거 `.pending` 정리와 실패한 cleanup의 정상 save 비차단은 그대로 유지한다. 두 repository 인스턴스가 겹치는 테스트로 고정했다.

@@ -986,7 +986,8 @@ curl -OJ -b /tmp/money-note-cookie.txt \
 - v4에 같은 의미의 과거 key와 현재 key가 함께 있고 값이 다르면 복원을 중단한다.
 - v6에서 확인된 현금성 고정지출의 연결과 날짜가 유효하면 원문 검증 후 확인 월을 복원한다. 날짜가 불명확하면 추측하지 않고 복원을 중단한다. v7의 확인 월이 연결과 모순되어도 중단한다.
 - 연결된 고정지출의 cash-flow 한 건을 여러 원본이 공유하거나 처리일·발생일·현금흐름 역할이 모순되면 dry-run에서 복원을 중단한다. 실제액은 template reserve와 달라도 된다.
-- v4~v6 카드 정기결제 생성 지출의 취소는 명시적 source ID 대신 유일하게 증명되는 과거 confirmation 관계만 같은 transaction에서 해제한다. 중복·수정된 후보처럼 관계가 불명확하면 삭제 전에 중단한다.
+- v4~v6 카드 정기결제 생성 지출은 복원 시 원래 확인 시각·변경되지 않은 생성 행·월내 유일성을 확인할 수 있을 때만 명시적 source ID를 영속화한다. 수정은 결합 이후에 진행하며, 삭제는 그 ID를 사용해 한 transaction에서 원본 확인을 해제한다. 삭제 시 mutable 필드로 새 관계를 추측하지 않는다. 명시적 관계가 있는 현행 원본은 legacy 추론 대상이 아니며, 미결합·모호한 과거 관계는 파괴적 취소 전에 중단한다.
+- fixed의 `confirmed_at`이 비어 있거나 실제 달력 날짜·시각으로 해석 불가능하면 manifest가 유효해도 복원하지 않는다. v6/v7에서 확인 시각 또는 확인 월만 있고 cash-flow 연결이 없는 상태도 거부한다.
 - 버전 3 이하는 지원하지 않는다.
 - 검증을 통과한 뒤 현재 서버가 모르는 컬럼은 복원 삽입 전에 무시한다.
 - 현재 서버에 새로 생긴 컬럼이 구버전 snapshot에 없으면 필요한 호환 의미를 먼저 검증·복원하고, 나머지 필드만 DB 기본값 또는 `NULL`로 복원한다.
@@ -1007,7 +1008,7 @@ curl -OJ -b /tmp/money-note-cookie.txt \
 - `pre_restore` 파일 생성, JSON parse, manifest 검증 중 하나라도 실패하면 복원을 중단한다.
 - 실제 restore 도중 예외가 발생하면 트랜잭션 rollback으로 기존 운영 DB를 보존한다.
 
-DB startup에서 `user_version=0`의 지원 세대 필수 테이블·PK/UNIQUE/FK가 없으면 자동 빈 표 생성이나 버전 승격으로 수선하지 않고 기동을 거부한다. 이 경우 원본 파일을 보존하고 검증된 외부 복구 지점·절차를 별도로 판단한다. Snapshot 파일 버전은 DB `user_version`과 별개의 축이다.
+DB startup에서 `user_version=0`의 지원 세대 필수 테이블·그 시대의 authoritative 컬럼·PK/UNIQUE/FK가 없으면 자동 빈 표 생성이나 버전 승격으로 수선하지 않고 기동을 거부한다. 자동 생성 ID 표에서는 SQLite rowid alias/AUTOINCREMENT 의미도 확인한다. 알림 도입 전·후와 reconciliation 도입 전·후는 별도 historical era로 판정하며, 손상된 현행 DB를 누락된 표 하나만 보고 구세대로 추측하지 않는다. 거부 시 원본 파일을 보존하고 검증된 외부 복구 지점·절차를 별도로 판단한다. Snapshot 파일 버전은 DB `user_version`과 별개의 축이다.
 
 서버는 다음 작업 직전에도 현재 장부 상태를 `pre_restore` snapshot으로 자동 저장한다.
 

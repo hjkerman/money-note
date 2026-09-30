@@ -5,6 +5,7 @@ from app.db import borrowed_or_new_session, session
 from app.repositories.common import ensure_payment_key_available, new_payment_key, row_to_dict
 from app.schemas import LedgerEntryIn, LedgerEntryPatch, PlannedEntryIn
 from app.services.clock import app_today
+from app.services.legacy_recurring import infer_legacy_recurring_sources, near_confirmation_creation
 from app.services.card_payments import (
     closed_month_payment_batch_id,
     _add_card_payment_batch_item,
@@ -106,6 +107,13 @@ def list_confirmed_planned_entries(today: date | None = None) -> list[dict[str, 
             """,
             (confirmed_month,),
         ).fetchall()
+        legacy_sources = infer_legacy_recurring_sources([dict(row) for row in conn.execute(
+            "SELECT * FROM ledger_entries WHERE book_section = 'current' "
+            "AND ((entry_kind = 'planned' AND confirmed_month = ?) "
+            "OR (entry_kind = 'expense' AND entry_date LIKE ?))",
+            (confirmed_month, f"{confirmed_month}%"),
+        )])
+        legacy_by_planned = {source: expense for expense, source in legacy_sources.items()}
         confirmed_entries = []
         for row in rows:
             item = row_to_dict(row)
@@ -122,30 +130,12 @@ def list_confirmed_planned_entries(today: date | None = None) -> list[dict[str, 
                 (row["id"], f"{confirmed_month}%"),
             ).fetchone()
             if expense is None:
-                # v4-v6 Snapshot과 기존 운영 행에는 명시적 관계가 없으므로 이 경계에서만 호환 매칭한다.
+                # Only a uniquely evidenced unbound legacy relation is shown
+                # as this confirmation's generated expense.
+                legacy_expense_id = legacy_by_planned.get(row["id"])
                 expense = conn.execute(
-                    """
-                    SELECT *
-                    FROM ledger_entries
-                    WHERE book_section = 'current'
-                      AND entry_kind = 'expense'
-                      AND entry_date LIKE ?
-                      AND title = ?
-                      AND COALESCE(usage_place, '') = COALESCE(?, '')
-                      AND COALESCE(usage_item, '') = COALESCE(?, '')
-                      AND COALESCE(amount_value, 0) = COALESCE(?, 0)
-                      AND source_planned_entry_id IS NULL
-                    ORDER BY id DESC
-                    LIMIT 1
-                    """,
-                    (
-                        f"{confirmed_month}%",
-                        row["title"],
-                        row["usage_place"],
-                        row["usage_item"],
-                        row["amount_value"],
-                    ),
-                ).fetchone()
+                    "SELECT * FROM ledger_entries WHERE id = ?", (legacy_expense_id,)
+                ).fetchone() if legacy_expense_id is not None else None
             if expense and expense["entry_date"]:
                 item["entry_date"] = expense["entry_date"]
                 item["_confirmed_expense"] = row_to_dict(expense)
@@ -223,7 +213,7 @@ def confirm_planned_entry(
         )
         entry = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (cursor.lastrowid,)).fetchone()
         updated_planned = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (entry_id,)).fetchone()
-    return {"planned": row_to_dict(updated_planned), "entry": row_to_dict(entry)}
+        return {"planned": row_to_dict(updated_planned), "entry": row_to_dict(entry)}
 
 
 def _parse_confirm_entry_date(value: str, expected_month: str) -> date:
@@ -379,7 +369,7 @@ def create_entry(entry: LedgerEntryIn, conn: Any | None = None) -> dict[str, Any
             "SELECT * FROM ledger_entries WHERE id = ?",
             (cursor.lastrowid,),
         ).fetchone()
-    return row_to_dict(row)
+        return row_to_dict(row)
 
 
 def append_planned_entry(entry: PlannedEntryIn) -> dict[str, Any]:
@@ -430,7 +420,7 @@ def append_planned_entry(entry: PlannedEntryIn) -> dict[str, Any]:
             ),
         )
         row = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (cursor.lastrowid,)).fetchone()
-    return row_to_dict(row)
+        return row_to_dict(row)
 
 
 def delete_planned_entry(entry_id: int) -> bool:
@@ -511,10 +501,14 @@ def update_entry(entry_id: int, patch: LedgerEntryPatch) -> dict[str, Any] | Non
             row = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (entry_id,)).fetchone()
         return row_to_dict(row) if row else None
 
-    with session() as conn:
+    with session(transaction_mode="IMMEDIATE") as conn:
         existing = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (entry_id,)).fetchone()
         if existing is None:
             return None
+        if existing["source_planned_entry_id"] is None:
+            source = _legacy_recurring_source(conn, entry_id, existing, allow_binding=True)
+            if source is not None:
+                values["source_planned_entry_id"] = source
         merged = {**dict(existing), **values}
         _validate_structured_entry(merged)
         assignments = ", ".join(f"{column} = ?" for column in values)
@@ -524,7 +518,7 @@ def update_entry(entry_id: int, patch: LedgerEntryPatch) -> dict[str, Any] | Non
             params,
         )
         row = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (entry_id,)).fetchone()
-    return row_to_dict(row) if row else None
+        return row_to_dict(row) if row else None
 
 
 def delete_entry(entry_id: int) -> bool:
@@ -532,7 +526,7 @@ def delete_entry(entry_id: int) -> bool:
         entry = conn.execute(
             """
             SELECT payment_key, source_planned_entry_id, book_section, entry_kind,
-                   entry_date, title, usage_place, usage_item, amount_value
+                   entry_date, title, usage_place, usage_item, amount_value, created_at
             FROM ledger_entries
             WHERE id = ?
             """,
@@ -582,78 +576,57 @@ def delete_entry(entry_id: int) -> bool:
     return cursor.rowcount > 0
 
 
-def _legacy_recurring_source(conn: Any, entry_id: int, entry: Any) -> int | None:
-    """Find the sole v4-v6 confirmation source before any destructive write.
-
-    Those Snapshots omit source_planned_entry_id. The confirmed month and the
-    same fields used by the historical compatibility read can identify a
-    unique relationship; an original planned date, if present, must also match.
-    Older confirmed rows may have no planned date, so expense candidates are
-    checked across the whole month before clearing anything.
-    """
-    if (entry["book_section"] != "current" or entry["entry_kind"] != "expense"
-            or not entry["entry_date"]):
+def _legacy_recurring_source(
+    conn: Any, entry_id: int, entry: Any, *, allow_binding: bool = False,
+) -> int | None:
+    """Bind before an edit, or reject cancellation of a still-unbound lineage."""
+    if entry["book_section"] != "current" or entry["entry_kind"] != "expense":
         return None
-    month = str(entry["entry_date"])[:7]
-    matching_fields = (
-        entry["entry_date"], entry["title"], entry["usage_place"],
-        entry["usage_item"], entry["amount_value"],
-    )
-    planned = conn.execute(
+    month = str(entry["entry_date"])[:7] if entry["entry_date"] else "0000-00"
+    rows = [dict(row) for row in conn.execute(
         """
-        SELECT id FROM ledger_entries
-        WHERE book_section = 'current' AND entry_kind = 'planned'
-          AND confirmed_month = ? AND confirmed_at IS NOT NULL
-          AND (entry_date = ? OR entry_date IS NULL) AND title = ?
-          AND COALESCE(usage_place, '') = COALESCE(?, '')
-          AND COALESCE(usage_item, '') = COALESCE(?, '')
-          AND COALESCE(amount_value, 0) = COALESCE(?, 0)
+        SELECT * FROM ledger_entries
+        WHERE book_section = 'current'
+          AND ((entry_kind = 'planned' AND confirmed_month = ? AND confirmed_at IS NOT NULL)
+               OR (entry_kind = 'expense' AND entry_date LIKE ?))
         """,
-        (month, *matching_fields),
+        (month, f"{month}%"),
+    )]
+    sources = infer_legacy_recurring_sources(rows)
+    if entry_id in sources:
+        if allow_binding:
+            return sources[entry_id]
+        raise ValueError("unresolved legacy recurring confirmation: bind before cancellation")
+    explicitly_linked = {row["source_planned_entry_id"] for row in rows
+                         if row["entry_kind"] == "expense" and row["source_planned_entry_id"] is not None}
+    for planned in rows:
+        if planned["entry_kind"] != "planned" or planned["id"] in explicitly_linked:
+            continue
+        same_date = planned["entry_date"] is None or planned["entry_date"] == entry["entry_date"]
+        same_description = all(
+            (planned[field] or "") == (entry[field] or "")
+            for field in ("title", "usage_place", "usage_item")
+        )
+        if same_date and (same_description or planned["amount_value"] == entry["amount_value"]):
+            raise ValueError("ambiguous legacy recurring confirmation: source is not provable")
+    # An old, already-edited source-less row may have moved to another entry
+    # month before this version could bind it. Its immutable creation time can
+    # still reveal a plausible confirmation; reject rather than deleting it
+    # while silently leaving the reserve released.
+    all_confirmed = conn.execute(
+        "SELECT id, confirmed_at FROM ledger_entries WHERE book_section = 'current' "
+        "AND entry_kind = 'planned' AND confirmed_month IS NOT NULL AND confirmed_at IS NOT NULL"
     ).fetchall()
-    if not planned:
-        # A legacy generated row may have been edited after confirmation.
-        # If either its date or amount still points at a confirmed template,
-        # the absent explicit source cannot be safely inferred on deletion.
-        plausible = conn.execute(
-            """
-            SELECT 1 FROM ledger_entries
-            WHERE book_section = 'current' AND entry_kind = 'planned'
-              AND confirmed_month = ? AND confirmed_at IS NOT NULL
-              AND title = ?
-              AND COALESCE(usage_place, '') = COALESCE(?, '')
-              AND COALESCE(usage_item, '') = COALESCE(?, '')
-              AND (entry_date IS NULL OR entry_date = ?
-                   OR COALESCE(amount_value, 0) = COALESCE(?, 0))
-            LIMIT 1
-            """,
-            (month, entry["title"], entry["usage_place"], entry["usage_item"],
-             entry["entry_date"], entry["amount_value"]),
-        ).fetchone()
-        if plausible is not None:
+    if all_confirmed:
+        all_explicit = {row[0] for row in conn.execute(
+            "SELECT source_planned_entry_id FROM ledger_entries WHERE book_section = 'current' "
+            "AND source_planned_entry_id IS NOT NULL"
+        )}
+        if any(planned["id"] not in all_explicit and near_confirmation_creation(
+            entry["created_at"], planned["confirmed_at"]
+        ) for planned in all_confirmed):
             raise ValueError("unresolved legacy recurring confirmation: source is not provable")
-        return None
-    if len(planned) != 1:
-        raise ValueError("ambiguous legacy recurring confirmation: multiple planned sources")
-    candidates = conn.execute(
-        """
-        SELECT id FROM ledger_entries
-        WHERE book_section = 'current' AND entry_kind = 'expense'
-          AND source_planned_entry_id IS NULL
-          AND entry_date LIKE ? AND title = ?
-          AND COALESCE(usage_place, '') = COALESCE(?, '')
-          AND COALESCE(usage_item, '') = COALESCE(?, '')
-          AND COALESCE(amount_value, 0) = COALESCE(?, 0)
-        """,
-        (f"{month}%", *matching_fields[1:]),
-    ).fetchall()
-    explicit = conn.execute(
-        "SELECT 1 FROM ledger_entries WHERE source_planned_entry_id = ? AND entry_kind = 'expense' LIMIT 1",
-        (planned[0]["id"],),
-    ).fetchone()
-    if len(candidates) != 1 or candidates[0]["id"] != entry_id or explicit is not None:
-        raise ValueError("ambiguous legacy recurring confirmation: multiple expense candidates")
-    return int(planned[0]["id"])
+    return None
 
 
 def _validate_structured_entry(values: dict[str, Any]) -> None:
