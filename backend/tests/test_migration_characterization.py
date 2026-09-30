@@ -1,6 +1,6 @@
 """Synthetic database shapes taken from committed historical SCHEMA definitions.
 
-The fixture names map to Git commits in docs/database.md. Only the rows seeded
+The fixture names map to Git commits in docs/database-migrations.md. Only the rows seeded
 here are test data; no installed or production database is used.
 """
 
@@ -16,6 +16,8 @@ FIXTURES = (
     "pre_batch",
     "card_batches",
     "fixed_expenses",
+    "pre_notification",
+    "notification",
     "offline_phase2",
 )
 FIXTURE_DIRECTORY = Path(__file__).parent / "fixtures"

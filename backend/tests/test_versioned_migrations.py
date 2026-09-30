@@ -2,6 +2,7 @@
 
 import sqlite3
 from datetime import date
+from pathlib import Path
 from unittest.mock import patch
 
 from app.db import SCHEMA, connect, init_db, session
@@ -14,6 +15,170 @@ from tests.test_migration_characterization import MigrationCharacterizationTest 
 
 class VersionedMigrationTest(IsolatedDatabaseTestCase):
     _seed_historical = _FixtureBuilder._seed_historical
+
+    def test_historical_batch_relationship_column_cannot_be_guessed(self) -> None:
+        self.db_path.unlink()
+        fixture = Path(__file__).parent / "fixtures" / "schema_offline_phase2.sql"
+        with sqlite3.connect(self.db_path) as conn:
+            conn.executescript(fixture.read_text(encoding="utf-8"))
+            conn.execute("INSERT OR REPLACE INTO app_settings(key,value) VALUES "
+                         "('scheduled_income','0'),('cash_flow_balance','100000'),"
+                         "('last_closed_month','2026-06')")
+            conn.execute("INSERT INTO ledger_entries(id,book_section,entry_kind,entry_date,"
+                         "title,usage_place,amount_value,payment_key,sort_order) VALUES "
+                         "(11,'archive','expense','2026-06-11','Purchase','Store',10000,'payment-11',1)")
+            conn.execute("INSERT INTO card_payment_batches(id,usage_month,source,status) "
+                         "VALUES (1,'2026-06','month_close','active')")
+            conn.execute("INSERT INTO card_payment_batch_items(id,batch_id,entry_id,entry_payment_key) "
+                         "VALUES (1,1,11,'payment-11')")
+            conn.execute("INSERT INTO cash_flows(id,occurred_on,title,amount_value,sort_order) "
+                         "VALUES (21,'2026-07-01','Card payment',-500,1)")
+            conn.execute("INSERT INTO card_payment_events(id,batch_id,event_date,event_type,"
+                         "total_amount,cash_flow_id) VALUES (31,1,'2026-07-01','immediate',500,21)")
+            conn.execute("INSERT INTO card_payment_allocations(id,payment_event_id,"
+                         "entry_payment_key,amount_value) VALUES (41,31,'payment-11',500)")
+        with patch("app.services.summary.app_today", return_value=date(2026, 7, 1)):
+            self.assertEqual(current_summary_values()["remaining_liquidity"], 90_120)
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute("ALTER TABLE card_payment_events DROP COLUMN batch_id")
+            before = list(conn.iterdump())
+        with self.assertRaisesRegex(RuntimeError, "unknown unversioned database schema"):
+            init_db()
+        with sqlite3.connect(self.db_path) as conn:
+            self.assertEqual(conn.execute("PRAGMA user_version").fetchone()[0], 0)
+            self.assertEqual(list(conn.iterdump()), before)
+
+    def test_historical_explicit_discount_exclusion_cannot_be_guessed(self) -> None:
+        self.db_path.unlink()
+        fixture = Path(__file__).parent / "fixtures" / "schema_offline_phase2.sql"
+        with sqlite3.connect(self.db_path) as conn:
+            conn.executescript(fixture.read_text(encoding="utf-8"))
+            conn.execute("INSERT OR REPLACE INTO app_settings(key,value) VALUES "
+                         "('scheduled_income','0'),('cash_flow_balance','100000')")
+            conn.execute("INSERT INTO ledger_entries(id,book_section,entry_kind,entry_date,title,"
+                         "usage_place,amount_value,aux_amount_value,discount_override,sort_order) "
+                         "VALUES (11,'current','expense','2026-06-11','Purchase','Store',10000,0,1,1)")
+        with patch("app.services.summary.app_today", return_value=date(2026, 6, 11)):
+            self.assertEqual(current_summary_values()["remaining_liquidity"], 90_000)
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute("ALTER TABLE ledger_entries DROP COLUMN discount_override")
+            before = list(conn.iterdump())
+        with self.assertRaisesRegex(RuntimeError, "unknown unversioned database schema"):
+            init_db()
+        with sqlite3.connect(self.db_path) as conn:
+            self.assertEqual(conn.execute("PRAGMA user_version").fetchone()[0], 0)
+            self.assertEqual(list(conn.iterdump()), before)
+
+    def test_confirmed_fixed_relationship_cannot_masquerade_as_pre_fixed_era(self) -> None:
+        self.db_path.unlink()
+        fixture = Path(__file__).parent / "fixtures" / "schema_fixed_expenses.sql"
+        with sqlite3.connect(self.db_path) as conn:
+            conn.executescript(fixture.read_text(encoding="utf-8"))
+            conn.execute("INSERT INTO cash_flows(id,occurred_on,title,amount_value,sort_order) "
+                         "VALUES (21,'2026-06-11','Rent',-5000,1)")
+            conn.execute("INSERT INTO monthly_panels(id,month,panel_type,title,spent_on,"
+                         "amount_value,sort_order,confirmed_at,confirmed_cash_flow_id) "
+                         "VALUES (31,'2026-06','fixed','Rent','2026-06-11',5000,1,"
+                         "'2026-06-11T09:00:00+00:00',21)")
+            conn.execute("ALTER TABLE monthly_panels DROP COLUMN confirmed_cash_flow_id")
+            before = list(conn.iterdump())
+        with self.assertRaisesRegex(RuntimeError, "unknown unversioned database schema"):
+            init_db()
+        with sqlite3.connect(self.db_path) as conn:
+            self.assertEqual(conn.execute("PRAGMA user_version").fetchone()[0], 0)
+            self.assertEqual(list(conn.iterdump()), before)
+
+    def test_supported_era_authoritative_columns_cannot_be_silently_recreated(self) -> None:
+        # Independent list of fields carrying financial or relationship input.
+        # Columns absent from an authentic historical fixture are future fields
+        # and are exercised by the successful migration characterization test.
+        authoritative = {
+            "ledger_entries": (
+                "book_section", "entry_kind", "entry_date", "date_label",
+                "group_label", "title", "usage_place", "usage_item",
+                "amount_value", "amount_expr", "aux_amount_value", "aux_amount_expr",
+                "extra_value", "sort_order", "due_day", "confirmed_at",
+                "confirmed_month", "source_planned_entry_id", "spending_category",
+                "payment_key", "discount_override", "created_at", "updated_at",
+            ),
+            "monthly_panels": (
+                "month", "panel_type", "title", "spent_on", "amount_value",
+                "discount_amount", "discount_override", "amount_expr", "sort_order",
+                "due_day", "confirmed_at", "confirmed_month", "confirmed_cash_flow_id",
+                "created_at", "updated_at",
+            ),
+            "cash_flows": (
+                "occurred_on", "title", "amount_value", "sort_order",
+                "is_primary_income", "created_at", "updated_at",
+            ),
+            "card_payment_events": (
+                "batch_id", "event_date", "event_type", "total_amount",
+                "note", "cash_flow_id", "idempotency_key", "request_fingerprint",
+                "created_at",
+            ),
+        }
+        for era in (
+            "pre_batch", "card_batches", "fixed_expenses", "pre_notification",
+            "notification", "offline_phase2",
+        ):
+            for table, names in authoritative.items():
+                for column in names:
+                    with self.subTest(era=era, table=table, column=column):
+                        self._seed_historical(era)
+                        with sqlite3.connect(self.db_path) as conn:
+                            present = {row[1] for row in conn.execute(f"PRAGMA table_info({table})")}
+                            if column not in present:
+                                continue
+                            # The confirmed fixed link is this era's sole schema
+                            # marker. A confirmed row supplies separate evidence.
+                            if era == "fixed_expenses" and column == "confirmed_cash_flow_id":
+                                continue
+                            try:
+                                conn.execute(f"ALTER TABLE {table} DROP COLUMN {column}")
+                            except sqlite3.OperationalError:
+                                # SQLite forbids dropping columns used by a
+                                # historical index/constraint; those identities
+                                # have dedicated structure corruption tests.
+                                continue
+                            before = list(conn.iterdump())
+                        with self.assertRaisesRegex(RuntimeError, "unknown unversioned database schema"):
+                            init_db()
+                        with sqlite3.connect(self.db_path) as conn:
+                            self.assertEqual(conn.execute("PRAGMA user_version").fetchone()[0], 0)
+                            self.assertEqual(list(conn.iterdump()), before)
+
+    def test_integer_primary_key_desc_is_not_an_auto_rowid_identity(self) -> None:
+        for version in (0, 3):
+            with self.subTest(version=version):
+                self.db_path.unlink()
+                init_db()
+                with sqlite3.connect(self.db_path) as conn:
+                    conn.execute("PRAGMA foreign_keys = OFF")
+                    original = conn.execute(
+                        "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'cash_flows'"
+                    ).fetchone()[0]
+                    indexes = [row[0] for row in conn.execute(
+                        "SELECT sql FROM sqlite_master WHERE type = 'index' AND tbl_name = 'cash_flows' "
+                        "AND sql IS NOT NULL"
+                    )]
+                    triggers = [row[0] for row in conn.execute(
+                        "SELECT sql FROM sqlite_master WHERE type = 'trigger' AND tbl_name = 'cash_flows'"
+                    )]
+                    broken = original.replace(
+                        "INTEGER PRIMARY KEY AUTOINCREMENT", "INTEGER PRIMARY KEY DESC"
+                    )
+                    self.assertNotEqual(broken, original)
+                    conn.execute("DROP TABLE cash_flows")
+                    conn.execute(broken)
+                    for statement in indexes + triggers:
+                        conn.execute(statement)
+                    conn.execute(f"PRAGMA user_version = {version}")
+                    before = list(conn.iterdump())
+                with self.assertRaisesRegex(RuntimeError, "cash_flows primary key"):
+                    init_db()
+                with sqlite3.connect(self.db_path) as conn:
+                    self.assertEqual(conn.execute("PRAGMA user_version").fetchone()[0], version)
+                    self.assertEqual(list(conn.iterdump()), before)
 
     def test_fresh_database_has_current_version_and_expected_schema(self) -> None:
         with session() as conn:

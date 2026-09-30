@@ -56,29 +56,51 @@ def _table_names(conn: sqlite3.Connection) -> set[str]:
     )}
 
 
-# Only these columns were absent from recognized pre-versioned schemas and
-# have a defined migration-001 addition. Every other current column, including
-# financial values and identities, must already be present in an existing DB.
-LEGACY_ADDITIVE_COLUMNS = {
-    "ledger_entries": {"discount_override", "source_planned_entry_id"},
-    "monthly_panels": {"discount_override", "confirmed_cash_flow_id", "confirmed_month"},
-    "card_payment_events": {"batch_id", "idempotency_key", "request_fingerprint"},
-    "offline_reconciliations": {"fingerprint_version", "request_fingerprint"},
-}
-
-# Supported unversioned eras add whole persistence families in this order.
-# A newer marker cannot be used to excuse a missing earlier relationship table.
+# Git's supported unversioned schemas introduce these families at distinct
+# times. The absence of a column is safe to migrate only in an era where it
+# never existed; a lost financial input or relationship must not get a default.
 CORE_TABLES = frozenset({
     "ledger_entries", "monthly_panels", "cash_flows", "app_settings", "app_labels",
     "users", "auth_sessions", "share_sessions", "card_payment_events",
     "card_payment_allocations", "card_payment_deferrals", "audit_logs",
 })
 BATCH_TABLES = frozenset({"card_payment_batches", "card_payment_batch_items"})
-OFFLINE_TABLES = frozenset({
-    "notification_candidate_registrations", "offline_reconciliations",
-    "offline_reconciliation_operations",
-})
+NOTIFICATION_TABLES = frozenset({"notification_candidate_registrations"})
+RECONCILIATION_TABLES = frozenset({"offline_reconciliations", "offline_reconciliation_operations"})
 REVISION_TABLES = frozenset({"authoritative_state_revision"})
+
+ERA_TABLES = {
+    "pre_batch": CORE_TABLES,
+    "card_batches": CORE_TABLES | BATCH_TABLES,
+    "fixed_expenses": CORE_TABLES | BATCH_TABLES,
+    "pre_notification": CORE_TABLES | BATCH_TABLES,
+    "notification": CORE_TABLES | BATCH_TABLES | NOTIFICATION_TABLES,
+    "offline_phase2": CORE_TABLES | BATCH_TABLES | NOTIFICATION_TABLES | RECONCILIATION_TABLES,
+    "current": CORE_TABLES | BATCH_TABLES | NOTIFICATION_TABLES | RECONCILIATION_TABLES | REVISION_TABLES,
+}
+ERA_FUTURE_COLUMNS = {
+    "pre_batch": {
+        "ledger_entries": {"source_planned_entry_id"},
+        "monthly_panels": {"confirmed_cash_flow_id", "confirmed_month"},
+        "card_payment_events": {"batch_id", "idempotency_key", "request_fingerprint"},
+    },
+    "card_batches": {
+        "ledger_entries": {"source_planned_entry_id"},
+        "monthly_panels": {"confirmed_cash_flow_id", "confirmed_month"},
+        "card_payment_events": {"idempotency_key", "request_fingerprint"},
+    },
+    "fixed_expenses": {
+        "ledger_entries": {"source_planned_entry_id"},
+        "monthly_panels": {"confirmed_month"},
+        "card_payment_events": {"idempotency_key", "request_fingerprint"},
+    },
+    "pre_notification": {},
+    "notification": {},
+    "offline_phase2": {
+        "offline_reconciliations": {"fingerprint_version", "request_fingerprint"},
+    },
+    "current": {},
+}
 
 # Identity and relationships present in every supported era in which their
 # table/column exists. Migration 001 adds the later source/link columns.
@@ -121,17 +143,9 @@ FOREIGN_KEYS = {
 }
 
 
-def _legacy_required_columns(expected: dict[str, set[str]]) -> dict[str, set[str]]:
-    return {
-        table: columns - LEGACY_ADDITIVE_COLUMNS.get(table, set())
-        for table, columns in expected.items()
-    }
-
-
 def _admit_unversioned_legacy(conn: sqlite3.Connection, schema: str) -> None:
     expected = _expected_tables_and_columns(schema)
     present = _table_names(conn)
-    required = _legacy_required_columns(expected)
     if not CORE_TABLES.issubset(present):
         raise RuntimeError("unknown unversioned database schema: missing historical core tables")
     if present - set(expected) - {"installments"}:
@@ -145,38 +159,49 @@ def _admit_unversioned_legacy(conn: sqlite3.Connection, schema: str) -> None:
         table: {row[1] for row in conn.execute(f"PRAGMA table_info({table})")}
         for table in present & set(expected)
     }
-    # Marker columns prevent a damaged newer DB from being mistaken for a
-    # predecessor merely because one of its required tables disappeared.
-    offline_marker = bool(present & OFFLINE_TABLES) or any((
+    # Choose the newest independently evidenced family. A missing member of
+    # that family then fails admission instead of being recreated empty.
+    modern_financial_marker = any((
         "source_planned_entry_id" in columns["ledger_entries"],
         "confirmed_month" in columns["monthly_panels"],
         "idempotency_key" in columns["card_payment_events"],
+        "request_fingerprint" in columns["card_payment_events"],
     ))
-    batch_marker = bool(present & BATCH_TABLES) or any((
-        "batch_id" in columns["card_payment_events"],
-        "confirmed_cash_flow_id" in columns["monthly_panels"],
-    ))
-    current_era = "authoritative_state_revision" in present
-    if current_era:
+    fixed_marker = "confirmed_cash_flow_id" in columns["monthly_panels"] or (
+        {"panel_type", "confirmed_at"}.issubset(columns["monthly_panels"])
+        and conn.execute(
+            "SELECT 1 FROM monthly_panels WHERE panel_type = 'fixed' "
+            "AND confirmed_at IS NOT NULL LIMIT 1"
+        ).fetchone() is not None
+    )
+    batch_marker = bool(present & BATCH_TABLES) or "batch_id" in columns["card_payment_events"]
+    if "authoritative_state_revision" in present:
+        era = "current"
         # This era already had the complete runtime schema. Do not let the
         # numbered CREATE IF NOT EXISTS path repair away evidence of damage.
         try:
             _validate_current_schema(conn, schema)
         except RuntimeError as exc:
             raise RuntimeError(f"unknown unversioned database schema: {exc}") from exc
-    era_tables = CORE_TABLES
-    if batch_marker or offline_marker or current_era:
-        era_tables |= BATCH_TABLES
-    if offline_marker or current_era:
-        era_tables |= OFFLINE_TABLES
-    if current_era:
-        era_tables |= REVISION_TABLES
+    elif present & RECONCILIATION_TABLES:
+        era = "offline_phase2"
+    elif present & NOTIFICATION_TABLES:
+        era = "notification"
+    elif modern_financial_marker:
+        era = "pre_notification"
+    elif fixed_marker:
+        era = "fixed_expenses"
+    elif batch_marker:
+        era = "card_batches"
+    else:
+        era = "pre_batch"
+    era_tables = ERA_TABLES[era]
     if not era_tables.issubset(present):
         raise RuntimeError("unknown unversioned database schema: missing era-required tables")
     for table in present & set(expected):
         actual = columns[table]
         allowed = expected[table] | ({"discount_checked"} if table in {"ledger_entries", "monthly_panels"} else set())
-        required_columns = expected[table] if current_era else required[table]
+        required_columns = expected[table] - ERA_FUTURE_COLUMNS[era].get(table, set())
         if not actual.issubset(allowed) or not required_columns.issubset(actual):
             raise RuntimeError(f"unknown unversioned database schema: {table} columns")
     _validate_critical_structure(conn, era_tables, columns, "unknown unversioned database schema")
@@ -205,6 +230,21 @@ def _validate_critical_structure(
             for row in actual_pk_rows
         ):
             raise RuntimeError(f"{error_prefix}: {table} primary key")
+        if actual_pk == ("id",) and table != "authoritative_state_revision":
+            # INTEGER PRIMARY KEY DESC looks identical in table_info, but has
+            # a separate PK index: INSERT.lastrowid is then not the stored id.
+            indexes = conn.execute(f"PRAGMA index_list({table})").fetchall()
+            table_sql = conn.execute(
+                "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?", (table,)
+            ).fetchone()[0]
+            try:
+                conn.execute(f"SELECT rowid FROM {table} LIMIT 0")
+            except sqlite3.OperationalError as exc:
+                raise RuntimeError(f"{error_prefix}: {table} primary key") from exc
+            if any(index[3] == "pk" for index in indexes) or not re.search(
+                r"\bid\s+INTEGER\s+PRIMARY\s+KEY\s+AUTOINCREMENT\b", table_sql, re.IGNORECASE,
+            ):
+                raise RuntimeError(f"{error_prefix}: {table} primary key")
         for unique_columns in UNIQUE_IDENTITIES.get(table, ()):
             if not _has_unique_columns(conn, table, unique_columns):
                 raise RuntimeError(f"{error_prefix}: {table} unique identity")
