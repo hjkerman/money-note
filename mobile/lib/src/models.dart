@@ -36,6 +36,7 @@ class Summary {
     required this.frozenAssetTotal,
     required this.cashFlowBalance,
     required this.remainingLiquidity,
+    this.currentMonthSpendable,
     required this.claimOriginalTotal,
     required this.claimNetTotal,
     required this.familyCardOriginalTotal,
@@ -53,6 +54,7 @@ class Summary {
   final int frozenAssetTotal;
   final int cashFlowBalance;
   final int remainingLiquidity;
+  final int? currentMonthSpendable;
   final int claimOriginalTotal;
   final int claimNetTotal;
   final int familyCardOriginalTotal;
@@ -71,6 +73,9 @@ class Summary {
       frozenAssetTotal: _int(json['frozen_asset_total']),
       cashFlowBalance: _int(json['cash_flow_balance']),
       remainingLiquidity: _int(json['remaining_liquidity']),
+      currentMonthSpendable: json['current_month_spendable'] == null
+          ? null
+          : _int(json['current_month_spendable']),
       claimOriginalTotal: _int(json['claim_original_total']),
       claimNetTotal: _int(json['claim_net_total']),
       familyCardOriginalTotal: _int(json['family_card_original_total']),

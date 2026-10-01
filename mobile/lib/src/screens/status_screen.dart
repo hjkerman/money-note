@@ -41,12 +41,14 @@ class StatusScreen extends StatelessWidget {
           children: [
             Expanded(
                 child: AmountTile(
-                    label: state.financialValuesAreEstimated ? '카드대금(예상)' : '카드대금',
+                    label:
+                        state.financialValuesAreEstimated ? '카드대금(예상)' : '카드대금',
                     amount: won(summary?.cardTotal))),
             const SizedBox(width: 12),
             Expanded(
                 child: AmountTile(
-                    label: state.financialValuesAreEstimated ? '월 지출(예상)' : '월 지출',
+                    label:
+                        state.financialValuesAreEstimated ? '월 지출(예상)' : '월 지출',
                     amount: won(summary?.currentSpendingTotal))),
           ],
         ),
@@ -58,7 +60,9 @@ class StatusScreen extends StatelessWidget {
                     label: state.financialValuesAreEstimated
                         ? '잔여 유동성(예상)'
                         : '잔여 유동성',
-                    amount: won(summary?.remainingLiquidity))),
+                    amount: summary?.currentMonthSpendable == null
+                        ? '서버 업데이트 필요'
+                        : won(summary!.currentMonthSpendable))),
             const SizedBox(width: 12),
             Expanded(
                 child: AmountTile(

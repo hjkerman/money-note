@@ -96,6 +96,7 @@ export type Summary = {
   scheduled_income: number;
   cash_flow_balance: number;
   remaining_liquidity: number;
+  current_month_spendable?: number;
   current_spending_total: number;
   current_discount_total: number;
   card_total: number;

@@ -17,10 +17,84 @@ from app.services.card_payments import (
     defer_toll_payment,
 )
 from app.services.month import close_current_month
+from app.services.panels import confirm_fixed_panel
 from app.services.summary import current_summary_values, panel_net_total
 
 
 class SummaryCalculationTest(IsolatedDatabaseTestCase):
+    def test_current_month_spendable_reserves_confirmed_fixed_next_occurrence(self) -> None:
+        with session() as conn:
+            conn.execute("UPDATE app_settings SET value = '1459200' WHERE key = 'scheduled_income'")
+            conn.execute("UPDATE app_settings SET value = '820000' WHERE key = 'cash_flow_balance'")
+            conn.execute(
+                """
+                INSERT INTO ledger_entries(
+                    book_section, entry_kind, entry_date, title, amount_value,
+                    aux_amount_value, discount_override, sort_order, payment_key
+                ) VALUES ('current', 'expense', '2026-10-01', '카드 사용',
+                          117880, 0, 1, 1, 'oct-spending')
+                """
+            )
+            conn.execute(
+                """
+                INSERT INTO ledger_entries(
+                    book_section, entry_kind, title, amount_value, sort_order
+                ) VALUES ('current', 'planned', '미확인 정기결제', 79390, 2)
+                """
+            )
+            panel_id = conn.execute(
+                """
+                INSERT INTO monthly_panels(month, panel_type, title, amount_value, sort_order)
+                VALUES ('2026-10', 'fixed', '현금 고정지출', 820000, 1)
+                """
+            ).lastrowid
+
+        before = current_summary_values()
+        self.assertEqual(before["remaining_liquidity"], 1_261_930)
+        self.assertEqual(before["current_month_spendable"], 1_261_930)
+
+        confirm_fixed_panel(panel_id, "2026-10-01", today=date(2026, 10, 1))
+        after = current_summary_values()
+        self.assertEqual(after["cash_flow_balance"], 0)
+        self.assertEqual(after["remaining_liquidity"], 1_261_930)
+        self.assertEqual(after["current_month_spendable"], 441_930)
+
+    def test_september_partial_confirmation_reproduces_2816_to_minus_17184(self) -> None:
+        with session() as conn:
+            conn.execute("UPDATE app_settings SET value = '1459200' WHERE key = 'scheduled_income'")
+            conn.execute("UPDATE app_settings SET value = '317204' WHERE key = 'cash_flow_balance'")
+            conn.execute(
+                """
+                INSERT INTO ledger_entries(
+                    book_section, entry_kind, entry_date, title, amount_value,
+                    aux_amount_value, discount_override, sort_order, payment_key
+                ) VALUES ('current', 'expense', '2026-09-30', '9월 카드',
+                          953588, 0, 1, 1, 'september-card')
+                """
+            )
+            conn.execute(
+                """
+                INSERT INTO monthly_panels(month, panel_type, title, amount_value, sort_order)
+                VALUES ('2026-09', 'fixed', '아직 미처리', 800000, 1)
+                """
+            )
+            confirmed_id = conn.execute(
+                """
+                INSERT INTO monthly_panels(month, panel_type, title, amount_value, sort_order)
+                VALUES ('2026-09', 'fixed', '이미 처리', 20000, 2)
+                """
+            ).lastrowid
+        confirm_fixed_panel(confirmed_id, "2026-09-30", today=date(2026, 9, 30))
+
+        with patch.dict(os.environ, {"MONEY_NOTE_TODAY": "2026-09-30"}):
+            get_settings.cache_clear()
+            summary = current_summary_values()
+        get_settings.cache_clear()
+
+        self.assertEqual(summary["cash_flow_balance"], 297_204)
+        self.assertEqual(summary["remaining_liquidity"], 2_816)
+        self.assertEqual(summary["current_month_spendable"], -17_184)
+
     def test_scheduled_income_is_prefunded_before_cash_realization(self) -> None:
         summary = current_summary_values()
 

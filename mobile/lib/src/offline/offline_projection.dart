@@ -35,6 +35,7 @@ class OfflineProjection {
     var cashFlowBalance = original.cashFlowBalance;
     var fixedCashProcessedTotal = original.fixedCashProcessedTotal;
     var remainingLiquidity = original.remainingLiquidity;
+    var newlyConfirmedFixedReserve = 0;
     final projectionTime = projectedAt ?? DateTime.now();
     var usesConservativeCardEstimate = false;
 
@@ -153,6 +154,7 @@ class OfflineProjection {
           cashFlowBalance -= actualAmount;
           fixedCashProcessedTotal += actualAmount;
           remainingLiquidity += reserve - actualAmount;
+          newlyConfirmedFixedReserve += reserve;
           break;
         case OfflineOperationType.confirmPlannedCardExpense:
           final entryId = _int(payload['entry_id']);
@@ -209,6 +211,12 @@ class OfflineProjection {
         frozenAssetTotal: original.frozenAssetTotal,
         cashFlowBalance: cashFlowBalance,
         remainingLiquidity: remainingLiquidity,
+        currentMonthSpendable: original.currentMonthSpendable == null
+            ? null
+            : original.currentMonthSpendable! +
+                remainingLiquidity -
+                original.remainingLiquidity -
+                newlyConfirmedFixedReserve,
         claimOriginalTotal: original.claimOriginalTotal,
         claimNetTotal: original.claimNetTotal,
         familyCardOriginalTotal: original.familyCardOriginalTotal,

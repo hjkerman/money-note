@@ -65,7 +65,9 @@ class _CashFlowScreenState extends State<CashFlowScreen> {
                     label: widget.state.financialValuesAreEstimated
                         ? '잔여 유동성(예상)'
                         : '잔여 유동성',
-                    amount: won(widget.state.summary?.remainingLiquidity))),
+                    amount: widget.state.summary?.currentMonthSpendable == null
+                        ? '서버 업데이트 필요'
+                        : won(widget.state.summary!.currentMonthSpendable))),
           ],
         ),
         const SectionTitle('현금 입출금 입력'),

@@ -50,10 +50,19 @@ def _current_summary_values(conn: Any) -> dict[str, int]:
         - liquidity_fixed_total
         - frozen_asset_total
     )
+    # remaining_liquidity reserves only unconfirmed cash-fixed templates. A
+    # confirmed template has already produced its actual cash outflow, but its
+    # next occurrence still needs the template reserve in the prefunded cycle.
+    # Keep exactly one forward reserve per template; never re-subtract the
+    # unconfirmed part already present in remaining_liquidity.
+    current_month_spendable = remaining_liquidity - (
+        fixed_panel_total - pending_fixed_panel_total
+    )
     return {
         "scheduled_income": int(scheduled_income),
         "cash_flow_balance": int(cash_flow_balance),
         "remaining_liquidity": int(remaining_liquidity),
+        "current_month_spendable": int(current_month_spendable),
         "current_spending_total": int(entry_card_total),
         "current_discount_total": int(entry_discount_total),
         "card_total": int(card_total),

@@ -331,6 +331,24 @@ void main() {
     });
 
     test(
+        'offline fixed confirmation preserves next-cycle reserve in displayed spendable',
+        () async {
+      final directory = await temporaryDirectoryFixture();
+      final store = offlineStoreFixture(directory,
+          clock: () => DateTime.utc(2026, 9, 17, 5));
+      await store.replaceBaseline(baselineFixture(
+          remainingLiquidity: 10000, currentMonthSpendable: 10000));
+      final state = AppState(OfflineApiFake(), offlineStore: store);
+      expect(await state.enterOfflineMode(), isTrue);
+
+      expect(await state.confirmFixedPanel(30, '2026-09-17', 800), isTrue);
+
+      expect(state.summary!.remainingLiquidity, 10200);
+      expect(state.summary!.currentMonthSpendable, 9200);
+      expect(state.summary!.fixedCashProcessedTotal, 800);
+    });
+
+    test(
         'offline refresh and restart use health only, then require reconciliation',
         () async {
       final directory = await temporaryDirectoryFixture();

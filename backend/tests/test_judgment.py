@@ -219,6 +219,21 @@ class JudgmentTest(unittest.TestCase):
         self.assertIn("budget", result)
         self.assertIn("payment", result)
 
+    def test_budget_judgment_uses_current_month_spendable_not_prefunded_liquidity(self) -> None:
+        result = app_judgment(
+            entries=[{"entry_kind": "expense", "amount_value": 1000}],
+            panels=[],
+            cash_flows=[],
+            summary={
+                "remaining_liquidity": 2816,
+                "current_month_spendable": -17184,
+            },
+            payment_status={"recorded_remaining_total": 0},
+            settings={"scheduled_income": "1459200"},
+        )
+
+        self.assertEqual(result["budget"]["level"], "danger")
+
     def test_owner_judgment_excludes_claim_and_family_borne_spending(self) -> None:
         common = {
             "entries": [

@@ -3,6 +3,7 @@ import { expect, test } from "vitest";
 
 import { Summary } from "./api";
 import { CashFlowView, FixedPanelView } from "./components/MonthlyPanelsView";
+import { SummaryPanel } from "./components/Insights";
 import { useAppDerivedState } from "./hooks/useAppDerivedState";
 
 const summary: Summary = {
@@ -59,6 +60,19 @@ test("cash-flow navigation tab uses the same full server cash balance", () => {
   }
 
   expect(renderToStaticMarkup(<TabProbe />)).toContain("1756404");
+});
+
+test("the remaining-liquidity slot renders the server's current-month spendable value", () => {
+  const html = renderToStaticMarkup(
+    <SummaryPanel
+      summary={{ ...summary, remaining_liquidity: 1_261_930, current_month_spendable: 441_930 }}
+      judgment={null}
+      labels={{}}
+    />,
+  );
+
+  expect(html).toContain("441,930원");
+  expect(html).not.toContain("1,261,930원");
 });
 
 test("fixed panel displays actual processed outflow over all template reserves from the server", () => {

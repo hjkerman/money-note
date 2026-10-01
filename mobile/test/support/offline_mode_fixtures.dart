@@ -18,6 +18,7 @@ CardDiscountProjectionPolicy flatProjectionPolicy(String scope) {
 
 OfflineBaseline baselineFixture({
   int remainingLiquidity = 10000,
+  int? currentMonthSpendable,
   bool includeProjectionPolicy = true,
   bool includeAuthority = true,
   bool registeredCandidate = false,
@@ -80,6 +81,7 @@ OfflineBaseline baselineFixture({
       frozenAssetTotal: 0,
       cashFlowBalance: 5000,
       remainingLiquidity: remainingLiquidity,
+      currentMonthSpendable: currentMonthSpendable,
       claimOriginalTotal: 0,
       claimNetTotal: 0,
       familyCardOriginalTotal: 0,
@@ -232,7 +234,7 @@ class OfflineApiFake extends MoneyNoteApiClient {
       'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
 
   @override
-  Future<void> health() async {
+  Future<void> health({Duration timeout = const Duration(seconds: 15)}) async {
     healthCalls += 1;
     if (!available) {
       throw MoneyNoteConnectionException('서버에 연결할 수 없습니다.');

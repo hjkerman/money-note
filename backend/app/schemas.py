@@ -216,6 +216,7 @@ class Summary(BaseModel):
     scheduled_income: int
     cash_flow_balance: int
     remaining_liquidity: int
+    current_month_spendable: int
     current_spending_total: int
     current_discount_total: int
     card_total: int

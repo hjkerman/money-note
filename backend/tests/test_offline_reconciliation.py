@@ -432,6 +432,7 @@ class OfflineReconciliationTest(unittest.TestCase):
                 "scheduled_income": 1000000,
                 "cash_flow_balance": 67000,
                 "remaining_liquidity": 999252,
+                "current_month_spendable": 959252,
                 "current_spending_total": 71000,
                 "current_discount_total": 3252,
                 "card_total": 67748,

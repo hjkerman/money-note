@@ -87,6 +87,24 @@ class FormAppStateFake extends AppState {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  testWidgets('home liquidity slot uses the server current-month amount',
+      (tester) async {
+    final state = AppState(OfflineApiFake())
+      ..summary = baselineFixture(
+        remainingLiquidity: 1261930,
+        currentMonthSpendable: 441930,
+      ).summary
+      ..monthCloseStatus = baselineFixture().monthCloseStatus;
+    addTearDown(state.dispose);
+
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(body: HomeScreen(state: state)),
+    ));
+
+    expect(find.text('441,930원'), findsOneWidget);
+    expect(find.text('1,261,930원'), findsNothing);
+  });
+
   testWidgets('server failure prompt offers offline mode and app exit',
       (tester) async {
     final directory = (await tester.runAsync(temporaryDirectoryFixture))!;

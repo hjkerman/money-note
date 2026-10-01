@@ -20,6 +20,7 @@ Summary _summary({
     frozenAssetTotal: 0,
     cashFlowBalance: cashFlowBalance,
     remainingLiquidity: remainingLiquidity,
+    currentMonthSpendable: remainingLiquidity,
     claimOriginalTotal: 0,
     claimNetTotal: 0,
     familyCardOriginalTotal: 0,

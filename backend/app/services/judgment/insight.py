@@ -48,7 +48,9 @@ def app_judgment(
                 "family_card_count": 0,
                 "frozen_total": sum(float(row.get("amount_value") or 0) for row in frozen_rows),
                 "frozen_count": len(frozen_rows),
-                "remaining_liquidity": float(summary.get("remaining_liquidity", 0) or 0),
+                "remaining_liquidity": float(
+                    summary.get("current_month_spendable", summary.get("remaining_liquidity", 0)) or 0
+                ),
                 "historical_expense_counts": historical_expense_counts or [],
             }
         ),

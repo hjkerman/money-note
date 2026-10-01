@@ -587,6 +587,7 @@
   "scheduled_income": 400000,
   "cash_flow_balance": 200000,
   "remaining_liquidity": -23456,
+  "current_month_spendable": -123456,
   "current_spending_total": 124956,
   "current_discount_total": 1500,
   "card_total": 123456,
@@ -608,7 +609,8 @@
 
 - `scheduled_income`: 월마감 실행일의 실제 `급여`를 생성하고, 현행 pre-funding 모델에서 아직 들어오지 않은 다음 급여로 한 번 선반영하는 기본 예정 수입
 - `cash_flow_balance`: 수동 보정값과 서버 기준일 현재까지 발생한 현금흐름 누계를 합친 Active 계좌의 실제 잔액. 미래 날짜 현금흐름은 제외
-- `remaining_liquidity`: 현재 예산 주기에서 이미 약속된 금액을 제외하고 추가로 사용할 수 있는 잔여 유동성
+- `remaining_liquidity`: 다음 급여 선반영과 현재 미확인 고정지출 reserve를 포함하는 기존 계산 단계. 이미 확인한 고정지출의 다음 발생분 reserve는 제외됨
+- `current_month_spendable`: 기존 계산에서 확인된 현금성 고정지출 템플릿의 다음 예정액을 한 번 더 reserve한 현재 주기 추가 사용 가능액. 웹·모바일의 `잔여 유동성` 자리에 표시하는 서버 권위 값
 
 과거 유동성 alias는 일반 Summary 응답에서 제거됐다. 구버전 이름은 v4 Snapshot restore migration에서만 해석한다.
 
@@ -641,6 +643,8 @@ remaining_liquidity
 현행 pre-funding 모델의 `scheduled_income`은 아직 현금흐름으로 실현되지 않은 다음 급여를 현재 소비 재원으로 인정하는 항목이다. 월마감 실행일에 생성된 `급여`는 이미 확보된 현금으로 `cash_flow_balance`에 들어가고, 보존된 설정값은 그 이후 받을 다음 급여를 선반영한다. 따라서 두 항이 같은 금액이어도 같은 급여를 중복 집계한 것이 아니다.
 
 `liquidity_fixed_total`은 응답 필드가 아니라 내부 계산값이다. `아직 확인되지 않은 현금성 고정지출 reserve + 아직 카드 지출로 확인되지 않은 카드 정기결제 예정 원금`이다. 현금성 고정지출을 확인하면 reserve 차감은 사라지고 입력한 실제액의 음수 현금흐름이 생긴다. 실제액이 reserve와 같으면 잔여 유동성은 그대로이고, 다르면 그 차액만 자동으로 조정된다.
+
+`current_month_spendable = remaining_liquidity - (fixed_cash_total - pending_fixed_cash_total)`이다. 미확인 고정지출은 `remaining_liquidity`에 이미 들어 있으므로 중복 차감하지 않는다. 괄호 안은 확인된 템플릿의 다음 발생분 예정액이며, 이번에 실제 출금한 금액과 다를 수 있다. 클라이언트는 이 계산을 복제하지 않는다.
 
 `cash_flow_balance`는 `occurred_on <= calendar_date`인 현금흐름만 합산한다. 월마감 자동 `급여`는 실행일로 생성되므로 즉시 잔액에 반영된다. 사용자가 별도로 입력한 미래 날짜 현금흐름은 기존대로 해당 날짜 전 Summary 잔액에서 제외되며, 현금흐름 조회 API와 Snapshot에는 행 자체가 그대로 존재한다.
 

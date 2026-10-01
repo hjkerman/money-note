@@ -207,7 +207,12 @@ String _currentFinancialStateTable(Summary summary) {
     [
       ['기준 월 수입', won(summary.scheduledIncome)],
       ['Active 계좌 잔액', won(summary.cashFlowBalance)],
-      ['잔여 유동성', won(summary.remainingLiquidity)],
+      [
+        '잔여 유동성',
+        summary.currentMonthSpendable == null
+            ? '서버 업데이트 필요'
+            : won(summary.currentMonthSpendable)
+      ],
     ],
     numericColumns: const {1},
   );

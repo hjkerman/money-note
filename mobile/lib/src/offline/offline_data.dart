@@ -448,6 +448,8 @@ Map<String, dynamic> _summaryToJson(Summary value) => {
       'frozen_asset_total': value.frozenAssetTotal,
       'cash_flow_balance': value.cashFlowBalance,
       'remaining_liquidity': value.remainingLiquidity,
+      if (value.currentMonthSpendable != null)
+        'current_month_spendable': value.currentMonthSpendable,
       'claim_original_total': value.claimOriginalTotal,
       'claim_net_total': value.claimNetTotal,
       'family_card_original_total': value.familyCardOriginalTotal,

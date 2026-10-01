@@ -52,7 +52,9 @@ class HomeScreen extends StatelessWidget {
                     label: state.financialValuesAreEstimated
                         ? '잔여 유동성(예상)'
                         : '잔여 유동성',
-                    amount: won(summary?.remainingLiquidity))),
+                    amount: summary?.currentMonthSpendable == null
+                        ? '서버 업데이트 필요'
+                        : won(summary!.currentMonthSpendable))),
             const SizedBox(width: 12),
             Expanded(
                 child: AmountTile(
