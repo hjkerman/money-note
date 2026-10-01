@@ -1124,7 +1124,9 @@ curl -X POST http://localhost:18080/api/month/current/close \
 - 청구와 가족카드는 월마감과 무관하며, 각 탭의 `일괄 처리 완료`로 월 값에 관계없이 현재 남은 전달 큐 전체를 삭제한다.
 - 월마감 실패 시 archive 이동, `급여` 생성, 결제 batch가 모두 rollback된다. 실행 전 mandatory pre_restore는 그대로 남는다.
 
-웹 현금흐름 탭의 상단 금액과 탭 금액은 서버 Summary의 전체 Active 계좌 잔액 `cash_flow_balance`를 표시한다. `visible_cash_flow_total`은 직전 월부터 현재 월까지 화면에 보이는 현금흐름의 부분기간 합계로, 전체 잔액이나 월마감 손실로 해석하지 않는다. 웹·모바일 현금성 고정지출 화면의 `처리액 / 총액`은 서버의 실제 출금액 합계 `fixed_cash_processed_total`과 전체 템플릿 예정액 `fixed_cash_total`이다. 고정지출 예정액은 처리 전부터 잔여 유동성에서 reserve로 차감되므로, 같은 금액의 처리만으로 잔여 유동성이 다시 감소하지 않는다.
+웹 현금흐름 탭의 상단 금액과 탭 금액은 서버 Summary의 전체 Active 계좌 잔액 `cash_flow_balance`를 표시한다. `visible_cash_flow_total`은 직전 월부터 현재 월까지 화면에 보이는 현금흐름의 부분기간 합계로, 전체 잔액이나 월마감 손실로 해석하지 않는다. 웹·모바일 현금성 고정지출 화면의 `처리액 / 총액`은 서버의 실제 출금액 합계 `fixed_cash_processed_total`과 전체 템플릿 예정액 `fixed_cash_total`이다. 고정지출 예정액은 처리 전부터 내부 `remaining_liquidity`에서 reserve로 차감되므로 같은 금액의 처리만으로 그 내부 값은 다시 감소하지 않는다. 화면의 추가 사용 가능액은 확인된 템플릿의 다음 발생분을 새로 reserve하므로 내부 값과 다르게 변할 수 있다.
+
+화면의 `잔여 유동성`은 서버 `current_month_spendable`을 표시한다. 기존 `remaining_liquidity`에서 이미 확인된 현금성 고정지출 템플릿 예정액의 다음 발생분을 보충 reserve한 값이다. 미확인 금액은 기존 계산에 포함돼 있으므로 중복 차감하지 않는다. 모바일은 일시적 연결 실패 시 짧은 간격의 최대 세 번 확인과 coherent refresh를 시도하고, 복귀 시 남은 Offline 제안을 다시 확인한다. 사용자가 직접 진입한 Offline Mode는 자동으로 ONLINE이 되지 않고 기존 reconciliation 절차를 따른다.
 
 ## 읽기 전용 공유 화면
 

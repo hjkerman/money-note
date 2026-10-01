@@ -17,15 +17,22 @@ export 'local_snapshot_repository.dart' show LocalSnapshotInfo;
 
 class AppState extends ChangeNotifier {
   AppState(this.api,
-      {OfflineStore? offlineStore, LocalSnapshotRepository? snapshotRepository})
+      {OfflineStore? offlineStore,
+      LocalSnapshotRepository? snapshotRepository,
+      Future<void> Function(Duration)? connectivityRetryDelay})
       : offlineStore = offlineStore ?? OfflineStore(),
-        _snapshotRepository = snapshotRepository ?? LocalSnapshotRepository() {
+        _snapshotRepository = snapshotRepository ?? LocalSnapshotRepository(),
+        _connectivityRetryDelay =
+            connectivityRetryDelay ?? ((delay) => Future<void>.delayed(delay)) {
     api.onServerUnavailable = _requestOfflinePrompt;
   }
 
   final MoneyNoteApiClient api;
   final OfflineStore offlineStore;
   final LocalSnapshotRepository _snapshotRepository;
+  final Future<void> Function(Duration) _connectivityRetryDelay;
+  Future<void>? _connectivityRecovery;
+  bool _isDisposed = false;
   final NotificationBridge notificationBridge = NotificationBridge();
 
   bool isBootstrapping = true;
@@ -354,19 +361,22 @@ class AppState extends ChangeNotifier {
       try {
         await api.logout();
       } finally {
-        // A refresh started while logout was awaiting the server is stale too.
+        // The API client drops its local token even if the response is lost.
+        // Never keep an old user's financial state after that local logout.
         _authenticationGeneration += 1;
         _refreshCoordinator.invalidateAuthentication();
+        user = null;
+        summary = null;
+        cardPaymentStatus = null;
+        judgment = null;
+        monthCloseStatus = null;
+        entries = [];
+        confirmedPlannedEntries = [];
+        panels = [];
+        cashFlows = [];
+        networkUnavailable = false;
+        serverFailurePromptPending = false;
       }
-      user = null;
-      summary = null;
-      cardPaymentStatus = null;
-      judgment = null;
-      monthCloseStatus = null;
-      entries = [];
-      confirmedPlannedEntries = [];
-      panels = [];
-      cashFlows = [];
       statusMessage = '로그아웃 완료';
     });
   }
@@ -448,6 +458,8 @@ class AppState extends ChangeNotifier {
       lastSuccessfulSyncAt = baseline.syncedAt;
       usesConservativeCardEstimate = false;
       offlineEntryMessage = '';
+      networkUnavailable = false;
+      serverFailurePromptPending = false;
     });
     await _configureNotificationCards();
     await refreshNotificationInboxState(notify: false);
@@ -458,13 +470,20 @@ class AppState extends ChangeNotifier {
       isOnline || (allowBaselineWhileFinalizing && isReconciliationFinalizing);
 
   Future<void> resumeFromBackground() async {
-    if (!isLoggedIn || isBootstrapping || _isForegroundRefreshRunning) return;
+    if (isBootstrapping || _isForegroundRefreshRunning) return;
+    if (!isLoggedIn && !networkUnavailable) return;
     _isForegroundRefreshRunning = true;
     try {
       if (isOnline) {
-        await refresh(notify: false);
-        await saveLaunchSnapshot();
-        statusMessage = '앱 복귀 동기화 완료';
+        if (networkUnavailable || serverFailurePromptPending) {
+          await recoverConnectivity();
+        } else {
+          await refresh(notify: false);
+        }
+        if (!networkUnavailable && isLoggedIn) {
+          await saveLaunchSnapshot();
+          statusMessage = '앱 복귀 동기화 완료';
+        }
       } else {
         await checkServerRecovery(notify: false);
         if (isOffline) statusMessage = '오프라인 모드를 유지합니다.';
@@ -536,10 +555,87 @@ class AppState extends ChangeNotifier {
   }
 
   void _requestOfflinePrompt() {
-    if (!isOnline) return;
+    if (!isOnline || _isDisposed) return;
     networkUnavailable = true;
-    serverFailurePromptPending = true;
     notifyListeners();
+    unawaited(recoverConnectivity().catchError((Object error) {
+      if (_isDisposed) return;
+      // A storage/platform failure is not evidence that Offline is safe.
+      // Surface it without leaving an unhandled background Future.
+      statusMessage = error.toString();
+      notifyListeners();
+    }));
+  }
+
+  /// A failed request is not an Offline decision. Probe briefly, then install
+  /// one coherent refresh before clearing an existing offer.
+  Future<void> recoverConnectivity() {
+    if (!isOnline || _isDisposed) return Future<void>.value();
+    final running = _connectivityRecovery;
+    if (running != null) return running;
+    final recovery = _attemptConnectivityRecovery();
+    _connectivityRecovery = recovery;
+    return recovery.whenComplete(() {
+      if (identical(_connectivityRecovery, recovery)) {
+        _connectivityRecovery = null;
+      }
+    });
+  }
+
+  Future<void> _attemptConnectivityRecovery() async {
+    final authenticationGeneration = _authenticationGeneration;
+    final lineageGeneration = _lineageGeneration;
+    const delays = [
+      Duration.zero,
+      Duration(milliseconds: 350),
+      Duration(milliseconds: 850),
+    ];
+    bool stillCurrent() =>
+        !_isDisposed &&
+        isOnline &&
+        _authenticationGeneration == authenticationGeneration &&
+        _lineageGeneration == lineageGeneration;
+
+    for (final delay in delays) {
+      await _connectivityRetryDelay(delay);
+      if (!stillCurrent()) return;
+      try {
+        await api.health(timeout: const Duration(seconds: 3));
+        if (!stillCurrent()) return;
+        if (user == null) {
+          final authenticated = await api.me();
+          if (!stillCurrent()) return;
+          user = authenticated;
+        }
+        await _refreshAuthoritativeState(notify: false);
+        if (!stillCurrent()) return;
+        networkUnavailable = false;
+        serverFailurePromptPending = false;
+        statusMessage = '서버 연결이 복구되었습니다.';
+        notifyListeners();
+        return;
+      } on MoneyNoteConnectionException {
+        // A probe or one constituent refresh request may fail transiently.
+      } on MoneyNoteApiException catch (error) {
+        if (!stillCurrent()) return;
+        networkUnavailable = false;
+        serverFailurePromptPending = false;
+        statusMessage = error.message;
+        notifyListeners();
+        return;
+      }
+    }
+    if (!stillCurrent()) return;
+    serverFailurePromptPending = true;
+    statusMessage = '서버 연결을 다시 확인했지만 복구되지 않았습니다.';
+    notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    api.onServerUnavailable = null;
+    super.dispose();
   }
 
   Future<bool> enterOfflineMode() async {

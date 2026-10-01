@@ -32,6 +32,7 @@
 - `claim`과 `family_card`는 소비 원장이 아니라 회수 예정 큐다. 소비 통계와 유동성에 직접 넣지 않으며, 월 경계와 무관하게 처리 또는 삭제 전까지 남는다.
 - `claim`과 `family_card`는 정상 운영 중인 비핵심 기능이며 제거 자체는 확정되어 있다. 특정 날짜가 아니라 사용자가 생활비와 예외적인 큰 지출까지 가족 지원 없이 감당할 수 있는 현실적 경제적 독립 상태가 제거 조건이다.
 - 월마감은 자동 실행하지 않는다. 사용자의 명시적 실행이 결제 batch와 원장 이동의 기준이다.
+- 화면의 `잔여 유동성`은 서버 Summary의 `current_month_spendable`을 표시한다. 기존 `remaining_liquidity`는 다음 급여 선반영과 미확인 고정지출 reserve까지만 담는 계산 단계이며, 새 표시값은 확인된 현금성 고정지출의 다음 발생분 예정액을 추가로 reserve한다. 두 클라이언트는 이를 재계산하지 않는다.
 - 유동성 도메인과 일반 런타임 API·DB의 표준 이름은 `scheduled_income`, `cash_flow_balance`, `remaining_liquidity`다. 과거 key는 DB/Snapshot migration과 그 전용 테스트에만 남긴다.
 
 상세 의미는 [도메인 모델](domain-model.md), 계산·모듈 경계는 [아키텍처](architecture.md)를 따른다.
@@ -63,7 +64,7 @@
 - **정기결제 원본 관계**: 확인으로 생성된 원장 지출은 planned 템플릿 id를 명시적으로 참조한다. 동일 제목·금액의 수동 지출을 승인 내역으로 오인하지 않는다.
 - **월마감 급여 확정**: 월마감 성공 시 기본 예정 수입을 월마감 실행일의 실제 `급여` 현금흐름으로 기록해 Active 계좌 잔액에 즉시 반영한다. 현행 Summary는 그 누계와 별도로 그 이후 받을 다음 급여 예정액을 한 번 선반영한다.
 - **Active 계좌 잔액**: `cash_flow_balance`는 수동 보정값과 서버 기준일까지 실제 발생한 현금흐름 누계다. 월마감 급여는 실행일에 즉시 포함하며, 사용자가 입력한 미래 날짜 현금흐름은 발생일 전 잔액에 포함하지 않는다.
-- **AI 회계감사의 현행 모델 의존성**: 모바일 감사 Markdown은 서버 Summary의 `scheduled_income`, `cash_flow_balance`, `remaining_liquidity`를 현재 재무 상태로 제공하고 다음 급여 선반영을 과도기 운용 모델로 설명한다. 재무 건전화 전환 시 [미래 재무 건전화 전환](future-financial-health-transition.md)의 절차에 따라 같이 갱신한다.
+- **AI 회계감사의 현행 모델 의존성**: 모바일 감사 Markdown은 서버 Summary의 `scheduled_income`, `cash_flow_balance`, 화면용 `current_month_spendable`을 현재 재무 상태로 제공하고 다음 급여 선반영을 과도기 운용 모델로 설명한다. 재무 건전화 전환 시 [미래 재무 건전화 전환](future-financial-health-transition.md)의 절차에 따라 같이 갱신한다.
 - **카드 의무의 단일 반영**: 카드 사용은 월마감 전 `card_total`, 월마감 후 활성 결제 batch의 이월 제외 미결제액으로 잔여 유동성에 이어서 반영된다. 즉시결제는 현금과 미결제액을 함께 줄이고, 결제일 후 수동 잔액 보정 완료는 이미 실제 잔액에 반영된 batch 채무의 Summary 재차감을 멈춘다.
 - **결제 이력 보호**: 즉시결제가 만든 현금흐름은 일반 현금흐름 삭제로 지울 수 없고 결제 이벤트 취소만 허용한다. 일부라도 즉시결제된 원장 행도 일반 원장 삭제를 거부해 실제 은행 출금 이력을 사후 재작성하지 않는다.
 - **Summary 읽기 일관성**: Summary의 예정 수입, 실제 잔액, 카드 의무, 고정 의무, 동결과 잔여 유동성은 하나의 SQLite read transaction에서 계산한다.

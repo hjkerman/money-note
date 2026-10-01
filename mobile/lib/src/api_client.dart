@@ -75,8 +75,9 @@ class MoneyNoteApiClient {
 
   Future<AuthUser> me() => _get('/api/auth/me', AuthUser.fromJson);
 
-  Future<void> health() async {
-    final response = await _request(() => _client.get(_uri('/health')));
+  Future<void> health({Duration timeout = const Duration(seconds: 15)}) async {
+    final response =
+        await _request(() => _client.get(_uri('/health')), timeout: timeout);
     if (response.statusCode < 200 || response.statusCode >= 300) {
       _throwServerUnavailable('서버 상태 확인에 실패했습니다.');
     }
@@ -523,10 +524,10 @@ class MoneyNoteApiClient {
     _parseJson(response);
   }
 
-  Future<http.Response> _request(
-      Future<http.Response> Function() request) async {
+  Future<http.Response> _request(Future<http.Response> Function() request,
+      {Duration timeout = const Duration(seconds: 15)}) async {
     try {
-      return await request().timeout(const Duration(seconds: 15));
+      return await request().timeout(timeout);
     } on TimeoutException {
       _throwServerUnavailable('서버 응답 시간이 초과되었습니다.');
     } on SocketException {

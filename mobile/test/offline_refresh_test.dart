@@ -109,6 +109,66 @@ class DelayedMutationApiFake extends OfflineApiFake {
   }
 }
 
+class ScriptedRecoveryApiFake extends OfflineApiFake {
+  ScriptedRecoveryApiFake(this.probeResults);
+
+  List<bool> probeResults;
+
+  @override
+  Future<void> health({Duration timeout = const Duration(seconds: 15)}) async {
+    healthCalls += 1;
+    final succeeds =
+        probeResults.isEmpty ? available : probeResults.removeAt(0);
+    if (!succeeds) {
+      onServerUnavailable?.call();
+      throw MoneyNoteConnectionException('일시적 연결 실패');
+    }
+  }
+}
+
+class OneFailedRefreshApiFake extends ScriptedRecoveryApiFake {
+  OneFailedRefreshApiFake() : super([true, true]);
+
+  bool failNextSummary = true;
+
+  @override
+  Future<Summary> summary() async {
+    if (failNextSummary) {
+      failNextSummary = false;
+      onServerUnavailable?.call();
+      throw MoneyNoteConnectionException('요약 요청 시간 초과');
+    }
+    return super.summary();
+  }
+}
+
+class PausedRecoveryApiFake extends ScriptedRecoveryApiFake {
+  PausedRecoveryApiFake() : super([true]);
+
+  final probeStarted = Completer<void>();
+  final resumeProbe = Completer<void>();
+
+  @override
+  Future<void> health({Duration timeout = const Duration(seconds: 15)}) async {
+    probeStarted.complete();
+    await resumeProbe.future;
+    await super.health(timeout: timeout);
+  }
+
+  @override
+  Future<void> logout() async {}
+}
+
+class FailedLogoutApiFake extends ScriptedRecoveryApiFake {
+  FailedLogoutApiFake() : super([true]);
+
+  @override
+  Future<void> logout() async {
+    onServerUnavailable?.call();
+    throw MoneyNoteConnectionException('logout response lost');
+  }
+}
+
 class FailingRefreshBaselineStore extends OfflineStore {
   FailingRefreshBaselineStore(Directory directory)
       : super(directoryProvider: () async => directory);
@@ -222,6 +282,185 @@ class PausedLogoutApiFake extends SessionRefreshApiFake {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  group('transient connection recovery', () {
+    Future<AppState> onlineState(ScriptedRecoveryApiFake api) async {
+      return AppState(api,
+          offlineStore: offlineStoreFixture(await temporaryDirectoryFixture()),
+          connectivityRetryDelay: (_) async {})
+        ..user = baselineFixture().user
+        ..isBootstrapping = false;
+    }
+
+    test(
+        'one failed request does not immediately replace the app with an offline offer',
+        () async {
+      final api = OfflineApiFake()..available = true;
+      final state = AppState(api,
+          offlineStore: offlineStoreFixture(await temporaryDirectoryFixture()))
+        ..user = baselineFixture().user
+        ..isBootstrapping = false;
+
+      api.onServerUnavailable!.call();
+
+      expect(state.networkUnavailable, isTrue);
+      expect(state.serverFailurePromptPending, isFalse);
+    });
+
+    test('one transient failure recovers with a coherent refresh', () async {
+      final api = ScriptedRecoveryApiFake([true])..available = true;
+      final state = await onlineState(api);
+
+      api.onServerUnavailable!.call();
+      await state.recoverConnectivity();
+
+      expect(api.healthCalls, 1);
+      expect(state.summary, isNotNull);
+      expect(state.networkUnavailable, isFalse);
+      expect(state.serverFailurePromptPending, isFalse);
+    });
+
+    test('later bounded probe success suppresses the offline offer', () async {
+      final api = ScriptedRecoveryApiFake([false, false, true])
+        ..available = true;
+      final state = await onlineState(api);
+
+      api.onServerUnavailable!.call();
+      await state.recoverConnectivity();
+
+      expect(api.healthCalls, 3);
+      expect(state.summary, isNotNull);
+      expect(state.serverFailurePromptPending, isFalse);
+    });
+
+    test('healthy server with one timed-out constituent read retries refresh',
+        () async {
+      final api = OneFailedRefreshApiFake()..available = true;
+      final state = await onlineState(api);
+
+      api.onServerUnavailable!.call();
+      await state.recoverConnectivity();
+
+      expect(api.healthCalls, 2);
+      expect(state.summary, isNotNull);
+      expect(state.serverFailurePromptPending, isFalse);
+    });
+
+    test('logout revokes a paused connectivity recovery installation',
+        () async {
+      final api = PausedRecoveryApiFake()..available = true;
+      final state = await onlineState(api);
+      api.onServerUnavailable!.call();
+      final recovery = state.recoverConnectivity();
+      await api.probeStarted.future;
+
+      await state.logout();
+      api.resumeProbe.complete();
+      await recovery;
+
+      expect(state.isLoggedIn, isFalse);
+      expect(state.summary, isNull);
+      expect(state.serverFailurePromptPending, isFalse);
+    });
+
+    test('failed logout cannot leave old user visible to later recovery',
+        () async {
+      final api = FailedLogoutApiFake()..available = true;
+      final state = await onlineState(api);
+      state.summary = baselineFixture().summary;
+
+      await state.logout();
+      await state.recoverConnectivity();
+
+      expect(state.user, isNull);
+      expect(state.summary, isNull);
+      expect(state.networkUnavailable, isFalse);
+      expect(state.serverFailurePromptPending, isFalse);
+    });
+
+    test('bounded probe failure eventually offers offline mode', () async {
+      final api = ScriptedRecoveryApiFake([false, false, false]);
+      final state = await onlineState(api);
+
+      api.onServerUnavailable!.call();
+      expect(state.serverFailurePromptPending, isFalse);
+      await state.recoverConnectivity();
+
+      expect(api.healthCalls, 3);
+      expect(state.networkUnavailable, isTrue);
+      expect(state.serverFailurePromptPending, isTrue);
+    });
+
+    test('foreground retries a visible offer and clears it when reachable',
+        () async {
+      final api = ScriptedRecoveryApiFake([false, false, false])
+        ..available = true;
+      final state = await onlineState(api);
+      api.onServerUnavailable!.call();
+      await state.recoverConnectivity();
+      expect(state.serverFailurePromptPending, isTrue);
+
+      api.probeResults = [true];
+      await state.resumeFromBackground();
+
+      expect(api.healthCalls, 4);
+      expect(state.serverFailurePromptPending, isFalse);
+      expect(state.networkUnavailable, isFalse);
+      expect(state.isOnline, isTrue);
+    });
+
+    test('foreground preserves the offer when the server still fails',
+        () async {
+      final api = ScriptedRecoveryApiFake([false, false, false]);
+      final state = await onlineState(api);
+      api.onServerUnavailable!.call();
+      await state.recoverConnectivity();
+
+      api.probeResults = [false, false, false];
+      await state.resumeFromBackground();
+
+      expect(api.healthCalls, 6);
+      expect(state.serverFailurePromptPending, isTrue);
+    });
+
+    test('explicit offline choice does not silently become online on resume',
+        () async {
+      final directory = await temporaryDirectoryFixture();
+      final store = offlineStoreFixture(directory);
+      await store.replaceBaseline(baselineFixture());
+      final api = ScriptedRecoveryApiFake([true])..available = true;
+      final state = AppState(api,
+          offlineStore: store, connectivityRetryDelay: (_) async {})
+        ..user = baselineFixture().user
+        ..isBootstrapping = false;
+      expect(await state.enterOfflineMode(), isTrue);
+
+      await state.resumeFromBackground();
+
+      expect(state.isOnline, isFalse);
+      expect(state.isReconciliationRequired, isTrue);
+      expect(state.serverFailurePromptPending, isFalse);
+    });
+
+    test(
+        'foreground refresh clears a stale offline offer when the server is healthy',
+        () async {
+      final api = OfflineApiFake()..available = true;
+      final state = AppState(api,
+          offlineStore: offlineStoreFixture(await temporaryDirectoryFixture()))
+        ..user = baselineFixture().user
+        ..isBootstrapping = false
+        ..networkUnavailable = true
+        ..serverFailurePromptPending = true;
+
+      await state.resumeFromBackground();
+
+      expect(state.isOnline, isTrue);
+      expect(state.networkUnavailable, isFalse);
+      expect(state.serverFailurePromptPending, isFalse);
+      expect(state.summary, isNotNull);
+    });
+  });
 
   group('online refresh baseline and connection classification', () {
     test('logout during baseline write prevents stale disk and UI install',
@@ -412,6 +651,8 @@ void main() {
         unavailableApi.summary(),
         throwsA(isA<MoneyNoteConnectionException>()),
       );
+      expect(unavailableState.serverFailurePromptPending, isFalse);
+      await unavailableState.recoverConnectivity();
       expect(unavailableState.serverFailurePromptPending, isTrue);
       expect(await unavailableState.enterOfflineMode(), isTrue);
       expect(unavailableState.isOffline, isTrue);
