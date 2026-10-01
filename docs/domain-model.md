@@ -214,6 +214,8 @@ Money Note는 카드 할인 효과를 고려한다.
 
 ## discount_override
 
+공과금 기본 제외는 explicit 금융 입력이 없을 때만 적용한다. `discount_enabled`, `discount_override_amount`뿐 아니라 계속 지원하는 `discount_override`/`aux_amount_value`의 수동 할인도 보존한다. 패널의 `discount_amount`/`discount_override`도 같은 의미를 유지한다. 한국전력 원금 10,000원에 수동 할인 120원이면 부담은 9,880원이다. Offline journal은 기존 boolean/override-amount 입력만 사용하며 구 DB 필드나 계산된 부담을 새 authoritative 입력으로 추가하지 않는다.
+
 discount_override는
 
 > 기본 할인 계산을 사용하지 않고 저장된 할인액을 강제 적용한다
@@ -622,6 +624,14 @@ Claim과 가족카드는 직접 반영하지 않는다.
 - 회수 예정 금액
 
 ---
+
+## 정기결제 확인 identity와 금융 응답 경계
+
+- 생성 지출은 `source_planned_entry_id`와 함께 기존 `confirmed_month`/`confirmed_at` 컬럼에 원본 확인 epoch를 보존한다. 제목·금액·발생일 수정은 epoch를 바꾸지 않는다. 취소는 source ID와 확인 월·시각이 모두 일치하는 확인만 같은 transaction에서 해제한다. 이전 생성 지출을 삭제해도 새 확인을 해제하지 않는다. 월마감 archive에도 epoch를 보존한다.
+- Snapshot dry-run은 명시적 epoch의 부분 누락·invalid timestamp·원본 활성 확인과의 모순을 거부한다. 이전 epoch가 남은 지출과 새 확인은 서로 다른 건으로 보존하되 활성 확인의 생성 지출은 한 건이어야 한다. Fixed/recurring timestamp의 offset hour는 0~23, minute는 0~59여야 하며 실제 날짜·시각도 파싱 가능해야 한다. 확인 clock time을 발생일과 같도록 강제하지 않는다.
+- 구 Snapshot import와 과거 explicit source 행의 수정 전에는 원래 확인 증거가 남아 있을 때만 epoch를 결합한다. 이미 수정돼 epoch를 증명할 수 없는 행은 취소 전에 fail closed한다. Snapshot v7과 DB version을 올리지 않고 기존 컬럼으로 export/re-restore한다.
+- 원장·현금흐름·정기결제·고정지출 확인·Claim/Family 생성 API는 생성과 필수 서버 presenter, response model 검증·직렬화를 같은 금융 transaction에서 끝낸다. 커밋 전 변환 오류는 금융 행과 등록 identity를 함께 rollback한다. HTTP 전송 유실은 별도 경계이며 기존 idempotency가 있는 작업만 동일 identity로 재확인한다.
+- 모바일 submit 완료는 서버 저장뿐 아니라 coherent refresh, baseline durable publication, 화면 설치까지 요구한다. 서버 저장 후 재구성 실패는 `serverCommittedRebuildPending`으로 보존해 재전송과 stale Offline epoch를 막고 read-only rebuild로 복구한다. 요청 결과를 모르는 `outcomeUnknown`은 별개이며 새 기준 데이터를 읽은 것만으로 그 요청의 완료를 추측하지 않는다.
 
 # 10. 카드번호 마지막 4자리
 

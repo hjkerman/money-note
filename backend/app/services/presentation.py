@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Iterable, Mapping
 from typing import Any
 
-from app.db import session
+from app.db import borrowed_or_new_session
 from app.repositories.settings import list_settings
 from app.services.card_charge import (
     DiscountCard,
@@ -32,11 +32,12 @@ def present_ledger_entry(
     *,
     settings: Mapping[str, str] | None = None,
     event_discounts: Mapping[str, int] | None = None,
+    conn: Any | None = None,
 ) -> dict[str, Any]:
     """단일 원장 행의 할인 정책과 최종 금액을 서버 기준으로 계산한다."""
     data = dict(entry)
     confirmed_expense = data.pop("_confirmed_expense", None)
-    settings = settings or list_settings()
+    settings = settings if settings is not None else list_settings(conn=conn)
     event_discounts = event_discounts or {}
     month = str(data.get("entry_date") or app_today().isoformat())[:7]
     policy = normalize_discount_policy(
@@ -94,7 +95,8 @@ def present_ledger_entry(
         confirmed = present_ledger_entry(
             confirmed_expense,
             settings=settings,
-            event_discounts=_legacy_entry_discount_events([confirmed_expense]),
+            event_discounts=_legacy_entry_discount_events([confirmed_expense], conn=conn),
+            conn=conn,
         )
         data.update(
             {
@@ -138,10 +140,11 @@ def present_monthly_panel(
     panel: Mapping[str, Any],
     *,
     settings: Mapping[str, str] | None = None,
+    conn: Any | None = None,
 ) -> dict[str, Any]:
     """단일 패널 행의 할인 정책과 최종 금액을 서버 기준으로 계산한다."""
     data = dict(panel)
-    settings = settings or list_settings()
+    settings = settings if settings is not None else list_settings(conn=conn)
     panel_type = str(data.get("panel_type") or "")
     if panel_type == "fixed":
         try:
@@ -199,7 +202,7 @@ def present_monthly_panel(
     return data
 
 
-def _legacy_entry_discount_events(entries: list[dict[str, Any]]) -> dict[str, int]:
+def _legacy_entry_discount_events(entries: list[dict[str, Any]], *, conn: Any | None = None) -> dict[str, int]:
     payment_keys = {
         str(entry["payment_key"])
         for entry in entries
@@ -208,7 +211,7 @@ def _legacy_entry_discount_events(entries: list[dict[str, Any]]) -> dict[str, in
     if not payment_keys:
         return {}
     placeholders = ", ".join("?" for _ in payment_keys)
-    with session() as conn:
+    with borrowed_or_new_session(conn) as conn:
         rows = conn.execute(
             f"""
             SELECT card_payment_allocations.entry_payment_key,

@@ -1,6 +1,6 @@
 from typing import Any
 
-from app.db import session
+from app.db import borrowed_or_new_session, session
 from app.repositories.common import row_to_dict
 from app.schemas import MonthlyPanelIn, MonthlyPanelPatch
 from app.repositories.notification_registration import existing_registration, registration_fingerprint, save_registration
@@ -69,7 +69,7 @@ def list_panels(month: str | None = None, include_confirmed_fixed: bool = False)
     return [row_to_dict(row) for row in rows]
 
 
-def create_panel(panel: MonthlyPanelIn) -> dict[str, Any]:
+def create_panel(panel: MonthlyPanelIn, *, conn: Any | None = None) -> dict[str, Any]:
     _validate_panel_create(panel)
     values = panel.model_dump()
     if (
@@ -83,7 +83,7 @@ def create_panel(panel: MonthlyPanelIn) -> dict[str, Any]:
         values["spent_on"] = values["spent_on"].isoformat()
     placeholders = ", ".join("?" for _ in PANEL_COLUMNS)
     columns = ", ".join(PANEL_COLUMNS)
-    with session(transaction_mode="IMMEDIATE") as conn:
+    with borrowed_or_new_session(conn, transaction_mode="IMMEDIATE") as conn:
         registration_key = panel.candidate_registration_key
         target = values["panel_type"]
         fingerprint = registration_fingerprint(target, values) if registration_key else None
@@ -139,16 +139,16 @@ def _validate_panel_create(panel: MonthlyPanelIn) -> None:
         raise ValueError("동결 항목은 등록일자가 필요합니다.")
 
 
-def update_panel(panel_id: int, patch: MonthlyPanelPatch) -> dict[str, Any] | None:
+def update_panel(panel_id: int, patch: MonthlyPanelPatch, *, conn: Any | None = None) -> dict[str, Any] | None:
     values = patch.model_dump(exclude_unset=True)
     if not values:
-        with session() as conn:
+        with borrowed_or_new_session(conn) as conn:
             row = conn.execute("SELECT * FROM monthly_panels WHERE id = ?", (panel_id,)).fetchone()
         return row_to_dict(row) if row else None
 
     assignments = ", ".join(f"{column} = ?" for column in values)
     params = list(values.values()) + [panel_id]
-    with session() as conn:
+    with borrowed_or_new_session(conn) as conn:
         conn.execute(
             f"UPDATE monthly_panels SET {assignments}, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
             params,
@@ -157,8 +157,8 @@ def update_panel(panel_id: int, patch: MonthlyPanelPatch) -> dict[str, Any] | No
         return row_to_dict(row) if row else None
 
 
-def set_panel_discount(panel_id: int, discount_amount: int, discount_override: int) -> dict[str, Any] | None:
-    with session() as conn:
+def set_panel_discount(panel_id: int, discount_amount: int, discount_override: int, *, conn: Any | None = None) -> dict[str, Any] | None:
+    with borrowed_or_new_session(conn) as conn:
         conn.execute(
             """
             UPDATE monthly_panels

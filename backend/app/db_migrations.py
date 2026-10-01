@@ -300,8 +300,44 @@ def _validate_current_schema(conn: sqlite3.Connection, schema: str) -> None:
     required_names.update({"idx_ledger_payment_key", "idx_ledger_source_planned", "idx_card_payment_events_idempotency"})
     if not required_names.issubset(names):
         raise RuntimeError("current database version has missing critical indexes or triggers")
+    _validate_revision_triggers(conn, schema)
     # The named partial index is checked for uniqueness, columns and predicate
     # above; unlike table-level identity constraints it is intentionally partial.
+
+
+def _revision_trigger_contract(sql: str) -> tuple[str, str, str, tuple[str, ...]] | None:
+    # Ignore layout/case, identifier quoting and comments, not semantic clauses.
+    sql = re.sub(r"/\*.*?\*/|--[^\n]*", " ", sql, flags=re.DOTALL)
+    sql = re.sub(r'["`\[\]]', "", sql)
+    match = re.fullmatch(
+        r"\s*CREATE\s+TRIGGER\s+(?:IF\s+NOT\s+EXISTS\s+)?(\w+)\s+"
+        r"AFTER\s+(INSERT|UPDATE|DELETE)\s+ON\s+(\w+)\s+BEGIN\s+(.*?)\s*END\s*;?\s*",
+        sql, re.IGNORECASE | re.DOTALL,
+    )
+    if match is None:
+        return None
+    return (match[1].lower(), match[2].upper(), match[3].lower(),
+            tuple(re.findall(r"\w+|[^\w\s]", match[4].lower())))
+
+
+def _validate_revision_triggers(conn: sqlite3.Connection, schema: str) -> None:
+    expected = [_revision_trigger_contract(statement) for statement in _statements(schema)
+                if re.match(r"CREATE TRIGGER IF NOT EXISTS revision_", statement)]
+    trigger_rows = conn.execute("SELECT name, tbl_name, sql FROM sqlite_master WHERE type='trigger'").fetchall()
+    actual = {row[0]: (row[1], _revision_trigger_contract(row[2] or "")) for row in trigger_rows}
+    expected_names = {contract[0] for contract in expected if contract is not None}
+    revision_tables = {contract[2] for contract in expected if contract is not None}
+    for name, table, sql in trigger_rows:
+        if name not in expected_names and (
+            table in revision_tables or "authoritative_state_revision" in str(sql).lower()
+        ):
+            raise RuntimeError("current database version has unexpected authoritative revision trigger")
+    for contract in expected:
+        if contract is None or actual.get(contract[0]) != (contract[2], contract):
+            raise RuntimeError("current database version has invalid authoritative revision trigger")
+    state = conn.execute("SELECT id, revision, typeof(revision) FROM authoritative_state_revision").fetchall()
+    if len(state) != 1 or state[0][0] != 1 or state[0][2] != "integer" or state[0][1] < 0:
+        raise RuntimeError("current database version has invalid authoritative revision state")
 
 
 def _extra_indexes(conn: sqlite3.Connection) -> None:

@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.auth import require_user
+from app.db import session
 from app.schemas import (
+    LedgerEntry,
     CardDiscountPolicyPatch,
     CardPaymentEventIn,
     LateCardEntryIn,
@@ -83,7 +85,9 @@ def patch_transit_discount_profile(
 @discounts_router.patch("/entries/{entry_payment_key}")
 def patch_entry_discount(entry_payment_key: str, patch: PanelDiscountPatch, _: dict = Depends(require_user)) -> dict:
     try:
-        return present_ledger_entry(set_entry_discount(entry_payment_key, patch.discount_amount))
+        with session(transaction_mode="IMMEDIATE") as conn:
+            row = set_entry_discount(entry_payment_key, patch.discount_amount, conn=conn)
+            return LedgerEntry.model_validate(present_ledger_entry(row, conn=conn)).model_dump(mode="json")
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 

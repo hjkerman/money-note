@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.auth import require_user
+from app.db import session
 from app.repositories.entries import create_entry, delete_entry, list_entries, update_entry
 from app.schemas import LedgerEntry, LedgerEntryIn, LedgerEntryPatch
 from app.services.presentation import present_ledger_entries, present_ledger_entry
@@ -18,7 +19,9 @@ def get_entries(section: str, _: dict = Depends(require_user)) -> list[dict]:
 @router.post("", response_model=LedgerEntry)
 def post_entry(entry: LedgerEntryIn, _: dict = Depends(require_user)) -> dict:
     try:
-        return present_ledger_entry(create_entry(entry))
+        with session(transaction_mode="IMMEDIATE") as conn:
+            result = present_ledger_entry(create_entry(entry, conn=conn), conn=conn)
+            return LedgerEntry.model_validate(result).model_dump(mode="json")
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
@@ -26,12 +29,13 @@ def post_entry(entry: LedgerEntryIn, _: dict = Depends(require_user)) -> dict:
 @router.patch("/{entry_id}", response_model=LedgerEntry)
 def patch_entry(entry_id: int, patch: LedgerEntryPatch, _: dict = Depends(require_user)) -> dict:
     try:
-        entry = update_entry(entry_id, patch)
+        with session(transaction_mode="IMMEDIATE") as conn:
+            entry = update_entry(entry_id, patch, conn=conn)
+            if entry is None:
+                raise HTTPException(status_code=404, detail="entry not found")
+            return LedgerEntry.model_validate(present_ledger_entry(entry, conn=conn)).model_dump(mode="json")
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
-    if entry is None:
-        raise HTTPException(status_code=404, detail="entry not found")
-    return present_ledger_entry(entry)
 
 
 @router.delete("/{entry_id}")

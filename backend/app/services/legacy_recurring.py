@@ -86,3 +86,26 @@ def infer_legacy_recurring_sources(entries: Sequence[Mapping[str, Any]]) -> dict
         proposed.setdefault(int(expense["id"]), []).append(int(source["id"]))
     return {expense_id: sources[0] for expense_id, sources in proposed.items()
             if len(sources) == 1}
+
+
+def materialize_recurring_confirmation_epochs(entries: Sequence[dict[str, Any]]) -> None:
+    """Bind the original confirmation period/time before mutable edits.
+
+    Existing epoch fields are immutable evidence, not recomputed from today's
+    template. Older explicit source rows can be bound only while their original
+    period still agrees and there is exactly one current generated expense.
+    """
+    by_id = {row.get("id"): row for row in entries}
+    generated = [row for row in entries if row.get("book_section") == "current"
+                 and row.get("entry_kind") == "expense" and row.get("source_planned_entry_id")]
+    for row in generated:
+        if row.get("confirmed_month") is not None or row.get("confirmed_at") is not None:
+            continue
+        source_id = row["source_planned_entry_id"]
+        source = by_id.get(source_id)
+        if (source and source.get("entry_kind") == "planned"
+                and source.get("confirmed_month") and source.get("confirmed_at")
+                and str(row.get("entry_date") or "").startswith(str(source["confirmed_month"]))
+                and sum(other["source_planned_entry_id"] == source_id for other in generated) == 1):
+            row["confirmed_month"] = source["confirmed_month"]
+            row["confirmed_at"] = source["confirmed_at"]

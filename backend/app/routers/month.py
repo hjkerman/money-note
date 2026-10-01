@@ -26,6 +26,7 @@ from app.repositories.panels import (
 )
 from app.repositories.settings import list_settings
 from app.schemas import (
+    CashFlow,
     EntryReorder,
     FixedPanelConfirmIn,
     LedgerEntry,
@@ -59,25 +60,31 @@ judgment_router = APIRouter(prefix="/api/judgment", tags=["judgment"])
 
 @router.post("/planned", response_model=LedgerEntry)
 def post_planned_entry(entry: PlannedEntryIn, _: dict = Depends(require_user)) -> dict:
-    return present_ledger_entry(append_planned_entry(entry))
+    with session(transaction_mode="IMMEDIATE") as conn:
+        result = present_ledger_entry(append_planned_entry(entry, conn=conn), conn=conn)
+        return LedgerEntry.model_validate(result).model_dump(mode="json")
 
 
 @router.post("/planned/{entry_id}/confirm")
 def post_confirm_planned_entry(entry_id: int, payload: PlannedConfirmIn | None = None, _: dict = Depends(require_user)) -> dict:
     try:
-        result = confirm_planned_entry(
-            entry_id,
-            entry_date=payload.entry_date.isoformat() if payload and payload.entry_date else None,
-            actual_amount=payload.actual_amount if payload else None,
-        )
+        with session(transaction_mode="IMMEDIATE") as conn:
+            result = confirm_planned_entry(
+                entry_id,
+                entry_date=payload.entry_date.isoformat() if payload and payload.entry_date else None,
+                actual_amount=payload.actual_amount if payload else None,
+                conn=conn,
+            )
+            if result is None:
+                raise HTTPException(status_code=404, detail="planned entry not found")
+            response = {
+                "planned": present_ledger_entry(result["planned"], conn=conn),
+                "entry": present_ledger_entry(result["entry"], conn=conn),
+            }
+            return {key: LedgerEntry.model_validate(row).model_dump(mode="json")
+                    for key, row in response.items()}
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
-    if result is None:
-        raise HTTPException(status_code=404, detail="planned entry not found")
-    return {
-        "planned": present_ledger_entry(result["planned"]),
-        "entry": present_ledger_entry(result["entry"]),
-    }
 
 
 @router.get("/planned/{entry_id}/preview", response_model=PlannedChargePreview)
@@ -127,7 +134,9 @@ def get_current_panels(_: dict = Depends(require_user)) -> list[dict]:
 @router.post("/panels", response_model=MonthlyPanel)
 def post_panel(panel: MonthlyPanelIn, _: dict = Depends(require_user)) -> dict:
     try:
-        return present_monthly_panel(create_panel(panel))
+        with session(transaction_mode="IMMEDIATE") as conn:
+            result = present_monthly_panel(create_panel(panel, conn=conn), conn=conn)
+            return MonthlyPanel.model_validate(result).model_dump(mode="json")
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
@@ -139,43 +148,48 @@ def post_confirm_fixed_panel(
     _: dict = Depends(require_user),
 ) -> dict:
     try:
-        result = confirm_fixed_panel(
-            panel_id,
-            payload.occurred_on.isoformat(),
-            payload.actual_amount,
-        )
+        with session(transaction_mode="IMMEDIATE") as conn:
+            result = confirm_fixed_panel(
+                panel_id,
+                payload.occurred_on.isoformat(),
+                payload.actual_amount,
+                conn=conn,
+            )
+            if result is None:
+                raise HTTPException(status_code=404, detail="panel not found")
+            response = {
+                "panel": present_monthly_panel(result["panel"], conn=conn),
+                "cash_flow": result["cash_flow"],
+            }
+            return {
+                "panel": MonthlyPanel.model_validate(response["panel"]).model_dump(mode="json"),
+                "cash_flow": CashFlow.model_validate(response["cash_flow"]).model_dump(mode="json"),
+            }
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
-    if result is None:
-        raise HTTPException(status_code=404, detail="panel not found")
-    return {
-        "panel": present_monthly_panel(result["panel"]),
-        "cash_flow": result["cash_flow"],
-    }
 
 
 @router.patch("/panels/{panel_id}", response_model=MonthlyPanel)
 def patch_panel(panel_id: int, patch: MonthlyPanelPatch, _: dict = Depends(require_user)) -> dict:
-    panel = update_panel(panel_id, patch)
-    if panel is None:
-        raise HTTPException(status_code=404, detail="panel not found")
-    return present_monthly_panel(panel)
+    with session(transaction_mode="IMMEDIATE") as conn:
+        panel = update_panel(panel_id, patch, conn=conn)
+        if panel is None:
+            raise HTTPException(status_code=404, detail="panel not found")
+        return MonthlyPanel.model_validate(present_monthly_panel(panel, conn=conn)).model_dump(mode="json")
 
 
 @router.patch("/panels/{panel_id}/discount", response_model=MonthlyPanel)
 def patch_panel_discount(panel_id: int, patch: PanelDiscountPatch, _: dict = Depends(require_user)) -> dict:
-    with session() as conn:
+    with session(transaction_mode="IMMEDIATE") as conn:
         panel = conn.execute("SELECT * FROM monthly_panels WHERE id = ?", (panel_id,)).fetchone()
-    if panel is None:
-        raise HTTPException(status_code=404, detail="panel not found")
-    if panel["panel_type"] not in {"claim", "family_card"}:
-        raise HTTPException(status_code=422, detail="청구 또는 가족카드 항목에만 카드 할인을 적용할 수 있습니다.")
-    if patch.discount_amount > float(panel["amount_value"] or 0):
-        raise HTTPException(status_code=422, detail="할인액은 원래 청구금액을 초과할 수 없습니다.")
-    updated = set_panel_discount(panel_id, patch.discount_amount, 1)
-    if updated is None:
-        raise HTTPException(status_code=404, detail="panel not found")
-    return present_monthly_panel(updated)
+        if panel is None:
+            raise HTTPException(status_code=404, detail="panel not found")
+        if panel["panel_type"] not in {"claim", "family_card"}:
+            raise HTTPException(status_code=422, detail="청구 또는 가족카드 항목에만 카드 할인을 적용할 수 있습니다.")
+        if patch.discount_amount > float(panel["amount_value"] or 0):
+            raise HTTPException(status_code=422, detail="할인액은 원래 청구금액을 초과할 수 없습니다.")
+        updated = set_panel_discount(panel_id, patch.discount_amount, 1, conn=conn)
+        return MonthlyPanel.model_validate(present_monthly_panel(updated, conn=conn)).model_dump(mode="json")
 
 
 @router.delete("/panels/{panel_id}/discount")

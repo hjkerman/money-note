@@ -79,11 +79,11 @@ def close_current_month(
                 INSERT INTO ledger_entries (
                     book_section, entry_kind, entry_date, date_label, group_label, title, usage_place, usage_item,
                     amount_value, amount_expr, aux_amount_value, aux_amount_expr, extra_value,
-                    sort_order, due_day, confirmed_at, source_planned_entry_id,
+                    sort_order, due_day, confirmed_at, confirmed_month, source_planned_entry_id,
                     spending_category, payment_key, discount_override
                 )
                 VALUES (
-                    'archive', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                    'archive', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
                 )
                 """,
                 (
@@ -102,6 +102,7 @@ def close_current_month(
                     next_order,
                     entry["due_day"],
                     entry["confirmed_at"],
+                    entry["confirmed_month"],
                     entry["source_planned_entry_id"],
                     entry["spending_category"],
                     entry["payment_key"],

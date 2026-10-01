@@ -61,6 +61,12 @@ Unknown table/column 또는 해당 세대의 필수 테이블·identity·관계�
 
 ## Snapshot과 배포
 
+### Revision trigger 계약
+
+현재-unversioned admission과 version 3 검증은 revision trigger의 이름만 신뢰하지 않는다. 대상 표, AFTER INSERT/UPDATE/DELETE event, `authoritative_state_revision` id=1에 대한 `revision = revision + 1` 효과를 명시적으로 검사한다. 공백·대소문자·identifier quoting·주석은 정규화하지만 WHEN, 다른 대상/event, no-op, 감소·다른 revision 행 갱신은 승인하지 않는다. 금융 대상 표나 revision을 변경하는 예상 밖 trigger도 거부해 증가분 상쇄를 막는다. Revision state는 id=1의 단일 비음수 정수 행이어야 한다.
+
+이 검증은 metadata를 읽으며 실제 금융 DML probe, 자동 수선, migration 재실행을 하지 않는다. 손상된 현재 구조는 version 승격 전에 보존하고 거부한다. 역사적 schema는 기존 numbered migration이 현행 trigger를 생성한 뒤 같은 계약을 검증한다.
+
 Snapshot v4/v5/v6/v7은 계속 지원한다. Restore는 현재 DB의 데이터 테이블을 서버 transaction 안에서 교체하며 DB 파일의 `user_version`을 Snapshot에서 가져오지 않는다. 기존 DB가 unversioned라면 **먼저 startup migration**이 끝나야 restore endpoint가 제공된다. Restore의 임시 dry-run DB는 현재 `SCHEMA`를 사용하지만 서비스 DB로 승격하지 않는다. Restore 후 재기동은 버전 3의 schema sanity check만 수행하며, 현재 export는 v7이다.
 
 `user_version`은 **DB 구조**, Snapshot `schema_version`은 **가져오는 데이터의 호환 의미**를 식별한다. 이미 version 3인 DB에도 v4~v6 데이터가 복원될 수 있다. v6의 연결된 현금성 고정지출에서 누락된 `confirmed_month`는 원문 manifest 검증 후 Snapshot import 경계에서 검증된 `spent_on`의 월로 복원한다. 연결된 현금흐름의 소유·역할·처리일이 모순되거나 같은 현금흐름을 두 고정지출이 공유하면 dry-run에서 복원을 거부한다. fixed의 `confirmed_at`은 실제 날짜·시각으로 해석 가능해야 하며, v6/v7에서 확인 시각 또는 확인 월만 있고 cash-flow 연결이 없는 행도 거부한다. v4~v6 카드 정기결제의 명시적 source ID는 Snapshot에 없으므로 원본 확인 시각과 변경되지 않은 생성 행·월내 유일성이 일치할 때 import 경계에서 현행 source ID를 영속화한다. 기존 미연결 행은 수정 전에만 같은 증거로 결합할 수 있다. **삭제 시 mutable 필드 재매칭으로 새 관계를 만들지 않는다.** 명시적 source가 있는 현재 행은 legacy 추론에서 제외한다. 관계가 불명확하면 취소 전에 거부하며, 현재 DB migration을 재실행하거나 v7 관계를 추측하지 않는다.

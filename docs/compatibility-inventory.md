@@ -1,5 +1,7 @@
 # T5 호환성 inventory
 
+최종 blocker closure에서도 legacy monetary discount 입력(`discount_override`/`aux_amount_value`, 패널 `discount_amount`)은 KEEP이다. 공과금 기본값보다 explicit 의미가 우선하며 API/journal 필드를 삭제하거나 확장하지 않는다. 구 Snapshot의 증명 가능한 recurring 관계는 source ID와 확인 epoch로 결합하고 기존 v7 컬럼으로 보존한다. Explicit identity/epoch를 mutable 발생월로 재판정하지 않는다. Fixed timestamp는 offset hour/minute 범위도 검증한다. 모바일 ONLINE pending marker는 Snapshot과 별도인 로컬 복구 metadata다.
+
 이 표는 현재 source import, HTTP/serialized shape, Git 이력과 Snapshot 테스트를 대조한 것이다. 삭제 목록이 아니다. DB·Snapshot·재시도 identity가 포함된 항목은 내부 Python import보다 보수적으로 유지한다.
 
 | Surface | 판정 | 실제 usage 근거와 범위 |

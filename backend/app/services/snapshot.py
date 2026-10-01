@@ -26,7 +26,7 @@ from app.services.liquidity_names import (
     LEGACY_LIQUIDITY_SETTING_KEYS,
     normalized_legacy_label_value,
 )
-from app.services.legacy_recurring import infer_legacy_recurring_sources
+from app.services.legacy_recurring import infer_legacy_recurring_sources, materialize_recurring_confirmation_epochs
 from app.share_auth import SENSITIVE_SHARE_SETTING_KEYS
 
 
@@ -378,6 +378,20 @@ def _validate_snapshot(snapshot: dict[str, Any]) -> None:
         raise ValueError("snapshot card charge policy does not match this server")
 
 
+def _validate_confirmation_timestamp(value: Any, message: str) -> None:
+    if not isinstance(value, str) or not re.fullmatch(
+        r"\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})?", value,
+    ):
+        raise ValueError(message)
+    try:
+        offset = re.search(r"[+-](\d{2}):(\d{2})$", value)
+        if offset and (int(offset[1]) >= 24 or int(offset[2]) >= 60):
+            raise ValueError("invalid timezone offset")
+        datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        raise ValueError(message) from None
+
+
 def _normalized_snapshot_data(
     data: dict[str, list[dict[str, Any]]], schema_version: int,
 ) -> dict[str, list[dict[str, Any]]]:
@@ -398,6 +412,7 @@ def _normalized_snapshot_data(
         for row in normalized["ledger_entries"]:
             if row.get("id") in sources:
                 row["source_planned_entry_id"] = sources[row["id"]]
+    materialize_recurring_confirmation_epochs(normalized["ledger_entries"])
     # v6 recorded a fixed confirmation's cash-flow link and spent_on date,
     # but not its month. Import can target an already-versioned DB, so the
     # historical meaning must be restored here, after manifest validation.
@@ -410,15 +425,7 @@ def _normalized_snapshot_data(
         confirmed_at = panel.get("confirmed_at")
         linked = panel.get("confirmed_cash_flow_id") is not None
         if confirmed_at is not None or linked:
-            if not isinstance(confirmed_at, str) or not re.fullmatch(
-                r"\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})?",
-                confirmed_at,
-            ):
-                raise ValueError("confirmed fixed expense has no valid confirmation timestamp")
-            try:
-                datetime.fromisoformat(confirmed_at.replace("Z", "+00:00"))
-            except ValueError:
-                raise ValueError("confirmed fixed expense has no valid confirmation timestamp") from None
+            _validate_confirmation_timestamp(confirmed_at, "confirmed fixed expense has no valid confirmation timestamp")
         if not linked:
             if schema_version >= 6 and (confirmed_at is not None or panel.get("confirmed_month") is not None):
                 raise ValueError("confirmed fixed expense has no cash-flow relationship")
@@ -662,6 +669,37 @@ def _raise_if_foreign_key_errors(conn: Any) -> None:
 
 
 def _validate_financial_relationships(conn: Any) -> None:
+    for row in conn.execute(
+        """SELECT expense.confirmed_month, expense.confirmed_at, source.entry_kind AS source_kind
+           FROM ledger_entries expense
+           LEFT JOIN ledger_entries source ON source.id = expense.source_planned_entry_id
+           WHERE expense.source_planned_entry_id IS NOT NULL
+             AND (expense.confirmed_month IS NOT NULL OR expense.confirmed_at IS NOT NULL)"""
+    ):
+        period = row["confirmed_month"]
+        if row["source_kind"] != "planned" or not isinstance(period, str) or not re.fullmatch(r"\d{4}-\d{2}", period):
+            raise ValueError("snapshot recurring confirmation epoch is inconsistent")
+        try:
+            date.fromisoformat(period + "-01")
+        except ValueError:
+            raise ValueError("snapshot recurring confirmation epoch is inconsistent") from None
+        _validate_confirmation_timestamp(row["confirmed_at"], "snapshot recurring confirmation timestamp is invalid")
+    mismatched_epoch = conn.execute(
+        """SELECT source.id FROM ledger_entries source
+           WHERE source.book_section = 'current' AND source.entry_kind = 'planned'
+             AND source.confirmed_month IS NOT NULL AND source.confirmed_at IS NOT NULL
+             AND EXISTS (SELECT 1 FROM ledger_entries expense
+                         WHERE expense.book_section = 'current' AND expense.entry_kind = 'expense'
+                           AND expense.source_planned_entry_id = source.id
+                           AND expense.confirmed_month IS NOT NULL AND expense.confirmed_at IS NOT NULL)
+             AND (SELECT COUNT(*) FROM ledger_entries expense
+                  WHERE expense.book_section = 'current' AND expense.entry_kind = 'expense'
+                    AND expense.source_planned_entry_id = source.id
+                    AND expense.confirmed_month = source.confirmed_month
+                    AND expense.confirmed_at = source.confirmed_at) != 1 LIMIT 1"""
+    ).fetchone()
+    if mismatched_epoch is not None:
+        raise ValueError("snapshot recurring confirmation epoch does not identify the active confirmation")
     duplicate_fixed_flow = conn.execute(
         """
         SELECT confirmed_cash_flow_id

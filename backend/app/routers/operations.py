@@ -73,7 +73,9 @@ def get_cash_flows(
 
 @cash_router.post("", response_model=CashFlow)
 def post_cash_flow(flow: CashFlowIn, _: dict = Depends(require_user)) -> dict:
-    return create_cash_flow(flow)
+    with session(transaction_mode="IMMEDIATE") as conn:
+        result = create_cash_flow(flow, conn=conn)
+        return CashFlow.model_validate(result).model_dump(mode="json")
 
 
 @cash_router.delete("/{flow_id}")

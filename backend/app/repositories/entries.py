@@ -6,7 +6,10 @@ from app.repositories.common import ensure_payment_key_available, new_payment_ke
 from app.schemas import LedgerEntryIn, LedgerEntryPatch, PlannedEntryIn
 from app.services.clock import app_today
 from app.services.card_charge import utility_default_discount_excluded
-from app.services.legacy_recurring import infer_legacy_recurring_sources, near_confirmation_creation
+from app.services.legacy_recurring import (
+    infer_legacy_recurring_sources, materialize_recurring_confirmation_epochs,
+    near_confirmation_creation,
+)
 from app.services.card_payments import (
     closed_month_payment_batch_id,
     _add_card_payment_batch_item,
@@ -216,6 +219,13 @@ def confirm_planned_entry(
             """,
             (payment_date.isoformat(), confirmed_month, entry_id),
         )
+        conn.execute(
+            """UPDATE ledger_entries
+               SET confirmed_month = ?, confirmed_at = (
+                   SELECT confirmed_at FROM ledger_entries WHERE id = ?)
+               WHERE id = ?""",
+            (confirmed_month, entry_id, cursor.lastrowid),
+        )
         entry = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (cursor.lastrowid,)).fetchone()
         updated_planned = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (entry_id,)).fetchone()
         return {"planned": row_to_dict(updated_planned), "entry": row_to_dict(entry)}
@@ -269,6 +279,8 @@ def create_entry(entry: LedgerEntryIn, conn: Any | None = None) -> dict[str, Any
     if (
         initial_discount_enabled is None
         and initial_discount_override_amount is None
+        and not entry.discount_override
+        and entry.aux_amount_value is None
         and entry.entry_kind in {"expense", "late_expense"}
         and utility_default_discount_excluded(entry.usage_place, entry.usage_item)
     ):
@@ -384,8 +396,8 @@ def create_entry(entry: LedgerEntryIn, conn: Any | None = None) -> dict[str, Any
         return row_to_dict(row)
 
 
-def append_planned_entry(entry: PlannedEntryIn) -> dict[str, Any]:
-    with session() as conn:
+def append_planned_entry(entry: PlannedEntryIn, *, conn: Any | None = None) -> dict[str, Any]:
+    with borrowed_or_new_session(conn, transaction_mode="IMMEDIATE") as conn:
         max_planned = conn.execute(
             """
             SELECT MAX(sort_order) AS sort_order
@@ -506,16 +518,16 @@ def reorder_current_entries(ordered_ids: list[int], entry_kind: str | None = Non
     return [row_to_dict(row) for row in result]
 
 
-def update_entry(entry_id: int, patch: LedgerEntryPatch) -> dict[str, Any] | None:
+def update_entry(entry_id: int, patch: LedgerEntryPatch, *, conn: Any | None = None) -> dict[str, Any] | None:
     values = patch.model_dump(exclude_unset=True)
     if values.get("entry_date") is not None:
         values["entry_date"] = values["entry_date"].isoformat()
     if not values:
-        with session() as conn:
+        with borrowed_or_new_session(conn) as conn:
             row = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (entry_id,)).fetchone()
         return row_to_dict(row) if row else None
 
-    with session(transaction_mode="IMMEDIATE") as conn:
+    with borrowed_or_new_session(conn, transaction_mode="IMMEDIATE") as conn:
         existing = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (entry_id,)).fetchone()
         if existing is None:
             return None
@@ -523,6 +535,9 @@ def update_entry(entry_id: int, patch: LedgerEntryPatch) -> dict[str, Any] | Non
             source = _legacy_recurring_source(conn, entry_id, existing, allow_binding=True)
             if source is not None:
                 values["source_planned_entry_id"] = source
+        source = values.get("source_planned_entry_id") or existing["source_planned_entry_id"]
+        if source and existing["book_section"] == "current":
+            _ensure_recurring_confirmation_epoch(conn, entry_id, source)
         merged = {**dict(existing), **values}
         _validate_structured_entry(merged)
         assignments = ", ".join(f"{column} = ?" for column in values)
@@ -539,8 +554,9 @@ def delete_entry(entry_id: int) -> bool:
     with session(transaction_mode="IMMEDIATE") as conn:
         entry = conn.execute(
             """
-            SELECT payment_key, source_planned_entry_id, book_section, entry_kind,
-                   entry_date, title, usage_place, usage_item, amount_value, created_at
+            SELECT id, payment_key, source_planned_entry_id, book_section, entry_kind,
+                   entry_date, title, usage_place, usage_item, amount_value, created_at,
+                   confirmed_month, confirmed_at
             FROM ledger_entries
             WHERE id = ?
             """,
@@ -551,6 +567,9 @@ def delete_entry(entry_id: int) -> bool:
         source_planned_entry_id = entry["source_planned_entry_id"]
         if source_planned_entry_id is None:
             source_planned_entry_id = _legacy_recurring_source(conn, entry_id, entry)
+        epoch = None
+        if source_planned_entry_id and entry["book_section"] == "current":
+            epoch = _ensure_recurring_confirmation_epoch(conn, entry_id, source_planned_entry_id)
         if entry["payment_key"]:
             paid = conn.execute(
                 """
@@ -569,25 +588,38 @@ def delete_entry(entry_id: int) -> bool:
                 raise ValueError("일부라도 결제된 카드 사용내역은 일반 원장 삭제로 지울 수 없습니다.")
             _delete_card_payment_references(conn, str(entry["payment_key"]))
         cursor = conn.execute("DELETE FROM ledger_entries WHERE id = ?", (entry_id,))
-        if source_planned_entry_id and entry["book_section"] == "current":
-            planned = conn.execute(
-                "SELECT confirmed_month FROM ledger_entries WHERE id = ? AND entry_kind = 'planned'",
-                (source_planned_entry_id,),
-            ).fetchone()
-            confirmed_month = str(planned["confirmed_month"] or "") if planned else ""
-            if confirmed_month and str(entry["entry_date"] or "").startswith(confirmed_month):
-                conn.execute(
-                    """
-                    UPDATE ledger_entries
-                    SET entry_date = NULL,
-                        confirmed_at = NULL,
-                        confirmed_month = NULL,
-                        updated_at = CURRENT_TIMESTAMP
-                    WHERE id = ? AND entry_kind = 'planned' AND confirmed_month = ?
-                    """,
-                    (source_planned_entry_id, confirmed_month),
-                )
+        if epoch is not None:
+            conn.execute(
+                """
+                UPDATE ledger_entries
+                SET entry_date = NULL,
+                    confirmed_at = NULL,
+                    confirmed_month = NULL,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = ? AND entry_kind = 'planned' AND confirmed_month = ? AND confirmed_at = ?
+                """,
+                (source_planned_entry_id, epoch[0], epoch[1]),
+            )
     return cursor.rowcount > 0
+
+
+def _ensure_recurring_confirmation_epoch(conn: Any, entry_id: int, source_id: int) -> tuple[str, str]:
+    rows = [dict(row) for row in conn.execute(
+        "SELECT * FROM ledger_entries WHERE id IN (?, ?) OR (book_section = 'current' "
+        "AND source_planned_entry_id = ?)", (source_id, entry_id, source_id),
+    )]
+    for row in rows:
+        if row["id"] == entry_id and row.get("source_planned_entry_id") is None:
+            # The caller has already proven this legacy source, in this same
+            # transaction, before editing any mutable financial/display field.
+            row["source_planned_entry_id"] = source_id
+    materialize_recurring_confirmation_epochs(rows)
+    entry = next((row for row in rows if row["id"] == entry_id), None)
+    if entry is None or not entry.get("confirmed_month") or not entry.get("confirmed_at"):
+        raise ValueError("unresolved recurring confirmation epoch: cancellation identity is not provable")
+    conn.execute("UPDATE ledger_entries SET confirmed_month = ?, confirmed_at = ? WHERE id = ?",
+                 (entry["confirmed_month"], entry["confirmed_at"], entry_id))
+    return str(entry["confirmed_month"]), str(entry["confirmed_at"])
 
 
 def _legacy_recurring_source(
