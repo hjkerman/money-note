@@ -508,6 +508,8 @@
 
 `actual_amount`는 0원 이상이며 생략하면 template `amount_value`를 사용한다. 서버는 같은 트랜잭션에서 실제액의 음수 현금흐름을 만들고, 패널의 `spent_on`, `confirmed_at`, `confirmed_month`, `confirmed_cash_flow_id`를 기록한다. 원래 템플릿 예정액과 제목은 바뀌지 않는다. 응답과 확인 목록의 `confirmed_amount_value`는 연결된 cash flow의 절댓값이다. 이미 확인된 항목이나 `fixed`가 아닌 패널은 `422`를 반환한다. 처리일이 서버 기준 오늘보다 미래여도 `422`를 반환하며 예약 확인으로 해석하지 않는다.
 
+말일에 해당 월마감이 완료되면 익월 cash fixed를 같은 실제 날짜로 처리한다. 예: `occurred_on=2026-09-30`, `confirmed_month=2026-10`. 일반 확인은 실제 날짜의 월을 사용한다. 템플릿 시작 월이 처리 대상 주기보다 미래면 거부한다. 패널 응답의 서버 계산 필드 `can_confirm_fixed`와 `fixed_execution_month`가 오늘 기준 UI 가능성과 금융 주기를 제공한다. 별도의 카드 정기결제는 month-close-status의 `card_recurring_confirmation_available`을 사용하며 마감한 같은 달에 재확인하지 않는다. 실제 달력 기준월은 그대로다.
+
 이미 월마감한 달의 처리일도 `422`로 거부한다. 마감 전 열린 달의 과거 처리일은 허용한다.
 
 응답:
@@ -644,7 +646,7 @@ remaining_liquidity
 
 `liquidity_fixed_total`은 응답 필드가 아니라 내부 계산값이다. `아직 확인되지 않은 현금성 고정지출 reserve + 아직 카드 지출로 확인되지 않은 카드 정기결제 예정 원금`이다. 현금성 고정지출을 확인하면 reserve 차감은 사라지고 입력한 실제액의 음수 현금흐름이 생긴다. 실제액이 reserve와 같으면 잔여 유동성은 그대로이고, 다르면 그 차액만 자동으로 조정된다.
 
-`current_month_spendable = remaining_liquidity - (fixed_cash_total - pending_fixed_cash_total)`이다. 미확인 고정지출은 `remaining_liquidity`에 이미 들어 있으므로 중복 차감하지 않는다. 괄호 안은 확인된 템플릿의 다음 발생분 예정액이며, 이번에 실제 출금한 금액과 다를 수 있다. 클라이언트는 이 계산을 복제하지 않는다.
+`current_month_spendable = remaining_liquidity - (fixed_cash_total - pending_fixed_cash_total) + early_executed_next_period_fixed_total`이다. 미확인 고정지출은 `remaining_liquidity`에 이미 들어 있으므로 중복 차감하지 않는다. 괄호 안은 확인된 템플릿의 다음 발생분 예정액이며, 이번에 실제 출금한 금액과 다를 수 있다. 마지막 항은 말일에 선처리했지만 아직 실제 달력이 그 확인 월에 진입하지 않은 템플릿 예정액이다(내부 계산 항, 응답 필드 아님). 같은 obligation의 실제 출금과 reserve를 중복 차감하지 않고, 실제 익월 진입 시 다음 반복분 reserve가 적용된다. 클라이언트는 이 계산을 복제하지 않는다.
 
 `cash_flow_balance`는 `occurred_on <= calendar_date`인 현금흐름만 합산한다. 월마감 자동 `급여`는 실행일로 생성되므로 즉시 잔액에 반영된다. 사용자가 별도로 입력한 미래 날짜 현금흐름은 기존대로 해당 날짜 전 Summary 잔액에서 제외되며, 현금흐름 조회 API와 Snapshot에는 행 자체가 그대로 존재한다.
 
@@ -713,7 +715,8 @@ Summary의 모든 구성값은 하나의 SQLite read transaction에서 계산한
   "needs_close": true,
   "is_early_close": false,
   "early_close_available": false,
-  "early_close_start_day": 27,
+  "early_close_start_day": 31,
+  "card_recurring_confirmation_available": true,
   "can_close": true,
   "unconfirmed_recurring_items": [
     {"kind": "fixed", "id": 7, "title": "관리비", "amount_value": 80000},
@@ -726,7 +729,7 @@ Summary의 모든 구성값은 하나의 SQLite read transaction에서 계산한
 
 ### `POST /api/month/current/close`
 
-현재 장부에서 가장 오래된 미마감 월 하나만 전체 기록으로 넘긴다. 현재 달은 매월 27일부터 조기 마감할 수 있으며 명시적 확인값이 필요하다.
+현재 장부에서 가장 오래된 미마감 월 하나만 전체 기록으로 넘긴다. 현재 달은 실제 달력 말일에만 마감할 수 있으며 명시적 확인값이 필요하다. 월마감은 달력을 앞당기지 않는다.
 
 요청:
 

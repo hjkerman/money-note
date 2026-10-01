@@ -76,6 +76,9 @@ export type MonthlyPanel = {
   due_day: number | null;
   confirmed_at: string | null;
   confirmed_cash_flow_id?: number | null;
+  confirmed_month?: string | null;
+  can_confirm_fixed?: boolean;
+  fixed_execution_month?: string | null;
   discount_policy: CardDiscountPolicy;
   automatic_discount_eligible: boolean;
   automatic_discount_amount: number;
@@ -191,6 +194,7 @@ export type MonthCloseStatus = {
   is_early_close: boolean;
   early_close_available: boolean;
   early_close_start_day: number;
+  card_recurring_confirmation_available?: boolean;
   can_close: boolean;
   unconfirmed_recurring_items: {
     kind: "fixed" | "planned";

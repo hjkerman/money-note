@@ -446,6 +446,7 @@ export function App() {
             />
 
           <FixedPanelView
+              cardRecurringConfirmationAvailable={monthCloseStatus?.card_recurring_confirmation_available}
               active={activePrimaryTab === "fixed"}
               calendarDate={monthCloseStatus?.calendar_date ?? ""}
               currentMonth={currentMonth}

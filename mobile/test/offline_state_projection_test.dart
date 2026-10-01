@@ -9,6 +9,79 @@ import 'support/offline_mode_fixtures.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  test(
+      'early fixed projection preserves server period and does not duplicate reserve',
+      () {
+    final json = baselineFixture(currentMonthSpendable: 6000).toJson();
+    final status = json['month_close_status'] as Map<String, dynamic>;
+    status['calendar_date'] = '2026-09-30';
+    status['calendar_month'] = '2026-09';
+    status['last_closed_month'] = '2026-09';
+    status['card_recurring_confirmation_available'] = false;
+    final panel = (json['panels'] as List).single as Map<String, dynamic>;
+    panel['can_confirm_fixed'] = true;
+    panel['fixed_execution_month'] = '2026-10';
+    final baseline = OfflineBaseline.fromJson(json);
+    final restored = OfflineBaseline.fromJson(baseline.toJson());
+    expect(restored.panels.single.fixedExecutionMonth, '2026-10');
+    expect(
+        restored.monthCloseStatus.cardRecurringConfirmationAvailable, isFalse);
+    final projection = OfflineProjection.from(
+        baseline,
+        [
+          OfflineJournalOperation(
+              operationId: 'early',
+              sequence: 1,
+              type: OfflineOperationType.confirmFixedExpense,
+              payload: const {
+                'panel_id': 30,
+                'occurred_on': '2026-09-30',
+                'actual_amount': 800
+              },
+              createdAt: DateTime.utc(2026, 9, 30)),
+        ],
+        projectedAt: DateTime(2026, 9, 30));
+    expect(projection.summary.cashFlowBalance, 4200);
+    expect(projection.summary.currentMonthSpendable, 6200);
+    expect(projection.panels.single.confirmedMonth, '2026-10');
+    expect(projection.panels.single.spentOn, '2026-09-30');
+    expect(projection.panels.single.canConfirmFixed, isFalse);
+    final journal = [
+      OfflineJournalOperation(
+        operationId: 'early',
+        sequence: 1,
+        type: OfflineOperationType.confirmFixedExpense,
+        payload: const {
+          'panel_id': 30,
+          'occurred_on': '2026-09-30',
+          'actual_amount': 800
+        },
+        createdAt: DateTime.utc(2026, 9, 30),
+      )
+    ];
+    expect(
+        OfflineProjection.from(baseline, journal,
+                projectedAt: DateTime(2026, 10, 1))
+            .summary
+            .currentMonthSpendable,
+        5200);
+    // The same transition must also work when the early transfer was already
+    // committed in the authoritative baseline, not only present in J.
+    final committedJson = baseline.toJson();
+    final committedPanel =
+        (committedJson['panels'] as List).single as Map<String, dynamic>;
+    committedPanel['confirmed_month'] = '2026-10';
+    committedPanel['confirmed_at'] = '2026-09-30T03:00:00Z';
+    committedPanel['confirmed_cash_flow_id'] = 99;
+    expect(
+        OfflineProjection.from(OfflineBaseline.fromJson(committedJson), [],
+                projectedAt: DateTime(2026, 10, 1))
+            .summary
+            .currentMonthSpendable,
+        5000);
+    expect(journal.single.payload.keys,
+        unorderedEquals(['panel_id', 'occurred_on', 'actual_amount']));
+  });
 
   group('offline state machine and projection', () {
     test('no baseline rejects deliberate offline entry', () async {

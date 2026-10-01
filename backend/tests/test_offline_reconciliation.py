@@ -1,4 +1,5 @@
 import copy
+from datetime import date
 import json
 import os
 from pathlib import Path
@@ -28,6 +29,8 @@ from app.services.snapshot import (
     read_pre_restore_backup,
     snapshot_state_fingerprint,
 )
+from app.services.month import close_current_month
+from app.services.summary import current_summary_values
 
 
 class InjectedFailure(RuntimeError):
@@ -35,6 +38,36 @@ class InjectedFailure(RuntimeError):
 
 
 class OfflineReconciliationTest(unittest.TestCase):
+    def test_month_end_early_fixed_replay_is_atomic_idempotent_and_preserves_period(self):
+        with patch.dict(os.environ, {"MONEY_NOTE_TODAY": "2026-09-30"}):
+            get_settings.cache_clear()
+            close_current_month(date(2026, 9, 30), target_month="2026-09",
+                                allow_early_close=True, allow_unconfirmed_recurring=True)
+            baseline = export_offline_baseline()
+            self.baseline_snapshot = baseline["snapshot"]
+            self.baseline_fingerprint = baseline["state_fingerprint"]
+            before = current_summary_values()
+            operation = self._operation(1, "CONFIRM_FIXED_EXPENSE", {
+                "panel_id": 1, "occurred_on": "2026-09-30", "actual_amount": 40000,
+            })
+            operation["created_at"] = "2026-09-30T03:00:00Z"
+            payload = self._payload([operation], expected_server_fingerprint=self._fingerprint())
+            def inject(stage, sequence):
+                if stage == "before_commit":
+                    raise InjectedFailure("early fixed before_commit")
+            with self.assertRaises(InjectedFailure):
+                apply_mobile_wins(payload, failure_injector=inject)
+            self.assertEqual(self._fingerprint(), self.baseline_fingerprint)
+            first = apply_mobile_wins(payload)
+            self.assertEqual(apply_mobile_wins(payload), first)
+            after = current_summary_values()
+            self.assertEqual(after["cash_flow_balance"], before["cash_flow_balance"] - 40000)
+            self.assertEqual(after["current_month_spendable"], before["current_month_spendable"])
+            with session() as conn:
+                row = conn.execute("SELECT confirmed_month, spent_on FROM monthly_panels WHERE id=1").fetchone()
+                self.assertEqual(tuple(row), ("2026-10", "2026-09-30"))
+                self.assertEqual(conn.execute("SELECT COUNT(*) FROM cash_flows WHERE title='월세'").fetchone()[0], 1)
+
     def setUp(self) -> None:
         self.temp_dir = tempfile.TemporaryDirectory()
         self.db_path = Path(self.temp_dir.name) / "money-note.sqlite3"

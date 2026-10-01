@@ -13,6 +13,7 @@ from app.services.card_charge import (
     transport_title,
 )
 from app.services.clock import app_today
+from app.services.financial_periods import fixed_execution_month
 
 
 def present_ledger_entries(entries: Iterable[Mapping[str, Any]]) -> list[dict[str, Any]]:
@@ -142,6 +143,16 @@ def present_monthly_panel(
     data = dict(panel)
     settings = settings or list_settings()
     panel_type = str(data.get("panel_type") or "")
+    if panel_type == "fixed":
+        try:
+            execution_month = fixed_execution_month(app_today(), settings.get("last_closed_month"))
+        except ValueError:
+            execution_month = None
+        data["fixed_execution_month"] = execution_month
+        data["can_confirm_fixed"] = bool(
+            execution_month and str(data.get("month") or "") <= execution_month
+            and data.get("confirmed_cash_flow_id") is None and data.get("amount_value") is not None
+        )
     scope = "family" if panel_type == "family_card" else "owner"
     month = str(data.get("month") or app_today().strftime("%Y-%m"))
     policy = normalize_discount_policy(

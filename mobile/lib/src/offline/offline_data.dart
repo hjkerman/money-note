@@ -508,6 +508,9 @@ Map<String, dynamic> _monthlyPanelToJson(MonthlyPanel value) => {
       'due_day': value.dueDay,
       'confirmed_at': value.confirmedAt,
       'confirmed_cash_flow_id': value.confirmedCashFlowId,
+      'confirmed_month': value.confirmedMonth,
+      'can_confirm_fixed': value.canConfirmFixed,
+      'fixed_execution_month': value.fixedExecutionMonth,
       'confirmed_amount_value': value.confirmedAmountValue,
     };
 
@@ -558,6 +561,8 @@ Map<String, dynamic> _monthCloseStatusToJson(MonthCloseStatus value) => {
       'early_close_available': value.earlyCloseAvailable,
       'early_close_start_day': value.earlyCloseStartDay,
       'can_close': value.canClose,
+      'card_recurring_confirmation_available':
+          value.cardRecurringConfirmationAvailable,
       'unconfirmed_recurring_items': value.unconfirmedRecurringItems
           .map((item) => {
                 'kind': item.kind,

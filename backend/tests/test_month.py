@@ -295,9 +295,9 @@ class MonthCloseTest(unittest.TestCase):
                 """
             )
 
-        delayed = close_current_month(date(2026, 7, 27), target_month="2026-06")
+        delayed = close_current_month(date(2026, 7, 31), target_month="2026-06")
         early = close_current_month(
-            date(2026, 7, 27),
+            date(2026, 7, 31),
             allow_early_close=True,
             target_month="2026-07",
         )
@@ -308,7 +308,7 @@ class MonthCloseTest(unittest.TestCase):
             salaries = conn.execute(
                 """
                 SELECT amount_value FROM cash_flows
-                WHERE title = '급여' AND occurred_on = '2026-07-27'
+                WHERE title = '급여' AND occurred_on = '2026-07-31'
                 ORDER BY id
                 """
             ).fetchall()
@@ -384,7 +384,7 @@ class MonthCloseTest(unittest.TestCase):
                 "UPDATE app_settings SET value = '550000' WHERE key = 'scheduled_income'",
             )
 
-        close_current_month(date(2026, 7, 27), allow_early_close=True)
+        close_current_month(date(2026, 7, 31), allow_early_close=True)
 
         with session() as conn:
             salaries = conn.execute(
@@ -399,15 +399,15 @@ class MonthCloseTest(unittest.TestCase):
             [dict(row) for row in salaries],
             [
                 {"occurred_on": "2026-07-01", "amount_value": 400_000},
-                {"occurred_on": "2026-07-27", "amount_value": 550_000},
+                {"occurred_on": "2026-07-31", "amount_value": 550_000},
             ],
         )
 
     def test_early_close_salary_affects_balance_immediately(self) -> None:
         close_current_month(date(2026, 7, 1))
-        close_current_month(date(2026, 7, 27), allow_early_close=True)
+        close_current_month(date(2026, 7, 31), allow_early_close=True)
 
-        with patch.dict(os.environ, {"MONEY_NOTE_TODAY": "2026-07-27"}):
+        with patch.dict(os.environ, {"MONEY_NOTE_TODAY": "2026-07-31"}):
             get_settings.cache_clear()
             on_close_date = current_summary_values()
         with patch.dict(os.environ, {"MONEY_NOTE_TODAY": "2026-08-01"}):
@@ -429,9 +429,9 @@ class MonthCloseTest(unittest.TestCase):
         self.assertEqual(dict(salary), {"occurred_on": "2026-07-05", "amount_value": 400_000})
 
     def test_two_different_month_closes_on_same_day_each_record_salary(self) -> None:
-        close_current_month(date(2026, 7, 27), target_month="2026-06")
+        close_current_month(date(2026, 7, 31), target_month="2026-06")
         close_current_month(
-            date(2026, 7, 27),
+            date(2026, 7, 31),
             allow_early_close=True,
             target_month="2026-07",
         )
@@ -441,7 +441,7 @@ class MonthCloseTest(unittest.TestCase):
                 """
                 SELECT COUNT(*) AS count
                 FROM cash_flows
-                WHERE occurred_on = '2026-07-27'
+                WHERE occurred_on = '2026-07-31'
                   AND title = '급여'
                   AND is_primary_income = 1
                 """,
@@ -488,19 +488,19 @@ class MonthCloseTest(unittest.TestCase):
         self.assertEqual(row["discount_amount"], 0)
         self.assertEqual(row["remaining_amount"], 10_000)
 
-    def test_current_calendar_month_cannot_be_closed_before_27th(self) -> None:
+    def test_current_calendar_month_cannot_be_closed_before_month_end(self) -> None:
         close_current_month(date(2026, 7, 1))
 
-        with self.assertRaisesRegex(ValueError, "27일부터"):
+        with self.assertRaisesRegex(ValueError, "마지막 날"):
             close_current_month(date(2026, 7, 26), allow_early_close=True)
 
     def test_current_calendar_month_can_be_closed_early_with_explicit_confirmation(self) -> None:
         close_current_month(date(2026, 7, 1))
 
         with self.assertRaisesRegex(ValueError, "명시적인 확인"):
-            close_current_month(date(2026, 7, 27))
+            close_current_month(date(2026, 7, 31))
 
-        result = close_current_month(date(2026, 7, 27), allow_early_close=True)
+        result = close_current_month(date(2026, 7, 31), allow_early_close=True)
         self.assertEqual(result["closed_month"], "2026-07")
         self.assertEqual(result["archived"], 1)
 
@@ -514,9 +514,9 @@ class MonthCloseTest(unittest.TestCase):
             any(entry["id"] == planned_id for entry in list_entries("current", date(2026, 7, 10)))
         )
 
-        close_current_month(date(2026, 7, 27), allow_early_close=True)
+        close_current_month(date(2026, 7, 31), allow_early_close=True)
         self.assertTrue(
-            any(entry["id"] == planned_id for entry in list_entries("current", date(2026, 7, 28)))
+            any(entry["id"] == planned_id for entry in list_entries("current", date(2026, 8, 1)))
         )
         with session() as conn:
             planned = conn.execute(
@@ -553,7 +553,7 @@ class MonthCloseTest(unittest.TestCase):
         assert result is not None
         cash_flow_id = result["cash_flow"]["id"]
 
-        close_current_month(date(2026, 7, 27), allow_early_close=True)
+        close_current_month(date(2026, 7, 31), allow_early_close=True)
 
         with session() as conn:
             panel = conn.execute(
@@ -762,7 +762,7 @@ class MonthCloseTest(unittest.TestCase):
 
     def test_entry_for_closed_month_is_added_to_archive_and_active_batch(self) -> None:
         close_current_month(date(2026, 7, 1))
-        close_current_month(date(2026, 7, 27), allow_early_close=True)
+        close_current_month(date(2026, 7, 31), allow_early_close=True)
 
         with patch.dict(os.environ, {"MONEY_NOTE_TODAY": "2026-08-01"}):
             get_settings.cache_clear()

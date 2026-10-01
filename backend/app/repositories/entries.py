@@ -160,6 +160,9 @@ def confirm_planned_entry(
     today = today or app_today()
     confirmed_month = today.strftime("%Y-%m")
     with borrowed_or_new_session(conn, transaction_mode="IMMEDIATE") as conn:
+        closed = conn.execute("SELECT value FROM app_settings WHERE key = 'last_closed_month'").fetchone()
+        if closed and confirmed_month <= str(closed["value"]):
+            raise ValueError("카드 정기결제는 실제 달력이 다음 달로 바뀐 뒤 확인할 수 있습니다.")
         planned = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (entry_id,)).fetchone()
         if planned is None:
             return None

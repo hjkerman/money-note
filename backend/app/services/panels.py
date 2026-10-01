@@ -5,6 +5,7 @@ from app.db import borrowed_or_new_session, session
 from app.repositories.common import row_to_dict
 from app.repositories.panels import delete_panels_by_type
 from app.services.clock import app_today
+from app.services.financial_periods import fixed_execution_month
 from app.services.snapshot import create_pre_restore_backup
 
 
@@ -33,11 +34,9 @@ def confirm_fixed_panel(
     if confirmed_date > today:
         raise ValueError("미래 날짜로 현금성 고정지출을 확인할 수 없습니다.")
 
-    confirmed_month = confirmed_date.strftime("%Y-%m")
     with borrowed_or_new_session(conn, transaction_mode="IMMEDIATE") as conn:
         closed = conn.execute("SELECT value FROM app_settings WHERE key = 'last_closed_month'").fetchone()
-        if closed and confirmed_month <= str(closed["value"]):
-            raise ValueError("이미 마감한 달의 현금성 고정지출은 확인할 수 없습니다.")
+        confirmed_month = fixed_execution_month(confirmed_date, str(closed["value"]) if closed else None)
         panel = conn.execute(
             "SELECT * FROM monthly_panels WHERE id = ?",
             (panel_id,),
@@ -46,6 +45,8 @@ def confirm_fixed_panel(
             return None
         if panel["panel_type"] != "fixed":
             raise ValueError("현금성 고정지출만 확인 처리할 수 있습니다.")
+        if panel["month"] > confirmed_month:
+            raise ValueError("아직 해당 월의 현금성 고정지출을 처리할 수 없습니다.")
         if panel["confirmed_cash_flow_id"] is not None:
             raise ValueError("이미 확인 처리된 현금성 고정지출입니다.")
         if panel["amount_value"] is None:

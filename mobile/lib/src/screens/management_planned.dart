@@ -229,9 +229,10 @@ class _PlannedEntryItemState extends State<_PlannedEntryItem> {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: state.canConfirmRecurring && !_confirmInFlight
-                        ? () => _confirm(context)
-                        : null,
+                    onPressed:
+                        state.canConfirmCardRecurring && !_confirmInFlight
+                            ? () => _confirm(context)
+                            : null,
                     child: const Text('확인 처리'),
                   ),
                 ),

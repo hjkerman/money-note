@@ -28,6 +28,7 @@ export function FixedPanelView({
   setPlannedForm,
   summary,
   calendarDate,
+  cardRecurringConfirmationAvailable = true,
 }: {
   active: boolean;
   currentMonth: string;
@@ -49,6 +50,7 @@ export function FixedPanelView({
   setPlannedForm: Dispatch<SetStateAction<PlannedForm>>;
   summary: Summary | null;
   calendarDate: string;
+  cardRecurringConfirmationAvailable?: boolean;
 }) {
   const fixedPanels = panels.filter((panel) => panel.panel_type === "fixed");
   const activeFixedPanels = fixedPanels.filter(
@@ -122,6 +124,7 @@ export function FixedPanelView({
           </button>
         </form>
         <PlannedTable
+          canConfirm={cardRecurringConfirmationAvailable && !isBusy}
           entries={plannedEntries}
           emptyText="카드 정기결제 항목이 없습니다."
           month={currentMonth}

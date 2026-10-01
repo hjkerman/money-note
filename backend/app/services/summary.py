@@ -55,8 +55,16 @@ def _current_summary_values(conn: Any) -> dict[str, int]:
     # next occurrence still needs the template reserve in the prefunded cycle.
     # Keep exactly one forward reserve per template; never re-subtract the
     # unconfirmed part already present in remaining_liquidity.
+    # An early next-period transfer replaces that period's reserve with an
+    # actual outflow. Reserve its following occurrence at the calendar boundary.
+    early_fixed_total = conn.execute(
+        """SELECT COALESCE(SUM(amount_value), 0) FROM monthly_panels
+           WHERE panel_type = 'fixed' AND confirmed_at IS NOT NULL
+             AND confirmed_cash_flow_id IS NOT NULL AND confirmed_month > ?""",
+        (app_today().strftime("%Y-%m"),),
+    ).fetchone()[0]
     current_month_spendable = remaining_liquidity - (
-        fixed_panel_total - pending_fixed_panel_total
+        fixed_panel_total - pending_fixed_panel_total - int(early_fixed_total)
     )
     return {
         "scheduled_income": int(scheduled_income),

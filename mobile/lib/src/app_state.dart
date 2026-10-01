@@ -147,6 +147,9 @@ class AppState extends ChangeNotifier {
   bool get canCreateCardExpense => (isOnline || isOffline) && !isBusy;
   bool get canCreateCashFlow => (isOnline || isOffline) && !isBusy;
   bool get canConfirmRecurring => (isOnline || isOffline) && !isBusy;
+  bool get canConfirmCardRecurring =>
+      canConfirmRecurring &&
+      (monthCloseStatus?.cardRecurringConfirmationAvailable ?? true);
   bool get financialValuesAreEstimated => !isOnline;
   int get pendingOfflineOperationCount => offlineJournal.length;
 
@@ -1603,6 +1606,9 @@ class AppState extends ChangeNotifier {
         if (!plannedEntries.any((entry) => entry.id == entryId)) {
           throw MoneyNoteApiException('이미 확인했거나 찾을 수 없는 정기결제입니다.');
         }
+        if (!(monthCloseStatus?.cardRecurringConfirmationAvailable ?? true)) {
+          throw MoneyNoteApiException('카드 정기결제는 실제 달력이 다음 달로 바뀐 뒤 확인할 수 있습니다.');
+        }
         if (actualAmount < 0) {
           throw MoneyNoteApiException('카드 정기결제 실제 원금은 0원 이상이어야 합니다.');
         }
@@ -1708,11 +1714,18 @@ class AppState extends ChangeNotifier {
         final matching = panels.where((panel) => panel.id == panelId).toList();
         if (matching.length != 1 ||
             matching.single.panelType != 'fixed' ||
+            matching.single.canConfirmFixed == false ||
             matching.single.confirmedCashFlowId != null) {
           throw MoneyNoteApiException('이미 확인했거나 찾을 수 없는 현금성 고정지출입니다.');
         }
         if (occurredOn.compareTo(_localToday()) > 0) {
           throw MoneyNoteApiException('미래 날짜의 고정지출은 확인할 수 없습니다.');
+        }
+        final executionMonth = matching.single.fixedExecutionMonth;
+        if (executionMonth != null &&
+            executionMonth != currentMonth &&
+            occurredOn != serverToday) {
+          throw MoneyNoteApiException('조기 처리는 서버가 확인한 실제 월말 처리일을 사용하세요.');
         }
         await _appendOfflineOperation(
           OfflineOperationType.confirmFixedExpense,

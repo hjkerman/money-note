@@ -226,6 +226,9 @@ class MonthlyPanel {
     this.confirmedAt,
     this.confirmedCashFlowId,
     this.confirmedAmountValue,
+    this.confirmedMonth,
+    this.canConfirmFixed,
+    this.fixedExecutionMonth,
     this.isOfflinePending = false,
   });
 
@@ -247,6 +250,9 @@ class MonthlyPanel {
   final String? confirmedAt;
   final int? confirmedCashFlowId;
   final int? confirmedAmountValue;
+  final String? confirmedMonth;
+  final bool? canConfirmFixed;
+  final String? fixedExecutionMonth;
   final bool isOfflinePending;
 
   int get effectiveAmount => effectiveAmountValue ?? (amountValue ?? 0);
@@ -273,6 +279,9 @@ class MonthlyPanel {
           ? null
           : _int(json['effective_amount_value']),
       spentOn: json['spent_on'] as String?,
+      confirmedMonth: json['confirmed_month'] as String?,
+      canConfirmFixed: json['can_confirm_fixed'] as bool?,
+      fixedExecutionMonth: json['fixed_execution_month'] as String?,
       amountValue:
           json['amount_value'] == null ? null : _int(json['amount_value']),
       dueDay: json['due_day'] == null ? null : _int(json['due_day']),
@@ -462,6 +471,7 @@ class MonthCloseStatus {
     this.oldestOpenMonth,
     this.lastClosedMonth,
     this.unconfirmedRecurringItems = const [],
+    this.cardRecurringConfirmationAvailable = true,
   });
 
   final String calendarDate;
@@ -474,6 +484,7 @@ class MonthCloseStatus {
   final int earlyCloseStartDay;
   final bool canClose;
   final List<UnconfirmedRecurringItem> unconfirmedRecurringItems;
+  final bool cardRecurringConfirmationAvailable;
 
   factory MonthCloseStatus.fromJson(Map<String, dynamic> json) {
     return MonthCloseStatus(
@@ -486,6 +497,8 @@ class MonthCloseStatus {
       earlyCloseAvailable: json['early_close_available'] as bool? ?? false,
       earlyCloseStartDay: _int(json['early_close_start_day']),
       canClose: json['can_close'] as bool? ?? false,
+      cardRecurringConfirmationAvailable:
+          json['card_recurring_confirmation_available'] as bool? ?? true,
       unconfirmedRecurringItems:
           (json['unconfirmed_recurring_items'] as List<dynamic>? ?? const [])
               .whereType<Map<String, dynamic>>()

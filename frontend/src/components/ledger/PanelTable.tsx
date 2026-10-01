@@ -282,7 +282,7 @@ function FixedConfirmationCells({
       <td className="action-cell">
         <button
           type="button"
-          disabled={!occurredOn || parsedActualAmount === null}
+          disabled={panel.can_confirm_fixed === false || !occurredOn || parsedActualAmount === null}
           onClick={() => parsedActualAmount !== null && onConfirm(panel, occurredOn, parsedActualAmount)}
         >
           확인

@@ -9,12 +9,14 @@ export function PlannedTable({
   month,
   onConfirm,
   onDelete,
+  canConfirm = true,
 }: {
   entries: LedgerEntry[];
   emptyText: string;
   month: string;
   onConfirm: (entry: LedgerEntry, entryDate: string, actualAmount: number) => void;
   onDelete: (entry: LedgerEntry) => void;
+  canConfirm?: boolean;
 }) {
   if (!entries.length) return <p className="empty">{emptyText}</p>;
   return (
@@ -40,6 +42,7 @@ export function PlannedTable({
             month={month}
             onConfirm={onConfirm}
             onDelete={onDelete}
+            canConfirm={canConfirm}
           />
         ))}
       </tbody>
@@ -52,11 +55,13 @@ function PlannedTableRow({
   month,
   onConfirm,
   onDelete,
+  canConfirm,
 }: {
   entry: LedgerEntry;
   month: string;
   onConfirm: (entry: LedgerEntry, entryDate: string, actualAmount: number) => void;
   onDelete: (entry: LedgerEntry) => void;
+  canConfirm: boolean;
 }) {
   const defaultEntryDate = useMemo(
     () => plannedEntryDefaultDate(month, entry.due_day),
@@ -110,7 +115,7 @@ function PlannedTableRow({
       <td className="action-cell">
         <button
           type="button"
-          disabled={!entryDate || parsedActualAmount === null}
+          disabled={!canConfirm || !entryDate || parsedActualAmount === null}
           onClick={() => parsedActualAmount !== null && onConfirm(entry, entryDate, parsedActualAmount)}
         >
           확인

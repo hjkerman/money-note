@@ -102,6 +102,53 @@ void _useTallTestSurface(WidgetTester tester) {
 }
 
 void main() {
+  testWidgets('월마감 이후 서버가 현금 선처리만 열고 카드 확인은 닫는다', (tester) async {
+    _useTallTestSurface(tester);
+    final state = _RecurringTestState();
+    state.monthCloseStatus = MonthCloseStatus.fromJson({
+      'calendar_date': '2026-09-30',
+      'calendar_month': '2026-09',
+      'last_closed_month': '2026-09',
+      'card_recurring_confirmation_available': false,
+    });
+    state.entries = [_planned(id: 1, dueDay: 1, amount: 1000, sortOrder: 1)];
+    await tester.pumpWidget(
+        MaterialApp(home: PlannedEntryManagementScreen(state: state)));
+    expect(
+        tester
+            .widget<ElevatedButton>(
+                find.widgetWithText(ElevatedButton, '확인 처리'))
+            .onPressed,
+        isNull);
+    for (final allowed in [false, true]) {
+      state.panels = [
+        MonthlyPanel.fromJson({
+          'id': 11,
+          'month': '2026-10',
+          'panel_type': 'fixed',
+          'title': 'October',
+          'sort_order': 1,
+          'amount_value': 1000,
+          'can_confirm_fixed': allowed,
+          'fixed_execution_month': '2026-10',
+        })
+      ];
+      await tester.pumpWidget(MaterialApp(
+          home: PanelManagementScreen(
+        state: state,
+        panelType: 'fixed',
+        title: '고정지출',
+        inputLabel: '내용',
+        emptyText: '없음',
+      )));
+      state.notifyListeners();
+      await tester.pump();
+      final button = tester
+          .widget<ElevatedButton>(find.widgetWithText(ElevatedButton, '확인 처리'));
+      expect(button.onPressed != null, allowed);
+    }
+  });
+
   testWidgets('카드 정기결제 편집값은 재정렬과 추가 삭제 후에도 시리즈 id에 유지된다', (tester) async {
     _useTallTestSurface(tester);
     final state = _RecurringTestState();

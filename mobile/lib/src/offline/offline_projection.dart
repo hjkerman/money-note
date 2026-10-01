@@ -37,6 +37,23 @@ class OfflineProjection {
     var remainingLiquidity = original.remainingLiquidity;
     var newlyConfirmedFixedReserve = 0;
     final projectionTime = projectedAt ?? DateTime.now();
+    final localProjectionMonth =
+        '${projectionTime.year.toString().padLeft(4, '0')}-${projectionTime.month.toString().padLeft(2, '0')}';
+    final baselineMonth = baseline.monthCloseStatus.calendarMonth;
+    final projectionMonth = localProjectionMonth.compareTo(baselineMonth) > 0
+        ? localProjectionMonth
+        : baselineMonth;
+    // Estimated view only: retain server period identities without advancing B
+    // or writing any derived reserve/period into the replay journal.
+    final elapsedEarlyReserve = baseline.panels
+        .where((panel) =>
+            panel.panelType == 'fixed' &&
+            panel.confirmedCashFlowId != null &&
+            panel.confirmedAt != null &&
+            panel.confirmedMonth != null &&
+            panel.confirmedMonth!.compareTo(baselineMonth) > 0 &&
+            panel.confirmedMonth!.compareTo(projectionMonth) <= 0)
+        .fold<int>(0, (sum, panel) => sum + (panel.amountValue ?? 0));
     var usesConservativeCardEstimate = false;
 
     for (final operation in operations) {
@@ -139,6 +156,10 @@ class OfflineProjection {
             confirmedAt: operation.createdAt.toIso8601String(),
             confirmedCashFlowId: localId,
             confirmedAmountValue: actualAmount,
+            confirmedMonth:
+                panel.fixedExecutionMonth ?? occurredOn.substring(0, 7),
+            canConfirmFixed: false,
+            fixedExecutionMonth: panel.fixedExecutionMonth,
             isOfflinePending: true,
           );
           cashFlows.add(CashFlow(
@@ -154,7 +175,11 @@ class OfflineProjection {
           cashFlowBalance -= actualAmount;
           fixedCashProcessedTotal += actualAmount;
           remainingLiquidity += reserve - actualAmount;
-          newlyConfirmedFixedReserve += reserve;
+          if ((panel.fixedExecutionMonth ?? occurredOn.substring(0, 7))
+                  .compareTo(projectionMonth) <=
+              0) {
+            newlyConfirmedFixedReserve += reserve;
+          }
           break;
         case OfflineOperationType.confirmPlannedCardExpense:
           final entryId = _int(payload['entry_id']);
@@ -216,7 +241,8 @@ class OfflineProjection {
             : original.currentMonthSpendable! +
                 remainingLiquidity -
                 original.remainingLiquidity -
-                newlyConfirmedFixedReserve,
+                newlyConfirmedFixedReserve -
+                elapsedEarlyReserve,
         claimOriginalTotal: original.claimOriginalTotal,
         claimNetTotal: original.claimNetTotal,
         familyCardOriginalTotal: original.familyCardOriginalTotal,

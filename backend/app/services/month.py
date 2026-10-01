@@ -1,15 +1,14 @@
 from __future__ import annotations
 
+from calendar import monthrange
 from datetime import date, datetime
 from typing import Any
 
 from app.db import session
 from app.services.clock import app_month_for_utc_timestamp, app_today
+from app.services.financial_periods import is_month_end
 from app.services.card_payments import create_month_close_card_payment_batch
 from app.services.snapshot import create_pre_restore_backup
-
-
-EARLY_CLOSE_START_DAY = 27
 
 
 def close_current_month(
@@ -45,8 +44,8 @@ def close_current_month(
         if target_month > calendar_month:
             raise ValueError("미래 달은 월마감할 수 없습니다.")
         if target_month == calendar_month:
-            if today.day < EARLY_CLOSE_START_DAY:
-                raise ValueError(f"현재 달 조기 월마감은 매월 {EARLY_CLOSE_START_DAY}일부터 가능합니다.")
+            if not is_month_end(today):
+                raise ValueError("현재 달은 실제 달력의 마지막 날에만 마감할 수 있습니다.")
             if not allow_early_close:
                 raise ValueError("현재 달을 조기 월마감하려면 명시적인 확인이 필요합니다.")
 
@@ -181,7 +180,7 @@ def month_close_status(today: date | None = None) -> dict[str, Any]:
             else []
         )
     is_early_close = bool(oldest_open_month and oldest_open_month == calendar_month)
-    early_close_available = bool(is_early_close and today.day >= EARLY_CLOSE_START_DAY)
+    early_close_available = bool(is_early_close and is_month_end(today))
     return {
         "calendar_date": today.isoformat(),
         "calendar_month": calendar_month,
@@ -190,7 +189,8 @@ def month_close_status(today: date | None = None) -> dict[str, Any]:
         "needs_close": bool(oldest_open_month and oldest_open_month < calendar_month),
         "is_early_close": is_early_close,
         "early_close_available": early_close_available,
-        "early_close_start_day": EARLY_CLOSE_START_DAY,
+        "early_close_start_day": monthrange(today.year, today.month)[1],
+        "card_recurring_confirmation_available": not last_closed_month or last_closed_month < calendar_month,
         "can_close": bool(oldest_open_month and (oldest_open_month < calendar_month or early_close_available)),
         "unconfirmed_recurring_items": unconfirmed_recurring,
     }

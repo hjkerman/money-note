@@ -20,6 +20,7 @@ from app.services.card_charge import (
     card_charge_policy_manifest_compatible,
 )
 from app.services.clock import app_today
+from app.services.financial_periods import valid_fixed_confirmation_period
 from app.services.liquidity_names import (
     LEGACY_LIQUIDITY_LABEL_KEYS,
     LEGACY_LIQUIDITY_SETTING_KEYS,
@@ -400,6 +401,9 @@ def _normalized_snapshot_data(
     # v6 recorded a fixed confirmation's cash-flow link and spent_on date,
     # but not its month. Import can target an already-versioned DB, so the
     # historical meaning must be restored here, after manifest validation.
+    last_closed_month = next((
+        row["value"] for row in normalized["app_settings"] if row.get("key") == "last_closed_month"
+    ), None)
     for panel in normalized["monthly_panels"]:
         if panel.get("panel_type") != "fixed":
             continue
@@ -431,7 +435,10 @@ def _normalized_snapshot_data(
         confirmed_month = spent_on[:7]
         if schema_version == 6 and panel.get("confirmed_month") is None:
             panel["confirmed_month"] = confirmed_month
-        elif panel.get("confirmed_month") != confirmed_month:
+        elif not valid_fixed_confirmation_period(
+            date.fromisoformat(spent_on), panel.get("confirmed_month"),
+            last_closed_month if schema_version >= 7 else None,
+        ):
             raise ValueError("confirmed fixed expense has inconsistent confirmed_month")
     _normalize_snapshot_key_rows(
         normalized["app_settings"],
@@ -676,7 +683,6 @@ def _validate_financial_relationships(conn: Any) -> None:
           AND (monthly_panels.panel_type != 'fixed'
                OR monthly_panels.confirmed_at IS NULL
                OR monthly_panels.spent_on IS NULL
-               OR monthly_panels.confirmed_month != substr(monthly_panels.spent_on, 1, 7)
                OR cash_flows.id IS NULL
                OR cash_flows.occurred_on != monthly_panels.spent_on
                OR cash_flows.amount_value > 0
@@ -690,6 +696,15 @@ def _validate_financial_relationships(conn: Any) -> None:
     ).fetchone()
     if invalid_fixed_flow is not None:
         raise ValueError("snapshot fixed cash flow confirmation is inconsistent")
+    last_closed = conn.execute("SELECT value FROM app_settings WHERE key = 'last_closed_month'").fetchone()
+    for panel in conn.execute(
+        "SELECT spent_on, confirmed_month FROM monthly_panels WHERE confirmed_cash_flow_id IS NOT NULL"
+    ):
+        if not valid_fixed_confirmation_period(
+            date.fromisoformat(panel["spent_on"]), panel["confirmed_month"],
+            str(last_closed["value"]) if last_closed else None,
+        ):
+            raise ValueError("snapshot fixed cash flow confirmation is inconsistent")
     duplicate_key = conn.execute(
         """
         SELECT payment_key

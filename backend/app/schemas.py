@@ -246,6 +246,9 @@ class MonthlyPanel(BaseModel):
     due_day: int | None = None
     confirmed_at: str | None = None
     confirmed_cash_flow_id: int | None = None
+    confirmed_month: str | None = None
+    can_confirm_fixed: bool = False
+    fixed_execution_month: str | None = None
     discount_policy: str = "disabled"
     automatic_discount_eligible: bool = False
     automatic_discount_amount: int = 0

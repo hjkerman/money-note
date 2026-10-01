@@ -5,6 +5,27 @@ import { Summary } from "./api";
 import { CashFlowView, FixedPanelView } from "./components/MonthlyPanelsView";
 import { SummaryPanel } from "./components/Insights";
 import { useAppDerivedState } from "./hooks/useAppDerivedState";
+import { PanelTable } from "./components/ledger/PanelTable";
+import { PlannedTable } from "./components/ledger/PlannedTable";
+import { MonthlyPanel, LedgerEntry } from "./api";
+
+test("cash/card confirmation controls respect server eligibility independently", () => {
+  const fixed = {
+    id: 1, month: "2026-10", panel_type: "fixed", title: "October transfer",
+    amount_value: 820000, can_confirm_fixed: false,
+  } as MonthlyPanel;
+  const renderCash = (allowed: boolean) => renderToStaticMarkup(<PanelTable
+    title="fixed" rows={[{ ...fixed, can_confirm_fixed: allowed }]}
+    fixedConfirmationDate="2026-09-30" onConfirmFixed={() => undefined}
+  />);
+  expect(renderCash(false)).toMatch(/<button[^>]*disabled=""[^>]*>확인<\/button>/);
+  expect(renderCash(true)).not.toMatch(/<button[^>]*disabled=""[^>]*>확인<\/button>/);
+  const card = { id: 2, title: "recurring", amount_value: 1000, due_day: 1 } as LedgerEntry;
+  const html = renderToStaticMarkup(<PlannedTable entries={[card]} month="2026-09"
+    emptyText="empty" canConfirm={false} onConfirm={() => undefined} onDelete={() => undefined}
+  />);
+  expect(html).toMatch(/<button[^>]*disabled=""[^>]*>확인<\/button>/);
+});
 
 const summary: Summary = {
   scheduled_income: 1_459_200,

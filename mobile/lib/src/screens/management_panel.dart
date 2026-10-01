@@ -281,7 +281,9 @@ class _FixedPanelManagementItemState extends State<_FixedPanelManagementItem> {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: state.canConfirmRecurring && !_confirmInFlight
+                    onPressed: state.canConfirmRecurring &&
+                            panel.canConfirmFixed != false &&
+                            !_confirmInFlight
                         ? () => _confirm(context)
                         : null,
                     child: const Text('확인 처리'),
