@@ -25,6 +25,7 @@ from app.services.card_payments import (
 from app.services.panels import confirm_fixed_panel
 from app.services.month import close_current_month
 from app.services.snapshot import export_snapshot, restore_snapshot
+from app.services.presentation import present_ledger_entry
 import app.services.snapshot as snapshot_service
 from app.services.summary import current_summary_values
 
@@ -264,6 +265,16 @@ class FinancialStateGapTest(unittest.TestCase):
             )
         with session() as conn:
             self.assertEqual(conn.execute("SELECT COUNT(*) FROM ledger_entries").fetchone()[0], 1)
+
+    def test_dedicated_late_utility_entry_defaults_to_discount_excluded(self) -> None:
+        self._close_august_batch()
+        row = create_late_card_entry(
+            LateCardEntryIn(entry_date="2026-08-20", usage_place="한국전력", amount_value=10000),
+            date(2026, 9, 1),
+        )
+        presented = present_ledger_entry(row)
+        self.assertEqual(presented["discount_override"], 1)
+        self.assertEqual(presented["effective_amount_value"], 10000)
 
     def test_same_candidate_retry_and_distinct_similar_candidate(self) -> None:
         first = create_entry(self._entry("woori_card:candidate-a"))

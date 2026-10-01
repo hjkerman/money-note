@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../app_state.dart';
+import '../discount_default.dart';
 import '../formatters.dart';
 import '../models.dart';
 import '../notification_bridge.dart';
@@ -326,7 +327,13 @@ class _CandidateCardState extends State<_CandidateCard>
     );
     target = widget.candidate.isFamilyCard ? 'family_card' : 'ledger';
     date.addListener(_refreshPolicyDefault);
+    place.addListener(_descriptionChanged);
+    item.addListener(_descriptionChanged);
     _refreshPolicyDefault();
+  }
+
+  void _descriptionChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
@@ -343,7 +350,7 @@ class _CandidateCardState extends State<_CandidateCard>
     super.build(context);
     if (registered) return const SizedBox.shrink();
     final showCategory = target == 'ledger';
-    final discountValue = discountEnabled ?? policyDefault;
+    final discountValue = _selectedDiscountEnabled();
     final targetOptions = widget.candidate.isFamilyCard
         ? const [
             ButtonSegment(value: 'family_card', label: Text('가족 사용')),
@@ -431,7 +438,7 @@ class _CandidateCardState extends State<_CandidateCard>
                 ),
               ),
             ],
-            if (policyError != null && discountEnabled == null)
+            if (policyError != null && discountValue == null)
               Text(policyError!, style: const TextStyle(color: moneyMuted)),
             const SizedBox(height: 12),
             Row(
@@ -510,7 +517,7 @@ class _CandidateCardState extends State<_CandidateCard>
     }
 
     final registrationKey = widget.candidate.registrationKey;
-    final selectedDiscount = discountEnabled ?? policyDefault;
+    final selectedDiscount = _selectedDiscountEnabled();
     if (!widget.candidate.isHighwayToll && selectedDiscount == null) return;
     final success = target == 'ledger'
         ? await widget.state.createExpense(
@@ -541,6 +548,13 @@ class _CandidateCardState extends State<_CandidateCard>
       // Server registration is committed; a local/inbox refresh failure must not expose a retry button.
     }
   }
+
+  bool? _selectedDiscountEnabled() => cardDiscountDefaultEnabled(
+        policyDefault,
+        place.text,
+        item.text,
+        explicitChoice: discountEnabled,
+      );
 
   Future<void> _delete() async {
     final confirmed = await showDialog<bool>(

@@ -14,6 +14,13 @@ TOLL_WORDS = (
     "통행료",
     "하이패스",
 )
+UTILITY_DEFAULT_EXCLUSION_WORDS = (
+    "도시가스",
+    "가스요금",
+    "전기",
+    "전력",
+    "수도",
+)
 DISCOUNT_INELIGIBLE_WORDS = TRANSIT_WORDS + TOLL_WORDS
 CARD_CLASSIFIER_SCHEMA_VERSION = 1
 
@@ -47,6 +54,15 @@ def transport_title(title: str | None) -> bool:
 def discount_ineligible_title(title: str | None) -> bool:
     """기존 API 호환용으로 교통·통행 카드 제목을 판별한다."""
     return toll_title(title) or transport_title(title)
+
+
+def utility_default_discount_excluded(*descriptions: str | None) -> bool:
+    """등록 시에만 적용하는, 사용자가 뒤집을 수 있는 공과금 할인 기본값."""
+    return any(
+        word in str(description or "")
+        for description in descriptions
+        for word in UTILITY_DEFAULT_EXCLUSION_WORDS
+    )
 
 
 def classify_discount_card(

@@ -4,6 +4,7 @@ from app.db import session
 from app.repositories.common import row_to_dict
 from app.schemas import MonthlyPanelIn, MonthlyPanelPatch
 from app.repositories.notification_registration import existing_registration, registration_fingerprint, save_registration
+from app.services.card_charge import utility_default_discount_excluded
 
 
 PANEL_COLUMNS = [
@@ -71,6 +72,13 @@ def list_panels(month: str | None = None, include_confirmed_fixed: bool = False)
 def create_panel(panel: MonthlyPanelIn) -> dict[str, Any]:
     _validate_panel_create(panel)
     values = panel.model_dump()
+    if (
+        panel.panel_type in {"claim", "family_card"}
+        and panel.discount_enabled is not True
+        and not values["discount_override"]
+        and utility_default_discount_excluded(panel.title)
+    ):
+        values["discount_override"] = 1
     if values.get("spent_on") is not None:
         values["spent_on"] = values["spent_on"].isoformat()
     placeholders = ", ".join("?" for _ in PANEL_COLUMNS)

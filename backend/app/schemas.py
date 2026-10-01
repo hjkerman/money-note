@@ -266,6 +266,7 @@ class MonthlyPanelIn(BaseModel):
     sort_order: int
     due_day: int | None = None
     candidate_registration_key: str | None = Field(default=None, min_length=1, max_length=100, exclude=True)
+    discount_enabled: bool | None = Field(default=None, exclude=True)
 
     _integer_money = field_validator("amount_value", "discount_amount", mode="before")(integer_money)
 

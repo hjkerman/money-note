@@ -217,6 +217,48 @@ void main() {
     expect(state.registeredDiscount, isTrue);
   });
 
+  testWidgets('utility notification defaults off but explicit apply wins',
+      (tester) async {
+    final state = _RecordingState(ownerDiscount: true, familyDiscount: false)
+      ..historicalDefaults['owner:2026-08'] = true;
+    await _showCandidate(
+        tester, state, [_candidate('utility', 'owner', date: '2026-08-31')],
+        family: false);
+    await tester.enterText(find.byType(TextField).at(1), '한국전력');
+    await tester.pump();
+    expect(_checkboxValue(tester), isFalse);
+    await tester.tap(find.byType(CheckboxListTile));
+    await tester.pump();
+    expect(_checkboxValue(tester), isTrue);
+    await tester.tap(find.text('등록'));
+    await tester.pumpAndSettle();
+    expect(state.registeredDiscount, isTrue);
+  });
+
+  testWidgets('family utility candidate keeps its choice across ownership tabs',
+      (tester) async {
+    final state = _RecordingState(ownerDiscount: false, familyDiscount: true)
+      ..historicalDefaults['family:2026-08'] = true;
+    await _showCandidate(
+        tester, state, [_candidate('family-utility', 'family', date: '2026-08-31')],
+        family: true);
+    await tester.enterText(find.byType(TextField).at(2), '수도요금');
+    await tester.pump();
+    expect(_checkboxValue(tester), isFalse);
+    await tester.tap(find.text('본인 사용'));
+    await tester.pumpAndSettle();
+    expect(_checkboxValue(tester), isFalse);
+    await tester.tap(find.byType(CheckboxListTile));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('가족 사용'));
+    await tester.pumpAndSettle();
+    expect(_checkboxValue(tester), isTrue);
+    await tester.tap(find.text('등록'));
+    await tester.pumpAndSettle();
+    expect(state.registeredTarget, 'family_card');
+    expect(state.registeredDiscount, isTrue);
+  });
+
   testWidgets('Family historical month default survives usage ownership switch',
       (tester) async {
     final state = _RecordingState(ownerDiscount: true, familyDiscount: false)
@@ -376,7 +418,7 @@ void main() {
     expect(_checkboxValue(tester), isFalse);
   });
 
-  test('원장 HTTP 요청은 final checkbox false를 보내고 true는 자동할인 기본값을 따른다', () async {
+  test('원장 HTTP 요청은 최종 체크값을 명시적으로 보낸다', () async {
     final bodies = <Map<String, dynamic>>[];
     final api = MoneyNoteApiClient(
       baseUrl: 'https://example.invalid',
@@ -402,7 +444,7 @@ void main() {
       expect(saved, isTrue);
     }
     expect(bodies[0]['discount_enabled'], isFalse);
-    expect(bodies[1].containsKey('discount_enabled'), isFalse);
+    expect(bodies[1]['discount_enabled'], isTrue);
     expect(bodies[0]['candidate_registration_key'], 'woori_card:family-1');
     expect(bodies[1]['candidate_registration_key'], 'woori_card:family-1');
   });

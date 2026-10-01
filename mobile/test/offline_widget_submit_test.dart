@@ -23,6 +23,7 @@ class FormAppStateFake extends AppState {
       Completer<PlannedChargePreview>();
   Completer<bool> plannedConfirmCompletion = Completer<bool>();
   int expenseCalls = 0;
+  bool? lastExpenseDiscountEnabled;
   int cashCalls = 0;
   int panelCalls = 0;
   int plannedPreviewCalls = 0;
@@ -40,6 +41,7 @@ class FormAppStateFake extends AppState {
     String? candidateRegistrationKey,
   }) {
     expenseCalls += 1;
+    lastExpenseDiscountEnabled = discountEnabled;
     return expenseCompletion.future;
   }
 
@@ -284,6 +286,28 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.widget<TextField>(fields.at(0)).controller!.text, isEmpty);
     expect(tester.widget<TextField>(fields.at(1)).controller!.text, isEmpty);
+  });
+
+  testWidgets('utility expense checkbox defaults off and explicit apply wins',
+      (tester) async {
+    final state = FormAppStateFake();
+    addTearDown(state.dispose);
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(body: ExpenseInputCard(state: state)),
+    ));
+    final fields = find.byType(TextField);
+    await tester.enterText(fields.at(0), '서울도시가스');
+    await tester.enterText(fields.at(1), '10000');
+    expect(tester.widget<CheckboxListTile>(find.byType(CheckboxListTile)).value,
+        isFalse);
+    await tester.tap(find.byType(CheckboxListTile));
+    await tester.pump();
+    expect(tester.widget<CheckboxListTile>(find.byType(CheckboxListTile)).value,
+        isTrue);
+    await tester.tap(find.text('지출 추가'));
+    expect(state.lastExpenseDiscountEnabled, isTrue);
+    state.expenseCompletion.complete(true);
+    await tester.pump();
   });
 
   testWidgets('expense failure and stale completion preserve the current draft',

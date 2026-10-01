@@ -14,6 +14,7 @@ from app.services.card_charge import (
     default_discount_policy,
     evaluate_stored_charge,
     normalize_discount_policy,
+    utility_default_discount_excluded,
 )
 from app.services.card_payment_reads import (
     CardPaymentContext as CardPaymentContext,
@@ -543,10 +544,10 @@ def create_late_card_entry(payload: LateCardEntryIn, today: date | None = None) 
             """
             INSERT INTO ledger_entries(
                 book_section, entry_kind, entry_date, date_label, group_label, title,
-                usage_place, usage_item, amount_value, sort_order, payment_key
+                usage_place, usage_item, amount_value, sort_order, payment_key, discount_override
             )
             VALUES (
-                'archive', 'late_expense', ?, ?, NULL, ?, ?, ?, ?, ?, ?
+                'archive', 'late_expense', ?, ?, NULL, ?, ?, ?, ?, ?, ?, ?
             )
             """,
             (
@@ -558,6 +559,7 @@ def create_late_card_entry(payload: LateCardEntryIn, today: date | None = None) 
                 int(payload.amount_value),
                 sort_order,
                 payment_key,
+                int(utility_default_discount_excluded(usage_place, usage_item)),
             ),
         )
         payment_key_row = conn.execute(

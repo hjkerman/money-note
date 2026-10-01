@@ -5,6 +5,7 @@ from app.db import borrowed_or_new_session, session
 from app.repositories.common import ensure_payment_key_available, new_payment_key, row_to_dict
 from app.schemas import LedgerEntryIn, LedgerEntryPatch, PlannedEntryIn
 from app.services.clock import app_today
+from app.services.card_charge import utility_default_discount_excluded
 from app.services.legacy_recurring import infer_legacy_recurring_sources, near_confirmation_creation
 from app.services.card_payments import (
     closed_month_payment_batch_id,
@@ -186,9 +187,9 @@ def confirm_planned_entry(
             INSERT INTO ledger_entries(
                 book_section, entry_kind, entry_date, date_label, group_label, title,
                 usage_place, usage_item, amount_value, amount_expr, sort_order, payment_key,
-                source_planned_entry_id
+                source_planned_entry_id, discount_override
             )
-            VALUES ('current', 'expense', ?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES ('current', 'expense', ?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 payment_date.isoformat(),
@@ -201,6 +202,7 @@ def confirm_planned_entry(
                 sort_order,
                 payment_key,
                 entry_id,
+                int(bool(planned["discount_override"]) and planned["aux_amount_value"] is None),
             ),
         )
         conn.execute(
@@ -261,6 +263,13 @@ def _same_legacy_registered_entry(
 def create_entry(entry: LedgerEntryIn, conn: Any | None = None) -> dict[str, Any]:
     initial_discount_enabled = entry.discount_enabled
     initial_discount_override_amount = entry.discount_override_amount
+    if (
+        initial_discount_enabled is None
+        and initial_discount_override_amount is None
+        and entry.entry_kind in {"expense", "late_expense"}
+        and utility_default_discount_excluded(entry.usage_place, entry.usage_item)
+    ):
+        initial_discount_enabled = False
     values = entry.model_dump()
     if values.get("entry_date") is not None:
         values["entry_date"] = values["entry_date"].isoformat()
@@ -405,9 +414,10 @@ def append_planned_entry(entry: PlannedEntryIn) -> dict[str, Any]:
             """
             INSERT INTO ledger_entries(
                 book_section, entry_kind, entry_date, date_label, group_label, title,
-                usage_place, usage_item, amount_value, amount_expr, sort_order, due_day, confirmed_at
+                usage_place, usage_item, amount_value, amount_expr, sort_order, due_day, confirmed_at,
+                discount_override
             )
-            VALUES ('current', 'planned', NULL, '카드 정기결제', '카드 정기결제', ?, ?, ?, ?, ?, ?, ?, NULL)
+            VALUES ('current', 'planned', NULL, '카드 정기결제', '카드 정기결제', ?, ?, ?, ?, ?, ?, ?, NULL, ?)
             """,
             (
                 entry.title,
@@ -417,6 +427,7 @@ def append_planned_entry(entry: PlannedEntryIn) -> dict[str, Any]:
                 entry.amount_expr,
                 sort_order,
                 entry.due_day,
+                int(utility_default_discount_excluded(entry.usage_place, entry.usage_item)),
             ),
         )
         row = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (cursor.lastrowid,)).fetchone()

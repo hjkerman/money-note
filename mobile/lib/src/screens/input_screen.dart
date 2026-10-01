@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../app_state.dart';
+import '../discount_default.dart';
 import '../formatters.dart';
 import '../models.dart';
 import '../theme.dart';
@@ -135,6 +136,12 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
   void initState() {
     super.initState();
     selectedDate = widget.state.serverToday;
+    place.addListener(_descriptionChanged);
+    item.addListener(_descriptionChanged);
+  }
+
+  void _descriptionChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
@@ -149,8 +156,12 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
 
   @override
   Widget build(BuildContext context) {
-    final discountValue =
-        discountEnabled ?? (widget.state.ownerDiscountMonth?.isEnabled ?? true);
+    final discountValue = cardDiscountDefaultEnabled(
+      widget.state.ownerDiscountMonth?.isEnabled ?? true,
+      place.text,
+      item.text,
+      explicitChoice: discountEnabled,
+    )!;
     return MoneyCard(
       child: Column(
         children: [
@@ -273,8 +284,12 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
       usagePlace: submittedPlace,
       usageItem: submittedItem,
       amount: parsedAmount,
-      discountEnabled: submittedDiscountEnabled ??
-          (widget.state.ownerDiscountMonth?.isEnabled ?? true),
+      discountEnabled: cardDiscountDefaultEnabled(
+        widget.state.ownerDiscountMonth?.isEnabled ?? true,
+        submittedPlace,
+        submittedItem,
+        explicitChoice: submittedDiscountEnabled,
+      )!,
       netAmountOverride: parsedNetAmount,
       spendingCategory: submittedCategory,
       entryDate: submittedDate,

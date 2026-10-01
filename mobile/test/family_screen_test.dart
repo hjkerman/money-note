@@ -56,6 +56,29 @@ void main() {
     expect(find.text('할인 적용'), findsOneWidget);
   });
 
+  testWidgets('utility title defaults off and explicit check stays on',
+      (tester) async {
+    final state = _PanelState();
+    await show(tester, state);
+    await tester.enterText(find.byType(TextField).at(0), '한국전력 요금');
+    await tester.enterText(find.byType(TextField).at(1), '10000');
+    await tester.pump();
+    expect(tester.widget<CheckboxListTile>(find.byType(CheckboxListTile)).value,
+        isFalse);
+    await tester.ensureVisible(find.byType(CheckboxListTile));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(CheckboxListTile));
+    await tester.pump();
+    expect(tester.widget<CheckboxListTile>(find.byType(CheckboxListTile)).value,
+        isTrue);
+    await tester.ensureVisible(find.text('청구 추가'));
+    await tester.tap(find.text('청구 추가'));
+    await tester.pump();
+    expect(state.calls.single, contains('|true|'));
+    state.pending.single.complete(true);
+    await tester.pump();
+  });
+
   testWidgets('failed 500 draft survives; button and keyboard share one flight',
       (tester) async {
     final state = _PanelState();

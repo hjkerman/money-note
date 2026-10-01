@@ -67,7 +67,7 @@ Phase 2 cleanup은 reconciliation commit/authoritative rebuild/fresh baseline이
 
 같은 critical section은 B의 authoritative Snapshot에 포함된 `notification_candidate_registrations`도 조회한다. key가 이미 서버에서 확정됐고 request fingerprint가 동일하면 J를 추가하거나 estimate를 다시 차감하지 않는다. 다른 금융 입력·등록 대상은 명시적 충돌로 거절한다. 과거 약한 fingerprint는 key가 가리키는 저장 원장 행까지 입력을 대조할 수 있을 때만 이미 처리된 후보로 인정한다. identity table이 없는 B는 추측해서 중복 처리하지 않고 후보 등록을 거절한다.
 
-ONLINE 카드 사용 등록은 최초 `POST /api/entries` request에 optional `discount_enabled=false` 또는 사용자가 입력한 `discount_override_amount`를 함께 보낸다. 서버는 원장 row 생성과 initial manual override를 기존 card-charge/domain helper로 같은 SQLite transaction에서 적용한다. 자동 할인/default-discount는 input을 생략해 기존 서버 계산을 그대로 사용하며, 별도 PATCH 실패로 user intent만 부분 commit되는 경로를 만들지 않는다.
+ONLINE 카드 사용 등록은 최초 `POST /api/entries` request에 최종 체크값 `discount_enabled` 또는 사용자가 입력한 `discount_override_amount`를 함께 보낸다. 서버는 원장 row 생성과 initial manual override를 같은 SQLite transaction에서 적용한다. 공과금 키워드의 할인 제외는 사용자 선택이 없을 때만 등록 기본값이며, 명시적 `true`는 이를 뒤집는다. Offline J도 최종 체크값을 보존한다. 별도 PATCH 실패로 user intent만 부분 commit되는 경로를 만들지 않는다.
 
 카드·현금·정기 항목 등록 form은 button과 keyboard submit이 같은 local single-flight를 공유하고 AppState mutation도 재진입을 거부한다. submit 시작 때 draft snapshot을 고정하며 저장 성공 뒤 현재 draft가 그 snapshot과 동일할 때만 clear한다. 실패한 draft와 이전 request가 진행되는 동안 사용자가 입력한 새 draft는 보존한다. 정기지출 확인 form도 single-flight이며, 비동기 실결제 preview 중 금액이나 날짜가 바뀌면 오래된 preview를 확정하지 않고 현재 입력으로 다시 확인하게 한다.
 

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../app_state.dart';
+import '../discount_default.dart';
 import '../formatters.dart';
 import '../models.dart';
 import '../theme.dart';
@@ -32,6 +33,11 @@ class _FamilyScreenState extends State<FamilyScreen> {
   void initState() {
     super.initState();
     selectedDate = widget.state.serverToday;
+    title.addListener(_titleChanged);
+  }
+
+  void _titleChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
@@ -45,7 +51,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
   Widget build(BuildContext context) {
     final rows = widget.state.panelsByType(panelType);
     final isClaim = panelType == 'claim';
-    final discountValue = discountEnabled ?? _defaultDiscountEnabled();
+    final discountValue = _selectedDiscountEnabled();
     final summary = widget.state.summary;
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
@@ -192,7 +198,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
     final submittedTitle = title.text;
     final submittedAmount = amount.text;
     final submittedDate = selectedDate;
-    final submittedDiscount = discountEnabled ?? _defaultDiscountEnabled();
+    final submittedDiscount = _selectedDiscountEnabled();
     final submittedDraft = _draftIdentity(
       submittedPanelType,
       submittedTitle,
@@ -222,7 +228,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
       _retryKey = null;
       if (!mounted) return;
       if (_draftIdentity(panelType, title.text, amount.text, selectedDate,
-              discountEnabled ?? _defaultDiscountEnabled()) ==
+              _selectedDiscountEnabled()) ==
           submittedDraft) {
         title.clear();
         amount.clear();
@@ -271,6 +277,13 @@ class _FamilyScreenState extends State<FamilyScreen> {
     }
     return widget.state.ownerDiscountMonth?.isEnabled ?? true;
   }
+
+  bool _selectedDiscountEnabled() => cardDiscountDefaultEnabled(
+        _defaultDiscountEnabled(),
+        title.text,
+        null,
+        explicitChoice: discountEnabled,
+      )!;
 
   void _selectPanel(String nextPanelType) {
     setState(() {

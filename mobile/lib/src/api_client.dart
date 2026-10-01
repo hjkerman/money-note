@@ -188,8 +188,8 @@ class MoneyNoteApiClient {
           'spending_category': spendingCategory,
           if (discountOverrideAmount != null)
             'discount_override_amount': discountOverrideAmount
-          else if (!discountEnabled)
-            'discount_enabled': false,
+          else
+            'discount_enabled': discountEnabled,
           if (candidateRegistrationKey != null)
             'candidate_registration_key': candidateRegistrationKey,
         },
@@ -281,6 +281,8 @@ class MoneyNoteApiClient {
           'amount_value': amount,
           'discount_amount': 0,
           'discount_override': initialDiscountEnabled == false ? 1 : 0,
+          if (initialDiscountEnabled != null)
+            'discount_enabled': initialDiscountEnabled,
           'amount_expr': null,
           'sort_order': 0,
           'due_day': null,

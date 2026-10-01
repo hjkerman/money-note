@@ -7,6 +7,7 @@ from .classifier import (
     discount_ineligible_title,
     toll_title,
     transport_title,
+    utility_default_discount_excluded,
 )
 from .evaluator import evaluate_card_charge, evaluate_stored_charge
 from .models import (
@@ -53,4 +54,5 @@ __all__ = [
     "transit_discount_profile_for_month",
     "transit_discount_profile_status",
     "transport_title",
+    "utility_default_discount_excluded",
 ]
