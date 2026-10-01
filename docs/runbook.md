@@ -1,5 +1,11 @@
 # 실행 방법
 
+## Final Freeze closure 복구 주의
+
+현재 admission은 revision trigger의 이름뿐 아니라 event/대상/단조 증가 효과와 예상 밖 상쇄 trigger를 검사한다. 시작 거부 시 schema를 임의 수선하거나 version만 올리지 않는다. 별도 허가와 최신 안전 backup 없이 운영 DB/trigger를 바꾸지 않는다.
+
+모바일이 서버 저장 후 기준 데이터 동기화를 요구하면 등록을 다시 누르지 말고 read-only 동기화 또는 foreground recovery를 사용한다. Pending marker와 baseline/journal을 임의 삭제하지 않는다. 미확정 비-idempotent 요청은 서버 원본으로 결과를 확인해야 하며 자동 재전송/Offline 진입은 차단된다. 원래 수동 Claim/Family 입력과 key가 보존된 경우에만 동일 identity 확인 버튼을 사용한다. 다른 사용자 marker를 지우거나 조사용 복사본으로 서버 데이터를 덮어쓰지 않는다.
+
 ## 서버 내 개발·배포 경계
 
 이 서버에는 실제 Money Note가 운영 중이다. Codex는 Git working copy에서 개발하고, production은 사용자가 명시적으로 요청한 deployment operation으로만 변경한다. 커밋이나 push만으로 배포하지 않는다.

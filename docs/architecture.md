@@ -22,6 +22,8 @@
 
 ## 데이터 흐름
 
+Presenter를 사용하는 금융 생성·수정 endpoint는 기존 repository command의 borrowed connection을 이용해 write, 필수 presenter, response model 검증·직렬화를 하나의 IMMEDIATE transaction에서 완료한다. 할인 수정의 변환 실패도 durable 변경을 남긴 422가 될 수 없다. HTTP 전송은 commit 이후이며 기존 idempotency 경계를 유지한다. 모바일은 서버 commit과 로컬 authoritative rebuild 완료를 별도로 취급한다. Pending marker 저장·cleanup은 `OfflineStore`, 상태/인증/lineage 조율은 `AppState`, 읽기 bundle 일관성은 기존 `CoherentRefreshCoordinator`가 맡는다. 재구성 실패를 submit 성공으로 삼키거나 mutation을 connectivity probe로 replay하지 않는다.
+
 1. 웹 앱은 API를 통해 DB를 조회/수정한다.
 2. 추가/삭제/확인 같은 조작은 즉시 서버에 저장된다.
 3. 분류 변경도 드롭다운 조작 즉시 서버에 저장된다.

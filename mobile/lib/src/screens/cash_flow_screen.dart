@@ -163,7 +163,7 @@ class _CashFlowScreenState extends State<CashFlowScreen> {
         selectedDate == submittedDate &&
         isIncome == submittedIsIncome &&
         isPrimaryIncome == submittedIsPrimaryIncome;
-    if (saved && draftIsUnchanged) {
+    if ((saved || widget.state.lastSubmitServerCommitted) && draftIsUnchanged) {
       title.clear();
       amount.clear();
       setState(() {

@@ -7,10 +7,9 @@ import 'package:money_note_mobile/src/api_client.dart';
 import 'package:money_note_mobile/src/app_state.dart';
 import 'package:money_note_mobile/src/models.dart';
 import 'package:money_note_mobile/src/offline/offline_store.dart';
+import 'support/offline_mode_fixtures.dart';
 
-class _RegistrationApi extends MoneyNoteApiClient {
-  _RegistrationApi() : super(baseUrl: 'https://example.invalid');
-
+class _RegistrationApi extends OfflineApiFake {
   String? lastKey;
   String? lastPanelMonth;
   int? lastDiscountAmount;
@@ -119,8 +118,18 @@ class _RegistrationApi extends MoneyNoteApiClient {
   }
 }
 
+OfflineStore _isolatedStore() {
+  final directory = Directory.systemTemp.createTempSync('registration-safety-');
+  addTearDown(() => directory.delete(recursive: true));
+  return OfflineStore(directoryProvider: () async => directory);
+}
+
 class _FailingRefreshState extends AppState {
-  _FailingRefreshState(super.api, {super.offlineStore});
+  _FailingRefreshState(super.api, {OfflineStore? offlineStore})
+      : super(offlineStore: offlineStore ?? _isolatedStore()) {
+    user = baselineFixture().user;
+    addTearDown(dispose);
+  }
 
   @override
   Future<void> refreshInputArea({bool notify = true}) async {
@@ -134,10 +143,11 @@ class _FailingRefreshState extends AppState {
 }
 
 class _SuccessfulPanelRefreshState extends AppState {
-  _SuccessfulPanelRefreshState(super.api, {super.offlineStore});
-
-  @override
-  Future<void> refreshSettlementArea({bool notify = true}) async {}
+  _SuccessfulPanelRefreshState(super.api, {OfflineStore? offlineStore})
+      : super(offlineStore: offlineStore ?? _isolatedStore()) {
+    user = baselineFixture().user;
+    addTearDown(dispose);
+  }
 }
 
 void main() {
@@ -154,7 +164,8 @@ void main() {
           '{"detail":"invalid panel"}', 400,
           headers: {'content-type': 'application/json'})),
     );
-    final state = AppState(api, offlineStore: store);
+    final state = AppState(api, offlineStore: store)
+      ..user = baselineFixture().user;
     expect(
         await state.createPanel(
           panelType: 'claim',
@@ -192,12 +203,12 @@ void main() {
             http.Response('{"detail":"invalid panel"}', 400)),
       ),
       offlineStore: store(),
-    );
+    )..user = baselineFixture().user;
     expect(await submit(rejecting), isFalse);
     expect(await store().hasPendingManualPanelRetry(), isTrue);
   });
 
-  test('후보 원장은 저장 응답 이후 갱신 실패에도 성공으로 처리한다', () async {
+  test('후보 원장 저장 후 갱신 실패는 committed rebuild-pending으로 보존한다', () async {
     final api = _RegistrationApi();
     final state = _FailingRefreshState(api);
 
@@ -210,7 +221,10 @@ void main() {
       candidateRegistrationKey: 'woori_card:card-a',
     );
 
-    expect(success, isTrue);
+    expect(success, isFalse);
+    expect(state.lastSubmitServerCommitted, isTrue);
+    expect(state.authoritativeRebuildPending, isTrue);
+    expect(await state.enterOfflineMode(), isFalse);
     expect(api.lastKey, 'woori_card:card-a');
     expect(state.statusMessage, contains('저장됐습니다'));
   });
@@ -229,7 +243,8 @@ void main() {
       candidateRegistrationKey: 'woori_card:card-b',
     );
 
-    expect(success, isTrue);
+    expect(success, isFalse);
+    expect(state.lastSubmitServerCommitted, isTrue);
     expect(api.lastDiscountAmount, 300);
     expect(state.statusMessage, contains('저장됐습니다'));
     expect(api.discountPatchCalls, 0);
@@ -248,7 +263,8 @@ void main() {
       candidateRegistrationKey: 'woori_card:claim-a',
     );
 
-    expect(success, isTrue);
+    expect(success, isFalse);
+    expect(state.lastSubmitServerCommitted, isTrue);
     expect(api.lastKey, 'woori_card:claim-a');
     expect(state.statusMessage, contains('저장됐습니다'));
   });
@@ -266,7 +282,8 @@ void main() {
       candidateRegistrationKey: 'woori_card:family-no-discount',
     );
 
-    expect(success, isTrue);
+    expect(success, isFalse);
+    expect(state.lastSubmitServerCommitted, isTrue);
     expect(api.lastKey, 'woori_card:family-no-discount');
     expect(api.lastInitialDiscountEnabled, isFalse);
     expect(api.panelDiscountPatchCalls, 0);
@@ -284,7 +301,8 @@ void main() {
           spentOn: '2026-08-31',
           candidateRegistrationKey: 'woori_card:historical-family',
         ),
-        isTrue);
+        isFalse);
+    expect(state.lastSubmitServerCommitted, isTrue);
     expect(api.lastPanelMonth, '2026-08');
     expect(api.lastInitialDiscountEnabled, isTrue);
     expect(api.panelDiscountPatchCalls, 0);
@@ -302,9 +320,11 @@ void main() {
           candidateRegistrationKey: 'woori_card:family-retry',
         );
 
-    expect(await register(), isTrue);
+    expect(await register(), isFalse);
+    expect(state.lastSubmitServerCommitted, isTrue);
     expect(api.lastKey, 'woori_card:family-retry');
-    expect(await register(), isTrue);
+    expect(await register(), isFalse);
+    expect(state.lastSubmitServerCommitted, isFalse);
     expect(api.lastKey, 'woori_card:family-retry');
     expect(api.lastInitialDiscountEnabled, isFalse);
     expect(api.panelDiscountPatchCalls, 0);

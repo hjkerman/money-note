@@ -6,6 +6,8 @@
 
 ## 현재 기준선
 
+- Final Freeze P1–P5/L1 closure: 정기결제는 source+불변 확인 epoch로 취소하고 공과금 default가 구 monetary override를 덮지 않는다. 금융 생성 응답 검증·직렬화는 commit 전에 끝난다. 모바일은 서버 저장과 baseline 재구성을 구분해 pending을 durable하게 보존하고 stale Offline 시작을 차단한다. 현재 schema는 revision trigger의 event/대상/효과와 상쇄 trigger를 검사하며 Snapshot은 offset hour/minute 범위도 검증한다. Freeze 판정과 운영 배포는 별도 독립 감사/허가 대상이다.
+
 - 월마감은 현재 달의 실제 말일에만 가능하며 달력을 앞당기지 않는다. 완료 후 익월 현금성 고정지출은 실제 송금일로 집행할 수 있지만 카드 정기결제는 실제 익월 진입을 기다린다. 서버 eligibility를 양쪽 UI와 Offline baseline이 보존한다. 조기 처리분은 현금 출금과 같은 reserve를 이중 차감하지 않으며, 기존 schema version 3/Snapshot v7로 금융 주기와 실제 날짜를 함께 보존한다.
 
 - Money Note는 한 사용자가 실제 운용하는 개인 가계부다. FastAPI와 SQLite 서버가 영속 데이터와 계산 결과를 소유한다.

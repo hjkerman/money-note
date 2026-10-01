@@ -152,7 +152,7 @@ class _PanelManagementScreenState extends State<PanelManagementScreen> {
         discountEnabled: true,
       );
       if (mounted &&
-          saved &&
+          (saved || widget.state.lastSubmitServerCommitted) &&
           title.text == submittedTitle &&
           amount.text == submittedAmount) {
         title.clear();

@@ -539,7 +539,7 @@ class _CandidateCardState extends State<_CandidateCard>
             spentOn: date.text.trim(),
             candidateRegistrationKey: registrationKey,
           );
-    if (!success) return;
+    if (!success && !widget.state.lastSubmitServerCommitted) return;
     if (mounted) setState(() => registered = true);
     try {
       await widget.bridge.deleteCandidate(widget.candidate.id);

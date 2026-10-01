@@ -101,15 +101,6 @@ class _RecordingState extends AppState {
   Future<void> refreshNotificationInboxState({bool notify = true}) async {}
 }
 
-class _NoRefreshState extends AppState {
-  _NoRefreshState(super.api);
-
-  @override
-  Future<void> refreshInputArea({bool notify = true}) async {
-    throw StateError('test refresh unavailable');
-  }
-}
-
 CardNotificationCandidate _candidate(String id, String role,
         {String date = '2026-09-15'}) =>
     CardNotificationCandidate(
@@ -239,8 +230,8 @@ void main() {
       (tester) async {
     final state = _RecordingState(ownerDiscount: false, familyDiscount: true)
       ..historicalDefaults['family:2026-08'] = true;
-    await _showCandidate(
-        tester, state, [_candidate('family-utility', 'family', date: '2026-08-31')],
+    await _showCandidate(tester, state,
+        [_candidate('family-utility', 'family', date: '2026-08-31')],
         family: true);
     await tester.enterText(find.byType(TextField).at(2), '수도요금');
     await tester.pump();
@@ -431,17 +422,16 @@ void main() {
         );
       }),
     );
-    final state = _NoRefreshState(api);
     for (final value in [false, true]) {
-      final saved = await state.createExpense(
-        entryDate: '2026-09-15',
+      final saved = await api.createExpense(
+        date: '2026-09-15',
         usagePlace: '가게',
         usageItem: '식사',
         amount: 1000,
         discountEnabled: value,
         candidateRegistrationKey: 'woori_card:family-1',
       );
-      expect(saved, isTrue);
+      expect(saved.id, 1);
     }
     expect(bodies[0]['discount_enabled'], isFalse);
     expect(bodies[1]['discount_enabled'], isTrue);

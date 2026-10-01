@@ -1,5 +1,15 @@
 # 모바일 Offline Mode
 
+## ONLINE 저장 후 authoritative rebuild 대기
+
+온라인 금융 요청 직전에 사용자별 `online-write-<user-id>.json` 안전 marker를 원자적으로 보관한다. 이는 금융 입력/projection이 아니라 미확정·서버 저장 완료 상태, 작업 token, 있는 경우 기존 정산 retry identity만 담는다. 서버 응답 후에는 `serverCommittedRebuildPending`으로 기록한다. Coherent read → baseline publication → 동일 auth/lineage 권한 확인 → 해당 marker cleanup → 화면 설치까지 끝나야 submit은 완료다. 저장된 요청을 로컬 갱신 실패 때문에 다시 보내지 않는다.
+
+재시작에도 marker를 보존해 mutation과 stale baseline을 이용한 새 Offline epoch를 차단한다. 동기화 버튼·foreground 복구는 read-only rebuild만 수행한다. 다른 사용자 login은 이전 marker를 지우거나 이전 결과를 설치하지 않는다. 온라인 pending marker와 persisted Offline lineage가 겹치면 복구 차단하며 J를 replay하지 않는다. Native notification scan은 금융 submit critical path에 다시 넣지 않는다.
+
+응답 유실로 commit을 증명할 수 없는 `outcomeUnknown`은 read 성공만으로 정리하지 않는다. 수동 Claim/Family처럼 보존한 원래 입력과 동일 idempotency key가 있는 작업만 그 identity로 명시적으로 확인한다. 다른 작업의 retry key로 이 marker를 해제할 수 없다. 일반 비-idempotent 요청은 자동 재전송이나 stale Offline 전환 대신 결과 확인이 필요하다. 새 서버 idempotency protocol은 도입하지 않는다.
+
+첫 요청의 명확한 400/422 입력 거부 또는 금융 command 전 401 인증 거부는 해당 요청이 commit되지 않았으므로 marker를 해제한다. 이전 미확정 요청을 같은 identity로 확인하는 재시도에서는 이 거부를 이전 요청의 rollback 증거로 사용하지 않는다.
+
 이 문서는 모바일 Offline Mode Phase 1/1.5의 저장 경계와 Phase 2 atomic reconciliation·Snapshot-backed recovery 구현을 설명한다. 금융 도메인의 단일 진실 원천은 계속 서버 DB와 서버 API 계산 결과다.
 
 ## 상태 머신

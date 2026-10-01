@@ -12,6 +12,7 @@ import 'offline/offline_data.dart';
 import 'offline/offline_lineage_validator.dart';
 import 'offline/offline_projection.dart';
 import 'offline/offline_store.dart';
+import 'offline/online_write_state.dart';
 
 export 'local_snapshot_repository.dart' show LocalSnapshotInfo;
 
@@ -69,6 +70,11 @@ class AppState extends ChangeNotifier {
   List<OfflineJournalOperation> offlineJournal = const [];
   bool serverFailurePromptPending = false;
   bool manualPanelRetryPending = false;
+  PendingOnlineWrite? _pendingOnlineWrite;
+  bool _onlineWriteInFlight = false;
+  bool lastSubmitServerCommitted = false;
+  bool get authoritativeRebuildPending => _pendingOnlineWrite != null;
+  OnlineWriteStatus? get onlineWriteStatus => _pendingOnlineWrite?.status;
   String offlineEntryMessage = '';
   bool usesConservativeCardEstimate = false;
   OfflineBaseline? _offlineBaseline;
@@ -143,10 +149,12 @@ class AppState extends ChangeNotifier {
     return (await api.discountMonth(date.substring(0, 7), scope)).isEnabled;
   }
 
-  bool get canUseOnlineWrites => isOnline && !isBusy;
-  bool get canCreateCardExpense => (isOnline || isOffline) && !isBusy;
-  bool get canCreateCashFlow => (isOnline || isOffline) && !isBusy;
-  bool get canConfirmRecurring => (isOnline || isOffline) && !isBusy;
+  bool get canUseOnlineWrites =>
+      isOnline && !isBusy && !authoritativeRebuildPending;
+  bool get canCreateCardExpense =>
+      (isOnline || isOffline) && !isBusy && !authoritativeRebuildPending;
+  bool get canCreateCashFlow => canCreateCardExpense;
+  bool get canConfirmRecurring => canCreateCardExpense;
   bool get canConfirmCardRecurring =>
       canConfirmRecurring &&
       (monthCloseStatus?.cardRecurringConfirmationAvailable ?? true);
@@ -256,6 +264,15 @@ class AppState extends ChangeNotifier {
       connectivityMode = metadata.mode;
       reconciliationChoice = metadata.reconciliationChoice;
       _offlineBaseline = await offlineStore.loadBaseline();
+      final baselineUser = _offlineBaseline?.user.id;
+      if (baselineUser != null) {
+        _pendingOnlineWrite =
+            await offlineStore.loadPendingOnlineWrite(baselineUser);
+      }
+      if (!isOnline && authoritativeRebuildPending) {
+        throw const OfflinePersistenceException(
+            '미확정 온라인 저장과 오프라인 lineage가 겹쳐 복구가 필요합니다. journal을 적용하지 않습니다.');
+      }
       offlineJournal = await offlineStore.loadJournal();
       lastSuccessfulSyncAt = _offlineBaseline?.syncedAt;
       final baseline = _offlineBaseline;
@@ -369,6 +386,8 @@ class AppState extends ChangeNotifier {
         _authenticationGeneration += 1;
         _refreshCoordinator.invalidateAuthentication();
         user = null;
+        _pendingOnlineWrite = null;
+        lastSubmitServerCommitted = false;
         summary = null;
         cardPaymentStatus = null;
         judgment = null;
@@ -397,6 +416,27 @@ class AppState extends ChangeNotifier {
     bool allowBaselineWhileFinalizing = false,
     bool refreshNotifications = true,
   }) async {
+    if (_onlineWriteInFlight) {
+      throw MoneyNoteApiException(
+          '서버 저장 결과를 기다리는 중입니다. 이전 기준 데이터로 동기화하지 않습니다.');
+    }
+    final authenticationGeneration = _authenticationGeneration;
+    final authenticatedUser = user?.id;
+    final diskPending = authenticatedUser == null
+        ? null
+        : await offlineStore.loadPendingOnlineWrite(authenticatedUser);
+    if (authenticationGeneration != _authenticationGeneration ||
+        user?.id != authenticatedUser) {
+      throw MoneyNoteApiException('인증이 변경되어 이전 사용자 동기화를 취소했습니다.');
+    }
+    final pending = diskPending != null &&
+            _pendingOnlineWrite?.token == diskPending.token &&
+            _pendingOnlineWrite?.userId == authenticatedUser &&
+            _pendingOnlineWrite?.status ==
+                OnlineWriteStatus.serverCommittedRebuildPending
+        ? diskPending.committed()
+        : diskPending;
+    _pendingOnlineWrite = pending;
     if (!_refreshModeAllowed(allowBaselineWhileFinalizing)) {
       throw MoneyNoteApiException(
           '현재 상태에서는 authoritative refresh를 설치할 수 없습니다.');
@@ -447,6 +487,11 @@ class AppState extends ChangeNotifier {
       await offlineStore.replaceBaseline(baseline,
           beforePublish: requireInstallAuthority);
       requireInstallAuthority();
+      if (pending?.status == OnlineWriteStatus.serverCommittedRebuildPending) {
+        await offlineStore.completeOnlineWrite(pending!);
+        requireInstallAuthority();
+        _pendingOnlineWrite = null;
+      }
       _offlineBaseline = baseline;
       user = candidate.user;
       summary = candidate.summary;
@@ -676,6 +721,19 @@ class AppState extends ChangeNotifier {
         final baseline = await offlineStore.loadBaseline();
         if (baseline == null) {
           offlineEntryMessage = '온라인 상태에서 한 번 동기화가 필요합니다.';
+          notifyListeners();
+          return false;
+        }
+        if (user != null && user!.id != baseline.user.id) {
+          offlineEntryMessage = '현재 사용자의 최신 기준 데이터를 먼저 동기화하세요.';
+          notifyListeners();
+          return false;
+        }
+        if (authoritativeRebuildPending ||
+            await offlineStore.loadPendingOnlineWrite(baseline.user.id) !=
+                null) {
+          offlineEntryMessage =
+              '서버 저장 결과의 최신 기준 데이터를 먼저 동기화해야 합니다. 오래된 기준으로 오프라인을 시작하지 않습니다.';
           notifyListeners();
           return false;
         }
@@ -1293,7 +1351,11 @@ class AppState extends ChangeNotifier {
     return true;
   }
 
-  void _requireOnline(String operation) {
+  void _requireOnline(String operation, {bool allowPending = false}) {
+    if (authoritativeRebuildPending && operation != '로그아웃' && !allowPending) {
+      throw MoneyNoteApiException(
+          '서버 저장 결과의 최신 상태를 먼저 동기화하세요. 금융 작업을 다시 보내지 않습니다.');
+    }
     if (isOnline && !_offlineEntryInProgress) return;
     if (isReconciliationRequired) {
       throw MoneyNoteApiException('서버 조정을 완료하기 전에는 쓸 수 없습니다.');
@@ -1396,22 +1458,18 @@ class AppState extends ChangeNotifier {
         return;
       }
       _requireOnline('카드 사용 기록');
-      await api.createExpense(
-        date: resolvedEntryDate,
-        usagePlace: usagePlace,
-        usageItem: usageItem,
-        amount: amount,
-        discountEnabled: discountEnabled,
-        discountOverrideAmount: discountOverrideAmount,
-        spendingCategory: normalizedCategory,
-        candidateRegistrationKey: candidateRegistrationKey,
-      );
-      try {
-        await refreshInputArea(notify: false);
-        statusMessage = '지출 추가 완료';
-      } catch (_) {
-        statusMessage = '지출은 저장됐습니다. 최신 화면 동기화는 다시 시도하세요.';
-      }
+      await _financialWrite(() => api.createExpense(
+            date: resolvedEntryDate,
+            usagePlace: usagePlace,
+            usageItem: usageItem,
+            amount: amount,
+            discountEnabled: discountEnabled,
+            discountOverrideAmount: discountOverrideAmount,
+            spendingCategory: normalizedCategory,
+            candidateRegistrationKey: candidateRegistrationKey,
+          ));
+      await refreshInputArea(notify: false);
+      statusMessage = '지출 추가 완료';
     });
   }
 
@@ -1425,7 +1483,9 @@ class AppState extends ChangeNotifier {
     String? manualRegistrationKey,
   }) async {
     return _run(() async {
-      _requireOnline('패널 항목 등록');
+      _requireOnline('패널 항목 등록',
+          allowPending: candidateRegistrationKey == null &&
+              (panelType == 'claim' || panelType == 'family_card'));
       final candidateDate = spentOn?.trim();
       if (candidateRegistrationKey != null &&
           (candidateDate == null ||
@@ -1458,18 +1518,22 @@ class AppState extends ChangeNotifier {
               preferredKey: manualRegistrationKey);
       if (manualInput != null) manualPanelRetryPending = true;
       try {
-        await api.createPanel(
-          month: month,
-          panelType: panelType,
-          title: title,
-          amount: amount,
-          spentOn: actualSpentOn,
-          candidateRegistrationKey: registrationKey,
-          initialDiscountEnabled:
-              panelType == 'claim' || panelType == 'family_card'
-                  ? discountEnabled
-                  : null,
-        );
+        await _financialWrite(
+            () => api.createPanel(
+                  month: month,
+                  panelType: panelType,
+                  title: title,
+                  amount: amount,
+                  spentOn: actualSpentOn,
+                  candidateRegistrationKey: registrationKey,
+                  initialDiscountEnabled:
+                      panelType == 'claim' || panelType == 'family_card'
+                          ? discountEnabled
+                          : null,
+                ),
+            idempotentRetry: hadManualRetry,
+            retryIdentity:
+                manualInput == null ? null : 'panel:$registrationKey');
       } on MoneyNoteApiException catch (error) {
         // A first request explicitly rejected by validation cannot have
         // committed. Network ambiguity, 2xx parse failures and conflicts keep
@@ -1484,12 +1548,8 @@ class AppState extends ChangeNotifier {
         rethrow;
       }
       if (candidateRegistrationKey != null) {
-        try {
-          await refreshSettlementArea(notify: false);
-          statusMessage = '정산 내역 등록 완료';
-        } catch (_) {
-          statusMessage = '정산 내역은 저장됐습니다. 최신 화면 동기화는 다시 시도하세요.';
-        }
+        await refreshSettlementArea(notify: false);
+        statusMessage = '정산 내역 등록 완료';
         return;
       }
       try {
@@ -1511,14 +1571,13 @@ class AppState extends ChangeNotifier {
           _ => '항목 추가 완료',
         };
       } catch (_) {
-        if (manualInput != null) rethrow;
-        statusMessage = '항목은 저장됐습니다. 최신 화면 동기화는 다시 시도하세요.';
+        rethrow;
       }
     });
   }
 
   Future<bool> confirmPendingManualPanelRegistration() => _run(() async {
-        _requireOnline('미확정 정산 등록 확인');
+        _requireOnline('미확정 정산 등록 확인', allowPending: true);
         final pending = await offlineStore.loadPendingManualPanelRetry();
         if (pending == null) {
           manualPanelRetryPending = false;
@@ -1546,15 +1605,18 @@ class AppState extends ChangeNotifier {
           throw const OfflinePersistenceException(
               '미확정 정산 등록 입력을 확인할 수 없어 자동 재시도를 중단했습니다.');
         }
-        await api.createPanel(
-          month: month,
-          panelType: panelType as String,
-          title: title,
-          amount: amount,
-          spentOn: spentOn,
-          candidateRegistrationKey: pending.key,
-          initialDiscountEnabled: discountEnabled,
-        );
+        await _financialWrite(
+            () => api.createPanel(
+                  month: month,
+                  panelType: panelType as String,
+                  title: title,
+                  amount: amount,
+                  spentOn: spentOn,
+                  candidateRegistrationKey: pending.key,
+                  initialDiscountEnabled: discountEnabled,
+                ),
+            idempotentRetry: true,
+            retryIdentity: 'panel:${pending.key}');
         await refreshSettlementArea(notify: false);
         await offlineStore.completeManualPanelRetryKey(input, pending.key);
         manualPanelRetryPending = false;
@@ -1569,18 +1631,14 @@ class AppState extends ChangeNotifier {
   }) async {
     return _run(() async {
       _requireOnline('정기결제 등록');
-      await api.createPlannedEntry(
-        dueDay: dueDay,
-        usagePlace: usagePlace,
-        usageItem: usageItem,
-        amount: amount,
-      );
-      try {
-        await refreshPlannedManagementArea(notify: false);
-        statusMessage = '카드 정기결제 추가 완료';
-      } catch (_) {
-        statusMessage = '카드 정기결제는 저장됐습니다. 최신 화면 동기화는 다시 시도하세요.';
-      }
+      await _financialWrite(() => api.createPlannedEntry(
+            dueDay: dueDay,
+            usagePlace: usagePlace,
+            usageItem: usageItem,
+            amount: amount,
+          ));
+      await refreshPlannedManagementArea(notify: false);
+      statusMessage = '카드 정기결제 추가 완료';
     });
   }
 
@@ -1627,20 +1685,17 @@ class AppState extends ChangeNotifier {
         return;
       }
       _requireOnline('정기결제 확인');
-      await api.confirmPlannedEntry(entryId, entryDate, actualAmount);
-      try {
-        await refreshPlannedManagementArea(notify: false);
-        statusMessage = '카드 정기결제 확인 완료';
-      } catch (_) {
-        statusMessage = '정기결제 확인은 저장됐습니다. 최신 화면 동기화는 다시 시도하세요.';
-      }
+      await _financialWrite(
+          () => api.confirmPlannedEntry(entryId, entryDate, actualAmount));
+      await refreshPlannedManagementArea(notify: false);
+      statusMessage = '카드 정기결제 확인 완료';
     });
   }
 
   Future<void> deletePlannedEntry(int entryId) async {
     await _run(() async {
       _requireOnline('정기결제 삭제');
-      await api.deletePlannedEntry(entryId);
+      await _financialWrite(() => api.deletePlannedEntry(entryId));
       await refreshPlannedManagementArea(notify: false);
       statusMessage = '카드 정기결제 삭제 완료';
     });
@@ -1649,7 +1704,7 @@ class AppState extends ChangeNotifier {
   Future<void> excludeExistingEntryDiscount(String entryPaymentKey) async {
     await _run(() async {
       _requireOnline('할인 변경');
-      await api.excludeEntryDiscount(entryPaymentKey);
+      await _financialWrite(() => api.excludeEntryDiscount(entryPaymentKey));
       await refreshEntriesArea(notify: false);
       statusMessage = '할인 제외 완료';
     });
@@ -1658,7 +1713,7 @@ class AppState extends ChangeNotifier {
   Future<void> applyDefaultEntryDiscount(String entryPaymentKey) async {
     await _run(() async {
       _requireOnline('할인 변경');
-      await api.clearEntryDiscount(entryPaymentKey);
+      await _financialWrite(() => api.clearEntryDiscount(entryPaymentKey));
       await refreshEntriesArea(notify: false);
       statusMessage = '할인 적용 완료';
     });
@@ -1670,7 +1725,8 @@ class AppState extends ChangeNotifier {
     if (paymentKey == null || paymentKey.isEmpty || amount == null) return;
     await _run(() async {
       _requireOnline('실결제액 변경');
-      await api.updateEntryDiscount(paymentKey, amount - netAmount);
+      await _financialWrite(
+          () => api.updateEntryDiscount(paymentKey, amount - netAmount));
       await refreshEntriesArea(notify: false);
       statusMessage = '실결제액 수정 완료';
     });
@@ -1679,8 +1735,8 @@ class AppState extends ChangeNotifier {
   Future<void> updateExpenseCategory(int entryId, String? category) async {
     await _run(() async {
       _requireOnline('지출 분류 변경');
-      await api.updateEntryCategory(
-          entryId, normalizeSpendingCategory(category));
+      await _financialWrite(() => api.updateEntryCategory(
+          entryId, normalizeSpendingCategory(category)));
       await refreshEntriesArea(notify: false);
       statusMessage = '분류 변경 완료';
     });
@@ -1689,7 +1745,7 @@ class AppState extends ChangeNotifier {
   Future<void> deleteExpense(int entryId) async {
     await _run(() async {
       _requireOnline('지출 삭제');
-      await api.deleteEntry(entryId);
+      await _financialWrite(() => api.deleteEntry(entryId));
       await refreshEntriesArea(notify: false);
       statusMessage = '지출 삭제 완료';
     });
@@ -1698,7 +1754,7 @@ class AppState extends ChangeNotifier {
   Future<void> deletePanel(int panelId) async {
     await _run(() async {
       _requireOnline('패널 항목 삭제');
-      await api.deletePanel(panelId);
+      await _financialWrite(() => api.deletePanel(panelId));
       await refreshPanelManagementArea(notify: false);
       statusMessage = '항목 삭제 완료';
     });
@@ -1739,20 +1795,17 @@ class AppState extends ChangeNotifier {
         return;
       }
       _requireOnline('현금성 고정지출 확인');
-      await api.confirmFixedPanel(panelId, occurredOn, actualAmount);
-      try {
-        await refreshPanelManagementArea(notify: false);
-        statusMessage = '현금성 고정지출 확인 완료';
-      } catch (_) {
-        statusMessage = '고정지출 확인은 저장됐습니다. 최신 화면 동기화는 다시 시도하세요.';
-      }
+      await _financialWrite(
+          () => api.confirmFixedPanel(panelId, occurredOn, actualAmount));
+      await refreshPanelManagementArea(notify: false);
+      statusMessage = '현금성 고정지출 확인 완료';
     });
   }
 
   Future<void> cancelFixedPanelConfirmation(int cashFlowId) async {
     await _run(() async {
       _requireOnline('정기지출 확인 취소');
-      await api.deleteCashFlow(cashFlowId);
+      await _financialWrite(() => api.deleteCashFlow(cashFlowId));
       await refreshPanelManagementArea(notify: false);
       statusMessage = '현금성 고정지출 확인 취소 완료';
     });
@@ -1761,7 +1814,7 @@ class AppState extends ChangeNotifier {
   Future<void> excludeExistingPanelDiscount(int panelId) async {
     await _run(() async {
       _requireOnline('패널 할인 변경');
-      await api.excludePanelDiscount(panelId);
+      await _financialWrite(() => api.excludePanelDiscount(panelId));
       await refreshSettlementArea(notify: false);
       statusMessage = '할인 제외 완료';
     });
@@ -1772,7 +1825,8 @@ class AppState extends ChangeNotifier {
     if (amount == null) return;
     await _run(() async {
       _requireOnline('패널 실결제액 변경');
-      await api.updatePanelDiscount(panel.id, amount - netAmount);
+      await _financialWrite(
+          () => api.updatePanelDiscount(panel.id, amount - netAmount));
       await refreshSettlementArea(notify: false);
       statusMessage = '실결제액 수정 완료';
     });
@@ -1781,7 +1835,7 @@ class AppState extends ChangeNotifier {
   Future<void> applyDefaultPanelDiscount(int panelId) async {
     await _run(() async {
       _requireOnline('패널 할인 변경');
-      await api.clearPanelDiscount(panelId);
+      await _financialWrite(() => api.clearPanelDiscount(panelId));
       await refreshSettlementArea(notify: false);
       statusMessage = '할인 적용 완료';
     });
@@ -1790,7 +1844,7 @@ class AppState extends ChangeNotifier {
   Future<void> completePanelType(String panelType) async {
     await _run(() async {
       _requireOnline('정산 일괄 처리');
-      await api.completePanelType(panelType);
+      await _financialWrite(() => api.completePanelType(panelType));
       await refreshSettlementArea(notify: false);
       statusMessage = panelType == 'claim' ? '청구 처리 완료' : '가족카드 처리 완료';
     });
@@ -1826,25 +1880,21 @@ class AppState extends ChangeNotifier {
         return;
       }
       _requireOnline('현금흐름 기록');
-      await api.createCashFlow(
-        occurredOn: occurredOn,
-        title: title,
-        amount: signedAmount,
-        isPrimaryIncome: isIncome && isPrimaryIncome,
-      );
-      try {
-        await refreshCashArea(notify: false);
-        statusMessage = '현금흐름 추가 완료';
-      } catch (_) {
-        statusMessage = '현금흐름은 저장됐습니다. 최신 화면 동기화는 다시 시도하세요.';
-      }
+      await _financialWrite(() => api.createCashFlow(
+            occurredOn: occurredOn,
+            title: title,
+            amount: signedAmount,
+            isPrimaryIncome: isIncome && isPrimaryIncome,
+          ));
+      await refreshCashArea(notify: false);
+      statusMessage = '현금흐름 추가 완료';
     });
   }
 
   Future<void> deleteCashFlow(int flowId) async {
     await _run(() async {
       _requireOnline('현금흐름 삭제');
-      await api.deleteCashFlow(flowId);
+      await _financialWrite(() => api.deleteCashFlow(flowId));
       await refreshCashArea(notify: false);
       statusMessage = '현금흐름 삭제 완료';
     });
@@ -1911,10 +1961,11 @@ class AppState extends ChangeNotifier {
   }) async {
     await _run(() async {
       _requireOnline('스냅샷 복원');
-      await api.restoreSnapshot(
-        password: password,
-        snapshotText: await _snapshotRepository.readText(filename),
-      );
+      final snapshotText = await _snapshotRepository.readText(filename);
+      await _financialWrite(() => api.restoreSnapshot(
+            password: password,
+            snapshotText: snapshotText,
+          ));
       await refresh(notify: false);
       statusMessage = '스냅샷 복원 완료';
     });
@@ -1946,11 +1997,11 @@ class AppState extends ChangeNotifier {
   }) async {
     await _run(() async {
       _requireOnline('월마감');
-      final result = await api.closeCurrentMonth(
-        targetMonth: targetMonth,
-        allowEarlyClose: allowEarlyClose,
-        allowUnconfirmedRecurring: allowUnconfirmedRecurring,
-      );
+      final result = await _financialWrite(() => api.closeCurrentMonth(
+            targetMonth: targetMonth,
+            allowEarlyClose: allowEarlyClose,
+            allowUnconfirmedRecurring: allowUnconfirmedRecurring,
+          ));
       await refresh(notify: false);
       statusMessage = '월마감 완료: ${result['closed_month'] ?? '마감할 월 없음'}';
     });
@@ -1959,7 +2010,7 @@ class AppState extends ChangeNotifier {
   Future<void> updateSetting(String key, String value) async {
     await _run(() async {
       _requireOnline('설정 변경');
-      await api.updateSetting(key, value);
+      await _financialWrite(() => api.updateSetting(key, value));
       await refreshSettingsArea(notify: false);
       statusMessage = '설정 저장 완료';
     });
@@ -1968,10 +2019,10 @@ class AppState extends ChangeNotifier {
   Future<bool> updateTransitDiscountProfile(bool followsOwner) {
     return _run(() async {
       _requireOnline('교통카드 할인 설정');
-      transitDiscountProfile = await api.updateTransitDiscountProfile(
-        currentMonth,
-        followsOwner ? 'owner' : 'none',
-      );
+      await _financialWrite(() => api.updateTransitDiscountProfile(
+            currentMonth,
+            followsOwner ? 'owner' : 'none',
+          ));
       await refreshSettingsArea(notify: false);
       statusMessage = followsOwner
           ? '이번 달부터 교통카드가 본인카드 할인 정책을 따릅니다.'
@@ -1993,6 +2044,75 @@ class AppState extends ChangeNotifier {
     }
   }
 
+  Future<T> _financialWrite<T>(Future<T> Function() write,
+      {bool idempotentRetry = false, String? retryIdentity}) async {
+    final userId = user?.id;
+    if (!isOnline || userId == null) {
+      throw MoneyNoteApiException('온라인 인증이 필요한 금융 작업입니다.');
+    }
+    final generation = _authenticationGeneration;
+    final pending = await _withLineageLock(() async {
+      if (generation != _authenticationGeneration || user?.id != userId) {
+        throw MoneyNoteApiException('인증이 변경되어 저장을 취소했습니다.');
+      }
+      final existing = await offlineStore.loadPendingOnlineWrite(userId);
+      final marker = idempotentRetry &&
+              existing != null &&
+              retryIdentity != null &&
+              existing.retryIdentity == retryIdentity
+          ? existing
+          : await offlineStore.beginOnlineWrite(userId,
+              retryIdentity: retryIdentity);
+      if (generation != _authenticationGeneration || user?.id != userId) {
+        if (existing == null) await offlineStore.completeOnlineWrite(marker);
+        throw MoneyNoteApiException('인증이 변경되어 저장을 취소했습니다.');
+      }
+      _pendingOnlineWrite = marker;
+      _lineageGeneration += 1;
+      _onlineWriteInFlight = true;
+      return marker;
+    });
+    try {
+      final result = await write();
+      final committed = pending.committed();
+      if (generation == _authenticationGeneration && user?.id == userId) {
+        _pendingOnlineWrite = committed;
+        lastSubmitServerCommitted = true;
+      }
+      await offlineStore.savePendingOnlineWrite(committed);
+      if (generation != _authenticationGeneration || user?.id != userId) {
+        throw MoneyNoteApiException('이전 사용자 저장 결과는 현재 화면에 설치하지 않습니다.');
+      }
+      return result;
+    } on MoneyNoteApiException catch (error) {
+      if (!idempotentRetry &&
+          !lastSubmitServerCommitted &&
+          // Authentication is rejected by the server dependency before the
+          // financial command. Never use a retry rejection to retire an older
+          // ambiguous request that may still be committing.
+          (error.statusCode == 400 ||
+              error.statusCode == 401 ||
+              error.statusCode == 422)) {
+        await offlineStore.completeOnlineWrite(pending);
+        if (generation == _authenticationGeneration && user?.id == userId) {
+          _pendingOnlineWrite = null;
+        }
+      }
+      rethrow;
+    } finally {
+      _onlineWriteInFlight = false;
+    }
+  }
+
+  Future<bool> rebuildAfterOnlineWrite() => _run(() async {
+        await refreshInputArea(notify: false);
+        if (authoritativeRebuildPending) {
+          throw MoneyNoteApiException(
+              '응답이 유실된 저장 결과는 미확정입니다. 같은 idempotency identity로 확인 가능한 작업만 재확인할 수 있습니다.');
+        }
+        statusMessage = '서버 최신 상태와 오프라인 기준 데이터를 동기화했습니다.';
+      });
+
   Future<bool> _run(Future<void> Function() action) async {
     if (isBusy) {
       statusMessage = '이미 저장 중입니다.';
@@ -2000,14 +2120,21 @@ class AppState extends ChangeNotifier {
       return false;
     }
     isBusy = true;
+    lastSubmitServerCommitted = false;
     statusMessage = '';
     notifyListeners();
     try {
       await action();
       return true;
     } catch (error) {
-      statusMessage =
-          error is MoneyNoteApiException ? error.message : error.toString();
+      statusMessage = authoritativeRebuildPending
+          ? (onlineWriteStatus ==
+                  OnlineWriteStatus.serverCommittedRebuildPending
+              ? '서버에는 저장됐습니다. 최신 기준 데이터 동기화가 필요합니다. 재등록하지 마세요.'
+              : '서버 저장 결과 확인이 필요합니다. 다시 보내지 않고 최신 상태만 동기화하세요.')
+          : error is MoneyNoteApiException
+              ? error.message
+              : error.toString();
       return false;
     } finally {
       isBusy = false;

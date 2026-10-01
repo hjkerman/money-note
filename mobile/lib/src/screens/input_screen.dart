@@ -302,7 +302,7 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
         selectedDate == submittedDate &&
         discountEnabled == submittedDiscountEnabled &&
         spendingCategory == submittedCategory;
-    if (saved && draftIsUnchanged) {
+    if ((saved || widget.state.lastSubmitServerCommitted) && draftIsUnchanged) {
       place.clear();
       item.clear();
       amount.clear();

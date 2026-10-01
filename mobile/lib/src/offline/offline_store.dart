@@ -7,6 +7,7 @@ import 'package:crypto/crypto.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'offline_data.dart';
+import 'online_write_state.dart';
 
 typedef OfflineDirectoryProvider = Future<Directory> Function();
 typedef MobileRecoveryWriteHook = Future<void> Function();
@@ -95,6 +96,45 @@ class OfflineStore {
       {void Function()? beforePublish}) async {
     await _writeJsonAtomic(await _file(_baselineFilename), baseline.toJson(),
         beforePublish: beforePublish);
+  }
+
+  Future<PendingOnlineWrite?> loadPendingOnlineWrite(int userId) async {
+    final file = await _file('online-write-$userId.json');
+    try {
+      if (!await file.exists()) return null;
+      final decoded = jsonDecode(await file.readAsString());
+      if (decoded is! Map<String, dynamic>) {
+        throw const FormatException('online write marker must be an object');
+      }
+      return PendingOnlineWrite.fromJson(decoded, userId);
+    } catch (error) {
+      throw OfflinePersistenceException('온라인 저장 결과의 안전 상태를 읽을 수 없습니다: $error');
+    }
+  }
+
+  Future<PendingOnlineWrite> beginOnlineWrite(int userId,
+      {String? retryIdentity}) async {
+    if (await loadPendingOnlineWrite(userId) != null) {
+      throw const OfflinePersistenceException(
+          '먼저 서버의 최신 상태를 동기화하세요. 이전 작업을 다시 보내지 않습니다.');
+    }
+    final pending = PendingOnlineWrite(
+        userId, _operationId(), OnlineWriteStatus.outcomeUnknown,
+        retryIdentity: retryIdentity);
+    await savePendingOnlineWrite(pending);
+    return pending;
+  }
+
+  Future<void> savePendingOnlineWrite(PendingOnlineWrite pending) async =>
+      _writeJsonAtomic(
+          await _file('online-write-${pending.userId}.json'), pending.toJson());
+
+  Future<void> completeOnlineWrite(PendingOnlineWrite pending) async {
+    final current = await loadPendingOnlineWrite(pending.userId);
+    if (current?.token != pending.token) {
+      throw const OfflinePersistenceException('온라인 저장 확인 identity가 변경되었습니다.');
+    }
+    await (await _file('online-write-${pending.userId}.json')).delete();
   }
 
   Future<String> reserveManualPanelRetryKey(Map<String, dynamic> input,

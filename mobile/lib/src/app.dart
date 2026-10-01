@@ -84,6 +84,11 @@ class _MoneyNoteAppState extends State<MoneyNoteApp>
     if (state.isPersistenceRecoveryBlocked) {
       return _PersistenceRecoveryBlockedView(state: state);
     }
+    if (state.isOnline &&
+        state.isLoggedIn &&
+        state.authoritativeRebuildPending) {
+      return _AuthoritativeRebuildPendingView(state: state);
+    }
     if (state.serverFailurePromptPending) {
       return _ServerUnavailableView(state: state);
     }
@@ -98,6 +103,54 @@ class _MoneyNoteAppState extends State<MoneyNoteApp>
     }
     return HomeShell(state: state);
   }
+}
+
+class _AuthoritativeRebuildPendingView extends StatelessWidget {
+  const _AuthoritativeRebuildPendingView({required this.state});
+  final AppState state;
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        body: SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.sync_lock, size: 48),
+                  const SizedBox(height: 16),
+                  const Text('서버 최신 상태 확인이 필요합니다',
+                      style:
+                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 12),
+                  const Text(
+                      '저장 요청을 다시 보내지 않습니다. 최신 기준 데이터를 안전하게 보관할 때까지 금융 작업과 오프라인 시작을 기다려 주세요.'),
+                  const SizedBox(height: 12),
+                  Text(state.statusMessage),
+                  const SizedBox(height: 16),
+                  FilledButton(
+                    onPressed:
+                        state.isBusy ? null : state.rebuildAfterOnlineWrite,
+                    child: const Text('최신 상태 동기화'),
+                  ),
+                  if (state.manualPanelRetryPending)
+                    OutlinedButton(
+                      onPressed: state.isBusy
+                          ? null
+                          : state.confirmPendingManualPanelRegistration,
+                      child: const Text('보존한 동일 정산 identity로 결과 확인'),
+                    ),
+                  OutlinedButton(
+                    onPressed: state.isBusy ? null : state.logout,
+                    child: const Text('로그아웃 (미확정 기록 보존)'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
 }
 
 class _PersistenceRecoveryBlockedView extends StatelessWidget {

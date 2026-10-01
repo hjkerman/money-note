@@ -223,7 +223,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
         spentOn: submittedDate,
         manualRegistrationKey: _retryKey,
       );
-      if (!success) return;
+      if (!success && !widget.state.lastSubmitServerCommitted) return;
       _retryDraft = null;
       _retryKey = null;
       if (!mounted) return;

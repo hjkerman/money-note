@@ -130,7 +130,7 @@ class _PlannedEntryManagementScreenState
         amount: parsedAmount,
       );
       if (mounted &&
-          saved &&
+          (saved || widget.state.lastSubmitServerCommitted) &&
           dueDay.text == submittedDueDay &&
           usagePlace.text == submittedPlace &&
           usageItem.text == submittedItem &&
@@ -215,9 +215,13 @@ class _PlannedEntryItemState extends State<_PlannedEntryItem> {
               onEditingComplete: _refreshPreview,
             ),
             const SizedBox(height: 8),
-            _Line(label: state.isOffline ? '할인(추정 불가)' : '할인', value: won(preview.effectiveDiscountAmount)),
+            _Line(
+                label: state.isOffline ? '할인(추정 불가)' : '할인',
+                value: won(preview.effectiveDiscountAmount)),
             const SizedBox(height: 4),
-            _Line(label: state.isOffline ? '실결제 예상액(할인 미반영)' : '실결제 예상액', value: won(preview.effectiveAmountValue)),
+            _Line(
+                label: state.isOffline ? '실결제 예상액(할인 미반영)' : '실결제 예상액',
+                value: won(preview.effectiveAmountValue)),
             const SizedBox(height: 8),
             DatePickerRow(
               label: '이번 승인 날짜',
@@ -348,8 +352,7 @@ class _ConfirmedPlannedEntryItem extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (entry.isOfflinePending)
-              const Text('오프라인 보관 중',
-                  style: TextStyle(color: moneyMuted)),
+              const Text('오프라인 보관 중', style: TextStyle(color: moneyMuted)),
             Text('${entry.dueDay ?? '-'}일 ${entry.usagePlace ?? entry.title}',
                 style:
                     const TextStyle(fontSize: 17, fontWeight: FontWeight.w900)),

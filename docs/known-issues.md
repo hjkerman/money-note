@@ -1,5 +1,11 @@
 # 알려진 이슈
 
+## Final Freeze P1–P5/L1 수정 경계
+
+Cross-month recurring 취소의 정확한 확인 epoch, legacy explicit monetary 할인 우선순위, 금융 presenter/response model의 commit 전 검증, 모바일 committed/rebuild-pending durable 상태, revision trigger 의미 검증, malformed timezone offset 거부를 회귀 테스트로 고정한다. `test_freeze_blocker_closure.py`와 `authoritative_rebuild_pending_test.dart`가 원래 반례와 재시작·취소·재시도·Offline 차단을 보존한다. 금융 계산식·월마감·migration/Snapshot version·reconciliation protocol은 변경하지 않는다.
+
+이미 수정돼 원래 확인 epoch를 증명할 수 없는 historical 행은 자동 수선하지 않는다. 비-idempotent ONLINE 요청의 응답 유실은 새 read만으로 commit을 추측하지 않고 금융 작업/Offline 시작을 차단한다. 동일 입력과 durable key가 있는 수동 정산만 기존 idempotent 확인 경로를 사용한다. 일반 생성 API에 새 exactly-once 보장을 선언하는 것이 아니다. 운영 수선이나 배포는 이 tranche에 포함되지 않는다.
+
 ## 예정 급여 선반영과 수동 중복 입력
 
 현재 Summary는 전체 기간 실제 현금흐름 누계와 아직 들어오지 않은 다음 급여 `scheduled_income`을 함께 사용한다. 월마감은 사용자가 다음 카드대금에 쓸 자금을 실제로 꺼내는 사건이며, 예정액을 월마감 실행일의 실제 `급여` 현금흐름으로 즉시 확정한다. 설정값은 다시 그 이후 받을 다음 급여를 선반영한다. 이는 다음 급여를 담보로 현재 카드 사용을 감당하는 현행 운용에 맞춘 의도적인 계산이다.
