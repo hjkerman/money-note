@@ -392,6 +392,7 @@ class AppState extends ChangeNotifier {
   Future<void> _refreshAuthoritativeState({
     bool notify = true,
     bool allowBaselineWhileFinalizing = false,
+    bool refreshNotifications = true,
   }) async {
     if (!_refreshModeAllowed(allowBaselineWhileFinalizing)) {
       throw MoneyNoteApiException(
@@ -399,7 +400,9 @@ class AppState extends ChangeNotifier {
     }
     final ticket = _refreshCoordinator.begin(
         _lineageGeneration, _authenticationGeneration);
-    await refreshNotificationPermissions(notify: false);
+    if (refreshNotifications) {
+      await refreshNotificationPermissions(notify: false);
+    }
     final bundle = await _refreshCoordinator.acquire(() => user);
     final candidate = bundle.candidate;
     final after = bundle.envelope;
@@ -461,8 +464,10 @@ class AppState extends ChangeNotifier {
       networkUnavailable = false;
       serverFailurePromptPending = false;
     });
-    await _configureNotificationCards();
-    await refreshNotificationInboxState(notify: false);
+    if (refreshNotifications) {
+      await _configureNotificationCards();
+      await refreshNotificationInboxState(notify: false);
+    }
     if (notify) notifyListeners();
   }
 
@@ -503,7 +508,8 @@ class AppState extends ChangeNotifier {
       await checkServerRecovery(notify: notify);
       return;
     }
-    await _refreshAuthoritativeState(notify: notify);
+    await _refreshAuthoritativeState(
+        notify: notify, refreshNotifications: notify);
   }
 
   Future<void> refreshCashArea({bool notify = true}) async {
@@ -511,7 +517,8 @@ class AppState extends ChangeNotifier {
       await checkServerRecovery(notify: notify);
       return;
     }
-    await _refreshAuthoritativeState(notify: notify);
+    await _refreshAuthoritativeState(
+        notify: notify, refreshNotifications: notify);
   }
 
   Future<void> refreshEntriesArea({bool notify = true}) async {
@@ -519,7 +526,8 @@ class AppState extends ChangeNotifier {
       await checkServerRecovery(notify: notify);
       return;
     }
-    await _refreshAuthoritativeState(notify: notify);
+    await _refreshAuthoritativeState(
+        notify: notify, refreshNotifications: notify);
   }
 
   Future<void> refreshSettlementArea({bool notify = true}) async {
@@ -527,7 +535,8 @@ class AppState extends ChangeNotifier {
       await checkServerRecovery(notify: notify);
       return;
     }
-    await _refreshAuthoritativeState(notify: notify);
+    await _refreshAuthoritativeState(
+        notify: notify, refreshNotifications: notify);
   }
 
   Future<void> refreshPanelManagementArea({bool notify = true}) async {
@@ -535,7 +544,8 @@ class AppState extends ChangeNotifier {
       await checkServerRecovery(notify: notify);
       return;
     }
-    await _refreshAuthoritativeState(notify: notify);
+    await _refreshAuthoritativeState(
+        notify: notify, refreshNotifications: notify);
   }
 
   Future<void> refreshPlannedManagementArea({bool notify = true}) async {
@@ -543,7 +553,8 @@ class AppState extends ChangeNotifier {
       await checkServerRecovery(notify: notify);
       return;
     }
-    await _refreshAuthoritativeState(notify: notify);
+    await _refreshAuthoritativeState(
+        notify: notify, refreshNotifications: notify);
   }
 
   Future<void> refreshSettingsArea({bool notify = true}) async {

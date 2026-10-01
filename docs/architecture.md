@@ -34,6 +34,8 @@
 
 모바일 `AppState`는 UI-facing 상태 전이, lineage lock, baseline 설치와 reconciliation 순서를 소유한다. `coherent_refresh_coordinator.dart`는 요청 generation 및 Snapshot fingerprint·revision·기준일이 일치하는 응답 묶음의 취득만 담당하며, 설치 가능 여부를 AppState의 현재 lineage/mode와 함께 다시 검사한다. `local_snapshot_repository.dart`는 앱 내부의 일반 Snapshot 파일 목록·경로 검증·최근 30개 보관을 담당한다. Offline baseline/journal과 mobile recovery bundle의 원자적 파일 저장·검증·보관은 계속 `offline_store.dart`가 소유한다.
 
+온라인 금융 항목 제출은 서버 write 응답 후에도 coherent refresh와 durable baseline 교체를 완료해야 성공 화면을 확정하고 submit single-flight를 해제한다. 영역별 mutation refresh(`notify: false`)는 이 금융 경계를 유지하되, 금융 결과와 독립적인 Android 알림 권한·카드 설정·후보 로그 조회는 반복하지 않는다. 앱 시작·복귀의 전체 refresh, 명시적 영역 새로고침, 설정 새로고침은 알림 상태를 동기화하고, 알림 후보 등록 화면은 후보 삭제 뒤 별도로 목록과 건수를 다시 읽는다. 따라서 알림 조회의 지연은 일반 카드·현금·Claim/Family 제출의 필수 경로가 아니다.
+
 카드 결제의 활성 batch 조회, 원장/배분 행 투영, 통행료 표시 그룹화와 이벤트 조회는 `backend/app/services/card_payment_reads.py`가 담당한다. `card_payments.py`는 결제·이월·취소 command와 기존 API 진입점을 소유한다. Command가 전달한 SQLite connection을 read helper가 그대로 사용하며 별도 transaction을 열지 않는다.
 
 오프라인 후보 등록의 중복 identity는 서버 Snapshot B의 등록 record와 durable J 전체에서 확인한다. 모순된 persisted mode/phase/commit 조합이나 복구 bundle과 다른 J는 fail closed한다. 수동 Claim/Family Card 생성은 최초 할인 의도를 패널 INSERT에 포함하며, 기존 할인 변경 API는 생성 이후 사용자의 별도 수정에만 사용한다.
