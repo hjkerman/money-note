@@ -64,8 +64,8 @@ def create_cash_flow(flow: CashFlowIn, conn: Any | None = None) -> dict[str, Any
         return row_to_dict(row)
 
 
-def delete_cash_flow(flow_id: int) -> bool:
-    with session(transaction_mode="IMMEDIATE") as conn:
+def delete_cash_flow(flow_id: int, *, conn: Any | None = None) -> bool:
+    with borrowed_or_new_session(conn, transaction_mode="IMMEDIATE") as conn:
         payment_event = conn.execute(
             "SELECT 1 FROM card_payment_events WHERE cash_flow_id = ? LIMIT 1",
             (flow_id,),

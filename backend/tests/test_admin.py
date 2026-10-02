@@ -94,7 +94,7 @@ class AdminApiTest(IsolatedDatabaseTestCase):
             PreRestoreRestoreIn(password="test-secret-123"),
             user,
         )
-        self.assertIn("restored", restore_response)
+        self.assertIn("restored", snapshot_service.json.loads(restore_response.body))
         with session() as conn:
             titles = {row["title"] for row in conn.execute("SELECT title FROM ledger_entries").fetchall()}
         self.assertIn("복원 직전 상태", titles)
@@ -151,7 +151,7 @@ class AdminApiTest(IsolatedDatabaseTestCase):
             user,
         )
 
-        self.assertEqual(response["restored"]["ledger_entries"], 1)
+        self.assertEqual(snapshot_service.json.loads(response.body)["restored"]["ledger_entries"], 1)
         with session() as conn:
             title = conn.execute("SELECT title FROM ledger_entries").fetchone()["title"]
         self.assertEqual(title, "원문 snapshot 복원")

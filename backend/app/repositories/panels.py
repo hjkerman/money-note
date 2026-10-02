@@ -4,7 +4,7 @@ from app.db import borrowed_or_new_session, session
 from app.repositories.common import row_to_dict
 from app.schemas import MonthlyPanelIn, MonthlyPanelPatch
 from app.repositories.notification_registration import existing_registration, registration_fingerprint, save_registration
-from app.services.card_charge import utility_default_discount_excluded
+from app.services.card_charge.classifier import initial_panel_discount_override
 
 
 PANEL_COLUMNS = [
@@ -72,13 +72,10 @@ def list_panels(month: str | None = None, include_confirmed_fixed: bool = False)
 def create_panel(panel: MonthlyPanelIn, *, conn: Any | None = None) -> dict[str, Any]:
     _validate_panel_create(panel)
     values = panel.model_dump()
-    if (
-        panel.panel_type in {"claim", "family_card"}
-        and panel.discount_enabled is not True
-        and not values["discount_override"]
-        and utility_default_discount_excluded(panel.title)
-    ):
-        values["discount_override"] = 1
+    if panel.panel_type in {"claim", "family_card"}:
+        values["discount_override"] = initial_panel_discount_override(
+            values["discount_override"], panel.discount_enabled, panel.title,
+        )
     if values.get("spent_on") is not None:
         values["spent_on"] = values["spent_on"].isoformat()
     placeholders = ", ".join("?" for _ in PANEL_COLUMNS)
@@ -171,8 +168,8 @@ def set_panel_discount(panel_id: int, discount_amount: int, discount_override: i
         return row_to_dict(row) if row else None
 
 
-def delete_panel(panel_id: int) -> bool:
-    with session() as conn:
+def delete_panel(panel_id: int, *, conn: Any | None = None) -> bool:
+    with borrowed_or_new_session(conn) as conn:
         cursor = conn.execute("DELETE FROM monthly_panels WHERE id = ?", (panel_id,))
     return cursor.rowcount > 0
 

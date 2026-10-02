@@ -25,6 +25,15 @@ DISCOUNT_INELIGIBLE_WORDS = TRANSIT_WORDS + TOLL_WORDS
 CARD_CLASSIFIER_SCHEMA_VERSION = 1
 
 
+def initial_panel_discount_override(explicit_override: int, enabled: bool | None, title: str) -> int:
+    """Monetary input wins; accepted false is exclusion, not a missing default."""
+    if explicit_override:
+        return explicit_override
+    if enabled is not None:
+        return int(not enabled)
+    return int(utility_default_discount_excluded(title))
+
+
 def card_classifier_manifest() -> dict[str, object]:
     """Snapshot 검증에 사용할 카드 분류 규칙의 안정적인 명세를 반환한다."""
     return {

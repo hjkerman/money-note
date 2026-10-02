@@ -1,4 +1,5 @@
 import copy
+import json
 from datetime import date
 import os
 from pathlib import Path
@@ -411,8 +412,8 @@ class FinancialStateGapTest(unittest.TestCase):
 
     def test_web_and_mobile_share_entry_api_and_key_is_request_only(self) -> None:
         self._close_august_batch()
-        first = post_entry(self._entry("woori_card:api-shared"), _={})
-        retry = post_entry(self._entry("woori_card:api-shared"), _={})
+        first = json.loads(post_entry(self._entry("woori_card:api-shared"), _={}).body)
+        retry = json.loads(post_entry(self._entry("woori_card:api-shared"), _={}).body)
         self.assertEqual(first["id"], retry["id"])
         self.assertEqual(first["entry_kind"], "late_expense")
         self.assertNotIn("candidate_registration_key", LedgerEntry.model_validate(first).model_dump())
@@ -422,8 +423,8 @@ class FinancialStateGapTest(unittest.TestCase):
             month="2026-09", panel_type="family_card", title="가게", spent_on="2026-09-01",
             amount_value=5000, sort_order=0, candidate_registration_key="woori_card:panel-api",
         )
-        first = post_panel(payload, _={})
-        retry = post_panel(payload, _={})
+        first = json.loads(post_panel(payload, _={}).body)
+        retry = json.loads(post_panel(payload, _={}).body)
         self.assertEqual(first["id"], retry["id"])
         self.assertNotIn("candidate_registration_key", MonthlyPanel.model_validate(first).model_dump())
 

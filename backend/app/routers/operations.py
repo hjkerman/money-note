@@ -8,6 +8,7 @@ from app.repositories.cash_flows import create_cash_flow, delete_cash_flow, list
 from app.repositories.labels import list_labels, upsert_label
 from app.schemas import CashFlow, CashFlowIn, SettingPatch
 from app.share_auth import SENSITIVE_SHARE_SETTING_KEYS
+from app.routers.responses import financial_response
 
 settings_router = APIRouter(prefix="/api/settings", tags=["settings"])
 cash_router = APIRouter(prefix="/api/cash-flows", tags=["cash-flows"])
@@ -55,7 +56,7 @@ def patch_setting(key: str, patch: SettingPatch, _: dict = Depends(require_user)
             """,
             (key, value),
         )
-    return {key: value}
+        return financial_response({key: value}, response_type=dict[str, str])
 
 
 @cash_router.get("", response_model=list[CashFlow])
@@ -75,18 +76,18 @@ def get_cash_flows(
 def post_cash_flow(flow: CashFlowIn, _: dict = Depends(require_user)) -> dict:
     with session(transaction_mode="IMMEDIATE") as conn:
         result = create_cash_flow(flow, conn=conn)
-        return CashFlow.model_validate(result).model_dump(mode="json")
+        return financial_response(CashFlow.model_validate(result).model_dump(mode="json"))
 
 
 @cash_router.delete("/{flow_id}")
 def remove_cash_flow(flow_id: int, _: dict = Depends(require_user)) -> dict[str, bool]:
     try:
-        deleted = delete_cash_flow(flow_id)
+        with session(transaction_mode="IMMEDIATE") as conn:
+            if not delete_cash_flow(flow_id, conn=conn):
+                raise HTTPException(status_code=404, detail="cash flow not found")
+            return financial_response({"deleted": True})
     except ValueError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
-    if not deleted:
-        raise HTTPException(status_code=404, detail="cash flow not found")
-    return {"deleted": True}
 
 
 @labels_router.get("")

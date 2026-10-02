@@ -53,6 +53,7 @@ from app.services.presentation import (
     present_monthly_panels,
 )
 from app.services.summary import current_summary_values
+from app.routers.responses import financial_response
 
 router = APIRouter(prefix="/api/month/current", tags=["month"])
 judgment_router = APIRouter(prefix="/api/judgment", tags=["judgment"])
@@ -62,7 +63,7 @@ judgment_router = APIRouter(prefix="/api/judgment", tags=["judgment"])
 def post_planned_entry(entry: PlannedEntryIn, _: dict = Depends(require_user)) -> dict:
     with session(transaction_mode="IMMEDIATE") as conn:
         result = present_ledger_entry(append_planned_entry(entry, conn=conn), conn=conn)
-        return LedgerEntry.model_validate(result).model_dump(mode="json")
+        return financial_response(LedgerEntry.model_validate(result).model_dump(mode="json"))
 
 
 @router.post("/planned/{entry_id}/confirm")
@@ -81,8 +82,8 @@ def post_confirm_planned_entry(entry_id: int, payload: PlannedConfirmIn | None =
                 "planned": present_ledger_entry(result["planned"], conn=conn),
                 "entry": present_ledger_entry(result["entry"], conn=conn),
             }
-            return {key: LedgerEntry.model_validate(row).model_dump(mode="json")
-                    for key, row in response.items()}
+            return financial_response({key: LedgerEntry.model_validate(row).model_dump(mode="json")
+                                       for key, row in response.items()})
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
@@ -109,19 +110,24 @@ def get_confirmed_planned_entries(_: dict = Depends(require_user)) -> list[dict]
 
 @router.delete("/planned/{entry_id}")
 def remove_planned_entry(entry_id: int, _: dict = Depends(require_user)) -> dict[str, bool]:
-    if not delete_planned_entry(entry_id):
-        raise HTTPException(status_code=404, detail="planned entry not found")
-    return {"deleted": True}
+    with session(transaction_mode="IMMEDIATE") as conn:
+        if not delete_planned_entry(entry_id, conn=conn):
+            raise HTTPException(status_code=404, detail="planned entry not found")
+        return financial_response({"deleted": True})
 
 
 @router.post("/reorder", response_model=list[LedgerEntry])
 def reorder_entries(payload: EntryReorder, _: dict = Depends(require_user)) -> list[dict]:
-    return present_ledger_entries(reorder_current_entries(payload.ordered_ids))
+    with session(transaction_mode="IMMEDIATE") as conn:
+        rows = reorder_current_entries(payload.ordered_ids, conn=conn)
+        return financial_response([LedgerEntry.model_validate(present_ledger_entry(row, conn=conn)).model_dump(mode="json") for row in rows])
 
 
 @router.post("/planned/reorder", response_model=list[LedgerEntry])
 def reorder_planned_entries(payload: EntryReorder, _: dict = Depends(require_user)) -> list[dict]:
-    return present_ledger_entries(reorder_current_entries(payload.ordered_ids, entry_kind="planned"))
+    with session(transaction_mode="IMMEDIATE") as conn:
+        rows = reorder_current_entries(payload.ordered_ids, entry_kind="planned", conn=conn)
+        return financial_response([LedgerEntry.model_validate(present_ledger_entry(row, conn=conn)).model_dump(mode="json") for row in rows])
 
 
 @router.get("/panels", response_model=list[MonthlyPanel])
@@ -136,7 +142,7 @@ def post_panel(panel: MonthlyPanelIn, _: dict = Depends(require_user)) -> dict:
     try:
         with session(transaction_mode="IMMEDIATE") as conn:
             result = present_monthly_panel(create_panel(panel, conn=conn), conn=conn)
-            return MonthlyPanel.model_validate(result).model_dump(mode="json")
+            return financial_response(MonthlyPanel.model_validate(result).model_dump(mode="json"))
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
@@ -161,10 +167,10 @@ def post_confirm_fixed_panel(
                 "panel": present_monthly_panel(result["panel"], conn=conn),
                 "cash_flow": result["cash_flow"],
             }
-            return {
+            return financial_response({
                 "panel": MonthlyPanel.model_validate(response["panel"]).model_dump(mode="json"),
                 "cash_flow": CashFlow.model_validate(response["cash_flow"]).model_dump(mode="json"),
-            }
+            })
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
@@ -175,7 +181,7 @@ def patch_panel(panel_id: int, patch: MonthlyPanelPatch, _: dict = Depends(requi
         panel = update_panel(panel_id, patch, conn=conn)
         if panel is None:
             raise HTTPException(status_code=404, detail="panel not found")
-        return MonthlyPanel.model_validate(present_monthly_panel(panel, conn=conn)).model_dump(mode="json")
+        return financial_response(MonthlyPanel.model_validate(present_monthly_panel(panel, conn=conn)).model_dump(mode="json"))
 
 
 @router.patch("/panels/{panel_id}/discount", response_model=MonthlyPanel)
@@ -189,36 +195,39 @@ def patch_panel_discount(panel_id: int, patch: PanelDiscountPatch, _: dict = Dep
         if patch.discount_amount > float(panel["amount_value"] or 0):
             raise HTTPException(status_code=422, detail="할인액은 원래 청구금액을 초과할 수 없습니다.")
         updated = set_panel_discount(panel_id, patch.discount_amount, 1, conn=conn)
-        return MonthlyPanel.model_validate(present_monthly_panel(updated, conn=conn)).model_dump(mode="json")
+        return financial_response(MonthlyPanel.model_validate(present_monthly_panel(updated, conn=conn)).model_dump(mode="json"))
 
 
 @router.delete("/panels/{panel_id}/discount")
 def remove_panel_discount(panel_id: int, _: dict = Depends(require_user)) -> dict[str, bool]:
-    updated = set_panel_discount(panel_id, 0, 0)
-    if updated is None:
-        raise HTTPException(status_code=404, detail="panel not found")
-    return {"deleted": True}
+    with session(transaction_mode="IMMEDIATE") as conn:
+        if set_panel_discount(panel_id, 0, 0, conn=conn) is None:
+            raise HTTPException(status_code=404, detail="panel not found")
+        return financial_response({"deleted": True})
 
 
 @router.delete("/panels/{panel_id}")
 def remove_panel(panel_id: int, _: dict = Depends(require_user)) -> dict[str, bool]:
-    if not delete_panel(panel_id):
-        raise HTTPException(status_code=404, detail="panel not found")
-    return {"deleted": True}
+    with session(transaction_mode="IMMEDIATE") as conn:
+        if not delete_panel(panel_id, conn=conn):
+            raise HTTPException(status_code=404, detail="panel not found")
+        return financial_response({"deleted": True})
 
 
 @router.delete("/panels/type/{panel_type}")
 def remove_panels_by_type(panel_type: str, _: dict = Depends(require_user)) -> dict[str, int]:
     if panel_type not in {"fixed", "frozen", "claim", "family_card"}:
         raise HTTPException(status_code=404, detail="unknown panel type")
-    return {"deleted": delete_panels_by_type(calendar_month_label(), panel_type)}
+    with session(transaction_mode="IMMEDIATE") as conn:
+        return financial_response({"deleted": delete_panels_by_type(calendar_month_label(), panel_type, conn)})
 
 
 @router.post("/panels/type/{panel_type}/complete")
 def complete_current_panels_by_type(panel_type: str, _: dict = Depends(require_user)) -> dict[str, int]:
     if panel_type not in {"claim", "family_card"}:
         raise HTTPException(status_code=404, detail="only claim and family_card can be completed in bulk")
-    return {"completed": complete_panels_by_type(calendar_month_label(), panel_type)}
+    with session(transaction_mode="IMMEDIATE") as conn:
+        return financial_response({"completed": complete_panels_by_type(calendar_month_label(), panel_type, conn=conn)})
 
 
 @router.get("/summary", response_model=Summary)
@@ -232,11 +241,12 @@ def current_summary(_: dict = Depends(require_user)) -> Summary:
 @router.post("/close")
 def close_month(payload: MonthCloseIn, _: dict = Depends(require_user)) -> dict:
     try:
-        return close_current_month(
-            allow_early_close=payload.allow_early_close,
-            allow_unconfirmed_recurring=payload.allow_unconfirmed_recurring,
-            target_month=payload.target_month,
-        )
+        with session(transaction_mode="IMMEDIATE") as conn:
+            return financial_response(close_current_month(
+                allow_early_close=payload.allow_early_close,
+                allow_unconfirmed_recurring=payload.allow_unconfirmed_recurring,
+                target_month=payload.target_month, conn=conn,
+            ))
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 

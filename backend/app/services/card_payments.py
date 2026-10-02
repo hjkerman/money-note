@@ -5,7 +5,7 @@ import hashlib
 import json
 from typing import Any
 
-from app.db import borrowed_or_new_session, session
+from app.db import borrowed_or_new_session
 from app.repositories.common import new_payment_key
 from app.schemas import CardPaymentEventIn, LateCardEntryIn
 from app.services.card_charge import (
@@ -161,11 +161,11 @@ def create_month_close_card_payment_batch(conn: Any, usage_month: str) -> int:
     return batch_id
 
 
-def discount_month_status(month: str, scope: str = "owner") -> dict[str, Any]:
+def discount_month_status(month: str, scope: str = "owner", *, conn: Any | None = None) -> dict[str, Any]:
     """사용월의 할인 혜택 정책과 사용내역별 누적 할인액을 반환한다."""
     _validate_month(month)
     _validate_discount_scope(scope)
-    with session() as conn:
+    with borrowed_or_new_session(conn) as conn:
         settings = _settings_values(conn)
         policy = _discount_policy_value(conn, month, scope)
         rows = [] if scope == "family" else conn.execute(
@@ -223,13 +223,13 @@ def discount_month_status(month: str, scope: str = "owner") -> dict[str, Any]:
     }
 
 
-def set_discount_month_policy(month: str, policy: str, scope: str = "owner") -> dict[str, Any]:
+def set_discount_month_policy(month: str, policy: str, scope: str = "owner", *, conn: Any | None = None) -> dict[str, Any]:
     """사용월 전체 카드 지출에 적용할 할인 혜택 여부를 저장한다."""
     _validate_month(month)
     _validate_discount_scope(scope)
     if policy not in {"enabled", "disabled"}:
         raise ValueError("알 수 없는 할인 혜택 설정입니다.")
-    with session() as conn:
+    with borrowed_or_new_session(conn) as conn:
         conn.execute(
             """
             INSERT INTO app_settings(key, value, updated_at)
@@ -238,17 +238,17 @@ def set_discount_month_policy(month: str, policy: str, scope: str = "owner") -> 
             """,
             (f"card_discount_policy:{scope}:{month}", policy),
         )
-    return discount_month_status(month, scope)
+        return discount_month_status(month, scope, conn=conn)
 
 
-def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = None) -> dict[str, Any]:
+def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = None, *, conn: Any | None = None) -> dict[str, Any]:
     """일부 결제를 포함한 즉시결제 또는 호환용 할인 배분을 기록한다."""
     today = today or app_today()
     event_date = payload.event_date
     request_fingerprint = _card_payment_request_fingerprint(payload)
     allocations: list[tuple[str, int]] = []
     seen_keys: set[str] = set()
-    with session(transaction_mode="IMMEDIATE") as conn:
+    with borrowed_or_new_session(conn, transaction_mode="IMMEDIATE") as conn:
         existing = conn.execute(
             "SELECT * FROM card_payment_events WHERE idempotency_key = ?",
             (payload.idempotency_key,),
@@ -466,9 +466,9 @@ def set_entry_discount(
         return dict(updated)
 
 
-def clear_entry_discount(entry_payment_key: str) -> bool:
+def clear_entry_discount(entry_payment_key: str, *, conn: Any | None = None) -> bool:
     """당월 사용내역에 적용한 할인 확인과 할인 이벤트를 취소한다."""
-    with session() as conn:
+    with borrowed_or_new_session(conn) as conn:
         row = conn.execute("SELECT id FROM ledger_entries WHERE payment_key = ?", (entry_payment_key,)).fetchone()
         if row is None:
             return False
@@ -484,9 +484,9 @@ def clear_entry_discount(entry_payment_key: str) -> bool:
     return True
 
 
-def delete_card_payment_event(event_id: int) -> bool:
+def delete_card_payment_event(event_id: int, *, conn: Any | None = None) -> bool:
     """즉시결제/할인 기록과 연결된 현금흐름을 함께 취소한다."""
-    with session() as conn:
+    with borrowed_or_new_session(conn) as conn:
         event = conn.execute(
             "SELECT cash_flow_id FROM card_payment_events WHERE id = ?",
             (event_id,),
@@ -499,10 +499,10 @@ def delete_card_payment_event(event_id: int) -> bool:
     return True
 
 
-def acknowledge_liquidity_reset(today: date | None = None) -> dict[str, str]:
+def acknowledge_liquidity_reset(today: date | None = None, *, conn: Any | None = None) -> dict[str, str]:
     """정규 결제 의제 후 사용자가 실제 계좌 유동성을 수동 보정했음을 기록한다."""
-    payment_month = _active_payment_context(today or app_today()).payment_month
-    with session() as conn:
+    with borrowed_or_new_session(conn) as conn:
+        payment_month = _active_payment_context(today or app_today(), conn).payment_month
         conn.execute(
             """
             INSERT INTO app_settings(key, value, updated_at)
@@ -514,7 +514,7 @@ def acknowledge_liquidity_reset(today: date | None = None) -> dict[str, str]:
     return {"payment_month": payment_month}
 
 
-def create_late_card_entry(payload: LateCardEntryIn, today: date | None = None) -> dict[str, Any]:
+def create_late_card_entry(payload: LateCardEntryIn, today: date | None = None, *, conn: Any | None = None) -> dict[str, Any]:
     """카드사 매입 지연으로 확인된 결제 작업함 사용월 내역을 archive와 batch에 추가한다."""
     today = today or app_today()
     entry_date = payload.entry_date
@@ -525,7 +525,7 @@ def create_late_card_entry(payload: LateCardEntryIn, today: date | None = None) 
     title = _usage_title(usage_place, usage_item)
     if not title:
         raise ValueError("사용처 또는 세부내역을 입력하세요.")
-    with session(transaction_mode="IMMEDIATE") as conn:
+    with borrowed_or_new_session(conn, transaction_mode="IMMEDIATE") as conn:
         context = _active_payment_context(today, conn)
         if context.batch_id is None:
             raise ValueError("월마감 후 생성된 결제 작업함이 없습니다.")
@@ -571,10 +571,10 @@ def create_late_card_entry(payload: LateCardEntryIn, today: date | None = None) 
         return dict(row)
 
 
-def defer_toll_payment(entry_payment_key: str, today: date | None = None) -> dict[str, str]:
+def defer_toll_payment(entry_payment_key: str, today: date | None = None, *, conn: Any | None = None) -> dict[str, str]:
     """카드 사용내역의 미처리액을 다음 결제월로 한 번 이월한다."""
     today = today or app_today()
-    with session(transaction_mode="IMMEDIATE") as conn:
+    with borrowed_or_new_session(conn, transaction_mode="IMMEDIATE") as conn:
         context = _active_payment_context(today, conn)
         if context.batch_id is None:
             raise ValueError("월마감 후 생성된 결제 작업함이 없습니다.")
@@ -693,16 +693,16 @@ def defer_toll_payment(entry_payment_key: str, today: date | None = None) -> dic
     }
 
 
-def cancel_toll_deferral(entry_payment_key: str, today: date | None = None) -> bool:
+def cancel_toll_deferral(entry_payment_key: str, today: date | None = None, *, conn: Any | None = None) -> bool:
     """현재 결제월에서 방금 이월한 카드 사용내역을 이번 달 처리 대상으로 되돌린다."""
     today = today or app_today()
-    context = _active_payment_context(today)
+    context = _active_payment_context(today, conn)
     if context.batch_id is None:
         return False
     if today > context.due_date:
         raise ValueError("이월은 매월 14일까지만 취소할 수 있습니다.")
     payment_month = context.payment_month
-    with session() as conn:
+    with borrowed_or_new_session(conn) as conn:
         deferral = conn.execute(
             """
             SELECT *

@@ -1,5 +1,9 @@
 # 보안 운영
 
+## 단일-owner 범위와 인증 principal
+
+Money Note는 하나의 owner가 하나의 장부를 운용하는 서비스다. owner별 장부 격리·multi-user 권한은 지원하지 않는다. 현재 사용자 생성 CLI와 active-user 인증은 둘 이상의 credential principal을 수용하므로 코드가 계정 수 1을 강제한다고 주장하지 않는다. 이 사실은 복수 소유자 운영 허가가 아니다. 모바일의 기존 수동 재시도 파일은 owner ID에 결합하여 다른 principal 로그인으로 payload가 넘어가지 않게 하며, 같은 owner의 재인증에서는 원래 retry identity를 보존한다. 운영 계정 수나 데이터를 이번 synthetic 검증에서 조회하지 않았다.
+
 Money Note는 1인용이지만 인터넷에 공개되는 금융 기록 서비스다. 사용자가 한 명이라는 사실은 권한 모델을 단순하게 만들 뿐, 로그인·세션·백업 보호를 생략할 근거는 아니다.
 
 ## 보호 대상

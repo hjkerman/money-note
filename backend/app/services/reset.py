@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from app.db import session
+from typing import Any
+
+from app.db import borrowed_or_new_session
 from app.services.snapshot import create_pre_restore_backup
 
 
@@ -16,10 +18,10 @@ RESET_TABLES = [
 ]
 
 
-def reset_ledger_data() -> dict[str, int]:
+def reset_ledger_data(*, conn: Any | None = None) -> dict[str, int]:
     """계정과 설정은 남기고 사용자가 입력한 장부 운용 데이터만 비운다."""
     deleted: dict[str, int] = {}
-    with session(transaction_mode="IMMEDIATE") as conn:
+    with borrowed_or_new_session(conn, transaction_mode="IMMEDIATE") as conn:
         create_pre_restore_backup(conn)
         for table in RESET_TABLES:
             cursor = conn.execute(f"DELETE FROM {table}")

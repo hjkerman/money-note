@@ -11,6 +11,12 @@ from datetime import datetime
 from typing import Any
 
 
+def validate_source_epoch(source: Mapping[str, Any]) -> None:
+    """An active source confirmation is a pair, never a truthy half-pair."""
+    if (source.get("confirmed_month") is None) != (source.get("confirmed_at") is None):
+        raise ValueError("partial recurring confirmation epoch is not a valid relationship")
+
+
 def near_confirmation_creation(created_at: Any, confirmed_at: Any) -> bool:
     """Historical INSERT and confirmation UPDATE occurred in one transaction.
 

@@ -1,7 +1,7 @@
 from datetime import date, datetime, timezone
 from typing import Any
 
-from app.db import borrowed_or_new_session, session
+from app.db import borrowed_or_new_session
 from app.repositories.common import row_to_dict
 from app.repositories.panels import delete_panels_by_type
 from app.services.clock import app_today
@@ -9,9 +9,9 @@ from app.services.financial_periods import fixed_execution_month
 from app.services.snapshot import create_pre_restore_backup
 
 
-def complete_panels_by_type(month: str, panel_type: str) -> int:
+def complete_panels_by_type(month: str, panel_type: str, *, conn: Any | None = None) -> int:
     """청구·가족카드 전달분을 지우기 전에 복원 가능한 서버 snapshot을 남긴다."""
-    with session(transaction_mode="IMMEDIATE") as conn:
+    with borrowed_or_new_session(conn, transaction_mode="IMMEDIATE") as conn:
         create_pre_restore_backup(conn)
         return delete_panels_by_type(month, panel_type, conn)
 

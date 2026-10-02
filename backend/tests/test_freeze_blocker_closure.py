@@ -88,12 +88,12 @@ class FreezeBlockerClosureTest(IsolatedDatabaseTestCase):
         for index, (fields, expected) in enumerate(cases):
             with self.subTest(fields=fields):
                 payload = self.expense(usage_place="한국전력", candidate_registration_key=f"utility-{index}", **fields)
-                row = entry_routes.post_entry(payload, {})
+                row = json.loads(entry_routes.post_entry(payload, {}).body)
                 self.assertEqual(row["effective_amount_value"], expected)
-                self.assertEqual(entry_routes.post_entry(payload, {})["id"], row["id"])
+                self.assertEqual(json.loads(entry_routes.post_entry(payload, {}).body)["id"], row["id"])
         for kind in ("claim", "family_card"):
-            row = month_routes.post_panel(MonthlyPanelIn(month="2026-06", panel_type=kind,
-                title="한국전력", amount_value=10000, discount_amount=500, discount_override=1, sort_order=1), {})
+            row = json.loads(month_routes.post_panel(MonthlyPanelIn(month="2026-06", panel_type=kind,
+                title="한국전력", amount_value=10000, discount_amount=500, discount_override=1, sort_order=1), {}).body)
             self.assertEqual(row["effective_amount_value"], 9500)
 
     def test_old_generated_expense_does_not_release_new_confirmation(self):
@@ -124,7 +124,7 @@ class FreezeBlockerClosureTest(IsolatedDatabaseTestCase):
                 conn.execute("CREATE TEMP TRIGGER fail_release BEFORE UPDATE OF confirmed_month ON ledger_entries "
                              "WHEN NEW.entry_kind='planned' AND NEW.confirmed_month IS NULL BEGIN SELECT RAISE(ABORT, 'injected release'); END")
                 yield conn
-        with patch("app.repositories.entries.session", failing_session):
+        with patch("app.db.session", failing_session):
             with self.assertRaisesRegex(sqlite3.IntegrityError, "injected release"):
                 delete_entry(generated["id"])
         self.assertEqual(self.dump(), before)
@@ -142,7 +142,7 @@ class FreezeBlockerClosureTest(IsolatedDatabaseTestCase):
         self.assertEqual(current_summary_values()["cash_flow_balance"], 99500)
 
     def test_discount_presenter_422_cannot_hide_a_durable_financial_change(self):
-        row = entry_routes.post_entry(self.expense(discount_enabled=False), {})
+        row = json.loads(entry_routes.post_entry(self.expense(discount_enabled=False), {}).body)
         before = self.dump()
         with patch.object(discount_routes, "present_ledger_entry", side_effect=ValueError("discount response")):
             with self.assertRaises(HTTPException):
@@ -151,9 +151,9 @@ class FreezeBlockerClosureTest(IsolatedDatabaseTestCase):
         self.assertEqual(current_summary_values()["card_total"], 10000)
 
     def test_update_presenter_failures_roll_back_identity_and_financial_values(self):
-        entry = entry_routes.post_entry(self.expense(discount_enabled=False), {})
-        panel = month_routes.post_panel(MonthlyPanelIn(month="2026-06", panel_type="claim",
-            title="claim", amount_value=10000, sort_order=1), {})
+        entry = json.loads(entry_routes.post_entry(self.expense(discount_enabled=False), {}).body)
+        panel = json.loads(month_routes.post_panel(MonthlyPanelIn(month="2026-06", panel_type="claim",
+            title="claim", amount_value=10000, sort_order=1), {}).body)
         cases = [
             (entry_routes, "present_ledger_entry", lambda: entry_routes.patch_entry(
                 entry["id"], LedgerEntryPatch(amount_value=20000), {})),
@@ -179,7 +179,7 @@ class FreezeBlockerClosureTest(IsolatedDatabaseTestCase):
         init_db()
         with session() as conn:
             before = conn.execute("SELECT revision FROM authoritative_state_revision").fetchone()[0]
-        row = cash_routes.post_cash_flow(CashFlowIn(occurred_on=date(2026, 6, 11), title="ABA", amount_value=-500, sort_order=1), {})
+        row = json.loads(cash_routes.post_cash_flow(CashFlowIn(occurred_on=date(2026, 6, 11), title="ABA", amount_value=-500, sort_order=1), {}).body)
         cash_routes.remove_cash_flow(row["id"], {})
         with session() as conn:
             self.assertEqual(conn.execute("SELECT revision FROM authoritative_state_revision").fetchone()[0], before + 2)
@@ -217,8 +217,8 @@ class FreezeBlockerClosureTest(IsolatedDatabaseTestCase):
             with self.assertRaisesRegex(RuntimeError, "before commit"):
                 entry_routes.post_entry(payload, {})
         self.assertEqual(self.dump(), before)
-        committed = entry_routes.post_entry(payload, {})  # response may be lost after this commit
-        self.assertEqual(entry_routes.post_entry(payload, {})["id"], committed["id"])
+        committed = json.loads(entry_routes.post_entry(payload, {}).body)  # response may be lost after this commit
+        self.assertEqual(json.loads(entry_routes.post_entry(payload, {}).body)["id"], committed["id"])
         self.assertEqual(current_summary_values()["card_total"], 10000)
         with self.assertRaises(HTTPException):
             entry_routes.post_entry(self.expense(amount_value=20000, discount_enabled=False,

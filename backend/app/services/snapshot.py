@@ -14,7 +14,7 @@ from datetime import date, datetime, timezone
 from typing import Any
 
 from app.config import get_settings
-from app.db import SCHEMA, session
+from app.db import SCHEMA, borrowed_or_new_session, session
 from app.services.card_charge import (
     card_charge_policy_manifest,
     card_charge_policy_manifest_compatible,
@@ -180,13 +180,13 @@ def validate_reconciled_financial_state(conn: Any) -> None:
     _validate_financial_relationships(conn)
 
 
-def restore_snapshot(snapshot: dict[str, Any]) -> dict[str, int]:
+def restore_snapshot(snapshot: dict[str, Any], *, conn: Any | None = None) -> dict[str, int]:
     """JSON snapshot을 검증하고 임시 복원에 성공한 뒤 운영 DB를 교체한다."""
     _validate_snapshot(snapshot)
     data = _normalized_snapshot_data(snapshot["data"], snapshot["schema_version"])
     _dry_run_restore(data)
     restored: dict[str, int] = {}
-    with session(transaction_mode="IMMEDIATE") as conn:
+    with borrowed_or_new_session(conn, transaction_mode="IMMEDIATE") as conn:
         create_pre_restore_backup(conn)
         restored = _replace_snapshot_tables(conn, data)
         _raise_if_foreign_key_errors(conn)
@@ -261,10 +261,10 @@ def delete_all_pre_restore_backups() -> int:
     return deleted
 
 
-def restore_pre_restore_backup(filename: str) -> dict[str, int]:
+def restore_pre_restore_backup(filename: str, *, conn: Any | None = None) -> dict[str, int]:
     """pre_restore 파일을 일반 snapshot과 동일한 절차로 복원한다."""
     _, snapshot = read_pre_restore_backup(filename)
-    return restore_snapshot(snapshot)
+    return restore_snapshot(snapshot, conn=conn)
 
 
 def _rows(conn: Any, sql: str, params: tuple[Any, ...] = ()) -> list[dict[str, Any]]:
@@ -669,6 +669,30 @@ def _raise_if_foreign_key_errors(conn: Any) -> None:
 
 
 def _validate_financial_relationships(conn: Any) -> None:
+    for source in conn.execute(
+        "SELECT * FROM ledger_entries WHERE entry_kind = 'planned' "
+        "AND (confirmed_month IS NOT NULL OR confirmed_at IS NOT NULL)"
+    ):
+        period = source["confirmed_month"]
+        if not isinstance(period, str) or not re.fullmatch(r"\d{4}-(?:0[1-9]|1[0-2])", period):
+            raise ValueError("snapshot recurring confirmation epoch is inconsistent")
+        try:
+            date.fromisoformat(period + "-01")
+        except ValueError:
+            raise ValueError("snapshot recurring confirmation epoch is inconsistent") from None
+        _validate_confirmation_timestamp(source["confirmed_at"], "snapshot recurring confirmation timestamp is invalid")
+    unretired_epoch = conn.execute(
+        """SELECT expense.id FROM ledger_entries expense
+           JOIN ledger_entries source ON source.id = expense.source_planned_entry_id
+           WHERE expense.book_section = 'current' AND expense.entry_kind = 'expense'
+             AND expense.confirmed_month IS NOT NULL
+             AND source.confirmed_month IS NULL AND source.confirmed_at IS NULL
+             AND expense.confirmed_month > COALESCE(
+                 (SELECT value FROM app_settings WHERE key = 'last_closed_month'), '0000-00')
+           LIMIT 1"""
+    ).fetchone()
+    if unretired_epoch is not None:
+        raise ValueError("snapshot recurring confirmation epoch has no active source confirmation")
     for row in conn.execute(
         """SELECT expense.confirmed_month, expense.confirmed_at, source.entry_kind AS source_kind
            FROM ledger_entries expense

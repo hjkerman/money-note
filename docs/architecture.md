@@ -115,6 +115,8 @@ Summary와 DB 설정의 표준 이름은 `scheduled_income`, `cash_flow_balance`
 
 ## 인증 흐름
 
+제품 범위는 하나의 owner와 하나의 공유 장부다. 현재 provisioning CLI와 인증은 복수 active principal을 수용하지만 owner별 데이터 격리를 지원하지 않는다. 따라서 단일 principal이 코드로 강제된다고 가정하지 않는다. 기존 모바일 manual retry 한 파일의 owner binding과 auth-generation fence로 session/retry 전이를 보호하며 multi-user 장부·storage namespace는 도입하지 않는다.
+
 기본 인증은 서버가 발급하는 세션이다.
 
 - 웹 브라우저: `money_note_session` HttpOnly cookie를 사용한다.
@@ -135,6 +137,8 @@ Summary와 DB 설정의 표준 이름은 `scheduled_income`, `cash_flow_balance`
 - 백엔드 `repositories/`: 저장·조회
 - 백엔드 `services/`: 도메인 계산과 위험 작업
 - 백엔드 `routers/`: 인증과 HTTP 입출력
+
+금융 변경 HTTP router는 existing business command에 같은 SQLite connection을 전달하고 필수 status·presenter·model·최종 응답 bytes를 commit 전에 준비한다. command 단독 호출은 기존처럼 자신의 transaction을 소유하고, borrowed connection에서는 중첩 BEGIN/commit하지 않는다. prepared Response가 FastAPI의 handler 종료 후 재직렬화를 우회하며 socket 전송은 transaction 밖이다. Reconciliation은 기존 transaction 안에서 canonical committed receipt를 저장하고 같은 ID로 결과를 재사용하는 별도 idempotency 경계를 유지한다.
 
 `backend/app/repository.py`와 `frontend/src/components/LedgerTables.tsx`는 기존 import를 보호하는 호환 re-export 계층이다. 새 구현을 이 파일에 다시 쌓지 않는다. 현재 사용 근거와 보류 판정은 [호환성 inventory](compatibility-inventory.md)에 둔다.
 

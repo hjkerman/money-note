@@ -28,6 +28,7 @@ from app.services.card_payments import (
     set_entry_discount,
 )
 from app.services.presentation import present_ledger_entry
+from app.routers.responses import financial_response
 
 payments_router = APIRouter(prefix="/api/card-payments", tags=["card-payments"])
 discounts_router = APIRouter(prefix="/api/card-discounts", tags=["card-discounts"])
@@ -54,7 +55,8 @@ def patch_card_discount_month(
     _: dict = Depends(require_user),
 ) -> dict:
     try:
-        return set_discount_month_policy(month, patch.policy, scope)
+        with session(transaction_mode="IMMEDIATE") as conn:
+            return financial_response(set_discount_month_policy(month, patch.policy, scope, conn=conn))
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
@@ -77,7 +79,8 @@ def patch_transit_discount_profile(
     _: dict = Depends(require_user),
 ) -> dict[str, str]:
     try:
-        return set_transit_discount_profile(month, patch.profile)
+        with session(transaction_mode="IMMEDIATE") as conn:
+            return financial_response(set_transit_discount_profile(month, patch.profile, conn=conn), response_type=dict[str, str])
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
@@ -87,42 +90,47 @@ def patch_entry_discount(entry_payment_key: str, patch: PanelDiscountPatch, _: d
     try:
         with session(transaction_mode="IMMEDIATE") as conn:
             row = set_entry_discount(entry_payment_key, patch.discount_amount, conn=conn)
-            return LedgerEntry.model_validate(present_ledger_entry(row, conn=conn)).model_dump(mode="json")
+            return financial_response(LedgerEntry.model_validate(present_ledger_entry(row, conn=conn)).model_dump(mode="json"))
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
 @discounts_router.delete("/entries/{entry_payment_key}")
 def remove_entry_discount(entry_payment_key: str, _: dict = Depends(require_user)) -> dict[str, bool]:
-    if not clear_entry_discount(entry_payment_key):
-        raise HTTPException(status_code=404, detail="discount target entry not found")
-    return {"deleted": True}
+    with session(transaction_mode="IMMEDIATE") as conn:
+        if not clear_entry_discount(entry_payment_key, conn=conn):
+            raise HTTPException(status_code=404, detail="discount target entry not found")
+        return financial_response({"deleted": True})
 
 
 @payments_router.post("/events")
 def post_card_payment_event(payload: CardPaymentEventIn, _: dict = Depends(require_user)) -> dict:
     try:
-        return create_card_payment_event(payload)
+        with session(transaction_mode="IMMEDIATE") as conn:
+            return financial_response(create_card_payment_event(payload, conn=conn))
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
 @payments_router.delete("/events/{event_id}")
 def remove_card_payment_event(event_id: int, _: dict = Depends(require_user)) -> dict[str, bool]:
-    if not delete_card_payment_event(event_id):
-        raise HTTPException(status_code=404, detail="card payment event not found")
-    return {"deleted": True}
+    with session(transaction_mode="IMMEDIATE") as conn:
+        if not delete_card_payment_event(event_id, conn=conn):
+            raise HTTPException(status_code=404, detail="card payment event not found")
+        return financial_response({"deleted": True})
 
 
 @payments_router.post("/acknowledge-liquidity-reset")
 def post_acknowledge_liquidity_reset(_: dict = Depends(require_user)) -> dict[str, str]:
-    return acknowledge_liquidity_reset()
+    with session(transaction_mode="IMMEDIATE") as conn:
+        return financial_response(acknowledge_liquidity_reset(conn=conn), response_type=dict[str, str])
 
 
 @payments_router.post("/late-entries")
 def post_late_card_entry(payload: LateCardEntryIn, _: dict = Depends(require_user)) -> dict:
     try:
-        return create_late_card_entry(payload)
+        with session(transaction_mode="IMMEDIATE") as conn:
+            return financial_response(create_late_card_entry(payload, conn=conn))
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
@@ -130,7 +138,8 @@ def post_late_card_entry(payload: LateCardEntryIn, _: dict = Depends(require_use
 @payments_router.post("/deferrals/{entry_payment_key}")
 def post_card_payment_deferral(entry_payment_key: str, _: dict = Depends(require_user)) -> dict[str, str]:
     try:
-        return defer_toll_payment(entry_payment_key)
+        with session(transaction_mode="IMMEDIATE") as conn:
+            return financial_response(defer_toll_payment(entry_payment_key, conn=conn), response_type=dict[str, str])
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
@@ -138,9 +147,9 @@ def post_card_payment_deferral(entry_payment_key: str, _: dict = Depends(require
 @payments_router.delete("/deferrals/{entry_payment_key}")
 def remove_card_payment_deferral(entry_payment_key: str, _: dict = Depends(require_user)) -> dict[str, bool]:
     try:
-        deleted = cancel_toll_deferral(entry_payment_key)
+        with session(transaction_mode="IMMEDIATE") as conn:
+            if not cancel_toll_deferral(entry_payment_key, conn=conn):
+                raise HTTPException(status_code=404, detail="current payment deferral not found")
+            return financial_response({"deleted": True})
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
-    if not deleted:
-        raise HTTPException(status_code=404, detail="current payment deferral not found")
-    return {"deleted": True}

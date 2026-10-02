@@ -27,8 +27,9 @@ class SettingsVisibilityTest(IsolatedDatabaseTestCase):
         self.assertNotIn("share_pin_is_default", values)
 
     def test_standard_setting_names_update_standard_storage_keys(self) -> None:
-        income_response = patch_setting("scheduled_income", SettingPatch(value="550000"), {})
-        balance_response = patch_setting("cash_flow_balance", SettingPatch(value="12000"), {})
+        import json
+        income_response = json.loads(patch_setting("scheduled_income", SettingPatch(value="550000"), {}).body)
+        balance_response = json.loads(patch_setting("cash_flow_balance", SettingPatch(value="12000"), {}).body)
 
         with session() as conn:
             stored_income = conn.execute(

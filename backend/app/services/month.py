@@ -4,7 +4,7 @@ from calendar import monthrange
 from datetime import date, datetime
 from typing import Any
 
-from app.db import session
+from app.db import borrowed_or_new_session, session
 from app.services.clock import app_month_for_utc_timestamp, app_today
 from app.services.financial_periods import is_month_end
 from app.services.card_payments import create_month_close_card_payment_batch
@@ -16,11 +16,12 @@ def close_current_month(
     allow_early_close: bool = False,
     allow_unconfirmed_recurring: bool = False,
     target_month: str | None = None,
+    *, conn: Any | None = None,
 ) -> dict[str, Any]:
     """현재 장부에서 가장 오래된 미마감 월 하나만 archive로 옮긴다."""
     today = today or app_today()
     requested_month = target_month
-    with session(transaction_mode="IMMEDIATE") as conn:
+    with borrowed_or_new_session(conn, transaction_mode="IMMEDIATE") as conn:
         last_closed_row = conn.execute(
             "SELECT value FROM app_settings WHERE key = 'last_closed_month'"
         ).fetchone()

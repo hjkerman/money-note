@@ -4,7 +4,7 @@ import re
 from collections.abc import Mapping
 from typing import Any
 
-from app.db import session
+from app.db import borrowed_or_new_session
 from app.repositories.settings import list_settings
 
 from .models import DiscountCard, TransitDiscountProfile
@@ -64,9 +64,9 @@ def policy_card_for(
     return DiscountCard.OWNER if profile == TransitDiscountProfile.OWNER else card
 
 
-def transit_discount_profile_status(month: str) -> dict[str, str]:
+def transit_discount_profile_status(month: str, *, conn: Any | None = None) -> dict[str, str]:
     _validate_month(month)
-    profile = transit_discount_profile_for_month(list_settings(), month)
+    profile = transit_discount_profile_for_month(list_settings(conn=conn), month)
     return {
         "card": DiscountCard.TRANSIT.value,
         "month": month,
@@ -77,11 +77,12 @@ def transit_discount_profile_status(month: str) -> dict[str, str]:
 def set_transit_discount_profile(
     month: str,
     profile: str | TransitDiscountProfile,
+    *, conn: Any | None = None,
 ) -> dict[str, str]:
     """교통카드 정책 변경을 해당 월부터 유효한 이력으로 저장한다."""
     _validate_month(month)
     normalized = normalize_transit_discount_profile(profile)
-    with session() as conn:
+    with borrowed_or_new_session(conn) as conn:
         conn.execute(
             """
             INSERT INTO app_settings(key, value, updated_at)
@@ -92,7 +93,7 @@ def set_transit_discount_profile(
             """,
             (f"{TRANSIT_PROFILE_SETTING_PREFIX}{month}", normalized.value),
         )
-    return transit_discount_profile_status(month)
+        return transit_discount_profile_status(month, conn=conn)
 
 
 def transit_discount_profile_manifest() -> dict[str, Any]:

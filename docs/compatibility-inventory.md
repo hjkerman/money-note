@@ -4,6 +4,8 @@
 
 이 표는 현재 source import, HTTP/serialized shape, Git 이력과 Snapshot 테스트를 대조한 것이다. 삭제 목록이 아니다. DB·Snapshot·재시도 identity가 포함된 항목은 내부 Python import보다 보수적으로 유지한다.
 
+재감사 closure는 Snapshot v4~v7/version 3을 유지한다. 원본 recurring epoch의 부분 누락은 거부하고, 기존 legacy normalization의 증명 가능한 absence는 그대로 지원한다. 확정 조회도 immutable source/epoch를 사용한다. Claim/Family의 accepted boolean-only false는 explicit exclusion이며 구 monetary 입력을 지우지 않는다. 로컬 manual retry v3는 기존 한 파일에 owner만 결합하고 구 v1/v2의 증거를 보존한다. owner 없는 artifact는 현재 login으로 추측해 재전송하지 않는다. API/DB surface retirement는 수행하지 않는다.
+
 | Surface | 판정 | 실제 usage 근거와 범위 |
 | --- | --- | --- |
 | `backend/app/repository.py` facade | DEPRECATE | production `backend/app` import는 0. 테스트의 `test_cash_flows`, `test_panels`, `test_summary`, `test_entry_constraints`, `test_month`가 기존 경로를 사용한다. 새 production 코드는 `app.repositories.*`를 직접 import한다. 삭제는 별도 release 판단으로 보류한다. |

@@ -255,7 +255,7 @@ def traced_session(**kwargs):
         conn.set_trace_callback(trace)
         yield conn
 if os.environ['AUDIT_OPERATION'] == 'close':
-    with patch('app.services.month.session', traced_session):
+    with patch('app.db.session', traced_session):
         close_current_month(date(2026,9,30), target_month='2026-09', allow_early_close=True, allow_unconfirmed_recurring=True)
 else:
     with traced_session(transaction_mode='IMMEDIATE') as conn:

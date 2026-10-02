@@ -5,6 +5,8 @@ from fastapi.responses import FileResponse
 
 from app.auth import require_user, verify_user_password
 from app.config import get_settings
+from app.db import session
+from app.routers.responses import financial_response
 from app.schemas import PasswordConfirmIn, PreRestoreRestoreIn, SnapshotRestoreIn
 from app.services.operation_stats import operation_data_stats
 from app.services.reset import reset_ledger_data
@@ -24,7 +26,8 @@ router = APIRouter(prefix="/api/admin", tags=["admin"])
 def post_reset_ledger_data(payload: PasswordConfirmIn, user: dict = Depends(require_user)) -> dict[str, dict[str, int]]:
     if not verify_user_password(int(user["id"]), payload.password):
         raise HTTPException(status_code=422, detail="현재 비밀번호가 맞지 않습니다.")
-    return {"deleted": reset_ledger_data()}
+    with session(transaction_mode="IMMEDIATE") as conn:
+        return financial_response({"deleted": reset_ledger_data(conn=conn)})
 
 
 @router.get("/snapshot")
@@ -74,12 +77,12 @@ def post_snapshot_restore(payload: SnapshotRestoreIn, user: dict = Depends(requi
             snapshot = payload.snapshot
         else:
             raise ValueError("snapshot is missing")
-        restored = restore_snapshot(snapshot)
+        with session(transaction_mode="IMMEDIATE") as conn:
+            return financial_response({"restored": restore_snapshot(snapshot, conn=conn)})
     except json.JSONDecodeError as exc:
         raise HTTPException(status_code=400, detail="snapshot file is not valid JSON") from exc
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    return {"restored": restored}
 
 
 @router.get("/snapshot/pre-restore")
@@ -120,7 +123,7 @@ def post_pre_restore_backup_restore(
     if not verify_user_password(int(user["id"]), payload.password):
         raise HTTPException(status_code=422, detail="현재 비밀번호가 맞지 않습니다.")
     try:
-        restored = restore_pre_restore_backup(filename)
+        with session(transaction_mode="IMMEDIATE") as conn:
+            return financial_response({"restored": restore_pre_restore_backup(filename, conn=conn)})
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    return {"restored": restored}

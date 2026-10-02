@@ -5,6 +5,7 @@ from app.db import session
 from app.repositories.entries import create_entry, delete_entry, list_entries, update_entry
 from app.schemas import LedgerEntry, LedgerEntryIn, LedgerEntryPatch
 from app.services.presentation import present_ledger_entries, present_ledger_entry
+from app.routers.responses import financial_response
 
 router = APIRouter(prefix="/api/entries", tags=["entries"])
 
@@ -21,7 +22,7 @@ def post_entry(entry: LedgerEntryIn, _: dict = Depends(require_user)) -> dict:
     try:
         with session(transaction_mode="IMMEDIATE") as conn:
             result = present_ledger_entry(create_entry(entry, conn=conn), conn=conn)
-            return LedgerEntry.model_validate(result).model_dump(mode="json")
+            return financial_response(LedgerEntry.model_validate(result).model_dump(mode="json"))
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
@@ -33,7 +34,7 @@ def patch_entry(entry_id: int, patch: LedgerEntryPatch, _: dict = Depends(requir
             entry = update_entry(entry_id, patch, conn=conn)
             if entry is None:
                 raise HTTPException(status_code=404, detail="entry not found")
-            return LedgerEntry.model_validate(present_ledger_entry(entry, conn=conn)).model_dump(mode="json")
+            return financial_response(LedgerEntry.model_validate(present_ledger_entry(entry, conn=conn)).model_dump(mode="json"))
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
@@ -41,9 +42,9 @@ def patch_entry(entry_id: int, patch: LedgerEntryPatch, _: dict = Depends(requir
 @router.delete("/{entry_id}")
 def remove_entry(entry_id: int, _: dict = Depends(require_user)) -> dict[str, bool]:
     try:
-        deleted = delete_entry(entry_id)
+        with session(transaction_mode="IMMEDIATE") as conn:
+            if not delete_entry(entry_id, conn=conn):
+                raise HTTPException(status_code=404, detail="entry not found")
+            return financial_response({"deleted": True})
     except ValueError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
-    if not deleted:
-        raise HTTPException(status_code=404, detail="entry not found")
-    return {"deleted": True}
