@@ -6,6 +6,8 @@
 
 재감사 closure는 Snapshot v4~v7/version 3을 유지한다. 원본 recurring epoch의 부분 누락은 거부하고, 기존 legacy normalization의 증명 가능한 absence는 그대로 지원한다. 확정 조회도 immutable source/epoch를 사용한다. Claim/Family의 accepted boolean-only false는 explicit exclusion이며 구 monetary 입력을 지우지 않는다. 로컬 manual retry v3는 기존 한 파일에 owner만 결합하고 구 v1/v2의 증거를 보존한다. owner 없는 artifact는 현재 login으로 추측해 재전송하지 않는다. API/DB surface retirement는 수행하지 않는다.
 
+최종 recurring closure는 v4~v6의 증명 가능한 정규화 뒤에도 활성 원본 확인이 완전한 source/epoch로 생성 지출 정확히 한 건을 소유해야 함을 검사한다. 불명확한 legacy 활성 관계는 취소 시점까지 미루지 않고 restore 전에 거부한다. v7의 epoch 전체 누락 또는 생성 지출 누락은 손상이며, 과거 epoch 미보존 v7 fixture도 그대로 보존한 rejection 테스트다. 현재 exporter와 runtime 조회·수정·삭제·재확인도 같은 계약을 사용한다. 기존 파일 버전 지원은 손상된 모든 파일의 자동 복구를 뜻하지 않는다.
+
 | Surface | 판정 | 실제 usage 근거와 범위 |
 | --- | --- | --- |
 | `backend/app/repository.py` facade | DEPRECATE | production `backend/app` import는 0. 테스트의 `test_cash_flows`, `test_panels`, `test_summary`, `test_entry_constraints`, `test_month`가 기존 경로를 사용한다. 새 production 코드는 `app.repositories.*`를 직접 import한다. 삭제는 별도 release 판단으로 보류한다. |

@@ -631,11 +631,11 @@ Claim과 가족카드는 직접 반영하지 않는다.
 
 ## 정기결제 확인 identity와 금융 응답 경계
 
-- 생성 지출은 `source_planned_entry_id`와 함께 기존 `confirmed_month`/`confirmed_at` 컬럼에 원본 확인 epoch를 보존한다. 제목·금액·발생일 수정은 epoch를 바꾸지 않는다. 취소는 source ID와 확인 월·시각이 모두 일치하는 확인만 같은 transaction에서 해제한다. 이전 생성 지출을 삭제해도 새 확인을 해제하지 않는다. 월마감 archive에도 epoch를 보존한다.
+- 생성 지출은 `source_planned_entry_id`와 함께 기존 `confirmed_month`/`confirmed_at` 컬럼에 원본 확인 epoch를 보존한다. 제목·금액·발생일 수정은 epoch를 바꾸지 않는다. 취소는 source ID와 확인 월·시각이 모두 일치하는 확인만 같은 transaction에서 해제한다. 이전 생성 지출을 삭제해도 새 확인을 해제하지 않는다. 월마감 archive에도 epoch를 보존하며, 수정된 발생월의 마감으로 archive에 옮겨진 활성 생성 지출도 같은 identity로 취소한다.
 - 확인 목록도 source ID와 확인 epoch로 실제 생성 지출을 조회한다. 원래 5,000원인 지출을 다른 발생월·7,000원으로 수정해도 원본 확인의 projection은 실제 연결된 7,000원을 보여준다. mutable 발생월로 template fallback을 선택하지 않는다.
-- Snapshot dry-run은 명시적 epoch의 부분 누락·invalid timestamp·원본 활성 확인과의 모순을 거부한다. 이전 epoch가 남은 지출과 새 확인은 서로 다른 건으로 보존하되 활성 확인의 생성 지출은 한 건이어야 한다. Fixed/recurring timestamp의 offset hour는 0~23, minute는 0~59여야 하며 실제 날짜·시각도 파싱 가능해야 한다. 확인 clock time을 발생일과 같도록 강제하지 않는다.
+- 현재 Snapshot의 활성 정기결제 확인은 원본 planned ID와 완전한 확인 epoch(`confirmed_month`, `confirmed_at`)가 일치하는 생성 expense **정확히 한 건**을 소유해야 한다. 생성 지출 누락, epoch 전체/부분 누락, source 누락·불일치, 중복 소유를 거부한다. 제목·장소·원금·발생일은 수정 가능한 사실이지 소유 identity가 아니다. Fixed/recurring timestamp의 offset hour는 0~23, minute는 0~59여야 하며 실제 날짜·시각도 파싱 가능해야 한다. 확인 clock time을 발생일과 같도록 강제하지 않는다.
 - 원본의 확인 월/시각도 all-or-nothing이다. 부분 epoch는 Snapshot 복원과 runtime 수정·취소·재확인에서 거부한다. 마감되지 않은 생성 epoch가 있는데 원본 확인이 모두 없는 상태도 정상 관계가 아니다. 월마감으로 이미 종료한 epoch의 생성 지출은 보존할 수 있다. 이 구분에 새 값을 추측해 넣지 않는다.
-- 구 Snapshot import와 과거 explicit source 행의 수정 전에는 원래 확인 증거가 남아 있을 때만 epoch를 결합한다. 이미 수정돼 epoch를 증명할 수 없는 행은 취소 전에 fail closed한다. Snapshot v7과 DB version을 올리지 않고 기존 컬럼으로 export/re-restore한다.
+- v4~v6 Snapshot은 원문 manifest 검증 뒤 증명 가능한 source/epoch만 정규화하고 위 canonical 소유 계약을 검사한다. 증명되지 않는 활성 확인은 복원 전에 거부한다. v7의 누락된 epoch를 legacy absence로 보정하지 않는다. 현재 export도 같은 소유 계약을 검사하며 runtime 확인 조회·수정·취소·재확인은 불완전한 관계를 fail closed한다. 이미 종료한 epoch의 지출은 원본의 새 확인과 구별해 보존한다. 정상 template 삭제는 실제 지출을 남기되 source FK와 epoch 메타데이터를 함께 해제한다. Snapshot v7과 DB version을 올리거나 실제 지출을 추측 생성하지 않는다.
 - 금융 변경 API와 할인 월 정책/교통 프로필 변경은 필수 status 계산·presenter·response model 검증·최종 JSON 응답 bytes 준비를 commit 전에 끝낸다. HTTP router가 하나의 기존 business transaction connection을 command와 필수 response 계산에 빌려주며 중첩 BEGIN/commit을 만들지 않는다. 준비된 Response를 반환해 FastAPI의 handler 종료 후 재직렬화를 우회한다. 정책 status도 같은 connection에서 새 uncommitted 값을 본다. 커밋 전 변환 오류는 금융 행·정책·등록 identity·revision을 함께 rollback한다. socket 전송은 transaction 밖이고 유실은 ambiguous outcome이다. 기존 idempotency가 있는 작업만 동일 identity로 재확인하며 일반 생성에 새 exactly-once 보장을 추가하지 않는다.
 - 모바일 submit 완료는 서버 저장뿐 아니라 coherent refresh, baseline durable publication, 화면 설치까지 요구한다. 서버 저장 후 재구성 실패는 `serverCommittedRebuildPending`으로 보존해 재전송과 stale Offline epoch를 막고 read-only rebuild로 복구한다. 요청 결과를 모르는 `outcomeUnknown`은 별개이며 새 기준 데이터를 읽은 것만으로 그 요청의 완료를 추측하지 않는다.
 
@@ -699,6 +699,7 @@ Manifest 원칙:
 - 현재 서버 스키마에 새로 생긴 컬럼이 snapshot에 없으면 의미 보존 규칙을 먼저 적용하고, 호환 기본값이 정의된 나머지 필드만 DB 기본값 또는 `NULL` 정책에 맡긴다. v6에서 확인된 현금성 고정지출은 연결된 현금흐름과 유효한 `spent_on`이 있을 때 확인 월을 복원한다. 누락된 날짜 등 의미를 결정할 수 없는 상태는 restore 전에 거부한다. v7의 확인 월은 다시 추론하지 않는다.
 - 연결된 고정지출 확인은 현금흐름 한 건에 원본 한 건만 대응하며, 처리일과 현금흐름 발생일이 같고 해당 현금흐름은 다른 카드 결제나 급여에 속하지 않아야 한다. 실제 출금액은 template reserve와 다를 수 있다. 모순된 관계는 임시 DB dry-run에서 복원을 거부하고 원래 서버 상태를 보존한다.
 - v4~v6 카드 정기결제 Snapshot에는 생성 지출의 `source_planned_entry_id`가 없다. manifest 검증 후, 원본 확인 시각과 변경되지 않은 지출 행 및 월내 유일성이 일치할 때만 복원 경계에서 `source_planned_entry_id`를 영속화한다. 같은 확인 시각에 생성된 지출이 여럿이면 자동 결합하지 않는다. 기존 source 없는 행의 수정은 수정 **전**에 같은 증거로 결합한다. 삭제 시점의 제목·장소·금액 같은 mutable 필드로 관계를 새로 추측하지 않는다. 삭제는 영속화된 source와 원본 확인을 **한 금융 transaction**에서 함께 취소하며, 관계가 불명확하면 삭제 전에 거부한다. 과거 버전에서 이미 수정돼 원래 필드가 사라진 미결합 행도 생성 시각상 확인 관계가 가능하면 파괴적 변경을 거부하고 수동 복구를 요구한다. v7의 명시적 source가 있는 원본은 legacy 추론 후보가 아니다.
+- 복원 순서는 원문 검증 → 버전별 legacy 정규화 → canonical 정기결제 소유 검증 → 임시 DB dry-run → mandatory recovery backup/transactional 교체다. v7은 생성 expense와 source 양쪽의 확인 epoch를 반드시 보존해야 한다. 예전 v7 파일이라도 생성 지출 epoch가 빠졌다면 자동 보정하지 않고 거부한다. 불명확한 legacy 활성 관계도 정규화 후 검증을 통과할 수 없으며 목적지 DB는 변경하지 않는다.
 - fixed 확인의 `confirmed_at`은 실제 달력 날짜와 시각으로 파싱 가능해야 한다. 비어 있거나 불가능한 timestamp는 manifest가 맞아도 복원을 거부하지만, 확인 시각의 날짜를 지출 발생일과 동일하도록 강제하지 않는다. v6/v7에서 확인 시각 또는 확인 월만 있고 cash-flow 관계가 없는 고정지출은 정상 확인으로 추측하지 않고 복원을 거부한다.
 - `NOT NULL`인데 기본값이 없는 필수 컬럼이 누락된 경우에는 dry-run restore 단계에서 실패해야 한다.
 - 알 수 없는 필드가 있다는 이유만으로 백업 파일을 손상으로 보지 않는다. 단, manifest가 그 알 수 없는 필드까지 포함한 원문과 일치해야 한다.

@@ -7,9 +7,9 @@ from app.schemas import LedgerEntryIn, LedgerEntryPatch, PlannedEntryIn
 from app.services.clock import app_today
 from app.services.card_charge import utility_default_discount_excluded
 from app.services.legacy_recurring import (
-    infer_legacy_recurring_sources, materialize_recurring_confirmation_epochs,
+    infer_legacy_recurring_sources,
     near_confirmation_creation,
-    validate_source_epoch,
+    validate_source_epoch, validate_recurring_ownership,
 )
 from app.services.card_payments import (
     closed_month_payment_batch_id,
@@ -113,12 +113,10 @@ def list_confirmed_planned_entries(today: date | None = None) -> list[dict[str, 
             (confirmed_month,),
         ).fetchall()
         candidates = [dict(row) for row in conn.execute(
-            "SELECT * FROM ledger_entries WHERE book_section = 'current' "
-            "AND entry_kind IN ('planned', 'expense')",
+            "SELECT * FROM ledger_entries WHERE entry_kind IN ('planned', 'expense')",
         )]
-        materialize_recurring_confirmation_epochs(candidates)
-        legacy_sources = infer_legacy_recurring_sources(candidates)
-        legacy_by_planned = {source: expense for expense, source in legacy_sources.items()}
+        closed = conn.execute("SELECT value FROM app_settings WHERE key='last_closed_month'").fetchone()
+        validate_recurring_ownership(candidates, str(closed["value"]) if closed else "0000-00")
         confirmed_entries = []
         for row in rows:
             item = row_to_dict(row)
@@ -131,13 +129,6 @@ def list_confirmed_planned_entries(today: date | None = None) -> list[dict[str, 
             if len(matches) > 1:
                 raise ValueError("ambiguous recurring confirmation epoch")
             expense = matches[0] if matches else None
-            if expense is None:
-                # Only a uniquely evidenced unbound legacy relation is shown
-                # as this confirmation's generated expense.
-                legacy_expense_id = legacy_by_planned.get(row["id"])
-                expense = conn.execute(
-                    "SELECT * FROM ledger_entries WHERE id = ?", (legacy_expense_id,)
-                ).fetchone() if legacy_expense_id is not None else None
             if expense and expense["entry_date"]:
                 item["entry_date"] = expense["entry_date"]
                 item["_confirmed_expense"] = row_to_dict(expense)
@@ -169,6 +160,7 @@ def confirm_planned_entry(
             return None
         if planned["entry_kind"] != "planned":
             raise ValueError("only card recurring entries can be confirmed")
+        _require_recurring_ownership(conn, entry_id)
         validate_source_epoch(dict(planned))
         if planned["confirmed_month"] == confirmed_month:
             raise ValueError("card recurring entry already confirmed")
@@ -231,6 +223,7 @@ def confirm_planned_entry(
                WHERE id = ?""",
             (confirmed_month, entry_id, cursor.lastrowid),
         )
+        _require_recurring_ownership(conn, entry_id)
         entry = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (cursor.lastrowid,)).fetchone()
         updated_planned = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (entry_id,)).fetchone()
         return {"planned": row_to_dict(updated_planned), "entry": row_to_dict(entry)}
@@ -398,6 +391,8 @@ def create_entry(entry: LedgerEntryIn, conn: Any | None = None) -> dict[str, Any
             "SELECT * FROM ledger_entries WHERE id = ?",
             (cursor.lastrowid,),
         ).fetchone()
+        if row["entry_kind"] == "planned" or row["confirmed_month"] is not None or row["confirmed_at"] is not None:
+            _require_recurring_ownership(conn, int(row["id"]))
         return row_to_dict(row)
 
 
@@ -456,6 +451,8 @@ def append_planned_entry(entry: PlannedEntryIn, *, conn: Any | None = None) -> d
 
 def delete_planned_entry(entry_id: int, *, conn: Any | None = None) -> bool:
     with borrowed_or_new_session(conn) as conn:
+        _require_recurring_ownership(conn, entry_id)
+        _detach_recurring_expenses(conn, entry_id)
         cursor = conn.execute(
             """
             DELETE FROM ledger_entries
@@ -536,11 +533,17 @@ def update_entry(entry_id: int, patch: LedgerEntryPatch, *, conn: Any | None = N
         existing = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (entry_id,)).fetchone()
         if existing is None:
             return None
+        if existing["entry_kind"] == "planned":
+            _require_recurring_ownership(conn, entry_id)
         if existing["source_planned_entry_id"] is None:
             source = _legacy_recurring_source(conn, entry_id, existing, allow_binding=True)
             if source is not None:
                 values["source_planned_entry_id"] = source
         source = values.get("source_planned_entry_id") or existing["source_planned_entry_id"]
+        if not source and existing["entry_kind"] == "expense" and (
+            existing["confirmed_month"] is not None or existing["confirmed_at"] is not None
+        ):
+            raise ValueError("unresolved recurring confirmation source")
         if source and existing["book_section"] != "current":
             _validate_archived_recurring_source(conn, source)
         if source and existing["book_section"] == "current":
@@ -553,6 +556,8 @@ def update_entry(entry_id: int, patch: LedgerEntryPatch, *, conn: Any | None = N
             f"UPDATE ledger_entries SET {assignments}, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
             params,
         )
+        if source or existing["entry_kind"] == "planned":
+            _require_recurring_ownership(conn, source or entry_id)
         row = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (entry_id,)).fetchone()
         return row_to_dict(row) if row else None
 
@@ -571,13 +576,20 @@ def delete_entry(entry_id: int, *, conn: Any | None = None) -> bool:
         ).fetchone()
         if entry is None:
             return False
+        if entry["entry_kind"] == "planned":
+            _require_recurring_ownership(conn, entry_id)
+            _detach_recurring_expenses(conn, entry_id)
         source_planned_entry_id = entry["source_planned_entry_id"]
         if source_planned_entry_id is None:
             source_planned_entry_id = _legacy_recurring_source(conn, entry_id, entry)
+        if source_planned_entry_id is None and entry["entry_kind"] == "expense" and (
+            entry["confirmed_month"] is not None or entry["confirmed_at"] is not None
+        ):
+            raise ValueError("unresolved recurring confirmation source")
         if source_planned_entry_id and entry["book_section"] != "current":
             _validate_archived_recurring_source(conn, source_planned_entry_id)
         epoch = None
-        if source_planned_entry_id and entry["book_section"] == "current":
+        if source_planned_entry_id:
             epoch = _ensure_recurring_confirmation_epoch(conn, entry_id, source_planned_entry_id)
         if entry["payment_key"]:
             paid = conn.execute(
@@ -616,13 +628,30 @@ def _validate_archived_recurring_source(conn: Any, source_id: int) -> None:
     source = conn.execute("SELECT * FROM ledger_entries WHERE id=?", (source_id,)).fetchone()
     if source is None or source["entry_kind"] != "planned":
         raise ValueError("unresolved recurring confirmation source")
-    validate_source_epoch(dict(source))
+    _require_recurring_ownership(conn, source_id)
+
+
+def _require_recurring_ownership(conn: Any, source_id: int) -> None:
+    rows = [dict(row) for row in conn.execute(
+        "SELECT * FROM ledger_entries WHERE id=? OR source_planned_entry_id=?", (source_id, source_id),
+    )]
+    closed = conn.execute("SELECT value FROM app_settings WHERE key='last_closed_month'").fetchone()
+    validate_recurring_ownership(rows, str(closed["value"]) if closed else "0000-00")
+
+
+def _detach_recurring_expenses(conn: Any, source_id: int) -> None:
+    # Deleting a valid template keeps the actual expenses as ordinary ledger
+    # facts. Retire all ownership metadata together with ON DELETE SET NULL.
+    conn.execute("UPDATE ledger_entries SET confirmed_month=NULL,confirmed_at=NULL "
+                 "WHERE source_planned_entry_id=? AND EXISTS (SELECT 1 FROM ledger_entries source "
+                 "WHERE source.id=? AND source.book_section='current' AND source.entry_kind='planned')",
+                 (source_id, source_id))
 
 
 def _ensure_recurring_confirmation_epoch(conn: Any, entry_id: int, source_id: int) -> tuple[str, str]:
     rows = [dict(row) for row in conn.execute(
-        "SELECT * FROM ledger_entries WHERE id IN (?, ?) OR (book_section = 'current' "
-        "AND source_planned_entry_id = ?)", (source_id, entry_id, source_id),
+        "SELECT * FROM ledger_entries WHERE id IN (?, ?) OR source_planned_entry_id = ?",
+        (source_id, entry_id, source_id),
     )]
     source = next((row for row in rows if row["id"] == source_id), None)
     if source is None or source["entry_kind"] != "planned":
@@ -633,7 +662,8 @@ def _ensure_recurring_confirmation_epoch(conn: Any, entry_id: int, source_id: in
             # The caller has already proven this legacy source, in this same
             # transaction, before editing any mutable financial/display field.
             row["source_planned_entry_id"] = source_id
-    materialize_recurring_confirmation_epochs(rows)
+    closed = conn.execute("SELECT value FROM app_settings WHERE key='last_closed_month'").fetchone()
+    validate_recurring_ownership(rows, str(closed["value"]) if closed else "0000-00")
     entry = next((row for row in rows if row["id"] == entry_id), None)
     if entry is None or not entry.get("confirmed_month") or not entry.get("confirmed_at"):
         raise ValueError("unresolved recurring confirmation epoch: cancellation identity is not provable")
@@ -657,7 +687,9 @@ def _legacy_recurring_source(
         """
         SELECT * FROM ledger_entries
         WHERE book_section = 'current'
-          AND ((entry_kind = 'planned' AND confirmed_month = ? AND confirmed_at IS NOT NULL)
+          AND ((entry_kind = 'planned' AND confirmed_month = ? AND confirmed_at IS NOT NULL
+                AND NOT EXISTS (SELECT 1 FROM ledger_entries owned
+                                WHERE owned.source_planned_entry_id = ledger_entries.id))
                OR (entry_kind = 'expense' AND entry_date LIKE ?))
         """,
         (month, f"{month}%"),
@@ -689,8 +721,7 @@ def _legacy_recurring_source(
     ).fetchall()
     if all_confirmed:
         all_explicit = {row[0] for row in conn.execute(
-            "SELECT source_planned_entry_id FROM ledger_entries WHERE book_section = 'current' "
-            "AND source_planned_entry_id IS NOT NULL"
+            "SELECT source_planned_entry_id FROM ledger_entries WHERE source_planned_entry_id IS NOT NULL"
         )}
         if any(planned["id"] not in all_explicit and near_confirmation_creation(
             entry["created_at"], planned["confirmed_at"]

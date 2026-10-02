@@ -26,7 +26,10 @@ from app.services.liquidity_names import (
     LEGACY_LIQUIDITY_SETTING_KEYS,
     normalized_legacy_label_value,
 )
-from app.services.legacy_recurring import infer_legacy_recurring_sources, materialize_recurring_confirmation_epochs
+from app.services.legacy_recurring import (
+    infer_legacy_recurring_sources, materialize_recurring_confirmation_epochs,
+    validate_recurring_ownership,
+)
 from app.share_auth import SENSITIVE_SHARE_SETTING_KEYS
 
 
@@ -117,6 +120,7 @@ def _export_snapshot(conn: Any, today: date | None = None) -> tuple[str, dict[st
         ),
         "app_labels": _snapshot_rows(conn, "app_labels", "key"),
     }
+    _validate_snapshot_recurring_ownership(data)
     exported_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
     policy_context = card_charge_policy_manifest(_snapshot_policy_horizon(data, today))
     snapshot = {
@@ -407,12 +411,12 @@ def _normalized_snapshot_data(
     if schema_version < 7:
         # Historical exporters had no source ID. Materialize only a unique,
         # unchanged confirmation before any later user edit can erase its
-        # evidence. Ambiguous rows remain unbound and mutation fails closed.
+        # evidence. Unprovable ownership is rejected before destination access.
         sources = infer_legacy_recurring_sources(normalized["ledger_entries"])
         for row in normalized["ledger_entries"]:
             if row.get("id") in sources:
                 row["source_planned_entry_id"] = sources[row["id"]]
-    materialize_recurring_confirmation_epochs(normalized["ledger_entries"])
+        materialize_recurring_confirmation_epochs(normalized["ledger_entries"])
     # v6 recorded a fixed confirmation's cash-flow link and spent_on date,
     # but not its month. Import can target an already-versioned DB, so the
     # historical meaning must be restored here, after manifest validation.
@@ -466,7 +470,13 @@ def _normalized_snapshot_data(
         for row in normalized["app_labels"]
         if row.get("key") != "summary_interest_expense_label"
     ]
+    _validate_snapshot_recurring_ownership(normalized)
     return normalized
+
+
+def _validate_snapshot_recurring_ownership(data: dict[str, list[dict[str, Any]]]) -> None:
+    closed = next((row["value"] for row in data["app_settings"] if row.get("key") == "last_closed_month"), "0000-00")
+    validate_recurring_ownership(data["ledger_entries"], closed)
 
 
 def _normalize_snapshot_key_rows(
@@ -669,6 +679,11 @@ def _raise_if_foreign_key_errors(conn: Any) -> None:
 
 
 def _validate_financial_relationships(conn: Any) -> None:
+    closed = conn.execute("SELECT value FROM app_settings WHERE key='last_closed_month'").fetchone()
+    validate_recurring_ownership(
+        [dict(row) for row in conn.execute("SELECT * FROM ledger_entries")],
+        str(closed["value"]) if closed else "0000-00",
+    )
     for source in conn.execute(
         "SELECT * FROM ledger_entries WHERE entry_kind = 'planned' "
         "AND (confirmed_month IS NOT NULL OR confirmed_at IS NOT NULL)"

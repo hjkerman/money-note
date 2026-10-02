@@ -25,6 +25,14 @@ from app.services.summary import current_summary_values
 
 
 class SnapshotTest(IsolatedDatabaseTestCase):
+    def _assert_unprovable_ownership_restore_rejected(self, snapshot) -> None:
+        with session() as conn:
+            before = list(conn.iterdump())
+        with self.assertRaisesRegex(ValueError, "recurring confirmation"):
+            restore_snapshot(snapshot)
+        with session() as conn:
+            self.assertEqual(list(conn.iterdump()), before)
+
     def test_legacy_generated_edit_then_delete_releases_confirmation(self) -> None:
         for version in (4, 5, 6):
             with self.subTest(version=version):
@@ -94,18 +102,7 @@ class SnapshotTest(IsolatedDatabaseTestCase):
         manual["payment_key"] = "independent-manual-expense"
         snapshot["data"]["ledger_entries"].append(manual)
         self._refresh_manifest(snapshot)
-        restore_snapshot(snapshot)
-        with session() as conn:
-            self.assertIsNone(conn.execute(
-                "SELECT source_planned_entry_id FROM ledger_entries WHERE id = 43"
-            ).fetchone()[0])
-        with self.assertRaisesRegex(ValueError, "ambiguous legacy recurring"):
-            delete_entry(43)
-        with session() as conn:
-            self.assertEqual(conn.execute(
-                "SELECT confirmed_month FROM ledger_entries WHERE id = 41"
-            ).fetchone()[0], "2026-06")
-            self.assertIsNotNone(conn.execute("SELECT 1 FROM ledger_entries WHERE id = 43").fetchone())
+        self._assert_unprovable_ownership_restore_rejected(snapshot)
 
     def test_legacy_source_moved_to_other_month_does_not_bind_same_second_manual(self) -> None:
         fixture = Path(__file__).parent / "fixtures" / "snapshot_v6_recurring.json"
@@ -122,13 +119,7 @@ class SnapshotTest(IsolatedDatabaseTestCase):
         })
         snapshot["data"]["ledger_entries"].append(manual)
         self._refresh_manifest(snapshot)
-        restore_snapshot(snapshot)
-        with session() as conn:
-            self.assertIsNone(conn.execute(
-                "SELECT source_planned_entry_id FROM ledger_entries WHERE id = 43"
-            ).fetchone()[0])
-        with self.assertRaisesRegex(ValueError, "(ambiguous|unresolved) legacy recurring"):
-            delete_entry(43)
+        self._assert_unprovable_ownership_restore_rejected(snapshot)
 
     def test_legacy_source_moved_month_does_not_bind_older_manual_edited_at_confirmation(self) -> None:
         fixture = Path(__file__).parent / "fixtures" / "snapshot_v6_recurring.json"
@@ -146,13 +137,7 @@ class SnapshotTest(IsolatedDatabaseTestCase):
         })
         snapshot["data"]["ledger_entries"].append(manual)
         self._refresh_manifest(snapshot)
-        restore_snapshot(snapshot)
-        with session() as conn:
-            self.assertIsNone(conn.execute(
-                "SELECT source_planned_entry_id FROM ledger_entries WHERE id = 43"
-            ).fetchone()[0])
-        with self.assertRaisesRegex(ValueError, "(ambiguous|unresolved) legacy recurring"):
-            delete_entry(43)
+        self._assert_unprovable_ownership_restore_rejected(snapshot)
 
     def test_preexisting_unbound_legacy_row_binds_before_edit_not_at_delete(self) -> None:
         fixture = Path(__file__).parent / "fixtures" / "snapshot_v6_recurring.json"
@@ -330,8 +315,10 @@ class SnapshotTest(IsolatedDatabaseTestCase):
             self.assertEqual(current_summary_values()["remaining_liquidity"], 95_000)
 
     def test_historical_recurring_cancellation_restores_reserve_and_roundtrips(self) -> None:
-        # These synthetic files were exported by the actual v4-v7 historical exporters.
-        for version in (4, 5, 6, 7):
+        # Actual legacy exporters require normalization. The pre-epoch v7
+        # artifact below is deliberately retained as a current-format rejection
+        # fixture; complete v7 lifecycle is covered by the ownership tests.
+        for version in (4, 5, 6):
             with self.subTest(snapshot_version=version):
                 fixture = Path(__file__).parent / "fixtures" / f"snapshot_v{version}_recurring.json"
                 snapshot = json.loads(fixture.read_text(encoding="utf-8"))
@@ -376,14 +363,11 @@ class SnapshotTest(IsolatedDatabaseTestCase):
                     duplicate["entry_date"] = "2026-06-12"
                 snapshot["data"]["ledger_entries"].append(duplicate)
                 self._refresh_manifest(snapshot)
-                restore_snapshot(snapshot)
-                with self.assertRaisesRegex(ValueError, "ambiguous legacy recurring"):
-                    delete_entry(42)
-                with session() as conn:
-                    self.assertIsNotNone(conn.execute("SELECT 1 FROM ledger_entries WHERE id = 42").fetchone())
-                    self.assertEqual(conn.execute(
-                        "SELECT confirmed_month FROM ledger_entries WHERE id = 41"
-                    ).fetchone()[0], "2026-06")
+                self._assert_unprovable_ownership_restore_rejected(snapshot)
+
+    def test_pre_epoch_historical_v7_cannot_bypass_current_ownership_contract(self) -> None:
+        fixture = Path(__file__).parent / "fixtures" / "snapshot_v7_recurring.json"
+        self._assert_unprovable_ownership_restore_rejected(json.loads(fixture.read_text(encoding="utf-8")))
 
     def test_older_confirmed_row_without_planned_date_requires_unique_month_match(self) -> None:
         fixture = Path(__file__).parent / "fixtures" / "snapshot_v4_recurring.json"
@@ -424,7 +408,13 @@ class SnapshotTest(IsolatedDatabaseTestCase):
         generated["amount_value"] = 4000
         generated["updated_at"] = "2026-06-12 00:00:00"
         self._refresh_manifest(snapshot)
-        restore_snapshot(snapshot)
+        self._assert_unprovable_ownership_restore_rejected(snapshot)
+        # Independently retain the runtime cancellation guard for a DB which
+        # was restored by an older release before import-time ownership checks.
+        restore_snapshot(json.loads(fixture.read_text(encoding="utf-8")))
+        with session() as conn:
+            conn.execute("UPDATE ledger_entries SET amount_value=4000,source_planned_entry_id=NULL, "
+                         "confirmed_month=NULL,confirmed_at=NULL,updated_at='2026-06-12 00:00:00' WHERE id=42")
         with self.assertRaisesRegex(ValueError, "ambiguous legacy recurring"):
             delete_entry(42)
         with session() as conn:

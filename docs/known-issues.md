@@ -1,5 +1,13 @@
 # 알려진 이슈
 
+## 최종 recurring Snapshot ownership closure
+
+`test_recurring_snapshot_ownership.py`는 v7 epoch 전체 NULL과 생성 expense 누락을 각각 수정 전 90,060원·100,000원으로 재현한 반례를 거부/목적지 불변 회귀로 고정한다. 정상 5,000원 원금/60원 할인은 95,060원이며 취소 후 reserve 5,000원이 복원돼 95,000원이다. 활성 확인의 source ID와 양쪽 완전한 확인 epoch가 정확히 한 생성 지출을 소유해야 한다. export와 runtime 읽기·수정·취소·재확인도 같은 계약을 검사한다. 일반 생성/PATCH가 소유 불가능한 확인 메타데이터를 만들면 commit 전에 거부한다.
+
+v4~v6은 원래 확인 증거로 소유권을 증명할 수 있을 때만 정규화한다. 모호하거나 이미 변경돼 증명할 수 없는 legacy 활성 관계 및 생성 epoch가 없는 과거 v7 파일은 restore 전에 거부하며 자동 수선하지 않는다. 원본 fixture를 바꾸지 않고 rejection 테스트로 보존했다. 형식/version bump·운영 데이터 변경·배포는 없으며 최종 freeze 판정은 다음 독립 재감사 대상이다.
+
+자기검증에서 확인한 동일 원인의 archive 취소도 고정한다. 6월 생성 지출을 5월로 수정하고 5월을 마감해 archive로 옮긴 뒤 삭제해도 활성 6월 확인을 정확한 source/epoch로 해제한다. archive의 명시적 관계도 legacy 후보에서 제외하므로 같은 내용의 수동 지출 삭제를 가짜 legacy 관계로 막지 않는다. archive 여부는 확인 identity가 아니며 이전 종료 epoch를 삭제해 새 확인을 해제하지 않는다.
+
 ## Freeze 재감사 H1/H2/M1/M2/M3 closure
 
 `test_freeze_reaudit_closure.py`는 정책 status와 최종 HTTP JSON body 준비 실패의 rollback, source epoch 부분 누락·미마감 orphan epoch 거부, 수정된 생성 지출의 stable confirmed projection, boolean-only 할인 제외를 고정한다. `freeze_reaudit_outcome_test.dart`는 endpoint별 DELETE 거부, ambiguous 결과 보존, 같은 owner 재인증·구 retry 복구와 generation fence를 검증한다. Response bytes 준비까지 commit 전에 끝내며 이후 socket 유실은 ambiguous다. 실제 freeze 판정은 독립 재감사 대상이다.

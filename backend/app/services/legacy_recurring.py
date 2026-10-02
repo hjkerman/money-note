@@ -17,6 +17,50 @@ def validate_source_epoch(source: Mapping[str, Any]) -> None:
         raise ValueError("partial recurring confirmation epoch is not a valid relationship")
 
 
+def validate_recurring_ownership(
+    entries: Sequence[Mapping[str, Any]], last_closed_month: str = "0000-00",
+) -> None:
+    """Validate canonical ownership without deriving identity from editable data.
+
+    A closed epoch may survive on its generated expense after the template is
+    reset or confirmed again. An unclosed epoch must still own the active
+    confirmation. Legacy materialization, where provable, precedes this check.
+    """
+    sources = {row["id"]: row for row in entries if row.get("entry_kind") == "planned"}
+    owned: dict[tuple[Any, Any, Any], int] = {}
+    for source in sources.values():
+        validate_source_epoch(source)
+        if source.get("confirmed_month") is None and source.get("entry_date") is not None:
+            raise ValueError("recurring confirmation has an execution date but no epoch")
+    for row in entries:
+        source_id = row.get("source_planned_entry_id")
+        marked = source_id is not None or (row.get("entry_kind") == "expense" and (
+            row.get("confirmed_month") is not None or row.get("confirmed_at") is not None
+        ))
+        if not marked:
+            continue
+        source = sources.get(source_id)
+        if source is None or row.get("entry_kind") != "expense":
+            raise ValueError("recurring confirmation generated expense has no valid source")
+        validate_source_epoch(row)
+        period, timestamp = row.get("confirmed_month"), row.get("confirmed_at")
+        if not isinstance(period, str) or not period or not isinstance(timestamp, str) or not timestamp:
+            raise ValueError("recurring confirmation generated expense has no complete epoch")
+        identity = (source_id, period, timestamp)
+        owned[identity] = owned.get(identity, 0) + 1
+        if owned[identity] != 1:
+            raise ValueError("ambiguous recurring confirmation: duplicate generated ownership")
+        if period > last_closed_month and (
+            source.get("confirmed_month"), source.get("confirmed_at")
+        ) != (period, timestamp):
+            raise ValueError("recurring confirmation generated expense does not own the active source epoch")
+    for source_id, source in sources.items():
+        if source.get("confirmed_month") is not None and owned.get((
+            source_id, source["confirmed_month"], source["confirmed_at"],
+        ), 0) != 1:
+            raise ValueError("recurring confirmation must own exactly one generated expense")
+
+
 def near_confirmation_creation(created_at: Any, confirmed_at: Any) -> bool:
     """Historical INSERT and confirmation UPDATE occurred in one transaction.
 
