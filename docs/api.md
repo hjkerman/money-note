@@ -10,6 +10,7 @@
 - 날짜 형식: `YYYY-MM-DD`. 날짜 입력 schema는 실제 달력 날짜로 검증하므로 `2026-02-30` 같은 값은 `422`다.
 - 월 형식: `YYYY-MM`
 - 금액 형식: 원화 정수. 비율 설정처럼 명시된 예외가 아니면 소수점 금액을 쓰지 않는다.
+- accepted 금액 입력은 lossless 정수 및 signed 64-bit 범위로 검증한다. 정수형 REAL/기존 숫자 문자열도 값이 정확히 보존될 때만 허용한다. 원문 JSON 소수가 decoder에서 0/정수로 반올림·underflow되어도 금융 command/Offline journal/v7 Snapshot의 유효한 금액으로 승인하지 않는다. 금액 설정 문자열은 float로 먼저 변환하지 않는다.
 - 금액 필드:
   - `amount_value`: 계산 완료된 숫자 금액
   - `amount_expr`: 과거 호환용 문자열 필드. 신규 화면에서는 계산된 금액을 중시한다.

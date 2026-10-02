@@ -632,7 +632,7 @@ Claim과 가족카드는 직접 반영하지 않는다.
 ## 정기결제 확인 identity와 금융 응답 경계
 
 - 생성 지출은 `source_planned_entry_id`와 함께 기존 `confirmed_month`/`confirmed_at` 컬럼에 원본 확인 epoch를 보존한다. 제목·금액·발생일 수정은 epoch를 바꾸지 않는다. 취소는 source ID와 확인 월·시각이 모두 일치하는 확인만 같은 transaction에서 해제한다. 이전 생성 지출을 삭제해도 새 확인을 해제하지 않는다. 월마감 archive에도 epoch를 보존하며, 수정된 발생월의 마감으로 archive에 옮겨진 활성 생성 지출도 같은 identity로 취소한다.
-- 확인 목록도 source ID와 확인 epoch로 실제 생성 지출을 조회한다. 원래 5,000원인 지출을 다른 발생월·7,000원으로 수정해도 원본 확인의 projection은 실제 연결된 7,000원을 보여준다. mutable 발생월로 template fallback을 선택하지 않는다.
+- 확인 목록도 source ID와 확인 epoch로 실제 생성 지출을 조회한다. 원래 5,000원인 지출을 다른 발생월·7,000원으로 수정해도 원본 확인의 projection은 실제 연결된 7,000원을 보여준다. archive의 발생일 NULL도 기존 nullable 계약대로 허용하며 실제 지출 연결을 끊지 않는다(current 지출의 NULL 발생일 PATCH는 계속 거부). actual이 없거나 유일하지 않으면 오류로 중단하며 template 금액으로 숨기지 않는다. current/archive 위치와 mutable 발생일·제목·사용처·내역은 소유 selector가 아니다.
 - 현재 Snapshot의 활성 정기결제 확인은 원본 planned ID와 완전한 확인 epoch(`confirmed_month`, `confirmed_at`)가 일치하는 생성 expense **정확히 한 건**을 소유해야 한다. 생성 지출 누락, epoch 전체/부분 누락, source 누락·불일치, 중복 소유를 거부한다. 제목·장소·원금·발생일은 수정 가능한 사실이지 소유 identity가 아니다. Fixed/recurring timestamp의 offset hour는 0~23, minute는 0~59여야 하며 실제 날짜·시각도 파싱 가능해야 한다. 확인 clock time을 발생일과 같도록 강제하지 않는다.
 - 원본의 확인 월/시각도 all-or-nothing이다. 부분 epoch는 Snapshot 복원과 runtime 수정·취소·재확인에서 거부한다. 마감되지 않은 생성 epoch가 있는데 원본 확인이 모두 없는 상태도 정상 관계가 아니다. 월마감으로 이미 종료한 epoch의 생성 지출은 보존할 수 있다. 이 구분에 새 값을 추측해 넣지 않는다.
 - v4~v6 Snapshot은 원문 manifest 검증 뒤 증명 가능한 source/epoch만 정규화하고 위 canonical 소유 계약을 검사한다. 증명되지 않는 활성 확인은 복원 전에 거부한다. v7의 누락된 epoch를 legacy absence로 보정하지 않는다. 현재 export도 같은 소유 계약을 검사하며 runtime 확인 조회·수정·취소·재확인은 불완전한 관계를 fail closed한다. 이미 종료한 epoch의 지출은 원본의 새 확인과 구별해 보존한다. 정상 template 삭제는 실제 지출을 남기되 source FK와 epoch 메타데이터를 함께 해제한다. Snapshot v7과 DB version을 올리거나 실제 지출을 추측 생성하지 않는다.
@@ -712,6 +712,9 @@ Manifest 원칙:
 - `NOT NULL`인데 기본값이 없는 필수 컬럼이 누락된 경우에는 dry-run restore 단계에서 실패해야 한다.
 - 알 수 없는 필드가 있다는 이유만으로 백업 파일을 손상으로 보지 않는다. 단, manifest가 그 알 수 없는 필드까지 포함한 원문과 일치해야 한다.
 - 민감 설정, 필수 테이블 누락, 외래키 오류, manifest 불일치는 계속 복원 차단 사유다.
+- v7의 authoritative 금액과 금액 설정은 lossless 정수 검증 뒤 정규화한다. `5000`, `5000.0`과 기존에 지원한 동일 값의 숫자 문자열은 허용하지만 `-0.5`, `5000.5`, non-finite, 잘못된 문자열 및 signed SQLite 64-bit 범위 밖 값은 거부한다. nullable 금액은 해당 관계의 기존 계약에 따라 판단하며 NULL을 0으로 보강하지 않는다.
+- JSON 파일/HTTP Snapshot/baseline 원문 숫자도 검사한다. `-1e-400` 또는 `5000.00000000000001`이 JSON decoder에서 0/정수로 변해도 승인하지 않는다. 일반 금융 command 및 Offline journal의 accepted 금액 입력도 같은 raw-token 검증과 기존 integer-money model 검증을 통과해야 한다. body·manifest hash·operation/retry identity를 재작성하지 않는다.
+- v4~v6의 문서화된 REAL/소수 금액 절삭 호환은 해당 버전에만 남긴다. v7은 이 경로로 들어가지 않는다. export는 malformed runtime 금액을 정상 파일로 내보내지 않는다. 일반 정수형 REAL의 JSON shape/fingerprint는 유지하되, 드문 큰 REAL의 decimal encoding이 다른 정수를 뜻하면 정확한 정수로 export해 손실을 방지한다. Snapshot version·금융 계산식·reconciliation protocol을 바꾸지 않는다.
 
 Snapshot에 포함하는 것:
 

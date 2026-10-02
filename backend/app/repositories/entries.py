@@ -131,12 +131,11 @@ def list_confirmed_planned_entries(today: date | None = None) -> list[dict[str, 
                        and expense["entry_kind"] == "expense"
                        and expense.get("confirmed_month") == row["confirmed_month"]
                        and expense.get("confirmed_at") == row["confirmed_at"]]
-            if len(matches) > 1:
-                raise ValueError("ambiguous recurring confirmation epoch")
-            expense = matches[0] if matches else None
-            if expense and expense["entry_date"]:
-                item["entry_date"] = expense["entry_date"]
-                item["_confirmed_expense"] = row_to_dict(expense)
+            if len(matches) != 1:
+                raise ValueError("recurring confirmation requires exactly one owned expense")
+            expense = matches[0]
+            item["entry_date"] = expense["entry_date"]
+            item["_confirmed_expense"] = row_to_dict(expense)
             confirmed_entries.append(item)
     return confirmed_entries
 

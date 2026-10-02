@@ -1,5 +1,9 @@
 # T5 호환성 inventory
 
+Financial canonicalization closure는 v7 금액을 원문 JSON 및 정규화 전 lossless 정수/signed 64-bit로 검증한다. fractional/non-finite/잘못된 문자열·범위 초과·NULL 금액 설정은 거부하며, v4~v6의 기존 REAL/소수 절삭 호환은 해당 버전에만 보존한다. API accepted 숫자 문자열과 정수형 REAL은 정확한 같은 원화 값일 때만 허용한다. 큰 REAL의 문자열 표현이 다른 정수를 만들면 v7 export는 정확한 정수로 기록하며 일반 REAL의 fingerprint는 유지한다. API/Offline journal body와 reconciliation identity는 재작성하지 않는다.
+
+confirmed recurring의 actual 연결은 nullable archive 발생일과 무관하다. current의 NULL 발생일 PATCH는 기존대로 거부한다. 실제 생성 지출이 없거나 유일하지 않으면 template 금액 fallback으로 감추지 않는다. 웹·모바일의 구 payload fallback surface는 삭제하지 않으며 current 서버 응답은 완전한 `confirmed_*` 실제 금액을 제공한다. schema/version/protocol 및 dead surface 제거는 없다.
+
 batch에 소유된 일반 카드 원장도 NULL 원금은 유효하지 않다. current/archive 위치와 무관하게 PATCH·read·export·restore에서 검증하며, 관계 없는 과거 nullable 행 전체를 새로 제한하지 않는다.
 
 영속 금융 관계 closure는 파일/API/DB surface를 제거하지 않는다. 카드 원장 key의 batch 소유는 유일하며 `(event, key)` 배분과 실제 출금 소유도 유일해야 한다. Historical unbatched 이벤트는 그대로 읽고 사후 batch를 추측하지 않는다. 명시적 recurring 생성 지출은 유효한 정수 원금(0 허용)을 필수로 갖고 current/archive 어느 위치든 source/epoch로 소유한다. old/current + active/archive는 정상, 같은 논리 row/epoch 중복은 손상이다. v4~v6 정규화와 REAL-affinity 정수 표현은 지원하며 NULL 원금을 추측 생성하지 않는다.

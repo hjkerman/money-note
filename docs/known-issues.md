@@ -1,5 +1,13 @@
 # 알려진 이슈
 
+## Financial canonicalization / actual projection closure — 독립 재감사 대기
+
+`test_financial_canonicalization.py`는 시작 구현의 v7 `amount_value=-0.5` 복원 승인(95,060→100,000원)과 archive actual 7,000원/NULL 날짜의 confirmed template 5,000원 fallback을 먼저 재현했다. v7은 손실 없는 금액 검증 뒤 정규화하며 confirmed 조회는 정확히 한 source/epoch child를 날짜 유무와 관계없이 투영한다. current 지출의 NULL 날짜 금지는 유지한다.
+
+반복 self-audit에서 cash/panel/override/payment/설정의 fractional 승인, 큰 REAL의 문자열 변환(+216원), NULL 설정의 `None` 문자열 승인, 설정 float 파싱의 소수/underflow 승인 및 정수 정밀도 손실, JSON decoder에서 이미 소수가 0/정수로 바뀌는 Snapshot/command/journal sibling도 회귀로 고정했다. raw-token preflight는 원문 검증만 하며 financial body/hash/identity를 재작성하지 않는다. v4~v6의 명시된 절삭 호환은 유지하고 v7에는 적용하지 않는다. 일반 역사적 REAL의 fingerprint도 유지한다.
+
+actual 관계가 없거나 모호하면 confirmed read는 template 금액으로 감추지 않는다. 실제 합성 API fixture로 웹·모바일 actual 7,000원/할인 84원/실부담 6,916원을 확인한다. 운영 접근·수선·배포와 format/migration/protocol/금융 계산 변경은 없다. 최종 freeze 판정은 독립 재감사에 남긴다.
+
 ## 영속 금융 관계 closure — 독립 재감사 대기
 
 자기검증에서 발견한 직접 sibling도 회귀로 고정한다. 일반 archive 카드 지출이 batch에 소유된 경우 원금 NULL PATCH/restore로 채무가 사라지던 90,120→100,000원 반례를 거부한다. 관계 없는 과거 nullable 원장 행의 계약은 확대하지 않는다.

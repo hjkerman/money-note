@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.auth import require_user, verify_user_password
 from app.schemas import OfflineMobileWinsIn, OfflineRecoveryPointIn
+from app.routers.money_input import read_request_body, validate_financial_json_money
+from app.services.snapshot import validate_snapshot_json_money
 from app.services.offline_reconciliation import (
     LegacyReconciliationIdentityError,
     ReconciliationConflictError,
@@ -65,10 +67,14 @@ def post_offline_server_recovery(
 def post_offline_mobile_wins(
     payload: OfflineMobileWinsIn,
     user: dict = Depends(require_user),
+    request_body: bytes = Depends(read_request_body),
 ) -> dict:
     if not verify_user_password(int(user["id"]), payload.password):
         raise HTTPException(status_code=422, detail="현재 비밀번호가 맞지 않습니다.")
     try:
+        if isinstance(request_body, bytes):
+            validate_financial_json_money(request_body)
+            validate_snapshot_json_money(request_body, document_path=("baseline_snapshot",))
         return apply_mobile_wins(payload)
     except ReconciliationConflictError as exc:
         raise HTTPException(

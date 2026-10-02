@@ -1,0 +1,14 @@
+{
+  "book_section": "current",
+  "entry_kind": "planned",
+  "entry_date": null,
+  "title": "recurring",
+  "usage_place": "shop",
+  "usage_item": null,
+  "amount_value": 5000,
+  "due_day": 11,
+  "confirmed_month": "2026-06",
+  "confirmed_amount_value": 7000,
+  "confirmed_effective_discount_amount": 84,
+  "confirmed_effective_amount_value": 6916
+}

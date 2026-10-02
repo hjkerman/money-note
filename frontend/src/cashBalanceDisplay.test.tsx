@@ -8,6 +8,24 @@ import { useAppDerivedState } from "./hooks/useAppDerivedState";
 import { PanelTable } from "./components/ledger/PanelTable";
 import { PlannedTable } from "./components/ledger/PlannedTable";
 import { MonthlyPanel, LedgerEntry } from "./api";
+import confirmedActual from "../../backend/tests/fixtures/confirmed_recurring_actual.json";
+
+test("confirmed recurring renders the actual server amount even without occurrence date", () => {
+  const html = renderToStaticMarkup(<FixedPanelView active currentMonth="2026-06"
+    calendarDate="2026-06-11" handlePanelDelete={() => undefined}
+    handleFixedPanelConfirm={() => undefined} handleFixedPanelConfirmationCancel={() => undefined}
+    handlePanelSubmit={async () => undefined} handlePlannedConfirm={() => undefined}
+    handlePlannedDelete={() => undefined} handlePlannedSubmit={() => undefined}
+    isBusy={false} labels={{}} panelForm={{ panel_type: "fixed", title: "", spentOn: "", amount: "", dueDay: "" }}
+    panels={[]} confirmedPlannedEntries={[{ ...confirmedActual, id: 1 } as LedgerEntry]}
+    plannedEntries={[]} plannedForm={{ dueDay: "", usagePlace: "", usageItem: "", amount: "" }}
+    setPanelForm={() => undefined} setPlannedForm={() => undefined} summary={summary}
+  />);
+  expect(html).toContain("7,000원");
+  expect(html).toContain("84원");
+  expect(html).toContain("6,916원");
+  expect(html).not.toContain("5,000원");
+});
 
 test("cash/card confirmation controls respect server eligibility independently", () => {
   const fixed = {

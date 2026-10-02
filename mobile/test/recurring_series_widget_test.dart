@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:money_note_mobile/src/api_client.dart';
@@ -102,6 +105,26 @@ void _useTallTestSurface(WidgetTester tester) {
 }
 
 void main() {
+  testWidgets('날짜 없는 archive 실제 지출도 서버 confirmed 금액을 표시한다', (tester) async {
+    _useTallTestSurface(tester);
+    final state = _RecurringTestState();
+    addTearDown(state.dispose);
+    final payload = jsonDecode(
+        File('../backend/tests/fixtures/confirmed_recurring_actual.json')
+            .readAsStringSync()) as Map<String, dynamic>;
+    state.confirmedPlannedEntries = [
+      LedgerEntry.fromJson({...payload, 'id': 1, 'sort_order': 1})
+    ];
+    await tester.pumpWidget(
+        MaterialApp(home: PlannedEntryManagementScreen(state: state)));
+    expect(find.text('실제 원금'), findsOneWidget);
+    expect(find.text('7,000원'), findsOneWidget);
+    expect(find.text('84원'), findsOneWidget);
+    expect(find.text('6,916원'), findsOneWidget);
+    expect(find.text('5,000원'),
+        findsWidgets); // separate planned-principal label remains intentional
+  });
+
   testWidgets('월마감 이후 서버가 현금 선처리만 열고 카드 확인은 닫는다', (tester) async {
     _useTallTestSurface(tester);
     final state = _RecurringTestState();

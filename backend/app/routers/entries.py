@@ -6,8 +6,9 @@ from app.repositories.entries import create_entry, delete_entry, list_entries, u
 from app.schemas import LedgerEntry, LedgerEntryIn, LedgerEntryPatch
 from app.services.presentation import present_ledger_entries, present_ledger_entry
 from app.routers.responses import financial_response
+from app.routers.money_input import require_lossless_money_body
 
-router = APIRouter(prefix="/api/entries", tags=["entries"])
+router = APIRouter(prefix="/api/entries", tags=["entries"], dependencies=[Depends(require_lossless_money_body)])
 
 
 @router.get("/{section}", response_model=list[LedgerEntry])

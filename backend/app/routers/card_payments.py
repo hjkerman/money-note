@@ -29,9 +29,10 @@ from app.services.card_payments import (
 )
 from app.services.presentation import present_ledger_entry
 from app.routers.responses import financial_response
+from app.routers.money_input import require_lossless_money_body
 
-payments_router = APIRouter(prefix="/api/card-payments", tags=["card-payments"])
-discounts_router = APIRouter(prefix="/api/card-discounts", tags=["card-discounts"])
+payments_router = APIRouter(prefix="/api/card-payments", tags=["card-payments"], dependencies=[Depends(require_lossless_money_body)])
+discounts_router = APIRouter(prefix="/api/card-discounts", tags=["card-discounts"], dependencies=[Depends(require_lossless_money_body)])
 
 
 @payments_router.get("/current")

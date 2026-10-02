@@ -1003,7 +1003,9 @@ curl -OJ -b /tmp/money-note-cookie.txt \
 - 검증을 통과한 뒤 현재 서버가 모르는 컬럼은 복원 삽입 전에 무시한다.
 - 현재 서버에 새로 생긴 컬럼이 구버전 snapshot에 없으면 필요한 호환 의미를 먼저 검증·복원하고, 나머지 필드만 DB 기본값 또는 `NULL`로 복원한다.
 - 금액 컬럼은 현재 DB에서 원화 정수 `INTEGER`로 저장한다.
-- 구버전 snapshot/백업 JSON에 `1000.0`, `1000.9`처럼 float 금액이 있으면 검증 통과 후 DB 삽입 직전에 소수점 아래를 절삭해 `1000`으로 정규화한다.
+- v7 금액은 정규화 전에 lossless 정수/signed 64-bit 검증을 통과해야 한다. `1000.0`은 허용하지만 `1000.9`, `-0.5`, non-finite 및 잘못된 금액 문자열을 절삭/0원 보강하지 않는다. 금액 설정의 NULL도 문자열 `None`으로 만들지 않고 거부한다.
+- 문서화된 소수 절삭 호환은 v4~v6에만 유지한다. v7을 구버전처럼 처리하지 않는다. raw JSON의 `-1e-400`/`5000.00000000000001`도 parser의 0/정수 변환 전에 거부하며 파일·HTTP object/text·Mobile Wins baseline에 같은 검증을 적용한다. 잘못된 입력이면 목적지 및 기존 recovery artifact는 그대로다.
+- archive recurring의 NULL 발생일은 소유권을 없애지 않는다. confirmed 조회는 source/epoch의 실제 생성 지출을 반환하고 실제 7,000원을 template 5,000원으로 대체하지 않는다. current 지출의 NULL 발생일 쓰기 금지는 유지한다.
 - 필수 테이블 누락, 민감 설정 포함, manifest 불일치, 외래키 오류는 계속 복원 실패로 처리한다.
 - `NOT NULL`이면서 기본값이 없는 새 필수 컬럼이 누락된 경우에는 임시 DB dry-run에서 실패해야 하며, 운영 DB는 건드리지 않는다.
 

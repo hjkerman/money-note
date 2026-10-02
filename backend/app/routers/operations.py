@@ -6,12 +6,13 @@ from app.auth import require_user
 from app.db import session
 from app.repositories.cash_flows import create_cash_flow, delete_cash_flow, list_cash_flows
 from app.repositories.labels import list_labels, upsert_label
-from app.schemas import CashFlow, CashFlowIn, SettingPatch
+from app.schemas import CashFlow, CashFlowIn, SettingPatch, integer_money
 from app.share_auth import SENSITIVE_SHARE_SETTING_KEYS
 from app.routers.responses import financial_response
+from app.routers.money_input import require_lossless_money_body
 
 settings_router = APIRouter(prefix="/api/settings", tags=["settings"])
-cash_router = APIRouter(prefix="/api/cash-flows", tags=["cash-flows"])
+cash_router = APIRouter(prefix="/api/cash-flows", tags=["cash-flows"], dependencies=[Depends(require_lossless_money_body)])
 labels_router = APIRouter(prefix="/api/labels", tags=["labels"])
 
 @settings_router.get("")
@@ -35,14 +36,12 @@ def patch_setting(key: str, patch: SettingPatch, _: dict = Depends(require_user)
     value = patch.value
     if key in numeric_settings:
         try:
-            amount = float(value)
+            amount = integer_money(value)
         except ValueError as exc:
-            raise HTTPException(status_code=422, detail=f"{key} must be numeric") from exc
+            raise HTTPException(status_code=422, detail=f"{key} must be an integer money amount") from exc
         if amount < 0:
             raise HTTPException(status_code=422, detail=f"{key} must be greater than or equal to zero")
-        if not amount.is_integer():
-            raise HTTPException(status_code=422, detail=f"{key} must be an integer")
-        value = str(int(amount))
+        value = str(amount)
     else:
         value = value.strip()
         if value and (not value.isdigit() or len(value) != 4):

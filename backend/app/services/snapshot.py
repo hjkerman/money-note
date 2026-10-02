@@ -123,6 +123,7 @@ def _export_snapshot(conn: Any, today: date | None = None) -> tuple[str, dict[st
         ),
         "app_labels": _snapshot_rows(conn, "app_labels", "key"),
     }
+    _validate_snapshot_money(data)
     _validate_snapshot_recurring_ownership(data)
     _validate_financial_relationships(conn)
     exported_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
@@ -410,7 +411,7 @@ def _normalized_snapshot_data(
         rows = []
         for row in data.get(table, []):
             filtered = {key: value for key, value in row.items() if key in schema_columns and key not in ignored}
-            rows.append(_normalize_snapshot_row(table, filtered))
+            rows.append(_normalize_snapshot_row(table, filtered, schema_version=schema_version))
         normalized[table] = rows
     if schema_version < 7:
         # Historical exporters had no source ID. Materialize only a unique,
@@ -519,28 +520,92 @@ def _normalize_snapshot_key_rows(
         by_key[current_key] = legacy_row
 
 
-def _normalize_snapshot_row(table: str, row: dict[str, Any]) -> dict[str, Any]:
-    """구버전 snapshot의 float 금액 표현을 DB 저장 직전 원 단위 정수로 정리한다."""
+def _validate_snapshot_money(data: dict[str, list[dict[str, Any]]]) -> None:
+    """Current export must not publish financial values its importer cannot preserve."""
+    for table, rows in data.items():
+        for row in rows:
+            normalized = _normalize_snapshot_row(table, dict(row))
+            for column in SNAPSHOT_MONEY_COLUMNS.get(table, ()):
+                value = row.get(column)
+                # Ordinary historical REAL integers retain their JSON shape
+                # and fingerprints. Only a REAL whose decimal encoding would
+                # change the integer must be published as the exact integer.
+                if isinstance(value, float) and Decimal(str(value)) != normalized[column]:
+                    row[column] = normalized[column]
+
+
+def validate_snapshot_json_money(contents: str | bytes, *, document_path: tuple[str, ...] = ()) -> None:
+    """Check v7 financial tokens before the JSON decoder can round/underflow.
+
+    Keep normal decoded objects and manifest/protocol hashing unchanged. Decimal
+    is used only for this raw-token preflight, never as persisted money.
+    """
+    decoded = json.loads(contents)
+    try:
+        exact = json.loads(contents, parse_float=Decimal)
+    except InvalidOperation:
+        raise ValueError("snapshot financial token is not a valid number") from None
+    for key in document_path:
+        decoded = decoded.get(key) if isinstance(decoded, dict) else None
+        exact = exact.get(key) if isinstance(exact, dict) else None
+    if not isinstance(decoded, dict) or decoded.get("schema_version") != SNAPSHOT_SCHEMA_VERSION:
+        return
+    data, raw_data = decoded.get("data"), exact.get("data")
+    if not isinstance(data, dict) or not isinstance(raw_data, dict):
+        return  # Ordinary structural/manifest validation reports this later.
+    for table in SNAPSHOT_TABLES:
+        rows, raw_rows = data.get(table), raw_data.get(table)
+        if not isinstance(rows, list) or not isinstance(raw_rows, list):
+            continue
+        for row, raw_row in zip(rows, raw_rows, strict=True):
+            if not isinstance(row, dict):
+                continue
+            normalized = _normalize_snapshot_row(table, dict(row))
+            raw_normalized = _normalize_snapshot_row(table, dict(raw_row))
+            columns = set(SNAPSHOT_MONEY_COLUMNS.get(table, ()))
+            if table == "app_settings" and row.get("key") in MONEY_SETTING_KEYS:
+                columns.add("value")
+            if any(normalized.get(column) != raw_normalized.get(column) for column in columns):
+                raise ValueError(f"{table} financial value loses precision during JSON decoding")
+
+
+def parse_snapshot_json(contents: str | bytes) -> dict[str, Any]:
+    validate_snapshot_json_money(contents)
+    return json.loads(contents)
+
+
+def _normalize_snapshot_row(
+    table: str, row: dict[str, Any], *, schema_version: int = SNAPSHOT_SCHEMA_VERSION,
+) -> dict[str, Any]:
+    """v7 money is lossless; only supported historical formats retain truncation."""
     for column in SNAPSHOT_MONEY_COLUMNS.get(table, set()):
         if column in row:
-            row[column] = _normalize_snapshot_money(row[column], f"{table}.{column}")
+            row[column] = _normalize_snapshot_money(
+                row[column], f"{table}.{column}", lossless=schema_version >= 7,
+            )
     if table == "app_settings" and row.get("key") in MONEY_SETTING_KEYS and "value" in row:
-        row["value"] = str(_normalize_snapshot_money(row["value"], f"app_settings.{row['key']}"))
+        if row["value"] is None:
+            raise ValueError(f"app_settings.{row['key']} must be an integer money amount")
+        row["value"] = str(_normalize_snapshot_money(
+            row["value"], f"app_settings.{row['key']}", lossless=schema_version >= 7,
+        ))
     return row
 
 
-def _normalize_snapshot_money(value: Any, label: str) -> int | None:
+def _normalize_snapshot_money(value: Any, label: str, *, lossless: bool = True) -> int | None:
     if value is None:
         return None
-    if isinstance(value, bool):
+    if isinstance(value, bool) or not isinstance(value, (int, float, str, Decimal)):
         raise ValueError(f"{label} must be an integer money amount")
-    if isinstance(value, int):
-        return value
     try:
-        amount = Decimal(str(value).strip())
+        # A REAL can be integer-valued while its shortest decimal string
+        # denotes a different integer. Preserve the actual stored value in v7.
+        amount = Decimal.from_float(value) if lossless and isinstance(value, float) else Decimal(str(value).strip())
     except (InvalidOperation, AttributeError):
         raise ValueError(f"{label} must be an integer money amount") from None
-    if not amount.is_finite():
+    if (not amount.is_finite()
+        or (lossless and amount != amount.to_integral_value())
+        or not -(2**63) <= amount <= 2**63 - 1):
         raise ValueError(f"{label} must be an integer money amount")
     return int(amount)
 
@@ -844,7 +909,7 @@ def _write_snapshot_backup(conn: Any, prefix: str) -> Path:
     suffix = filename.removeprefix("money-note-snapshot-")
     target = _unique_pre_restore_path(backup_dir / f"{prefix}-{suffix}")
     _write_json_atomic(target, snapshot)
-    stored = json.loads(target.read_text(encoding="utf-8"))
+    stored = parse_snapshot_json(target.read_text(encoding="utf-8"))
     _validate_snapshot(stored)
     _dry_run_restore(_normalized_snapshot_data(stored["data"], stored["schema_version"]))
     return target
@@ -854,7 +919,7 @@ def _read_snapshot_file(path: Path) -> dict[str, Any]:
     if not path.exists() or not path.is_file():
         raise ValueError("pre_restore backup not found")
     try:
-        snapshot = json.loads(path.read_text(encoding="utf-8"))
+        snapshot = parse_snapshot_json(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
         raise ValueError("pre_restore backup is not valid JSON") from exc
     _validate_snapshot(snapshot)

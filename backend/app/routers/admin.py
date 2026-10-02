@@ -7,6 +7,7 @@ from app.auth import require_user, verify_user_password
 from app.config import get_settings
 from app.db import session
 from app.routers.responses import financial_response
+from app.routers.money_input import read_request_body
 from app.schemas import PasswordConfirmIn, PreRestoreRestoreIn, SnapshotRestoreIn
 from app.services.operation_stats import operation_data_stats
 from app.services.reset import reset_ledger_data
@@ -17,6 +18,8 @@ from app.services.snapshot import (
     list_pre_restore_backups,
     restore_pre_restore_backup,
     restore_snapshot,
+    parse_snapshot_json,
+    validate_snapshot_json_money,
 )
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
@@ -67,13 +70,18 @@ def get_operation_stats(_: dict = Depends(require_user)) -> dict:
 
 
 @router.post("/snapshot/restore")
-def post_snapshot_restore(payload: SnapshotRestoreIn, user: dict = Depends(require_user)) -> dict[str, dict[str, int]]:
+def post_snapshot_restore(
+    payload: SnapshotRestoreIn, user: dict = Depends(require_user),
+    request_body: bytes = Depends(read_request_body),
+) -> dict[str, dict[str, int]]:
     if not verify_user_password(int(user["id"]), payload.password):
         raise HTTPException(status_code=422, detail="현재 비밀번호가 맞지 않습니다.")
     try:
         if payload.snapshot_text is not None:
-            snapshot = json.loads(payload.snapshot_text)
+            snapshot = parse_snapshot_json(payload.snapshot_text)
         elif payload.snapshot is not None:
+            if isinstance(request_body, bytes):
+                validate_snapshot_json_money(request_body, document_path=("snapshot",))
             snapshot = payload.snapshot
         else:
             raise ValueError("snapshot is missing")

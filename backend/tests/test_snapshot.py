@@ -1173,6 +1173,9 @@ class SnapshotTest(IsolatedDatabaseTestCase):
     def test_restore_truncates_float_money_values_from_legacy_snapshot(self) -> None:
         self._seed_data()
         _, snapshot = export_snapshot(date(2026, 6, 11))
+        # Historical v4-v6 truncation is a compatibility contract, not v7
+        # validation. Keep every original financial assertion below.
+        snapshot["schema_version"] = 6
         next(row for row in snapshot["data"]["ledger_entries"] if row["id"] == 1)["amount_value"] = 1000.9
         next(row for row in snapshot["data"]["ledger_entries"] if row["id"] == 1)["aux_amount_value"] = 12.8
         next(row for row in snapshot["data"]["monthly_panels"] if row["id"] == 1)["amount_value"] = 2000.7

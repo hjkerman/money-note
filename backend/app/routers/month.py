@@ -55,7 +55,9 @@ from app.services.presentation import (
 from app.services.summary import current_summary_values
 from app.routers.responses import financial_response
 
-router = APIRouter(prefix="/api/month/current", tags=["month"])
+from app.routers.money_input import require_lossless_money_body
+
+router = APIRouter(prefix="/api/month/current", tags=["month"], dependencies=[Depends(require_lossless_money_body)])
 judgment_router = APIRouter(prefix="/api/judgment", tags=["judgment"])
 
 

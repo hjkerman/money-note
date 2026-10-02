@@ -12,10 +12,11 @@ def integer_money(value: object) -> object:
     if isinstance(value, bool):
         raise ValueError("money amount must be an integer")
     try:
-        amount = Decimal(str(value).strip())
+        amount = Decimal.from_float(value) if isinstance(value, float) else Decimal(str(value).strip())
     except (AttributeError, InvalidOperation):
         raise ValueError("money amount must be an integer") from None
-    if not amount.is_finite() or amount != amount.to_integral_value():
+    if (not amount.is_finite() or amount != amount.to_integral_value()
+        or not -(2**63) <= amount <= 2**63 - 1):
         raise ValueError("money amount must be an integer")
     return int(amount)
 
