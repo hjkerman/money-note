@@ -1,5 +1,13 @@
 # 알려진 이슈
 
+## 영속 금융 관계 closure — 독립 재감사 대기
+
+자기검증에서 발견한 직접 sibling도 회귀로 고정한다. 일반 archive 카드 지출이 batch에 소유된 경우 원금 NULL PATCH/restore로 채무가 사라지던 90,120→100,000원 반례를 거부한다. 관계 없는 과거 nullable 원장 행의 계약은 확대하지 않는다.
+
+`test_persistent_financial_relationships.py`에 결제 1,000원의 중복 2,000원 집계(90,120→91,120원), archive 활성 recurring의 NULL 원금(95,060→100,000원), 정상 old/current + active/archive의 restore/recovery 거부 반례를 먼저 실패 테스트로 고정했다. 원장 key와 batch item의 동일 identity·유일 소유, 결제 배분/event/cash-flow 소유, 생성 recurring의 필수 원금을 canonical 검증한다. 정상 archive 관계는 위치에 상관없이 같은 source/epoch로 읽기·복원·recovery·취소한다. 잘못된 관계는 자동 수선하지 않는다.
+
+같은 원인의 월마감 미확인 경고도 mutable 발생월 대신 명시적 확인 epoch를 사용한다. 기존 Snapshot 성공 테스트의 목적지 setup은 정상 payment 취소로 변경했고 기존 restore/auth/audit assertion은 유지한다. 별도 테스트가 원래 고아 배분 목적지의 export/mandatory backup/restore 거부를 검증한다. 금융 계산식, 말일/조기 fixed 규칙, migration/Snapshot version, reconciliation, 클라이언트 코드는 변경하지 않는다. 운영 데이터 접근·배포는 없으며 최종 freeze 판정은 독립 재감사에 남긴다.
+
 ## 최종 recurring Snapshot ownership closure
 
 `test_recurring_snapshot_ownership.py`는 v7 epoch 전체 NULL과 생성 expense 누락을 각각 수정 전 90,060원·100,000원으로 재현한 반례를 거부/목적지 불변 회귀로 고정한다. 정상 5,000원 원금/60원 할인은 95,060원이며 취소 후 reserve 5,000원이 복원돼 95,000원이다. 활성 확인의 source ID와 양쪽 완전한 확인 epoch가 정확히 한 생성 지출을 소유해야 한다. export와 runtime 읽기·수정·취소·재확인도 같은 계약을 검사한다. 일반 생성/PATCH가 소유 불가능한 확인 메타데이터를 만들면 commit 전에 거부한다.

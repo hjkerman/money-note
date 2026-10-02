@@ -227,13 +227,15 @@ def _unconfirmed_recurring_items(conn: Any, target_month: str) -> list[dict[str,
           AND planned.entry_kind = 'planned'
           AND NOT (
             planned.confirmed_month = ?
+            AND planned.confirmed_at IS NOT NULL
             AND (
               EXISTS (
                 SELECT 1
                 FROM ledger_entries AS generated
                 WHERE generated.source_planned_entry_id = planned.id
                   AND generated.entry_kind = 'expense'
-                  AND generated.entry_date LIKE ?
+                  AND generated.confirmed_month = planned.confirmed_month
+                  AND generated.confirmed_at = planned.confirmed_at
               )
               OR EXISTS (
                 SELECT 1
@@ -250,7 +252,7 @@ def _unconfirmed_recurring_items(conn: Any, target_month: str) -> list[dict[str,
           )
         ORDER BY COALESCE(planned.due_day, 99), planned.sort_order, planned.id
         """,
-        (target_month, f"{target_month}%", f"{target_month}%"),
+        (target_month, f"{target_month}%"),
     ).fetchall()
     planned_rows = [
         row

@@ -29,6 +29,7 @@ from app.services.card_payment_reads import (
     _settings_values,
 )
 from app.services.clock import app_today
+from app.services.financial_relationships import validate_runtime_card_payment_ownership
 
 
 
@@ -91,6 +92,7 @@ def _remaining_total(rows: list[dict[str, Any]]) -> int:
 def create_month_close_card_payment_batch(conn: Any, usage_month: str) -> int:
     """월마감 직후 해당 사용월의 카드 원장을 결제 작업함으로 만든다."""
     _validate_month(usage_month)
+    validate_runtime_card_payment_ownership(conn)
     payment_month = _next_month_from_month(usage_month)
 
     carryover_rows = conn.execute(
@@ -158,6 +160,7 @@ def create_month_close_card_payment_batch(conn: Any, usage_month: str) -> int:
     ).fetchall()
     for row in rows:
         _add_card_payment_batch_item(conn, batch_id, int(row["id"]), str(row["payment_key"]))
+    validate_runtime_card_payment_ownership(conn)
     return batch_id
 
 
@@ -249,6 +252,7 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
     allocations: list[tuple[str, int]] = []
     seen_keys: set[str] = set()
     with borrowed_or_new_session(conn, transaction_mode="IMMEDIATE") as conn:
+        validate_runtime_card_payment_ownership(conn)
         existing = conn.execute(
             "SELECT * FROM card_payment_events WHERE idempotency_key = ?",
             (payload.idempotency_key,),
@@ -407,6 +411,7 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
             "SELECT * FROM card_payment_events WHERE id = ?",
             (cursor.lastrowid,),
         ).fetchone()
+        validate_runtime_card_payment_ownership(conn)
         return dict(event)
 
 
@@ -441,6 +446,7 @@ def set_entry_discount(
         raise ValueError("할인액은 0원 이상이어야 합니다.")
     event_date = event_date or app_today().isoformat()
     with borrowed_or_new_session(conn) as conn:
+        validate_runtime_card_payment_ownership(conn)
         row = conn.execute(
             """
             SELECT id, title, amount_value, entry_date
@@ -469,6 +475,7 @@ def set_entry_discount(
 def clear_entry_discount(entry_payment_key: str, *, conn: Any | None = None) -> bool:
     """당월 사용내역에 적용한 할인 확인과 할인 이벤트를 취소한다."""
     with borrowed_or_new_session(conn) as conn:
+        validate_runtime_card_payment_ownership(conn)
         row = conn.execute("SELECT id FROM ledger_entries WHERE payment_key = ?", (entry_payment_key,)).fetchone()
         if row is None:
             return False
@@ -487,6 +494,7 @@ def clear_entry_discount(entry_payment_key: str, *, conn: Any | None = None) -> 
 def delete_card_payment_event(event_id: int, *, conn: Any | None = None) -> bool:
     """즉시결제/할인 기록과 연결된 현금흐름을 함께 취소한다."""
     with borrowed_or_new_session(conn) as conn:
+        validate_runtime_card_payment_ownership(conn)
         event = conn.execute(
             "SELECT cash_flow_id FROM card_payment_events WHERE id = ?",
             (event_id,),
@@ -496,6 +504,7 @@ def delete_card_payment_event(event_id: int, *, conn: Any | None = None) -> bool
         conn.execute("DELETE FROM card_payment_events WHERE id = ?", (event_id,))
         if event["cash_flow_id"] is not None:
             conn.execute("DELETE FROM cash_flows WHERE id = ?", (event["cash_flow_id"],))
+        validate_runtime_card_payment_ownership(conn)
     return True
 
 
@@ -835,9 +844,18 @@ def _discount_policy_value(conn: Any, month: str, scope: str) -> str:
 def _add_card_payment_batch_item(conn: Any, batch_id: int | None, entry_id: int, payment_key: str) -> None:
     if batch_id is None or not payment_key:
         return
+    entry = conn.execute("SELECT payment_key, entry_kind FROM ledger_entries WHERE id=?", (entry_id,)).fetchone()
+    if entry is None or entry["entry_kind"] == "planned" or entry["payment_key"] != payment_key:
+        raise ValueError("card batch item does not identify its ledger entry")
+    existing = conn.execute("SELECT batch_id,entry_id,entry_payment_key FROM card_payment_batch_items "
+                            "WHERE entry_id=? OR entry_payment_key=?", (entry_id, payment_key)).fetchall()
+    if existing:
+        if len(existing) == 1 and tuple(existing[0]) == (batch_id, entry_id, payment_key):
+            return
+        raise ValueError("duplicate card batch ownership")
     conn.execute(
         """
-        INSERT OR IGNORE INTO card_payment_batch_items(batch_id, entry_id, entry_payment_key)
+        INSERT INTO card_payment_batch_items(batch_id, entry_id, entry_payment_key)
         VALUES (?, ?, ?)
         """,
         (batch_id, entry_id, payment_key),

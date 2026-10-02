@@ -21,6 +21,9 @@ from app.services.card_charge import (
 )
 from app.services.clock import app_today
 from app.services.financial_periods import valid_fixed_confirmation_period
+from app.services.financial_relationships import (
+    validate_card_payment_ownership, validate_runtime_card_payment_ownership,
+)
 from app.services.liquidity_names import (
     LEGACY_LIQUIDITY_LABEL_KEYS,
     LEGACY_LIQUIDITY_SETTING_KEYS,
@@ -121,6 +124,7 @@ def _export_snapshot(conn: Any, today: date | None = None) -> tuple[str, dict[st
         "app_labels": _snapshot_rows(conn, "app_labels", "key"),
     }
     _validate_snapshot_recurring_ownership(data)
+    _validate_financial_relationships(conn)
     exported_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
     policy_context = card_charge_policy_manifest(_snapshot_policy_horizon(data, today))
     snapshot = {
@@ -471,6 +475,7 @@ def _normalized_snapshot_data(
         if row.get("key") != "summary_interest_expense_label"
     ]
     _validate_snapshot_recurring_ownership(normalized)
+    validate_card_payment_ownership(normalized)
     return normalized
 
 
@@ -679,6 +684,7 @@ def _raise_if_foreign_key_errors(conn: Any) -> None:
 
 
 def _validate_financial_relationships(conn: Any) -> None:
+    validate_runtime_card_payment_ownership(conn)
     closed = conn.execute("SELECT value FROM app_settings WHERE key='last_closed_month'").fetchone()
     validate_recurring_ownership(
         [dict(row) for row in conn.execute("SELECT * FROM ledger_entries")],
@@ -723,22 +729,6 @@ def _validate_financial_relationships(conn: Any) -> None:
         except ValueError:
             raise ValueError("snapshot recurring confirmation epoch is inconsistent") from None
         _validate_confirmation_timestamp(row["confirmed_at"], "snapshot recurring confirmation timestamp is invalid")
-    mismatched_epoch = conn.execute(
-        """SELECT source.id FROM ledger_entries source
-           WHERE source.book_section = 'current' AND source.entry_kind = 'planned'
-             AND source.confirmed_month IS NOT NULL AND source.confirmed_at IS NOT NULL
-             AND EXISTS (SELECT 1 FROM ledger_entries expense
-                         WHERE expense.book_section = 'current' AND expense.entry_kind = 'expense'
-                           AND expense.source_planned_entry_id = source.id
-                           AND expense.confirmed_month IS NOT NULL AND expense.confirmed_at IS NOT NULL)
-             AND (SELECT COUNT(*) FROM ledger_entries expense
-                  WHERE expense.book_section = 'current' AND expense.entry_kind = 'expense'
-                    AND expense.source_planned_entry_id = source.id
-                    AND expense.confirmed_month = source.confirmed_month
-                    AND expense.confirmed_at = source.confirmed_at) != 1 LIMIT 1"""
-    ).fetchone()
-    if mismatched_epoch is not None:
-        raise ValueError("snapshot recurring confirmation epoch does not identify the active confirmation")
     duplicate_fixed_flow = conn.execute(
         """
         SELECT confirmed_cash_flow_id

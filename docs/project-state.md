@@ -6,6 +6,8 @@
 
 ## 현재 기준선
 
+- Persistent financial relationship closure: 카드 원장 key는 하나의 batch에만 소유되고 배분은 `(event,key)` 및 실제 출금 소유권이 유일해야 한다. 명시적 recurring 생성 지출은 유효한 정수 원금을 필수로 갖는다(0원 지원, NULL 거부). old/current + active/archive도 source/epoch가 유일하면 정상이며 export/restore/mandatory recovery의 계약을 일치시켰다. 금융 읽기와 commit 전 수정도 fail closed한다. 월마감 경고는 명시적 확인 identity를 사용한다. DB version 3/Snapshot v7·금융 계산·기존 클라이언트 및 reconciliation 의미는 유지하며 독립 재감사/배포는 별도다.
+
 - Final recurring Snapshot closure: 활성 확인은 planned source와 완전한 확인 epoch로 생성 expense 정확히 한 건을 소유해야 한다. v4~v6은 증명 가능한 legacy 정규화 뒤 검사하고 v7의 전체/부분 epoch 누락이나 생성 행 누락은 보정하지 않는다. export 및 runtime 조회·수정·취소·재확인도 같은 소유 계약을 fail closed한다. 기존 말일/조기 fixed·할인·응답 atomicity·reconciliation 의미와 DB version 3/Snapshot v7은 유지한다. 불명확한 legacy 및 생성 epoch 미보존 과거 v7 파일은 자동 복구 대상이 아니다. 독립 재감사와 운영 배포는 별도다.
 
 - Freeze 재감사 H1/H2/M1/M2/M3 closure: 금융/정책 HTTP 응답 body는 commit 전에 준비해 handler 후 재직렬화를 우회한다. status는 같은 transaction connection을 사용한다. source epoch는 부분 상태·미마감 orphan을 거부하고 confirmed projection도 source/epoch로 실제 수정 지출을 읽는다. Claim/Family의 boolean-only false는 authoritative 제외다. 모바일 DELETE 결과는 endpoint별 무변경 계약으로 분류한다. 단일-owner 제품 모델은 유지하되 실제 CLI/auth가 복수 principal을 허용하므로 기존 manual retry 파일에 owner ID를 결합해 재인증·재시작 안전성을 검증한다. 장부 격리나 신규 namespace는 추가하지 않는다. 독립 재감사와 배포는 별도다.

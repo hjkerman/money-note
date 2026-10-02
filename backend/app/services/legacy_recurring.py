@@ -8,6 +8,7 @@ never be consulted again to identify a relationship after that binding.
 
 from collections.abc import Mapping, Sequence
 from datetime import datetime
+from math import isfinite
 from typing import Any
 
 
@@ -19,6 +20,7 @@ def validate_source_epoch(source: Mapping[str, Any]) -> None:
 
 def validate_recurring_ownership(
     entries: Sequence[Mapping[str, Any]], last_closed_month: str = "0000-00",
+    *, require_execution_epoch: bool = True,
 ) -> None:
     """Validate canonical ownership without deriving identity from editable data.
 
@@ -27,10 +29,12 @@ def validate_recurring_ownership(
     confirmation. Legacy materialization, where provable, precedes this check.
     """
     sources = {row["id"]: row for row in entries if row.get("entry_kind") == "planned"}
+    if len({row["id"] for row in entries}) != len(entries):
+        raise ValueError("duplicate recurring ledger identity")
     owned: dict[tuple[Any, Any, Any], int] = {}
     for source in sources.values():
         validate_source_epoch(source)
-        if source.get("confirmed_month") is None and source.get("entry_date") is not None:
+        if require_execution_epoch and source.get("confirmed_month") is None and source.get("entry_date") is not None:
             raise ValueError("recurring confirmation has an execution date but no epoch")
     for row in entries:
         source_id = row.get("source_planned_entry_id")
@@ -42,6 +46,9 @@ def validate_recurring_ownership(
         source = sources.get(source_id)
         if source is None or row.get("entry_kind") != "expense":
             raise ValueError("recurring confirmation generated expense has no valid source")
+        principal = row.get("amount_value")
+        if not valid_nonnegative_money(principal):
+            raise ValueError("recurring generated expense requires a nonnegative integer principal")
         validate_source_epoch(row)
         period, timestamp = row.get("confirmed_month"), row.get("confirmed_at")
         if not isinstance(period, str) or not period or not isinstance(timestamp, str) or not timestamp:
@@ -59,6 +66,13 @@ def validate_recurring_ownership(
             source_id, source["confirmed_month"], source["confirmed_at"],
         ), 0) != 1:
             raise ValueError("recurring confirmation must own exactly one generated expense")
+
+
+def valid_nonnegative_money(value: Any) -> bool:
+    # Supported historical DBs retain REAL affinity even after integer-money
+    # migration. 5000.0 is an integer principal; NULL, NaN and 5000.5 are not.
+    return (not isinstance(value, bool) and isinstance(value, (int, float))
+            and isfinite(value) and value >= 0 and value == int(value))
 
 
 def near_confirmation_creation(created_at: Any, confirmed_at: Any) -> bool:

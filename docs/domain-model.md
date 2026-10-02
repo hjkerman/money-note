@@ -659,6 +659,14 @@ Money Note는 카드사 알림 자동입력을 고려한다.
 
 # 11. Snapshot 백업
 
+## 영속 금융 관계 계약
+
+- 카드 batch item의 `entry_id`와 `entry_payment_key`는 같은 원장 행을 식별한다. 한 원장 key는 하나의 batch에만 속한다(완료 batch 포함). 하나의 결제는 여러 원장에 배분할 수 있고 한 원장은 여러 별도 결제로 나눠 낼 수 있지만, `(payment_event_id, entry_payment_key)` 배분은 한 건이며 이벤트의 batch 소유권과 일치해야 한다. 실제 출금 cash flow는 두 결제 이벤트가 공유하지 않는다. 과거 `batch_id=NULL` 이벤트는 새 batch에 추측 결합하지 않는다.
+- batch에 소유된 원장 지출도 유효한 0 이상 정수 원금을 필수로 갖는다. archive 위치라는 이유로 PATCH에서 NULL 원금을 허용하거나 미지급액에서 조용히 제외하지 않는다. 관계 없는 과거 nullable 행 전체를 NOT NULL로 바꾸는 계약은 아니다.
+- 명시적 recurring 생성 지출은 `source_planned_entry_id + confirmed_month + confirmed_at`으로 소유권을 증명하고 활성 확인은 정확히 한 생성 지출을 소유한다. 생성 지출의 `amount_value`는 0 이상 정수 원 단위로 반드시 존재해야 한다. 0원 실제 확인은 지원하지만 NULL/누락은 0원으로 해석하지 않는다. 선택적인 할인/override 금액의 NULL은 기존 정책 의미를 유지한다. 지원 historical REAL affinity의 `5000.0`도 정수 원금이며 소수 원금은 유효하지 않다.
+- current/archive는 보관 위치이지 확인 identity가 아니다. 종료된 예전 epoch의 지출이 current에 있고 새로운 활성 epoch 지출이 archive에 있어도 source/epoch가 유일하면 정상이다. 같은 논리 원장(payment key)이나 같은 소유 epoch가 양쪽에 중복되면 거부한다. 수정된 실제 날짜·금액·제목으로 소유권을 다시 판단하지 않으며, 월마감의 미확인 경고도 명시적 source/epoch를 사용한다.
+- 같은 canonical 계약을 금융 읽기, 쓰기 commit 전, export, legacy 정규화 후 restore, mandatory recovery 및 reconciliation 검증 경계에서 사용한다. 손상 관계는 fail closed하며 중복 삭제·소유 선택·원금 추측 복구를 하지 않는다. Snapshot v4~v7 및 DB version 3은 바뀌지 않는다.
+
 서버 DB는 Money Note의 단일 원본이다.
 
 Snapshot은 원본 DB를 대체하는 별도 저장소가 아니라, 장부 운용 데이터 전체와 비민감 운영 설정을 JSON 파일로 잠시 옮겨 담는 백업/복원 형식이다.

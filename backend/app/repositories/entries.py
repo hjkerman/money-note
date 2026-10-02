@@ -6,6 +6,9 @@ from app.repositories.common import ensure_payment_key_available, new_payment_ke
 from app.schemas import LedgerEntryIn, LedgerEntryPatch, PlannedEntryIn
 from app.services.clock import app_today
 from app.services.card_charge import utility_default_discount_excluded
+from app.services.financial_relationships import (
+    validate_runtime_card_payment_ownership, validate_runtime_recurring_ownership,
+)
 from app.services.legacy_recurring import (
     infer_legacy_recurring_sources,
     near_confirmation_creation,
@@ -62,6 +65,8 @@ def list_entries(
     if conn is None:
         with session() as owned_conn:
             return list_entries(section, today, owned_conn)
+    validate_runtime_recurring_ownership(conn)
+    validate_runtime_card_payment_ownership(conn)
     rows = conn.execute(
         f"""
         SELECT *
@@ -526,6 +531,8 @@ def update_entry(entry_id: int, patch: LedgerEntryPatch, *, conn: Any | None = N
         values["entry_date"] = values["entry_date"].isoformat()
     if not values:
         with borrowed_or_new_session(conn) as conn:
+            validate_runtime_recurring_ownership(conn)
+            validate_runtime_card_payment_ownership(conn)
             row = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (entry_id,)).fetchone()
         return row_to_dict(row) if row else None
 
@@ -533,6 +540,10 @@ def update_entry(entry_id: int, patch: LedgerEntryPatch, *, conn: Any | None = N
         existing = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (entry_id,)).fetchone()
         if existing is None:
             return None
+        batch_owned = conn.execute("SELECT 1 FROM card_payment_batch_items "
+            "WHERE entry_id=? OR entry_payment_key=? LIMIT 1", (entry_id, existing["payment_key"])).fetchone() is not None
+        if batch_owned:
+            validate_runtime_card_payment_ownership(conn)
         if existing["entry_kind"] == "planned":
             _require_recurring_ownership(conn, entry_id)
         if existing["source_planned_entry_id"] is None:
@@ -558,6 +569,8 @@ def update_entry(entry_id: int, patch: LedgerEntryPatch, *, conn: Any | None = N
         )
         if source or existing["entry_kind"] == "planned":
             _require_recurring_ownership(conn, source or entry_id)
+        if batch_owned:
+            validate_runtime_card_payment_ownership(conn)
         row = conn.execute("SELECT * FROM ledger_entries WHERE id = ?", (entry_id,)).fetchone()
         return row_to_dict(row) if row else None
 
@@ -754,6 +767,7 @@ def _validate_structured_entry(values: dict[str, Any]) -> None:
 
 def _delete_card_payment_references(conn: Any, payment_key: str) -> None:
     """장부 행 삭제 시 결제/할인 배분과 이월 상태를 함께 정리한다."""
+    validate_runtime_card_payment_ownership(conn)
     allocation_rows = conn.execute(
         """
         SELECT card_payment_allocations.id,

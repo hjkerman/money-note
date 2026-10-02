@@ -6,6 +6,7 @@ from datetime import date, datetime
 from typing import Any
 
 from app.db import session
+from app.services.financial_relationships import validate_runtime_card_payment_ownership
 from app.services.card_charge import (
     DiscountCard,
     evaluate_stored_charge,
@@ -49,6 +50,7 @@ def _active_payment_context(today: date, conn: Any | None = None) -> CardPayment
 
 
 def _active_payment_batch(conn: Any) -> Any:
+    validate_runtime_card_payment_ownership(conn)
     return conn.execute(
         """
         SELECT *
@@ -69,6 +71,7 @@ def _payment_rows_for_batch(
     if conn is None:
         with session() as owned_conn:
             return _payment_rows_for_batch(context, owned_conn)
+    validate_runtime_card_payment_ownership(conn)
     payment_month = context.payment_month
     settings = _settings_values(conn)
     rows = conn.execute(

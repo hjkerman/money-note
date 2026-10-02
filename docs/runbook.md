@@ -963,6 +963,10 @@ VITE_API_BASE_URL=
 
 ## Snapshot 백업과 복원
 
+영속 관계가 손상되면 export와 mandatory recovery도 fail closed한다. 카드 batch item의 원장 id/key 불일치·중복 batch 소유·중복 배분/event 출금 소유, 명시적 recurring 생성 지출의 NULL 원금은 정상 backup으로 승인하지 않는다. 임의 관계 삭제, 0원 보강 또는 오래된 DB 전체 덮어쓰기를 하지 않는다. 원본 상태를 보존하고 별도 근거 있는 복구 판단이 필요하다.
+
+반면 old recurring expense가 current에 있고 active expense가 archive에 있는 정상 lifecycle은 location-independent source/epoch로 검증하므로 export/restore·pre_restore·Server Wins recovery에 동일하게 사용 가능하다. 0원 실제 확인은 지원하며 supported historical REAL affinity의 정수 금액도 유지한다. Snapshot 버전이나 startup migration은 변경하지 않는다.
+
 서버 DB가 단일 원본이다.
 
 Snapshot은 장부 운용 데이터 전체와 앱 운영 설정을 담는 JSON 백업 파일이다. 원본 SQLite DB 파일을 그대로 내려받는 방식이 아니며, 사용자 계정과 세션, 관리 로그, 비밀번호/해시, 공유 PIN 해시는 포함하지 않는다.

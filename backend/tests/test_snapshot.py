@@ -1288,6 +1288,14 @@ class SnapshotTest(IsolatedDatabaseTestCase):
         snapshot["data"]["ledger_entries"][0]["title"] = "복원된 최근 지출"
         self._refresh_manifest(snapshot)
 
+        # The destination recovery point must be valid: cancel its synthetic
+        # payments through the supported command before removing ledger rows.
+        # Orphan allocations are now explicitly tested as rejected in
+        # test_persistent_financial_relationships. Existing restore/auth/audit
+        # assertions below remain unchanged.
+        from app.services.card_payments import delete_card_payment_event
+        self.assertTrue(delete_card_payment_event(1))
+        self.assertTrue(delete_card_payment_event(2))
         with session() as conn:
             conn.execute("DELETE FROM ledger_entries")
             conn.execute(

@@ -1,5 +1,9 @@
 # T5 호환성 inventory
 
+batch에 소유된 일반 카드 원장도 NULL 원금은 유효하지 않다. current/archive 위치와 무관하게 PATCH·read·export·restore에서 검증하며, 관계 없는 과거 nullable 행 전체를 새로 제한하지 않는다.
+
+영속 금융 관계 closure는 파일/API/DB surface를 제거하지 않는다. 카드 원장 key의 batch 소유는 유일하며 `(event, key)` 배분과 실제 출금 소유도 유일해야 한다. Historical unbatched 이벤트는 그대로 읽고 사후 batch를 추측하지 않는다. 명시적 recurring 생성 지출은 유효한 정수 원금(0 허용)을 필수로 갖고 current/archive 어느 위치든 source/epoch로 소유한다. old/current + active/archive는 정상, 같은 논리 row/epoch 중복은 손상이다. v4~v6 정규화와 REAL-affinity 정수 표현은 지원하며 NULL 원금을 추측 생성하지 않는다.
+
 최종 blocker closure에서도 legacy monetary discount 입력(`discount_override`/`aux_amount_value`, 패널 `discount_amount`)은 KEEP이다. 공과금 기본값보다 explicit 의미가 우선하며 API/journal 필드를 삭제하거나 확장하지 않는다. 구 Snapshot의 증명 가능한 recurring 관계는 source ID와 확인 epoch로 결합하고 기존 v7 컬럼으로 보존한다. Explicit identity/epoch를 mutable 발생월로 재판정하지 않는다. Fixed timestamp는 offset hour/minute 범위도 검증한다. 모바일 ONLINE pending marker는 Snapshot과 별도인 로컬 복구 metadata다.
 
 이 표는 현재 source import, HTTP/serialized shape, Git 이력과 Snapshot 테스트를 대조한 것이다. 삭제 목록이 아니다. DB·Snapshot·재시도 identity가 포함된 항목은 내부 Python import보다 보수적으로 유지한다.
