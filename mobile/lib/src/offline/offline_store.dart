@@ -16,12 +16,13 @@ typedef ManualRetryCleanupHook = Future<void> Function();
 
 class PendingManualPanelRetry {
   const PendingManualPanelRetry(this.key, this.input, this.digest,
-      [this.legacyDigests = const {}]);
+      [this.legacyDigests = const {}, this.ownerId]);
 
   final String key;
   final Map<String, dynamic>? input;
   final String? digest;
   final Set<String> legacyDigests;
+  final int? ownerId;
 }
 
 class OfflineStore {
@@ -138,11 +139,12 @@ class OfflineStore {
   }
 
   Future<String> reserveManualPanelRetryKey(Map<String, dynamic> input,
-      {String? preferredKey}) async {
+      {String? preferredKey, int? ownerId}) async {
     final file = await _file(_manualPanelRetryFilename);
     final pending = await _loadManualPanelRetry(file);
     final digest = _manualPanelInputDigest(input);
     if (pending != null) {
+      if (ownerId != null) await requireManualPanelRetryOwner(pending, ownerId);
       if (pending.digest == digest || pending.legacyDigests.contains(digest)) {
         return pending.key;
       }
@@ -152,7 +154,8 @@ class OfflineStore {
     }
     final key = preferredKey ?? 'manual-panel-${_operationId()}';
     await _writeJsonAtomic(file, {
-      'schema_version': 2,
+      'schema_version': ownerId == null ? 2 : 3,
+      if (ownerId != null) 'owner_id': ownerId,
       'key': key,
       'input_digest': digest,
       'input': input,
@@ -167,10 +170,46 @@ class OfflineStore {
   Future<PendingManualPanelRetry?> loadPendingManualPanelRetry() async =>
       _loadManualPanelRetry(await _file(_manualPanelRetryFilename));
 
+  Future<void> requireManualPanelRetryOwner(
+      PendingManualPanelRetry pending, int ownerId) async {
+    if (pending.ownerId == ownerId) return;
+    if (pending.ownerId == null && pending.input != null) {
+      // Upgrade an old artifact only from an existing, uniquely matching
+      // durable request marker. Current login alone is not ownership evidence.
+      final file = await _file(_manualPanelRetryFilename);
+      final owners = <int>{};
+      await for (final entity in file.parent.list()) {
+        final match =
+            RegExp(r'online-write-(\d+)\.json$').firstMatch(entity.path);
+        if (match == null) continue;
+        final marker = await loadPendingOnlineWrite(int.parse(match[1]!));
+        if (marker?.retryIdentity == 'panel:${pending.key}') {
+          owners.add(marker!.userId);
+        }
+      }
+      if (owners.length == 1 && owners.single == ownerId) {
+        await _writeJsonAtomic(file, {
+          'schema_version': 3,
+          'owner_id': ownerId,
+          'key': pending.key,
+          'input_digest': pending.digest,
+          'input': pending.input,
+        });
+        return;
+      }
+    }
+    throw const OfflinePersistenceException(
+        '미확정 등록의 소유자를 확인할 수 없습니다. 원래 소유자로 다시 로그인해 복구하세요. 재전송하지 않았습니다.');
+  }
+
   Future<void> completeManualPanelRetryKey(
-      Map<String, dynamic> input, String key) async {
+      Map<String, dynamic> input, String key,
+      {int? ownerId}) async {
     final file = await _file(_manualPanelRetryFilename);
     final pending = await _loadManualPanelRetry(file);
+    if (pending != null && ownerId != null) {
+      await requireManualPanelRetryOwner(pending, ownerId);
+    }
     final digest = _manualPanelInputDigest(input);
     if (pending == null ||
         pending.key != key ||
@@ -204,7 +243,9 @@ class OfflineStore {
       final input = decoded['input'];
       final key = decoded['key'];
       final digest = decoded['input_digest'];
-      if (decoded['schema_version'] != 2 ||
+      if ((decoded['schema_version'] != 2 && decoded['schema_version'] != 3) ||
+          (decoded['schema_version'] == 3 &&
+              (decoded['owner_id'] is! int || decoded['owner_id'] <= 0)) ||
           key is! String ||
           key.isEmpty ||
           input is! Map<String, dynamic> ||
@@ -213,7 +254,11 @@ class OfflineStore {
         throw const FormatException('manual panel retry state is invalid');
       }
       return PendingManualPanelRetry(
-          key, Map<String, dynamic>.unmodifiable(input), digest);
+          key,
+          Map<String, dynamic>.unmodifiable(input),
+          digest,
+          const {},
+          decoded['owner_id'] as int?);
     } on FormatException catch (error) {
       throw OfflinePersistenceException('수동 정산 재시도 기록을 읽을 수 없습니다: $error');
     } on TypeError catch (error) {

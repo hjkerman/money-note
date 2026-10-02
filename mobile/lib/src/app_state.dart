@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 
 import 'api_client.dart';
+import 'mutation_contract.dart';
 import 'coherent_refresh_coordinator.dart';
 import 'local_snapshot_repository.dart';
 import 'models.dart';
@@ -1486,6 +1487,8 @@ class AppState extends ChangeNotifier {
       _requireOnline('패널 항목 등록',
           allowPending: candidateRegistrationKey == null &&
               (panelType == 'claim' || panelType == 'family_card'));
+      final submissionGeneration = _authenticationGeneration;
+      final submissionOwner = user!.id;
       final candidateDate = spentOn?.trim();
       if (candidateRegistrationKey != null &&
           (candidateDate == null ||
@@ -1515,7 +1518,7 @@ class AppState extends ChangeNotifier {
       final registrationKey = manualInput == null
           ? candidateRegistrationKey
           : await offlineStore.reserveManualPanelRetryKey(manualInput,
-              preferredKey: manualRegistrationKey);
+              preferredKey: manualRegistrationKey, ownerId: submissionOwner);
       if (manualInput != null) manualPanelRetryPending = true;
       try {
         await _financialWrite(
@@ -1532,6 +1535,8 @@ class AppState extends ChangeNotifier {
                           : null,
                 ),
             idempotentRetry: hadManualRetry,
+            contract: MutationContract.panelCreate,
+            expectedAuthenticationGeneration: submissionGeneration,
             retryIdentity:
                 manualInput == null ? null : 'panel:$registrationKey');
       } on MoneyNoteApiException catch (error) {
@@ -1540,9 +1545,11 @@ class AppState extends ChangeNotifier {
         // their identity until the original result is confirmed.
         if (manualInput != null &&
             !hadManualRetry &&
-            (error.statusCode == 400 || error.statusCode == 422)) {
+            MutationContract.panelCreate
+                .rejectsWithoutMutation(error.statusCode)) {
           await offlineStore.completeManualPanelRetryKey(
-              manualInput, registrationKey!);
+              manualInput, registrationKey!,
+              ownerId: submissionOwner);
           manualPanelRetryPending = false;
         }
         rethrow;
@@ -1559,8 +1566,10 @@ class AppState extends ChangeNotifier {
           await refreshSettlementArea(notify: false);
         }
         if (manualInput != null) {
+          _requireSubmissionAuthority(submissionGeneration, submissionOwner);
           await offlineStore.completeManualPanelRetryKey(
-              manualInput, registrationKey!);
+              manualInput, registrationKey!,
+              ownerId: submissionOwner);
           manualPanelRetryPending = false;
         }
         statusMessage = switch (panelType) {
@@ -1578,6 +1587,8 @@ class AppState extends ChangeNotifier {
 
   Future<bool> confirmPendingManualPanelRegistration() => _run(() async {
         _requireOnline('미확정 정산 등록 확인', allowPending: true);
+        final submissionGeneration = _authenticationGeneration;
+        final submissionOwner = user!.id;
         final pending = await offlineStore.loadPendingManualPanelRetry();
         if (pending == null) {
           manualPanelRetryPending = false;
@@ -1585,6 +1596,8 @@ class AppState extends ChangeNotifier {
           return;
         }
         manualPanelRetryPending = true;
+        await offlineStore.requireManualPanelRetryOwner(
+            pending, submissionOwner);
         final input = pending.input;
         if (input == null) {
           throw MoneyNoteApiException(
@@ -1616,9 +1629,13 @@ class AppState extends ChangeNotifier {
                   initialDiscountEnabled: discountEnabled,
                 ),
             idempotentRetry: true,
+            contract: MutationContract.panelCreate,
+            expectedAuthenticationGeneration: submissionGeneration,
             retryIdentity: 'panel:${pending.key}');
         await refreshSettlementArea(notify: false);
-        await offlineStore.completeManualPanelRetryKey(input, pending.key);
+        _requireSubmissionAuthority(submissionGeneration, submissionOwner);
+        await offlineStore.completeManualPanelRetryKey(input, pending.key,
+            ownerId: submissionOwner);
         manualPanelRetryPending = false;
         statusMessage = '이전 수동 정산 등록 결과와 최신 상태를 확인했습니다.';
       });
@@ -1695,7 +1712,8 @@ class AppState extends ChangeNotifier {
   Future<void> deletePlannedEntry(int entryId) async {
     await _run(() async {
       _requireOnline('정기결제 삭제');
-      await _financialWrite(() => api.deletePlannedEntry(entryId));
+      await _financialWrite(() => api.deletePlannedEntry(entryId),
+          contract: MutationContract.plannedDelete);
       await refreshPlannedManagementArea(notify: false);
       statusMessage = '카드 정기결제 삭제 완료';
     });
@@ -1713,7 +1731,8 @@ class AppState extends ChangeNotifier {
   Future<void> applyDefaultEntryDiscount(String entryPaymentKey) async {
     await _run(() async {
       _requireOnline('할인 변경');
-      await _financialWrite(() => api.clearEntryDiscount(entryPaymentKey));
+      await _financialWrite(() => api.clearEntryDiscount(entryPaymentKey),
+          contract: MutationContract.discountDelete);
       await refreshEntriesArea(notify: false);
       statusMessage = '할인 적용 완료';
     });
@@ -1745,7 +1764,8 @@ class AppState extends ChangeNotifier {
   Future<void> deleteExpense(int entryId) async {
     await _run(() async {
       _requireOnline('지출 삭제');
-      await _financialWrite(() => api.deleteEntry(entryId));
+      await _financialWrite(() => api.deleteEntry(entryId),
+          contract: MutationContract.entryDelete);
       await refreshEntriesArea(notify: false);
       statusMessage = '지출 삭제 완료';
     });
@@ -1754,7 +1774,8 @@ class AppState extends ChangeNotifier {
   Future<void> deletePanel(int panelId) async {
     await _run(() async {
       _requireOnline('패널 항목 삭제');
-      await _financialWrite(() => api.deletePanel(panelId));
+      await _financialWrite(() => api.deletePanel(panelId),
+          contract: MutationContract.panelDelete);
       await refreshPanelManagementArea(notify: false);
       statusMessage = '항목 삭제 완료';
     });
@@ -1805,7 +1826,8 @@ class AppState extends ChangeNotifier {
   Future<void> cancelFixedPanelConfirmation(int cashFlowId) async {
     await _run(() async {
       _requireOnline('정기지출 확인 취소');
-      await _financialWrite(() => api.deleteCashFlow(cashFlowId));
+      await _financialWrite(() => api.deleteCashFlow(cashFlowId),
+          contract: MutationContract.cashFlowDelete);
       await refreshPanelManagementArea(notify: false);
       statusMessage = '현금성 고정지출 확인 취소 완료';
     });
@@ -1835,7 +1857,8 @@ class AppState extends ChangeNotifier {
   Future<void> applyDefaultPanelDiscount(int panelId) async {
     await _run(() async {
       _requireOnline('패널 할인 변경');
-      await _financialWrite(() => api.clearPanelDiscount(panelId));
+      await _financialWrite(() => api.clearPanelDiscount(panelId),
+          contract: MutationContract.discountDelete);
       await refreshSettlementArea(notify: false);
       statusMessage = '할인 적용 완료';
     });
@@ -1894,7 +1917,8 @@ class AppState extends ChangeNotifier {
   Future<void> deleteCashFlow(int flowId) async {
     await _run(() async {
       _requireOnline('현금흐름 삭제');
-      await _financialWrite(() => api.deleteCashFlow(flowId));
+      await _financialWrite(() => api.deleteCashFlow(flowId),
+          contract: MutationContract.cashFlowDelete);
       await refreshCashArea(notify: false);
       statusMessage = '현금흐름 삭제 완료';
     });
@@ -1962,10 +1986,12 @@ class AppState extends ChangeNotifier {
     await _run(() async {
       _requireOnline('스냅샷 복원');
       final snapshotText = await _snapshotRepository.readText(filename);
-      await _financialWrite(() => api.restoreSnapshot(
-            password: password,
-            snapshotText: snapshotText,
-          ));
+      await _financialWrite(
+          () => api.restoreSnapshot(
+                password: password,
+                snapshotText: snapshotText,
+              ),
+          contract: MutationContract.snapshotRestore);
       await refresh(notify: false);
       statusMessage = '스냅샷 복원 완료';
     });
@@ -2044,13 +2070,27 @@ class AppState extends ChangeNotifier {
     }
   }
 
+  void _requireSubmissionAuthority(int generation, int ownerId) {
+    if (!isOnline ||
+        generation != _authenticationGeneration ||
+        user?.id != ownerId) {
+      throw MoneyNoteApiException('인증이 변경되어 저장/재시도 확인을 취소했습니다.');
+    }
+  }
+
   Future<T> _financialWrite<T>(Future<T> Function() write,
-      {bool idempotentRetry = false, String? retryIdentity}) async {
+      {MutationContract contract = MutationContract.validatedWrite,
+      int? expectedAuthenticationGeneration,
+      bool idempotentRetry = false,
+      String? retryIdentity}) async {
     final userId = user?.id;
     if (!isOnline || userId == null) {
       throw MoneyNoteApiException('온라인 인증이 필요한 금융 작업입니다.');
     }
     final generation = _authenticationGeneration;
+    if (expectedAuthenticationGeneration != null) {
+      _requireSubmissionAuthority(expectedAuthenticationGeneration, userId);
+    }
     final pending = await _withLineageLock(() async {
       if (generation != _authenticationGeneration || user?.id != userId) {
         throw MoneyNoteApiException('인증이 변경되어 저장을 취소했습니다.');
@@ -2090,9 +2130,7 @@ class AppState extends ChangeNotifier {
           // Authentication is rejected by the server dependency before the
           // financial command. Never use a retry rejection to retire an older
           // ambiguous request that may still be committing.
-          (error.statusCode == 400 ||
-              error.statusCode == 401 ||
-              error.statusCode == 422)) {
+          contract.rejectsWithoutMutation(error.statusCode)) {
         await offlineStore.completeOnlineWrite(pending);
         if (generation == _authenticationGeneration && user?.id == userId) {
           _pendingOnlineWrite = null;

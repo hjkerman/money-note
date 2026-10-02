@@ -1174,6 +1174,10 @@ http://localhost:18080/share/family_card
 
 ## 자주 쓰는 개발 검증
 
+Freeze 재감사 closure는 `backend/tests/test_freeze_reaudit_closure.py`, 기존 `test_freeze_blocker_closure.py`, `mobile/test/freeze_reaudit_outcome_test.dart`와 `authoritative_rebuild_pending_test.dart`를 포함해 검증한다. 금융/할인 정책 HTTP 응답의 필수 status·model·JSON body 준비는 동일 transaction의 commit 전에 완료한다. commit 뒤 네트워크 유실을 definite 거부로 판단하거나 일반 요청을 자동 재전송하지 않는다. DELETE 404/409도 해당 endpoint의 무변경 계약이 증명된 경우에만 pending을 해제한다.
+
+운영 모델은 한 owner·한 장부다. 현재 사용자 생성 CLI는 다른 이름의 active principal 생성도 허용하며 login이 이를 거부하지 않지만, owner별 금융 격리 기능은 없다. 이 가능성을 복수-owner 운영 지원이나 DB의 사용자 수 1 강제 보장으로 해석하지 않는다. 같은 owner 재인증은 stable retry key를 유지한다. 모바일 구 owner 없는 retry 파일은 유일한 기존 durable online-write marker로 소유자를 증명할 때만 결합한다. 증명이 없거나 모순되면 파일을 삭제하거나 새 key로 재전송하지 말고 원래 결과·입력을 확인한다.
+
 모두 개발 checkout에서 실행한다. 테스트 fixture가 새 임시 SQLite를 만들며, 운영 API에는 검증용 변경 요청을 보내지 않는다.
 
 ```bash

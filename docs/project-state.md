@@ -2,9 +2,11 @@
 
 이 문서는 새 개발자나 새 작업 세션이 Money Note의 현재 기준선과 문서 읽기 순서를 빠르게 파악하기 위한 체크포인트다. 상세 도메인 규칙, API, 스키마, 운영 절차를 대신하지 않는다.
 
-마지막 기능 코드 대조: 2026-10-01, 말일 월마감 후 현금 고정지출 선처리 작업 checkout (운영 배포 기준 아님)
+마지막 기능 코드 대조: 2026-10-02, Freeze 재감사 finding closure 개발 checkout (운영 배포 기준 아님)
 
 ## 현재 기준선
+
+- Freeze 재감사 H1/H2/M1/M2/M3 closure: 금융/정책 HTTP 응답 body는 commit 전에 준비해 handler 후 재직렬화를 우회한다. status는 같은 transaction connection을 사용한다. source epoch는 부분 상태·미마감 orphan을 거부하고 confirmed projection도 source/epoch로 실제 수정 지출을 읽는다. Claim/Family의 boolean-only false는 authoritative 제외다. 모바일 DELETE 결과는 endpoint별 무변경 계약으로 분류한다. 단일-owner 제품 모델은 유지하되 실제 CLI/auth가 복수 principal을 허용하므로 기존 manual retry 파일에 owner ID를 결합해 재인증·재시작 안전성을 검증한다. 장부 격리나 신규 namespace는 추가하지 않는다. 독립 재감사와 배포는 별도다.
 
 - Final Freeze P1–P5/L1 closure: 정기결제는 source+불변 확인 epoch로 취소하고 공과금 default가 구 monetary override를 덮지 않는다. 금융 생성 응답 검증·직렬화는 commit 전에 끝난다. 모바일은 서버 저장과 baseline 재구성을 구분해 pending을 durable하게 보존하고 stale Offline 시작을 차단한다. 현재 schema는 revision trigger의 event/대상/효과와 상쇄 trigger를 검사하며 Snapshot은 offset hour/minute 범위도 검증한다. Freeze 판정과 운영 배포는 별도 독립 감사/허가 대상이다.
 

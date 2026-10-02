@@ -1,5 +1,11 @@
 # 알려진 이슈
 
+## Freeze 재감사 H1/H2/M1/M2/M3 closure
+
+`test_freeze_reaudit_closure.py`는 정책 status와 최종 HTTP JSON body 준비 실패의 rollback, source epoch 부분 누락·미마감 orphan epoch 거부, 수정된 생성 지출의 stable confirmed projection, boolean-only 할인 제외를 고정한다. `freeze_reaudit_outcome_test.dart`는 endpoint별 DELETE 거부, ambiguous 결과 보존, 같은 owner 재인증·구 retry 복구와 generation fence를 검증한다. Response bytes 준비까지 commit 전에 끝내며 이후 socket 유실은 ambiguous다. 실제 freeze 판정은 독립 재감사 대상이다.
+
+단일-owner 제품 모델과 현재 인증 구현을 구분한다. synthetic CLI/login 검증에서 서로 다른 active principal 생성·로그인이 가능했으므로 H3를 단순 unsupported로 폐기하지 않았다. 기존 retry 한 파일에 owner ID만 결합하고 multi-user 장부·namespace는 추가하지 않는다. 운영 사용자 수는 확인하지 않았다. 구 owner 없는 retry에 유일한 durable request-marker 증거가 없으면 원문을 보존하고 재전송을 차단한다. 증명되지 않은 정상화나 운영 수선은 하지 않는다.
+
 ## Final Freeze P1–P5/L1 수정 경계
 
 Cross-month recurring 취소의 정확한 확인 epoch, legacy explicit monetary 할인 우선순위, 금융 presenter/response model의 commit 전 검증, 모바일 committed/rebuild-pending durable 상태, revision trigger 의미 검증, malformed timezone offset 거부를 회귀 테스트로 고정한다. `test_freeze_blocker_closure.py`와 `authoritative_rebuild_pending_test.dart`가 원래 반례와 재시작·취소·재시도·Offline 차단을 보존한다. 금융 계산식·월마감·migration/Snapshot version·reconciliation protocol은 변경하지 않는다.

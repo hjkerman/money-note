@@ -8,7 +8,7 @@
 
 응답 유실로 commit을 증명할 수 없는 `outcomeUnknown`은 read 성공만으로 정리하지 않는다. 수동 Claim/Family처럼 보존한 원래 입력과 동일 idempotency key가 있는 작업만 그 identity로 명시적으로 확인한다. 다른 작업의 retry key로 이 marker를 해제할 수 없다. 일반 비-idempotent 요청은 자동 재전송이나 stale Offline 전환 대신 결과 확인이 필요하다. 새 서버 idempotency protocol은 도입하지 않는다.
 
-첫 요청의 명확한 400/422 입력 거부 또는 금융 command 전 401 인증 거부는 해당 요청이 commit되지 않았으므로 marker를 해제한다. 이전 미확정 요청을 같은 identity로 확인하는 재시도에서는 이 거부를 이전 요청의 rollback 증거로 사용하지 않는다.
+결과 분류는 `MutationContract`의 endpoint별 무변경 거부 계약을 사용한다. 검증된 write의 422, 패널 생성·Snapshot import의 pre-mutation 400/422, 원장·현금흐름 DELETE의 404/409, 정기 원본·패널·할인 DELETE의 404만 해당 계약에서 definite rejection이다. 공통 401은 command 전 인증 거부다. 예컨대 정기 원본 DELETE의 409나 일반 write의 400/409는 일괄 definite로 승인하지 않는다. HTTP 5xx·전송/응답 파싱 실패는 ambiguous하며 marker를 보존한다. 이전 미확정 요청을 같은 identity로 확인하는 재시도에서는 나중 거부를 이전 요청의 rollback 증거로 사용하지 않는다.
 
 이 문서는 모바일 Offline Mode Phase 1/1.5의 저장 경계와 Phase 2 atomic reconciliation·Snapshot-backed recovery 구현을 설명한다. 금융 도메인의 단일 진실 원천은 계속 서버 DB와 서버 API 계산 결과다.
 
@@ -81,7 +81,9 @@ ONLINE 카드 사용 등록은 최초 `POST /api/entries` request에 최종 체�
 
 카드·현금·정기 항목 등록 form은 button과 keyboard submit이 같은 local single-flight를 공유하고 AppState mutation도 재진입을 거부한다. submit 시작 때 draft snapshot을 고정하며 저장 성공 뒤 현재 draft가 그 snapshot과 동일할 때만 clear한다. 실패한 draft와 이전 request가 진행되는 동안 사용자가 입력한 새 draft는 보존한다. 정기지출 확인 form도 single-flight이며, 비동기 실결제 preview 중 금액이나 날짜가 바뀌면 오래된 preview를 확정하지 않고 현재 입력으로 다시 확인하게 한다.
 
-수동 Claim/Family Card 정산도 같은 규칙을 따른다. 최초 할인 적용/제외 의도는 패널 생성 요청의 `discount_override`/`discount_amount`로 보내고 별도 금융 PATCH를 후속 실행하지 않는다. 화면의 한 draft는 저장 중 single-flight이며, 앱 전용 `manual-panel-retries.json` schema v2에 등록 key와 원래 authoritative 입력을 원자적으로 보존한다. 응답 유실 후 앱을 재시작해도 같은 입력은 같은 key를 사용한다. 결과가 미확정인 동안 입력을 수정하거나 별개 새 draft를 제출하면 이전 key를 재사용해 전송하지 않고 중단한다. 정산 화면의 명시적인 `이전 미확정 등록 확인`은 원래 입력과 같은 key를 다시 서버에 보내므로 이미 commit됐다면 중복 생성하지 않고, 첫 요청이 서버에 도착하지 않았다면 사용자 확인 후 그 입력을 등록한다. 이전 schema v1의 digest-only 파일은 정확히 같은 입력의 재시도만 허용하고 입력을 복원할 수 없으므로 자동 확인을 제공하지 않는다. 최초 요청이 명확한 HTTP 400/422 검증 거절을 받았다면 server commit은 없으므로 key를 정리해 draft 수정을 허용한다. 응답 유실 이후의 400/422, 충돌, 응답 파싱 실패는 이전 commit을 배제하지 못하므로 key를 보존한다. 서버 성공 응답과 coherent authoritative refresh가 모두 성공한 뒤에만 임시 key를 지운다. cleanup 실패 시 key와 원래 입력을 유지해 재시작 후 다시 확인한다. 서버 저장 중이거나 결과가 불명확한 key가 남아 있으면 기존 baseline으로 새 오프라인 epoch를 시작할 수 없다. 실패한 draft와 늦게 완료된 이전 요청 중 사용자가 새로 입력한 draft는 보존한다. 자동 할인액과 실부담액은 서버가 계산한다.
+수동 Claim/Family Card 정산도 같은 규칙을 따른다. 최초 할인 적용/제외 의도는 생성 요청에 담고 후속 PATCH를 실행하지 않는다. 한 draft는 single-flight이며 기존 한 파일 `manual-panel-retries.json` schema v3에 등록 key, 원래 authoritative 입력, 안정적인 owner ID를 원자적으로 보존한다. owner ID는 session token이 아니다. 같은 owner의 재로그인·토큰 rotation·재시작에도 같은 입력/key로 명시적 확인하며, 다른 principal의 인증으로 이전 입력을 재전송하지 않는다. local 파일 작업 중 auth generation이 바뀌어도 이전 intent의 전송·cleanup을 거부한다. 별도 사용자별 retry namespace나 장부 격리는 추가하지 않는다.
+
+구 schema v2의 owner 없는 기록은 같은 등록 key를 가리키는 기존 durable online-write marker가 정확히 한 owner를 증명할 때만 v3로 결합한다. 증명이 없거나 서로 다른 marker가 있으면 파일을 보존하고 재전송하지 않는다. v1 digest-only 파일도 읽고 보존하지만 원래 입력·소유자를 증명하지 못하면 자동 확인하지 않는다. 현재 login만 보고 소유자를 추측하지 않는다. 서로 다른 입력/draft는 이전 key를 재사용하지 못한다. 최초 요청의 계약상 명확한 400/401/422 거부는 key를 정리하지만, 이미 미확정인 요청의 나중 거부·충돌·응답 유실은 이전 commit을 배제하지 못하므로 보존한다. 서버 응답·coherent refresh·baseline publication 성공 뒤에만 cleanup하며, 실패 시 key와 입력을 유지한다. 미확정 key가 남은 동안 stale baseline으로 새 Offline epoch를 시작할 수 없다. 자동 할인액과 부담은 서버가 계산한다.
 
 ## Display-only estimate
 
