@@ -10,7 +10,8 @@
 - 날짜 형식: `YYYY-MM-DD`. 날짜 입력 schema는 실제 달력 날짜로 검증하므로 `2026-02-30` 같은 값은 `422`다.
 - 월 형식: `YYYY-MM`
 - 금액 형식: 원화 정수. 비율 설정처럼 명시된 예외가 아니면 소수점 금액을 쓰지 않는다.
-- accepted 금액 입력은 lossless 정수 및 signed 64-bit 범위로 검증한다. 정수형 REAL/기존 숫자 문자열도 값이 정확히 보존될 때만 허용한다. 원문 JSON 소수가 decoder에서 0/정수로 반올림·underflow되어도 금융 command/Offline journal/v7 Snapshot의 유효한 금액으로 승인하지 않는다. 금액 설정 문자열은 float로 먼저 변환하지 않는다.
+- accepted 금액 입력은 lossless 정수 및 `±9,007,199,254,740,991원`(`±(2^53−1)`)으로 검증한다. 이전 signed-64-bit nominal 범위를 축소한 공통 제품 계약이며 full-int64/BigInt 전송은 지원하지 않는다. 정수형 REAL/기존 숫자 문자열도 이 범위에서 값이 정확히 보존될 때만 허용한다. 원문 JSON 소수가 decoder에서 0/정수로 반올림·underflow되어도 금융 command/Offline journal/v7 Snapshot의 유효한 금액으로 승인하지 않는다. 금액 설정 문자열은 float로 먼저 변환하지 않는다.
+- unsupported 입력은 commit 전에 `422`로 거부한다. Summary/결제/공유 조회의 합계가 범위를 넘으면 controlled financial domain error(`422`)이며 근사 JSON number나 SQL overflow `500`을 반환하지 않는다. 개별 유효 행이 존재한다고 모든 파생 합계가 유효한 것은 아니다. 기존 행을 자동 삭제/절삭하지 않는다. Python 정수 중간 계산은 외부 범위를 넘어도 상쇄할 수 있으며 노출 금액은 범위 검사한다.
 - 금액 필드:
   - `amount_value`: 계산 완료된 숫자 금액
   - `amount_expr`: 과거 호환용 문자열 필드. 신규 화면에서는 계산된 금액을 중시한다.

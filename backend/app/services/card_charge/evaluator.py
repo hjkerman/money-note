@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from app.money import exact_money
 
 from .activation import normalize_discount_policy
 from .classifier import classify_discount_card
@@ -21,7 +22,7 @@ from .registry import policy_for
 
 def evaluate_card_charge(charge: CardChargeInput) -> CardChargeResult:
     """카드 정책, 월 스위치, 수동 보정을 합쳐 최종 실결제액을 반환한다."""
-    original = max(0, int(charge.original_amount))
+    original = max(0, exact_money(charge.original_amount))
     transit_profile = normalize_transit_discount_profile(charge.transit_profile)
     policy_card = policy_card_for(charge.card, transit_profile)
     if (
@@ -41,7 +42,7 @@ def evaluate_card_charge(charge: CardChargeInput) -> CardChargeResult:
     )
 
     if charge.override_enabled:
-        effective_discount = max(0, int(charge.override_discount or 0))
+        effective_discount = max(0, exact_money(charge.override_discount or 0))
         reason = "manual_override"
     elif month_policy == "disabled":
         effective_discount = 0
@@ -87,13 +88,13 @@ def evaluate_stored_charge(
         CardChargeInput(
             card=card,
             usage_month=usage_month,
-            original_amount=int(amount or 0),
+            original_amount=exact_money(amount or 0),
             month_policy=month_policy,
             title=title,
             merchant=merchant,
             spending_category=spending_category,
             override_enabled=override_enabled,
-            override_discount=int(override_discount or 0),
+            override_discount=exact_money(override_discount or 0),
             transit_profile=transit_profile,
             owner_month_policy=policy_settings.get(
                 f"card_discount_policy:owner:{usage_month}"

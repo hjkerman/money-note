@@ -1,24 +1,15 @@
-from decimal import Decimal, InvalidOperation
 from datetime import date, datetime
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+from app.money import exact_money
 
 
 def integer_money(value: object) -> object:
     """비율이 아닌 돈은 원 단위 정수로만 받는다."""
     if value is None:
         return value
-    if isinstance(value, bool):
-        raise ValueError("money amount must be an integer")
-    try:
-        amount = Decimal.from_float(value) if isinstance(value, float) else Decimal(str(value).strip())
-    except (AttributeError, InvalidOperation):
-        raise ValueError("money amount must be an integer") from None
-    if (not amount.is_finite() or amount != amount.to_integral_value()
-        or not -(2**63) <= amount <= 2**63 - 1):
-        raise ValueError("money amount must be an integer")
-    return int(amount)
+    return exact_money(value)
 
 
 class LoginIn(BaseModel):
@@ -214,6 +205,7 @@ class EntryReorder(BaseModel):
 
 
 class Summary(BaseModel):
+    _integer_money = field_validator('*', mode='before')(integer_money)
     scheduled_income: int
     cash_flow_balance: int
     remaining_liquidity: int
@@ -234,6 +226,9 @@ class Summary(BaseModel):
 
 
 class MonthlyPanel(BaseModel):
+    _integer_money = field_validator('amount_value', 'discount_amount',
+        'automatic_discount_amount', 'effective_discount_amount', 'effective_amount_value',
+        'confirmed_amount_value', mode='before')(integer_money)
     id: int
     month: str
     panel_type: str
@@ -292,6 +287,7 @@ class SettingPatch(BaseModel):
 
 
 class CashFlow(BaseModel):
+    _integer_money = field_validator('amount_value', mode='before')(integer_money)
     id: int
     occurred_on: date
     title: str

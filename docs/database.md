@@ -10,7 +10,8 @@ Startup의 DB `PRAGMA user_version`과 역사적 schema 업그레이드 계약�
 - 월은 `YYYY-MM` 문자열이다.
 - 돈은 원 단위 정수로 저장한다. 수수료율 같은 비율만 소수를 허용한다.
 - 금액 컬럼은 새 DB 생성 시 `INTEGER` 타입을 사용한다.
-- v4~v6 JSON snapshot/백업의 문서화된 REAL/소수 금액 절삭 호환은 유지한다. v7은 lossless 정수 검증을 먼저 수행해 `1000.0`은 허용하지만 `1000.9`/`-0.5`는 거부한다. 금액 및 금액 설정의 범위는 SQLite signed 64-bit다.
+- 금액 및 금액 설정의 제품 범위는 `±9,007,199,254,740,991원`(`±(2^53−1)`)이다. 이전 nominal signed-64-bit 허용을 명시적으로 축소한다. 새 DB는 INTEGER, historical REAL 컬럼은 rebuild하지 않되 지원 범위의 정확한 정수만 admission/write/export한다. Summary는 Python 정수로 넓게 누적하고 노출 합계가 범위를 넘으면 controlled 422를 반환한다.
+- v4~v6 JSON snapshot/백업의 문서화된 REAL/소수 금액 절삭 호환은 위 범위 안에서만 유지한다. v7은 lossless 정수 검증을 먼저 수행해 `1000.0`은 허용하지만 `1000.9`/`-0.5`·범위 밖 값은 거부한다. 과거 저장에서 잃은 정밀도를 추측 복구하지 않는다.
 - 일반 API 입력에서는 원화 금액을 정수로 보내는 것을 원칙으로 한다.
 - `created_at`, `updated_at`은 SQLite `CURRENT_TIMESTAMP` 문자열이다.
 - 할인 정책, 자동/유효 할인액, 실결제액, 교통·통행 태그는 DB 중복 컬럼이 아니라 조회 시 서버가 만드는 API 투영값이다.

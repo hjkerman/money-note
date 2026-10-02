@@ -1,4 +1,5 @@
 from __future__ import annotations
+from app.money import MAX_MONEY, query_money_sum
 
 import json
 import hashlib
@@ -605,7 +606,7 @@ def _normalize_snapshot_money(value: Any, label: str, *, lossless: bool = True) 
         raise ValueError(f"{label} must be an integer money amount") from None
     if (not amount.is_finite()
         or (lossless and amount != amount.to_integral_value())
-        or not -(2**63) <= amount <= 2**63 - 1):
+        or abs(amount) > MAX_MONEY):
         raise ValueError(f"{label} must be an integer money amount")
     return int(amount)
 
@@ -856,19 +857,10 @@ def _validate_financial_relationships(conn: Any) -> None:
     if int(active_batch_count) > 1:
         raise ValueError("snapshot contains multiple active card payment batches")
 
-    allocation_mismatch = conn.execute(
-        """
-        SELECT card_payment_events.id
-        FROM card_payment_events
-        LEFT JOIN card_payment_allocations
-          ON card_payment_allocations.payment_event_id = card_payment_events.id
-        GROUP BY card_payment_events.id
-        HAVING card_payment_events.total_amount != COALESCE(SUM(card_payment_allocations.amount_value), 0)
-        LIMIT 1
-        """
-    ).fetchone()
-    if allocation_mismatch is not None:
-        raise ValueError("snapshot card payment event total does not match allocations")
+    for event in conn.execute('SELECT id,total_amount FROM card_payment_events'):
+        allocated = query_money_sum(conn, 'SELECT amount_value FROM card_payment_allocations WHERE payment_event_id=?', (event['id'],))
+        if event['total_amount'] != allocated:
+            raise ValueError("snapshot card payment event total does not match allocations")
 
     missing_payment_cash_flow = conn.execute(
         """

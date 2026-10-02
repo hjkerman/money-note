@@ -1,5 +1,6 @@
 from datetime import date, datetime, timezone
 from typing import Any
+from app.money import exact_money
 
 from app.db import borrowed_or_new_session
 from app.repositories.common import row_to_dict
@@ -52,7 +53,7 @@ def confirm_fixed_panel(
         if panel["amount_value"] is None:
             raise ValueError("확인 처리할 금액이 없습니다.")
 
-        amount = int(panel["amount_value"] if actual_amount is None else actual_amount)
+        amount = exact_money(panel["amount_value"] if actual_amount is None else actual_amount)
         if amount < 0:
             raise ValueError("현금성 고정지출 실제 출금액은 0원 이상이어야 합니다.")
         next_order = conn.execute(

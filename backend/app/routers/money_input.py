@@ -51,4 +51,4 @@ async def require_lossless_money_body(request: Request) -> None:
     try:
         validate_financial_json_money(await request.body())
     except (ValueError, InvalidOperation) as exc:
-        raise HTTPException(status_code=422, detail="money input must be a lossless integer amount") from exc
+        raise HTTPException(status_code=422, detail=f"money input must be a lossless integer amount: {exc}") from exc

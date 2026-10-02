@@ -4,6 +4,7 @@ from datetime import date, datetime
 import hashlib
 import json
 from typing import Any
+from app.money import exact_money, query_money_sum, allocation_totals, validate_money_payload
 
 from app.db import borrowed_or_new_session
 from app.repositories.common import new_payment_key
@@ -44,7 +45,7 @@ def current_payment_status(today: date | None = None) -> dict[str, Any]:
     recorded_remaining_total = _remaining_total(payable_rows)
     is_after_due = today > context.due_date
     liquidity_reset_acknowledged = _setting_value("card_payment_liquidity_reset_ack_month") == context.payment_month
-    return {
+    result = {
         "calendar_date": today.isoformat(),
         "payment_month": context.payment_month,
         "usage_month": context.usage_month,
@@ -62,6 +63,8 @@ def current_payment_status(today: date | None = None) -> dict[str, Any]:
         "rows": rows,
         "events": _events_for_batch(context.batch_id),
     }
+    validate_money_payload(result)
+    return result
 
 
 def active_card_payment_unpaid_total(today: date | None = None, conn: Any | None = None) -> int:
@@ -86,7 +89,7 @@ def closed_month_payment_batch_id(conn: Any, entry_month: str, today: date) -> i
 
 
 def _remaining_total(rows: list[dict[str, Any]]) -> int:
-    return sum(int(row.get("remaining_amount") or 0) for row in rows)
+    return exact_money(sum(exact_money(row.get("remaining_amount") or 0) for row in rows), 'card remaining total')
 
 
 def create_month_close_card_payment_batch(conn: Any, usage_month: str) -> int:
@@ -179,24 +182,16 @@ def discount_month_status(month: str, scope: str = "owner", *, conn: Any | None 
                    ledger_entries.usage_place,
                    ledger_entries.spending_category,
                    ledger_entries.discount_override,
-                   ledger_entries.aux_amount_value,
-                   COALESCE(SUM(
-                       CASE WHEN card_payment_events.event_type = 'discount'
-                            THEN card_payment_allocations.amount_value ELSE 0 END
-                   ), 0) AS override_discount_amount
+                   ledger_entries.aux_amount_value
             FROM ledger_entries
-            LEFT JOIN card_payment_allocations
-              ON card_payment_allocations.entry_payment_key = ledger_entries.payment_key
-            LEFT JOIN card_payment_events
-              ON card_payment_events.id = card_payment_allocations.payment_event_id
-             AND card_payment_events.event_type = 'discount'
             WHERE ledger_entries.entry_date LIKE ?
               AND ledger_entries.payment_key IS NOT NULL
               AND ledger_entries.entry_kind != 'planned'
-            GROUP BY ledger_entries.id
             """,
             (f"{month}%",),
         ).fetchall()
+        allocated_discounts = allocation_totals(conn, 'discount')
+        rows = [{**dict(row), 'override_discount_amount': allocated_discounts.get(row['payment_key'], 0)} for row in rows]
     discounts = {
         row["payment_key"]: evaluate_stored_charge(
             row["amount_value"],
@@ -222,7 +217,7 @@ def discount_month_status(month: str, scope: str = "owner", *, conn: Any | None 
             month,
         ),
         "discounts": discounts,
-        "discount_total": sum(discounts.values()),
+        "discount_total": exact_money(sum(discounts.values()), 'discount_total'),
     }
 
 
@@ -312,9 +307,9 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
             ).fetchone()
             if deferral is not None and deferral["target_payment_month"] > event_date.strftime("%Y-%m"):
                 raise ValueError("다음 달로 이월한 항목은 이번 달에 처리할 수 없습니다.")
-            paid = conn.execute(
+            paid = query_money_sum(conn,
                 """
-                SELECT COALESCE(SUM(amount_value), 0) AS total
+                SELECT amount_value
                 FROM card_payment_allocations
                 JOIN card_payment_events
                   ON card_payment_events.id = card_payment_allocations.payment_event_id
@@ -323,10 +318,10 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
                   AND card_payment_events.batch_id = ?
                 """,
                 (key, context.batch_id),
-            ).fetchone()["total"]
-            override_discount = conn.execute(
+            )
+            override_discount = query_money_sum(conn,
                 """
-                SELECT COALESCE(SUM(amount_value), 0) AS total
+                SELECT amount_value
                 FROM card_payment_allocations
                 JOIN card_payment_events
                   ON card_payment_events.id = card_payment_allocations.payment_event_id
@@ -335,9 +330,9 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
                   AND card_payment_events.batch_id = ?
                 """,
                 (key, context.batch_id),
-            ).fetchone()["total"]
+            )
             if payload.event_type == "discount":
-                remaining = max(0.0, float(row["amount_value"] or 0) - float(paid or 0))
+                remaining = max(0, exact_money(row["amount_value"] or 0) - paid)
             else:
                 current_discount = evaluate_stored_charge(
                     row["amount_value"],
@@ -351,12 +346,12 @@ def create_card_payment_event(payload: CardPaymentEventIn, today: date | None = 
                     spending_category=row["spending_category"],
                     settings=settings,
                 ).effective_discount_amount
-                remaining = max(0.0, float(row["amount_value"] or 0) - float(paid or 0) - current_discount)
-            if amount > remaining + 0.0001:
+                remaining = max(0, exact_money(row["amount_value"] or 0) - paid - current_discount)
+            if amount > remaining:
                 raise ValueError("처리 금액이 해당 항목의 남은 결제금액을 초과합니다.")
             allocations.append((key, amount))
 
-        total = sum(amount for _, amount in allocations)
+        total = exact_money(sum(amount for _, amount in allocations), 'card payment total')
         cash_flow_id = None
         if payload.event_type == "immediate":
             next_order = conn.execute(
@@ -457,7 +452,7 @@ def set_entry_discount(
         ).fetchone()
         if row is None:
             raise ValueError("할인 대상 사용내역을 찾을 수 없습니다.")
-        if amount > float(row["amount_value"] or 0):
+        if amount > exact_money(row["amount_value"] or 0):
             raise ValueError("할인액은 원래 금액을 초과할 수 없습니다.")
         _delete_entry_discount_events(conn, entry_payment_key)
         conn.execute(
@@ -611,9 +606,9 @@ def defer_toll_payment(entry_payment_key: str, today: date | None = None, *, con
         ).fetchone()
         if row is None:
             raise ValueError("이번 달 이월 대상으로 선택할 수 없는 사용내역입니다.")
-        allocated = conn.execute(
+        allocated = query_money_sum(conn,
             """
-            SELECT COALESCE(SUM(amount_value), 0) AS total
+            SELECT amount_value
             FROM card_payment_allocations
             JOIN card_payment_events
               ON card_payment_events.id = card_payment_allocations.payment_event_id
@@ -621,8 +616,8 @@ def defer_toll_payment(entry_payment_key: str, today: date | None = None, *, con
               AND card_payment_events.batch_id = ?
             """,
             (entry_payment_key, context.batch_id),
-        ).fetchone()["total"]
-        if float(allocated or 0) > 0:
+        )
+        if allocated > 0:
             raise ValueError("이미 일부결제 또는 할인이 반영된 항목은 이월할 수 없습니다.")
         previous = conn.execute(
             "SELECT from_payment_month, target_payment_month FROM card_payment_deferrals WHERE entry_payment_key = ?",

@@ -1,5 +1,13 @@
 # 알려진 이슈
 
+## Exact monetary domain closure — 독립 재감사 대기
+
+합성 pre_batch REAL DB에서 `2^53+1` API/restore 승인의 1원 손실, 개별/최종 값은 safe하지만 Summary float 중간값이 1원 달라지는 반례, SQLite SUM의 int64 overflow를 먼저 재현했다. 제품 범위는 명시적으로 `±(2^53−1)` 정수로 정렬한다. 과거 nominal int64 지원을 end-to-end exact 또는 arbitrary precision 지원으로 주장하지 않는다.
+
+입력/영속 admission/v7 import는 범위 밖을 거부하며 금액 설정 backfill도 float를 쓰지 않는다. Summary/카드 배분·할인 이벤트 누계는 Python 정수이고 명명된 응답 합계는 범위를 검사해 controlled 422를 반환한다. 양수 누계가 int64를 넘은 뒤 상쇄되는 safe 행들의 최종 1원도 정확하다. 클라이언트 transport/local journal의 검사와 pre-append aggregate gate를 회귀로 고정한다. 정상 1.2% 정책·소유 관계·actual 7,000원 투영·말일/조기 fixed·reconciliation은 유지한다. 실제 운영 데이터의 범위/합계 확인과 배포는 미실행이며 runbook의 별도 predeploy gate가 필요하다.
+
+같은 numeric surface의 자체 감사에서 API 시작 후 synthetic runtime 설정을 범위 밖으로 바꾸면 `/api/settings`가 200으로 내보내던 누락도 재현했다. `scheduled_income`·`cash_flow_balance`·`card_limit` 조회는 이제 무변경 controlled 422이며, 서버/웹/모바일의 현재·legacy 금액 설정 key 검사를 같은 계약으로 맞춘다. 입력 전 거부와 응답 수신 후 ambiguity의 기존 분류는 구별한다.
+
 ## Financial canonicalization / actual projection closure — 독립 재감사 대기
 
 `test_financial_canonicalization.py`는 시작 구현의 v7 `amount_value=-0.5` 복원 승인(95,060→100,000원)과 archive actual 7,000원/NULL 날짜의 confirmed template 5,000원 fallback을 먼저 재현했다. v7은 손실 없는 금액 검증 뒤 정규화하며 confirmed 조회는 정확히 한 source/epoch child를 날짜 유무와 관계없이 투영한다. current 지출의 NULL 날짜 금지는 유지한다.

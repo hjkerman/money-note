@@ -1,5 +1,6 @@
 from calendar import monthrange
 from datetime import date
+from app.money import exact_money
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
@@ -194,7 +195,7 @@ def patch_panel_discount(panel_id: int, patch: PanelDiscountPatch, _: dict = Dep
             raise HTTPException(status_code=404, detail="panel not found")
         if panel["panel_type"] not in {"claim", "family_card"}:
             raise HTTPException(status_code=422, detail="청구 또는 가족카드 항목에만 카드 할인을 적용할 수 있습니다.")
-        if patch.discount_amount > float(panel["amount_value"] or 0):
+        if patch.discount_amount > exact_money(panel["amount_value"] or 0):
             raise HTTPException(status_code=422, detail="할인액은 원래 청구금액을 초과할 수 없습니다.")
         updated = set_panel_discount(panel_id, patch.discount_amount, 1, conn=conn)
         return financial_response(MonthlyPanel.model_validate(present_monthly_panel(updated, conn=conn)).model_dump(mode="json"))

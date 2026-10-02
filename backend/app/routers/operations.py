@@ -10,6 +10,7 @@ from app.schemas import CashFlow, CashFlowIn, SettingPatch, integer_money
 from app.share_auth import SENSITIVE_SHARE_SETTING_KEYS
 from app.routers.responses import financial_response
 from app.routers.money_input import require_lossless_money_body
+from app.money import validate_money_payload
 
 settings_router = APIRouter(prefix="/api/settings", tags=["settings"])
 cash_router = APIRouter(prefix="/api/cash-flows", tags=["cash-flows"], dependencies=[Depends(require_lossless_money_body)])
@@ -24,7 +25,12 @@ def get_settings_values(_: dict = Depends(require_user)) -> dict[str, str]:
             "ORDER BY key",
             tuple(SENSITIVE_SHARE_SETTING_KEYS),
         ).fetchall()
-    return {row["key"]: row["value"] for row in rows}
+    result = {row["key"]: row["value"] for row in rows}
+    try:
+        validate_money_payload(result)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return result
 
 
 @settings_router.patch("/{key}")
@@ -38,7 +44,7 @@ def patch_setting(key: str, patch: SettingPatch, _: dict = Depends(require_user)
         try:
             amount = integer_money(value)
         except ValueError as exc:
-            raise HTTPException(status_code=422, detail=f"{key} must be an integer money amount") from exc
+            raise HTTPException(status_code=422, detail=f"{key}: {exc}") from exc
         if amount < 0:
             raise HTTPException(status_code=422, detail=f"{key} must be greater than or equal to zero")
         value = str(amount)

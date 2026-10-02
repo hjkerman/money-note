@@ -9,6 +9,7 @@ import {
   sumPanelNetAmounts,
 } from "../../utils";
 import { DiscountEditor } from "./DiscountEditor";
+import { parseExactMoney } from "../../money";
 
 export function PanelTable({
   title,
@@ -295,6 +296,6 @@ function FixedConfirmationCells({
 function parseNonNegativeInteger(value: string): number | null {
   const normalized = value.trim();
   if (!normalized) return null;
-  const parsed = Number(normalized);
-  return Number.isInteger(parsed) && parsed >= 0 ? parsed : null;
+  const parsed = parseExactMoney(normalized);
+  return parsed !== null && parsed >= 0 ? parsed : null;
 }

@@ -1,4 +1,5 @@
 import '../models.dart';
+import '../money.dart';
 
 enum ConnectivityMode {
   online,
@@ -237,6 +238,7 @@ class OfflineJournalOperation {
       };
 
   factory OfflineJournalOperation.fromJson(Map<String, dynamic> json) {
+    validateMoneyPayload(json);
     if (json['schema_version'] != schemaVersion) {
       throw const FormatException('unsupported offline journal schema');
     }
@@ -338,6 +340,7 @@ class OfflineBaseline {
       };
 
   factory OfflineBaseline.fromJson(Map<String, dynamic> json) {
+    validateMoneyPayload(json);
     final version = json['schema_version'];
     if (version != 1 &&
         version != 2 &&

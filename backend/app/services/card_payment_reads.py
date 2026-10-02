@@ -4,6 +4,7 @@ from calendar import monthrange
 from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Any
+from app.money import exact_money, query_money_sum, allocation_totals
 
 from app.db import session
 from app.services.financial_relationships import validate_runtime_card_payment_ownership
@@ -78,29 +79,15 @@ def _payment_rows_for_batch(
         """
             SELECT ledger_entries.*,
                    card_payment_deferrals.from_payment_month AS deferred_from_payment_month,
-                   card_payment_deferrals.target_payment_month AS deferred_target_payment_month,
-                   COALESCE(SUM(
-                       CASE WHEN card_payment_events.event_type = 'immediate'
-                            THEN card_payment_allocations.amount_value ELSE 0 END
-                   ), 0) AS immediate_paid_amount,
-                   COALESCE(SUM(
-                       CASE WHEN card_payment_events.event_type = 'discount'
-                            THEN card_payment_allocations.amount_value ELSE 0 END
-                   ), 0) AS override_discount_amount
+                   card_payment_deferrals.target_payment_month AS deferred_target_payment_month
             FROM card_payment_batch_items
             JOIN ledger_entries
               ON ledger_entries.id = card_payment_batch_items.entry_id
-            LEFT JOIN card_payment_allocations
-              ON card_payment_allocations.entry_payment_key = ledger_entries.payment_key
-            LEFT JOIN card_payment_events
-              ON card_payment_events.id = card_payment_allocations.payment_event_id
-             AND card_payment_events.batch_id = card_payment_batch_items.batch_id
             LEFT JOIN card_payment_deferrals
               ON card_payment_deferrals.entry_payment_key = ledger_entries.payment_key
             WHERE card_payment_batch_items.batch_id = ?
               AND ledger_entries.entry_kind != 'planned'
               AND COALESCE(ledger_entries.amount_value, 0) > 0
-            GROUP BY ledger_entries.id
             ORDER BY
               CASE WHEN card_payment_deferrals.target_payment_month = ? THEN 0
                    WHEN card_payment_deferrals.from_payment_month = ? THEN 2
@@ -111,12 +98,14 @@ def _payment_rows_for_batch(
         """,
         (context.batch_id, payment_month, payment_month),
     ).fetchall()
+    paid = allocation_totals(conn, 'immediate', context.batch_id)
+    discounts = allocation_totals(conn, 'discount', context.batch_id)
     result = []
     for row in rows:
         data = dict(row)
-        original = int(data.get("amount_value") or 0)
-        immediate = int(data.pop("immediate_paid_amount") or 0)
-        override_discount = int(data.pop("override_discount_amount") or 0)
+        original = exact_money(data.get("amount_value") or 0)
+        immediate = paid.get(data['payment_key'], 0)
+        override_discount = discounts.get(data['payment_key'], 0)
         deferred_from = data.pop("deferred_from_payment_month", None)
         deferred_target = data.pop("deferred_target_payment_month", None)
         usage_month = str(data.get("entry_date") or "")[:7]
@@ -277,11 +266,11 @@ def _events_for_batch(batch_id: int | None) -> list[dict[str, Any]]:
     return [dict(row) for row in rows]
 
 
-def _manual_entry_discount(row: Any) -> float:
+def _manual_entry_discount(row: Any) -> int:
     """원장 수동 할인액을 꺼낸다. aux 값이 있으면 과거 할인 이벤트보다 우선한다."""
     if row["discount_override"] and row["aux_amount_value"] is not None:
-        return float(row["aux_amount_value"] or 0)
-    return float(row["override_discount_amount"] or 0)
+        return exact_money(row["aux_amount_value"] or 0)
+    return exact_money(row["override_discount_amount"] or 0)
 
 
 def _previous_month(value: date) -> str:
@@ -313,19 +302,19 @@ def _payment_due_date(payment_month: str) -> date:
     return date(parsed.year, parsed.month, min(14, monthrange(parsed.year, parsed.month)[1]))
 
 
-def _primary_income_total(payment_month: str) -> float:
+def _primary_income_total(payment_month: str) -> int:
     with session() as conn:
-        row = conn.execute(
+        total = query_money_sum(conn,
             """
-            SELECT COALESCE(SUM(amount_value), 0) AS total
+            SELECT amount_value
             FROM cash_flows
             WHERE occurred_on LIKE ?
               AND is_primary_income = 1
               AND amount_value > 0
             """,
             (f"{payment_month}%",),
-        ).fetchone()
-    return float(row["total"])
+        )
+    return exact_money(total, 'primary_income_total')
 
 
 def _setting_value(key: str, conn: Any | None = None) -> str:

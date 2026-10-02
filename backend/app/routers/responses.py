@@ -8,9 +8,11 @@ from typing import Any
 
 from pydantic import TypeAdapter
 from starlette.responses import JSONResponse
+from app.money import validate_money_payload
 
 
 def financial_response(content: Any, *, response_type: Any | None = None) -> JSONResponse:
+    validate_money_payload(content)
     if response_type is not None:
         adapter = TypeAdapter(response_type)
         content = adapter.dump_python(adapter.validate_python(content), mode="json")

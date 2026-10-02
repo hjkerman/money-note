@@ -538,6 +538,9 @@ MIGRATIONS = (
 
 
 def initialize_database(conn: sqlite3.Connection, schema: str) -> None:
+    from app.money import validate_database_money
+
+    validate_database_money(conn)
     version = conn.execute("PRAGMA user_version").fetchone()[0]
     if version < 0:
         raise RuntimeError(f"invalid database schema version: {version}")
@@ -665,6 +668,7 @@ def _drop_legacy_column(conn: sqlite3.Connection, table: str, column: str) -> No
 
 def _normalize_money_settings(conn: sqlite3.Connection) -> None:
     """돈 단위 설정값은 기존 소수 표기를 정수 문자열로 정리한다."""
+    from app.money import exact_money
     keys = {
         "scheduled_income",
         "base_next_month_liquidity",
@@ -677,19 +681,15 @@ def _normalize_money_settings(conn: sqlite3.Connection) -> None:
         tuple(keys),
     ).fetchall()
     for row in rows:
-        try:
-            amount = float(row["value"])
-        except ValueError:
-            continue
-        if amount.is_integer():
-            conn.execute(
-                """
-                UPDATE app_settings
-                SET value = ?, updated_at = CURRENT_TIMESTAMP
-                WHERE key = ?
-                """,
-                (str(int(amount)), row["key"]),
-            )
+        amount = exact_money(row["value"])
+        conn.execute(
+            """
+            UPDATE app_settings
+            SET value = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE key = ?
+            """,
+            (str(amount), row["key"]),
+        )
 
 
 def _backfill_planned_due_days(conn: sqlite3.Connection) -> None:

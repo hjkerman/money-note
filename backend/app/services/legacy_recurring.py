@@ -10,6 +10,7 @@ from collections.abc import Mapping, Sequence
 from datetime import datetime
 from math import isfinite
 from typing import Any
+from app.money import MAX_MONEY
 
 
 def validate_source_epoch(source: Mapping[str, Any]) -> None:
@@ -72,7 +73,7 @@ def valid_nonnegative_money(value: Any) -> bool:
     # Supported historical DBs retain REAL affinity even after integer-money
     # migration. 5000.0 is an integer principal; NULL, NaN and 5000.5 are not.
     return (not isinstance(value, bool) and isinstance(value, (int, float))
-            and isfinite(value) and value >= 0 and value == int(value))
+            and isfinite(value) and 0 <= value <= MAX_MONEY and value == int(value))
 
 
 def near_confirmation_creation(created_at: Any, confirmed_at: Any) -> bool:

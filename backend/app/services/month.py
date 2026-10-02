@@ -3,6 +3,7 @@ from __future__ import annotations
 from calendar import monthrange
 from datetime import date, datetime
 from typing import Any
+from app.money import exact_money
 
 from app.db import borrowed_or_new_session, session
 from app.services.clock import app_month_for_utc_timestamp, app_today
@@ -340,7 +341,7 @@ def _record_scheduled_income(conn: Any, closed_on: date) -> None:
     if row is None:
         return
     try:
-        amount = int(str(row["value"]))
+        amount = exact_money(row["value"])
     except ValueError:
         raise ValueError("기본 예정 수입은 원 단위 정수여야 합니다.") from None
     if amount < 0:

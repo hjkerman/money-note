@@ -8,6 +8,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'models.dart';
+import 'money.dart';
 
 const _tokenKey = 'money_note_session_token';
 const _secureStorage = FlutterSecureStorage(
@@ -502,6 +503,7 @@ class MoneyNoteApiClient {
 
   Future<T> _post<T>(String path, Map<String, dynamic> body,
       T Function(Map<String, dynamic>) parser) async {
+    _validateWriteMoney(body);
     final response = await _request(() => _client.post(
           _uri(path),
           headers: {'Content-Type': 'application/json', ..._headers()},
@@ -512,6 +514,7 @@ class MoneyNoteApiClient {
 
   Future<T> _patch<T>(String path, Map<String, dynamic> body,
       T Function(Map<String, dynamic>) parser) async {
+    _validateWriteMoney(body);
     final response = await _request(() => _client.patch(
           _uri(path),
           headers: {'Content-Type': 'application/json', ..._headers()},
@@ -524,6 +527,16 @@ class MoneyNoteApiClient {
     final response =
         await _request(() => _client.delete(_uri(path), headers: _headers()));
     _parseJson(response);
+  }
+
+  void _validateWriteMoney(Map<String, dynamic> body) {
+    try {
+      validateMoneyPayload(body);
+    } on FormatException {
+      // Proven pre-request rejection, not a possibly committed transport loss.
+      throw MoneyNoteApiException('정확한 금액 범위 또는 형식이 올바르지 않습니다.',
+          code: 'invalid_money_input', statusCode: 422);
+    }
   }
 
   Future<http.Response> _request(Future<http.Response> Function() request,
@@ -564,7 +577,9 @@ class MoneyNoteApiClient {
       throw _readApiException(response);
     }
     if (response.body.isEmpty) return <String, dynamic>{};
-    return jsonDecode(utf8.decode(response.bodyBytes));
+    final decoded = jsonDecode(utf8.decode(response.bodyBytes));
+    validateMoneyPayload(decoded);
+    return decoded;
   }
 
   MoneyNoteApiException _readApiException(http.Response response) {

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from app.money import exact_money, money_sum, validate_money_payload
 
 from app.repositories.cash_flows import list_cash_flows
 from app.repositories.entries import list_entries
@@ -36,11 +37,11 @@ def shared_panel(panel_type: str) -> dict:
     minimum_discount_total = sum(
         _panel_discount_amount(row, settings) for row in minimum_rows
     )
-    current_card_total = sum(row.get("amount_value") or 0 for row in list_entries("current"))
+    current_card_total = money_sum(row.get("amount_value") for row in list_entries("current"))
     card_limit = _float_setting(settings, "card_limit", 5_800_000)
     label_key, fallback = PANEL_TITLES[panel_type]
     title = list_labels().get(label_key, fallback)
-    return {
+    result = {
         "month": month,
         "panel_type": panel_type,
         "title": title,
@@ -53,6 +54,8 @@ def shared_panel(panel_type: str) -> dict:
         "minimum_total": minimum_total,
         "minimum_discount_total": minimum_discount_total,
     }
+    validate_money_payload(result)
+    return result
 
 
 def shared_panel_html(panel_type: str) -> str:
@@ -91,7 +94,7 @@ def _row_html(
     settings: Mapping[str, str],
 ) -> str:
     discount = _panel_discount_amount(row, settings)
-    original = float(row.get("amount_value") or 0)
+    original = exact_money(row.get("amount_value") or 0)
     net = _panel_net_amount(row, settings)
     return render_panel_row(
         row=row,
@@ -149,10 +152,10 @@ def _korean_month_label(month: str) -> str:
 def _panel_net_amount(
     row: dict,
     settings: Mapping[str, str] | None = None,
-) -> float:
+) -> int:
     return max(
         0,
-        float(row.get("amount_value") or 0)
+        exact_money(row.get("amount_value") or 0)
         - _panel_discount_amount(row, settings),
     )
 
@@ -160,9 +163,9 @@ def _panel_net_amount(
 def _panel_discount_amount(
     row: dict,
     settings: Mapping[str, str] | None = None,
-) -> float:
+) -> int:
     if row.get("panel_type") not in {"claim", "family_card"}:
-        return 0.0
+        return 0
     settings = settings or list_settings()
     scope = "family" if row.get("panel_type") == "family_card" else "owner"
     policy = normalize_discount_policy(
@@ -188,8 +191,5 @@ def _ledger_note(panel_type: str, month: str) -> str | None:
     return claim_ledger_note(month, [*list_entries("archive"), *list_entries("current")], list_cash_flows())
 
 
-def _float_setting(settings: dict[str, str], key: str, fallback: float) -> float:
-    try:
-        return float(settings.get(key, fallback))
-    except (TypeError, ValueError):
-        return fallback
+def _float_setting(settings: dict[str, str], key: str, fallback: int) -> int:
+    return exact_money(settings.get(key, fallback), key)

@@ -1,4 +1,5 @@
 const LEGACY_SESSION_TOKEN_KEY = "money-note-session-token";
+import { validateMoneyPayload } from "../money";
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? defaultApiBaseUrl();
 
@@ -25,6 +26,7 @@ export async function getJson<T>(path: string): Promise<T> {
 }
 
 export async function postJson<T>(path: string, body: unknown): Promise<T> {
+  validateMoneyPayload(body);
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -35,6 +37,7 @@ export async function postJson<T>(path: string, body: unknown): Promise<T> {
 }
 
 export async function patchJson<T>(path: string, body: unknown): Promise<T> {
+  validateMoneyPayload(body);
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
@@ -84,7 +87,9 @@ async function parseResponse<T>(response: Response): Promise<T> {
     const detail = await response.text();
     throw new ApiResponseError(readableErrorMessage(response.status, detail), response.status);
   }
-  return response.json() as Promise<T>;
+  const data = await response.json() as T;
+  validateMoneyPayload(data);
+  return data;
 }
 
 export function readableErrorMessage(status: number, detail: string): string {

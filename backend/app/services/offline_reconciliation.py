@@ -5,6 +5,7 @@ import json
 from collections.abc import Callable
 from datetime import date, datetime, timezone
 from typing import Any
+from app.money import exact_money
 
 from app.db import session
 from app.repositories.cash_flows import create_cash_flow
@@ -385,7 +386,7 @@ def _apply_fixed_confirmation(
         set(),
     )
     panel_id = _positive_integer(payload["panel_id"], "panel_id")
-    actual_amount = _integer(payload["actual_amount"], "actual_amount")
+    actual_amount = exact_money(_integer(payload["actual_amount"], "actual_amount"))
     if actual_amount < 0:
         raise ValueError("actual_amount must be non-negative")
     result = confirm_fixed_panel(
@@ -413,7 +414,7 @@ def _apply_planned_confirmation(
         set(),
     )
     entry_id = _positive_integer(payload["entry_id"], "entry_id")
-    actual_amount = _integer(payload["actual_amount"], "actual_amount")
+    actual_amount = exact_money(_integer(payload["actual_amount"], "actual_amount"))
     if actual_amount < 0:
         raise ValueError("actual_amount must be non-negative")
     try:

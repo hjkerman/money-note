@@ -1,3 +1,5 @@
+import 'money.dart';
+
 class AuthUser {
   AuthUser({
     required this.id,
@@ -62,6 +64,7 @@ class Summary {
   final int visibleCashFlowTotal;
 
   factory Summary.fromJson(Map<String, dynamic> json) {
+    validateMoneyPayload(json);
     return Summary(
       scheduledIncome: _int(json['scheduled_income']),
       cardTotal: _int(json['card_total']),
@@ -91,6 +94,7 @@ class CardPaymentStatus {
   final int effectiveRemainingTotal;
 
   factory CardPaymentStatus.fromJson(Map<String, dynamic> json) {
+    validateMoneyPayload(json);
     return CardPaymentStatus(
       effectiveRemainingTotal: _int(json['effective_remaining_total']),
     );
@@ -162,6 +166,7 @@ class LedgerEntry {
   int get effectiveAmount => effectiveAmountValue ?? (amountValue ?? 0);
 
   factory LedgerEntry.fromJson(Map<String, dynamic> json) {
+    validateMoneyPayload(json);
     return LedgerEntry(
       id: json['id'] as int,
       bookSection: json['book_section'] as String,
@@ -262,6 +267,7 @@ class MonthlyPanel {
   bool get isDiscountPolicyEnabled => discountPolicy == 'enabled';
 
   factory MonthlyPanel.fromJson(Map<String, dynamic> json) {
+    validateMoneyPayload(json);
     return MonthlyPanel(
       id: json['id'] as int,
       month: json['month'] as String,
@@ -312,6 +318,7 @@ class PlannedChargePreview {
   final int effectiveAmountValue;
 
   factory PlannedChargePreview.fromJson(Map<String, dynamic> json) {
+    validateMoneyPayload(json);
     return PlannedChargePreview(
       amountValue: _int(json['amount_value']),
       discountPolicy: json['discount_policy'] as String? ?? 'disabled',
@@ -343,6 +350,7 @@ class CashFlow {
   final bool isOfflinePending;
 
   factory CashFlow.fromJson(Map<String, dynamic> json) {
+    validateMoneyPayload(json);
     return CashFlow(
       id: json['id'] as int,
       occurredOn: json['occurred_on'] as String,
@@ -548,6 +556,7 @@ class AppSettings {
   String get familyCardLast4 => values['family_card_last4'] ?? '';
 
   factory AppSettings.fromJson(Map<String, dynamic> json) {
+    validateMoneyPayload(json);
     return AppSettings(
         values:
             json.map((key, value) => MapEntry(key, value?.toString() ?? '')));

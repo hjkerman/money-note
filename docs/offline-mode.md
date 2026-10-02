@@ -1,5 +1,11 @@
 # 모바일 Offline Mode
 
+## 정확한 금액 범위
+
+ONLINE/Offline baseline/J/reconciliation은 서버와 같은 `±(2^53−1)원` 정수 계약을 사용한다. 소수나 범위 밖 값을 `toInt()`로 잘라 accepted input으로 만들지 않는다. 기준 데이터/응답/로컬 재시작에서도 known monetary 필드를 검증한다. Journal은 값과 예상 합계의 범위를 durable append **전에** 검사하며 거부 시 기존 B/J를 유지한다. 예상값은 계속 display-only이고 authoritative payload/hash를 재작성하지 않는다. Descriptor rate의 원화 곱셈은 quotient/remainder로 계산해 native int64 중간 overflow를 피하며 서버 정책을 새로 추론하지 않는다.
+
+API 호출 **전** invalid money input은 무변경 definite rejection이다. 호출 후 invalid response/persistence 실패는 definite rejection이 아니며 기존 unknown/committed-rebuild-pending과 Offline gate를 유지한다. 비-idempotent mutation을 자동 재전송하지 않는다.
+
 ## ONLINE 저장 후 authoritative rebuild 대기
 
 온라인 금융 요청 직전에 사용자별 `online-write-<user-id>.json` 안전 marker를 원자적으로 보관한다. 이는 금융 입력/projection이 아니라 미확정·서버 저장 완료 상태, 작업 token, 있는 경우 기존 정산 retry identity만 담는다. 서버 응답 후에는 `serverCommittedRebuildPending`으로 기록한다. Coherent read → baseline publication → 동일 auth/lineage 권한 확인 → 해당 marker cleanup → 화면 설치까지 끝나야 submit은 완료다. 저장된 요청을 로컬 갱신 실패 때문에 다시 보내지 않는다.

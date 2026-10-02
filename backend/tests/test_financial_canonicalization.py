@@ -130,9 +130,11 @@ class FinancialCanonicalizationTest(IsolatedDatabaseTestCase):
         self.assertNotEqual(malformed, before)
 
     def test_integer_valued_real_normalization_preserves_exact_value(self):
-        # str(REAL) rounds this integer from 9223372036854774784 to
-        # 9223372036854775000; it is still inside SQLite's signed 64-bit range.
-        value = float(9223372036854774784)
+        # Integer-valued REAL remains compatible inside the explicit product
+        # range; previously accepted int64-only values are now fail-closed.
+        with self.assertRaises(ValueError):
+            snapshot._normalize_snapshot_money(float(9223372036854774784), "cash")
+        value = float(2**53 - 1)
         self.assertEqual(snapshot._normalize_snapshot_money(value, "cash"), int(value))
         artifact = snapshot.export_snapshot()[1]
         artifact["data"]["cash_flows"] = [{"id": 1, "occurred_on": "2026-06-11", "title": "real",
@@ -142,7 +144,9 @@ class FinancialCanonicalizationTest(IsolatedDatabaseTestCase):
             self.assertEqual(conn.execute("SELECT amount_value FROM cash_flows WHERE id=1").fetchone()[0], int(value))
 
     def test_api_integer_valued_real_preserves_principal_before_commit(self):
-        value = float(9223372036854774784)
+        with self.assertRaises(ValueError):
+            integer_money(float(9223372036854774784))
+        value = float(2**53 - 1)
         self.assertEqual(integer_money(value), int(value))
         app = FastAPI()
         app.include_router(operations.cash_router)
@@ -180,15 +184,15 @@ class FinancialCanonicalizationTest(IsolatedDatabaseTestCase):
         app.include_router(operations.settings_router)
         app.dependency_overrides[require_user] = lambda: {"id": 1}
         with TestClient(app) as client:
-            for value in ("5000.00000000000001", "-1e-400", "9223372036854775808"):
+            for value in ("5000.00000000000001", "-1e-400", "9223372036854775808", "9007199254740993"):
                 with self.subTest(value=value):
                     before = self.durable()
                     result = client.patch("/api/settings/scheduled_income", json={"value": value})
                     self.assertEqual(result.status_code, 422)
                     self.assertEqual(self.durable(), before)
-            result = client.patch("/api/settings/scheduled_income", json={"value": "9007199254740993"})
+            result = client.patch("/api/settings/scheduled_income", json={"value": "9007199254740991"})
             self.assertEqual(result.status_code, 200)
-            self.assertEqual(result.json(), {"scheduled_income": "9007199254740993"})
+            self.assertEqual(result.json(), {"scheduled_income": "9007199254740991"})
             snapshot.restore_snapshot(snapshot.export_snapshot()[1])
 
     def test_api_sqlite_money_range_rejected_before_mutation(self):
@@ -232,7 +236,7 @@ class FinancialCanonicalizationTest(IsolatedDatabaseTestCase):
     def test_raw_numeric_command_and_journal_field_matrix(self):
         fields = ("amount_value", "aux_amount_value", "actual_amount", "discount_amount", "discount_override_amount")
         for field in fields:
-            for literal in ("-1e-400", "5000.00000000000001", "9.223372036854775e18", "NaN", "Infinity"):
+            for literal in ("-1e-400", "5000.00000000000001", "9.223372036854775e18", "NaN", "Infinity", "9223372036854775807", "-9223372036854775808"):
                 for container in ("command", "allocation", "journal"):
                     with self.subTest(field=field, literal=literal, container=container):
                         row = '{"' + field + '":' + literal + '}'
@@ -240,7 +244,7 @@ class FinancialCanonicalizationTest(IsolatedDatabaseTestCase):
                             '{"operations":[{"payload":' + row + '}]}')
                         with self.assertRaises(ValueError):
                             validate_financial_json_money(body)
-        for literal in ("0", "-500", "5000.0", "9223372036854775807", "-9223372036854775808", '"5000.0"'):
+        for literal in ("0", "-500", "5000.0", "9007199254740991", "-9007199254740991", '"5000.0"'):
             with self.subTest(valid=literal):
                 validate_financial_json_money('{"amount_value":' + literal + '}')
 
@@ -269,19 +273,20 @@ class FinancialCanonicalizationTest(IsolatedDatabaseTestCase):
         with sqlite3.connect(":memory:") as conn:
             conn.row_factory = sqlite3.Row
             conn.execute("CREATE TABLE money(amount_value REAL)")
-            for value in (5000.0, float(9223372036854774784)):
+            for value in (5000.0, float(2**53 - 1), float(9223372036854774784)):
                 with self.subTest(value=value):
                     conn.execute("DELETE FROM money")
                     conn.execute("INSERT INTO money VALUES(?)", (value,))
                     data = {"cash_flows": [dict(conn.execute("SELECT * FROM money").fetchone())]}
                     raw = copy.deepcopy(data)
+                    if value > 2**53-1:
+                        with self.assertRaises(ValueError):
+                            snapshot._validate_snapshot_money(data)
+                        self.assertEqual(data, raw)
+                        continue
                     snapshot._validate_snapshot_money(data)
-                    if value == 5000.0:
-                        self.assertIsInstance(data["cash_flows"][0]["amount_value"], float)
-                        self.assertEqual(snapshot._stable_hash(data), snapshot._stable_hash(raw))
-                    else:
-                        self.assertEqual(data["cash_flows"][0]["amount_value"], int(value))
-                        self.assertIsInstance(data["cash_flows"][0]["amount_value"], int)
+                    self.assertIsInstance(data["cash_flows"][0]["amount_value"], float)
+                    self.assertEqual(snapshot._stable_hash(data), snapshot._stable_hash(raw))
                     snapshot.parse_snapshot_json(json.dumps({"schema_version": 7, "data": data}))
 
     def money_fixture(self):

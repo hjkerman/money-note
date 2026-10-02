@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.auth import current_user_from_request
 from app.config import get_settings
 from app.db import init_db
+from app.money import MoneyDomainError
 from app.routers import (
     admin,
     audit,
@@ -37,6 +38,13 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="money-note", lifespan=lifespan)
+
+
+@app.exception_handler(MoneyDomainError)
+async def money_domain_error(_: Request, exc: MoneyDomainError):
+    # No approximate response or accidental SQL-overflow 500. Write handlers
+    # prepare their response within the transaction, so these errors rollback.
+    return JSONResponse(status_code=422, content={'detail': str(exc)})
 settings = get_settings()
 app.add_middleware(
     CORSMiddleware,

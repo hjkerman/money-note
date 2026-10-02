@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
 from typing import Any
+from app.money import exact_money
 
 from app.db import borrowed_or_new_session
 from app.repositories.settings import list_settings
@@ -45,7 +46,7 @@ def present_ledger_entry(
         "owner",
     )
     payment_key = str(data.get("payment_key") or "")
-    amount = int(data.get("amount_value") or 0)
+    amount = exact_money(data.get("amount_value") or 0)
     is_card_projection = data.get("entry_kind") == "planned" or bool(payment_key)
     legacy_discount = int(event_discounts.get(payment_key, 0))
     override_enabled = bool(
@@ -54,7 +55,7 @@ def present_ledger_entry(
         or data.get("aux_amount_value")
     )
     if data.get("discount_override") and data.get("aux_amount_value") is not None:
-        override_discount = int(data.get("aux_amount_value") or 0)
+        override_discount = exact_money(data.get("aux_amount_value") or 0)
     else:
         override_discount = legacy_discount
     charge = (
@@ -166,13 +167,13 @@ def present_monthly_panel(
         settings.get(f"card_discount_policy:owner:{month}"),
         "owner",
     )
-    amount = int(data.get("amount_value") or 0)
+    amount = exact_money(data.get("amount_value") or 0)
     is_card_panel = panel_type in {"claim", "family_card"}
     default_card = DiscountCard.FAMILY if panel_type == "family_card" else DiscountCard.OWNER
     charge = (
         evaluate_stored_charge(
             amount,
-            int(data.get("discount_amount") or 0),
+            exact_money(data.get("discount_amount") or 0),
             bool(data.get("discount_override") or data.get("discount_amount")),
             policy,
             month,
@@ -215,17 +216,17 @@ def _legacy_entry_discount_events(entries: list[dict[str, Any]], *, conn: Any | 
         rows = conn.execute(
             f"""
             SELECT card_payment_allocations.entry_payment_key,
-                   COALESCE(SUM(card_payment_allocations.amount_value), 0) AS amount
+                   card_payment_allocations.amount_value AS amount
             FROM card_payment_allocations
             JOIN card_payment_events
               ON card_payment_events.id = card_payment_allocations.payment_event_id
             WHERE card_payment_events.event_type = 'discount'
               AND card_payment_allocations.entry_payment_key IN ({placeholders})
-            GROUP BY card_payment_allocations.entry_payment_key
             """,
             tuple(payment_keys),
         ).fetchall()
-    return {
-        str(row["entry_payment_key"]): int(row["amount"] or 0)
-        for row in rows
-    }
+    totals: dict[str, int] = {}
+    for row in rows:
+        key = str(row['entry_payment_key'])
+        totals[key] = totals.get(key, 0) + exact_money(row['amount'])
+    return {key: exact_money(total, 'discount event total') for key, total in totals.items()}

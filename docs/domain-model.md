@@ -37,6 +37,16 @@ Money Note는 단일-owner 서비스다. 서로 다른 소유자의 장부 격�
 
 Money Note의 모든 계산은 다음 원칙을 따른다.
 
+## 정확한 원화 금액의 제품 범위
+
+authoritative 금액은 **−9,007,199,254,740,991 ~ +9,007,199,254,740,991원**(`±(2^53−1)`)의 정확한 정수다. 개별 도메인의 기존 비음수/nullable 규칙은 별도로 유지한다. 이 범위는 JavaScript Number와 historical SQLite REAL에도 모든 정수가 정확히 표현되는 공통 범위다. 개인 가계부에 full-int64 외부 호환 요구는 없으며, 이전 signed-64-bit validator를 end-to-end exact 지원 보장으로 해석하지 않는다. 이번 결정은 그 nominal 범위를 명시적으로 축소한다. BigInt/decimal-string 프로토콜이나 arbitrary precision 제품을 추가하지 않는다.
+
+입력·금액 설정·migration admission·v7 Snapshot은 손실 없이 정수/범위를 검사한다. 정수형 REAL은 이 범위에서만 허용한다. 이미 범위 밖으로 반올림된 과거 REAL을 원래 값으로 추측 복구하지 않는다. DB의 historical REAL 컬럼을 rebuild하거나 DB/Snapshot 버전을 올리지 않는다.
+
+Summary와 결제 배분/할인 이벤트 누계는 Python 정수로 계산한다. **계산 중간값**은 외부 금액 범위나 SQLite int64보다 커도 정확하게 상쇄할 수 있다. 응답에 노출하는 각 명명된 금액/합계는 다시 제품 범위를 검사한다. 개별 행이 유효해도 합계가 범위 밖이면 해당 금융 조회는 controlled `422` domain error이며 근사값·overflow·wrap을 반환하지 않는다. 이는 그 행을 자동 삭제하거나 금액을 바꾸라는 뜻이 아니다. 개별 저장 값의 유효성과 전체 조회 합계의 유효성은 별개의 조건이다.
+
+웹·모바일은 같은 범위를 입력/응답/local baseline/journal에서 검사하며 서버 계산을 대체하지 않는다. Offline journal은 잘못된 값 또는 범위 밖 예상 합계를 append 전에 거부한다. 할인 **비율**과 진단용 사용률은 금액과 구별한다. 기존 Decimal 1.2%/floor 정책과 10,000→9,880원 의미는 유지한다. 실제 운영 데이터가 새 범위에 있는지 이번 작업에서 조회하지 않았으며 배포 전 일관된 사본에서 값과 관련 합계를 따로 확인해야 한다.
+
 ## 원칙 1
 
 원장은 사실(Fact)을 기록한다.
@@ -712,9 +722,9 @@ Manifest 원칙:
 - `NOT NULL`인데 기본값이 없는 필수 컬럼이 누락된 경우에는 dry-run restore 단계에서 실패해야 한다.
 - 알 수 없는 필드가 있다는 이유만으로 백업 파일을 손상으로 보지 않는다. 단, manifest가 그 알 수 없는 필드까지 포함한 원문과 일치해야 한다.
 - 민감 설정, 필수 테이블 누락, 외래키 오류, manifest 불일치는 계속 복원 차단 사유다.
-- v7의 authoritative 금액과 금액 설정은 lossless 정수 검증 뒤 정규화한다. `5000`, `5000.0`과 기존에 지원한 동일 값의 숫자 문자열은 허용하지만 `-0.5`, `5000.5`, non-finite, 잘못된 문자열 및 signed SQLite 64-bit 범위 밖 값은 거부한다. nullable 금액은 해당 관계의 기존 계약에 따라 판단하며 NULL을 0으로 보강하지 않는다.
+- v7의 authoritative 금액과 금액 설정은 lossless 정수/safe-integer 제품 범위 검증 뒤 정규화한다. `5000`, `5000.0`과 기존에 지원한 동일 값의 숫자 문자열은 허용하지만 `-0.5`, `5000.5`, non-finite, 잘못된 문자열 및 `abs(value)>2^53−1`은 거부한다. nullable 금액은 해당 관계의 기존 계약에 따라 판단하며 NULL을 0으로 보강하지 않는다.
 - JSON 파일/HTTP Snapshot/baseline 원문 숫자도 검사한다. `-1e-400` 또는 `5000.00000000000001`이 JSON decoder에서 0/정수로 변해도 승인하지 않는다. 일반 금융 command 및 Offline journal의 accepted 금액 입력도 같은 raw-token 검증과 기존 integer-money model 검증을 통과해야 한다. body·manifest hash·operation/retry identity를 재작성하지 않는다.
-- v4~v6의 문서화된 REAL/소수 금액 절삭 호환은 해당 버전에만 남긴다. v7은 이 경로로 들어가지 않는다. export는 malformed runtime 금액을 정상 파일로 내보내지 않는다. 일반 정수형 REAL의 JSON shape/fingerprint는 유지하되, 드문 큰 REAL의 decimal encoding이 다른 정수를 뜻하면 정확한 정수로 export해 손실을 방지한다. Snapshot version·금융 계산식·reconciliation protocol을 바꾸지 않는다.
+- v4~v6의 문서화된 REAL/소수 금액 절삭 호환은 제품 범위 안의 해당 버전에만 남긴다. v7은 이 경로로 들어가지 않는다. 범위 밖 legacy 값도 거부하며 과거의 소수/REAL 표현에 정확한 원본 정밀도를 사후 보장하지 않는다. export는 malformed runtime 금액을 정상 파일로 내보내지 않는다. 일반 정수형 REAL의 JSON shape/fingerprint를 유지한다. Snapshot version·금융 계산식·reconciliation protocol을 바꾸지 않는다.
 
 Snapshot에 포함하는 것:
 

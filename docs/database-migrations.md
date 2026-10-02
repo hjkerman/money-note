@@ -11,6 +11,7 @@
 - 이미 버전 3인 DB는 과거 backfill을 재실행하지 않는다. 현재 `SCHEMA`의 모든 필수 컬럼, 인덱스·revision trigger 및 핵심 PK/UNIQUE/FK 관계를 확인한다. 과거부터 남은 추가 컬럼은 허용한다. 미래/음수 버전은 거부한다.
 - 각 numbered migration은 `BEGIN IMMEDIATE` 안에서 DDL/DML, 최종 검증, `user_version` 갱신을 수행한 뒤 commit한다. 실패한 단계는 통째로 rollback된다. 앞선 완료 단계는 해당 버전으로 남아 다음 startup에서 재개된다. SQLite `executescript()`는 암묵적 commit이 있으므로 migration transaction 안에서 사용하지 않는다.
 - 이 경로는 정상 startup에서 과거 행의 금액·할인·날짜·ID를 재계산하지 않는다. 원래 `REAL` affinity였던 초기 DB의 물리적 금액 컬럼을 강제로 rebuild하지 않는다. 기존 데이터 의미를 보존하며, 새 DB의 금액 컬럼은 `INTEGER`다.
+- 모든 지원 시대/current-versioned에서 DDL·backfill·version 승격 전에 영속 금액/금액 설정을 read-only로 검사한다. 관측한 값이 정확한 정수이고 `abs(value)<=2^53−1`이어야 하며, historical REAL의 정수값도 같은 계약이다. 범위 밖/소수 값은 원본 checkpoint를 보존하고 기동을 거부한다. 설정 정규화는 float가 아니라 exact integer parsing을 사용한다. 원래 입력이 이미 과거 저장에서 손실된 경우 그것을 추측 복구하지 않는다. numbered framework/DB version 3 및 실제 컬럼 affinity는 바꾸지 않는다.
 
 | 버전 | 책임 | 영속 상태 |
 | --- | --- | --- |

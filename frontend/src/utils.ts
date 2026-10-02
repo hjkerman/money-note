@@ -6,6 +6,7 @@ import {
   SpendingCategory,
 } from "./api";
 import { CurrentTab, PanelType, StatItem } from "./types";
+import { parseExactMoney } from "./money";
 
 export const panelMeta: Record<PanelType, { labelKey: string; fallback: string }> = {
   fixed: { labelKey: "panel_fixed_title", fallback: "현금성 고정지출" },
@@ -35,14 +36,13 @@ export function isAuthRequiredError(error: unknown): boolean {
 export function parseAmount(value: string): number | null {
   const normalized = value.replaceAll(",", "").trim();
   if (!normalized) return null;
-  const amount = Number(normalized);
-  return Number.isFinite(amount) && Number.isInteger(amount) ? amount : null;
+  return parseExactMoney(normalized);
 }
 
 export function formatIntegerSetting(value: string | undefined): string {
   if (!value) return "";
-  const amount = Number(value);
-  return Number.isFinite(amount) ? String(Math.round(amount)) : value;
+  const amount = parseExactMoney(value);
+  return amount !== null ? String(amount) : value;
 }
 
 export function focusFirstDataInput(form: HTMLFormElement): void {
@@ -243,12 +243,13 @@ export function daysBetween(from: string, to: string): number {
 }
 
 export function parseSettingNumber(settings: Settings, key: string, fallback: number): number {
-  const parsed = Number(settings[key]);
-  return Number.isFinite(parsed) ? parsed : fallback;
+  const parsed = parseExactMoney(settings[key] ?? "");
+  return parsed !== null ? parsed : fallback;
 }
 
 export function formatWon(value: number | null): string {
-  return `${Math.round(value ?? 0).toLocaleString("ko-KR")}원`;
+  if (!Number.isSafeInteger(value ?? 0)) throw new Error("정확한 금액 범위를 벗어났습니다.");
+  return `${(value ?? 0).toLocaleString("ko-KR")}원`;
 }
 
 export function formatAuditTimestamp(value: string): string {

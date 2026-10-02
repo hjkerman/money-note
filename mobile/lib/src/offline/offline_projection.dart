@@ -1,4 +1,5 @@
 import '../models.dart';
+import '../money.dart';
 import 'offline_data.dart';
 
 class OfflineProjection {
@@ -58,6 +59,7 @@ class OfflineProjection {
 
     for (final operation in operations) {
       final payload = operation.payload;
+      validateMoneyPayload(payload);
       final localId = -1000000 - operation.sequence;
       switch (operation.type) {
         case OfflineOperationType.createCardExpense:
@@ -222,7 +224,28 @@ class OfflineProjection {
           usesConservativeCardEstimate = true;
           break;
       }
+      // Bound each installed estimate between operations, before int64 overflow
+      // can accumulate. These values are never authoritative replay inputs.
+      for (final value in [
+        spendingTotal,
+        discountTotal,
+        cardTotal,
+        cashFlowBalance,
+        fixedCashProcessedTotal,
+        remainingLiquidity,
+        newlyConfirmedFixedReserve
+      ]) {
+        exactMoney(value);
+      }
     }
+
+    final spendable = original.currentMonthSpendable == null
+        ? null
+        : exactMoney(original.currentMonthSpendable! +
+            remainingLiquidity -
+            original.remainingLiquidity -
+            newlyConfirmedFixedReserve -
+            elapsedEarlyReserve);
 
     return OfflineProjection(
       summary: Summary(
@@ -236,13 +259,7 @@ class OfflineProjection {
         frozenAssetTotal: original.frozenAssetTotal,
         cashFlowBalance: cashFlowBalance,
         remainingLiquidity: remainingLiquidity,
-        currentMonthSpendable: original.currentMonthSpendable == null
-            ? null
-            : original.currentMonthSpendable! +
-                remainingLiquidity -
-                original.remainingLiquidity -
-                newlyConfirmedFixedReserve -
-                elapsedEarlyReserve,
+        currentMonthSpendable: spendable,
         claimOriginalTotal: original.claimOriginalTotal,
         claimNetTotal: original.claimNetTotal,
         familyCardOriginalTotal: original.familyCardOriginalTotal,
@@ -290,7 +307,10 @@ int? _floorDecimalRate(int amount, String? rawRate) {
   if (whole == null || fractional == null) return null;
   final numerator = whole * denominator + fractional;
   if (numerator < 0 || numerator > denominator) return null;
-  return amount * numerator ~/ denominator;
+  // Both products fit native int64 in the safe money/rate descriptor domain.
+  // Do not multiply the whole principal by a nine-digit rate numerator.
+  return (amount ~/ denominator) * numerator +
+      (amount % denominator) * numerator ~/ denominator;
 }
 
 bool _hasOccurred(String occurredOn, DateTime projectedAt) {
@@ -301,14 +321,10 @@ bool _hasOccurred(String occurredOn, DateTime projectedAt) {
 }
 
 int _int(Object? value) {
-  if (value is int) return value;
-  if (value is num) return value.toInt();
-  return int.tryParse(value?.toString() ?? '') ?? 0;
+  return value == null ? 0 : exactMoney(value);
 }
 
 int? _nullableInt(Object? value) {
   if (value == null) return null;
-  if (value is int) return value;
-  if (value is num) return value.toInt();
-  return int.tryParse(value.toString());
+  return exactMoney(value);
 }

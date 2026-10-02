@@ -7,6 +7,8 @@ import 'package:crypto/crypto.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'offline_data.dart';
+import '../money.dart';
+import 'offline_projection.dart';
 import 'online_write_state.dart';
 
 typedef OfflineDirectoryProvider = Future<Directory> Function();
@@ -285,6 +287,7 @@ class OfflineStore {
     _journalAppendTail = current;
     if (previous != null) await previous;
     try {
+      validateMoneyPayload(payload);
       final file = await _file(_journalFilename);
       await _repairJournalTail(file);
       _rejectDerivedFinancialValues(payload);
@@ -318,6 +321,11 @@ class OfflineStore {
         createdAt: _clock().toUtc(),
         sequence: operations.isEmpty ? 1 : operations.last.sequence + 1,
       );
+      final projectionBaseline = baseline ?? await loadBaseline();
+      if (projectionBaseline != null) {
+        OfflineProjection.from(projectionBaseline, [...operations, operation],
+            projectedAt: _clock());
+      }
       await _beforeJournalAppendWrite?.call();
       await file.writeAsString(
         '${jsonEncode(operation.toJson())}\n',
@@ -722,6 +730,7 @@ class OfflineStore {
 
   Future<void> _writeJsonAtomic(File target, Map<String, dynamic> payload,
       {void Function()? beforePublish}) async {
+    validateMoneyPayload(payload);
     final temporary = File(
         '${target.path}.${_clock().microsecondsSinceEpoch}.${_random.nextInt(1 << 32)}.tmp');
     try {

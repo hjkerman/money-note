@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from calendar import monthrange
 from typing import Any
+from app.money import exact_money, money_sum, query_money_sum, allocation_totals
 
 from app.db import session
 from app.repositories.entries import list_entries
@@ -28,8 +29,8 @@ def _current_summary_values(conn: Any) -> dict[str, int]:
     planned_entries = [
         entry for entry in visible_current_entries if entry.get("entry_kind") == "planned"
     ]
-    entry_card_total = sum(entry.get("amount_value") or 0 for entry in current_entries)
-    planned_liquidity_total = sum(entry.get("amount_value") or 0 for entry in planned_entries)
+    entry_card_total = money_sum(entry.get("amount_value") for entry in current_entries)
+    planned_liquidity_total = money_sum(entry.get("amount_value") for entry in planned_entries)
     planned_recurring_total = planned_entry_total(conn)
     entry_discount_total = current_entry_discount_total(conn)
     card_total = max(0, entry_card_total - entry_discount_total)
@@ -57,16 +58,16 @@ def _current_summary_values(conn: Any) -> dict[str, int]:
     # unconfirmed part already present in remaining_liquidity.
     # An early next-period transfer replaces that period's reserve with an
     # actual outflow. Reserve its following occurrence at the calendar boundary.
-    early_fixed_total = conn.execute(
-        """SELECT COALESCE(SUM(amount_value), 0) FROM monthly_panels
+    early_fixed_total = query_money_sum(conn,
+        """SELECT amount_value FROM monthly_panels
            WHERE panel_type = 'fixed' AND confirmed_at IS NOT NULL
              AND confirmed_cash_flow_id IS NOT NULL AND confirmed_month > ?""",
         (app_today().strftime("%Y-%m"),),
-    ).fetchone()[0]
+    )
     current_month_spendable = remaining_liquidity - (
         fixed_panel_total - pending_fixed_panel_total - int(early_fixed_total)
     )
-    return {
+    values = {
         "scheduled_income": int(scheduled_income),
         "cash_flow_balance": int(cash_flow_balance),
         "remaining_liquidity": int(remaining_liquidity),
@@ -85,22 +86,22 @@ def _current_summary_values(conn: Any) -> dict[str, int]:
         "family_card_net_total": int(panel_net_total("family_card", conn)),
         "visible_cash_flow_total": int(visible_cash_flow_total(conn)),
     }
+    return {key: exact_money(value, key) for key, value in values.items()}
 
 
-def planned_entry_total(conn: Any | None = None) -> float:
+def planned_entry_total(conn: Any | None = None) -> int:
     """확인 여부와 무관한 월 반복 카드 정기결제 총액이다."""
     if conn is None:
         with session() as owned_conn:
             return planned_entry_total(owned_conn)
-    row = conn.execute(
+    return query_money_sum(conn,
         """
-        SELECT COALESCE(SUM(amount_value), 0) AS total
+        SELECT amount_value
         FROM ledger_entries
         WHERE book_section = 'current'
           AND entry_kind = 'planned'
         """
-    ).fetchone()
-    return float(row["total"])
+    )
 
 
 def panel_total(
@@ -108,7 +109,7 @@ def panel_total(
     *,
     only_unconfirmed: bool = False,
     conn: Any | None = None,
-) -> float:
+) -> int:
     confirmation_filter = (
         " AND (confirmed_at IS NULL OR confirmed_cash_flow_id IS NULL)"
         if only_unconfirmed
@@ -117,28 +118,26 @@ def panel_total(
     if conn is None:
         with session() as owned_conn:
             return panel_total(panel_type, only_unconfirmed=only_unconfirmed, conn=owned_conn)
-    row = conn.execute(
-        f"SELECT COALESCE(SUM(amount_value), 0) AS total FROM monthly_panels WHERE panel_type = ?{confirmation_filter}",
+    return query_money_sum(conn,
+        f"SELECT amount_value FROM monthly_panels WHERE panel_type = ?{confirmation_filter}",
         (panel_type,),
-    ).fetchone()
-    return float(row["total"])
+    )
 
 
 def processed_fixed_cash_total(conn: Any) -> int:
     """Confirmed fixed expenses' actual cash outflow, not template reserve."""
-    row = conn.execute(
+    return -query_money_sum(conn,
         """
-        SELECT COALESCE(SUM(-cash_flows.amount_value), 0) AS total
+        SELECT cash_flows.amount_value
         FROM monthly_panels
         JOIN cash_flows ON cash_flows.id = monthly_panels.confirmed_cash_flow_id
         WHERE monthly_panels.panel_type = 'fixed'
           AND monthly_panels.confirmed_at IS NOT NULL
         """
-    ).fetchone()
-    return int(row["total"])
+    )
 
 
-def panel_net_total(panel_type: str, conn: Any | None = None) -> float:
+def panel_net_total(panel_type: str, conn: Any | None = None) -> int:
     if conn is None:
         with session() as owned_conn:
             return panel_net_total(panel_type, owned_conn)
@@ -153,33 +152,30 @@ def panel_net_total(panel_type: str, conn: Any | None = None) -> float:
     )
 
 
-def current_entry_discount_total(conn: Any | None = None) -> float:
+def current_entry_discount_total(conn: Any | None = None) -> int:
     if conn is None:
         with session() as owned_conn:
             return current_entry_discount_total(owned_conn)
     settings = list_settings(conn)
     rows = conn.execute(
         """
-        SELECT ledger_entries.amount_value,
+        SELECT ledger_entries.payment_key,
+               ledger_entries.amount_value,
                ledger_entries.entry_date,
                ledger_entries.title,
                ledger_entries.usage_place,
                ledger_entries.spending_category,
                ledger_entries.discount_override,
-               ledger_entries.aux_amount_value,
-               COALESCE(SUM(CASE WHEN card_payment_events.event_type = 'discount'
-                                 THEN card_payment_allocations.amount_value ELSE 0 END), 0) AS override_discount_amount
+               ledger_entries.aux_amount_value
         FROM ledger_entries
-        LEFT JOIN card_payment_allocations
-          ON card_payment_allocations.entry_payment_key = ledger_entries.payment_key
-        LEFT JOIN card_payment_events
-          ON card_payment_events.id = card_payment_allocations.payment_event_id
         WHERE ledger_entries.book_section = 'current'
           AND ledger_entries.entry_kind != 'planned'
           AND ledger_entries.payment_key IS NOT NULL
-        GROUP BY ledger_entries.id
         """
     ).fetchall()
+    discounts = allocation_totals(conn, 'discount')
+    rows = [{**dict(row), 'override_discount_amount': discounts.get(row['payment_key'], 0)}
+            for row in rows]
     return sum(
         evaluate_stored_charge(
             row["amount_value"],
@@ -208,7 +204,7 @@ def _panel_effective_amount(
     settings: dict[str, str],
 ) -> int:
     if panel_type not in {"claim", "family_card"}:
-        return max(0, int(row["amount_value"] or 0))
+        return max(0, exact_money(row["amount_value"] or 0))
     scope = "family" if panel_type == "family_card" else "owner"
     card = DiscountCard.FAMILY if panel_type == "family_card" else DiscountCard.OWNER
     policy = normalize_discount_policy(
@@ -227,20 +223,21 @@ def _panel_effective_amount(
     ).effective_amount
 
 
-def _manual_entry_discount(row: object) -> float:
+def _manual_entry_discount(row: object) -> int:
     if row["discount_override"] and row["aux_amount_value"] is not None:
-        return float(row["aux_amount_value"] or 0)
-    return float(row["override_discount_amount"] or 0)
+        return exact_money(row["aux_amount_value"] or 0)
+    return exact_money(row["override_discount_amount"] or 0)
 
 
-def setting_float(key: str, conn: Any | None = None) -> float:
+def setting_float(key: str, conn: Any | None = None) -> int:
+    # Retain the internal helper name for callers; its money result is exact.
     if conn is None:
         with session() as owned_conn:
             return setting_float(key, owned_conn)
     row = conn.execute("SELECT value FROM app_settings WHERE key = ?", (key,)).fetchone()
     if row is None:
-        return 0.0
-    return float(row["value"])
+        return 0
+    return exact_money(row["value"], key)
 
 
 def setting_text(key: str, fallback: str = "", conn: Any | None = None) -> str:
@@ -251,23 +248,22 @@ def setting_text(key: str, fallback: str = "", conn: Any | None = None) -> str:
     return str(row["value"]) if row is not None else fallback
 
 
-def cash_flow_total(conn: Any | None = None) -> float:
+def cash_flow_total(conn: Any | None = None) -> int:
     today = app_today().isoformat()
     if conn is None:
         with session() as owned_conn:
             return cash_flow_total(owned_conn)
-    row = conn.execute(
+    return query_money_sum(conn,
         """
-        SELECT COALESCE(SUM(amount_value), 0) AS total
+        SELECT amount_value
         FROM cash_flows
         WHERE occurred_on <= ?
         """,
         (today,),
-    ).fetchone()
-    return float(row["total"])
+    )
 
 
-def visible_cash_flow_total(conn: Any | None = None) -> float:
+def visible_cash_flow_total(conn: Any | None = None) -> int:
     """웹/모바일 기본 목록과 같은 직전 월 1일부터 당월 말일까지의 현금흐름 합계다."""
     today = app_today()
     if today.month == 1:
@@ -278,12 +274,11 @@ def visible_cash_flow_total(conn: Any | None = None) -> float:
     if conn is None:
         with session() as owned_conn:
             return visible_cash_flow_total(owned_conn)
-    row = conn.execute(
+    return query_money_sum(conn,
         """
-        SELECT COALESCE(SUM(amount_value), 0) AS total
+        SELECT amount_value
         FROM cash_flows
         WHERE occurred_on BETWEEN ? AND ?
         """,
         (date_from, date_to),
-    ).fetchone()
-    return float(row["total"])
+    )

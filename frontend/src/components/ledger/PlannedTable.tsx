@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { LedgerEntry, PlannedChargePreview, previewPlannedEntry } from "../../api";
 import { formatWon } from "../../utils";
+import { parseExactMoney } from "../../money";
 
 export function PlannedTable({
   entries,
@@ -143,8 +144,8 @@ function entryPreview(entry: LedgerEntry): PlannedChargePreview {
 function parseNonNegativeInteger(value: string): number | null {
   const normalized = value.trim();
   if (!normalized) return null;
-  const parsed = Number(normalized);
-  return Number.isInteger(parsed) && parsed >= 0 ? parsed : null;
+  const parsed = parseExactMoney(normalized);
+  return parsed !== null && parsed >= 0 ? parsed : null;
 }
 
 function plannedEntryDefaultDate(month: string, dueDay: number | null): string {

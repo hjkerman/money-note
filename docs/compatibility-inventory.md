@@ -1,6 +1,6 @@
 # T5 호환성 inventory
 
-Financial canonicalization closure는 v7 금액을 원문 JSON 및 정규화 전 lossless 정수/signed 64-bit로 검증한다. fractional/non-finite/잘못된 문자열·범위 초과·NULL 금액 설정은 거부하며, v4~v6의 기존 REAL/소수 절삭 호환은 해당 버전에만 보존한다. API accepted 숫자 문자열과 정수형 REAL은 정확한 같은 원화 값일 때만 허용한다. 큰 REAL의 문자열 표현이 다른 정수를 만들면 v7 export는 정확한 정수로 기록하며 일반 REAL의 fingerprint는 유지한다. API/Offline journal body와 reconciliation identity는 재작성하지 않는다.
+Exact monetary domain closure는 이전 signed-64-bit nominal 허용 범위를 `±(2^53−1)원`으로 명시적으로 축소한다. full-int64 외부 제품 호환 요구는 없으며 웹 Number/historical REAL/API/mobile의 공통 exact 정수 범위를 사용한다. v7 금액은 원문 JSON 및 정규화 전에 lossless 검증한다. fractional/non-finite/잘못된 문자열·범위 초과·NULL 금액 설정은 거부하며 v4~v6의 기존 REAL/소수 절삭 호환도 이 범위 안의 해당 버전에만 보존한다. 과거 잃은 정밀도를 추정하지 않는다. 일반 REAL의 fingerprint와 API/Offline journal body·reconciliation identity는 재작성하지 않는다.
 
 confirmed recurring의 actual 연결은 nullable archive 발생일과 무관하다. current의 NULL 발생일 PATCH는 기존대로 거부한다. 실제 생성 지출이 없거나 유일하지 않으면 template 금액 fallback으로 감추지 않는다. 웹·모바일의 구 payload fallback surface는 삭제하지 않으며 current 서버 응답은 완전한 `confirmed_*` 실제 금액을 제공한다. schema/version/protocol 및 dead surface 제거는 없다.
 

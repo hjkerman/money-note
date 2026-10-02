@@ -963,6 +963,12 @@ VITE_API_BASE_URL=
 
 ## Snapshot 백업과 복원
 
+### Exact money 릴리스의 배포 전 점검 — 이 개발 작업에서는 미실행
+
+새 계약은 `±9,007,199,254,740,991원`의 정확한 정수다. 별도 운영 허가가 있는 배포 전에 실제 runtime DB를 먼저 식별하고 SQLite Online Backup으로 최신의 일관된 사본을 확보·검증한다. 사본에서 ledger 원금/aux, panel 원금/할인, cash-flow 금액, payment event 총액/allocation, 금액 설정 전체가 이 계약에 있는지 확인한다. 관련 현재 Summary/카드 결제/Claim·Family 공유 합계도 새 코드의 exact calculation으로 검증한다. 운영 DB를 이 사본으로 덮어쓰지 않는다.
+
+범위 밖/소수 값 또는 관련 aggregate 오류가 있으면 배포를 중단하고 원본·최신 사용자 입력을 보존한다. `CAST`, round, 임의 0원/근사값, broad cleanup이나 오래된 DB rollback으로 수선하지 않는다. 이미 손실된 REAL 원본을 추측 복원하지 않는다. startup admission은 개별 영속 값을 검사하고 projection은 명명된 합계를 검사한다. 개별 값만 통과했다는 이유로 aggregate 점검을 생략하지 않는다. schema/version 변경은 없지만 더 엄격한 admission과 client 계약을 포함하므로 새 범위를 모르는 이전 릴리스와 forward compatibility를 추측하지 않는다.
+
 영속 관계가 손상되면 export와 mandatory recovery도 fail closed한다. 카드 batch item의 원장 id/key 불일치·중복 batch 소유·중복 배분/event 출금 소유, 명시적 recurring 생성 지출의 NULL 원금은 정상 backup으로 승인하지 않는다. 임의 관계 삭제, 0원 보강 또는 오래된 DB 전체 덮어쓰기를 하지 않는다. 원본 상태를 보존하고 별도 근거 있는 복구 판단이 필요하다.
 
 반면 old recurring expense가 current에 있고 active expense가 archive에 있는 정상 lifecycle은 location-independent source/epoch로 검증하므로 export/restore·pre_restore·Server Wins recovery에 동일하게 사용 가능하다. 0원 실제 확인은 지원하며 supported historical REAL affinity의 정수 금액도 유지한다. Snapshot 버전이나 startup migration은 변경하지 않는다.
@@ -1002,8 +1008,8 @@ curl -OJ -b /tmp/money-note-cookie.txt \
 - 버전 3 이하는 지원하지 않는다.
 - 검증을 통과한 뒤 현재 서버가 모르는 컬럼은 복원 삽입 전에 무시한다.
 - 현재 서버에 새로 생긴 컬럼이 구버전 snapshot에 없으면 필요한 호환 의미를 먼저 검증·복원하고, 나머지 필드만 DB 기본값 또는 `NULL`로 복원한다.
-- 금액 컬럼은 현재 DB에서 원화 정수 `INTEGER`로 저장한다.
-- v7 금액은 정규화 전에 lossless 정수/signed 64-bit 검증을 통과해야 한다. `1000.0`은 허용하지만 `1000.9`, `-0.5`, non-finite 및 잘못된 금액 문자열을 절삭/0원 보강하지 않는다. 금액 설정의 NULL도 문자열 `None`으로 만들지 않고 거부한다.
+- 새 DB의 금액 컬럼은 원화 정수 `INTEGER`다. 지원 historical DB의 REAL affinity는 그대로 유지하며 공통 safe-integer 범위 안에서만 정확한 값을 저장한다.
+- v7 금액은 정규화 전에 lossless 정수/`±(2^53−1)` 검증을 통과해야 한다. `1000.0`은 허용하지만 `1000.9`, `-0.5`, non-finite·범위 밖·잘못된 금액 문자열을 절삭/0원 보강하지 않는다. 금액 설정의 NULL도 문자열 `None`으로 만들지 않고 거부한다. legacy v4~v6의 문서화된 소수 절삭은 범위 안에서만 보존한다.
 - 문서화된 소수 절삭 호환은 v4~v6에만 유지한다. v7을 구버전처럼 처리하지 않는다. raw JSON의 `-1e-400`/`5000.00000000000001`도 parser의 0/정수 변환 전에 거부하며 파일·HTTP object/text·Mobile Wins baseline에 같은 검증을 적용한다. 잘못된 입력이면 목적지 및 기존 recovery artifact는 그대로다.
 - archive recurring의 NULL 발생일은 소유권을 없애지 않는다. confirmed 조회는 source/epoch의 실제 생성 지출을 반환하고 실제 7,000원을 template 5,000원으로 대체하지 않는다. current 지출의 NULL 발생일 쓰기 금지는 유지한다.
 - 필수 테이블 누락, 민감 설정 포함, manifest 불일치, 외래키 오류는 계속 복원 실패로 처리한다.

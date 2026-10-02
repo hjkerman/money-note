@@ -1,5 +1,6 @@
 from datetime import date, datetime
 from typing import Any
+from app.money import exact_money, query_money_sum
 
 from app.db import borrowed_or_new_session, session
 from app.repositories.common import ensure_payment_key_available, new_payment_key, row_to_dict
@@ -174,7 +175,7 @@ def confirm_planned_entry(
             (entry_id, confirmed_month),
         ).fetchone() is not None:
             raise ValueError("recurring confirmation already has a generated expense")
-        amount = int(planned["amount_value"] if actual_amount is None else actual_amount)
+        amount = exact_money(planned["amount_value"] if actual_amount is None else actual_amount)
         if amount < 0:
             raise ValueError("카드 정기결제 실제 원금은 0원 이상이어야 합니다.")
 
@@ -760,7 +761,7 @@ def _validate_structured_entry(values: dict[str, Any]) -> None:
     ]
     if missing:
         raise ValueError(f"required fields missing: {', '.join(missing)}")
-    if float(values["amount_value"]) < 0:
+    if exact_money(values["amount_value"]) < 0:
         raise ValueError("amount_value must be greater than or equal to zero")
 
 
@@ -785,11 +786,12 @@ def _delete_card_payment_references(conn: Any, payment_key: str) -> None:
     conn.execute("DELETE FROM card_payment_allocations WHERE entry_payment_key = ?", (payment_key,))
     for allocation in allocation_rows:
         event_id = allocation["payment_event_id"]
-        remaining = conn.execute(
-            "SELECT COALESCE(SUM(amount_value), 0) AS total FROM card_payment_allocations WHERE payment_event_id = ?",
+        remaining = query_money_sum(conn,
+            "SELECT amount_value FROM card_payment_allocations WHERE payment_event_id = ?",
             (event_id,),
-        ).fetchone()["total"]
-        if float(remaining or 0) <= 0:
+        )
+        remaining = exact_money(remaining, 'payment remaining total')
+        if remaining <= 0:
             conn.execute("DELETE FROM card_payment_events WHERE id = ?", (event_id,))
             if allocation["cash_flow_id"] is not None:
                 conn.execute("DELETE FROM cash_flows WHERE id = ?", (allocation["cash_flow_id"],))
