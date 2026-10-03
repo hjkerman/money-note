@@ -271,4 +271,5 @@ else:
                     self.assertEqual(export_snapshot()[1]["data"], before)
                     with session() as conn:
                         self.assertEqual(conn.execute("PRAGMA integrity_check").fetchone()[0], "ok")
-                        self.assertEqual(conn.execute("PRAGMA user_version").fetchone()[0], 3)
+                        from app.db_migrations import CURRENT_SCHEMA_VERSION
+                        self.assertEqual(conn.execute("PRAGMA user_version").fetchone()[0], CURRENT_SCHEMA_VERSION)

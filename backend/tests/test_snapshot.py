@@ -365,8 +365,10 @@ class SnapshotTest(IsolatedDatabaseTestCase):
                 self._refresh_manifest(snapshot)
                 self._assert_unprovable_ownership_restore_rejected(snapshot)
 
-    def test_pre_epoch_historical_v7_cannot_bypass_current_ownership_contract(self) -> None:
+    def test_unprovable_pre_epoch_historical_v7_remains_rejected(self) -> None:
         fixture = Path(__file__).parent / "fixtures" / "snapshot_v7_recurring.json"
+        # This fixture's child creation time is ten days before confirmation;
+        # explicit source ID alone must not manufacture an epoch.
         self._assert_unprovable_ownership_restore_rejected(json.loads(fixture.read_text(encoding="utf-8")))
 
     def test_older_confirmed_row_without_planned_date_requires_unique_month_match(self) -> None:
@@ -502,7 +504,7 @@ class SnapshotTest(IsolatedDatabaseTestCase):
                         restore_snapshot(invalid)
                     init_db()
                     with session() as conn:
-                        self.assertEqual(conn.execute("PRAGMA user_version").fetchone()[0], 3)
+                        self.assertEqual(conn.execute("PRAGMA user_version").fetchone()[0], db_migrations.CURRENT_SCHEMA_VERSION)
                         self.assertEqual(conn.execute(
                             "SELECT amount_value FROM cash_flows WHERE id = 91"
                         ).fetchone()[0], -700)
@@ -1631,14 +1633,20 @@ class SnapshotTest(IsolatedDatabaseTestCase):
         return manifest
 
     def _refresh_manifest(self, snapshot: dict) -> None:
+        # Authentic v4-v6 exporters did not advertise this later capability.
+        if snapshot["schema_version"] < 7:
+            snapshot.pop("recurring_ownership_version", None)
+        metadata = {
+            "schema_version": snapshot.get("schema_version"),
+            "exported_at": snapshot.get("exported_at"),
+            "range": snapshot.get("range"),
+        }
+        if "recurring_ownership_version" in snapshot:
+            metadata["recurring_ownership_version"] = snapshot["recurring_ownership_version"]
         snapshot["manifest"] = self._rebuilt_manifest(
             snapshot["data"],
             snapshot.get("card_charge_policy"),
-            {
-                "schema_version": snapshot.get("schema_version"),
-                "exported_at": snapshot.get("exported_at"),
-                "range": snapshot.get("range"),
-            },
+            metadata,
         )
         snapshot["snapshot_id"] = snapshot["manifest"].get(
             "content_sha256",

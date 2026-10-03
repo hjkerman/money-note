@@ -971,7 +971,7 @@ VITE_API_BASE_URL=
 
 영속 관계가 손상되면 export와 mandatory recovery도 fail closed한다. 카드 batch item의 원장 id/key 불일치·중복 batch 소유·중복 배분/event 출금 소유, 명시적 recurring 생성 지출의 NULL 원금은 정상 backup으로 승인하지 않는다. 임의 관계 삭제, 0원 보강 또는 오래된 DB 전체 덮어쓰기를 하지 않는다. 원본 상태를 보존하고 별도 근거 있는 복구 판단이 필요하다.
 
-반면 old recurring expense가 current에 있고 active expense가 archive에 있는 정상 lifecycle은 location-independent source/epoch로 검증하므로 export/restore·pre_restore·Server Wins recovery에 동일하게 사용 가능하다. 0원 실제 확인은 지원하며 supported historical REAL affinity의 정수 금액도 유지한다. Snapshot 버전이나 startup migration은 변경하지 않는다.
+반면 old recurring expense가 current에 있고 active expense가 archive에 있는 정상 lifecycle은 location-independent source/epoch로 검증하므로 export/restore·pre_restore·Server Wins recovery에 동일하게 사용 가능하다. 0원 실제 확인은 지원하며 supported historical REAL affinity의 정수 금액도 유지한다. Snapshot 형식은 v7을 유지한다. 현재 startup에는 별도로 version 4 recurring identity checkpoint가 추가되었다.
 
 서버 DB가 단일 원본이다.
 
@@ -1003,7 +1003,7 @@ curl -OJ -b /tmp/money-note-cookie.txt \
 - v6에서 확인된 현금성 고정지출의 연결과 날짜가 유효하면 원문 검증 후 확인 월을 복원한다. 날짜가 불명확하면 추측하지 않고 복원을 중단한다. v7의 확인 월이 연결과 모순되어도 중단한다.
 - 연결된 고정지출의 cash-flow 한 건을 여러 원본이 공유하거나 처리일·발생일·현금흐름 역할이 모순되면 dry-run에서 복원을 중단한다. 실제액은 template reserve와 달라도 된다.
 - v4~v6 카드 정기결제 생성 지출은 복원 시 원래 확인 시각·변경되지 않은 생성 행·월내 유일성을 확인할 수 있을 때만 명시적 source ID를 영속화한다. 수정은 결합 이후에 진행하며, 삭제는 그 ID를 사용해 한 transaction에서 원본 확인을 해제한다. 삭제 시 mutable 필드로 새 관계를 추측하지 않는다. 명시적 관계가 있는 현행 원본은 legacy 추론 대상이 아니며, 미결합·모호한 과거 관계는 파괴적 취소 전에 중단한다.
-- legacy 정규화 후 활성 정기결제 원본은 완전한 source/확인 epoch로 생성 expense 정확히 한 건을 소유해야 한다. 증명이 불가능하면 목적지 변경 전 복원을 중단한다. v7의 양쪽 epoch 전체/부분 누락, 생성 지출 누락·중복·불일치는 legacy로 보정하지 않는다. 과거 v7 파일도 생성 지출 epoch가 없으면 거부한다. exporter가 불완전한 runtime 관계를 만나도 정상 v7 파일로 내보내지 않는다. 실제 지출을 추측 생성하거나 recovery 파일로 자동 수선하지 않는다.
+- legacy 정규화 후 활성 정기결제 원본은 완전한 source/확인 epoch로 생성 expense 정확히 한 건을 소유해야 한다. 증명이 불가능하면 목적지 변경 전 복원을 중단한다. 새 `recurring_ownership_version=1` v7의 epoch 누락, 모든 버전의 생성 지출 누락·중복·불일치와 부분 epoch는 거부한다. 표식 없는 역사적 v7의 명시적 source/key 관계만 유일한 original confirmation evidence로 임시 epoch materialization을 허용한다. exporter가 불완전한 runtime 관계를 만나도 정상 v7 파일로 내보내지 않는다. 실제 지출을 추측 생성하거나 recovery 파일로 자동 수선하지 않는다.
 - fixed의 `confirmed_at`이 비어 있거나 실제 달력 날짜·시각으로 해석 불가능하면 manifest가 유효해도 복원하지 않는다. v6/v7에서 확인 시각 또는 확인 월만 있고 cash-flow 연결이 없는 상태도 거부한다.
 - 버전 3 이하는 지원하지 않는다.
 - 검증을 통과한 뒤 현재 서버가 모르는 컬럼은 복원 삽입 전에 무시한다.
@@ -1147,7 +1147,7 @@ curl -X POST http://localhost:18080/api/month/current/close \
 
 화면의 `잔여 유동성`은 서버 `current_month_spendable`을 표시한다. 기존 `remaining_liquidity`에서 이미 확인된 현금성 고정지출 템플릿 예정액의 다음 발생분을 보충 reserve한 값이다. 미확인 금액은 기존 계산에 포함돼 있으므로 중복 차감하지 않는다. 모바일은 일시적 연결 실패 시 짧은 간격의 최대 세 번 확인과 coherent refresh를 시도하고, 복귀 시 남은 Offline 제안을 다시 확인한다. 사용자가 직접 진입한 Offline Mode는 자동으로 ONLINE이 되지 않고 기존 reconciliation 절차를 따른다.
 
-말일에 조기 집행한 익월분은 같은 날 다음 발생분 reserve를 붙이지 않는다. 실제 익월 진입 시 다음 반복분 reserve가 적용되며 조기 집행의 확인 상태와 실제 날짜는 유지한다. 확인 취소는 연결 출금을 삭제하고 reserve를 한 번 복구한다. 기존 schema version 3/Snapshot v7을 그대로 사용하며, 조기 확인 월이 실제 날짜와 다른 Snapshot은 말일·해당 월 마감·직후 확인 월 관계까지 검증한다. v4~v6의 기존 의미는 유지한다. 이 변경은 DB 복구/보정이나 운영 데이터 변경을 요구하지 않는다.
+말일에 조기 집행한 익월분은 같은 날 다음 발생분 reserve를 붙이지 않는다. 실제 익월 진입 시 다음 반복분 reserve가 적용되며 조기 집행의 확인 상태와 실제 날짜는 유지한다. 확인 취소는 연결 출금을 삭제하고 reserve를 한 번 복구한다. 구조와 Snapshot v7 표현은 그대로 사용하며(현재 DB checkpoint version 4), 조기 확인 월이 실제 날짜와 다른 Snapshot은 말일·해당 월 마감·직후 확인 월 관계까지 검증한다. v4~v6의 기존 의미는 유지한다. 이 변경은 DB 복구/보정이나 운영 데이터 변경을 요구하지 않는다.
 
 배포·code rollback은 별도 운영 판단이다. 이 semantics 도입 전 서버는 새 조기 확인 상태가 담긴 v7 Snapshot의 확인 월/실제 월 차이를 거부할 수 있다. 같은 파일 버전이라는 이유만으로 이전 서버의 forward compatibility를 가정하지 않는다. 새 API와 클라이언트를 검증된 릴리스 조합으로 준비하며, 이 개발 작업 자체는 운영 배포를 수행하지 않는다.
 
@@ -1220,3 +1220,17 @@ Docker 콘솔 로그는 다음 명령으로 별도 확인한다.
 ```bash
 docker compose logs -f api
 ```
+
+### Historical recurring compatibility 사전 배포 검사 (DB version 4)
+
+배포 전 최신 SQLite Online Backup과 recovery Snapshot을 새 격리 디렉터리에 보존한다. 보존 원본은 immutable이며 startup/restore 검증은 새 COPY에서만 수행한다. COPY DB 옆 `snapshot-backups/`에는 함께 보존한 recovery 문서의 사본을 둔다. 운영 DB 자체를 검사 명목으로 migrate하거나 epoch를 수동 채우지 않는다.
+
+1. 배포 소스/remote와 기존 배포 metadata를 확인하고 COPY의 user_version·row counts·integrity/FK 및 exact-money admission을 기록한다.
+2. 후보 startup으로 version 3 이하 → 4 checkpoint를 COPY에서 실행한다. 명시적 source ID·source 생성 시각·stable payment key와 원래 INSERT→UPDATE의 0~1초 시각 구간, 또는 검증된 v7 recovery witness가 유일한 epoch를 증명해야 한다. 오래된 시각·행 ID가 재복원으로 바뀌었어도 payment key 증거가 보존되어야 하며 filename/mtime/content/amount로 추측하지 않는다. 소유 source 부재·부분 epoch·경쟁 후보·상충 witness는 중단 사유다.
+3. 전후 금융 행·ID·금액·할인·cash/card burden·reserve·current_month_spendable을 비교한다. 허용 변화는 child `confirmed_month`/`confirmed_at`, user_version 4 및 그 UPDATE의 revision 증가뿐이다. 금융 차이는 0원이어야 한다. 반복 startup은 추가 변경이 없어야 한다.
+4. strict recurring/card ownership, Summary, current export, recovery restore→재시작→새 canonical v7 export→재복원을 검증한다. 표식 없는 역사적 v7만 proof-only normalization하며 새 v7의 manifest-bound `recurring_ownership_version=1` 파일은 strict다. Source 없는/증명 불가능한 오래된 recovery는 별도로 거부 분류하고 원본을 보존한다. 새 canonical 파일은 다시 legacy witness에 의존하지 않는다.
+5. COPY admission이 실패하면 배포하지 않는다. 기존 운영 DB·recovery를 normalize/repair/삭제하지 않는다. 독립 재감사 후에도 실제 배포 직전 fresh backup과 admission을 다시 실행해야 한다. 이번 개발 검증은 배포 승인이 아니다.
+
+Version 4 DB는 version 3만 지원하는 이전 서버가 기동을 거부할 수 있다. code-only rollback도 최신 DB와의 호환성을 별도 검증해야 하며 version을 임의로 낮추거나 과거 DB를 덮어쓰지 않는다. 사전 배포 검사용 master backup/witness는 이 검사에서 cleanup하지 않으며 원본을 재작성하지 않는다. 기존 runtime recovery 보관 정책은 변경하지 않는다. 오래된 epoch-less 파일의 별도 복원이 필요하면 그 관계를 증명하는 원본 evidence도 함께 보존해야 한다.
+
+과거 월마감은 archive 행을 INSERT/delete로 복사해 행 ID와 생성 시각을 새로 부여했다. Archive 복사 시각이 다음 확인과 같은 초여도, 검증된 stable key/source evidence가 해당 행의 별도 마감 epoch를 유일하게 증명한 경우에만 새 확인의 경쟁 후보에서 제외한다. 미증명·상충 후보를 임의로 제외하거나 가장 가까운 행을 선택하지 않는다.

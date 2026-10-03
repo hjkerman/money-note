@@ -552,6 +552,8 @@ class FinancialStateGapTest(unittest.TestCase):
             with self.subTest(schema_version=version):
                 legacy = copy.deepcopy(snapshot)
                 legacy["schema_version"] = version
+                if version < 7:
+                    legacy.pop("recurring_ownership_version", None)
                 legacy["data"].pop("notification_candidate_registrations")
                 legacy["manifest"] = snapshot_service._build_manifest(
                     legacy["data"],

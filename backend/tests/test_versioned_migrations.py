@@ -430,7 +430,7 @@ class VersionedMigrationTest(IsolatedDatabaseTestCase):
                 with self.assertRaisesRegex(RuntimeError, f"missing {table} columns"):
                     init_db()
                 with sqlite3.connect(self.db_path) as conn:
-                    self.assertEqual(conn.execute("PRAGMA user_version").fetchone()[0], 3)
+                    self.assertEqual(conn.execute("PRAGMA user_version").fetchone()[0], db_migrations.CURRENT_SCHEMA_VERSION)
                     self.assertNotIn(column, {row[1] for row in conn.execute(f"PRAGMA table_info({table})")})
                 self.db_path.unlink()
                 init_db()

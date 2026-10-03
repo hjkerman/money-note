@@ -34,6 +34,9 @@ from app.services.legacy_recurring import (
     infer_legacy_recurring_sources, materialize_recurring_confirmation_epochs,
     validate_recurring_ownership,
 )
+from app.services.recurring_compatibility import (
+    RECURRING_OWNERSHIP_VERSION, canonicalize_legacy_recurring, legacy_recurring_witnesses,
+)
 from app.share_auth import SENSITIVE_SHARE_SETTING_KEYS
 
 
@@ -131,6 +134,7 @@ def _export_snapshot(conn: Any, today: date | None = None) -> tuple[str, dict[st
     policy_context = card_charge_policy_manifest(_snapshot_policy_horizon(data, today))
     snapshot = {
         "schema_version": SNAPSHOT_SCHEMA_VERSION,
+        "recurring_ownership_version": RECURRING_OWNERSHIP_VERSION,
         "exported_at": exported_at,
         "range": {"scope": "all"},
         "card_charge_policy": policy_context,
@@ -171,7 +175,7 @@ def validate_reconciliation_snapshot(
 ) -> dict[str, list[dict[str, Any]]]:
     """Mobile Wins baseline Snapshot을 일반 restore와 같은 경계로 검증한다."""
     _validate_snapshot(snapshot)
-    data = _normalized_snapshot_data(snapshot["data"], snapshot["schema_version"])
+    data = _restore_snapshot_data(snapshot)
     _dry_run_restore(data)
     return data
 
@@ -193,7 +197,7 @@ def validate_reconciled_financial_state(conn: Any) -> None:
 def restore_snapshot(snapshot: dict[str, Any], *, conn: Any | None = None) -> dict[str, int]:
     """JSON snapshot을 검증하고 임시 복원에 성공한 뒤 운영 DB를 교체한다."""
     _validate_snapshot(snapshot)
-    data = _normalized_snapshot_data(snapshot["data"], snapshot["schema_version"])
+    data = _restore_snapshot_data(snapshot)
     _dry_run_restore(data)
     restored: dict[str, int] = {}
     with borrowed_or_new_session(conn, transaction_mode="IMMEDIATE") as conn:
@@ -338,6 +342,12 @@ def _validate_snapshot(snapshot: dict[str, Any]) -> None:
     schema_version = snapshot.get("schema_version")
     if schema_version not in SUPPORTED_SNAPSHOT_SCHEMA_VERSIONS:
         raise ValueError("unsupported snapshot schema_version")
+    if "recurring_ownership_version" in snapshot and (
+        type(snapshot["recurring_ownership_version"]) is not int
+        or snapshot["recurring_ownership_version"] != RECURRING_OWNERSHIP_VERSION
+        or schema_version != SNAPSHOT_SCHEMA_VERSION
+    ):
+        raise ValueError("unsupported recurring ownership contract")
     if not isinstance(snapshot.get("range"), dict):
         raise ValueError("snapshot range is missing")
     data = snapshot.get("data")
@@ -404,6 +414,7 @@ def _validate_confirmation_timestamp(value: Any, message: str) -> None:
 
 def _normalized_snapshot_data(
     data: dict[str, list[dict[str, Any]]], schema_version: int,
+    *, legacy_v7: bool = False,
 ) -> dict[str, list[dict[str, Any]]]:
     normalized: dict[str, list[dict[str, Any]]] = {}
     for table in SNAPSHOT_TABLES:
@@ -423,6 +434,12 @@ def _normalized_snapshot_data(
             if row.get("id") in sources:
                 row["source_planned_entry_id"] = sources[row["id"]]
         materialize_recurring_confirmation_epochs(normalized["ledger_entries"])
+    elif legacy_v7:
+        needs_epoch = any(row.get("source_planned_entry_id") is not None
+                          and row.get("confirmed_month") is None and row.get("confirmed_at") is None
+                          for row in normalized["ledger_entries"])
+        normalized["ledger_entries"] = canonicalize_legacy_recurring(
+            normalized, legacy_recurring_witnesses() if needs_epoch else ())
     # v6 recorded a fixed confirmation's cash-flow link and spent_on date,
     # but not its month. Import can target an already-versioned DB, so the
     # historical meaning must be restored here, after manifest validation.
@@ -659,11 +676,19 @@ def _build_manifest(
 
 def _snapshot_metadata(snapshot: dict[str, Any]) -> dict[str, Any]:
     """manifest와 파생 식별자를 제외한 Snapshot 상단 메타데이터를 고정한다."""
-    return {
+    metadata = {
         "schema_version": snapshot.get("schema_version"),
         "exported_at": snapshot.get("exported_at"),
         "range": snapshot.get("range"),
     }
+    if "recurring_ownership_version" in snapshot:
+        metadata["recurring_ownership_version"] = snapshot["recurring_ownership_version"]
+    return metadata
+
+
+def _restore_snapshot_data(snapshot: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
+    return _normalized_snapshot_data(snapshot["data"], snapshot["schema_version"],
+        legacy_v7=snapshot["schema_version"] == 7 and "recurring_ownership_version" not in snapshot)
 
 
 def _snapshot_policy_horizon(
@@ -903,7 +928,7 @@ def _write_snapshot_backup(conn: Any, prefix: str) -> Path:
     _write_json_atomic(target, snapshot)
     stored = parse_snapshot_json(target.read_text(encoding="utf-8"))
     _validate_snapshot(stored)
-    _dry_run_restore(_normalized_snapshot_data(stored["data"], stored["schema_version"]))
+    _dry_run_restore(_restore_snapshot_data(stored))
     return target
 
 

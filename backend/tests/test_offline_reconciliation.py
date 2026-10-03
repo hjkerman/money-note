@@ -341,7 +341,8 @@ class OfflineReconciliationTest(unittest.TestCase):
         init_db()
 
         with session() as conn:
-            self.assertEqual(conn.execute("PRAGMA user_version").fetchone()[0], 3)
+            from app.db_migrations import CURRENT_SCHEMA_VERSION
+            self.assertEqual(conn.execute("PRAGMA user_version").fetchone()[0], CURRENT_SCHEMA_VERSION)
             columns = {
                 row["name"]
                 for row in conn.execute("PRAGMA table_info(offline_reconciliations)")

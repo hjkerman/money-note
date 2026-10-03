@@ -6,6 +6,8 @@
 
 ## 현재 기준선
 
+- Historical recurring compatibility closure: 이전 배포가 생성한 epoch-less explicit source 관계는 version 4의 one-time atomic checkpoint에서 유일한 stable source/key와 original confirmation evidence로만 canonical epoch를 채운다. 금액·ID·content를 바꾸지 않는다. 표식 없는 역사적 v7도 임시 restore 표현에서 같은 proof를 사용하며 새 v7은 manifest-bound `recurring_ownership_version=1`이다. 증거 없는 source-less/부분/충돌 관계는 계속 거부한다. Summary/export는 lazy repair 없이 strict canonical 상태를 사용한다. 운영 수정·배포 없이 독립 재감사 대기다. 아래 version 3 유지 설명은 이전 closure 이력이다.
+
 - Exact monetary domain closure: 단일-owner 개인 가계부와 웹 Number의 공통 계약은 `±(2^53−1)원`이다. 이전 int64 nominal 허용 범위를 명시적으로 축소하고 입력·historical/current startup admission·v7/legacy 범위·export·클라이언트/local journal을 정렬한다. Summary/배분/event 누계는 Python 정수로 계산하며 노출 합계 범위 초과는 controlled 422다. 중간값은 넓게 계산해 상쇄한다. REAL 컬럼 rebuild, DB/Snapshot version, 금융 공식, reconciliation protocol은 변경하지 않는다. 실제 운영 값/합계의 predeploy 점검·배포는 이번 작업에서 수행하지 않는다.
 
 - Financial canonicalization/projection closure: v7 금액은 원문 JSON과 normalization 전 lossless 정수로 검사하며 fractional 값을 0/정수로 바꾸지 않는다. 이후 Exact monetary domain closure가 범위를 safe integer로 제한한다. 일반 금융 command와 Offline journal의 accepted monetary 입력도 raw-token preflight 및 기존 money validator를 통과한다. 큰 정수형 REAL의 문자열 손실, NULL 금액 설정, 설정 float 파싱을 회귀로 고정했다. v4~v6의 명시된 절삭 호환과 일반 historical REAL fingerprint는 유지한다. archive actual의 NULL 발생일은 stable source/epoch 연결을 끊지 않으며 실제 7,000원을 template 5,000원으로 대체하지 않는다. DB version 3/Snapshot v7·financial formula·reconciliation identity·클라이언트 authority는 유지한다. 독립 재감사와 배포는 별도다.
@@ -31,7 +33,7 @@
 - 우리카드 알림의 할인 체크 기본값은 등록 대상과 독립적으로 원래 카드의 거래 사용월 정책을 따르며, 공과금 키워드가 있는 거래의 최초 선택만 할인 제외로 둔다. 명시적 선택이 우선한다. Claim/Family Card 알림의 최초 할인 제외 입력은 패널 생성과 한 transaction에서 처리한다. 서버 할인 계산의 소유권은 그대로 유지된다.
 - 수동 Claim/Family Card의 최초 할인 의도도 생성 요청과 같은 transaction에 담는다. 정산 폼은 중복 제출과 늦은 응답으로 인한 새 draft 삭제를 막는다. 미확정 등록은 원래 authoritative 입력과 등록 key를 함께 보존해 명시적으로 확인하며, 다른 draft가 이전 key를 재사용하지 못한다. 오프라인 알림 후보는 pending J뿐 아니라 B의 확정 등록 identity를 검사한다. 재시작 시 reconciliation metadata는 mode/phase/commit/artifact 조합과 recovery bundle의 J까지 검증한다.
 - 웹 즉시결제는 사용자별 로컬 재시도 기록에 원래 요청·입력 draft·idempotency key를 서버 요청 전에 저장한다. HTTP 응답 또는 후속 조회가 실패하면 성공으로 표시하거나 입력을 지우지 않고, 재시작 후 명시적 확인에서 같은 요청·key를 사용한다. 성공해도 사용자가 처리 중 새로 편집한 draft는 지우지 않는다. 서버가 명확히 400/422로 거절한 경우만 해당 key를 정리한다.
-- T5의 DB `user_version`은 schema 구조에만 적용된다. 구버전 Snapshot은 이미 현재 구조인 DB에 데이터를 다시 넣을 수 있으므로, v6의 확인된 현금성 고정지출 확인 월은 Snapshot import에서 유효한 처리일로 복원한다. 손상된 unversioned 금융 핵심 컬럼은 추측해 보강하거나 version 3으로 승인하지 않는다.
+- T5의 기존 DB `user_version`은 구조를 식별했으며 현재 version 4는 명시적인 one-time recurring identity checkpoint도 기록한다. 구버전 Snapshot은 이미 현재 구조인 DB에 데이터를 다시 넣을 수 있으므로, v6의 확인된 현금성 고정지출 확인 월은 Snapshot import에서 유효한 처리일로 복원한다. 손상된 unversioned 금융 핵심 컬럼은 추측해 보강하거나 version 3으로 승인하지 않는다.
 - 현재-unversioned admission은 알림 전/후를 포함한 시대별 필수 테이블·authoritative 컬럼과 PK/UNIQUE/FK·자동 ID rowid 의미를 migration의 `CREATE IF NOT EXISTS` 전에 검증한다. v4~v6 Snapshot 정기결제 원본 관계는 복원 또는 기존 행 수정 전에 원래 확인 증거로 유일하게 식별될 때 영속화하며, 취소 시 mutable 필드로 새 관계를 만들지 않는다. Snapshot fixed 확인 링크의 소유·날짜·timestamp 모순은 dry-run에서 거부한다.
 - 현재 유지보수의 중심은 버그와 무결성, 보안·배포, 카드 정책 이력, Judgment 문구, Android 알림 형식 변화 대응과 문서 일치다.
 

@@ -13,7 +13,7 @@ from app.services.liquidity_names import (
     normalized_legacy_label_value,
 )
 
-CURRENT_SCHEMA_VERSION = 3
+CURRENT_SCHEMA_VERSION = 4
 
 
 def _statements(schema: str) -> Iterator[str]:
@@ -530,10 +530,20 @@ def _migration_003_install_secondary_schema(conn: sqlite3.Connection, schema: st
     _extra_indexes(conn)
 
 
+def _migration_004_recurring_identity_checkpoint(conn: sqlite3.Connection, schema: str) -> None:
+    from app.services.recurring_compatibility import upgrade_legacy_recurring
+    from app.services.financial_relationships import validate_runtime_card_payment_ownership
+
+    _validate_current_schema(conn, schema)
+    validate_runtime_card_payment_ownership(conn)
+    upgrade_legacy_recurring(conn)
+
+
 MIGRATIONS = (
     _migration_001_add_tables_and_columns,
     _migration_002_backfill_domain_data,
     _migration_003_install_secondary_schema,
+    _migration_004_recurring_identity_checkpoint,
 )
 
 
@@ -548,7 +558,12 @@ def initialize_database(conn: sqlite3.Connection, schema: str) -> None:
         raise RuntimeError(f"unsupported future database schema version: {version}")
     if version == CURRENT_SCHEMA_VERSION:
         _validate_current_schema(conn, schema)
+        from app.services.financial_relationships import validate_runtime_recurring_ownership
+
+        validate_runtime_recurring_ownership(conn)
         return
+    if version == 3:
+        _validate_current_schema(conn, schema)
     if version == 0:
         if not _table_names(conn):
             conn.execute("BEGIN IMMEDIATE")
@@ -556,6 +571,7 @@ def initialize_database(conn: sqlite3.Connection, schema: str) -> None:
                 _apply_schema(conn, schema, {"all"})
                 _extra_indexes(conn)
                 _migration_002_backfill_domain_data(conn, schema)
+                _migration_004_recurring_identity_checkpoint(conn, schema)
                 _validate_current_schema(conn, schema)
                 conn.execute(f"PRAGMA user_version = {CURRENT_SCHEMA_VERSION}")
                 conn.commit()

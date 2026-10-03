@@ -1,11 +1,11 @@
 # SQLite 스키마 버전과 구 DB 호환성
 
-서버 DB와 계산 결과가 원본이라는 원칙은 [도메인 모델](domain-model.md)을 따른다. 이 문서는 startup 시 DB 파일의 구조를 변경하는 경계만 설명한다. Snapshot JSON의 `schema_version`과 DB의 `PRAGMA user_version`은 별개의 버전이다.
+서버 DB와 계산 결과가 원본이라는 원칙은 [도메인 모델](domain-model.md)을 따른다. 이 문서는 startup의 구조 migration과 명시적인 one-time 데이터 의미 checkpoint를 설명한다. Snapshot JSON의 `schema_version`과 DB의 `PRAGMA user_version`은 별개의 버전이다.
 
 ## 현재 경로
 
-- 현재 DB 버전은 `3`이며 `backend/app/db_migrations.py`의 `CURRENT_SCHEMA_VERSION`이 코드 원본이다. 단일 SQLite DB이므로 별도 ledger 테이블 대신 `PRAGMA user_version`을 사용한다. 이 값은 Snapshot에 포함하지 않는다.
-- 빈 DB는 `SCHEMA`로 현재 테이블·인덱스·revision trigger·기본값을 만들고 기존 기본값 정규화를 한 transaction에서 끝낸 뒤 버전 3으로 표시한다.
+- 현재 DB 버전은 `4`이며 `backend/app/db_migrations.py`의 `CURRENT_SCHEMA_VERSION`이 코드 원본이다. 단일 SQLite DB이므로 별도 ledger 테이블 대신 `PRAGMA user_version`을 사용한다. 이 값은 Snapshot에 포함하지 않는다.
+- 빈 DB는 `SCHEMA`로 현재 테이블·인덱스·revision trigger·기본값을 만들고 기존 기본값 정규화를 한 transaction에서 끝내고 recurring identity checkpoint를 검증한 뒤 버전 4로 표시한다.
 - `user_version=0`이고 테이블이 있는 DB는 **CREATE IF NOT EXISTS 실행 전** 구조를 검사한다. 지원 세대의 필수 테이블 집합은 핵심 12개 → 카드 batch 관계 2개 → 알림 등록 → offline reconciliation 관계 2개 → authoritative revision 1개 순서다. 카드 batch, 현금 fixed, 알림 도입 전/후, Offline Phase 2와 현행 구조를 서로 다른 era contract로 식별한다. 그 세대에 필수인 표가 빠졌으면 빈 표를 재생성하지 않고 시작을 거부한다. 예를 들어 current-looking DB의 `card_payment_batch_items`가 사라진 경우 기존 batch 의무를 잃은 상태를 version 3으로 승인하지 않는다.
 - 세대별 필수 **authoritative** 컬럼·PK identity·UNIQUE 관계·critical FK를 검사한다. `batch_id`, `discount_override`처럼 그 시대에 이미 존재한 금융 입력의 누락은 후대 additive migration으로 수선하지 않는다. 현재-unversioned DB는 revision table이 있으면 현행 필수 컬럼·인덱스·trigger까지 먼저 검사한다. 자동 생성되는 정수 ID 표는 단순 `PRAGMA table_info`의 PK 표식뿐 아니라 SQLite rowid alias 및 `AUTOINCREMENT` 계약도 검사한다. 같은 이름의 인덱스라도 필요한 uniqueness/대상 컬럼/조건이 다르면 거부한다. revision trigger가 남아 있는데 revision table이 없다면 손상된 현재 세대로 판단한다. 과거 세대에 실제 없던 관계·컬럼만 migration 대상으로 인정하며, 알 수 없는 혼합/누락을 `NULL`이나 0으로 추측해 복구하지 않는다. 인정한 legacy DB만 1→2→3을 순서대로 수행한다.
 - 이미 버전 3인 DB는 과거 backfill을 재실행하지 않는다. 현재 `SCHEMA`의 모든 필수 컬럼, 인덱스·revision trigger 및 핵심 PK/UNIQUE/FK 관계를 확인한다. 과거부터 남은 추가 컬럼은 허용한다. 미래/음수 버전은 거부한다.
@@ -18,7 +18,8 @@
 | 0 | 비어 있거나 인정된 unversioned legacy | 빈 파일은 바로 현재 schema를 만들고 3으로 표시. 기존 파일은 schema admission 후 업그레이드 |
 | 1 | 테이블·누락 컬럼 보강, `installments` 정리, 생성 키·confirmation/deferral 필드 보강, 기본 설정/라벨 seed | 기존 데이터는 보존. 완료된 1만 기록 |
 | 2 | 역사적 label·도메인 이름, retired key, 금액 문자열, 유동성 key, planned due-day backfill | 충돌하는 old/new 설정값은 거부하고 1로 rollback |
-| 3 | 최종 인덱스·authoritative revision trigger와 구조 검증 | 현재 startup 계약 |
+| 3 | 최종 인덱스·authoritative revision trigger와 구조 검증 | 이전 구조 계약 |
+| 4 | 증명 가능한 역사적 explicit recurring 생성 epoch materialization 및 canonical 검증 | 구조 변경 없는 one-time semantic checkpoint; 모호하면 version 3 상태로 rollback |
 
 ## 이전 조건부 startup 동작의 inventory
 
@@ -52,7 +53,7 @@
 | `pre_notification` | `1da7512` | 현행 금융 필드, 알림 등록 이전 | 이미 존재한 금융 입력은 보존; 아직 없던 알림·reconciliation 표만 생성 |
 | `notification` | `7cc7323` 및 동일 구조의 Phase 1/1.5 | 알림 등록 표 포함, reconciliation 이전 | 등록 identity 보존; 아직 없던 reconciliation 표만 생성 |
 | `offline_phase2` | `214fd92` | reconciliation 테이블은 있으나 후속 fingerprint/revision 필드 미완성 | 최신 fingerprint와 revision 경계 보강 |
-| current unversioned | T4.5 `7c0e601`의 `SCHEMA` | 현재 구조지만 marker 없음 | 데이터 backfill은 한 번만, 버전 3 설치 |
+| current unversioned | T4.5 `7c0e601`의 `SCHEMA` | 현재 구조지만 marker 없음 | 데이터 backfill은 한 번만, 버전 4 설치 |
 
 Unknown table/column 또는 해당 세대의 필수 테이블·identity·관계가 빠진 unversioned DB는 fresh로 오인하지 않는다. 모든 지원 era에서 존재한 `ledger_entries.aux_amount_value`, `cash_flows.title` 같은 원본 컬럼의 누락은 임의의 `NULL`/0으로 복구하지 않고 거부한다. 반면 실제로 나중에 추가된 `source_planned_entry_id`, `confirmed_month`, 결제/재조정 fingerprint 등은 해당 역사적 구조에서만 migration 대상으로 인정한다. `installments`는 과거 삭제 경로라 유일한 추가 허용 표다. 이전 단계에서 crash한 버전 1·2는 해당 단계 이후만 재개한다. 테스트는 필수 테이블 전체 누락, 동일 이름의 잘못된 UNIQUE 인덱스·PK/FK 손상, 9,880원 batch 의무 손실 반례, 부분 금융 UPDATE·최종 index 설치 실패를 검증한다.
 
@@ -64,12 +65,22 @@ Unknown table/column 또는 해당 세대의 필수 테이블·identity·관계�
 
 ### Revision trigger 계약
 
-현재-unversioned admission과 version 3 검증은 revision trigger의 이름만 신뢰하지 않는다. 대상 표, AFTER INSERT/UPDATE/DELETE event, `authoritative_state_revision` id=1에 대한 `revision = revision + 1` 효과를 명시적으로 검사한다. 공백·대소문자·identifier quoting·주석은 정규화하지만 WHEN, 다른 대상/event, no-op, 감소·다른 revision 행 갱신은 승인하지 않는다. 금융 대상 표나 revision을 변경하는 예상 밖 trigger도 거부해 증가분 상쇄를 막는다. Revision state는 id=1의 단일 비음수 정수 행이어야 한다.
+현재-unversioned admission과 version 3/4 검증은 revision trigger의 이름만 신뢰하지 않는다. 대상 표, AFTER INSERT/UPDATE/DELETE event, `authoritative_state_revision` id=1에 대한 `revision = revision + 1` 효과를 명시적으로 검사한다. 공백·대소문자·identifier quoting·주석은 정규화하지만 WHEN, 다른 대상/event, no-op, 감소·다른 revision 행 갱신은 승인하지 않는다. 금융 대상 표나 revision을 변경하는 예상 밖 trigger도 거부해 증가분 상쇄를 막는다. Revision state는 id=1의 단일 비음수 정수 행이어야 한다.
 
 이 검증은 metadata를 읽으며 실제 금융 DML probe, 자동 수선, migration 재실행을 하지 않는다. 손상된 현재 구조는 version 승격 전에 보존하고 거부한다. 역사적 schema는 기존 numbered migration이 현행 trigger를 생성한 뒤 같은 계약을 검증한다.
 
-Snapshot v4/v5/v6/v7은 계속 지원한다. Restore는 현재 DB의 데이터 테이블을 서버 transaction 안에서 교체하며 DB 파일의 `user_version`을 Snapshot에서 가져오지 않는다. 기존 DB가 unversioned라면 **먼저 startup migration**이 끝나야 restore endpoint가 제공된다. Restore의 임시 dry-run DB는 현재 `SCHEMA`를 사용하지만 서비스 DB로 승격하지 않는다. Restore 후 재기동은 버전 3의 schema sanity check만 수행하며, 현재 export는 v7이다.
+Snapshot v4/v5/v6/v7은 계속 지원한다. Restore는 현재 DB의 데이터 테이블을 서버 transaction 안에서 교체하며 DB 파일의 `user_version`을 Snapshot에서 가져오지 않는다. 기존 DB가 unversioned라면 **먼저 startup migration**이 끝나야 restore endpoint가 제공된다. Restore의 임시 dry-run DB는 현재 `SCHEMA`를 사용하지만 서비스 DB로 승격하지 않는다. Restore 후 재기동은 버전 4의 schema와 canonical recurring sanity check를 수행하며, 현재 export는 v7이다.
 
-`user_version`은 **DB 구조**, Snapshot `schema_version`은 **가져오는 데이터의 호환 의미**를 식별한다. 이미 version 3인 DB에도 v4~v6 데이터가 복원될 수 있다. v6의 연결된 현금성 고정지출에서 누락된 `confirmed_month`는 원문 manifest 검증 후 Snapshot import 경계에서 검증된 `spent_on`의 월로 복원한다. 연결된 현금흐름의 소유·역할·처리일이 모순되거나 같은 현금흐름을 두 고정지출이 공유하면 dry-run에서 복원을 거부한다. fixed의 `confirmed_at`은 실제 날짜·시각으로 해석 가능해야 하며, v6/v7에서 확인 시각 또는 확인 월만 있고 cash-flow 연결이 없는 행도 거부한다. v4~v6 카드 정기결제의 명시적 source ID는 Snapshot에 없으므로 원본 확인 시각과 변경되지 않은 생성 행·월내 유일성이 일치할 때 import 경계에서 현행 source ID를 영속화한다. 기존 미연결 행은 수정 전에만 같은 증거로 결합할 수 있다. **삭제 시 mutable 필드 재매칭으로 새 관계를 만들지 않는다.** 명시적 source가 있는 현재 행은 legacy 추론에서 제외한다. 관계가 불명확하면 취소 전에 거부하며, 현재 DB migration을 재실행하거나 v7 관계를 추측하지 않는다.
+`user_version`은 **DB 구조와 명시적 semantic checkpoint**, Snapshot `schema_version`은 **가져오는 데이터의 호환 의미**를 식별한다. 이미 version 3인 DB에도 v4~v6 데이터가 복원될 수 있다. v6의 연결된 현금성 고정지출에서 누락된 `confirmed_month`는 원문 manifest 검증 후 Snapshot import 경계에서 검증된 `spent_on`의 월로 복원한다. 연결된 현금흐름의 소유·역할·처리일이 모순되거나 같은 현금흐름을 두 고정지출이 공유하면 dry-run에서 복원을 거부한다. fixed의 `confirmed_at`은 실제 날짜·시각으로 해석 가능해야 하며, v6/v7에서 확인 시각 또는 확인 월만 있고 cash-flow 연결이 없는 행도 거부한다. v4~v6 카드 정기결제의 명시적 source ID는 Snapshot에 없으므로 원본 확인 시각과 변경되지 않은 생성 행·월내 유일성이 일치할 때 import 경계에서 현행 source ID를 영속화한다. 기존 미연결 행은 수정 전에만 같은 증거로 결합할 수 있다. **삭제 시 mutable 필드 재매칭으로 새 관계를 만들지 않는다.** 명시적 source가 있는 현재 행은 legacy 추론에서 제외한다. 관계가 불명확하면 취소 전에 거부하며, 현재 DB migration을 재실행하거나 v7 관계를 추측하지 않는다.
 
 구 API 이미지로 artifact rollback해도 DB는 자동으로 이전 버전이 되지 않는다. schema 변경 릴리스의 이전 이미지 호환성은 배포 전에 따로 검증해야 한다. 운영 DB 접근·복구·배포 절차는 [runbook](runbook.md)을 따른다.
+
+## Version 4 recurring identity checkpoint
+
+이전 배포 writer는 source ID/payment key를 보존하지만 child 확인 epoch는 NULL로 남겼다. schema version 3이라는 사실만으로 그 데이터가 current canonical이라고 판단할 수 없다. Version 4는 `recurring_compatibility.py`의 proof-only 계획을 기존 migration transaction 안에서 실행한다. 모든 관계를 검증한 뒤 epoch 컬럼만 UPDATE하고 `user_version=4`를 같은 COMMIT으로 기록한다. 금액·ID·content·발생일을 변경하지 않는다. DELETE/WAL의 commit 전 process kill 또는 backfill/최종 검증 실패는 version 3과 전체 원본 행을 보존한다. 성공한 version 4는 다시 backfill하지 않는다.
+
+Retired identity가 DB만으로 증명되지 않으면 DB와 함께 보존한 `snapshot-backups/`의 manifest 검증된 v7 문서를 evidence로 읽는다. Source ID와 source 생성 시각, stable payment key로 유일한 원래 epoch를 증명해야 하며 서로 다른 epoch 증거가 있으면 거부한다. Filename·mtime·mutable content·amount는 증거가 아니다. 완전한 canonical DB에는 witness를 요구하지 않는다. Summary나 export에서 lazy repair하지 않으며, 검증에 실패한 DB/증거를 자동 편집하지 않는다.
+
+현재 export의 `recurring_ownership_version=1` 표식은 content manifest에 포함된다. 표식 없는 역사적 v7만 같은 proof-only 변환을 임시 import 표현에 적용하고, 이후에는 현재와 동일한 canonical invariant를 검사한다. Source 없는 이전 v7은 현재 시각/제목만으로 새 소유자를 추측하지 않는다. v4~v6 기존 normalization과 exact-money admission은 유지한다. Version 4 DB를 구 코드로 되돌릴 때는 해당 코드의 startup version 지원을 따로 확인해야 하며 version을 임의로 낮추지 않는다.
+
+과거 월마감은 archive 행을 INSERT/delete로 복사해 행 ID와 생성 시각을 새로 부여했다. Archive 복사 시각이 다음 확인과 같은 초여도, 검증된 stable key/source evidence가 해당 행의 별도 마감 epoch를 유일하게 증명한 경우에만 새 확인의 경쟁 후보에서 제외한다. 미증명·상충 후보를 임의로 제외하거나 가장 가까운 행을 선택하지 않는다.

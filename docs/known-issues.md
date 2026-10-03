@@ -1,5 +1,11 @@
 # 알려진 이슈
 
+## Historical recurring compatibility — 독립 재감사 대기
+
+이전 배포 writer/exporter가 적법하게 만든 source 연결에는 생성 expense의 epoch가 없을 수 있다. DB version 4의 one-time checkpoint와 표식 없는 역사적 v7의 임시 restore normalization은 유일한 source ID·source 생성 시각·payment key 및 original confirmation evidence가 증명될 때만 epoch를 채운다. Current canonical invariant와 exact-money admission은 유지하며 금융 값을 추측/보정하지 않는다. 재확정·재복원한 retired 관계에는 검증된 recovery witness가 필요할 수 있다. Source 없는 파일·부분 epoch·경쟁 후보·상충 witness는 거부한다. 새 export는 manifest-bound `recurring_ownership_version=1`이며 strict 검증을 우회하지 않는다.
+
+운영 DB/서비스는 수정하거나 배포하지 않는다. 격리 사본 검증 결과와 별개로 독립 read-only 재감사, fresh production backup 및 fresh admission이 이후 배포의 선행 조건이다. 아래 version 3 유지 설명은 과거 closure 이력이며 현재 checkpoint version은 4다.
+
 ## Exact monetary domain closure — 독립 재감사 대기
 
 합성 pre_batch REAL DB에서 `2^53+1` API/restore 승인의 1원 손실, 개별/최종 값은 safe하지만 Summary float 중간값이 1원 달라지는 반례, SQLite SUM의 int64 overflow를 먼저 재현했다. 제품 범위는 명시적으로 `±(2^53−1)` 정수로 정렬한다. 과거 nominal int64 지원을 end-to-end exact 또는 arbitrary precision 지원으로 주장하지 않는다.
@@ -28,7 +34,7 @@ actual 관계가 없거나 모호하면 confirmed read는 template 금액으로 
 
 `test_recurring_snapshot_ownership.py`는 v7 epoch 전체 NULL과 생성 expense 누락을 각각 수정 전 90,060원·100,000원으로 재현한 반례를 거부/목적지 불변 회귀로 고정한다. 정상 5,000원 원금/60원 할인은 95,060원이며 취소 후 reserve 5,000원이 복원돼 95,000원이다. 활성 확인의 source ID와 양쪽 완전한 확인 epoch가 정확히 한 생성 지출을 소유해야 한다. export와 runtime 읽기·수정·취소·재확인도 같은 계약을 검사한다. 일반 생성/PATCH가 소유 불가능한 확인 메타데이터를 만들면 commit 전에 거부한다.
 
-v4~v6은 원래 확인 증거로 소유권을 증명할 수 있을 때만 정규화한다. 모호하거나 이미 변경돼 증명할 수 없는 legacy 활성 관계 및 생성 epoch가 없는 과거 v7 파일은 restore 전에 거부하며 자동 수선하지 않는다. 원본 fixture를 바꾸지 않고 rejection 테스트로 보존했다. 형식/version bump·운영 데이터 변경·배포는 없으며 최종 freeze 판정은 다음 독립 재감사 대상이다.
+v4~v6은 원래 확인 증거로 소유권을 증명할 수 있을 때만 정규화한다. 모호하거나 증명할 수 없는 legacy 활성 관계는 restore 전에 거부한다. 이후 production compatibility checkpoint는 명시적 source/key와 유일한 original evidence를 갖춘 역사적 v7에만 metadata normalization을 허용하며 증거 없는 파일을 자동 수선하지 않는다. 원본 fixture를 바꾸지 않고 rejection 테스트로 보존했다. 형식/version bump·운영 데이터 변경·배포는 없으며 최종 freeze 판정은 다음 독립 재감사 대상이다.
 
 자기검증에서 확인한 동일 원인의 archive 취소도 고정한다. 6월 생성 지출을 5월로 수정하고 5월을 마감해 archive로 옮긴 뒤 삭제해도 활성 6월 확인을 정확한 source/epoch로 해제한다. archive의 명시적 관계도 legacy 후보에서 제외하므로 같은 내용의 수동 지출 삭제를 가짜 legacy 관계로 막지 않는다. archive 여부는 확인 identity가 아니며 이전 종료 epoch를 삭제해 새 확인을 해제하지 않는다.
 

@@ -41,7 +41,7 @@ Money Note의 모든 계산은 다음 원칙을 따른다.
 
 authoritative 금액은 **−9,007,199,254,740,991 ~ +9,007,199,254,740,991원**(`±(2^53−1)`)의 정확한 정수다. 개별 도메인의 기존 비음수/nullable 규칙은 별도로 유지한다. 이 범위는 JavaScript Number와 historical SQLite REAL에도 모든 정수가 정확히 표현되는 공통 범위다. 개인 가계부에 full-int64 외부 호환 요구는 없으며, 이전 signed-64-bit validator를 end-to-end exact 지원 보장으로 해석하지 않는다. 이번 결정은 그 nominal 범위를 명시적으로 축소한다. BigInt/decimal-string 프로토콜이나 arbitrary precision 제품을 추가하지 않는다.
 
-입력·금액 설정·migration admission·v7 Snapshot은 손실 없이 정수/범위를 검사한다. 정수형 REAL은 이 범위에서만 허용한다. 이미 범위 밖으로 반올림된 과거 REAL을 원래 값으로 추측 복구하지 않는다. DB의 historical REAL 컬럼을 rebuild하거나 DB/Snapshot 버전을 올리지 않는다.
+입력·금액 설정·migration admission·v7 Snapshot은 손실 없이 정수/범위를 검사한다. 정수형 REAL은 이 범위에서만 허용한다. 이미 범위 밖으로 반올림된 과거 REAL을 원래 값으로 추측 복구하지 않는다. DB의 historical REAL 컬럼을 rebuild하지 않는다. 금액 계약 자체는 Snapshot 버전을 변경하지 않으며, DB version 4는 별도의 recurring identity 호환 checkpoint다.
 
 Summary와 결제 배분/할인 이벤트 누계는 Python 정수로 계산한다. **계산 중간값**은 외부 금액 범위나 SQLite int64보다 커도 정확하게 상쇄할 수 있다. 응답에 노출하는 각 명명된 금액/합계는 다시 제품 범위를 검사한다. 개별 행이 유효해도 합계가 범위 밖이면 해당 금융 조회는 controlled `422` domain error이며 근사값·overflow·wrap을 반환하지 않는다. 이는 그 행을 자동 삭제하거나 금액을 바꾸라는 뜻이 아니다. 개별 저장 값의 유효성과 전체 조회 합계의 유효성은 별개의 조건이다.
 
@@ -645,7 +645,9 @@ Claim과 가족카드는 직접 반영하지 않는다.
 - 확인 목록도 source ID와 확인 epoch로 실제 생성 지출을 조회한다. 원래 5,000원인 지출을 다른 발생월·7,000원으로 수정해도 원본 확인의 projection은 실제 연결된 7,000원을 보여준다. archive의 발생일 NULL도 기존 nullable 계약대로 허용하며 실제 지출 연결을 끊지 않는다(current 지출의 NULL 발생일 PATCH는 계속 거부). actual이 없거나 유일하지 않으면 오류로 중단하며 template 금액으로 숨기지 않는다. current/archive 위치와 mutable 발생일·제목·사용처·내역은 소유 selector가 아니다.
 - 현재 Snapshot의 활성 정기결제 확인은 원본 planned ID와 완전한 확인 epoch(`confirmed_month`, `confirmed_at`)가 일치하는 생성 expense **정확히 한 건**을 소유해야 한다. 생성 지출 누락, epoch 전체/부분 누락, source 누락·불일치, 중복 소유를 거부한다. 제목·장소·원금·발생일은 수정 가능한 사실이지 소유 identity가 아니다. Fixed/recurring timestamp의 offset hour는 0~23, minute는 0~59여야 하며 실제 날짜·시각도 파싱 가능해야 한다. 확인 clock time을 발생일과 같도록 강제하지 않는다.
 - 원본의 확인 월/시각도 all-or-nothing이다. 부분 epoch는 Snapshot 복원과 runtime 수정·취소·재확인에서 거부한다. 마감되지 않은 생성 epoch가 있는데 원본 확인이 모두 없는 상태도 정상 관계가 아니다. 월마감으로 이미 종료한 epoch의 생성 지출은 보존할 수 있다. 이 구분에 새 값을 추측해 넣지 않는다.
-- v4~v6 Snapshot은 원문 manifest 검증 뒤 증명 가능한 source/epoch만 정규화하고 위 canonical 소유 계약을 검사한다. 증명되지 않는 활성 확인은 복원 전에 거부한다. v7의 누락된 epoch를 legacy absence로 보정하지 않는다. 현재 export도 같은 소유 계약을 검사하며 runtime 확인 조회·수정·취소·재확인은 불완전한 관계를 fail closed한다. 이미 종료한 epoch의 지출은 원본의 새 확인과 구별해 보존한다. 정상 template 삭제는 실제 지출을 남기되 source FK와 epoch 메타데이터를 함께 해제한다. Snapshot v7과 DB version을 올리거나 실제 지출을 추측 생성하지 않는다.
+- v4~v6 Snapshot은 원문 manifest 검증 뒤 증명 가능한 source/epoch만 정규화하고 위 canonical 소유 계약을 검사한다. 증명되지 않는 활성 확인은 복원 전에 거부한다. 현재 exporter의 v7은 manifest에 결합한 `recurring_ownership_version=1`을 포함하며 누락된 epoch를 보정하지 않는다. 표식이 없는 역사적 v7은 아래 증명 규칙으로만 정규화한다. 현재 export도 같은 소유 계약을 검사하며 runtime 확인 조회·수정·취소·재확인은 불완전한 관계를 fail closed한다. 이미 종료한 epoch의 지출은 원본의 새 확인과 구별해 보존한다. 정상 template 삭제는 실제 지출을 남기되 source FK와 epoch 메타데이터를 함께 해제한다. Snapshot 형식은 v7이며 DB version 4에서 identity checkpoint를 한 번 실행한다. 실제 지출을 추측 생성하지 않는다.
+- 이전 배포 코드의 explicit recurring 확인은 생성 expense에 source ID와 고유 payment key를 저장했지만 생성 epoch는 저장하지 않았다. DB version 3 이하의 startup checkpoint와 표식 없는 역사적 v7 import에서만 `recurring_compatibility.py`가 빠진 양쪽 child epoch를 채운다. planned source 자체의 epoch를 새로 만들지 않는다. source ID·source 생성 시각·payment key가 동일하고 원래 INSERT/확인 UPDATE 시각의 순방향 0~1초 구간에 명시적으로 연결된 후보가 정확히 하나인 경우만 그 source epoch를 증거로 사용한다. 제목·장소·내역·원금·발생일·current/archive 위치는 증거가 아니다. 더 긴 지연이나 재복원으로 생성 시각이 바뀐 retired expense는 같은 stable identity와 원래 epoch를 증명하는 검증된 `snapshot-backups/`의 v7 recovery 문서가 필요하다. 상충 증거·source 재사용·복수 후보·source 없는 manual lookalike는 거부하며 가장 가까운 후보를 선택하지 않는다.
+- 이 checkpoint는 모든 증명과 canonical 검증을 마친 뒤 하나의 transaction에서 생성 expense의 `confirmed_month`/`confirmed_at`만 채우고 version 4를 기록한다. 금액·할인·실제 행·ID를 바꾸지 않으며 기존 revision trigger의 증가만 발생한다. 실패/중단 시 전체 rollback하고, version 4 startup은 검증만 수행해 재보정하지 않는다. Summary·export는 strict 상태만 읽는다. 역사적 v7은 원문 manifest와 금액 검증 후 임시 표현에서 정규화하며 원본 recovery 파일은 재작성하지 않는다. 새 canonical v7의 표식도 manifest로 보호되므로 제거·변경한 원문은 재해시 없이 승인하지 않는다. 증거 없는 오래된 파일의 자동 수선은 제공하지 않는다.
 - 금융 변경 API와 할인 월 정책/교통 프로필 변경은 필수 status 계산·presenter·response model 검증·최종 JSON 응답 bytes 준비를 commit 전에 끝낸다. HTTP router가 하나의 기존 business transaction connection을 command와 필수 response 계산에 빌려주며 중첩 BEGIN/commit을 만들지 않는다. 준비된 Response를 반환해 FastAPI의 handler 종료 후 재직렬화를 우회한다. 정책 status도 같은 connection에서 새 uncommitted 값을 본다. 커밋 전 변환 오류는 금융 행·정책·등록 identity·revision을 함께 rollback한다. socket 전송은 transaction 밖이고 유실은 ambiguous outcome이다. 기존 idempotency가 있는 작업만 동일 identity로 재확인하며 일반 생성에 새 exactly-once 보장을 추가하지 않는다.
 - 모바일 submit 완료는 서버 저장뿐 아니라 coherent refresh, baseline durable publication, 화면 설치까지 요구한다. 서버 저장 후 재구성 실패는 `serverCommittedRebuildPending`으로 보존해 재전송과 stale Offline epoch를 막고 read-only rebuild로 복구한다. 요청 결과를 모르는 `outcomeUnknown`은 별개이며 새 기준 데이터를 읽은 것만으로 그 요청의 완료를 추측하지 않는다.
 
@@ -675,7 +677,7 @@ Money Note는 카드사 알림 자동입력을 고려한다.
 - batch에 소유된 원장 지출도 유효한 0 이상 정수 원금을 필수로 갖는다. archive 위치라는 이유로 PATCH에서 NULL 원금을 허용하거나 미지급액에서 조용히 제외하지 않는다. 관계 없는 과거 nullable 행 전체를 NOT NULL로 바꾸는 계약은 아니다.
 - 명시적 recurring 생성 지출은 `source_planned_entry_id + confirmed_month + confirmed_at`으로 소유권을 증명하고 활성 확인은 정확히 한 생성 지출을 소유한다. 생성 지출의 `amount_value`는 0 이상 정수 원 단위로 반드시 존재해야 한다. 0원 실제 확인은 지원하지만 NULL/누락은 0원으로 해석하지 않는다. 선택적인 할인/override 금액의 NULL은 기존 정책 의미를 유지한다. 지원 historical REAL affinity의 `5000.0`도 정수 원금이며 소수 원금은 유효하지 않다.
 - current/archive는 보관 위치이지 확인 identity가 아니다. 종료된 예전 epoch의 지출이 current에 있고 새로운 활성 epoch 지출이 archive에 있어도 source/epoch가 유일하면 정상이다. 같은 논리 원장(payment key)이나 같은 소유 epoch가 양쪽에 중복되면 거부한다. 수정된 실제 날짜·금액·제목으로 소유권을 다시 판단하지 않으며, 월마감의 미확인 경고도 명시적 source/epoch를 사용한다.
-- 같은 canonical 계약을 금융 읽기, 쓰기 commit 전, export, legacy 정규화 후 restore, mandatory recovery 및 reconciliation 검증 경계에서 사용한다. 손상 관계는 fail closed하며 중복 삭제·소유 선택·원금 추측 복구를 하지 않는다. Snapshot v4~v7 및 DB version 3은 바뀌지 않는다.
+- 같은 canonical 계약을 금융 읽기, 쓰기 commit 전, export, legacy 정규화 후 restore, mandatory recovery 및 reconciliation 검증 경계에서 사용한다. 손상 관계는 fail closed하며 중복 삭제·소유 선택·원금 추측 복구를 하지 않는다. Snapshot v4~v7은 유지한다. DB version 4의 별도 identity checkpoint는 아래 역사적 호환 규칙만 수행한다.
 
 서버 DB는 Money Note의 단일 원본이다.
 
@@ -717,7 +719,7 @@ Manifest 원칙:
 - 현재 서버 스키마에 새로 생긴 컬럼이 snapshot에 없으면 의미 보존 규칙을 먼저 적용하고, 호환 기본값이 정의된 나머지 필드만 DB 기본값 또는 `NULL` 정책에 맡긴다. v6에서 확인된 현금성 고정지출은 연결된 현금흐름과 유효한 `spent_on`이 있을 때 확인 월을 복원한다. 누락된 날짜 등 의미를 결정할 수 없는 상태는 restore 전에 거부한다. v7의 확인 월은 다시 추론하지 않는다.
 - 연결된 고정지출 확인은 현금흐름 한 건에 원본 한 건만 대응하며, 처리일과 현금흐름 발생일이 같고 해당 현금흐름은 다른 카드 결제나 급여에 속하지 않아야 한다. 실제 출금액은 template reserve와 다를 수 있다. 모순된 관계는 임시 DB dry-run에서 복원을 거부하고 원래 서버 상태를 보존한다.
 - v4~v6 카드 정기결제 Snapshot에는 생성 지출의 `source_planned_entry_id`가 없다. manifest 검증 후, 원본 확인 시각과 변경되지 않은 지출 행 및 월내 유일성이 일치할 때만 복원 경계에서 `source_planned_entry_id`를 영속화한다. 같은 확인 시각에 생성된 지출이 여럿이면 자동 결합하지 않는다. 기존 source 없는 행의 수정은 수정 **전**에 같은 증거로 결합한다. 삭제 시점의 제목·장소·금액 같은 mutable 필드로 관계를 새로 추측하지 않는다. 삭제는 영속화된 source와 원본 확인을 **한 금융 transaction**에서 함께 취소하며, 관계가 불명확하면 삭제 전에 거부한다. 과거 버전에서 이미 수정돼 원래 필드가 사라진 미결합 행도 생성 시각상 확인 관계가 가능하면 파괴적 변경을 거부하고 수동 복구를 요구한다. v7의 명시적 source가 있는 원본은 legacy 추론 후보가 아니다.
-- 복원 순서는 원문 검증 → 버전별 legacy 정규화 → canonical 정기결제 소유 검증 → 임시 DB dry-run → mandatory recovery backup/transactional 교체다. v7은 생성 expense와 source 양쪽의 확인 epoch를 반드시 보존해야 한다. 예전 v7 파일이라도 생성 지출 epoch가 빠졌다면 자동 보정하지 않고 거부한다. 불명확한 legacy 활성 관계도 정규화 후 검증을 통과할 수 없으며 목적지 DB는 변경하지 않는다.
+- 복원 순서는 원문 검증 → 버전별 legacy 정규화 → canonical 정기결제 소유 검증 → 임시 DB dry-run → mandatory recovery backup/transactional 교체다. 새 v7은 생성 expense와 source 양쪽의 확인 epoch를 반드시 보존한다. 표식 없는 역사적 v7의 명시적 source 연결은 증명 가능한 epoch만 임시 표현에 채운 뒤 동일 canonical 검증을 통과해야 한다. 부분 epoch, source/child 부재 및 모호한 소유권은 거부한다. 불명확한 legacy 활성 관계도 정규화 후 검증을 통과할 수 없으며 목적지 DB는 변경하지 않는다.
 - fixed 확인의 `confirmed_at`은 실제 달력 날짜와 시각으로 파싱 가능해야 한다. 비어 있거나 불가능한 timestamp는 manifest가 맞아도 복원을 거부하지만, 확인 시각의 날짜를 지출 발생일과 동일하도록 강제하지 않는다. v6/v7에서 확인 시각 또는 확인 월만 있고 cash-flow 관계가 없는 고정지출은 정상 확인으로 추측하지 않고 복원을 거부한다.
 - `NOT NULL`인데 기본값이 없는 필수 컬럼이 누락된 경우에는 dry-run restore 단계에서 실패해야 한다.
 - 알 수 없는 필드가 있다는 이유만으로 백업 파일을 손상으로 보지 않는다. 단, manifest가 그 알 수 없는 필드까지 포함한 원문과 일치해야 한다.
@@ -819,3 +821,5 @@ Money Note의 핵심은 다음 네 가지다.
 오히려 제거가 쉽도록 유지하는 것을 목표로 한다.
 
 리팩토링과 기능 추가는 이 원칙을 해치지 않는 범위에서 수행한다.
+
+과거 월마감은 archive 행을 INSERT/delete로 복사해 행 ID와 생성 시각을 새로 부여했다. Archive 복사 시각이 다음 확인과 같은 초여도, 검증된 stable key/source evidence가 해당 행의 별도 마감 epoch를 유일하게 증명한 경우에만 새 확인의 경쟁 후보에서 제외한다. 미증명·상충 후보를 임의로 제외하거나 가장 가까운 행을 선택하지 않는다.
