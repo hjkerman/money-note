@@ -580,6 +580,12 @@ def initialize_database(conn: sqlite3.Connection, schema: str) -> None:
                 raise
             return
         _admit_unversioned_legacy(conn, schema)
+    # Reject ambiguous recurring ownership before any older structural/data
+    # checkpoint can become durable. The version-4 transaction still performs
+    # and validates the same plan again before publishing canonical metadata.
+    from app.services.recurring_compatibility import upgrade_legacy_recurring
+
+    upgrade_legacy_recurring(conn, dry_run=True)
     for next_version in range(max(version, 0) + 1, CURRENT_SCHEMA_VERSION + 1):
         conn.execute("BEGIN IMMEDIATE")
         try:

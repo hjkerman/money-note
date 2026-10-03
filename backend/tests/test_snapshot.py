@@ -8,6 +8,7 @@ import unittest
 from unittest.mock import patch
 
 from tests.db_fixture import IsolatedDatabaseTestCase
+from tests.recurring_witness import preserve_synthetic_witnesses
 from app.db import init_db, session
 from app import db_migrations
 from app.repositories.entries import (
@@ -25,10 +26,14 @@ from app.services.summary import current_summary_values
 
 
 class SnapshotTest(IsolatedDatabaseTestCase):
+    def setUp(self):
+        super().setUp()
+        preserve_synthetic_witnesses(self.db_path)
+
     def _assert_unprovable_ownership_restore_rejected(self, snapshot) -> None:
         with session() as conn:
             before = list(conn.iterdump())
-        with self.assertRaisesRegex(ValueError, "recurring confirmation"):
+        with patch.object(snapshot_service, "legacy_recurring_witnesses", return_value=[]), self.assertRaisesRegex(ValueError, "recurring confirmation"):
             restore_snapshot(snapshot)
         with session() as conn:
             self.assertEqual(list(conn.iterdump()), before)
@@ -139,7 +144,7 @@ class SnapshotTest(IsolatedDatabaseTestCase):
         self._refresh_manifest(snapshot)
         self._assert_unprovable_ownership_restore_rejected(snapshot)
 
-    def test_preexisting_unbound_legacy_row_binds_before_edit_not_at_delete(self) -> None:
+    def test_preexisting_unbound_legacy_row_cannot_bind_by_content_during_edit(self) -> None:
         fixture = Path(__file__).parent / "fixtures" / "snapshot_v6_recurring.json"
         snapshot = json.loads(fixture.read_text(encoding="utf-8"))
         for row in snapshot["data"]["ledger_entries"]:
@@ -153,17 +158,12 @@ class SnapshotTest(IsolatedDatabaseTestCase):
             conn.execute("UPDATE ledger_entries SET source_planned_entry_id = NULL WHERE id = 42")
         with self.assertRaisesRegex(ValueError, "unresolved legacy recurring"):
             delete_entry(42)
-        update_entry(42, LedgerEntryPatch(title="Edited after durable binding"))
-        init_db()
         with session() as conn:
-            self.assertEqual(conn.execute(
-                "SELECT source_planned_entry_id FROM ledger_entries WHERE id = 42"
-            ).fetchone()[0], 41)
-        self.assertTrue(delete_entry(42))
+            before = list(conn.iterdump())
+        with self.assertRaisesRegex(ValueError, "unresolved legacy recurring"):
+            update_entry(42, LedgerEntryPatch(title="Edited without ownership proof"))
         with session() as conn:
-            self.assertIsNone(conn.execute(
-                "SELECT confirmed_month FROM ledger_entries WHERE id = 41"
-            ).fetchone()[0])
+            self.assertEqual(list(conn.iterdump()), before)
 
     def test_preexisting_unbound_edited_date_cannot_silently_delete_generated_expense(self) -> None:
         fixture = Path(__file__).parent / "fixtures" / "snapshot_v6_recurring.json"
@@ -1317,11 +1317,13 @@ class SnapshotTest(IsolatedDatabaseTestCase):
                 """
             )
 
+        backup_dir = self.db_path.parent / "snapshot-backups"
+        previous_backups = set(backup_dir.glob("pre_restore-*.money-note-snapshot.json"))
         restored = restore_snapshot(snapshot)
 
         self.assertGreater(restored["ledger_entries"], 0)
         backup_dir = self.db_path.parent / "snapshot-backups"
-        backups = list(backup_dir.glob("pre_restore-*.money-note-snapshot.json"))
+        backups = list(set(backup_dir.glob("pre_restore-*.money-note-snapshot.json")) - previous_backups)
         self.assertEqual(len(backups), 1)
         import json
 

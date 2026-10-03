@@ -344,6 +344,9 @@ class FinancialCanonicalizationTest(IsolatedDatabaseTestCase):
                     conn.execute("ROLLBACK TO malformed")
 
     def test_versioned_integer_real_and_legacy_fraction_contract(self):
+        from tests.recurring_witness import preserve_synthetic_witnesses
+
+        preserve_synthetic_witnesses(self.db_path)
         # v4-v6 REAL storage/truncation is retained; current v7 cannot enter it.
         for version in (4, 5, 6):
             legacy = json.loads((Path(__file__).parent / "fixtures" / f"snapshot_v{version}_recurring.json").read_text())

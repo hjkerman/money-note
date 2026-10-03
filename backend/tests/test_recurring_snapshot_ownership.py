@@ -6,6 +6,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from tests.db_fixture import IsolatedDatabaseTestCase
+from tests.recurring_witness import preserve_synthetic_witnesses
 from app.config import get_settings
 from app.db import init_db, session
 from app.repositories.entries import (
@@ -311,6 +312,7 @@ class RecurringSnapshotOwnershipTest(IsolatedDatabaseTestCase):
                 self.assertEqual(self.durable_state()[0], before[0])
 
     def test_legacy_to_v7_then_missing_child_is_rejected(self):
+        preserve_synthetic_witnesses(self.db_path)
         import json
         for version in (4, 5, 6):
             with self.subTest(version=version):

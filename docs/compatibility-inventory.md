@@ -1,6 +1,6 @@
 # T5 호환성 inventory
 
-현재 DB version은 4다. 이전 아래 closure의 version 3 유지 설명은 해당 시점의 이력이며, 현재는 구조 변경 없이 one-time recurring identity checkpoint를 추가했다. 구 배포 코드의 epoch-less explicit 연결은 source ID·source 생성 시각·payment key와 유일한 original confirmation evidence로만 업그레이드한다. Evidence 부족·충돌은 거부하며 current strict invariant나 exact-money 계약을 완화하지 않는다. 새 v7은 canonical 표식을 manifest에 포함한다.
+현재 DB version은 4다. 이전 아래 closure의 version 3 유지 설명은 이력이다. One-time recurring checkpoint는 완전한 canonical payment-key/source-instance/child-epoch witness로만 missing metadata를 채운다. Timestamp 일치·content·유일한 후보는 ownership proof가 아니다. Source-ID-less historical 행도 같은 immutable proof가 없으면 거부하며, 약한 과거 추론은 runtime 위험 변경의 거부에만 남긴다. Read-only preflight는 어떤 이전 checkpoint 변경보다 앞서고 current strict invariant/exact-money/새 v7 manifest 표식은 유지한다.
 
 Exact monetary domain closure는 이전 signed-64-bit nominal 허용 범위를 `±(2^53−1)원`으로 명시적으로 축소한다. full-int64 외부 제품 호환 요구는 없으며 웹 Number/historical REAL/API/mobile의 공통 exact 정수 범위를 사용한다. v7 금액은 원문 JSON 및 정규화 전에 lossless 검증한다. fractional/non-finite/잘못된 문자열·범위 초과·NULL 금액 설정은 거부하며 v4~v6의 기존 REAL/소수 절삭 호환도 이 범위 안의 해당 버전에만 보존한다. 과거 잃은 정밀도를 추정하지 않는다. 일반 REAL의 fingerprint와 API/Offline journal body·reconciliation identity는 재작성하지 않는다.
 
@@ -25,7 +25,7 @@ batch에 소유된 일반 카드 원장도 NULL 원금은 유효하지 않다. c
 | `backend/app/services/discounts.py` shim | UNKNOWN / DEFER | production 내부 import는 0, `test_card_charge`가 사용하며 호환 public Python 함수를 내보낸다. 외부 Python 소비자를 증명하거나 배제할 자료가 없어 삭제하지 않는다. 새 계산은 `card_charge/`에만 둔다. |
 | `ledger_entries.amount_expr`, `aux_amount_expr`, `monthly_panels.amount_expr` | KEEP | DB 컬럼, API schema/types, 웹·모바일 요청, notification request fingerprint, 월마감 copy, Snapshot manifest/restore에 나타난다. 표시용 과거 필드라 하더라도 현재 serialized 입력·저장 형식에 남아 있다. |
 | `card_payment_events.event_type='discount'` | KEEP | 현재 서버는 할당·할인 계산/취소·Summary에 읽고 쓰며 frontend API 타입에도 있다. 호환 event라는 이름만으로 dead라고 볼 수 없다. |
-| Snapshot v4/v5/v6 | KEEP | `SUPPORTED_SNAPSHOT_SCHEMA_VERSIONS`가 명시한다. v4 유동성 key, v5까지 없는 fixed 현금흐름 연결, v6의 연결은 있지만 없는 확인 월을 구분한다. 카드 정기결제 source ID가 없으면 복원 시 변경되지 않은 확인 증거와 유일한 후보가 있을 때만 현행 source ID로 결합한다. 수정/삭제 후 mutable 필드 재매칭은 하지 않고, 불명확한 관계는 취소 전에 거부한다. 실제 과거 exporter의 합성 fixture로 fixed·recurring restore→재시작→수정/취소/월마감→v7 재복원을 검증한다. |
+| Snapshot v4/v5/v6 | KEEP | 유동성/fixed/금액의 version-aware 계약을 유지한다. Recurring source/epoch가 없으면 별도 완전한 canonical key ownership witness가 필요하며 해당 파일의 시각·content·후보 유일성만으로 결합하지 않는다. Checked-in historical fixture는 재작성하지 않고, positive lifecycle control은 명시적으로 선언한 synthetic prior canonical ownership 문서를 추가한다. 별도 증거 없는 관계의 restore 거부도 검증한다. |
 | Snapshot v7 | KEEP | 현재 export 형식. DB의 `user_version`과 독립이며, 연결된 fixed 확인 월·cash flow 소유·날짜가 모순되거나 중복된 v7은 추측해 보정하지 않고 거부한다. fixed `confirmed_at`은 지원 timestamp 형식과 실제 달력 날짜·시각을 검증한다. 명시적 recurring source는 mutable content 추론에 다시 넣지 않는다. 새 `recurring_ownership_version=1`은 manifest에 결합한다. 표식 없는 역사적 v7은 proof-only epoch materialization 뒤 canonical 검증한다. |
 | `discount_checked` legacy 열 | INTERNAL MIGRATION ONLY + Snapshot KEEP | 구 DB에서는 numbered migration이 제거를 시도하고, 구 Snapshot에서는 manifest 검증 후 정규화한다. 새로운 authoritative 할인 필드로 쓰지 않는다. |
 | 구 유동성 설정·라벨 key | INTERNAL MIGRATION ONLY + Snapshot KEEP | `base_next_month_liquidity`, `liquidity_status` 등은 legacy DB admission 뒤 backfill 및 v4 restore에서만 읽는다. 런타임 API의 이름은 현재 key다. |

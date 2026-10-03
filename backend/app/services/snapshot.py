@@ -31,7 +31,6 @@ from app.services.liquidity_names import (
     normalized_legacy_label_value,
 )
 from app.services.legacy_recurring import (
-    infer_legacy_recurring_sources, materialize_recurring_confirmation_epochs,
     validate_recurring_ownership,
 )
 from app.services.recurring_compatibility import (
@@ -425,19 +424,17 @@ def _normalized_snapshot_data(
             filtered = {key: value for key, value in row.items() if key in schema_columns and key not in ignored}
             rows.append(_normalize_snapshot_row(table, filtered, schema_version=schema_version))
         normalized[table] = rows
-    if schema_version < 7:
-        # Historical exporters had no source ID. Materialize only a unique,
-        # unchanged confirmation before any later user edit can erase its
-        # evidence. Unprovable ownership is rejected before destination access.
-        sources = infer_legacy_recurring_sources(normalized["ledger_entries"])
-        for row in normalized["ledger_entries"]:
-            if row.get("id") in sources:
-                row["source_planned_entry_id"] = sources[row["id"]]
-        materialize_recurring_confirmation_epochs(normalized["ledger_entries"])
-    elif legacy_v7:
-        needs_epoch = any(row.get("source_planned_entry_id") is not None
-                          and row.get("confirmed_month") is None and row.get("confirmed_at") is None
-                          for row in normalized["ledger_entries"])
+    if schema_version < 7 or legacy_v7:
+        # No historical version persisted an alternate source/epoch identity.
+        # Only an explicit, complete preserved canonical relationship can fill
+        # missing metadata. Content/date/timestamp matching is not ownership.
+        closed = next((row["value"] for row in normalized["app_settings"]
+                       if row.get("key") == "last_closed_month"), "0000-00")
+        try:
+            validate_recurring_ownership(normalized["ledger_entries"], closed)
+            needs_epoch = False
+        except ValueError:
+            needs_epoch = True
         normalized["ledger_entries"] = canonicalize_legacy_recurring(
             normalized, legacy_recurring_witnesses() if needs_epoch else ())
     # v6 recorded a fixed confirmation's cash-flow link and spent_on date,

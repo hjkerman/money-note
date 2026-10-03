@@ -2,12 +2,14 @@
 
 The old writer stored the source ID, but the child had no epoch. Month close
 copied it with a new row ID/creation time; its payment key survived.
-Only a unique original confirmation witness can recover that lost identity.
+Only a complete canonical relationship witness can recover that lost identity.
+The original writer did not persist any alternative immutable epoch identity;
+timestamps, even with a source ID and a unique candidate, cannot recover it.
 Amounts, descriptions, occurrence dates and book locations are never proof.
 """
 
 from collections.abc import Mapping, Sequence
-from datetime import date, datetime, timezone
+from datetime import date
 import re
 from typing import Any
 
@@ -43,19 +45,7 @@ def _closed(data: Mapping[str, Any]) -> str:
                  if row.get("key") == "last_closed_month"), "0000-00")
 
 
-def _creation_at_confirmation(created: Any, confirmed: Any) -> bool:
-    if not _valid_time(created) or not _valid_time(confirmed):
-        return False
-    times = [datetime.fromisoformat(value.replace("Z", "+00:00")) for value in (created, confirmed)]
-    times = [value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value for value in times]
-    # INSERT then UPDATE can cross a SQLite CURRENT_TIMESTAMP second. Longer
-    # intervals require preserved original evidence; never select the closest.
-    return 0 <= (times[1] - times[0]).total_seconds() <= 1
-
-
-def _proofs(
-    data: Mapping[str, Any], known: Mapping[str, set[tuple[Any, str, str, str]]] | None = None,
-) -> dict[str, set[tuple[Any, str, str, str]]]:
+def _proofs(data: Mapping[str, Any]) -> dict[str, set[tuple[Any, str, str, str]]]:
     rows = data["ledger_entries"]
     by_id = {row.get("id"): row for row in rows}
     if None in by_id or len(by_id) != len(rows):
@@ -71,42 +61,17 @@ def _proofs(
             validate_source_epoch(row)
     try:
         validate_recurring_ownership(rows, _closed(data), require_execution_epoch=False)
-        canonical = True
     except ValueError:
-        canonical = False
+        # An epoch-less historical document is not an epoch witness. Reusing
+        # its timestamps would only move the same unsafe inference elsewhere.
+        return {}
     result: dict[str, set[tuple[Any, str, str, str]]] = {}
     for row in keyed:
         source = sources.get(row.get("source_planned_entry_id"))
         if (source is None or row.get("entry_kind") != "expense"
             or not _valid_time(source.get("created_at")) or not valid_nonnegative_money(row.get("amount_value"))):
             continue
-        period, timestamp = source.get("confirmed_month"), source.get("confirmed_at")
-        if canonical:
-            period, timestamp = row.get("confirmed_month"), row.get("confirmed_at")
-        else:
-            # Explicit source identity and a unique candidate in the old
-            # command's adjacent timestamp seconds, independent of location.
-            peers = [other for other in rows
-                     if other.get("source_planned_entry_id") == source["id"]
-                     and _creation_at_confirmation(other.get("created_at"), timestamp)]
-            # Month close recreated archived rows with CURRENT_TIMESTAMP.
-            # Exclude a rival only when immutable evidence already proves its
-            # different, closed epoch. Never choose between unresolved rivals.
-            unresolved = []
-            for peer in peers:
-                identities = (known or {}).get(peer.get("payment_key"), set())
-                if len(identities) == 1:
-                    owner_id, owner_created, old_period, old_time = next(iter(identities))
-                    if (owner_id == source["id"] and owner_created == source["created_at"]
-                        and old_period <= _closed(data) and (old_period, old_time) != (period, timestamp)):
-                        continue
-                unresolved.append(peer)
-            if len(unresolved) != 1 or unresolved[0]["id"] != row["id"]:
-                continue
-            if row.get("confirmed_month") is not None and (
-                row["confirmed_month"], row["confirmed_at"]
-            ) != (period, timestamp):
-                continue
+        period, timestamp = row.get("confirmed_month"), row.get("confirmed_at")
         if _valid_period(period) and _valid_time(timestamp):
             result.setdefault(row["payment_key"], set()).add(
                 (source["id"], source["created_at"], period, timestamp))
@@ -121,28 +86,55 @@ def canonicalize_legacy_recurring(
     rows = [dict(row) for row in data["ledger_entries"]]
     by_id = {row.get("id"): row for row in rows}
     proofs = _proofs(data)
+    claims: dict[str, set[tuple[Any, Any]]] = {}
+    epochs: dict[str, set[tuple[Any, Any, Any, Any]]] = {}
+    # Even an epoch-less document can contradict a stable source assertion.
+    # It cannot supply an epoch proof, but must not be silently discarded to
+    # make another witness unique.
+    for document in (data, *witnesses):
+        owners = {row.get("id"): row for row in document["ledger_entries"]
+                  if row.get("entry_kind") == "planned"}
+        for row in document["ledger_entries"]:
+            key, source_id = row.get("payment_key"), row.get("source_planned_entry_id")
+            if key and source_id is not None:
+                source = owners.get(source_id)
+                if source is None:
+                    raise ValueError("legacy recurring witness has no valid source")
+                claims.setdefault(key, set()).add((source_id, source.get("created_at")))
+                period, timestamp = row.get("confirmed_month"), row.get("confirmed_at")
+                if period is not None and timestamp is not None:
+                    if not _valid_period(period) or not _valid_time(timestamp):
+                        raise ValueError("legacy recurring witness has no valid confirmation epoch")
+                    epochs.setdefault(key, set()).add((source_id, source.get("created_at"), period, timestamp))
+    if any(len(owners) != 1 for owners in claims.values()):
+        raise ValueError("legacy recurring witness contradicts the source identity")
+    if any(len(identities) != 1 for identities in epochs.values()):
+        raise ValueError("legacy recurring confirmation has conflicting immutable epoch witnesses")
     for witness in witnesses:
         for key, identities in _proofs(witness).items():
             proofs.setdefault(key, set()).update(identities)
-    # External closed-epoch proof can disambiguate an archive copy whose new
-    # creation time overlaps the next confirmation. No unresolved owner is
-    # eliminated, and any conflicting proof remains in the set and rejects.
-    for key, identities in _proofs(data, known=proofs).items():
-        proofs.setdefault(key, set()).update(identities)
     for row in rows:
         source_id = row.get("source_planned_entry_id")
-        if source_id is None or row.get("confirmed_month") is not None or row.get("confirmed_at") is not None:
+        if row.get("confirmed_month") is not None or row.get("confirmed_at") is not None:
             continue
+        identities = proofs.get(row.get("payment_key"), set())
+        if source_id is None:
+            # A source-less historical child is recoverable only by its
+            # already-preserved canonical key ownership, never by resemblance.
+            if not identities or row.get("entry_kind") != "expense":
+                continue
+            if len(identities) != 1:
+                raise ValueError("legacy recurring confirmation source has conflicting immutable witnesses")
+            source_id = next(iter(identities))[0]
         source = by_id.get(source_id)
         if source is None or source.get("entry_kind") != "planned" or row.get("entry_kind") != "expense":
             raise ValueError("legacy recurring link has no valid source")
-        identities = proofs.get(row.get("payment_key"), set())
         if len(identities) != 1:
             raise ValueError("legacy recurring confirmation epoch has no unique immutable witness")
         owner_id, owner_created, period, timestamp = next(iter(identities))
         if owner_id != source_id or owner_created != source.get("created_at"):
             raise ValueError("legacy recurring witness contradicts the source identity")
-        row.update(confirmed_month=period, confirmed_at=timestamp)
+        row.update(source_planned_entry_id=source_id, confirmed_month=period, confirmed_at=timestamp)
     validate_recurring_ownership(rows, _closed(data), require_execution_epoch=require_execution_epoch)
     return rows
 
@@ -174,23 +166,28 @@ def legacy_recurring_witnesses() -> list[dict[str, Any]]:
     return witnesses
 
 
-def upgrade_legacy_recurring(conn: Any) -> int:
+def upgrade_legacy_recurring(conn: Any, *, dry_run: bool = False) -> int:
     """The caller owns BEGIN/COMMIT, including the semantic version checkpoint."""
     data = {"ledger_entries": [dict(row) for row in conn.execute("SELECT * FROM ledger_entries")],
             "app_settings": [dict(row) for row in conn.execute("SELECT key,value FROM app_settings")]}
-    needs_epoch = any(row.get("source_planned_entry_id") is not None
-                      and row.get("confirmed_month") is None and row.get("confirmed_at") is None
-                      for row in data["ledger_entries"])
+    try:
+        validate_recurring_ownership(data["ledger_entries"], _closed(data), require_execution_epoch=False)
+        needs_epoch = False
+    except ValueError:
+        needs_epoch = True
     rows = canonicalize_legacy_recurring(
         data, legacy_recurring_witnesses() if needs_epoch else (), require_execution_epoch=False)
     changed = 0
     for before, after in zip(data["ledger_entries"], rows, strict=True):
-        if (before["confirmed_month"], before["confirmed_at"]) != (after["confirmed_month"], after["confirmed_at"]):
-            _write_epoch(conn, after)
+        if (before.get("source_planned_entry_id"), before.get("confirmed_month"), before.get("confirmed_at")) != (
+            after.get("source_planned_entry_id"), after.get("confirmed_month"), after.get("confirmed_at")
+        ):
+            if not dry_run:
+                _write_epoch(conn, after)
             changed += 1
     return changed
 
 
 def _write_epoch(conn: Any, row: Mapping[str, Any]) -> None:
-    conn.execute("UPDATE ledger_entries SET confirmed_month=?,confirmed_at=? WHERE id=?",
-                 (row["confirmed_month"], row["confirmed_at"], row["id"]))
+    conn.execute("UPDATE ledger_entries SET source_planned_entry_id=?,confirmed_month=?,confirmed_at=? WHERE id=?",
+                 (row["source_planned_entry_id"], row["confirmed_month"], row["confirmed_at"], row["id"]))

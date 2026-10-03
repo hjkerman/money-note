@@ -6,7 +6,7 @@
 
 ## 현재 기준선
 
-- Historical recurring compatibility closure: 이전 배포가 생성한 epoch-less explicit source 관계는 version 4의 one-time atomic checkpoint에서 유일한 stable source/key와 original confirmation evidence로만 canonical epoch를 채운다. 금액·ID·content를 바꾸지 않는다. 표식 없는 역사적 v7도 임시 restore 표현에서 같은 proof를 사용하며 새 v7은 manifest-bound `recurring_ownership_version=1`이다. 증거 없는 source-less/부분/충돌 관계는 계속 거부한다. Summary/export는 lazy repair 없이 strict canonical 상태를 사용한다. 운영 수정·배포 없이 독립 재감사 대기다. 아래 version 3 유지 설명은 이전 closure 이력이다.
+- Historical recurring proof hardening: timestamp 일치/유일 후보는 old archive를 새 확인에 연결할 수 있어 proof에서 제외했다. 이미 보존된 완전한 canonical payment-key/source-instance/child-epoch 관계만 missing metadata를 채우며 v4~v6/역사적 v7도 같은 proof를 요구한다. Startup은 모든 이전 checkpoint 변경 전 read-only preflight를 하고 version 4에서 원자적으로 재검증·기록한다. Runtime edit는 content/time으로 source를 결합하지 않는다. 보존된 사본의 11개 관계는 현재 evidence로 증명 불가하여 거부/수동 조사 대상으로 분류했고, recovery 23개는 5 허용/18 거부였다. 허용된 사본의 금융 차이 0원, master 불변은 자동 배포 허가가 아니다. Live 운영 접근·수정·배포 없이 독립 재감사 대기다.
 
 - Exact monetary domain closure: 단일-owner 개인 가계부와 웹 Number의 공통 계약은 `±(2^53−1)원`이다. 이전 int64 nominal 허용 범위를 명시적으로 축소하고 입력·historical/current startup admission·v7/legacy 범위·export·클라이언트/local journal을 정렬한다. Summary/배분/event 누계는 Python 정수로 계산하며 노출 합계 범위 초과는 controlled 422다. 중간값은 넓게 계산해 상쇄한다. REAL 컬럼 rebuild, DB/Snapshot version, 금융 공식, reconciliation protocol은 변경하지 않는다. 실제 운영 값/합계의 predeploy 점검·배포는 이번 작업에서 수행하지 않는다.
 

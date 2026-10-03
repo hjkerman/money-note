@@ -2,7 +2,9 @@
 
 ## Historical recurring compatibility — 독립 재감사 대기
 
-이전 배포 writer/exporter가 적법하게 만든 source 연결에는 생성 expense의 epoch가 없을 수 있다. DB version 4의 one-time checkpoint와 표식 없는 역사적 v7의 임시 restore normalization은 유일한 source ID·source 생성 시각·payment key 및 original confirmation evidence가 증명될 때만 epoch를 채운다. Current canonical invariant와 exact-money admission은 유지하며 금융 값을 추측/보정하지 않는다. 재확정·재복원한 retired 관계에는 검증된 recovery witness가 필요할 수 있다. Source 없는 파일·부분 epoch·경쟁 후보·상충 witness는 거부한다. 새 export는 manifest-bound `recurring_ownership_version=1`이며 strict 검증을 우회하지 않는다.
+Timestamp collision으로 old archive를 newer confirmation에 연결하던 High를 실패 테스트로 재현했다(4,940→9,880원 중복 부담). 현재 proof는 완전한 canonical payment-key/source-instance/child-epoch witness만 허용한다. Source-ID-less도 이 독립적인 불변 관계가 없으면 거부하며, timestamp/content/amount/location의 유일 후보는 증거가 아니다. v4~v6 content 추론 sibling, 불완전 witness의 상충 claim, unversioned checkpoint 선행 변경도 test-first로 차단했다. Current canonical/정수 금액/표식 있는 v7의 strictness는 유지한다.
+
+현재 보존 사본의 11개 관계는 모두 epoch-less이고 함께 보존한 recovery에도 완전한 child epoch evidence가 없으므로 자동 admission을 중단했다. Version 3/금융 행과 master는 불변이다. Recovery 23개 중 5개는 missing active 관계 없는 canonical 상태로 통과했고 13개는 explicit epoch proof 부재, 5개는 source-less active ownership 부재로 거부했다. 이전 11개 normalization 성공/18개 recovery 허용은 sound proof 검증 결과로 유지하지 않는다. 추가 immutable evidence 또는 별도 수동 조사가 필요하며, 이 상태로 배포하지 않는다. 생성 지출/epoch를 추측 복구하거나 원본 recovery를 편집하지 않는다.
 
 운영 DB/서비스는 수정하거나 배포하지 않는다. 격리 사본 검증 결과와 별개로 독립 read-only 재감사, fresh production backup 및 fresh admission이 이후 배포의 선행 조건이다. 아래 version 3 유지 설명은 과거 closure 이력이며 현재 checkpoint version은 4다.
 

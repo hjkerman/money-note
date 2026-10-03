@@ -692,7 +692,7 @@ def _ensure_recurring_confirmation_epoch(conn: Any, entry_id: int, source_id: in
 def _legacy_recurring_source(
     conn: Any, entry_id: int, entry: Any, *, allow_binding: bool = False,
 ) -> int | None:
-    """Bind before an edit, or reject cancellation of a still-unbound lineage."""
+    """Reject mutation of a risky, unbound historical lineage; never guess."""
     if entry["book_section"] != "current" or entry["entry_kind"] != "expense":
         return None
     month = str(entry["entry_date"])[:7] if entry["entry_date"] else "0000-00"
@@ -709,9 +709,9 @@ def _legacy_recurring_source(
     )]
     sources = infer_legacy_recurring_sources(rows)
     if entry_id in sources:
-        if allow_binding:
-            return sources[entry_id]
-        raise ValueError("unresolved legacy recurring confirmation: bind before cancellation")
+        # Similarity/timestamps identify a risk, not an owner. Historical
+        # materialization belongs to the proof-only admission boundary.
+        raise ValueError("unresolved legacy recurring confirmation: source is not provable")
     explicitly_linked = {row["source_planned_entry_id"] for row in rows
                          if row["entry_kind"] == "expense" and row["source_planned_entry_id"] is not None}
     for planned in rows:
@@ -725,8 +725,8 @@ def _legacy_recurring_source(
         if same_date and (same_description or planned["amount_value"] == entry["amount_value"]):
             raise ValueError("ambiguous legacy recurring confirmation: source is not provable")
     # An old, already-edited source-less row may have moved to another entry
-    # month before this version could bind it. Its immutable creation time can
-    # still reveal a plausible confirmation; reject rather than deleting it
+    # month before admission. A creation timestamp can still mark a plausible
+    # risk, never prove an owner; reject rather than deleting it
     # while silently leaving the reserve released.
     all_confirmed = conn.execute(
         "SELECT id, confirmed_at FROM ledger_entries WHERE book_section = 'current' "

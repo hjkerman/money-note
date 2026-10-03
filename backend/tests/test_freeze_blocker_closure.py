@@ -9,6 +9,7 @@ from unittest.mock import patch
 from fastapi import HTTPException
 
 from tests.db_fixture import IsolatedDatabaseTestCase
+from tests.recurring_witness import preserve_synthetic_witnesses
 from app.db import init_db, session
 from app.repositories.entries import append_planned_entry, confirm_planned_entry, create_entry, delete_entry, update_entry
 from app.repositories.panels import create_panel
@@ -62,6 +63,7 @@ class FreezeBlockerClosureTest(IsolatedDatabaseTestCase):
         self.assertIsNotNone(confirm_planned_entry(planned["id"]))
 
     def test_legacy_cross_month_edit_uses_materialized_confirmation(self):
+        preserve_synthetic_witnesses(self.db_path)
         for version in (4, 5, 6):
             with self.subTest(version=version):
                 artifact = json.loads((Path(__file__).parent / "fixtures" / f"snapshot_v{version}_recurring.json").read_text())

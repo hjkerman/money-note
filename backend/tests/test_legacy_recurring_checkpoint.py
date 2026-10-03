@@ -36,6 +36,11 @@ class LegacyRecurringCheckpointTest(IsolatedDatabaseTestCase):
                          "(21,'current','expense','Synthetic purchase',5000,2,10,'synthetic-active',"
                          "'2026-07-11','2026-07-11 00:00:00','2026-07','2026-07-11 00:00:00')")
         self.canonical = snapshot.export_snapshot()[1]
+        # Compatibility needs a complete, previously preserved ownership
+        # relation. Epoch-less/timestamp-only documents cannot supply it.
+        directory = self.db_path.parent / "snapshot-backups"
+        directory.mkdir(exist_ok=True)
+        (directory / "pre_restore-20260711T000000Z.money-note-snapshot.json").write_text(json.dumps(self.canonical))
 
     def tearDown(self):
         self.clock.stop()
@@ -71,7 +76,7 @@ class LegacyRecurringCheckpointTest(IsolatedDatabaseTestCase):
             row.update(confirmed_month="2026-06", confirmed_at="2026-06-11 00:00:00")
             if row["id"] == 21:
                 row.update(id=120, payment_key="synthetic-retired", created_at="2026-06-11 00:00:00")
-        witness = self.historical(old)
+        witness = self.resign(old)
         directory = self.db_path.parent / "snapshot-backups"
         directory.mkdir(exist_ok=True)
         (directory / "pre_restore-20260630T090000Z.money-note-snapshot.json").write_text(json.dumps(witness))
@@ -95,7 +100,7 @@ class LegacyRecurringCheckpointTest(IsolatedDatabaseTestCase):
         init_db()
         self.assertEqual(self.state(), first)
 
-    def test_historical_v7_inline_proof_then_canonical_round_trip(self):
+    def test_historical_v7_canonical_witness_then_canonical_round_trip(self):
         expected = current_summary_values()
         snapshot.restore_snapshot(self.historical())
         self.assertEqual(current_summary_values(), expected)
@@ -179,10 +184,10 @@ class LegacyRecurringCheckpointTest(IsolatedDatabaseTestCase):
             init_db()
         self.assertEqual(self.state(), before)
 
-    def test_adjacent_sqlite_second_in_original_insert_and_source_update(self):
-        # The historical command used separate INSERT/UPDATE statements.
+    def test_creation_timestamp_is_irrelevant_with_canonical_witness(self):
+        # Even a nonadjacent creation timestamp cannot alter stable ownership.
         with session() as conn:
-            conn.execute("UPDATE ledger_entries SET created_at='2026-07-10 23:59:59' WHERE id=21")
+            conn.execute("UPDATE ledger_entries SET created_at='2026-07-12 23:59:59' WHERE id=21")
         self.make_legacy_db()
         init_db()
         with session() as conn:
@@ -191,7 +196,7 @@ class LegacyRecurringCheckpointTest(IsolatedDatabaseTestCase):
 
     def test_ambiguity_matrix_never_changes_input_or_destination(self):
         for case in ("duplicate", "missing_source", "manual_lookalike", "partial_source",
-                     "partial_child", "missing_key", "empty_key", "duplicate_key", "wrong_source", "later_creation"):
+                     "partial_child", "missing_key", "empty_key", "duplicate_key", "wrong_source"):
             with self.subTest(case=case):
                 bad = self.historical()
                 source = next(row for row in bad["data"]["ledger_entries"] if row["id"] == 10)
@@ -202,6 +207,7 @@ class LegacyRecurringCheckpointTest(IsolatedDatabaseTestCase):
                     bad["data"]["ledger_entries"].remove(source)
                 elif case == "manual_lookalike":
                     child["source_planned_entry_id"] = None
+                    child["payment_key"] = "unproven-manual-key"
                 elif case == "partial_source":
                     source["confirmed_at"] = None
                 elif case == "partial_child":
@@ -214,8 +220,6 @@ class LegacyRecurringCheckpointTest(IsolatedDatabaseTestCase):
                     bad["data"]["ledger_entries"].append({**child, "id": 22})
                 elif case == "wrong_source":
                     child["source_planned_entry_id"] = 999
-                else:
-                    child["created_at"] = "2026-07-11 00:00:01"
                 original = copy.deepcopy(bad)
                 before = self.state()
                 with self.assertRaises(ValueError):
@@ -229,7 +233,7 @@ class LegacyRecurringCheckpointTest(IsolatedDatabaseTestCase):
         child.update(book_section="archive", entry_date=None, title="Changed", usage_place="Other",
                      usage_item="Edited", amount_value=7000, aux_amount_value=120, discount_override=1)
         original = copy.deepcopy(bad["data"])
-        rows = canonicalize_legacy_recurring(bad["data"])
+        rows = canonicalize_legacy_recurring(bad["data"], [self.canonical["data"]])
         self.assertEqual(bad["data"], original)
         self.assertEqual(next(row for row in rows if row["id"] == 21)["amount_value"], 7000)
         snapshot.restore_snapshot(self.resign(bad))
