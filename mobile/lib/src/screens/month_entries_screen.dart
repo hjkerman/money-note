@@ -188,14 +188,14 @@ class _MonthEntryCard extends StatelessWidget {
   Future<void> _editNetAmount(BuildContext context) async {
     final amount = entry.amountValue;
     if (amount == null) return;
-    final controller =
-        TextEditingController(text: entry.effectiveAmount.toString());
+    var netAmountText = entry.effectiveAmount.toString();
     final netAmount = await showDialog<int>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('실결제액 수정'),
-        content: TextField(
-          controller: controller,
+        content: TextFormField(
+          initialValue: netAmountText,
+          onChanged: (value) => netAmountText = value,
           keyboardType: TextInputType.number,
           autofocus: true,
           decoration: const InputDecoration(labelText: '실결제액'),
@@ -208,7 +208,7 @@ class _MonthEntryCard extends StatelessWidget {
           FilledButton(
             onPressed: () {
               final parsed =
-                  int.tryParse(controller.text.replaceAll(',', '').trim());
+                  int.tryParse(netAmountText.replaceAll(',', '').trim());
               if (parsed == null || parsed < 0 || parsed > amount) return;
               Navigator.of(context).pop(parsed);
             },
@@ -217,7 +217,6 @@ class _MonthEntryCard extends StatelessWidget {
         ],
       ),
     );
-    controller.dispose();
     if (netAmount == null) return;
     await state.updateEntryNetAmount(entry, netAmount);
   }

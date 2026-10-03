@@ -125,7 +125,6 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
   final place = TextEditingController();
   final item = TextEditingController();
   final amount = TextEditingController();
-  final netAmountOverride = TextEditingController();
   final placeFocus = FocusNode();
   bool? discountEnabled;
   String? spendingCategory;
@@ -149,7 +148,6 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
     place.dispose();
     item.dispose();
     amount.dispose();
-    netAmountOverride.dispose();
     placeFocus.dispose();
     super.dispose();
   }
@@ -226,17 +224,6 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
                   setState(() => discountEnabled = value ?? false),
             ),
           ),
-          const SizedBox(height: 8),
-          TextField(
-            controller: netAmountOverride,
-            keyboardType: TextInputType.number,
-            textInputAction: TextInputAction.done,
-            decoration: const InputDecoration(
-              labelText: '실결제액 직접 입력(선택)',
-              helperText: '입력하면 할인 적용 선택보다 우선합니다.',
-            ),
-            onSubmitted: (_) => _submit(),
-          ),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: widget.state.canCreateCardExpense && !_submitInFlight
@@ -263,20 +250,14 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
     final submittedPlace = place.text;
     final submittedItem = item.text;
     final submittedAmount = amount.text;
-    final submittedNetAmount = netAmountOverride.text;
     final submittedDate = selectedDate;
     final submittedDiscountEnabled = discountEnabled;
     final submittedCategory = spendingCategory;
     final parsedAmount =
         int.tryParse(submittedAmount.replaceAll(',', '').trim());
-    final netText = submittedNetAmount.replaceAll(',', '').trim();
-    final parsedNetAmount = netText.isEmpty ? null : int.tryParse(netText);
     if (submittedPlace.trim().isEmpty ||
         parsedAmount == null ||
-        parsedAmount < 0 ||
-        (netText.isNotEmpty && parsedNetAmount == null) ||
-        (parsedNetAmount != null &&
-            (parsedNetAmount < 0 || parsedNetAmount > parsedAmount))) {
+        parsedAmount < 0) {
       return;
     }
     setState(() => _submitInFlight = true);
@@ -290,7 +271,6 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
         submittedItem,
         explicitChoice: submittedDiscountEnabled,
       )!,
-      netAmountOverride: parsedNetAmount,
       spendingCategory: submittedCategory,
       entryDate: submittedDate,
     );
@@ -298,7 +278,6 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
     final draftIsUnchanged = place.text == submittedPlace &&
         item.text == submittedItem &&
         amount.text == submittedAmount &&
-        netAmountOverride.text == submittedNetAmount &&
         selectedDate == submittedDate &&
         discountEnabled == submittedDiscountEnabled &&
         spendingCategory == submittedCategory;
@@ -306,7 +285,6 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
       place.clear();
       item.clear();
       amount.clear();
-      netAmountOverride.clear();
       setState(() {
         _submitInFlight = false;
         spendingCategory = null;

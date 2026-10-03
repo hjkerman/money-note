@@ -10,6 +10,7 @@ import 'package:money_note_mobile/src/offline/offline_data.dart';
 import 'package:money_note_mobile/src/screens/cash_flow_screen.dart';
 import 'package:money_note_mobile/src/screens/input_screen.dart';
 import 'package:money_note_mobile/src/screens/management_screen.dart';
+import 'package:money_note_mobile/src/screens/month_entries_screen.dart';
 
 import 'support/offline_mode_fixtures.dart';
 
@@ -24,6 +25,9 @@ class FormAppStateFake extends AppState {
   Completer<bool> plannedConfirmCompletion = Completer<bool>();
   int expenseCalls = 0;
   bool? lastExpenseDiscountEnabled;
+  int? lastExpenseNetAmountOverride;
+  int? editedNetAmountEntryId;
+  int? editedNetAmount;
   int cashCalls = 0;
   int panelCalls = 0;
   int plannedPreviewCalls = 0;
@@ -42,7 +46,14 @@ class FormAppStateFake extends AppState {
   }) {
     expenseCalls += 1;
     lastExpenseDiscountEnabled = discountEnabled;
+    lastExpenseNetAmountOverride = netAmountOverride;
     return expenseCompletion.future;
+  }
+
+  @override
+  Future<void> updateEntryNetAmount(LedgerEntry entry, int netAmount) async {
+    editedNetAmountEntryId = entry.id;
+    editedNetAmount = netAmount;
   }
 
   @override
@@ -265,6 +276,67 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('서버 변경도 덮어쓸까요?'), findsOneWidget);
     expect(find.textContaining('Apply(B, J)'), findsOneWidget);
+  });
+
+  testWidgets(
+      'expense input omits net amount override and keeps discount choice',
+      (tester) async {
+    final state = FormAppStateFake();
+    addTearDown(state.dispose);
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(body: ExpenseInputCard(state: state)),
+    ));
+
+    expect(find.text('실결제액 직접 입력(선택)'), findsNothing);
+    expect(find.text('입력하면 할인 적용 선택보다 우선합니다.'), findsNothing);
+    expect(find.byType(TextField), findsNWidgets(3));
+    expect(find.text('할인 적용'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField).at(0), '가게');
+    await tester.enterText(find.byType(TextField).at(1), '10000');
+    await tester.tap(find.text('지출 추가'));
+    expect(state.expenseCalls, 1);
+    expect(state.lastExpenseNetAmountOverride, isNull);
+    expect(state.lastExpenseDiscountEnabled, isTrue);
+    state.expenseCompletion.complete(true);
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('existing expense card still edits the net amount',
+      (tester) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(1200, 2000);
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final state = FormAppStateFake()
+      ..entries = [
+        LedgerEntry(
+          id: 41,
+          bookSection: 'current',
+          entryKind: 'expense',
+          title: '가게',
+          sortOrder: 1,
+          entryDate: '2026-10-03',
+          amountValue: 10000,
+          paymentKey: 'editable-expense',
+          effectiveAmountValue: 9880,
+        )
+      ];
+    addTearDown(state.dispose);
+    await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+      body: MonthEntriesScreen(state: state),
+    )));
+    await tester.tap(find.text('실결제액 수정'));
+    await tester.pumpAndSettle();
+    final field = find.descendant(
+        of: find.byType(AlertDialog), matching: find.byType(TextField));
+    expect(tester.widget<TextField>(field).controller!.text, '9880');
+    await tester.enterText(field, '8000');
+    await tester.tap(find.text('저장'));
+    await tester.pumpAndSettle();
+    expect(state.editedNetAmountEntryId, 41);
+    expect(state.editedNetAmount, 8000);
   });
 
   testWidgets('expense keyboard and button re-entry produces one submit',
