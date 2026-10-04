@@ -55,6 +55,11 @@ def _proofs(data: Mapping[str, Any]) -> dict[str, set[tuple[Any, str, str, str]]
         raise ValueError("historical recurring evidence has no valid stable payment key")
     if len({row["payment_key"] for row in keyed}) != len(keyed):
         raise ValueError("historical recurring evidence has duplicate payment keys")
+    # The loader retains supported legacy documents as negative constraints,
+    # not as positive canonical ownership proofs. This is internal provenance,
+    # never added to Snapshot data/hash or written to the destination.
+    if data.get("_recurring_witness_schema_version", 7) != 7:
+        return {}
     sources = {key: row for key, row in by_id.items() if row.get("entry_kind") == "planned"}
     for row in rows:
         if row.get("entry_kind") == "planned" or row.get("source_planned_entry_id") is not None:
@@ -78,6 +83,28 @@ def _proofs(data: Mapping[str, Any]) -> dict[str, set[tuple[Any, str, str, str]]
     return result
 
 
+def _collect_relevant_witnesses(
+    data: Mapping[str, Any], witnesses: Sequence[Mapping[str, Any]],
+) -> dict[str, list[tuple[Mapping[str, Any], Mapping[str, Any] | None]]]:
+    """Group every same-key assertion before filtering for positive proof.
+
+    Missing source/epoch metadata is historical absence, not ownership. It
+    cannot hide an asserted partial/conflicting epoch on the same stable key.
+    Different keys do not identify this logical child by content or location.
+    """
+    keys = {row.get("payment_key") for row in data["ledger_entries"]
+            if row.get("payment_key") is not None}
+    relevant: dict[str, list[tuple[Mapping[str, Any], Mapping[str, Any] | None]]] = {}
+    for document in (data, *witnesses):
+        owners = {row.get("id"): row for row in document["ledger_entries"]
+                  if row.get("entry_kind") == "planned"}
+        for row in document["ledger_entries"]:
+            key = row.get("payment_key")
+            if key is not None and key in keys:
+                relevant.setdefault(key, []).append((row, owners.get(row.get("source_planned_entry_id"))))
+    return relevant
+
+
 def canonicalize_legacy_recurring(
     data: Mapping[str, Any], witnesses: Sequence[Mapping[str, Any]] = (),
     *, require_execution_epoch: bool = True,
@@ -85,31 +112,32 @@ def canonicalize_legacy_recurring(
     """Return canonical rows or fail without changing the caller's representation."""
     rows = [dict(row) for row in data["ledger_entries"]]
     by_id = {row.get("id"): row for row in rows}
-    proofs = _proofs(data)
+    relevant = _collect_relevant_witnesses(data, witnesses)
     claims: dict[str, set[tuple[Any, Any]]] = {}
-    epochs: dict[str, set[tuple[Any, Any, Any, Any]]] = {}
-    # Even an epoch-less document can contradict a stable source assertion.
-    # It cannot supply an epoch proof, but must not be silently discarded to
-    # make another witness unique.
-    for document in (data, *witnesses):
-        owners = {row.get("id"): row for row in document["ledger_entries"]
-                  if row.get("entry_kind") == "planned"}
-        for row in document["ledger_entries"]:
-            key, source_id = row.get("payment_key"), row.get("source_planned_entry_id")
-            if key and source_id is not None:
-                source = owners.get(source_id)
+    epochs: dict[str, set[tuple[Any, Any]]] = {}
+    for key, assertions in relevant.items():
+        if len({row.get("entry_kind") for row, _ in assertions}) != 1:
+            raise ValueError("legacy recurring witnesses disagree on the generated child kind")
+        for row, source in assertions:
+            # NULL source supplies no positive owner proof, but its epoch is
+            # still an assertion about this child. Never drop it before
+            # checking the complete same-key evidence set.
+            validate_source_epoch(row)
+            period, timestamp = row.get("confirmed_month"), row.get("confirmed_at")
+            if period is not None:
+                if not _valid_period(period) or not _valid_time(timestamp):
+                    raise ValueError("legacy recurring witness has no valid confirmation epoch")
+                epochs.setdefault(key, set()).add((period, timestamp))
+            source_id = row.get("source_planned_entry_id")
+            if source_id is not None:
                 if source is None:
                     raise ValueError("legacy recurring witness has no valid source")
                 claims.setdefault(key, set()).add((source_id, source.get("created_at")))
-                period, timestamp = row.get("confirmed_month"), row.get("confirmed_at")
-                if period is not None and timestamp is not None:
-                    if not _valid_period(period) or not _valid_time(timestamp):
-                        raise ValueError("legacy recurring witness has no valid confirmation epoch")
-                    epochs.setdefault(key, set()).add((source_id, source.get("created_at"), period, timestamp))
     if any(len(owners) != 1 for owners in claims.values()):
         raise ValueError("legacy recurring witness contradicts the source identity")
     if any(len(identities) != 1 for identities in epochs.values()):
         raise ValueError("legacy recurring confirmation has conflicting immutable epoch witnesses")
+    proofs = _proofs(data)
     for witness in witnesses:
         for key, identities in _proofs(witness).items():
             proofs.setdefault(key, set()).update(identities)
@@ -157,12 +185,13 @@ def legacy_recurring_witnesses() -> list[dict[str, Any]]:
         # Invalid evidence cannot silently disappear to resolve a conflict.
         document = parse_snapshot_json(path.read_bytes())
         _validate_snapshot(document)
-        if document["schema_version"] != 7:
-            continue
-        validate_money_payload(document["data"])
-        if "recurring_ownership_version" in document:
-            validate_recurring_ownership(document["data"]["ledger_entries"], _closed(document["data"]))
-        witnesses.append(document["data"])
+        if document["schema_version"] == 7:
+            validate_money_payload(document["data"])
+            if "recurring_ownership_version" in document:
+                validate_recurring_ownership(document["data"]["ledger_entries"], _closed(document["data"]))
+        # Version filtering must not hide a same-key contradictory assertion.
+        # Legacy numeric normalization is not invoked for ownership evidence.
+        witnesses.append({**document["data"], "_recurring_witness_schema_version": document["schema_version"]})
     return witnesses
 
 

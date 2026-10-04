@@ -2,9 +2,11 @@
 
 이 문서는 새 개발자나 새 작업 세션이 Money Note의 현재 기준선과 문서 읽기 순서를 빠르게 파악하기 위한 체크포인트다. 상세 도메인 규칙, API, 스키마, 운영 절차를 대신하지 않는다.
 
-마지막 기능 코드 대조: 2026-10-02, Freeze 재감사 finding closure 개발 checkout (운영 배포 기준 아님)
+마지막 기능 코드 대조: 2026-10-04, Compatibility witness completeness closure 개발 checkout (운영 배포 기준 아님)
 
 ## 현재 기준선
+
+- Compatibility witness completeness closure: same-key NULL-source witness를 conflict 집합에서 버리지 않는다. 전체 relevant grouping 뒤 partial/상충 epoch·child-kind conflict를 거부하고, 지원 v4~v6 recovery도 negative constraint로 보존한다. NULL-source는 positive ownership proof가 아니며 absent/matching epoch도 별도 완전한 canonical proof가 필요하다. Startup/restore helper와 version 4 atomic checkpoint를 유지한다. Production-derived 11개는 계속 blocked, recovery 23개는 5 허용/18 거부이며 운영 수정·배포 없이 독립 재감사 대기다.
 
 - Historical recurring proof hardening: timestamp 일치/유일 후보는 old archive를 새 확인에 연결할 수 있어 proof에서 제외했다. 이미 보존된 완전한 canonical payment-key/source-instance/child-epoch 관계만 missing metadata를 채우며 v4~v6/역사적 v7도 같은 proof를 요구한다. Startup은 모든 이전 checkpoint 변경 전 read-only preflight를 하고 version 4에서 원자적으로 재검증·기록한다. Runtime edit는 content/time으로 source를 결합하지 않는다. 보존된 사본의 11개 관계는 현재 evidence로 증명 불가하여 거부/수동 조사 대상으로 분류했고, recovery 23개는 5 허용/18 거부였다. 허용된 사본의 금융 차이 0원, master 불변은 자동 배포 허가가 아니다. Live 운영 접근·수정·배포 없이 독립 재감사 대기다.
 

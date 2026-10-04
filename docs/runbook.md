@@ -1231,6 +1231,8 @@ docker compose logs -f api
 4. strict recurring/card ownership, Summary, current export, recovery restore→재시작→새 canonical v7 export→재복원을 검증한다. 표식 없는 역사적 v7만 proof-only normalization하며 새 v7의 manifest-bound `recurring_ownership_version=1` 파일은 strict다. Source 없는/증명 불가능한 오래된 recovery는 별도로 거부 분류하고 원본을 보존한다. 새 canonical 파일은 다시 legacy witness에 의존하지 않는다.
 5. COPY admission이 실패하면 배포하지 않는다. 기존 운영 DB·recovery를 normalize/repair/삭제하지 않는다. 독립 재감사 후에도 실제 배포 직전 fresh backup과 admission을 다시 실행해야 한다. 이번 개발 검증은 배포 승인이 아니다.
 
+Compatibility witness는 source ID로 미리 filtering하지 않는다. 같은 target stable key의 NULL-source 문서도 전체 증거 집합에 남겨 partial/상충 epoch 또는 child-kind conflict를 거부한다. 지원 v4~v6 recovery 문서도 같은 conflict constraint에 포함하며 filename 순서/format filtering으로 제거하지 않는다. NULL-source는 positive proof가 아니고 absent/matching epoch도 별도 완전한 canonical proof 없이 승인하지 않는다. Rejected startup/restore는 DB/revision/version 및 기존 recovery artifact를 보존해야 한다. 증거를 삭제하거나 source/epoch를 수동 입력해 admission을 통과시키지 않는다. 운영 compatibility는 계속 blocked일 수 있으며 자동 수선을 제공하지 않는다.
+
 Version 4 DB는 version 3만 지원하는 이전 서버가 기동을 거부할 수 있다. code-only rollback도 최신 DB와의 호환성을 별도 검증해야 하며 version을 임의로 낮추거나 과거 DB를 덮어쓰지 않는다. 사전 배포 검사용 master backup/witness는 이 검사에서 cleanup하지 않으며 원본을 재작성하지 않는다. 기존 runtime recovery 보관 정책은 변경하지 않는다. 오래된 epoch-less 파일의 별도 복원이 필요하면 그 관계를 증명하는 원본 evidence도 함께 보존해야 한다.
 
 과거 월마감은 archive 행을 INSERT/delete로 복사해 행 ID와 생성 시각을 새로 부여했다. Archive 복사 시각이 다음 확인과 같은 초여도, 검증된 stable key/source evidence가 해당 행의 별도 마감 epoch를 유일하게 증명한 경우에만 새 확인의 경쟁 후보에서 제외한다. 미증명·상충 후보를 임의로 제외하거나 가장 가까운 행을 선택하지 않는다.

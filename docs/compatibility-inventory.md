@@ -2,6 +2,8 @@
 
 현재 DB version은 4다. 이전 아래 closure의 version 3 유지 설명은 이력이다. One-time recurring checkpoint는 완전한 canonical payment-key/source-instance/child-epoch witness로만 missing metadata를 채운다. Timestamp 일치·content·유일한 후보는 ownership proof가 아니다. Source-ID-less historical 행도 같은 immutable proof가 없으면 거부하며, 약한 과거 추론은 runtime 위험 변경의 거부에만 남긴다. Read-only preflight는 어떤 이전 checkpoint 변경보다 앞서고 current strict invariant/exact-money/새 v7 manifest 표식은 유지한다.
 
+Witness completeness closure는 same-key NULL-source evidence를 grouping에서 보존한다. Owner proof로 쓰지는 않지만 partial/상충 epoch 또는 상충 child kind를 숨기지 않는다. 지원 v4~v6 recovery도 conflict constraint로 포함하며 positive proof는 완전한 canonical v7에서만 얻는다. 양쪽 epoch가 모두 없는 historical absence 및 matching complete epoch만으로 owner를 만들지 않는다. 독립 canonical proof와 모든 relevant evidence의 coherence가 함께 필요하며 format/version/protocol 변경은 없다.
+
 Exact monetary domain closure는 이전 signed-64-bit nominal 허용 범위를 `±(2^53−1)원`으로 명시적으로 축소한다. full-int64 외부 제품 호환 요구는 없으며 웹 Number/historical REAL/API/mobile의 공통 exact 정수 범위를 사용한다. v7 금액은 원문 JSON 및 정규화 전에 lossless 검증한다. fractional/non-finite/잘못된 문자열·범위 초과·NULL 금액 설정은 거부하며 v4~v6의 기존 REAL/소수 절삭 호환도 이 범위 안의 해당 버전에만 보존한다. 과거 잃은 정밀도를 추정하지 않는다. 일반 REAL의 fingerprint와 API/Offline journal body·reconciliation identity는 재작성하지 않는다.
 
 confirmed recurring의 actual 연결은 nullable archive 발생일과 무관하다. current의 NULL 발생일 PATCH는 기존대로 거부한다. 실제 생성 지출이 없거나 유일하지 않으면 template 금액 fallback으로 감추지 않는다. 웹·모바일의 구 payload fallback surface는 삭제하지 않으며 current 서버 응답은 완전한 `confirmed_*` 실제 금액을 제공한다. schema/version/protocol 및 dead surface 제거는 없다.

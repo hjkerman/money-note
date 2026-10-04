@@ -2,6 +2,8 @@
 
 ## Historical recurring compatibility — 독립 재감사 대기
 
+NULL-source witness의 partial/상충 epoch를 무시해 restore 200/startup 승격하던 Medium을 양쪽 red regression으로 재현했다. 현재는 stable key별 전체 relevant 증거를 먼저 grouping하고 NULL-source를 conflict 판단에서 제외하지 않는다. 같은 원인의 child-kind conflict 및 v4~v6 format filtering도 test-first로 차단했다. NULL-source epoch 전체 absence/matching epoch는 positive proof가 아니며 별도 완전한 canonical evidence가 필요하다. Production-derived 11개는 계속 증명 불가/거부이고 recovery 23개는 재검증에서 5 허용/18 거부였다. 허용 사본은 금융 차이 0원, 거부된 목적지/checkpoint와 master는 불변이다. 자동 복구·배포 가능 판정을 뜻하지 않는다.
+
 Timestamp collision으로 old archive를 newer confirmation에 연결하던 High를 실패 테스트로 재현했다(4,940→9,880원 중복 부담). 현재 proof는 완전한 canonical payment-key/source-instance/child-epoch witness만 허용한다. Source-ID-less도 이 독립적인 불변 관계가 없으면 거부하며, timestamp/content/amount/location의 유일 후보는 증거가 아니다. v4~v6 content 추론 sibling, 불완전 witness의 상충 claim, unversioned checkpoint 선행 변경도 test-first로 차단했다. Current canonical/정수 금액/표식 있는 v7의 strictness는 유지한다.
 
 현재 보존 사본의 11개 관계는 모두 epoch-less이고 함께 보존한 recovery에도 완전한 child epoch evidence가 없으므로 자동 admission을 중단했다. Version 3/금융 행과 master는 불변이다. Recovery 23개 중 5개는 missing active 관계 없는 canonical 상태로 통과했고 13개는 explicit epoch proof 부재, 5개는 source-less active ownership 부재로 거부했다. 이전 11개 normalization 성공/18개 recovery 허용은 sound proof 검증 결과로 유지하지 않는다. 추가 immutable evidence 또는 별도 수동 조사가 필요하며, 이 상태로 배포하지 않는다. 생성 지출/epoch를 추측 복구하거나 원본 recovery를 편집하지 않는다.
