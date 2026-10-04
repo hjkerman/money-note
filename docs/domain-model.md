@@ -1,5 +1,7 @@
 # Money Note Domain Model
 
+Owner-attested 역사적 관계의 별도 one-time 계약은 [owner canonicalization](owner-recurring-canonicalization.md)에 정의한다. 자동 compatibility의 immutable proof는 변경하지 않는다. 명시 승인 manifest만 exact source/child/key/epoch를 지정하며, fresh verified backup·검토 fingerprint·동일 기준 날짜·dry-run·금융 차이 0원·단일 transaction을 요구한다. 기존 source FK가 있는 child의 missing epoch 두 열과 정상 revision 증가 외에는 수정하지 않는다. Source의 현재 확인/금액/0원 override/archive 위치를 바꾸거나 유사 행을 추론하지 않는다.
+
 > 이 문서는 Money Note의 도메인 모델에 대한 기준 문서다.
 >
 > 구현, 리팩토링, 스키마 변경, UI 변경은 이 문서의 정의를 우선한다.

@@ -1,5 +1,9 @@
 # 알려진 이슈
 
+## Owner-attested explicit canonicalization — 독립 재감사 대기 / live 미실행
+
+소유자가 11개 관계를 모두 YES로 승인했다. 자동 admission의 증명 불가 상태를 완화하지 않고 별도 명시적 manifest 도구를 추가했다. 보존 COPY의 11개 dry-run/폐기용 apply는 metadata 외 변화와 금융 차이 0원을 검증하고 strict startup/current Snapshot round-trip을 통과했다. 지급된 historical archive의 삭제 거부는 정상 보호 규칙이며 유지한다. 검토 날짜 경과 및 불완전 receipt 승인 반례도 test-first로 차단했다. 실제 운영은 아직 적용/배포하지 않았고 fresh backup·precondition 재검토·독립 감사·별도 실행 승인이 필요하다. [상세 절차](owner-recurring-canonicalization.md).
+
 ## Historical recurring compatibility — 독립 재감사 대기
 
 NULL-source witness의 partial/상충 epoch를 무시해 restore 200/startup 승격하던 Medium을 양쪽 red regression으로 재현했다. 현재는 stable key별 전체 relevant 증거를 먼저 grouping하고 NULL-source를 conflict 판단에서 제외하지 않는다. 같은 원인의 child-kind conflict 및 v4~v6 format filtering도 test-first로 차단했다. NULL-source epoch 전체 absence/matching epoch는 positive proof가 아니며 별도 완전한 canonical evidence가 필요하다. Production-derived 11개는 계속 증명 불가/거부이고 recovery 23개는 재검증에서 5 허용/18 거부였다. 허용 사본은 금융 차이 0원, 거부된 목적지/checkpoint와 master는 불변이다. 자동 복구·배포 가능 판정을 뜻하지 않는다.

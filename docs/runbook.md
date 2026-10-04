@@ -1,5 +1,9 @@
 # 실행 방법
 
+## Owner-approved one-time recurring 작업 — live 미실행
+
+자동 compatibility는 proof-only로 유지한다. R01–R11 YES는 exact private manifest의 인간 승인이지 timestamp/content matching 허가가 아니다. 별도 [도구/manifest/backup/dry-run/apply 절차](owner-recurring-canonicalization.md)를 따른다. Fresh Online Backup과 pinned hash, stale-review/날짜 검사, 검증된 dry-run receipt, 0원 금융 차이, metadata allowlist를 모두 통과해야 한다. 향후 live apply는 별도 승인된 write-quiescent maintenance window에서만 수행한다. 기존 recovery 23개를 재작성하지 않고 적용 후 fresh canonical Snapshot을 새 baseline으로 검증한다. 이 코드 commit/push 및 COPY 검증은 deployment/live 적용 허가가 아니다.
+
 ## Final Freeze closure 복구 주의
 
 현재 admission은 revision trigger의 이름뿐 아니라 event/대상/단조 증가 효과와 예상 밖 상쇄 trigger를 검사한다. 시작 거부 시 schema를 임의 수선하거나 version만 올리지 않는다. 별도 허가와 최신 안전 backup 없이 운영 DB/trigger를 바꾸지 않는다.
