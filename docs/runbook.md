@@ -67,7 +67,7 @@ EOF
 ```
 
 - 기본값/`--dry-run`: committed HEAD, 경로, 운영 container/mount와 배포 범위를 읽는다. 빌드·production 쓰기·service 조작·fetch·push를 수행하지 않는다. 작업 중 변경은 배포 대상이 아니며 실제 빌드에는 clean checkout이 필요하다.
-- `--stage-only`: clean commit의 allowlist만 staging한다. frontend는 `node:22-alpine`, backend는 고유 `money-note-local:<attempt>` 이미지로 빌드한다. Compose 설정의 고정 DB·downloads mount와 loopback port를 검사하되 컨테이너를 교체하지 않는다. 로컬 빌드 이미지/cache는 생성된다.
+- `--stage-only`: clean commit의 allowlist만 staging한다. frontend는 `node:22-alpine`에서 `npm ci → test → lint → build`를 수행하고, backend는 고유 `money-note-local:<attempt>` 이미지로 빌드한다. Compose 설정의 고정 DB·downloads mount와 loopback port를 검사하되 컨테이너를 교체하지 않는다. 로컬 빌드 이미지/cache는 생성된다.
 - `--apply`: 사용자가 production 배포를 명시적으로 요청한 경우에만 실행한다. clean branch의 로컬 commit이면 되며 push나 SSH는 필요 없다.
 
 ```bash
@@ -78,7 +78,7 @@ EOF
 
 배포 순서:
 
-1. Git commit에서 backend 실행 파일·잠긴 의존성·Compose와 frontend 빌드 입력만 archive한다. DB, data/downloads, secret, `.env`와 링크를 build archive에 넣지 않는다.
+1. Git commit에서 backend 실행 파일·잠긴 의존성·Compose와 frontend 빌드/검증 입력만 archive한다. frontend test의 상대경로 공유 JSON fixture와 ESLint 설정도 명시적 allowlist에 포함한다. Node 컨테이너에는 archive 루트를 `/source:ro`, frontend만 `/source/frontend`에 writable mount하고 그 디렉터리에서 검증해 sibling import를 보존한다. 원래 checkout이나 외부 파일에 의존하지 않는다. 공유 fixture 또는 packaging script 변경도 frontend를 재검증한다. DB, data/downloads, secret, `.env`와 링크를 build archive에 넣지 않는다.
 2. 필요한 모든 빌드를 완료하고 `index.html`, JavaScript, `.well-known/assetlinks.json`, 비루트 이미지와 Compose mount를 확인한다. 실패하면 운영 artifact를 교체하지 않는다.
 3. 빌드는 checkout lock으로 중복 실행을 막는다. 배포 lock을 잡고 빌드 중 production이 바뀌지 않았는지 확인한다. 직전 runtime 이미지/Compose와 교체할 웹 파일을 private control 영역에 보관하고 pending journal을 남긴다.
 4. `--project-name money-note --project-directory /opt/money-note --env-file /opt/money-note/.env`를 명시해 준비한 이미지로 `api`만 교체한다. `--no-build --pull never --no-deps`를 사용하고 Apache·다른 서비스는 restart/reload하지 않는다.

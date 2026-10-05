@@ -5,6 +5,8 @@ import importlib.util
 import io
 import json
 from pathlib import Path
+import re
+import subprocess
 import tarfile
 
 import pytest
@@ -168,6 +170,100 @@ def test_build_archive_rejects_data_secrets_and_links(host, monkeypatch, name, l
     monkeypatch.setattr(deploy.subprocess, "check_output", lambda *args, **kwargs: stream.getvalue())
     with pytest.raises(RuntimeError, match="Non-deployable|cannot contain links"):
         deploy.stage_source("a" * 40)
+
+
+def test_committed_archive_closes_frontend_relative_imports(host, monkeypatch):
+    """Use the real Git allowlist, not the surrounding checkout's files."""
+    checkout = Path(__file__).resolve().parents[2]
+    contents = subprocess.check_output(["git", "archive", "HEAD", *deploy.SOURCE_PATHS], cwd=checkout)
+    monkeypatch.setattr(deploy.subprocess, "check_output", lambda *args, **kwargs: contents)
+    prepared = deploy.stage_source("a" * 40)
+    imports = re.compile(r'''(?:\bfrom\s*|\bimport\s*\(\s*|\bimport\s*)["'](\.{1,2}/[^"']+)["']''')
+    missing = []
+    checked = 0
+    for source in (prepared / "frontend").rglob("*"):
+        if source.suffix not in {".ts", ".tsx", ".mjs"}:
+            continue
+        for dependency in imports.findall(source.read_text()):
+            target = (source.parent / dependency).resolve()
+            assert target.is_relative_to(prepared), f"Import escapes archive: {source}: {dependency}"
+            candidates = [target] + [Path(str(target) + suffix) for suffix in (".ts", ".tsx", ".js", ".json")]
+            candidates += [target / ("index" + suffix) for suffix in (".ts", ".tsx", ".js")]
+            if not any(candidate.is_file() for candidate in candidates):
+                missing.append(f"{source.relative_to(prepared)} -> {dependency}")
+            checked += 1
+    assert checked > 0
+    assert not missing, "Missing archive dependencies: " + "; ".join(missing)
+    # Include configuration inputs for every declared stage validation command.
+    for name in ("package.json", "package-lock.json", "tsconfig.json", "tsconfig.node.json",
+                 "vite.config.ts", "eslint.config.mjs", "index.html"):
+        assert (prepared / "frontend" / name).is_file(), f"Missing frontend configuration: {name}"
+    for path in prepared.rglob("*"):
+        assert not path.is_symlink()
+        relative = path.relative_to(prepared)
+        assert not set(relative.parts) & {"work", "data", "downloads", "secrets", ".git", ".local-deploy"}
+        assert not any(part.startswith(".env") for part in relative.parts)
+        assert path.suffix not in {".db", ".sqlite3", ".jks", ".keystore"}
+
+
+def test_stage_only_preserves_archive_layout_and_validates_before_publication(host, monkeypatch):
+    prepared = stage(host)
+    monkeypatch.setattr(deploy, "stage_source", lambda revision: prepared)
+    args = arguments()
+    args.stage_only, args.force = True, True
+    before = protected(host)
+    deploy.server(args, "a" * 40)
+    command = next(call for call in host["calls"] if call[:2] == ["docker", "run"])
+    assert f"{prepared}:/source:ro" in command
+    assert f"{prepared / 'frontend'}:/source/frontend" in command
+    assert command[command.index("--workdir") + 1] == "/source/frontend"
+    assert command[-1] == "npm ci --no-audit --no-fund && npm test && npm run lint && npm run build"
+    assert protected(host) == before
+    assert not host["activations"]
+    assert not (host["production"] / ".local-deploy").exists()
+
+
+def test_failed_frontend_validation_cannot_build_or_publish_backend(host, monkeypatch):
+    prepared = stage(host)
+    original_run = deploy.run
+
+    def failed_validation(command, **kwargs):
+        if command[:2] == ["docker", "run"]:
+            raise RuntimeError("injected frontend validation failure")
+        return original_run(command, **kwargs)
+
+    monkeypatch.setattr(deploy, "run", failed_validation)
+    monkeypatch.setattr(deploy, "stage_source", lambda revision: prepared)
+    args = arguments()
+    args.apply, args.force = True, True
+    before = protected(host)
+    with pytest.raises(RuntimeError, match="frontend validation failure"):
+        deploy.server(args, "a" * 40)
+    assert protected(host) == before
+    assert not host["activations"]
+    assert not any(call[:2] == ["docker", "build"] for call in host["calls"])
+    assert not (host["production"] / ".local-deploy").exists()
+
+
+@pytest.mark.parametrize("changed", ["backend/tests/fixtures/confirmed_recurring_actual.json",
+                                    "scripts/local_deploy.py"])
+def test_shared_input_and_packaging_changes_revalidate_frontend(host, monkeypatch, changed):
+    prepared = stage(host)
+    put(host["production"] / ".local-deploy/current.json", json.dumps({"commit": "b" * 40}))
+    original_run = deploy.run
+
+    def changed_run(command, **kwargs):
+        if command[:3] == ["git", "diff", "--name-only"]:
+            return changed
+        return original_run(command, **kwargs)
+
+    monkeypatch.setattr(deploy, "run", changed_run)
+    monkeypatch.setattr(deploy, "stage_source", lambda revision: prepared)
+    args = arguments()
+    args.stage_only = True
+    deploy.server(args, "a" * 40)
+    assert any(call[:2] == ["docker", "run"] for call in host["calls"])
+    assert not host["activations"]
 
 
 def test_failed_build_aborts_before_production_writes(host, monkeypatch):

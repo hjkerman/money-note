@@ -26,12 +26,14 @@ PRODUCTION = Path("/opt/money-note")
 WEB = Path("/var/www/money")
 CONTAINER = "money-note-api-1"
 PROJECT = "money-note"
+# These synthetic fixtures are frontend validation inputs, not backend runtime data.
+FRONTEND_SHARED_INPUTS = ("backend/tests/fixtures/confirmed_recurring_actual.json",)
 SOURCE_PATHS = (
     "backend/app", "backend/scripts", "backend/Dockerfile", "backend/.dockerignore",
     "backend/requirements.lock", "docker-compose.yml", "frontend/src", "frontend/public",
     "frontend/index.html", "frontend/package.json", "frontend/package-lock.json",
     "frontend/tsconfig.json", "frontend/tsconfig.node.json",
-    "frontend/vite.config.ts",
+    "frontend/vite.config.ts", "frontend/eslint.config.mjs", *FRONTEND_SHARED_INPUTS,
 )
 
 
@@ -439,8 +441,10 @@ def server(args, revision):
     if previous and not args.force:
         try:
             changed = run(["git", "diff", "--name-only", previous["commit"], revision]).splitlines()
-            backend = any(path.startswith("backend/") or path == "docker-compose.yml" for path in changed)
-            frontend = any(path.startswith("frontend/") for path in changed)
+            packaging = "scripts/local_deploy.py" in changed
+            backend = packaging or any(path.startswith("backend/") or path == "docker-compose.yml" for path in changed)
+            frontend = packaging or any(path.startswith("frontend/") or path in FRONTEND_SHARED_INPUTS
+                                        for path in changed)
         except RuntimeError:
             pass
     print(f"Committed source: {revision}; backend={backend}; frontend={frontend}")
@@ -452,8 +456,10 @@ def server(args, revision):
     if frontend:
         run(["docker", "run", "--rm", "--user", f"{os.getuid()}:{os.getgid()}",
              "--env", "npm_config_cache=/tmp/npm-cache", "--env", "VITE_API_BASE_URL=",
-             "--volume", f"{stage / 'frontend'}:/app", "--workdir", "/app", "node:22-alpine",
-             "sh", "-c", "npm ci --no-audit --no-fund && npm run build"])
+             # Preserve archive-relative sibling imports; only generated frontend files are writable.
+             "--volume", f"{stage}:/source:ro", "--volume", f"{stage / 'frontend'}:/source/frontend",
+             "--workdir", "/source/frontend", "node:22-alpine",
+             "sh", "-c", "npm ci --no-audit --no-fund && npm test && npm run lint && npm run build"])
         web_files(stage / "frontend/dist")
     if backend:
         image = f"money-note-local:{stage.name}"
