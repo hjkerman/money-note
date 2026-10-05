@@ -100,13 +100,16 @@ async def add_security_headers(request: Request, call_next):
 @app.middleware("http")
 async def audit_mutating_api_requests(request: Request, call_next):
     """변경 API의 경로와 결과만 기록하고 민감한 요청 본문은 남기지 않는다."""
-    user = current_user_from_request(request)
-    response = await call_next(request)
-    if (
+    should_audit = (
         request.method in AUDIT_METHODS
         and request.url.path.startswith("/api/")
         and not (request.method == "DELETE" and request.url.path == AUDIT_CLEAR_PATH)
-    ):
+    )
+    # Audit identity is needed only for recorded mutations. Endpoint auth still
+    # validates and touches the session independently, including on every GET.
+    user = current_user_from_request(request) if should_audit else None
+    response = await call_next(request)
+    if should_audit:
         try:
             record_audit_log(
                 str(user["username"]) if user else "anonymous",
