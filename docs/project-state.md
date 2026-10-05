@@ -6,6 +6,8 @@
 
 ## 현재 기준선
 
+- T6.3 개발 변경: Summary의 기존 transaction 내부에서만 pure card/payment ownership PASS를 재사용한다. Read-only/same-transaction guard와 scope 종료 폐기로 cross-request/date/policy/ABA stale cache를 막으며, 날짜 민감 projection·recurring/Snapshot validator·금융 공식·15-request submit protocol은 변경하지 않는다. 성능/정확성 독립 재감사 및 배포 승인은 별도다.
+
 - Owner-approved one-time canonicalization: 소유자 R01–R11 YES 11은 private explicit manifest에만 적용한다. 별도 offline 도구가 pinned approval/backup/receipt, 전체 DB·relationship fingerprint, 기준 날짜, 한 transaction, metadata field allowlist와 정확한 금융 차이 0원을 요구한다. 보존 사본의 dry-run/폐기용 apply, strict startup 및 current v7 round-trip을 검증했다. Actual manifest는 Git 밖 비공개 `/tmp`에 있고 자동 compatibility는 변경하지 않았다. Live DB/service/master/recovery는 불변이며 별도 독립 재감사·fresh live backup/admission/운영 승인이 남는다. [운영 계약](owner-recurring-canonicalization.md).
 
 - Compatibility witness completeness closure: same-key NULL-source witness를 conflict 집합에서 버리지 않는다. 전체 relevant grouping 뒤 partial/상충 epoch·child-kind conflict를 거부하고, 지원 v4~v6 recovery도 negative constraint로 보존한다. NULL-source는 positive ownership proof가 아니며 absent/matching epoch도 별도 완전한 canonical proof가 필요하다. Startup/restore helper와 version 4 atomic checkpoint를 유지한다. Production-derived 11개는 계속 blocked, recovery 23개는 5 허용/18 거부이며 운영 수정·배포 없이 독립 재감사 대기다.

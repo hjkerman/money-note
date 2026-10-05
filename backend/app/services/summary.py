@@ -14,6 +14,7 @@ from app.services.card_charge import (
 )
 from app.services.card_payments import active_card_payment_unpaid_total
 from app.services.clock import app_today
+from app.services.financial_relationships import card_ownership_read_view
 
 
 def current_summary_values() -> dict[str, int]:
@@ -22,6 +23,18 @@ def current_summary_values() -> dict[str, int]:
 
 
 def _current_summary_values(conn: Any) -> dict[str, int]:
+    # All downstream reads share the existing transaction, but only the pure
+    # card ownership validator is reused. Date/policy-sensitive values are
+    # still computed normally, and borrowed writers regain write access on exit.
+    if not conn.in_transaction:
+        # Existing diagnostic callers may borrow an autocommit connection.
+        # No immutable snapshot is established there, so never reuse a PASS.
+        return _summary_values_from_read_view(conn)
+    with card_ownership_read_view(conn) as view:
+        return _summary_values_from_read_view(view)
+
+
+def _summary_values_from_read_view(conn: Any) -> dict[str, int]:
     visible_current_entries = list_entries("current", conn=conn)
     current_entries = [
         entry for entry in visible_current_entries if entry.get("entry_kind") != "planned"

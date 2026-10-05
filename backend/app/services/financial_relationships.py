@@ -5,7 +5,9 @@ Historical unbatched events are not guessed into a payment workbench.
 """
 
 from collections.abc import Mapping, Sequence
+from contextlib import contextmanager
 from typing import Any
+from uuid import uuid4
 
 from app.services.legacy_recurring import validate_recurring_ownership, valid_nonnegative_money
 
@@ -14,6 +16,82 @@ CARD_RELATIONSHIP_TABLES = (
     "ledger_entries", "card_payment_batches", "card_payment_batch_items",
     "card_payment_events", "card_payment_allocations", "cash_flows",
 )
+
+
+class CardOwnershipReadView:
+    """One connection/transaction's read-only card ownership validation scope.
+
+    Only a successful, date/policy-independent canonical ownership check is
+    remembered, not rows or projections. query_only prevents writes through
+    aliases; a private savepoint proves that the original transaction survives
+    (in_transaction/revision alone cannot detect commit/BEGIN or rollback ABA).
+    Consumers receive only SELECT access. Nothing survives scope exit.
+    """
+
+    def __init__(self, conn: Any):
+        if not conn.in_transaction:
+            raise ValueError("card ownership read view requires an active transaction")
+        self._conn = conn
+        self._changes = conn.total_changes
+        self._schema = conn.execute("PRAGMA schema_version").fetchone()[0]
+        # TEMP can shadow an unqualified financial table without main DDL or
+        # a changed total_changes counter, so it is part of the read identity.
+        self._temp_schema = conn.execute("PRAGMA temp.schema_version").fetchone()[0]
+        self._query_only = conn.execute("PRAGMA query_only").fetchone()[0]
+        self._savepoint = f"card_read_{uuid4().hex}"
+        self._active = False
+        self._validated = False
+
+    def _check(self) -> None:
+        if (not self._active or not self._conn.in_transaction
+                or self._changes != self._conn.total_changes):
+            raise ValueError("card ownership read view ended or changed")
+
+    def execute(self, sql: str, parameters: Any = ()) -> Any:
+        self._check()
+        if not sql.lstrip().upper().startswith("SELECT"):
+            raise ValueError("card ownership read view only permits SELECT")
+        return self._conn.execute(sql, parameters)
+
+    def _check_metadata(self) -> None:
+        self._check()
+        if (self._conn.execute("PRAGMA query_only").fetchone()[0] != 1
+                or self._conn.execute("PRAGMA schema_version").fetchone()[0] != self._schema
+                or self._conn.execute("PRAGMA temp.schema_version").fetchone()[0] != self._temp_schema):
+            raise ValueError("card ownership read view is no longer immutable")
+
+    def validate_card_ownership(self) -> None:
+        self._check_metadata()
+        # RELEASE fails if an alias ended the original transaction, even when
+        # it has already started a new transaction with identical rows/revision.
+        self._conn.execute(f"RELEASE {self._savepoint}")
+        self._conn.execute(f"SAVEPOINT {self._savepoint}")
+        if not self._validated:
+            _validate_card_payment_rows(self._conn)
+            self._validated = True
+
+
+@contextmanager
+def card_ownership_read_view(conn: Any):
+    """Borrow, never commit/rollback, an existing transaction's immutable read.
+
+    A borrowed write transaction may resume writing after this scope. Existing
+    query_only/authorizer settings are preserved; no authorizer is replaced.
+    """
+    view = CardOwnershipReadView(conn)
+    conn.execute(f"SAVEPOINT {view._savepoint}")
+    try:
+        conn.execute("PRAGMA query_only=ON")
+        view._active = True
+        yield view
+        view._check_metadata()
+    finally:
+        try:
+            conn.execute(f"RELEASE {view._savepoint}")
+        finally:
+            view._active = False
+            view._validated = False
+            conn.execute(f"PRAGMA query_only={view._query_only}")
 
 
 def _by_id(rows: Sequence[Mapping[str, Any]], label: str) -> dict[Any, Mapping[str, Any]]:
@@ -92,6 +170,13 @@ def validate_card_payment_ownership(data: Mapping[str, Sequence[Mapping[str, Any
 
 
 def validate_runtime_card_payment_ownership(conn: Any) -> None:
+    if isinstance(conn, CardOwnershipReadView):
+        conn.validate_card_ownership()
+        return
+    _validate_card_payment_rows(conn)
+
+
+def _validate_card_payment_rows(conn: Any) -> None:
     validate_card_payment_ownership({table: [dict(row) for row in conn.execute(f"SELECT * FROM {table}")]
                                      for table in CARD_RELATIONSHIP_TABLES})
 

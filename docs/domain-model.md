@@ -527,6 +527,12 @@ Family Card:
 
 # 8. 잔여 유동성 (Remaining Liquidity)
 
+## Summary의 동일 읽기 뷰 검증 재사용
+
+Summary는 기존 SQLite read transaction 안의 제한된 read-only scope에서 카드/payment 소유권 검증의 성공 결과만 재사용한다. 같은 연결·원래 transaction·schema·변경 없는 여섯 관계 테이블이 전제이며, `query_only`와 private savepoint로 쓰기 및 commit/rollback 후 새 transaction으로의 ABA 재사용을 차단한다. Scope 종료 시 결과를 폐기하고 기존 connection 설정을 복구한다. Autocommit caller는 재사용하지 않는다.
+
+이 검증은 날짜·정책 입력이 없는 ownership contract다. Summary/payment-status 금액, 서버 평가일, 정책 계산, recurring 검증 및 Snapshot의 stricter 검증 결과는 캐시하지 않는다. 별도 연결·transaction·요청은 같은 revision이라도 새로 검증하며, mutation 전후 검증과 HTTP/coherent baseline 완료 조건은 그대로 유지한다.
+
 잔여 유동성은 해당 예산 주기에서 이미 다른 용도로 약속된 금액을 제외하고 추가로 사용할 수 있는 금액이다.
 
 의미:
