@@ -5,13 +5,15 @@ import json
 import hashlib
 import os
 import re
-from collections.abc import Callable
+from collections.abc import Callable, Mapping, Sequence
 from contextlib import contextmanager
+from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 import sqlite3
 import tempfile
 from datetime import date, datetime, timezone
+from types import MappingProxyType
 from typing import Any
 
 from app.config import get_settings
@@ -90,6 +92,27 @@ LEDGER_TABLES = [
 PRE_RESTORE_BACKUP_DIR = "snapshot-backups"
 
 
+@dataclass(frozen=True)
+class _SnapshotExportMetadata:
+    canonical_columns: Mapping[str, tuple[str, ...]]
+    selected_columns: Mapping[str, tuple[str, ...]]
+
+    @classmethod
+    def read(cls, conn: Any) -> _SnapshotExportMetadata:
+        # The caller's transaction owns the live schema/read view. Neither
+        # these immutable maps nor the canonical connection outlive an export.
+        with _schema_connection() as canonical_conn:
+            canonical = {
+                table: tuple(sorted(_table_columns(canonical_conn, table)))
+                for table in SNAPSHOT_TABLES
+            }
+        selected = {}
+        for table, columns in canonical.items():
+            live_columns = _table_columns(conn, table)
+            selected[table] = tuple(column for column in columns if column in live_columns)
+        return cls(MappingProxyType(canonical), MappingProxyType(selected))
+
+
 def export_snapshot(today: date | None = None) -> tuple[str, dict[str, Any]]:
     """장부 운용 데이터 전체와 비민감 운영 설정을 JSON snapshot으로 만든다."""
     with session(transaction_mode="DEFERRED") as conn:
@@ -97,24 +120,27 @@ def export_snapshot(today: date | None = None) -> tuple[str, dict[str, Any]]:
 
 
 def _export_snapshot(conn: Any, today: date | None = None) -> tuple[str, dict[str, Any]]:
+    metadata = _SnapshotExportMetadata.read(conn)
     data = {
         "ledger_entries": _snapshot_rows(
             conn,
             "ledger_entries",
             "book_section, entry_kind, entry_date, sort_order, id",
+            metadata=metadata,
         ),
-        "monthly_panels": _snapshot_rows(conn, "monthly_panels", "month, panel_type, sort_order, id"),
-        "cash_flows": _snapshot_rows(conn, "cash_flows", "occurred_on, sort_order, id"),
-        "card_payment_batches": _snapshot_rows(conn, "card_payment_batches", "id"),
-        "card_payment_batch_items": _snapshot_rows(conn, "card_payment_batch_items", "batch_id, id"),
-        "card_payment_events": _snapshot_rows(conn, "card_payment_events", "event_date, id"),
-        "card_payment_allocations": _snapshot_rows(conn, "card_payment_allocations", "payment_event_id, id"),
+        "monthly_panels": _snapshot_rows(conn, "monthly_panels", "month, panel_type, sort_order, id", metadata=metadata),
+        "cash_flows": _snapshot_rows(conn, "cash_flows", "occurred_on, sort_order, id", metadata=metadata),
+        "card_payment_batches": _snapshot_rows(conn, "card_payment_batches", "id", metadata=metadata),
+        "card_payment_batch_items": _snapshot_rows(conn, "card_payment_batch_items", "batch_id, id", metadata=metadata),
+        "card_payment_events": _snapshot_rows(conn, "card_payment_events", "event_date, id", metadata=metadata),
+        "card_payment_allocations": _snapshot_rows(conn, "card_payment_allocations", "payment_event_id, id", metadata=metadata),
         "card_payment_deferrals": _snapshot_rows(
             conn,
             "card_payment_deferrals",
             "target_payment_month, entry_payment_key",
+            metadata=metadata,
         ),
-        "notification_candidate_registrations": _snapshot_rows(conn, "notification_candidate_registrations", "registration_key"),
+        "notification_candidate_registrations": _snapshot_rows(conn, "notification_candidate_registrations", "registration_key", metadata=metadata),
         "app_settings": _snapshot_rows(
             conn,
             "app_settings",
@@ -123,8 +149,9 @@ def _export_snapshot(conn: Any, today: date | None = None) -> tuple[str, dict[st
                 ",".join("?" for _ in SENSITIVE_SHARE_SETTING_KEYS)
             ),
             params=tuple(SENSITIVE_SHARE_SETTING_KEYS),
+            metadata=metadata,
         ),
-        "app_labels": _snapshot_rows(conn, "app_labels", "key"),
+        "app_labels": _snapshot_rows(conn, "app_labels", "key", metadata=metadata),
     }
     _validate_snapshot_money(data)
     _validate_snapshot_recurring_ownership(data)
@@ -141,6 +168,7 @@ def _export_snapshot(conn: Any, today: date | None = None) -> tuple[str, dict[st
     }
     snapshot["manifest"] = _build_manifest(
         data,
+        empty_table_columns=metadata.canonical_columns,
         policy_context=policy_context,
         snapshot_metadata=_snapshot_metadata(snapshot),
     )
@@ -290,8 +318,10 @@ def _snapshot_rows(
     order_by: str,
     where: str | None = None,
     params: tuple[Any, ...] = (),
+    *,
+    metadata: _SnapshotExportMetadata,
 ) -> list[dict[str, Any]]:
-    columns = [column for column in _schema_columns(table) if column in _table_columns(conn, table)]
+    columns = metadata.selected_columns[table]
     column_sql = ", ".join(f'"{column}"' for column in columns)
     where_sql = f" WHERE {where}" if where else ""
     return _rows(conn, f"SELECT {column_sql} FROM {table}{where_sql} ORDER BY {order_by}", params)
@@ -631,7 +661,7 @@ def _table_columns(conn: Any, table: str) -> set[str]:
 
 def _build_manifest(
     data: dict[str, list[dict[str, Any]]],
-    empty_table_columns: dict[str, list[str]] | None = None,
+    empty_table_columns: Mapping[str, Sequence[str]] | None = None,
     table_names: list[str] | None = None,
     policy_context: dict[str, Any] | None = None,
     snapshot_metadata: dict[str, Any] | None = None,
@@ -713,7 +743,7 @@ def _add_snapshot_month(months: set[str], value: Any) -> None:
 def _snapshot_columns(
     table: str,
     rows: list[dict[str, Any]],
-    empty_columns: list[str] | None = None,
+    empty_columns: Sequence[str] | None = None,
 ) -> list[str]:
     if rows:
         return sorted(rows[0].keys())

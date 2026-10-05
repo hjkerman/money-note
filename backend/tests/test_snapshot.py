@@ -696,8 +696,8 @@ class SnapshotTest(IsolatedDatabaseTestCase):
         writer_finished = threading.Event()
         original_snapshot_rows = snapshot_service._snapshot_rows
 
-        def observed_snapshot_rows(conn, table, order_by, where=None, params=()):
-            rows = original_snapshot_rows(conn, table, order_by, where, params)
+        def observed_snapshot_rows(conn, table, order_by, where=None, params=(), **kwargs):
+            rows = original_snapshot_rows(conn, table, order_by, where, params, **kwargs)
             if table == "ledger_entries":
                 ledger_read.set()
                 self.assertTrue(writer_inserted.wait(timeout=2))
