@@ -61,16 +61,58 @@ class CoherentRefreshCoordinator {
     if (currentUser == null) {
       throw MoneyNoteApiException('로그인 사용자 정보가 없습니다.');
     }
-    final freshMonthCloseStatus = await api.monthCloseStatus();
+    // acquire() brackets this entire graph with the same two baseline fences.
+    // Cash needs status's server date; policy month selection still uses status
+    // plus entries/panels (including the existing historical fallback).
+    final statusFuture = api.monthCloseStatus();
+    final entriesFuture = api.currentEntries();
+    final panelsFuture = api.currentPanels();
+    final summaryFuture = api.summary();
+    final paymentFuture = api.currentCardPaymentStatus();
+    final judgmentFuture = api.judgment();
+    final confirmedFuture = api.confirmedPlannedEntries();
+    final settingsFuture = api.settings();
+    final cashFuture = statusFuture.then(_loadRecentCashFlows);
+    // Keep policy reads out of the heavy core phase: wider overlap regressed
+    // large-history tails. Cash is independent of policy month selection and
+    // may still overlap the policy phase. No read moves outside the fences.
+    final coreReadsFuture = Future.wait([
+      summaryFuture,
+      paymentFuture,
+      judgmentFuture,
+      entriesFuture,
+      confirmedFuture,
+      panelsFuture,
+      settingsFuture,
+    ]);
+    final discountsFuture = Future.wait([
+      statusFuture,
+      entriesFuture,
+      panelsFuture,
+      coreReadsFuture,
+    ]).then((monthInputs) {
+      final freshMonth = _monthFor(
+        monthInputs[0] as MonthCloseStatus,
+        monthInputs[1] as List<LedgerEntry>,
+        monthInputs[2] as List<MonthlyPanel>,
+      );
+      return Future.wait([
+        api.discountMonth(freshMonth, 'owner'),
+        api.discountMonth(freshMonth, 'family'),
+        api.transitDiscountProfile(freshMonth),
+      ]);
+    });
     final results = await Future.wait([
-      api.summary(),
-      api.currentCardPaymentStatus(),
-      api.judgment(),
-      api.currentEntries(),
-      api.confirmedPlannedEntries(),
-      api.currentPanels(),
-      _loadRecentCashFlows(freshMonthCloseStatus),
-      api.settings(),
+      summaryFuture,
+      paymentFuture,
+      judgmentFuture,
+      entriesFuture,
+      confirmedFuture,
+      panelsFuture,
+      cashFuture,
+      settingsFuture,
+      statusFuture,
+      discountsFuture,
     ]);
     final freshSummary = results[0] as Summary;
     final freshCardPaymentStatus = results[1] as CardPaymentStatus;
@@ -80,16 +122,8 @@ class CoherentRefreshCoordinator {
     final freshPanels = results[5] as List<MonthlyPanel>;
     final freshCashFlows = results[6] as List<CashFlow>;
     final freshSettings = results[7] as AppSettings;
-    final freshMonth = _monthFor(
-      freshMonthCloseStatus,
-      freshEntries,
-      freshPanels,
-    );
-    final discountResults = await Future.wait([
-      api.discountMonth(freshMonth, 'owner'),
-      api.discountMonth(freshMonth, 'family'),
-      api.transitDiscountProfile(freshMonth),
-    ]);
+    final freshMonthCloseStatus = results[8] as MonthCloseStatus;
+    final discountResults = results[9] as List<Object>;
 
     return AuthoritativeStateCandidate(
       user: currentUser,

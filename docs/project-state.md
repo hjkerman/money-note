@@ -6,6 +6,8 @@
 
 ## 현재 기준선
 
+- T6.4 개발 변경: coherent candidate GET의 status/독립 조회와 서버 날짜·월 입력 branch만 dependency DAG로 겹친다. 큰 history의 tail 검증에 따라 할인 조회는 core join 뒤에서 cash와 겹치며 최대 fan-out을 늘리지 않는다. 앞/뒤 envelope fence, fingerprint/revision/date 재검사, generation guard, durable baseline/pending/submit 완료 경계와 정상 submit 15회/refresh 14회 HTTP 계약은 유지한다. Bundling·latency hiding·backend 금융 변경은 없으며 독립 performance 재감사/배포 승인은 별도다.
+
 - T6.3 개발 변경: Summary의 기존 transaction 내부에서만 pure card/payment ownership PASS를 재사용한다. Read-only/same-transaction guard와 scope 종료 폐기로 cross-request/date/policy/ABA stale cache를 막으며, 날짜 민감 projection·recurring/Snapshot validator·금융 공식·15-request submit protocol은 변경하지 않는다. 성능/정확성 독립 재감사 및 배포 승인은 별도다.
 
 - Owner-approved one-time canonicalization: 소유자 R01–R11 YES 11은 private explicit manifest에만 적용한다. 별도 offline 도구가 pinned approval/backup/receipt, 전체 DB·relationship fingerprint, 기준 날짜, 한 transaction, metadata field allowlist와 정확한 금융 차이 0원을 요구한다. 보존 사본의 dry-run/폐기용 apply, strict startup 및 current v7 round-trip을 검증했다. Actual manifest는 Git 밖 비공개 `/tmp`에 있고 자동 compatibility는 변경하지 않았다. Live DB/service/master/recovery는 불변이며 별도 독립 재감사·fresh live backup/admission/운영 승인이 남는다. [운영 계약](owner-recurring-canonicalization.md).
