@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from calendar import monthrange
+from datetime import date
 from typing import Any
 from app.money import exact_money, money_sum, query_money_sum, allocation_totals
 
@@ -34,8 +35,10 @@ def _current_summary_values(conn: Any) -> dict[str, int]:
         return _summary_values_from_read_view(view)
 
 
-def _summary_values_from_read_view(conn: Any) -> dict[str, int]:
-    visible_current_entries = list_entries("current", conn=conn)
+def _summary_values_from_read_view(conn: Any, *, today: date | None = None,
+                                   visible_current_entries: list[dict[str, Any]] | None = None) -> dict[str, int]:
+    if visible_current_entries is None:
+        visible_current_entries = list_entries("current", today=today, conn=conn)
     current_entries = [
         entry for entry in visible_current_entries if entry.get("entry_kind") != "planned"
     ]
@@ -47,7 +50,7 @@ def _summary_values_from_read_view(conn: Any) -> dict[str, int]:
     planned_recurring_total = planned_entry_total(conn)
     entry_discount_total = current_entry_discount_total(conn)
     card_total = max(0, entry_card_total - entry_discount_total)
-    active_card_payment_unpaid = active_card_payment_unpaid_total(conn=conn)
+    active_card_payment_unpaid = active_card_payment_unpaid_total(today=today, conn=conn)
     fixed_panel_total = panel_total("fixed", conn=conn)
     fixed_cash_processed_total = processed_fixed_cash_total(conn)
     pending_fixed_panel_total = panel_total("fixed", only_unconfirmed=True, conn=conn)
@@ -55,7 +58,7 @@ def _summary_values_from_read_view(conn: Any) -> dict[str, int]:
     liquidity_fixed_total = pending_fixed_panel_total + planned_liquidity_total
     frozen_asset_total = panel_total("frozen", conn=conn)
     scheduled_income = setting_float("scheduled_income", conn)
-    cash_flow_balance = setting_float("cash_flow_balance", conn) + cash_flow_total(conn)
+    cash_flow_balance = setting_float("cash_flow_balance", conn) + cash_flow_total(conn, today=today)
     remaining_liquidity = (
         scheduled_income
         + cash_flow_balance
@@ -75,7 +78,7 @@ def _summary_values_from_read_view(conn: Any) -> dict[str, int]:
         """SELECT amount_value FROM monthly_panels
            WHERE panel_type = 'fixed' AND confirmed_at IS NOT NULL
              AND confirmed_cash_flow_id IS NOT NULL AND confirmed_month > ?""",
-        (app_today().strftime("%Y-%m"),),
+        ((today or app_today()).strftime("%Y-%m"),),
     )
     current_month_spendable = remaining_liquidity - (
         fixed_panel_total - pending_fixed_panel_total - int(early_fixed_total)
@@ -97,7 +100,7 @@ def _summary_values_from_read_view(conn: Any) -> dict[str, int]:
         "claim_net_total": int(panel_net_total("claim", conn)),
         "family_card_original_total": int(panel_total("family_card", conn=conn)),
         "family_card_net_total": int(panel_net_total("family_card", conn)),
-        "visible_cash_flow_total": int(visible_cash_flow_total(conn)),
+        "visible_cash_flow_total": int(visible_cash_flow_total(conn, today=today)),
     }
     return {key: exact_money(value, key) for key, value in values.items()}
 
@@ -261,32 +264,32 @@ def setting_text(key: str, fallback: str = "", conn: Any | None = None) -> str:
     return str(row["value"]) if row is not None else fallback
 
 
-def cash_flow_total(conn: Any | None = None) -> int:
-    today = app_today().isoformat()
+def cash_flow_total(conn: Any | None = None, *, today: date | None = None) -> int:
+    cutoff = (today or app_today()).isoformat()
     if conn is None:
         with session() as owned_conn:
-            return cash_flow_total(owned_conn)
+            return cash_flow_total(owned_conn, today=today)
     return query_money_sum(conn,
         """
         SELECT amount_value
         FROM cash_flows
         WHERE occurred_on <= ?
         """,
-        (today,),
+        (cutoff,),
     )
 
 
-def visible_cash_flow_total(conn: Any | None = None) -> int:
+def visible_cash_flow_total(conn: Any | None = None, *, today: date | None = None) -> int:
     """웹/모바일 기본 목록과 같은 직전 월 1일부터 당월 말일까지의 현금흐름 합계다."""
-    today = app_today()
-    if today.month == 1:
-        date_from = f"{today.year - 1}-12-01"
+    day = today or app_today()
+    if day.month == 1:
+        date_from = f"{day.year - 1}-12-01"
     else:
-        date_from = f"{today.year}-{today.month - 1:02d}-01"
-    date_to = f"{today.year}-{today.month:02d}-{monthrange(today.year, today.month)[1]:02d}"
+        date_from = f"{day.year}-{day.month - 1:02d}-01"
+    date_to = f"{day.year}-{day.month:02d}-{monthrange(day.year, day.month)[1]:02d}"
     if conn is None:
         with session() as owned_conn:
-            return visible_cash_flow_total(owned_conn)
+            return visible_cash_flow_total(owned_conn, today=today)
     return query_money_sum(conn,
         """
         SELECT amount_value

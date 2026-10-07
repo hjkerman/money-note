@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from math import ceil
+from datetime import date
 from statistics import median
 
 from app.services.clock import app_today_iso
@@ -20,13 +21,14 @@ def app_judgment(
     payment_status: dict,
     settings: dict[str, str],
     historical_expense_counts: list[int] | None = None,
+    *, today: date | None = None,
 ) -> dict:
     """본체 웹앱에서 쓰는 모든 판단 문구를 한 번에 만든다."""
     expense_entries = [entry for entry in entries if entry.get("entry_kind") != "planned"]
     frozen_rows = [panel for panel in panels if panel.get("panel_type") == "frozen"]
     card_limit = float(settings.get("card_limit") or 5_800_000)
     owner_card_total = float(summary.get("card_total") or 0)
-    today_iso = app_today_iso()
+    today_iso = today.isoformat() if today is not None else app_today_iso()
     days_until_due = days_between(today_iso, str(payment_status.get("due_date") or today_iso))
     payment_reference_income = float(payment_status.get("primary_income_total") or 0)
     if payment_reference_income <= 0:

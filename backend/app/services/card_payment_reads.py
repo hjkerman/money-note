@@ -6,7 +6,7 @@ from datetime import date, datetime
 from typing import Any
 from app.money import exact_money, query_money_sum, allocation_totals
 
-from app.db import session
+from app.db import borrowed_or_new_session, session
 from app.services.financial_relationships import validate_runtime_card_payment_ownership
 from app.services.card_charge import (
     DiscountCard,
@@ -250,10 +250,10 @@ def _group_toll_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return result
 
 
-def _events_for_batch(batch_id: int | None) -> list[dict[str, Any]]:
+def _events_for_batch(batch_id: int | None, conn: Any | None = None) -> list[dict[str, Any]]:
     if batch_id is None:
         return []
-    with session() as conn:
+    with borrowed_or_new_session(conn) as conn:
         rows = conn.execute(
             """
             SELECT *
@@ -302,8 +302,8 @@ def _payment_due_date(payment_month: str) -> date:
     return date(parsed.year, parsed.month, min(14, monthrange(parsed.year, parsed.month)[1]))
 
 
-def _primary_income_total(payment_month: str) -> int:
-    with session() as conn:
+def _primary_income_total(payment_month: str, conn: Any | None = None) -> int:
+    with borrowed_or_new_session(conn) as conn:
         total = query_money_sum(conn,
             """
             SELECT amount_value

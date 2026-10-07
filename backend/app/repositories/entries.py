@@ -84,9 +84,9 @@ def list_entries(
     return [row_to_dict(row) for row in rows]
 
 
-def list_recent_closed_month_expense_counts(limit: int = 3) -> list[int]:
+def list_recent_closed_month_expense_counts(limit: int = 3, *, conn: Any | None = None) -> list[int]:
     """최근 마감 월의 본인 지출 건수를 최신 월부터 반환한다."""
-    with session() as conn:
+    with borrowed_or_new_session(conn) as conn:
         rows = conn.execute(
             """
             SELECT substr(entry_date, 1, 7) AS entry_month, COUNT(*) AS expense_count
@@ -103,10 +103,10 @@ def list_recent_closed_month_expense_counts(limit: int = 3) -> list[int]:
     return [int(row["expense_count"]) for row in rows]
 
 
-def list_confirmed_planned_entries(today: date | None = None) -> list[dict[str, Any]]:
+def list_confirmed_planned_entries(today: date | None = None, *, conn: Any | None = None) -> list[dict[str, Any]]:
     """이번 달에 이미 원장 편입한 카드 정기결제 원본을 조회한다."""
     confirmed_month = (today or app_today()).strftime("%Y-%m")
-    with session() as conn:
+    with borrowed_or_new_session(conn) as conn:
         rows = conn.execute(
             """
             SELECT *

@@ -26,10 +26,12 @@ def app_month() -> str:
     return app_today().strftime("%Y-%m")
 
 
-def app_month_for_utc_timestamp(value: str) -> str:
+def app_month_for_utc_timestamp(value: str, *, timezone_offset_minutes: int | None = None) -> str:
     """SQLite CURRENT_TIMESTAMP(UTC)를 앱 달력 기준 YYYY-MM로 바꾼다."""
     normalized = value.strip().replace("Z", "+00:00")
     parsed = datetime.fromisoformat(normalized)
     if parsed.tzinfo is None:
         parsed = parsed.replace(tzinfo=timezone.utc)
-    return parsed.astimezone(app_timezone()).strftime("%Y-%m")
+    zone = (app_timezone() if timezone_offset_minutes is None
+            else timezone(timedelta(minutes=timezone_offset_minutes)))
+    return parsed.astimezone(zone).strftime("%Y-%m")

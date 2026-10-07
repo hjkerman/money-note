@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
+from datetime import date
 from typing import Any
 from app.money import exact_money
 
@@ -17,13 +18,14 @@ from app.services.clock import app_today
 from app.services.financial_periods import fixed_execution_month
 
 
-def present_ledger_entries(entries: Iterable[Mapping[str, Any]]) -> list[dict[str, Any]]:
+def present_ledger_entries(entries: Iterable[Mapping[str, Any]], *, conn: Any | None = None,
+                           today: date | None = None, settings: Mapping[str, str] | None = None) -> list[dict[str, Any]]:
     """원장 행에 서버가 확정한 할인/실결제 표시값을 덧붙인다."""
     rows = [dict(entry) for entry in entries]
-    settings = list_settings()
-    event_discounts = _legacy_entry_discount_events(rows)
+    settings = settings if settings is not None else list_settings(conn=conn)
+    event_discounts = _legacy_entry_discount_events(rows, conn=conn)
     return [
-        present_ledger_entry(entry, settings=settings, event_discounts=event_discounts)
+        present_ledger_entry(entry, settings=settings, event_discounts=event_discounts, conn=conn, today=today)
         for entry in rows
     ]
 
@@ -34,13 +36,14 @@ def present_ledger_entry(
     settings: Mapping[str, str] | None = None,
     event_discounts: Mapping[str, int] | None = None,
     conn: Any | None = None,
+    today: date | None = None,
 ) -> dict[str, Any]:
     """단일 원장 행의 할인 정책과 최종 금액을 서버 기준으로 계산한다."""
     data = dict(entry)
     confirmed_expense = data.pop("_confirmed_expense", None)
     settings = settings if settings is not None else list_settings(conn=conn)
     event_discounts = event_discounts or {}
-    month = str(data.get("entry_date") or app_today().isoformat())[:7]
+    month = str(data.get("entry_date") or (today or app_today()).isoformat())[:7]
     policy = normalize_discount_policy(
         settings.get(f"card_discount_policy:owner:{month}"),
         "owner",
@@ -98,6 +101,7 @@ def present_ledger_entry(
             settings=settings,
             event_discounts=_legacy_entry_discount_events([confirmed_expense], conn=conn),
             conn=conn,
+            today=today,
         )
         data.update(
             {
@@ -131,10 +135,11 @@ def present_planned_charge_preview(
     }
 
 
-def present_monthly_panels(panels: Iterable[Mapping[str, Any]]) -> list[dict[str, Any]]:
+def present_monthly_panels(panels: Iterable[Mapping[str, Any]], *, conn: Any | None = None,
+                          today: date | None = None, settings: Mapping[str, str] | None = None) -> list[dict[str, Any]]:
     """월별 패널 행에 서버가 확정한 할인/실결제 표시값을 덧붙인다."""
-    settings = list_settings()
-    return [present_monthly_panel(panel, settings=settings) for panel in panels]
+    settings = settings if settings is not None else list_settings(conn=conn)
+    return [present_monthly_panel(panel, settings=settings, conn=conn, today=today) for panel in panels]
 
 
 def present_monthly_panel(
@@ -142,6 +147,7 @@ def present_monthly_panel(
     *,
     settings: Mapping[str, str] | None = None,
     conn: Any | None = None,
+    today: date | None = None,
 ) -> dict[str, Any]:
     """단일 패널 행의 할인 정책과 최종 금액을 서버 기준으로 계산한다."""
     data = dict(panel)
@@ -149,7 +155,7 @@ def present_monthly_panel(
     panel_type = str(data.get("panel_type") or "")
     if panel_type == "fixed":
         try:
-            execution_month = fixed_execution_month(app_today(), settings.get("last_closed_month"))
+            execution_month = fixed_execution_month(today or app_today(), settings.get("last_closed_month"))
         except ValueError:
             execution_month = None
         data["fixed_execution_month"] = execution_month
@@ -158,7 +164,7 @@ def present_monthly_panel(
             and data.get("confirmed_cash_flow_id") is None and data.get("amount_value") is not None
         )
     scope = "family" if panel_type == "family_card" else "owner"
-    month = str(data.get("month") or app_today().strftime("%Y-%m"))
+    month = str(data.get("month") or (today or app_today()).strftime("%Y-%m"))
     policy = normalize_discount_policy(
         settings.get(f"card_discount_policy:{scope}:{month}"),
         scope,

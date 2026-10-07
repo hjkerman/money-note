@@ -23,13 +23,13 @@ PANEL_COLUMNS = [
 ]
 
 
-def list_panels(month: str | None = None, include_confirmed_fixed: bool = False) -> list[dict[str, Any]]:
+def list_panels(month: str | None = None, include_confirmed_fixed: bool = False, *, conn: Any | None = None) -> list[dict[str, Any]]:
     filter_confirmed = (
         ""
         if include_confirmed_fixed
         else " AND NOT (monthly_panels.panel_type = 'fixed' AND monthly_panels.confirmed_at IS NOT NULL AND monthly_panels.confirmed_cash_flow_id IS NOT NULL)"
     )
-    with session() as conn:
+    with borrowed_or_new_session(conn) as conn:
         if month:
             rows = conn.execute(
                 f"""

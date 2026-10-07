@@ -119,8 +119,13 @@ def export_snapshot(today: date | None = None) -> tuple[str, dict[str, Any]]:
         return _export_snapshot(conn, today)
 
 
-def _export_snapshot(conn: Any, today: date | None = None) -> tuple[str, dict[str, Any]]:
+def _export_snapshot(conn: Any, today: date | None = None, *, require_current_columns: bool = False) -> tuple[str, dict[str, Any]]:
     metadata = _SnapshotExportMetadata.read(conn)
+    if require_current_columns and any(
+        metadata.selected_columns[table] != columns
+        for table, columns in metadata.canonical_columns.items()
+    ):
+        raise ValueError("authoritative state requires complete current financial columns")
     data = {
         "ledger_entries": _snapshot_rows(
             conn,
@@ -180,9 +185,10 @@ def _export_snapshot(conn: Any, today: date | None = None) -> tuple[str, dict[st
 def export_snapshot_from_connection(
     conn: Any,
     today: date | None = None,
+    *, require_current_columns: bool = False,
 ) -> tuple[str, dict[str, Any]]:
     """호출자가 소유한 read/write transaction의 authoritative Snapshot을 만든다."""
-    return _export_snapshot(conn, today)
+    return _export_snapshot(conn, today, require_current_columns=require_current_columns)
 
 
 def snapshot_state_fingerprint(snapshot: dict[str, Any]) -> str:

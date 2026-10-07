@@ -35,16 +35,16 @@ from app.services.financial_relationships import validate_runtime_card_payment_o
 
 
 
-def current_payment_status(today: date | None = None) -> dict[str, Any]:
+def current_payment_status(today: date | None = None, *, conn: Any | None = None) -> dict[str, Any]:
     """최근 월마감이 생성한 카드 결제 작업함과 결제 현황을 반환한다."""
     today = today or app_today()
-    context = _active_payment_context(today)
-    item_rows = _payment_rows_for_batch(context)
+    context = _active_payment_context(today, conn)
+    item_rows = _payment_rows_for_batch(context, conn)
     payable_rows = [row for row in item_rows if not row["is_deferred"]]
     rows = _group_toll_rows(item_rows)
     recorded_remaining_total = _remaining_total(payable_rows)
     is_after_due = today > context.due_date
-    liquidity_reset_acknowledged = _setting_value("card_payment_liquidity_reset_ack_month") == context.payment_month
+    liquidity_reset_acknowledged = _setting_value("card_payment_liquidity_reset_ack_month", conn) == context.payment_month
     result = {
         "calendar_date": today.isoformat(),
         "payment_month": context.payment_month,
@@ -58,10 +58,10 @@ def current_payment_status(today: date | None = None) -> dict[str, Any]:
         "discount_total": sum(row["discount_amount"] for row in payable_rows),
         "recorded_remaining_total": recorded_remaining_total,
         "effective_remaining_total": recorded_remaining_total,
-        "primary_income_total": _primary_income_total(context.payment_month),
-        "discount_policy": discount_month_status(context.usage_month, "owner")["policy"],
+        "primary_income_total": _primary_income_total(context.payment_month, conn),
+        "discount_policy": discount_month_status(context.usage_month, "owner", conn=conn)["policy"],
         "rows": rows,
-        "events": _events_for_batch(context.batch_id),
+        "events": _events_for_batch(context.batch_id, conn),
     }
     validate_money_payload(result)
     return result

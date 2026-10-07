@@ -167,18 +167,19 @@ def close_current_month(
     return {"closed_month": target_month, "archived": archived, "deleted_from_current": deleted}
 
 
-def month_close_status(today: date | None = None) -> dict[str, Any]:
+def month_close_status(today: date | None = None, *, conn: Any | None = None,
+                       timezone_offset_minutes: int | None = None) -> dict[str, Any]:
     """달력상 새 달인데 이전 월 장부가 남았는지 확인한다."""
     today = today or app_today()
     calendar_month = today.strftime("%Y-%m")
-    with session() as conn:
+    with borrowed_or_new_session(conn) as conn:
         setting = conn.execute(
             "SELECT value FROM app_settings WHERE key = 'last_closed_month'"
         ).fetchone()
         last_closed_month = str(setting["value"]) if setting else None
         oldest_open_month = _oldest_open_month(conn, today, last_closed_month) or None
         unconfirmed_recurring = (
-            _unconfirmed_recurring_items(conn, oldest_open_month)
+            _unconfirmed_recurring_items(conn, oldest_open_month, timezone_offset_minutes=timezone_offset_minutes)
             if oldest_open_month
             else []
         )
@@ -199,7 +200,8 @@ def month_close_status(today: date | None = None) -> dict[str, Any]:
     }
 
 
-def _unconfirmed_recurring_items(conn: Any, target_month: str) -> list[dict[str, Any]]:
+def _unconfirmed_recurring_items(conn: Any, target_month: str, *,
+                                 timezone_offset_minutes: int | None = None) -> list[dict[str, Any]]:
     """마감 대상 주기에 실제 발생 금액이 확정되지 않은 반복 템플릿을 반환한다."""
     fixed_rows = conn.execute(
         """
@@ -258,7 +260,7 @@ def _unconfirmed_recurring_items(conn: Any, target_month: str) -> list[dict[str,
     planned_rows = [
         row
         for row in planned_rows
-        if app_month_for_utc_timestamp(str(row["created_at"])) <= target_month
+        if app_month_for_utc_timestamp(str(row["created_at"]), timezone_offset_minutes=timezone_offset_minutes) <= target_month
     ]
     return [
         {

@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Any
 
-from app.db import borrowed_or_new_session, session
+from app.db import borrowed_or_new_session
 from app.repositories.common import row_to_dict
 from app.schemas import CashFlowIn
 
@@ -10,6 +10,7 @@ def list_cash_flows(
     date_from: date | str | None = None,
     date_to: date | str | None = None,
     limit: int | None = None,
+    *, conn: Any | None = None,
 ) -> list[dict[str, Any]]:
     """현금흐름 전체 또는 지정한 기간의 최신 기록을 조회한다."""
     from_value = date_from.isoformat() if isinstance(date_from, date) else date_from
@@ -32,7 +33,7 @@ def list_cash_flows(
     if limit is not None:
         params.append(limit)
 
-    with session() as conn:
+    with borrowed_or_new_session(conn) as conn:
         rows = conn.execute(
             f"""
             SELECT *
