@@ -6,6 +6,8 @@
 
 ## 현재 기준선
 
+- T6.5B-2 개발 변경: authoritative bundle v1의 strict raw-byte parser와 별도 diagnostic acquisition만 추가했다. 전체 필수 field/nullable presence·정수 금액·Snapshot hash/identity를 검사한 뒤 기존 candidate/baseline으로 변환하며, 정상 acquire/submit/foreground/Offline/reconciliation 및 15/14 HTTP topology는 그대로다. 실기기 performance gate는 PENDING(T6.6 이후); host 결과는 Android 성능을 대체하지 않으며 B-3 전환/배포는 별도 승인이다.
+
 - T6.4 개발 변경: coherent candidate GET의 status/독립 조회와 서버 날짜·월 입력 branch만 dependency DAG로 겹친다. 큰 history의 tail 검증에 따라 할인 조회는 core join 뒤에서 cash와 겹치며 최대 fan-out을 늘리지 않는다. 앞/뒤 envelope fence, fingerprint/revision/date 재검사, generation guard, durable baseline/pending/submit 완료 경계와 정상 submit 15회/refresh 14회 HTTP 계약은 유지한다. Bundling·latency hiding·backend 금융 변경은 없으며 독립 performance 재감사/배포 승인은 별도다.
 
 - T6.3 개발 변경: Summary의 기존 transaction 내부에서만 pure card/payment ownership PASS를 재사용한다. Read-only/same-transaction guard와 scope 종료 폐기로 cross-request/date/policy/ABA stale cache를 막으며, 날짜 민감 projection·recurring/Snapshot validator·금융 공식·15-request submit protocol은 변경하지 않는다. 성능/정확성 독립 재감사 및 배포 승인은 별도다.

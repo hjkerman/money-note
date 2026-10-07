@@ -1,0 +1,551 @@
+{
+  "bundle_version": 1,
+  "principal": {
+    "user_id": 1
+  },
+  "authority": {
+    "state_revision": 7,
+    "state_fingerprint": "2f06bbf232702eb2ed386b0800caa7b88bb239890581472b814ddd1b8328dd0e",
+    "evaluation_date": "2026-10-05",
+    "discount_policy_defaults": {
+      "owner": "enabled",
+      "family": "disabled"
+    }
+  },
+  "snapshot": {
+    "schema_version": 7,
+    "recurring_ownership_version": 1,
+    "exported_at": "2026-10-05T12:00:00Z",
+    "range": {
+      "scope": "all"
+    },
+    "card_charge_policy": {
+      "schema_version": 2,
+      "classifier": {
+        "schema_version": 1,
+        "matching": "case_insensitive_substring",
+        "precedence": [
+          "toll",
+          "transit",
+          "default_card"
+        ],
+        "toll_words": [
+          "통행",
+          "통행료",
+          "하이패스"
+        ],
+        "transit_words": [
+          "교통",
+          "대중교통",
+          "버스",
+          "지하철"
+        ]
+      },
+      "profile_selectors": {
+        "transit": {
+          "schema_version": 1,
+          "card": "transit",
+          "default": "none",
+          "modes": [
+            "none",
+            "owner"
+          ],
+          "none_mode": {
+            "policy": {
+              "policy_id": "transit-no-automatic-discount",
+              "type": "no_automatic_discount",
+              "parameters": {}
+            }
+          },
+          "owner_mode": {
+            "policy_source": "owner",
+            "month_policy_source": "owner"
+          },
+          "selection": "latest_effective_month",
+          "setting_prefix": "card_charge_profile:transit:"
+        }
+      },
+      "cards": {
+        "owner": [
+          {
+            "effective_from": "0001-01",
+            "policy_id": "owner-flat-statement-1.2",
+            "type": "flat_statement",
+            "parameters": {
+              "rate": "0.012"
+            }
+          }
+        ],
+        "family": [
+          {
+            "effective_from": "0001-01",
+            "policy_id": "family-flat-statement-1.2",
+            "type": "flat_statement",
+            "parameters": {
+              "rate": "0.012"
+            }
+          }
+        ],
+        "toll": [
+          {
+            "effective_from": "0001-01",
+            "policy_id": "toll-no-automatic-discount",
+            "type": "no_automatic_discount",
+            "parameters": {}
+          }
+        ],
+        "transit": [
+          {
+            "effective_from": "0001-01",
+            "policy_id": "transit-no-automatic-discount",
+            "type": "no_automatic_discount",
+            "parameters": {}
+          }
+        ]
+      },
+      "covered_through": "2026-10"
+    },
+    "data": {
+      "ledger_entries": [],
+      "monthly_panels": [],
+      "cash_flows": [],
+      "card_payment_batches": [],
+      "card_payment_batch_items": [],
+      "card_payment_events": [],
+      "card_payment_allocations": [],
+      "card_payment_deferrals": [],
+      "notification_candidate_registrations": [],
+      "app_settings": [
+        {
+          "key": "card_limit",
+          "updated_at": "2026-10-07 14:31:08",
+          "value": "5800000"
+        },
+        {
+          "key": "cash_flow_balance",
+          "updated_at": "2026-10-07 14:31:08",
+          "value": "0"
+        },
+        {
+          "key": "family_card_last4",
+          "updated_at": "2026-10-07 14:31:08",
+          "value": ""
+        },
+        {
+          "key": "owner_card_last4",
+          "updated_at": "2026-10-07 14:31:08",
+          "value": ""
+        },
+        {
+          "key": "scheduled_income",
+          "updated_at": "2026-10-07 14:31:08",
+          "value": "0"
+        }
+      ],
+      "app_labels": [
+        {
+          "key": "archive_header_amount",
+          "updated_at": "2026-10-07 14:31:08",
+          "value": "금액"
+        },
+        {
+          "key": "archive_header_date",
+          "updated_at": "2026-10-07 14:31:08",
+          "value": "날짜"
+        },
+        {
+          "key": "archive_header_title",
+          "updated_at": "2026-10-07 14:31:08",
+          "value": "세부내역"
+        },
+        {
+          "key": "current_header_amount",
+          "updated_at": "2026-10-07 14:31:08",
+          "value": "금액"
+        },
+        {
+          "key": "current_header_date",
+          "updated_at": "2026-10-07 14:31:08",
+          "value": "날짜"
+        },
+        {
+          "key": "current_header_title",
+          "updated_at": "2026-10-07 14:31:08",
+          "value": "세부내역"
+        },
+        {
+          "key": "panel_claim_title",
+          "updated_at": "2026-10-07 14:31:08",
+          "value": "청구"
+        },
+        {
+          "key": "panel_family_card_title",
+          "updated_at": "2026-10-07 14:31:08",
+          "value": "가족카드"
+        },
+        {
+          "key": "panel_fixed_title",
+          "updated_at": "2026-10-07 14:31:08",
+          "value": "현금성 고정지출"
+        },
+        {
+          "key": "panel_frozen_title",
+          "updated_at": "2026-10-07 14:31:08",
+          "value": "동결"
+        },
+        {
+          "key": "panel_header_amount",
+          "updated_at": "2026-10-07 14:31:08",
+          "value": "금액"
+        },
+        {
+          "key": "panel_header_title",
+          "updated_at": "2026-10-07 14:31:08",
+          "value": "세부내역"
+        },
+        {
+          "key": "summary_card_total_label",
+          "updated_at": "2026-10-07 14:31:08",
+          "value": "카드대금"
+        },
+        {
+          "key": "summary_cash_flow_balance_label",
+          "updated_at": "2026-10-07 14:31:08",
+          "value": "현금흐름 반영액"
+        },
+        {
+          "key": "summary_frozen_asset_label",
+          "updated_at": "2026-10-07 14:31:08",
+          "value": "동결자산"
+        },
+        {
+          "key": "summary_remaining_liquidity_label",
+          "updated_at": "2026-10-07 14:31:08",
+          "value": "잔여 유동성"
+        },
+        {
+          "key": "summary_title",
+          "updated_at": "2026-10-07 14:31:08",
+          "value": "요약"
+        },
+        {
+          "key": "summary_transfer_or_deposit_label",
+          "updated_at": "2026-10-07 14:31:08",
+          "value": "고정지출"
+        }
+      ]
+    },
+    "manifest": {
+      "algorithm": "sha256",
+      "tables": {
+        "ledger_entries": {
+          "columns": [
+            "amount_expr",
+            "amount_value",
+            "aux_amount_expr",
+            "aux_amount_value",
+            "book_section",
+            "confirmed_at",
+            "confirmed_month",
+            "created_at",
+            "date_label",
+            "discount_override",
+            "due_day",
+            "entry_date",
+            "entry_kind",
+            "extra_value",
+            "group_label",
+            "id",
+            "payment_key",
+            "sort_order",
+            "source_planned_entry_id",
+            "spending_category",
+            "title",
+            "updated_at",
+            "usage_item",
+            "usage_place"
+          ],
+          "row_count": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "monthly_panels": {
+          "columns": [
+            "amount_expr",
+            "amount_value",
+            "confirmed_at",
+            "confirmed_cash_flow_id",
+            "confirmed_month",
+            "created_at",
+            "discount_amount",
+            "discount_override",
+            "due_day",
+            "id",
+            "month",
+            "panel_type",
+            "sort_order",
+            "spent_on",
+            "title",
+            "updated_at"
+          ],
+          "row_count": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "cash_flows": {
+          "columns": [
+            "amount_value",
+            "created_at",
+            "id",
+            "is_primary_income",
+            "occurred_on",
+            "sort_order",
+            "title",
+            "updated_at"
+          ],
+          "row_count": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "card_payment_batches": {
+          "columns": [
+            "created_at",
+            "id",
+            "source",
+            "status",
+            "usage_month"
+          ],
+          "row_count": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "card_payment_batch_items": {
+          "columns": [
+            "batch_id",
+            "created_at",
+            "entry_id",
+            "entry_payment_key",
+            "id"
+          ],
+          "row_count": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "card_payment_events": {
+          "columns": [
+            "batch_id",
+            "cash_flow_id",
+            "created_at",
+            "event_date",
+            "event_type",
+            "id",
+            "idempotency_key",
+            "note",
+            "request_fingerprint",
+            "total_amount"
+          ],
+          "row_count": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "card_payment_allocations": {
+          "columns": [
+            "amount_value",
+            "created_at",
+            "entry_payment_key",
+            "id",
+            "payment_event_id"
+          ],
+          "row_count": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "card_payment_deferrals": {
+          "columns": [
+            "created_at",
+            "entry_payment_key",
+            "from_payment_month",
+            "original_book_section",
+            "original_date_label",
+            "original_entry_date",
+            "original_group_label",
+            "original_sort_order",
+            "original_title",
+            "target_payment_month"
+          ],
+          "row_count": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "notification_candidate_registrations": {
+          "columns": [
+            "created_at",
+            "registration_key",
+            "request_fingerprint",
+            "target",
+            "target_id"
+          ],
+          "row_count": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "app_settings": {
+          "columns": [
+            "key",
+            "updated_at",
+            "value"
+          ],
+          "row_count": 5,
+          "sha256": "fcd2840844e7b3f8dfd5a83082dedfade1e97eeb3e2f862de5345d5cf9db4aa6"
+        },
+        "app_labels": {
+          "columns": [
+            "key",
+            "updated_at",
+            "value"
+          ],
+          "row_count": 18,
+          "sha256": "f30074d84b441993fee5ead68527882c4c1e78b007c82d74d8efbf804d014dd7"
+        }
+      },
+      "data_sha256": "2c30946ef9b9443e6e7c66e4076d04b809a9adadba10511f2d925f24d5ccac77",
+      "card_charge_policy_sha256": "b3f90f3923cac762d068026447b4c7168b243d16517a19b27bac0d950dbc37e5",
+      "content_sha256": "6ef467fe2eeaac80094b0461e3afbb4f9f0679a31b009755b23553600fd67a8e"
+    },
+    "snapshot_id": "6ef467fe2eeaac80094b0461e3afbb4f9f0679a31b009755b23553600fd67a8e"
+  },
+  "state": {
+    "month_close_status": {
+      "calendar_date": "2026-10-05",
+      "calendar_month": "2026-10",
+      "oldest_open_month": "2026-10",
+      "last_closed_month": null,
+      "needs_close": false,
+      "is_early_close": true,
+      "early_close_available": false,
+      "early_close_start_day": 31,
+      "card_recurring_confirmation_available": true,
+      "can_close": false,
+      "unconfirmed_recurring_items": []
+    },
+    "entries": [],
+    "panels": [],
+    "summary": {
+      "scheduled_income": 0,
+      "cash_flow_balance": 0,
+      "remaining_liquidity": 0,
+      "current_month_spendable": 0,
+      "current_spending_total": 0,
+      "current_discount_total": 0,
+      "card_total": 0,
+      "planned_recurring_total": 0,
+      "fixed_cash_total": 0,
+      "fixed_cash_processed_total": 0,
+      "transfer_or_deposit_total": 0,
+      "frozen_asset_total": 0,
+      "claim_original_total": 0,
+      "claim_net_total": 0,
+      "family_card_original_total": 0,
+      "family_card_net_total": 0,
+      "visible_cash_flow_total": 0
+    },
+    "card_payment_status": {
+      "calendar_date": "2026-10-05",
+      "payment_month": "2026-10",
+      "usage_month": "2026-09",
+      "due_date": "2026-10-14",
+      "immediate_allowed": false,
+      "needs_liquidity_reset": false,
+      "liquidity_reset_acknowledged": false,
+      "original_total": 0,
+      "immediate_paid_total": 0,
+      "discount_total": 0,
+      "recorded_remaining_total": 0,
+      "effective_remaining_total": 0,
+      "primary_income_total": 0,
+      "discount_policy": "enabled",
+      "rows": [],
+      "events": []
+    },
+    "judgment": {
+      "category_labels": {
+        "essential": "안 썼으면 큰일 났을 돈",
+        "questionable": "꼭 써야 했을까...?",
+        "dignity": "최소한의 품위유지비",
+        "unclassified": "미분류"
+      },
+      "stat_tones": [
+        {
+          "key": "essential",
+          "title": "안 썼으면 큰일 났을 돈",
+          "caption": "안 썼으면 일이 커졌을 돈. 생존 인프라입니다."
+        },
+        {
+          "key": "questionable",
+          "title": "꼭 써야 했을까...?",
+          "caption": "과거의 내가 예산위원회에 출석해야 합니다."
+        },
+        {
+          "key": "dignity",
+          "title": "최소한의 품위유지비",
+          "caption": "사람 꼴을 유지하기 위한 최소한의 사회적 비용입니다."
+        },
+        {
+          "key": null,
+          "title": "미분류",
+          "caption": "아직 판결을 기다리는 소비들입니다."
+        }
+      ],
+      "claim_categories": {},
+      "budget": {
+        "level": "quiet",
+        "message": "예산심사위원회가 안건 부족으로 대기 중입니다. 이런 고요함은 귀하지만 의심스럽습니다."
+      },
+      "credit": {
+        "level": "quiet",
+        "message": "한도 사용률이 얌전합니다. 신용평가위원회가 안건 부족으로 조기 퇴근합니다."
+      },
+      "payment": {
+        "level": "quiet",
+        "message": "이번 달 카드 채무는 정리되었습니다. 예산위원회가 드물게 박수를 칩니다."
+      }
+    },
+    "confirmed_planned_entries": [],
+    "cash_flows": [],
+    "settings": {
+      "card_limit": "5800000",
+      "cash_flow_balance": "0",
+      "family_card_last4": "",
+      "owner_card_last4": "",
+      "scheduled_income": "0"
+    },
+    "owner_discount_month": {
+      "month": "2026-10",
+      "scope": "owner",
+      "policy": "enabled",
+      "projection_policy": {
+        "schema_version": 1,
+        "policy_id": "owner-flat-statement-1.2",
+        "type": "flat_statement",
+        "parameters": {
+          "rate": "0.012"
+        },
+        "rounding": "floor"
+      },
+      "discounts": {},
+      "discount_total": 0
+    },
+    "family_discount_month": {
+      "month": "2026-10",
+      "scope": "family",
+      "policy": "disabled",
+      "projection_policy": {
+        "schema_version": 1,
+        "policy_id": "family-flat-statement-1.2",
+        "type": "flat_statement",
+        "parameters": {
+          "rate": "0.012"
+        },
+        "rounding": "floor"
+      },
+      "discounts": {},
+      "discount_total": 0
+    },
+    "transit_discount_profile": {
+      "card": "transit",
+      "month": "2026-10",
+      "profile": "none"
+    }
+  }
+}

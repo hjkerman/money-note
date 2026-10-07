@@ -1,5 +1,9 @@
 import 'api_client.dart';
 import 'models.dart';
+import 'coherent_refresh_models.dart';
+import 'authoritative_bundle.dart';
+
+export 'coherent_refresh_models.dart';
 
 class RefreshTicket {
   const RefreshTicket(this.lineageGeneration, this.authenticationGeneration,
@@ -36,6 +40,44 @@ class CoherentRefreshCoordinator {
       ticket.authenticationGeneration == currentAuthenticationGeneration &&
       ticket.requestGeneration == _requestGeneration &&
       modeAllowed;
+
+  /// Opt-in diagnostics only: no AppState installation, pending retirement or
+  /// durable publication. Future adopters must retain guards at publication.
+  Future<CoherentRefreshBundle> acquireBundleForDiagnostics(
+    AuthUser? Function() currentUser, {
+    required RefreshTicket ticket,
+    required int Function() currentLineageGeneration,
+    required int Function() currentAuthenticationGeneration,
+    required bool Function() modeAllowed,
+  }) async {
+    final selectedUser = currentUser();
+    bool allowed() =>
+        selectedUser != null &&
+        currentUser()?.id == selectedUser.id &&
+        mayInstall(ticket,
+            currentLineageGeneration: currentLineageGeneration(),
+            currentAuthenticationGeneration: currentAuthenticationGeneration(),
+            modeAllowed: modeAllowed());
+    void requireAuthority() {
+      if (!allowed()) {
+        throw MoneyNoteApiException('오래된 diagnostic bundle 결과를 폐기했습니다.',
+            code: 'stale_authoritative_bundle');
+      }
+    }
+
+    requireAuthority();
+    final bytes = await api.authoritativeStateBytesForDiagnostics();
+    requireAuthority();
+    try {
+      final result =
+          AuthoritativeBundle.decode(bytes).toCoherentBundle(selectedUser!);
+      requireAuthority();
+      return result;
+    } on FormatException {
+      throw MoneyNoteApiException('Authoritative bundle 응답이 올바르지 않습니다.',
+          code: 'invalid_authoritative_bundle');
+    }
+  }
 
   Future<CoherentRefreshBundle> acquire(
       AuthUser? Function() currentUser) async {
@@ -197,60 +239,4 @@ class CoherentRefreshCoordinator {
     if (freshPanels.isNotEmpty) return freshPanels.last.month;
     return _localToday().substring(0, 7);
   }
-}
-
-class CoherentRefreshBundle {
-  const CoherentRefreshBundle(
-      {required this.candidate, required this.envelope});
-
-  final AuthoritativeStateCandidate candidate;
-  final AuthoritativeBaselineEnvelope envelope;
-}
-
-class AuthoritativeBaselineEnvelope {
-  const AuthoritativeBaselineEnvelope({
-    required this.snapshot,
-    required this.fingerprint,
-    required this.revision,
-    required this.evaluationDate,
-    required this.discountPolicyDefaults,
-  });
-
-  final Map<String, dynamic> snapshot;
-  final String fingerprint;
-  final int revision;
-  final String evaluationDate;
-  final Map<String, String> discountPolicyDefaults;
-}
-
-class AuthoritativeStateCandidate {
-  const AuthoritativeStateCandidate({
-    required this.user,
-    required this.summary,
-    required this.cardPaymentStatus,
-    required this.judgment,
-    required this.monthCloseStatus,
-    required this.settings,
-    required this.ownerDiscountMonth,
-    required this.familyDiscountMonth,
-    required this.transitDiscountProfile,
-    required this.entries,
-    required this.confirmedPlannedEntries,
-    required this.panels,
-    required this.cashFlows,
-  });
-
-  final AuthUser user;
-  final Summary summary;
-  final CardPaymentStatus cardPaymentStatus;
-  final JudgmentState judgment;
-  final MonthCloseStatus monthCloseStatus;
-  final AppSettings settings;
-  final CardDiscountMonth ownerDiscountMonth;
-  final CardDiscountMonth familyDiscountMonth;
-  final TransitDiscountProfileStatus transitDiscountProfile;
-  final List<LedgerEntry> entries;
-  final List<LedgerEntry> confirmedPlannedEntries;
-  final List<MonthlyPanel> panels;
-  final List<CashFlow> cashFlows;
 }

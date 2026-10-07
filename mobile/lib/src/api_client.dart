@@ -87,6 +87,17 @@ class MoneyNoteApiClient {
   Future<Summary> summary() =>
       _get('/api/month/current/summary', Summary.fromJson);
 
+  /// Separate diagnostic transport. No normal refresh/submit flow calls this.
+  /// Keep raw bytes so the strict parser can check money before JSON rounding.
+  Future<Uint8List> authoritativeStateBytesForDiagnostics() async {
+    final response = await _request(() =>
+        _client.get(_uri('/api/authoritative-state'), headers: _headers()));
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      _parseJson(response); // Preserve existing HTTP/auth/unavailability errors.
+    }
+    return response.bodyBytes;
+  }
+
   Future<CardPaymentStatus> currentCardPaymentStatus() =>
       _get('/api/card-payments/current', CardPaymentStatus.fromJson);
 
