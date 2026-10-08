@@ -3,12 +3,16 @@
 - docs/project-state.md
 - docs/domain-model.md
 - docs/known-issues.md
+- trust boundary·bundle admission·correctness 감사 작업이면 docs/architecture.md의 `서버 authority와 클라이언트 신뢰 경계`
 - 운영·배포·백업·복원 작업이면 docs/runbook.md
 
 2. 규칙
 - domain-model.md를 단일 진실 원천(Source of Truth)으로 취급
 - 서버 DB와 서버 API 계산 결과를 런타임 단일 진실 원천으로 취급
 - 할인 가능 여부, 할인액, 실결제액, 요약 합계, 기준 월을 웹/모바일에서 다시 추론하지 말 것
+- 서버는 확정 금융 projection의 authority이며, 모바일은 안전한 wire/구조/identity·Snapshot 복구 가능성·generation·durable baseline·Offline/pending/reconciliation 경계를 검증한다. OfflineProjection은 input-only journal에 대한 임시 예상 view이지 canonical backend 계산 엔진이 아니다.
+- 새 모바일 금융 검증 의무는 기존 계약, 구체적 위협/실패, trusted backend 보증의 부족, 금융 알고리즘 복제 여부, Offline·호환성·성능 영향을 제시해야 한다. backend projection을 독립 재계산한 결과와 다르다는 이유만으로 mobile blocker를 자동 선언하지 말 것. 필수 구조·저장·복구 검사도 서버 신뢰를 이유로 완화하지 말 것.
+- 모바일을 독립 금융 검증 엔진으로 확장하려면 명시적 architecture 결정이 필요하다. 신뢰 경계의 규범 원본은 docs/architecture.md에 두고, 과거 감사 반례는 보존하며 문서 변경을 구현 결함의 수정으로 표현하지 말 것.
 - 카드 종류 분류, 자동 할인, 수동 override, 실결제액 계산은 `backend/app/services/card_charge/`만 수정할 것
 - 모바일 회계감사 역할과 판단 지침의 단일 원본은 `mobile/assets/ai_audit_instructions.md`다. 문구 보강 시 Dart 코드에 지침 사본을 만들지 말 것.
 - family_card는 비핵심 도메인 기능. ledger_entries, claim, card_payment, liquidity와 강하게 결합하지 말 것.

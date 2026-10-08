@@ -11,6 +11,100 @@
 - 공개 화면에는 계좌번호, 송금 링크, 개인정보를 넣지 않는다.
 - 유머와 평가는 `judgment` 모듈에 모아둔다.
 
+## 서버 authority와 클라이언트 신뢰 경계
+
+이 절은 [도메인 모델](domain-model.md)의 서버 단일 진실 원천 원칙을 수신·저장·설치 경계에 적용하는 규범 계약이다. 서버 DB와 인증된 서버 API가 확정 금융 사실과 계산 결과의 원본이다. 모바일을 독립 금융 검증 엔진으로 확장하는 것은 별도 architecture 결정이 필요하며, 개별 감사 반례만으로 그 의무를 추가하지 않는다.
+
+운영 모델은 한 owner·한 장부다. 여기서 principal/owner 검증은 다른 인증 generation이나 로컬 사용자의 state를 설치하지 않기 위한 경계이며, 공유 장부에 없는 복수-owner 금융 row 격리 보장을 뜻하지 않는다.
+
+### 책임의 소유자
+
+| 책임 | 원본과 실행 경로 | 클라이언트 역할 |
+|---|---|---|
+| 확정 원장·현금흐름·연결 관계 | 서버 DB, `backend/app/repositories/`, 서버 write transaction | 사용자 입력을 전송하고 서버 확정 결과를 소비 |
+| exact-money 계산·할인·실결제액·정책 선택 | `backend/app/money.py`, `backend/app/services/card_charge/`, `presentation.py` | 손실 없는 money 표현 검증과 표시; 금융 공식 재실행 금지 |
+| 정기·고정지출 실행 및 실제액 | 서버 repository command, `services/panels.py` | 서버 eligibility와 확인 결과 소비 |
+| 카드 결제 grouping·allocation·remaining | `services/card_payment_reads.py`, `card_payments.py` | 서버 projection 소비; Summary 의무와 표시용 remaining을 합치지 않음 |
+| 월마감 eligibility·순서·기준 월 | `services/month.py` 및 서버 평가 date/timezone | 서버 상태와 기준일 소비; 단말 timezone으로 재판정하지 않음 |
+| Summary·current_month_spendable·judgment | 서버 Summary/judgment service와 동일 평가 문맥 | 서버 계산 결과 표시 |
+| Snapshot export/import 및 canonical DB admission | `services/snapshot.py`, DB migration·constraint·서버 validator | 지원 형식·무결성·필요한 저장/복구 제약 검증; 복원은 서버가 검증·실행 |
+| coherent 취득·durable baseline·상태 설치 | 모바일 `CoherentRefreshCoordinator`, `AppState`, `OfflineStore` | owner/auth/generation 격리, 원자적 저장, pending·Offline 경계 보존 |
+| Offline 임시 projection·journal | `OfflineProjection`, input-only J | 마지막 authoritative B에 로컬 입력을 적용한 예상 view; 확정 금융 truth가 아님 |
+| 온라인 복구·reconciliation | 서버 `services/offline_reconciliation.py`, 모바일 finalizing 상태 | 서버의 `Apply(B, J)` 또는 fresh rebuild를 기다린 뒤에만 journal/pending 정리 |
+
+### 모바일 검증의 세 범주
+
+검증은 이름이 아니라 실제 입력과 보증을 기준으로 분류한다. 한 helper 안에도 여러 범주가 섞일 수 있다.
+
+| 범주 | 계약 | 대표 검사 |
+|---|---|---|
+| A — 필수 클라이언트 안전성 | 안전하게 수신·파싱·저장·설치하기 위한 admission. 완화하지 않는다. | 신뢰하는 서버 연결과 인증된 principal, 지원 version, required field/type/null 구별, exact-money wire 표현, Snapshot 구조·hash, revision/evaluation metadata, stale-generation 차단, durable publication/readback, Offline/pending/reconciliation 경계 |
+| B — 독립 구조 일관성 | 금융 공식을 복제하지 않고 확인할 수 있는 관계. 저장·복구·identity에 필요한 것은 필수이고, 나머지는 명시적인 defense in depth다. | namespace별 ID/key uniqueness, 필요한 source 존재·종류, 같은 raw 값의 정확한 일치, 저장용 finite domain, migration의 secondary UNIQUE 제약 |
+| C — 서버 금융 의미 재검증 | backend 계산 책임. 원래 클라이언트 admission의 필수 조건이 아니며 추가하려면 architecture/threat-model 결정이 필요하다. | close 목록의 완전한 eligibility·순서 재생성, 정책 분류 기반 payment partition, effective discount/actual/remaining 계산, allocation·Summary 재계산 |
+
+같은 raw 필드의 모순, 잘못된 money 표현, 복원 불가능한 Snapshot은 서버 계산을 신뢰한다는 이유로 허용하지 않는다. 반대로 여러 서버 계산값이 서로 일치한다는 검사나 ordinary hash 검증을 독립적인 금융 계산 증명이라고 부르지 않는다. B 검사의 필수 여부와 namespace는 실제 저장·소비 계약으로 정하며, 모든 숫자 ID의 전역 uniqueness 같은 새 규칙을 추측하지 않는다.
+
+### 서버 출처·무결성·coherency가 보증하는 것
+
+- 서버 출처 신뢰는 신뢰하는 endpoint와 검증된 HTTPS 연결을 전제로 한다. Bearer/cookie는 서버에 대한 사용자 인증이며, 그 자체가 응답 출처의 증명은 아니다. 개발용 cleartext 설정을 release 신뢰 근거로 사용하지 않는다. 실제 배포 설정은 별도 운영 검증 대상이다.
+- Snapshot의 table/data/policy/content hash는 계약상 포함된 내용의 식별·변경 검출을 위한 일반 SHA-256이다. `snapshot_state_fingerprint`의 대상은 Snapshot의 schema_version/range/card_charge_policy/data이며 모든 typed projection, principal, revision, 평가 date/timezone을 함께 서명하는 값이 아니다.
+- 로컬 recovery-lineage fingerprint는 serialized baseline의 identity를 연결한다. 이 역시 서명이나 MAC이 아니다. 내용을 바꾸고 재해시한 body의 서버 출처, 금융 계산 정확성 또는 mutation commit을 증명하지 않는다.
+- Revision·fingerprint·평가 metadata와 generation 검사는 coherent 관측 및 설치 권한을 확인한다. coherent하다는 것은 모든 서버 금융 계산이 수학적으로 옳다는 독립 증명이 아니다. 검증 뒤의 새로운 commit은 후속 사건이며, 과거 응답을 영원히 최신 상태로 만들지는 않는다.
+- Snapshot을 안전하게 보존한다는 것은 지원되는 구조·필수 데이터·알려진 복구 제약을 만족하고 원자적으로 저장한다는 뜻이다. JSON readback이나 hash 하나만으로 actual migrated DB의 모든 constraint를 검증했다고 주장하지 않는다. canonical restore 최종 admission은 서버 책임이며, 알려진 raw 저장 제약을 빠뜨리는 문제는 모바일에서도 수정한다.
+
+### 기존 14-GET 경계와 authoritative bundle
+
+기존 정상 취득은 `B0 → candidate GETs → B1 → coherent 비교 → durable baseline → pending 정리·상태 설치`다. Coordinator는 전후 Snapshot fingerprint·revision·서버 기준일과 candidate의 status/calendar 문맥을 비교하고, AppState는 request/auth/mutation-lineage generation 및 owner/mode를 설치 직전과 durable publication 경계에서 다시 확인한다. 각 candidate는 서버 계산값이며, 기존 경로는 close eligibility·payment grouping·할인·Summary 전체를 모바일에서 다시 계산하지 않았다. required data의 안전한 소비는 필요하지만 canonical projection 전체의 독립 재구성은 이 계약의 보증이 아니다.
+
+`GET /api/authoritative-state`는 서버의 하나의 financial read transaction과 고정 평가 context에서 Snapshot과 typed projections를 만든다. 완전한 response 준비 뒤 새 terminal guard가 revision/schema/평가 context와 최초 선택 credential의 유효성을 검사하며, 변화 시 bounded rebuild 또는 실패로 처리한다. 이 서버 coherent-view 계약이 기존 fence의 역할을 대신할 수 있는지는 향후 client migration에서 검증한다. POST는 그대로 별도 command이고 bundle은 mutation receipt나 replay format이 아니다.
+
+Bundle을 소비하더라도 authenticated principal, supported wire/storage contract, authority metadata, stale-generation 차단, durable baseline publication, pending/rebuild retirement 및 UI unlock 조건은 유지해야 한다. POST 성공 후 GET 실패는 확정된 mutation의 rebuild pending이며, POST outcomeUnknown을 GET 성공만으로 임의 확정하거나 mutation을 자동 replay하지 않는다.
+
+현재 B-2 bundle 경로는 diagnostic-only이며 정상 refresh/submit은 기존 취득 경로다. B-2에 추가된 canonical projection 검사 중 일부는 기존 계약보다 강한 재검증을 시도한다. 이 문서는 책임을 명확히 할 뿐 기존 검사·테스트를 삭제하거나 B-2 결함을 수정하지 않는다. 정상 경로 전환과 B-3에는 별도 구현·독립 감사가 필요하다.
+
+### OfflineProjection의 한계
+
+`OfflineProjection.from(B, J)`는 마지막 authoritative baseline과 input-only journal을 소비한다. Offline 표시 복원과 journal append 전 예상 결과의 안전성 검사에 사용되며, 지원되는 baseline descriptor로 할인 등을 추정하거나 보수적으로 원금을 사용하는 경우가 있다. 단말 날짜에 따른 현금·reserve 예상도 서버 확정 결과와 동일하다고 보증하지 않는다.
+
+이 projection을 authoritative bundle admission용 canonical 계산 엔진으로 사용하거나, derived 결과를 J에 넣어 서버의 확정값으로 replay해서는 안 된다. 서버가 Mobile Wins의 `Apply(B, J)`를 기존 command·정책·validator로 실행하거나 Server Wins의 fresh state를 제공한 뒤, 모바일은 새 authoritative baseline을 durable하게 보존해야 임시 view와 recovery 상태를 정리할 수 있다. 상세 상태 전이는 [Offline Mode](offline-mode.md)가 소유한다.
+
+### 위협·실패 모델과 감사 기준
+
+| 조건 | 필요한 보증과 한계 |
+|---|---|
+| 네트워크 실패·응답 유실·불완전/잘못된 JSON | admission 실패, outcomeUnknown와 serverCommittedRebuildPending 구분, 안전한 retry/recovery; partial 성공 금지 |
+| 만료·폐기 credential, 다른 principal, logout/relogin | 인증 거부와 owner/auth-generation 격리; 기존 사용자 응답 설치 금지 |
+| concurrent mutation·늦은 응답·기준일 변화 | 서버 read-view/freshness와 client coherency/generation 경계; 실패한 candidate의 부분 설치 금지 |
+| process death·torn write·손상된 로컬 Snapshot | atomic publication/readback와 지원 저장·복구 제약; 불완전 B나 남은 pending으로 Offline 진입 금지 |
+| Offline journal·reconciliation 재개 | input-only J, durable identity·phase, 서버 replay와 commit 상태 확인; 파생 예상값을 확정값으로 승격 금지 |
+| 서버 금융 버그 | 서버 canonical construction·validator·domain 회귀/동등성 테스트가 일차 책임. 클라이언트 구조 검사는 일부 모순만 탐지하며 모든 서버 계산 오류 탐지를 약속하지 않음 |
+| 악성/침해된 backend 또는 의도적으로 재해시한 body | 신뢰 anchor 밖의 독립 금융 정확성 증명은 제공하지 않음. 그러한 threat를 보장하려면 별도 architecture 결정이 필요하며 hash 추가만으로 해결되지 않음 |
+
+인증·transport 전제 아래 실제 응답을 공격자가 제어할 수 있다는 근거 없이, injected/rehashed 테스트 body를 원격 exploit으로 단정하지 않는다. 그렇다고 accidental corruption, 잘못된 raw 구조, 다른 principal 설치 또는 복구 불가능한 로컬 저장을 허용하지도 않는다.
+
+새 client-side financial invariant를 제안하는 구현자·감사자는 다음을 명시해야 한다.
+
+1. 이를 요구하는 기존 계약.
+2. 방지하려는 구체적 위협이나 실패.
+3. 신뢰하는 backend 보증만으로 충분하지 않은 이유.
+4. backend 금융 계산 복제 여부와 필요한 평가 입력.
+5. Offline correctness·정책 호환성·성능에 미치는 영향.
+
+계약이 인증된 서버 계산을 신뢰한다면 independently recomputed projection과의 불일치만으로 mobile blocker를 자동 선언하지 않는다. 구조·필수 데이터·identity·recoverability·durable publication의 실패는 별도로 평가한다. 기존 감사 보고서와 재현 사실은 보존하며, 책임·심각도 재분류를 과거 반례 수정으로 표현하지 않는다.
+
+### B-2 후속 수정의 범위
+
+| 항목 | 책임과 후속 처리 |
+|---|---|
+| N1 close completeness/eligibility/order | 서버 projection 책임. timezone 등 backend 평가 입력 없이 모바일이 완전한 목록을 재생성할 의무는 없음. required arrays/type·source 구조는 유지하고 canonical 목록 테스트는 서버에 둠 |
+| N2 canonical payment partition/order | 서버 grouping 책임. 구조상 member identity·namespace·필요한 references와 exact-money는 유지하되 backend classifier/partition 알고리즘 복제는 요구하지 않음 |
+| N3 archived effective actual / coordinated payment aliases | derived 금융 계산은 서버 책임. 같은 raw 필드의 모순과 표현 오류는 모바일이 거부해야 하지만 alias 합의는 독립 canonical 금액 증명이 아님. Summary burden과 표시용 remaining의 구별 유지 |
+| N4 event idempotency secondary identity | 알려진 Snapshot recoverability 제약으로 모바일 안전성 수정 필요. 실제 migration의 `UNIQUE(idempotency_key) WHERE idempotency_key IS NOT NULL`과 같은 scope를 검증: non-null은 빈 문자열 포함 전역 unique, 여러 null은 허용 |
+
+후속 B-2 수정은 A와 필수 B를 보존하고, C의 독립 금융 재계산 요구를 제거하거나 좁히며, N4 및 실제 storage/identity 누락을 수정한다. backend canonical projection tests와 서버 endpoint 동등성 검증은 유지한다. 현행 registry artifact의 exact 일치는 미래 registry 호환성 해결의 증명이 아니며, 호환성 변경도 명시적 검토 대상이다.
+
+T6.6은 불필요한 금융 재검증 비용을 줄일 수 있지만 full Snapshot의 wire/money·무결성·필수 관계·복구 가능성과 atomic publication을 무조건 생략할 수 없다. 향후 delta 또는 hot/cold history 경계도 완전한 authoritative B를 안전하게 재구성하고 revision/owner/generation·pending·Offline/reconciliation 계약을 유지해야 한다. 성능을 이유로 새로운 authority나 persistence format을 암묵적으로 만들지 않는다.
+
 ## 구성
 
 - 백엔드: FastAPI + SQLite
