@@ -106,15 +106,14 @@ void validateAuthoritativeSnapshot(Map<String, dynamic> wire) {
   final lastClosed = settings['last_closed_month']?['value'];
   if (status['last_closed_month'] != lastClosed) invalidBundle('month status');
   _relationships(data, lastClosed as String?);
-  _policyIdentity(policy, state, month);
-  _projectionIdentities(state, data, month);
-  validateCanonicalBundleProjections(wire);
+  _policyIdentity(policy, state);
+  _projectionIdentities(state, data);
 }
 
 // Compare explicit authoritative definitions, never calculate client discounts.
 // Backend snapshot compatibility compares canonical parameter strings/maps
 // exactly: e.g. changing "0.012" to "0.0120" is not canonical normalization.
-void _policyIdentity(Map policy, Map state, String month) {
+void _policyIdentity(Map policy, Map state) {
   final definitions = <String, String>{};
   String definition(Map p) => bundleCanonicalJson({
         for (final key in ['policy_id', 'type', 'parameters']) key: p[key]
@@ -140,17 +139,16 @@ void _policyIdentity(Map policy, Map state, String month) {
   witness(policy['profile_selectors']['transit']['none_mode']['policy']);
   for (final scope in ['owner', 'family']) {
     final descriptor = state['${scope}_discount_month']['projection_policy'];
-    final bindings = (policy['cards'][scope] as List)
-        .where((p) => (p['effective_from'] as String).compareTo(month) <= 0)
-        .toList();
-    if (bindings.isEmpty) invalidBundle('missing policy binding.$scope');
-    bindings.sort((a, b) => (a['effective_from'] as String)
-        .compareTo(b['effective_from'] as String));
-    final selected = bindings.last;
+    final bindings = policy['cards'][scope] as List;
+    // Verify the explicit scope/reference and definition, not server policy
+    // selection under a reconstructed evaluation month.
+    final referenced = bindings.any((p) =>
+        p['policy_id'] == descriptor['policy_id'] &&
+        definition(p) == definition(descriptor));
     if (descriptor['schema_version'] != 1 ||
-        definition(descriptor) != definition(selected) ||
+        !referenced ||
         descriptor['rounding'] !=
-            (selected['type'] == 'flat_statement' ? 'floor' : 'none')) {
+            (descriptor['type'] == 'flat_statement' ? 'floor' : 'none')) {
       invalidBundle('policy projection.$scope');
     }
     witness(descriptor);
@@ -295,7 +293,14 @@ void _relationships(Map<String, dynamic> data, String? closed) {
     totals[part['payment_event_id']] = total;
   }
   final eventFlows = <Object>{};
+  // Actual migrated SQLite: global UNIQUE(idempotency_key) WHERE NOT NULL,
+  // BINARY collation. Do not trim/case-fold/normalize; empty is a real key.
+  final idempotencyKeys = <String>{};
   for (final event in events.values) {
+    final idempotencyKey = event['idempotency_key'] as String?;
+    if (idempotencyKey != null && !idempotencyKeys.add(idempotencyKey)) {
+      invalidBundle('duplicate payment event idempotency key');
+    }
     final flowId = event['cash_flow_id'];
     final total = exactMoney(event['total_amount']);
     if ((event['batch_id'] != null &&
@@ -353,14 +358,13 @@ bool _fixedPeriod(String day, Object? month, String? closed) {
 }
 
 void _projectionIdentities(
-    Map<String, dynamic> state, Map<String, dynamic> data, String month) {
+    Map<String, dynamic> state, Map<String, dynamic> data) {
   final entries = _indexed(data['ledger_entries']);
   final panels = _indexed(data['monthly_panels']);
   final flows = _indexed(data['cash_flows']);
   final events = _indexed(data['card_payment_events']);
   // SQL IDs are unique within each projection, not across unrelated namespaces.
-  // Exact membership/exclusion and SQL ordering are checked by the canonical
-  // projection helper after these identity and relationship checks.
+  // Server-selected completeness/order are NOT independently reconstructed.
   for (final name in [
     'entries',
     'confirmed_planned_entries',
@@ -368,6 +372,11 @@ void _projectionIdentities(
     'cash_flows'
   ]) {
     _indexed(state[name]);
+  }
+  final currentIds = (state['entries'] as List).map((row) => row['id']).toSet();
+  if ((state['confirmed_planned_entries'] as List)
+      .any((row) => currentIds.contains(row['id']))) {
+    invalidBundle('duplicate projected ledger identity');
   }
   // A presentation group uses -firstEntryId; raw SQLite IDs can also be
   // negative. Keep group and raw-row namespaces distinct, as on the server.
@@ -402,24 +411,36 @@ void _projectionIdentities(
       invalidBundle('missing effective entry amount');
     }
   }
+  // One linear identity index, not O(confirmed sources * all ledger rows).
+  // Raw ownership was already validated above; this cannot repair a relation.
+  final children = <(Object?, Object?, Object?), Map<String, dynamic>>{
+    for (final child in entries.values)
+      if (child['source_planned_entry_id'] != null)
+        (
+          child['source_planned_entry_id'],
+          child['confirmed_month'],
+          child['confirmed_at']
+        ): child
+  };
+  final confirmedActuals = <Object, Map<String, dynamic>>{};
   for (final row in state['confirmed_planned_entries']) {
     final source = entries[row['id']]!;
     if (source['entry_kind'] != 'planned' ||
-        source['confirmed_month'] != month) {
-      invalidBundle('confirmed source context');
+        source['confirmed_month'] == null) {
+      invalidBundle('confirmed source identity');
     }
-    final children = entries.values
-        .where((e) =>
-            e['source_planned_entry_id'] == source['id'] &&
-            e['confirmed_month'] == source['confirmed_month'] &&
-            e['confirmed_at'] == source['confirmed_at'])
-        .toList();
-    if (children.length != 1 ||
-        row['confirmed_amount_value'] != children.single['amount_value'] ||
+    final child = children[(
+      source['id'],
+      source['confirmed_month'],
+      source['confirmed_at']
+    )];
+    if (child == null ||
+        row['confirmed_amount_value'] != child['amount_value'] ||
         row['confirmed_effective_discount_amount'] == null ||
         row['confirmed_effective_amount_value'] == null) {
       invalidBundle('confirmed actual projection');
     }
+    confirmedActuals[row['id'] as Object] = child;
   }
   for (final row in state['panels']) {
     final raw = panels[row['id']];
@@ -452,7 +473,9 @@ void _projectionIdentities(
     if (ids.isEmpty ||
         ids.toSet().length != ids.length ||
         ids.any((id) => !paymentMembers.add(id)) ||
-        ids.any((id) => !entries.containsKey(id))) {
+        ids.any((id) =>
+            !entries.containsKey(id) ||
+            entries[id]!['entry_kind'] == 'planned')) {
       invalidBundle('payment member identity');
     }
     final keyed = ids
@@ -485,4 +508,9 @@ void _projectionIdentities(
       invalidBundle('payment event projection');
     }
   }
+  validateBundleProjectionStructure(state,
+      entries: entries,
+      panels: panels,
+      flows: flows,
+      confirmedActuals: confirmedActuals);
 }

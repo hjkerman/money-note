@@ -23,10 +23,47 @@ opt-in bundle assembly and OfflineBaseline serialization. Keep original numeric
 tokens (including `5000.0`); reformatting a REAL value to `5000` changes its hash.
 No fixture is an owner manifest, recovery artifact, or deployed Snapshot.
 
-Canonical admission also checks the complete raw/projected field intersection,
-exact source membership and repository SQL ordering. Explicit presenter
-exceptions are the confirmed child's displayed date and toll-group rewritten
-fields; this is validation, never client financial calculation or fuzzy repair.
+Admission follows the normative server-authoritative trust boundary in
+`docs/architecture.md`. These tests are not an independent financial oracle.
+The complete raw/projected field intersection is checked for each supplied raw
+entity. Composite payment groups are not copies of their first member.
+Server-selected projection completeness, financial eligibility, partition and
+ordering are not reconstructed on mobile. A required section missing from the
+wire still rejects; a present empty selection is not the same as a missing field.
+
+## Admission responsibility inventory
+
+| Check | Category | Action | Contract / reason |
+| --- | --- | --- | --- |
+| Trusted-server authentication, principal, generation guards | A | KEEP | Identity and stale-response isolation; diagnostic acquisition stays nonpublishing |
+| Version, required field presence/types, null/false/zero/empty | A | KEEP | Typed defaults cannot manufacture authoritative data |
+| Raw numeric tokens, safe exact money, duplicate JSON keys | A | KEEP | Wire safety before JSON rounding/model construction |
+| Snapshot schema, columns, counts, hashes and authority fingerprint | A | KEEP | Structural integrity, not independent financial correctness proof |
+| Revision, evaluation date and explicit policy/status context | A | KEEP | Coherent authority envelope |
+| Durable readback, pending and Offline gates | A | KEEP | Existing publication/recovery boundary remains unchanged |
+| Snapshot raw domains and namespace-specific primary identities | B | KEEP | Storage and safe typed representation |
+| Raw recurring epochs, source/child ownership, fixed/cash references | B | KEEP | Snapshot restoreability; no eligibility calculation |
+| Raw batches/events/allocations and explicit stored conservation | B | KEEP | Storage ownership, not recreation of allocation decisions |
+| Payment event non-null idempotency keys | B | FIX | Actual migrated table-wide partial UNIQUE, BINARY; empty keys are indexed, nulls are not |
+| Canonical policy registry and exact duplicated definitions | B | KEEP | Existing Snapshot restore / Offline compatibility; no discount calculation |
+| Projection policy descriptor reference/schema/rounding | B/C | NARROW | Require a supported matching scope/definition, not latest-by-month selection |
+| Supplied raw entry/panel/cash fields | B | KEEP | Complete shared-field equality and real source existence |
+| Current/confirmed projection membership | B/C | NARROW | Supplied sources/epochs and disjoint installed identities required; monthly selection not recomputed |
+| Confirmed actual principal/date | B | KEEP | Owned immutable raw child witness; indexed once, no per-source ledger scan |
+| Visible actual's duplicated effective aliases | B | KEEP | Same explicit value must agree; agreement is not financial proof |
+| Archived effective discounts/burden | C | SERVER OWNED | No independent policy-dependent calculation |
+| Close collection | B/C | NARROW | Supplied references/kinds/raw fields/unique identities required; completeness, date eligibility and order server owned |
+| Payment rows/members/parts/events | B/C | NARROW | Unique valid references, explicit member lists, raw values and same-entity aliases required; expected full set/order not recreated |
+| Payment composite ID/key shape | B | KEEP | Declared group namespace, not classifier/partition proof |
+| Payment grouping, partition, classifier and composite presentation | C | REMOVE | Server financial projection, not first-member raw equality |
+| Composite principal/remaining sums | B/C | NARROW | Keep direct principal aliases; backend owns aggregation/allocation |
+| Summary, judgment and financial formulas | C | SERVER OWNED | No new client calculation |
+
+Manipulated and rehashed synthetic bodies are not evidence of authenticated
+server origin. A/B defects must reject before candidate or durable publication.
+C-only disagreement is not a client blocker; canonical calculation tests belong
+on the backend. Future registry drift remains a compatibility concern, not a
+solved protocol guarantee.
 
 `scripts/generate_bundle_policy.py` prints the admission-only policy artifact
 from the backend registry. Regenerate and review

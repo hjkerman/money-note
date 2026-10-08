@@ -26,7 +26,7 @@ void main() {
         w['state']['owner_discount_month']['projection_policy']['parameters']
             ['rate'] = rate;
       },
-    'B confirmed source excluded from current entries': (w) {
+    'B duplicate raw source across installed collections': (w) {
       w['state']['entries'].add(Map<String, dynamic>.from(
           w['state']['confirmed_planned_entries'][0]));
     },
@@ -39,23 +39,23 @@ void main() {
       (w['state']['card_payment_status']['rows'] as List)
           .singleWhere((r) => r['is_group'] == true)['id'] = -99999;
     },
-    'C ledger discount override': (w) {
+    'B raw ledger discount override': (w) {
       w['state']['entries'][0]['discount_override'] = 1;
     },
-    'C ledger date': (w) {
+    'B raw ledger date': (w) {
       w['state']['entries'][0]['entry_date'] = '2026-10-04';
     },
-    'C confirmation metadata': (w) {
+    'B raw confirmation metadata': (w) {
       w['state']['entries'][0]['confirmed_month'] = '2026-09';
     },
-    'C panel semantics': (w) {
+    'B raw panel semantics': (w) {
       w['state']['panels'][0]['due_day'] = 27;
     },
-    'C cash income flag': (w) {
+    'B raw cash income flag': (w) {
       final flow = w['state']['cash_flows'][0];
       flow['is_primary_income'] = 1 - flow['is_primary_income'];
     },
-    'C close source amount': (w) {
+    'B raw close source amount': (w) {
       final source = (w['snapshot']['data']['monthly_panels'] as List)
           .firstWhere((r) => r['panel_type'] == 'fixed');
       w['state']['month_close_status']['unconfirmed_recurring_items'] = [
@@ -90,13 +90,14 @@ void main() {
   }
 
   for (final name in ['entries', 'panels', 'cash_flows']) {
-    test('canonical SQL ordering $name', () {
+    test('server owns projection ordering $name', () {
       final wire = corrupted((w) {
         final rows = w['state'][name] as List;
         expect(rows.length, greaterThan(1));
         w['state'][name] = rows.reversed.toList();
       });
-      expect(() => parseWire(wire), throwsFormatException);
+      // Reordered complete, structurally valid rows are not a storage defect.
+      expect(() => parseWire(wire), returnsNormally);
     });
   }
 
@@ -107,13 +108,14 @@ void main() {
     'date_label',
     'group_label'
   ]) {
-    test('explicit payment group presenter transform $field', () {
+    test('server owns payment group presenter transform $field', () {
       final wire = corrupted((w) {
         final group = (w['state']['card_payment_status']['rows'] as List)
             .singleWhere((row) => row['is_group'] == true);
         group[field] = 'CONFLICT';
       });
-      expect(() => parseWire(wire), throwsFormatException);
+      // A composite's display fields are not raw fields of its first member.
+      expect(() => parseWire(wire), returnsNormally);
     });
   }
 
@@ -144,9 +146,11 @@ void main() {
         expect(() => parseWire(wire), throwsFormatException);
       });
     }
-    test('complete membership ${pair.$1}', () {
+    test('server owns selected membership ${pair.$1}', () {
       final wire = corrupted((w) => w['state'][pair.$1].removeAt(0));
-      expect(() => parseWire(wire), throwsFormatException);
+      // The full Snapshot remains intact; selection completeness is financial
+      // projection semantics, unlike nonexistent references tested above.
+      expect(() => parseWire(wire), returnsNormally);
     });
   }
 

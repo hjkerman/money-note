@@ -1,0 +1,13 @@
+[
+  {"name":"duplicate non-null","keys":["retry-key","retry-key"],"accept":false},
+  {"name":"duplicate empty","keys":["",""],"accept":false},
+  {"name":"multiple null","keys":[null,null],"accept":true},
+  {"name":"distinct non-null","keys":["retry-a","retry-b"],"accept":true},
+  {"name":"null and empty","keys":[null,""],"accept":true},
+  {"name":"binary case","keys":["Retry","retry"],"accept":true},
+  {"name":"binary whitespace","keys":["key","key "],"accept":true},
+  {"name":"binary unicode","keys":["é","é"],"accept":true},
+  {"name":"duplicate unicode","keys":["é","é"],"accept":false},
+  {"name":"binary embedded nul","keys":["x\u0000a","x\u0000b"],"accept":true},
+  {"name":"duplicate embedded nul","keys":["x\u0000a","x\u0000a"],"accept":false}
+]
