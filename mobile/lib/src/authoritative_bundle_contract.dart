@@ -1,6 +1,17 @@
 // Bundle-v1 wire presence/type contract, captured from B-1 serialization.
 // Every listed field is required even if the old client model has a default.
 // This is a small domain shape description, not an executable policy/schema.
+// DB CHECK domains apply to raw Snapshot and matching presentation fields.
+// Do not invent enums for unconstrained historical entry_kind/panel_type/etc.
+const bundleFiniteDomains = <String, Set<String>>{
+  'book_section': {'current', 'archive'},
+  'event_type': {'immediate', 'discount'},
+  'registration_target': {'ledger', 'claim', 'family_card'},
+  // Current backend policy classes and v1 projection rounding vocabulary.
+  'policy_type': {'flat_statement', 'no_automatic_discount'},
+  'policy_rounding': {'floor', 'none'},
+};
+
 const bundleWireShapes = <String, Map<String, String>>{
   'Bundle': {
     'bundle_version': 'c:1',
@@ -65,7 +76,7 @@ const bundleWireShapes = <String, Map<String, String>>{
     'message': 's',
   },
   'LedgerEntry': {
-    'book_section': 's',
+    'book_section': 'v:book_section',
     'entry_kind': 's',
     'entry_date': '?d',
     'date_label': '?s',
@@ -138,7 +149,7 @@ const bundleWireShapes = <String, Map<String, String>>{
     'id': 'i',
     'batch_id': '?i',
     'event_date': 'd',
-    'event_type': 's',
+    'event_type': 'v:event_type',
     'total_amount': 'n',
     'note': '?s',
     'cash_flow_id': '?i',
@@ -153,7 +164,7 @@ const bundleWireShapes = <String, Map<String, String>>{
   },
   'PaymentRow': {
     'id': 'i',
-    'book_section': 's',
+    'book_section': 'v:book_section',
     'entry_kind': 's',
     'entry_date': '?d',
     'date_label': '?s',
@@ -223,9 +234,9 @@ const bundleWireShapes = <String, Map<String, String>>{
   'ProjectionPolicy': {
     'schema_version': 'i',
     'policy_id': 's',
-    'type': 's',
+    'type': 'v:policy_type',
     'parameters': '{j}',
-    'rounding': 's',
+    'rounding': 'v:policy_rounding',
   },
   'RecurringCloseItem': {
     'kind': 'e:fixed',
@@ -264,7 +275,7 @@ const bundleWireShapes = <String, Map<String, String>>{
   },
   'Snapshot_ledger_entries': {
     'id': 'i',
-    'book_section': 's',
+    'book_section': 'v:book_section',
     'entry_kind': 's',
     'entry_date': '?d',
     'date_label': '?s',
@@ -334,7 +345,7 @@ const bundleWireShapes = <String, Map<String, String>>{
     'id': 'i',
     'batch_id': '?i',
     'event_date': 'd',
-    'event_type': 's',
+    'event_type': 'v:event_type',
     'total_amount': 'n',
     'note': 's',
     'cash_flow_id': '?i',
@@ -363,7 +374,7 @@ const bundleWireShapes = <String, Map<String, String>>{
   },
   'Snapshot_notification_candidate_registrations': {
     'registration_key': 's',
-    'target': 's',
+    'target': 'v:registration_target',
     'target_id': 'i',
     'request_fingerprint': 's',
     'created_at': 's',
@@ -457,7 +468,11 @@ const bundleWireShapes = <String, Map<String, String>>{
   },
   'TransitNoneMode': {'policy': '@PolicyDefinition'},
   'TransitOwnerMode': {'policy_source': 's', 'month_policy_source': 's'},
-  'PolicyDefinition': {'policy_id': 's', 'type': 's', 'parameters': '{j}'},
+  'PolicyDefinition': {
+    'policy_id': 's',
+    'type': 'v:policy_type',
+    'parameters': '{j}'
+  },
   'SnapshotCards': {
     'owner': '[@PolicyBinding]',
     'family': '[@PolicyBinding]',
@@ -467,7 +482,7 @@ const bundleWireShapes = <String, Map<String, String>>{
   'PolicyBinding': {
     'effective_from': 'm',
     'policy_id': 's',
-    'type': 's',
+    'type': 'v:policy_type',
     'parameters': '{j}',
   },
 };

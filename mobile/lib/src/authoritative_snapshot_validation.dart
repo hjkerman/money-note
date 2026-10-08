@@ -104,7 +104,54 @@ void validateAuthoritativeSnapshot(Map<String, dynamic> wire) {
   final lastClosed = settings['last_closed_month']?['value'];
   if (status['last_closed_month'] != lastClosed) invalidBundle('month status');
   _relationships(data, lastClosed as String?);
+  _policyIdentity(policy, state, month);
   _projectionIdentities(state, data, month);
+}
+
+// Compare explicit authoritative definitions, never calculate client discounts.
+// Backend snapshot compatibility compares canonical parameter strings/maps
+// exactly: e.g. changing "0.012" to "0.0120" is not canonical normalization.
+void _policyIdentity(Map policy, Map state, String month) {
+  final definitions = <String, String>{};
+  String definition(Map p) => bundleCanonicalJson({
+        for (final key in ['policy_id', 'type', 'parameters']) key: p[key]
+      });
+  void witness(Map p) {
+    final id = p['policy_id'] as String;
+    final canonical = definition(p);
+    if (definitions.containsKey(id) && definitions[id] != canonical) {
+      invalidBundle('conflicting policy definition.$id');
+    }
+    definitions[id] = canonical;
+  }
+
+  for (final bindings in (policy['cards'] as Map).values) {
+    final effectiveMonths = <String>{};
+    for (final binding in bindings) {
+      if (!effectiveMonths.add(binding['effective_from'] as String)) {
+        invalidBundle('duplicate policy binding');
+      }
+      witness(binding);
+    }
+  }
+  witness(policy['profile_selectors']['transit']['none_mode']['policy']);
+  for (final scope in ['owner', 'family']) {
+    final descriptor = state['${scope}_discount_month']['projection_policy'];
+    final bindings = (policy['cards'][scope] as List)
+        .where((p) => (p['effective_from'] as String).compareTo(month) <= 0)
+        .toList();
+    if (bindings.isEmpty) invalidBundle('missing policy binding.$scope');
+    bindings.sort((a, b) => (a['effective_from'] as String)
+        .compareTo(b['effective_from'] as String));
+    final selected = bindings.last;
+    if (descriptor['schema_version'] != 1 ||
+        definition(descriptor) != definition(selected) ||
+        descriptor['rounding'] !=
+            (selected['type'] == 'flat_statement' ? 'floor' : 'none')) {
+      invalidBundle('policy projection.$scope');
+    }
+    witness(descriptor);
+  }
 }
 
 // Validate policy descriptor structure only; never calculate a discount or
@@ -308,6 +355,33 @@ void _projectionIdentities(
   final panels = _indexed(data['monthly_panels']);
   final flows = _indexed(data['cash_flows']);
   final events = _indexed(data['card_payment_events']);
+  // SQL source IDs are unique within each projection, not across unrelated
+  // collections. A planned source may legitimately appear in two collections.
+  for (final name in [
+    'entries',
+    'confirmed_planned_entries',
+    'panels',
+    'cash_flows'
+  ]) {
+    _indexed(state[name]);
+  }
+  // A presentation group uses -firstEntryId; raw SQLite IDs can also be
+  // negative. Keep group and raw-row namespaces distinct, as on the server.
+  final paymentRows = <(bool, int)>{};
+  for (final row in state['card_payment_status']['rows']) {
+    if (!paymentRows.add((row['is_group'] as bool, row['id'] as int))) {
+      invalidBundle('duplicate payment row');
+    }
+  }
+  _indexed(state['card_payment_status']['events']);
+  final closeItems = <String>{};
+  for (final item in state['month_close_status']
+      ['unconfirmed_recurring_items']) {
+    if (!closeItems.add('${item['kind']}/${item['id']}')) {
+      invalidBundle('duplicate close item');
+    }
+  }
+  final paymentMembers = <Object>{};
   for (final row in [
     ...state['entries'],
     ...state['confirmed_planned_entries']
@@ -373,6 +447,7 @@ void _projectionIdentities(
     final ids = row['entry_ids'] as List;
     if (ids.isEmpty ||
         ids.toSet().length != ids.length ||
+        ids.any((id) => !paymentMembers.add(id)) ||
         ids.any((id) => !entries.containsKey(id))) {
       invalidBundle('payment member identity');
     }

@@ -72,11 +72,14 @@ void validateBundleShape(Object? value,
         value is num ||
         value is Map ||
         value is List,
-    _ => spec.startsWith('c:')
-        ? value is int && value.toString() == spec.substring(2)
-        : spec.startsWith('e:') &&
-            value is String &&
-            spec.substring(2).split(',').contains(value),
+    _ => spec.startsWith('v:')
+        ? value is String &&
+            bundleFiniteDomains[spec.substring(2)]!.contains(value)
+        : spec.startsWith('c:')
+            ? value is int && value.toString() == spec.substring(2)
+            : spec.startsWith('e:') &&
+                value is String &&
+                spec.substring(2).split(',').contains(value),
   };
   if (!valid) invalidBundle(path);
 }
