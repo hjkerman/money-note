@@ -65,6 +65,14 @@ C-only disagreement is not a client blocker; canonical calculation tests belong
 on the backend. Future registry drift remains a compatibility concern, not a
 solved protocol guarantee.
 
+Bundle admission also checks every decoded string value and map key for valid
+Unicode scalar representation before shape/money/Snapshot hashing. This covers
+nullable strings and nested generic JSON, including escaped lone UTF-16
+surrogates in otherwise valid UTF-8 transport. It rejects without replacing,
+trimming or normalizing. `bundle_unicode.json` is shared with the actual backend
+canonical UTF-8 / migrated SQLite restore oracle; valid supplementary pairs,
+NUL and distinct composed/decomposed strings retain their existing semantics.
+
 `scripts/generate_bundle_policy.py` prints the admission-only policy artifact
 from the backend registry. Regenerate and review
 `mobile/lib/src/generated/bundle_policy_manifest.dart` whenever that registry

@@ -34,6 +34,7 @@ class AuthoritativeBundle {
   // exactness checks after a JSON number has already rounded/underflowed.
   factory AuthoritativeBundle._fromDecoded(Map<String, dynamic> wire,
       {BundleStageObserver? onStage}) {
+    _stage('unicode', onStage, () => validateBundleUnicode(wire));
     _stage('presence_types', onStage, () => validateBundleShape(wire));
     _stage('money', onStage, () => validateMoneyPayload(wire));
     _stage('snapshot_authority_relationships', onStage,

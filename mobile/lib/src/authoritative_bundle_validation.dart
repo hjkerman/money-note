@@ -8,6 +8,34 @@ import 'money.dart';
 Never invalidBundle(String path) =>
     throw FormatException('invalid authoritative bundle: $path');
 
+// JSON escapes can decode to unpaired UTF-16 even when transport UTF-8 is
+// valid. Check ALL values and keys, including generic JSON, before hashing or
+// authority admission. Never encode/replace/normalize to repair a string.
+void validateBundleUnicode(Object? value) {
+  if (value is String) {
+    for (var i = 0; i < value.length; i++) {
+      final unit = value.codeUnitAt(i);
+      if (unit < 0xd800 || unit > 0xdfff) continue;
+      if (unit > 0xdbff || i + 1 == value.length) {
+        invalidBundle('Unicode surrogate');
+      }
+      final next = value.codeUnitAt(++i);
+      if (next < 0xdc00 || next > 0xdfff) {
+        invalidBundle('Unicode surrogate');
+      }
+    }
+  } else if (value is Map) {
+    for (final entry in value.entries) {
+      validateBundleUnicode(entry.key);
+      validateBundleUnicode(entry.value);
+    }
+  } else if (value is List) {
+    for (final item in value) {
+      validateBundleUnicode(item);
+    }
+  }
+}
+
 void validateBundleShape(Object? value,
     [String spec = '@Bundle', String path = r'$']) {
   if (spec.startsWith('?')) {
