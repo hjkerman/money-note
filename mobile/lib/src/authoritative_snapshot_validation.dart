@@ -1,6 +1,7 @@
 // Read-only transport integrity/identity checks, never financial projections or
 // historical repair. Server DB/API remain the financial authority.
 import 'authoritative_bundle_contract.dart';
+import 'authoritative_bundle_canonical.dart';
 import 'authoritative_bundle_validation.dart';
 import 'money.dart';
 
@@ -9,6 +10,7 @@ void validateAuthoritativeSnapshot(Map<String, dynamic> wire) {
   final data = s['data'] as Map<String, dynamic>;
   final manifest = s['manifest'] as Map<String, dynamic>;
   final policy = s['card_charge_policy'];
+  validateCanonicalBundlePolicy(policy);
   for (final bindings in (policy['cards'] as Map).values) {
     if ((bindings as List).isEmpty) invalidBundle('empty policy history');
     for (final binding in bindings) {
@@ -106,6 +108,7 @@ void validateAuthoritativeSnapshot(Map<String, dynamic> wire) {
   _relationships(data, lastClosed as String?);
   _policyIdentity(policy, state, month);
   _projectionIdentities(state, data, month);
+  validateCanonicalBundleProjections(wire);
 }
 
 // Compare explicit authoritative definitions, never calculate client discounts.
@@ -355,8 +358,9 @@ void _projectionIdentities(
   final panels = _indexed(data['monthly_panels']);
   final flows = _indexed(data['cash_flows']);
   final events = _indexed(data['card_payment_events']);
-  // SQL source IDs are unique within each projection, not across unrelated
-  // collections. A planned source may legitimately appear in two collections.
+  // SQL IDs are unique within each projection, not across unrelated namespaces.
+  // Exact membership/exclusion and SQL ordering are checked by the canonical
+  // projection helper after these identity and relationship checks.
   for (final name in [
     'entries',
     'confirmed_planned_entries',

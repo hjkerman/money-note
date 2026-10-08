@@ -1,0 +1,1673 @@
+{
+  "bundle_version": 1,
+  "principal": {
+    "user_id": 1
+  },
+  "authority": {
+    "state_revision": 41,
+    "state_fingerprint": "71d763ff1a0b7c47ef60e593343cf45fc9ac5fb7901534f0f6dcd98a8d56b378",
+    "evaluation_date": "2026-10-05",
+    "discount_policy_defaults": {
+      "owner": "enabled",
+      "family": "disabled"
+    }
+  },
+  "snapshot": {
+    "schema_version": 7,
+    "recurring_ownership_version": 1,
+    "exported_at": "2026-10-05T12:00:00Z",
+    "range": {
+      "scope": "all"
+    },
+    "card_charge_policy": {
+      "schema_version": 2,
+      "classifier": {
+        "schema_version": 1,
+        "matching": "case_insensitive_substring",
+        "precedence": [
+          "toll",
+          "transit",
+          "default_card"
+        ],
+        "toll_words": [
+          "통행",
+          "통행료",
+          "하이패스"
+        ],
+        "transit_words": [
+          "교통",
+          "대중교통",
+          "버스",
+          "지하철"
+        ]
+      },
+      "profile_selectors": {
+        "transit": {
+          "schema_version": 1,
+          "card": "transit",
+          "default": "none",
+          "modes": [
+            "none",
+            "owner"
+          ],
+          "none_mode": {
+            "policy": {
+              "policy_id": "transit-no-automatic-discount",
+              "type": "no_automatic_discount",
+              "parameters": {}
+            }
+          },
+          "owner_mode": {
+            "policy_source": "owner",
+            "month_policy_source": "owner"
+          },
+          "selection": "latest_effective_month",
+          "setting_prefix": "card_charge_profile:transit:"
+        }
+      },
+      "cards": {
+        "owner": [
+          {
+            "effective_from": "0001-01",
+            "policy_id": "owner-flat-statement-1.2",
+            "type": "flat_statement",
+            "parameters": {
+              "rate": "0.012"
+            }
+          }
+        ],
+        "family": [
+          {
+            "effective_from": "0001-01",
+            "policy_id": "family-flat-statement-1.2",
+            "type": "flat_statement",
+            "parameters": {
+              "rate": "0.012"
+            }
+          }
+        ],
+        "toll": [
+          {
+            "effective_from": "0001-01",
+            "policy_id": "toll-no-automatic-discount",
+            "type": "no_automatic_discount",
+            "parameters": {}
+          }
+        ],
+        "transit": [
+          {
+            "effective_from": "0001-01",
+            "policy_id": "transit-no-automatic-discount",
+            "type": "no_automatic_discount",
+            "parameters": {}
+          }
+        ]
+      },
+      "covered_through": "2026-10"
+    },
+    "data": {
+      "ledger_entries": [
+        {
+          "amount_expr": "7000",
+          "amount_value": 7000,
+          "aux_amount_expr": null,
+          "aux_amount_value": null,
+          "book_section": "archive",
+          "confirmed_at": "2026-10-08 00:07:59",
+          "confirmed_month": "2026-10",
+          "created_at": "2026-10-08 00:07:59",
+          "date_label": "2026.10.05.",
+          "discount_override": 0,
+          "due_day": null,
+          "entry_date": null,
+          "entry_kind": "expense",
+          "extra_value": null,
+          "group_label": null,
+          "id": 9,
+          "payment_key": "9fc22ff78222467daa51fa936882db92",
+          "sort_order": 2,
+          "source_planned_entry_id": 8,
+          "spending_category": null,
+          "title": "edited actual",
+          "updated_at": "2026-10-08 00:07:59",
+          "usage_item": null,
+          "usage_place": "service"
+        },
+        {
+          "amount_expr": null,
+          "amount_value": 10000,
+          "aux_amount_expr": null,
+          "aux_amount_value": null,
+          "book_section": "archive",
+          "confirmed_at": null,
+          "confirmed_month": null,
+          "created_at": "2026-10-08 00:07:59",
+          "date_label": null,
+          "discount_override": 0,
+          "due_day": null,
+          "entry_date": "2026-09-03",
+          "entry_kind": "expense",
+          "extra_value": null,
+          "group_label": null,
+          "id": 6,
+          "payment_key": "toll2",
+          "sort_order": 1,
+          "source_planned_entry_id": null,
+          "spending_category": null,
+          "title": "하이패스",
+          "updated_at": "2026-10-08 00:07:59",
+          "usage_item": null,
+          "usage_place": "merchant"
+        },
+        {
+          "amount_expr": null,
+          "amount_value": 10000,
+          "aux_amount_expr": null,
+          "aux_amount_value": null,
+          "book_section": "archive",
+          "confirmed_at": null,
+          "confirmed_month": null,
+          "created_at": "2026-10-08 00:07:59",
+          "date_label": null,
+          "discount_override": 0,
+          "due_day": null,
+          "entry_date": "2026-09-03",
+          "entry_kind": "expense",
+          "extra_value": null,
+          "group_label": null,
+          "id": 7,
+          "payment_key": "old-card",
+          "sort_order": 1,
+          "source_planned_entry_id": null,
+          "spending_category": null,
+          "title": "ordinary",
+          "updated_at": "2026-10-08 00:07:59",
+          "usage_item": null,
+          "usage_place": "merchant"
+        },
+        {
+          "amount_expr": null,
+          "amount_value": 10000,
+          "aux_amount_expr": null,
+          "aux_amount_value": null,
+          "book_section": "current",
+          "confirmed_at": null,
+          "confirmed_month": null,
+          "created_at": "2026-10-08 00:07:59",
+          "date_label": "",
+          "discount_override": 0,
+          "due_day": null,
+          "entry_date": "2026-10-01",
+          "entry_kind": "expense",
+          "extra_value": null,
+          "group_label": "",
+          "id": 5,
+          "payment_key": "toll1",
+          "sort_order": 0,
+          "source_planned_entry_id": null,
+          "spending_category": null,
+          "title": "[이월] [9월 사용 내역] 하이패스",
+          "updated_at": "2026-10-08 00:07:59",
+          "usage_item": null,
+          "usage_place": "merchant"
+        },
+        {
+          "amount_expr": null,
+          "amount_value": 10000,
+          "aux_amount_expr": null,
+          "aux_amount_value": null,
+          "book_section": "current",
+          "confirmed_at": null,
+          "confirmed_month": null,
+          "created_at": "2026-10-08 00:07:59",
+          "date_label": null,
+          "discount_override": 0,
+          "due_day": null,
+          "entry_date": "2026-10-03",
+          "entry_kind": "expense",
+          "extra_value": null,
+          "group_label": null,
+          "id": 1,
+          "payment_key": "ordinary",
+          "sort_order": 1,
+          "source_planned_entry_id": null,
+          "spending_category": null,
+          "title": "ordinary",
+          "updated_at": "2026-10-08 00:07:59",
+          "usage_item": null,
+          "usage_place": "merchant"
+        },
+        {
+          "amount_expr": null,
+          "amount_value": 10000,
+          "aux_amount_expr": null,
+          "aux_amount_value": 0,
+          "book_section": "current",
+          "confirmed_at": null,
+          "confirmed_month": null,
+          "created_at": "2026-10-08 00:07:59",
+          "date_label": null,
+          "discount_override": 1,
+          "due_day": null,
+          "entry_date": "2026-10-03",
+          "entry_kind": "expense",
+          "extra_value": null,
+          "group_label": null,
+          "id": 2,
+          "payment_key": "zero-override",
+          "sort_order": 1,
+          "source_planned_entry_id": null,
+          "spending_category": null,
+          "title": "ordinary",
+          "updated_at": "2026-10-08 00:07:59",
+          "usage_item": null,
+          "usage_place": "merchant"
+        },
+        {
+          "amount_expr": null,
+          "amount_value": 10000,
+          "aux_amount_expr": null,
+          "aux_amount_value": null,
+          "book_section": "current",
+          "confirmed_at": null,
+          "confirmed_month": null,
+          "created_at": "2026-10-08 00:07:59",
+          "date_label": null,
+          "discount_override": 0,
+          "due_day": null,
+          "entry_date": "2026-10-03",
+          "entry_kind": "expense",
+          "extra_value": null,
+          "group_label": null,
+          "id": 3,
+          "payment_key": "utility",
+          "sort_order": 1,
+          "source_planned_entry_id": null,
+          "spending_category": null,
+          "title": "도시가스",
+          "updated_at": "2026-10-08 00:07:59",
+          "usage_item": null,
+          "usage_place": "merchant"
+        },
+        {
+          "amount_expr": null,
+          "amount_value": 10000,
+          "aux_amount_expr": null,
+          "aux_amount_value": 100,
+          "book_section": "current",
+          "confirmed_at": null,
+          "confirmed_month": null,
+          "created_at": "2026-10-08 00:07:59",
+          "date_label": null,
+          "discount_override": 1,
+          "due_day": null,
+          "entry_date": "2026-10-03",
+          "entry_kind": "expense",
+          "extra_value": null,
+          "group_label": null,
+          "id": 4,
+          "payment_key": "utility-override",
+          "sort_order": 1,
+          "source_planned_entry_id": null,
+          "spending_category": null,
+          "title": "전기요금",
+          "updated_at": "2026-10-08 00:07:59",
+          "usage_item": null,
+          "usage_place": "merchant"
+        },
+        {
+          "amount_expr": null,
+          "amount_value": 0,
+          "aux_amount_expr": null,
+          "aux_amount_value": null,
+          "book_section": "current",
+          "confirmed_at": null,
+          "confirmed_month": null,
+          "created_at": "2026-10-08 00:07:59",
+          "date_label": null,
+          "discount_override": 0,
+          "due_day": null,
+          "entry_date": "2026-10-03",
+          "entry_kind": "expense",
+          "extra_value": null,
+          "group_label": null,
+          "id": 10,
+          "payment_key": "13aa604132204b379ba7e2a1091ad050",
+          "sort_order": 101,
+          "source_planned_entry_id": null,
+          "spending_category": null,
+          "title": "Registered",
+          "updated_at": "2026-10-08 00:07:59",
+          "usage_item": "Registered",
+          "usage_place": "Audit"
+        },
+        {
+          "amount_expr": null,
+          "amount_value": 0,
+          "aux_amount_expr": null,
+          "aux_amount_value": null,
+          "book_section": "current",
+          "confirmed_at": null,
+          "confirmed_month": null,
+          "created_at": "2026-10-08 00:07:59",
+          "date_label": "카드 정기결제",
+          "discount_override": 0,
+          "due_day": 5,
+          "entry_date": null,
+          "entry_kind": "planned",
+          "extra_value": null,
+          "group_label": "카드 정기결제",
+          "id": 11,
+          "payment_key": null,
+          "sort_order": 2,
+          "source_planned_entry_id": null,
+          "spending_category": null,
+          "title": "Unconfirmed",
+          "updated_at": "2026-10-08 00:07:59",
+          "usage_item": null,
+          "usage_place": "Audit"
+        },
+        {
+          "amount_expr": null,
+          "amount_value": 5000,
+          "aux_amount_expr": null,
+          "aux_amount_value": null,
+          "book_section": "current",
+          "confirmed_at": "2026-10-08 00:07:59",
+          "confirmed_month": "2026-10",
+          "created_at": "2026-10-08 00:07:59",
+          "date_label": "카드 정기결제",
+          "discount_override": 0,
+          "due_day": 5,
+          "entry_date": "2026-10-05",
+          "entry_kind": "planned",
+          "extra_value": null,
+          "group_label": "카드 정기결제",
+          "id": 8,
+          "payment_key": null,
+          "sort_order": 1,
+          "source_planned_entry_id": null,
+          "spending_category": null,
+          "title": "template",
+          "updated_at": "2026-10-08 00:07:59",
+          "usage_item": null,
+          "usage_place": "service"
+        }
+      ],
+      "monthly_panels": [
+        {
+          "amount_expr": null,
+          "amount_value": 10000,
+          "confirmed_at": null,
+          "confirmed_cash_flow_id": null,
+          "confirmed_month": null,
+          "created_at": "2026-10-08 00:07:59",
+          "discount_amount": 0,
+          "discount_override": 0,
+          "due_day": 5,
+          "id": 1,
+          "month": "2026-10",
+          "panel_type": "claim",
+          "sort_order": 1,
+          "spent_on": null,
+          "title": "panel",
+          "updated_at": "2026-10-08 00:07:59"
+        },
+        {
+          "amount_expr": null,
+          "amount_value": 10000,
+          "confirmed_at": null,
+          "confirmed_cash_flow_id": null,
+          "confirmed_month": null,
+          "created_at": "2026-10-08 00:07:59",
+          "discount_amount": 0,
+          "discount_override": 0,
+          "due_day": 5,
+          "id": 2,
+          "month": "2026-10",
+          "panel_type": "family_card",
+          "sort_order": 1,
+          "spent_on": null,
+          "title": "panel",
+          "updated_at": "2026-10-08 00:07:59"
+        },
+        {
+          "amount_expr": null,
+          "amount_value": 10000,
+          "confirmed_at": null,
+          "confirmed_cash_flow_id": null,
+          "confirmed_month": null,
+          "created_at": "2026-10-08 00:07:59",
+          "discount_amount": 0,
+          "discount_override": 0,
+          "due_day": 5,
+          "id": 4,
+          "month": "2026-10",
+          "panel_type": "fixed",
+          "sort_order": 1,
+          "spent_on": null,
+          "title": "panel",
+          "updated_at": "2026-10-08 00:07:59"
+        },
+        {
+          "amount_expr": null,
+          "amount_value": 0,
+          "confirmed_at": null,
+          "confirmed_cash_flow_id": null,
+          "confirmed_month": null,
+          "created_at": "2026-10-08 00:07:59",
+          "discount_amount": 0,
+          "discount_override": 0,
+          "due_day": null,
+          "id": 11,
+          "month": "2026-10",
+          "panel_type": "fixed",
+          "sort_order": 100,
+          "spent_on": null,
+          "title": "Unconfirmed fixed",
+          "updated_at": "2026-10-08 00:07:59"
+        },
+        {
+          "amount_expr": null,
+          "amount_value": 10000,
+          "confirmed_at": null,
+          "confirmed_cash_flow_id": null,
+          "confirmed_month": null,
+          "created_at": "2026-10-08 00:07:59",
+          "discount_amount": 0,
+          "discount_override": 0,
+          "due_day": 5,
+          "id": 3,
+          "month": "2026-10",
+          "panel_type": "frozen",
+          "sort_order": 1,
+          "spent_on": null,
+          "title": "panel",
+          "updated_at": "2026-10-08 00:07:59"
+        }
+      ],
+      "cash_flows": [
+        {
+          "amount_value": 3000,
+          "created_at": "2026-10-08 00:07:59",
+          "id": 3,
+          "is_primary_income": 0,
+          "occurred_on": "2026-09-03",
+          "sort_order": 1,
+          "title": "cash",
+          "updated_at": "2026-10-08 00:07:59"
+        },
+        {
+          "amount_value": 100000,
+          "created_at": "2026-10-08 00:07:59",
+          "id": 1,
+          "is_primary_income": 1,
+          "occurred_on": "2026-10-01",
+          "sort_order": 1,
+          "title": "cash",
+          "updated_at": "2026-10-08 00:07:59"
+        },
+        {
+          "amount_value": -1234,
+          "created_at": "2026-10-08 00:07:59",
+          "id": 2,
+          "is_primary_income": 0,
+          "occurred_on": "2026-10-04",
+          "sort_order": 1,
+          "title": "cash",
+          "updated_at": "2026-10-08 00:07:59"
+        },
+        {
+          "amount_value": -1000,
+          "created_at": "2026-10-08 00:07:59",
+          "id": 5,
+          "is_primary_income": 0,
+          "occurred_on": "2026-10-05",
+          "sort_order": 2,
+          "title": "카드 즉시결제",
+          "updated_at": "2026-10-08 00:07:59"
+        },
+        {
+          "amount_value": 9999,
+          "created_at": "2026-10-08 00:07:59",
+          "id": 4,
+          "is_primary_income": 0,
+          "occurred_on": "2026-11-01",
+          "sort_order": 1,
+          "title": "cash",
+          "updated_at": "2026-10-08 00:07:59"
+        }
+      ],
+      "card_payment_batches": [
+        {
+          "created_at": "2026-10-08 00:07:59",
+          "id": 1,
+          "source": "month_close",
+          "status": "active",
+          "usage_month": "2026-09"
+        }
+      ],
+      "card_payment_batch_items": [
+        {
+          "batch_id": 1,
+          "created_at": "2026-10-08 00:07:59",
+          "entry_id": 5,
+          "entry_payment_key": "toll1",
+          "id": 1
+        },
+        {
+          "batch_id": 1,
+          "created_at": "2026-10-08 00:07:59",
+          "entry_id": 6,
+          "entry_payment_key": "toll2",
+          "id": 2
+        },
+        {
+          "batch_id": 1,
+          "created_at": "2026-10-08 00:07:59",
+          "entry_id": 7,
+          "entry_payment_key": "old-card",
+          "id": 3
+        }
+      ],
+      "card_payment_events": [
+        {
+          "batch_id": 1,
+          "cash_flow_id": 5,
+          "created_at": "2026-10-08 00:07:59",
+          "event_date": "2026-10-05",
+          "event_type": "immediate",
+          "id": 1,
+          "idempotency_key": "bundle-partial-payment-0001",
+          "note": "",
+          "request_fingerprint": "f1b8348f17f1b12f09a2ffdd65f4b3546d83507ced0dd1b09ebd2008bcd81b19",
+          "total_amount": 1000
+        }
+      ],
+      "card_payment_allocations": [
+        {
+          "amount_value": 1000,
+          "created_at": "2026-10-08 00:07:59",
+          "entry_payment_key": "old-card",
+          "id": 1,
+          "payment_event_id": 1
+        }
+      ],
+      "card_payment_deferrals": [
+        {
+          "created_at": "2026-10-08 00:07:59",
+          "entry_payment_key": "toll1",
+          "from_payment_month": "2026-10",
+          "original_book_section": "archive",
+          "original_date_label": null,
+          "original_entry_date": "2026-09-03",
+          "original_group_label": null,
+          "original_sort_order": 1,
+          "original_title": "하이패스",
+          "target_payment_month": "2026-11"
+        }
+      ],
+      "notification_candidate_registrations": [
+        {
+          "created_at": "2026-10-08 00:07:59",
+          "registration_key": "independent-registration-key",
+          "request_fingerprint": "49a6000f05f303f9dd800655b4cef4693e0cffb7bf9f6b7569670d9221c745aa",
+          "target": "ledger",
+          "target_id": 10
+        }
+      ],
+      "app_settings": [
+        {
+          "key": "card_limit",
+          "updated_at": "2026-10-08 00:07:59",
+          "value": "5800000"
+        },
+        {
+          "key": "cash_flow_balance",
+          "updated_at": "2026-10-08 00:07:59",
+          "value": "0"
+        },
+        {
+          "key": "family_card_last4",
+          "updated_at": "2026-10-08 00:07:59",
+          "value": ""
+        },
+        {
+          "key": "owner_card_last4",
+          "updated_at": "2026-10-08 00:07:59",
+          "value": ""
+        },
+        {
+          "key": "scheduled_income",
+          "updated_at": "2026-10-08 00:07:59",
+          "value": "0"
+        }
+      ],
+      "app_labels": [
+        {
+          "key": "archive_header_amount",
+          "updated_at": "2026-10-08 00:07:59",
+          "value": "금액"
+        },
+        {
+          "key": "archive_header_date",
+          "updated_at": "2026-10-08 00:07:59",
+          "value": "날짜"
+        },
+        {
+          "key": "archive_header_title",
+          "updated_at": "2026-10-08 00:07:59",
+          "value": "세부내역"
+        },
+        {
+          "key": "current_header_amount",
+          "updated_at": "2026-10-08 00:07:59",
+          "value": "금액"
+        },
+        {
+          "key": "current_header_date",
+          "updated_at": "2026-10-08 00:07:59",
+          "value": "날짜"
+        },
+        {
+          "key": "current_header_title",
+          "updated_at": "2026-10-08 00:07:59",
+          "value": "세부내역"
+        },
+        {
+          "key": "panel_claim_title",
+          "updated_at": "2026-10-08 00:07:59",
+          "value": "청구"
+        },
+        {
+          "key": "panel_family_card_title",
+          "updated_at": "2026-10-08 00:07:59",
+          "value": "가족카드"
+        },
+        {
+          "key": "panel_fixed_title",
+          "updated_at": "2026-10-08 00:07:59",
+          "value": "현금성 고정지출"
+        },
+        {
+          "key": "panel_frozen_title",
+          "updated_at": "2026-10-08 00:07:59",
+          "value": "동결"
+        },
+        {
+          "key": "panel_header_amount",
+          "updated_at": "2026-10-08 00:07:59",
+          "value": "금액"
+        },
+        {
+          "key": "panel_header_title",
+          "updated_at": "2026-10-08 00:07:59",
+          "value": "세부내역"
+        },
+        {
+          "key": "summary_card_total_label",
+          "updated_at": "2026-10-08 00:07:59",
+          "value": "카드대금"
+        },
+        {
+          "key": "summary_cash_flow_balance_label",
+          "updated_at": "2026-10-08 00:07:59",
+          "value": "현금흐름 반영액"
+        },
+        {
+          "key": "summary_frozen_asset_label",
+          "updated_at": "2026-10-08 00:07:59",
+          "value": "동결자산"
+        },
+        {
+          "key": "summary_remaining_liquidity_label",
+          "updated_at": "2026-10-08 00:07:59",
+          "value": "잔여 유동성"
+        },
+        {
+          "key": "summary_title",
+          "updated_at": "2026-10-08 00:07:59",
+          "value": "요약"
+        },
+        {
+          "key": "summary_transfer_or_deposit_label",
+          "updated_at": "2026-10-08 00:07:59",
+          "value": "고정지출"
+        }
+      ]
+    },
+    "manifest": {
+      "algorithm": "sha256",
+      "tables": {
+        "ledger_entries": {
+          "columns": [
+            "amount_expr",
+            "amount_value",
+            "aux_amount_expr",
+            "aux_amount_value",
+            "book_section",
+            "confirmed_at",
+            "confirmed_month",
+            "created_at",
+            "date_label",
+            "discount_override",
+            "due_day",
+            "entry_date",
+            "entry_kind",
+            "extra_value",
+            "group_label",
+            "id",
+            "payment_key",
+            "sort_order",
+            "source_planned_entry_id",
+            "spending_category",
+            "title",
+            "updated_at",
+            "usage_item",
+            "usage_place"
+          ],
+          "row_count": 11,
+          "sha256": "372e3c3cfa15337ec80e4a11ec9fa31217ad5477b2901e98d685bb6f3e2ce888"
+        },
+        "monthly_panels": {
+          "columns": [
+            "amount_expr",
+            "amount_value",
+            "confirmed_at",
+            "confirmed_cash_flow_id",
+            "confirmed_month",
+            "created_at",
+            "discount_amount",
+            "discount_override",
+            "due_day",
+            "id",
+            "month",
+            "panel_type",
+            "sort_order",
+            "spent_on",
+            "title",
+            "updated_at"
+          ],
+          "row_count": 5,
+          "sha256": "da8fe202db5c725840721da13057195eebefa455f970e71d593aa051ebb3da40"
+        },
+        "cash_flows": {
+          "columns": [
+            "amount_value",
+            "created_at",
+            "id",
+            "is_primary_income",
+            "occurred_on",
+            "sort_order",
+            "title",
+            "updated_at"
+          ],
+          "row_count": 5,
+          "sha256": "928c9e78f11c9de3bbfd40a52b2ff744c463958da98c0234cd988284a7545470"
+        },
+        "card_payment_batches": {
+          "columns": [
+            "created_at",
+            "id",
+            "source",
+            "status",
+            "usage_month"
+          ],
+          "row_count": 1,
+          "sha256": "d746227b2ff858db4793dacc221b3dfd02f792f6ccc9deaa3373bc551e03e751"
+        },
+        "card_payment_batch_items": {
+          "columns": [
+            "batch_id",
+            "created_at",
+            "entry_id",
+            "entry_payment_key",
+            "id"
+          ],
+          "row_count": 3,
+          "sha256": "866cf1ca5a92d43a87674be951e1173523cbbcbb72cf7b9dde34799967b6445b"
+        },
+        "card_payment_events": {
+          "columns": [
+            "batch_id",
+            "cash_flow_id",
+            "created_at",
+            "event_date",
+            "event_type",
+            "id",
+            "idempotency_key",
+            "note",
+            "request_fingerprint",
+            "total_amount"
+          ],
+          "row_count": 1,
+          "sha256": "ce35ee8f7554666d77c30438c818978fb4780baaa97d28d2ed2e9fb5c76ec8a4"
+        },
+        "card_payment_allocations": {
+          "columns": [
+            "amount_value",
+            "created_at",
+            "entry_payment_key",
+            "id",
+            "payment_event_id"
+          ],
+          "row_count": 1,
+          "sha256": "b1a4053a130b10281ab7fc7020f4ef98104de11a8eb5692d81af52318011522f"
+        },
+        "card_payment_deferrals": {
+          "columns": [
+            "created_at",
+            "entry_payment_key",
+            "from_payment_month",
+            "original_book_section",
+            "original_date_label",
+            "original_entry_date",
+            "original_group_label",
+            "original_sort_order",
+            "original_title",
+            "target_payment_month"
+          ],
+          "row_count": 1,
+          "sha256": "6cf9cfdabae1b83339e1e8bd3552a037b26f2548efd17bedb2849101cdc6f398"
+        },
+        "notification_candidate_registrations": {
+          "columns": [
+            "created_at",
+            "registration_key",
+            "request_fingerprint",
+            "target",
+            "target_id"
+          ],
+          "row_count": 1,
+          "sha256": "4bc9b232dff8e142d9fbf07c0e0b4be0fd230bc602cdca816ee4381e3a52f6b8"
+        },
+        "app_settings": {
+          "columns": [
+            "key",
+            "updated_at",
+            "value"
+          ],
+          "row_count": 5,
+          "sha256": "443e57a5ea6e975754c5018046b951dd5f41f421bc2da858ef4fa280f9610669"
+        },
+        "app_labels": {
+          "columns": [
+            "key",
+            "updated_at",
+            "value"
+          ],
+          "row_count": 18,
+          "sha256": "8838abd5642b6a0792ef38af0119fe3514b1c47bf12d3f9880163b86471cb73d"
+        }
+      },
+      "data_sha256": "68e3356df9253f4c7b8458d1081fbba637b634d1646f0326921cb1f68b1aa253",
+      "card_charge_policy_sha256": "b3f90f3923cac762d068026447b4c7168b243d16517a19b27bac0d950dbc37e5",
+      "content_sha256": "38aead687d3f7fc42c4f58bdd05c0531ab230cd3b03e77ac770abba2526d6813"
+    },
+    "snapshot_id": "38aead687d3f7fc42c4f58bdd05c0531ab230cd3b03e77ac770abba2526d6813"
+  },
+  "state": {
+    "month_close_status": {
+      "calendar_date": "2026-10-05",
+      "calendar_month": "2026-10",
+      "oldest_open_month": "2026-10",
+      "last_closed_month": null,
+      "needs_close": false,
+      "is_early_close": true,
+      "early_close_available": false,
+      "early_close_start_day": 31,
+      "card_recurring_confirmation_available": true,
+      "can_close": false,
+      "unconfirmed_recurring_items": [
+        {
+          "kind": "fixed",
+          "id": 4,
+          "title": "panel",
+          "amount_value": 10000
+        },
+        {
+          "kind": "fixed",
+          "id": 11,
+          "title": "Unconfirmed fixed",
+          "amount_value": 0
+        },
+        {
+          "kind": "planned",
+          "id": 11,
+          "title": "Audit",
+          "detail": "",
+          "amount_value": 0,
+          "due_day": 5
+        }
+      ]
+    },
+    "entries": [
+      {
+        "book_section": "current",
+        "entry_kind": "expense",
+        "entry_date": "2026-10-01",
+        "date_label": "",
+        "group_label": "",
+        "title": "[이월] [9월 사용 내역] 하이패스",
+        "usage_place": "merchant",
+        "usage_item": null,
+        "amount_value": 10000,
+        "amount_expr": null,
+        "aux_amount_value": null,
+        "aux_amount_expr": null,
+        "extra_value": null,
+        "sort_order": 0,
+        "due_day": null,
+        "confirmed_at": null,
+        "confirmed_month": null,
+        "spending_category": null,
+        "payment_key": "toll1",
+        "discount_override": 0,
+        "id": 5,
+        "discount_policy": "enabled",
+        "automatic_discount_eligible": false,
+        "automatic_discount_amount": 0,
+        "effective_discount_amount": 0,
+        "effective_amount_value": 10000,
+        "is_transport": false,
+        "is_toll": true,
+        "confirmed_amount_value": null,
+        "confirmed_effective_discount_amount": null,
+        "confirmed_effective_amount_value": null
+      },
+      {
+        "book_section": "current",
+        "entry_kind": "expense",
+        "entry_date": "2026-10-03",
+        "date_label": null,
+        "group_label": null,
+        "title": "ordinary",
+        "usage_place": "merchant",
+        "usage_item": null,
+        "amount_value": 10000,
+        "amount_expr": null,
+        "aux_amount_value": null,
+        "aux_amount_expr": null,
+        "extra_value": null,
+        "sort_order": 1,
+        "due_day": null,
+        "confirmed_at": null,
+        "confirmed_month": null,
+        "spending_category": null,
+        "payment_key": "ordinary",
+        "discount_override": 0,
+        "id": 1,
+        "discount_policy": "enabled",
+        "automatic_discount_eligible": true,
+        "automatic_discount_amount": 120,
+        "effective_discount_amount": 120,
+        "effective_amount_value": 9880,
+        "is_transport": false,
+        "is_toll": false,
+        "confirmed_amount_value": null,
+        "confirmed_effective_discount_amount": null,
+        "confirmed_effective_amount_value": null
+      },
+      {
+        "book_section": "current",
+        "entry_kind": "expense",
+        "entry_date": "2026-10-03",
+        "date_label": null,
+        "group_label": null,
+        "title": "ordinary",
+        "usage_place": "merchant",
+        "usage_item": null,
+        "amount_value": 10000,
+        "amount_expr": null,
+        "aux_amount_value": 0,
+        "aux_amount_expr": null,
+        "extra_value": null,
+        "sort_order": 1,
+        "due_day": null,
+        "confirmed_at": null,
+        "confirmed_month": null,
+        "spending_category": null,
+        "payment_key": "zero-override",
+        "discount_override": 1,
+        "id": 2,
+        "discount_policy": "enabled",
+        "automatic_discount_eligible": true,
+        "automatic_discount_amount": 120,
+        "effective_discount_amount": 0,
+        "effective_amount_value": 10000,
+        "is_transport": false,
+        "is_toll": false,
+        "confirmed_amount_value": null,
+        "confirmed_effective_discount_amount": null,
+        "confirmed_effective_amount_value": null
+      },
+      {
+        "book_section": "current",
+        "entry_kind": "expense",
+        "entry_date": "2026-10-03",
+        "date_label": null,
+        "group_label": null,
+        "title": "도시가스",
+        "usage_place": "merchant",
+        "usage_item": null,
+        "amount_value": 10000,
+        "amount_expr": null,
+        "aux_amount_value": null,
+        "aux_amount_expr": null,
+        "extra_value": null,
+        "sort_order": 1,
+        "due_day": null,
+        "confirmed_at": null,
+        "confirmed_month": null,
+        "spending_category": null,
+        "payment_key": "utility",
+        "discount_override": 0,
+        "id": 3,
+        "discount_policy": "enabled",
+        "automatic_discount_eligible": true,
+        "automatic_discount_amount": 120,
+        "effective_discount_amount": 120,
+        "effective_amount_value": 9880,
+        "is_transport": false,
+        "is_toll": false,
+        "confirmed_amount_value": null,
+        "confirmed_effective_discount_amount": null,
+        "confirmed_effective_amount_value": null
+      },
+      {
+        "book_section": "current",
+        "entry_kind": "expense",
+        "entry_date": "2026-10-03",
+        "date_label": null,
+        "group_label": null,
+        "title": "전기요금",
+        "usage_place": "merchant",
+        "usage_item": null,
+        "amount_value": 10000,
+        "amount_expr": null,
+        "aux_amount_value": 100,
+        "aux_amount_expr": null,
+        "extra_value": null,
+        "sort_order": 1,
+        "due_day": null,
+        "confirmed_at": null,
+        "confirmed_month": null,
+        "spending_category": null,
+        "payment_key": "utility-override",
+        "discount_override": 1,
+        "id": 4,
+        "discount_policy": "enabled",
+        "automatic_discount_eligible": true,
+        "automatic_discount_amount": 120,
+        "effective_discount_amount": 100,
+        "effective_amount_value": 9900,
+        "is_transport": false,
+        "is_toll": false,
+        "confirmed_amount_value": null,
+        "confirmed_effective_discount_amount": null,
+        "confirmed_effective_amount_value": null
+      },
+      {
+        "book_section": "current",
+        "entry_kind": "expense",
+        "entry_date": "2026-10-03",
+        "date_label": null,
+        "group_label": null,
+        "title": "Registered",
+        "usage_place": "Audit",
+        "usage_item": "Registered",
+        "amount_value": 0,
+        "amount_expr": null,
+        "aux_amount_value": null,
+        "aux_amount_expr": null,
+        "extra_value": null,
+        "sort_order": 101,
+        "due_day": null,
+        "confirmed_at": null,
+        "confirmed_month": null,
+        "spending_category": null,
+        "payment_key": "13aa604132204b379ba7e2a1091ad050",
+        "discount_override": 0,
+        "id": 10,
+        "discount_policy": "enabled",
+        "automatic_discount_eligible": true,
+        "automatic_discount_amount": 0,
+        "effective_discount_amount": 0,
+        "effective_amount_value": 0,
+        "is_transport": false,
+        "is_toll": false,
+        "confirmed_amount_value": null,
+        "confirmed_effective_discount_amount": null,
+        "confirmed_effective_amount_value": null
+      },
+      {
+        "book_section": "current",
+        "entry_kind": "planned",
+        "entry_date": null,
+        "date_label": "카드 정기결제",
+        "group_label": "카드 정기결제",
+        "title": "Unconfirmed",
+        "usage_place": "Audit",
+        "usage_item": null,
+        "amount_value": 0,
+        "amount_expr": null,
+        "aux_amount_value": null,
+        "aux_amount_expr": null,
+        "extra_value": null,
+        "sort_order": 2,
+        "due_day": 5,
+        "confirmed_at": null,
+        "confirmed_month": null,
+        "spending_category": null,
+        "payment_key": null,
+        "discount_override": 0,
+        "id": 11,
+        "discount_policy": "enabled",
+        "automatic_discount_eligible": true,
+        "automatic_discount_amount": 0,
+        "effective_discount_amount": 0,
+        "effective_amount_value": 0,
+        "is_transport": false,
+        "is_toll": false,
+        "confirmed_amount_value": null,
+        "confirmed_effective_discount_amount": null,
+        "confirmed_effective_amount_value": null
+      }
+    ],
+    "panels": [
+      {
+        "id": 4,
+        "month": "2026-10",
+        "panel_type": "fixed",
+        "title": "panel",
+        "spent_on": null,
+        "amount_value": 10000,
+        "discount_amount": 0,
+        "discount_override": 0,
+        "amount_expr": null,
+        "sort_order": 1,
+        "due_day": 5,
+        "confirmed_at": null,
+        "confirmed_cash_flow_id": null,
+        "confirmed_month": null,
+        "can_confirm_fixed": true,
+        "fixed_execution_month": "2026-10",
+        "discount_policy": "enabled",
+        "automatic_discount_eligible": false,
+        "automatic_discount_amount": 0,
+        "effective_discount_amount": 0,
+        "effective_amount_value": 10000,
+        "confirmed_amount_value": null
+      },
+      {
+        "id": 11,
+        "month": "2026-10",
+        "panel_type": "fixed",
+        "title": "Unconfirmed fixed",
+        "spent_on": null,
+        "amount_value": 0,
+        "discount_amount": 0,
+        "discount_override": 0,
+        "amount_expr": null,
+        "sort_order": 100,
+        "due_day": null,
+        "confirmed_at": null,
+        "confirmed_cash_flow_id": null,
+        "confirmed_month": null,
+        "can_confirm_fixed": true,
+        "fixed_execution_month": "2026-10",
+        "discount_policy": "enabled",
+        "automatic_discount_eligible": false,
+        "automatic_discount_amount": 0,
+        "effective_discount_amount": 0,
+        "effective_amount_value": 0,
+        "confirmed_amount_value": null
+      },
+      {
+        "id": 1,
+        "month": "2026-10",
+        "panel_type": "claim",
+        "title": "panel",
+        "spent_on": null,
+        "amount_value": 10000,
+        "discount_amount": 0,
+        "discount_override": 0,
+        "amount_expr": null,
+        "sort_order": 1,
+        "due_day": 5,
+        "confirmed_at": null,
+        "confirmed_cash_flow_id": null,
+        "confirmed_month": null,
+        "can_confirm_fixed": false,
+        "fixed_execution_month": null,
+        "discount_policy": "enabled",
+        "automatic_discount_eligible": true,
+        "automatic_discount_amount": 120,
+        "effective_discount_amount": 120,
+        "effective_amount_value": 9880,
+        "confirmed_amount_value": null
+      },
+      {
+        "id": 2,
+        "month": "2026-10",
+        "panel_type": "family_card",
+        "title": "panel",
+        "spent_on": null,
+        "amount_value": 10000,
+        "discount_amount": 0,
+        "discount_override": 0,
+        "amount_expr": null,
+        "sort_order": 1,
+        "due_day": 5,
+        "confirmed_at": null,
+        "confirmed_cash_flow_id": null,
+        "confirmed_month": null,
+        "can_confirm_fixed": false,
+        "fixed_execution_month": null,
+        "discount_policy": "disabled",
+        "automatic_discount_eligible": true,
+        "automatic_discount_amount": 120,
+        "effective_discount_amount": 0,
+        "effective_amount_value": 10000,
+        "confirmed_amount_value": null
+      },
+      {
+        "id": 3,
+        "month": "2026-10",
+        "panel_type": "frozen",
+        "title": "panel",
+        "spent_on": null,
+        "amount_value": 10000,
+        "discount_amount": 0,
+        "discount_override": 0,
+        "amount_expr": null,
+        "sort_order": 1,
+        "due_day": 5,
+        "confirmed_at": null,
+        "confirmed_cash_flow_id": null,
+        "confirmed_month": null,
+        "can_confirm_fixed": false,
+        "fixed_execution_month": null,
+        "discount_policy": "enabled",
+        "automatic_discount_eligible": false,
+        "automatic_discount_amount": 0,
+        "effective_discount_amount": 0,
+        "effective_amount_value": 10000,
+        "confirmed_amount_value": null
+      }
+    ],
+    "summary": {
+      "scheduled_income": 0,
+      "cash_flow_balance": 100766,
+      "remaining_liquidity": 12226,
+      "current_month_spendable": 12226,
+      "current_spending_total": 50000,
+      "current_discount_total": 340,
+      "card_total": 49660,
+      "planned_recurring_total": 5000,
+      "fixed_cash_total": 10000,
+      "fixed_cash_processed_total": 0,
+      "transfer_or_deposit_total": 15000,
+      "frozen_asset_total": 10000,
+      "claim_original_total": 10000,
+      "claim_net_total": 9880,
+      "family_card_original_total": 10000,
+      "family_card_net_total": 10000,
+      "visible_cash_flow_total": 100766
+    },
+    "card_payment_status": {
+      "calendar_date": "2026-10-05",
+      "payment_month": "2026-10",
+      "usage_month": "2026-09",
+      "due_date": "2026-10-14",
+      "immediate_allowed": true,
+      "needs_liquidity_reset": false,
+      "liquidity_reset_acknowledged": false,
+      "original_total": 20000,
+      "immediate_paid_total": 1000,
+      "discount_total": 120,
+      "recorded_remaining_total": 18880,
+      "effective_remaining_total": 18880,
+      "primary_income_total": 100000,
+      "discount_policy": "enabled",
+      "rows": [
+        {
+          "id": 6,
+          "book_section": "archive",
+          "entry_kind": "expense",
+          "entry_date": "2026-09-03",
+          "date_label": null,
+          "group_label": null,
+          "title": "하이패스",
+          "usage_place": "merchant",
+          "usage_item": null,
+          "amount_value": 10000,
+          "amount_expr": null,
+          "aux_amount_value": null,
+          "aux_amount_expr": null,
+          "extra_value": null,
+          "sort_order": 1,
+          "due_day": null,
+          "confirmed_at": null,
+          "confirmed_month": null,
+          "source_planned_entry_id": null,
+          "spending_category": null,
+          "payment_key": "toll2",
+          "discount_override": 0,
+          "created_at": "2026-10-08 00:07:59",
+          "updated_at": "2026-10-08 00:07:59",
+          "original_amount": 10000,
+          "immediate_paid_amount": 0,
+          "discount_amount": 0,
+          "discount_policy": "enabled",
+          "automatic_discount_eligible": false,
+          "automatic_discount_amount": 0,
+          "effective_discount_amount": 0,
+          "effective_amount_value": 10000,
+          "remaining_amount": 10000,
+          "is_transport": false,
+          "is_toll": true,
+          "is_deferred": false,
+          "is_carried_over": false,
+          "payment_keys": [
+            "toll2"
+          ],
+          "entry_ids": [
+            6
+          ],
+          "payment_parts": [
+            {
+              "entry_payment_key": "toll2",
+              "entry_id": 6,
+              "remaining_amount": 10000
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "id": 7,
+          "book_section": "archive",
+          "entry_kind": "expense",
+          "entry_date": "2026-09-03",
+          "date_label": null,
+          "group_label": null,
+          "title": "ordinary",
+          "usage_place": "merchant",
+          "usage_item": null,
+          "amount_value": 10000,
+          "amount_expr": null,
+          "aux_amount_value": null,
+          "aux_amount_expr": null,
+          "extra_value": null,
+          "sort_order": 1,
+          "due_day": null,
+          "confirmed_at": null,
+          "confirmed_month": null,
+          "source_planned_entry_id": null,
+          "spending_category": null,
+          "payment_key": "old-card",
+          "discount_override": 0,
+          "created_at": "2026-10-08 00:07:59",
+          "updated_at": "2026-10-08 00:07:59",
+          "original_amount": 10000,
+          "immediate_paid_amount": 1000,
+          "discount_amount": 120,
+          "discount_policy": "enabled",
+          "automatic_discount_eligible": true,
+          "automatic_discount_amount": 120,
+          "effective_discount_amount": 120,
+          "effective_amount_value": 9880,
+          "remaining_amount": 8880,
+          "is_transport": false,
+          "is_toll": false,
+          "is_deferred": false,
+          "is_carried_over": false,
+          "payment_keys": [
+            "old-card"
+          ],
+          "entry_ids": [
+            7
+          ],
+          "payment_parts": [
+            {
+              "entry_payment_key": "old-card",
+              "entry_id": 7,
+              "remaining_amount": 8880
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "id": 5,
+          "book_section": "current",
+          "entry_kind": "expense",
+          "entry_date": "2026-10-01",
+          "date_label": "",
+          "group_label": "",
+          "title": "[이월] [9월 사용 내역] 하이패스",
+          "usage_place": "merchant",
+          "usage_item": null,
+          "amount_value": 10000,
+          "amount_expr": null,
+          "aux_amount_value": null,
+          "aux_amount_expr": null,
+          "extra_value": null,
+          "sort_order": 0,
+          "due_day": null,
+          "confirmed_at": null,
+          "confirmed_month": null,
+          "source_planned_entry_id": null,
+          "spending_category": null,
+          "payment_key": "toll1",
+          "discount_override": 0,
+          "created_at": "2026-10-08 00:07:59",
+          "updated_at": "2026-10-08 00:07:59",
+          "original_amount": 10000,
+          "immediate_paid_amount": 0,
+          "discount_amount": 0,
+          "discount_policy": "enabled",
+          "automatic_discount_eligible": false,
+          "automatic_discount_amount": 0,
+          "effective_discount_amount": 0,
+          "effective_amount_value": 10000,
+          "remaining_amount": 10000,
+          "is_transport": false,
+          "is_toll": true,
+          "is_deferred": true,
+          "is_carried_over": false,
+          "payment_keys": [
+            "toll1"
+          ],
+          "entry_ids": [
+            5
+          ],
+          "payment_parts": [
+            {
+              "entry_payment_key": "toll1",
+              "entry_id": 5,
+              "remaining_amount": 10000
+            }
+          ],
+          "is_group": false
+        }
+      ],
+      "events": [
+        {
+          "id": 1,
+          "batch_id": 1,
+          "event_date": "2026-10-05",
+          "event_type": "immediate",
+          "total_amount": 1000,
+          "note": "",
+          "cash_flow_id": 5,
+          "idempotency_key": "bundle-partial-payment-0001",
+          "request_fingerprint": "f1b8348f17f1b12f09a2ffdd65f4b3546d83507ced0dd1b09ebd2008bcd81b19",
+          "created_at": "2026-10-08 00:07:59"
+        }
+      ]
+    },
+    "judgment": {
+      "category_labels": {
+        "essential": "안 썼으면 큰일 났을 돈",
+        "questionable": "꼭 써야 했을까...?",
+        "dignity": "최소한의 품위유지비",
+        "unclassified": "미분류"
+      },
+      "stat_tones": [
+        {
+          "key": "essential",
+          "title": "안 썼으면 큰일 났을 돈",
+          "caption": "안 썼으면 일이 커졌을 돈. 생존 인프라입니다."
+        },
+        {
+          "key": "questionable",
+          "title": "꼭 써야 했을까...?",
+          "caption": "과거의 내가 예산위원회에 출석해야 합니다."
+        },
+        {
+          "key": "dignity",
+          "title": "최소한의 품위유지비",
+          "caption": "사람 꼴을 유지하기 위한 최소한의 사회적 비용입니다."
+        },
+        {
+          "key": null,
+          "title": "미분류",
+          "caption": "아직 판결을 기다리는 소비들입니다."
+        }
+      ],
+      "claim_categories": {},
+      "budget": {
+        "level": "quiet",
+        "message": "이번 달 현금흐름은 방어력이 있습니다. 숫자가 사용자에게 유리한 증언을 합니다."
+      },
+      "credit": {
+        "level": "quiet",
+        "message": "한도 사용률이 얌전합니다. 신용평가위원회가 안건 부족으로 조기 퇴근합니다."
+      },
+      "payment": {
+        "level": "quiet",
+        "message": "현재 결제 압박은 낮습니다. 파산심사위원회가 관찰 의견만 남깁니다."
+      }
+    },
+    "confirmed_planned_entries": [
+      {
+        "book_section": "current",
+        "entry_kind": "planned",
+        "entry_date": null,
+        "date_label": "카드 정기결제",
+        "group_label": "카드 정기결제",
+        "title": "template",
+        "usage_place": "service",
+        "usage_item": null,
+        "amount_value": 5000,
+        "amount_expr": null,
+        "aux_amount_value": null,
+        "aux_amount_expr": null,
+        "extra_value": null,
+        "sort_order": 1,
+        "due_day": 5,
+        "confirmed_at": "2026-10-08 00:07:59",
+        "confirmed_month": "2026-10",
+        "spending_category": null,
+        "payment_key": null,
+        "discount_override": 0,
+        "id": 8,
+        "discount_policy": "enabled",
+        "automatic_discount_eligible": true,
+        "automatic_discount_amount": 60,
+        "effective_discount_amount": 60,
+        "effective_amount_value": 4940,
+        "is_transport": false,
+        "is_toll": false,
+        "confirmed_amount_value": 7000,
+        "confirmed_effective_discount_amount": 84,
+        "confirmed_effective_amount_value": 6916
+      }
+    ],
+    "cash_flows": [
+      {
+        "id": 5,
+        "occurred_on": "2026-10-05",
+        "title": "카드 즉시결제",
+        "amount_value": -1000,
+        "sort_order": 2,
+        "is_primary_income": 0
+      },
+      {
+        "id": 2,
+        "occurred_on": "2026-10-04",
+        "title": "cash",
+        "amount_value": -1234,
+        "sort_order": 1,
+        "is_primary_income": 0
+      },
+      {
+        "id": 1,
+        "occurred_on": "2026-10-01",
+        "title": "cash",
+        "amount_value": 100000,
+        "sort_order": 1,
+        "is_primary_income": 1
+      },
+      {
+        "id": 3,
+        "occurred_on": "2026-09-03",
+        "title": "cash",
+        "amount_value": 3000,
+        "sort_order": 1,
+        "is_primary_income": 0
+      }
+    ],
+    "settings": {
+      "card_limit": "5800000",
+      "cash_flow_balance": "0",
+      "family_card_last4": "",
+      "owner_card_last4": "",
+      "scheduled_income": "0"
+    },
+    "owner_discount_month": {
+      "month": "2026-10",
+      "scope": "owner",
+      "policy": "enabled",
+      "projection_policy": {
+        "schema_version": 1,
+        "policy_id": "owner-flat-statement-1.2",
+        "type": "flat_statement",
+        "parameters": {
+          "rate": "0.012"
+        },
+        "rounding": "floor"
+      },
+      "discounts": {
+        "ordinary": 120,
+        "zero-override": 0,
+        "utility": 120,
+        "utility-override": 100,
+        "toll1": 0,
+        "13aa604132204b379ba7e2a1091ad050": 0
+      },
+      "discount_total": 340
+    },
+    "family_discount_month": {
+      "month": "2026-10",
+      "scope": "family",
+      "policy": "disabled",
+      "projection_policy": {
+        "schema_version": 1,
+        "policy_id": "family-flat-statement-1.2",
+        "type": "flat_statement",
+        "parameters": {
+          "rate": "0.012"
+        },
+        "rounding": "floor"
+      },
+      "discounts": {},
+      "discount_total": 0
+    },
+    "transit_discount_profile": {
+      "card": "transit",
+      "month": "2026-10",
+      "profile": "none"
+    }
+  }
+}
