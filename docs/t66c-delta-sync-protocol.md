@@ -129,7 +129,7 @@ Empty table은 `snapshot-leaf` count="0", min/max=null, rows=[], oversized=false
 
 Leaf가 한 row만으로 byte 상한을 넘으면 `oversized=true` singleton을 허용하고 §15의 bounded transfer chunks로 취득한다. 기존에 허용된 긴 string을 새로운 길이 제한으로 거부하지 않는다. 일반 leaf는 oversized=false이고 두 상한 모두 만족해야 한다. 극단적 key/row 길이는 별도 입력 비용이며 bounded H 가정에 숨기지 않는다.
 
-Bootstrap은 sorted rows를 상한까지 순서대로 채우고 최대 fanout groups를 만든다. 마지막 non-root group이 16 미만이면 직전 group과 균등 재분배한다(홀수 잉여 child는 오른쪽). Update는 변경 PK 순으로 적용한다. Overflow leaf는 row 중간에서 나누고 양쪽이 byte 상한을 만족할 때까지 반복 분할한다. Internal overflow 33 children은 왼쪽 16/오른쪽 17로 분할한다. Empty leaf는 제거한다. Non-root internal underflow는 왼쪽 sibling에 16 초과 child가 있으면 마지막 child를 빌리고, 없으면 오른쪽에서 첫 child를 빌린다. 둘 다 불가하면 왼쪽 우선 merge하고 parent까지 반복한다. Unary root는 collapse하고 전체 삭제는 empty leaf로 바꾼다. 일반 삭제에서 **nonempty leaf**를 즉시 merge하지 않는 것을 v1 규칙으로 선택한다. Internal 최소 fanout은 유지하므로 depth는 O(log P)다. 정기 compaction은 새 representation root를 게시하는 별도 maintenance이며 정상 refresh에 섞지 않는다. 그러므로 tree shape는 mutation history에 의존할 수 있다. **같은 raw rows면 항상 같은 B+tree root라는 주장은 하지 않는다.**
+Bootstrap은 sorted rows를 상한까지 순서대로 채우고 최대 fanout groups를 만든다. 마지막 non-root group이 16 미만이면 직전 group과 균등 재분배한다(홀수 잉여 child는 오른쪽). Update는 변경 PK 순으로 적용한다. Overflow leaf는 row 중간에서 나누고 양쪽이 byte 상한을 만족할 때까지 반복 분할한다. Internal overflow 33 children은 왼쪽 16/오른쪽 17로 분할한다. Empty leaf는 제거한다. Non-root internal underflow는 왼쪽 sibling에 16 초과 child가 있으면 마지막 child를 빌리고, 없으면 오른쪽에서 첫 child를 빌린다. 둘 다 불가하면 왼쪽 우선 merge하고 parent까지 반복한다. Unary root는 collapse하고 전체 삭제는 empty leaf로 바꾼다. 일반 삭제에서 **nonempty leaf**를 즉시 merge하지 않는 것을 v1 규칙으로 선택한다. Internal 최소 fanout은 유지하므로 depth는 O(log P)다. **C66-B01: v1에서는 raw row 변경 없이 representation/root만 바꾸는 선택적 maintenance compaction을 MUST NOT 수행한다.** 정상 committed mutation을 처리하는 데 필요한 split/merge/rebalance는 허용되며 이 금지 대상이 아니다. 향후 선택적 compaction은 안전한 epoch/bootstrap 등 별도 authority transition의 명시적 독립 검토가 선행되어야 한다. 동일 epoch·동일 revision의 root 불일치 거부 규칙은 완화하지 않는다. 그러므로 tree shape는 mutation history에 의존할 수 있다. **같은 raw rows면 항상 같은 B+tree root라는 주장은 하지 않는다.**
 
 PK는 바뀔 수 있다면 old Key DELETE + new Key INSERT다. 날짜/월 변경은 PK가 같아도 raw row와 history indexes를 바꾼다. Leaf 경계가 달라져도 row identity는 같다. Late archive insertion과 month-close copy/delete도 같은 규칙이다.
 
@@ -638,7 +638,7 @@ N=전체 역사 row, H=hot/참조 working set와 required control/policy descrip
 | cache miss | target objects lookup/path O(depth), financial re-evaluation 불필요 | missing bytes, cold initial miss면 N |
 | full sync/restart/epoch bootstrap | O(N) validation/build, legacy sort 비용 가능 | N bytes/구조/hash/index·전체 저장 허용 |
 | backup/MW/restore | complete v7 materialization·mandatory backups·Apply O(N+J) | standalone file/request·artifact O(N+J) |
-| GC/compaction | bounded ongoing accounting, full sweep는 maintenance O(N/P) | active refresh에서 full graph mark 금지 |
+| GC / 향후 compaction | bounded ongoing GC accounting, full sweep는 maintenance O(N/P); 선택적 representation-only compaction은 v1 금지 | active refresh에서 full graph mark 금지; mutation에 필요한 tree maintenance는 허용 |
 
 조건부 정상 목표는 O(H + changed bytes + L log P + 256E)이며 단순 O(H+D)나 모든 operation O(1)을 주장하지 않는다. Current full financial validators/flat hash/lineage/full baseline encode가 남으면 정상 history-independent gate를 통과하지 못한다. No-change lease pin에 전체 graph 순회가 남아도 실패다. Network 단계는 tree miss 깊이/배치에 따라 늘 수 있어 B-3 1 GET/1 RTT를 무조건 유지한다고 약속하지 않는다. Inline/hints는 효율화일 뿐 완전성 근거가 아니다.
 
