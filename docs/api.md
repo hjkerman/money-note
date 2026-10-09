@@ -49,18 +49,18 @@
 }
 ```
 
-## Authoritative state bundle (version 1, mobile diagnostic support only)
+## Authoritative state bundle (version 1)
 
-`GET /api/authoritative-state`는 기존 다중 GET acquisition과 별도로 추가된 인증 API다. 정상 웹/모바일 acquisition은 아직 이 endpoint를 사용하지 않으며 기존 GET과 mutation POST는 그대로다.
+`GET /api/authoritative-state`는 기존 다중 GET acquisition과 별도로 추가된 인증 API다. T6.5B-3 개발 checkout의 정상 모바일 authoritative acquisition은 이 endpoint를 사용한다. 웹, 기존 GET endpoint, mutation POST는 변경하지 않는다. 통합 독립 감사와 운영 배포는 별도다.
 
 - 필수 응답: `bundle_version: 1`, `principal.user_id`, `authority`, 기존 v7 `snapshot`, `state`.
 - `authority`: 기존 baseline과 같은 `state_revision`, `state_fingerprint`, `evaluation_date`, `discount_policy_defaults`.
 - `state`: `month_close_status`, `entries`, `panels`, `summary`, 전체 `card_payment_status`, `judgment`, `confirmed_planned_entries`, 최근 현금흐름 `cash_flows`, 공개 `settings`, `owner_discount_month`, `family_discount_month`, `transit_discount_profile`. Raw payment 값과 typed presentation 값의 기존 차이를 보존한다.
 - 한 construction attempt는 하나의 query-only financial transaction과 고정 서버 평가 날짜/월/시간대를 사용한다. 모든 projection·Snapshot·response model 검증과 JSON bytes 준비가 끝난 뒤 새로운 read-only terminal view에서 revision·실제 schema/version·평가 날짜·처음 선택한 credential의 유효성을 확인한다. Terminal auth는 세션을 touch/delete하지 않는다. Cookie 우선 선택 뒤 Bearer fallback은 없다.
 - Revision/schema/date가 달라지면 전체 construction을 최대 3회 시도하고, 계속 변경되면 `409` (`authoritative_state_changed`)다. 인증 무효는 `401`이며 다른 credential로 retry하지 않는다. 손상된 금융/필수 관계/응답은 전체 실패(`422` 또는 내부 준비 장애 `500`)하고 일부 section을 성공으로 반환하지 않는다.
-- 이 응답은 mutation receipt나 새 Offline replay format이 아니다. Unknown mutation outcome을 해결하지 않으며 향후 client 도입 시에도 generation guard·durable baseline·pending retirement·UI 완료 조건을 그대로 유지해야 한다. DB, Snapshot(v7), Offline baseline(v4), journal/reconciliation version은 변경하지 않는다.
-- T6.5B-2 모바일의 `acquireBundleForDiagnostics`만 별도 opt-in 경로다. Raw body bytes에서 정수 금액 token을 먼저 검사하고, bundle v1의 모든 필수/nullable field 존재와 type, Snapshot manifest/hash·authority·관계 identity를 검증한 뒤 기존 typed candidate로 변환한다. NULL/0/false/빈 list는 누락과 구분하며 unknown version이나 손상 응답을 기본값으로 보완하지 않는다. 할인·Summary·기준 월은 재계산하지 않는다.
-- 진단 helper는 state install, durable baseline publication, pending cleanup을 수행하지 않는다. Request/auth/mutation lineage/mode guard를 통과한 candidate만 반환하며, 실제 publication 시점의 guard는 이후 도입에서도 별도로 유지해야 한다. Host benchmark는 실기기 성능이 아니다. 실기기 gate는 PENDING(T6.6 이후)이고 B-3 도입·배포는 별도 승인이다.
+- 이 응답은 mutation receipt나 새 Offline replay format이 아니다. Unknown mutation outcome을 해결하지 않으며 generation guard·durable baseline·pending retirement·UI 완료 조건은 그대로다. DB, Snapshot(v7), Offline baseline(v4), journal/reconciliation version은 변경하지 않는다.
+- 모바일의 정상 `acquire`와 `acquireBundleForDiagnostics`는 같은 strict B-2 admission을 공유한다. Raw body bytes에서 정수 금액 token과 중복 JSON key를 먼저 검사하고, 필수/nullable presence·type, Unicode scalar, Snapshot manifest/hash·authority·복구/관계 identity를 검증한 뒤 기존 typed candidate로 변환한다. NULL/0/false/빈 list는 누락과 구분하며 unknown version이나 손상 응답을 기본값으로 보완하지 않는다. 할인·Summary·기준 월은 재계산하지 않는다.
+- Acquisition과 진단 helper 자체는 state install, durable baseline publication, pending cleanup을 수행하지 않는다. AppState가 최초 owner 및 request/auth/mutation lineage/mode를 guarded publication 경계에서 확인한 뒤 게시·설치한다. Invalid bundle/HTTP 실패에 legacy fallback은 없다. Host benchmark는 실기기 성능이 아니다. 실기기 gate는 T6.6 이후이며 B-3/B-4 독립 승인과 운영 배포는 아직 별도다.
 
 ## 관리 로그
 

@@ -167,6 +167,9 @@ void main() {
         isTrue);
     cardWatch.stop();
     expect(api.expenseCalls, 1);
+    expect(api.bundleCalls, 1);
+    // Legacy calls below construct the synthetic server byte response inside
+    // this model double; they are not normal application HTTP requests.
     expect(api.baselineCalls, 2);
     expect(api.stateFetchCalls, 12);
     expect(store.replacements, 1);
@@ -186,6 +189,7 @@ void main() {
         isTrue);
     cashWatch.stop();
     expect(api.cashCalls, 1);
+    expect(api.bundleCalls, 2);
     expect(api.baselineCalls, 4);
     expect(api.stateFetchCalls, 24);
     expect(store.replacements, 2);
@@ -204,6 +208,7 @@ void main() {
       expect(calls, isEmpty);
     }
     expect(api.panelCalls, 2);
+    expect(api.bundleCalls, 4);
     expect(api.baselineCalls, 8);
     expect(api.stateFetchCalls, 48);
     expect(store.replacements, 4);

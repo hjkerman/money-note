@@ -83,6 +83,7 @@ class CommittingApi extends OfflineApiFake {
   Future<void> logout() async {}
   @override
   Future<AuthUser> login(String username, String password) async {
+    principalId = 2;
     remainingLiquidity = 7000;
     return AuthUser(
         id: 2,

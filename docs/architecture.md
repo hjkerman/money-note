@@ -56,11 +56,11 @@
 
 기존 정상 취득은 `B0 → candidate GETs → B1 → coherent 비교 → durable baseline → pending 정리·상태 설치`다. Coordinator는 전후 Snapshot fingerprint·revision·서버 기준일과 candidate의 status/calendar 문맥을 비교하고, AppState는 request/auth/mutation-lineage generation 및 owner/mode를 설치 직전과 durable publication 경계에서 다시 확인한다. 각 candidate는 서버 계산값이며, 기존 경로는 close eligibility·payment grouping·할인·Summary 전체를 모바일에서 다시 계산하지 않았다. required data의 안전한 소비는 필요하지만 canonical projection 전체의 독립 재구성은 이 계약의 보증이 아니다.
 
-`GET /api/authoritative-state`는 서버의 하나의 financial read transaction과 고정 평가 context에서 Snapshot과 typed projections를 만든다. 완전한 response 준비 뒤 새 terminal guard가 revision/schema/평가 context와 최초 선택 credential의 유효성을 검사하며, 변화 시 bounded rebuild 또는 실패로 처리한다. 이 서버 coherent-view 계약이 기존 fence의 역할을 대신할 수 있는지는 향후 client migration에서 검증한다. POST는 그대로 별도 command이고 bundle은 mutation receipt나 replay format이 아니다.
+`GET /api/authoritative-state`는 서버의 하나의 financial read transaction과 고정 평가 context에서 Snapshot과 typed projections를 만든다. 완전한 response 준비 뒤 새 terminal guard가 revision/schema/평가 context와 최초 선택 credential의 유효성을 검사하며, 변화 시 bounded rebuild 또는 실패로 처리한다. T6.5B-3 개발 경로는 이 서버 coherent-view 계약을 소비하여 별도 B0/B1 없이 같은 bundle에서 candidate와 envelope를 만든다. POST는 그대로 별도 command이고 bundle은 mutation receipt나 replay format이 아니다.
 
 Bundle을 소비하더라도 authenticated principal, supported wire/storage contract, authority metadata, stale-generation 차단, durable baseline publication, pending/rebuild retirement 및 UI unlock 조건은 유지해야 한다. POST 성공 후 GET 실패는 확정된 mutation의 rebuild pending이며, POST outcomeUnknown을 GET 성공만으로 임의 확정하거나 mutation을 자동 replay하지 않는다.
 
-현재 B-2 bundle 경로는 diagnostic-only이며 정상 refresh/submit은 기존 취득 경로다. B-2에 추가된 canonical projection 검사 중 일부는 기존 계약보다 강한 재검증을 시도한다. 이 문서는 책임을 명확히 할 뿐 기존 검사·테스트를 삭제하거나 B-2 결함을 수정하지 않는다. 정상 경로 전환과 B-3에는 별도 구현·독립 감사가 필요하다.
+T6.5B-3 개발 checkout의 정상 refresh/submit rebuild는 audited B-2 raw-byte admission을 공유하는 bundle 경로다. 지원 version·presence/type·exact-money·Unicode scalar·Snapshot hash/복구 제약·principal 및 generation 검사는 유지한다. Acquisition 자체는 설치·게시·pending 정리를 하지 않으며, 기존 AppState/OfflineStore durable publication 경계가 이를 수행한다. 명시적 legacy regression oracle은 유지하되 실패 시 runtime fallback으로 사용하지 않는다. B-3/B-4 통합 독립 감사와 운영 배포 승인은 별도이며, 이 개발 변경은 배포가 아니다.
 
 ### OfflineProjection의 한계
 

@@ -480,7 +480,7 @@ void main() {
       final coordinator = CoherentRefreshCoordinator(api,
           localToday: () => day,
           formatDate: (d) => d.toIso8601String().substring(0, 10));
-      final old = await coordinator.acquire(() => owner);
+      final old = await coordinator.acquireLegacyForDiagnostics(() => owner);
       expect(calls.length, 14);
       expect(calls, isNot(contains('/api/authoritative-state')));
       final ticket = coordinator.begin(1, 1);

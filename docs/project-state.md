@@ -2,11 +2,13 @@
 
 이 문서는 새 개발자나 새 작업 세션이 Money Note의 현재 기준선과 문서 읽기 순서를 빠르게 파악하기 위한 체크포인트다. 상세 도메인 규칙, API, 스키마, 운영 절차를 대신하지 않는다.
 
-마지막 기능 코드 대조: 2026-10-04, Owner-approved explicit canonicalization 개발 checkout (운영 배포 기준 아님)
+마지막 기능 코드 대조: 2026-10-09, T6.5B-3 coherent bundle 취득 개발 checkout (운영 배포 기준 아님)
 
 ## 현재 기준선
 
-- T6.5B-2 개발 변경: authoritative bundle v1의 strict raw-byte parser와 별도 diagnostic acquisition만 추가했다. 전체 필수 field/nullable presence·정수 금액·Snapshot hash/identity를 검사한 뒤 기존 candidate/baseline으로 변환하며, 정상 acquire/submit/foreground/Offline/reconciliation 및 15/14 HTTP topology는 그대로다. 실기기 performance gate는 PENDING(T6.6 이후); host 결과는 Android 성능을 대체하지 않으며 B-3 전환/배포는 별도 승인이다.
+- T6.5B-3 개발 변경: 정상 authoritative acquisition과 확정 mutation rebuild가 `GET /api/authoritative-state` 한 번을 사용한다. B-2 strict raw-byte admission을 그대로 공유하고 같은 응답의 candidate/Snapshot만 기존 guarded durable publication에 전달한다. 정상 금융 refresh 14→1회, 성공 mutation+rebuild 15→2회이며 health·인증·launch Snapshot 등 별도 요청은 별도로 센다. outcomeUnknown은 GET 성공만으로 확정/정리하지 않으며 pending·Offline/reconciliation·UI 완료 경계와 저장 형식은 유지한다. Legacy 경로는 명시적 회귀 oracle로만 남고 implicit fallback은 없다. B-3/B-4 통합 독립 감사는 아직 별도 단계이며 배포하지 않았다. 실기기 gate는 T6.6 이후이고 HOST 결과는 단말 성능이 아니다.
+
+- T6.5B-2: bundle v1 strict parser의 presence/type·exact-money·Unicode·Snapshot hash/recoverability·N4 uniqueness와 server-authoritative 신뢰 경계를 유지한다. 금융 projection을 모바일에서 독립 재계산하지 않는다.
 
 - T6.4 개발 변경: coherent candidate GET의 status/독립 조회와 서버 날짜·월 입력 branch만 dependency DAG로 겹친다. 큰 history의 tail 검증에 따라 할인 조회는 core join 뒤에서 cash와 겹치며 최대 fan-out을 늘리지 않는다. 앞/뒤 envelope fence, fingerprint/revision/date 재검사, generation guard, durable baseline/pending/submit 완료 경계와 정상 submit 15회/refresh 14회 HTTP 계약은 유지한다. Bundling·latency hiding·backend 금융 변경은 없으며 독립 performance 재감사/배포 승인은 별도다.
 

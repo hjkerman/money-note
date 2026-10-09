@@ -384,7 +384,7 @@ void main() {
       expect(await store.loadJournal(), isEmpty);
       expect(await store.listMobileRecoveryArtifacts(), hasLength(1));
       expect((await store.loadBaseline())!.serverStateFingerprint,
-          OfflineApiFake.currentFingerprint);
+          api.bundleFingerprint);
     });
     test('cleanup-boundary crash never replays a committed journal', () async {
       final directory = await temporaryDirectoryFixture();

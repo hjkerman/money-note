@@ -215,7 +215,8 @@ void main() {
       'independent reads overlap status, but cash keeps its server-date dependency',
       () async {
     final api = DagApi()..hold('status#1');
-    final acquiring = coordinator(api).acquire(() => baselineFixture().user);
+    final acquiring = coordinator(api)
+        .acquireLegacyForDiagnostics(() => baselineFixture().user);
     await api.requested('status#1');
     await drain();
     final independent = [
@@ -243,7 +244,8 @@ void main() {
   test('policies overlap slow cash without waiting for its unrelated result',
       () async {
     final api = DagApi()..hold('cash#1');
-    final acquiring = coordinator(api).acquire(() => baselineFixture().user);
+    final acquiring = coordinator(api)
+        .acquireLegacyForDiagnostics(() => baselineFixture().user);
     await api.requested('cash#1');
     await drain();
     final policies = api.policyMonths.length;
@@ -258,7 +260,8 @@ void main() {
   test('policy phase waits for core reads to bound SQLite competition',
       () async {
     final api = DagApi()..hold('summary#1');
-    final acquiring = coordinator(api).acquire(() => baselineFixture().user);
+    final acquiring = coordinator(api)
+        .acquireLegacyForDiagnostics(() => baselineFixture().user);
     await api.requested('summary#1');
     await drain();
     final startedPolicies = api.policyMonths.length;
@@ -273,7 +276,8 @@ void main() {
     final api = DagApi()
       ..hold('baseline#1')
       ..hold('transit#1');
-    final acquiring = coordinator(api).acquire(() => baselineFixture().user);
+    final acquiring = coordinator(api)
+        .acquireLegacyForDiagnostics(() => baselineFixture().user);
     await api.requested('baseline#1');
     await drain();
     expect(api.calls, ['baseline#1']);
@@ -291,7 +295,8 @@ void main() {
       final api = DagApi()
         ..month = ''
         ..hold('$input#1');
-      final acquiring = coordinator(api).acquire(() => baselineFixture().user);
+      final acquiring = coordinator(api)
+          .acquireLegacyForDiagnostics(() => baselineFixture().user);
       await api.requested('$input#1');
       await drain();
       expect(api.policyMonths, isEmpty);
@@ -313,7 +318,8 @@ void main() {
             sortOrder: 1,
             entryDate: '2024-01-01')
       ];
-    await coordinator(api).acquire(() => baselineFixture().user);
+    await coordinator(api)
+        .acquireLegacyForDiagnostics(() => baselineFixture().user);
     expect(
         api.policyMonths.every((value) => value.endsWith('2026-09')), isTrue);
   });
@@ -322,7 +328,8 @@ void main() {
     final api = DagApi()
       ..date = '2024-02-29'
       ..month = '2024-02';
-    await coordinator(api).acquire(() => baselineFixture().user);
+    await coordinator(api)
+        .acquireLegacyForDiagnostics(() => baselineFixture().user);
     expect(api.cashFrom, '2024-01-01');
     expect(api.cashTo, '2024-02-29');
   });
@@ -339,7 +346,8 @@ void main() {
             sortOrder: 1,
             entryDate: '2026-08-21')
       ];
-    await coordinator(api).acquire(() => baselineFixture().user);
+    await coordinator(api)
+        .acquireLegacyForDiagnostics(() => baselineFixture().user);
     expect(
         api.policyMonths.every((value) => value.endsWith('2026-08')), isTrue);
   });
@@ -350,7 +358,8 @@ void main() {
         ..month = ''
         ..entryRows = [];
       if (emptyPanels) api.panelRows = [];
-      await coordinator(api).acquire(() => baselineFixture().user);
+      await coordinator(api)
+          .acquireLegacyForDiagnostics(() => baselineFixture().user);
       final expected = emptyPanels ? '2035-01' : '2026-09';
       expect(
           api.policyMonths.every((value) => value.endsWith(expected)), isTrue);
@@ -413,7 +422,8 @@ void main() {
       ..date = '2026-09-30'
       ..month = '2026-09'
       ..crossMidnight = true;
-    final bundle = await coordinator(api).acquire(() => baselineFixture().user);
+    final bundle = await coordinator(api)
+        .acquireLegacyForDiagnostics(() => baselineFixture().user);
     expect(api.counts['baseline'], 4);
     expect(api.calls.length, 28);
     expect(bundle.candidate.monthCloseStatus.calendarDate, '2026-10-01');

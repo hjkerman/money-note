@@ -1,10 +1,15 @@
 import 'dart:io';
+import 'dart:typed_data';
+import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:money_note_mobile/src/api_client.dart';
 import 'package:money_note_mobile/src/models.dart';
 import 'package:money_note_mobile/src/offline/offline_data.dart';
 import 'package:money_note_mobile/src/offline/offline_store.dart';
+import 'package:money_note_mobile/src/coherent_refresh_coordinator.dart';
+
+import 'bundle_fake_response.dart';
 
 CardDiscountProjectionPolicy flatProjectionPolicy(String scope) {
   return CardDiscountProjectionPolicy(
@@ -218,6 +223,26 @@ class OfflineApiFake extends MoneyNoteApiClient {
   OfflineApiFake() : super(baseUrl: 'https://example.invalid');
 
   bool available = false;
+  int principalId = 1;
+  int bundleCalls = 0;
+  String? bundleFingerprint;
+
+  @override
+  Future<Uint8List> authoritativeStateBytes() async {
+    bundleCalls++;
+    // Existing doubles script legacy projection methods as synthetic server
+    // behavior. Only this single byte response crosses normal acquisition.
+    final coordinator = CoherentRefreshCoordinator(this,
+        localToday: () => '2026-09-17',
+        formatDate: (d) => d.toIso8601String().substring(0, 10));
+    final response = await coordinator
+        .acquireLegacyForDiagnostics(() => baselineFixture().user);
+    final bytes = fakeBundleBytes(response, principal: principalId);
+    bundleFingerprint =
+        jsonDecode(utf8.decode(bytes))['authority']['state_fingerprint'];
+    return bytes;
+  }
+
   bool failJudgment = false;
   int healthCalls = 0;
   int stateFetchCalls = 0;

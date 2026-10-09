@@ -447,13 +447,20 @@ class AppState extends ChangeNotifier {
     if (refreshNotifications) {
       await refreshNotificationPermissions(notify: false);
     }
-    final bundle = await _refreshCoordinator.acquire(() => user);
+    final bundle = await _refreshCoordinator.acquire(() => user,
+        ticket: ticket,
+        currentLineageGeneration: () => _lineageGeneration,
+        currentAuthenticationGeneration: () => _authenticationGeneration,
+        modeAllowed: () => _refreshModeAllowed(allowBaselineWhileFinalizing));
     final candidate = bundle.candidate;
     final after = bundle.envelope;
-    bool mayInstall() => _refreshCoordinator.mayInstall(ticket,
-        currentLineageGeneration: _lineageGeneration,
-        currentAuthenticationGeneration: _authenticationGeneration,
-        modeAllowed: _refreshModeAllowed(allowBaselineWhileFinalizing));
+    bool mayInstall() =>
+        user?.id == authenticatedUser &&
+        candidate.user.id == authenticatedUser &&
+        _refreshCoordinator.mayInstall(ticket,
+            currentLineageGeneration: _lineageGeneration,
+            currentAuthenticationGeneration: _authenticationGeneration,
+            modeAllowed: _refreshModeAllowed(allowBaselineWhileFinalizing));
     void requireInstallAuthority() {
       if (!mayInstall()) {
         throw MoneyNoteApiException(

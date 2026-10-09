@@ -257,12 +257,15 @@ class SessionRefreshApiFake extends OfflineApiFake {
   Future<void> logout() async {}
 
   @override
-  Future<AuthUser> login(String username, String password) async => AuthUser(
-        id: 2,
-        username: username,
-        displayName: 'New session',
-        sharePinNeedsChange: false,
-      );
+  Future<AuthUser> login(String username, String password) async {
+    principalId = 2;
+    return AuthUser(
+      id: 2,
+      username: username,
+      displayName: 'New session',
+      sharePinNeedsChange: false,
+    );
+  }
 
   @override
   Future<SnapshotDownload> downloadSnapshot() async =>
@@ -721,8 +724,7 @@ void main() {
       expect(state.summary!.remainingLiquidity, 9000);
       final installed = await store.loadBaseline();
       expect(installed!.summary.remainingLiquidity, 9000);
-      expect(
-          installed.serverStateFingerprint, OfflineApiFake.currentFingerprint);
+      expect(installed.serverStateFingerprint, api.bundleFingerprint);
     });
     test('A-B-A with equal fingerprint rejects middle display by revision',
         () async {

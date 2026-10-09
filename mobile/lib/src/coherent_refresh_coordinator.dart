@@ -41,9 +41,36 @@ class CoherentRefreshCoordinator {
       ticket.requestGeneration == _requestGeneration &&
       modeAllowed;
 
-  /// Opt-in diagnostics only: no AppState installation, pending retirement or
-  /// durable publication. Future adopters must retain guards at publication.
+  /// Acquisition never publishes, installs or retires pending state. AppState
+  /// retains the guarded durable boundary after this returns.
+  Future<CoherentRefreshBundle> acquire(
+    AuthUser? Function() currentUser, {
+    required RefreshTicket ticket,
+    required int Function() currentLineageGeneration,
+    required int Function() currentAuthenticationGeneration,
+    required bool Function() modeAllowed,
+  }) =>
+      _acquireBundle(currentUser,
+          ticket: ticket,
+          currentLineageGeneration: currentLineageGeneration,
+          currentAuthenticationGeneration: currentAuthenticationGeneration,
+          modeAllowed: modeAllowed);
+
+  /// Diagnostics share normal admission but do not publish or install state.
   Future<CoherentRefreshBundle> acquireBundleForDiagnostics(
+    AuthUser? Function() currentUser, {
+    required RefreshTicket ticket,
+    required int Function() currentLineageGeneration,
+    required int Function() currentAuthenticationGeneration,
+    required bool Function() modeAllowed,
+  }) =>
+      _acquireBundle(currentUser,
+          ticket: ticket,
+          currentLineageGeneration: currentLineageGeneration,
+          currentAuthenticationGeneration: currentAuthenticationGeneration,
+          modeAllowed: modeAllowed);
+
+  Future<CoherentRefreshBundle> _acquireBundle(
     AuthUser? Function() currentUser, {
     required RefreshTicket ticket,
     required int Function() currentLineageGeneration,
@@ -60,13 +87,13 @@ class CoherentRefreshCoordinator {
             modeAllowed: modeAllowed());
     void requireAuthority() {
       if (!allowed()) {
-        throw MoneyNoteApiException('오래된 diagnostic bundle 결과를 폐기했습니다.',
+        throw MoneyNoteApiException('오래된 authoritative bundle 결과를 폐기했습니다.',
             code: 'stale_authoritative_bundle');
       }
     }
 
     requireAuthority();
-    final bytes = await api.authoritativeStateBytesForDiagnostics();
+    final bytes = await api.authoritativeStateBytes();
     requireAuthority();
     try {
       final result =
@@ -79,7 +106,8 @@ class CoherentRefreshCoordinator {
     }
   }
 
-  Future<CoherentRefreshBundle> acquire(
+  /// Explicit legacy regression oracle only; never a normal-runtime fallback.
+  Future<CoherentRefreshBundle> acquireLegacyForDiagnostics(
       AuthUser? Function() currentUser) async {
     for (var attempt = 0; attempt < 3; attempt += 1) {
       final before = await _readAuthoritativeBaselineEnvelope();
@@ -103,7 +131,7 @@ class CoherentRefreshCoordinator {
     if (currentUser == null) {
       throw MoneyNoteApiException('로그인 사용자 정보가 없습니다.');
     }
-    // acquire() brackets this entire graph with the same two baseline fences.
+    // The explicit legacy oracle brackets this graph with baseline fences.
     // Cash needs status's server date; policy month selection still uses status
     // plus entries/panels (including the existing historical fallback).
     final statusFuture = api.monthCloseStatus();
