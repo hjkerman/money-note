@@ -1,0 +1,263 @@
+{
+  "evidence": "PREVIOUS independent audit; not re-executed in T6.6A",
+  "source": "/tmp/mn-b3b4-reaudit-ijshhfbs/benchmark-summary.json",
+  "source_sha256": "9dae1dcac8abe022f54d5cb8b2c27d662219a61127b77b90905c5a433b274acc",
+  "cells": [
+    {
+      "dataset": 376,
+      "rtt_ms": 0,
+      "operation": "refresh",
+      "protocol": "new",
+      "observation_ids": [
+        "376-0-refresh-new-3",
+        "376-0-refresh-new-4",
+        "376-0-refresh-new-5",
+        "376-0-refresh-new-6",
+        "376-0-refresh-new-7",
+        "376-0-refresh-new-8",
+        "376-0-refresh-new-9",
+        "376-0-refresh-new-10",
+        "376-0-refresh-new-11",
+        "376-0-refresh-new-12",
+        "376-0-refresh-new-13",
+        "376-0-refresh-new-14",
+        "376-0-refresh-new-15",
+        "376-0-refresh-new-16",
+        "376-0-refresh-new-17",
+        "376-0-refresh-new-18",
+        "376-0-refresh-new-19",
+        "376-0-refresh-new-20",
+        "376-0-refresh-new-21",
+        "376-0-refresh-new-22"
+      ],
+      "completed": true,
+      "failures": 0,
+      "summary": {
+        "total_ms": {
+          "n": 20,
+          "median": 187.317,
+          "p95": 204.354,
+          "min": 162.712,
+          "max": 211.041,
+          "mean": 187.79555000000002
+        },
+        "publication_inclusive_ms": {
+          "n": 20,
+          "median": 14.998,
+          "p95": 21.146,
+          "min": 11.901,
+          "max": 22.221,
+          "mean": 16.27835
+        },
+        "pending_cleanup_ms": {
+          "n": 20,
+          "median": 0,
+          "p95": 0,
+          "min": 0,
+          "max": 0,
+          "mean": 0
+        },
+        "body_bytes": {
+          "n": 20,
+          "median": 306369,
+          "p95": 306369,
+          "min": 306369,
+          "max": 306369,
+          "mean": 306369
+        }
+      }
+    },
+    {
+      "dataset": 1000,
+      "rtt_ms": 0,
+      "operation": "refresh",
+      "protocol": "new",
+      "observation_ids": [
+        "1000-0-refresh-new-3",
+        "1000-0-refresh-new-4",
+        "1000-0-refresh-new-5",
+        "1000-0-refresh-new-6",
+        "1000-0-refresh-new-7",
+        "1000-0-refresh-new-8",
+        "1000-0-refresh-new-9",
+        "1000-0-refresh-new-10",
+        "1000-0-refresh-new-11",
+        "1000-0-refresh-new-12",
+        "1000-0-refresh-new-13",
+        "1000-0-refresh-new-14",
+        "1000-0-refresh-new-15",
+        "1000-0-refresh-new-16",
+        "1000-0-refresh-new-17",
+        "1000-0-refresh-new-18",
+        "1000-0-refresh-new-19",
+        "1000-0-refresh-new-20",
+        "1000-0-refresh-new-21",
+        "1000-0-refresh-new-22"
+      ],
+      "completed": true,
+      "failures": 0,
+      "summary": {
+        "total_ms": {
+          "n": 20,
+          "median": 421.61249999999995,
+          "p95": 458.653,
+          "min": 401.156,
+          "max": 461.29,
+          "mean": 423.9417
+        },
+        "publication_inclusive_ms": {
+          "n": 20,
+          "median": 35.823,
+          "p95": 40.867,
+          "min": 29.066,
+          "max": 40.902,
+          "mean": 36.23855
+        },
+        "pending_cleanup_ms": {
+          "n": 20,
+          "median": 0,
+          "p95": 0,
+          "min": 0,
+          "max": 0,
+          "mean": 0
+        },
+        "body_bytes": {
+          "n": 20,
+          "median": 653317,
+          "p95": 653317,
+          "min": 653317,
+          "max": 653317,
+          "mean": 653317
+        }
+      }
+    },
+    {
+      "dataset": 5000,
+      "rtt_ms": 0,
+      "operation": "refresh",
+      "protocol": "new",
+      "observation_ids": [
+        "5000-0-refresh-new-3",
+        "5000-0-refresh-new-4",
+        "5000-0-refresh-new-5",
+        "5000-0-refresh-new-6",
+        "5000-0-refresh-new-7",
+        "5000-0-refresh-new-8",
+        "5000-0-refresh-new-9",
+        "5000-0-refresh-new-10",
+        "5000-0-refresh-new-11",
+        "5000-0-refresh-new-12",
+        "5000-0-refresh-new-13",
+        "5000-0-refresh-new-14",
+        "5000-0-refresh-new-15",
+        "5000-0-refresh-new-16",
+        "5000-0-refresh-new-17",
+        "5000-0-refresh-new-18",
+        "5000-0-refresh-new-19",
+        "5000-0-refresh-new-20",
+        "5000-0-refresh-new-21",
+        "5000-0-refresh-new-22"
+      ],
+      "completed": true,
+      "failures": 0,
+      "summary": {
+        "total_ms": {
+          "n": 20,
+          "median": 1932.0304999999998,
+          "p95": 2089.995,
+          "min": 1637.193,
+          "max": 2112.575,
+          "mean": 1916.37185
+        },
+        "publication_inclusive_ms": {
+          "n": 20,
+          "median": 141.639,
+          "p95": 145.772,
+          "min": 117.593,
+          "max": 146.796,
+          "mean": 135.42245
+        },
+        "pending_cleanup_ms": {
+          "n": 20,
+          "median": 0,
+          "p95": 0,
+          "min": 0,
+          "max": 0,
+          "mean": 0
+        },
+        "body_bytes": {
+          "n": 20,
+          "median": 2889308,
+          "p95": 2889308,
+          "min": 2889308,
+          "max": 2889308,
+          "mean": 2889308
+        }
+      }
+    },
+    {
+      "dataset": 10000,
+      "rtt_ms": 0,
+      "operation": "refresh",
+      "protocol": "new",
+      "observation_ids": [
+        "10000-0-refresh-new-3",
+        "10000-0-refresh-new-4",
+        "10000-0-refresh-new-5",
+        "10000-0-refresh-new-6",
+        "10000-0-refresh-new-7",
+        "10000-0-refresh-new-8",
+        "10000-0-refresh-new-9",
+        "10000-0-refresh-new-10",
+        "10000-0-refresh-new-11",
+        "10000-0-refresh-new-12",
+        "10000-0-refresh-new-13",
+        "10000-0-refresh-new-14",
+        "10000-0-refresh-new-15",
+        "10000-0-refresh-new-16",
+        "10000-0-refresh-new-17",
+        "10000-0-refresh-new-18",
+        "10000-0-refresh-new-19",
+        "10000-0-refresh-new-20",
+        "10000-0-refresh-new-21",
+        "10000-0-refresh-new-22"
+      ],
+      "completed": true,
+      "failures": 0,
+      "summary": {
+        "total_ms": {
+          "n": 20,
+          "median": 3995.9625,
+          "p95": 4311.743,
+          "min": 3673.495,
+          "max": 4352.852,
+          "mean": 4046.5515
+        },
+        "publication_inclusive_ms": {
+          "n": 20,
+          "median": 282.469,
+          "p95": 302.502,
+          "min": 237.023,
+          "max": 302.762,
+          "mean": 280.07730000000004
+        },
+        "pending_cleanup_ms": {
+          "n": 20,
+          "median": 0,
+          "p95": 0,
+          "min": 0,
+          "max": 0,
+          "mean": 0
+        },
+        "body_bytes": {
+          "n": 20,
+          "median": 5684312,
+          "p95": 5684312,
+          "min": 5684312,
+          "max": 5684312,
+          "mean": 5684312
+        }
+      }
+    }
+  ]
+}

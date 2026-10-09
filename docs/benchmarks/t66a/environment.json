@@ -1,0 +1,55 @@
+{
+  "starting_commit": "597a936d8fc53f35c693705c320223686a657f0e",
+  "host_only": true,
+  "os": "Linux-6.8.0-146-generic-x86_64-with-glibc2.39",
+  "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+  "parameters": {
+    "seed": 1234,
+    "evaluation_date": "2026-10-05",
+    "timezone_offset_minutes": 540,
+    "timestamp": "2026-10-05 12:00:00",
+    "current_added_rows": 100,
+    "history_date": "2026-07-03",
+    "ledger_targets": [
+      376,
+      1000,
+      5000,
+      10000
+    ],
+    "confirmed_sources": 600,
+    "bundle_version": 1,
+    "snapshot_version": 7
+  },
+  "cpu": "model name\t: Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz",
+  "ram": "MemTotal:       24458564 kB",
+  "process_peak_rss_kib": 372036,
+  "memory_scope": "whole Python generator including attribution, NOT per-codec peak",
+  "brotli_library": "libbrotlienc.so.1",
+  "brotli_encoder_version": 16781312,
+  "samples": 20,
+  "warmups": 3,
+  "sqlite": "3.45.1",
+  "zlib": "1.3",
+  "runtime_packages": {
+    "fastapi": "0.139.2",
+    "starlette": "1.3.1",
+    "pydantic": "2.13.4",
+    "httpx": "0.28.1",
+    "uvicorn": "0.51.0"
+  },
+  "flutter": {
+    "frameworkVersion": "3.47.4",
+    "channel": "stable",
+    "repositoryUrl": "https://github.com/flutter/flutter.git",
+    "frameworkRevision": "9584c6713b324636289d067944a46fd6b49df14b",
+    "frameworkCommitDate": "2026-09-10 15:25:10 -0700",
+    "engineRevision": "06a2e2a110089dff50fe635cffd2a61e1b24fbcd",
+    "engineCommitDate": "2026-09-03 16:07:13.000Z",
+    "engineContentHash": "0e228ec8c8d2abc9fcf1d053e8a40665bb859ec7",
+    "engineBuildDate": "2026-09-03 09:39:13.722",
+    "dartSdkVersion": "3.13.3",
+    "devToolsVersion": "2.60.0",
+    "flutterVersion": "3.47.4",
+    "flutterRoot": "/home/hjkerman/.flutter"
+  }
+}

@@ -1,0 +1,74 @@
+[
+  {
+    "request_header_bytes": 194,
+    "request_entity_bytes": 0,
+    "response_header_bytes": 350,
+    "response_entity_bytes": 306370,
+    "response_http_bytes": 306720,
+    "headers": {
+      "date": "Fri, 09 Oct 2026 08:05:05 GMT",
+      "server": "uvicorn",
+      "content-length": "306370",
+      "content-type": "application/json",
+      "cache-control": "no-store, max-age=0",
+      "pragma": "no-cache",
+      "x-content-type-options": "nosniff",
+      "referrer-policy": "no-referrer",
+      "x-frame-options": "DENY",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()",
+      "connection": "close"
+    },
+    "body_sha256": "ea5865bba405cb625f5ce4ee9bac0b146294c8eb8d312260fb2da168ee191ea4",
+    "http_version": "HTTP/1.1",
+    "tls": false,
+    "connection_reuse": false
+  },
+  {
+    "request_header_bytes": 194,
+    "request_entity_bytes": 0,
+    "response_header_bytes": 350,
+    "response_entity_bytes": 306370,
+    "response_http_bytes": 306720,
+    "headers": {
+      "date": "Fri, 09 Oct 2026 08:05:05 GMT",
+      "server": "uvicorn",
+      "content-length": "306370",
+      "content-type": "application/json",
+      "cache-control": "no-store, max-age=0",
+      "pragma": "no-cache",
+      "x-content-type-options": "nosniff",
+      "referrer-policy": "no-referrer",
+      "x-frame-options": "DENY",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()",
+      "connection": "close"
+    },
+    "body_sha256": "ea5865bba405cb625f5ce4ee9bac0b146294c8eb8d312260fb2da168ee191ea4",
+    "http_version": "HTTP/1.1",
+    "tls": false,
+    "connection_reuse": false
+  },
+  {
+    "request_header_bytes": 194,
+    "request_entity_bytes": 0,
+    "response_header_bytes": 350,
+    "response_entity_bytes": 306370,
+    "response_http_bytes": 306720,
+    "headers": {
+      "date": "Fri, 09 Oct 2026 08:05:05 GMT",
+      "server": "uvicorn",
+      "content-length": "306370",
+      "content-type": "application/json",
+      "cache-control": "no-store, max-age=0",
+      "pragma": "no-cache",
+      "x-content-type-options": "nosniff",
+      "referrer-policy": "no-referrer",
+      "x-frame-options": "DENY",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()",
+      "connection": "close"
+    },
+    "body_sha256": "ea5865bba405cb625f5ce4ee9bac0b146294c8eb8d312260fb2da168ee191ea4",
+    "http_version": "HTTP/1.1",
+    "tls": false,
+    "connection_reuse": false
+  }
+]

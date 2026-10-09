@@ -1,0 +1,62 @@
+[
+  {
+    "dataset": "10000",
+    "codec": "gzip",
+    "setting": 1,
+    "baseline_rss_kib": 28800,
+    "peak_rss_kib": 28800,
+    "encoded_bytes": 136750,
+    "samples": 1,
+    "scope": "fresh child process compression RSS high-water, coarse KiB"
+  },
+  {
+    "dataset": "10000",
+    "codec": "gzip",
+    "setting": 6,
+    "baseline_rss_kib": 28800,
+    "peak_rss_kib": 28800,
+    "encoded_bytes": 108916,
+    "samples": 1,
+    "scope": "fresh child process compression RSS high-water, coarse KiB"
+  },
+  {
+    "dataset": "10000",
+    "codec": "gzip",
+    "setting": 9,
+    "baseline_rss_kib": 28800,
+    "peak_rss_kib": 28800,
+    "encoded_bytes": 107179,
+    "samples": 1,
+    "scope": "fresh child process compression RSS high-water, coarse KiB"
+  },
+  {
+    "dataset": "10000",
+    "codec": "brotli",
+    "setting": 4,
+    "baseline_rss_kib": 28800,
+    "peak_rss_kib": 37652,
+    "encoded_bytes": 43033,
+    "samples": 1,
+    "scope": "fresh child process compression RSS high-water, coarse KiB"
+  },
+  {
+    "dataset": "10000",
+    "codec": "brotli",
+    "setting": 6,
+    "baseline_rss_kib": 28800,
+    "peak_rss_kib": 38372,
+    "encoded_bytes": 47811,
+    "samples": 1,
+    "scope": "fresh child process compression RSS high-water, coarse KiB"
+  },
+  {
+    "dataset": "10000",
+    "codec": "brotli",
+    "setting": 9,
+    "baseline_rss_kib": 28800,
+    "peak_rss_kib": 66944,
+    "encoded_bytes": 41392,
+    "samples": 1,
+    "scope": "fresh child process compression RSS high-water, coarse KiB"
+  }
+]

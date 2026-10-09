@@ -1,0 +1,458 @@
+{
+  "/actual/376/api/authoritative-state": {
+    "observations_including_warmups": 3,
+    "request_header_bytes": [
+      186
+    ],
+    "response_header_bytes": [
+      277
+    ],
+    "response_entity_bytes": [
+      306398,
+      306407,
+      306421
+    ],
+    "accept_encoding": "gzip",
+    "content_encoding": null,
+    "http_version": "HTTP/1.1",
+    "tls": false,
+    "transfer_encoding": null,
+    "connections": 1,
+    "handler_ms": {
+      "n": 3,
+      "median": 80.17799400840886,
+      "p95": 82.04253700387198,
+      "min": 79.38641200598795,
+      "max": 82.04253700387198,
+      "stdev": 1.113459207099497
+    },
+    "compression_ms": {
+      "n": 3,
+      "median": 0,
+      "p95": 0,
+      "min": 0,
+      "max": 0,
+      "stdev": 0.0
+    }
+  },
+  "/gzip/1000/api/authoritative-state": {
+    "observations_including_warmups": 23,
+    "request_header_bytes": [
+      185
+    ],
+    "response_header_bytes": [
+      121
+    ],
+    "response_entity_bytes": [
+      18173
+    ],
+    "accept_encoding": "gzip",
+    "content_encoding": "gzip",
+    "http_version": "HTTP/1.1",
+    "tls": false,
+    "transfer_encoding": null,
+    "connections": 1,
+    "handler_ms": {
+      "n": 23,
+      "median": 3.447705996222794,
+      "p95": 3.63621799624525,
+      "min": 3.3914829982677475,
+      "max": 3.755005993298255,
+      "stdev": 0.07737084841384953
+    },
+    "compression_ms": {
+      "n": 23,
+      "median": 3.219691992853768,
+      "p95": 3.4041180042549968,
+      "min": 3.1691449985373765,
+      "max": 3.526543005136773,
+      "stdev": 0.0791145013758044
+    },
+    "body_available_ms": {
+      "n": 20,
+      "median": 6.3165,
+      "p95": 6.543,
+      "min": 6.252,
+      "max": 6.571,
+      "stdev": 0.09382515654130286
+    }
+  },
+  "/gzip/10000/api/authoritative-state": {
+    "observations_including_warmups": 23,
+    "request_header_bytes": [
+      186
+    ],
+    "response_header_bytes": [
+      122
+    ],
+    "response_entity_bytes": [
+      108916
+    ],
+    "accept_encoding": "gzip",
+    "content_encoding": "gzip",
+    "http_version": "HTTP/1.1",
+    "tls": false,
+    "transfer_encoding": null,
+    "connections": 1,
+    "handler_ms": {
+      "n": 23,
+      "median": 26.400703005492687,
+      "p95": 28.426688004401512,
+      "min": 26.18128398898989,
+      "max": 28.59665799769573,
+      "stdev": 0.6460830428899651
+    },
+    "compression_ms": {
+      "n": 23,
+      "median": 25.409972004126757,
+      "p95": 26.671162006095983,
+      "min": 25.203216006048024,
+      "max": 27.619582004263066,
+      "stdev": 0.5260515536884065
+    },
+    "body_available_ms": {
+      "n": 20,
+      "median": 45.052,
+      "p95": 51.411,
+      "min": 44.705,
+      "max": 52.294,
+      "stdev": 2.1805732250947223
+    }
+  },
+  "/gzip/376/api/authoritative-state": {
+    "observations_including_warmups": 23,
+    "request_header_bytes": [
+      184
+    ],
+    "response_header_bytes": [
+      121
+    ],
+    "response_entity_bytes": [
+      11474
+    ],
+    "accept_encoding": "gzip",
+    "content_encoding": "gzip",
+    "http_version": "HTTP/1.1",
+    "tls": false,
+    "transfer_encoding": null,
+    "connections": 1,
+    "handler_ms": {
+      "n": 23,
+      "median": 2.579748004791327,
+      "p95": 2.648733992828056,
+      "min": 2.2661409893771634,
+      "max": 2.6877500058617443,
+      "stdev": 0.1095723296757018
+    },
+    "compression_ms": {
+      "n": 23,
+      "median": 2.3435930052073672,
+      "p95": 2.3907590075396,
+      "min": 2.0854129979852587,
+      "max": 2.418027987005189,
+      "stdev": 0.09032676044324185
+    },
+    "body_available_ms": {
+      "n": 20,
+      "median": 5.619,
+      "p95": 6.75,
+      "min": 5.018,
+      "max": 7.864,
+      "stdev": 0.6597123066155428
+    }
+  },
+  "/gzip/5000/api/authoritative-state": {
+    "observations_including_warmups": 23,
+    "request_header_bytes": [
+      185
+    ],
+    "response_header_bytes": [
+      121
+    ],
+    "response_entity_bytes": [
+      58385
+    ],
+    "accept_encoding": "gzip",
+    "content_encoding": "gzip",
+    "http_version": "HTTP/1.1",
+    "tls": false,
+    "transfer_encoding": null,
+    "connections": 1,
+    "handler_ms": {
+      "n": 23,
+      "median": 14.737479999894276,
+      "p95": 14.947282994398847,
+      "min": 14.558037000824697,
+      "max": 15.688401996158063,
+      "stdev": 0.21542390474831571
+    },
+    "compression_ms": {
+      "n": 23,
+      "median": 14.147109002806246,
+      "p95": 14.37439100118354,
+      "min": 14.011316001415253,
+      "max": 15.101819997653365,
+      "stdev": 0.21242707179075102
+    },
+    "body_available_ms": {
+      "n": 20,
+      "median": 23.6455,
+      "p95": 25.566,
+      "min": 22.212,
+      "max": 26.113,
+      "stdev": 1.4241016150542065
+    }
+  },
+  "/gzip/heavy600/api/authoritative-state": {
+    "observations_including_warmups": 23,
+    "request_header_bytes": [
+      189
+    ],
+    "response_header_bytes": [
+      121
+    ],
+    "response_entity_bytes": [
+      61453
+    ],
+    "accept_encoding": "gzip",
+    "content_encoding": "gzip",
+    "http_version": "HTTP/1.1",
+    "tls": false,
+    "transfer_encoding": null,
+    "connections": 1,
+    "handler_ms": {
+      "n": 23,
+      "median": 10.196932998951524,
+      "p95": 10.269138001604006,
+      "min": 10.01854200148955,
+      "max": 10.274664004100487,
+      "stdev": 0.07105253081049231
+    },
+    "compression_ms": {
+      "n": 23,
+      "median": 9.792006996576674,
+      "p95": 9.884722996503115,
+      "min": 9.636251998017542,
+      "max": 9.892374990158714,
+      "stdev": 0.06824658945242339
+    },
+    "body_available_ms": {
+      "n": 20,
+      "median": 15.557,
+      "p95": 18.38,
+      "min": 15.389,
+      "max": 20.635,
+      "stdev": 1.3309814799613107
+    }
+  },
+  "/identity/1000/api/authoritative-state": {
+    "observations_including_warmups": 23,
+    "request_header_bytes": [
+      189
+    ],
+    "response_header_bytes": [
+      75
+    ],
+    "response_entity_bytes": [
+      653317
+    ],
+    "accept_encoding": "gzip",
+    "content_encoding": null,
+    "http_version": "HTTP/1.1",
+    "tls": false,
+    "transfer_encoding": null,
+    "connections": 1,
+    "handler_ms": {
+      "n": 23,
+      "median": 0.4218600079184398,
+      "p95": 0.7368610094999894,
+      "min": 0.3509849921101704,
+      "max": 0.7807889924151823,
+      "stdev": 0.11295693676365955
+    },
+    "compression_ms": {
+      "n": 23,
+      "median": 0,
+      "p95": 0,
+      "min": 0,
+      "max": 0,
+      "stdev": 0.0
+    },
+    "body_available_ms": {
+      "n": 20,
+      "median": 3.4444999999999997,
+      "p95": 4.236,
+      "min": 2.952,
+      "max": 6.194,
+      "stdev": 0.6551261023650332
+    }
+  },
+  "/identity/10000/api/authoritative-state": {
+    "observations_including_warmups": 23,
+    "request_header_bytes": [
+      190
+    ],
+    "response_header_bytes": [
+      76
+    ],
+    "response_entity_bytes": [
+      5684312
+    ],
+    "accept_encoding": "gzip",
+    "content_encoding": null,
+    "http_version": "HTTP/1.1",
+    "tls": false,
+    "transfer_encoding": null,
+    "connections": 1,
+    "handler_ms": {
+      "n": 23,
+      "median": 3.3729400020092726,
+      "p95": 5.241502003627829,
+      "min": 2.93243900523521,
+      "max": 5.422918999101967,
+      "stdev": 0.5852690853876651
+    },
+    "compression_ms": {
+      "n": 23,
+      "median": 0,
+      "p95": 0,
+      "min": 0,
+      "max": 0,
+      "stdev": 0.0
+    },
+    "body_available_ms": {
+      "n": 20,
+      "median": 29.506500000000003,
+      "p95": 31.56,
+      "min": 19.408,
+      "max": 33.575,
+      "stdev": 2.5821735514871964
+    }
+  },
+  "/identity/376/api/authoritative-state": {
+    "observations_including_warmups": 23,
+    "request_header_bytes": [
+      188
+    ],
+    "response_header_bytes": [
+      75
+    ],
+    "response_entity_bytes": [
+      306370
+    ],
+    "accept_encoding": "gzip",
+    "content_encoding": null,
+    "http_version": "HTTP/1.1",
+    "tls": false,
+    "transfer_encoding": null,
+    "connections": 1,
+    "handler_ms": {
+      "n": 23,
+      "median": 0.28023500635754317,
+      "p95": 0.3049180086236447,
+      "min": 0.2545229945098981,
+      "max": 0.5642540054395795,
+      "stdev": 0.059841362541597484
+    },
+    "compression_ms": {
+      "n": 23,
+      "median": 0,
+      "p95": 0,
+      "min": 0,
+      "max": 0,
+      "stdev": 0.0
+    },
+    "body_available_ms": {
+      "n": 20,
+      "median": 2.7880000000000003,
+      "p95": 3.636,
+      "min": 2.674,
+      "max": 3.719,
+      "stdev": 0.28286620512178545
+    }
+  },
+  "/identity/5000/api/authoritative-state": {
+    "observations_including_warmups": 23,
+    "request_header_bytes": [
+      189
+    ],
+    "response_header_bytes": [
+      76
+    ],
+    "response_entity_bytes": [
+      2889309
+    ],
+    "accept_encoding": "gzip",
+    "content_encoding": null,
+    "http_version": "HTTP/1.1",
+    "tls": false,
+    "transfer_encoding": null,
+    "connections": 1,
+    "handler_ms": {
+      "n": 23,
+      "median": 1.1567790061235428,
+      "p95": 2.1460429998114705,
+      "min": 1.115771010518074,
+      "max": 2.5567720003891736,
+      "stdev": 0.40090479483229563
+    },
+    "compression_ms": {
+      "n": 23,
+      "median": 0,
+      "p95": 0,
+      "min": 0,
+      "max": 0,
+      "stdev": 0.0
+    },
+    "body_available_ms": {
+      "n": 20,
+      "median": 12.645499999999998,
+      "p95": 13.731,
+      "min": 11.007,
+      "max": 20.15,
+      "stdev": 1.8554272681784103
+    }
+  },
+  "/identity/heavy600/api/authoritative-state": {
+    "observations_including_warmups": 23,
+    "request_header_bytes": [
+      193
+    ],
+    "response_header_bytes": [
+      76
+    ],
+    "response_entity_bytes": [
+      1696801
+    ],
+    "accept_encoding": "gzip",
+    "content_encoding": null,
+    "http_version": "HTTP/1.1",
+    "tls": false,
+    "transfer_encoding": null,
+    "connections": 1,
+    "handler_ms": {
+      "n": 23,
+      "median": 0.8005839918041602,
+      "p95": 0.8526259916834533,
+      "min": 0.7700879941694438,
+      "max": 0.9782289998838678,
+      "stdev": 0.04236202899188174
+    },
+    "compression_ms": {
+      "n": 23,
+      "median": 0,
+      "p95": 0,
+      "min": 0,
+      "max": 0,
+      "stdev": 0.0
+    },
+    "body_available_ms": {
+      "n": 20,
+      "median": 6.156499999999999,
+      "p95": 9.856,
+      "min": 5.964,
+      "max": 15.138,
+      "stdev": 2.19524307253206
+    }
+  }
+}

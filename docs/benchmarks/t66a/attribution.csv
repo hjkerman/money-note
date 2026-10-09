@@ -1,0 +1,289 @@
+dataset,category,count,raw_bytes,percent,gzip6_bytes,brotli4_bytes,hot_cold,growth_behavior
+376,bundle_version,1,1,0.0003264027156705944,21,5,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+376,principal,1,13,0.004243235303717727,33,17,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+376,authority,4,208,0.06789176485948363,176,152,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+376,state.month_close_status,11,367,0.11978979665110814,215,202,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+376,state.entries,104,78593,25.652968632699025,1699,1100,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+376,state.panels,4,2024,0.660639096517283,339,319,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+376,state.summary,17,492,0.16059013610993245,250,234,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+376,state.card_payment_status,16,2848,0.9295949342298528,899,883,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+376,state.judgment,6,1164,0.37993276104057183,643,648,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+376,state.confirmed_planned_entries,1,774,0.25263570192904006,380,356,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+376,state.cash_flows,4,452,0.14753402748310865,197,166,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+376,state.settings,5,116,0.03786271501778895,104,91,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+376,state.owner_discount_month,6,312,0.10183764728922545,202,195,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+376,state.family_discount_month,6,244,0.07964226262362503,173,154,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+376,state.transit_discount_profile,3,53,0.017299343930541503,69,54,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+376,snapshot.data.ledger_entries,376,208688,68.116329927865,4643,2504,SHARED,전체 원장 행 수·행별 문자열 길이에 비례
+376,snapshot.data.monthly_panels,4,1336,0.4360740281359141,243,226,SHARED,해당 보존 테이블 행 수에 비례
+376,snapshot.data.cash_flows,5,910,0.2970264712602409,238,209,SHARED,해당 보존 테이블 행 수에 비례
+376,snapshot.data.card_payment_batches,1,110,0.03590429872376538,112,96,SHARED,해당 보존 테이블 행 수에 비례
+376,snapshot.data.card_payment_batch_items,3,298,0.09726800926983713,131,110,SHARED,해당 보존 테이블 행 수에 비례
+376,snapshot.data.card_payment_events,1,293,0.09563599569148415,222,210,SHARED,해당 보존 테이블 행 수에 비례
+376,snapshot.data.card_payment_allocations,1,117,0.038189117733459545,116,98,SHARED,해당 보존 테이블 행 수에 비례
+376,snapshot.data.card_payment_deferrals,0,2,0.0006528054313411888,22,6,SHARED,해당 보존 테이블 행 수에 비례
+376,snapshot.data.notification_candidate_registrations,0,2,0.0006528054313411888,22,6,SHARED,해당 보존 테이블 행 수에 비례
+376,snapshot.data.app_settings,5,371,0.12109540751379051,150,127,SHARED,해당 보존 테이블 행 수에 비례
+376,snapshot.data.app_labels,18,1611,0.5258347749453276,397,371,SHARED,해당 보존 테이블 행 수에 비례
+376,snapshot.manifest.tables.ledger_entries,3,455,0.14851323563012045,281,270,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+376,snapshot.manifest.tables.monthly_panels,3,322,0.1051016744459314,218,211,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+376,snapshot.manifest.tables.cash_flows,3,204,0.06658615399680125,175,155,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+376,snapshot.manifest.tables.card_payment_batches,3,153,0.04993961549760094,145,123,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+376,snapshot.manifest.tables.card_payment_batch_items,3,163,0.05320364265430688,146,129,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+376,snapshot.manifest.tables.card_payment_events,3,235,0.07670463818258969,190,176,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+376,snapshot.manifest.tables.card_payment_allocations,3,175,0.057120475242354016,158,137,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+376,snapshot.manifest.tables.card_payment_deferrals,3,310,0.10118484185788426,206,186,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+376,snapshot.manifest.tables.notification_candidate_registrations,3,178,0.0580996833893658,158,140,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+376,snapshot.manifest.tables.app_settings,3,130,0.04243235303717727,131,105,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+376,snapshot.manifest.tables.app_labels,3,131,0.04275875575284786,132,106,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+376,snapshot.manifest.algorithm,1,8,0.002611221725364755,28,12,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+376,snapshot.manifest.data_sha256,1,66,0.02154257923425923,73,50,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+376,snapshot.manifest.card_charge_policy_sha256,1,66,0.02154257923425923,72,51,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+376,snapshot.manifest.content_sha256,1,66,0.02154257923425923,74,51,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+376,snapshot.schema_version,1,1,0.0003264027156705944,21,5,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+376,snapshot.recurring_ownership_version,1,1,0.0003264027156705944,21,5,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+376,snapshot.exported_at,1,22,0.007180859744753076,40,26,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+376,snapshot.range,1,15,0.004896040735058916,35,19,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+376,snapshot.card_charge_policy,5,1199,0.39135685608904264,482,478,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+376,snapshot.snapshot_id,1,66,0.02154257923425923,74,51,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+376,json_structure,,1005,0.32803472924894733,354,339,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+1000,bundle_version,1,1,0.00015306505111607383,21,5,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+1000,principal,1,13,0.0019898456645089596,33,17,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+1000,authority,4,208,0.031837530632143354,175,155,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+1000,state.month_close_status,11,367,0.05617487375959909,215,202,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+1000,state.entries,104,78593,12.02984156236559,1699,1100,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+1000,state.panels,4,2024,0.3098036634589334,339,319,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+1000,state.summary,17,492,0.07530800514910832,250,234,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+1000,state.card_payment_status,16,2848,0.43592926557857825,899,883,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+1000,state.judgment,6,1164,0.17816771949910992,643,648,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+1000,state.confirmed_planned_entries,1,774,0.11847234956384113,380,356,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+1000,state.cash_flows,4,452,0.06918540310446537,197,166,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+1000,state.settings,5,116,0.017755545929464562,104,91,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+1000,state.owner_discount_month,6,312,0.04775629594821503,202,195,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+1000,state.family_discount_month,6,244,0.03734787247232201,173,154,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+1000,state.transit_discount_profile,3,53,0.008112447709151913,69,54,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+1000,snapshot.data.ledger_entries,1000,555634,85.04814661182856,10983,4781,SHARED,전체 원장 행 수·행별 문자열 길이에 비례
+1000,snapshot.data.monthly_panels,4,1336,0.2044949082910746,243,226,SHARED,해당 보존 테이블 행 수에 비례
+1000,snapshot.data.cash_flows,5,910,0.13928919651562718,238,209,SHARED,해당 보존 테이블 행 수에 비례
+1000,snapshot.data.card_payment_batches,1,110,0.01683715562276812,112,96,SHARED,해당 보존 테이블 행 수에 비례
+1000,snapshot.data.card_payment_batch_items,3,298,0.045613385232589995,131,110,SHARED,해당 보존 테이블 행 수에 비례
+1000,snapshot.data.card_payment_events,1,293,0.04484805997700963,222,210,SHARED,해당 보존 테이블 행 수에 비례
+1000,snapshot.data.card_payment_allocations,1,117,0.017908610980580636,116,98,SHARED,해당 보존 테이블 행 수에 비례
+1000,snapshot.data.card_payment_deferrals,0,2,0.00030613010223214766,22,6,SHARED,해당 보존 테이블 행 수에 비례
+1000,snapshot.data.notification_candidate_registrations,0,2,0.00030613010223214766,22,6,SHARED,해당 보존 테이블 행 수에 비례
+1000,snapshot.data.app_settings,5,371,0.05678713396406339,150,127,SHARED,해당 보존 테이블 행 수에 비례
+1000,snapshot.data.app_labels,18,1611,0.24658779734799494,397,371,SHARED,해당 보존 테이블 행 수에 비례
+1000,snapshot.manifest.tables.ledger_entries,3,456,0.06979766330892966,282,271,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+1000,snapshot.manifest.tables.monthly_panels,3,322,0.04928694645937577,218,211,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+1000,snapshot.manifest.tables.cash_flows,3,204,0.031225270427679058,175,155,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+1000,snapshot.manifest.tables.card_payment_batches,3,153,0.023418952820759294,145,123,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+1000,snapshot.manifest.tables.card_payment_batch_items,3,163,0.024949603331920034,146,129,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+1000,snapshot.manifest.tables.card_payment_events,3,235,0.03597028701227735,190,176,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+1000,snapshot.manifest.tables.card_payment_allocations,3,175,0.02678638394531292,158,137,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+1000,snapshot.manifest.tables.card_payment_deferrals,3,310,0.04745016584598288,206,186,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+1000,snapshot.manifest.tables.notification_candidate_registrations,3,178,0.02724557909866114,158,140,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+1000,snapshot.manifest.tables.app_settings,3,130,0.019898456645089598,131,105,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+1000,snapshot.manifest.tables.app_labels,3,131,0.02005152169620567,132,106,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+1000,snapshot.manifest.algorithm,1,8,0.0012245204089285906,28,12,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+1000,snapshot.manifest.data_sha256,1,66,0.010102293373660871,74,51,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+1000,snapshot.manifest.card_charge_policy_sha256,1,66,0.010102293373660871,72,51,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+1000,snapshot.manifest.content_sha256,1,66,0.010102293373660871,74,51,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+1000,snapshot.schema_version,1,1,0.00015306505111607383,21,5,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+1000,snapshot.recurring_ownership_version,1,1,0.00015306505111607383,21,5,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+1000,snapshot.exported_at,1,22,0.003367431124553624,40,26,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+1000,snapshot.range,1,15,0.0022959757667411072,35,19,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+1000,snapshot.card_charge_policy,5,1199,0.1835249962881725,482,478,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+1000,snapshot.snapshot_id,1,66,0.010102293373660871,74,51,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+1000,json_structure,,1005,0.1538303763716542,354,339,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+5000,bundle_version,1,1,3.461035147158023e-05,21,5,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+5000,principal,1,13,0.00044993456913054296,33,17,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+5000,authority,4,209,0.007233563457560268,177,156,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+5000,state.month_close_status,11,367,0.012701998990069943,215,202,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+5000,state.entries,104,78593,2.720131353205905,1699,1100,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+5000,state.panels,4,2024,0.07005135137847839,339,319,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+5000,state.summary,17,492,0.017028292924017474,250,234,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+5000,state.card_payment_status,16,2848,0.0985702809910605,899,883,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+5000,state.judgment,6,1164,0.040286449112919384,643,648,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+5000,state.confirmed_planned_entries,1,774,0.026788412039003097,380,356,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+5000,state.cash_flows,4,452,0.015643878865154264,197,166,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+5000,state.settings,5,116,0.0040148007707033065,104,91,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+5000,state.owner_discount_month,6,312,0.010798429659133031,202,195,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+5000,state.family_discount_month,6,244,0.008444925759065577,173,154,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+5000,state.transit_discount_profile,3,53,0.0018343486279937522,69,54,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+5000,snapshot.data.ledger_entries,5000,2791625,96.61912242685015,51199,19447,SHARED,전체 원장 행 수·행별 문자열 길이에 비례
+5000,snapshot.data.monthly_panels,4,1336,0.046239429566031186,243,226,SHARED,해당 보존 테이블 행 수에 비례
+5000,snapshot.data.cash_flows,5,910,0.031495419839138006,238,209,SHARED,해당 보존 테이블 행 수에 비례
+5000,snapshot.data.card_payment_batches,1,110,0.003807138661873825,112,96,SHARED,해당 보존 테이블 행 수에 비례
+5000,snapshot.data.card_payment_batch_items,3,298,0.010313884738530909,131,110,SHARED,해당 보존 테이블 행 수에 비례
+5000,snapshot.data.card_payment_events,1,293,0.010140832981173006,222,210,SHARED,해당 보존 테이블 행 수에 비례
+5000,snapshot.data.card_payment_allocations,1,117,0.004049411122174887,116,98,SHARED,해당 보존 테이블 행 수에 비례
+5000,snapshot.data.card_payment_deferrals,0,2,6.922070294316046e-05,22,6,SHARED,해당 보존 테이블 행 수에 비례
+5000,snapshot.data.notification_candidate_registrations,0,2,6.922070294316046e-05,22,6,SHARED,해당 보존 테이블 행 수에 비례
+5000,snapshot.data.app_settings,5,371,0.012840440395956264,150,127,SHARED,해당 보존 테이블 행 수에 비례
+5000,snapshot.data.app_labels,18,1611,0.055757276220715746,397,371,SHARED,해당 보존 테이블 행 수에 비례
+5000,snapshot.manifest.tables.ledger_entries,3,456,0.015782320271040585,282,270,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+5000,snapshot.manifest.tables.monthly_panels,3,322,0.011144533173848835,218,211,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+5000,snapshot.manifest.tables.cash_flows,3,204,0.007060511700202367,175,155,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+5000,snapshot.manifest.tables.card_payment_batches,3,153,0.005295383775151775,145,123,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+5000,snapshot.manifest.tables.card_payment_batch_items,3,163,0.005641487289867578,146,129,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+5000,snapshot.manifest.tables.card_payment_events,3,235,0.008133432595821354,190,176,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+5000,snapshot.manifest.tables.card_payment_allocations,3,175,0.00605681150752654,158,137,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+5000,snapshot.manifest.tables.card_payment_deferrals,3,310,0.01072920895618987,206,186,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+5000,snapshot.manifest.tables.notification_candidate_registrations,3,178,0.006160642561941281,158,140,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+5000,snapshot.manifest.tables.app_settings,3,130,0.00449934569130543,131,105,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+5000,snapshot.manifest.tables.app_labels,3,131,0.00453395604277701,132,106,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+5000,snapshot.manifest.algorithm,1,8,0.00027688281177264183,28,12,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+5000,snapshot.manifest.data_sha256,1,66,0.002284283197124295,71,50,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+5000,snapshot.manifest.card_charge_policy_sha256,1,66,0.002284283197124295,72,51,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+5000,snapshot.manifest.content_sha256,1,66,0.002284283197124295,73,50,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+5000,snapshot.schema_version,1,1,3.461035147158023e-05,21,5,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+5000,snapshot.recurring_ownership_version,1,1,3.461035147158023e-05,21,5,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+5000,snapshot.exported_at,1,22,0.0007614277323747651,40,26,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+5000,snapshot.range,1,15,0.0005191552720737034,35,19,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+5000,snapshot.card_charge_policy,5,1199,0.04149781141442469,482,478,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+5000,snapshot.snapshot_id,1,66,0.002284283197124295,73,50,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+5000,json_structure,,1005,0.03478340322893813,354,339,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+10000,bundle_version,1,1,1.75922785378424e-05,21,5,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+10000,principal,1,13,0.00022869962099195118,33,17,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+10000,authority,4,209,0.0036767862144090613,177,154,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+10000,state.month_close_status,11,367,0.00645636622338816,215,202,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+10000,state.entries,104,78593,1.3826299471246477,1699,1100,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+10000,state.panels,4,2024,0.035606771760593015,339,319,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+10000,state.summary,17,492,0.00865540104061846,250,234,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+10000,state.card_payment_status,16,2848,0.05010280927577515,899,883,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+10000,state.judgment,6,1164,0.020477412218048552,643,648,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+10000,state.confirmed_planned_entries,1,774,0.013616423588290016,380,356,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+10000,state.cash_flows,4,452,0.007951709899104764,197,166,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+10000,state.settings,5,116,0.0020407043103897182,104,91,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+10000,state.owner_discount_month,6,312,0.005488790903806828,202,195,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+10000,state.family_discount_month,6,244,0.004292515963233545,173,154,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+10000,state.transit_discount_profile,3,53,0.0009323907625056471,69,54,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+10000,snapshot.data.ledger_entries,10000,5586627,98.28149827103087,101336,36522,SHARED,전체 원장 행 수·행별 문자열 길이에 비례
+10000,snapshot.data.monthly_panels,4,1336,0.023503284126557444,243,226,SHARED,해당 보존 테이블 행 수에 비례
+10000,snapshot.data.cash_flows,5,910,0.016008973469436583,238,209,SHARED,해당 보존 테이블 행 수에 비례
+10000,snapshot.data.card_payment_batches,1,110,0.0019351506391626638,112,96,SHARED,해당 보존 테이블 행 수에 비례
+10000,snapshot.data.card_payment_batch_items,3,298,0.005242499004277035,131,110,SHARED,해당 보존 테이블 행 수에 비례
+10000,snapshot.data.card_payment_events,1,293,0.005154537611587823,222,210,SHARED,해당 보존 테이블 행 수에 비례
+10000,snapshot.data.card_payment_allocations,1,117,0.0020582965889275606,116,98,SHARED,해당 보존 테이블 행 수에 비례
+10000,snapshot.data.card_payment_deferrals,0,2,3.51845570756848e-05,22,6,SHARED,해당 보존 테이블 행 수에 비례
+10000,snapshot.data.notification_candidate_registrations,0,2,3.51845570756848e-05,22,6,SHARED,해당 보존 테이블 행 수에 비례
+10000,snapshot.data.app_settings,5,371,0.00652673533753953,150,127,SHARED,해당 보존 테이블 행 수에 비례
+10000,snapshot.data.app_labels,18,1611,0.028341160724464104,397,371,SHARED,해당 보존 테이블 행 수에 비례
+10000,snapshot.manifest.tables.ledger_entries,3,457,0.008039671291793976,282,272,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+10000,snapshot.manifest.tables.monthly_panels,3,322,0.005664713689185252,218,211,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+10000,snapshot.manifest.tables.cash_flows,3,204,0.0035888248217198493,175,155,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+10000,snapshot.manifest.tables.card_payment_batches,3,153,0.002691618616289887,145,123,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+10000,snapshot.manifest.tables.card_payment_batch_items,3,163,0.002867541401668311,146,129,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+10000,snapshot.manifest.tables.card_payment_events,3,235,0.004134185456392964,190,176,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+10000,snapshot.manifest.tables.card_payment_allocations,3,175,0.0030786487441224197,158,137,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+10000,snapshot.manifest.tables.card_payment_deferrals,3,310,0.0054536063467311435,206,186,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+10000,snapshot.manifest.tables.notification_candidate_registrations,3,178,0.003131425579735947,158,140,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+10000,snapshot.manifest.tables.app_settings,3,130,0.002286996209919512,131,105,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+10000,snapshot.manifest.tables.app_labels,3,131,0.002304588488457354,132,106,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+10000,snapshot.manifest.algorithm,1,8,0.0001407382283027392,28,12,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+10000,snapshot.manifest.data_sha256,1,66,0.0011610903834975983,73,51,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+10000,snapshot.manifest.card_charge_policy_sha256,1,66,0.0011610903834975983,72,51,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+10000,snapshot.manifest.content_sha256,1,66,0.0011610903834975983,72,50,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+10000,snapshot.schema_version,1,1,1.75922785378424e-05,21,5,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+10000,snapshot.recurring_ownership_version,1,1,1.75922785378424e-05,21,5,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+10000,snapshot.exported_at,1,22,0.00038703012783253277,40,26,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+10000,snapshot.range,1,15,0.000263884178067636,35,19,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+10000,snapshot.card_charge_policy,5,1199,0.021093141966873036,482,478,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+10000,snapshot.snapshot_id,1,66,0.0011610903834975983,72,50,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+10000,json_structure,,1005,0.01768023993053161,354,339,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+heavy600,bundle_version,1,1,5.89344301423679e-05,21,5,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+heavy600,principal,1,13,0.0007661475918507827,33,17,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+heavy600,authority,4,208,0.012258361469612523,176,155,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+heavy600,state.month_close_status,11,307,0.018092870053706946,176,163,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+heavy600,state.entries,600,477049,28.114610964986465,16861,13717,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+heavy600,state.panels,0,2,0.0001178688602847358,22,6,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+heavy600,state.summary,17,470,0.027699182166912913,234,213,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+heavy600,state.card_payment_status,16,394,0.023220165476092954,222,192,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+heavy600,state.judgment,6,1183,0.06971943085842124,633,643,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+heavy600,state.confirmed_planned_entries,600,476926,28.107362030078953,5203,2647,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+heavy600,state.cash_flows,0,2,0.0001178688602847358,22,6,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+heavy600,state.settings,5,116,0.006836393896514676,104,91,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+heavy600,state.owner_discount_month,6,23044,1.3580850082007259,12165,10708,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+heavy600,state.family_discount_month,6,244,0.014380000954737768,173,154,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+heavy600,state.transit_discount_profile,3,53,0.0031235247975454987,69,54,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+heavy600,snapshot.data.ledger_entries,1200,709819,41.83277826922544,22005,16952,SHARED,전체 원장 행 수·행별 문자열 길이에 비례
+heavy600,snapshot.data.monthly_panels,0,2,0.0001178688602847358,22,6,SHARED,해당 보존 테이블 행 수에 비례
+heavy600,snapshot.data.cash_flows,0,2,0.0001178688602847358,22,6,SHARED,해당 보존 테이블 행 수에 비례
+heavy600,snapshot.data.card_payment_batches,0,2,0.0001178688602847358,22,6,SHARED,해당 보존 테이블 행 수에 비례
+heavy600,snapshot.data.card_payment_batch_items,0,2,0.0001178688602847358,22,6,SHARED,해당 보존 테이블 행 수에 비례
+heavy600,snapshot.data.card_payment_events,0,2,0.0001178688602847358,22,6,SHARED,해당 보존 테이블 행 수에 비례
+heavy600,snapshot.data.card_payment_allocations,0,2,0.0001178688602847358,22,6,SHARED,해당 보존 테이블 행 수에 비례
+heavy600,snapshot.data.card_payment_deferrals,0,2,0.0001178688602847358,22,6,SHARED,해당 보존 테이블 행 수에 비례
+heavy600,snapshot.data.notification_candidate_registrations,0,2,0.0001178688602847358,22,6,SHARED,해당 보존 테이블 행 수에 비례
+heavy600,snapshot.data.app_settings,5,371,0.021864673582818493,150,127,SHARED,해당 보존 테이블 행 수에 비례
+heavy600,snapshot.data.app_labels,18,1611,0.0949433669593547,397,371,SHARED,해당 보존 테이블 행 수에 비례
+heavy600,snapshot.manifest.tables.ledger_entries,3,456,0.026874100144919765,281,270,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+heavy600,snapshot.manifest.tables.monthly_panels,3,322,0.018976886505842464,219,210,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+heavy600,snapshot.manifest.tables.cash_flows,3,204,0.012022623749043053,174,155,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+heavy600,snapshot.manifest.tables.card_payment_batches,3,153,0.00901696781178229,146,122,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+heavy600,snapshot.manifest.tables.card_payment_batch_items,3,163,0.009606312113205968,147,130,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+heavy600,snapshot.manifest.tables.card_payment_events,3,235,0.013849591083456457,188,176,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+heavy600,snapshot.manifest.tables.card_payment_allocations,3,175,0.010313525274914383,157,133,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+heavy600,snapshot.manifest.tables.card_payment_deferrals,3,310,0.01826967334413405,206,186,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+heavy600,snapshot.manifest.tables.notification_candidate_registrations,3,178,0.010490328565341487,158,140,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+heavy600,snapshot.manifest.tables.app_settings,3,130,0.007661475918507827,131,105,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+heavy600,snapshot.manifest.tables.app_labels,3,131,0.007720410348650195,132,106,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+heavy600,snapshot.manifest.algorithm,1,8,0.0004714754411389432,28,12,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+heavy600,snapshot.manifest.data_sha256,1,66,0.0038896723893962815,72,52,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+heavy600,snapshot.manifest.card_charge_policy_sha256,1,66,0.0038896723893962815,72,51,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+heavy600,snapshot.manifest.content_sha256,1,66,0.0038896723893962815,72,50,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+heavy600,snapshot.schema_version,1,1,5.89344301423679e-05,21,5,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+heavy600,snapshot.recurring_ownership_version,1,1,5.89344301423679e-05,21,5,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+heavy600,snapshot.exported_at,1,22,0.001296557463132094,40,26,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+heavy600,snapshot.range,1,15,0.0008840164521355185,35,19,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+heavy600,snapshot.card_charge_policy,5,1199,0.07066238174069911,482,478,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+heavy600,snapshot.snapshot_id,1,66,0.0038896723893962815,72,50,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+heavy600,json_structure,,1005,0.05922910229307974,354,339,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+varied10000,bundle_version,1,1,1.6180991509671944e-05,21,5,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+varied10000,principal,1,13,0.0002103528896257353,33,17,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+varied10000,authority,4,209,0.0033818272255214366,177,155,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+varied10000,state.month_close_status,11,367,0.0059384238840496035,215,202,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+varied10000,state.entries,104,83703,1.354397532334071,6303,5335,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+varied10000,state.panels,4,2024,0.03275032681557602,339,319,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+varied10000,state.summary,17,492,0.007961047822758596,250,234,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+varied10000,state.card_payment_status,16,2848,0.0460834638195457,899,883,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+varied10000,state.judgment,6,1164,0.018834674117258143,643,648,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+varied10000,state.confirmed_planned_entries,1,774,0.012524087428486085,380,356,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+varied10000,state.cash_flows,4,452,0.007313808162371719,197,166,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+varied10000,state.settings,5,116,0.0018769950151219456,104,91,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+varied10000,state.owner_discount_month,6,312,0.005048469351017647,202,195,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+varied10000,state.family_discount_month,6,244,0.003948161928359954,173,154,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+varied10000,state.transit_discount_profile,3,53,0.000857592550012613,69,54,HOT,현재/미마감 행·active batch·설정/큐 크기에 의존; 역사 N의 직접 상한 아님
+varied10000,snapshot.data.ledger_entries,10000,6077296,98.33667497776327,557185,462256,SHARED,전체 원장 행 수·행별 문자열 길이에 비례
+varied10000,snapshot.data.monthly_panels,4,1336,0.02161780465692172,243,226,SHARED,해당 보존 테이블 행 수에 비례
+varied10000,snapshot.data.cash_flows,5,910,0.01472470227380147,238,209,SHARED,해당 보존 테이블 행 수에 비례
+varied10000,snapshot.data.card_payment_batches,1,110,0.001779909066063914,112,96,SHARED,해당 보존 테이블 행 수에 비례
+varied10000,snapshot.data.card_payment_batch_items,3,298,0.004821935469882239,131,110,SHARED,해당 보존 테이블 행 수에 비례
+varied10000,snapshot.data.card_payment_events,1,293,0.0047410305123338796,222,210,SHARED,해당 보존 테이블 행 수에 비례
+varied10000,snapshot.data.card_payment_allocations,1,117,0.0018931760066316177,116,98,SHARED,해당 보존 테이블 행 수에 비례
+varied10000,snapshot.data.card_payment_deferrals,0,2,3.236198301934389e-05,22,6,SHARED,해당 보존 테이블 행 수에 비례
+varied10000,snapshot.data.notification_candidate_registrations,0,2,3.236198301934389e-05,22,6,SHARED,해당 보존 테이블 행 수에 비례
+varied10000,snapshot.data.app_settings,5,371,0.006003147850088292,150,127,SHARED,해당 보존 테이블 행 수에 비례
+varied10000,snapshot.data.app_labels,18,1611,0.026067577322081502,397,371,SHARED,해당 보존 테이블 행 수에 비례
+varied10000,snapshot.manifest.tables.ledger_entries,3,457,0.007394713119920079,281,273,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+varied10000,snapshot.manifest.tables.monthly_panels,3,322,0.005210279266114367,218,211,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+varied10000,snapshot.manifest.tables.cash_flows,3,204,0.003300922267973077,175,155,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+varied10000,snapshot.manifest.tables.card_payment_batches,3,153,0.0024756917009798075,145,123,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+varied10000,snapshot.manifest.tables.card_payment_batch_items,3,163,0.002637501616076527,146,129,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+varied10000,snapshot.manifest.tables.card_payment_events,3,235,0.003802533004772907,190,176,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+varied10000,snapshot.manifest.tables.card_payment_allocations,3,175,0.0028316735141925902,158,137,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+varied10000,snapshot.manifest.tables.card_payment_deferrals,3,310,0.0050161073679983025,206,186,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+varied10000,snapshot.manifest.tables.notification_candidate_registrations,3,178,0.0028802164887216063,158,140,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+varied10000,snapshot.manifest.tables.app_settings,3,130,0.002103528896257353,131,105,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+varied10000,snapshot.manifest.tables.app_labels,3,131,0.002119709887767025,132,106,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+varied10000,snapshot.manifest.algorithm,1,8,0.00012944793207737555,28,12,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+varied10000,snapshot.manifest.data_sha256,1,66,0.0010679454396383483,73,52,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+varied10000,snapshot.manifest.card_charge_policy_sha256,1,66,0.0010679454396383483,72,51,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+varied10000,snapshot.manifest.content_sha256,1,66,0.0010679454396383483,74,51,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+varied10000,snapshot.schema_version,1,1,1.6180991509671944e-05,21,5,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+varied10000,snapshot.recurring_ownership_version,1,1,1.6180991509671944e-05,21,5,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+varied10000,snapshot.exported_at,1,22,0.00035598181321278276,40,26,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+varied10000,snapshot.range,1,15,0.00024271487264507918,35,19,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+varied10000,snapshot.card_charge_policy,5,1199,0.01940100882009666,482,478,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+varied10000,snapshot.snapshot_id,1,66,0.0010679454396383483,74,51,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동
+varied10000,json_structure,,1005,0.016261896467220305,354,339,CONTROL,프로토콜/schema 고정 시 대체로 일정; 숫자 자릿수·정책 이력은 변동

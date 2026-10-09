@@ -1,0 +1,4994 @@
+{
+  "376": {
+    "ledger_rows": 376,
+    "archive_rows": 271,
+    "current_rows": 105,
+    "confirmed_sources": 1,
+    "typed_entries": 104,
+    "policy_binding_count": 4,
+    "raw_bytes": 306370,
+    "sha256": "ea5865bba405cb625f5ce4ee9bac0b146294c8eb8d312260fb2da168ee191ea4",
+    "status": 200,
+    "headers": {
+      "content-length": "306370",
+      "content-type": "application/json",
+      "cache-control": "no-store, max-age=0",
+      "pragma": "no-cache",
+      "x-content-type-options": "nosniff",
+      "referrer-policy": "no-referrer",
+      "x-frame-options": "DENY",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()"
+    },
+    "backend_stages_inclusive": {
+      "export_snapshot_from_connection": {
+        "n": 20,
+        "median": 23.641780004254542,
+        "p95": 24.580931989476085,
+        "min": 22.575563998543657,
+        "max": 39.84579000098165,
+        "stdev": 3.5970890835702063
+      },
+      "_construct": {
+        "n": 20,
+        "median": 53.24647399538662,
+        "p95": 57.85871799162123,
+        "min": 50.59171200264245,
+        "max": 68.15173399809282,
+        "stdev": 3.991327689924083
+      },
+      "json_render": {
+        "n": 20,
+        "median": 2.6569925030344166,
+        "p95": 3.223713007173501,
+        "min": 2.572901008534245,
+        "max": 3.2270939991576597,
+        "stdev": 0.2661014688229463
+      },
+      "_terminal_guard": {
+        "n": 20,
+        "median": 0.7938565031508915,
+        "p95": 0.8891469915397465,
+        "min": 0.7221659907372668,
+        "max": 0.8933150093071163,
+        "stdev": 0.06310398525587427
+      },
+      "_prepare": {
+        "n": 20,
+        "median": 11.11892700282624,
+        "p95": 12.980482002603821,
+        "min": 10.48484600323718,
+        "max": 13.156582004739903,
+        "stdev": 0.9875020882056339
+      }
+    },
+    "legacy_requests": [
+      {
+        "path": "/api/offline-reconciliation/baseline",
+        "bytes": 218641
+      },
+      {
+        "path": "/api/month/current/status",
+        "bytes": 367
+      },
+      {
+        "path": "/api/entries/current",
+        "bytes": 78593
+      },
+      {
+        "path": "/api/month/current/panels",
+        "bytes": 2024
+      },
+      {
+        "path": "/api/month/current/summary",
+        "bytes": 492
+      },
+      {
+        "path": "/api/card-payments/current",
+        "bytes": 2848
+      },
+      {
+        "path": "/api/judgment/current",
+        "bytes": 1164
+      },
+      {
+        "path": "/api/month/current/planned/confirmed",
+        "bytes": 774
+      },
+      {
+        "path": "/api/settings",
+        "bytes": 116
+      },
+      {
+        "path": "/api/cash-flows?from=2026-09-01&to=2026-10-31",
+        "bytes": 452
+      },
+      {
+        "path": "/api/card-discounts/months/2026-10?scope=owner",
+        "bytes": 312
+      },
+      {
+        "path": "/api/card-discounts/months/2026-10?scope=family",
+        "bytes": 244
+      },
+      {
+        "path": "/api/card-discounts/profiles/transit/2026-10",
+        "bytes": 53
+      },
+      {
+        "path": "/api/offline-reconciliation/baseline",
+        "bytes": 218641
+      }
+    ],
+    "legacy_aggregate_body_bytes": 524721,
+    "attribution": {
+      "partition": [
+        {
+          "category": "bundle_version",
+          "count": 1,
+          "raw_bytes": 1,
+          "percent": 0.0003264027156705944,
+          "gzip6_bytes": 21,
+          "brotli4_bytes": 5,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "principal",
+          "count": 1,
+          "raw_bytes": 13,
+          "percent": 0.004243235303717727,
+          "gzip6_bytes": 33,
+          "brotli4_bytes": 17,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "authority",
+          "count": 4,
+          "raw_bytes": 208,
+          "percent": 0.06789176485948363,
+          "gzip6_bytes": 176,
+          "brotli4_bytes": 152,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "state.month_close_status",
+          "count": 11,
+          "raw_bytes": 367,
+          "percent": 0.11978979665110814,
+          "gzip6_bytes": 215,
+          "brotli4_bytes": 202,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.entries",
+          "count": 104,
+          "raw_bytes": 78593,
+          "percent": 25.652968632699025,
+          "gzip6_bytes": 1699,
+          "brotli4_bytes": 1100,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.panels",
+          "count": 4,
+          "raw_bytes": 2024,
+          "percent": 0.660639096517283,
+          "gzip6_bytes": 339,
+          "brotli4_bytes": 319,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.summary",
+          "count": 17,
+          "raw_bytes": 492,
+          "percent": 0.16059013610993245,
+          "gzip6_bytes": 250,
+          "brotli4_bytes": 234,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.card_payment_status",
+          "count": 16,
+          "raw_bytes": 2848,
+          "percent": 0.9295949342298528,
+          "gzip6_bytes": 899,
+          "brotli4_bytes": 883,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.judgment",
+          "count": 6,
+          "raw_bytes": 1164,
+          "percent": 0.37993276104057183,
+          "gzip6_bytes": 643,
+          "brotli4_bytes": 648,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.confirmed_planned_entries",
+          "count": 1,
+          "raw_bytes": 774,
+          "percent": 0.25263570192904006,
+          "gzip6_bytes": 380,
+          "brotli4_bytes": 356,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.cash_flows",
+          "count": 4,
+          "raw_bytes": 452,
+          "percent": 0.14753402748310865,
+          "gzip6_bytes": 197,
+          "brotli4_bytes": 166,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.settings",
+          "count": 5,
+          "raw_bytes": 116,
+          "percent": 0.03786271501778895,
+          "gzip6_bytes": 104,
+          "brotli4_bytes": 91,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.owner_discount_month",
+          "count": 6,
+          "raw_bytes": 312,
+          "percent": 0.10183764728922545,
+          "gzip6_bytes": 202,
+          "brotli4_bytes": 195,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.family_discount_month",
+          "count": 6,
+          "raw_bytes": 244,
+          "percent": 0.07964226262362503,
+          "gzip6_bytes": 173,
+          "brotli4_bytes": 154,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.transit_discount_profile",
+          "count": 3,
+          "raw_bytes": 53,
+          "percent": 0.017299343930541503,
+          "gzip6_bytes": 69,
+          "brotli4_bytes": 54,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "snapshot.data.ledger_entries",
+          "count": 376,
+          "raw_bytes": 208688,
+          "percent": 68.116329927865,
+          "gzip6_bytes": 4643,
+          "brotli4_bytes": 2504,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.monthly_panels",
+          "count": 4,
+          "raw_bytes": 1336,
+          "percent": 0.4360740281359141,
+          "gzip6_bytes": 243,
+          "brotli4_bytes": 226,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.cash_flows",
+          "count": 5,
+          "raw_bytes": 910,
+          "percent": 0.2970264712602409,
+          "gzip6_bytes": 238,
+          "brotli4_bytes": 209,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.card_payment_batches",
+          "count": 1,
+          "raw_bytes": 110,
+          "percent": 0.03590429872376538,
+          "gzip6_bytes": 112,
+          "brotli4_bytes": 96,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.card_payment_batch_items",
+          "count": 3,
+          "raw_bytes": 298,
+          "percent": 0.09726800926983713,
+          "gzip6_bytes": 131,
+          "brotli4_bytes": 110,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.card_payment_events",
+          "count": 1,
+          "raw_bytes": 293,
+          "percent": 0.09563599569148415,
+          "gzip6_bytes": 222,
+          "brotli4_bytes": 210,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.card_payment_allocations",
+          "count": 1,
+          "raw_bytes": 117,
+          "percent": 0.038189117733459545,
+          "gzip6_bytes": 116,
+          "brotli4_bytes": 98,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.card_payment_deferrals",
+          "count": 0,
+          "raw_bytes": 2,
+          "percent": 0.0006528054313411888,
+          "gzip6_bytes": 22,
+          "brotli4_bytes": 6,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.notification_candidate_registrations",
+          "count": 0,
+          "raw_bytes": 2,
+          "percent": 0.0006528054313411888,
+          "gzip6_bytes": 22,
+          "brotli4_bytes": 6,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.app_settings",
+          "count": 5,
+          "raw_bytes": 371,
+          "percent": 0.12109540751379051,
+          "gzip6_bytes": 150,
+          "brotli4_bytes": 127,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.app_labels",
+          "count": 18,
+          "raw_bytes": 1611,
+          "percent": 0.5258347749453276,
+          "gzip6_bytes": 397,
+          "brotli4_bytes": 371,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.manifest.tables.ledger_entries",
+          "count": 3,
+          "raw_bytes": 455,
+          "percent": 0.14851323563012045,
+          "gzip6_bytes": 281,
+          "brotli4_bytes": 270,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.monthly_panels",
+          "count": 3,
+          "raw_bytes": 322,
+          "percent": 0.1051016744459314,
+          "gzip6_bytes": 218,
+          "brotli4_bytes": 211,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.cash_flows",
+          "count": 3,
+          "raw_bytes": 204,
+          "percent": 0.06658615399680125,
+          "gzip6_bytes": 175,
+          "brotli4_bytes": 155,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.card_payment_batches",
+          "count": 3,
+          "raw_bytes": 153,
+          "percent": 0.04993961549760094,
+          "gzip6_bytes": 145,
+          "brotli4_bytes": 123,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.card_payment_batch_items",
+          "count": 3,
+          "raw_bytes": 163,
+          "percent": 0.05320364265430688,
+          "gzip6_bytes": 146,
+          "brotli4_bytes": 129,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.card_payment_events",
+          "count": 3,
+          "raw_bytes": 235,
+          "percent": 0.07670463818258969,
+          "gzip6_bytes": 190,
+          "brotli4_bytes": 176,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.card_payment_allocations",
+          "count": 3,
+          "raw_bytes": 175,
+          "percent": 0.057120475242354016,
+          "gzip6_bytes": 158,
+          "brotli4_bytes": 137,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.card_payment_deferrals",
+          "count": 3,
+          "raw_bytes": 310,
+          "percent": 0.10118484185788426,
+          "gzip6_bytes": 206,
+          "brotli4_bytes": 186,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.notification_candidate_registrations",
+          "count": 3,
+          "raw_bytes": 178,
+          "percent": 0.0580996833893658,
+          "gzip6_bytes": 158,
+          "brotli4_bytes": 140,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.app_settings",
+          "count": 3,
+          "raw_bytes": 130,
+          "percent": 0.04243235303717727,
+          "gzip6_bytes": 131,
+          "brotli4_bytes": 105,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.app_labels",
+          "count": 3,
+          "raw_bytes": 131,
+          "percent": 0.04275875575284786,
+          "gzip6_bytes": 132,
+          "brotli4_bytes": 106,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.algorithm",
+          "count": 1,
+          "raw_bytes": 8,
+          "percent": 0.002611221725364755,
+          "gzip6_bytes": 28,
+          "brotli4_bytes": 12,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.data_sha256",
+          "count": 1,
+          "raw_bytes": 66,
+          "percent": 0.02154257923425923,
+          "gzip6_bytes": 73,
+          "brotli4_bytes": 50,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.card_charge_policy_sha256",
+          "count": 1,
+          "raw_bytes": 66,
+          "percent": 0.02154257923425923,
+          "gzip6_bytes": 72,
+          "brotli4_bytes": 51,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.content_sha256",
+          "count": 1,
+          "raw_bytes": 66,
+          "percent": 0.02154257923425923,
+          "gzip6_bytes": 74,
+          "brotli4_bytes": 51,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.schema_version",
+          "count": 1,
+          "raw_bytes": 1,
+          "percent": 0.0003264027156705944,
+          "gzip6_bytes": 21,
+          "brotli4_bytes": 5,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.recurring_ownership_version",
+          "count": 1,
+          "raw_bytes": 1,
+          "percent": 0.0003264027156705944,
+          "gzip6_bytes": 21,
+          "brotli4_bytes": 5,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.exported_at",
+          "count": 1,
+          "raw_bytes": 22,
+          "percent": 0.007180859744753076,
+          "gzip6_bytes": 40,
+          "brotli4_bytes": 26,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.range",
+          "count": 1,
+          "raw_bytes": 15,
+          "percent": 0.004896040735058916,
+          "gzip6_bytes": 35,
+          "brotli4_bytes": 19,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.card_charge_policy",
+          "count": 5,
+          "raw_bytes": 1199,
+          "percent": 0.39135685608904264,
+          "gzip6_bytes": 482,
+          "brotli4_bytes": 478,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.snapshot_id",
+          "count": 1,
+          "raw_bytes": 66,
+          "percent": 0.02154257923425923,
+          "gzip6_bytes": 74,
+          "brotli4_bytes": 51,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "json_structure",
+          "count": null,
+          "raw_bytes": 1005,
+          "percent": 0.32803472924894733,
+          "gzip6_bytes": 354,
+          "brotli4_bytes": 339,
+          "hot_cold": "CONTROL"
+        }
+      ],
+      "tables": [
+        {
+          "table": "ledger_entries",
+          "rows": 376,
+          "row_payload_bytes": 208688,
+          "row_objects_bytes": 208311,
+          "array_structure_bytes": 377,
+          "manifest_nonhash_bytes": 389,
+          "hash_bytes": 66,
+          "total_bytes": 209143,
+          "bundle_percent": 68.26484316349512,
+          "snapshot_percent": 95.75223994029878,
+          "avg_object_bytes": 554.0186170212766,
+          "row_sizes": {
+            "n": 376,
+            "median": 555.0,
+            "p95": 555,
+            "min": 533,
+            "max": 582,
+            "stdev": 3.3655283487282133
+          }
+        },
+        {
+          "table": "app_labels",
+          "rows": 18,
+          "row_payload_bytes": 1611,
+          "row_objects_bytes": 1592,
+          "array_structure_bytes": 19,
+          "manifest_nonhash_bytes": 65,
+          "hash_bytes": 66,
+          "total_bytes": 1742,
+          "bundle_percent": 0.5685935306981754,
+          "snapshot_percent": 0.7975423608535809,
+          "avg_object_bytes": 88.44444444444444,
+          "row_sizes": {
+            "n": 18,
+            "median": 87.0,
+            "p95": 109,
+            "min": 75,
+            "max": 109,
+            "stdev": 9.190709211071207
+          }
+        },
+        {
+          "table": "monthly_panels",
+          "rows": 4,
+          "row_payload_bytes": 1336,
+          "row_objects_bytes": 1331,
+          "array_structure_bytes": 5,
+          "manifest_nonhash_bytes": 256,
+          "hash_bytes": 66,
+          "total_bytes": 1658,
+          "bundle_percent": 0.5411757025818454,
+          "snapshot_percent": 0.7590845202613302,
+          "avg_object_bytes": 332.75,
+          "row_sizes": {
+            "n": 4,
+            "median": 331.5,
+            "p95": 337,
+            "min": 331,
+            "max": 337,
+            "stdev": 2.48746859276655
+          }
+        },
+        {
+          "table": "cash_flows",
+          "rows": 5,
+          "row_payload_bytes": 910,
+          "row_objects_bytes": 904,
+          "array_structure_bytes": 6,
+          "manifest_nonhash_bytes": 138,
+          "hash_bytes": 66,
+          "total_bytes": 1114,
+          "bundle_percent": 0.36361262525704213,
+          "snapshot_percent": 0.5100242192829444,
+          "avg_object_bytes": 180.8,
+          "row_sizes": {
+            "n": 5,
+            "median": 178,
+            "p95": 193,
+            "min": 177,
+            "max": 193,
+            "stdev": 6.144916598294887
+          }
+        },
+        {
+          "table": "card_payment_events",
+          "rows": 1,
+          "row_payload_bytes": 293,
+          "row_objects_bytes": 291,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 169,
+          "hash_bytes": 66,
+          "total_bytes": 528,
+          "bundle_percent": 0.17234063387407383,
+          "snapshot_percent": 0.24173499800843326,
+          "avg_object_bytes": 291.0,
+          "row_sizes": {
+            "n": 1,
+            "median": 291,
+            "p95": 291,
+            "min": 291,
+            "max": 291,
+            "stdev": 0.0
+          }
+        },
+        {
+          "table": "app_settings",
+          "rows": 5,
+          "row_payload_bytes": 371,
+          "row_objects_bytes": 365,
+          "array_structure_bytes": 6,
+          "manifest_nonhash_bytes": 64,
+          "hash_bytes": 66,
+          "total_bytes": 501,
+          "bundle_percent": 0.1635277605509678,
+          "snapshot_percent": 0.2293735492466384,
+          "avg_object_bytes": 73.0,
+          "row_sizes": {
+            "n": 5,
+            "median": 73,
+            "p95": 74,
+            "min": 72,
+            "max": 74,
+            "stdev": 0.6324555320336759
+          }
+        },
+        {
+          "table": "card_payment_batch_items",
+          "rows": 3,
+          "row_payload_bytes": 298,
+          "row_objects_bytes": 294,
+          "array_structure_bytes": 4,
+          "manifest_nonhash_bytes": 97,
+          "hash_bytes": 66,
+          "total_bytes": 461,
+          "bundle_percent": 0.150471651924144,
+          "snapshot_percent": 0.21106029182175706,
+          "avg_object_bytes": 98.0,
+          "row_sizes": {
+            "n": 3,
+            "median": 97,
+            "p95": 100,
+            "min": 97,
+            "max": 100,
+            "stdev": 1.4142135623730951
+          }
+        },
+        {
+          "table": "card_payment_deferrals",
+          "rows": 0,
+          "row_payload_bytes": 2,
+          "row_objects_bytes": 0,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 244,
+          "hash_bytes": 66,
+          "total_bytes": 312,
+          "bundle_percent": 0.10183764728922545,
+          "snapshot_percent": 0.14284340791407418,
+          "avg_object_bytes": 0,
+          "row_sizes": null
+        },
+        {
+          "table": "card_payment_allocations",
+          "rows": 1,
+          "row_payload_bytes": 117,
+          "row_objects_bytes": 115,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 109,
+          "hash_bytes": 66,
+          "total_bytes": 292,
+          "bundle_percent": 0.09530959297581355,
+          "snapshot_percent": 0.13368677920163355,
+          "avg_object_bytes": 115.0,
+          "row_sizes": {
+            "n": 1,
+            "median": 115,
+            "p95": 115,
+            "min": 115,
+            "max": 115,
+            "stdev": 0.0
+          }
+        },
+        {
+          "table": "card_payment_batches",
+          "rows": 1,
+          "row_payload_bytes": 110,
+          "row_objects_bytes": 108,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 87,
+          "hash_bytes": 66,
+          "total_bytes": 263,
+          "bundle_percent": 0.08584391422136632,
+          "snapshot_percent": 0.1204096675685946,
+          "avg_object_bytes": 108.0,
+          "row_sizes": {
+            "n": 1,
+            "median": 108,
+            "p95": 108,
+            "min": 108,
+            "max": 108,
+            "stdev": 0.0
+          }
+        },
+        {
+          "table": "notification_candidate_registrations",
+          "rows": 0,
+          "row_payload_bytes": 2,
+          "row_objects_bytes": 0,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 112,
+          "hash_bytes": 66,
+          "total_bytes": 180,
+          "bundle_percent": 0.05875248882070699,
+          "snapshot_percent": 0.08240965841196589,
+          "avg_object_bytes": 0,
+          "row_sizes": null
+        }
+      ],
+      "snapshot_bytes": 218421,
+      "state_bytes": 87661,
+      "archive_row_bytes": 150368,
+      "cold_candidate_row_bytes": 148185,
+      "cold_candidate_rows": 267,
+      "overlap": [
+        {
+          "projection": "entries",
+          "same_id_records": 104,
+          "equal_raw_value_token_bytes": 13581,
+          "identical_value_token_bytes": 13581,
+          "identical_row_bytes": 0
+        },
+        {
+          "projection": "confirmed_planned_entries",
+          "same_id_records": 1,
+          "equal_raw_value_token_bytes": 145,
+          "identical_value_token_bytes": 145,
+          "identical_row_bytes": 0
+        },
+        {
+          "projection": "panels",
+          "same_id_records": 4,
+          "equal_raw_value_token_bytes": 219,
+          "identical_value_token_bytes": 219,
+          "identical_row_bytes": 0
+        },
+        {
+          "projection": "cash_flows",
+          "same_id_records": 4,
+          "equal_raw_value_token_bytes": 119,
+          "identical_value_token_bytes": 119,
+          "identical_row_bytes": 0
+        }
+      ],
+      "ledger_representation": {
+        "keys_bytes": 122576,
+        "value_token_bytes": 67311,
+        "null_bytes_within_values": 19476,
+        "structural_bytes": 18801,
+        "total_bytes": 208688
+      }
+    },
+    "snapshot_canonical_and_migrated_restore": "PASS",
+    "backend": {
+      "warmups": 3,
+      "wall_ms": {
+        "n": 20,
+        "median": 72.12481800524984,
+        "p95": 79.37041600234807,
+        "min": 66.61909200192895,
+        "max": 83.70021398877725,
+        "stdev": 4.752617130595039
+      },
+      "cpu_ms": {
+        "n": 20,
+        "median": 69.64632450000008,
+        "p95": 75.97756499999963,
+        "min": 66.21449100000021,
+        "max": 83.60334699999994,
+        "stdev": 4.550254418178607
+      }
+    }
+  },
+  "1000": {
+    "ledger_rows": 1000,
+    "archive_rows": 895,
+    "current_rows": 105,
+    "confirmed_sources": 1,
+    "typed_entries": 104,
+    "policy_binding_count": 4,
+    "raw_bytes": 653317,
+    "sha256": "919ae86531dd092a1d485025930c6f949810fb21641d33a29a8d03df631d35ab",
+    "status": 200,
+    "headers": {
+      "content-length": "653317",
+      "content-type": "application/json",
+      "cache-control": "no-store, max-age=0",
+      "pragma": "no-cache",
+      "x-content-type-options": "nosniff",
+      "referrer-policy": "no-referrer",
+      "x-frame-options": "DENY",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()"
+    },
+    "backend_stages_inclusive": {
+      "export_snapshot_from_connection": {
+        "n": 20,
+        "median": 59.561947498878,
+        "p95": 66.20666600065306,
+        "min": 52.386830997420475,
+        "max": 72.57094199303538,
+        "stdev": 5.108900735491601
+      },
+      "_construct": {
+        "n": 20,
+        "median": 133.37877549929544,
+        "p95": 140.49547899048775,
+        "min": 112.39975300850347,
+        "max": 142.5191710004583,
+        "stdev": 10.438105306893384
+      },
+      "json_render": {
+        "n": 20,
+        "median": 6.168539002828766,
+        "p95": 6.514339009299874,
+        "min": 4.985221006791107,
+        "max": 6.55041600111872,
+        "stdev": 0.5845086678603716
+      },
+      "_terminal_guard": {
+        "n": 20,
+        "median": 0.9179035041597672,
+        "p95": 0.965647996054031,
+        "min": 0.7591460016556084,
+        "max": 0.9711349994176999,
+        "stdev": 0.074699323700617
+      },
+      "_prepare": {
+        "n": 20,
+        "median": 24.727452495426405,
+        "p95": 26.231288007693365,
+        "min": 20.209351991070434,
+        "max": 26.34891599882394,
+        "stdev": 2.3059822889762294
+      }
+    },
+    "legacy_requests": [
+      {
+        "path": "/api/offline-reconciliation/baseline",
+        "bytes": 565588
+      },
+      {
+        "path": "/api/month/current/status",
+        "bytes": 367
+      },
+      {
+        "path": "/api/entries/current",
+        "bytes": 78593
+      },
+      {
+        "path": "/api/month/current/panels",
+        "bytes": 2024
+      },
+      {
+        "path": "/api/month/current/summary",
+        "bytes": 492
+      },
+      {
+        "path": "/api/card-payments/current",
+        "bytes": 2848
+      },
+      {
+        "path": "/api/judgment/current",
+        "bytes": 1164
+      },
+      {
+        "path": "/api/month/current/planned/confirmed",
+        "bytes": 774
+      },
+      {
+        "path": "/api/settings",
+        "bytes": 116
+      },
+      {
+        "path": "/api/cash-flows?from=2026-09-01&to=2026-10-31",
+        "bytes": 452
+      },
+      {
+        "path": "/api/card-discounts/months/2026-10?scope=owner",
+        "bytes": 312
+      },
+      {
+        "path": "/api/card-discounts/months/2026-10?scope=family",
+        "bytes": 244
+      },
+      {
+        "path": "/api/card-discounts/profiles/transit/2026-10",
+        "bytes": 53
+      },
+      {
+        "path": "/api/offline-reconciliation/baseline",
+        "bytes": 565588
+      }
+    ],
+    "legacy_aggregate_body_bytes": 1218615,
+    "attribution": {
+      "partition": [
+        {
+          "category": "bundle_version",
+          "count": 1,
+          "raw_bytes": 1,
+          "percent": 0.00015306505111607383,
+          "gzip6_bytes": 21,
+          "brotli4_bytes": 5,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "principal",
+          "count": 1,
+          "raw_bytes": 13,
+          "percent": 0.0019898456645089596,
+          "gzip6_bytes": 33,
+          "brotli4_bytes": 17,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "authority",
+          "count": 4,
+          "raw_bytes": 208,
+          "percent": 0.031837530632143354,
+          "gzip6_bytes": 175,
+          "brotli4_bytes": 155,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "state.month_close_status",
+          "count": 11,
+          "raw_bytes": 367,
+          "percent": 0.05617487375959909,
+          "gzip6_bytes": 215,
+          "brotli4_bytes": 202,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.entries",
+          "count": 104,
+          "raw_bytes": 78593,
+          "percent": 12.02984156236559,
+          "gzip6_bytes": 1699,
+          "brotli4_bytes": 1100,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.panels",
+          "count": 4,
+          "raw_bytes": 2024,
+          "percent": 0.3098036634589334,
+          "gzip6_bytes": 339,
+          "brotli4_bytes": 319,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.summary",
+          "count": 17,
+          "raw_bytes": 492,
+          "percent": 0.07530800514910832,
+          "gzip6_bytes": 250,
+          "brotli4_bytes": 234,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.card_payment_status",
+          "count": 16,
+          "raw_bytes": 2848,
+          "percent": 0.43592926557857825,
+          "gzip6_bytes": 899,
+          "brotli4_bytes": 883,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.judgment",
+          "count": 6,
+          "raw_bytes": 1164,
+          "percent": 0.17816771949910992,
+          "gzip6_bytes": 643,
+          "brotli4_bytes": 648,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.confirmed_planned_entries",
+          "count": 1,
+          "raw_bytes": 774,
+          "percent": 0.11847234956384113,
+          "gzip6_bytes": 380,
+          "brotli4_bytes": 356,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.cash_flows",
+          "count": 4,
+          "raw_bytes": 452,
+          "percent": 0.06918540310446537,
+          "gzip6_bytes": 197,
+          "brotli4_bytes": 166,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.settings",
+          "count": 5,
+          "raw_bytes": 116,
+          "percent": 0.017755545929464562,
+          "gzip6_bytes": 104,
+          "brotli4_bytes": 91,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.owner_discount_month",
+          "count": 6,
+          "raw_bytes": 312,
+          "percent": 0.04775629594821503,
+          "gzip6_bytes": 202,
+          "brotli4_bytes": 195,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.family_discount_month",
+          "count": 6,
+          "raw_bytes": 244,
+          "percent": 0.03734787247232201,
+          "gzip6_bytes": 173,
+          "brotli4_bytes": 154,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.transit_discount_profile",
+          "count": 3,
+          "raw_bytes": 53,
+          "percent": 0.008112447709151913,
+          "gzip6_bytes": 69,
+          "brotli4_bytes": 54,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "snapshot.data.ledger_entries",
+          "count": 1000,
+          "raw_bytes": 555634,
+          "percent": 85.04814661182856,
+          "gzip6_bytes": 10983,
+          "brotli4_bytes": 4781,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.monthly_panels",
+          "count": 4,
+          "raw_bytes": 1336,
+          "percent": 0.2044949082910746,
+          "gzip6_bytes": 243,
+          "brotli4_bytes": 226,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.cash_flows",
+          "count": 5,
+          "raw_bytes": 910,
+          "percent": 0.13928919651562718,
+          "gzip6_bytes": 238,
+          "brotli4_bytes": 209,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.card_payment_batches",
+          "count": 1,
+          "raw_bytes": 110,
+          "percent": 0.01683715562276812,
+          "gzip6_bytes": 112,
+          "brotli4_bytes": 96,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.card_payment_batch_items",
+          "count": 3,
+          "raw_bytes": 298,
+          "percent": 0.045613385232589995,
+          "gzip6_bytes": 131,
+          "brotli4_bytes": 110,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.card_payment_events",
+          "count": 1,
+          "raw_bytes": 293,
+          "percent": 0.04484805997700963,
+          "gzip6_bytes": 222,
+          "brotli4_bytes": 210,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.card_payment_allocations",
+          "count": 1,
+          "raw_bytes": 117,
+          "percent": 0.017908610980580636,
+          "gzip6_bytes": 116,
+          "brotli4_bytes": 98,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.card_payment_deferrals",
+          "count": 0,
+          "raw_bytes": 2,
+          "percent": 0.00030613010223214766,
+          "gzip6_bytes": 22,
+          "brotli4_bytes": 6,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.notification_candidate_registrations",
+          "count": 0,
+          "raw_bytes": 2,
+          "percent": 0.00030613010223214766,
+          "gzip6_bytes": 22,
+          "brotli4_bytes": 6,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.app_settings",
+          "count": 5,
+          "raw_bytes": 371,
+          "percent": 0.05678713396406339,
+          "gzip6_bytes": 150,
+          "brotli4_bytes": 127,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.app_labels",
+          "count": 18,
+          "raw_bytes": 1611,
+          "percent": 0.24658779734799494,
+          "gzip6_bytes": 397,
+          "brotli4_bytes": 371,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.manifest.tables.ledger_entries",
+          "count": 3,
+          "raw_bytes": 456,
+          "percent": 0.06979766330892966,
+          "gzip6_bytes": 282,
+          "brotli4_bytes": 271,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.monthly_panels",
+          "count": 3,
+          "raw_bytes": 322,
+          "percent": 0.04928694645937577,
+          "gzip6_bytes": 218,
+          "brotli4_bytes": 211,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.cash_flows",
+          "count": 3,
+          "raw_bytes": 204,
+          "percent": 0.031225270427679058,
+          "gzip6_bytes": 175,
+          "brotli4_bytes": 155,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.card_payment_batches",
+          "count": 3,
+          "raw_bytes": 153,
+          "percent": 0.023418952820759294,
+          "gzip6_bytes": 145,
+          "brotli4_bytes": 123,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.card_payment_batch_items",
+          "count": 3,
+          "raw_bytes": 163,
+          "percent": 0.024949603331920034,
+          "gzip6_bytes": 146,
+          "brotli4_bytes": 129,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.card_payment_events",
+          "count": 3,
+          "raw_bytes": 235,
+          "percent": 0.03597028701227735,
+          "gzip6_bytes": 190,
+          "brotli4_bytes": 176,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.card_payment_allocations",
+          "count": 3,
+          "raw_bytes": 175,
+          "percent": 0.02678638394531292,
+          "gzip6_bytes": 158,
+          "brotli4_bytes": 137,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.card_payment_deferrals",
+          "count": 3,
+          "raw_bytes": 310,
+          "percent": 0.04745016584598288,
+          "gzip6_bytes": 206,
+          "brotli4_bytes": 186,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.notification_candidate_registrations",
+          "count": 3,
+          "raw_bytes": 178,
+          "percent": 0.02724557909866114,
+          "gzip6_bytes": 158,
+          "brotli4_bytes": 140,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.app_settings",
+          "count": 3,
+          "raw_bytes": 130,
+          "percent": 0.019898456645089598,
+          "gzip6_bytes": 131,
+          "brotli4_bytes": 105,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.app_labels",
+          "count": 3,
+          "raw_bytes": 131,
+          "percent": 0.02005152169620567,
+          "gzip6_bytes": 132,
+          "brotli4_bytes": 106,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.algorithm",
+          "count": 1,
+          "raw_bytes": 8,
+          "percent": 0.0012245204089285906,
+          "gzip6_bytes": 28,
+          "brotli4_bytes": 12,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.data_sha256",
+          "count": 1,
+          "raw_bytes": 66,
+          "percent": 0.010102293373660871,
+          "gzip6_bytes": 74,
+          "brotli4_bytes": 51,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.card_charge_policy_sha256",
+          "count": 1,
+          "raw_bytes": 66,
+          "percent": 0.010102293373660871,
+          "gzip6_bytes": 72,
+          "brotli4_bytes": 51,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.content_sha256",
+          "count": 1,
+          "raw_bytes": 66,
+          "percent": 0.010102293373660871,
+          "gzip6_bytes": 74,
+          "brotli4_bytes": 51,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.schema_version",
+          "count": 1,
+          "raw_bytes": 1,
+          "percent": 0.00015306505111607383,
+          "gzip6_bytes": 21,
+          "brotli4_bytes": 5,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.recurring_ownership_version",
+          "count": 1,
+          "raw_bytes": 1,
+          "percent": 0.00015306505111607383,
+          "gzip6_bytes": 21,
+          "brotli4_bytes": 5,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.exported_at",
+          "count": 1,
+          "raw_bytes": 22,
+          "percent": 0.003367431124553624,
+          "gzip6_bytes": 40,
+          "brotli4_bytes": 26,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.range",
+          "count": 1,
+          "raw_bytes": 15,
+          "percent": 0.0022959757667411072,
+          "gzip6_bytes": 35,
+          "brotli4_bytes": 19,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.card_charge_policy",
+          "count": 5,
+          "raw_bytes": 1199,
+          "percent": 0.1835249962881725,
+          "gzip6_bytes": 482,
+          "brotli4_bytes": 478,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.snapshot_id",
+          "count": 1,
+          "raw_bytes": 66,
+          "percent": 0.010102293373660871,
+          "gzip6_bytes": 74,
+          "brotli4_bytes": 51,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "json_structure",
+          "count": null,
+          "raw_bytes": 1005,
+          "percent": 0.1538303763716542,
+          "gzip6_bytes": 354,
+          "brotli4_bytes": 339,
+          "hot_cold": "CONTROL"
+        }
+      ],
+      "tables": [
+        {
+          "table": "ledger_entries",
+          "rows": 1000,
+          "row_payload_bytes": 555634,
+          "row_objects_bytes": 554633,
+          "array_structure_bytes": 1001,
+          "manifest_nonhash_bytes": 390,
+          "hash_bytes": 66,
+          "total_bytes": 556090,
+          "bundle_percent": 85.11794427513749,
+          "snapshot_percent": 98.3589449703556,
+          "avg_object_bytes": 554.633,
+          "row_sizes": {
+            "n": 1000,
+            "median": 555.0,
+            "p95": 555,
+            "min": 533,
+            "max": 582,
+            "stdev": 2.119035393758207
+          }
+        },
+        {
+          "table": "app_labels",
+          "rows": 18,
+          "row_payload_bytes": 1611,
+          "row_objects_bytes": 1592,
+          "array_structure_bytes": 19,
+          "manifest_nonhash_bytes": 65,
+          "hash_bytes": 66,
+          "total_bytes": 1742,
+          "bundle_percent": 0.2666393190442006,
+          "snapshot_percent": 0.3081178984307566,
+          "avg_object_bytes": 88.44444444444444,
+          "row_sizes": {
+            "n": 18,
+            "median": 87.0,
+            "p95": 109,
+            "min": 75,
+            "max": 109,
+            "stdev": 9.190709211071207
+          }
+        },
+        {
+          "table": "monthly_panels",
+          "rows": 4,
+          "row_payload_bytes": 1336,
+          "row_objects_bytes": 1331,
+          "array_structure_bytes": 5,
+          "manifest_nonhash_bytes": 256,
+          "hash_bytes": 66,
+          "total_bytes": 1658,
+          "bundle_percent": 0.2537818547504504,
+          "snapshot_percent": 0.2932603189427063,
+          "avg_object_bytes": 332.75,
+          "row_sizes": {
+            "n": 4,
+            "median": 331.5,
+            "p95": 337,
+            "min": 331,
+            "max": 337,
+            "stdev": 2.48746859276655
+          }
+        },
+        {
+          "table": "cash_flows",
+          "rows": 5,
+          "row_payload_bytes": 910,
+          "row_objects_bytes": 904,
+          "array_structure_bytes": 6,
+          "manifest_nonhash_bytes": 138,
+          "hash_bytes": 66,
+          "total_bytes": 1114,
+          "bundle_percent": 0.17051446694330624,
+          "snapshot_percent": 0.19703980416295228,
+          "avg_object_bytes": 180.8,
+          "row_sizes": {
+            "n": 5,
+            "median": 178,
+            "p95": 193,
+            "min": 177,
+            "max": 193,
+            "stdev": 6.144916598294887
+          }
+        },
+        {
+          "table": "card_payment_events",
+          "rows": 1,
+          "row_payload_bytes": 293,
+          "row_objects_bytes": 291,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 169,
+          "hash_bytes": 66,
+          "total_bytes": 528,
+          "bundle_percent": 0.08081834698928697,
+          "snapshot_percent": 0.09339049963917306,
+          "avg_object_bytes": 291.0,
+          "row_sizes": {
+            "n": 1,
+            "median": 291,
+            "p95": 291,
+            "min": 291,
+            "max": 291,
+            "stdev": 0.0
+          }
+        },
+        {
+          "table": "app_settings",
+          "rows": 5,
+          "row_payload_bytes": 371,
+          "row_objects_bytes": 365,
+          "array_structure_bytes": 6,
+          "manifest_nonhash_bytes": 64,
+          "hash_bytes": 66,
+          "total_bytes": 501,
+          "bundle_percent": 0.07668559060915299,
+          "snapshot_percent": 0.08861484908944263,
+          "avg_object_bytes": 73.0,
+          "row_sizes": {
+            "n": 5,
+            "median": 73,
+            "p95": 74,
+            "min": 72,
+            "max": 74,
+            "stdev": 0.6324555320336759
+          }
+        },
+        {
+          "table": "card_payment_batch_items",
+          "rows": 3,
+          "row_payload_bytes": 298,
+          "row_objects_bytes": 294,
+          "array_structure_bytes": 4,
+          "manifest_nonhash_bytes": 97,
+          "hash_bytes": 66,
+          "total_bytes": 461,
+          "bundle_percent": 0.07056298856451003,
+          "snapshot_percent": 0.08153981123799012,
+          "avg_object_bytes": 98.0,
+          "row_sizes": {
+            "n": 3,
+            "median": 97,
+            "p95": 100,
+            "min": 97,
+            "max": 100,
+            "stdev": 1.4142135623730951
+          }
+        },
+        {
+          "table": "card_payment_deferrals",
+          "rows": 0,
+          "row_payload_bytes": 2,
+          "row_objects_bytes": 0,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 244,
+          "hash_bytes": 66,
+          "total_bytes": 312,
+          "bundle_percent": 0.04775629594821503,
+          "snapshot_percent": 0.05518529524132954,
+          "avg_object_bytes": 0,
+          "row_sizes": null
+        },
+        {
+          "table": "card_payment_allocations",
+          "rows": 1,
+          "row_payload_bytes": 117,
+          "row_objects_bytes": 115,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 109,
+          "hash_bytes": 66,
+          "total_bytes": 292,
+          "bundle_percent": 0.04469499492589356,
+          "snapshot_percent": 0.051647776315603286,
+          "avg_object_bytes": 115.0,
+          "row_sizes": {
+            "n": 1,
+            "median": 115,
+            "p95": 115,
+            "min": 115,
+            "max": 115,
+            "stdev": 0.0
+          }
+        },
+        {
+          "table": "card_payment_batches",
+          "rows": 1,
+          "row_payload_bytes": 110,
+          "row_objects_bytes": 108,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 87,
+          "hash_bytes": 66,
+          "total_bytes": 263,
+          "bundle_percent": 0.040256108443527415,
+          "snapshot_percent": 0.046518373873300226,
+          "avg_object_bytes": 108.0,
+          "row_sizes": {
+            "n": 1,
+            "median": 108,
+            "p95": 108,
+            "min": 108,
+            "max": 108,
+            "stdev": 0.0
+          }
+        },
+        {
+          "table": "notification_candidate_registrations",
+          "rows": 0,
+          "row_payload_bytes": 2,
+          "row_objects_bytes": 0,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 112,
+          "hash_bytes": 66,
+          "total_bytes": 180,
+          "bundle_percent": 0.02755170920089329,
+          "snapshot_percent": 0.031837670331536276,
+          "avg_object_bytes": 0,
+          "row_sizes": null
+        }
+      ],
+      "snapshot_bytes": 565368,
+      "state_bytes": 87661,
+      "archive_row_bytes": 496690,
+      "cold_candidate_row_bytes": 494507,
+      "cold_candidate_rows": 891,
+      "overlap": [
+        {
+          "projection": "entries",
+          "same_id_records": 104,
+          "equal_raw_value_token_bytes": 13581,
+          "identical_value_token_bytes": 13581,
+          "identical_row_bytes": 0
+        },
+        {
+          "projection": "confirmed_planned_entries",
+          "same_id_records": 1,
+          "equal_raw_value_token_bytes": 145,
+          "identical_value_token_bytes": 145,
+          "identical_row_bytes": 0
+        },
+        {
+          "projection": "panels",
+          "same_id_records": 4,
+          "equal_raw_value_token_bytes": 219,
+          "identical_value_token_bytes": 219,
+          "identical_row_bytes": 0
+        },
+        {
+          "projection": "cash_flows",
+          "same_id_records": 4,
+          "equal_raw_value_token_bytes": 119,
+          "identical_value_token_bytes": 119,
+          "identical_row_bytes": 0
+        }
+      ],
+      "ledger_representation": {
+        "keys_bytes": 326000,
+        "value_token_bytes": 179633,
+        "null_bytes_within_values": 51924,
+        "structural_bytes": 50001,
+        "total_bytes": 555634
+      }
+    },
+    "snapshot_canonical_and_migrated_restore": "PASS",
+    "backend": {
+      "warmups": 3,
+      "wall_ms": {
+        "n": 20,
+        "median": 164.72485849953955,
+        "p95": 177.48076301359106,
+        "min": 137.90803600568324,
+        "max": 179.36725399340503,
+        "stdev": 14.062187990105594
+      },
+      "cpu_ms": {
+        "n": 20,
+        "median": 164.63050150000004,
+        "p95": 171.7480990000002,
+        "min": 137.91206099999977,
+        "max": 174.0849200000003,
+        "stdev": 12.745111696752543
+      }
+    }
+  },
+  "5000": {
+    "ledger_rows": 5000,
+    "archive_rows": 4895,
+    "current_rows": 105,
+    "confirmed_sources": 1,
+    "typed_entries": 104,
+    "policy_binding_count": 4,
+    "raw_bytes": 2889309,
+    "sha256": "b0608109a80ee0971beb6845c5c98c2d0192a3af51433d31b8b343441feb3b91",
+    "status": 200,
+    "headers": {
+      "content-length": "2889309",
+      "content-type": "application/json",
+      "cache-control": "no-store, max-age=0",
+      "pragma": "no-cache",
+      "x-content-type-options": "nosniff",
+      "referrer-policy": "no-referrer",
+      "x-frame-options": "DENY",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()"
+    },
+    "backend_stages_inclusive": {
+      "export_snapshot_from_connection": {
+        "n": 20,
+        "median": 301.64030399464536,
+        "p95": 340.0960980070522,
+        "min": 265.46514900110196,
+        "max": 355.7960500038462,
+        "stdev": 28.766375339035847
+      },
+      "_construct": {
+        "n": 20,
+        "median": 642.1717185003217,
+        "p95": 734.0792480099481,
+        "min": 555.5388139910065,
+        "max": 740.4133770032786,
+        "stdev": 63.42370199321883
+      },
+      "json_render": {
+        "n": 20,
+        "median": 31.30352500011213,
+        "p95": 34.72892500576563,
+        "min": 26.920561998849735,
+        "max": 35.17567600647453,
+        "stdev": 3.1964978583019867
+      },
+      "_terminal_guard": {
+        "n": 20,
+        "median": 0.8421484963037074,
+        "p95": 0.9318539960077032,
+        "min": 0.7671380008105189,
+        "max": 0.9867560002021492,
+        "stdev": 0.06560603400075825
+      },
+      "_prepare": {
+        "n": 20,
+        "median": 106.60733949043788,
+        "p95": 117.58708600245882,
+        "min": 90.23417001299094,
+        "max": 119.21976799203549,
+        "stdev": 10.862917923709825
+      }
+    },
+    "legacy_requests": [
+      {
+        "path": "/api/offline-reconciliation/baseline",
+        "bytes": 2801580
+      },
+      {
+        "path": "/api/month/current/status",
+        "bytes": 367
+      },
+      {
+        "path": "/api/entries/current",
+        "bytes": 78593
+      },
+      {
+        "path": "/api/month/current/panels",
+        "bytes": 2024
+      },
+      {
+        "path": "/api/month/current/summary",
+        "bytes": 492
+      },
+      {
+        "path": "/api/card-payments/current",
+        "bytes": 2848
+      },
+      {
+        "path": "/api/judgment/current",
+        "bytes": 1164
+      },
+      {
+        "path": "/api/month/current/planned/confirmed",
+        "bytes": 774
+      },
+      {
+        "path": "/api/settings",
+        "bytes": 116
+      },
+      {
+        "path": "/api/cash-flows?from=2026-09-01&to=2026-10-31",
+        "bytes": 452
+      },
+      {
+        "path": "/api/card-discounts/months/2026-10?scope=owner",
+        "bytes": 312
+      },
+      {
+        "path": "/api/card-discounts/months/2026-10?scope=family",
+        "bytes": 244
+      },
+      {
+        "path": "/api/card-discounts/profiles/transit/2026-10",
+        "bytes": 53
+      },
+      {
+        "path": "/api/offline-reconciliation/baseline",
+        "bytes": 2801580
+      }
+    ],
+    "legacy_aggregate_body_bytes": 5690599,
+    "attribution": {
+      "partition": [
+        {
+          "category": "bundle_version",
+          "count": 1,
+          "raw_bytes": 1,
+          "percent": 3.461035147158023e-05,
+          "gzip6_bytes": 21,
+          "brotli4_bytes": 5,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "principal",
+          "count": 1,
+          "raw_bytes": 13,
+          "percent": 0.00044993456913054296,
+          "gzip6_bytes": 33,
+          "brotli4_bytes": 17,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "authority",
+          "count": 4,
+          "raw_bytes": 209,
+          "percent": 0.007233563457560268,
+          "gzip6_bytes": 177,
+          "brotli4_bytes": 156,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "state.month_close_status",
+          "count": 11,
+          "raw_bytes": 367,
+          "percent": 0.012701998990069943,
+          "gzip6_bytes": 215,
+          "brotli4_bytes": 202,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.entries",
+          "count": 104,
+          "raw_bytes": 78593,
+          "percent": 2.720131353205905,
+          "gzip6_bytes": 1699,
+          "brotli4_bytes": 1100,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.panels",
+          "count": 4,
+          "raw_bytes": 2024,
+          "percent": 0.07005135137847839,
+          "gzip6_bytes": 339,
+          "brotli4_bytes": 319,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.summary",
+          "count": 17,
+          "raw_bytes": 492,
+          "percent": 0.017028292924017474,
+          "gzip6_bytes": 250,
+          "brotli4_bytes": 234,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.card_payment_status",
+          "count": 16,
+          "raw_bytes": 2848,
+          "percent": 0.0985702809910605,
+          "gzip6_bytes": 899,
+          "brotli4_bytes": 883,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.judgment",
+          "count": 6,
+          "raw_bytes": 1164,
+          "percent": 0.040286449112919384,
+          "gzip6_bytes": 643,
+          "brotli4_bytes": 648,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.confirmed_planned_entries",
+          "count": 1,
+          "raw_bytes": 774,
+          "percent": 0.026788412039003097,
+          "gzip6_bytes": 380,
+          "brotli4_bytes": 356,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.cash_flows",
+          "count": 4,
+          "raw_bytes": 452,
+          "percent": 0.015643878865154264,
+          "gzip6_bytes": 197,
+          "brotli4_bytes": 166,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.settings",
+          "count": 5,
+          "raw_bytes": 116,
+          "percent": 0.0040148007707033065,
+          "gzip6_bytes": 104,
+          "brotli4_bytes": 91,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.owner_discount_month",
+          "count": 6,
+          "raw_bytes": 312,
+          "percent": 0.010798429659133031,
+          "gzip6_bytes": 202,
+          "brotli4_bytes": 195,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.family_discount_month",
+          "count": 6,
+          "raw_bytes": 244,
+          "percent": 0.008444925759065577,
+          "gzip6_bytes": 173,
+          "brotli4_bytes": 154,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.transit_discount_profile",
+          "count": 3,
+          "raw_bytes": 53,
+          "percent": 0.0018343486279937522,
+          "gzip6_bytes": 69,
+          "brotli4_bytes": 54,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "snapshot.data.ledger_entries",
+          "count": 5000,
+          "raw_bytes": 2791625,
+          "percent": 96.61912242685015,
+          "gzip6_bytes": 51199,
+          "brotli4_bytes": 19447,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.monthly_panels",
+          "count": 4,
+          "raw_bytes": 1336,
+          "percent": 0.046239429566031186,
+          "gzip6_bytes": 243,
+          "brotli4_bytes": 226,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.cash_flows",
+          "count": 5,
+          "raw_bytes": 910,
+          "percent": 0.031495419839138006,
+          "gzip6_bytes": 238,
+          "brotli4_bytes": 209,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.card_payment_batches",
+          "count": 1,
+          "raw_bytes": 110,
+          "percent": 0.003807138661873825,
+          "gzip6_bytes": 112,
+          "brotli4_bytes": 96,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.card_payment_batch_items",
+          "count": 3,
+          "raw_bytes": 298,
+          "percent": 0.010313884738530909,
+          "gzip6_bytes": 131,
+          "brotli4_bytes": 110,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.card_payment_events",
+          "count": 1,
+          "raw_bytes": 293,
+          "percent": 0.010140832981173006,
+          "gzip6_bytes": 222,
+          "brotli4_bytes": 210,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.card_payment_allocations",
+          "count": 1,
+          "raw_bytes": 117,
+          "percent": 0.004049411122174887,
+          "gzip6_bytes": 116,
+          "brotli4_bytes": 98,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.card_payment_deferrals",
+          "count": 0,
+          "raw_bytes": 2,
+          "percent": 6.922070294316046e-05,
+          "gzip6_bytes": 22,
+          "brotli4_bytes": 6,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.notification_candidate_registrations",
+          "count": 0,
+          "raw_bytes": 2,
+          "percent": 6.922070294316046e-05,
+          "gzip6_bytes": 22,
+          "brotli4_bytes": 6,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.app_settings",
+          "count": 5,
+          "raw_bytes": 371,
+          "percent": 0.012840440395956264,
+          "gzip6_bytes": 150,
+          "brotli4_bytes": 127,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.app_labels",
+          "count": 18,
+          "raw_bytes": 1611,
+          "percent": 0.055757276220715746,
+          "gzip6_bytes": 397,
+          "brotli4_bytes": 371,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.manifest.tables.ledger_entries",
+          "count": 3,
+          "raw_bytes": 456,
+          "percent": 0.015782320271040585,
+          "gzip6_bytes": 282,
+          "brotli4_bytes": 270,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.monthly_panels",
+          "count": 3,
+          "raw_bytes": 322,
+          "percent": 0.011144533173848835,
+          "gzip6_bytes": 218,
+          "brotli4_bytes": 211,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.cash_flows",
+          "count": 3,
+          "raw_bytes": 204,
+          "percent": 0.007060511700202367,
+          "gzip6_bytes": 175,
+          "brotli4_bytes": 155,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.card_payment_batches",
+          "count": 3,
+          "raw_bytes": 153,
+          "percent": 0.005295383775151775,
+          "gzip6_bytes": 145,
+          "brotli4_bytes": 123,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.card_payment_batch_items",
+          "count": 3,
+          "raw_bytes": 163,
+          "percent": 0.005641487289867578,
+          "gzip6_bytes": 146,
+          "brotli4_bytes": 129,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.card_payment_events",
+          "count": 3,
+          "raw_bytes": 235,
+          "percent": 0.008133432595821354,
+          "gzip6_bytes": 190,
+          "brotli4_bytes": 176,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.card_payment_allocations",
+          "count": 3,
+          "raw_bytes": 175,
+          "percent": 0.00605681150752654,
+          "gzip6_bytes": 158,
+          "brotli4_bytes": 137,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.card_payment_deferrals",
+          "count": 3,
+          "raw_bytes": 310,
+          "percent": 0.01072920895618987,
+          "gzip6_bytes": 206,
+          "brotli4_bytes": 186,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.notification_candidate_registrations",
+          "count": 3,
+          "raw_bytes": 178,
+          "percent": 0.006160642561941281,
+          "gzip6_bytes": 158,
+          "brotli4_bytes": 140,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.app_settings",
+          "count": 3,
+          "raw_bytes": 130,
+          "percent": 0.00449934569130543,
+          "gzip6_bytes": 131,
+          "brotli4_bytes": 105,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.app_labels",
+          "count": 3,
+          "raw_bytes": 131,
+          "percent": 0.00453395604277701,
+          "gzip6_bytes": 132,
+          "brotli4_bytes": 106,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.algorithm",
+          "count": 1,
+          "raw_bytes": 8,
+          "percent": 0.00027688281177264183,
+          "gzip6_bytes": 28,
+          "brotli4_bytes": 12,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.data_sha256",
+          "count": 1,
+          "raw_bytes": 66,
+          "percent": 0.002284283197124295,
+          "gzip6_bytes": 71,
+          "brotli4_bytes": 50,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.card_charge_policy_sha256",
+          "count": 1,
+          "raw_bytes": 66,
+          "percent": 0.002284283197124295,
+          "gzip6_bytes": 72,
+          "brotli4_bytes": 51,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.content_sha256",
+          "count": 1,
+          "raw_bytes": 66,
+          "percent": 0.002284283197124295,
+          "gzip6_bytes": 73,
+          "brotli4_bytes": 50,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.schema_version",
+          "count": 1,
+          "raw_bytes": 1,
+          "percent": 3.461035147158023e-05,
+          "gzip6_bytes": 21,
+          "brotli4_bytes": 5,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.recurring_ownership_version",
+          "count": 1,
+          "raw_bytes": 1,
+          "percent": 3.461035147158023e-05,
+          "gzip6_bytes": 21,
+          "brotli4_bytes": 5,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.exported_at",
+          "count": 1,
+          "raw_bytes": 22,
+          "percent": 0.0007614277323747651,
+          "gzip6_bytes": 40,
+          "brotli4_bytes": 26,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.range",
+          "count": 1,
+          "raw_bytes": 15,
+          "percent": 0.0005191552720737034,
+          "gzip6_bytes": 35,
+          "brotli4_bytes": 19,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.card_charge_policy",
+          "count": 5,
+          "raw_bytes": 1199,
+          "percent": 0.04149781141442469,
+          "gzip6_bytes": 482,
+          "brotli4_bytes": 478,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.snapshot_id",
+          "count": 1,
+          "raw_bytes": 66,
+          "percent": 0.002284283197124295,
+          "gzip6_bytes": 73,
+          "brotli4_bytes": 50,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "json_structure",
+          "count": null,
+          "raw_bytes": 1005,
+          "percent": 0.03478340322893813,
+          "gzip6_bytes": 354,
+          "brotli4_bytes": 339,
+          "hot_cold": "CONTROL"
+        }
+      ],
+      "tables": [
+        {
+          "table": "ledger_entries",
+          "rows": 5000,
+          "row_payload_bytes": 2791625,
+          "row_objects_bytes": 2786624,
+          "array_structure_bytes": 5001,
+          "manifest_nonhash_bytes": 390,
+          "hash_bytes": 66,
+          "total_bytes": 2792081,
+          "bundle_percent": 96.6349047471212,
+          "snapshot_percent": 99.66880360567853,
+          "avg_object_bytes": 557.3248,
+          "row_sizes": {
+            "n": 5000,
+            "median": 558.0,
+            "p95": 558,
+            "min": 533,
+            "max": 582,
+            "stdev": 1.6466040689856198
+          }
+        },
+        {
+          "table": "app_labels",
+          "rows": 18,
+          "row_payload_bytes": 1611,
+          "row_objects_bytes": 1592,
+          "array_structure_bytes": 19,
+          "manifest_nonhash_bytes": 65,
+          "hash_bytes": 66,
+          "total_bytes": 1742,
+          "bundle_percent": 0.060291232263492756,
+          "snapshot_percent": 0.06218410421513273,
+          "avg_object_bytes": 88.44444444444444,
+          "row_sizes": {
+            "n": 18,
+            "median": 87.0,
+            "p95": 109,
+            "min": 75,
+            "max": 109,
+            "stdev": 9.190709211071207
+          }
+        },
+        {
+          "table": "monthly_panels",
+          "rows": 4,
+          "row_payload_bytes": 1336,
+          "row_objects_bytes": 1331,
+          "array_structure_bytes": 5,
+          "manifest_nonhash_bytes": 256,
+          "hash_bytes": 66,
+          "total_bytes": 1658,
+          "bundle_percent": 0.05738396273988002,
+          "snapshot_percent": 0.05918555958018947,
+          "avg_object_bytes": 332.75,
+          "row_sizes": {
+            "n": 4,
+            "median": 331.5,
+            "p95": 337,
+            "min": 331,
+            "max": 337,
+            "stdev": 2.48746859276655
+          }
+        },
+        {
+          "table": "cash_flows",
+          "rows": 5,
+          "row_payload_bytes": 910,
+          "row_objects_bytes": 904,
+          "array_structure_bytes": 6,
+          "manifest_nonhash_bytes": 138,
+          "hash_bytes": 66,
+          "total_bytes": 1114,
+          "bundle_percent": 0.03855593153934037,
+          "snapshot_percent": 0.03976641337293792,
+          "avg_object_bytes": 180.8,
+          "row_sizes": {
+            "n": 5,
+            "median": 178,
+            "p95": 193,
+            "min": 177,
+            "max": 193,
+            "stdev": 6.144916598294887
+          }
+        },
+        {
+          "table": "card_payment_events",
+          "rows": 1,
+          "row_payload_bytes": 293,
+          "row_objects_bytes": 291,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 169,
+          "hash_bytes": 66,
+          "total_bytes": 528,
+          "bundle_percent": 0.01827426557699436,
+          "snapshot_percent": 0.01884799484821474,
+          "avg_object_bytes": 291.0,
+          "row_sizes": {
+            "n": 1,
+            "median": 291,
+            "p95": 291,
+            "min": 291,
+            "max": 291,
+            "stdev": 0.0
+          }
+        },
+        {
+          "table": "app_settings",
+          "rows": 5,
+          "row_payload_bytes": 371,
+          "row_objects_bytes": 365,
+          "array_structure_bytes": 6,
+          "manifest_nonhash_bytes": 64,
+          "hash_bytes": 66,
+          "total_bytes": 501,
+          "bundle_percent": 0.017339786087261694,
+          "snapshot_percent": 0.017884176929840123,
+          "avg_object_bytes": 73.0,
+          "row_sizes": {
+            "n": 5,
+            "median": 73,
+            "p95": 74,
+            "min": 72,
+            "max": 74,
+            "stdev": 0.6324555320336759
+          }
+        },
+        {
+          "table": "card_payment_batch_items",
+          "rows": 3,
+          "row_payload_bytes": 298,
+          "row_objects_bytes": 294,
+          "array_structure_bytes": 4,
+          "manifest_nonhash_bytes": 97,
+          "hash_bytes": 66,
+          "total_bytes": 461,
+          "bundle_percent": 0.015955372028398484,
+          "snapshot_percent": 0.016456298532248097,
+          "avg_object_bytes": 98.0,
+          "row_sizes": {
+            "n": 3,
+            "median": 97,
+            "p95": 100,
+            "min": 97,
+            "max": 100,
+            "stdev": 1.4142135623730951
+          }
+        },
+        {
+          "table": "card_payment_deferrals",
+          "rows": 0,
+          "row_payload_bytes": 2,
+          "row_objects_bytes": 0,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 244,
+          "hash_bytes": 66,
+          "total_bytes": 312,
+          "bundle_percent": 0.010798429659133031,
+          "snapshot_percent": 0.011137451501217801,
+          "avg_object_bytes": 0,
+          "row_sizes": null
+        },
+        {
+          "table": "card_payment_allocations",
+          "rows": 1,
+          "row_payload_bytes": 117,
+          "row_objects_bytes": 115,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 109,
+          "hash_bytes": 66,
+          "total_bytes": 292,
+          "bundle_percent": 0.010106222629701426,
+          "snapshot_percent": 0.010423512302421788,
+          "avg_object_bytes": 115.0,
+          "row_sizes": {
+            "n": 1,
+            "median": 115,
+            "p95": 115,
+            "min": 115,
+            "max": 115,
+            "stdev": 0.0
+          }
+        },
+        {
+          "table": "card_payment_batches",
+          "rows": 1,
+          "row_payload_bytes": 110,
+          "row_objects_bytes": 108,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 87,
+          "hash_bytes": 66,
+          "total_bytes": 263,
+          "bundle_percent": 0.0091025224370256,
+          "snapshot_percent": 0.00938830046416757,
+          "avg_object_bytes": 108.0,
+          "row_sizes": {
+            "n": 1,
+            "median": 108,
+            "p95": 108,
+            "min": 108,
+            "max": 108,
+            "stdev": 0.0
+          }
+        },
+        {
+          "table": "notification_candidate_registrations",
+          "rows": 0,
+          "row_payload_bytes": 2,
+          "row_objects_bytes": 0,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 112,
+          "hash_bytes": 66,
+          "total_bytes": 180,
+          "bundle_percent": 0.006229863264884441,
+          "snapshot_percent": 0.006425452789164117,
+          "avg_object_bytes": 0,
+          "row_sizes": null
+        }
+      ],
+      "snapshot_bytes": 2801359,
+      "state_bytes": 87661,
+      "archive_row_bytes": 2728681,
+      "cold_candidate_row_bytes": 2726498,
+      "cold_candidate_rows": 4891,
+      "overlap": [
+        {
+          "projection": "entries",
+          "same_id_records": 104,
+          "equal_raw_value_token_bytes": 13581,
+          "identical_value_token_bytes": 13581,
+          "identical_row_bytes": 0
+        },
+        {
+          "projection": "confirmed_planned_entries",
+          "same_id_records": 1,
+          "equal_raw_value_token_bytes": 145,
+          "identical_value_token_bytes": 145,
+          "identical_row_bytes": 0
+        },
+        {
+          "projection": "panels",
+          "same_id_records": 4,
+          "equal_raw_value_token_bytes": 219,
+          "identical_value_token_bytes": 219,
+          "identical_row_bytes": 0
+        },
+        {
+          "projection": "cash_flows",
+          "same_id_records": 4,
+          "equal_raw_value_token_bytes": 119,
+          "identical_value_token_bytes": 119,
+          "identical_row_bytes": 0
+        }
+      ],
+      "ledger_representation": {
+        "keys_bytes": 1630000,
+        "value_token_bytes": 911624,
+        "null_bytes_within_values": 259924,
+        "structural_bytes": 250001,
+        "total_bytes": 2791625
+      }
+    },
+    "snapshot_canonical_and_migrated_restore": "PASS",
+    "backend": {
+      "warmups": 3,
+      "wall_ms": {
+        "n": 20,
+        "median": 760.0144829993951,
+        "p95": 864.1569309984334,
+        "min": 660.2179490000708,
+        "max": 868.6467569932574,
+        "stdev": 75.00315157742975
+      },
+      "cpu_ms": {
+        "n": 20,
+        "median": 755.7108379999988,
+        "p95": 860.6000330000007,
+        "min": 653.7083969999991,
+        "max": 863.4565569999993,
+        "stdev": 74.19280459068263
+      }
+    }
+  },
+  "10000": {
+    "ledger_rows": 10000,
+    "archive_rows": 9895,
+    "current_rows": 105,
+    "confirmed_sources": 1,
+    "typed_entries": 104,
+    "policy_binding_count": 4,
+    "raw_bytes": 5684312,
+    "sha256": "91d084105ef87161d1b4e88272ba67d60ae9cfa9cb60a25b8f2f59a7d1c46b1e",
+    "status": 200,
+    "headers": {
+      "content-length": "5684312",
+      "content-type": "application/json",
+      "cache-control": "no-store, max-age=0",
+      "pragma": "no-cache",
+      "x-content-type-options": "nosniff",
+      "referrer-policy": "no-referrer",
+      "x-frame-options": "DENY",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()"
+    },
+    "backend_stages_inclusive": {
+      "export_snapshot_from_connection": {
+        "n": 20,
+        "median": 557.610002499132,
+        "p95": 683.9029269904131,
+        "min": 512.3681429977296,
+        "max": 694.1187210031785,
+        "stdev": 67.73959940457297
+      },
+      "_construct": {
+        "n": 20,
+        "median": 1138.231115488452,
+        "p95": 1417.6123209908837,
+        "min": 1068.8977440004237,
+        "max": 1418.6155649949796,
+        "stdev": 138.21093599751492
+      },
+      "json_render": {
+        "n": 20,
+        "median": 55.881496497022454,
+        "p95": 68.20424299803562,
+        "min": 52.54358900128864,
+        "max": 69.43748900084756,
+        "stdev": 6.518990265553238
+      },
+      "_terminal_guard": {
+        "n": 20,
+        "median": 0.8599810025771149,
+        "p95": 0.9522750042378902,
+        "min": 0.775612992583774,
+        "max": 1.368259996525012,
+        "stdev": 0.12521902061318763
+      },
+      "_prepare": {
+        "n": 20,
+        "median": 191.12381949526025,
+        "p95": 233.40070800622925,
+        "min": 180.67200199584477,
+        "max": 235.65584600146394,
+        "stdev": 22.49553751094236
+      }
+    },
+    "legacy_requests": [
+      {
+        "path": "/api/offline-reconciliation/baseline",
+        "bytes": 5596583
+      },
+      {
+        "path": "/api/month/current/status",
+        "bytes": 367
+      },
+      {
+        "path": "/api/entries/current",
+        "bytes": 78593
+      },
+      {
+        "path": "/api/month/current/panels",
+        "bytes": 2024
+      },
+      {
+        "path": "/api/month/current/summary",
+        "bytes": 492
+      },
+      {
+        "path": "/api/card-payments/current",
+        "bytes": 2848
+      },
+      {
+        "path": "/api/judgment/current",
+        "bytes": 1164
+      },
+      {
+        "path": "/api/month/current/planned/confirmed",
+        "bytes": 774
+      },
+      {
+        "path": "/api/settings",
+        "bytes": 116
+      },
+      {
+        "path": "/api/cash-flows?from=2026-09-01&to=2026-10-31",
+        "bytes": 452
+      },
+      {
+        "path": "/api/card-discounts/months/2026-10?scope=owner",
+        "bytes": 312
+      },
+      {
+        "path": "/api/card-discounts/months/2026-10?scope=family",
+        "bytes": 244
+      },
+      {
+        "path": "/api/card-discounts/profiles/transit/2026-10",
+        "bytes": 53
+      },
+      {
+        "path": "/api/offline-reconciliation/baseline",
+        "bytes": 5596583
+      }
+    ],
+    "legacy_aggregate_body_bytes": 11280605,
+    "attribution": {
+      "partition": [
+        {
+          "category": "bundle_version",
+          "count": 1,
+          "raw_bytes": 1,
+          "percent": 1.75922785378424e-05,
+          "gzip6_bytes": 21,
+          "brotli4_bytes": 5,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "principal",
+          "count": 1,
+          "raw_bytes": 13,
+          "percent": 0.00022869962099195118,
+          "gzip6_bytes": 33,
+          "brotli4_bytes": 17,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "authority",
+          "count": 4,
+          "raw_bytes": 209,
+          "percent": 0.0036767862144090613,
+          "gzip6_bytes": 177,
+          "brotli4_bytes": 154,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "state.month_close_status",
+          "count": 11,
+          "raw_bytes": 367,
+          "percent": 0.00645636622338816,
+          "gzip6_bytes": 215,
+          "brotli4_bytes": 202,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.entries",
+          "count": 104,
+          "raw_bytes": 78593,
+          "percent": 1.3826299471246477,
+          "gzip6_bytes": 1699,
+          "brotli4_bytes": 1100,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.panels",
+          "count": 4,
+          "raw_bytes": 2024,
+          "percent": 0.035606771760593015,
+          "gzip6_bytes": 339,
+          "brotli4_bytes": 319,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.summary",
+          "count": 17,
+          "raw_bytes": 492,
+          "percent": 0.00865540104061846,
+          "gzip6_bytes": 250,
+          "brotli4_bytes": 234,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.card_payment_status",
+          "count": 16,
+          "raw_bytes": 2848,
+          "percent": 0.05010280927577515,
+          "gzip6_bytes": 899,
+          "brotli4_bytes": 883,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.judgment",
+          "count": 6,
+          "raw_bytes": 1164,
+          "percent": 0.020477412218048552,
+          "gzip6_bytes": 643,
+          "brotli4_bytes": 648,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.confirmed_planned_entries",
+          "count": 1,
+          "raw_bytes": 774,
+          "percent": 0.013616423588290016,
+          "gzip6_bytes": 380,
+          "brotli4_bytes": 356,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.cash_flows",
+          "count": 4,
+          "raw_bytes": 452,
+          "percent": 0.007951709899104764,
+          "gzip6_bytes": 197,
+          "brotli4_bytes": 166,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.settings",
+          "count": 5,
+          "raw_bytes": 116,
+          "percent": 0.0020407043103897182,
+          "gzip6_bytes": 104,
+          "brotli4_bytes": 91,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.owner_discount_month",
+          "count": 6,
+          "raw_bytes": 312,
+          "percent": 0.005488790903806828,
+          "gzip6_bytes": 202,
+          "brotli4_bytes": 195,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.family_discount_month",
+          "count": 6,
+          "raw_bytes": 244,
+          "percent": 0.004292515963233545,
+          "gzip6_bytes": 173,
+          "brotli4_bytes": 154,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.transit_discount_profile",
+          "count": 3,
+          "raw_bytes": 53,
+          "percent": 0.0009323907625056471,
+          "gzip6_bytes": 69,
+          "brotli4_bytes": 54,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "snapshot.data.ledger_entries",
+          "count": 10000,
+          "raw_bytes": 5586627,
+          "percent": 98.28149827103087,
+          "gzip6_bytes": 101336,
+          "brotli4_bytes": 36522,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.monthly_panels",
+          "count": 4,
+          "raw_bytes": 1336,
+          "percent": 0.023503284126557444,
+          "gzip6_bytes": 243,
+          "brotli4_bytes": 226,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.cash_flows",
+          "count": 5,
+          "raw_bytes": 910,
+          "percent": 0.016008973469436583,
+          "gzip6_bytes": 238,
+          "brotli4_bytes": 209,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.card_payment_batches",
+          "count": 1,
+          "raw_bytes": 110,
+          "percent": 0.0019351506391626638,
+          "gzip6_bytes": 112,
+          "brotli4_bytes": 96,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.card_payment_batch_items",
+          "count": 3,
+          "raw_bytes": 298,
+          "percent": 0.005242499004277035,
+          "gzip6_bytes": 131,
+          "brotli4_bytes": 110,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.card_payment_events",
+          "count": 1,
+          "raw_bytes": 293,
+          "percent": 0.005154537611587823,
+          "gzip6_bytes": 222,
+          "brotli4_bytes": 210,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.card_payment_allocations",
+          "count": 1,
+          "raw_bytes": 117,
+          "percent": 0.0020582965889275606,
+          "gzip6_bytes": 116,
+          "brotli4_bytes": 98,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.card_payment_deferrals",
+          "count": 0,
+          "raw_bytes": 2,
+          "percent": 3.51845570756848e-05,
+          "gzip6_bytes": 22,
+          "brotli4_bytes": 6,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.notification_candidate_registrations",
+          "count": 0,
+          "raw_bytes": 2,
+          "percent": 3.51845570756848e-05,
+          "gzip6_bytes": 22,
+          "brotli4_bytes": 6,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.app_settings",
+          "count": 5,
+          "raw_bytes": 371,
+          "percent": 0.00652673533753953,
+          "gzip6_bytes": 150,
+          "brotli4_bytes": 127,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.app_labels",
+          "count": 18,
+          "raw_bytes": 1611,
+          "percent": 0.028341160724464104,
+          "gzip6_bytes": 397,
+          "brotli4_bytes": 371,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.manifest.tables.ledger_entries",
+          "count": 3,
+          "raw_bytes": 457,
+          "percent": 0.008039671291793976,
+          "gzip6_bytes": 282,
+          "brotli4_bytes": 272,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.monthly_panels",
+          "count": 3,
+          "raw_bytes": 322,
+          "percent": 0.005664713689185252,
+          "gzip6_bytes": 218,
+          "brotli4_bytes": 211,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.cash_flows",
+          "count": 3,
+          "raw_bytes": 204,
+          "percent": 0.0035888248217198493,
+          "gzip6_bytes": 175,
+          "brotli4_bytes": 155,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.card_payment_batches",
+          "count": 3,
+          "raw_bytes": 153,
+          "percent": 0.002691618616289887,
+          "gzip6_bytes": 145,
+          "brotli4_bytes": 123,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.card_payment_batch_items",
+          "count": 3,
+          "raw_bytes": 163,
+          "percent": 0.002867541401668311,
+          "gzip6_bytes": 146,
+          "brotli4_bytes": 129,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.card_payment_events",
+          "count": 3,
+          "raw_bytes": 235,
+          "percent": 0.004134185456392964,
+          "gzip6_bytes": 190,
+          "brotli4_bytes": 176,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.card_payment_allocations",
+          "count": 3,
+          "raw_bytes": 175,
+          "percent": 0.0030786487441224197,
+          "gzip6_bytes": 158,
+          "brotli4_bytes": 137,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.card_payment_deferrals",
+          "count": 3,
+          "raw_bytes": 310,
+          "percent": 0.0054536063467311435,
+          "gzip6_bytes": 206,
+          "brotli4_bytes": 186,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.notification_candidate_registrations",
+          "count": 3,
+          "raw_bytes": 178,
+          "percent": 0.003131425579735947,
+          "gzip6_bytes": 158,
+          "brotli4_bytes": 140,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.app_settings",
+          "count": 3,
+          "raw_bytes": 130,
+          "percent": 0.002286996209919512,
+          "gzip6_bytes": 131,
+          "brotli4_bytes": 105,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.app_labels",
+          "count": 3,
+          "raw_bytes": 131,
+          "percent": 0.002304588488457354,
+          "gzip6_bytes": 132,
+          "brotli4_bytes": 106,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.algorithm",
+          "count": 1,
+          "raw_bytes": 8,
+          "percent": 0.0001407382283027392,
+          "gzip6_bytes": 28,
+          "brotli4_bytes": 12,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.data_sha256",
+          "count": 1,
+          "raw_bytes": 66,
+          "percent": 0.0011610903834975983,
+          "gzip6_bytes": 73,
+          "brotli4_bytes": 51,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.card_charge_policy_sha256",
+          "count": 1,
+          "raw_bytes": 66,
+          "percent": 0.0011610903834975983,
+          "gzip6_bytes": 72,
+          "brotli4_bytes": 51,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.content_sha256",
+          "count": 1,
+          "raw_bytes": 66,
+          "percent": 0.0011610903834975983,
+          "gzip6_bytes": 72,
+          "brotli4_bytes": 50,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.schema_version",
+          "count": 1,
+          "raw_bytes": 1,
+          "percent": 1.75922785378424e-05,
+          "gzip6_bytes": 21,
+          "brotli4_bytes": 5,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.recurring_ownership_version",
+          "count": 1,
+          "raw_bytes": 1,
+          "percent": 1.75922785378424e-05,
+          "gzip6_bytes": 21,
+          "brotli4_bytes": 5,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.exported_at",
+          "count": 1,
+          "raw_bytes": 22,
+          "percent": 0.00038703012783253277,
+          "gzip6_bytes": 40,
+          "brotli4_bytes": 26,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.range",
+          "count": 1,
+          "raw_bytes": 15,
+          "percent": 0.000263884178067636,
+          "gzip6_bytes": 35,
+          "brotli4_bytes": 19,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.card_charge_policy",
+          "count": 5,
+          "raw_bytes": 1199,
+          "percent": 0.021093141966873036,
+          "gzip6_bytes": 482,
+          "brotli4_bytes": 478,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.snapshot_id",
+          "count": 1,
+          "raw_bytes": 66,
+          "percent": 0.0011610903834975983,
+          "gzip6_bytes": 72,
+          "brotli4_bytes": 50,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "json_structure",
+          "count": null,
+          "raw_bytes": 1005,
+          "percent": 0.01768023993053161,
+          "gzip6_bytes": 354,
+          "brotli4_bytes": 339,
+          "hot_cold": "CONTROL"
+        }
+      ],
+      "tables": [
+        {
+          "table": "ledger_entries",
+          "rows": 10000,
+          "row_payload_bytes": 5586627,
+          "row_objects_bytes": 5576626,
+          "array_structure_bytes": 10001,
+          "manifest_nonhash_bytes": 391,
+          "hash_bytes": 66,
+          "total_bytes": 5587084,
+          "bundle_percent": 98.28953794232265,
+          "snapshot_percent": 99.83421372670317,
+          "avg_object_bytes": 557.6626,
+          "row_sizes": {
+            "n": 10000,
+            "median": 558.0,
+            "p95": 558,
+            "min": 533,
+            "max": 582,
+            "stdev": 1.2125020577302126
+          }
+        },
+        {
+          "table": "app_labels",
+          "rows": 18,
+          "row_payload_bytes": 1611,
+          "row_objects_bytes": 1592,
+          "array_structure_bytes": 19,
+          "manifest_nonhash_bytes": 65,
+          "hash_bytes": 66,
+          "total_bytes": 1742,
+          "bundle_percent": 0.030645749212921458,
+          "snapshot_percent": 0.031127364527169615,
+          "avg_object_bytes": 88.44444444444444,
+          "row_sizes": {
+            "n": 18,
+            "median": 87.0,
+            "p95": 109,
+            "min": 75,
+            "max": 109,
+            "stdev": 9.190709211071207
+          }
+        },
+        {
+          "table": "monthly_panels",
+          "rows": 4,
+          "row_payload_bytes": 1336,
+          "row_objects_bytes": 1331,
+          "array_structure_bytes": 5,
+          "manifest_nonhash_bytes": 256,
+          "hash_bytes": 66,
+          "total_bytes": 1658,
+          "bundle_percent": 0.029167997815742697,
+          "snapshot_percent": 0.02962638942941861,
+          "avg_object_bytes": 332.75,
+          "row_sizes": {
+            "n": 4,
+            "median": 331.5,
+            "p95": 337,
+            "min": 331,
+            "max": 337,
+            "stdev": 2.48746859276655
+          }
+        },
+        {
+          "table": "cash_flows",
+          "rows": 5,
+          "row_payload_bytes": 910,
+          "row_objects_bytes": 904,
+          "array_structure_bytes": 6,
+          "manifest_nonhash_bytes": 138,
+          "hash_bytes": 66,
+          "total_bytes": 1114,
+          "bundle_percent": 0.019597798291156432,
+          "snapshot_percent": 0.019905788796364496,
+          "avg_object_bytes": 180.8,
+          "row_sizes": {
+            "n": 5,
+            "median": 178,
+            "p95": 193,
+            "min": 177,
+            "max": 193,
+            "stdev": 6.144916598294887
+          }
+        },
+        {
+          "table": "card_payment_events",
+          "rows": 1,
+          "row_payload_bytes": 293,
+          "row_objects_bytes": 291,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 169,
+          "hash_bytes": 66,
+          "total_bytes": 528,
+          "bundle_percent": 0.009288723067980786,
+          "snapshot_percent": 0.009434700614434877,
+          "avg_object_bytes": 291.0,
+          "row_sizes": {
+            "n": 1,
+            "median": 291,
+            "p95": 291,
+            "min": 291,
+            "max": 291,
+            "stdev": 0.0
+          }
+        },
+        {
+          "table": "app_settings",
+          "rows": 5,
+          "row_payload_bytes": 371,
+          "row_objects_bytes": 365,
+          "array_structure_bytes": 6,
+          "manifest_nonhash_bytes": 64,
+          "hash_bytes": 66,
+          "total_bytes": 501,
+          "bundle_percent": 0.008813731547459042,
+          "snapshot_percent": 0.008952244333014912,
+          "avg_object_bytes": 73.0,
+          "row_sizes": {
+            "n": 5,
+            "median": 73,
+            "p95": 74,
+            "min": 72,
+            "max": 74,
+            "stdev": 0.6324555320336759
+          }
+        },
+        {
+          "table": "card_payment_batch_items",
+          "rows": 3,
+          "row_payload_bytes": 298,
+          "row_objects_bytes": 294,
+          "array_structure_bytes": 4,
+          "manifest_nonhash_bytes": 97,
+          "hash_bytes": 66,
+          "total_bytes": 461,
+          "bundle_percent": 0.008110040405945346,
+          "snapshot_percent": 0.008237494286466815,
+          "avg_object_bytes": 98.0,
+          "row_sizes": {
+            "n": 3,
+            "median": 97,
+            "p95": 100,
+            "min": 97,
+            "max": 100,
+            "stdev": 1.4142135623730951
+          }
+        },
+        {
+          "table": "card_payment_deferrals",
+          "rows": 0,
+          "row_payload_bytes": 2,
+          "row_objects_bytes": 0,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 244,
+          "hash_bytes": 66,
+          "total_bytes": 312,
+          "bundle_percent": 0.005488790903806828,
+          "snapshot_percent": 0.005575050363075155,
+          "avg_object_bytes": 0,
+          "row_sizes": null
+        },
+        {
+          "table": "card_payment_allocations",
+          "rows": 1,
+          "row_payload_bytes": 117,
+          "row_objects_bytes": 115,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 109,
+          "hash_bytes": 66,
+          "total_bytes": 292,
+          "bundle_percent": 0.00513694533304998,
+          "snapshot_percent": 0.005217675339801106,
+          "avg_object_bytes": 115.0,
+          "row_sizes": {
+            "n": 1,
+            "median": 115,
+            "p95": 115,
+            "min": 115,
+            "max": 115,
+            "stdev": 0.0
+          }
+        },
+        {
+          "table": "card_payment_batches",
+          "rows": 1,
+          "row_payload_bytes": 110,
+          "row_objects_bytes": 108,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 87,
+          "hash_bytes": 66,
+          "total_bytes": 263,
+          "bundle_percent": 0.004626769255452551,
+          "snapshot_percent": 0.004699481556053736,
+          "avg_object_bytes": 108.0,
+          "row_sizes": {
+            "n": 1,
+            "median": 108,
+            "p95": 108,
+            "min": 108,
+            "max": 108,
+            "stdev": 0.0
+          }
+        },
+        {
+          "table": "notification_candidate_registrations",
+          "rows": 0,
+          "row_payload_bytes": 2,
+          "row_objects_bytes": 0,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 112,
+          "hash_bytes": 66,
+          "total_bytes": 180,
+          "bundle_percent": 0.0031666101368116317,
+          "snapshot_percent": 0.0032163752094664356,
+          "avg_object_bytes": 0,
+          "row_sizes": null
+        }
+      ],
+      "snapshot_bytes": 5596362,
+      "state_bytes": 87661,
+      "archive_row_bytes": 5518683,
+      "cold_candidate_row_bytes": 5516500,
+      "cold_candidate_rows": 9891,
+      "overlap": [
+        {
+          "projection": "entries",
+          "same_id_records": 104,
+          "equal_raw_value_token_bytes": 13581,
+          "identical_value_token_bytes": 13581,
+          "identical_row_bytes": 0
+        },
+        {
+          "projection": "confirmed_planned_entries",
+          "same_id_records": 1,
+          "equal_raw_value_token_bytes": 145,
+          "identical_value_token_bytes": 145,
+          "identical_row_bytes": 0
+        },
+        {
+          "projection": "panels",
+          "same_id_records": 4,
+          "equal_raw_value_token_bytes": 219,
+          "identical_value_token_bytes": 219,
+          "identical_row_bytes": 0
+        },
+        {
+          "projection": "cash_flows",
+          "same_id_records": 4,
+          "equal_raw_value_token_bytes": 119,
+          "identical_value_token_bytes": 119,
+          "identical_row_bytes": 0
+        }
+      ],
+      "ledger_representation": {
+        "keys_bytes": 3260000,
+        "value_token_bytes": 1826626,
+        "null_bytes_within_values": 519924,
+        "structural_bytes": 500001,
+        "total_bytes": 5586627
+      }
+    },
+    "snapshot_canonical_and_migrated_restore": "PASS",
+    "backend": {
+      "warmups": 3,
+      "wall_ms": {
+        "n": 20,
+        "median": 1348.4947515025851,
+        "p95": 1670.941631993628,
+        "min": 1270.5776690127095,
+        "max": 1672.1445610019146,
+        "stdev": 161.3226606410016
+      },
+      "cpu_ms": {
+        "n": 20,
+        "median": 1340.458612999999,
+        "p95": 1663.9066740000032,
+        "min": 1261.689802999996,
+        "max": 1664.237571000001,
+        "stdev": 161.40430823941327
+      }
+    }
+  },
+  "heavy600": {
+    "ledger_rows": 1200,
+    "archive_rows": 0,
+    "current_rows": 1200,
+    "confirmed_sources": 600,
+    "typed_entries": 600,
+    "policy_binding_count": 4,
+    "raw_bytes": 1696801,
+    "sha256": "2b35682312c8503a3afd4bdaa07a2193b04ae76abcda423242d70f2a5861a89d",
+    "status": 200,
+    "headers": {
+      "content-length": "1696801",
+      "content-type": "application/json",
+      "cache-control": "no-store, max-age=0",
+      "pragma": "no-cache",
+      "x-content-type-options": "nosniff",
+      "referrer-policy": "no-referrer",
+      "x-frame-options": "DENY",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()"
+    },
+    "backend_stages_inclusive": {
+      "export_snapshot_from_connection": {
+        "n": 20,
+        "median": 86.41483500105096,
+        "p95": 97.38381601346191,
+        "min": 74.36061699991114,
+        "max": 99.37662299489602,
+        "stdev": 7.856194253739208
+      },
+      "_construct": {
+        "n": 20,
+        "median": 349.49526250420604,
+        "p95": 396.8856900028186,
+        "min": 300.5878620024305,
+        "max": 397.9009600006975,
+        "stdev": 32.99714604722563
+      },
+      "json_render": {
+        "n": 20,
+        "median": 15.381488999992143,
+        "p95": 17.42500100226607,
+        "min": 12.761752994265407,
+        "max": 17.648494002060033,
+        "stdev": 1.6850249051676869
+      },
+      "_terminal_guard": {
+        "n": 20,
+        "median": 0.9041299999807961,
+        "p95": 1.023759992676787,
+        "min": 0.7878799951868132,
+        "max": 1.0272689978592098,
+        "stdev": 0.07869911628556943
+      },
+      "_prepare": {
+        "n": 20,
+        "median": 78.57897999929264,
+        "p95": 88.41572600067593,
+        "min": 66.72414501372259,
+        "max": 88.85516600275878,
+        "stdev": 7.934562849069844
+      }
+    },
+    "legacy_requests": [
+      {
+        "path": "/api/offline-reconciliation/baseline",
+        "bytes": 716721
+      },
+      {
+        "path": "/api/month/current/status",
+        "bytes": 307
+      },
+      {
+        "path": "/api/entries/current",
+        "bytes": 477049
+      },
+      {
+        "path": "/api/month/current/panels",
+        "bytes": 2
+      },
+      {
+        "path": "/api/month/current/summary",
+        "bytes": 470
+      },
+      {
+        "path": "/api/card-payments/current",
+        "bytes": 394
+      },
+      {
+        "path": "/api/judgment/current",
+        "bytes": 1183
+      },
+      {
+        "path": "/api/month/current/planned/confirmed",
+        "bytes": 476926
+      },
+      {
+        "path": "/api/settings",
+        "bytes": 116
+      },
+      {
+        "path": "/api/cash-flows?from=2026-09-01&to=2026-10-31",
+        "bytes": 2
+      },
+      {
+        "path": "/api/card-discounts/months/2026-10?scope=owner",
+        "bytes": 23044
+      },
+      {
+        "path": "/api/card-discounts/months/2026-10?scope=family",
+        "bytes": 244
+      },
+      {
+        "path": "/api/card-discounts/profiles/transit/2026-10",
+        "bytes": 53
+      },
+      {
+        "path": "/api/offline-reconciliation/baseline",
+        "bytes": 716721
+      }
+    ],
+    "legacy_aggregate_body_bytes": 2413232,
+    "attribution": {
+      "partition": [
+        {
+          "category": "bundle_version",
+          "count": 1,
+          "raw_bytes": 1,
+          "percent": 5.89344301423679e-05,
+          "gzip6_bytes": 21,
+          "brotli4_bytes": 5,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "principal",
+          "count": 1,
+          "raw_bytes": 13,
+          "percent": 0.0007661475918507827,
+          "gzip6_bytes": 33,
+          "brotli4_bytes": 17,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "authority",
+          "count": 4,
+          "raw_bytes": 208,
+          "percent": 0.012258361469612523,
+          "gzip6_bytes": 176,
+          "brotli4_bytes": 155,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "state.month_close_status",
+          "count": 11,
+          "raw_bytes": 307,
+          "percent": 0.018092870053706946,
+          "gzip6_bytes": 176,
+          "brotli4_bytes": 163,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.entries",
+          "count": 600,
+          "raw_bytes": 477049,
+          "percent": 28.114610964986465,
+          "gzip6_bytes": 16861,
+          "brotli4_bytes": 13717,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.panels",
+          "count": 0,
+          "raw_bytes": 2,
+          "percent": 0.0001178688602847358,
+          "gzip6_bytes": 22,
+          "brotli4_bytes": 6,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.summary",
+          "count": 17,
+          "raw_bytes": 470,
+          "percent": 0.027699182166912913,
+          "gzip6_bytes": 234,
+          "brotli4_bytes": 213,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.card_payment_status",
+          "count": 16,
+          "raw_bytes": 394,
+          "percent": 0.023220165476092954,
+          "gzip6_bytes": 222,
+          "brotli4_bytes": 192,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.judgment",
+          "count": 6,
+          "raw_bytes": 1183,
+          "percent": 0.06971943085842124,
+          "gzip6_bytes": 633,
+          "brotli4_bytes": 643,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.confirmed_planned_entries",
+          "count": 600,
+          "raw_bytes": 476926,
+          "percent": 28.107362030078953,
+          "gzip6_bytes": 5203,
+          "brotli4_bytes": 2647,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.cash_flows",
+          "count": 0,
+          "raw_bytes": 2,
+          "percent": 0.0001178688602847358,
+          "gzip6_bytes": 22,
+          "brotli4_bytes": 6,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.settings",
+          "count": 5,
+          "raw_bytes": 116,
+          "percent": 0.006836393896514676,
+          "gzip6_bytes": 104,
+          "brotli4_bytes": 91,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.owner_discount_month",
+          "count": 6,
+          "raw_bytes": 23044,
+          "percent": 1.3580850082007259,
+          "gzip6_bytes": 12165,
+          "brotli4_bytes": 10708,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.family_discount_month",
+          "count": 6,
+          "raw_bytes": 244,
+          "percent": 0.014380000954737768,
+          "gzip6_bytes": 173,
+          "brotli4_bytes": 154,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.transit_discount_profile",
+          "count": 3,
+          "raw_bytes": 53,
+          "percent": 0.0031235247975454987,
+          "gzip6_bytes": 69,
+          "brotli4_bytes": 54,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "snapshot.data.ledger_entries",
+          "count": 1200,
+          "raw_bytes": 709819,
+          "percent": 41.83277826922544,
+          "gzip6_bytes": 22005,
+          "brotli4_bytes": 16952,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.monthly_panels",
+          "count": 0,
+          "raw_bytes": 2,
+          "percent": 0.0001178688602847358,
+          "gzip6_bytes": 22,
+          "brotli4_bytes": 6,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.cash_flows",
+          "count": 0,
+          "raw_bytes": 2,
+          "percent": 0.0001178688602847358,
+          "gzip6_bytes": 22,
+          "brotli4_bytes": 6,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.card_payment_batches",
+          "count": 0,
+          "raw_bytes": 2,
+          "percent": 0.0001178688602847358,
+          "gzip6_bytes": 22,
+          "brotli4_bytes": 6,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.card_payment_batch_items",
+          "count": 0,
+          "raw_bytes": 2,
+          "percent": 0.0001178688602847358,
+          "gzip6_bytes": 22,
+          "brotli4_bytes": 6,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.card_payment_events",
+          "count": 0,
+          "raw_bytes": 2,
+          "percent": 0.0001178688602847358,
+          "gzip6_bytes": 22,
+          "brotli4_bytes": 6,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.card_payment_allocations",
+          "count": 0,
+          "raw_bytes": 2,
+          "percent": 0.0001178688602847358,
+          "gzip6_bytes": 22,
+          "brotli4_bytes": 6,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.card_payment_deferrals",
+          "count": 0,
+          "raw_bytes": 2,
+          "percent": 0.0001178688602847358,
+          "gzip6_bytes": 22,
+          "brotli4_bytes": 6,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.notification_candidate_registrations",
+          "count": 0,
+          "raw_bytes": 2,
+          "percent": 0.0001178688602847358,
+          "gzip6_bytes": 22,
+          "brotli4_bytes": 6,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.app_settings",
+          "count": 5,
+          "raw_bytes": 371,
+          "percent": 0.021864673582818493,
+          "gzip6_bytes": 150,
+          "brotli4_bytes": 127,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.app_labels",
+          "count": 18,
+          "raw_bytes": 1611,
+          "percent": 0.0949433669593547,
+          "gzip6_bytes": 397,
+          "brotli4_bytes": 371,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.manifest.tables.ledger_entries",
+          "count": 3,
+          "raw_bytes": 456,
+          "percent": 0.026874100144919765,
+          "gzip6_bytes": 281,
+          "brotli4_bytes": 270,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.monthly_panels",
+          "count": 3,
+          "raw_bytes": 322,
+          "percent": 0.018976886505842464,
+          "gzip6_bytes": 219,
+          "brotli4_bytes": 210,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.cash_flows",
+          "count": 3,
+          "raw_bytes": 204,
+          "percent": 0.012022623749043053,
+          "gzip6_bytes": 174,
+          "brotli4_bytes": 155,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.card_payment_batches",
+          "count": 3,
+          "raw_bytes": 153,
+          "percent": 0.00901696781178229,
+          "gzip6_bytes": 146,
+          "brotli4_bytes": 122,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.card_payment_batch_items",
+          "count": 3,
+          "raw_bytes": 163,
+          "percent": 0.009606312113205968,
+          "gzip6_bytes": 147,
+          "brotli4_bytes": 130,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.card_payment_events",
+          "count": 3,
+          "raw_bytes": 235,
+          "percent": 0.013849591083456457,
+          "gzip6_bytes": 188,
+          "brotli4_bytes": 176,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.card_payment_allocations",
+          "count": 3,
+          "raw_bytes": 175,
+          "percent": 0.010313525274914383,
+          "gzip6_bytes": 157,
+          "brotli4_bytes": 133,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.card_payment_deferrals",
+          "count": 3,
+          "raw_bytes": 310,
+          "percent": 0.01826967334413405,
+          "gzip6_bytes": 206,
+          "brotli4_bytes": 186,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.notification_candidate_registrations",
+          "count": 3,
+          "raw_bytes": 178,
+          "percent": 0.010490328565341487,
+          "gzip6_bytes": 158,
+          "brotli4_bytes": 140,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.app_settings",
+          "count": 3,
+          "raw_bytes": 130,
+          "percent": 0.007661475918507827,
+          "gzip6_bytes": 131,
+          "brotli4_bytes": 105,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.app_labels",
+          "count": 3,
+          "raw_bytes": 131,
+          "percent": 0.007720410348650195,
+          "gzip6_bytes": 132,
+          "brotli4_bytes": 106,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.algorithm",
+          "count": 1,
+          "raw_bytes": 8,
+          "percent": 0.0004714754411389432,
+          "gzip6_bytes": 28,
+          "brotli4_bytes": 12,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.data_sha256",
+          "count": 1,
+          "raw_bytes": 66,
+          "percent": 0.0038896723893962815,
+          "gzip6_bytes": 72,
+          "brotli4_bytes": 52,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.card_charge_policy_sha256",
+          "count": 1,
+          "raw_bytes": 66,
+          "percent": 0.0038896723893962815,
+          "gzip6_bytes": 72,
+          "brotli4_bytes": 51,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.content_sha256",
+          "count": 1,
+          "raw_bytes": 66,
+          "percent": 0.0038896723893962815,
+          "gzip6_bytes": 72,
+          "brotli4_bytes": 50,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.schema_version",
+          "count": 1,
+          "raw_bytes": 1,
+          "percent": 5.89344301423679e-05,
+          "gzip6_bytes": 21,
+          "brotli4_bytes": 5,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.recurring_ownership_version",
+          "count": 1,
+          "raw_bytes": 1,
+          "percent": 5.89344301423679e-05,
+          "gzip6_bytes": 21,
+          "brotli4_bytes": 5,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.exported_at",
+          "count": 1,
+          "raw_bytes": 22,
+          "percent": 0.001296557463132094,
+          "gzip6_bytes": 40,
+          "brotli4_bytes": 26,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.range",
+          "count": 1,
+          "raw_bytes": 15,
+          "percent": 0.0008840164521355185,
+          "gzip6_bytes": 35,
+          "brotli4_bytes": 19,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.card_charge_policy",
+          "count": 5,
+          "raw_bytes": 1199,
+          "percent": 0.07066238174069911,
+          "gzip6_bytes": 482,
+          "brotli4_bytes": 478,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.snapshot_id",
+          "count": 1,
+          "raw_bytes": 66,
+          "percent": 0.0038896723893962815,
+          "gzip6_bytes": 72,
+          "brotli4_bytes": 50,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "json_structure",
+          "count": null,
+          "raw_bytes": 1005,
+          "percent": 0.05922910229307974,
+          "gzip6_bytes": 354,
+          "brotli4_bytes": 339,
+          "hot_cold": "CONTROL"
+        }
+      ],
+      "tables": [
+        {
+          "table": "ledger_entries",
+          "rows": 1200,
+          "row_payload_bytes": 709819,
+          "row_objects_bytes": 708618,
+          "array_structure_bytes": 1201,
+          "manifest_nonhash_bytes": 390,
+          "hash_bytes": 66,
+          "total_bytes": 710275,
+          "bundle_percent": 41.85965236937036,
+          "snapshot_percent": 99.13105494618989,
+          "avg_object_bytes": 590.515,
+          "row_sizes": {
+            "n": 1200,
+            "median": 591.0,
+            "p95": 593,
+            "min": 578,
+            "max": 593,
+            "stdev": 1.6984625400638071
+          }
+        },
+        {
+          "table": "app_labels",
+          "rows": 18,
+          "row_payload_bytes": 1611,
+          "row_objects_bytes": 1592,
+          "array_structure_bytes": 19,
+          "manifest_nonhash_bytes": 65,
+          "hash_bytes": 66,
+          "total_bytes": 1742,
+          "bundle_percent": 0.10266377730800488,
+          "snapshot_percent": 0.24312596911937318,
+          "avg_object_bytes": 88.44444444444444,
+          "row_sizes": {
+            "n": 18,
+            "median": 87.0,
+            "p95": 109,
+            "min": 75,
+            "max": 109,
+            "stdev": 9.190709211071207
+          }
+        },
+        {
+          "table": "app_settings",
+          "rows": 5,
+          "row_payload_bytes": 371,
+          "row_objects_bytes": 365,
+          "array_structure_bytes": 6,
+          "manifest_nonhash_bytes": 64,
+          "hash_bytes": 66,
+          "total_bytes": 501,
+          "bundle_percent": 0.02952614950132632,
+          "snapshot_percent": 0.06992314037244889,
+          "avg_object_bytes": 73.0,
+          "row_sizes": {
+            "n": 5,
+            "median": 73,
+            "p95": 74,
+            "min": 72,
+            "max": 74,
+            "stdev": 0.6324555320336759
+          }
+        },
+        {
+          "table": "monthly_panels",
+          "rows": 0,
+          "row_payload_bytes": 2,
+          "row_objects_bytes": 0,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 256,
+          "hash_bytes": 66,
+          "total_bytes": 324,
+          "bundle_percent": 0.0190947553661272,
+          "snapshot_percent": 0.045219755450445986,
+          "avg_object_bytes": 0,
+          "row_sizes": null
+        },
+        {
+          "table": "card_payment_deferrals",
+          "rows": 0,
+          "row_payload_bytes": 2,
+          "row_objects_bytes": 0,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 244,
+          "hash_bytes": 66,
+          "total_bytes": 312,
+          "bundle_percent": 0.018387542204418787,
+          "snapshot_percent": 0.04354494969302206,
+          "avg_object_bytes": 0,
+          "row_sizes": null
+        },
+        {
+          "table": "card_payment_events",
+          "rows": 0,
+          "row_payload_bytes": 2,
+          "row_objects_bytes": 0,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 169,
+          "hash_bytes": 66,
+          "total_bytes": 237,
+          "bundle_percent": 0.013967459943741193,
+          "snapshot_percent": 0.033077413709122525,
+          "avg_object_bytes": 0,
+          "row_sizes": null
+        },
+        {
+          "table": "cash_flows",
+          "rows": 0,
+          "row_payload_bytes": 2,
+          "row_objects_bytes": 0,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 138,
+          "hash_bytes": 66,
+          "total_bytes": 206,
+          "bundle_percent": 0.012140492609327787,
+          "snapshot_percent": 0.02875083216911072,
+          "avg_object_bytes": 0,
+          "row_sizes": null
+        },
+        {
+          "table": "notification_candidate_registrations",
+          "rows": 0,
+          "row_payload_bytes": 2,
+          "row_objects_bytes": 0,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 112,
+          "hash_bytes": 66,
+          "total_bytes": 180,
+          "bundle_percent": 0.010608197425626223,
+          "snapshot_percent": 0.025122086361358882,
+          "avg_object_bytes": 0,
+          "row_sizes": null
+        },
+        {
+          "table": "card_payment_allocations",
+          "rows": 0,
+          "row_payload_bytes": 2,
+          "row_objects_bytes": 0,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 109,
+          "hash_bytes": 66,
+          "total_bytes": 177,
+          "bundle_percent": 0.01043139413519912,
+          "snapshot_percent": 0.0247033849220029,
+          "avg_object_bytes": 0,
+          "row_sizes": null
+        },
+        {
+          "table": "card_payment_batch_items",
+          "rows": 0,
+          "row_payload_bytes": 2,
+          "row_objects_bytes": 0,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 97,
+          "hash_bytes": 66,
+          "total_bytes": 165,
+          "bundle_percent": 0.009724180973490704,
+          "snapshot_percent": 0.023028579164578976,
+          "avg_object_bytes": 0,
+          "row_sizes": null
+        },
+        {
+          "table": "card_payment_batches",
+          "rows": 0,
+          "row_payload_bytes": 2,
+          "row_objects_bytes": 0,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 87,
+          "hash_bytes": 66,
+          "total_bytes": 155,
+          "bundle_percent": 0.009134836672067026,
+          "snapshot_percent": 0.02163290770005904,
+          "avg_object_bytes": 0,
+          "row_sizes": null
+        }
+      ],
+      "snapshot_bytes": 716501,
+      "state_bytes": 980012,
+      "archive_row_bytes": 0,
+      "cold_candidate_row_bytes": 0,
+      "cold_candidate_rows": 0,
+      "overlap": [
+        {
+          "projection": "entries",
+          "same_id_records": 600,
+          "equal_raw_value_token_bytes": 101448,
+          "identical_value_token_bytes": 101448,
+          "identical_row_bytes": 0
+        },
+        {
+          "projection": "confirmed_planned_entries",
+          "same_id_records": 600,
+          "equal_raw_value_token_bytes": 102525,
+          "identical_value_token_bytes": 102525,
+          "identical_row_bytes": 0
+        },
+        {
+          "projection": "panels",
+          "same_id_records": 0,
+          "equal_raw_value_token_bytes": 0,
+          "identical_value_token_bytes": 0,
+          "identical_row_bytes": 0
+        },
+        {
+          "projection": "cash_flows",
+          "same_id_records": 0,
+          "equal_raw_value_token_bytes": 0,
+          "identical_value_token_bytes": 0,
+          "identical_row_bytes": 0
+        }
+      ],
+      "ledger_representation": {
+        "keys_bytes": 391200,
+        "value_token_bytes": 258618,
+        "null_bytes_within_values": 36000,
+        "structural_bytes": 60001,
+        "total_bytes": 709819
+      }
+    },
+    "snapshot_canonical_and_migrated_restore": "PASS",
+    "backend": {
+      "warmups": 3,
+      "wall_ms": {
+        "n": 20,
+        "median": 438.3731030029594,
+        "p95": 492.83490898960736,
+        "min": 377.5962799991248,
+        "max": 499.5194710063515,
+        "stdev": 39.33827513769839
+      },
+      "cpu_ms": {
+        "n": 20,
+        "median": 434.8110399999996,
+        "p95": 491.3601829999976,
+        "min": 374.5131099999952,
+        "max": 492.80210199999885,
+        "stdev": 40.00947542365333
+      }
+    }
+  },
+  "varied10000": {
+    "ledger_rows": 10000,
+    "archive_rows": 9895,
+    "current_rows": 105,
+    "confirmed_sources": 1,
+    "typed_entries": 104,
+    "policy_binding_count": 4,
+    "raw_bytes": 6180091,
+    "sha256": "1383cc158079f754807904491878297172fc38c7eb1dbc4e1ff297ec16e67aec",
+    "status": 200,
+    "headers": {
+      "content-length": "6180091",
+      "content-type": "application/json",
+      "cache-control": "no-store, max-age=0",
+      "pragma": "no-cache",
+      "x-content-type-options": "nosniff",
+      "referrer-policy": "no-referrer",
+      "x-frame-options": "DENY",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()"
+    },
+    "backend_stages_inclusive": {
+      "export_snapshot_from_connection": {
+        "n": 20,
+        "median": 677.5825849981629,
+        "p95": 743.7383689975832,
+        "min": 580.5368270084728,
+        "max": 751.1758449982153,
+        "stdev": 56.15539452514339
+      },
+      "_construct": {
+        "n": 20,
+        "median": 1423.0862899930798,
+        "p95": 1542.1993040072266,
+        "min": 1220.0129410048248,
+        "max": 1579.818336002063,
+        "stdev": 120.4678088151428
+      },
+      "json_render": {
+        "n": 20,
+        "median": 74.82018598966533,
+        "p95": 80.8633950073272,
+        "min": 64.47055599710438,
+        "max": 83.1232229975285,
+        "stdev": 6.362876168524166
+      },
+      "_terminal_guard": {
+        "n": 20,
+        "median": 0.8350714997504838,
+        "p95": 0.9039900032803416,
+        "min": 0.7804990018485114,
+        "max": 0.9437060070922598,
+        "stdev": 0.04471446789764425
+      },
+      "_prepare": {
+        "n": 20,
+        "median": 225.40913299599197,
+        "p95": 243.31887799780816,
+        "min": 193.52426200930495,
+        "max": 250.28618599753827,
+        "stdev": 19.171143214612343
+      }
+    },
+    "legacy_requests": [
+      {
+        "path": "/api/offline-reconciliation/baseline",
+        "bytes": 6087252
+      },
+      {
+        "path": "/api/month/current/status",
+        "bytes": 367
+      },
+      {
+        "path": "/api/entries/current",
+        "bytes": 83703
+      },
+      {
+        "path": "/api/month/current/panels",
+        "bytes": 2024
+      },
+      {
+        "path": "/api/month/current/summary",
+        "bytes": 492
+      },
+      {
+        "path": "/api/card-payments/current",
+        "bytes": 2848
+      },
+      {
+        "path": "/api/judgment/current",
+        "bytes": 1164
+      },
+      {
+        "path": "/api/month/current/planned/confirmed",
+        "bytes": 774
+      },
+      {
+        "path": "/api/settings",
+        "bytes": 116
+      },
+      {
+        "path": "/api/cash-flows?from=2026-09-01&to=2026-10-31",
+        "bytes": 452
+      },
+      {
+        "path": "/api/card-discounts/months/2026-10?scope=owner",
+        "bytes": 312
+      },
+      {
+        "path": "/api/card-discounts/months/2026-10?scope=family",
+        "bytes": 244
+      },
+      {
+        "path": "/api/card-discounts/profiles/transit/2026-10",
+        "bytes": 53
+      },
+      {
+        "path": "/api/offline-reconciliation/baseline",
+        "bytes": 6087252
+      }
+    ],
+    "legacy_aggregate_body_bytes": 12267053,
+    "attribution": {
+      "partition": [
+        {
+          "category": "bundle_version",
+          "count": 1,
+          "raw_bytes": 1,
+          "percent": 1.6180991509671944e-05,
+          "gzip6_bytes": 21,
+          "brotli4_bytes": 5,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "principal",
+          "count": 1,
+          "raw_bytes": 13,
+          "percent": 0.0002103528896257353,
+          "gzip6_bytes": 33,
+          "brotli4_bytes": 17,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "authority",
+          "count": 4,
+          "raw_bytes": 209,
+          "percent": 0.0033818272255214366,
+          "gzip6_bytes": 177,
+          "brotli4_bytes": 155,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "state.month_close_status",
+          "count": 11,
+          "raw_bytes": 367,
+          "percent": 0.0059384238840496035,
+          "gzip6_bytes": 215,
+          "brotli4_bytes": 202,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.entries",
+          "count": 104,
+          "raw_bytes": 83703,
+          "percent": 1.354397532334071,
+          "gzip6_bytes": 6303,
+          "brotli4_bytes": 5335,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.panels",
+          "count": 4,
+          "raw_bytes": 2024,
+          "percent": 0.03275032681557602,
+          "gzip6_bytes": 339,
+          "brotli4_bytes": 319,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.summary",
+          "count": 17,
+          "raw_bytes": 492,
+          "percent": 0.007961047822758596,
+          "gzip6_bytes": 250,
+          "brotli4_bytes": 234,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.card_payment_status",
+          "count": 16,
+          "raw_bytes": 2848,
+          "percent": 0.0460834638195457,
+          "gzip6_bytes": 899,
+          "brotli4_bytes": 883,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.judgment",
+          "count": 6,
+          "raw_bytes": 1164,
+          "percent": 0.018834674117258143,
+          "gzip6_bytes": 643,
+          "brotli4_bytes": 648,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.confirmed_planned_entries",
+          "count": 1,
+          "raw_bytes": 774,
+          "percent": 0.012524087428486085,
+          "gzip6_bytes": 380,
+          "brotli4_bytes": 356,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.cash_flows",
+          "count": 4,
+          "raw_bytes": 452,
+          "percent": 0.007313808162371719,
+          "gzip6_bytes": 197,
+          "brotli4_bytes": 166,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.settings",
+          "count": 5,
+          "raw_bytes": 116,
+          "percent": 0.0018769950151219456,
+          "gzip6_bytes": 104,
+          "brotli4_bytes": 91,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.owner_discount_month",
+          "count": 6,
+          "raw_bytes": 312,
+          "percent": 0.005048469351017647,
+          "gzip6_bytes": 202,
+          "brotli4_bytes": 195,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.family_discount_month",
+          "count": 6,
+          "raw_bytes": 244,
+          "percent": 0.003948161928359954,
+          "gzip6_bytes": 173,
+          "brotli4_bytes": 154,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "state.transit_discount_profile",
+          "count": 3,
+          "raw_bytes": 53,
+          "percent": 0.000857592550012613,
+          "gzip6_bytes": 69,
+          "brotli4_bytes": 54,
+          "hot_cold": "HOT"
+        },
+        {
+          "category": "snapshot.data.ledger_entries",
+          "count": 10000,
+          "raw_bytes": 6077296,
+          "percent": 98.33667497776327,
+          "gzip6_bytes": 557185,
+          "brotli4_bytes": 462256,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.monthly_panels",
+          "count": 4,
+          "raw_bytes": 1336,
+          "percent": 0.02161780465692172,
+          "gzip6_bytes": 243,
+          "brotli4_bytes": 226,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.cash_flows",
+          "count": 5,
+          "raw_bytes": 910,
+          "percent": 0.01472470227380147,
+          "gzip6_bytes": 238,
+          "brotli4_bytes": 209,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.card_payment_batches",
+          "count": 1,
+          "raw_bytes": 110,
+          "percent": 0.001779909066063914,
+          "gzip6_bytes": 112,
+          "brotli4_bytes": 96,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.card_payment_batch_items",
+          "count": 3,
+          "raw_bytes": 298,
+          "percent": 0.004821935469882239,
+          "gzip6_bytes": 131,
+          "brotli4_bytes": 110,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.card_payment_events",
+          "count": 1,
+          "raw_bytes": 293,
+          "percent": 0.0047410305123338796,
+          "gzip6_bytes": 222,
+          "brotli4_bytes": 210,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.card_payment_allocations",
+          "count": 1,
+          "raw_bytes": 117,
+          "percent": 0.0018931760066316177,
+          "gzip6_bytes": 116,
+          "brotli4_bytes": 98,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.card_payment_deferrals",
+          "count": 0,
+          "raw_bytes": 2,
+          "percent": 3.236198301934389e-05,
+          "gzip6_bytes": 22,
+          "brotli4_bytes": 6,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.notification_candidate_registrations",
+          "count": 0,
+          "raw_bytes": 2,
+          "percent": 3.236198301934389e-05,
+          "gzip6_bytes": 22,
+          "brotli4_bytes": 6,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.app_settings",
+          "count": 5,
+          "raw_bytes": 371,
+          "percent": 0.006003147850088292,
+          "gzip6_bytes": 150,
+          "brotli4_bytes": 127,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.data.app_labels",
+          "count": 18,
+          "raw_bytes": 1611,
+          "percent": 0.026067577322081502,
+          "gzip6_bytes": 397,
+          "brotli4_bytes": 371,
+          "hot_cold": "SHARED"
+        },
+        {
+          "category": "snapshot.manifest.tables.ledger_entries",
+          "count": 3,
+          "raw_bytes": 457,
+          "percent": 0.007394713119920079,
+          "gzip6_bytes": 281,
+          "brotli4_bytes": 273,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.monthly_panels",
+          "count": 3,
+          "raw_bytes": 322,
+          "percent": 0.005210279266114367,
+          "gzip6_bytes": 218,
+          "brotli4_bytes": 211,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.cash_flows",
+          "count": 3,
+          "raw_bytes": 204,
+          "percent": 0.003300922267973077,
+          "gzip6_bytes": 175,
+          "brotli4_bytes": 155,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.card_payment_batches",
+          "count": 3,
+          "raw_bytes": 153,
+          "percent": 0.0024756917009798075,
+          "gzip6_bytes": 145,
+          "brotli4_bytes": 123,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.card_payment_batch_items",
+          "count": 3,
+          "raw_bytes": 163,
+          "percent": 0.002637501616076527,
+          "gzip6_bytes": 146,
+          "brotli4_bytes": 129,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.card_payment_events",
+          "count": 3,
+          "raw_bytes": 235,
+          "percent": 0.003802533004772907,
+          "gzip6_bytes": 190,
+          "brotli4_bytes": 176,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.card_payment_allocations",
+          "count": 3,
+          "raw_bytes": 175,
+          "percent": 0.0028316735141925902,
+          "gzip6_bytes": 158,
+          "brotli4_bytes": 137,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.card_payment_deferrals",
+          "count": 3,
+          "raw_bytes": 310,
+          "percent": 0.0050161073679983025,
+          "gzip6_bytes": 206,
+          "brotli4_bytes": 186,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.notification_candidate_registrations",
+          "count": 3,
+          "raw_bytes": 178,
+          "percent": 0.0028802164887216063,
+          "gzip6_bytes": 158,
+          "brotli4_bytes": 140,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.app_settings",
+          "count": 3,
+          "raw_bytes": 130,
+          "percent": 0.002103528896257353,
+          "gzip6_bytes": 131,
+          "brotli4_bytes": 105,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.tables.app_labels",
+          "count": 3,
+          "raw_bytes": 131,
+          "percent": 0.002119709887767025,
+          "gzip6_bytes": 132,
+          "brotli4_bytes": 106,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.algorithm",
+          "count": 1,
+          "raw_bytes": 8,
+          "percent": 0.00012944793207737555,
+          "gzip6_bytes": 28,
+          "brotli4_bytes": 12,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.data_sha256",
+          "count": 1,
+          "raw_bytes": 66,
+          "percent": 0.0010679454396383483,
+          "gzip6_bytes": 73,
+          "brotli4_bytes": 52,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.card_charge_policy_sha256",
+          "count": 1,
+          "raw_bytes": 66,
+          "percent": 0.0010679454396383483,
+          "gzip6_bytes": 72,
+          "brotli4_bytes": 51,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.manifest.content_sha256",
+          "count": 1,
+          "raw_bytes": 66,
+          "percent": 0.0010679454396383483,
+          "gzip6_bytes": 74,
+          "brotli4_bytes": 51,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.schema_version",
+          "count": 1,
+          "raw_bytes": 1,
+          "percent": 1.6180991509671944e-05,
+          "gzip6_bytes": 21,
+          "brotli4_bytes": 5,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.recurring_ownership_version",
+          "count": 1,
+          "raw_bytes": 1,
+          "percent": 1.6180991509671944e-05,
+          "gzip6_bytes": 21,
+          "brotli4_bytes": 5,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.exported_at",
+          "count": 1,
+          "raw_bytes": 22,
+          "percent": 0.00035598181321278276,
+          "gzip6_bytes": 40,
+          "brotli4_bytes": 26,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.range",
+          "count": 1,
+          "raw_bytes": 15,
+          "percent": 0.00024271487264507918,
+          "gzip6_bytes": 35,
+          "brotli4_bytes": 19,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.card_charge_policy",
+          "count": 5,
+          "raw_bytes": 1199,
+          "percent": 0.01940100882009666,
+          "gzip6_bytes": 482,
+          "brotli4_bytes": 478,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "snapshot.snapshot_id",
+          "count": 1,
+          "raw_bytes": 66,
+          "percent": 0.0010679454396383483,
+          "gzip6_bytes": 74,
+          "brotli4_bytes": 51,
+          "hot_cold": "CONTROL"
+        },
+        {
+          "category": "json_structure",
+          "count": null,
+          "raw_bytes": 1005,
+          "percent": 0.016261896467220305,
+          "gzip6_bytes": 354,
+          "brotli4_bytes": 339,
+          "hot_cold": "CONTROL"
+        }
+      ],
+      "tables": [
+        {
+          "table": "ledger_entries",
+          "rows": 10000,
+          "row_payload_bytes": 6077296,
+          "row_objects_bytes": 6067295,
+          "array_structure_bytes": 10001,
+          "manifest_nonhash_bytes": 391,
+          "hash_bytes": 66,
+          "total_bytes": 6077753,
+          "bundle_percent": 98.34406969088319,
+          "snapshot_percent": 99.8475775792829,
+          "avg_object_bytes": 606.7295,
+          "row_sizes": {
+            "n": 10000,
+            "median": 607.0,
+            "p95": 607,
+            "min": 533,
+            "max": 609,
+            "stdev": 2.014827474003668
+          }
+        },
+        {
+          "table": "app_labels",
+          "rows": 18,
+          "row_payload_bytes": 1611,
+          "row_objects_bytes": 1592,
+          "array_structure_bytes": 19,
+          "manifest_nonhash_bytes": 65,
+          "hash_bytes": 66,
+          "total_bytes": 1742,
+          "bundle_percent": 0.02818728720984853,
+          "snapshot_percent": 0.028618221264192674,
+          "avg_object_bytes": 88.44444444444444,
+          "row_sizes": {
+            "n": 18,
+            "median": 87.0,
+            "p95": 109,
+            "min": 75,
+            "max": 109,
+            "stdev": 9.190709211071207
+          }
+        },
+        {
+          "table": "monthly_panels",
+          "rows": 4,
+          "row_payload_bytes": 1336,
+          "row_objects_bytes": 1331,
+          "array_structure_bytes": 5,
+          "manifest_nonhash_bytes": 256,
+          "hash_bytes": 66,
+          "total_bytes": 1658,
+          "bundle_percent": 0.026828083923036084,
+          "snapshot_percent": 0.027238238149271787,
+          "avg_object_bytes": 332.75,
+          "row_sizes": {
+            "n": 4,
+            "median": 331.5,
+            "p95": 337,
+            "min": 331,
+            "max": 337,
+            "stdev": 2.48746859276655
+          }
+        },
+        {
+          "table": "cash_flows",
+          "rows": 5,
+          "row_payload_bytes": 910,
+          "row_objects_bytes": 904,
+          "array_structure_bytes": 6,
+          "manifest_nonhash_bytes": 138,
+          "hash_bytes": 66,
+          "total_bytes": 1114,
+          "bundle_percent": 0.018025624541774546,
+          "snapshot_percent": 0.018301204643117474,
+          "avg_object_bytes": 180.8,
+          "row_sizes": {
+            "n": 5,
+            "median": 178,
+            "p95": 193,
+            "min": 177,
+            "max": 193,
+            "stdev": 6.144916598294887
+          }
+        },
+        {
+          "table": "card_payment_events",
+          "rows": 1,
+          "row_payload_bytes": 293,
+          "row_objects_bytes": 291,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 169,
+          "hash_bytes": 66,
+          "total_bytes": 528,
+          "bundle_percent": 0.008543563517106787,
+          "snapshot_percent": 0.008674179579502717,
+          "avg_object_bytes": 291.0,
+          "row_sizes": {
+            "n": 1,
+            "median": 291,
+            "p95": 291,
+            "min": 291,
+            "max": 291,
+            "stdev": 0.0
+          }
+        },
+        {
+          "table": "app_settings",
+          "rows": 5,
+          "row_payload_bytes": 371,
+          "row_objects_bytes": 365,
+          "array_structure_bytes": 6,
+          "manifest_nonhash_bytes": 64,
+          "hash_bytes": 66,
+          "total_bytes": 501,
+          "bundle_percent": 0.008106676746345645,
+          "snapshot_percent": 0.008230613578278145,
+          "avg_object_bytes": 73.0,
+          "row_sizes": {
+            "n": 5,
+            "median": 73,
+            "p95": 74,
+            "min": 72,
+            "max": 74,
+            "stdev": 0.6324555320336759
+          }
+        },
+        {
+          "table": "card_payment_batch_items",
+          "rows": 3,
+          "row_payload_bytes": 298,
+          "row_objects_bytes": 294,
+          "array_structure_bytes": 4,
+          "manifest_nonhash_bytes": 97,
+          "hash_bytes": 66,
+          "total_bytes": 461,
+          "bundle_percent": 0.007459437085958766,
+          "snapshot_percent": 0.007573478761649152,
+          "avg_object_bytes": 98.0,
+          "row_sizes": {
+            "n": 3,
+            "median": 97,
+            "p95": 100,
+            "min": 97,
+            "max": 100,
+            "stdev": 1.4142135623730951
+          }
+        },
+        {
+          "table": "card_payment_deferrals",
+          "rows": 0,
+          "row_payload_bytes": 2,
+          "row_objects_bytes": 0,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 244,
+          "hash_bytes": 66,
+          "total_bytes": 312,
+          "bundle_percent": 0.005048469351017647,
+          "snapshot_percent": 0.0051256515697061505,
+          "avg_object_bytes": 0,
+          "row_sizes": null
+        },
+        {
+          "table": "card_payment_allocations",
+          "rows": 1,
+          "row_payload_bytes": 117,
+          "row_objects_bytes": 115,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 109,
+          "hash_bytes": 66,
+          "total_bytes": 292,
+          "bundle_percent": 0.004724849520824208,
+          "snapshot_percent": 0.004797084161391654,
+          "avg_object_bytes": 115.0,
+          "row_sizes": {
+            "n": 1,
+            "median": 115,
+            "p95": 115,
+            "min": 115,
+            "max": 115,
+            "stdev": 0.0
+          }
+        },
+        {
+          "table": "card_payment_batches",
+          "rows": 1,
+          "row_payload_bytes": 110,
+          "row_objects_bytes": 108,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 87,
+          "hash_bytes": 66,
+          "total_bytes": 263,
+          "bundle_percent": 0.004255600767043722,
+          "snapshot_percent": 0.004320661419335633,
+          "avg_object_bytes": 108.0,
+          "row_sizes": {
+            "n": 1,
+            "median": 108,
+            "p95": 108,
+            "min": 108,
+            "max": 108,
+            "stdev": 0.0
+          }
+        },
+        {
+          "table": "notification_candidate_registrations",
+          "rows": 0,
+          "row_payload_bytes": 2,
+          "row_objects_bytes": 0,
+          "array_structure_bytes": 2,
+          "manifest_nonhash_bytes": 112,
+          "hash_bytes": 66,
+          "total_bytes": 180,
+          "bundle_percent": 0.00291257847174095,
+          "snapshot_percent": 0.0029571066748304716,
+          "avg_object_bytes": 0,
+          "row_sizes": null
+        }
+      ],
+      "snapshot_bytes": 6087031,
+      "state_bytes": 92771,
+      "archive_row_bytes": 6004242,
+      "cold_candidate_row_bytes": 6002059,
+      "cold_candidate_rows": 9891,
+      "overlap": [
+        {
+          "projection": "entries",
+          "same_id_records": 104,
+          "equal_raw_value_token_bytes": 18691,
+          "identical_value_token_bytes": 18691,
+          "identical_row_bytes": 0
+        },
+        {
+          "projection": "confirmed_planned_entries",
+          "same_id_records": 1,
+          "equal_raw_value_token_bytes": 145,
+          "identical_value_token_bytes": 145,
+          "identical_row_bytes": 0
+        },
+        {
+          "projection": "panels",
+          "same_id_records": 4,
+          "equal_raw_value_token_bytes": 219,
+          "identical_value_token_bytes": 219,
+          "identical_row_bytes": 0
+        },
+        {
+          "projection": "cash_flows",
+          "same_id_records": 4,
+          "equal_raw_value_token_bytes": 119,
+          "identical_value_token_bytes": 119,
+          "identical_row_bytes": 0
+        }
+      ],
+      "ledger_representation": {
+        "keys_bytes": 3260000,
+        "value_token_bytes": 2317295,
+        "null_bytes_within_values": 519924,
+        "structural_bytes": 500001,
+        "total_bytes": 6077296
+      }
+    },
+    "snapshot_canonical_and_migrated_restore": "PASS",
+    "backend": {
+      "warmups": 3,
+      "wall_ms": {
+        "n": 20,
+        "median": 1665.4195570008596,
+        "p95": 1802.7630180004053,
+        "min": 1433.986495991121,
+        "max": 1848.594929993851,
+        "stdev": 139.30286270007994
+      },
+      "cpu_ms": {
+        "n": 20,
+        "median": 1657.5783094999963,
+        "p95": 1794.8158210000145,
+        "min": 1426.362001000001,
+        "max": 1839.8539960000164,
+        "stdev": 139.60427190898355
+      }
+    }
+  }
+}

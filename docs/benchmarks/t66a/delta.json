@@ -1,0 +1,24 @@
+{
+  "before_revision": 30076,
+  "after_revision": 30077,
+  "changed_tables": {
+    "ledger_entries": {
+      "before_count": 10000,
+      "after_count": 10001
+    }
+  },
+  "changed_projections": [
+    "entries",
+    "summary",
+    "owner_discount_month"
+  ],
+  "before_bytes": 5684312,
+  "after_bytes": 5685766,
+  "mutation_http_status": 200,
+  "new_raw_row_bytes": 605,
+  "new_typed_entry_bytes": 809,
+  "changed_projection_value_bytes": 80245,
+  "hypothetical_granular_value_budget_bytes": 5531,
+  "metadata_value_budget_bytes": 3275,
+  "unchanged_old_ledger_rows": 10000
+}
