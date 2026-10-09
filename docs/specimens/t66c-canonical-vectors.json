@@ -1,0 +1,87 @@
+{
+  "classification": "PROPOSED CONTRACT — isolated C1 scalar vectors",
+  "notice": "계산된 SHA-256은 이 fixture의 scalar C1 bytes에 한정된다. 실제 segment/root, 금융 response, B-2 admission 시험 결과가 아니다. UTF-16 code-unit key 정렬을 그대로 재사용하면 V05를 만족하지 못한다.",
+  "valid": [
+    {
+      "id": "V01",
+      "note": "빈 값과 null/false/zero 구별",
+      "input_json": "{\"z\":null,\"f\":false,\"n\":0,\"s\":\"\",\"a\":[]}",
+      "expected_c1": "{\"a\":[],\"f\":false,\"n\":0,\"s\":\"\",\"z\":null}",
+      "utf8_bytes": 40,
+      "sha256_c1": "851a09527841bb1a908c3a394857929cdc814ae714b9a4878a6ed9eeba3e6bfb"
+    },
+    {
+      "id": "V02",
+      "note": "한글·일본어·supplementary scalar",
+      "input_json": "{\"text\":\"한글 日本語 😀 𝄞\"}",
+      "expected_c1": "{\"text\":\"한글 日本語 😀 𝄞\"}",
+      "utf8_bytes": 37,
+      "sha256_c1": "9d7cfb3b0e5ff703751235c208621dac785687c1ce1656a951df285a916bec40"
+    },
+    {
+      "id": "V03",
+      "note": "NUL과 control escape",
+      "input_json": "{\"text\":\"a\\u0000b\\n\\t\\b\\f\\r\\\\\\\"\"}",
+      "expected_c1": "{\"text\":\"a\\u0000b\\n\\t\\b\\f\\r\\\\\\\"\"}",
+      "utf8_bytes": 33,
+      "sha256_c1": "3f7a5d60373a29ff23242e89e30c376b355064ff1ae366e7280385885b6d0ac8"
+    },
+    {
+      "id": "V04",
+      "note": "Integral REAL과 signed zero 보존",
+      "input_json": "{\"amount_value\":1000.0,\"integer\":1000,\"negative_zero\":-0.0}",
+      "expected_c1": "{\"amount_value\":1000.0,\"integer\":1000,\"negative_zero\":-0.0}",
+      "utf8_bytes": 59,
+      "sha256_c1": "89a1b93b168e21a253e0c5fff131cab88ec39836663fb83f7ee00a510a80e233"
+    },
+    {
+      "id": "V05",
+      "note": "UTF-8/scalar key 정렬과 UTF-16 정렬의 차이",
+      "input_json": "{\"😀\":\"supplementary\",\"\\ue000\":\"BMP\",\"A\":\"ASCII\"}",
+      "expected_c1": "{\"A\":\"ASCII\",\"\":\"BMP\",\"😀\":\"supplementary\"}",
+      "utf8_bytes": 48,
+      "sha256_c1": "3e6bbf222196e30eafcc9fee34254212037aa6e0ea327ac6d7d0a2f69eb3ddd7"
+    },
+    {
+      "id": "V06",
+      "note": "조합형 Unicode",
+      "input_json": "{\"text\":\"e\\u0301\"}",
+      "expected_c1": "{\"text\":\"é\"}",
+      "utf8_bytes": 14,
+      "sha256_c1": "9b53287cd41955684903378d2b1b4a3ddea9d80d67dcd026319a7c5a9a8a8b42"
+    },
+    {
+      "id": "V07",
+      "note": "완성형 Unicode",
+      "input_json": "{\"text\":\"é\"}",
+      "expected_c1": "{\"text\":\"é\"}",
+      "utf8_bytes": 13,
+      "sha256_c1": "42d3cbf59fdccced04e5dff14433fb52d34d58e385e9770ffd896ff517d63b92"
+    },
+    {
+      "id": "V08",
+      "note": "유효 surrogate escape pair의 decode",
+      "input_json": "{\"text\":\"\\ud83d\\ude00\"}",
+      "expected_c1": "{\"text\":\"😀\"}",
+      "utf8_bytes": 15,
+      "sha256_c1": "bbe73ee4a1d503f8d54b581e002e120f6d1fabc765a1fc99877c416206280469"
+    }
+  ],
+  "invalid": [
+    {
+      "id": "X01",
+      "input_json": "{\"text\":\"\\ud800\"}",
+      "expected": "REJECT_UNICODE"
+    },
+    {
+      "id": "X02",
+      "input_json": "{\"text\":\"\\udc00\"}",
+      "expected": "REJECT_UNICODE"
+    },
+    {
+      "id": "X03",
+      "input_json": "{\"text\":\"\\ud800a\"}",
+      "expected": "REJECT_UNICODE"
+    }
+  ]
+}

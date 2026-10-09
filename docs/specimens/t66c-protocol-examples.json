@@ -1,0 +1,1203 @@
+{
+  "spec": "../t66c-delta-sync-protocol.md",
+  "classification": "PROPOSED CONTRACT",
+  "placeholder_notice": "<h:...>는 계산된 hash가 아닌 상징 label이며 Ref.bytes는 설명용 선언 크기다. 실제 wire에서는 64-hex와 정확한 byte 길이가 필요하다. 각 case는 독립된 흐름이다. JSON body의 required shape와 label 관계를 검토하는 fixture이며 금융/DB oracle이 아니다.",
+  "canonical_case_ids": [
+    "E01",
+    "E02",
+    "E03",
+    "E04",
+    "E05",
+    "E06",
+    "E07",
+    "E08",
+    "E09",
+    "E10",
+    "E11",
+    "E12"
+  ],
+  "cases": [
+    {
+      "id": "E01",
+      "scenario": "로컬 baseline 없는 최초 동기화",
+      "evidence": "PROPOSED CONTRACT — 상징 예제, 실제 endpoint 실행 결과 아님",
+      "notes": [
+        "Raw 11개와 index·hot·control을 완전 검증하기 전 설치 금지."
+      ],
+      "request": {
+        "method": "POST",
+        "path": "/api/sync/v1/observations",
+        "body": {
+          "protocol": 1,
+          "request_id": "aaaaaaaa-0000-4000-8000-000000000001",
+          "base": null,
+          "inline_bytes": 0
+        }
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "protocol": 1,
+          "request_id": "aaaaaaaa-0000-4000-8000-000000000001",
+          "status": "available",
+          "observation_id": "bbbbbbbb-0000-4000-8000-000000000001",
+          "validated_at": "2026-10-05T01:00:00Z",
+          "expires_at": "2026-10-05T01:15:00Z",
+          "base_sync_root": null,
+          "change_kind": "initial",
+          "target": {
+            "ns": {
+              "server_id": "11111111-1111-4111-8111-111111111111",
+              "dataset_id": "22222222-2222-4222-8222-222222222222",
+              "epoch": "33333333-3333-4333-8333-333333333333"
+            },
+            "principal_id": 1,
+            "versions": {
+              "sync": 1,
+              "canon": 1,
+              "structural": 1,
+              "raw_schema": "<h:raw-schema-1>",
+              "snapshot": 7,
+              "recurring_ownership": 1,
+              "projection_schema": "<h:projection-schema-1>",
+              "policy_registry": "<h:policy-registry-1>"
+            },
+            "revision": "100",
+            "context": {
+              "evaluation_date": "2026-10-05",
+              "timezone_offset_minutes": 540,
+              "financial_engine": "<h:financial-engine-1>"
+            },
+            "raw_ref": {
+              "hash": "<h:raw-A>",
+              "bytes": "2100"
+            },
+            "index_ref": {
+              "hash": "<h:index-A>",
+              "bytes": "310"
+            },
+            "hot_ref": {
+              "hash": "<h:hot-A>",
+              "bytes": "87661"
+            },
+            "control_ref": {
+              "hash": "<h:control-A>",
+              "bytes": "8700"
+            },
+            "sync_root": "<h:view-A>"
+          },
+          "inline_objects": []
+        }
+      }
+    },
+    {
+      "id": "E02",
+      "scenario": "무변경 refresh",
+      "evidence": "PROPOSED CONTRACT — 상징 예제, 실제 endpoint 실행 결과 아님",
+      "notes": [
+        "Fresh lease 아래 A의 모든 complete validated 객체 재사용."
+      ],
+      "request": {
+        "method": "POST",
+        "path": "/api/sync/v1/observations",
+        "body": {
+          "protocol": 1,
+          "request_id": "aaaaaaaa-0000-4000-8000-000000000002",
+          "base": {
+            "ns": {
+              "server_id": "11111111-1111-4111-8111-111111111111",
+              "dataset_id": "22222222-2222-4222-8222-222222222222",
+              "epoch": "33333333-3333-4333-8333-333333333333"
+            },
+            "principal_id": 1,
+            "versions": {
+              "sync": 1,
+              "canon": 1,
+              "structural": 1,
+              "raw_schema": "<h:raw-schema-1>",
+              "snapshot": 7,
+              "recurring_ownership": 1,
+              "projection_schema": "<h:projection-schema-1>",
+              "policy_registry": "<h:policy-registry-1>"
+            },
+            "revision": "100",
+            "context": {
+              "evaluation_date": "2026-10-05",
+              "timezone_offset_minutes": 540,
+              "financial_engine": "<h:financial-engine-1>"
+            },
+            "raw_ref": {
+              "hash": "<h:raw-A>",
+              "bytes": "2100"
+            },
+            "index_ref": {
+              "hash": "<h:index-A>",
+              "bytes": "310"
+            },
+            "hot_ref": {
+              "hash": "<h:hot-A>",
+              "bytes": "87661"
+            },
+            "control_ref": {
+              "hash": "<h:control-A>",
+              "bytes": "8700"
+            },
+            "sync_root": "<h:view-A>"
+          },
+          "inline_bytes": 0
+        }
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "protocol": 1,
+          "request_id": "aaaaaaaa-0000-4000-8000-000000000002",
+          "status": "available",
+          "observation_id": "bbbbbbbb-0000-4000-8000-000000000002",
+          "validated_at": "2026-10-05T01:00:00Z",
+          "expires_at": "2026-10-05T01:15:00Z",
+          "base_sync_root": "<h:view-A>",
+          "change_kind": "unchanged",
+          "target": {
+            "ns": {
+              "server_id": "11111111-1111-4111-8111-111111111111",
+              "dataset_id": "22222222-2222-4222-8222-222222222222",
+              "epoch": "33333333-3333-4333-8333-333333333333"
+            },
+            "principal_id": 1,
+            "versions": {
+              "sync": 1,
+              "canon": 1,
+              "structural": 1,
+              "raw_schema": "<h:raw-schema-1>",
+              "snapshot": 7,
+              "recurring_ownership": 1,
+              "projection_schema": "<h:projection-schema-1>",
+              "policy_registry": "<h:policy-registry-1>"
+            },
+            "revision": "100",
+            "context": {
+              "evaluation_date": "2026-10-05",
+              "timezone_offset_minutes": 540,
+              "financial_engine": "<h:financial-engine-1>"
+            },
+            "raw_ref": {
+              "hash": "<h:raw-A>",
+              "bytes": "2100"
+            },
+            "index_ref": {
+              "hash": "<h:index-A>",
+              "bytes": "310"
+            },
+            "hot_ref": {
+              "hash": "<h:hot-A>",
+              "bytes": "87661"
+            },
+            "control_ref": {
+              "hash": "<h:control-A>",
+              "bytes": "8700"
+            },
+            "sync_root": "<h:view-A>"
+          },
+          "inline_objects": []
+        }
+      }
+    },
+    {
+      "id": "E03",
+      "scenario": "확인된 현재 카드 mutation 뒤 rebuild",
+      "evidence": "PROPOSED CONTRACT — 상징 예제, 실제 endpoint 실행 결과 아님",
+      "notes": [
+        "외부 금융 POST의 confirmed receipt와 committed marker는 이미 별도 확보했다고 가정.",
+        "새 ledger PK43 삽입, R은 100→103이며 연속 +1을 요구하지 않음.",
+        "게시 전 committed marker를 retire하지 않음."
+      ],
+      "request": {
+        "method": "POST",
+        "path": "/api/sync/v1/observations",
+        "body": {
+          "protocol": 1,
+          "request_id": "aaaaaaaa-0000-4000-8000-000000000003",
+          "base": {
+            "ns": {
+              "server_id": "11111111-1111-4111-8111-111111111111",
+              "dataset_id": "22222222-2222-4222-8222-222222222222",
+              "epoch": "33333333-3333-4333-8333-333333333333"
+            },
+            "principal_id": 1,
+            "versions": {
+              "sync": 1,
+              "canon": 1,
+              "structural": 1,
+              "raw_schema": "<h:raw-schema-1>",
+              "snapshot": 7,
+              "recurring_ownership": 1,
+              "projection_schema": "<h:projection-schema-1>",
+              "policy_registry": "<h:policy-registry-1>"
+            },
+            "revision": "100",
+            "context": {
+              "evaluation_date": "2026-10-05",
+              "timezone_offset_minutes": 540,
+              "financial_engine": "<h:financial-engine-1>"
+            },
+            "raw_ref": {
+              "hash": "<h:raw-A>",
+              "bytes": "2100"
+            },
+            "index_ref": {
+              "hash": "<h:index-A>",
+              "bytes": "310"
+            },
+            "hot_ref": {
+              "hash": "<h:hot-A>",
+              "bytes": "87661"
+            },
+            "control_ref": {
+              "hash": "<h:control-A>",
+              "bytes": "8700"
+            },
+            "sync_root": "<h:view-A>"
+          },
+          "inline_bytes": 0
+        }
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "protocol": 1,
+          "request_id": "aaaaaaaa-0000-4000-8000-000000000003",
+          "status": "available",
+          "observation_id": "bbbbbbbb-0000-4000-8000-000000000003",
+          "validated_at": "2026-10-05T01:00:00Z",
+          "expires_at": "2026-10-05T01:15:00Z",
+          "base_sync_root": "<h:view-A>",
+          "change_kind": "raw",
+          "target": {
+            "ns": {
+              "server_id": "11111111-1111-4111-8111-111111111111",
+              "dataset_id": "22222222-2222-4222-8222-222222222222",
+              "epoch": "33333333-3333-4333-8333-333333333333"
+            },
+            "principal_id": 1,
+            "versions": {
+              "sync": 1,
+              "canon": 1,
+              "structural": 1,
+              "raw_schema": "<h:raw-schema-1>",
+              "snapshot": 7,
+              "recurring_ownership": 1,
+              "projection_schema": "<h:projection-schema-1>",
+              "policy_registry": "<h:policy-registry-1>"
+            },
+            "revision": "103",
+            "context": {
+              "evaluation_date": "2026-10-05",
+              "timezone_offset_minutes": 540,
+              "financial_engine": "<h:financial-engine-1>"
+            },
+            "raw_ref": {
+              "hash": "<h:raw-B>",
+              "bytes": "2100"
+            },
+            "index_ref": {
+              "hash": "<h:index-B>",
+              "bytes": "310"
+            },
+            "hot_ref": {
+              "hash": "<h:hot-B>",
+              "bytes": "87661"
+            },
+            "control_ref": {
+              "hash": "<h:control-B>",
+              "bytes": "8700"
+            },
+            "sync_root": "<h:view-B>"
+          },
+          "inline_objects": []
+        }
+      }
+    },
+    {
+      "id": "E04",
+      "scenario": "과거 ledger PK41 수정",
+      "evidence": "PROPOSED CONTRACT — 상징 예제, 실제 endpoint 실행 결과 아님",
+      "notes": [
+        "같은 PK41의 title 변경. 원본과 target의 leaf·raw/index refs가 바뀜.",
+        "Hot 변경 여부는 서버 계산 소관이며 이 상징 예제는 변경한 경우."
+      ],
+      "request": {
+        "method": "POST",
+        "path": "/api/sync/v1/observations",
+        "body": {
+          "protocol": 1,
+          "request_id": "aaaaaaaa-0000-4000-8000-000000000004",
+          "base": {
+            "ns": {
+              "server_id": "11111111-1111-4111-8111-111111111111",
+              "dataset_id": "22222222-2222-4222-8222-222222222222",
+              "epoch": "33333333-3333-4333-8333-333333333333"
+            },
+            "principal_id": 1,
+            "versions": {
+              "sync": 1,
+              "canon": 1,
+              "structural": 1,
+              "raw_schema": "<h:raw-schema-1>",
+              "snapshot": 7,
+              "recurring_ownership": 1,
+              "projection_schema": "<h:projection-schema-1>",
+              "policy_registry": "<h:policy-registry-1>"
+            },
+            "revision": "100",
+            "context": {
+              "evaluation_date": "2026-10-05",
+              "timezone_offset_minutes": 540,
+              "financial_engine": "<h:financial-engine-1>"
+            },
+            "raw_ref": {
+              "hash": "<h:raw-A>",
+              "bytes": "2100"
+            },
+            "index_ref": {
+              "hash": "<h:index-A>",
+              "bytes": "310"
+            },
+            "hot_ref": {
+              "hash": "<h:hot-A>",
+              "bytes": "87661"
+            },
+            "control_ref": {
+              "hash": "<h:control-A>",
+              "bytes": "8700"
+            },
+            "sync_root": "<h:view-A>"
+          },
+          "inline_bytes": 0
+        }
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "protocol": 1,
+          "request_id": "aaaaaaaa-0000-4000-8000-000000000004",
+          "status": "available",
+          "observation_id": "bbbbbbbb-0000-4000-8000-000000000004",
+          "validated_at": "2026-10-05T01:00:00Z",
+          "expires_at": "2026-10-05T01:15:00Z",
+          "base_sync_root": "<h:view-A>",
+          "change_kind": "raw",
+          "target": {
+            "ns": {
+              "server_id": "11111111-1111-4111-8111-111111111111",
+              "dataset_id": "22222222-2222-4222-8222-222222222222",
+              "epoch": "33333333-3333-4333-8333-333333333333"
+            },
+            "principal_id": 1,
+            "versions": {
+              "sync": 1,
+              "canon": 1,
+              "structural": 1,
+              "raw_schema": "<h:raw-schema-1>",
+              "snapshot": 7,
+              "recurring_ownership": 1,
+              "projection_schema": "<h:projection-schema-1>",
+              "policy_registry": "<h:policy-registry-1>"
+            },
+            "revision": "108",
+            "context": {
+              "evaluation_date": "2026-10-05",
+              "timezone_offset_minutes": 540,
+              "financial_engine": "<h:financial-engine-1>"
+            },
+            "raw_ref": {
+              "hash": "<h:raw-C>",
+              "bytes": "2100"
+            },
+            "index_ref": {
+              "hash": "<h:index-C>",
+              "bytes": "310"
+            },
+            "hot_ref": {
+              "hash": "<h:hot-C>",
+              "bytes": "87661"
+            },
+            "control_ref": {
+              "hash": "<h:control-C>",
+              "bytes": "8700"
+            },
+            "sync_root": "<h:view-C>"
+          },
+          "inline_objects": []
+        }
+      }
+    },
+    {
+      "id": "E05",
+      "scenario": "과거 ledger PK42 삭제",
+      "evidence": "PROPOSED CONTRACT — 상징 예제, 실제 endpoint 실행 결과 아님",
+      "notes": [
+        "PK42의 허용된 삭제와 관련 cascade/SET NULL이 모두 반영된 target을 가정.",
+        "완전 old/new diff와 reverse closure 전에는 CompleteTargetVerified 불가."
+      ],
+      "request": {
+        "method": "POST",
+        "path": "/api/sync/v1/observations",
+        "body": {
+          "protocol": 1,
+          "request_id": "aaaaaaaa-0000-4000-8000-000000000005",
+          "base": {
+            "ns": {
+              "server_id": "11111111-1111-4111-8111-111111111111",
+              "dataset_id": "22222222-2222-4222-8222-222222222222",
+              "epoch": "33333333-3333-4333-8333-333333333333"
+            },
+            "principal_id": 1,
+            "versions": {
+              "sync": 1,
+              "canon": 1,
+              "structural": 1,
+              "raw_schema": "<h:raw-schema-1>",
+              "snapshot": 7,
+              "recurring_ownership": 1,
+              "projection_schema": "<h:projection-schema-1>",
+              "policy_registry": "<h:policy-registry-1>"
+            },
+            "revision": "100",
+            "context": {
+              "evaluation_date": "2026-10-05",
+              "timezone_offset_minutes": 540,
+              "financial_engine": "<h:financial-engine-1>"
+            },
+            "raw_ref": {
+              "hash": "<h:raw-A>",
+              "bytes": "2100"
+            },
+            "index_ref": {
+              "hash": "<h:index-A>",
+              "bytes": "310"
+            },
+            "hot_ref": {
+              "hash": "<h:hot-A>",
+              "bytes": "87661"
+            },
+            "control_ref": {
+              "hash": "<h:control-A>",
+              "bytes": "8700"
+            },
+            "sync_root": "<h:view-A>"
+          },
+          "inline_bytes": 0
+        }
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "protocol": 1,
+          "request_id": "aaaaaaaa-0000-4000-8000-000000000005",
+          "status": "available",
+          "observation_id": "bbbbbbbb-0000-4000-8000-000000000005",
+          "validated_at": "2026-10-05T01:00:00Z",
+          "expires_at": "2026-10-05T01:15:00Z",
+          "base_sync_root": "<h:view-A>",
+          "change_kind": "raw",
+          "target": {
+            "ns": {
+              "server_id": "11111111-1111-4111-8111-111111111111",
+              "dataset_id": "22222222-2222-4222-8222-222222222222",
+              "epoch": "33333333-3333-4333-8333-333333333333"
+            },
+            "principal_id": 1,
+            "versions": {
+              "sync": 1,
+              "canon": 1,
+              "structural": 1,
+              "raw_schema": "<h:raw-schema-1>",
+              "snapshot": 7,
+              "recurring_ownership": 1,
+              "projection_schema": "<h:projection-schema-1>",
+              "policy_registry": "<h:policy-registry-1>"
+            },
+            "revision": "112",
+            "context": {
+              "evaluation_date": "2026-10-05",
+              "timezone_offset_minutes": 540,
+              "financial_engine": "<h:financial-engine-1>"
+            },
+            "raw_ref": {
+              "hash": "<h:raw-D>",
+              "bytes": "2100"
+            },
+            "index_ref": {
+              "hash": "<h:index-D>",
+              "bytes": "310"
+            },
+            "hot_ref": {
+              "hash": "<h:hot-D>",
+              "bytes": "87661"
+            },
+            "control_ref": {
+              "hash": "<h:control-D>",
+              "bytes": "8700"
+            },
+            "sync_root": "<h:view-D>"
+          },
+          "inline_objects": []
+        }
+      }
+    },
+    {
+      "id": "E06",
+      "scenario": "월 마감 copy/delete와 여러 table 변경",
+      "evidence": "PROPOSED CONTRACT — 상징 예제, 실제 endpoint 실행 결과 아님",
+      "notes": [
+        "현재 PK5를 archive PK43으로 복사하고 기존 PK5 삭제, stable payment key pay5 유지.",
+        "Registration rewrite·source/fixed reset·cash·batch 계열 changes를 같은 target로 가정.",
+        "이 예제의 fixed Context는 11월이며 10월 A 뒤 실제 명시 close command가 있었다고 가정."
+      ],
+      "request": {
+        "method": "POST",
+        "path": "/api/sync/v1/observations",
+        "body": {
+          "protocol": 1,
+          "request_id": "aaaaaaaa-0000-4000-8000-000000000006",
+          "base": {
+            "ns": {
+              "server_id": "11111111-1111-4111-8111-111111111111",
+              "dataset_id": "22222222-2222-4222-8222-222222222222",
+              "epoch": "33333333-3333-4333-8333-333333333333"
+            },
+            "principal_id": 1,
+            "versions": {
+              "sync": 1,
+              "canon": 1,
+              "structural": 1,
+              "raw_schema": "<h:raw-schema-1>",
+              "snapshot": 7,
+              "recurring_ownership": 1,
+              "projection_schema": "<h:projection-schema-1>",
+              "policy_registry": "<h:policy-registry-1>"
+            },
+            "revision": "100",
+            "context": {
+              "evaluation_date": "2026-10-05",
+              "timezone_offset_minutes": 540,
+              "financial_engine": "<h:financial-engine-1>"
+            },
+            "raw_ref": {
+              "hash": "<h:raw-A>",
+              "bytes": "2100"
+            },
+            "index_ref": {
+              "hash": "<h:index-A>",
+              "bytes": "310"
+            },
+            "hot_ref": {
+              "hash": "<h:hot-A>",
+              "bytes": "87661"
+            },
+            "control_ref": {
+              "hash": "<h:control-A>",
+              "bytes": "8700"
+            },
+            "sync_root": "<h:view-A>"
+          },
+          "inline_bytes": 0
+        }
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "protocol": 1,
+          "request_id": "aaaaaaaa-0000-4000-8000-000000000006",
+          "status": "available",
+          "observation_id": "bbbbbbbb-0000-4000-8000-000000000006",
+          "validated_at": "2026-11-01T01:00:00Z",
+          "expires_at": "2026-11-01T01:15:00Z",
+          "base_sync_root": "<h:view-A>",
+          "change_kind": "raw",
+          "target": {
+            "ns": {
+              "server_id": "11111111-1111-4111-8111-111111111111",
+              "dataset_id": "22222222-2222-4222-8222-222222222222",
+              "epoch": "33333333-3333-4333-8333-333333333333"
+            },
+            "principal_id": 1,
+            "versions": {
+              "sync": 1,
+              "canon": 1,
+              "structural": 1,
+              "raw_schema": "<h:raw-schema-1>",
+              "snapshot": 7,
+              "recurring_ownership": 1,
+              "projection_schema": "<h:projection-schema-1>",
+              "policy_registry": "<h:policy-registry-1>"
+            },
+            "revision": "135",
+            "context": {
+              "evaluation_date": "2026-11-01",
+              "timezone_offset_minutes": 540,
+              "financial_engine": "<h:financial-engine-1>"
+            },
+            "raw_ref": {
+              "hash": "<h:raw-E>",
+              "bytes": "2100"
+            },
+            "index_ref": {
+              "hash": "<h:index-E>",
+              "bytes": "310"
+            },
+            "hot_ref": {
+              "hash": "<h:hot-E>",
+              "bytes": "87661"
+            },
+            "control_ref": {
+              "hash": "<h:control-E>",
+              "bytes": "8700"
+            },
+            "sync_root": "<h:view-E>"
+          },
+          "inline_objects": []
+        }
+      }
+    },
+    {
+      "id": "E07",
+      "scenario": "여러 revision을 놓친 장치",
+      "evidence": "PROPOSED CONTRACT — 상징 예제, 실제 endpoint 실행 결과 아님",
+      "notes": [
+        "101..299 로그가 없어도 complete A/F tree와 accepted index로 diff.",
+        "Target R300을 R101이라고 재해석하지 않음."
+      ],
+      "request": {
+        "method": "POST",
+        "path": "/api/sync/v1/observations",
+        "body": {
+          "protocol": 1,
+          "request_id": "aaaaaaaa-0000-4000-8000-000000000007",
+          "base": {
+            "ns": {
+              "server_id": "11111111-1111-4111-8111-111111111111",
+              "dataset_id": "22222222-2222-4222-8222-222222222222",
+              "epoch": "33333333-3333-4333-8333-333333333333"
+            },
+            "principal_id": 1,
+            "versions": {
+              "sync": 1,
+              "canon": 1,
+              "structural": 1,
+              "raw_schema": "<h:raw-schema-1>",
+              "snapshot": 7,
+              "recurring_ownership": 1,
+              "projection_schema": "<h:projection-schema-1>",
+              "policy_registry": "<h:policy-registry-1>"
+            },
+            "revision": "100",
+            "context": {
+              "evaluation_date": "2026-10-05",
+              "timezone_offset_minutes": 540,
+              "financial_engine": "<h:financial-engine-1>"
+            },
+            "raw_ref": {
+              "hash": "<h:raw-A>",
+              "bytes": "2100"
+            },
+            "index_ref": {
+              "hash": "<h:index-A>",
+              "bytes": "310"
+            },
+            "hot_ref": {
+              "hash": "<h:hot-A>",
+              "bytes": "87661"
+            },
+            "control_ref": {
+              "hash": "<h:control-A>",
+              "bytes": "8700"
+            },
+            "sync_root": "<h:view-A>"
+          },
+          "inline_bytes": 0
+        }
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "protocol": 1,
+          "request_id": "aaaaaaaa-0000-4000-8000-000000000007",
+          "status": "available",
+          "observation_id": "bbbbbbbb-0000-4000-8000-000000000007",
+          "validated_at": "2026-10-05T01:00:00Z",
+          "expires_at": "2026-10-05T01:15:00Z",
+          "base_sync_root": "<h:view-A>",
+          "change_kind": "raw",
+          "target": {
+            "ns": {
+              "server_id": "11111111-1111-4111-8111-111111111111",
+              "dataset_id": "22222222-2222-4222-8222-222222222222",
+              "epoch": "33333333-3333-4333-8333-333333333333"
+            },
+            "principal_id": 1,
+            "versions": {
+              "sync": 1,
+              "canon": 1,
+              "structural": 1,
+              "raw_schema": "<h:raw-schema-1>",
+              "snapshot": 7,
+              "recurring_ownership": 1,
+              "projection_schema": "<h:projection-schema-1>",
+              "policy_registry": "<h:policy-registry-1>"
+            },
+            "revision": "300",
+            "context": {
+              "evaluation_date": "2026-10-05",
+              "timezone_offset_minutes": 540,
+              "financial_engine": "<h:financial-engine-1>"
+            },
+            "raw_ref": {
+              "hash": "<h:raw-F>",
+              "bytes": "2100"
+            },
+            "index_ref": {
+              "hash": "<h:index-F>",
+              "bytes": "310"
+            },
+            "hot_ref": {
+              "hash": "<h:hot-F>",
+              "bytes": "87661"
+            },
+            "control_ref": {
+              "hash": "<h:control-F>",
+              "bytes": "8700"
+            },
+            "sync_root": "<h:view-F>"
+          },
+          "inline_objects": []
+        }
+      }
+    },
+    {
+      "id": "E08",
+      "scenario": "전송 도중 observation 만료",
+      "evidence": "PROPOSED CONTRACT — 상징 예제",
+      "notes": [
+        "E01의 Available lease를 쓰던 요청이 만료 뒤 도착한 독립 시나리오.",
+        "Partial bytes는 accepted authority가 아니며 새 request ID로 observation을 다시 취득."
+      ],
+      "request": {
+        "method": "POST",
+        "path": "/api/sync/v1/observations/bbbbbbbb-0000-4000-8000-000000000001/objects",
+        "body": {
+          "protocol": 1,
+          "request_id": "aaaaaaaa-0000-4000-8000-000000000008",
+          "items": [
+            {
+              "path": [
+                "<h:raw-A>"
+              ],
+              "offset": "0",
+              "length": 2100
+            }
+          ]
+        }
+      },
+      "response": {
+        "status": 410,
+        "body": {
+          "protocol": 1,
+          "request_id": "aaaaaaaa-0000-4000-8000-000000000008",
+          "error": {
+            "code": "OBSERVATION_EXPIRED",
+            "action": "new_observation",
+            "retry_after_ms": null,
+            "current_ns": {
+              "server_id": "11111111-1111-4111-8111-111111111111",
+              "dataset_id": "22222222-2222-4222-8222-222222222222",
+              "epoch": "33333333-3333-4333-8333-333333333333"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "E09",
+      "scenario": "로컬 cold object 손상",
+      "evidence": "PROPOSED CONTRACT — 상징 예제, 실제 endpoint 실행 결과 아님",
+      "notes": [
+        "A의 manifest/index provenance는 남았지만 cold leaf bytes가 hash-on-read에 실패한 별도 시나리오.",
+        "Fresh A observation에서 그 leaf까지 검증한 path로 같은 Ref를 exact repair해야 게시 가능.",
+        "Frozen B는 더 최신 raw leaf로 대체하지 않음."
+      ],
+      "request": {
+        "method": "POST",
+        "path": "/api/sync/v1/observations",
+        "body": {
+          "protocol": 1,
+          "request_id": "aaaaaaaa-0000-4000-8000-000000000009",
+          "base": {
+            "ns": {
+              "server_id": "11111111-1111-4111-8111-111111111111",
+              "dataset_id": "22222222-2222-4222-8222-222222222222",
+              "epoch": "33333333-3333-4333-8333-333333333333"
+            },
+            "principal_id": 1,
+            "versions": {
+              "sync": 1,
+              "canon": 1,
+              "structural": 1,
+              "raw_schema": "<h:raw-schema-1>",
+              "snapshot": 7,
+              "recurring_ownership": 1,
+              "projection_schema": "<h:projection-schema-1>",
+              "policy_registry": "<h:policy-registry-1>"
+            },
+            "revision": "100",
+            "context": {
+              "evaluation_date": "2026-10-05",
+              "timezone_offset_minutes": 540,
+              "financial_engine": "<h:financial-engine-1>"
+            },
+            "raw_ref": {
+              "hash": "<h:raw-A>",
+              "bytes": "2100"
+            },
+            "index_ref": {
+              "hash": "<h:index-A>",
+              "bytes": "310"
+            },
+            "hot_ref": {
+              "hash": "<h:hot-A>",
+              "bytes": "87661"
+            },
+            "control_ref": {
+              "hash": "<h:control-A>",
+              "bytes": "8700"
+            },
+            "sync_root": "<h:view-A>"
+          },
+          "inline_bytes": 0
+        }
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "protocol": 1,
+          "request_id": "aaaaaaaa-0000-4000-8000-000000000009",
+          "status": "available",
+          "observation_id": "bbbbbbbb-0000-4000-8000-000000000009",
+          "validated_at": "2026-10-05T01:00:00Z",
+          "expires_at": "2026-10-05T01:15:00Z",
+          "base_sync_root": "<h:view-A>",
+          "change_kind": "unchanged",
+          "target": {
+            "ns": {
+              "server_id": "11111111-1111-4111-8111-111111111111",
+              "dataset_id": "22222222-2222-4222-8222-222222222222",
+              "epoch": "33333333-3333-4333-8333-333333333333"
+            },
+            "principal_id": 1,
+            "versions": {
+              "sync": 1,
+              "canon": 1,
+              "structural": 1,
+              "raw_schema": "<h:raw-schema-1>",
+              "snapshot": 7,
+              "recurring_ownership": 1,
+              "projection_schema": "<h:projection-schema-1>",
+              "policy_registry": "<h:policy-registry-1>"
+            },
+            "revision": "100",
+            "context": {
+              "evaluation_date": "2026-10-05",
+              "timezone_offset_minutes": 540,
+              "financial_engine": "<h:financial-engine-1>"
+            },
+            "raw_ref": {
+              "hash": "<h:raw-A>",
+              "bytes": "2100"
+            },
+            "index_ref": {
+              "hash": "<h:index-A>",
+              "bytes": "310"
+            },
+            "hot_ref": {
+              "hash": "<h:hot-A>",
+              "bytes": "87661"
+            },
+            "control_ref": {
+              "hash": "<h:control-A>",
+              "bytes": "8700"
+            },
+            "sync_root": "<h:view-A>"
+          },
+          "inline_objects": []
+        }
+      }
+    },
+    {
+      "id": "E10",
+      "scenario": "Dataset epoch 불일치",
+      "evidence": "PROPOSED CONTRACT — 상징 예제",
+      "notes": [
+        "새 NS 아래 base=null full observation 필요. Old B/J/pending은 별도 pin.",
+        "같은 numeric principal과 R을 비교해 이전 epoch를 채택하지 않음."
+      ],
+      "request": {
+        "method": "POST",
+        "path": "/api/sync/v1/observations",
+        "body": {
+          "protocol": 1,
+          "request_id": "aaaaaaaa-0000-4000-8000-000000000010",
+          "base": {
+            "ns": {
+              "server_id": "11111111-1111-4111-8111-111111111111",
+              "dataset_id": "22222222-2222-4222-8222-222222222222",
+              "epoch": "33333333-3333-4333-8333-333333333333"
+            },
+            "principal_id": 1,
+            "versions": {
+              "sync": 1,
+              "canon": 1,
+              "structural": 1,
+              "raw_schema": "<h:raw-schema-1>",
+              "snapshot": 7,
+              "recurring_ownership": 1,
+              "projection_schema": "<h:projection-schema-1>",
+              "policy_registry": "<h:policy-registry-1>"
+            },
+            "revision": "100",
+            "context": {
+              "evaluation_date": "2026-10-05",
+              "timezone_offset_minutes": 540,
+              "financial_engine": "<h:financial-engine-1>"
+            },
+            "raw_ref": {
+              "hash": "<h:raw-A>",
+              "bytes": "2100"
+            },
+            "index_ref": {
+              "hash": "<h:index-A>",
+              "bytes": "310"
+            },
+            "hot_ref": {
+              "hash": "<h:hot-A>",
+              "bytes": "87661"
+            },
+            "control_ref": {
+              "hash": "<h:control-A>",
+              "bytes": "8700"
+            },
+            "sync_root": "<h:view-A>"
+          },
+          "inline_bytes": 0
+        }
+      },
+      "response": {
+        "status": 409,
+        "body": {
+          "protocol": 1,
+          "request_id": "aaaaaaaa-0000-4000-8000-000000000010",
+          "error": {
+            "code": "EPOCH_CHANGED",
+            "action": "full_resync",
+            "retry_after_ms": null,
+            "current_ns": {
+              "server_id": "11111111-1111-4111-8111-111111111111",
+              "dataset_id": "22222222-2222-4222-8222-222222222222",
+              "epoch": "44444444-4444-4444-8444-444444444444"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "E11",
+      "scenario": "지원되지 않는 schema 계약",
+      "evidence": "PROPOSED CONTRACT — 상징 예제",
+      "notes": [
+        "서버가 지원하지 않는 raw_schema를 광고한 synthetic request. Wire shape만 맞는다고 호환되는 것은 아님.",
+        "Client가 서버의 새 schema를 지원하지 않는 경우에는 local unsupported-contract로 같은 blocked/upgrade 처리."
+      ],
+      "request": {
+        "method": "POST",
+        "path": "/api/sync/v1/observations",
+        "body": {
+          "protocol": 1,
+          "request_id": "aaaaaaaa-0000-4000-8000-000000000011",
+          "base": {
+            "ns": {
+              "server_id": "11111111-1111-4111-8111-111111111111",
+              "dataset_id": "22222222-2222-4222-8222-222222222222",
+              "epoch": "33333333-3333-4333-8333-333333333333"
+            },
+            "principal_id": 1,
+            "versions": {
+              "sync": 1,
+              "canon": 1,
+              "structural": 1,
+              "raw_schema": "<h:unsupported-raw-schema>",
+              "snapshot": 7,
+              "recurring_ownership": 1,
+              "projection_schema": "<h:projection-schema-1>",
+              "policy_registry": "<h:policy-registry-1>"
+            },
+            "revision": "100",
+            "context": {
+              "evaluation_date": "2026-10-05",
+              "timezone_offset_minutes": 540,
+              "financial_engine": "<h:financial-engine-1>"
+            },
+            "raw_ref": {
+              "hash": "<h:raw-A>",
+              "bytes": "2100"
+            },
+            "index_ref": {
+              "hash": "<h:index-A>",
+              "bytes": "310"
+            },
+            "hot_ref": {
+              "hash": "<h:hot-A>",
+              "bytes": "87661"
+            },
+            "control_ref": {
+              "hash": "<h:control-A>",
+              "bytes": "8700"
+            },
+            "sync_root": "<h:unsupported-base-view>"
+          },
+          "inline_bytes": 0
+        }
+      },
+      "response": {
+        "status": 422,
+        "body": {
+          "protocol": 1,
+          "request_id": "aaaaaaaa-0000-4000-8000-000000000011",
+          "error": {
+            "code": "UNSUPPORTED_CONTRACT",
+            "action": "blocked",
+            "retry_after_ms": null,
+            "current_ns": {
+              "server_id": "11111111-1111-4111-8111-111111111111",
+              "dataset_id": "22222222-2222-4222-8222-222222222222",
+              "epoch": "33333333-3333-4333-8333-333333333333"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "E12",
+      "scenario": "같은 R에서 달력 날짜만 전이",
+      "evidence": "PROPOSED CONTRACT — 상징 예제, 실제 endpoint 실행 결과 아님",
+      "notes": [
+        "Raw/index refs와 R100 유지. 새 평가 날짜에 hot/control/view가 달라짐.",
+        "휴대전화 현지 시각으로 A의 hot view를 임의 갱신하지 않음."
+      ],
+      "request": {
+        "method": "POST",
+        "path": "/api/sync/v1/observations",
+        "body": {
+          "protocol": 1,
+          "request_id": "aaaaaaaa-0000-4000-8000-000000000012",
+          "base": {
+            "ns": {
+              "server_id": "11111111-1111-4111-8111-111111111111",
+              "dataset_id": "22222222-2222-4222-8222-222222222222",
+              "epoch": "33333333-3333-4333-8333-333333333333"
+            },
+            "principal_id": 1,
+            "versions": {
+              "sync": 1,
+              "canon": 1,
+              "structural": 1,
+              "raw_schema": "<h:raw-schema-1>",
+              "snapshot": 7,
+              "recurring_ownership": 1,
+              "projection_schema": "<h:projection-schema-1>",
+              "policy_registry": "<h:policy-registry-1>"
+            },
+            "revision": "100",
+            "context": {
+              "evaluation_date": "2026-10-05",
+              "timezone_offset_minutes": 540,
+              "financial_engine": "<h:financial-engine-1>"
+            },
+            "raw_ref": {
+              "hash": "<h:raw-A>",
+              "bytes": "2100"
+            },
+            "index_ref": {
+              "hash": "<h:index-A>",
+              "bytes": "310"
+            },
+            "hot_ref": {
+              "hash": "<h:hot-A>",
+              "bytes": "87661"
+            },
+            "control_ref": {
+              "hash": "<h:control-A>",
+              "bytes": "8700"
+            },
+            "sync_root": "<h:view-A>"
+          },
+          "inline_bytes": 0
+        }
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "protocol": 1,
+          "request_id": "aaaaaaaa-0000-4000-8000-000000000012",
+          "status": "available",
+          "observation_id": "bbbbbbbb-0000-4000-8000-000000000012",
+          "validated_at": "2026-10-06T01:00:00Z",
+          "expires_at": "2026-10-06T01:15:00Z",
+          "base_sync_root": "<h:view-A>",
+          "change_kind": "context",
+          "target": {
+            "ns": {
+              "server_id": "11111111-1111-4111-8111-111111111111",
+              "dataset_id": "22222222-2222-4222-8222-222222222222",
+              "epoch": "33333333-3333-4333-8333-333333333333"
+            },
+            "principal_id": 1,
+            "versions": {
+              "sync": 1,
+              "canon": 1,
+              "structural": 1,
+              "raw_schema": "<h:raw-schema-1>",
+              "snapshot": 7,
+              "recurring_ownership": 1,
+              "projection_schema": "<h:projection-schema-1>",
+              "policy_registry": "<h:policy-registry-1>"
+            },
+            "revision": "100",
+            "context": {
+              "evaluation_date": "2026-10-06",
+              "timezone_offset_minutes": 540,
+              "financial_engine": "<h:financial-engine-1>"
+            },
+            "raw_ref": {
+              "hash": "<h:raw-A>",
+              "bytes": "2100"
+            },
+            "index_ref": {
+              "hash": "<h:index-A>",
+              "bytes": "310"
+            },
+            "hot_ref": {
+              "hash": "<h:hot-G>",
+              "bytes": "87661"
+            },
+            "control_ref": {
+              "hash": "<h:control-G>",
+              "bytes": "8700"
+            },
+            "sync_root": "<h:view-G>"
+          },
+          "inline_objects": []
+        }
+      }
+    }
+  ]
+}
