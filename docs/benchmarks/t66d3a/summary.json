@@ -1,0 +1,2472 @@
+{
+  "starting_commit": "07e5826cb179908d120df01004b83297757cb83e",
+  "profile": "isolated-d3a/1",
+  "classification": "HOST/SYNTHETIC",
+  "ledger_hot_rows": 105,
+  "raw_artifact": "/tmp/money-note-d3a-final-measurements.json",
+  "raw_sha256": "586f791c8f3efd8608b3248e39076e058f084b928479130d4aacbdfc3f838e13",
+  "environment": {
+    "python": "3.12.3",
+    "sqlite": "3.45.1",
+    "platform": "Linux-6.8.0-146-generic-x86_64-with-glibc2.39",
+    "cpu": "x86_64",
+    "logical_cpus": 12,
+    "cpu_model": "Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz",
+    "sqlite_config": {
+      "journal_mode": "delete",
+      "synchronous": 2,
+      "page_size": 4096
+    }
+  },
+  "source_sha256": {
+    "backend/isolated_sync/observation.py": "954aca6bdc69bdc8d6fab7c447b0678061ef4401ff1c7cb6ee660badb39f3f89",
+    "backend/isolated_sync/observation_schema.py": "86d2fb0e9f5265f1423a57543fe810901d657d35134afdcdc7c619cca24ec7ba",
+    "backend/isolated_sync/inputs.py": "94d5134f65da87b9a9548abf1a4d87b9f8da17494c8d230a74206caa516556fd",
+    "backend/isolated_sync/finalization.py": "c391b50fe1f519cc5c3da2b8b7b060696a1705d95b7e304c3484ea30777d4c23",
+    "scripts/benchmarks/t66d3a.py": "6124d0bfce6181adfcdab7b245703e05d47604c57524491260bded308c2f4ffe"
+  },
+  "notes": [
+    "단위 ms 및 bytes; 물리 I/O나 HTTP wire bytes를 측정한 것이 아니다.",
+    "H=105를 고정하고 archived history만 증가시켰다.",
+    "각 cell 3 warmups + 20 measured trials; 두 observer cell은 표본당 observation 2개다.",
+    "phase metrics는 첫 observer; total_request_ms/SQL/rows/bytes는 요청 묶음 전체다.",
+    "target_metadata_residual_ms는 같은 표본의 total_ms에서 validation/financial/pin/commit을 뺀 잔여 구간이다.",
+    "bootstrap은 N당 1회인 O(N) 예외; 독립 full oracle/EXPLAIN은 관측 timing 밖이다.",
+    "returned_blob_bytes는 반환 BLOB 길이 합, written_blob_bytes는 성공 INSERT/UPDATE의 bound BLOB 길이 합이다.",
+    "immutable_object_bytes는 새 hot/control object body bytes이며 row/certificate/금융 데이터는 관측에서 쓰지 않는다.",
+    "no_change는 금융 무변경이다. 기존 Judgment random 문구에 따른 context 전이는 명세상 허용한다.",
+    "peak_rss_kib는 같은 process의 누적 high-water mark다. 일부 전체 회귀와 shared HOST에서 병렬 실행했다."
+  ],
+  "cells": [
+    {
+      "ledger_rows": 376,
+      "archived_rows": 271,
+      "workload": "no_change",
+      "warmups": 3,
+      "measurements": 20,
+      "bootstrap_ms": 2755.2849039784633,
+      "stats": {
+        "validation_ms": {
+          "median": 90.67825249803718,
+          "p95": 93.5931769781746
+        },
+        "relationship_rows": {
+          "median": 6,
+          "p95": 6
+        },
+        "financial_ms": {
+          "median": 47.588492481736466,
+          "p95": 48.79516101209447
+        },
+        "pin_ms": {
+          "median": 22.245516505790874,
+          "p95": 22.736596001777798
+        },
+        "commit_ms": {
+          "median": 7.952255997224711,
+          "p95": 8.884192997356877
+        },
+        "total_ms": {
+          "median": 224.2734049941646,
+          "p95": 226.65635499288328
+        },
+        "root_count": {
+          "median": 5,
+          "p95": 5
+        },
+        "object_reads": {
+          "median": 34,
+          "p95": 34
+        },
+        "metadata_bytes": {
+          "median": 3974,
+          "p95": 3974
+        },
+        "hot_bytes": {
+          "median": 87171,
+          "p95": 87241
+        },
+        "control_bytes": {
+          "median": 3178,
+          "p95": 3178
+        },
+        "total_request_ms": {
+          "median": 225.5257095093839,
+          "p95": 227.91210500872694
+        },
+        "materialized_rows": {
+          "median": 2127,
+          "p95": 2127
+        },
+        "returned_blob_bytes": {
+          "median": 23262,
+          "p95": 23262
+        },
+        "vm_steps_lower_bound": {
+          "median": 21800,
+          "p95": 21800
+        },
+        "written_blob_bytes": {
+          "median": 95246,
+          "p95": 95316
+        },
+        "immutable_object_writes": {
+          "median": 2,
+          "p95": 2
+        },
+        "immutable_object_bytes": {
+          "median": 90349,
+          "p95": 90419
+        },
+        "target_metadata_residual_ms": {
+          "median": 56.06185049691703,
+          "p95": 57.48204403789714
+        }
+      },
+      "change_kinds": {
+        "context": 20
+      },
+      "sql_median": {
+        "BEGIN": 1,
+        "INSERT": 9,
+        "PRAGMA": 384,
+        "RELEASE": 7,
+        "SAVEPOINT": 7,
+        "SELECT": 424,
+        "UPDATE": 1
+      },
+      "sql_plan_count": 82,
+      "historical_scans": {},
+      "peak_rss_kib": 69056
+    },
+    {
+      "ledger_rows": 376,
+      "archived_rows": 271,
+      "workload": "after_card",
+      "warmups": 3,
+      "measurements": 20,
+      "bootstrap_ms": 2755.2849039784633,
+      "stats": {
+        "validation_ms": {
+          "median": 91.23659900797065,
+          "p95": 94.79609297704883
+        },
+        "relationship_rows": {
+          "median": 6,
+          "p95": 6
+        },
+        "financial_ms": {
+          "median": 47.90058350772597,
+          "p95": 50.2067839843221
+        },
+        "pin_ms": {
+          "median": 22.48937099648174,
+          "p95": 24.473753001075238
+        },
+        "commit_ms": {
+          "median": 2.2923785145394504,
+          "p95": 2.45912597165443
+        },
+        "total_ms": {
+          "median": 221.45121049834415,
+          "p95": 236.4518929971382
+        },
+        "root_count": {
+          "median": 5,
+          "p95": 5
+        },
+        "object_reads": {
+          "median": 34,
+          "p95": 34
+        },
+        "metadata_bytes": {
+          "median": 3970,
+          "p95": 3970
+        },
+        "hot_bytes": {
+          "median": 87193,
+          "p95": 87238
+        },
+        "control_bytes": {
+          "median": 3178,
+          "p95": 3178
+        },
+        "total_request_ms": {
+          "median": 222.78011801245157,
+          "p95": 237.74852298083715
+        },
+        "materialized_rows": {
+          "median": 2128,
+          "p95": 2128
+        },
+        "returned_blob_bytes": {
+          "median": 23262,
+          "p95": 23262
+        },
+        "vm_steps_lower_bound": {
+          "median": 21800,
+          "p95": 21800
+        },
+        "written_blob_bytes": {
+          "median": 95264,
+          "p95": 95309
+        },
+        "immutable_object_writes": {
+          "median": 2,
+          "p95": 2
+        },
+        "immutable_object_bytes": {
+          "median": 90371,
+          "p95": 90416
+        },
+        "target_metadata_residual_ms": {
+          "median": 57.122779471683316,
+          "p95": 62.245712004369125
+        }
+      },
+      "change_kinds": {
+        "raw": 20
+      },
+      "sql_median": {
+        "BEGIN": 1,
+        "INSERT": 9,
+        "PRAGMA": 384,
+        "RELEASE": 7,
+        "SAVEPOINT": 7,
+        "SELECT": 424,
+        "UPDATE": 1
+      },
+      "sql_plan_count": 82,
+      "historical_scans": {},
+      "peak_rss_kib": 70720
+    },
+    {
+      "ledger_rows": 376,
+      "archived_rows": 271,
+      "workload": "after_cash",
+      "warmups": 3,
+      "measurements": 20,
+      "bootstrap_ms": 2755.2849039784633,
+      "stats": {
+        "validation_ms": {
+          "median": 91.01504100544844,
+          "p95": 93.94999200594611
+        },
+        "relationship_rows": {
+          "median": 6,
+          "p95": 6
+        },
+        "financial_ms": {
+          "median": 48.85546751029324,
+          "p95": 63.188847998389974
+        },
+        "pin_ms": {
+          "median": 22.51024649012834,
+          "p95": 23.69997400091961
+        },
+        "commit_ms": {
+          "median": 2.58640649553854,
+          "p95": 3.4088979882653803
+        },
+        "total_ms": {
+          "median": 222.65069199784193,
+          "p95": 234.85924198757857
+        },
+        "root_count": {
+          "median": 5,
+          "p95": 5
+        },
+        "object_reads": {
+          "median": 34,
+          "p95": 34
+        },
+        "metadata_bytes": {
+          "median": 3970,
+          "p95": 3970
+        },
+        "hot_bytes": {
+          "median": 87306,
+          "p95": 87347
+        },
+        "control_bytes": {
+          "median": 3178,
+          "p95": 3178
+        },
+        "total_request_ms": {
+          "median": 223.85494949412532,
+          "p95": 236.34966599638574
+        },
+        "materialized_rows": {
+          "median": 2131,
+          "p95": 2131
+        },
+        "returned_blob_bytes": {
+          "median": 23469,
+          "p95": 23469
+        },
+        "vm_steps_lower_bound": {
+          "median": 21800,
+          "p95": 21800
+        },
+        "written_blob_bytes": {
+          "median": 95377,
+          "p95": 95418
+        },
+        "immutable_object_writes": {
+          "median": 2,
+          "p95": 2
+        },
+        "immutable_object_bytes": {
+          "median": 90484,
+          "p95": 90525
+        },
+        "target_metadata_residual_ms": {
+          "median": 56.49854498915374,
+          "p95": 58.99901397060603
+        }
+      },
+      "change_kinds": {
+        "raw": 20
+      },
+      "sql_median": {
+        "BEGIN": 1,
+        "INSERT": 9,
+        "PRAGMA": 384,
+        "RELEASE": 7,
+        "SAVEPOINT": 7,
+        "SELECT": 424,
+        "UPDATE": 1
+      },
+      "sql_plan_count": 82,
+      "historical_scans": {},
+      "peak_rss_kib": 70720
+    },
+    {
+      "ledger_rows": 376,
+      "archived_rows": 271,
+      "workload": "date_transition",
+      "warmups": 3,
+      "measurements": 20,
+      "bootstrap_ms": 2755.2849039784633,
+      "stats": {
+        "validation_ms": {
+          "median": 89.73267450346611,
+          "p95": 94.62806899682619
+        },
+        "relationship_rows": {
+          "median": 6,
+          "p95": 6
+        },
+        "financial_ms": {
+          "median": 40.85917450720444,
+          "p95": 44.43593500764109
+        },
+        "pin_ms": {
+          "median": 21.961940510664135,
+          "p95": 22.771304997149855
+        },
+        "commit_ms": {
+          "median": 2.539080014685169,
+          "p95": 2.8653150075115263
+        },
+        "total_ms": {
+          "median": 210.15481300128158,
+          "p95": 219.45609300746582
+        },
+        "root_count": {
+          "median": 5,
+          "p95": 5
+        },
+        "object_reads": {
+          "median": 34,
+          "p95": 34
+        },
+        "metadata_bytes": {
+          "median": 3974,
+          "p95": 3974
+        },
+        "hot_bytes": {
+          "median": 85434,
+          "p95": 85478
+        },
+        "control_bytes": {
+          "median": 3178,
+          "p95": 3178
+        },
+        "total_request_ms": {
+          "median": 211.5160899993498,
+          "p95": 220.94544299761765
+        },
+        "materialized_rows": {
+          "median": 2025,
+          "p95": 2025
+        },
+        "returned_blob_bytes": {
+          "median": 23517,
+          "p95": 23517
+        },
+        "vm_steps_lower_bound": {
+          "median": 20400,
+          "p95": 20400
+        },
+        "written_blob_bytes": {
+          "median": 93509,
+          "p95": 93553
+        },
+        "immutable_object_writes": {
+          "median": 2,
+          "p95": 2
+        },
+        "immutable_object_bytes": {
+          "median": 88612,
+          "p95": 88656
+        },
+        "target_metadata_residual_ms": {
+          "median": 54.676662461133674,
+          "p95": 55.95951902796514
+        }
+      },
+      "change_kinds": {
+        "context": 20
+      },
+      "sql_median": {
+        "BEGIN": 1,
+        "INSERT": 9,
+        "PRAGMA": 384,
+        "RELEASE": 7,
+        "SAVEPOINT": 7,
+        "SELECT": 319,
+        "UPDATE": 1
+      },
+      "sql_plan_count": 82,
+      "historical_scans": {},
+      "peak_rss_kib": 70720
+    },
+    {
+      "ledger_rows": 376,
+      "archived_rows": 271,
+      "workload": "two_observers",
+      "warmups": 3,
+      "measurements": 20,
+      "bootstrap_ms": 2755.2849039784633,
+      "stats": {
+        "validation_ms": {
+          "median": 126.35444100305904,
+          "p95": 356.44414700800553
+        },
+        "relationship_rows": {
+          "median": 6,
+          "p95": 6
+        },
+        "financial_ms": {
+          "median": 46.327202988322824,
+          "p95": 48.84841400780715
+        },
+        "pin_ms": {
+          "median": 21.281774985254742,
+          "p95": 24.007488013012335
+        },
+        "commit_ms": {
+          "median": 2.6969289901899174,
+          "p95": 6.939708982827142
+        },
+        "total_ms": {
+          "median": 244.9452970031416,
+          "p95": 492.891742993379
+        },
+        "root_count": {
+          "median": 5,
+          "p95": 5
+        },
+        "object_reads": {
+          "median": 34,
+          "p95": 34
+        },
+        "metadata_bytes": {
+          "median": 3974,
+          "p95": 3974
+        },
+        "hot_bytes": {
+          "median": 87290.5,
+          "p95": 87344
+        },
+        "control_bytes": {
+          "median": 3178,
+          "p95": 3178
+        },
+        "total_request_ms": {
+          "median": 431.49492899829056,
+          "p95": 494.54977302229963
+        },
+        "materialized_rows": {
+          "median": 4264,
+          "p95": 4269
+        },
+        "returned_blob_bytes": {
+          "median": 50116,
+          "p95": 140596
+        },
+        "vm_steps_lower_bound": {
+          "median": 43600,
+          "p95": 43600
+        },
+        "written_blob_bytes": {
+          "median": 187507,
+          "p95": 187669
+        },
+        "immutable_object_writes": {
+          "median": 3,
+          "p95": 3
+        },
+        "immutable_object_bytes": {
+          "median": 177713,
+          "p95": 177875
+        },
+        "target_metadata_residual_ms": {
+          "median": 52.782717990339734,
+          "p95": 59.17013803264126
+        }
+      },
+      "change_kinds": {
+        "context": 20
+      },
+      "sql_median": {
+        "BEGIN": 2,
+        "INSERT": 17,
+        "PRAGMA": 768,
+        "RELEASE": 14,
+        "SAVEPOINT": 14,
+        "SELECT": 848,
+        "UPDATE": 2
+      },
+      "sql_plan_count": 82,
+      "historical_scans": {},
+      "peak_rss_kib": 75532
+    },
+    {
+      "ledger_rows": 376,
+      "archived_rows": 271,
+      "workload": "writer_contention",
+      "warmups": 3,
+      "measurements": 20,
+      "bootstrap_ms": 2755.2849039784633,
+      "stats": {
+        "validation_ms": {
+          "median": 95.86368149030022,
+          "p95": 105.33188699628226
+        },
+        "relationship_rows": {
+          "median": 6,
+          "p95": 6
+        },
+        "financial_ms": {
+          "median": 41.713265993166715,
+          "p95": 50.590842991368845
+        },
+        "pin_ms": {
+          "median": 18.895447501563467,
+          "p95": 23.28899098210968
+        },
+        "commit_ms": {
+          "median": 2.942114500910975,
+          "p95": 7.339554984355345
+        },
+        "total_ms": {
+          "median": 209.3107999971835,
+          "p95": 243.11991900322028
+        },
+        "root_count": {
+          "median": 5,
+          "p95": 5
+        },
+        "object_reads": {
+          "median": 34,
+          "p95": 34
+        },
+        "metadata_bytes": {
+          "median": 3974,
+          "p95": 3974
+        },
+        "hot_bytes": {
+          "median": 87308.5,
+          "p95": 87347
+        },
+        "control_bytes": {
+          "median": 3178,
+          "p95": 3178
+        },
+        "total_request_ms": {
+          "median": 210.79742000438273,
+          "p95": 244.61555198649876
+        },
+        "materialized_rows": {
+          "median": 2131,
+          "p95": 2138
+        },
+        "returned_blob_bytes": {
+          "median": 23469,
+          "p95": 117079
+        },
+        "vm_steps_lower_bound": {
+          "median": 21800,
+          "p95": 21800
+        },
+        "written_blob_bytes": {
+          "median": 95374,
+          "p95": 95422
+        },
+        "immutable_object_writes": {
+          "median": 2,
+          "p95": 2
+        },
+        "immutable_object_bytes": {
+          "median": 90477,
+          "p95": 90525
+        },
+        "target_metadata_residual_ms": {
+          "median": 47.4046430317685,
+          "p95": 59.63187702582218
+        }
+      },
+      "change_kinds": {
+        "context": 20
+      },
+      "sql_median": {
+        "BEGIN": 1,
+        "INSERT": 9,
+        "PRAGMA": 384,
+        "RELEASE": 7,
+        "SAVEPOINT": 7,
+        "SELECT": 424,
+        "UPDATE": 1
+      },
+      "sql_plan_count": 82,
+      "historical_scans": {},
+      "peak_rss_kib": 75532
+    },
+    {
+      "ledger_rows": 1000,
+      "archived_rows": 895,
+      "workload": "no_change",
+      "warmups": 3,
+      "measurements": 20,
+      "bootstrap_ms": 7001.618843991309,
+      "stats": {
+        "validation_ms": {
+          "median": 97.36308199353516,
+          "p95": 101.042680995306
+        },
+        "relationship_rows": {
+          "median": 6,
+          "p95": 6
+        },
+        "financial_ms": {
+          "median": 50.36766000557691,
+          "p95": 54.63840300217271
+        },
+        "pin_ms": {
+          "median": 22.982819005846977,
+          "p95": 24.30210300371982
+        },
+        "commit_ms": {
+          "median": 12.814430505386554,
+          "p95": 32.385268015787005
+        },
+        "total_ms": {
+          "median": 243.97412949474528,
+          "p95": 265.7057119940873
+        },
+        "root_count": {
+          "median": 5,
+          "p95": 5
+        },
+        "object_reads": {
+          "median": 34,
+          "p95": 34
+        },
+        "metadata_bytes": {
+          "median": 3977,
+          "p95": 3977
+        },
+        "hot_bytes": {
+          "median": 87165,
+          "p95": 87246
+        },
+        "control_bytes": {
+          "median": 3178,
+          "p95": 3178
+        },
+        "total_request_ms": {
+          "median": 245.67249898973387,
+          "p95": 267.2307339962572
+        },
+        "materialized_rows": {
+          "median": 2127,
+          "p95": 2127
+        },
+        "returned_blob_bytes": {
+          "median": 23597,
+          "p95": 23597
+        },
+        "vm_steps_lower_bound": {
+          "median": 21800,
+          "p95": 21800
+        },
+        "written_blob_bytes": {
+          "median": 95244,
+          "p95": 95325
+        },
+        "immutable_object_writes": {
+          "median": 2,
+          "p95": 2
+        },
+        "immutable_object_bytes": {
+          "median": 90343,
+          "p95": 90424
+        },
+        "target_metadata_residual_ms": {
+          "median": 58.37840653839521,
+          "p95": 61.41218199627474
+        }
+      },
+      "change_kinds": {
+        "context": 20
+      },
+      "sql_median": {
+        "BEGIN": 1,
+        "INSERT": 9,
+        "PRAGMA": 384,
+        "RELEASE": 7,
+        "SAVEPOINT": 7,
+        "SELECT": 424,
+        "UPDATE": 1
+      },
+      "sql_plan_count": 82,
+      "historical_scans": {},
+      "peak_rss_kib": 90260
+    },
+    {
+      "ledger_rows": 1000,
+      "archived_rows": 895,
+      "workload": "after_card",
+      "warmups": 3,
+      "measurements": 20,
+      "bootstrap_ms": 7001.618843991309,
+      "stats": {
+        "validation_ms": {
+          "median": 92.19211101299152,
+          "p95": 98.49746801774018
+        },
+        "relationship_rows": {
+          "median": 6,
+          "p95": 6
+        },
+        "financial_ms": {
+          "median": 48.871106511796825,
+          "p95": 52.68456801422872
+        },
+        "pin_ms": {
+          "median": 22.56882650544867,
+          "p95": 24.109182006213814
+        },
+        "commit_ms": {
+          "median": 10.926560498774052,
+          "p95": 33.86528400005773
+        },
+        "total_ms": {
+          "median": 232.02348800259642,
+          "p95": 260.3386160044465
+        },
+        "root_count": {
+          "median": 5,
+          "p95": 5
+        },
+        "object_reads": {
+          "median": 34,
+          "p95": 34
+        },
+        "metadata_bytes": {
+          "median": 3973,
+          "p95": 3973
+        },
+        "hot_bytes": {
+          "median": 87199,
+          "p95": 87241
+        },
+        "control_bytes": {
+          "median": 3178,
+          "p95": 3178
+        },
+        "total_request_ms": {
+          "median": 233.52514499856625,
+          "p95": 261.54189300723374
+        },
+        "materialized_rows": {
+          "median": 2128,
+          "p95": 2128
+        },
+        "returned_blob_bytes": {
+          "median": 23597,
+          "p95": 23597
+        },
+        "vm_steps_lower_bound": {
+          "median": 21800,
+          "p95": 21800
+        },
+        "written_blob_bytes": {
+          "median": 95274,
+          "p95": 95316
+        },
+        "immutable_object_writes": {
+          "median": 2,
+          "p95": 2
+        },
+        "immutable_object_bytes": {
+          "median": 90377,
+          "p95": 90419
+        },
+        "target_metadata_residual_ms": {
+          "median": 55.9547564771492,
+          "p95": 60.04375297925435
+        }
+      },
+      "change_kinds": {
+        "raw": 20
+      },
+      "sql_median": {
+        "BEGIN": 1,
+        "INSERT": 9,
+        "PRAGMA": 384,
+        "RELEASE": 7,
+        "SAVEPOINT": 7,
+        "SELECT": 424,
+        "UPDATE": 1
+      },
+      "sql_plan_count": 82,
+      "historical_scans": {},
+      "peak_rss_kib": 90524
+    },
+    {
+      "ledger_rows": 1000,
+      "archived_rows": 895,
+      "workload": "after_cash",
+      "warmups": 3,
+      "measurements": 20,
+      "bootstrap_ms": 7001.618843991309,
+      "stats": {
+        "validation_ms": {
+          "median": 91.24282348784618,
+          "p95": 93.20828301133588
+        },
+        "relationship_rows": {
+          "median": 6,
+          "p95": 6
+        },
+        "financial_ms": {
+          "median": 48.03512099897489,
+          "p95": 49.12652098573744
+        },
+        "pin_ms": {
+          "median": 22.038226496079005,
+          "p95": 22.27895800024271
+        },
+        "commit_ms": {
+          "median": 15.110060005099513,
+          "p95": 15.766983007779345
+        },
+        "total_ms": {
+          "median": 232.43696748977527,
+          "p95": 234.31120201712474
+        },
+        "root_count": {
+          "median": 5,
+          "p95": 5
+        },
+        "object_reads": {
+          "median": 34,
+          "p95": 34
+        },
+        "metadata_bytes": {
+          "median": 3973,
+          "p95": 3973
+        },
+        "hot_bytes": {
+          "median": 87298.5,
+          "p95": 87372
+        },
+        "control_bytes": {
+          "median": 3178,
+          "p95": 3178
+        },
+        "total_request_ms": {
+          "median": 233.94441849086434,
+          "p95": 235.67956598708406
+        },
+        "materialized_rows": {
+          "median": 2131,
+          "p95": 2131
+        },
+        "returned_blob_bytes": {
+          "median": 23804,
+          "p95": 23804
+        },
+        "vm_steps_lower_bound": {
+          "median": 21800,
+          "p95": 21800
+        },
+        "written_blob_bytes": {
+          "median": 95373.5,
+          "p95": 95447
+        },
+        "immutable_object_writes": {
+          "median": 2,
+          "p95": 2
+        },
+        "immutable_object_bytes": {
+          "median": 90476.5,
+          "p95": 90550
+        },
+        "target_metadata_residual_ms": {
+          "median": 55.726758000673726,
+          "p95": 56.54355202568695
+        }
+      },
+      "change_kinds": {
+        "raw": 20
+      },
+      "sql_median": {
+        "BEGIN": 1,
+        "INSERT": 9,
+        "PRAGMA": 384,
+        "RELEASE": 7,
+        "SAVEPOINT": 7,
+        "SELECT": 424,
+        "UPDATE": 1
+      },
+      "sql_plan_count": 82,
+      "historical_scans": {},
+      "peak_rss_kib": 90680
+    },
+    {
+      "ledger_rows": 1000,
+      "archived_rows": 895,
+      "workload": "date_transition",
+      "warmups": 3,
+      "measurements": 20,
+      "bootstrap_ms": 7001.618843991309,
+      "stats": {
+        "validation_ms": {
+          "median": 93.83674050332047,
+          "p95": 96.36458300519735
+        },
+        "relationship_rows": {
+          "median": 6,
+          "p95": 6
+        },
+        "financial_ms": {
+          "median": 43.38967800140381,
+          "p95": 44.557266985066235
+        },
+        "pin_ms": {
+          "median": 22.636191992205568,
+          "p95": 22.844926017569378
+        },
+        "commit_ms": {
+          "median": 15.19502249720972,
+          "p95": 16.261873010080308
+        },
+        "total_ms": {
+          "median": 230.673255486181,
+          "p95": 234.95904600713402
+        },
+        "root_count": {
+          "median": 5,
+          "p95": 5
+        },
+        "object_reads": {
+          "median": 34,
+          "p95": 34
+        },
+        "metadata_bytes": {
+          "median": 3977,
+          "p95": 3977
+        },
+        "hot_bytes": {
+          "median": 85447.5,
+          "p95": 85477
+        },
+        "control_bytes": {
+          "median": 3178,
+          "p95": 3178
+        },
+        "total_request_ms": {
+          "median": 232.25078800169285,
+          "p95": 236.352136998903
+        },
+        "materialized_rows": {
+          "median": 2025,
+          "p95": 2025
+        },
+        "returned_blob_bytes": {
+          "median": 23852,
+          "p95": 23852
+        },
+        "vm_steps_lower_bound": {
+          "median": 20400,
+          "p95": 20400
+        },
+        "written_blob_bytes": {
+          "median": 93526.5,
+          "p95": 93556
+        },
+        "immutable_object_writes": {
+          "median": 2,
+          "p95": 2
+        },
+        "immutable_object_bytes": {
+          "median": 88625.5,
+          "p95": 88655
+        },
+        "target_metadata_residual_ms": {
+          "median": 55.72833202313632,
+          "p95": 56.9258329924196
+        }
+      },
+      "change_kinds": {
+        "context": 20
+      },
+      "sql_median": {
+        "BEGIN": 1,
+        "INSERT": 9,
+        "PRAGMA": 384,
+        "RELEASE": 7,
+        "SAVEPOINT": 7,
+        "SELECT": 319,
+        "UPDATE": 1
+      },
+      "sql_plan_count": 82,
+      "historical_scans": {},
+      "peak_rss_kib": 90680
+    },
+    {
+      "ledger_rows": 1000,
+      "archived_rows": 895,
+      "workload": "two_observers",
+      "warmups": 3,
+      "measurements": 20,
+      "bootstrap_ms": 7001.618843991309,
+      "stats": {
+        "validation_ms": {
+          "median": 140.98874550836626,
+          "p95": 369.31413601269014
+        },
+        "relationship_rows": {
+          "median": 6,
+          "p95": 6
+        },
+        "financial_ms": {
+          "median": 49.91916050494183,
+          "p95": 50.58998797903769
+        },
+        "pin_ms": {
+          "median": 22.27294999465812,
+          "p95": 23.165910999523476
+        },
+        "commit_ms": {
+          "median": 15.14928150572814,
+          "p95": 16.00634600617923
+        },
+        "total_ms": {
+          "median": 285.253815993201,
+          "p95": 514.6599340077955
+        },
+        "root_count": {
+          "median": 5,
+          "p95": 5
+        },
+        "object_reads": {
+          "median": 34,
+          "p95": 34
+        },
+        "metadata_bytes": {
+          "median": 3977,
+          "p95": 3977
+        },
+        "hot_bytes": {
+          "median": 87309.5,
+          "p95": 87355
+        },
+        "control_bytes": {
+          "median": 3178,
+          "p95": 3178
+        },
+        "total_request_ms": {
+          "median": 513.4211495023919,
+          "p95": 519.1850959963631
+        },
+        "materialized_rows": {
+          "median": 4264,
+          "p95": 4264
+        },
+        "returned_blob_bytes": {
+          "median": 50786,
+          "p95": 50786
+        },
+        "vm_steps_lower_bound": {
+          "median": 43600,
+          "p95": 43600
+        },
+        "written_blob_bytes": {
+          "median": 187578.5,
+          "p95": 187644
+        },
+        "immutable_object_writes": {
+          "median": 3,
+          "p95": 3
+        },
+        "immutable_object_bytes": {
+          "median": 177776.5,
+          "p95": 177842
+        },
+        "target_metadata_residual_ms": {
+          "median": 56.09403847483918,
+          "p95": 57.04429396428168
+        }
+      },
+      "change_kinds": {
+        "context": 20
+      },
+      "sql_median": {
+        "BEGIN": 2,
+        "INSERT": 17,
+        "PRAGMA": 768,
+        "RELEASE": 14,
+        "SAVEPOINT": 14,
+        "SELECT": 848,
+        "UPDATE": 2
+      },
+      "sql_plan_count": 82,
+      "historical_scans": {},
+      "peak_rss_kib": 90780
+    },
+    {
+      "ledger_rows": 1000,
+      "archived_rows": 895,
+      "workload": "writer_contention",
+      "warmups": 3,
+      "measurements": 20,
+      "bootstrap_ms": 7001.618843991309,
+      "stats": {
+        "validation_ms": {
+          "median": 112.33726551290601,
+          "p95": 113.95002700737678
+        },
+        "relationship_rows": {
+          "median": 6,
+          "p95": 6
+        },
+        "financial_ms": {
+          "median": 50.46071647666395,
+          "p95": 51.722481002798304
+        },
+        "pin_ms": {
+          "median": 22.69553201040253,
+          "p95": 23.58682398335077
+        },
+        "commit_ms": {
+          "median": 15.03925099677872,
+          "p95": 15.707201993791386
+        },
+        "total_ms": {
+          "median": 257.4676869990071,
+          "p95": 275.3286939987447
+        },
+        "root_count": {
+          "median": 5,
+          "p95": 5
+        },
+        "object_reads": {
+          "median": 34,
+          "p95": 34
+        },
+        "metadata_bytes": {
+          "median": 3977,
+          "p95": 3977
+        },
+        "hot_bytes": {
+          "median": 87297,
+          "p95": 87361
+        },
+        "control_bytes": {
+          "median": 3178,
+          "p95": 3178
+        },
+        "total_request_ms": {
+          "median": 259.15183100732975,
+          "p95": 277.1026789851021
+        },
+        "materialized_rows": {
+          "median": 2131,
+          "p95": 2131
+        },
+        "returned_blob_bytes": {
+          "median": 23804,
+          "p95": 23804
+        },
+        "vm_steps_lower_bound": {
+          "median": 21800,
+          "p95": 21800
+        },
+        "written_blob_bytes": {
+          "median": 95375,
+          "p95": 95440
+        },
+        "immutable_object_writes": {
+          "median": 2,
+          "p95": 2
+        },
+        "immutable_object_bytes": {
+          "median": 90474,
+          "p95": 90539
+        },
+        "target_metadata_residual_ms": {
+          "median": 56.63003846711945,
+          "p95": 65.42221500421874
+        }
+      },
+      "change_kinds": {
+        "context": 20
+      },
+      "sql_median": {
+        "BEGIN": 1,
+        "INSERT": 9,
+        "PRAGMA": 384,
+        "RELEASE": 7,
+        "SAVEPOINT": 7,
+        "SELECT": 424,
+        "UPDATE": 1
+      },
+      "sql_plan_count": 82,
+      "historical_scans": {},
+      "peak_rss_kib": 90780
+    },
+    {
+      "ledger_rows": 5000,
+      "archived_rows": 4895,
+      "workload": "no_change",
+      "warmups": 3,
+      "measurements": 20,
+      "bootstrap_ms": 35218.710212997394,
+      "stats": {
+        "validation_ms": {
+          "median": 96.17566349334083,
+          "p95": 97.63691099942662
+        },
+        "relationship_rows": {
+          "median": 6,
+          "p95": 6
+        },
+        "financial_ms": {
+          "median": 50.05240750324447,
+          "p95": 50.561331008793786
+        },
+        "pin_ms": {
+          "median": 22.351466992404312,
+          "p95": 22.97257399186492
+        },
+        "commit_ms": {
+          "median": 14.766870983294211,
+          "p95": 15.501143003348261
+        },
+        "total_ms": {
+          "median": 239.2848835006589,
+          "p95": 241.76323198480532
+        },
+        "root_count": {
+          "median": 5,
+          "p95": 5
+        },
+        "object_reads": {
+          "median": 34,
+          "p95": 34
+        },
+        "metadata_bytes": {
+          "median": 3977,
+          "p95": 3977
+        },
+        "hot_bytes": {
+          "median": 87197,
+          "p95": 87232
+        },
+        "control_bytes": {
+          "median": 3178,
+          "p95": 3178
+        },
+        "total_request_ms": {
+          "median": 240.78186349652242,
+          "p95": 243.275592016289
+        },
+        "materialized_rows": {
+          "median": 2127,
+          "p95": 2127
+        },
+        "returned_blob_bytes": {
+          "median": 26224,
+          "p95": 26224
+        },
+        "vm_steps_lower_bound": {
+          "median": 21800,
+          "p95": 21800
+        },
+        "written_blob_bytes": {
+          "median": 95276,
+          "p95": 95311
+        },
+        "immutable_object_writes": {
+          "median": 2,
+          "p95": 2
+        },
+        "immutable_object_bytes": {
+          "median": 90375,
+          "p95": 90410
+        },
+        "target_metadata_residual_ms": {
+          "median": 55.986097489949316,
+          "p95": 56.39450598391704
+        }
+      },
+      "change_kinds": {
+        "context": 20
+      },
+      "sql_median": {
+        "BEGIN": 1,
+        "INSERT": 9,
+        "PRAGMA": 384,
+        "RELEASE": 7,
+        "SAVEPOINT": 7,
+        "SELECT": 424,
+        "UPDATE": 1
+      },
+      "sql_plan_count": 82,
+      "historical_scans": {},
+      "peak_rss_kib": 194068
+    },
+    {
+      "ledger_rows": 5000,
+      "archived_rows": 4895,
+      "workload": "after_card",
+      "warmups": 3,
+      "measurements": 20,
+      "bootstrap_ms": 35218.710212997394,
+      "stats": {
+        "validation_ms": {
+          "median": 92.63845400710125,
+          "p95": 97.37171299639158
+        },
+        "relationship_rows": {
+          "median": 6,
+          "p95": 6
+        },
+        "financial_ms": {
+          "median": 49.55513699678704,
+          "p95": 50.80139799974859
+        },
+        "pin_ms": {
+          "median": 22.457795988884754,
+          "p95": 23.030804004520178
+        },
+        "commit_ms": {
+          "median": 8.959552491432987,
+          "p95": 15.851818985538557
+        },
+        "total_ms": {
+          "median": 230.23409199959133,
+          "p95": 240.75608397834003
+        },
+        "root_count": {
+          "median": 5,
+          "p95": 5
+        },
+        "object_reads": {
+          "median": 34,
+          "p95": 34
+        },
+        "metadata_bytes": {
+          "median": 3973,
+          "p95": 3973
+        },
+        "hot_bytes": {
+          "median": 87170,
+          "p95": 87245
+        },
+        "control_bytes": {
+          "median": 3178,
+          "p95": 3178
+        },
+        "total_request_ms": {
+          "median": 231.9709270086605,
+          "p95": 242.39618799765594
+        },
+        "materialized_rows": {
+          "median": 2128,
+          "p95": 2135
+        },
+        "returned_blob_bytes": {
+          "median": 26224,
+          "p95": 119739
+        },
+        "vm_steps_lower_bound": {
+          "median": 21800,
+          "p95": 21800
+        },
+        "written_blob_bytes": {
+          "median": 95241,
+          "p95": 95320
+        },
+        "immutable_object_writes": {
+          "median": 2,
+          "p95": 2
+        },
+        "immutable_object_bytes": {
+          "median": 90344,
+          "p95": 90423
+        },
+        "target_metadata_residual_ms": {
+          "median": 56.306980026420206,
+          "p95": 57.06873201415874
+        }
+      },
+      "change_kinds": {
+        "raw": 20
+      },
+      "sql_median": {
+        "BEGIN": 1,
+        "INSERT": 9,
+        "PRAGMA": 384,
+        "RELEASE": 7,
+        "SAVEPOINT": 7,
+        "SELECT": 424,
+        "UPDATE": 1
+      },
+      "sql_plan_count": 82,
+      "historical_scans": {},
+      "peak_rss_kib": 194068
+    },
+    {
+      "ledger_rows": 5000,
+      "archived_rows": 4895,
+      "workload": "after_cash",
+      "warmups": 3,
+      "measurements": 20,
+      "bootstrap_ms": 35218.710212997394,
+      "stats": {
+        "validation_ms": {
+          "median": 96.08399648277555,
+          "p95": 100.68123700330034
+        },
+        "relationship_rows": {
+          "median": 6,
+          "p95": 6
+        },
+        "financial_ms": {
+          "median": 50.03115099680144,
+          "p95": 51.17090299609117
+        },
+        "pin_ms": {
+          "median": 22.464098990894854,
+          "p95": 22.91770401643589
+        },
+        "commit_ms": {
+          "median": 8.153024507919326,
+          "p95": 9.686832985607907
+        },
+        "total_ms": {
+          "median": 230.1956834999146,
+          "p95": 236.8573530111462
+        },
+        "root_count": {
+          "median": 5,
+          "p95": 5
+        },
+        "object_reads": {
+          "median": 34,
+          "p95": 34
+        },
+        "metadata_bytes": {
+          "median": 3973,
+          "p95": 3973
+        },
+        "hot_bytes": {
+          "median": 87289.5,
+          "p95": 87331
+        },
+        "control_bytes": {
+          "median": 3178,
+          "p95": 3178
+        },
+        "total_request_ms": {
+          "median": 231.70126300828997,
+          "p95": 238.55882199131884
+        },
+        "materialized_rows": {
+          "median": 2131,
+          "p95": 2131
+        },
+        "returned_blob_bytes": {
+          "median": 26431,
+          "p95": 26431
+        },
+        "vm_steps_lower_bound": {
+          "median": 21800,
+          "p95": 21800
+        },
+        "written_blob_bytes": {
+          "median": 95364.5,
+          "p95": 95406
+        },
+        "immutable_object_writes": {
+          "median": 2,
+          "p95": 2
+        },
+        "immutable_object_bytes": {
+          "median": 90467.5,
+          "p95": 90509
+        },
+        "target_metadata_residual_ms": {
+          "median": 55.9113680064911,
+          "p95": 56.66412797290832
+        }
+      },
+      "change_kinds": {
+        "raw": 20
+      },
+      "sql_median": {
+        "BEGIN": 1,
+        "INSERT": 9,
+        "PRAGMA": 384,
+        "RELEASE": 7,
+        "SAVEPOINT": 7,
+        "SELECT": 424,
+        "UPDATE": 1
+      },
+      "sql_plan_count": 82,
+      "historical_scans": {},
+      "peak_rss_kib": 194272
+    },
+    {
+      "ledger_rows": 5000,
+      "archived_rows": 4895,
+      "workload": "date_transition",
+      "warmups": 3,
+      "measurements": 20,
+      "bootstrap_ms": 35218.710212997394,
+      "stats": {
+        "validation_ms": {
+          "median": 103.91399150830694,
+          "p95": 105.16674499376677
+        },
+        "relationship_rows": {
+          "median": 6,
+          "p95": 6
+        },
+        "financial_ms": {
+          "median": 45.48885398253333,
+          "p95": 46.28571099601686
+        },
+        "pin_ms": {
+          "median": 24.297582000144757,
+          "p95": 24.890163011150435
+        },
+        "commit_ms": {
+          "median": 2.6029540022136644,
+          "p95": 2.7131889946758747
+        },
+        "total_ms": {
+          "median": 236.5212910081027,
+          "p95": 237.86444001598284
+        },
+        "root_count": {
+          "median": 5,
+          "p95": 5
+        },
+        "object_reads": {
+          "median": 34,
+          "p95": 34
+        },
+        "metadata_bytes": {
+          "median": 3977,
+          "p95": 3977
+        },
+        "hot_bytes": {
+          "median": 85413.5,
+          "p95": 85491
+        },
+        "control_bytes": {
+          "median": 3178,
+          "p95": 3178
+        },
+        "total_request_ms": {
+          "median": 238.1672704941593,
+          "p95": 239.60987001191825
+        },
+        "materialized_rows": {
+          "median": 2025,
+          "p95": 2025
+        },
+        "returned_blob_bytes": {
+          "median": 26478,
+          "p95": 26478
+        },
+        "vm_steps_lower_bound": {
+          "median": 20400,
+          "p95": 20400
+        },
+        "written_blob_bytes": {
+          "median": 93492.5,
+          "p95": 93570
+        },
+        "immutable_object_writes": {
+          "median": 2,
+          "p95": 2
+        },
+        "immutable_object_bytes": {
+          "median": 88591.5,
+          "p95": 88669
+        },
+        "target_metadata_residual_ms": {
+          "median": 59.72709499474149,
+          "p95": 60.53347999113612
+        }
+      },
+      "change_kinds": {
+        "context": 20
+      },
+      "sql_median": {
+        "BEGIN": 1,
+        "INSERT": 9,
+        "PRAGMA": 384,
+        "RELEASE": 7,
+        "SAVEPOINT": 7,
+        "SELECT": 319,
+        "UPDATE": 1
+      },
+      "sql_plan_count": 82,
+      "historical_scans": {},
+      "peak_rss_kib": 194272
+    },
+    {
+      "ledger_rows": 5000,
+      "archived_rows": 4895,
+      "workload": "two_observers",
+      "warmups": 3,
+      "measurements": 20,
+      "bootstrap_ms": 35218.710212997394,
+      "stats": {
+        "validation_ms": {
+          "median": 150.61709999281447,
+          "p95": 378.0964390025474
+        },
+        "relationship_rows": {
+          "median": 6,
+          "p95": 6
+        },
+        "financial_ms": {
+          "median": 49.788282994995825,
+          "p95": 53.9511030074209
+        },
+        "pin_ms": {
+          "median": 22.24334799393546,
+          "p95": 24.16034901398234
+        },
+        "commit_ms": {
+          "median": 2.4598199961474165,
+          "p95": 2.626285015139729
+        },
+        "total_ms": {
+          "median": 289.05887449218426,
+          "p95": 517.5703889981378
+        },
+        "root_count": {
+          "median": 5,
+          "p95": 5
+        },
+        "object_reads": {
+          "median": 34,
+          "p95": 34
+        },
+        "metadata_bytes": {
+          "median": 3977,
+          "p95": 3977
+        },
+        "hot_bytes": {
+          "median": 87301.5,
+          "p95": 87354
+        },
+        "control_bytes": {
+          "median": 3178,
+          "p95": 3178
+        },
+        "total_request_ms": {
+          "median": 498.772838502191,
+          "p95": 519.4218320248183
+        },
+        "materialized_rows": {
+          "median": 4264,
+          "p95": 4264
+        },
+        "returned_blob_bytes": {
+          "median": 56040,
+          "p95": 56040
+        },
+        "vm_steps_lower_bound": {
+          "median": 43600,
+          "p95": 43600
+        },
+        "written_blob_bytes": {
+          "median": 187578,
+          "p95": 187668
+        },
+        "immutable_object_writes": {
+          "median": 3,
+          "p95": 3
+        },
+        "immutable_object_bytes": {
+          "median": 177776,
+          "p95": 177866
+        },
+        "target_metadata_residual_ms": {
+          "median": 55.56739598978311,
+          "p95": 59.90262297564186
+        }
+      },
+      "change_kinds": {
+        "context": 20
+      },
+      "sql_median": {
+        "BEGIN": 2,
+        "INSERT": 17,
+        "PRAGMA": 768,
+        "RELEASE": 14,
+        "SAVEPOINT": 14,
+        "SELECT": 848,
+        "UPDATE": 2
+      },
+      "sql_plan_count": 82,
+      "historical_scans": {},
+      "peak_rss_kib": 194272
+    },
+    {
+      "ledger_rows": 5000,
+      "archived_rows": 4895,
+      "workload": "writer_contention",
+      "warmups": 3,
+      "measurements": 20,
+      "bootstrap_ms": 35218.710212997394,
+      "stats": {
+        "validation_ms": {
+          "median": 117.0572269911645,
+          "p95": 120.21137398551218
+        },
+        "relationship_rows": {
+          "median": 6,
+          "p95": 6
+        },
+        "financial_ms": {
+          "median": 50.29124199063517,
+          "p95": 69.35134800733067
+        },
+        "pin_ms": {
+          "median": 22.519206497236155,
+          "p95": 23.37932400405407
+        },
+        "commit_ms": {
+          "median": 2.413666996289976,
+          "p95": 2.7284410025458783
+        },
+        "total_ms": {
+          "median": 247.9307440080447,
+          "p95": 269.2923019931186
+        },
+        "root_count": {
+          "median": 5,
+          "p95": 5
+        },
+        "object_reads": {
+          "median": 34,
+          "p95": 34
+        },
+        "metadata_bytes": {
+          "median": 3977,
+          "p95": 3977
+        },
+        "hot_bytes": {
+          "median": 87303.5,
+          "p95": 87366
+        },
+        "control_bytes": {
+          "median": 3178,
+          "p95": 3178
+        },
+        "total_request_ms": {
+          "median": 249.61116450140253,
+          "p95": 271.04516100371256
+        },
+        "materialized_rows": {
+          "median": 2131,
+          "p95": 2131
+        },
+        "returned_blob_bytes": {
+          "median": 26431,
+          "p95": 26431
+        },
+        "vm_steps_lower_bound": {
+          "median": 21800,
+          "p95": 21800
+        },
+        "written_blob_bytes": {
+          "median": 95382.5,
+          "p95": 95445
+        },
+        "immutable_object_writes": {
+          "median": 2,
+          "p95": 2
+        },
+        "immutable_object_bytes": {
+          "median": 90481.5,
+          "p95": 90544
+        },
+        "target_metadata_residual_ms": {
+          "median": 56.02451000595465,
+          "p95": 60.38115298724733
+        }
+      },
+      "change_kinds": {
+        "context": 20
+      },
+      "sql_median": {
+        "BEGIN": 1,
+        "INSERT": 9,
+        "PRAGMA": 384,
+        "RELEASE": 7,
+        "SAVEPOINT": 7,
+        "SELECT": 424,
+        "UPDATE": 1
+      },
+      "sql_plan_count": 82,
+      "historical_scans": {},
+      "peak_rss_kib": 194272
+    },
+    {
+      "ledger_rows": 10000,
+      "archived_rows": 9895,
+      "workload": "no_change",
+      "warmups": 3,
+      "measurements": 20,
+      "bootstrap_ms": 74344.9983150058,
+      "stats": {
+        "validation_ms": {
+          "median": 100.73869451298378,
+          "p95": 104.45827301009558
+        },
+        "relationship_rows": {
+          "median": 6,
+          "p95": 6
+        },
+        "financial_ms": {
+          "median": 53.78464551176876,
+          "p95": 57.355091004865244
+        },
+        "pin_ms": {
+          "median": 24.21867349767126,
+          "p95": 25.56706900941208
+        },
+        "commit_ms": {
+          "median": 2.4212385033024475,
+          "p95": 3.1543269869871438
+        },
+        "total_ms": {
+          "median": 244.3055045005167,
+          "p95": 253.67142399773002
+        },
+        "root_count": {
+          "median": 5,
+          "p95": 5
+        },
+        "object_reads": {
+          "median": 34,
+          "p95": 34
+        },
+        "metadata_bytes": {
+          "median": 3980,
+          "p95": 3980
+        },
+        "hot_bytes": {
+          "median": 87179,
+          "p95": 87242
+        },
+        "control_bytes": {
+          "median": 3178,
+          "p95": 3178
+        },
+        "total_request_ms": {
+          "median": 245.93544148956425,
+          "p95": 255.63312601298094
+        },
+        "materialized_rows": {
+          "median": 2127,
+          "p95": 2127
+        },
+        "returned_blob_bytes": {
+          "median": 23276,
+          "p95": 23276
+        },
+        "vm_steps_lower_bound": {
+          "median": 21800,
+          "p95": 21800
+        },
+        "written_blob_bytes": {
+          "median": 95262,
+          "p95": 95325
+        },
+        "immutable_object_writes": {
+          "median": 2,
+          "p95": 2
+        },
+        "immutable_object_bytes": {
+          "median": 90357,
+          "p95": 90420
+        },
+        "target_metadata_residual_ms": {
+          "median": 61.62538251373917,
+          "p95": 63.56952100759372
+        }
+      },
+      "change_kinds": {
+        "context": 20
+      },
+      "sql_median": {
+        "BEGIN": 1,
+        "INSERT": 9,
+        "PRAGMA": 384,
+        "RELEASE": 7,
+        "SAVEPOINT": 7,
+        "SELECT": 424,
+        "UPDATE": 1
+      },
+      "sql_plan_count": 82,
+      "historical_scans": {},
+      "peak_rss_kib": 325348
+    },
+    {
+      "ledger_rows": 10000,
+      "archived_rows": 9895,
+      "workload": "after_card",
+      "warmups": 3,
+      "measurements": 20,
+      "bootstrap_ms": 74344.9983150058,
+      "stats": {
+        "validation_ms": {
+          "median": 93.78428000491112,
+          "p95": 94.97188901877962
+        },
+        "relationship_rows": {
+          "median": 6,
+          "p95": 6
+        },
+        "financial_ms": {
+          "median": 50.661147994105704,
+          "p95": 51.19787098374218
+        },
+        "pin_ms": {
+          "median": 22.589371495996602,
+          "p95": 22.979906003456563
+        },
+        "commit_ms": {
+          "median": 8.375583493034355,
+          "p95": 9.186864976072684
+        },
+        "total_ms": {
+          "median": 231.76262399647385,
+          "p95": 233.88536801212467
+        },
+        "root_count": {
+          "median": 5,
+          "p95": 5
+        },
+        "object_reads": {
+          "median": 34,
+          "p95": 34
+        },
+        "metadata_bytes": {
+          "median": 3976,
+          "p95": 3976
+        },
+        "hot_bytes": {
+          "median": 87196.5,
+          "p95": 87221
+        },
+        "control_bytes": {
+          "median": 3178,
+          "p95": 3178
+        },
+        "total_request_ms": {
+          "median": 233.356744502089,
+          "p95": 235.4575099889189
+        },
+        "materialized_rows": {
+          "median": 2128,
+          "p95": 2128
+        },
+        "returned_blob_bytes": {
+          "median": 23276,
+          "p95": 23276
+        },
+        "vm_steps_lower_bound": {
+          "median": 21800,
+          "p95": 21800
+        },
+        "written_blob_bytes": {
+          "median": 95275.5,
+          "p95": 95300
+        },
+        "immutable_object_writes": {
+          "median": 2,
+          "p95": 2
+        },
+        "immutable_object_bytes": {
+          "median": 90374.5,
+          "p95": 90399
+        },
+        "target_metadata_residual_ms": {
+          "median": 56.321291529457085,
+          "p95": 57.303465000586584
+        }
+      },
+      "change_kinds": {
+        "raw": 20
+      },
+      "sql_median": {
+        "BEGIN": 1,
+        "INSERT": 9,
+        "PRAGMA": 384,
+        "RELEASE": 7,
+        "SAVEPOINT": 7,
+        "SELECT": 424,
+        "UPDATE": 1
+      },
+      "sql_plan_count": 82,
+      "historical_scans": {},
+      "peak_rss_kib": 325348
+    },
+    {
+      "ledger_rows": 10000,
+      "archived_rows": 9895,
+      "workload": "after_cash",
+      "warmups": 3,
+      "measurements": 20,
+      "bootstrap_ms": 74344.9983150058,
+      "stats": {
+        "validation_ms": {
+          "median": 93.42422850022558,
+          "p95": 94.91688699927181
+        },
+        "relationship_rows": {
+          "median": 6,
+          "p95": 6
+        },
+        "financial_ms": {
+          "median": 50.08415751217399,
+          "p95": 51.29718600073829
+        },
+        "pin_ms": {
+          "median": 22.639019502094015,
+          "p95": 23.045034002279863
+        },
+        "commit_ms": {
+          "median": 8.612148012616672,
+          "p95": 9.496808983385563
+        },
+        "total_ms": {
+          "median": 230.7839584973408,
+          "p95": 235.04156499984674
+        },
+        "root_count": {
+          "median": 5,
+          "p95": 5
+        },
+        "object_reads": {
+          "median": 34,
+          "p95": 34
+        },
+        "metadata_bytes": {
+          "median": 3976,
+          "p95": 3976
+        },
+        "hot_bytes": {
+          "median": 87298.5,
+          "p95": 87340
+        },
+        "control_bytes": {
+          "median": 3178,
+          "p95": 3178
+        },
+        "total_request_ms": {
+          "median": 232.46653348905966,
+          "p95": 236.77015298744664
+        },
+        "materialized_rows": {
+          "median": 2131,
+          "p95": 2131
+        },
+        "returned_blob_bytes": {
+          "median": 23483,
+          "p95": 23483
+        },
+        "vm_steps_lower_bound": {
+          "median": 21800,
+          "p95": 21800
+        },
+        "written_blob_bytes": {
+          "median": 95372,
+          "p95": 95419
+        },
+        "immutable_object_writes": {
+          "median": 2,
+          "p95": 2
+        },
+        "immutable_object_bytes": {
+          "median": 90471,
+          "p95": 90518
+        },
+        "target_metadata_residual_ms": {
+          "median": 56.33223148470279,
+          "p95": 58.09525400400162
+        }
+      },
+      "change_kinds": {
+        "raw": 20
+      },
+      "sql_median": {
+        "BEGIN": 1,
+        "INSERT": 9,
+        "PRAGMA": 384,
+        "RELEASE": 7,
+        "SAVEPOINT": 7,
+        "SELECT": 424,
+        "UPDATE": 1
+      },
+      "sql_plan_count": 82,
+      "historical_scans": {},
+      "peak_rss_kib": 325348
+    },
+    {
+      "ledger_rows": 10000,
+      "archived_rows": 9895,
+      "workload": "date_transition",
+      "warmups": 3,
+      "measurements": 20,
+      "bootstrap_ms": 74344.9983150058,
+      "stats": {
+        "validation_ms": {
+          "median": 94.82727501017507,
+          "p95": 96.15018201293424
+        },
+        "relationship_rows": {
+          "median": 6,
+          "p95": 6
+        },
+        "financial_ms": {
+          "median": 43.69716749351937,
+          "p95": 44.64061799808405
+        },
+        "pin_ms": {
+          "median": 22.614863017224707,
+          "p95": 23.693791998084635
+        },
+        "commit_ms": {
+          "median": 8.370201496290974,
+          "p95": 9.2989620170556
+        },
+        "total_ms": {
+          "median": 225.37799351266585,
+          "p95": 228.33605398773216
+        },
+        "root_count": {
+          "median": 5,
+          "p95": 5
+        },
+        "object_reads": {
+          "median": 34,
+          "p95": 34
+        },
+        "metadata_bytes": {
+          "median": 3980,
+          "p95": 3980
+        },
+        "hot_bytes": {
+          "median": 85439.5,
+          "p95": 85475
+        },
+        "control_bytes": {
+          "median": 3178,
+          "p95": 3178
+        },
+        "total_request_ms": {
+          "median": 227.08491051162127,
+          "p95": 230.11454500374384
+        },
+        "materialized_rows": {
+          "median": 2025,
+          "p95": 2025
+        },
+        "returned_blob_bytes": {
+          "median": 23530,
+          "p95": 23530
+        },
+        "vm_steps_lower_bound": {
+          "median": 20400,
+          "p95": 20400
+        },
+        "written_blob_bytes": {
+          "median": 93522.5,
+          "p95": 93558
+        },
+        "immutable_object_writes": {
+          "median": 2,
+          "p95": 2
+        },
+        "immutable_object_bytes": {
+          "median": 88617.5,
+          "p95": 88653
+        },
+        "target_metadata_residual_ms": {
+          "median": 55.96140548004769,
+          "p95": 56.96111096767709
+        }
+      },
+      "change_kinds": {
+        "context": 20
+      },
+      "sql_median": {
+        "BEGIN": 1,
+        "INSERT": 9,
+        "PRAGMA": 384,
+        "RELEASE": 7,
+        "SAVEPOINT": 7,
+        "SELECT": 319,
+        "UPDATE": 1
+      },
+      "sql_plan_count": 82,
+      "historical_scans": {},
+      "peak_rss_kib": 325348
+    },
+    {
+      "ledger_rows": 10000,
+      "archived_rows": 9895,
+      "workload": "two_observers",
+      "warmups": 3,
+      "measurements": 20,
+      "bootstrap_ms": 74344.9983150058,
+      "stats": {
+        "validation_ms": {
+          "median": 141.99676949647255,
+          "p95": 372.4191660003271
+        },
+        "relationship_rows": {
+          "median": 6,
+          "p95": 6
+        },
+        "financial_ms": {
+          "median": 51.16005300078541,
+          "p95": 52.09136300254613
+        },
+        "pin_ms": {
+          "median": 22.801953004091047,
+          "p95": 23.412359005305916
+        },
+        "commit_ms": {
+          "median": 8.623037007055245,
+          "p95": 9.23504598904401
+        },
+        "total_ms": {
+          "median": 282.30995549529325,
+          "p95": 511.4607330178842
+        },
+        "root_count": {
+          "median": 5,
+          "p95": 5
+        },
+        "object_reads": {
+          "median": 34,
+          "p95": 34
+        },
+        "metadata_bytes": {
+          "median": 3980,
+          "p95": 3980
+        },
+        "hot_bytes": {
+          "median": 87283,
+          "p95": 87317
+        },
+        "control_bytes": {
+          "median": 3178,
+          "p95": 3178
+        },
+        "total_request_ms": {
+          "median": 511.0568499803776,
+          "p95": 524.7631679812912
+        },
+        "materialized_rows": {
+          "median": 4264,
+          "p95": 4264
+        },
+        "returned_blob_bytes": {
+          "median": 50144,
+          "p95": 50144
+        },
+        "vm_steps_lower_bound": {
+          "median": 43600,
+          "p95": 43600
+        },
+        "written_blob_bytes": {
+          "median": 187570,
+          "p95": 187613
+        },
+        "immutable_object_writes": {
+          "median": 3,
+          "p95": 3
+        },
+        "immutable_object_bytes": {
+          "median": 177760,
+          "p95": 177803
+        },
+        "target_metadata_residual_ms": {
+          "median": 56.92841749987565,
+          "p95": 57.64900101348758
+        }
+      },
+      "change_kinds": {
+        "context": 20
+      },
+      "sql_median": {
+        "BEGIN": 2,
+        "INSERT": 17,
+        "PRAGMA": 768,
+        "RELEASE": 14,
+        "SAVEPOINT": 14,
+        "SELECT": 848,
+        "UPDATE": 2
+      },
+      "sql_plan_count": 82,
+      "historical_scans": {},
+      "peak_rss_kib": 325348
+    },
+    {
+      "ledger_rows": 10000,
+      "archived_rows": 9895,
+      "workload": "writer_contention",
+      "warmups": 3,
+      "measurements": 20,
+      "bootstrap_ms": 74344.9983150058,
+      "stats": {
+        "validation_ms": {
+          "median": 114.88141299923882,
+          "p95": 116.6904210112989
+        },
+        "relationship_rows": {
+          "median": 6,
+          "p95": 6
+        },
+        "financial_ms": {
+          "median": 51.025750988628715,
+          "p95": 52.273242006776854
+        },
+        "pin_ms": {
+          "median": 22.7662764955312,
+          "p95": 23.474712012102827
+        },
+        "commit_ms": {
+          "median": 8.782934499322437,
+          "p95": 9.250622009858489
+        },
+        "total_ms": {
+          "median": 254.45796150597744,
+          "p95": 263.5269679885823
+        },
+        "root_count": {
+          "median": 5,
+          "p95": 5
+        },
+        "object_reads": {
+          "median": 34,
+          "p95": 34
+        },
+        "metadata_bytes": {
+          "median": 3980,
+          "p95": 3980
+        },
+        "hot_bytes": {
+          "median": 87328,
+          "p95": 87375
+        },
+        "control_bytes": {
+          "median": 3178,
+          "p95": 3178
+        },
+        "total_request_ms": {
+          "median": 256.1854380037403,
+          "p95": 265.3263369866181
+        },
+        "materialized_rows": {
+          "median": 2131,
+          "p95": 2131
+        },
+        "returned_blob_bytes": {
+          "median": 23483,
+          "p95": 23483
+        },
+        "vm_steps_lower_bound": {
+          "median": 21800,
+          "p95": 21800
+        },
+        "written_blob_bytes": {
+          "median": 95411,
+          "p95": 95458
+        },
+        "immutable_object_writes": {
+          "median": 2,
+          "p95": 2
+        },
+        "immutable_object_bytes": {
+          "median": 90506,
+          "p95": 90553
+        },
+        "target_metadata_residual_ms": {
+          "median": 56.80639650381636,
+          "p95": 58.57974002719857
+        }
+      },
+      "change_kinds": {
+        "context": 20
+      },
+      "sql_median": {
+        "BEGIN": 1,
+        "INSERT": 9,
+        "PRAGMA": 384,
+        "RELEASE": 7,
+        "SAVEPOINT": 7,
+        "SELECT": 424,
+        "UPDATE": 1
+      },
+      "sql_plan_count": 82,
+      "historical_scans": {},
+      "peak_rss_kib": 325348
+    }
+  ],
+  "totals": {
+    "cells": 24,
+    "measured_trials": 480,
+    "measured_observations": 560,
+    "historical_scans": 0
+  }
+}

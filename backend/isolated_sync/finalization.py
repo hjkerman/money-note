@@ -76,8 +76,10 @@ def metadata_contract():
         return tuple(conn.execute("SELECT type,name,tbl_name,sql FROM sqlite_master WHERE tbl_name LIKE 'sync_%' OR name LIKE 'sync_%' ORDER BY type,name"))
 
 
-def validate_schema(conn):
-    if conn.execute("PRAGMA user_version").fetchone()[0] != VERSION:
+def validate_schema(conn, *, version=VERSION, metadata=None):
+    # A later isolated profile supplies its EXACT extended contract, never an
+    # allow-unknown exception. Legacy/D2b callers retain their original checks.
+    if conn.execute("PRAGMA user_version").fetchone()[0] != version:
         fail("REJECT_FINALIZATION_VERSION")
     if any(conn.execute(f"PRAGMA {p}").fetchone()[0] != 1 for p in ("foreign_keys", "recursive_triggers")):
         fail("REJECT_FINALIZATION_PRAGMA")
@@ -87,7 +89,7 @@ def validate_schema(conn):
             fail("REJECT_FINALIZATION_COLUMNS")
     actual = tuple(tuple(r) for r in conn.execute(
         "SELECT type,name,tbl_name,sql FROM sqlite_master WHERE tbl_name LIKE 'sync_%' OR name LIKE 'sync_%' ORDER BY type,name"))
-    if actual != metadata_contract():
+    if actual != (metadata_contract() if metadata is None else metadata):
         fail("REJECT_FINALIZATION_SCHEMA")
     expected = {capture._trigger(t, op).replace(" IF NOT EXISTS", "").rstrip(";")
                 for t in TABLES for op in ("INSERT", "UPDATE", "DELETE")}
@@ -187,6 +189,9 @@ def _derived(index, changes):
 
 
 class FinalizationConnection(capture.CaptureConnection):
+    def _epoch_bootstrapped(self, namespace):
+        """Later isolated profiles may invalidate their own epoch-bound metadata."""
+
     def _validate_capture_schema(self):
         validate_schema(self)
 
@@ -352,7 +357,7 @@ class FinalizationSandbox(capture.CaptureSandbox):
         """EXCLUSIVE O(N), rotate epoch on EACH explicit cold bootstrap/restart."""
         with self.connect() as conn:
             conn.execute("BEGIN EXCLUSIVE")
-            validate_schema(conn)
+            conn._validate_capture_schema()
             prior = conn.execute("SELECT namespace FROM sync_current WHERE id=1").fetchone()
             identity = decode_c1(prior[0]) if prior else dict(server_id=str(uuid4()), dataset_id=str(uuid4()))
             context = Context(Namespace(identity["server_id"], identity["dataset_id"], str(uuid4())), RAW_SCHEMA)
@@ -388,4 +393,5 @@ class FinalizationSandbox(capture.CaptureSandbox):
                              (tx_id, identity.get("epoch", context.ns.epoch), revision, context.ns.epoch, revision, raw.hash, idx.hash, inputs.object().hash, 0))
                 conn.execute("INSERT OR REPLACE INTO sync_current VALUES (1,?,?,?,?,?,?)",
                              (encode(context.ns.wire()), RAW_SCHEMA, revision, raw.hash, idx.hash, tx_id))
+                conn._epoch_bootstrapped(context.ns)
             return context

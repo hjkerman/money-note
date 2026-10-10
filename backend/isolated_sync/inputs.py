@@ -42,22 +42,12 @@ def checked_total(conn, index, domain, key):
     return int(row[0]) if row else 0
 
 
-class BoundedInputs(FinancialInputScope):
-    """A borrowed D2b connection, never a fake CardOwnershipReadView receipt.
+class MaintainedInputs(FinancialInputScope):
+    """Shared raw input queries, NOT a transaction-lifetime authorization.
 
-    Construct explicitly AFTER begin_capture. Never use on legacy databases,
-    another transaction, or after finalize. execute forwards unchanged SQL.
+    Concrete writer/read scopes separately establish _check() and net(). These
+    queries contain no new financial formulas; existing presenters consume them.
     """
-
-    def __init__(self, conn):
-        from isolated_sync.finalization import FinalizationConnection, generation
-        if not isinstance(conn, FinalizationConnection):
-            fail("REJECT_INPUT_CONNECTION")
-        self.conn = conn
-        self.base, self.context, self.store, self.trees, _ = generation(conn)
-        self.tx_id = self._context()[0]
-        self.proof = input_index(conn, self.store, self.base["tx_id"])
-        self.relationship_rows = 0
 
     def __getattr__(self, name):
         return getattr(self.conn, name)
@@ -66,31 +56,9 @@ class BoundedInputs(FinancialInputScope):
         self._check()
         return self.conn.execute(sql, parameters)
 
-    def _context(self):
-        rows = self.conn.execute("SELECT tx_id,base_revision FROM sync_tx_context").fetchall()
-        if len(rows) != 1 or rows[0][1] != self.base["revision"]:
-            fail("REJECT_INPUT_CONTEXT")
-        return rows[0]
-
-    def _check(self):
-        if not self.conn.in_transaction or self._context()[0] != self.tx_id:
-            fail("REJECT_INPUT_CONTEXT")
-        current = self.conn.execute("SELECT tx_id FROM sync_current WHERE id=1").fetchone()
-        if current is None or current[0] != self.base["tx_id"]:
-            fail("REJECT_INPUT_BASE")
-
     def financial_inputs(self):
         self._check()
         return self
-
-    def net(self):
-        self._check()
-        changes = capture.read_changes(self.conn, self.tx_id)
-        target = self.conn.execute("SELECT revision FROM authoritative_state_revision WHERE id=1").fetchone()[0]
-        if len(changes) != target-self.base["revision"] or any(
-                c["revision"] != self.base["revision"]+n for n, c in enumerate(changes, 1)):
-            fail("REJECT_INPUT_CAPTURE_COVERAGE")
-        return coalesce(changes, self.trees, self.conn)
 
     def related(self, seeds=()):
         """Union of OLD-base and NEW-current adjacency, so removals stay covered.
@@ -217,3 +185,39 @@ class BoundedInputs(FinancialInputScope):
         self._check()
         return exact_money(query_money_sum(self.conn, """SELECT amount_value FROM cash_flows
             WHERE substr(occurred_on,1,7)=? AND is_primary_income=1 AND amount_value>0""", (month,)), 'primary_income_total')
+
+
+class BoundedInputs(MaintainedInputs):
+    """D2b writer scope only: construct AFTER begin_capture, never after finalize."""
+
+    def __init__(self, conn):
+        from isolated_sync.finalization import FinalizationConnection, generation
+        if not isinstance(conn, FinalizationConnection):
+            fail("REJECT_INPUT_CONNECTION")
+        self.conn = conn
+        self.base, self.context, self.store, self.trees, _ = generation(conn)
+        self.tx_id = self._context()[0]
+        self.proof = input_index(conn, self.store, self.base["tx_id"])
+        self.relationship_rows = 0
+
+    def _context(self):
+        rows = self.conn.execute("SELECT tx_id,base_revision FROM sync_tx_context").fetchall()
+        if len(rows) != 1 or rows[0][1] != self.base["revision"]:
+            fail("REJECT_INPUT_CONTEXT")
+        return rows[0]
+
+    def _check(self):
+        if not self.conn.in_transaction or self._context()[0] != self.tx_id:
+            fail("REJECT_INPUT_CONTEXT")
+        current = self.conn.execute("SELECT tx_id FROM sync_current WHERE id=1").fetchone()
+        if current is None or current[0] != self.base["tx_id"]:
+            fail("REJECT_INPUT_BASE")
+
+    def net(self):
+        self._check()
+        changes = capture.read_changes(self.conn, self.tx_id)
+        target = self.conn.execute("SELECT revision FROM authoritative_state_revision WHERE id=1").fetchone()[0]
+        if len(changes) != target-self.base["revision"] or any(
+                c["revision"] != self.base["revision"]+n for n, c in enumerate(changes, 1)):
+            fail("REJECT_INPUT_CAPTURE_COVERAGE")
+        return coalesce(changes, self.trees, self.conn)
