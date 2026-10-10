@@ -264,7 +264,23 @@ class ObservationRepository:
             with conn:
                 with conn._metadata():
                     conn.execute(f"PRAGMA busy_timeout={self.limits.lock_wait_ms}")
-                yield conn
+                conn.execute("BEGIN IMMEDIATE")
+                conn.execute("SAVEPOINT observation_attempt")
+                retired = set()
+                try:
+                    yield conn, retired
+                except BaseException:
+                    if retired and conn.in_transaction:
+                        # Keep the same writer lock. Discard ALL candidate/auth/
+                        # object/pin/budget writes, then persist ONLY established
+                        # terminal lease decisions before returning the error.
+                        conn.execute("ROLLBACK TO observation_attempt")
+                        conn.execute("RELEASE observation_attempt")
+                        with conn._metadata():
+                            conn.executemany("UPDATE sync_observations SET status='retired' WHERE id=? AND status='available'",
+                                             ((key,) for key in sorted(retired)))
+                        conn.commit()
+                    raise
         finally:
             # sqlite3.Connection.__exit__ commits/rolls back, but does NOT
             # close the handle. No repository handle survives a public call.
@@ -287,6 +303,29 @@ class ObservationRepository:
         if row is None or row["user_id"] != credential.user_id or not row["is_active"] or not valid:
             reject("AUTH_REQUIRED", "reauthenticate")
         return now
+
+    def _retire_expired(self, conn, retired, credential, namespace, now, observation_id=None):
+        """Indexed, monotonic authorization retirement; NEVER release pins.
+
+        Record decisions for error-path replay after rolling back the attempt.
+        Namespace/owner were authenticated under this same BEGIN IMMEDIATE.
+        """
+        sql = """UPDATE sync_observations SET status='retired'
+            WHERE principal_id=? AND status='available' AND expires_at<=? AND namespace=?"""
+        parameters = (credential.user_id, timestamp(now), namespace)
+        if observation_id is not None:
+            sql += " AND id=?"
+            parameters += (observation_id,)
+        with conn._metadata():
+            rows = conn.execute(sql+" RETURNING id", parameters).fetchall()
+        retired.update(row[0] for row in rows)
+
+    def _check_lease(self, conn, retired, row, credential, now):
+        if row["status"] != "available":
+            reject("OBSERVATION_EXPIRED", "new_observation")
+        if row["expires_at"] <= timestamp(now):
+            self._retire_expired(conn, retired, credential, row["namespace"], now, row["id"])
+            reject("OBSERVATION_EXPIRED", "new_observation")
 
     def _target_base(self, base, target):
         if base is None:
@@ -341,8 +380,7 @@ class ObservationRepository:
         started = perf_counter()
         self.metrics = {}
         try:
-            with self._connection() as conn:
-                conn.execute("BEGIN IMMEDIATE")
+            with self._connection() as (conn, retired):
                 validate_schema(conn)
                 now = self._guard(conn, credential, guard)
                 evaluation, contracts = self.evaluation(), versions()
@@ -356,7 +394,7 @@ class ObservationRepository:
                 if old:
                     if old["request_body"] != request:
                         reject("REQUEST_CONFLICT")
-                    return self._lookup(conn, old["id"], credential, guard)
+                    return self._lookup(conn, retired, old["id"], credential, guard)
                 accepted, proof_ref, index_ref = accepted_generation(conn)
                 current, raw_context, store, _, _ = accepted
                 self.metrics["validation_ms"] = (perf_counter()-started)*1000
@@ -397,8 +435,9 @@ class ObservationRepository:
                     reject("OBSERVATION_CONFLICT", "new_observation")
                 if perf_counter()-started > self.limits.transaction_seconds:
                     reject("ROOT_NOT_READY", "retry_same")
-                quota = conn.execute("SELECT count(*) FROM sync_observations WHERE principal_id=? AND status='available' AND expires_at>?",
-                                     (credential.user_id, timestamp(terminal))).fetchone()[0]
+                self._retire_expired(conn, retired, credential, encode(ns), terminal)
+                quota = conn.execute("SELECT count(*) FROM sync_observations WHERE principal_id=? AND status='available'",
+                                     (credential.user_id,)).fetchone()[0]
                 if quota >= self.limits.observations_per_principal or conn.execute("SELECT count(*) FROM sync_observations").fetchone()[0] >= self.limits.total_records:
                     reject("LEASE_LIMIT", "retry_same")
                 observation_id = str(uuid4())
@@ -454,7 +493,7 @@ class ObservationRepository:
         except CanonicalError:
             reject("REQUIRED_METADATA_INVALID")
 
-    def _lookup(self, conn, observation_id, credential, guard):
+    def _lookup(self, conn, retired, observation_id, credential, guard):
         now = self._guard(conn, credential, guard)
         row = conn.execute("SELECT * FROM sync_observations WHERE id=?", (observation_id,)).fetchone()
         if row is None:
@@ -464,16 +503,7 @@ class ObservationRepository:
         namespace = conn.execute("SELECT namespace FROM sync_current WHERE id=1").fetchone()
         if namespace is None or namespace[0] != row["namespace"]:
             reject("EPOCH_CHANGED", "full_resync")
-        if row["status"] != "available":
-            reject("OBSERVATION_EXPIRED", "new_observation")
-        if row["expires_at"] <= timestamp(now):
-            # Sticky rejection even if wall time later moves backwards. Only
-            # the authenticated expired record is marked; pins stay protected
-            # until D3c release. This path has no staged financial/object writes.
-            with conn._metadata():
-                conn.execute("UPDATE sync_observations SET status='retired' WHERE id=?", (observation_id,))
-            conn.commit()
-            reject("OBSERVATION_EXPIRED", "new_observation")
+        self._check_lease(conn, retired, row, credential, now)
         response, target = decode_c1(row["response"]), decode_c1(row["target"])
         if type(target) is not dict or "sync_root" not in target:
             reject("REQUIRED_METADATA_INVALID")
@@ -506,15 +536,15 @@ class ObservationRepository:
         store.get(target["raw_ref"], {"raw-root"})
         store.index(target["index_ref"])
         input_index(conn, store, row["tx_id"])
-        self._guard(conn, credential, guard)
+        terminal = self._guard(conn, credential, guard)
+        self._check_lease(conn, retired, row, credential, terminal)
         return response
 
     def lookup(self, observation_id, credential, *, guard):
         uuid(observation_id)
         try:
-            with self._connection() as conn:
-                conn.execute("BEGIN IMMEDIATE")
-                return self._lookup(conn, observation_id, credential, guard)
+            with self._connection() as (conn, retired):
+                return self._lookup(conn, retired, observation_id, credential, guard)
         except CanonicalError:
             reject("REQUIRED_METADATA_INVALID")
         except sqlite3.OperationalError:

@@ -1,0 +1,47 @@
+{
+  "profile": "isolated-d3a-expiry-correction",
+  "audited_commit": "c6ce6d9f84633b24a2f43330a90487ca16d0b3c4",
+  "audited_source_sha256": "954aca6bdc69bdc8d6fab7c447b0678061ef4401ff1c7cb6ee660badb39f3f89",
+  "corrected_source_sha256": "3b83a22c156676ef4d3fc1847f671e4a040e0ccb7ee3f701070db48938fb6663",
+  "environment": {
+    "python": "3.12.3",
+    "sqlite": "3.45.1",
+    "platform": "Linux-6.8.0-146-generic-x86_64-with-glibc2.39"
+  },
+  "warmups_per_cell": 3,
+  "measured_pairs_per_cell": 20,
+  "measured_pairs": 80,
+  "raw_artifact": "/tmp/money-note-d3a-expiry-costs.json",
+  "raw_bytes": 40332,
+  "raw_sha256": "75507ec649fbf8d73961a8361c70fd5f1ce396944c23ae8a1bedacf4655f9436",
+  "controls": {
+    "synthetic_only": true,
+    "fixed_hot_rows": 105,
+    "bootstrap_timed": false,
+    "reference_loaded_from_git_without_checkout": true,
+    "both_use_current_engine_artifact": true,
+    "backend_regression_concurrent": true,
+    "hardware_latency_guarantee": false
+  },
+  "cells": [
+    {"rows": 376, "implementation": "audited", "create_median_ms": 213.03044799424242, "create_p95_ms": 226.57199102104641, "lookup_median_ms": 128.66337798186578, "lookup_p95_ms": 136.51440900866874},
+    {"rows": 376, "implementation": "corrected", "create_median_ms": 219.89221300464123, "create_p95_ms": 242.1736959950067, "lookup_median_ms": 133.82240349892527, "lookup_p95_ms": 137.22813301137649},
+    {"rows": 1000, "implementation": "audited", "create_median_ms": 209.45319799648132, "create_p95_ms": 218.34083599969745, "lookup_median_ms": 130.91832849022467, "lookup_p95_ms": 150.9569899935741},
+    {"rows": 1000, "implementation": "corrected", "create_median_ms": 209.45928449509665, "create_p95_ms": 214.15903299930505, "lookup_median_ms": 130.8245815016562, "lookup_p95_ms": 135.01328398706391}
+  ],
+  "same_at_both_sizes": {
+    "create_object_reads": 34,
+    "create_selects": 424,
+    "lookup_selects": 48,
+    "create_insert_median": 9,
+    "audited_create_updates": 1,
+    "corrected_create_updates": 2,
+    "audited_create_savepoints": 7,
+    "corrected_create_savepoints": 8,
+    "audited_lookup_savepoints": 0,
+    "corrected_lookup_savepoints": 1
+  },
+  "retirement_query_index": "sync_observation_quota(principal_id,status,expires_at)",
+  "pin_release": false,
+  "garbage_collection": false
+}

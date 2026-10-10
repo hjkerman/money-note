@@ -469,3 +469,182 @@ Commit은 deployment 또는 D3b/D3c 착수 승인이 아니다.
 별도 독립 D3a 구현 감사에서 accepted certificate/terminal auth/financial scope/
 atomic pin/root coverage/SQL scaling과 process recovery를 검토한다.
 감사 통과 전 D3b를 시작하지 않으며 production 활성화는 별도 승인 대상이다.
+
+## AB. 최초 독립 감사 실패 및 M01/M02 한정 수정
+
+### AB.1 이력·범위
+
+위 A~AA는 최초 구현 당시 내부 완료 보고를 보존한 기록이다. 이후 사용자가 제공한
+`c6ce6d9f84633b24a2f43330a90487ca16d0b3c4`의 독립 감사 결과는
+**FAIL — TARGETED D3a CORRECTION REQUIRED**였다. Critical 0, High 0,
+Medium 2, D3a blocker 2이며, 이 절은 그 두 결함의 수정 증거다. 최초 보고의
+“알려진 Medium 0”을 독립 감사 통과로 해석하지 않는다. 이번 작업 자체도 독립 재감사가 아니다.
+
+수정 시작 시 `main = HEAD = origin/main = 실제 remote main`은 위 audited commit,
+working tree는 clean이었다. D1/D2a/D2b 알고리즘, schema/checkpoint, 금융 공식,
+Target canonicalization/hash 정의, Snapshot v7 및 정상 runtime은 바꾸지 않는다.
+
+**IMPLEMENTED:** 공유 terminal expiry 검사, 단조로운 authorization retirement,
+quota 교체의 retirement-only 오류 commit.
+**VERIFIED:** 아래 deterministic/fresh-connection/concurrent/process 경계 테스트.
+**DEFERRED TO D3c:** pin 해제, 물리적 객체 회수, budget 회수, 일반 retention/GC.
+**NOT ACTIVATED:** D3b HTTP/전송, segmented 정상 runtime, production migration/배포.
+
+### AB.2 M01 원인·반례·수정
+
+기존 `ObservationRepository._lookup()`은 첫 `_guard()`의 시각으로만 expiry를
+검사했다. 마지막 `_guard()`의 반환 시각은 버렸다. 따라서 첫 검사가 00:14:59,
+terminal 검사가 00:15:00 또는 00:15:01이고 expiry가 00:15:00이면 lookup,
+roots, 동일 request retry가 성공했다. 수정 전 추가 테스트에서 해당 6개 조합의
+성공 반환 오류와 M02 1건을 실제 재현했다(7 FAIL / 초기 만료 3 PASS).
+
+현재 `_check_lease()`가 initial/terminal 양쪽의 동일 규칙을 구현한다.
+Terminal `_guard()`의 실제 반환 시각을 반드시 전달한다. `now >= expires_at`이면
+`OBSERVATION_EXPIRED`, action `new_observation`이며 성공 response를 반환하지 않는다.
+`roots()`와 `create()`의 동일 request retry는 같은 `_lookup()`을 통과한다.
+Credential/principal/namespace/version/certificate/root/context 검사는 그대로다.
+
+```text
+available --원 credential·현재 epoch 확인--> initial lease 검사
+  ├─ 만료: retired 결정 → retirement COMMIT → OBSERVATION_EXPIRED
+  └─ 유효: 기존 complete target 검증 → terminal auth/clock → lease 재검사
+       ├─ 만료: retired 결정 → retirement COMMIT → OBSERVATION_EXPIRED
+       └─ 유효: 기존 observation 반환
+retired --시계 역행/재시도--> OBSERVATION_EXPIRED (available 복귀 없음)
+```
+
+### AB.3 M02 원인·quota 원자성·오류 순서
+
+기존 quota SQL은 `status='available' AND expires_at>now`만 세었다. 만료 행의
+status를 바꾸지 않으므로 T에 4개, T+901초에 교체 4개를 만들고 T로 시계를 되돌리면
+8개가 다시 available이었다. 현재 `_retire_expired()`는 원자적 creation transaction에서
+현재 namespace와 authenticated principal의 만료 available 행을 먼저 `retired`로
+전환한다. 이후 quota는 시간 predicate 없이 **persisted available status**를 센다.
+Principal별 최대 4개, 전체 record/metadata budget은 기존 값 그대로다.
+
+`_connection()`은 기존 `BEGIN IMMEDIATE`를 소유하고 시작 직후
+`SAVEPOINT observation_attempt`를 둔다. 새 transaction이나 금융 commit을 추가하는 것이 아니다.
+Retirement에 성공한 ID만 transaction-local decision set에 기록한다.
+
+1. 동일 writer lock 안에서 원 credential/context/generation을 검증한다.
+2. 만료 행을 indexed UPDATE/RETURNING으로 retired 전환하고 결정 ID를 기록한다.
+3. available quota와 기존 전체 budget을 검사한다.
+4. 후보 object/view/observation/5 pins/budget을 준비하고 기존 terminal guard를 통과한다.
+5. 성공이면 retirement와 완전한 신규 publication을 한 COMMIT으로 저장한다.
+6. 2 이후 quota/budget/pin/context/auth 등의 오류면 **같은 writer lock을 유지한 채**
+   attempt savepoint로 rollback한다. 후보 변경과 fault가 주입한 auth 변경까지 전부 버린다.
+   그 뒤 기록된 ID의 `available → retired`만 재적용·COMMIT하고 원래 오류를 반환한다.
+
+UPDATE 뒤 exception 때문에 전체 transaction이 rollback되어 retirement까지 잃는
+구현이 아니다. ID 재적용까지 외부 writer가 끼어들 수 없고, 결정 집합은 그 lock 안에서
+검증한 principal/epoch의 행으로 한정된다. 이미 retired인 행은 되살리지 않는다.
+Retirement COMMIT 자체의 저장 오류는 성공한 durable expiry로 보고하지 않는다.
+기존 `ROOT_NOT_READY`/`PIN_TRANSACTION_FAILED` 오류 분류로 fail closed하며 성공 응답이 없다.
+저장 불능이나 COMMIT 전 process 종료에 대해 영속화 성공을 주장하지 않는다.
+
+### AB.4 시계 역행·pin·재시작 경계
+
+Expiry를 성공적으로 commit한 뒤에는 과거 시각으로 돌아가도 status가 retired라서
+lookup/roots/retry를 허용하지 않는다. 교체된 신규 observation은 자신의 기존 lease
+계약을 유지한다. 원 credential이 바뀌거나 epoch가 바뀌면 기존 guard가 우선 거부한다.
+다른 principal의 행을 quota retirement로 쓸어내지 않는다.
+
+수정 경로는 pin의 `active`, pin hash, 객체, certificate를 해제·삭제하지 않는다.
+4개 old + 4개 replacement의 상태는 **retired 4 / available 4 / active pins 40**이다.
+Pin의 물리 보존은 transfer authorization 허용과 다르다. 만료 pin의 안전한 해제는 D3c다.
+기존 mandatory cold-bootstrap epoch 무효화 hook은 변경하지 않았다.
+
+SIGKILL은 lookup expiry 및 quota-error retirement 각각의 COMMIT 전/후 4개 경계에서
+검사한다. COMMIT 전은 기존 available 상태로 rollback되고 만료 성공 응답은 없으며,
+다시 만료를 감지하면 정상 retirement가 저장된다. COMMIT 후는 새 process/과거 clock에서도
+retired다. 두 경우 모두 raw financial state, accepted generation과 pin은 불변이다.
+이는 선택한 process-crash 증거이지 hardware power-loss 보장이 아니다.
+
+### AB.5 신규 테스트·독립 persisted-state 증거
+
+[test_isolated_sync_observation.py](../backend/tests/test_isolated_sync_observation.py)에
+신규 **32개**를 추가했다. `lease_state()`는 매번 별도의 일반 `sqlite3.connect()`에서
+status/5-role pins/budget을 직접 읽으며 response 자체를 증거로 쓰지 않는다.
+
+| 테스트 | 실행 조합·증거 |
+| --- | --- |
+| `test_terminal_lease_expiry_is_sticky` | initial 만료/terminal 정확한 경계/terminal 초과 × lookup/roots/retry 9개; 과거 clock·반복 조회·fresh connection·금융 불변 |
+| `test_terminal_before_expiry_remains_valid` | 만료 직전 lookup/roots/retry 3개; 오거부 없음 |
+| `test_quota_replacement_clock_rollback` | 4→4 교체·old 영구 거부·new 유효·5번째 quota 거부·40 active pins |
+| `test_sticky_quota_retirement_survives_failed_publication` | record/per-observation metadata/global bytes/pin/before-commit/auth/context/new lease expiry 8개; retirement 외 object/view/pin/budget/auth 변화 없음 |
+| `test_quota_rejection_preserves_expired_and_live_memberships` | live 1 + expired 3의 quota 거부에서도 expired만 commit |
+| `test_retirement_scope_and_original_auth_guards` | 다른 principal 제외·같은 principal 새 credential의 quota·wrong principal/token/cancel·반복 roots/retry 거부 |
+| `test_concurrent_quota_replacement_is_atomic` | Barrier로 동시 5 creators; 정확히 4 성공/1 LEASE_LIMIT, old 4 retired·active pins 40 |
+| `test_retirement_process_crash_boundary` | lookup/quota error × COMMIT 전/후 4개 SIGKILL·새 connection/과거 clock |
+| `test_retirement_queries_use_existing_quota_index` | EXPLAIN: retirement와 available count 모두 기존 quota index SEARCH, observation SCAN 없음 |
+| `test_retirement_commit_failure_is_not_reported_as_durable_expiry` | lookup/quota 오류 2개 COMMIT 실패·전체 rollback·후속 retry retirement |
+| `test_retry_expiry_commits_only_retirement` | retry validation fault의 별도 auth 삭제는 rollback, expiry만 commit |
+
+기존 97개는 complete certificate/capture-only rejection, 12 projections × 24 contexts,
+epoch/version/root/credential, 5-root publication, D2b writer·concurrency·중단·O(N) 금지
+증거를 그대로 유지한다. 신규 diagnostic 4개는 cost utility의 큰/중복 scale와 덮어쓰기를 거부한다.
+
+### AB.6 비용·복잡도
+
+기존 `sync_observation_quota(principal_id,status,expires_at)`를 그대로 사용한다.
+Retirement는 이 index에서 해당 principal의 available/expired 범위만 읽고 namespace를 확인한다.
+정상 active quota는 최대 4개이고, 전체 metadata는 기존 4,096-record 상한을 가진다.
+오류 재적용은 이미 찾은 ID별 PK lookup이다. Ledger/descendant/Patricia/tree/flat Snapshot
+전체 작업을 새로 추가하지 않는다. Schema/index 추가나 admission 완화가 없다.
+
+[cost utility](../scripts/benchmarks/t66d3a_expiry.py)는 audited source를 `git show`로
+메모리에 읽어 비교한다(checkout/reset 없음). 자체 생성 synthetic DB, H=105 고정,
+376/1k 행 × audited/corrected 각각 3 warmups + 20 create/lookup 쌍, 총 80 measured 쌍이다.
+두 구현은 동일한 현재 engine artifact/context를 쓰므로 release compatibility 시험이 아니라
+코드 경로의 비용 control이다. Bootstrap은 timing 밖이며 전체 backend 회귀와 동시 실행되어
+HOST 부하/순차 실행 잡음이 있다. 작은 차이를 엄밀한 latency 회귀나 개선으로 판정하지 않는다.
+
+| 행 | 구현 | create median / p95 ms | lookup median / p95 ms |
+| --- | --- | --- | --- |
+| 376 | 수정 전 | 213.03 / 226.57 | 128.66 / 136.51 |
+| 376 | 수정 후 | 219.89 / 242.17 | 133.82 / 137.23 |
+| 1k | 수정 전 | 209.45 / 218.34 | 130.92 / 150.96 |
+| 1k | 수정 후 | 209.46 / 214.16 | 130.82 / 135.01 |
+
+두 scale 모두 create SELECT 424/객체 read 34, lookup SELECT 48은 동일하다.
+추가 비용은 정상 create의 indexed UPDATE 1개와 transaction SAVEPOINT 1개,
+정상 lookup의 SAVEPOINT 1개다. Error retirement에는 PK별 UPDATE와 COMMIT이 필요하다.
+SQL 개수만으로 access bound를 증명하지 않으며 위 EXPLAIN과 기존 full-history 금지 테스트를
+함께 사용한다. 기존 5k/10k baseline 측정은 이 수정의 신규 측정으로 재표시하지 않는다.
+
+신규 [요약](benchmarks/t66d3a/expiry-correction-summary.json)에 source hashes/환경/실측을
+저장한다. Raw 40,332 bytes는 `/tmp/money-note-d3a-expiry-costs.json`, SHA-256
+`75507ec649fbf8d73961a8361c70fd5f1ce396944c23ae8a1bedacf4655f9436`다.
+기존 `summary.json`과 최초 보고 수치는 덮어쓰지 않았다.
+
+### AB.7 실행 검증·안전성·다음 gate
+
+수정 후 D3a 단독 **129 PASS / 104.39초**(신규 32 + 기존 97),
+safety/diagnostic **54 PASS / 4.14초**(신규 4 포함)를 실제 실행했다.
+전체 backend는 **1,082 tests + 1,540 subtests PASS / 866.13초**다.
+D1/D2a/D2b, migration/schema, 금융 projection, Snapshot v7와 기존 authoritative-state
+회귀를 포함한다. Backend와 safety의 warning 각 1건은 기존 Starlette TestClient/httpx
+deprecation이며 신규 실패가 아니다. 내부 검증 후 알려진 미해결 수정 범위
+Critical/High/Medium은 0/0/0이고, 독립 targeted re-audit은 아직 수행하지 않았다.
+Ruff, compileall, shell syntax, frontend `npm run build`, `git diff --check`도 통과했다.
+문서 링크·신규 test 이름·source/artifact SHA-256·JSON 실측 대조도 통과했다.
+
+```bash
+cd backend
+../.venv/bin/python -m pytest -q tests/test_isolated_sync_observation.py
+../.venv/bin/python -m pytest -q --durations=8
+cd ..
+.venv/bin/python -m pytest -q scripts/tests scripts/benchmarks
+.venv/bin/ruff check backend scripts/benchmarks/t66d3a_expiry.py scripts/benchmarks/test_t66d3a.py
+.venv/bin/python -m compileall -q backend/isolated_sync backend/tests/test_isolated_sync_observation.py scripts/benchmarks/t66d3a_expiry.py
+.venv/bin/python scripts/benchmarks/t66d3a_expiry.py --output /tmp/money-note-d3a-expiry-costs-reproduction-new.json
+npm --prefix frontend run build
+git diff --check
+```
+
+모든 DB는 자체 생성 synthetic SQLite다. Production DB/API/credential/service 접근,
+배포, restart, APK 설치, segmented endpoint 활성화는 없다. 수정 파일은 격리 저장소,
+관련 테스트/diagnostic/문서뿐이다. D1/D2a/D2b 알고리즘과 금융/Judgment, Snapshot v7,
+OfflineBaseline v4, B/J/pending/reconciliation는 변경하지 않는다.
+완료 뒤 요청할 gate는 **M01/M02 targeted independent re-audit**이며 D3b 승인이나
+새 전체 architecture 감사가 아니다. 재감사 전 D3b와 deployment를 시작하지 않는다.

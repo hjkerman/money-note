@@ -72,3 +72,23 @@ def test_d3a_restored_synthetic_database_requires_new_epoch():
         before, after = old['target']['ns'], new['target']['ns']
         assert before['server_id'] == after['server_id'] and before['dataset_id'] == after['dataset_id']
         assert before['epoch'] != after['epoch']
+
+
+@pytest.mark.parametrize('sizes', [['10000'], ['376', '376'], ['376', '1000', '376']])
+def test_expiry_cost_benchmark_rejects_unbounded_sizes(tmp_path, sizes):
+    import subprocess
+    import sys
+    output = tmp_path/'costs.json'
+    result = subprocess.run([sys.executable, str(ROOT/'scripts/benchmarks/t66d3a_expiry.py'),
+                             '--output', str(output), '--sizes', *sizes], capture_output=True)
+    assert result.returncode == 2 and not output.exists()
+
+
+def test_expiry_cost_benchmark_rejects_overwrite_before_running(tmp_path):
+    import subprocess
+    import sys
+    output = tmp_path/'costs.json'
+    output.write_text('synthetic-preserve')
+    result = subprocess.run([sys.executable, str(ROOT/'scripts/benchmarks/t66d3a_expiry.py'),
+                             '--output', str(output)], capture_output=True)
+    assert result.returncode != 0 and output.read_text() == 'synthetic-preserve'

@@ -580,3 +580,253 @@ def test_base_mismatch_rejected(sandbox, defect):
     target['sync_root'] = sync_root(target)
     with pytest.raises(ObservationError):
         create(repository(sandbox), base=target)
+
+
+def lease_state(db):
+    """Independent fresh-connection evidence, not the serialized response."""
+    with sqlite3.connect(db.path) as conn:
+        return (dict(conn.execute('SELECT id,status FROM sync_observations')),
+                list(conn.execute('SELECT observation_id,role,hash,active FROM sync_observation_pins ORDER BY observation_id,role')),
+                conn.execute('SELECT used_bytes FROM sync_observation_budget').fetchone()[0])
+
+
+@pytest.mark.parametrize('operation', ['lookup', 'roots', 'retry'])
+@pytest.mark.parametrize('initial,terminal', [(900, 900), (899, 900), (899, 901)])
+def test_terminal_lease_expiry_is_sticky(sandbox, operation, initial, terminal):
+    result = create(repository(sandbox))
+    before = raw_state(sandbox)
+    pins = lease_state(sandbox)[1]
+    # Retry has one extra create guard before the two shared lookup guards.
+    times = iter(([initial] if operation == 'retry' else []) + [initial, terminal])
+    repo = repository(sandbox, clock=lambda: NOW+timedelta(seconds=next(times)))
+    with pytest.raises(ObservationError, match='OBSERVATION_EXPIRED') as error:
+        if operation == 'retry':
+            create(repo, request_id=result['request_id'])
+        else:
+            getattr(repo, operation)(result['observation_id'], CREDENTIAL, guard=lambda: CREDENTIAL)
+    assert error.value.action == 'new_observation'
+    assert lease_state(sandbox)[0] == {result['observation_id']: 'retired'}
+    assert lease_state(sandbox)[1] == pins
+    # New repository/connection and a rolled-back clock cannot resurrect it.
+    for _ in range(2):
+        with pytest.raises(ObservationError, match='OBSERVATION_EXPIRED'):
+            repository(sandbox).lookup(result['observation_id'], CREDENTIAL, guard=lambda: CREDENTIAL)
+    assert raw_state(sandbox) == before
+
+
+def test_quota_replacement_clock_rollback(sandbox):
+    old = [create(repository(sandbox)) for _ in range(4)]
+    pins = lease_state(sandbox)[1]
+    now = NOW+timedelta(seconds=901)
+    fresh = [create(repository(sandbox, clock=lambda: now)) for _ in range(4)]
+    states, current_pins, _ = lease_state(sandbox)
+    assert all(states[r['observation_id']] == 'retired' for r in old)
+    assert sum(s == 'available' for s in states.values()) == 4
+    assert len(current_pins) == 40 and all(p[3] == 1 for p in current_pins)
+    assert all(pin in current_pins for pin in pins)
+    for result in old:
+        with pytest.raises(ObservationError, match='OBSERVATION_EXPIRED'):
+            repository(sandbox).lookup(result['observation_id'], CREDENTIAL, guard=lambda: CREDENTIAL)
+    for result in fresh:
+        assert repository(sandbox).lookup(result['observation_id'], CREDENTIAL, guard=lambda: CREDENTIAL) == result
+    with pytest.raises(ObservationError, match='LEASE_LIMIT'):
+        create(repository(sandbox))
+
+
+@pytest.mark.parametrize('operation', ['lookup', 'roots', 'retry'])
+def test_terminal_before_expiry_remains_valid(sandbox, operation):
+    result = create(repository(sandbox))
+    repo = repository(sandbox, clock=lambda: NOW+timedelta(seconds=899))
+    if operation == 'retry':
+        assert create(repo, request_id=result['request_id']) == result
+    else:
+        value = getattr(repo, operation)(result['observation_id'], CREDENTIAL, guard=lambda: CREDENTIAL)
+        assert value == (result if operation == 'lookup' else {k: result['target'][k+'_ref'] for k in ('raw', 'index', 'hot', 'control')})
+    assert lease_state(sandbox)[0] == {result['observation_id']: 'available'}
+
+
+@pytest.mark.parametrize('failure', ['records', 'metadata', 'total_bytes', 'pin', 'before_commit', 'auth', 'context', 'new_expiry'])
+def test_sticky_quota_retirement_survives_failed_publication(sandbox, failure):
+    from isolated_sync.observation import Limits
+    old = [create(repository(sandbox)) for _ in range(4)]
+    before = raw_state(sandbox)
+    _, pins, budget = lease_state(sandbox)
+    with sqlite3.connect(sandbox.path) as conn:
+        objects = list(conn.execute('SELECT * FROM sync_objects ORDER BY hash'))
+        views = list(conn.execute('SELECT * FROM sync_observation_views ORDER BY identity'))
+    limits = {'records': Limits(total_records=4), 'metadata': Limits(metadata_bytes=1024),
+              'total_bytes': Limits(total_metadata_bytes=1024)}.get(failure, Limits())
+    current = [EVAL]
+    def fault(stage, conn):
+        if failure == 'pin' and stage == 'pin_index':
+            raise sqlite3.IntegrityError('synthetic pin failure')
+        if stage == 'before_commit':
+            if failure == 'before_commit':
+                raise RuntimeError('synthetic publication failure')
+            if failure == 'auth':
+                conn.execute('DELETE FROM auth_sessions')
+            if failure == 'context':
+                current[0] = Evaluation(date(2026, 10, 6), 540)
+    times = iter([901, 901, 1801])
+    clock = (lambda: NOW+timedelta(seconds=next(times))) if failure == 'new_expiry' else lambda: NOW+timedelta(seconds=901)
+    with pytest.raises((ObservationError, RuntimeError, sqlite3.IntegrityError)):
+        create(repository(sandbox, clock=clock, limits=limits, evaluation=lambda: current[0]), fault=fault)
+    # Fresh SQLite, not a cached object. ONLY retirement survived; candidate
+    # hot/control/view/pins/budget and injected auth deletion were rolled back.
+    states, after_pins, after_budget = lease_state(sandbox)
+    assert states == {r['observation_id']: 'retired' for r in old}
+    assert after_pins == pins and after_budget == budget
+    with sqlite3.connect(sandbox.path) as conn:
+        assert list(conn.execute('SELECT * FROM sync_objects ORDER BY hash')) == objects
+        assert list(conn.execute('SELECT * FROM sync_observation_views ORDER BY identity')) == views
+    assert raw_state(sandbox) == before
+
+
+def test_quota_rejection_preserves_expired_and_live_memberships(sandbox):
+    from isolated_sync.observation import Limits
+    expired = [create(repository(sandbox, limits=Limits(lease_seconds=10))) for _ in range(3)]
+    live = create(repository(sandbox))
+    with pytest.raises(ObservationError, match='LEASE_LIMIT'):
+        create(repository(sandbox, clock=lambda: NOW+timedelta(seconds=11), limits=Limits(observations_per_principal=1)))
+    states, pins, _ = lease_state(sandbox)
+    assert all(states[r['observation_id']] == 'retired' for r in expired)
+    assert states[live['observation_id']] == 'available'
+    assert len(pins) == 20 and all(pin[3] == 1 for pin in pins)
+
+
+def test_retirement_scope_and_original_auth_guards(sandbox):
+    other = BundleCredential('c'*64, 2)
+    first = create(repository(sandbox), credential=other)
+    old = create(repository(sandbox))
+    create(repository(sandbox, clock=lambda: NOW+timedelta(seconds=901)), credential=BundleCredential('b'*64, 1))
+    states = lease_state(sandbox)[0]
+    assert states[old['observation_id']] == 'retired'
+    assert states[first['observation_id']] == 'available'  # Other owner is not swept.
+    for cred in (other, BundleCredential('b'*64, 1)):
+        with pytest.raises(ObservationError, match='PRINCIPAL_OR_SESSION_CHANGED'):
+            repository(sandbox).lookup(old['observation_id'], cred, guard=lambda: cred)
+    with pytest.raises(ObservationError, match='PRINCIPAL_OR_SESSION_CHANGED'):
+        repository(sandbox).lookup(old['observation_id'], CREDENTIAL, guard=lambda: None)
+    for operation in ('lookup', 'roots'):
+        for _ in range(2):
+            with pytest.raises(ObservationError, match='OBSERVATION_EXPIRED'):
+                getattr(repository(sandbox), operation)(old['observation_id'], CREDENTIAL, guard=lambda: CREDENTIAL)
+    with pytest.raises(ObservationError, match='OBSERVATION_EXPIRED'):
+        create(repository(sandbox), request_id=old['request_id'])
+
+
+def test_concurrent_quota_replacement_is_atomic(sandbox):
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Barrier
+    from isolated_sync.observation import Limits
+    old = [create(repository(sandbox)) for _ in range(4)]
+    ready = Barrier(5)
+    def replace(_):
+        ready.wait(10)
+        try:
+            return create(repository(sandbox, clock=lambda: NOW+timedelta(seconds=901), limits=Limits(lock_wait_ms=5000)))
+        except ObservationError as error:
+            return error.code
+    with ThreadPoolExecutor(5) as pool:
+        results = list(pool.map(replace, range(5)))
+    assert sum(type(r) is dict for r in results) == 4
+    assert results.count('LEASE_LIMIT') == 1
+    states, pins, _ = lease_state(sandbox)
+    assert all(states[r['observation_id']] == 'retired' for r in old)
+    assert sum(s == 'available' for s in states.values()) == 4
+    assert len(pins) == 40 and all(pin[3] == 1 for pin in pins)
+
+
+@pytest.mark.parametrize('path', ['lookup', 'quota_error'])
+@pytest.mark.parametrize('boundary', ['before_commit', 'after_commit'])
+def test_retirement_process_crash_boundary(sandbox, path, boundary):
+    import multiprocessing
+    import os
+    import signal
+    from isolated_sync.observation import Limits
+    from isolated_sync.observation_schema import ObservationConnection
+    result = create(repository(sandbox))
+    if path == 'quota_error':
+        for _ in range(3):
+            create(repository(sandbox))
+    before = raw_state(sandbox)
+    pins = lease_state(sandbox)[1]
+    original = ObservationConnection.commit
+    def child():
+        def commit(conn):
+            if boundary == 'before_commit':
+                os.kill(os.getpid(), signal.SIGKILL)
+            original(conn)
+            os.kill(os.getpid(), signal.SIGKILL)
+        with patch.object(ObservationConnection, 'commit', commit):
+            repo = repository(sandbox, clock=lambda: NOW+timedelta(seconds=901), limits=Limits(total_records=4))
+            if path == 'lookup':
+                repo.lookup(result['observation_id'], CREDENTIAL, guard=lambda: CREDENTIAL)
+            else:
+                create(repo)
+    process = multiprocessing.get_context('fork').Process(target=child)
+    process.start()
+    process.join(10)
+    assert not process.is_alive() and process.exitcode == -signal.SIGKILL
+    states, after_pins, _ = lease_state(sandbox)
+    assert set(states.values()) == ({'retired'} if boundary == 'after_commit' else {'available'})
+    assert after_pins == pins and raw_state(sandbox) == before
+    if boundary == 'after_commit':
+        # New process/repository with old wall clock still cannot authorize.
+        with pytest.raises(ObservationError, match='OBSERVATION_EXPIRED'):
+            repository(sandbox).lookup(result['observation_id'], CREDENTIAL, guard=lambda: CREDENTIAL)
+    else:
+        # No expiry response was delivered before the crash/rollback. A later
+        # detection at the expired clock must commit retirement normally.
+        with pytest.raises(ObservationError, match='OBSERVATION_EXPIRED'):
+            repository(sandbox, clock=lambda: NOW+timedelta(seconds=901)).lookup(result['observation_id'], CREDENTIAL, guard=lambda: CREDENTIAL)
+        assert lease_state(sandbox)[0][result['observation_id']] == 'retired'
+
+
+def test_retirement_queries_use_existing_quota_index(sandbox):
+    from isolated_sync.canonical import encode
+    result = create(repository(sandbox))
+    with sqlite3.connect(sandbox.path) as conn:
+        queries = [
+            ("UPDATE sync_observations SET status='retired' WHERE principal_id=? AND status='available' AND expires_at<=? AND namespace=? RETURNING id",
+             (1, '2026-10-05T00:15:01Z', encode(result['target']['ns']))),
+            ("SELECT count(*) FROM sync_observations WHERE principal_id=? AND status='available'", (1,)),
+        ]
+        for sql, parameters in queries:
+            plan = [r[3] for r in conn.execute('EXPLAIN QUERY PLAN '+sql, parameters)]
+            assert any('SEARCH sync_observations USING' in p and 'sync_observation_quota' in p for p in plan)
+            assert not any('SCAN sync_observations' in p for p in plan)
+
+
+@pytest.mark.parametrize('path', ['lookup', 'quota_error'])
+def test_retirement_commit_failure_is_not_reported_as_durable_expiry(sandbox, path):
+    from isolated_sync.observation import Limits
+    from isolated_sync.observation_schema import ObservationConnection
+    result = create(repository(sandbox))
+    if path == 'quota_error':
+        for _ in range(3):
+            create(repository(sandbox))
+    before = lease_state(sandbox)
+    repo = repository(sandbox, clock=lambda: NOW+timedelta(seconds=901), limits=Limits(total_records=4))
+    with patch.object(ObservationConnection, 'commit', side_effect=sqlite3.OperationalError('synthetic commit failure')):
+        with pytest.raises(ObservationError, match='ROOT_NOT_READY' if path == 'lookup' else 'PIN_TRANSACTION_FAILED'):
+            if path == 'lookup':
+                repo.lookup(result['observation_id'], CREDENTIAL, guard=lambda: CREDENTIAL)
+            else:
+                create(repo)
+    assert lease_state(sandbox) == before
+    with pytest.raises(ObservationError, match='OBSERVATION_EXPIRED'):
+        repo.lookup(result['observation_id'], CREDENTIAL, guard=lambda: CREDENTIAL)
+    assert lease_state(sandbox)[0][result['observation_id']] == 'retired'
+
+
+def test_retry_expiry_commits_only_retirement(sandbox):
+    result = create(repository(sandbox))
+    before = raw_state(sandbox)
+    def fault(stage, conn):
+        if stage == 'validation':
+            conn.execute('DELETE FROM auth_sessions WHERE user_id=2')
+    with pytest.raises(ObservationError, match='OBSERVATION_EXPIRED'):
+        create(repository(sandbox, clock=lambda: NOW+timedelta(seconds=901)), request_id=result['request_id'], fault=fault)
+    assert lease_state(sandbox)[0] == {result['observation_id']: 'retired'}
+    assert raw_state(sandbox) == before
