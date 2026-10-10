@@ -8,6 +8,7 @@ from app.money import exact_money, query_money_sum, allocation_totals
 
 from app.db import borrowed_or_new_session, session
 from app.services.financial_relationships import validate_runtime_card_payment_ownership
+from app.services.financial_inputs import inputs_for
 from app.services.card_charge import (
     DiscountCard,
     evaluate_stored_charge,
@@ -304,6 +305,9 @@ def _payment_due_date(payment_month: str) -> date:
 
 def _primary_income_total(payment_month: str, conn: Any | None = None) -> int:
     with borrowed_or_new_session(conn) as conn:
+        inputs = inputs_for(conn)
+        if inputs is not None:
+            return inputs.primary_income_total(payment_month)
         total = query_money_sum(conn,
             """
             SELECT amount_value

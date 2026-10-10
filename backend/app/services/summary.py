@@ -16,6 +16,7 @@ from app.services.card_charge import (
 from app.services.card_payments import active_card_payment_unpaid_total
 from app.services.clock import app_today
 from app.services.financial_relationships import card_ownership_read_view
+from app.services.financial_inputs import inputs_for
 
 
 def current_summary_values() -> dict[str, int]:
@@ -189,7 +190,9 @@ def current_entry_discount_total(conn: Any | None = None) -> int:
           AND ledger_entries.payment_key IS NOT NULL
         """
     ).fetchall()
-    discounts = allocation_totals(conn, 'discount')
+    inputs = inputs_for(conn)
+    discounts = (inputs.discount_totals([row['payment_key'] for row in rows])
+                 if inputs is not None else allocation_totals(conn, 'discount'))
     rows = [{**dict(row), 'override_discount_amount': discounts.get(row['payment_key'], 0)}
             for row in rows]
     return sum(
@@ -269,6 +272,9 @@ def cash_flow_total(conn: Any | None = None, *, today: date | None = None) -> in
     if conn is None:
         with session() as owned_conn:
             return cash_flow_total(owned_conn, today=today)
+    inputs = inputs_for(conn)
+    if inputs is not None:
+        return inputs.cash_total(cutoff)
     return query_money_sum(conn,
         """
         SELECT amount_value

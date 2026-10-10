@@ -10,6 +10,7 @@ from typing import Any
 from uuid import uuid4
 
 from app.services.legacy_recurring import validate_recurring_ownership, valid_nonnegative_money
+from app.services.financial_inputs import FinancialInputScope, inputs_for
 
 
 CARD_RELATIONSHIP_TABLES = (
@@ -18,7 +19,7 @@ CARD_RELATIONSHIP_TABLES = (
 )
 
 
-class CardOwnershipReadView:
+class CardOwnershipReadView(FinancialInputScope):
     """One connection/transaction's read-only card ownership validation scope.
 
     Only a successful, date/policy-independent canonical ownership check is
@@ -69,6 +70,12 @@ class CardOwnershipReadView:
         if not self._validated:
             _validate_card_payment_rows(self._conn)
             self._validated = True
+
+    def financial_inputs(self):
+        if not isinstance(self._conn, FinancialInputScope):
+            return None  # default runtime: no extra metadata SQL for this hook
+        self._check_metadata()
+        return inputs_for(self._conn)
 
 
 @contextmanager
@@ -177,11 +184,19 @@ def validate_runtime_card_payment_ownership(conn: Any) -> None:
 
 
 def _validate_card_payment_rows(conn: Any) -> None:
+    inputs = inputs_for(conn)
+    if inputs is not None:
+        inputs.validate_card_ownership()
+        return
     validate_card_payment_ownership({table: [dict(row) for row in conn.execute(f"SELECT * FROM {table}")]
                                      for table in CARD_RELATIONSHIP_TABLES})
 
 
 def validate_runtime_recurring_ownership(conn: Any) -> None:
+    inputs = inputs_for(conn)
+    if inputs is not None:
+        inputs.validate_recurring_ownership()
+        return
     closed = conn.execute("SELECT value FROM app_settings WHERE key='last_closed_month'").fetchone()
     validate_recurring_ownership([dict(row) for row in conn.execute("SELECT * FROM ledger_entries")],
                                 str(closed["value"]) if closed else "0000-00",

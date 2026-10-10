@@ -31,6 +31,7 @@ from app.services.card_payment_reads import (
 )
 from app.services.clock import app_today
 from app.services.financial_relationships import validate_runtime_card_payment_ownership
+from app.services.financial_inputs import inputs_for
 
 
 
@@ -174,8 +175,8 @@ def discount_month_status(month: str, scope: str = "owner", *, conn: Any | None 
     with borrowed_or_new_session(conn) as conn:
         settings = _settings_values(conn)
         policy = _discount_policy_value(conn, month, scope)
-        rows = [] if scope == "family" else conn.execute(
-            """
+        inputs = inputs_for(conn)
+        query = """
             SELECT ledger_entries.payment_key,
                    ledger_entries.amount_value,
                    ledger_entries.title,
@@ -187,10 +188,23 @@ def discount_month_status(month: str, scope: str = "owner", *, conn: Any | None 
             WHERE ledger_entries.entry_date LIKE ?
               AND ledger_entries.payment_key IS NOT NULL
               AND ledger_entries.entry_kind != 'planned'
-            """,
-            (f"{month}%",),
-        ).fetchall()
-        allocated_discounts = allocation_totals(conn, 'discount')
+            """
+        if inputs is not None:
+            if len(month) == 7:
+                query = query.replace("ledger_entries.entry_date LIKE ?", "substr(ledger_entries.entry_date,1,7) = ?")
+                parameters = (month,)
+            else:
+                # Legacy strptime admits e.g. 2026-1; LIKE then selects Oct-Dec.
+                # Preserve that input behavior, don't normalize it to January.
+                # Admitted ISO dates are ASCII, so this is the exact prefix range.
+                query = query.replace("ledger_entries.entry_date LIKE ?",
+                                      "ledger_entries.entry_date >= ? AND ledger_entries.entry_date < ?")
+                parameters = (month, month+"\uffff")
+        else:
+            parameters = (f"{month}%",)
+        rows = [] if scope == "family" else conn.execute(query, parameters).fetchall()
+        allocated_discounts = (inputs.discount_totals([row['payment_key'] for row in rows])
+                               if inputs is not None else allocation_totals(conn, 'discount'))
         rows = [{**dict(row), 'override_discount_amount': allocated_discounts.get(row['payment_key'], 0)} for row in rows]
     discounts = {
         row["payment_key"]: evaluate_stored_charge(

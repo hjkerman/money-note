@@ -226,7 +226,7 @@ class CaptureConnection(sqlite3.Connection):
             raise RuntimeError("capture requires a new explicit transaction")
         self.execute("BEGIN IMMEDIATE")
         try:
-            validate_schema(self)
+            self._validate_capture_schema()
             if self.execute("SELECT count(*) FROM sync_tx_context").fetchone()[0]:
                 raise RuntimeError("stale capture context")
             tx_id = str(uuid4())
@@ -245,7 +245,7 @@ class CaptureConnection(sqlite3.Connection):
         """D1-only coverage certificate. MUST NOT substitute for D2 finalization."""
         if not self.in_transaction:
             raise RuntimeError("capture finalization requires an active transaction")
-        validate_schema(self)
+        self._validate_capture_schema()
         contexts = self.execute("SELECT tx_id,base_revision FROM sync_tx_context").fetchall()
         if len(contexts) != 1:
             raise RuntimeError("capture finalization requires one context")
@@ -279,6 +279,10 @@ class CaptureConnection(sqlite3.Connection):
                     self.rollback()
                     raise
                 raise
+
+    def _validate_capture_schema(self):
+        """Isolated subclasses may supply a stricter, versioned schema contract."""
+        validate_schema(self)
 
     def __exit__(self, *args):
         try:

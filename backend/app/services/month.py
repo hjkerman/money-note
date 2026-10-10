@@ -7,6 +7,7 @@ from app.money import exact_money
 
 from app.db import borrowed_or_new_session, session
 from app.services.clock import app_month_for_utc_timestamp, app_today
+from app.services.financial_inputs import inputs_for
 from app.services.financial_periods import is_month_end
 from app.services.card_payments import create_month_close_card_payment_batch
 from app.services.snapshot import create_pre_restore_backup
@@ -220,8 +221,7 @@ def _unconfirmed_recurring_items(conn: Any, target_month: str, *,
         """,
         (target_month, target_month),
     ).fetchall()
-    planned_rows = conn.execute(
-        """
+    planned_query = """
         SELECT planned.id, planned.title, planned.amount_value,
                planned.usage_place, planned.usage_item, planned.due_day,
                planned.created_at
@@ -254,9 +254,11 @@ def _unconfirmed_recurring_items(conn: Any, target_month: str, *,
             )
           )
         ORDER BY COALESCE(planned.due_day, 99), planned.sort_order, planned.id
-        """,
-        (target_month, f"{target_month}%"),
-    ).fetchall()
+        """
+    bounded = inputs_for(conn) is not None
+    if bounded:
+        planned_query = planned_query.replace("legacy_generated.entry_date LIKE ?", "substr(legacy_generated.entry_date,1,7) = ?")
+    planned_rows = conn.execute(planned_query, (target_month, target_month if bounded else f"{target_month}%")).fetchall()
     planned_rows = [
         row
         for row in planned_rows

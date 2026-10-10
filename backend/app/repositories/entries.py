@@ -6,6 +6,7 @@ from app.db import borrowed_or_new_session, session
 from app.repositories.common import ensure_payment_key_available, new_payment_key, row_to_dict
 from app.schemas import LedgerEntryIn, LedgerEntryPatch, PlannedEntryIn
 from app.services.clock import app_today
+from app.services.financial_inputs import inputs_for
 from app.services.card_charge import utility_default_discount_excluded
 from app.services.financial_relationships import (
     validate_runtime_card_payment_ownership, validate_runtime_recurring_ownership,
@@ -87,6 +88,9 @@ def list_entries(
 def list_recent_closed_month_expense_counts(limit: int = 3, *, conn: Any | None = None) -> list[int]:
     """최근 마감 월의 본인 지출 건수를 최신 월부터 반환한다."""
     with borrowed_or_new_session(conn) as conn:
+        inputs = inputs_for(conn)
+        if inputs is not None:
+            return inputs.closed_counts(max(1, limit))
         rows = conn.execute(
             """
             SELECT substr(entry_date, 1, 7) AS entry_month, COUNT(*) AS expense_count
@@ -118,9 +122,10 @@ def list_confirmed_planned_entries(today: date | None = None, *, conn: Any | Non
             """,
             (confirmed_month,),
         ).fetchall()
-        candidates = [dict(row) for row in conn.execute(
-            "SELECT * FROM ledger_entries WHERE entry_kind IN ('planned', 'expense')",
-        )]
+        inputs = inputs_for(conn)
+        candidates = (inputs.recurring_candidates(rows) if inputs is not None else
+                      [dict(row) for row in conn.execute(
+                          "SELECT * FROM ledger_entries WHERE entry_kind IN ('planned', 'expense')")])
         closed = conn.execute("SELECT value FROM app_settings WHERE key='last_closed_month'").fetchone()
         validate_recurring_ownership(candidates, str(closed["value"]) if closed else "0000-00")
         confirmed_entries = []
@@ -645,9 +650,10 @@ def _validate_archived_recurring_source(conn: Any, source_id: int) -> None:
 
 
 def _require_recurring_ownership(conn: Any, source_id: int) -> None:
-    rows = [dict(row) for row in conn.execute(
-        "SELECT * FROM ledger_entries WHERE id=? OR source_planned_entry_id=?", (source_id, source_id),
-    )]
+    inputs = inputs_for(conn)
+    rows = (inputs.recurring_source_rows(source_id) if inputs is not None else
+            [dict(row) for row in conn.execute(
+                "SELECT * FROM ledger_entries WHERE id=? OR source_planned_entry_id=?", (source_id, source_id))])
     closed = conn.execute("SELECT value FROM app_settings WHERE key='last_closed_month'").fetchone()
     validate_recurring_ownership(rows, str(closed["value"]) if closed else "0000-00")
 
@@ -662,10 +668,11 @@ def _detach_recurring_expenses(conn: Any, source_id: int) -> None:
 
 
 def _ensure_recurring_confirmation_epoch(conn: Any, entry_id: int, source_id: int) -> tuple[str, str]:
-    rows = [dict(row) for row in conn.execute(
-        "SELECT * FROM ledger_entries WHERE id IN (?, ?) OR source_planned_entry_id = ?",
-        (source_id, entry_id, source_id),
-    )]
+    inputs = inputs_for(conn)
+    rows = (inputs.recurring_source_rows(source_id, entry_id) if inputs is not None else
+            [dict(row) for row in conn.execute(
+                "SELECT * FROM ledger_entries WHERE id IN (?, ?) OR source_planned_entry_id = ?",
+                (source_id, entry_id, source_id))])
     source = next((row for row in rows if row["id"] == source_id), None)
     if source is None or source["entry_kind"] != "planned":
         raise ValueError("unresolved recurring confirmation source")
@@ -733,9 +740,15 @@ def _legacy_recurring_source(
         "AND entry_kind = 'planned' AND confirmed_month IS NOT NULL AND confirmed_at IS NOT NULL"
     ).fetchall()
     if all_confirmed:
-        all_explicit = {row[0] for row in conn.execute(
-            "SELECT source_planned_entry_id FROM ledger_entries WHERE source_planned_entry_id IS NOT NULL"
-        )}
+        if inputs_for(conn) is not None:
+            # Existence per hot template, not enumeration of every old child.
+            all_explicit = {row["id"] for row in all_confirmed if conn.execute(
+                "SELECT 1 FROM ledger_entries WHERE source_planned_entry_id=? LIMIT 1",
+                (row["id"],)).fetchone() is not None}
+        else:
+            all_explicit = {row[0] for row in conn.execute(
+                "SELECT source_planned_entry_id FROM ledger_entries WHERE source_planned_entry_id IS NOT NULL"
+            )}
         if any(planned["id"] not in all_explicit and near_confirmation_creation(
             entry["created_at"], planned["confirmed_at"]
         ) for planned in all_confirmed):
