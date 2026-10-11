@@ -788,3 +788,233 @@ Commit/push는 deployment 허가가 아니다.
 구현 결함은 0/0/0, D3c blocker는 0이다. 이는 독립 감사 통과를 뜻하지 않는다.
 **T6.6D3c COMPLETE — READY FOR INDEPENDENT IMPLEMENTATION AUDIT.**
 독립 D3c 구현 감사를 요청한다. 감사 전 T6.6E 시작 및 production 배포는 승인하지 않는다.
+
+# D3C-A01 TARGETED CORRECTION
+
+## A. 독립 finding과 수정 시작 상태
+
+위 최초 BLOCKED/구현 완료 기록과 독립 감사의 **FAIL**을 보존한다.
+`docs/t66d3c-independent-audit.md`와 재현 코드는 수정하지 않았다. 독립 감사는
+73 PASS / 1 FAIL이며, 유일한 Medium blocker는 D3C-A01이었다. 이는 이번 실행 수가 아니다.
+수정 시작 시 branch `main`, HEAD/main/origin/main/실제 remote main은 모두
+`6434d5e24cff316ff9a611b27b1d6cfc83e63d5c`, working tree는 clean이었다.
+Parent는 감사 대상 구현 `bcb0c47d42c5fb770ce40b70b0c14ad30d0c15f5`다.
+
+## B. 수정 전 독립 반례 재현
+
+다음 committed 독립 재현을 변경 없이 실행했다.
+
+```sh
+.venv/bin/python -m pytest -q docs/benchmarks/t66d3c-audit/test_audit.py -k D3C_A01
+```
+
+수정 전 **1 failed / 73 deselected**, 2.30초였다. 마지막 정상 `assert_owned()` 뒤
+SQLite open 직전에 A를 rename하고 A 경로를 별도 inode의 합성 사본 B에 대한 symlink로
+교체했다. B 객체가 **283 → 282**, 한 개 COMMIT 삭제된 뒤
+`REJECT_SYNTHETIC_OWNERSHIP`이 발생했다. 사후 예외는 COMMIT을 복구하지 못했다.
+로그는 `/tmp/mn-d3ca01-before.log`다. 원 금융 행 손상이나 원격 exploit을 새로
+입증했다는 뜻은 아니다.
+
+## C. 원인과 변경 범위
+
+기존 `RetentionSandbox.connect()`의 path device/inode 검사와 `sqlite3.connect(path)`는
+별개였다. `Collector.sweep()`가 다른 connection의 DELETE/COMMIT을 끝내고 다음
+`mark()`에서야 교체를 발견했다. `install()`에도 별도 raw SQLite open이 있었다.
+
+변경은 `owned_sqlite.py` actual descriptor witness, `retention_schema.py` 공통 `_open()`/
+connection binding/commit rollback, `test_isolated_sync_retention_ownership.py` 31개,
+이 보고서와 compact 성능 증거로 한정한다. 기존 source manifest 계약에 따라
+`t66d3b-release-artifacts.json`의 financial_engine artifact만 갱신한다.
+Raw/projection schema·policy artifact, GC graph/mark/sweep/fence/retention SQL,
+certificate semantics, D1/D2a/D2b/D3a/D3b 알고리즘, schema version은 불변이다.
+
+## D. Actual opened-database identity
+
+Python `sqlite3`는 열린 main FD를 공개하지 않는다. `PRAGMA database_list` filename,
+open 전후 path stat, copied profile/marker/certificate를 actual FD 증명으로 사용하지 않는다.
+`owned_sqlite.opened_identity()`가 공개 **SQLite VFS v3 syscall API**로 현재 thread의
+`sqlite3.connect()` 중 실제 `fstat(fd)` 결과를 관측한다. Unix SQLite 3.45.1의
+`findInodeInfo()`는 main FD를 직접 fstat하며 `UnixUnusedFd` 재사용도 이 경로를 거친다.
+Instance의 외부 소유 device/inode와 다르거나 관측이 없거나 모호하면 connection을
+승인하지 않는다. Native open mismatch는 EACCES로 거부한다. 연결 반환 전과 COMMIT
+전에는 그 동일 FD를 다시 fstat한다.
+근거: [공개 VFS API](https://www.sqlite.org/c3ref/vfs.html),
+[해당 Unix 구현](https://github.com/sqlite/sqlite/blob/version-3.45.1/src/os_unix.c).
+
+작은 C witness는 Python source에 내장되어 기존 engine source manifest에 포함된다.
+Host ABI로 합성 profile에서만 한 번 컴파일하며 SQLite mutex 안에서 Python callback을
+실행하지 않는다. CPython connection/비공개 unixFile layout 접근, 새 Python/native package,
+SQLite 재빌드는 없다. 지원 조건은 Linux, SQLite 3.45.1, default `unix` VFS v3,
+로컬 `/usr/bin/cc`다. Compiler는 고정 인자·최소 환경·30초 한도와 새 private temporary
+directory를 사용한다. 미지원/API/관측 실패 시 stat-only fallback 없이 삭제를 거부한다.
+SQLite upgrade는 이 좁은 native 경로의 재검증을 요구한다.
+
+Hook은 process-wide지만 witness는 native thread-local이다. 다른 thread와 scope 밖의
+호출은 원래 fstat로 전달한다. Import만으로 설치하지 않으며 normal app은 이 module을
+import하지 않는다. Native library 수명을 유지하고 정상 process 종료 시 자기 hook이
+여전히 설치돼 있으면 원래 pointer를 복구한다.
+
+## E. Authorization/transaction 순서
+
+`path preflight → 실제 SQLite FD 인가 → connection binding → exact schema/profile →
+기존 BEGIN/fence → DELETE → bound FD/path 재검증 → COMMIT`이다. Path 검사는 보조
+거부 조건이지 FD witness를 대체하지 않는다. 최초 새 DB 생성부터 GC와 migration의
+모든 open이 공통 guard를 거친다. 기존 파일을 소유권 대상으로 인수하는 경로는 없다.
+
+`RetentionConnection.commit()`과 `__exit__()`를 모두 처리했다. SQLite C context manager는
+Python commit override를 호출하지 않기 때문이다. 소유권 오류면 rollback한 뒤 오류를
+반환한다. COMMIT 뒤 rollback이나 사후 mark에 안전성을 의존하지 않는다.
+
+## F. Connection/batch lifetime
+
+Sandbox는 새 private directory에서 `O_CREAT|O_EXCL|O_RDWR|O_NOFOLLOW|O_CLOEXEC`로
+파일을 직접 생성한다. 소유 identity는 path stat가 아니라 이 exclusive-create FD의
+`fstat()`에서 얻는다. 이미 존재하는 파일·symlink는 인수하지 않는다. 이 FD를 sandbox 수명
+동안 유지해 inode 번호 재사용을 방지하고, disposal 또는 생성 실패 때 정리한다. 별도
+SQLite connection이 아니며 활성 SQLite connection 수명 중 임의로 닫지 않는다.
+Connection별 실제 SQLite FD/identity를 기록하고 close/rollback은 기존대로 처리한다.
+
+각 sweep batch는 새 connection과 새 admission을 사용한다. A의 첫 authorized batch 뒤
+path가 바뀌면 다음 batch는 B를 거부한다. A에서 이미 끝난 첫 COMMIT과 B의 무단 삭제를
+구분한다. Reused connection의 main FD는 pathname 교체를 따라 다른 inode로 바뀌지 않는다.
+추가 path 변화 발견 시 COMMIT도 거부하고, 새 connection은 독립 검증을 요구한다.
+
+## G. WAL/filesystem 경계
+
+Journal/WAL/SHM/SQLite locking은 변경하지 않았다. WAL reader를 유지한 동시 connection,
+native open 직후 substitution, FD 재사용을 결정적으로 검사했다. Exclusive-create FD는
+sandbox disposal까지 유지한다. Sidecar를 복사·조작하는 우회는 없으며 full graph traversal을
+write lock으로 옮기지 않았다.
+
+외부 주체가 실행 중인 main/WAL/SHM을 임의 이동·변조해도 SQLite storage가 항상 복구된다는
+보장은 하지 않는다. 본 수정은 승인되지 않은 main DB를 GC connection으로 인가하여
+DELETE/COMMIT하는 경로를 닫는다. 악의적 Python/native API 교체나 OS 권한을 차단하는
+sandbox라는 주장도 하지 않는다.
+
+## H. 원래 반례의 수정 후 결과
+
+최종 코드에서 §B와 같은 명령은 **1 passed / 73 deselected**, 2.39초였다.
+독립 fixture의 direct SQLite `after == before`가 통과했다. 새 corpus도 replacement DB의
+모든 tables를 fresh connection으로 비교하여 **unauthorized committed deletions = 0**을
+확인했다. 원 독립 재현의 임시 JSON label은 무조건 이전 failure 문구를 쓰므로 새 결과의
+oracle로 사용하지 않았다. 실제 assertion과 persisted rows가 근거다.
+
+## I. 추가 substitution 회귀
+
+신규 **31 cases PASS**와 보존된 독립 **74 cases PASS**, 합계 **105 PASS**를
+284.72초에 실행했다. Full backend 수에 중복 합산하지 않는다.
+
+| 경계 | 결정적 증거 |
+| --- | --- |
+| 최초 생성 | 기존 파일·symlink 인수 거부, exclusive 생성 직후 최초 SQLite open 교체 거부 |
+| pre/post-open | symlink/atomic replacement에서 B 변경 0 |
+| ABA | open 전 교체/반환 전 원상복구로 path 검사만으로 구별 불가; 실제 FD mismatch 거부 |
+| copied DB | schema/profile/certificate/fence/bytes가 같아도 다른 inode는 A의 authority가 아님 |
+| between batches | A 첫 정상 삭제 1개만 유지, B 다음 batch 삭제 0 |
+| reused/new connection | 기존 FD는 A 유지; changed path COMMIT rollback; 새 open 거부 |
+| commit failure | 명시 commit와 C context-manager commit 모두 rollback |
+| maintenance | release/maintain/protect/unprotect/collect의 ABA 실패 시 양 DB 변경 0 |
+| migration | 별도 migration open에도 같은 admission 적용 |
+| missing/unsupported | 미지원 platform/version·관측 실패는 fail closed |
+| WAL | live reader와 native-open barrier, repeated FD binding |
+| crash | open 직후, DELETE 뒤 COMMIT 전/후, unowned open 거부 뒤 SIGKILL |
+| legitimate/repeated GC | 독립 reachability와 잔존 객체 일치, 두 번째 삭제 0 |
+
+## J. Independent persisted-state assertions
+
+새 `snapshot()`은 direct SQLite로 모든 tables를 열거·비교하고 integrity/FK와 새
+`BEGIN IMMEDIATE`로 lock cleanup도 확인한다. Object hash/body, row cache, certificate/
+fence, current, observation/pin/lifecycle/budget, auth와 금융 행이 포함된다.
+예외 자체를 안전성 증거로 사용하지 않는다. 기존 독립 graph oracle도 그대로 실행했다.
+
+## K. 정상 GC 및 L. Crash/restart
+
+정상 owned fixture에서는 garbage만 회수하고 current/shared/active observation 및
+certificate 증거를 보존했다. 두 번째 GC는 idempotent했다. SIGKILL이 COMMIT 후면
+authorized 삭제 1개, COMMIT 전이면 삭제 0으로 복구됐고, current 검증 뒤 다시 GC했다.
+Unowned open 거부 중 SIGKILL 사례는 A/B 모두 불변이었다.
+Process interruption 검증이지 hardware power-loss 보장이 아니다.
+
+## M. 기존 D3c invariant
+
+독립 74개와 기존 backend suites로 current/active/shared roots, historical evidence,
+idempotent release, writer/observation/transfer races, D3a M01/M02, D3B-M01 및
+post-GC 11-table/Patricia를 다시 검사한다. 새 helper에는 SQL이나 graph/history 순회가
+없으며 일반 요청에 mandatory O(N)을 추가하지 않았다.
+
+## N. 이번 실행의 회귀
+
+최종 전체 backend는 **1,315 tests / 1,540 subtests PASS**, **1,486.48초**였다.
+과거 1,284/1,540을 이번 결과로 재사용하지 않았다. D1/D2a/D2b/D3a/D3b/D3c,
+D3B-M01, D3a M01/M02, schema/migration, 금융 projection, Snapshot v7,
+authoritative-state suites가 포함된다. 별도 safety/diagnostic **59 PASS**(5.13초),
+frontend **21 tests / 6 files PASS**, frontend build **PASS**(1.72초)다.
+최종 **Ruff / compileall / git diff --check PASS**와 원 독립 감사·normal runtime
+파일의 불변도 재확인했다. 신규 내부 Critical/High/Medium blocker는 0/0/0이며,
+독립 targeted re-audit 판정은 아직 요청 단계다.
+
+중간 full backend 실행은 최초 생성 FD의 exclusive ownership 보완을 반영하기 위해
+중단했다. 그 부분 결과를 완료로 계산하지 않는다. 최종 source와 release artifact를 고정한
+뒤 별도 새 full backend 실행을 시작했다.
+
+```sh
+.venv/bin/python -m pytest -q backend/tests/test_isolated_sync_retention_ownership.py docs/benchmarks/t66d3c-audit/test_audit.py
+cd backend
+../.venv/bin/python -m pytest -q --durations=10
+# repository root
+.venv/bin/python -m pytest -q scripts/tests scripts/benchmarks
+.venv/bin/python -m ruff check backend/app backend/isolated_sync backend/tests scripts/tests scripts/benchmarks
+.venv/bin/python -m compileall -q backend/app backend/isolated_sync backend/tests scripts/benchmarks
+npm --prefix frontend run test
+npm --prefix frontend run build
+git diff --check
+```
+
+## O. 성능과 제한
+
+SQL 추가 없이 실제 FD witness와 COMMIT 전 고정 개수의 identity/path 검사만 추가한다.
+첫 native shim compile은 steady-state 측정 밖이다. 대표 matched hot-path/maintenance
+결과는 [이번 correction 측정](benchmarks/t66d3c-a01/summary.json)에 기록한다.
+376행, profile별 6 workloads, 3 warmups/20 measurements의 **12 cells / 240 samples**다.
+이전 측정치를 새 결과로 표시하지 않는다. 이 비교는 current D3b-profile과 corrected
+D3c-profile 사이이며, A01 수정 전후 전체 HTTP latency 비교가 아니다.
+
+| corrected D3c workload | median ms | p95 ms |
+| --- | ---: | ---: |
+| no-change observation | 410.35 | 447.77 |
+| manifest retry | 381.50 | 417.40 |
+| raw root | 346.87 | 378.04 |
+| ledger leaf | 663.35 | 683.15 |
+| card mutation | 683.63 | 824.91 |
+| cash mutation | 192.61 | 198.70 |
+
+별도 같은 owned WAL DB의 open-only 각 3 warmups/100 samples에서 기존 path preflight+
+direct open/close는 median/p95 **0.174/0.190 ms**, bound open/close는 **0.311/0.342 ms**다.
+후자는 timed 구간에 독립 fstat assertion 1회를 추가한 검증 비용도 포함한다.
+첫 native compile은 **59.50 ms**로 별도 측정했다. Admission은 fixed-size이며 이 수치로
+절대 성능 budget이나 deployed latency를 선언하지 않는다.
+
+12개 cell의 unexpected history scans는 모두 0이다. 명시 actual GC는 **673 objects /
+45 row-cache entries / 5,736,358 logical bytes**를 회수했다. Write lock **279.20 ms**,
+전체 maintenance **27,342.98 ms**였고 두 번째 GC의 객체/row 삭제는 0이었다.
+이는 명시 O(graph) maintenance 비용이며 정상 요청 비용과 합산하지 않는다.
+SQLite physical file shrinkage나 VACUUM 결과를 주장하지 않는다.
+Full backend 회귀와 일부 겹치는 HOST 수치이므로 작은 차이를 성능 개선/악화의 확정
+증거로 해석하지 않는다. 미지원 환경은 §D대로 삭제를 거부한다.
+Historical generation 영구 재구성, 임의 previous rollback, T6.6E/R1/production rollout은 범위 밖이다.
+
+## P. Production 격리
+
+Production DB/API/credentials/services/.env/backup 접근, deployment/restart/production
+migration/reading dry-run은 NONE이다. 모든 실제 삭제는 직접 만든 disposable synthetic DB다.
+Normal startup/routes/auth/금융 공식/Snapshot v7/OfflineBaseline/pending/journal/mobile/
+deployment scripts는 수정하지 않았다. GC와 segmented endpoints는 NOT ACTIVATED다.
+
+## Q. Commit/push 및 R. 다음 단계
+
+위 내부 검증 gate를 모두 통과했다. Correction과 증거만
+`fix(backend): bind isolated GC admission to opened database`로 commit/push한다.
+Self-hash 순환을 피하기 위해 최종 hash 및 HEAD/main/origin/main/실제 remote main 일치와
+clean tree는 최종 응답과 Git으로 확인한다. Commit/push는 deployment 허가가 아니다.
+내부 PASS는 독립 재감사를 대체하지 않으며 원래 FAIL은 역사적으로 유효하다.
+**D3C-A01 독립 targeted re-audit 후에만 T6.6E 시작을 판단한다.**

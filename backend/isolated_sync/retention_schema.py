@@ -5,12 +5,13 @@ availability FKs move to live roots; financial tables/triggers are unchanged.
 """
 
 from functools import lru_cache
+import os
 from pathlib import Path
 import sqlite3
 
 from app.db import AUTHORITATIVE_REVISION_TABLES
 from app.db_migrations import _apply_schema, _statements
-from isolated_sync import capture, finalization, observation_schema
+from isolated_sync import capture, finalization, observation_schema, owned_sqlite
 from isolated_sync.canonical import decode_c1, encode, fail
 
 
@@ -141,7 +142,32 @@ def validate_schema(conn):
 
 
 class RetentionConnection(observation_schema.ObservationConnection):
+    def _assert_owned(self):
+        if hasattr(self, "_ownership"):
+            sandbox, fd, identity = self._ownership
+            owned_sqlite.assert_identity(fd, identity)
+            sandbox.assert_owned()
+
+    def commit(self):
+        try:
+            self._assert_owned()
+        except BaseException:
+            self.rollback()
+            raise
+        return super().commit()
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        # sqlite3's C context manager does not call our Python commit().
+        if exc_type is None:
+            try:
+                self._assert_owned()
+            except BaseException:
+                self.rollback()
+                raise
+        return super().__exit__(exc_type, exc_value, traceback)
+
     def _validate_capture_schema(self):
+        self._assert_owned()
         if self.execute("PRAGMA user_version").fetchone()[0] == VERSION:
             validate_schema(self)
         else:
@@ -164,19 +190,32 @@ def charge(row, identity_bytes, hot_bytes, control_bytes):
 class RetentionSandbox(observation_schema.ObservationSandbox):
     """Own a NEW temporary DB. No existing-path/flag/environment admission."""
     def __init__(self):
-        super().__init__()
-        self._owned_file = (self.path.stat().st_dev, self.path.stat().st_ino)
+        try:
+            super().__init__()
+        except BaseException:
+            if hasattr(self, "_identity_fd"):
+                os.close(self._identity_fd)
+            raise
+
+    def __exit__(self, *args):
+        try:
+            return super().__exit__(*args)
+        finally:
+            os.close(self._identity_fd)
 
     def assert_owned(self):
         path = self.path
-        if (path.is_symlink() or path.parent.resolve() != Path(self._temporary.name).resolve() or
-                (path.stat().st_dev, path.stat().st_ino) != self._owned_file):
-            fail("REJECT_SYNTHETIC_OWNERSHIP")
+        try:
+            stat = path.lstat()
+            if (not path.is_symlink() and path.parent.resolve() == Path(self._temporary.name).resolve() and
+                    (stat.st_dev, stat.st_ino) == self._owned_file):
+                return
+        except OSError:
+            pass
+        fail("REJECT_SYNTHETIC_OWNERSHIP")
 
     def connect(self):
-        if hasattr(self, "_owned_file"):
-            self.assert_owned()
-        conn = sqlite3.connect(self.path, factory=RetentionConnection, timeout=0.1, cached_statements=0)
+        conn = self._open()
         try:
             conn.row_factory = sqlite3.Row
             conn.execute("PRAGMA foreign_keys=ON")
@@ -198,6 +237,27 @@ class RetentionSandbox(observation_schema.ObservationSandbox):
             conn.close()
             raise
 
+    def _open(self):
+        if not hasattr(self, "_owned_file"):
+            # Initial creation only, inside the superclass's NEW private temp
+            # directory. Never acquire ownership from a preexisting pathname or
+            # copied marker. Pin the exclusively created inode until disposal.
+            self._identity_fd = os.open(self.path, os.O_CREAT | os.O_EXCL | os.O_RDWR | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600)
+            stat = os.fstat(self._identity_fd)
+            self._owned_file = (stat.st_dev, stat.st_ino)
+        self.assert_owned()
+        conn = None
+        try:
+            with owned_sqlite.opened_identity(self._owned_file) as observed:
+                conn = sqlite3.connect(self.path, factory=RetentionConnection, timeout=0.1, cached_statements=0)
+            conn._ownership = (self, observed[1], self._owned_file)
+            conn._assert_owned()
+            return conn
+        except BaseException:
+            if conn is not None:
+                conn.close()
+            raise
+
     def install(self, *, fault=None):
         self.assert_owned()
         with self.connect() as conn:
@@ -208,7 +268,7 @@ class RetentionSandbox(observation_schema.ObservationSandbox):
         # SQLite's table rebuild requires FK OFF *before* BEGIN. Only this
         # owned, validated, quiescent migration connection does so. No raw
         # writes; full FK check before COMMIT, then ON plus strict admission.
-        conn = sqlite3.connect(self.path, factory=RetentionConnection, cached_statements=0)
+        conn = self._open()
         conn.row_factory = sqlite3.Row
         try:
             conn.execute("PRAGMA foreign_keys=ON")
