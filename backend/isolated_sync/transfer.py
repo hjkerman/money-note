@@ -124,8 +124,9 @@ class PathResolver:
     Empty/row/fact hash strings are never interpreted as graph edges.
     """
 
-    def __init__(self, conn, repo, target):
+    def __init__(self, conn, repo, target, check_cancelled=None):
         self.conn, self.repo, self.target = conn, repo, target
+        self.check_cancelled = check_cancelled
         self.context = Context(Namespace(**target["ns"]), target["versions"]["raw_schema"])
         self.store = Store(conn, self.context, capacity=0)
         self.reads = self.bytes_read = 0
@@ -137,6 +138,8 @@ class PathResolver:
         if edge is None:
             reject("INVALID_REQUEST")  # Do not query an arbitrary guessed hash.
         for position, digest in enumerate(path):
+            if self.check_cancelled:
+                self.check_cancelled()
             if digest != edge.ref["hash"]:
                 reject("INVALID_REQUEST")
             self.reads += 1
@@ -277,7 +280,7 @@ class TransferRepository:
     def __init__(self, observation, *, limits=TransferLimits()):
         self.observation, self.limits = observation, limits
 
-    def acquire(self, observation_id, credential, *, guard, request, fault=None):
+    def acquire(self, observation_id, credential, *, guard, request, fault=None, check_cancelled=None):
         """Prepare ALL response bytes, then terminal auth + expiry, then close DB.
 
         The short audited metadata scope preserves sticky retirement on errors.
@@ -292,7 +295,7 @@ class TransferRepository:
             with repo._connection() as (conn, retired):
                 manifest = repo._lookup(conn, retired, observation_id, credential, guard)
                 admitted = perf_counter()
-                resolver = PathResolver(conn, repo, manifest["target"])
+                resolver = PathResolver(conn, repo, manifest["target"], check_cancelled)
                 chunks = []
                 for item in request["items"]:
                     obj = resolver.resolve(item["path"])
@@ -303,6 +306,8 @@ class TransferRepository:
                                        data_base64=base64.b64encode(obj.raw[offset:offset+length]).decode("ascii")))
                     del obj
                 resolved = perf_counter()
+                if check_cancelled:
+                    check_cancelled()
                 payload = encode(dict(protocol=1, request_id=request["request_id"], observation_id=observation_id, chunks=chunks))
                 # Fixed framing allowance plus exactly bounded base64 expansion.
                 if len(payload) > 4*((self.limits.batch_decoded_bytes+2)//3)+self.limits.batch_items*256+512:

@@ -247,3 +247,226 @@ Production DB/API/credentials/service에 접근하지 않았다. 배포 dry-run,
 ## AJ. 다음 단계
 
 T6.6D3b의 독립 구현 감사를 요청한다. 감사 통과 전 D3c 착수와 production 활성화는 승인된 상태가 아니다.
+
+## AK. D3B-M01 — Cancellation/Worker Lifetime Correction
+
+### 감사 이력과 재현
+
+첫 D3b 독립 감사는 `e97b1d7f54231e6cc21d7d2ec897f6fd150cbd32`에서
+**FAIL — TARGETED D3b CORRECTION REQUIRED**였다. Critical/High/Medium은
+0/0/1, blocker는 D3B-M01 하나였다. 위 최초 구현·내부 검증 기록을 독립 감사
+PASS로 바꾸거나 삭제하지 않는다. 이 절은 그 뒤의 한정 수정이며 별도 targeted
+재감사를 대신하지 않는다.
+
+수정 시작 때 `main`, HEAD, local main, origin/main, 실제 remote main은 모두
+위 commit과 같았고 working tree는 clean이었다. Parent는
+`9f9a94c03ff43c6d87e77e1dc2c30a30080cf71b`였다.
+
+수정 전 실제 ASGI `Task.cancel()`과 native barrier를 다시 실행했다. 기본 limit
+2에서 동시에 미종료 worker 5개, 미취소 RequestTicket 5개를 재현했다.
+ASGI start/body는 0건이고 금융 raw/revision/root/pin 상태는 불변이었다.
+기존 `dispatch()`의 coroutine `finally`가 native 종료 전에 semaphore를 반환하며,
+worker 안에서 만든 ticket은 `prepare()` 반환 전 dispatcher가 알 수 없는 것이
+원인이다. Await 취소와 native 실행 종료는 다른 사건이다.
+
+### 수정 범위 — IMPLEMENTED / NOT ACTIVATED
+
+| 파일 | 한정 변경 |
+| --- | --- |
+| [workers.py](../backend/isolated_sync/workers.py) | 기존 threadpool 위의 bounded worker lease, native 완료·미시작 abort, exact-once 반환 |
+| [http.py](../backend/isolated_sync/http.py) | 사전 cancellation Event, ticket 공유, lease dispatch와 격리 app shutdown 신호 |
+| [transfer.py](../backend/isolated_sync/transfer.py) | 기존 path 알고리즘 앞의 선택적 cancellation checkpoint와 response assembly 전 검사 |
+| [test_isolated_sync_transfer_cancellation.py](../backend/tests/test_isolated_sync_transfer_cancellation.py) | 실제 ASGI·SQLite·queue·shutdown·race·stress 회귀 |
+| [t66d3b_cancellation.py](../scripts/benchmarks/t66d3b_cancellation.py) | 합성 HTTP 전후·취소 cleanup·admission 측정 |
+| [release artifacts](specimens/t66d3b-release-artifacts.json) | 변경된 격리 source에 맞는 engine descriptor 재생성 |
+| [수정 성능 요약](benchmarks/t66d3b/cancellation.json) | 새 표본의 compact 요약; 최초 summary.json은 보존 |
+
+D1/D2a/D2b/D3a, DB schema, 금융 공식, Judgment, Snapshot v7, OfflineBaseline,
+pending/journal/reconciliation은 수정하지 않았다. 정상 `backend/app`, mobile,
+frontend source와 router 등록도 그대로다. Engine artifact는 기존 규칙대로
+source hash를 포함하므로 fingerprint만 갱신한다. 나머지 세 artifact와 version
+규칙, Target canonicalization/domain은 바꾸지 않는다. 이전 build의 관측을 새
+engine 관측으로 가장하거나 immutable Target를 재작성하지 않는다.
+
+### Permit과 worker의 서로 다른 수명
+
+`WorkerBudget.acquire()`는 body 수신 전에 기존 thread-safe
+`BoundedSemaphore`를 nonblocking으로 얻는다. Admission queue·별도 executor·
+overflow worker는 없다. 초과 요청은 기존 `503 ROOT_NOT_READY/retry_same`이다.
+
+`WorkerLease.run()`이 각 native operation을 등록한 뒤 기존 Starlette/AnyIO
+threadpool을 호출한다. 한 lease는 동시에 한 operation만 실행할 수 있다.
+Prepare와 terminal은 같은 lease 아래 순차 실행한다. Supervisor Task는 strong
+reference로 추적하고 `shield()`로 requester 취소와 분리한다. Shield만으로
+완료를 증명하지 않는다.
+
+반환 조건은 **requester 소유권 종료 AND 미종료 operation 0개**다.
+Request 취소는 Event를 설정하고 requester 소유권만 닫는다. 이미 시작한
+operation은 function의 정상·예외 반환과 모든 DB cleanup을 마친 native
+`finally`에서 완료 처리한다. 여기서 종료란 **준비 operation의 종료**이며
+재사용 가능한 threadpool OS thread의 소멸을 뜻하지 않는다.
+
+`queued → running → finished`와 requester의 `open → closed`를 별도로 관리한다.
+미시작 queued supervisor는 취소 후 done callback에서 abort를 확정한다.
+Native start와 abort는 같은 Lock으로 직렬화한다. Abort가 먼저면 늦게 진입한
+wrapper가 준비를 시작하지 않고, start가 먼저면 callback이 permit을 반환하지
+않으며 native 완료가 책임진다. Semaphore 반환은 lease 집합 제거 조건과
+finished flag로 정확히 한 번만 실행한다.
+
+Worker exception은 done callback에서 회수한다. Coroutine 생성·Task 제출
+실패도 미시작 job을 정리한다. Cancelled queued job은 기존 AnyIO limiter에서
+빠져 capacity를 돌려주지만, 살아 있는 blocked worker는 계속 permit을 차지한다.
+Supervisor/task/job 보유량은 admission으로 제한되며 무제한 재시도나 신규 queue가 없다.
+
+### Cancellation handle·협력적 중단
+
+Event는 credential 조회와 ticket 생성 **전** 존재한다. 생성된 RequestTicket은
+같은 Event를 공유하고 원 request ID·credential·observation binding을 유지한다.
+따라서 사전 취소도 ticket 생성 후 사라지지 않으며 cancelled ticket의 guard는
+원 credential을 승인하지 않는다.
+
+Native 시작 전, 인증 뒤, 방문 path object 사이, chunk response assembly 전,
+직렬화 뒤, terminal 전·후에 안전한 checkpoint를 둔다. 기존 D3a guard도 그대로
+호출한다. Cancelled live operation은 기존 인증 오류로 거부하며 실제 취소된
+ASGI task는 CancelledError로 종료한다. 취소를 성공한 빈 응답으로 바꾸지 않는다.
+Response는 여전히 모든 검증 뒤에만 반환하며 부분 batch를 send하지 않는다.
+
+DB ownership을 다른 thread로 넘기거나 `Connection.interrupt()`를 쓰지 않는다.
+취소 예외는 기존 rollback/close·sticky retirement scope를 통과한다. SQLite lock
+대기나 긴 단일 C1 검증은 즉시 중단되지 않을 수 있다. 그동안 permit을 유지하고
+다음 안전한 checkpoint에서 중단한다. 강제 thread 종료나 즉시 취소 latency 상한은
+주장하지 않는다.
+
+격리 app shutdown은 신규 admission을 닫고 기존 handle 및 미시작 job에 취소를
+전달한다. Native completion은 threading semaphore를 사용하므로 닫힌 event loop에
+release를 예약하지 않는다. Queued Task 취소 예약의 closed-loop 경우도 처리한다.
+Shutdown된 app의 재사용은 새 `create_app()` 구성으로 해야 한다. SIGKILL을 graceful
+cleanup이나 hardware power-loss 검증으로 해석하지 않는다.
+
+### 결정적 회귀 — VERIFIED
+
+신규 테스트는 **25개 PASS**다. Ordering은 asyncio/threading Event barrier로 고정하고
+timeout은 deadlock 검출에만 사용한다. 임의 sleep으로 경계를 추정하지 않는다.
+
+| 검증 | 테스트 |
+| --- | --- |
+| 실제 ASGI 취소·native permit 유지·응답 0·SQLite cleanup | `test_real_asgi_cancel_retains_native_permit_and_cleans_sqlite` × 4 |
+| Ticket 전 취소, Event 전달 | `test_cancel_before_ticket_creation_is_not_forgotten` |
+| Manifest partial pin rollback / commit 후 응답 유실 | `test_asgi_manifest_cancellation_leaves_absent_or_complete_pins` × 3 |
+| Body 수신 중 취소 | `test_cancel_during_body_admission_has_no_worker_or_permit_leak` |
+| 취소 이후 worker 정상/예외 종료와 exception 회수 | `test_cancelled_worker_late_result_or_exception_is_observed` × 2 |
+| 완료·취소 순서 양방향 | `test_asgi_completion_cancellation_race_exact_once` × 2 |
+| Task/Executor 제출 실패 | `test_submission_failure_releases_exactly_once` × 2 |
+| 미시작/실행 중 supervisor shutdown | `test_supervisor_shutdown_cannot_release_a_running_worker` × 2 |
+| 단일 lease 병렬 실행 금지 | `test_one_lease_cannot_dispatch_parallel_native_operations` |
+| Queued 취소·실제 AnyIO limiter·native 시작 전 취소 | `test_cancelled_queued_worker_keeps_admission_bounded`, `test_cancel_while_real_anyio_executor_limiter_is_occupied`, `test_cancel_before_native_start_never_authenticates_or_returns_success` |
+| 원 loop 종료 뒤 native 예외·capacity 회수 | `test_native_exit_after_original_loop_closed_returns_capacity` |
+| Path checkpoint·shutdown·bounded stress | `test_path_checkpoints_stop_cancelled_batch_before_next_object`, `test_shutdown_signals_handles_without_releasing_live_capacity`, `test_bounded_cancellation_stress_never_overadmits_and_recovers` |
+
+Stress는 기본 limit 2, 5개 wave, 실제 취소 10건, 과부하 거부 20건,
+성공 요청 5건과 교대 worker exception을 포함한다. 최대 running worker는 **2**,
+취소된 request의 ASGI start/body는 **0**이다. 각 wave 종료 때 leases/jobs/running/tasks는
+모두 0이고 정확히 두 permit이 돌아온다. 단순 in-memory ticket 검사만이 아니라
+worker 생존 중 busy, 종료 후 성공을 실제 ASGI로 관측한다.
+
+추가 `/tmp` 합성 검증은 running request 2개와 overflow request 4개를
+동시에 만들어 **실제 ASGI Task 6개**를 겹쳤다. 5개 wave에서 취소 10건,
+busy 25건, 성공 5건을 실행해 최대 worker 2, cancelled ASGI event 0,
+미회수 exception 0, 최종 leases/jobs/running/tasks 전부 0을 확인했다.
+ASGI 진입 전 Task 취소도 별도로 실행했다. Fresh SQLite 상태는 불변이었다.
+이는 신규 pytest 25개와 별도로 실행한 보강 증거이며 테스트 수에 중복 합산하지 않는다.
+
+Fresh file-backed SQLite connection으로 11개 raw table, revision, accepted generation,
+certificate, observation/pin/object bytes의 전후 동일성과 writer lock 획득을 검사한다.
+Manifest pin 중간 취소는 전부 rollback한다. Commit 후 응답 유실은 complete
+observation과 다섯 active root pin을 보존한다. 이번 수정에서 pin 해제·GC는 하지 않는다.
+
+### 성능·복잡도
+
+최종 측정값과 전체 회귀의 완료 결과를 아래에 기록한다. 376-row 합성 DB에서
+manifest retry/raw-root/ledger-leaf/batch, 각 variant 3 warmup+20 표본을 교대로 측정한다.
+기준선 HTTP만 Git의 감사 commit에서 읽고 금융/codec/artifact 의존성은 양쪽 현재
+build로 맞춰 cancellation ownership 수정의 비용을 분리한다. 이전 full-build
+benchmark나 실제 단말 측정으로 부르지 않는다. Bootstrap/path discovery는 측정 밖이다.
+
+추가 취소 표본은 barrier 해제 후 cleanup과 permit 재취득을 측정한다. DB lock이나
+단일 giant object 처리의 최악 시간 상한이 아니다. Admission primitive의 미세 측정도
+전체 HTTP latency와 구분한다. Source/SQL trace에서 새 ledger/facts/graph scan이 없고
+worker 관리의 비용은 최대 L개 lease와 각 bounded operation에만 의존한다.
+
+최종 HOST 실측은 Intel Core i7-8750H / Python 3.12.3 / SQLite 3.45.1 /
+Linux x86_64에서 **8개 HTTP cell × 20개 = 160개 measured sample**이다.
+각 cell은 warmup 3개이며, 같은 HOST에서 backend 회귀도 진행했으므로 미세한
+차이의 통계적 유의성이나 배포·단말 latency 개선을 주장하지 않는다.
+
+| 요청 | 수정 전 median/p95 ms | 수정 후 median/p95 ms | 전후 동일 SQL 수 / object read 수 |
+| --- | --- | --- | --- |
+| manifest retry | 346.17 / 363.20 | 347.30 / 366.29 | 545 / 0 |
+| raw-root | 295.56 / 318.36 | 282.57 / 318.39 | 422 / 1 |
+| ledger-leaf | 581.37 / 626.14 | 579.06 / 624.24 | 424 / 3 |
+| batch | 601.00 / 641.08 | 590.05 / 628.88 | 426 / 5 |
+
+Native dispatch 합계 median은 전후 각각 manifest 0.444/0.438ms,
+root 0.463/0.438ms, leaf 0.529/0.511ms, batch 0.546/0.517ms였다.
+Admission primitive median은 기존 semaphore 0.740µs와 lease admission 2.736µs다.
+이 값은 전체 요청이나 terminal guard 시간과 합산하지 않는다.
+
+추가 20개 취소 표본에서 cancel→cleanup median/p95는 0.337/0.353ms,
+barrier 해제→cleanup은 0.233/0.246ms, cleanup 뒤 permit 재취득은
+0.0098/0.0105ms였다. 이는 인증 뒤 controlled barrier의 결과다. 강제로
+지연시킨 worker가 막혀 있는 동안의 대기나 실제 SQLite busy 한계를 숨겨
+즉시 thread 중단 보장으로 표현하지 않는다.
+
+모든 전후 성공 body는 byte-identical이며 SQL 수·object read 수가 같다.
+Bootstrap, Snapshot export, full facts/segment traversal을 측정 경로에 추가하지
+않았다. 원 표본은 `/tmp/mn-d3b-m01-performance-release.json`, compact 요약은
+위 `cancellation.json`이며 이전 `summary.json` 측정은 수정하지 않았다.
+
+재현 명령:
+
+```text
+.venv/bin/python -m pytest -q backend/tests/test_isolated_sync_transfer_cancellation.py
+.venv/bin/python scripts/benchmarks/t66d3b_cancellation.py --output /tmp/m01-new-output.json
+cd backend
+../.venv/bin/python -m pytest -q --durations=10
+cd ..
+.venv/bin/python -m ruff check backend/app backend/isolated_sync backend/tests scripts/tests scripts/benchmarks
+.venv/bin/python -m compileall -q backend/app backend/isolated_sync backend/tests scripts/benchmarks
+.venv/bin/python -m pytest -q scripts/tests scripts/benchmarks
+npm --prefix frontend run build
+git diff --check
+```
+
+### 경계·후속 조치
+
+Cancelled request의 이미 완전하게 commit된 관측은 응답 유실과 같은 orphan이 될 수
+있다. D3c가 안전하게 retire/release/GC할 후속 대상이며 cancellation 자체로 pin을
+삭제하지 않는다. D3c/E/R1, production resource proof는 그대로 미구현·미승인이다.
+배포·production 접근·정상 endpoint 활성화는 하지 않았다. M01 targeted 독립
+재감사 통과 전 D3c 착수와 배포를 승인하지 않는다.
+
+### 최종 회귀·수정 판정 — VERIFIED
+
+확정 source/artifact로 완주한 전체 backend 회귀는 **1,227 tests + 1,540 subtests
+PASS**, 963.03초다. 기존 D3b 120개, D3a 129개와 M01/M02, 신규 cancellation
+25개 및 D1/D2a/D2b·migration/schema·금융 projection·Snapshot v7·authoritative-state
+회귀를 포함한다. 신규 25개는 별도 targeted 실행에서도 PASS였다. 중간 개발 실행을
+최종 완주 결과로 재사용하지 않는다.
+
+Safety/diagnostic **59개 PASS**, 전체 Backend Ruff **PASS**, compileall **PASS**,
+frontend build **PASS**, 문서 local link 9개 **PASS**, `git diff --check` **PASS**다.
+기존 FastAPI TestClient의 httpx deprecation warning 1개가 있다. Flutter/Android
+및 실기기 테스트는 실행하지 않았다. Product mobile/frontend source는 불변이다.
+
+최종 로그는 `/tmp/mn-d3b-correction-regression-final.log`,
+`/tmp/mn-d3b-correction-targeted-final.log`, `/tmp/mn-d3b-correction-safety-final.log`,
+`/tmp/mn-d3b-correction-ruff.log`, `/tmp/mn-d3b-correction-compile-final.log`,
+`/tmp/mn-d3b-correction-frontend.log`, `/tmp/mn-d3b-m01-extra.log`다.
+임시 로그·표본의 영구 보존은 보장하지 않는다.
+
+내부 수정 판정은 **T6.6D3b CORRECTION COMPLETE — READY FOR TARGETED RE-AUDIT**다.
+새로 확인된 미해결 Critical/High/Medium은 0/0/0이다. 독립 재감사 PASS나 D3c
+승인을 주장하지 않는다. 한정 8개 파일을
+`fix(backend): retain transfer permits until worker termination`으로 commit/push하고,
+최종 응답에서 HEAD/main/origin/main/실제 remote main 및 clean 상태를 확인한다.
+Production 접근·배포·segmented endpoint 활성화·D3c 구현·pin 해제는 수행하지 않았다.

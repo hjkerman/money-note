@@ -7,13 +7,13 @@ There is no login, generic file/artifact/hash endpoint, release or GC API.
 """
 
 from dataclasses import dataclass, field
+from contextlib import asynccontextmanager
 import asyncio
 import sqlite3
-from threading import Event, BoundedSemaphore
+from threading import Event
 from time import perf_counter
 
 from fastapi import FastAPI, Request
-from starlette.concurrency import run_in_threadpool
 from starlette.responses import Response
 
 from app import auth
@@ -23,6 +23,7 @@ from isolated_sync.canonical import CanonicalError, decode_json, encode
 from isolated_sync.observation import ObservationError, ObservationRepository, reject, uuid
 from isolated_sync.observation_schema import ObservationSandbox
 from isolated_sync.transfer import TransferLimits, TransferRepository, fields, object_request
+from isolated_sync.workers import PreparationCancelled, WorkerBudget
 
 
 @dataclass
@@ -39,6 +40,10 @@ class RequestTicket:
 
     def guard(self):
         return None if self.cancelled.is_set() else self.credential
+
+    def check(self):
+        if self.cancelled.is_set():
+            reject("PRINCIPAL_OR_SESSION_CHANGED", "reauthenticate")
 
 
 STATUS = {
@@ -67,7 +72,7 @@ class Adapter:
             reject("INVALID_SANDBOX")
         self.repo, self.limits = repository, limits
         self.transfer = TransferRepository(repository, limits=limits)
-        self.slots = BoundedSemaphore(limits.concurrent_requests)
+        self.workers = WorkerBudget(limits.concurrent_requests)
         self.origins = frozenset(origins)
         if "*" in self.origins:
             reject("INVALID_LIMITS")
@@ -78,6 +83,7 @@ class Adapter:
         # Explicit synthetic failure/barrier hook. Not exposed in HTTP input.
         if self.fault:
             self.fault(stage, ticket)
+        ticket.check()
 
     async def body(self, request):
         if request.headers.get("content-encoding", "identity").lower() != "identity":
@@ -123,11 +129,13 @@ class Adapter:
         finally:
             conn.close()
 
-    def prepare(self, request, value, observation_id):
+    def prepare(self, request, value, observation_id, cancelled):
         started = perf_counter()
+        if cancelled.is_set():
+            reject("PRINCIPAL_OR_SESSION_CHANGED", "reauthenticate")
         credential = self.credential(request)
         auth_ms = (perf_counter()-started)*1000
-        ticket = RequestTicket(credential, value["request_id"], observation_id)
+        ticket = RequestTicket(credential, value["request_id"], observation_id, cancelled)
         self.checkpoint("authenticated", ticket)
         if observation_id is None:
             base = value["base"]
@@ -150,7 +158,8 @@ class Adapter:
             measurements = dict(response_bytes=len(payload))
         else:
             payload, measurements = self.transfer.acquire(observation_id, credential, guard=ticket.guard, request=value,
-                                                         fault=lambda stage, conn: self.checkpoint("objects_"+stage, ticket))
+                                                         fault=lambda stage, conn: self.checkpoint("objects_"+stage, ticket),
+                                                         check_cancelled=ticket.check)
             status = 200
         self.checkpoint("serialized", ticket)
         measurements["auth_ms"] = auth_ms
@@ -162,10 +171,12 @@ class Adapter:
         # polling, AFTER any lock wait. M01/M02 are applied unchanged here.
         result = self.repo.lookup(ticket.observation_id, ticket.credential, guard=ticket.guard)
         self.contract.verify(result["target"])
+        ticket.check()
 
     async def dispatch(self, request, observation_id=None):
         request_id, ticket = None, None
-        if not self.slots.acquire(blocking=False):
+        lease = self.workers.acquire()
+        if lease is None:
             return error_response(ObservationError("ROOT_NOT_READY", "retry_same"))
         try:
             async with asyncio.timeout(self.limits.body_seconds):
@@ -184,7 +195,7 @@ class Adapter:
                     object_request(value, self.limits)
                 except CanonicalError:
                     reject("INVALID_REQUEST")
-            payload, status, ticket, measurements, started = await run_in_threadpool(self.prepare, request, value, observation_id)
+            payload, status, ticket, measurements, started = await lease.run(self.prepare, request, value, observation_id, lease.cancelled)
             response = Response(payload, status_code=status, media_type="application/json", headers=HEADERS)
             recorded = dict(measurements, prepared_ms=(perf_counter()-started)*1000, operation="manifest" if observation_id is None else "objects")
             # Even optional diagnostics/callbacks precede the terminal guard.
@@ -194,12 +205,14 @@ class Adapter:
                 ticket.cancelled.set()
                 reject("PRINCIPAL_OR_SESSION_CHANGED", "reauthenticate")
             mark = perf_counter()
-            await run_in_threadpool(self.terminal, ticket)
+            await lease.run(self.terminal, ticket)
             # No network await/streaming occurs while a DB transaction is open.
             recorded.update(http_ms=(perf_counter()-started)*1000, terminal_http_ms=(perf_counter()-mark)*1000)
             return response
         except ObservationError as error:
             return error_response(error, request_id)
+        except PreparationCancelled:
+            return error_response(ObservationError("PRINCIPAL_OR_SESSION_CHANGED", "reauthenticate"), request_id)
         except sqlite3.OperationalError as error:
             return error_response(ObservationError("ROOT_NOT_READY", "retry_same") if "locked" in str(error) or "busy" in str(error)
                                   else ObservationError("STORAGE_FAILED"), request_id)
@@ -210,9 +223,7 @@ class Adapter:
         except Exception:
             return error_response(ObservationError("STORAGE_FAILED"), request_id)
         finally:
-            if ticket:
-                ticket.cancelled.set()
-            self.slots.release()
+            lease.close()
 
 
 def create_app(repository, *, limits=TransferLimits(), origins=(), fault=None, metrics=None):
@@ -224,7 +235,14 @@ def create_app(repository, *, limits=TransferLimits(), origins=(), fault=None, m
     DELETE/release is deliberately absent: it belongs to D3c.
     """
     adapter = Adapter(repository, limits, origins=origins, fault=fault, metrics=metrics)
-    app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
+    @asynccontextmanager
+    async def lifespan(app):
+        try:
+            yield
+        finally:
+            adapter.workers.shutdown()
+
+    app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None, lifespan=lifespan)
 
     @app.get("/api/sync/v1/capabilities")
     async def capabilities():
