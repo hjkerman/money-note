@@ -37,7 +37,7 @@ from app.services.summary import _summary_values_from_read_view
 from isolated_sync.canonical import CanonicalError, HASH, Object, decode_c1, encode
 from isolated_sync.finalization import RAW_SCHEMA, generation
 from isolated_sync.inputs import MaintainedInputs, input_index
-from isolated_sync.observation_schema import ObservationSandbox, validate_schema
+from isolated_sync.observation_schema import ObservationSandbox
 from isolated_sync.raw import TABLES, SHAPES, SENSITIVE
 from isolated_sync.roots import sync_root
 
@@ -368,6 +368,19 @@ class ObservationRepository:
         # hot/control contain no typed child object refs (§9). No fake raw_schema
         # field or invented edge is added to bypass D2b Store context admission.
 
+    def _metadata_charge(self, conn, payload, request, target, identity, hot, control):
+        charge = len(payload)+len(request)+len(target)+len(identity)+1024
+        for obj in (hot, control):
+            if conn.execute("SELECT 1 FROM sync_objects WHERE hash=?", (obj.hash,)).fetchone() is None:
+                charge += len(obj.raw)
+        return charge
+
+    def _record_charge(self, conn, observation_id, charge):
+        """A later exact isolated profile may persist reclaimable accounting."""
+
+    def _admit_request(self, conn, credential, request_id, request):
+        """Optional exact-profile replay evidence, checked under the writer lock."""
+
     def create(self, credential, *, request_id, guard, base=None, protocol=1, inline_bytes=0, fault=None, creation_receipt=None):
         if creation_receipt is not None and (type(creation_receipt) is not list or creation_receipt):
             reject("INVALID_REQUEST")
@@ -383,7 +396,7 @@ class ObservationRepository:
         self.metrics = {}
         try:
             with self._connection() as (conn, retired):
-                validate_schema(conn)
+                conn._validate_capture_schema()
                 now = self._guard(conn, credential, guard)
                 evaluation, contracts = self.evaluation(), versions()
                 context = evaluation.wire()
@@ -391,6 +404,7 @@ class ObservationRepository:
                     reject("UNSUPPORTED_CONTRACT")
                 if fault:
                     fault("validation", conn)
+                self._admit_request(conn, credential, request_id, request)
                 old = conn.execute("SELECT id,request_body FROM sync_observations WHERE credential_hash=? AND request_id=?",
                                    (credential.token_hash, request_id)).fetchone()
                 if old:
@@ -454,10 +468,7 @@ class ObservationRepository:
                     reject("TRANSFER_BUDGET", "retry_same")
                 # Monotonic logical-byte accounting, O(1), not SUM(all historical
                 # objects). Includes conservative pin/record framing allowance.
-                charge = len(payload)+len(request)+len(target_bytes)+len(identity)+1024
-                for obj in (hot, control):
-                    if conn.execute("SELECT 1 FROM sync_objects WHERE hash=?", (obj.hash,)).fetchone() is None:
-                        charge += len(obj.raw)
+                charge = self._metadata_charge(conn, payload, request, target_bytes, identity, hot, control)
                 used = conn.execute("SELECT used_bytes FROM sync_observation_budget WHERE id=1").fetchone()[0]
                 if used+charge > self.limits.total_metadata_bytes:
                     reject("LEASE_LIMIT", "retry_same")
@@ -475,6 +486,7 @@ class ObservationRepository:
                         if fault:
                             fault("pin_"+role, conn)
                     conn.execute("UPDATE sync_observation_budget SET used_bytes=used_bytes+? WHERE id=1", (charge,))
+                    self._record_charge(conn, observation_id, charge)
                 if fault:
                     fault("before_commit", conn)
                 # Last guard AFTER all potentially blocking work, before COMMIT.

@@ -1,0 +1,3299 @@
+{
+  "profile": "isolated-d3c/1",
+  "base_commit": "e1b6e6493c6e2644275f37173f25a46be84b8173",
+  "financial_engine_sha256": "aca5ab0af43c739fbc09692b3496e4b0a6f89dea04752dd0e09901a65cc487d3",
+  "measured_at_utc": "2026-10-11T13:23:27.499989+00:00",
+  "raw_diagnostic_sha256": "abfe7ffc637490661e92f60d3deba6eb29a7dde30b51cf6d900182499115fb0d",
+  "environment": {
+    "python": "3.12.3",
+    "sqlite": "3.45.1",
+    "platform": "Linux-6.8.0-146-generic-x86_64-with-glibc2.39",
+    "cpu": "x86_64",
+    "logical_cpus": 12,
+    "cpu_model": "Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz"
+  },
+  "method": {
+    "warmups": 3,
+    "measurements_per_cell": 20,
+    "cells": 48,
+    "measured_samples": 960,
+    "maintenance_rounds": 4,
+    "workload": "고정 hot scope에 archived ledger만 증가; matched D3b/D3c owned synthetic profiles",
+    "transport": "isolated ASGI TestClient; 실제 네트워크/production 접근 없음",
+    "clock": "2026-10-05 evaluation 고정; bootstrap/oracle/cleanup은 hot timing 밖",
+    "host_load": "backend 회귀와 일부 동시 실행; 독점 CPU 비교나 엄격한 성능 개선 주장이 아님",
+    "statements": "Python execute 호출 수; trigger 내부 substatement는 별도 statement로 세지 않음",
+    "rows": "실제 materialized SQL rows; schema admission 행도 포함, ledger rows examined의 대용치가 아님",
+    "vm": "progress handler 100-step granularity의 lower bound; 설치 후 trigger 작업 포함",
+    "object_reads": "transfer PathResolver reads만 집계; lookup/terminal roots는 SQL rows에 포함; 물리 I/O 아님",
+    "timings": "ms; p95 nearest-rank; nested stages를 합산하지 않음; writer/finalize에 capture/aggregate 작업 포함",
+    "maintenance": "명시 O(stored graph/cache); batch 후 전체검증 포함; logical bytes는 immutable+cache body 합",
+    "memory": "peak_rss_kib는 누적 benchmark process high-water mark; 순수 GC 추가 메모리 아님",
+    "physical_storage": "DELETE 후 SQLite free pages 유지; VACUUM/물리 file shrink 실행 안 함"
+  },
+  "cells": [
+    {
+      "profile": "d3b_profile",
+      "ledger_rows": 376,
+      "workload": "no_change_observation",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "response_bytes": {
+          "median": 1469,
+          "p95": 1469
+        },
+        "auth_ms": {
+          "median": 28.242,
+          "p95": 30.369
+        },
+        "prepared_ms": {
+          "median": 248.4,
+          "p95": 260.988
+        },
+        "http_ms": {
+          "median": 389.404,
+          "p95": 407.846
+        },
+        "terminal_http_ms": {
+          "median": 140.859,
+          "p95": 143.553
+        },
+        "total_ms": {
+          "median": 391.087,
+          "p95": 409.68
+        },
+        "materialized_rows": {
+          "median": 3599,
+          "p95": 3599
+        },
+        "sql_statements": {
+          "median": 1109,
+          "p95": 1109
+        },
+        "vm_steps_lower_bound": {
+          "median": 21800,
+          "p95": 21800
+        },
+        "wire_bytes": {
+          "median": 1469,
+          "p95": 1469
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3b_profile",
+      "ledger_rows": 376,
+      "workload": "manifest_retry",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "response_bytes": {
+          "median": 1469,
+          "p95": 1469
+        },
+        "auth_ms": {
+          "median": 24.039,
+          "p95": 24.797
+        },
+        "prepared_ms": {
+          "median": 210.369,
+          "p95": 219.051
+        },
+        "http_ms": {
+          "median": 351.574,
+          "p95": 363.548
+        },
+        "terminal_http_ms": {
+          "median": 141.501,
+          "p95": 144.038
+        },
+        "total_ms": {
+          "median": 353.075,
+          "p95": 365.149
+        },
+        "materialized_rows": {
+          "median": 2938,
+          "p95": 2938
+        },
+        "sql_statements": {
+          "median": 546,
+          "p95": 546
+        },
+        "vm_steps_lower_bound": {
+          "median": 10600,
+          "p95": 10600
+        },
+        "wire_bytes": {
+          "median": 1469,
+          "p95": 1469
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3b_profile",
+      "ledger_rows": 376,
+      "workload": "root",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "admission_ms": {
+          "median": 117.27,
+          "p95": 132.302
+        },
+        "resolution_ms": {
+          "median": 2.757,
+          "p95": 3.166
+        },
+        "terminal_serialization_ms": {
+          "median": 0.234,
+          "p95": 0.326
+        },
+        "total_ms": {
+          "median": 270.982,
+          "p95": 301.898
+        },
+        "object_reads": {
+          "median": 1,
+          "p95": 1
+        },
+        "object_bytes_read": {
+          "median": 2622,
+          "p95": 2622
+        },
+        "response_bytes": {
+          "median": 3772,
+          "p95": 3772
+        },
+        "decoded_bytes": {
+          "median": 2622,
+          "p95": 2622
+        },
+        "path_edges": {
+          "median": 0,
+          "p95": 0
+        },
+        "auth_ms": {
+          "median": 24.045,
+          "p95": 28.515
+        },
+        "prepared_ms": {
+          "median": 145.09,
+          "p95": 164.437
+        },
+        "http_ms": {
+          "median": 269.396,
+          "p95": 300.106
+        },
+        "terminal_http_ms": {
+          "median": 121.551,
+          "p95": 134.638
+        },
+        "materialized_rows": {
+          "median": 2215,
+          "p95": 2215
+        },
+        "sql_statements": {
+          "median": 422,
+          "p95": 422
+        },
+        "vm_steps_lower_bound": {
+          "median": 0,
+          "p95": 0
+        },
+        "wire_bytes": {
+          "median": 3772,
+          "p95": 3772
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3b_profile",
+      "ledger_rows": 376,
+      "workload": "leaf",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "admission_ms": {
+          "median": 115.788,
+          "p95": 126.872
+        },
+        "resolution_ms": {
+          "median": 211.54,
+          "p95": 235.504
+        },
+        "terminal_serialization_ms": {
+          "median": 2.255,
+          "p95": 2.483
+        },
+        "total_ms": {
+          "median": 472.285,
+          "p95": 496.356
+        },
+        "object_reads": {
+          "median": 3,
+          "p95": 3
+        },
+        "object_bytes_read": {
+          "median": 152570,
+          "p95": 152570
+        },
+        "response_bytes": {
+          "median": 199284,
+          "p95": 199284
+        },
+        "decoded_bytes": {
+          "median": 149251,
+          "p95": 149251
+        },
+        "path_edges": {
+          "median": 2,
+          "p95": 2
+        },
+        "auth_ms": {
+          "median": 23.572,
+          "p95": 27.96
+        },
+        "prepared_ms": {
+          "median": 354.141,
+          "p95": 378.716
+        },
+        "http_ms": {
+          "median": 470.634,
+          "p95": 494.863
+        },
+        "terminal_http_ms": {
+          "median": 115.779,
+          "p95": 117.616
+        },
+        "materialized_rows": {
+          "median": 2217,
+          "p95": 2217
+        },
+        "sql_statements": {
+          "median": 424,
+          "p95": 424
+        },
+        "vm_steps_lower_bound": {
+          "median": 0,
+          "p95": 0
+        },
+        "wire_bytes": {
+          "median": 199284,
+          "p95": 199284
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3b_profile",
+      "ledger_rows": 376,
+      "workload": "card",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "writer_ms": {
+          "median": 13.385,
+          "p95": 14.124
+        },
+        "finalize_ms": {
+          "median": 458.374,
+          "p95": 475.308
+        },
+        "commit_ms": {
+          "median": 2.777,
+          "p95": 27.124
+        },
+        "changed_objects": {
+          "median": 14,
+          "p95": 14
+        },
+        "total_ms": {
+          "median": 526.696,
+          "p95": 541.002
+        },
+        "materialized_rows": {
+          "median": 2522,
+          "p95": 2522
+        },
+        "sql_statements": {
+          "median": 616,
+          "p95": 616
+        },
+        "vm_steps_lower_bound": {
+          "median": 29400,
+          "p95": 29400
+        },
+        "wire_bytes": {
+          "median": 0,
+          "p95": 0
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3b_profile",
+      "ledger_rows": 376,
+      "workload": "cash",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "writer_ms": {
+          "median": 7.01,
+          "p95": 7.699
+        },
+        "finalize_ms": {
+          "median": 97.127,
+          "p95": 105.537
+        },
+        "commit_ms": {
+          "median": 2.788,
+          "p95": 3.79
+        },
+        "changed_objects": {
+          "median": 14,
+          "p95": 15
+        },
+        "total_ms": {
+          "median": 155.661,
+          "p95": 171.937
+        },
+        "materialized_rows": {
+          "median": 2377,
+          "p95": 2383
+        },
+        "sql_statements": {
+          "median": 656,
+          "p95": 666
+        },
+        "vm_steps_lower_bound": {
+          "median": 22000,
+          "p95": 22000
+        },
+        "wire_bytes": {
+          "median": 0,
+          "p95": 0
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3c_profile",
+      "ledger_rows": 376,
+      "workload": "no_change_observation",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "response_bytes": {
+          "median": 1469,
+          "p95": 1469
+        },
+        "auth_ms": {
+          "median": 29.421,
+          "p95": 30.337
+        },
+        "prepared_ms": {
+          "median": 249.635,
+          "p95": 253.018
+        },
+        "http_ms": {
+          "median": 385.405,
+          "p95": 391.258
+        },
+        "terminal_http_ms": {
+          "median": 136.288,
+          "p95": 138.214
+        },
+        "total_ms": {
+          "median": 387.033,
+          "p95": 392.728
+        },
+        "materialized_rows": {
+          "median": 4521,
+          "p95": 4521
+        },
+        "sql_statements": {
+          "median": 1120,
+          "p95": 1120
+        },
+        "vm_steps_lower_bound": {
+          "median": 27700,
+          "p95": 27700
+        },
+        "wire_bytes": {
+          "median": 1469,
+          "p95": 1469
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3c_profile",
+      "ledger_rows": 376,
+      "workload": "manifest_retry",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "response_bytes": {
+          "median": 1469,
+          "p95": 1469
+        },
+        "auth_ms": {
+          "median": 30.163,
+          "p95": 32.435
+        },
+        "prepared_ms": {
+          "median": 214.111,
+          "p95": 231.243
+        },
+        "http_ms": {
+          "median": 350.43,
+          "p95": 376.196
+        },
+        "terminal_http_ms": {
+          "median": 137.236,
+          "p95": 151.064
+        },
+        "total_ms": {
+          "median": 352.215,
+          "p95": 377.746
+        },
+        "materialized_rows": {
+          "median": 3861,
+          "p95": 3861
+        },
+        "sql_statements": {
+          "median": 558,
+          "p95": 558
+        },
+        "vm_steps_lower_bound": {
+          "median": 15300,
+          "p95": 15300
+        },
+        "wire_bytes": {
+          "median": 1469,
+          "p95": 1469
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3c_profile",
+      "ledger_rows": 376,
+      "workload": "root",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "admission_ms": {
+          "median": 142.96,
+          "p95": 146.827
+        },
+        "resolution_ms": {
+          "median": 3.335,
+          "p95": 3.374
+        },
+        "terminal_serialization_ms": {
+          "median": 0.276,
+          "p95": 0.29
+        },
+        "total_ms": {
+          "median": 323.719,
+          "p95": 334.711
+        },
+        "object_reads": {
+          "median": 1,
+          "p95": 1
+        },
+        "object_bytes_read": {
+          "median": 2622,
+          "p95": 2622
+        },
+        "response_bytes": {
+          "median": 3772,
+          "p95": 3772
+        },
+        "decoded_bytes": {
+          "median": 2622,
+          "p95": 2622
+        },
+        "path_edges": {
+          "median": 0,
+          "p95": 0
+        },
+        "auth_ms": {
+          "median": 30.935,
+          "p95": 31.951
+        },
+        "prepared_ms": {
+          "median": 178.973,
+          "p95": 183.585
+        },
+        "http_ms": {
+          "median": 321.864,
+          "p95": 332.784
+        },
+        "terminal_http_ms": {
+          "median": 144.067,
+          "p95": 149.095
+        },
+        "materialized_rows": {
+          "median": 2908,
+          "p95": 2908
+        },
+        "sql_statements": {
+          "median": 431,
+          "p95": 431
+        },
+        "vm_steps_lower_bound": {
+          "median": 0,
+          "p95": 0
+        },
+        "wire_bytes": {
+          "median": 3772,
+          "p95": 3772
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3c_profile",
+      "ledger_rows": 376,
+      "workload": "leaf",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "admission_ms": {
+          "median": 140.593,
+          "p95": 142.437
+        },
+        "resolution_ms": {
+          "median": 248.385,
+          "p95": 252.952
+        },
+        "terminal_serialization_ms": {
+          "median": 2.639,
+          "p95": 2.741
+        },
+        "total_ms": {
+          "median": 565.559,
+          "p95": 576.933
+        },
+        "object_reads": {
+          "median": 3,
+          "p95": 3
+        },
+        "object_bytes_read": {
+          "median": 152570,
+          "p95": 152570
+        },
+        "response_bytes": {
+          "median": 199284,
+          "p95": 199284
+        },
+        "decoded_bytes": {
+          "median": 149251,
+          "p95": 149251
+        },
+        "path_edges": {
+          "median": 2,
+          "p95": 2
+        },
+        "auth_ms": {
+          "median": 30.398,
+          "p95": 31.043
+        },
+        "prepared_ms": {
+          "median": 424.851,
+          "p95": 432.256
+        },
+        "http_ms": {
+          "median": 563.449,
+          "p95": 574.525
+        },
+        "terminal_http_ms": {
+          "median": 139.745,
+          "p95": 141.343
+        },
+        "materialized_rows": {
+          "median": 2910,
+          "p95": 2910
+        },
+        "sql_statements": {
+          "median": 433,
+          "p95": 433
+        },
+        "vm_steps_lower_bound": {
+          "median": 0,
+          "p95": 0
+        },
+        "wire_bytes": {
+          "median": 199284,
+          "p95": 199284
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3c_profile",
+      "ledger_rows": 376,
+      "workload": "card",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "writer_ms": {
+          "median": 13.498,
+          "p95": 13.882
+        },
+        "finalize_ms": {
+          "median": 504.341,
+          "p95": 529.474
+        },
+        "commit_ms": {
+          "median": 9.199,
+          "p95": 10.216
+        },
+        "changed_objects": {
+          "median": 14,
+          "p95": 14
+        },
+        "total_ms": {
+          "median": 585.018,
+          "p95": 611.081
+        },
+        "materialized_rows": {
+          "median": 3213,
+          "p95": 3213
+        },
+        "sql_statements": {
+          "median": 623,
+          "p95": 623
+        },
+        "vm_steps_lower_bound": {
+          "median": 44500,
+          "p95": 44500
+        },
+        "wire_bytes": {
+          "median": 0,
+          "p95": 0
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3c_profile",
+      "ledger_rows": 376,
+      "workload": "cash",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "writer_ms": {
+          "median": 7.396,
+          "p95": 7.857
+        },
+        "finalize_ms": {
+          "median": 107.925,
+          "p95": 111.786
+        },
+        "commit_ms": {
+          "median": 3.113,
+          "p95": 3.42
+        },
+        "changed_objects": {
+          "median": 14,
+          "p95": 15
+        },
+        "total_ms": {
+          "median": 175.446,
+          "p95": 179.744
+        },
+        "materialized_rows": {
+          "median": 3068,
+          "p95": 3074
+        },
+        "sql_statements": {
+          "median": 663,
+          "p95": 673
+        },
+        "vm_steps_lower_bound": {
+          "median": 37100,
+          "p95": 37400
+        },
+        "wire_bytes": {
+          "median": 0,
+          "p95": 0
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3b_profile",
+      "ledger_rows": 1000,
+      "workload": "no_change_observation",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "response_bytes": {
+          "median": 1470,
+          "p95": 1470
+        },
+        "auth_ms": {
+          "median": 25.033,
+          "p95": 25.672
+        },
+        "prepared_ms": {
+          "median": 259.968,
+          "p95": 261.99
+        },
+        "http_ms": {
+          "median": 403.043,
+          "p95": 405.873
+        },
+        "terminal_http_ms": {
+          "median": 143.632,
+          "p95": 144.488
+        },
+        "total_ms": {
+          "median": 404.659,
+          "p95": 407.497
+        },
+        "materialized_rows": {
+          "median": 3599,
+          "p95": 3599
+        },
+        "sql_statements": {
+          "median": 1109,
+          "p95": 1109
+        },
+        "vm_steps_lower_bound": {
+          "median": 21800,
+          "p95": 21800
+        },
+        "wire_bytes": {
+          "median": 1470,
+          "p95": 1470
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3b_profile",
+      "ledger_rows": 1000,
+      "workload": "manifest_retry",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "response_bytes": {
+          "median": 1470,
+          "p95": 1470
+        },
+        "auth_ms": {
+          "median": 24.777,
+          "p95": 30.582
+        },
+        "prepared_ms": {
+          "median": 218.403,
+          "p95": 234.692
+        },
+        "http_ms": {
+          "median": 364.471,
+          "p95": 391.094
+        },
+        "terminal_http_ms": {
+          "median": 147.102,
+          "p95": 155.964
+        },
+        "total_ms": {
+          "median": 366.078,
+          "p95": 392.881
+        },
+        "materialized_rows": {
+          "median": 2938,
+          "p95": 2938
+        },
+        "sql_statements": {
+          "median": 546,
+          "p95": 546
+        },
+        "vm_steps_lower_bound": {
+          "median": 10600,
+          "p95": 10600
+        },
+        "wire_bytes": {
+          "median": 1470,
+          "p95": 1470
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3b_profile",
+      "ledger_rows": 1000,
+      "workload": "root",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "admission_ms": {
+          "median": 151.613,
+          "p95": 154.548
+        },
+        "resolution_ms": {
+          "median": 3.595,
+          "p95": 3.816
+        },
+        "terminal_serialization_ms": {
+          "median": 0.299,
+          "p95": 0.318
+        },
+        "total_ms": {
+          "median": 344.907,
+          "p95": 347.233
+        },
+        "object_reads": {
+          "median": 1,
+          "p95": 1
+        },
+        "object_bytes_read": {
+          "median": 2625,
+          "p95": 2625
+        },
+        "response_bytes": {
+          "median": 3776,
+          "p95": 3776
+        },
+        "decoded_bytes": {
+          "median": 2625,
+          "p95": 2625
+        },
+        "path_edges": {
+          "median": 0,
+          "p95": 0
+        },
+        "auth_ms": {
+          "median": 29.843,
+          "p95": 30.575
+        },
+        "prepared_ms": {
+          "median": 186.377,
+          "p95": 189.041
+        },
+        "http_ms": {
+          "median": 342.856,
+          "p95": 345.159
+        },
+        "terminal_http_ms": {
+          "median": 155.776,
+          "p95": 157.001
+        },
+        "materialized_rows": {
+          "median": 2215,
+          "p95": 2215
+        },
+        "sql_statements": {
+          "median": 422,
+          "p95": 422
+        },
+        "vm_steps_lower_bound": {
+          "median": 0,
+          "p95": 0
+        },
+        "wire_bytes": {
+          "median": 3776,
+          "p95": 3776
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3b_profile",
+      "ledger_rows": 1000,
+      "workload": "leaf",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "admission_ms": {
+          "median": 153.13,
+          "p95": 154.294
+        },
+        "resolution_ms": {
+          "median": 276.262,
+          "p95": 278.371
+        },
+        "terminal_serialization_ms": {
+          "median": 2.91,
+          "p95": 3.001
+        },
+        "total_ms": {
+          "median": 620.242,
+          "p95": 624.132
+        },
+        "object_reads": {
+          "median": 3,
+          "p95": 3
+        },
+        "object_bytes_read": {
+          "median": 152903,
+          "p95": 152903
+        },
+        "response_bytes": {
+          "median": 199284,
+          "p95": 199284
+        },
+        "decoded_bytes": {
+          "median": 149251,
+          "p95": 149251
+        },
+        "path_edges": {
+          "median": 2,
+          "p95": 2
+        },
+        "auth_ms": {
+          "median": 31.151,
+          "p95": 31.677
+        },
+        "prepared_ms": {
+          "median": 465.143,
+          "p95": 467.822
+        },
+        "http_ms": {
+          "median": 617.867,
+          "p95": 621.732
+        },
+        "terminal_http_ms": {
+          "median": 152.676,
+          "p95": 153.877
+        },
+        "materialized_rows": {
+          "median": 2217,
+          "p95": 2217
+        },
+        "sql_statements": {
+          "median": 424,
+          "p95": 424
+        },
+        "vm_steps_lower_bound": {
+          "median": 0,
+          "p95": 0
+        },
+        "wire_bytes": {
+          "median": 199284,
+          "p95": 199284
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3b_profile",
+      "ledger_rows": 1000,
+      "workload": "card",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "writer_ms": {
+          "median": 11.851,
+          "p95": 12.71
+        },
+        "finalize_ms": {
+          "median": 525.718,
+          "p95": 562.229
+        },
+        "commit_ms": {
+          "median": 3.368,
+          "p95": 9.604
+        },
+        "changed_objects": {
+          "median": 16,
+          "p95": 16
+        },
+        "total_ms": {
+          "median": 598.525,
+          "p95": 636.318
+        },
+        "materialized_rows": {
+          "median": 2542,
+          "p95": 2542
+        },
+        "sql_statements": {
+          "median": 646,
+          "p95": 646
+        },
+        "vm_steps_lower_bound": {
+          "median": 29400,
+          "p95": 29400
+        },
+        "wire_bytes": {
+          "median": 0,
+          "p95": 0
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3b_profile",
+      "ledger_rows": 1000,
+      "workload": "cash",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "writer_ms": {
+          "median": 7.51,
+          "p95": 7.601
+        },
+        "finalize_ms": {
+          "median": 108.913,
+          "p95": 112.399
+        },
+        "commit_ms": {
+          "median": 2.868,
+          "p95": 3.039
+        },
+        "changed_objects": {
+          "median": 16,
+          "p95": 17
+        },
+        "total_ms": {
+          "median": 172.463,
+          "p95": 176.849
+        },
+        "materialized_rows": {
+          "median": 2385,
+          "p95": 2389
+        },
+        "sql_statements": {
+          "median": 672,
+          "p95": 680
+        },
+        "vm_steps_lower_bound": {
+          "median": 22000,
+          "p95": 22000
+        },
+        "wire_bytes": {
+          "median": 0,
+          "p95": 0
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3c_profile",
+      "ledger_rows": 1000,
+      "workload": "no_change_observation",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "response_bytes": {
+          "median": 1470,
+          "p95": 1470
+        },
+        "auth_ms": {
+          "median": 30.117,
+          "p95": 32.161
+        },
+        "prepared_ms": {
+          "median": 259.817,
+          "p95": 265.727
+        },
+        "http_ms": {
+          "median": 407.002,
+          "p95": 412.461
+        },
+        "terminal_http_ms": {
+          "median": 146.938,
+          "p95": 149.77
+        },
+        "total_ms": {
+          "median": 408.504,
+          "p95": 414.02
+        },
+        "materialized_rows": {
+          "median": 4521,
+          "p95": 4521
+        },
+        "sql_statements": {
+          "median": 1120,
+          "p95": 1120
+        },
+        "vm_steps_lower_bound": {
+          "median": 27700,
+          "p95": 27700
+        },
+        "wire_bytes": {
+          "median": 1470,
+          "p95": 1470
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3c_profile",
+      "ledger_rows": 1000,
+      "workload": "manifest_retry",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "response_bytes": {
+          "median": 1470,
+          "p95": 1470
+        },
+        "auth_ms": {
+          "median": 27.433,
+          "p95": 27.803
+        },
+        "prepared_ms": {
+          "median": 226.585,
+          "p95": 228.521
+        },
+        "http_ms": {
+          "median": 376.503,
+          "p95": 378.996
+        },
+        "terminal_http_ms": {
+          "median": 149.345,
+          "p95": 151.37
+        },
+        "total_ms": {
+          "median": 377.929,
+          "p95": 380.531
+        },
+        "materialized_rows": {
+          "median": 3861,
+          "p95": 3861
+        },
+        "sql_statements": {
+          "median": 558,
+          "p95": 558
+        },
+        "vm_steps_lower_bound": {
+          "median": 15300,
+          "p95": 15300
+        },
+        "wire_bytes": {
+          "median": 1470,
+          "p95": 1470
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3c_profile",
+      "ledger_rows": 1000,
+      "workload": "root",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "admission_ms": {
+          "median": 148.856,
+          "p95": 149.715
+        },
+        "resolution_ms": {
+          "median": 3.435,
+          "p95": 3.565
+        },
+        "terminal_serialization_ms": {
+          "median": 0.282,
+          "p95": 0.293
+        },
+        "total_ms": {
+          "median": 334.09,
+          "p95": 336.922
+        },
+        "object_reads": {
+          "median": 1,
+          "p95": 1
+        },
+        "object_bytes_read": {
+          "median": 2625,
+          "p95": 2625
+        },
+        "response_bytes": {
+          "median": 3776,
+          "p95": 3776
+        },
+        "decoded_bytes": {
+          "median": 2625,
+          "p95": 2625
+        },
+        "path_edges": {
+          "median": 0,
+          "p95": 0
+        },
+        "auth_ms": {
+          "median": 27.928,
+          "p95": 28.505
+        },
+        "prepared_ms": {
+          "median": 182.063,
+          "p95": 185.503
+        },
+        "http_ms": {
+          "median": 332.349,
+          "p95": 335.159
+        },
+        "terminal_http_ms": {
+          "median": 150.082,
+          "p95": 153.556
+        },
+        "materialized_rows": {
+          "median": 2908,
+          "p95": 2908
+        },
+        "sql_statements": {
+          "median": 431,
+          "p95": 431
+        },
+        "vm_steps_lower_bound": {
+          "median": 0,
+          "p95": 0
+        },
+        "wire_bytes": {
+          "median": 3776,
+          "p95": 3776
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3c_profile",
+      "ledger_rows": 1000,
+      "workload": "leaf",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "admission_ms": {
+          "median": 147.98,
+          "p95": 150.388
+        },
+        "resolution_ms": {
+          "median": 263.722,
+          "p95": 268.309
+        },
+        "terminal_serialization_ms": {
+          "median": 2.813,
+          "p95": 2.906
+        },
+        "total_ms": {
+          "median": 591.966,
+          "p95": 599.501
+        },
+        "object_reads": {
+          "median": 3,
+          "p95": 3
+        },
+        "object_bytes_read": {
+          "median": 152903,
+          "p95": 152903
+        },
+        "response_bytes": {
+          "median": 199284,
+          "p95": 199284
+        },
+        "decoded_bytes": {
+          "median": 149251,
+          "p95": 149251
+        },
+        "path_edges": {
+          "median": 2,
+          "p95": 2
+        },
+        "auth_ms": {
+          "median": 27.449,
+          "p95": 27.873
+        },
+        "prepared_ms": {
+          "median": 443.612,
+          "p95": 449.604
+        },
+        "http_ms": {
+          "median": 589.921,
+          "p95": 597.367
+        },
+        "terminal_http_ms": {
+          "median": 146.523,
+          "p95": 147.817
+        },
+        "materialized_rows": {
+          "median": 2910,
+          "p95": 2910
+        },
+        "sql_statements": {
+          "median": 433,
+          "p95": 433
+        },
+        "vm_steps_lower_bound": {
+          "median": 0,
+          "p95": 0
+        },
+        "wire_bytes": {
+          "median": 199284,
+          "p95": 199284
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3c_profile",
+      "ledger_rows": 1000,
+      "workload": "card",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "writer_ms": {
+          "median": 13.874,
+          "p95": 14.456
+        },
+        "finalize_ms": {
+          "median": 532.653,
+          "p95": 536.994
+        },
+        "commit_ms": {
+          "median": 9.122,
+          "p95": 9.95
+        },
+        "changed_objects": {
+          "median": 16,
+          "p95": 16
+        },
+        "total_ms": {
+          "median": 612.929,
+          "p95": 620.399
+        },
+        "materialized_rows": {
+          "median": 3233,
+          "p95": 3233
+        },
+        "sql_statements": {
+          "median": 653,
+          "p95": 653
+        },
+        "vm_steps_lower_bound": {
+          "median": 45300,
+          "p95": 45300
+        },
+        "wire_bytes": {
+          "median": 0,
+          "p95": 0
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3c_profile",
+      "ledger_rows": 1000,
+      "workload": "cash",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "writer_ms": {
+          "median": 7.446,
+          "p95": 7.617
+        },
+        "finalize_ms": {
+          "median": 114.92,
+          "p95": 118.66
+        },
+        "commit_ms": {
+          "median": 3.433,
+          "p95": 3.622
+        },
+        "changed_objects": {
+          "median": 16,
+          "p95": 17
+        },
+        "total_ms": {
+          "median": 184.449,
+          "p95": 191.628
+        },
+        "materialized_rows": {
+          "median": 3076,
+          "p95": 3080
+        },
+        "sql_statements": {
+          "median": 679,
+          "p95": 687
+        },
+        "vm_steps_lower_bound": {
+          "median": 37700,
+          "p95": 38000
+        },
+        "wire_bytes": {
+          "median": 0,
+          "p95": 0
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3b_profile",
+      "ledger_rows": 5000,
+      "workload": "no_change_observation",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "response_bytes": {
+          "median": 1470,
+          "p95": 1470
+        },
+        "auth_ms": {
+          "median": 24.716,
+          "p95": 25.998
+        },
+        "prepared_ms": {
+          "median": 257.995,
+          "p95": 263.093
+        },
+        "http_ms": {
+          "median": 403.294,
+          "p95": 410.211
+        },
+        "terminal_http_ms": {
+          "median": 145.049,
+          "p95": 147.017
+        },
+        "total_ms": {
+          "median": 405.011,
+          "p95": 411.879
+        },
+        "materialized_rows": {
+          "median": 3599,
+          "p95": 3599
+        },
+        "sql_statements": {
+          "median": 1109,
+          "p95": 1109
+        },
+        "vm_steps_lower_bound": {
+          "median": 21800,
+          "p95": 21800
+        },
+        "wire_bytes": {
+          "median": 1470,
+          "p95": 1470
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3b_profile",
+      "ledger_rows": 5000,
+      "workload": "manifest_retry",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "response_bytes": {
+          "median": 1470,
+          "p95": 1470
+        },
+        "auth_ms": {
+          "median": 27.15,
+          "p95": 32.961
+        },
+        "prepared_ms": {
+          "median": 229.817,
+          "p95": 250.228
+        },
+        "http_ms": {
+          "median": 385.713,
+          "p95": 417.545
+        },
+        "terminal_http_ms": {
+          "median": 154.827,
+          "p95": 164.881
+        },
+        "total_ms": {
+          "median": 387.879,
+          "p95": 419.92
+        },
+        "materialized_rows": {
+          "median": 2938,
+          "p95": 2938
+        },
+        "sql_statements": {
+          "median": 546,
+          "p95": 546
+        },
+        "vm_steps_lower_bound": {
+          "median": 10600,
+          "p95": 10600
+        },
+        "wire_bytes": {
+          "median": 1470,
+          "p95": 1470
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3b_profile",
+      "ledger_rows": 5000,
+      "workload": "root",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "admission_ms": {
+          "median": 155.078,
+          "p95": 158.446
+        },
+        "resolution_ms": {
+          "median": 3.681,
+          "p95": 3.741
+        },
+        "terminal_serialization_ms": {
+          "median": 0.307,
+          "p95": 0.317
+        },
+        "total_ms": {
+          "median": 352.011,
+          "p95": 357.755
+        },
+        "object_reads": {
+          "median": 1,
+          "p95": 1
+        },
+        "object_bytes_read": {
+          "median": 2625,
+          "p95": 2625
+        },
+        "response_bytes": {
+          "median": 3776,
+          "p95": 3776
+        },
+        "decoded_bytes": {
+          "median": 2625,
+          "p95": 2625
+        },
+        "path_edges": {
+          "median": 0,
+          "p95": 0
+        },
+        "auth_ms": {
+          "median": 30.201,
+          "p95": 31.54
+        },
+        "prepared_ms": {
+          "median": 191.034,
+          "p95": 194.864
+        },
+        "http_ms": {
+          "median": 349.626,
+          "p95": 355.343
+        },
+        "terminal_http_ms": {
+          "median": 158.378,
+          "p95": 162.313
+        },
+        "materialized_rows": {
+          "median": 2215,
+          "p95": 2215
+        },
+        "sql_statements": {
+          "median": 422,
+          "p95": 422
+        },
+        "vm_steps_lower_bound": {
+          "median": 0,
+          "p95": 0
+        },
+        "wire_bytes": {
+          "median": 3776,
+          "p95": 3776
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3b_profile",
+      "ledger_rows": 5000,
+      "workload": "leaf",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "admission_ms": {
+          "median": 147.341,
+          "p95": 149.995
+        },
+        "resolution_ms": {
+          "median": 270.867,
+          "p95": 280.526
+        },
+        "terminal_serialization_ms": {
+          "median": 2.686,
+          "p95": 2.743
+        },
+        "total_ms": {
+          "median": 597.624,
+          "p95": 615.582
+        },
+        "object_reads": {
+          "median": 3,
+          "p95": 3
+        },
+        "object_bytes_read": {
+          "median": 155526,
+          "p95": 155526
+        },
+        "response_bytes": {
+          "median": 199284,
+          "p95": 199284
+        },
+        "decoded_bytes": {
+          "median": 149251,
+          "p95": 149251
+        },
+        "path_edges": {
+          "median": 2,
+          "p95": 2
+        },
+        "auth_ms": {
+          "median": 24.952,
+          "p95": 28.648
+        },
+        "prepared_ms": {
+          "median": 447.417,
+          "p95": 458.342
+        },
+        "http_ms": {
+          "median": 595.375,
+          "p95": 613.141
+        },
+        "terminal_http_ms": {
+          "median": 147.275,
+          "p95": 150.382
+        },
+        "materialized_rows": {
+          "median": 2217,
+          "p95": 2217
+        },
+        "sql_statements": {
+          "median": 424,
+          "p95": 424
+        },
+        "vm_steps_lower_bound": {
+          "median": 0,
+          "p95": 0
+        },
+        "wire_bytes": {
+          "median": 199284,
+          "p95": 199284
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3b_profile",
+      "ledger_rows": 5000,
+      "workload": "card",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "writer_ms": {
+          "median": 12.12,
+          "p95": 12.419
+        },
+        "finalize_ms": {
+          "median": 540.591,
+          "p95": 553.776
+        },
+        "commit_ms": {
+          "median": 9.793,
+          "p95": 10.254
+        },
+        "changed_objects": {
+          "median": 20,
+          "p95": 20
+        },
+        "total_ms": {
+          "median": 616.355,
+          "p95": 629.92
+        },
+        "materialized_rows": {
+          "median": 2578,
+          "p95": 2578
+        },
+        "sql_statements": {
+          "median": 714,
+          "p95": 714
+        },
+        "vm_steps_lower_bound": {
+          "median": 29400,
+          "p95": 29400
+        },
+        "wire_bytes": {
+          "median": 0,
+          "p95": 0
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3b_profile",
+      "ledger_rows": 5000,
+      "workload": "cash",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "writer_ms": {
+          "median": 7.674,
+          "p95": 7.961
+        },
+        "finalize_ms": {
+          "median": 116.612,
+          "p95": 120.928
+        },
+        "commit_ms": {
+          "median": 3.086,
+          "p95": 9.113
+        },
+        "changed_objects": {
+          "median": 18,
+          "p95": 19
+        },
+        "total_ms": {
+          "median": 182.906,
+          "p95": 195.623
+        },
+        "materialized_rows": {
+          "median": 2394.5,
+          "p95": 2398
+        },
+        "sql_statements": {
+          "median": 689.5,
+          "p95": 697
+        },
+        "vm_steps_lower_bound": {
+          "median": 22000,
+          "p95": 22000
+        },
+        "wire_bytes": {
+          "median": 0,
+          "p95": 0
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3c_profile",
+      "ledger_rows": 5000,
+      "workload": "no_change_observation",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "response_bytes": {
+          "median": 1470,
+          "p95": 1470
+        },
+        "auth_ms": {
+          "median": 30.719,
+          "p95": 31.49
+        },
+        "prepared_ms": {
+          "median": 282.056,
+          "p95": 288.61
+        },
+        "http_ms": {
+          "median": 437.112,
+          "p95": 446.958
+        },
+        "terminal_http_ms": {
+          "median": 154.689,
+          "p95": 157.808
+        },
+        "total_ms": {
+          "median": 439.178,
+          "p95": 449.016
+        },
+        "materialized_rows": {
+          "median": 4521,
+          "p95": 4521
+        },
+        "sql_statements": {
+          "median": 1120,
+          "p95": 1120
+        },
+        "vm_steps_lower_bound": {
+          "median": 27700,
+          "p95": 27700
+        },
+        "wire_bytes": {
+          "median": 1470,
+          "p95": 1470
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3c_profile",
+      "ledger_rows": 5000,
+      "workload": "manifest_retry",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "response_bytes": {
+          "median": 1470,
+          "p95": 1470
+        },
+        "auth_ms": {
+          "median": 31.33,
+          "p95": 31.738
+        },
+        "prepared_ms": {
+          "median": 236.459,
+          "p95": 238.124
+        },
+        "http_ms": {
+          "median": 392.862,
+          "p95": 395.132
+        },
+        "terminal_http_ms": {
+          "median": 156.256,
+          "p95": 157.569
+        },
+        "total_ms": {
+          "median": 395.011,
+          "p95": 397.229
+        },
+        "materialized_rows": {
+          "median": 3861,
+          "p95": 3861
+        },
+        "sql_statements": {
+          "median": 558,
+          "p95": 558
+        },
+        "vm_steps_lower_bound": {
+          "median": 15300,
+          "p95": 15300
+        },
+        "wire_bytes": {
+          "median": 1470,
+          "p95": 1470
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3c_profile",
+      "ledger_rows": 5000,
+      "workload": "root",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "admission_ms": {
+          "median": 152.302,
+          "p95": 154.041
+        },
+        "resolution_ms": {
+          "median": 3.66,
+          "p95": 3.713
+        },
+        "terminal_serialization_ms": {
+          "median": 0.299,
+          "p95": 0.31
+        },
+        "total_ms": {
+          "median": 347.994,
+          "p95": 350.017
+        },
+        "object_reads": {
+          "median": 1,
+          "p95": 1
+        },
+        "object_bytes_read": {
+          "median": 2625,
+          "p95": 2625
+        },
+        "response_bytes": {
+          "median": 3776,
+          "p95": 3776
+        },
+        "decoded_bytes": {
+          "median": 2625,
+          "p95": 2625
+        },
+        "path_edges": {
+          "median": 0,
+          "p95": 0
+        },
+        "auth_ms": {
+          "median": 31.731,
+          "p95": 32.674
+        },
+        "prepared_ms": {
+          "median": 189.448,
+          "p95": 191.465
+        },
+        "http_ms": {
+          "median": 345.697,
+          "p95": 347.748
+        },
+        "terminal_http_ms": {
+          "median": 156.419,
+          "p95": 158.149
+        },
+        "materialized_rows": {
+          "median": 2908,
+          "p95": 2908
+        },
+        "sql_statements": {
+          "median": 431,
+          "p95": 431
+        },
+        "vm_steps_lower_bound": {
+          "median": 0,
+          "p95": 0
+        },
+        "wire_bytes": {
+          "median": 3776,
+          "p95": 3776
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3c_profile",
+      "ledger_rows": 5000,
+      "workload": "leaf",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "admission_ms": {
+          "median": 151.794,
+          "p95": 156.173
+        },
+        "resolution_ms": {
+          "median": 280.595,
+          "p95": 303.082
+        },
+        "terminal_serialization_ms": {
+          "median": 2.831,
+          "p95": 2.893
+        },
+        "total_ms": {
+          "median": 626.714,
+          "p95": 653.128
+        },
+        "object_reads": {
+          "median": 3,
+          "p95": 3
+        },
+        "object_bytes_read": {
+          "median": 155526,
+          "p95": 155526
+        },
+        "response_bytes": {
+          "median": 199284,
+          "p95": 199284
+        },
+        "decoded_bytes": {
+          "median": 149251,
+          "p95": 149251
+        },
+        "path_edges": {
+          "median": 2,
+          "p95": 2
+        },
+        "auth_ms": {
+          "median": 32.288,
+          "p95": 33.042
+        },
+        "prepared_ms": {
+          "median": 469.399,
+          "p95": 495.544
+        },
+        "http_ms": {
+          "median": 623.988,
+          "p95": 650.862
+        },
+        "terminal_http_ms": {
+          "median": 154.353,
+          "p95": 156.062
+        },
+        "materialized_rows": {
+          "median": 2910,
+          "p95": 2910
+        },
+        "sql_statements": {
+          "median": 433,
+          "p95": 433
+        },
+        "vm_steps_lower_bound": {
+          "median": 0,
+          "p95": 0
+        },
+        "wire_bytes": {
+          "median": 199284,
+          "p95": 199284
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3c_profile",
+      "ledger_rows": 5000,
+      "workload": "card",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "writer_ms": {
+          "median": 11.948,
+          "p95": 12.183
+        },
+        "finalize_ms": {
+          "median": 538.405,
+          "p95": 545.914
+        },
+        "commit_ms": {
+          "median": 10.669,
+          "p95": 11.332
+        },
+        "changed_objects": {
+          "median": 20,
+          "p95": 20
+        },
+        "total_ms": {
+          "median": 622.042,
+          "p95": 625.897
+        },
+        "materialized_rows": {
+          "median": 3269,
+          "p95": 3269
+        },
+        "sql_statements": {
+          "median": 721,
+          "p95": 721
+        },
+        "vm_steps_lower_bound": {
+          "median": 48100,
+          "p95": 48100
+        },
+        "wire_bytes": {
+          "median": 0,
+          "p95": 0
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3c_profile",
+      "ledger_rows": 5000,
+      "workload": "cash",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "writer_ms": {
+          "median": 7.465,
+          "p95": 7.711
+        },
+        "finalize_ms": {
+          "median": 120.509,
+          "p95": 126.264
+        },
+        "commit_ms": {
+          "median": 3.855,
+          "p95": 9.567
+        },
+        "changed_objects": {
+          "median": 18,
+          "p95": 19
+        },
+        "total_ms": {
+          "median": 191.894,
+          "p95": 204.106
+        },
+        "materialized_rows": {
+          "median": 3085.5,
+          "p95": 3089
+        },
+        "sql_statements": {
+          "median": 696.5,
+          "p95": 704
+        },
+        "vm_steps_lower_bound": {
+          "median": 38300,
+          "p95": 38600
+        },
+        "wire_bytes": {
+          "median": 0,
+          "p95": 0
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3b_profile",
+      "ledger_rows": 10000,
+      "workload": "no_change_observation",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "response_bytes": {
+          "median": 1471,
+          "p95": 1471
+        },
+        "auth_ms": {
+          "median": 26.124,
+          "p95": 27.216
+        },
+        "prepared_ms": {
+          "median": 272.874,
+          "p95": 285.347
+        },
+        "http_ms": {
+          "median": 423.608,
+          "p95": 435.995
+        },
+        "terminal_http_ms": {
+          "median": 150.882,
+          "p95": 152.221
+        },
+        "total_ms": {
+          "median": 425.627,
+          "p95": 437.907
+        },
+        "materialized_rows": {
+          "median": 3599,
+          "p95": 3599
+        },
+        "sql_statements": {
+          "median": 1109,
+          "p95": 1109
+        },
+        "vm_steps_lower_bound": {
+          "median": 21800,
+          "p95": 21800
+        },
+        "wire_bytes": {
+          "median": 1471,
+          "p95": 1471
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3b_profile",
+      "ledger_rows": 10000,
+      "workload": "manifest_retry",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "response_bytes": {
+          "median": 1471,
+          "p95": 1471
+        },
+        "auth_ms": {
+          "median": 26.43,
+          "p95": 27.026
+        },
+        "prepared_ms": {
+          "median": 229.136,
+          "p95": 232.829
+        },
+        "http_ms": {
+          "median": 382.565,
+          "p95": 387.507
+        },
+        "terminal_http_ms": {
+          "median": 153.936,
+          "p95": 155.418
+        },
+        "total_ms": {
+          "median": 384.44,
+          "p95": 389.452
+        },
+        "materialized_rows": {
+          "median": 2938,
+          "p95": 2938
+        },
+        "sql_statements": {
+          "median": 546,
+          "p95": 546
+        },
+        "vm_steps_lower_bound": {
+          "median": 10600,
+          "p95": 10600
+        },
+        "wire_bytes": {
+          "median": 1471,
+          "p95": 1471
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3b_profile",
+      "ledger_rows": 10000,
+      "workload": "root",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "admission_ms": {
+          "median": 128.902,
+          "p95": 129.452
+        },
+        "resolution_ms": {
+          "median": 3.067,
+          "p95": 3.09
+        },
+        "terminal_serialization_ms": {
+          "median": 0.254,
+          "p95": 0.26
+        },
+        "total_ms": {
+          "median": 291.704,
+          "p95": 293.704
+        },
+        "object_reads": {
+          "median": 1,
+          "p95": 1
+        },
+        "object_bytes_read": {
+          "median": 2627,
+          "p95": 2627
+        },
+        "response_bytes": {
+          "median": 3780,
+          "p95": 3780
+        },
+        "decoded_bytes": {
+          "median": 2627,
+          "p95": 2627
+        },
+        "path_edges": {
+          "median": 0,
+          "p95": 0
+        },
+        "auth_ms": {
+          "median": 25.427,
+          "p95": 25.798
+        },
+        "prepared_ms": {
+          "median": 158.946,
+          "p95": 159.705
+        },
+        "http_ms": {
+          "median": 289.648,
+          "p95": 291.588
+        },
+        "terminal_http_ms": {
+          "median": 130.85,
+          "p95": 131.801
+        },
+        "materialized_rows": {
+          "median": 2215,
+          "p95": 2215
+        },
+        "sql_statements": {
+          "median": 422,
+          "p95": 422
+        },
+        "vm_steps_lower_bound": {
+          "median": 0,
+          "p95": 0
+        },
+        "wire_bytes": {
+          "median": 3780,
+          "p95": 3780
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3b_profile",
+      "ledger_rows": 10000,
+      "workload": "leaf",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "admission_ms": {
+          "median": 129.268,
+          "p95": 130.384
+        },
+        "resolution_ms": {
+          "median": 238.807,
+          "p95": 240.349
+        },
+        "terminal_serialization_ms": {
+          "median": 2.391,
+          "p95": 2.459
+        },
+        "total_ms": {
+          "median": 528.842,
+          "p95": 529.859
+        },
+        "object_reads": {
+          "median": 4,
+          "p95": 4
+        },
+        "object_bytes_read": {
+          "median": 156229,
+          "p95": 156229
+        },
+        "response_bytes": {
+          "median": 199284,
+          "p95": 199284
+        },
+        "decoded_bytes": {
+          "median": 149251,
+          "p95": 149251
+        },
+        "path_edges": {
+          "median": 3,
+          "p95": 3
+        },
+        "auth_ms": {
+          "median": 25.374,
+          "p95": 25.574
+        },
+        "prepared_ms": {
+          "median": 397.227,
+          "p95": 398.682
+        },
+        "http_ms": {
+          "median": 526.506,
+          "p95": 527.5
+        },
+        "terminal_http_ms": {
+          "median": 129.14,
+          "p95": 129.514
+        },
+        "materialized_rows": {
+          "median": 2218,
+          "p95": 2218
+        },
+        "sql_statements": {
+          "median": 425,
+          "p95": 425
+        },
+        "vm_steps_lower_bound": {
+          "median": 0,
+          "p95": 0
+        },
+        "wire_bytes": {
+          "median": 199284,
+          "p95": 199284
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3b_profile",
+      "ledger_rows": 10000,
+      "workload": "card",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "writer_ms": {
+          "median": 10.885,
+          "p95": 11.062
+        },
+        "finalize_ms": {
+          "median": 488.062,
+          "p95": 491.62
+        },
+        "commit_ms": {
+          "median": 27.833,
+          "p95": 30.368
+        },
+        "changed_objects": {
+          "median": 22,
+          "p95": 22
+        },
+        "total_ms": {
+          "median": 574.181,
+          "p95": 579.319
+        },
+        "materialized_rows": {
+          "median": 2588,
+          "p95": 2588
+        },
+        "sql_statements": {
+          "median": 732,
+          "p95": 732
+        },
+        "vm_steps_lower_bound": {
+          "median": 29400,
+          "p95": 29400
+        },
+        "wire_bytes": {
+          "median": 0,
+          "p95": 0
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3b_profile",
+      "ledger_rows": 10000,
+      "workload": "cash",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "writer_ms": {
+          "median": 6.941,
+          "p95": 8.941
+        },
+        "finalize_ms": {
+          "median": 107.817,
+          "p95": 129.756
+        },
+        "commit_ms": {
+          "median": 3.077,
+          "p95": 3.354
+        },
+        "changed_objects": {
+          "median": 19,
+          "p95": 19
+        },
+        "total_ms": {
+          "median": 166.916,
+          "p95": 197.768
+        },
+        "materialized_rows": {
+          "median": 2402.5,
+          "p95": 2404
+        },
+        "sql_statements": {
+          "median": 701.5,
+          "p95": 703
+        },
+        "vm_steps_lower_bound": {
+          "median": 22000,
+          "p95": 22000
+        },
+        "wire_bytes": {
+          "median": 0,
+          "p95": 0
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3c_profile",
+      "ledger_rows": 10000,
+      "workload": "no_change_observation",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "response_bytes": {
+          "median": 1471,
+          "p95": 1471
+        },
+        "auth_ms": {
+          "median": 26.805,
+          "p95": 26.916
+        },
+        "prepared_ms": {
+          "median": 259.473,
+          "p95": 265.477
+        },
+        "http_ms": {
+          "median": 401.731,
+          "p95": 407.265
+        },
+        "terminal_http_ms": {
+          "median": 142.156,
+          "p95": 143.115
+        },
+        "total_ms": {
+          "median": 403.772,
+          "p95": 409.261
+        },
+        "materialized_rows": {
+          "median": 4521,
+          "p95": 4521
+        },
+        "sql_statements": {
+          "median": 1120,
+          "p95": 1120
+        },
+        "vm_steps_lower_bound": {
+          "median": 27700,
+          "p95": 27700
+        },
+        "wire_bytes": {
+          "median": 1471,
+          "p95": 1471
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3c_profile",
+      "ledger_rows": 10000,
+      "workload": "manifest_retry",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "response_bytes": {
+          "median": 1471,
+          "p95": 1471
+        },
+        "auth_ms": {
+          "median": 27.663,
+          "p95": 28.885
+        },
+        "prepared_ms": {
+          "median": 231.6,
+          "p95": 240.898
+        },
+        "http_ms": {
+          "median": 384.932,
+          "p95": 398.415
+        },
+        "terminal_http_ms": {
+          "median": 152.982,
+          "p95": 157.405
+        },
+        "total_ms": {
+          "median": 386.802,
+          "p95": 400.305
+        },
+        "materialized_rows": {
+          "median": 3861,
+          "p95": 3861
+        },
+        "sql_statements": {
+          "median": 558,
+          "p95": 558
+        },
+        "vm_steps_lower_bound": {
+          "median": 15300,
+          "p95": 15300
+        },
+        "wire_bytes": {
+          "median": 1471,
+          "p95": 1471
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3c_profile",
+      "ledger_rows": 10000,
+      "workload": "root",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "admission_ms": {
+          "median": 145.406,
+          "p95": 153.942
+        },
+        "resolution_ms": {
+          "median": 3.458,
+          "p95": 3.586
+        },
+        "terminal_serialization_ms": {
+          "median": 0.293,
+          "p95": 0.298
+        },
+        "total_ms": {
+          "median": 324.992,
+          "p95": 342.463
+        },
+        "object_reads": {
+          "median": 1,
+          "p95": 1
+        },
+        "object_bytes_read": {
+          "median": 2627,
+          "p95": 2627
+        },
+        "response_bytes": {
+          "median": 3780,
+          "p95": 3780
+        },
+        "decoded_bytes": {
+          "median": 2627,
+          "p95": 2627
+        },
+        "path_edges": {
+          "median": 0,
+          "p95": 0
+        },
+        "auth_ms": {
+          "median": 27.426,
+          "p95": 33.42
+        },
+        "prepared_ms": {
+          "median": 177.196,
+          "p95": 187.174
+        },
+        "http_ms": {
+          "median": 323.052,
+          "p95": 340.439
+        },
+        "terminal_http_ms": {
+          "median": 146.377,
+          "p95": 154.486
+        },
+        "materialized_rows": {
+          "median": 2908,
+          "p95": 2908
+        },
+        "sql_statements": {
+          "median": 431,
+          "p95": 431
+        },
+        "vm_steps_lower_bound": {
+          "median": 0,
+          "p95": 0
+        },
+        "wire_bytes": {
+          "median": 3780,
+          "p95": 3780
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3c_profile",
+      "ledger_rows": 10000,
+      "workload": "leaf",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "admission_ms": {
+          "median": 132.099,
+          "p95": 145.274
+        },
+        "resolution_ms": {
+          "median": 238.607,
+          "p95": 266.418
+        },
+        "terminal_serialization_ms": {
+          "median": 2.375,
+          "p95": 2.81
+        },
+        "total_ms": {
+          "median": 539.273,
+          "p95": 574.485
+        },
+        "object_reads": {
+          "median": 4,
+          "p95": 4
+        },
+        "object_bytes_read": {
+          "median": 156229,
+          "p95": 156229
+        },
+        "response_bytes": {
+          "median": 199284,
+          "p95": 199284
+        },
+        "decoded_bytes": {
+          "median": 149251,
+          "p95": 149251
+        },
+        "path_edges": {
+          "median": 3,
+          "p95": 3
+        },
+        "auth_ms": {
+          "median": 28.737,
+          "p95": 33.736
+        },
+        "prepared_ms": {
+          "median": 408.03,
+          "p95": 427.241
+        },
+        "http_ms": {
+          "median": 537.081,
+          "p95": 572.14
+        },
+        "terminal_http_ms": {
+          "median": 128.539,
+          "p95": 155.307
+        },
+        "materialized_rows": {
+          "median": 2911,
+          "p95": 2911
+        },
+        "sql_statements": {
+          "median": 434,
+          "p95": 434
+        },
+        "vm_steps_lower_bound": {
+          "median": 0,
+          "p95": 0
+        },
+        "wire_bytes": {
+          "median": 199284,
+          "p95": 199284
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3c_profile",
+      "ledger_rows": 10000,
+      "workload": "card",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "writer_ms": {
+          "median": 12.778,
+          "p95": 14.978
+        },
+        "finalize_ms": {
+          "median": 554.79,
+          "p95": 624.001
+        },
+        "commit_ms": {
+          "median": 10.516,
+          "p95": 11.736
+        },
+        "changed_objects": {
+          "median": 22,
+          "p95": 22
+        },
+        "total_ms": {
+          "median": 645.816,
+          "p95": 714.117
+        },
+        "materialized_rows": {
+          "median": 3279,
+          "p95": 3279
+        },
+        "sql_statements": {
+          "median": 739,
+          "p95": 739
+        },
+        "vm_steps_lower_bound": {
+          "median": 48700,
+          "p95": 48700
+        },
+        "wire_bytes": {
+          "median": 0,
+          "p95": 0
+        }
+      },
+      "unexpected_history_scans": []
+    },
+    {
+      "profile": "d3c_profile",
+      "ledger_rows": 10000,
+      "workload": "cash",
+      "warmups": 3,
+      "measurements": 20,
+      "stats": {
+        "writer_ms": {
+          "median": 8.088,
+          "p95": 8.519
+        },
+        "finalize_ms": {
+          "median": 133.611,
+          "p95": 142.446
+        },
+        "commit_ms": {
+          "median": 4.073,
+          "p95": 4.388
+        },
+        "changed_objects": {
+          "median": 19,
+          "p95": 19
+        },
+        "total_ms": {
+          "median": 210.443,
+          "p95": 225.693
+        },
+        "materialized_rows": {
+          "median": 3093.5,
+          "p95": 3095
+        },
+        "sql_statements": {
+          "median": 708.5,
+          "p95": 710
+        },
+        "vm_steps_lower_bound": {
+          "median": 38600,
+          "p95": 38600
+        },
+        "wire_bytes": {
+          "median": 0,
+          "p95": 0
+        }
+      },
+      "unexpected_history_scans": []
+    }
+  ],
+  "maintenance": [
+    {
+      "ledger_rows": 376,
+      "before": {
+        "objects": 2350,
+        "bytes": 6924740,
+        "metadata": 1
+      },
+      "dry": {
+        "mode": "dry_run",
+        "root_count": 8,
+        "visited_objects": 2350,
+        "traversed_edges": 3146,
+        "reachable_objects": 1678,
+        "initial_candidates": 672,
+        "remaining_candidates": 672,
+        "candidate_bytes": 5619795,
+        "mark_ms": 20004.037,
+        "objects_deleted": 0,
+        "rows_deleted": 0,
+        "logical_bytes_reclaimed": 0,
+        "batches": [],
+        "lifecycle": {}
+      },
+      "dry_total_ms": 20009.483,
+      "actual": {
+        "mode": "synthetic_apply",
+        "root_count": 8,
+        "visited_objects": 1678,
+        "traversed_edges": 1691,
+        "reachable_objects": 1678,
+        "initial_candidates": 672,
+        "remaining_candidates": 0,
+        "candidate_bytes": 0,
+        "mark_ms": 20019.566,
+        "objects_deleted": 672,
+        "rows_deleted": 45,
+        "logical_bytes_reclaimed": 5648903,
+        "batches": [
+          {
+            "objects_deleted": 672,
+            "rows_deleted": 45,
+            "logical_bytes_reclaimed": 5648903,
+            "lock_ms": 261.318,
+            "sweep_ms": 4445.141
+          }
+        ],
+        "lifecycle": {
+          "released": 0,
+          "metadata_reclaimed": 0,
+          "replay_reclaimed": 0,
+          "lifecycle_ms": 48.255
+        }
+      },
+      "actual_total_ms": 24518.468,
+      "deletion_lock_hold_sum_ms": 261.318,
+      "deletion_lock_hold_max_ms": 261.318,
+      "sweep_and_post_batch_validation_sum_ms": 4445.141,
+      "second": {
+        "mode": "synthetic_apply",
+        "root_count": 8,
+        "visited_objects": 1678,
+        "traversed_edges": 1691,
+        "reachable_objects": 1678,
+        "initial_candidates": 0,
+        "remaining_candidates": 0,
+        "candidate_bytes": 0,
+        "mark_ms": 4131.387,
+        "objects_deleted": 0,
+        "rows_deleted": 0,
+        "logical_bytes_reclaimed": 0,
+        "batches": [],
+        "lifecycle": {
+          "released": 0,
+          "metadata_reclaimed": 0,
+          "replay_reclaimed": 0,
+          "lifecycle_ms": 47.658
+        }
+      },
+      "peak_process_rss_kib": 136280
+    },
+    {
+      "ledger_rows": 1000,
+      "before": {
+        "objects": 4935,
+        "bytes": 8680683,
+        "metadata": 1
+      },
+      "dry": {
+        "mode": "dry_run",
+        "root_count": 8,
+        "visited_objects": 4935,
+        "traversed_edges": 5862,
+        "reachable_objects": 4178,
+        "initial_candidates": 757,
+        "remaining_candidates": 757,
+        "candidate_bytes": 5757693,
+        "mark_ms": 37905.53,
+        "objects_deleted": 0,
+        "rows_deleted": 0,
+        "logical_bytes_reclaimed": 0,
+        "batches": [],
+        "lifecycle": {}
+      },
+      "dry_total_ms": 37916.694,
+      "actual": {
+        "mode": "synthetic_apply",
+        "root_count": 8,
+        "visited_objects": 4178,
+        "traversed_edges": 4195,
+        "reachable_objects": 4178,
+        "initial_candidates": 757,
+        "remaining_candidates": 0,
+        "candidate_bytes": 0,
+        "mark_ms": 37898.808,
+        "objects_deleted": 757,
+        "rows_deleted": 45,
+        "logical_bytes_reclaimed": 5786801,
+        "batches": [
+          {
+            "objects_deleted": 757,
+            "rows_deleted": 45,
+            "logical_bytes_reclaimed": 5786801,
+            "lock_ms": 295.122,
+            "sweep_ms": 10344.441
+          }
+        ],
+        "lifecycle": {
+          "released": 0,
+          "metadata_reclaimed": 0,
+          "replay_reclaimed": 0,
+          "lifecycle_ms": 47.564
+        }
+      },
+      "actual_total_ms": 48302.926,
+      "deletion_lock_hold_sum_ms": 295.122,
+      "deletion_lock_hold_max_ms": 295.122,
+      "sweep_and_post_batch_validation_sum_ms": 10344.441,
+      "second": {
+        "mode": "synthetic_apply",
+        "root_count": 8,
+        "visited_objects": 4178,
+        "traversed_edges": 4195,
+        "reachable_objects": 4178,
+        "initial_candidates": 0,
+        "remaining_candidates": 0,
+        "candidate_bytes": 0,
+        "mark_ms": 9965.869,
+        "objects_deleted": 0,
+        "rows_deleted": 0,
+        "logical_bytes_reclaimed": 0,
+        "batches": [],
+        "lifecycle": {
+          "released": 0,
+          "metadata_reclaimed": 0,
+          "replay_reclaimed": 0,
+          "lifecycle_ms": 49.146
+        }
+      },
+      "peak_process_rss_kib": 155636
+    },
+    {
+      "ledger_rows": 5000,
+      "before": {
+        "objects": 21101,
+        "bytes": 19214932,
+        "metadata": 1
+      },
+      "dry": {
+        "mode": "dry_run",
+        "root_count": 8,
+        "visited_objects": 21101,
+        "traversed_edges": 22546,
+        "reachable_objects": 20198,
+        "initial_candidates": 903,
+        "remaining_candidates": 903,
+        "candidate_bytes": 5890935,
+        "mark_ms": 143426.227,
+        "objects_deleted": 0,
+        "rows_deleted": 0,
+        "logical_bytes_reclaimed": 0,
+        "batches": [],
+        "lifecycle": {}
+      },
+      "dry_total_ms": 143471.688,
+      "actual": {
+        "mode": "synthetic_apply",
+        "root_count": 8,
+        "visited_objects": 20198,
+        "traversed_edges": 20235,
+        "reachable_objects": 20198,
+        "initial_candidates": 903,
+        "remaining_candidates": 0,
+        "candidate_bytes": 0,
+        "mark_ms": 138378.272,
+        "objects_deleted": 903,
+        "rows_deleted": 45,
+        "logical_bytes_reclaimed": 5920043,
+        "batches": [
+          {
+            "objects_deleted": 903,
+            "rows_deleted": 45,
+            "logical_bytes_reclaimed": 5920043,
+            "lock_ms": 390.237,
+            "sweep_ms": 40632.157
+          }
+        ],
+        "lifecycle": {
+          "released": 0,
+          "metadata_reclaimed": 0,
+          "replay_reclaimed": 0,
+          "lifecycle_ms": 51.97
+        }
+      },
+      "actual_total_ms": 179105.387,
+      "deletion_lock_hold_sum_ms": 390.237,
+      "deletion_lock_hold_max_ms": 390.237,
+      "sweep_and_post_batch_validation_sum_ms": 40632.157,
+      "second": {
+        "mode": "synthetic_apply",
+        "root_count": 8,
+        "visited_objects": 20198,
+        "traversed_edges": 20235,
+        "reachable_objects": 20198,
+        "initial_candidates": 0,
+        "remaining_candidates": 0,
+        "candidate_bytes": 0,
+        "mark_ms": 40021.346,
+        "objects_deleted": 0,
+        "rows_deleted": 0,
+        "logical_bytes_reclaimed": 0,
+        "batches": [],
+        "lifecycle": {
+          "released": 0,
+          "metadata_reclaimed": 0,
+          "replay_reclaimed": 0,
+          "lifecycle_ms": 46.971
+        }
+      },
+      "peak_process_rss_kib": 267248
+    },
+    {
+      "ledger_rows": 10000,
+      "before": {
+        "objects": 41190,
+        "bytes": 32268339,
+        "metadata": 1
+      },
+      "dry": {
+        "mode": "dry_run",
+        "root_count": 8,
+        "visited_objects": 41190,
+        "traversed_edges": 42702,
+        "reachable_objects": 40222,
+        "initial_candidates": 968,
+        "remaining_candidates": 968,
+        "candidate_bytes": 5928635,
+        "mark_ms": 195252.898,
+        "objects_deleted": 0,
+        "rows_deleted": 0,
+        "logical_bytes_reclaimed": 0,
+        "batches": [],
+        "lifecycle": {}
+      },
+      "dry_total_ms": 195330.311,
+      "actual": {
+        "mode": "synthetic_apply",
+        "root_count": 8,
+        "visited_objects": 40222,
+        "traversed_edges": 40261,
+        "reachable_objects": 40222,
+        "initial_candidates": 968,
+        "remaining_candidates": 0,
+        "candidate_bytes": 0,
+        "mark_ms": 179662.57,
+        "objects_deleted": 968,
+        "rows_deleted": 45,
+        "logical_bytes_reclaimed": 5957743,
+        "batches": [
+          {
+            "objects_deleted": 968,
+            "rows_deleted": 45,
+            "logical_bytes_reclaimed": 5957743,
+            "lock_ms": 562.558,
+            "sweep_ms": 81309.09
+          }
+        ],
+        "lifecycle": {
+          "released": 0,
+          "metadata_reclaimed": 0,
+          "replay_reclaimed": 0,
+          "lifecycle_ms": 48.379
+        }
+      },
+      "actual_total_ms": 261098.183,
+      "deletion_lock_hold_sum_ms": 562.558,
+      "deletion_lock_hold_max_ms": 562.558,
+      "sweep_and_post_batch_validation_sum_ms": 81309.09,
+      "second": {
+        "mode": "synthetic_apply",
+        "root_count": 8,
+        "visited_objects": 40222,
+        "traversed_edges": 40261,
+        "reachable_objects": 40222,
+        "initial_candidates": 0,
+        "remaining_candidates": 0,
+        "candidate_bytes": 0,
+        "mark_ms": 80093.333,
+        "objects_deleted": 0,
+        "rows_deleted": 0,
+        "logical_bytes_reclaimed": 0,
+        "batches": [],
+        "lifecycle": {
+          "released": 0,
+          "metadata_reclaimed": 0,
+          "replay_reclaimed": 0,
+          "lifecycle_ms": 46.337
+        }
+      },
+      "peak_process_rss_kib": 414156
+    }
+  ],
+  "point_query_plans": {
+    "zero_count_candidates": [
+      "SEARCH sync_gc_counts USING COVERING INDEX sync_gc_zero (incoming=? AND pins=?)"
+    ],
+    "immutable_by_hash": [
+      "SEARCH sync_objects USING INDEX sqlite_autoindex_sync_objects_1 (hash=?)"
+    ],
+    "replay_by_credential_request": [
+      "SEARCH sync_observation_replays USING INDEX sqlite_autoindex_sync_observation_replays_1 (credential_hash=? AND request_id=?)"
+    ],
+    "retention_by_hash": [
+      "SEARCH sync_retention_roots USING COVERING INDEX sync_retention_hash (hash=?)"
+    ]
+  },
+  "representative_hot_query_plans": [
+    {
+      "label": "current",
+      "sql": "SELECT * FROM sync_current WHERE id=1",
+      "plan": [
+        "SEARCH sync_current USING INTEGER PRIMARY KEY (rowid=?)"
+      ]
+    },
+    {
+      "label": "object_hash",
+      "sql": "SELECT length(body) FROM sync_objects WHERE hash=?",
+      "plan": [
+        "SEARCH sync_objects USING INDEX sqlite_autoindex_sync_objects_1 (hash=?)"
+      ]
+    },
+    {
+      "label": "certificate",
+      "sql": "SELECT * FROM sync_commits WHERE tx_id=?",
+      "plan": [
+        "SEARCH sync_commits USING INDEX sqlite_autoindex_sync_commits_1 (tx_id=?)"
+      ]
+    },
+    {
+      "label": "ledger_point",
+      "sql": "SELECT entry_kind,confirmed_month,confirmed_at FROM ledger_entries WHERE id=?",
+      "plan": [
+        "SEARCH ledger_entries USING INTEGER PRIMARY KEY (rowid=?)"
+      ]
+    },
+    {
+      "label": "cash_prefix",
+      "sql": "SELECT total FROM sync_cash_prefix WHERE ordinal=?",
+      "plan": [
+        "SEARCH sync_cash_prefix USING INTEGER PRIMARY KEY (rowid=?)"
+      ]
+    },
+    {
+      "label": "replay",
+      "sql": "SELECT request_hash,namespace FROM sync_observation_replays WHERE credential_hash=? AND request_id=?",
+      "plan": [
+        "SEARCH sync_observation_replays USING INDEX sqlite_autoindex_sync_observation_replays_1 (credential_hash=? AND request_id=?)"
+      ]
+    }
+  ],
+  "original_blocker_probe": {
+    "three_mutations": {
+      "objects": 178,
+      "certificates": 4,
+      "live_reachable": 162,
+      "all_certificates_reachable": 176,
+      "certificate_only": 16,
+      "live_candidates": 16,
+      "shared_objects": 160,
+      "collection": {
+        "mode": "synthetic_apply",
+        "root_count": 8,
+        "visited_objects": 162,
+        "traversed_edges": 169,
+        "reachable_objects": 162,
+        "initial_candidates": 16,
+        "remaining_candidates": 0,
+        "candidate_bytes": 0,
+        "mark_ms": 457.427,
+        "objects_deleted": 16,
+        "rows_deleted": 2,
+        "logical_bytes_reclaimed": 17772,
+        "batches": [
+          {
+            "objects_deleted": 16,
+            "rows_deleted": 2,
+            "logical_bytes_reclaimed": 17772,
+            "lock_ms": 47.817,
+            "sweep_ms": 458.489
+          }
+        ],
+        "lifecycle": {
+          "released": 0,
+          "metadata_reclaimed": 0,
+          "replay_reclaimed": 0,
+          "lifecycle_ms": 47.138
+        }
+      }
+    },
+    "epoch_bootstrap": {
+      "objects": 330,
+      "certificates": 5,
+      "live_reachable": 152,
+      "all_certificates_reachable": 328,
+      "certificate_only": 176,
+      "live_candidates": 178,
+      "shared_objects": 152,
+      "collection": {
+        "mode": "synthetic_apply",
+        "root_count": 3,
+        "visited_objects": 152,
+        "traversed_edges": 149,
+        "reachable_objects": 152,
+        "initial_candidates": 178,
+        "remaining_candidates": 0,
+        "candidate_bytes": 0,
+        "mark_ms": 683.227,
+        "objects_deleted": 178,
+        "rows_deleted": 37,
+        "logical_bytes_reclaimed": 132824,
+        "batches": [
+          {
+            "objects_deleted": 64,
+            "rows_deleted": 0,
+            "logical_bytes_reclaimed": 53405,
+            "lock_ms": 55.965,
+            "sweep_ms": 570.815
+          },
+          {
+            "objects_deleted": 64,
+            "rows_deleted": 0,
+            "logical_bytes_reclaimed": 32582,
+            "lock_ms": 53.677,
+            "sweep_ms": 496.913
+          },
+          {
+            "objects_deleted": 50,
+            "rows_deleted": 14,
+            "logical_bytes_reclaimed": 37576,
+            "lock_ms": 54.297,
+            "sweep_ms": 406.22
+          },
+          {
+            "objects_deleted": 0,
+            "rows_deleted": 23,
+            "logical_bytes_reclaimed": 9261,
+            "lock_ms": 44.368,
+            "sweep_ms": 407.541
+          }
+        ],
+        "lifecycle": {
+          "released": 0,
+          "metadata_reclaimed": 1,
+          "replay_reclaimed": 0,
+          "lifecycle_ms": 49.866
+        }
+      }
+    }
+  }
+}

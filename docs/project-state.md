@@ -6,6 +6,13 @@
 
 ## 현재 기준선
 
+- T6.6D3c 격리 개발: 소유자 승인 server retention을 T6.6C §16-S에 명확화했다.
+  현재 complete/live pin/실제 worker 의존성은 보호하고, 과거 certificate의 digest·fence
+  증거와 obsolete object 보관을 분리한다. 추가 previous generation 자동 장기 보관은
+  없으며 financial rows·Snapshot·모바일 frozen B/J 정책은 불변이다. 자기 소유 합성 DB의
+  명시 maintenance만 삭제를 허용한다. 정상 runtime·production GC는 NOT ACTIVATED이며
+  독립 D3c 감사 및 운영 배포 승인은 별도다. 상세 증거는 `t66d3c-implementation.md`다.
+
 - T6.5B-3 개발 변경: 정상 authoritative acquisition과 확정 mutation rebuild가 `GET /api/authoritative-state` 한 번을 사용한다. B-2 strict raw-byte admission을 그대로 공유하고 같은 응답의 candidate/Snapshot만 기존 guarded durable publication에 전달한다. 정상 금융 refresh 14→1회, 성공 mutation+rebuild 15→2회이며 health·인증·launch Snapshot 등 별도 요청은 별도로 센다. outcomeUnknown은 GET 성공만으로 확정/정리하지 않으며 pending·Offline/reconciliation·UI 완료 경계와 저장 형식은 유지한다. Legacy 경로는 명시적 회귀 oracle로만 남고 implicit fallback은 없다. B-3/B-4 통합 독립 감사는 아직 별도 단계이며 배포하지 않았다. 실기기 gate는 T6.6 이후이고 HOST 결과는 단말 성능이 아니다.
 
 - T6.5B-2: bundle v1 strict parser의 presence/type·exact-money·Unicode·Snapshot hash/recoverability·N4 uniqueness와 server-authoritative 신뢰 경계를 유지한다. 금융 projection을 모바일에서 독립 재계산하지 않는다.

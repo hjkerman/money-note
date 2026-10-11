@@ -3,7 +3,8 @@
 Never imported/registered by app.main. Reuses real cookie/Bearer selection and
 token hashing; reads the SAME users/auth_sessions model from the owned sandbox,
 not app.db.session (which would select a configured normal runtime database).
-There is no login, generic file/artifact/hash endpoint, release or GC API.
+There is no login, generic file/artifact/hash endpoint or GC API. D3c release
+is registered only for an explicitly constructed retention repository.
 """
 
 from dataclasses import dataclass, field
@@ -12,6 +13,7 @@ import asyncio
 import sqlite3
 from threading import Event
 from time import perf_counter
+from uuid import uuid4
 
 from fastapi import FastAPI, Request
 from starlette.responses import Response
@@ -225,6 +227,52 @@ class Adapter:
         finally:
             lease.close()
 
+    def prepare_release(self, request, observation_id, cancelled):
+        credential = self.credential(request)
+        ticket = RequestTicket(credential, str(uuid4()), observation_id, cancelled)
+        self.checkpoint("authenticated", ticket)
+        self.repo.release(observation_id, credential, guard=ticket.guard)
+        return ticket
+
+    def terminal_release(self, ticket):
+        self.checkpoint("terminal", ticket)
+        # Release is idempotent even after expiry/reclamation; it is NOT an
+        # object authorization and therefore does not lookup a retired target.
+        with self.repo._connection() as (conn, retired):
+            self.repo._guard(conn, ticket.credential, ticket.guard)
+        ticket.check()
+
+    async def dispatch_release(self, request, observation_id):
+        lease = self.workers.acquire()
+        if lease is None:
+            return error_response(ObservationError("ROOT_NOT_READY", "retry_same"))
+        try:
+            uuid(observation_id)
+            origin = request.headers.get("origin", "").rstrip("/")
+            if origin and origin not in self.origins | {str(request.base_url).rstrip("/")}:
+                reject("PRINCIPAL_OR_SESSION_CHANGED", "reauthenticate")
+            async with asyncio.timeout(self.limits.body_seconds):
+                async for chunk in request.stream():
+                    if chunk:
+                        reject("INVALID_REQUEST")  # §15.4 has no request body.
+            ticket = await lease.run(self.prepare_release, request, observation_id, lease.cancelled)
+            if await request.is_disconnected():
+                ticket.cancelled.set()
+                reject("PRINCIPAL_OR_SESSION_CHANGED", "reauthenticate")
+            await lease.run(self.terminal_release, ticket)
+            return Response(status_code=204, headers=HEADERS)
+        except ObservationError as error:
+            return error_response(error)
+        except (PreparationCancelled, TimeoutError):
+            return error_response(ObservationError("ROOT_NOT_READY", "retry_same"))
+        except sqlite3.OperationalError as error:
+            return error_response(ObservationError("ROOT_NOT_READY", "retry_same") if "locked" in str(error) or "busy" in str(error)
+                                  else ObservationError("STORAGE_FAILED"))
+        except Exception:
+            return error_response(ObservationError("STORAGE_FAILED"))
+        finally:
+            lease.close()
+
 
 def create_app(repository, *, limits=TransferLimits(), origins=(), fault=None, metrics=None):
     """No startup hook, configured DB path, router registration or live socket.
@@ -232,7 +280,7 @@ def create_app(repository, *, limits=TransferLimits(), origins=(), fault=None, m
     Full v1 capability selection stays explicitly unsupported (404) until R1
     can truthfully advertise large_restore:1 and its proven restore_bytes. The
     isolated observation/object endpoints exercise the exact §15 wire subset.
-    DELETE/release is deliberately absent: it belongs to D3c.
+    DELETE/release exists only when the opt-in D3c repository supplies it.
     """
     adapter = Adapter(repository, limits, origins=origins, fault=fault, metrics=metrics)
     @asynccontextmanager
@@ -255,5 +303,10 @@ def create_app(repository, *, limits=TransferLimits(), origins=(), fault=None, m
     @app.post("/api/sync/v1/observations/{observation_id}/objects")
     async def objects(observation_id: str, request: Request):
         return await adapter.dispatch(request, observation_id)
+
+    if callable(getattr(repository, "release", None)):
+        @app.delete("/api/sync/v1/observations/{observation_id}")
+        async def release(observation_id: str, request: Request):
+            return await adapter.dispatch_release(request, observation_id)
 
     return app

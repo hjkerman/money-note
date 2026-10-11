@@ -17,6 +17,15 @@
 
 운영 모델은 한 owner·한 장부다. 여기서 principal/owner 검증은 다른 인증 generation이나 로컬 사용자의 state를 설치하지 않기 위한 경계이며, 공유 장부에 없는 복수-owner 금융 row 격리 보장을 뜻하지 않는다.
 
+T6.6 서버 representation retention은 [T6.6C §16-S](t66c-delta-sync-protocol.md)의
+소유자 승인 정책을 따른다. 현재 금융 원장 행은 보존하지만 obsolete immutable tree
+버전은 영구 보관하지 않는다. Current complete generation·live observation·실제
+in-flight preparation·미해결 publication·승인된 explicit obligation만 live roots다.
+Historical certificate/fence 증거와 객체 재구성 가능성을 구분하며, 서버 previous의
+자동 장기 보관은 없다. 모바일 previous/frozen B/J 및 Snapshot v7 계약은 불변이다.
+현재 실제 삭제는 자가 소유 폐기용 synthetic profile에만 한정하며 정상 runtime에
+GC나 segmented endpoint를 활성화하지 않는다.
+
 ### 책임의 소유자
 
 | 책임 | 원본과 실행 경로 | 클라이언트 역할 |

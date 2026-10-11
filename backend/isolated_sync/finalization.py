@@ -93,6 +93,11 @@ def validate_schema(conn, *, version=VERSION, metadata=None):
         fail("REJECT_FINALIZATION_SCHEMA")
     expected = {capture._trigger(t, op).replace(" IF NOT EXISTS", "").rstrip(";")
                 for t in TABLES for op in ("INSERT", "UPDATE", "DELETE")}
+    # Extended isolated profiles may add ONLY their exact metadata triggers.
+    # The complete schema tuple above is still compared byte-for-byte; legacy
+    # callers have no extra triggers and no allow-unknown admission exception.
+    if metadata is not None:
+        expected.update(row[3] for row in metadata if row[0] == "trigger")
     if {r[0] for r in conn.execute("SELECT sql FROM sqlite_master WHERE type='trigger'")} != expected:
         fail("REJECT_FINALIZATION_TRIGGER")
     if [tuple(r) for r in conn.execute("SELECT * FROM sync_capture_profile")] != [(1, 1, "isolated_capture_only")]:

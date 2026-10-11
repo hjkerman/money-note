@@ -328,6 +328,61 @@ Download마다 original credential이 여전히 유효한지 검사한다. 다�
 
 Lease 만료 전 완전 취득·검증한 객체를 local publication하는 것은 가능하다. 만료는 transfer 권한 수명이지 이미 수신한 coherent 관측의 무결성 소멸이 아니다. Ticket/mutation/mode/owner guards는 여전히 통과해야 한다. Mid-download expiry면 staged bytes를 accepted로 만들지 않고 fresh observation과 explicit refs로 재사용 여부를 판단한다.
 
+### 16-S. 서버 retention — 소유자 승인 v1 명확화
+
+이 절은 **서버**의 immutable representation 보관 규칙이다. §24~§32의 모바일
+accepted/previous/frozen B/J/pending 보관 계약을 변경하지 않는다. 현재 authoritative
+SQLite에 속하는 과거 날짜의 금융 행도 모두 보존한다. GC는 금융 행의 삭제·수정이나
+current tree의 compaction을 수행해서는 안 된다(MUST NOT).
+
+서버 live retention roots는 (A) current accepted complete generation의 raw/index 및
+required internal input-proof, (B) Available observation의 네 transferable roots와
+required internal proof, (C) 실제 worker/protected preparation이 아직 객체를 필요로
+하는 in-flight transfer, (D) 원자 publication/rollback/recovery 경계가 미해결인
+generation transition, (E) 실제 승인된 backup/recovery 등의 explicit durable protection이다.
+없는 backup dependency나 기기의 frozen B를 서버 pin으로 발명하지 않는다.
+
+**서버는 추가 previous generation을 자동 장기 보관하지 않는다.** 새 complete
+generation의 commit/recovery 경계가 해결되면 previous였다는 이유만으로 보호하지
+않는다. 임의의 세대 수·시간 retention은 없다. Existing standalone Snapshot v7,
+pre_restore/reconciliation artifact 보관 정책은 별개이며 불변이다.
+
+Historical Complete Certificate는 epoch/revision/root digest·finalization provenance·
+D1/D2b fence/coverage 증거를 유지하지만 그 자체가 영구 object-retention root는 아니다.
+Live FK-backed reference와 historical digest evidence를 분리한다. 다른 보관 의무가
+없어진 certificate의 digest는 남아도 객체 graph는 회수 가능하며, 그 certificate를
+현재 reconstructable authority로 광고해서는 안 된다. Current acceptance와 Available
+observation은 여전히 complete certificate 및 실제 FK-backed live roots를 요구한다.
+
+Expiry/release/revocation/epoch invalidation은 monotonic retirement이며 시계 역행으로
+되돌리지 않는다. Retirement와 pin release는 직렬화·원자·idempotent해야 한다.
+Retired metadata는 안전한 release 후 회수할 수 있다. 없어진 observation ID는
+인가되지 않으며 새 ID는 CSPRNG UUIDv4다. Historical certificate/fence/coverage 증거를
+observation budget 회수를 위해 삭제하지 않는다.
+
+Reclaim된 observation의 동일 original credential/request nonce는 새 Target 발급으로
+해석하지 않는다. 재사용 가능한 credential·epoch 동안 compact request digest evidence를
+유한 metadata budget 안에 유지하여 retry를 terminal 거부한다. 원 credential 행 삭제 또는
+epoch 변경으로 재사용이 실제로 불가능해지면 해당 replay evidence도 회수할 수 있다.
+단순 시간상 세션 만료나 재활성화 가능한 user inactive는 이 영구 무효화 근거가 아니다.
+이 증거는 object retention root가 아니다.
+
+GC 후보는 저장 immutable 객체 중 **모든 live roots의 complete validated reachability에
+없는 것**이다. §16의 typed incoming-edge/root-pin accounting도 일치해야 한다.
+Missing/corrupt/unknown metadata·불완전 graph/mark·count 불일치면 sweep하지 않는다.
+Mark 뒤 publication/root/object fence가 바뀌면 삭제 전에 abort/revalidate한다.
+Deletion은 bounded transaction이며 current/live graph를 보존해야 한다.
+
+In-flight 보호는 같은 DB metadata transaction에서 객체를 검증·완전 materialize하고
+그 transaction을 삭제와 직렬화하는 방식도 허용한다. Materialization 중 native worker가
+계속 동작하면 ASGI cancellation만으로 그 보호를 해제하지 않는다. 완전한 응답 bytes가
+확보되어 DB 의존성이 끝난 뒤 retention 의무를 끝낼 수 있으나 terminal credential/TTL
+guard는 여전히 필수다. Network 전송 전체에 SQLite transaction을 유지하지 않는다.
+
+Full reachability 검증은 명시 maintenance O(N/P)이다. 금융 mutation/observation/개별
+transfer에 full certificate/history/graph scan을 넣지 않는다. Actual GC는 현재 단계에서
+자가 소유 폐기용 synthetic profile에만 허용하며 정상 runtime에 자동 활성화하지 않는다.
+
 ## 17. 오류·retry와 full-resync 분류
 
 Error body는 `{protocol:1,request_id:UUID|null,error:{code:String,action:"retry_same"|"new_observation"|"full_resync"|"blocked"|"reauthenticate",retry_after_ms:integer|null,current_ns:NS|null}}`다. 설명 문자열은 wire 필수가 아니다. Unknown code를 성공으로 취급하지 않는다.
