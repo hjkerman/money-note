@@ -368,7 +368,9 @@ class ObservationRepository:
         # hot/control contain no typed child object refs (§9). No fake raw_schema
         # field or invented edge is added to bypass D2b Store context admission.
 
-    def create(self, credential, *, request_id, guard, base=None, protocol=1, inline_bytes=0, fault=None):
+    def create(self, credential, *, request_id, guard, base=None, protocol=1, inline_bytes=0, fault=None, creation_receipt=None):
+        if creation_receipt is not None and (type(creation_receipt) is not list or creation_receipt):
+            reject("INVALID_REQUEST")
         uuid(request_id)
         if type(protocol) is not int or protocol != 1:
             reject("UNSUPPORTED_CONTRACT")
@@ -394,7 +396,10 @@ class ObservationRepository:
                 if old:
                     if old["request_body"] != request:
                         reject("REQUEST_CONFLICT")
-                    return self._lookup(conn, retired, old["id"], credential, guard)
+                    response = self._lookup(conn, retired, old["id"], credential, guard)
+                    if creation_receipt is not None:
+                        creation_receipt.append(False)
+                    return response
                 accepted, proof_ref, index_ref = accepted_generation(conn)
                 current, raw_context, store, _, _ = accepted
                 self.metrics["validation_ms"] = (perf_counter()-started)*1000
@@ -485,6 +490,8 @@ class ObservationRepository:
                                     hot_bytes=len(hot.raw), control_bytes=len(control.raw))
                 if fault:
                     fault("after_commit", conn)
+                if creation_receipt is not None:
+                    creation_receipt.append(True)
                 return response
         except sqlite3.OperationalError as error:
             if "locked" in str(error) or "busy" in str(error):
