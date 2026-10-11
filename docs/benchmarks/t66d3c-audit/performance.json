@@ -1,0 +1,856 @@
+[
+  {
+    "ledger_rows": 376,
+    "stored_objects_before": 1701,
+    "reachable_objects": 1673,
+    "expected_unreachable": 28,
+    "actual": {
+      "mode": "synthetic_apply",
+      "root_count": 13,
+      "visited_objects": 1673,
+      "traversed_edges": 1685,
+      "reachable_objects": 1673,
+      "initial_candidates": 28,
+      "remaining_candidates": 0,
+      "candidate_bytes": 0,
+      "mark_ms": 3068.024209002033,
+      "objects_deleted": 28,
+      "rows_deleted": 2,
+      "logical_bytes_reclaimed": 24034,
+      "batches": [
+        {
+          "objects_deleted": 28,
+          "rows_deleted": 2,
+          "logical_bytes_reclaimed": 24034,
+          "lock_ms": 52.496540010906756,
+          "sweep_ms": 3053.189143014606
+        }
+      ],
+      "lifecycle": {
+        "released": 0,
+        "metadata_reclaimed": 0,
+        "replay_reclaimed": 0,
+        "lifecycle_ms": 44.587701035197824
+      }
+    },
+    "total_gc_seconds": 6.16889461397659,
+    "max_deletion_write_lock_ms": 52.496540010906756,
+    "independently_counted_logical_bytes": 24034,
+    "physical_before": {
+      "main_file_bytes": 3932160,
+      "wal_bytes": 0,
+      "page_count": 960,
+      "freelist_count": 0,
+      "page_size": 4096
+    },
+    "physical_after": {
+      "main_file_bytes": 3932160,
+      "wal_bytes": 0,
+      "page_count": 960,
+      "freelist_count": 8,
+      "page_size": 4096
+    },
+    "physical_main_delta": 0,
+    "second_gc": {
+      "mode": "synthetic_apply",
+      "root_count": 13,
+      "visited_objects": 1673,
+      "traversed_edges": 1685,
+      "reachable_objects": 1673,
+      "initial_candidates": 0,
+      "remaining_candidates": 0,
+      "candidate_bytes": 0,
+      "mark_ms": 3002.515221014619,
+      "objects_deleted": 0,
+      "rows_deleted": 0,
+      "logical_bytes_reclaimed": 0,
+      "batches": [],
+      "lifecycle": {
+        "released": 0,
+        "metadata_reclaimed": 0,
+        "replay_reclaimed": 0,
+        "lifecycle_ms": 40.44307197909802
+      }
+    },
+    "current_reconstruction": "PASS",
+    "historical_evidence": "PRESERVED",
+    "eleven_tables": 11,
+    "hot_cells": [
+      {
+        "workload": "manifest_retry",
+        "samples": 5,
+        "median_ms": 147.3413160420023,
+        "sql_statement_counts": [
+          558
+        ],
+        "query_plans": {
+          "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT rowid FROM ledger_entries LIMIT 0": [
+            "SCAN ledger_entries USING COVERING INDEX sync_input_ledger_month"
+          ],
+          "SELECT rowid FROM monthly_panels LIMIT 0": [
+            "SCAN monthly_panels USING COVERING INDEX sync_fk_panel_cash"
+          ],
+          "SELECT rowid FROM cash_flows LIMIT 0": [
+            "SCAN cash_flows USING COVERING INDEX sync_input_cash_sort"
+          ],
+          "SELECT rowid FROM card_payment_allocations LIMIT 0": [
+            "SCAN card_payment_allocations USING COVERING INDEX sync_fk_allocation_event"
+          ],
+          "SELECT rowid FROM audit_logs LIMIT 0": [
+            "SCAN audit_logs USING COVERING INDEX idx_audit_logs_occurred"
+          ],
+          "SELECT rowid FROM share_sessions LIMIT 0": [
+            "SCAN share_sessions USING COVERING INDEX idx_share_sessions_token"
+          ],
+          "SELECT rowid FROM auth_sessions LIMIT 0": [
+            "SCAN auth_sessions USING COVERING INDEX idx_auth_sessions_user"
+          ],
+          "SELECT rowid FROM users LIMIT 0": [
+            "SCAN users USING COVERING INDEX sqlite_autoindex_users_1"
+          ],
+          "SELECT rowid FROM card_payment_batches LIMIT 0": [
+            "SCAN card_payment_batches USING COVERING INDEX idx_card_payment_batches_active"
+          ],
+          "SELECT rowid FROM card_payment_batch_items LIMIT 0": [
+            "SCAN card_payment_batch_items USING COVERING INDEX sync_fk_item_entry"
+          ],
+          "SELECT rowid FROM card_payment_events LIMIT 0": [
+            "SCAN card_payment_events USING COVERING INDEX sync_fk_event_cash"
+          ],
+          "SELECT sql FROM sqlite_master WHERE type = 'index' AND name = ?": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT name FROM sqlite_master WHERE type IN ('index', 'trigger')": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT name, tbl_name, sql FROM sqlite_master WHERE type='trigger'": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT id, revision, typeof(revision) FROM authoritative_state_revision": [
+            "SCAN authoritative_state_revision"
+          ],
+          "SELECT type,name,tbl_name,sql FROM sqlite_master WHERE tbl_name LIKE 'sync_%' OR name LIKE 'sync_%' ORDER BY type,name": [
+            "SCAN sqlite_master",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ],
+          "SELECT sql FROM sqlite_master WHERE type='trigger'": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT * FROM sync_capture_profile": [
+            "SCAN sync_capture_profile"
+          ],
+          "SELECT * FROM sync_finalization_profile": [
+            "SCAN sync_finalization_profile"
+          ],
+          "SELECT * FROM sync_retention_profile": [
+            "SCAN sync_retention_profile"
+          ],
+          "SELECT * FROM sync_observation_profile": [
+            "SCAN sync_observation_profile"
+          ],
+          "SELECT id,serial,typeof(serial) FROM sync_gc_fence": [
+            "SCAN sync_gc_fence"
+          ],
+          "SELECT id,used_bytes,typeof(used_bytes) FROM sync_observation_budget": [
+            "SCAN sync_observation_budget"
+          ],
+          "SELECT user_id FROM auth_sessions WHERE session_token_hash=?": [
+            "SEARCH auth_sessions USING INDEX sqlite_autoindex_auth_sessions_1 (session_token_hash=?)"
+          ],
+          "SELECT s.user_id,s.expires_at,u.is_active FROM auth_sessions s\n            JOIN users u ON u.id=s.user_id WHERE s.session_token_hash=?": [
+            "SEARCH s USING INDEX sqlite_autoindex_auth_sessions_1 (session_token_hash=?)",
+            "SEARCH u USING INTEGER PRIMARY KEY (rowid=?)"
+          ],
+          "SELECT request_hash,namespace FROM sync_observation_replays WHERE credential_hash=? AND request_id=?": [
+            "SEARCH sync_observation_replays USING INDEX sqlite_autoindex_sync_observation_replays_1 (credential_hash=? AND request_id=?)"
+          ],
+          "SELECT id,request_body FROM sync_observations WHERE credential_hash=? AND request_id=?": [
+            "SEARCH sync_observations USING INDEX sqlite_autoindex_sync_observations_2 (credential_hash=? AND request_id=?)"
+          ],
+          "SELECT * FROM sync_observations WHERE id=?": [
+            "SEARCH sync_observations USING INDEX sqlite_autoindex_sync_observations_1 (id=?)"
+          ],
+          "SELECT namespace FROM sync_current WHERE id=1": [
+            "SEARCH sync_current USING INTEGER PRIMARY KEY (rowid=?)"
+          ],
+          "SELECT * FROM sync_commits WHERE tx_id=?": [
+            "SEARCH sync_commits USING INDEX sqlite_autoindex_sync_commits_1 (tx_id=?)"
+          ],
+          "SELECT * FROM sync_observation_pins WHERE observation_id=? AND active=1": [
+            "SEARCH sync_observation_pins USING INDEX sqlite_autoindex_sync_observation_pins_1 (observation_id=?)"
+          ],
+          "SELECT kind,body FROM sync_objects WHERE hash=?": [
+            "SEARCH sync_objects USING INDEX sqlite_autoindex_sync_objects_1 (hash=?)"
+          ],
+          "SELECT input_hash FROM sync_commits WHERE tx_id=?": [
+            "SEARCH sync_commits USING INDEX sqlite_autoindex_sync_commits_1 (tx_id=?)"
+          ],
+          "SELECT length(body) FROM sync_objects WHERE hash=?": [
+            "SEARCH sync_objects USING INDEX sqlite_autoindex_sync_objects_1 (hash=?)"
+          ]
+        }
+      },
+      {
+        "workload": "raw_root",
+        "samples": 5,
+        "median_ms": 118.88275598175824,
+        "sql_statement_counts": [
+          431
+        ],
+        "query_plans": {
+          "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT rowid FROM ledger_entries LIMIT 0": [
+            "SCAN ledger_entries USING COVERING INDEX sync_input_ledger_month"
+          ],
+          "SELECT rowid FROM monthly_panels LIMIT 0": [
+            "SCAN monthly_panels USING COVERING INDEX sync_fk_panel_cash"
+          ],
+          "SELECT rowid FROM cash_flows LIMIT 0": [
+            "SCAN cash_flows USING COVERING INDEX sync_input_cash_sort"
+          ],
+          "SELECT rowid FROM card_payment_allocations LIMIT 0": [
+            "SCAN card_payment_allocations USING COVERING INDEX sync_fk_allocation_event"
+          ],
+          "SELECT rowid FROM audit_logs LIMIT 0": [
+            "SCAN audit_logs USING COVERING INDEX idx_audit_logs_occurred"
+          ],
+          "SELECT rowid FROM share_sessions LIMIT 0": [
+            "SCAN share_sessions USING COVERING INDEX idx_share_sessions_token"
+          ],
+          "SELECT rowid FROM auth_sessions LIMIT 0": [
+            "SCAN auth_sessions USING COVERING INDEX idx_auth_sessions_user"
+          ],
+          "SELECT rowid FROM users LIMIT 0": [
+            "SCAN users USING COVERING INDEX sqlite_autoindex_users_1"
+          ],
+          "SELECT rowid FROM card_payment_batches LIMIT 0": [
+            "SCAN card_payment_batches USING COVERING INDEX idx_card_payment_batches_active"
+          ],
+          "SELECT rowid FROM card_payment_batch_items LIMIT 0": [
+            "SCAN card_payment_batch_items USING COVERING INDEX sync_fk_item_entry"
+          ],
+          "SELECT rowid FROM card_payment_events LIMIT 0": [
+            "SCAN card_payment_events USING COVERING INDEX sync_fk_event_cash"
+          ],
+          "SELECT sql FROM sqlite_master WHERE type = 'index' AND name = ?": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT name FROM sqlite_master WHERE type IN ('index', 'trigger')": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT name, tbl_name, sql FROM sqlite_master WHERE type='trigger'": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT id, revision, typeof(revision) FROM authoritative_state_revision": [
+            "SCAN authoritative_state_revision"
+          ],
+          "SELECT type,name,tbl_name,sql FROM sqlite_master WHERE tbl_name LIKE 'sync_%' OR name LIKE 'sync_%' ORDER BY type,name": [
+            "SCAN sqlite_master",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ],
+          "SELECT sql FROM sqlite_master WHERE type='trigger'": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT * FROM sync_capture_profile": [
+            "SCAN sync_capture_profile"
+          ],
+          "SELECT * FROM sync_finalization_profile": [
+            "SCAN sync_finalization_profile"
+          ],
+          "SELECT * FROM sync_retention_profile": [
+            "SCAN sync_retention_profile"
+          ],
+          "SELECT * FROM sync_observation_profile": [
+            "SCAN sync_observation_profile"
+          ],
+          "SELECT id,serial,typeof(serial) FROM sync_gc_fence": [
+            "SCAN sync_gc_fence"
+          ],
+          "SELECT id,used_bytes,typeof(used_bytes) FROM sync_observation_budget": [
+            "SCAN sync_observation_budget"
+          ],
+          "SELECT user_id FROM auth_sessions WHERE session_token_hash=?": [
+            "SEARCH auth_sessions USING INDEX sqlite_autoindex_auth_sessions_1 (session_token_hash=?)"
+          ],
+          "SELECT s.user_id,s.expires_at,u.is_active FROM auth_sessions s\n            JOIN users u ON u.id=s.user_id WHERE s.session_token_hash=?": [
+            "SEARCH s USING INDEX sqlite_autoindex_auth_sessions_1 (session_token_hash=?)",
+            "SEARCH u USING INTEGER PRIMARY KEY (rowid=?)"
+          ],
+          "SELECT * FROM sync_observations WHERE id=?": [
+            "SEARCH sync_observations USING INDEX sqlite_autoindex_sync_observations_1 (id=?)"
+          ],
+          "SELECT namespace FROM sync_current WHERE id=1": [
+            "SEARCH sync_current USING INTEGER PRIMARY KEY (rowid=?)"
+          ],
+          "SELECT * FROM sync_commits WHERE tx_id=?": [
+            "SEARCH sync_commits USING INDEX sqlite_autoindex_sync_commits_1 (tx_id=?)"
+          ],
+          "SELECT * FROM sync_observation_pins WHERE observation_id=? AND active=1": [
+            "SEARCH sync_observation_pins USING INDEX sqlite_autoindex_sync_observation_pins_1 (observation_id=?)"
+          ],
+          "SELECT kind,body FROM sync_objects WHERE hash=?": [
+            "SEARCH sync_objects USING INDEX sqlite_autoindex_sync_objects_1 (hash=?)"
+          ],
+          "SELECT input_hash FROM sync_commits WHERE tx_id=?": [
+            "SEARCH sync_commits USING INDEX sqlite_autoindex_sync_commits_1 (tx_id=?)"
+          ],
+          "SELECT length(body) FROM sync_objects WHERE hash=?": [
+            "SEARCH sync_objects USING INDEX sqlite_autoindex_sync_objects_1 (hash=?)"
+          ]
+        }
+      },
+      {
+        "workload": "leaf",
+        "samples": 5,
+        "median_ms": 302.2243829909712,
+        "sql_statement_counts": [
+          433
+        ],
+        "query_plans": {
+          "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT rowid FROM ledger_entries LIMIT 0": [
+            "SCAN ledger_entries USING COVERING INDEX sync_input_ledger_month"
+          ],
+          "SELECT rowid FROM monthly_panels LIMIT 0": [
+            "SCAN monthly_panels USING COVERING INDEX sync_fk_panel_cash"
+          ],
+          "SELECT rowid FROM cash_flows LIMIT 0": [
+            "SCAN cash_flows USING COVERING INDEX sync_input_cash_sort"
+          ],
+          "SELECT rowid FROM card_payment_allocations LIMIT 0": [
+            "SCAN card_payment_allocations USING COVERING INDEX sync_fk_allocation_event"
+          ],
+          "SELECT rowid FROM audit_logs LIMIT 0": [
+            "SCAN audit_logs USING COVERING INDEX idx_audit_logs_occurred"
+          ],
+          "SELECT rowid FROM share_sessions LIMIT 0": [
+            "SCAN share_sessions USING COVERING INDEX idx_share_sessions_token"
+          ],
+          "SELECT rowid FROM auth_sessions LIMIT 0": [
+            "SCAN auth_sessions USING COVERING INDEX idx_auth_sessions_user"
+          ],
+          "SELECT rowid FROM users LIMIT 0": [
+            "SCAN users USING COVERING INDEX sqlite_autoindex_users_1"
+          ],
+          "SELECT rowid FROM card_payment_batches LIMIT 0": [
+            "SCAN card_payment_batches USING COVERING INDEX idx_card_payment_batches_active"
+          ],
+          "SELECT rowid FROM card_payment_batch_items LIMIT 0": [
+            "SCAN card_payment_batch_items USING COVERING INDEX sync_fk_item_entry"
+          ],
+          "SELECT rowid FROM card_payment_events LIMIT 0": [
+            "SCAN card_payment_events USING COVERING INDEX sync_fk_event_cash"
+          ],
+          "SELECT sql FROM sqlite_master WHERE type = 'index' AND name = ?": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT name FROM sqlite_master WHERE type IN ('index', 'trigger')": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT name, tbl_name, sql FROM sqlite_master WHERE type='trigger'": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT id, revision, typeof(revision) FROM authoritative_state_revision": [
+            "SCAN authoritative_state_revision"
+          ],
+          "SELECT type,name,tbl_name,sql FROM sqlite_master WHERE tbl_name LIKE 'sync_%' OR name LIKE 'sync_%' ORDER BY type,name": [
+            "SCAN sqlite_master",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ],
+          "SELECT sql FROM sqlite_master WHERE type='trigger'": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT * FROM sync_capture_profile": [
+            "SCAN sync_capture_profile"
+          ],
+          "SELECT * FROM sync_finalization_profile": [
+            "SCAN sync_finalization_profile"
+          ],
+          "SELECT * FROM sync_retention_profile": [
+            "SCAN sync_retention_profile"
+          ],
+          "SELECT * FROM sync_observation_profile": [
+            "SCAN sync_observation_profile"
+          ],
+          "SELECT id,serial,typeof(serial) FROM sync_gc_fence": [
+            "SCAN sync_gc_fence"
+          ],
+          "SELECT id,used_bytes,typeof(used_bytes) FROM sync_observation_budget": [
+            "SCAN sync_observation_budget"
+          ],
+          "SELECT user_id FROM auth_sessions WHERE session_token_hash=?": [
+            "SEARCH auth_sessions USING INDEX sqlite_autoindex_auth_sessions_1 (session_token_hash=?)"
+          ],
+          "SELECT s.user_id,s.expires_at,u.is_active FROM auth_sessions s\n            JOIN users u ON u.id=s.user_id WHERE s.session_token_hash=?": [
+            "SEARCH s USING INDEX sqlite_autoindex_auth_sessions_1 (session_token_hash=?)",
+            "SEARCH u USING INTEGER PRIMARY KEY (rowid=?)"
+          ],
+          "SELECT * FROM sync_observations WHERE id=?": [
+            "SEARCH sync_observations USING INDEX sqlite_autoindex_sync_observations_1 (id=?)"
+          ],
+          "SELECT namespace FROM sync_current WHERE id=1": [
+            "SEARCH sync_current USING INTEGER PRIMARY KEY (rowid=?)"
+          ],
+          "SELECT * FROM sync_commits WHERE tx_id=?": [
+            "SEARCH sync_commits USING INDEX sqlite_autoindex_sync_commits_1 (tx_id=?)"
+          ],
+          "SELECT * FROM sync_observation_pins WHERE observation_id=? AND active=1": [
+            "SEARCH sync_observation_pins USING INDEX sqlite_autoindex_sync_observation_pins_1 (observation_id=?)"
+          ],
+          "SELECT kind,body FROM sync_objects WHERE hash=?": [
+            "SEARCH sync_objects USING INDEX sqlite_autoindex_sync_objects_1 (hash=?)"
+          ],
+          "SELECT input_hash FROM sync_commits WHERE tx_id=?": [
+            "SEARCH sync_commits USING INDEX sqlite_autoindex_sync_commits_1 (tx_id=?)"
+          ],
+          "SELECT length(body) FROM sync_objects WHERE hash=?": [
+            "SEARCH sync_objects USING INDEX sqlite_autoindex_sync_objects_1 (hash=?)"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "ledger_rows": 10000,
+    "stored_objects_before": 40255,
+    "reachable_objects": 40215,
+    "expected_unreachable": 40,
+    "actual": {
+      "mode": "synthetic_apply",
+      "root_count": 13,
+      "visited_objects": 40215,
+      "traversed_edges": 40233,
+      "reachable_objects": 40215,
+      "initial_candidates": 40,
+      "remaining_candidates": 0,
+      "candidate_bytes": 0,
+      "mark_ms": 59422.3469599965,
+      "objects_deleted": 40,
+      "rows_deleted": 2,
+      "logical_bytes_reclaimed": 30240,
+      "batches": [
+        {
+          "objects_deleted": 40,
+          "rows_deleted": 2,
+          "logical_bytes_reclaimed": 30240,
+          "lock_ms": 50.24412297643721,
+          "sweep_ms": 60096.95377096068
+        }
+      ],
+      "lifecycle": {
+        "released": 0,
+        "metadata_reclaimed": 0,
+        "replay_reclaimed": 0,
+        "lifecycle_ms": 35.18875897862017
+      }
+    },
+    "total_gc_seconds": 119.62443413800793,
+    "max_deletion_write_lock_ms": 50.24412297643721,
+    "independently_counted_logical_bytes": 30240,
+    "physical_before": {
+      "main_file_bytes": 79642624,
+      "wal_bytes": 0,
+      "page_count": 19444,
+      "freelist_count": 0,
+      "page_size": 4096
+    },
+    "physical_after": {
+      "main_file_bytes": 79642624,
+      "wal_bytes": 0,
+      "page_count": 19444,
+      "freelist_count": 11,
+      "page_size": 4096
+    },
+    "physical_main_delta": 0,
+    "second_gc": {
+      "mode": "synthetic_apply",
+      "root_count": 13,
+      "visited_objects": 40215,
+      "traversed_edges": 40233,
+      "reachable_objects": 40215,
+      "initial_candidates": 0,
+      "remaining_candidates": 0,
+      "candidate_bytes": 0,
+      "mark_ms": 60468.64481997909,
+      "objects_deleted": 0,
+      "rows_deleted": 0,
+      "logical_bytes_reclaimed": 0,
+      "batches": [],
+      "lifecycle": {
+        "released": 0,
+        "metadata_reclaimed": 0,
+        "replay_reclaimed": 0,
+        "lifecycle_ms": 35.5947109637782
+      }
+    },
+    "current_reconstruction": "PASS",
+    "historical_evidence": "PRESERVED",
+    "eleven_tables": 11,
+    "hot_cells": [
+      {
+        "workload": "manifest_retry",
+        "samples": 5,
+        "median_ms": 200.62426896765828,
+        "sql_statement_counts": [
+          558
+        ],
+        "query_plans": {
+          "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT rowid FROM ledger_entries LIMIT 0": [
+            "SCAN ledger_entries USING COVERING INDEX sync_input_ledger_month"
+          ],
+          "SELECT rowid FROM monthly_panels LIMIT 0": [
+            "SCAN monthly_panels USING COVERING INDEX sync_fk_panel_cash"
+          ],
+          "SELECT rowid FROM cash_flows LIMIT 0": [
+            "SCAN cash_flows USING COVERING INDEX sync_input_cash_sort"
+          ],
+          "SELECT rowid FROM card_payment_allocations LIMIT 0": [
+            "SCAN card_payment_allocations USING COVERING INDEX sync_fk_allocation_event"
+          ],
+          "SELECT rowid FROM audit_logs LIMIT 0": [
+            "SCAN audit_logs USING COVERING INDEX idx_audit_logs_occurred"
+          ],
+          "SELECT rowid FROM share_sessions LIMIT 0": [
+            "SCAN share_sessions USING COVERING INDEX idx_share_sessions_token"
+          ],
+          "SELECT rowid FROM auth_sessions LIMIT 0": [
+            "SCAN auth_sessions USING COVERING INDEX idx_auth_sessions_user"
+          ],
+          "SELECT rowid FROM users LIMIT 0": [
+            "SCAN users USING COVERING INDEX sqlite_autoindex_users_1"
+          ],
+          "SELECT rowid FROM card_payment_batches LIMIT 0": [
+            "SCAN card_payment_batches USING COVERING INDEX idx_card_payment_batches_active"
+          ],
+          "SELECT rowid FROM card_payment_batch_items LIMIT 0": [
+            "SCAN card_payment_batch_items USING COVERING INDEX sync_fk_item_entry"
+          ],
+          "SELECT rowid FROM card_payment_events LIMIT 0": [
+            "SCAN card_payment_events USING COVERING INDEX sync_fk_event_cash"
+          ],
+          "SELECT sql FROM sqlite_master WHERE type = 'index' AND name = ?": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT name FROM sqlite_master WHERE type IN ('index', 'trigger')": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT name, tbl_name, sql FROM sqlite_master WHERE type='trigger'": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT id, revision, typeof(revision) FROM authoritative_state_revision": [
+            "SCAN authoritative_state_revision"
+          ],
+          "SELECT type,name,tbl_name,sql FROM sqlite_master WHERE tbl_name LIKE 'sync_%' OR name LIKE 'sync_%' ORDER BY type,name": [
+            "SCAN sqlite_master",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ],
+          "SELECT sql FROM sqlite_master WHERE type='trigger'": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT * FROM sync_capture_profile": [
+            "SCAN sync_capture_profile"
+          ],
+          "SELECT * FROM sync_finalization_profile": [
+            "SCAN sync_finalization_profile"
+          ],
+          "SELECT * FROM sync_retention_profile": [
+            "SCAN sync_retention_profile"
+          ],
+          "SELECT * FROM sync_observation_profile": [
+            "SCAN sync_observation_profile"
+          ],
+          "SELECT id,serial,typeof(serial) FROM sync_gc_fence": [
+            "SCAN sync_gc_fence"
+          ],
+          "SELECT id,used_bytes,typeof(used_bytes) FROM sync_observation_budget": [
+            "SCAN sync_observation_budget"
+          ],
+          "SELECT user_id FROM auth_sessions WHERE session_token_hash=?": [
+            "SEARCH auth_sessions USING INDEX sqlite_autoindex_auth_sessions_1 (session_token_hash=?)"
+          ],
+          "SELECT s.user_id,s.expires_at,u.is_active FROM auth_sessions s\n            JOIN users u ON u.id=s.user_id WHERE s.session_token_hash=?": [
+            "SEARCH s USING INDEX sqlite_autoindex_auth_sessions_1 (session_token_hash=?)",
+            "SEARCH u USING INTEGER PRIMARY KEY (rowid=?)"
+          ],
+          "SELECT request_hash,namespace FROM sync_observation_replays WHERE credential_hash=? AND request_id=?": [
+            "SEARCH sync_observation_replays USING INDEX sqlite_autoindex_sync_observation_replays_1 (credential_hash=? AND request_id=?)"
+          ],
+          "SELECT id,request_body FROM sync_observations WHERE credential_hash=? AND request_id=?": [
+            "SEARCH sync_observations USING INDEX sqlite_autoindex_sync_observations_2 (credential_hash=? AND request_id=?)"
+          ],
+          "SELECT * FROM sync_observations WHERE id=?": [
+            "SEARCH sync_observations USING INDEX sqlite_autoindex_sync_observations_1 (id=?)"
+          ],
+          "SELECT namespace FROM sync_current WHERE id=1": [
+            "SEARCH sync_current USING INTEGER PRIMARY KEY (rowid=?)"
+          ],
+          "SELECT * FROM sync_commits WHERE tx_id=?": [
+            "SEARCH sync_commits USING INDEX sqlite_autoindex_sync_commits_1 (tx_id=?)"
+          ],
+          "SELECT * FROM sync_observation_pins WHERE observation_id=? AND active=1": [
+            "SEARCH sync_observation_pins USING INDEX sqlite_autoindex_sync_observation_pins_1 (observation_id=?)"
+          ],
+          "SELECT kind,body FROM sync_objects WHERE hash=?": [
+            "SEARCH sync_objects USING INDEX sqlite_autoindex_sync_objects_1 (hash=?)"
+          ],
+          "SELECT input_hash FROM sync_commits WHERE tx_id=?": [
+            "SEARCH sync_commits USING INDEX sqlite_autoindex_sync_commits_1 (tx_id=?)"
+          ],
+          "SELECT length(body) FROM sync_objects WHERE hash=?": [
+            "SEARCH sync_objects USING INDEX sqlite_autoindex_sync_objects_1 (hash=?)"
+          ]
+        }
+      },
+      {
+        "workload": "raw_root",
+        "samples": 5,
+        "median_ms": 183.67605697130784,
+        "sql_statement_counts": [
+          431
+        ],
+        "query_plans": {
+          "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT rowid FROM ledger_entries LIMIT 0": [
+            "SCAN ledger_entries USING COVERING INDEX sync_input_ledger_month"
+          ],
+          "SELECT rowid FROM monthly_panels LIMIT 0": [
+            "SCAN monthly_panels USING COVERING INDEX sync_fk_panel_cash"
+          ],
+          "SELECT rowid FROM cash_flows LIMIT 0": [
+            "SCAN cash_flows USING COVERING INDEX sync_input_cash_sort"
+          ],
+          "SELECT rowid FROM card_payment_allocations LIMIT 0": [
+            "SCAN card_payment_allocations USING COVERING INDEX sync_fk_allocation_event"
+          ],
+          "SELECT rowid FROM audit_logs LIMIT 0": [
+            "SCAN audit_logs USING COVERING INDEX idx_audit_logs_occurred"
+          ],
+          "SELECT rowid FROM share_sessions LIMIT 0": [
+            "SCAN share_sessions USING COVERING INDEX idx_share_sessions_token"
+          ],
+          "SELECT rowid FROM auth_sessions LIMIT 0": [
+            "SCAN auth_sessions USING COVERING INDEX idx_auth_sessions_user"
+          ],
+          "SELECT rowid FROM users LIMIT 0": [
+            "SCAN users USING COVERING INDEX sqlite_autoindex_users_1"
+          ],
+          "SELECT rowid FROM card_payment_batches LIMIT 0": [
+            "SCAN card_payment_batches USING COVERING INDEX idx_card_payment_batches_active"
+          ],
+          "SELECT rowid FROM card_payment_batch_items LIMIT 0": [
+            "SCAN card_payment_batch_items USING COVERING INDEX sync_fk_item_entry"
+          ],
+          "SELECT rowid FROM card_payment_events LIMIT 0": [
+            "SCAN card_payment_events USING COVERING INDEX sync_fk_event_cash"
+          ],
+          "SELECT sql FROM sqlite_master WHERE type = 'index' AND name = ?": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT name FROM sqlite_master WHERE type IN ('index', 'trigger')": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT name, tbl_name, sql FROM sqlite_master WHERE type='trigger'": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT id, revision, typeof(revision) FROM authoritative_state_revision": [
+            "SCAN authoritative_state_revision"
+          ],
+          "SELECT type,name,tbl_name,sql FROM sqlite_master WHERE tbl_name LIKE 'sync_%' OR name LIKE 'sync_%' ORDER BY type,name": [
+            "SCAN sqlite_master",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ],
+          "SELECT sql FROM sqlite_master WHERE type='trigger'": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT * FROM sync_capture_profile": [
+            "SCAN sync_capture_profile"
+          ],
+          "SELECT * FROM sync_finalization_profile": [
+            "SCAN sync_finalization_profile"
+          ],
+          "SELECT * FROM sync_retention_profile": [
+            "SCAN sync_retention_profile"
+          ],
+          "SELECT * FROM sync_observation_profile": [
+            "SCAN sync_observation_profile"
+          ],
+          "SELECT id,serial,typeof(serial) FROM sync_gc_fence": [
+            "SCAN sync_gc_fence"
+          ],
+          "SELECT id,used_bytes,typeof(used_bytes) FROM sync_observation_budget": [
+            "SCAN sync_observation_budget"
+          ],
+          "SELECT user_id FROM auth_sessions WHERE session_token_hash=?": [
+            "SEARCH auth_sessions USING INDEX sqlite_autoindex_auth_sessions_1 (session_token_hash=?)"
+          ],
+          "SELECT s.user_id,s.expires_at,u.is_active FROM auth_sessions s\n            JOIN users u ON u.id=s.user_id WHERE s.session_token_hash=?": [
+            "SEARCH s USING INDEX sqlite_autoindex_auth_sessions_1 (session_token_hash=?)",
+            "SEARCH u USING INTEGER PRIMARY KEY (rowid=?)"
+          ],
+          "SELECT * FROM sync_observations WHERE id=?": [
+            "SEARCH sync_observations USING INDEX sqlite_autoindex_sync_observations_1 (id=?)"
+          ],
+          "SELECT namespace FROM sync_current WHERE id=1": [
+            "SEARCH sync_current USING INTEGER PRIMARY KEY (rowid=?)"
+          ],
+          "SELECT * FROM sync_commits WHERE tx_id=?": [
+            "SEARCH sync_commits USING INDEX sqlite_autoindex_sync_commits_1 (tx_id=?)"
+          ],
+          "SELECT * FROM sync_observation_pins WHERE observation_id=? AND active=1": [
+            "SEARCH sync_observation_pins USING INDEX sqlite_autoindex_sync_observation_pins_1 (observation_id=?)"
+          ],
+          "SELECT kind,body FROM sync_objects WHERE hash=?": [
+            "SEARCH sync_objects USING INDEX sqlite_autoindex_sync_objects_1 (hash=?)"
+          ],
+          "SELECT input_hash FROM sync_commits WHERE tx_id=?": [
+            "SEARCH sync_commits USING INDEX sqlite_autoindex_sync_commits_1 (tx_id=?)"
+          ],
+          "SELECT length(body) FROM sync_objects WHERE hash=?": [
+            "SEARCH sync_objects USING INDEX sqlite_autoindex_sync_objects_1 (hash=?)"
+          ]
+        }
+      },
+      {
+        "workload": "leaf",
+        "samples": 5,
+        "median_ms": 441.7729040142149,
+        "sql_statement_counts": [
+          434
+        ],
+        "query_plans": {
+          "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT rowid FROM ledger_entries LIMIT 0": [
+            "SCAN ledger_entries USING COVERING INDEX sync_input_ledger_month"
+          ],
+          "SELECT rowid FROM monthly_panels LIMIT 0": [
+            "SCAN monthly_panels USING COVERING INDEX sync_fk_panel_cash"
+          ],
+          "SELECT rowid FROM cash_flows LIMIT 0": [
+            "SCAN cash_flows USING COVERING INDEX sync_input_cash_sort"
+          ],
+          "SELECT rowid FROM card_payment_allocations LIMIT 0": [
+            "SCAN card_payment_allocations USING COVERING INDEX sync_fk_allocation_event"
+          ],
+          "SELECT rowid FROM audit_logs LIMIT 0": [
+            "SCAN audit_logs USING COVERING INDEX idx_audit_logs_occurred"
+          ],
+          "SELECT rowid FROM share_sessions LIMIT 0": [
+            "SCAN share_sessions USING COVERING INDEX idx_share_sessions_token"
+          ],
+          "SELECT rowid FROM auth_sessions LIMIT 0": [
+            "SCAN auth_sessions USING COVERING INDEX idx_auth_sessions_user"
+          ],
+          "SELECT rowid FROM users LIMIT 0": [
+            "SCAN users USING COVERING INDEX sqlite_autoindex_users_1"
+          ],
+          "SELECT rowid FROM card_payment_batches LIMIT 0": [
+            "SCAN card_payment_batches USING COVERING INDEX idx_card_payment_batches_active"
+          ],
+          "SELECT rowid FROM card_payment_batch_items LIMIT 0": [
+            "SCAN card_payment_batch_items USING COVERING INDEX sync_fk_item_entry"
+          ],
+          "SELECT rowid FROM card_payment_events LIMIT 0": [
+            "SCAN card_payment_events USING COVERING INDEX sync_fk_event_cash"
+          ],
+          "SELECT sql FROM sqlite_master WHERE type = 'index' AND name = ?": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT name FROM sqlite_master WHERE type IN ('index', 'trigger')": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT name, tbl_name, sql FROM sqlite_master WHERE type='trigger'": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT id, revision, typeof(revision) FROM authoritative_state_revision": [
+            "SCAN authoritative_state_revision"
+          ],
+          "SELECT type,name,tbl_name,sql FROM sqlite_master WHERE tbl_name LIKE 'sync_%' OR name LIKE 'sync_%' ORDER BY type,name": [
+            "SCAN sqlite_master",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ],
+          "SELECT sql FROM sqlite_master WHERE type='trigger'": [
+            "SCAN sqlite_master"
+          ],
+          "SELECT * FROM sync_capture_profile": [
+            "SCAN sync_capture_profile"
+          ],
+          "SELECT * FROM sync_finalization_profile": [
+            "SCAN sync_finalization_profile"
+          ],
+          "SELECT * FROM sync_retention_profile": [
+            "SCAN sync_retention_profile"
+          ],
+          "SELECT * FROM sync_observation_profile": [
+            "SCAN sync_observation_profile"
+          ],
+          "SELECT id,serial,typeof(serial) FROM sync_gc_fence": [
+            "SCAN sync_gc_fence"
+          ],
+          "SELECT id,used_bytes,typeof(used_bytes) FROM sync_observation_budget": [
+            "SCAN sync_observation_budget"
+          ],
+          "SELECT user_id FROM auth_sessions WHERE session_token_hash=?": [
+            "SEARCH auth_sessions USING INDEX sqlite_autoindex_auth_sessions_1 (session_token_hash=?)"
+          ],
+          "SELECT s.user_id,s.expires_at,u.is_active FROM auth_sessions s\n            JOIN users u ON u.id=s.user_id WHERE s.session_token_hash=?": [
+            "SEARCH s USING INDEX sqlite_autoindex_auth_sessions_1 (session_token_hash=?)",
+            "SEARCH u USING INTEGER PRIMARY KEY (rowid=?)"
+          ],
+          "SELECT * FROM sync_observations WHERE id=?": [
+            "SEARCH sync_observations USING INDEX sqlite_autoindex_sync_observations_1 (id=?)"
+          ],
+          "SELECT namespace FROM sync_current WHERE id=1": [
+            "SEARCH sync_current USING INTEGER PRIMARY KEY (rowid=?)"
+          ],
+          "SELECT * FROM sync_commits WHERE tx_id=?": [
+            "SEARCH sync_commits USING INDEX sqlite_autoindex_sync_commits_1 (tx_id=?)"
+          ],
+          "SELECT * FROM sync_observation_pins WHERE observation_id=? AND active=1": [
+            "SEARCH sync_observation_pins USING INDEX sqlite_autoindex_sync_observation_pins_1 (observation_id=?)"
+          ],
+          "SELECT kind,body FROM sync_objects WHERE hash=?": [
+            "SEARCH sync_objects USING INDEX sqlite_autoindex_sync_objects_1 (hash=?)"
+          ],
+          "SELECT input_hash FROM sync_commits WHERE tx_id=?": [
+            "SEARCH sync_commits USING INDEX sqlite_autoindex_sync_commits_1 (tx_id=?)"
+          ],
+          "SELECT length(body) FROM sync_objects WHERE hash=?": [
+            "SEARCH sync_objects USING INDEX sqlite_autoindex_sync_objects_1 (hash=?)"
+          ]
+        }
+      }
+    ]
+  }
+]

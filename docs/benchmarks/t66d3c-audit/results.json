@@ -1,0 +1,759 @@
+{
+  "audited_commit": "bcb0c47d42c5fb770ce40b70b0c14ad30d0c15f5",
+  "baseline": "e1b6e6493c6e2644275f37173f25a46be84b8173",
+  "verdict": "FAIL — TARGETED D3c CORRECTION REQUIRED",
+  "independent_tests": {
+    "executed": 74,
+    "passed": 73,
+    "failed": 1,
+    "suites": {
+      "independent-complete": {
+        "tests": "72",
+        "failures": "1",
+        "errors": "0",
+        "skipped": "0",
+        "time": "116.455",
+        "timestamp": "2026-10-11T23:30:37.178533+09:00"
+      },
+      "original-blocker": {
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "7.054",
+        "timestamp": "2026-10-11T23:32:06.753289+09:00"
+      },
+      "backend-full": {
+        "tests": "2824",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "1333.328",
+        "timestamp": "2026-10-11T22:47:23.867248+09:00"
+      }
+    }
+  },
+  "cases": [
+    {
+      "finding": "D3C-A01",
+      "result": "CONFIRMED FAILURE",
+      "unowned_objects_deleted": [
+        "3e337ab20a6ed16190024197ca46393beee357162a19109e15c078d3a5f4a2d4"
+      ],
+      "deletion_committed_before_ownership_error": true,
+      "production_access": "NONE"
+    },
+    {
+      "scenario": "admission_attached_database",
+      "result": "PASS",
+      "rejected": true
+    },
+    {
+      "scenario": "admission_old_version",
+      "result": "PASS",
+      "rejected": true
+    },
+    {
+      "scenario": "admission_ownership_marker",
+      "result": "PASS",
+      "rejected": true
+    },
+    {
+      "scenario": "admission_replaced_inode",
+      "result": "PASS",
+      "rejected": true
+    },
+    {
+      "scenario": "admission_symlink",
+      "result": "PASS",
+      "rejected": true
+    },
+    {
+      "scenario": "admission_wrong_path",
+      "result": "PASS",
+      "rejected": true
+    },
+    {
+      "scenario": "concurrent_release",
+      "result": "PASS",
+      "release_calls": 4,
+      "active_pins": 0,
+      "underflow": false
+    },
+    {
+      "scenario": "corruption_budget",
+      "result": "PASS",
+      "deletion_count": 0,
+      "error_type": "CanonicalError",
+      "error_code": "REJECT_RETENTION_BUDGET"
+    },
+    {
+      "scenario": "corruption_canon",
+      "result": "PASS",
+      "deletion_count": 0,
+      "error_type": "CanonicalError",
+      "error_code": "REJECT_RETENTION_OBJECT"
+    },
+    {
+      "scenario": "corruption_current_certificate",
+      "result": "PASS",
+      "deletion_count": 0,
+      "error_type": "CanonicalError",
+      "error_code": "REJECT_INPUT_ROOT"
+    },
+    {
+      "scenario": "corruption_edge",
+      "result": "PASS",
+      "deletion_count": 0,
+      "error_type": "CanonicalError",
+      "error_code": "REJECT_RETENTION_EDGES"
+    },
+    {
+      "scenario": "corruption_incoming",
+      "result": "PASS",
+      "deletion_count": 0,
+      "error_type": "CanonicalError",
+      "error_code": "REJECT_RETENTION_COUNTS"
+    },
+    {
+      "scenario": "corruption_kind",
+      "result": "PASS",
+      "deletion_count": 0,
+      "error_type": "CanonicalError",
+      "error_code": "REJECT_OBJECT_KIND"
+    },
+    {
+      "scenario": "corruption_lifecycle",
+      "result": "PASS",
+      "deletion_count": 0,
+      "error_type": "CanonicalError",
+      "error_code": "REJECT_RETENTION_PINS"
+    },
+    {
+      "scenario": "corruption_namespace",
+      "result": "PASS",
+      "deletion_count": 0,
+      "error_type": "CanonicalError",
+      "error_code": "REJECT_RETENTION_OBJECT"
+    },
+    {
+      "scenario": "corruption_object_body",
+      "result": "PASS",
+      "deletion_count": 0,
+      "error_type": "CanonicalError",
+      "error_code": "REJECT_OBJECT_KIND"
+    },
+    {
+      "scenario": "corruption_pin_hash",
+      "result": "PASS",
+      "deletion_count": 0,
+      "error_type": "CanonicalError",
+      "error_code": "REJECT_RETENTION_PINS"
+    },
+    {
+      "scenario": "corruption_pins_count",
+      "result": "PASS",
+      "deletion_count": 0,
+      "error_type": "CanonicalError",
+      "error_code": "REJECT_RETENTION_COUNTS"
+    },
+    {
+      "scenario": "corruption_raw_schema",
+      "result": "PASS",
+      "deletion_count": 0,
+      "error_type": "CanonicalError",
+      "error_code": "REJECT_RETENTION_OBJECT"
+    },
+    {
+      "scenario": "corruption_root_missing",
+      "result": "PASS",
+      "deletion_count": 0,
+      "error_type": "CanonicalError",
+      "error_code": "REJECT_RETENTION_ROOTS"
+    },
+    {
+      "scenario": "corruption_row_cache",
+      "result": "PASS",
+      "deletion_count": 0,
+      "error_type": "CanonicalError",
+      "error_code": "REJECT_RETENTION_ROW"
+    },
+    {
+      "scenario": "corruption_schema_unknown",
+      "result": "PASS",
+      "deletion_count": 0,
+      "error_type": "CanonicalError",
+      "error_code": "REJECT_FINALIZATION_SCHEMA"
+    },
+    {
+      "scenario": "historical_reclamation",
+      "result": "PASS",
+      "candidates": 35,
+      "objects_deleted": 35,
+      "cache_deleted": 3,
+      "logical_bytes": 40940,
+      "certificate_rows": 4,
+      "maximum_lock_ms": 67.6829949952662
+    },
+    {
+      "scenario": "native_exception_gc",
+      "result": "PASS",
+      "permits_restored": 2,
+      "write_lock_leaked": false,
+      "protected_asgi_events": 0
+    },
+    {
+      "scenario": "network_materialized_cancel",
+      "result": "PASS",
+      "objects_deleted": 13,
+      "response_start_before_cancel": 1,
+      "protected_body_after_cancel": 0,
+      "source_object_reclaimed_after_materialization": true
+    },
+    {
+      "scenario": "original_blocker_epoch_bootstrap",
+      "result": "PASS",
+      "current_live_reachable": 250,
+      "all_certificate_reachable": 533,
+      "historical_only_reclaimed": 283,
+      "objects_deleted": 283,
+      "certificate_evidence_unchanged": true
+    },
+    {
+      "scenario": "original_blocker_three_mutations",
+      "result": "PASS",
+      "current_live_reachable": 250,
+      "all_certificate_reachable": 283,
+      "historical_only_reclaimed": 33,
+      "objects_deleted": 33,
+      "certificate_evidence_unchanged": true
+    },
+    {
+      "scenario": "post_gc_http",
+      "result": "PASS",
+      "old": {
+        "http_queries": 14,
+        "received_objects": 222,
+        "tables": 11,
+        "facts": 104,
+        "patricia": "PASS"
+      },
+      "current": {
+        "http_queries": 14,
+        "received_objects": 222,
+        "tables": 11,
+        "facts": 104,
+        "patricia": "PASS"
+      },
+      "objects_deleted": 22,
+      "all_eleven_tables": true,
+      "internal_proof_not_downloadable": true,
+      "cross_principal_rejected": true
+    },
+    {
+      "scenario": "queued_cancel_gc",
+      "result": "PASS",
+      "queued_native_starts": 0,
+      "permits_restored": 2,
+      "protected_asgi_events": 0
+    },
+    {
+      "scenario": "quota_budget_cycles",
+      "result": "PASS",
+      "cycles": [
+        {
+          "wave": 0,
+          "used_bytes": 1024,
+          "replay": 2,
+          "reclaimed": 2
+        },
+        {
+          "wave": 1,
+          "used_bytes": 2048,
+          "replay": 4,
+          "reclaimed": 2
+        },
+        {
+          "wave": 2,
+          "used_bytes": 3072,
+          "replay": 6,
+          "reclaimed": 2
+        },
+        {
+          "wave": 3,
+          "used_bytes": 4096,
+          "replay": 8,
+          "reclaimed": 2
+        },
+        {
+          "wave": 4,
+          "used_bytes": 5120,
+          "replay": 10,
+          "reclaimed": 2
+        }
+      ],
+      "default_limits": {
+        "lease_seconds": 900,
+        "per_principal": 4,
+        "records": 4096,
+        "bytes": 67108864
+      }
+    },
+    {
+      "scenario": "release_after_commit",
+      "result": "PASS",
+      "status": "retired",
+      "pins_after_fault": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "idempotent_retry": true
+    },
+    {
+      "scenario": "release_before_commit",
+      "result": "PASS",
+      "status": "retired",
+      "pins_after_fault": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "idempotent_retry": true
+    },
+    {
+      "scenario": "release_release_control",
+      "result": "PASS",
+      "status": "retired",
+      "pins_after_fault": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "idempotent_retry": true
+    },
+    {
+      "scenario": "release_release_hot",
+      "result": "PASS",
+      "status": "retired",
+      "pins_after_fault": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "idempotent_retry": true
+    },
+    {
+      "scenario": "release_release_index",
+      "result": "PASS",
+      "status": "retired",
+      "pins_after_fault": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "idempotent_retry": true
+    },
+    {
+      "scenario": "release_release_input",
+      "result": "PASS",
+      "status": "retired",
+      "pins_after_fault": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "idempotent_retry": true
+    },
+    {
+      "scenario": "release_release_raw",
+      "result": "PASS",
+      "status": "retired",
+      "pins_after_fault": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "idempotent_retry": true
+    },
+    {
+      "scenario": "release_retired",
+      "result": "PASS",
+      "status": "retired",
+      "pins_after_fault": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "idempotent_retry": true
+    },
+    {
+      "scenario": "retirement_epoch",
+      "result": "PASS",
+      "maintenance": {
+        "released": 0,
+        "metadata_reclaimed": 1,
+        "replay_reclaimed": 0,
+        "lifecycle_ms": 62.265646003652364
+      },
+      "replay_records": 0,
+      "resurrected": false
+    },
+    {
+      "scenario": "retirement_expiry",
+      "result": "PASS",
+      "maintenance": {
+        "released": 1,
+        "metadata_reclaimed": 1,
+        "replay_reclaimed": 0,
+        "lifecycle_ms": 48.27194003155455
+      },
+      "replay_records": 1,
+      "resurrected": false
+    },
+    {
+      "scenario": "retirement_inactive",
+      "result": "PASS",
+      "maintenance": {
+        "released": 1,
+        "metadata_reclaimed": 1,
+        "replay_reclaimed": 0,
+        "lifecycle_ms": 61.30839203251526
+      },
+      "replay_records": 1,
+      "resurrected": false
+    },
+    {
+      "scenario": "retirement_revoke",
+      "result": "PASS",
+      "maintenance": {
+        "released": 1,
+        "metadata_reclaimed": 1,
+        "replay_reclaimed": 0,
+        "lifecycle_ms": 47.12331900373101
+      },
+      "replay_records": 0,
+      "resurrected": false
+    },
+    {
+      "scenario": "shared_principal_explicit",
+      "result": "PASS",
+      "cross_principal_transfer_rejected": true,
+      "explicit_root_preserved": true,
+      "deleted_only_after_unprotect": true
+    },
+    {
+      "scenario": "shutdown_native_gc",
+      "result": "PASS",
+      "maximum_native": 1,
+      "admission_closed": true,
+      "permits_restored": 2,
+      "protected_asgi_events": 0
+    },
+    {
+      "scenario": "sigkill_batch_after",
+      "result": "PASS",
+      "signal": "SIGKILL",
+      "current_complete": true,
+      "financial_unchanged": true,
+      "pins_after_restart": 0,
+      "objects_removed": 2,
+      "new_process_reconstruction": true
+    },
+    {
+      "scenario": "sigkill_batch_before",
+      "result": "PASS",
+      "signal": "SIGKILL",
+      "current_complete": true,
+      "financial_unchanged": true,
+      "pins_after_restart": 0,
+      "objects_removed": 0,
+      "new_process_reconstruction": true
+    },
+    {
+      "scenario": "sigkill_epoch_after",
+      "result": "PASS",
+      "signal": "SIGKILL",
+      "current_complete": true,
+      "financial_unchanged": true,
+      "pins_after_restart": 0,
+      "objects_removed": 0,
+      "new_process_reconstruction": true
+    },
+    {
+      "scenario": "sigkill_epoch_before",
+      "result": "PASS",
+      "signal": "SIGKILL",
+      "current_complete": true,
+      "financial_unchanged": true,
+      "pins_after_restart": 5,
+      "objects_removed": 0,
+      "new_process_reconstruction": true
+    },
+    {
+      "scenario": "sigkill_historical_fk_after",
+      "result": "PASS",
+      "persisted_version": 1000005,
+      "certificate_evidence_unchanged": true,
+      "current_complete": true
+    },
+    {
+      "scenario": "sigkill_historical_fk_before",
+      "result": "PASS",
+      "persisted_version": 1000004,
+      "certificate_evidence_unchanged": true,
+      "current_complete": true
+    },
+    {
+      "scenario": "sigkill_marked",
+      "result": "PASS",
+      "signal": "SIGKILL",
+      "current_complete": true,
+      "financial_unchanged": true,
+      "pins_after_restart": 0,
+      "objects_removed": 0,
+      "new_process_reconstruction": true
+    },
+    {
+      "scenario": "sigkill_metadata_after",
+      "result": "PASS",
+      "signal": "SIGKILL",
+      "current_complete": true,
+      "financial_unchanged": true,
+      "pins_after_restart": 0,
+      "objects_removed": 0,
+      "new_process_reconstruction": true
+    },
+    {
+      "scenario": "sigkill_metadata_before",
+      "result": "PASS",
+      "signal": "SIGKILL",
+      "current_complete": true,
+      "financial_unchanged": true,
+      "pins_after_restart": 0,
+      "objects_removed": 0,
+      "new_process_reconstruction": true
+    },
+    {
+      "scenario": "sigkill_release_after",
+      "result": "PASS",
+      "signal": "SIGKILL",
+      "current_complete": true,
+      "financial_unchanged": true,
+      "pins_after_restart": 0,
+      "objects_removed": 0,
+      "new_process_reconstruction": true
+    },
+    {
+      "scenario": "sigkill_release_before",
+      "result": "PASS",
+      "signal": "SIGKILL",
+      "current_complete": true,
+      "financial_unchanged": true,
+      "pins_after_restart": 5,
+      "objects_removed": 0,
+      "new_process_reconstruction": true
+    },
+    {
+      "scenario": "sigkill_retire_after",
+      "result": "PASS",
+      "signal": "SIGKILL",
+      "current_complete": true,
+      "financial_unchanged": true,
+      "pins_after_restart": 5,
+      "objects_removed": 0,
+      "new_process_reconstruction": true
+    },
+    {
+      "scenario": "sigkill_retire_before",
+      "result": "PASS",
+      "signal": "SIGKILL",
+      "current_complete": true,
+      "financial_unchanged": true,
+      "pins_after_restart": 5,
+      "objects_removed": 0,
+      "new_process_reconstruction": true
+    },
+    {
+      "scenario": "snapshot_overlap_epoch",
+      "result": "PASS",
+      "publication_committed_during_mark": true,
+      "stale_rejected": true
+    },
+    {
+      "scenario": "snapshot_overlap_observation",
+      "result": "PASS",
+      "publication_committed_during_mark": true,
+      "stale_rejected": true
+    },
+    {
+      "scenario": "snapshot_overlap_writer",
+      "result": "PASS",
+      "publication_committed_during_mark": true,
+      "stale_rejected": true
+    },
+    {
+      "scenario": "stale_epoch",
+      "result": "PASS",
+      "deleted": 0,
+      "stale_rejected": true
+    },
+    {
+      "scenario": "stale_explicit",
+      "result": "PASS",
+      "deleted": 0,
+      "stale_rejected": true
+    },
+    {
+      "scenario": "stale_observation",
+      "result": "PASS",
+      "deleted": 0,
+      "stale_rejected": true
+    },
+    {
+      "scenario": "stale_release",
+      "result": "PASS",
+      "deleted": 0,
+      "stale_rejected": true
+    },
+    {
+      "scenario": "stale_writer",
+      "result": "PASS",
+      "deleted": 0,
+      "stale_rejected": true
+    },
+    {
+      "scenario": "transfer_cancel_authenticated",
+      "result": "PASS",
+      "maximum_native": 1,
+      "protected_asgi_events": 0,
+      "permit_available": 2,
+      "current_complete": true
+    },
+    {
+      "scenario": "transfer_cancel_objects_prepared",
+      "result": "PASS",
+      "maximum_native": 1,
+      "protected_asgi_events": 0,
+      "permit_available": 2,
+      "current_complete": true
+    },
+    {
+      "scenario": "transfer_cancel_serialized",
+      "result": "PASS",
+      "maximum_native": 1,
+      "protected_asgi_events": 0,
+      "permit_available": 2,
+      "current_complete": true
+    },
+    {
+      "scenario": "transfer_cancel_terminal",
+      "result": "PASS",
+      "maximum_native": 1,
+      "protected_asgi_events": 0,
+      "permit_available": 2,
+      "current_complete": true
+    },
+    {
+      "scenario": "two_cancelled_natives_gc",
+      "result": "PASS",
+      "maximum_native": 2,
+      "overflow_requests": 6,
+      "overflow_status": 503,
+      "protected_asgi_events": 0,
+      "permits_restored": 2
+    },
+    {
+      "scenario": "two_gc_and_between_batch_writer",
+      "result": "PASS",
+      "first_batch_deleted": 1,
+      "second_gc_stale": true,
+      "between_batch_writer_stale": true
+    },
+    {
+      "scenario": "uncommitted_writer",
+      "result": "PASS",
+      "blocked_before_commit": true,
+      "stale_after_commit": true
+    },
+    {
+      "scenario": "writer_reused_candidate_hash",
+      "result": "PASS",
+      "stale_rejected": true,
+      "reused_current_preserved": true
+    }
+  ],
+  "backend": {
+    "tests": 1284,
+    "subtests": 1540,
+    "exit_code": 0,
+    "elapsed_seconds": 1333.857086169999
+  },
+  "safety": {
+    "tests": 59,
+    "exit_code": 0,
+    "elapsed_seconds": 3.97
+  },
+  "frontend": {
+    "tests": 21,
+    "files": 6,
+    "exit_code": 0
+  },
+  "checks": {
+    "ruff": {
+      "exit_code": 0,
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "backend/app",
+        "backend/isolated_sync",
+        "backend/tests",
+        "scripts/tests",
+        "scripts/benchmarks"
+      ]
+    },
+    "compileall": {
+      "exit_code": 0,
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "compileall",
+        "-q",
+        "backend/app",
+        "backend/isolated_sync",
+        "backend/tests",
+        "scripts/benchmarks"
+      ]
+    },
+    "frontend_build": {
+      "exit_code": 0,
+      "command": [
+        "npm",
+        "--prefix",
+        "frontend",
+        "run",
+        "build"
+      ]
+    }
+  },
+  "production_access": "NONE",
+  "deployment": "NOT PERFORMED"
+}
