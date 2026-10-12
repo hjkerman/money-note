@@ -33,6 +33,12 @@ class MoneyNoteApiClient {
 
   String? _sessionToken;
 
+  // Explicit isolated data-layer adapter seam. No new credential store or
+  // startup hook; the caller borrows (must not close) the existing HTTP client.
+  T withIsolatedTransport<T>(
+          T Function(http.Client, String, String? Function()) create) =>
+      create(_client, baseUrl, () => _sessionToken);
+
   Future<void> loadSession() async {
     _sessionToken = await _secureStorage.read(key: _tokenKey);
     if (_sessionToken != null && _sessionToken!.isNotEmpty) return;

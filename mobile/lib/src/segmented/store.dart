@@ -66,9 +66,16 @@ class StoreHealth {
   bool get healthy => issues.isEmpty;
 }
 
+// Local acquisition bookkeeping, never a CompleteTargetVerified receipt.
+class AcquisitionProgress {
+  const AcquisitionProgress(this.state, this.errorCode);
+  final String state;
+  final String? errorCode;
+}
+
 class SegmentedClientStore {
-  SegmentedClientStore._(
-      this._db, this.path, this.cache, this.limits, this._fault);
+  SegmentedClientStore._(this._db, this.path, this.cache, this.limits,
+      this._fault, this.acquisitionEnabled);
   static const discriminator = 'segmented-store/1';
   static const schemaVersion = 1;
   final Database _db;
@@ -76,12 +83,14 @@ class SegmentedClientStore {
   final CacheNamespace cache;
   final ClientStoreLimits limits;
   final StoreFault? _fault;
+  final bool acquisitionEnabled;
   bool _closed = false;
 
   // Caller chooses a private root; never invoked by ordinary application startup.
   static SegmentedClientStore open(Directory privateRoot, CacheNamespace cache,
       {ClientStoreLimits limits = const ClientStoreLimits(),
-      StoreFault? fault}) {
+      StoreFault? fault,
+      bool acquisition = false}) {
     limits.validate();
     final directory = Directory('${privateRoot.path}/segmented-store-v1')
       ..createSync(recursive: true);
@@ -93,7 +102,9 @@ class SegmentedClientStore {
       final version = db.select('PRAGMA user_version').single.values.first;
       final tables = db.select(
           "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'");
-      if (version != 0 && version != schemaVersion) {
+      if (version != 0 &&
+          version != schemaVersion &&
+          !(acquisition && version == 2)) {
         rejectSegment('UNSUPPORTED_STORAGE_SCHEMA');
       }
       if (version == 0 && tables.isNotEmpty) {
@@ -114,7 +125,9 @@ class SegmentedClientStore {
         // Another creator may have initialized while we waited for its lock.
         final lockedVersion =
             db.select('PRAGMA user_version').single.values.first;
-        if (lockedVersion != 0 && lockedVersion != schemaVersion) {
+        if (lockedVersion != 0 &&
+            lockedVersion != schemaVersion &&
+            !(acquisition && lockedVersion == 2)) {
           rejectSegment('UNSUPPORTED_STORAGE_SCHEMA');
         }
         if (lockedVersion == 0) {
@@ -123,7 +136,15 @@ class SegmentedClientStore {
           db.execute('INSERT INTO profile VALUES(1,?,?,?)',
               [discriminator, cache.key, VerifiedObject.validatorBuild]);
         }
-        _requireSchema(db);
+        // Opt-in upgrade only, under the same write lock. Validate the complete
+        // old profile before adding anything: never repair a damaged v1 store.
+        if (acquisition && lockedVersion != 2) {
+          _requireSchema(db);
+          if (!_usageValid(db)) rejectSegment('STORE_METADATA_CORRUPT');
+          db.execute(_acquisitionSchema);
+          db.execute('PRAGMA user_version=2');
+        }
+        _requireSchema(db, acquisition: acquisition);
         final profile = db.select('SELECT * FROM profile');
         if (profile.length != 1 ||
             profile.single['discriminator'] != discriminator ||
@@ -139,7 +160,7 @@ class SegmentedClientStore {
             .select("SELECT name FROM sqlite_master WHERE type='table'")
             .map((r) => r['name'])
             .toSet();
-        if (actualTables.length != 8 ||
+        if (actualTables.length != (acquisition ? 9 : 8) ||
             !actualTables.containsAll([
               'profile',
               'refs',
@@ -152,7 +173,7 @@ class SegmentedClientStore {
             ])) {
           rejectSegment('STORE_PROFILE_INVALID');
         }
-        if (!_usageValid(db)) {
+        if (!_usageValid(db, acquisition: acquisition)) {
           rejectSegment('STORE_METADATA_CORRUPT');
         }
         db.execute('COMMIT');
@@ -168,7 +189,8 @@ class SegmentedClientStore {
           limits.databasePages) {
         rejectSegment('LOCAL_STORAGE_BUDGET');
       }
-      return SegmentedClientStore._(db, path, cache, limits, fault);
+      return SegmentedClientStore._(
+          db, path, cache, limits, fault, acquisition);
     } on SqliteException catch (error) {
       db?.close();
       rejectSegment(error.resultCode == 5 || error.resultCode == 6
@@ -188,7 +210,7 @@ class SegmentedClientStore {
       begun = true;
       // DDL is a SQLite write too: this same write transaction excludes schema
       // changes by other connections until COMMIT/ROLLBACK. Never cache a flag.
-      _requireSchema(_db);
+      _requireSchema(_db, acquisition: acquisitionEnabled);
       final result = body();
       final usage = _db.select('SELECT * FROM usage WHERE id=1').single;
       if ((usage['objects'] as int) > limits.objectCount ||
@@ -359,14 +381,16 @@ class SegmentedClientStore {
   }
 
   void recordStagedObject(String localId, ObjectRef ref) => _transaction(() {
-        if (_loadStage(localId) == null) rejectSegment('STAGING_MISSING');
+        if (_loadStage(localId, includeCount: false) == null) {
+          rejectSegment('STAGING_MISSING');
+        }
         if (_read(ref) == null) rejectSegment('OBJECT_MISSING');
         _db.execute('INSERT OR IGNORE INTO staging_objects VALUES(?,?)',
             [localId, ref.hash]);
         _fault?.call('after_progress_insert');
       });
 
-  StagingSession? _loadStage(String id) {
+  StagingSession? _loadStage(String id, {bool includeCount = true}) {
     final size = _db
         .select('SELECT length(manifest) AS n FROM staging WHERE id=?', [id]);
     if (size.isNotEmpty && (size.single['n'] as int) > limits.manifestBytes) {
@@ -397,9 +421,11 @@ class SegmentedClientStore {
         id,
         manifest,
         created,
-        _db.select(
-            'SELECT count(*) AS n FROM staging_objects WHERE staging_id=?',
-            [id]).single['n'] as int);
+        includeCount
+            ? _db.select(
+                'SELECT count(*) AS n FROM staging_objects WHERE staging_id=?',
+                [id]).single['n'] as int
+            : 0);
   }
 
   StagingSession? loadStaging(String localId) {
@@ -429,6 +455,32 @@ class SegmentedClientStore {
         .toList(growable: false);
   }
 
+  AcquisitionProgress? acquisitionProgress(String localId) {
+    if (!acquisitionEnabled) rejectSegment('ACQUISITION_METADATA_REQUIRED');
+    if (loadStaging(localId) == null) rejectSegment('STAGING_MISSING');
+    final rows = _db.select(
+        'SELECT state,error_code FROM acquisition WHERE staging_id=?',
+        [localId]);
+    if (rows.isEmpty) return null;
+    final state = rows.single['state'], code = rows.single['error_code'];
+    _validateAcquisition(state, code);
+    return AcquisitionProgress(state as String, code as String?);
+  }
+
+  void recordAcquisition(String localId, String state, {String? errorCode}) {
+    if (!acquisitionEnabled) rejectSegment('ACQUISITION_METADATA_REQUIRED');
+    _validateAcquisition(state, errorCode);
+    _transaction(() {
+      if (_loadStage(localId, includeCount: false) == null) {
+        rejectSegment('STAGING_MISSING');
+      }
+      _db.execute(
+          'INSERT INTO acquisition VALUES(?,?,?) ON CONFLICT(staging_id) DO UPDATE SET state=excluded.state,error_code=excluded.error_code',
+          [localId, state, errorCode]);
+      _fault?.call('after_acquisition_insert');
+    });
+  }
+
   // Explicit staging abandonment only. No object sweep, no accepted/frozen pins.
   // SQLite handles its own rollback journal; never manually delete sidecars.
   bool removeUnreferencedStagingData(String localId) => _transaction(() {
@@ -445,11 +497,11 @@ class SegmentedClientStore {
     if (_closed) rejectSegment('STORE_CLOSED');
     final issues = <String>[];
     try {
-      _requireSchema(_db);
+      _requireSchema(_db, acquisition: acquisitionEnabled);
     } on SegmentedException catch (error) {
       issues.add(error.code);
     }
-    if (!_usageValid(_db)) {
+    if (!_usageValid(_db, acquisition: acquisitionEnabled)) {
       issues.add('STORE_METADATA_CORRUPT');
     }
     var objects = 0, stagings = 0;
@@ -472,6 +524,7 @@ class SegmentedClientStore {
       final id = row['id'] as String;
       try {
         _loadStage(id);
+        if (acquisitionEnabled) acquisitionProgress(id);
         for (final item in _db.select(
             'SELECT hash,bytes FROM staging_objects JOIN refs USING(hash) WHERE staging_id=?',
             [id])) {
@@ -507,23 +560,32 @@ final _schemaDefinitions = <String, String>{
           .allMatches(_schema))
     match.group(1)!: match.group(0)!.substring(0, match.group(0)!.length - 1)
 };
+final _acquisitionDefinitions = <String, String>{
+  ..._schemaDefinitions,
+  for (final match
+      in RegExp(r'^CREATE (?:TABLE|INDEX|TRIGGER) (\w+).+$', multiLine: true)
+          .allMatches(_acquisitionSchema))
+    match.group(1)!: match.group(0)!.substring(0, match.group(0)!.length - 1)
+};
 
-void _requireSchema(Database db) {
+void _requireSchema(Database db, {bool acquisition = false}) {
   if (db.select('PRAGMA user_version').single.values.first !=
-      SegmentedClientStore.schemaVersion) {
+      (acquisition ? 2 : SegmentedClientStore.schemaVersion)) {
     rejectSegment('UNSUPPORTED_STORAGE_SCHEMA');
   }
+  final definitions =
+      acquisition ? _acquisitionDefinitions : _schemaDefinitions;
   final rows = db.select(
       'SELECT name,sql FROM sqlite_master WHERE sql IS NOT NULL ORDER BY name LIMIT ?',
-      [_schemaDefinitions.length + 1]);
-  if (rows.length != _schemaDefinitions.length ||
-      rows.any((row) => _schemaDefinitions[row['name']] != row['sql'])) {
+      [definitions.length + 1]);
+  if (rows.length != definitions.length ||
+      rows.any((row) => definitions[row['name']] != row['sql'])) {
     rejectSegment('STORE_SCHEMA_CORRUPT');
   }
 }
 
 // Recovery/scrub only: counters bound normal puts without growing-table scans.
-bool _usageValid(Database db) {
+bool _usageValid(Database db, {bool acquisition = false}) {
   final rows = db.select('SELECT * FROM usage');
   if (rows.length != 1) {
     return false;
@@ -536,10 +598,33 @@ bool _usageValid(Database db) {
     (SELECT count(*)*192 FROM objects)+(SELECT count(*)*128 FROM refs)+
     (SELECT count(*)*256 FROM edges)+(SELECT coalesce(sum(length(manifest)+256),0) FROM staging)+
     (SELECT count(*)*128 FROM staging_roots)+(SELECT count(*)*128 FROM staging_objects) AS metadata''').single;
+  final acquisitionCharge = acquisition
+      ? db.select('SELECT count(*)*256 AS n FROM acquisition').single['n']
+          as int
+      : 0;
   return actual['id'] == 1 &&
-      ['objects', 'payload', 'stages', 'metadata']
-          .every((key) => actual[key] is int && actual[key] == expected[key]);
+      ['objects', 'payload', 'stages', 'metadata'].every((key) =>
+          actual[key] is int &&
+          actual[key] ==
+              (expected[key] as int) +
+                  (key == 'metadata' ? acquisitionCharge : 0));
 }
+
+void _validateAcquisition(Object? state, Object? code) {
+  if (!['acquiring', 'interrupted', 'graph_verified'].contains(state) ||
+      (state == 'interrupted') != (code != null) ||
+      (code != null &&
+          (code is! String ||
+              !RegExp(r'^[A-Z][A-Z0-9_]{0,63}$').hasMatch(code)))) {
+    rejectSegment('ACQUISITION_METADATA_INVALID');
+  }
+}
+
+const _acquisitionSchema = '''
+CREATE TABLE acquisition(staging_id TEXT PRIMARY KEY REFERENCES staging(id) ON DELETE CASCADE,state TEXT NOT NULL CHECK(state IN ('acquiring','interrupted','graph_verified')),error_code TEXT,CHECK((state='interrupted')=(error_code IS NOT NULL))) WITHOUT ROWID;
+CREATE TRIGGER acquisition_usage AFTER INSERT ON acquisition BEGIN UPDATE usage SET metadata=metadata+256; END;
+CREATE TRIGGER acquisition_release AFTER DELETE ON acquisition BEGIN UPDATE usage SET metadata=metadata-256; END;
+''';
 
 const _schema = '''
 CREATE TABLE profile(id INTEGER PRIMARY KEY CHECK(id=1),discriminator TEXT NOT NULL,namespace TEXT NOT NULL,validator TEXT NOT NULL);
