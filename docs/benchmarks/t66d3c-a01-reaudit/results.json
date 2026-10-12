@@ -1,0 +1,1075 @@
+{
+  "audited_commit": "3e54d6992872aba9589b1a34c3ebe4316c70d646",
+  "baseline_commit": "6434d5e24cff316ff9a611b27b1d6cfc83e63d5c",
+  "initial_repository_state": "HEAD=main=origin/main=actual remote main; clean",
+  "verdict": "PASS — D3C-A01 INDEPENDENT TARGETED RE-AUDIT COMPLETE",
+  "unauthorized_committed_deletions": 0,
+  "original_counterexample": "PASS; original assert after == before unchanged",
+  "independent": {
+    "tests": 41,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 40.404,
+    "cases": [
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_independent_open_replacement[symlink-before]",
+        "time": "2.331"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_independent_open_replacement[symlink-after]",
+        "time": "1.372"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_independent_open_replacement[symlink-aba]",
+        "time": "1.344"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_independent_open_replacement[atomic-before]",
+        "time": "1.365"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_independent_open_replacement[atomic-after]",
+        "time": "1.403"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_independent_open_replacement[atomic-aba]",
+        "time": "1.427"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_independent_between_batches_and_new_connection",
+        "time": "1.637"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_same_inode_hardlink_alias_is_positive_identity",
+        "time": "0.130"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_open_fd_is_main_and_live_until_connection_close",
+        "time": "0.109"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_closed_connection_and_fd_number_reuse_cannot_authorize_sql",
+        "time": "0.161"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_commit_revalidates_after_delete_and_rolls_back",
+        "time": "1.038"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_authorized_fd_stays_original_if_path_changes_after_last_check",
+        "time": "1.055"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_parallel_gc_and_tls_witness_are_database_specific",
+        "time": "2.950"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_wal_reader_checkpoint_and_repeated_connections",
+        "time": "1.625"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_legitimate_gc_has_independent_reachability_and_http_reconstruction",
+        "time": "6.310"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_unsupported_or_failed_native_admission_is_fail_closed[os]",
+        "time": "0.259"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_unsupported_or_failed_native_admission_is_fail_closed[version]",
+        "time": "0.260"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_unsupported_or_failed_native_admission_is_fail_closed[vfs]",
+        "time": "0.264"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_unsupported_or_failed_native_admission_is_fail_closed[compiler_missing]",
+        "time": "0.262"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_unsupported_or_failed_native_admission_is_fail_closed[compiler_execution]",
+        "time": "0.261"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_unsupported_or_failed_native_admission_is_fail_closed[compiler_result]",
+        "time": "0.262"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_unsupported_or_failed_native_admission_is_fail_closed[compiler_timeout]",
+        "time": "0.265"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_unsupported_or_failed_native_admission_is_fail_closed[helper_load]",
+        "time": "0.307"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_unsupported_or_failed_native_admission_is_fail_closed[hook]",
+        "time": "0.263"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_unsupported_or_failed_native_admission_is_fail_closed[fd]",
+        "time": "0.264"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_unsupported_or_failed_native_admission_is_fail_closed[library]",
+        "time": "0.305"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_unsupported_or_failed_native_admission_is_fail_closed[concurrent_initialization]",
+        "time": "0.260"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_independent_crash_boundary_and_restart[before_fd]",
+        "time": "0.947"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_independent_crash_boundary_and_restart[after_fd]",
+        "time": "0.918"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_independent_crash_boundary_and_restart[before_sql]",
+        "time": "1.565"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_independent_crash_boundary_and_restart[deleted]",
+        "time": "1.577"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_independent_crash_boundary_and_restart[before_commit]",
+        "time": "1.580"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_independent_crash_boundary_and_restart[after_commit]",
+        "time": "1.741"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_independent_crash_boundary_and_restart[cleanup]",
+        "time": "1.633"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_fixed_cost_open_and_fd_cleanup",
+        "time": "0.094"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_actual_public_vfs_abi_and_sqlite_library",
+        "time": "0.146"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_actual_attachment_is_refused",
+        "time": "0.135"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_concurrent_first_initialization_compiles_once",
+        "time": "0.162"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_additional_native_crash_boundaries[helper_initialization]",
+        "time": "0.692"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_additional_native_crash_boundaries[before_connection_binding]",
+        "time": "0.686"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-a01-reaudit.test_review",
+        "name": "test_real_unsupported_sqlite_runtime_refuses_before_open",
+        "time": "0.162"
+      }
+    ]
+  },
+  "correction_and_original": {
+    "tests": 33,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 123.181,
+    "cases": [
+      {
+        "classname": "tests.test_isolated_sync_retention_ownership",
+        "name": "test_initial_creation_never_adopts_a_preexisting_path[file]",
+        "time": "2.336"
+      },
+      {
+        "classname": "tests.test_isolated_sync_retention_ownership",
+        "name": "test_initial_creation_never_adopts_a_preexisting_path[symlink]",
+        "time": "0.285"
+      },
+      {
+        "classname": "tests.test_isolated_sync_retention_ownership",
+        "name": "test_exclusively_created_inode_is_bound_before_initial_sqlite_open",
+        "time": "0.293"
+      },
+      {
+        "classname": "tests.test_isolated_sync_retention_ownership",
+        "name": "test_sqlite_open_substitution_commits_no_unauthorized_deletion[symlink-before_open]",
+        "time": "4.157"
+      },
+      {
+        "classname": "tests.test_isolated_sync_retention_ownership",
+        "name": "test_sqlite_open_substitution_commits_no_unauthorized_deletion[symlink-after_open]",
+        "time": "4.225"
+      },
+      {
+        "classname": "tests.test_isolated_sync_retention_ownership",
+        "name": "test_sqlite_open_substitution_commits_no_unauthorized_deletion[symlink-aba]",
+        "time": "4.239"
+      },
+      {
+        "classname": "tests.test_isolated_sync_retention_ownership",
+        "name": "test_sqlite_open_substitution_commits_no_unauthorized_deletion[atomic-before_open]",
+        "time": "4.247"
+      },
+      {
+        "classname": "tests.test_isolated_sync_retention_ownership",
+        "name": "test_sqlite_open_substitution_commits_no_unauthorized_deletion[atomic-after_open]",
+        "time": "4.280"
+      },
+      {
+        "classname": "tests.test_isolated_sync_retention_ownership",
+        "name": "test_sqlite_open_substitution_commits_no_unauthorized_deletion[atomic-aba]",
+        "time": "4.330"
+      },
+      {
+        "classname": "tests.test_isolated_sync_retention_ownership",
+        "name": "test_all_destructive_maintenance_connections_are_bound[maintain]",
+        "time": "0.795"
+      },
+      {
+        "classname": "tests.test_isolated_sync_retention_ownership",
+        "name": "test_all_destructive_maintenance_connections_are_bound[release]",
+        "time": "0.782"
+      },
+      {
+        "classname": "tests.test_isolated_sync_retention_ownership",
+        "name": "test_all_destructive_maintenance_connections_are_bound[protect]",
+        "time": "0.765"
+      },
+      {
+        "classname": "tests.test_isolated_sync_retention_ownership",
+        "name": "test_all_destructive_maintenance_connections_are_bound[unprotect]",
+        "time": "0.786"
+      },
+      {
+        "classname": "tests.test_isolated_sync_retention_ownership",
+        "name": "test_all_destructive_maintenance_connections_are_bound[collect]",
+        "time": "0.750"
+      },
+      {
+        "classname": "tests.test_isolated_sync_retention_ownership",
+        "name": "test_swap_between_gc_batches_keeps_only_authorized_prior_commit",
+        "time": "6.071"
+      },
+      {
+        "classname": "tests.test_isolated_sync_retention_ownership",
+        "name": "test_reused_connection_cannot_be_redirected_and_new_connection_rejects",
+        "time": "0.687"
+      },
+      {
+        "classname": "tests.test_isolated_sync_retention_ownership",
+        "name": "test_ownership_error_before_commit_rolls_back_actual_deletes[explicit]",
+        "time": "2.408"
+      },
+      {
+        "classname": "tests.test_isolated_sync_retention_ownership",
+        "name": "test_ownership_error_before_commit_rolls_back_actual_deletes[context]",
+        "time": "0.389"
+      },
+      {
+        "classname": "tests.test_isolated_sync_retention_ownership",
+        "name": "test_descriptor_validation_is_not_replaceable_by_copied_marker_or_path_check",
+        "time": "2.379"
+      },
+      {
+        "classname": "tests.test_isolated_sync_retention_ownership",
+        "name": "test_wrong_external_ownership_identity_rejects_actual_opened_fd",
+        "time": "0.265"
+      },
+      {
+        "classname": "tests.test_isolated_sync_retention_ownership",
+        "name": "test_missing_descriptor_observation_fails_closed_without_connection_leak",
+        "time": "0.264"
+      },
+      {
+        "classname": "tests.test_isolated_sync_retention_ownership",
+        "name": "test_unreviewed_native_platform_fails_closed[platform]",
+        "time": "0.263"
+      },
+      {
+        "classname": "tests.test_isolated_sync_retention_ownership",
+        "name": "test_unreviewed_native_platform_fails_closed[sqlite]",
+        "time": "0.262"
+      },
+      {
+        "classname": "tests.test_isolated_sync_retention_ownership",
+        "name": "test_quiescent_migration_open_is_independently_bound",
+        "time": "1.690"
+      },
+      {
+        "classname": "tests.test_isolated_sync_retention_ownership",
+        "name": "test_fd_reuse_during_wal_connections_keeps_actual_inode_binding",
+        "time": "1.672"
+      },
+      {
+        "classname": "tests.test_isolated_sync_retention_ownership",
+        "name": "test_crash_during_unowned_open_preserves_both_databases",
+        "time": "1.815"
+      },
+      {
+        "classname": "tests.test_isolated_sync_retention_ownership",
+        "name": "test_wal_parallel_connections_post_open_swap_have_no_unauthorized_commit",
+        "time": "0.534"
+      },
+      {
+        "classname": "tests.test_isolated_sync_retention_ownership",
+        "name": "test_process_interruption_around_admission_and_gc_commit[opened]",
+        "time": "6.864"
+      },
+      {
+        "classname": "tests.test_isolated_sync_retention_ownership",
+        "name": "test_process_interruption_around_admission_and_gc_commit[before_commit]",
+        "time": "9.047"
+      },
+      {
+        "classname": "tests.test_isolated_sync_retention_ownership",
+        "name": "test_process_interruption_around_admission_and_gc_commit[after_commit]",
+        "time": "10.189"
+      },
+      {
+        "classname": "tests.test_isolated_sync_retention_ownership",
+        "name": "test_legitimate_owned_gc_and_repeat_preserve_reachable_objects_and_evidence",
+        "time": "43.315"
+      },
+      {
+        "classname": "",
+        "name": "test_gc_admission_rejections[ownership_marker]",
+        "time": "0.814"
+      },
+      {
+        "classname": "",
+        "name": "test_D3C_A01_open_inode_race_must_not_delete_other_database",
+        "time": "1.267"
+      }
+    ]
+  },
+  "affected_prior_independent": {
+    "tests": 17,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 38.668,
+    "cases": [
+      {
+        "classname": "docs.benchmarks.t66d3c-audit.test_audit",
+        "name": "test_post_gc_http_eleven_tables_old_and_current",
+        "time": "12.248"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-audit.test_audit",
+        "name": "test_release_concurrent_and_wrong_principal",
+        "time": "1.137"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-audit.test_audit",
+        "name": "test_stale_mark_rejects_every_publication[writer]",
+        "time": "1.290"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-audit.test_audit",
+        "name": "test_stale_mark_rejects_every_publication[observation]",
+        "time": "1.294"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-audit.test_audit",
+        "name": "test_stale_mark_rejects_every_publication[release]",
+        "time": "1.074"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-audit.test_audit",
+        "name": "test_stale_mark_rejects_every_publication[epoch]",
+        "time": "1.435"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-audit.test_audit",
+        "name": "test_stale_mark_rejects_every_publication[explicit]",
+        "time": "1.099"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-audit.test_audit",
+        "name": "test_mark_snapshot_can_overlap_publication[writer]",
+        "time": "0.949"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-audit.test_audit",
+        "name": "test_mark_snapshot_can_overlap_publication[observation]",
+        "time": "1.018"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-audit.test_audit",
+        "name": "test_mark_snapshot_can_overlap_publication[epoch]",
+        "time": "1.298"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-audit.test_audit",
+        "name": "test_shared_principal_and_explicit_old_roots",
+        "time": "4.726"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-audit.test_audit",
+        "name": "test_native_cancel_transfer_gc_boundary[authenticated]",
+        "time": "1.801"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-audit.test_audit",
+        "name": "test_native_cancel_transfer_gc_boundary[objects_prepared]",
+        "time": "1.405"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-audit.test_audit",
+        "name": "test_native_cancel_transfer_gc_boundary[serialized]",
+        "time": "1.962"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-audit.test_audit",
+        "name": "test_native_cancel_transfer_gc_boundary[terminal]",
+        "time": "1.946"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-audit.test_audit",
+        "name": "test_cancelled_two_natives_do_not_admit_third_during_gc",
+        "time": "1.293"
+      },
+      {
+        "classname": "docs.benchmarks.t66d3c-audit.test_audit",
+        "name": "test_materialized_network_cancel_needs_no_source_lock",
+        "time": "1.951"
+      }
+    ]
+  },
+  "backend": {
+    "exit": {
+      "exit_code": 0,
+      "elapsed_seconds": 1512.0342089539627
+    },
+    "junit": {
+      "tests": 2855,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 1511.433,
+      "cases": []
+    },
+    "pytest_summary": "1315 passed, 1 warning, 1540 subtests passed in 1511.44s (0:25:11)"
+  },
+  "safety_summary": "59 passed, 1 warning in 4.89s",
+  "frontend_summary": [
+    "Test Files  6 passed (6)",
+    "Tests  21 passed (21)"
+  ],
+  "checks": {
+    "ruff": "PASS",
+    "compileall": "PASS",
+    "git_diff_check": "PASS",
+    "frontend_build": "PASS"
+  },
+  "performance": {
+    "samples": 40,
+    "median_ms": 0.283322500763461,
+    "p95_ms": 0.30941900331526995,
+    "warmups": 3,
+    "measurement": "bound open plus independent fstat/proc check and close; no before/after latency claim"
+  },
+  "official_header": {
+    "url": "https://www.sqlite.org/2024/sqlite-amalgamation-3450100.zip",
+    "archive_sha256": "5592243caf28b2cdef41e6ab58d25d653dfc53deded8450eb66072c929f030c4",
+    "header_sha256": "41e066ccd4f89e938f136ceb48c996c54dc381b59fe566dea48864c3750b779e",
+    "header_bytes": 640658
+  },
+  "artifact_check": {
+    "result": "PASS",
+    "versions_unchanged": true,
+    "changed_artifacts": [
+      "financial_engine"
+    ],
+    "bundle_matches_current_sources": true,
+    "all_artifact_lengths_hashes_verified": true
+  },
+  "scenarios": [
+    {
+      "scenario": "actual_abi",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "runtime": "3.45.1",
+      "sourceid": "2024-01-30 16:01:20 e876e51a0ed5c5b3126f52e532044363a014bc594cfefa87ffb5b82257ccalt1",
+      "library_path": "/lib/x86_64-linux-gnu/libsqlite3.so.0",
+      "header_version": 3045001,
+      "public_vfs_bytes": 168,
+      "offsets": {
+        "iVersion": 0,
+        "szOsFile": 4,
+        "mxPathname": 8,
+        "pNext": 16,
+        "zName": 24,
+        "pAppData": 32,
+        "xOpen": 40,
+        "xDelete": 48,
+        "xAccess": 56,
+        "xFullPathname": 64,
+        "xDlOpen": 72,
+        "xDlError": 80,
+        "xDlSym": 88,
+        "xDlClose": 96,
+        "xRandomness": 104,
+        "xSleep": 112,
+        "xCurrentTime": 120,
+        "xGetLastError": 128,
+        "xCurrentTimeInt64": 136,
+        "xSetSystemCall": 144,
+        "xGetSystemCall": 152,
+        "xNextSystemCall": 160
+      },
+      "device_bytes": 8,
+      "inode_bytes": 8,
+      "helper_directory_mode": "0700"
+    },
+    {
+      "scenario": "attachment",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "real_execution": true,
+      "attached_database_count": 0
+    },
+    {
+      "scenario": "between_batches",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "authorized_prior_deletions": 1,
+      "unauthorized_later_deletions": 0
+    },
+    {
+      "scenario": "closed_fd_reuse",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "original_fd": 42,
+      "replacement_fd": 42,
+      "fd_number_reused": true,
+      "closed_sql_rejected": true
+    },
+    {
+      "scenario": "commit_after_delete_revalidates",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "committed_deletions": 0,
+      "rollback_verified": true
+    },
+    {
+      "scenario": "crash_after_commit",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "actual_signal": "SIGKILL",
+      "authorized_deletions": 1,
+      "current_reconstructable": true,
+      "restart_ownership_verified": true
+    },
+    {
+      "scenario": "crash_after_fd",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "actual_signal": "SIGKILL",
+      "authorized_deletions": 0,
+      "current_reconstructable": true,
+      "restart_ownership_verified": true
+    },
+    {
+      "scenario": "crash_before_commit",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "actual_signal": "SIGKILL",
+      "authorized_deletions": 0,
+      "current_reconstructable": true,
+      "restart_ownership_verified": true
+    },
+    {
+      "scenario": "crash_before_connection_binding",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "actual_signal": "SIGKILL",
+      "committed_deletions": 0,
+      "restart_verified": true
+    },
+    {
+      "scenario": "crash_before_fd",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "actual_signal": "SIGKILL",
+      "authorized_deletions": 0,
+      "current_reconstructable": true,
+      "restart_ownership_verified": true
+    },
+    {
+      "scenario": "crash_before_sql",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "actual_signal": "SIGKILL",
+      "authorized_deletions": 0,
+      "current_reconstructable": true,
+      "restart_ownership_verified": true
+    },
+    {
+      "scenario": "crash_cleanup",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "actual_signal": "SIGKILL",
+      "authorized_deletions": 1,
+      "current_reconstructable": true,
+      "restart_ownership_verified": true
+    },
+    {
+      "scenario": "crash_deleted",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "actual_signal": "SIGKILL",
+      "authorized_deletions": 0,
+      "current_reconstructable": true,
+      "restart_ownership_verified": true
+    },
+    {
+      "scenario": "crash_helper_initialization",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "actual_signal": "SIGKILL",
+      "committed_deletions": 0,
+      "restart_verified": true
+    },
+    {
+      "scenario": "environment_compiler_execution",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "injection": "MOCKED_FAILURE_INJECTION",
+      "errors": [
+        "REJECT_SYNTHETIC_OWNERSHIP_PLATFORM"
+      ],
+      "persisted_unchanged": true
+    },
+    {
+      "scenario": "environment_compiler_missing",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "injection": "MOCKED_FAILURE_INJECTION",
+      "errors": [
+        "REJECT_SYNTHETIC_OWNERSHIP_PLATFORM"
+      ],
+      "persisted_unchanged": true
+    },
+    {
+      "scenario": "environment_compiler_result",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "injection": "MOCKED_FAILURE_INJECTION",
+      "errors": [
+        "REJECT_SYNTHETIC_OWNERSHIP_PLATFORM"
+      ],
+      "persisted_unchanged": true
+    },
+    {
+      "scenario": "environment_compiler_timeout",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "injection": "MOCKED_FAILURE_INJECTION",
+      "errors": [
+        "REJECT_SYNTHETIC_OWNERSHIP_PLATFORM"
+      ],
+      "persisted_unchanged": true
+    },
+    {
+      "scenario": "environment_concurrent_initialization",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "injection": "MOCKED_FAILURE_INJECTION",
+      "errors": [
+        "REJECT_SYNTHETIC_OWNERSHIP_PLATFORM",
+        "REJECT_SYNTHETIC_OWNERSHIP_PLATFORM",
+        "REJECT_SYNTHETIC_OWNERSHIP_PLATFORM",
+        "REJECT_SYNTHETIC_OWNERSHIP_PLATFORM"
+      ],
+      "persisted_unchanged": true
+    },
+    {
+      "scenario": "environment_fd",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "injection": "MOCKED_FAILURE_INJECTION",
+      "errors": [
+        "REJECT_SYNTHETIC_OWNERSHIP"
+      ],
+      "persisted_unchanged": true
+    },
+    {
+      "scenario": "environment_helper_load",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "injection": "MOCKED_FAILURE_INJECTION",
+      "errors": [
+        "REJECT_SYNTHETIC_OWNERSHIP_PLATFORM"
+      ],
+      "persisted_unchanged": true
+    },
+    {
+      "scenario": "environment_hook",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "injection": "MOCKED_FAILURE_INJECTION",
+      "errors": [
+        "REJECT_SYNTHETIC_OWNERSHIP_HOOK"
+      ],
+      "persisted_unchanged": true
+    },
+    {
+      "scenario": "environment_library",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "injection": "REAL_LIBRARY_MISMATCH",
+      "errors": [
+        "REJECT_SYNTHETIC_OWNERSHIP"
+      ],
+      "persisted_unchanged": true
+    },
+    {
+      "scenario": "environment_os",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "injection": "MOCKED_FAILURE_INJECTION",
+      "errors": [
+        "REJECT_SYNTHETIC_OWNERSHIP_PLATFORM"
+      ],
+      "persisted_unchanged": true
+    },
+    {
+      "scenario": "environment_version",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "injection": "MOCKED_FAILURE_INJECTION",
+      "errors": [
+        "REJECT_SYNTHETIC_OWNERSHIP_PLATFORM"
+      ],
+      "persisted_unchanged": true
+    },
+    {
+      "scenario": "environment_vfs",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "injection": "REAL_VFS_CHANGE",
+      "errors": [
+        "REJECT_SYNTHETIC_OWNERSHIP_PLATFORM"
+      ],
+      "persisted_unchanged": true
+    },
+    {
+      "scenario": "hardlink_alias",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "same_inode_authorized": true,
+      "maintenance_changes": 0
+    },
+    {
+      "scenario": "late_path_change",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "observations": [
+        {
+          "opened_identity": [
+            64512,
+            1182986
+          ],
+          "visible_identity": [
+            64512,
+            1182991
+          ]
+        }
+      ],
+      "authorized_original_deletions": 1,
+      "rejection_after_authorized_commit": true
+    },
+    {
+      "scenario": "legitimate_gc",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "authorized_deletions": 22,
+      "retained_objects": 263,
+      "reconstruction": {
+        "http_queries": 14,
+        "received_objects": 222,
+        "tables": 11,
+        "facts": 104,
+        "patricia": "PASS"
+      },
+      "second_deletions": 0
+    },
+    {
+      "scenario": "main_fd_lifetime",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "sqlite_fd": 33,
+      "anchor_fd": 12,
+      "sqlite_fd_closed": true,
+      "anchor_kept": true
+    },
+    {
+      "scenario": "parallel_tls_gc",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "distinct_identities": [
+        [
+          64512,
+          1182991
+        ],
+        [
+          64512,
+          1183029
+        ]
+      ],
+      "actual_deletions": [
+        11,
+        11
+      ]
+    },
+    {
+      "scenario": "real_unsupported_runtime",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "injection": "REAL_RUNTIME",
+      "runtime": "3.51.0",
+      "python": "3.13.9",
+      "error": "REJECT_SYNTHETIC_OWNERSHIP_PLATFORM",
+      "opened_databases": 0
+    },
+    {
+      "scenario": "single_initialization",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "compilations": 1,
+      "connections": 8,
+      "threads": 4,
+      "elapsed_ms": 49.892595037817955
+    },
+    {
+      "scenario": "steady_open_resources",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "samples_ms": [
+        0.28904201462864876,
+        0.30201603658497334,
+        0.2858079969882965,
+        0.28186599956825376,
+        0.28025900246575475,
+        0.30426401644945145,
+        0.28719299007207155,
+        0.28213998302817345,
+        0.30941900331526995,
+        0.3073930274695158,
+        0.29265403281897306,
+        0.3079479793086648,
+        0.30882999999448657,
+        0.28052396373823285,
+        0.2815159969031811,
+        0.2942779683507979,
+        0.2840600209310651,
+        0.28192601166665554,
+        0.29166997410357,
+        0.28253899654373527,
+        0.2815300249494612,
+        0.2811919548548758,
+        0.37154200254008174,
+        0.2891260082833469,
+        0.2830660087056458,
+        0.30994502594694495,
+        0.28821895830333233,
+        0.2835789928212762,
+        0.28998800553381443,
+        0.2937079989351332,
+        0.27147697983309627,
+        0.2710889675654471,
+        0.2781079965643585,
+        0.26877998607233167,
+        0.2693040296435356,
+        0.2673589624464512,
+        0.27740298537537456,
+        0.26747601805254817,
+        0.2664240309968591,
+        0.27324503753334284
+      ],
+      "steady_compilations": 0,
+      "fd_before": 29,
+      "fd_after": 29
+    },
+    {
+      "scenario": "swap_aba_atomic",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "identities": {
+        "authorized": [
+          64512,
+          1183019
+        ],
+        "replacement": [
+          64512,
+          1183022
+        ]
+      },
+      "original_count": 283,
+      "replacement_count": 283,
+      "replacement_deleted": [],
+      "error": "REJECT_SYNTHETIC_OWNERSHIP"
+    },
+    {
+      "scenario": "swap_aba_symlink",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "identities": {
+        "authorized": [
+          64512,
+          1183024
+        ],
+        "replacement": [
+          64512,
+          1182991
+        ]
+      },
+      "original_count": 283,
+      "replacement_count": 283,
+      "replacement_deleted": [],
+      "error": "REJECT_SYNTHETIC_OWNERSHIP"
+    },
+    {
+      "scenario": "swap_after_atomic",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "identities": {
+        "authorized": [
+          64512,
+          1183000
+        ],
+        "replacement": [
+          64512,
+          1183019
+        ]
+      },
+      "original_count": 283,
+      "replacement_count": 283,
+      "replacement_deleted": [],
+      "error": "REJECT_SYNTHETIC_OWNERSHIP"
+    },
+    {
+      "scenario": "swap_after_symlink",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "identities": {
+        "authorized": [
+          64512,
+          1183019
+        ],
+        "replacement": [
+          64512,
+          1183024
+        ]
+      },
+      "original_count": 283,
+      "replacement_count": 283,
+      "replacement_deleted": [],
+      "error": "REJECT_SYNTHETIC_OWNERSHIP"
+    },
+    {
+      "scenario": "swap_before_atomic",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "identities": {
+        "authorized": [
+          64512,
+          1182991
+        ],
+        "replacement": [
+          64512,
+          1183033
+        ]
+      },
+      "original_count": 283,
+      "replacement_count": 283,
+      "replacement_deleted": [],
+      "error": "REJECT_SYNTHETIC_OWNERSHIP"
+    },
+    {
+      "scenario": "swap_before_symlink",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "identities": {
+        "authorized": [
+          64512,
+          1183000
+        ],
+        "replacement": [
+          64512,
+          1183019
+        ]
+      },
+      "original_count": 283,
+      "replacement_count": 283,
+      "replacement_deleted": [],
+      "error": "REJECT_SYNTHETIC_OWNERSHIP"
+    },
+    {
+      "scenario": "wal_reader_checkpoint",
+      "result": "PASS",
+      "unauthorized_committed_deletions": 0,
+      "checkpoint": [
+        0,
+        60,
+        0
+      ],
+      "authorized_deletions": 11,
+      "reader_snapshot_preserved": true
+    }
+  ],
+  "production_access": "NONE",
+  "deployment": "NOT PERFORMED"
+}
