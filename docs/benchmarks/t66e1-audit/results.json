@@ -1,0 +1,741 @@
+{
+  "audited_commit": "141e01186d589a9071ae6a3d0c0023a6472c014d",
+  "baseline": "9ee495e970a02c9810b4519eb0730612fa4f6349",
+  "verdict": "FAIL — T6.6E1 CORRECTION REQUIRED",
+  "independent": {
+    "total": 73,
+    "passed": 67,
+    "failed": 6,
+    "inconclusive": 0,
+    "cases": [
+      {
+        "scenario": "test_server_c1_128_independent_vectors",
+        "seconds": 1.521,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_malformed_canonical_inputs[{\"b\":0,\"a\":0}]",
+        "seconds": 1.562,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_malformed_canonical_inputs[{\"a\":1,\"a\":2}]",
+        "seconds": 1.57,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_malformed_canonical_inputs[{\"a\":1,\"\\u0061\":2}]",
+        "seconds": 1.614,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_malformed_canonical_inputs[{\"a\":-0}]",
+        "seconds": 1.455,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_malformed_canonical_inputs[{\"a\":1e0}]",
+        "seconds": 1.516,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_malformed_canonical_inputs[{\"a\":1.0000000000000001}]",
+        "seconds": 1.509,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_malformed_canonical_inputs[{\"a\":-1e-400}]",
+        "seconds": 1.527,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_malformed_canonical_inputs[{\"a\":\"\\ud800\"}]",
+        "seconds": 1.571,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_malformed_canonical_inputs[\\xff]",
+        "seconds": 1.486,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_malformed_canonical_inputs[{\"a\":9223372036854775808}]",
+        "seconds": 1.473,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_malformed_canonical_inputs[{\"a\":NaN}]",
+        "seconds": 1.544,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_malformed_canonical_inputs[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[0]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]",
+        "seconds": 1.568,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_all_nine_server_object_kinds_and_hashes",
+        "seconds": 1.749,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_independent_malformed_manifest_rejected[protocol]",
+        "seconds": 1.579,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_independent_malformed_manifest_rejected[lease]",
+        "seconds": 1.679,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_independent_malformed_manifest_rejected[timestamp]",
+        "seconds": 1.66,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_independent_malformed_manifest_rejected[unknown]",
+        "seconds": 1.518,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_independent_malformed_manifest_rejected[version]",
+        "seconds": 1.599,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_independent_malformed_manifest_rejected[engine]",
+        "seconds": 1.457,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_independent_malformed_manifest_rejected[revision]",
+        "seconds": 1.609,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_independent_malformed_manifest_rejected[ref_bytes]",
+        "seconds": 1.568,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_independent_malformed_manifest_rejected[chunk]",
+        "seconds": 1.497,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_every_server_admitted_money_string_is_accepted[setting-0]",
+        "seconds": 1.588,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_every_server_admitted_money_string_is_accepted[setting-1]",
+        "seconds": 1.561,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_every_server_admitted_money_string_is_accepted[setting-2]",
+        "seconds": 1.72,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_every_server_admitted_money_string_is_accepted[setting-3]",
+        "seconds": 1.597,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 불일치",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "FAIL",
+        "evidence": [
+          "AssertionError: {'server_money_string': \"'\\\\x1c+0001\\\\x1c'\", 'dart': {'ok': False, 'error': 'SegmentedException(MONEY_STRING_INVALID)'}}\nassert False"
+        ]
+      },
+      {
+        "scenario": "test_every_server_admitted_money_string_is_accepted[setting-4]",
+        "seconds": 1.627,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 불일치",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "FAIL",
+        "evidence": [
+          "AssertionError: {'server_money_string': \"'\\\\x1d-0001\\\\x1d'\", 'dart': {'ok': False, 'error': 'SegmentedException(MONEY_STRING_INVALID)'}}\nassert False"
+        ]
+      },
+      {
+        "scenario": "test_every_server_admitted_money_string_is_accepted[setting-5]",
+        "seconds": 1.581,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 불일치",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "FAIL",
+        "evidence": [
+          "AssertionError: {'server_money_string': \"'\\\\x1e0.00\\\\x1e'\", 'dart': {'ok': False, 'error': 'SegmentedException(MONEY_STRING_INVALID)'}}\nassert False"
+        ]
+      },
+      {
+        "scenario": "test_every_server_admitted_money_string_is_accepted[setting-6]",
+        "seconds": 1.703,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 불일치",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "FAIL",
+        "evidence": [
+          "AssertionError: {'server_money_string': \"'\\\\x1f1000\\\\x1f'\", 'dart': {'ok': False, 'error': 'SegmentedException(MONEY_STRING_INVALID)'}}\nassert False"
+        ]
+      },
+      {
+        "scenario": "test_every_server_admitted_money_string_is_accepted[setting-7]",
+        "seconds": 1.594,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_every_server_admitted_money_string_is_accepted[setting-8]",
+        "seconds": 1.746,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_every_server_admitted_money_string_is_accepted[setting-9]",
+        "seconds": 1.48,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_every_server_admitted_money_string_is_accepted[setting-10]",
+        "seconds": 1.659,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_unicode_bytes_are_not_normalized",
+        "seconds": 11.747,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_write_reopen_and_direct_payload_hash_oracle",
+        "seconds": 4.423,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_duplicate_insert_is_idempotent",
+        "seconds": 3.823,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_invalid_object_keeps_prior_committed_data[conflict]",
+        "seconds": 3.542,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_invalid_object_keeps_prior_committed_data[truncated]",
+        "seconds": 3.378,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_invalid_object_keeps_prior_committed_data[version]",
+        "seconds": 3.314,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_invalid_object_keeps_prior_committed_data[epoch]",
+        "seconds": 3.614,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_invalid_object_keeps_prior_committed_data[unknown]",
+        "seconds": 3.281,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_persisted_corruption_fails_closed[body]",
+        "seconds": 3.505,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_persisted_corruption_fails_closed[kind]",
+        "seconds": 3.436,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_persisted_corruption_fails_closed[validator]",
+        "seconds": 3.258,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_persisted_corruption_fails_closed[edge]",
+        "seconds": 3.473,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_persisted_corruption_fails_closed[missing]",
+        "seconds": 3.293,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_persisted_corruption_fails_closed[usage]",
+        "seconds": 4.037,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_missing_schema_trigger_is_rejected_before_writes",
+        "seconds": 4.229,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 불일치",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "FAIL",
+        "evidence": [
+          "AssertionError: {'expected_maximum': 1, 'actual': [(2, 6591)], 'usage': [(0, 0)], 'dart': {'ok': True, 'path': '/tmp/pytest-of-hjkerma...ented-store-v1/3024d808d2c60c9119b85ee4d9a38c60f27a47547621d45c07beaf6efd624502.sqlite', 'open_us': 34762, 'count': 2}}\nassert (not True)"
+        ]
+      },
+      {
+        "scenario": "test_unknown_schema_version_preserves_existing_data",
+        "seconds": 3.929,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_progress_requires_payload_and_never_activates",
+        "seconds": 10.38,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_staging_checksum_corruption_is_rejected",
+        "seconds": 3.398,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_staging_root_corruption_is_rejected",
+        "seconds": 3.446,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_orphan_file_is_never_accepted_or_removed",
+        "seconds": 4.817,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_real_sigkill_boundaries_with_fresh_process[put-after_edges_insert-False]",
+        "seconds": 6.881,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_real_sigkill_boundaries_with_fresh_process[put-after_commit-True]",
+        "seconds": 6.599,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_real_sigkill_boundaries_with_fresh_process[stage-after_staging_insert-False]",
+        "seconds": 6.908,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_real_sigkill_boundaries_with_fresh_process[stage-after_commit-True]",
+        "seconds": 6.866,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_real_sigkill_boundaries_with_fresh_process[progress-after_progress_insert-False]",
+        "seconds": 8.775,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_real_sigkill_boundaries_with_fresh_process[progress-after_commit-True]",
+        "seconds": 7.992,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_real_sigkill_boundaries_with_fresh_process[cleanup-before_commit-False]",
+        "seconds": 10.466,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_real_sigkill_boundaries_with_fresh_process[cleanup-after_commit-True]",
+        "seconds": 10.319,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_four_concurrent_identical_writers",
+        "seconds": 8.446,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_concurrent_conflicting_writers_cannot_replace_payload",
+        "seconds": 8.088,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_reader_does_not_see_uncommitted_payload",
+        "seconds": 5.122,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_busy_error_then_recovery_keeps_good_data",
+        "seconds": 5.443,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_object_and_metadata_budgets_rollback_atomically",
+        "seconds": 5.053,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_payload_budget_is_distinct_from_chunk_limit",
+        "seconds": 5.416,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_real_sqlite_full_does_not_damage_previous_object",
+        "seconds": 3.675,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_staging_cleanup_preserves_objects_and_recovers_quota",
+        "seconds": 10.31,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_namespace_separation_and_offline_files_unchanged",
+        "seconds": 5.21,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_normal_runtime_has_no_segmented_imports_or_server_diff",
+        "seconds": 0.005,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 충족",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "PASS",
+        "evidence": []
+      },
+      {
+        "scenario": "test_server_rejected_bom_money_is_rejected",
+        "seconds": 2.442,
+        "expected": "test_audit.py에 보존한 normative assertion 충족",
+        "observed": "assertion 불일치",
+        "independent_oracle": "서버 exact bytes 및 Python hashlib/SQLite 또는 명시한 source proof; 해당 test 본문 참조",
+        "result": "FAIL",
+        "evidence": [
+          "AssertionError: 서버가 거부한 BOM 금액 문자열을 E1이 검증 성공으로 반환함\nassert not True"
+        ]
+      }
+    ],
+    "execution": "72개 corpus 실행 및 별도 BOM 1개 실행; 중복 실행은 합산하지 않음"
+  },
+  "existing_e1": {
+    "passed": 96,
+    "failed": 0
+  },
+  "flutter": {
+    "passed": 635,
+    "failed": 0,
+    "skipped": 2
+  },
+  "backend": {
+    "passed": 1315,
+    "subtests": 1540,
+    "failed": 0,
+    "wall_seconds": 1626.32
+  },
+  "safety": {
+    "passed": 59,
+    "failed": 0
+  },
+  "checks": {
+    "flutter_analyze": "PASS",
+    "flutter_build_debug": "PASS",
+    "original_dart_format": "PASS",
+    "ruff": "PASS",
+    "compileall": "PASS",
+    "frontend_build": "PASS",
+    "audit_dart_analyze": "PASS",
+    "audit_python_ruff": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "process_crash": {
+    "existing_boundaries": 7,
+    "independent_trials": 8,
+    "additional_boundaries": 4,
+    "total_distinct_boundaries": 11,
+    "evidence": "실제 SIGKILL 및 fresh SQLite/Dart; OS crash/power loss는 미검증"
+  },
+  "benchmark": {
+    "ok": true,
+    "open_us": 71987,
+    "get_mean_us": 1875.37,
+    "duplicate_put_mean_us": 2996.3,
+    "sqlite": "Version(libVersion: 3.53.4, sourceId: 2026-07-24 19:02:57 bf7c7f30031888f4e796e429ab3978879485813aaca6f641c7b33e4e09459bcc, number: 3053004)",
+    "rss_bytes": 272973824,
+    "max_rss_bytes": 311160832
+  },
+  "environment": {
+    "flutter": "3.47.4",
+    "dart": "3.13.3",
+    "python": "3.12.3",
+    "python_sqlite": "3.45.1",
+    "dart_sqlite": "3.53.4",
+    "platform": "Linux x86_64"
+  },
+  "fixture_sha256": "dc997448ed1f7ccabcc1f320876f97265f5d711413236a3b89e9a9cc5ea8121e",
+  "implementation_files_modified": 0,
+  "production_access": "NONE",
+  "deployment": "NOT PERFORMED"
+}

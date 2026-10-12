@@ -1,0 +1,130 @@
+{
+  "money": [
+    {
+      "codepoint": "U+001C",
+      "persisted_string_repr": "'\\x1c+0001000.00\\x1c'",
+      "manifest_status": 201,
+      "object_status": 200,
+      "independent_hash": "fa2a27e1a44dde809597f98c0565df230be92ec1f36a8001713c9fc19d0c1178",
+      "ref": {
+        "bytes": "1247",
+        "hash": "fa2a27e1a44dde809597f98c0565df230be92ec1f36a8001713c9fc19d0c1178"
+      },
+      "data_base64": "eyJjYW5vbiI6MSwiY291bnQiOiI3IiwiaGVpZ2h0IjowLCJraW5kIjoic25hcHNob3QtbGVhZiIsIm1heCI6WyJ0Iiwic2NoZWR1bGVkX2luY29tZSJdLCJtaW4iOlsidCIsImF1ZGl0LXNldHRpbmciXSwibnMiOnsiZGF0YXNldF9pZCI6IjI4NmVkZTQ2LTM1ODktNGUwYS04N2U1LWY2YzllYTY0OTgzYSIsImVwb2NoIjoiMmMyNTY5YTItNjE5NC00NzhkLTk4MTYtOTRkZDc2NzUzNjE4Iiwic2VydmVyX2lkIjoiZWMyYzI1ZDQtN2NmMy00ZjE4LTkyZWYtZGNhOGQ5NjdiNmJlIn0sIm92ZXJzaXplZCI6ZmFsc2UsInJhd19zY2hlbWEiOiJiOTQ4YTBlMzNmYzBhYmI2OTU3YWY3NmJlYWM2NDNhYzcxMzFkMmZjYWMzYWI1MzI2NWMwMmQxNjc4M2Y5NTNlIiwicm93cyI6W3sia2V5IjpbInQiLCJhdWRpdC1zZXR0aW5nIl0sInZhbHVlIjp7ImtleSI6ImF1ZGl0LXNldHRpbmciLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNDozNToyNSIsInZhbHVlIjoi67O07KG065CcIOyEpOyglSJ9fSx7ImtleSI6WyJ0IiwiYmFzZV9uZXh0X21vbnRoX2xpcXVpZGl0eSJdLCJ2YWx1ZSI6eyJrZXkiOiJiYXNlX25leHRfbW9udGhfbGlxdWlkaXR5IiwidXBkYXRlZF9hdCI6IjIwMjYtMTAtMTIgMDQ6MzU6MjUiLCJ2YWx1ZSI6Ilx1MDAxYyswMDAxMDAwLjAwXHUwMDFjIn19LHsia2V5IjpbInQiLCJjYXJkX2xpbWl0Il0sInZhbHVlIjp7ImtleSI6ImNhcmRfbGltaXQiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNDozNToyNSIsInZhbHVlIjoiMCJ9fSx7ImtleSI6WyJ0IiwiY2FzaF9mbG93X2JhbGFuY2UiXSwidmFsdWUiOnsia2V5IjoiY2FzaF9mbG93X2JhbGFuY2UiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNDozNToyNSIsInZhbHVlIjoiMCJ9fSx7ImtleSI6WyJ0IiwiZmFtaWx5X2NhcmRfbGFzdDQiXSwidmFsdWUiOnsia2V5IjoiZmFtaWx5X2NhcmRfbGFzdDQiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNDozNToyNSIsInZhbHVlIjoiIn19LHsia2V5IjpbInQiLCJvd25lcl9jYXJkX2xhc3Q0Il0sInZhbHVlIjp7ImtleSI6Im93bmVyX2NhcmRfbGFzdDQiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNDozNToyNSIsInZhbHVlIjoiIn19LHsia2V5IjpbInQiLCJzY2hlZHVsZWRfaW5jb21lIl0sInZhbHVlIjp7ImtleSI6InNjaGVkdWxlZF9pbmNvbWUiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNDozNToyNSIsInZhbHVlIjoiMCJ9fV0sInRhYmxlIjoiYXBwX3NldHRpbmdzIn0=",
+      "dart": {
+        "ok": false,
+        "error": "MONEY_STRING_INVALID",
+        "storageCode": null
+      },
+      "expected": "서버가 검증하여 전달한 bytes의 저장 성공"
+    },
+    {
+      "codepoint": "U+001D",
+      "persisted_string_repr": "'\\x1d+0001000.00\\x1d'",
+      "manifest_status": 201,
+      "object_status": 200,
+      "independent_hash": "80bef86082be4466d4d427dcb056a8081938486f04f441fadf060ea7f84280cd",
+      "ref": {
+        "bytes": "1247",
+        "hash": "80bef86082be4466d4d427dcb056a8081938486f04f441fadf060ea7f84280cd"
+      },
+      "data_base64": "eyJjYW5vbiI6MSwiY291bnQiOiI3IiwiaGVpZ2h0IjowLCJraW5kIjoic25hcHNob3QtbGVhZiIsIm1heCI6WyJ0Iiwic2NoZWR1bGVkX2luY29tZSJdLCJtaW4iOlsidCIsImF1ZGl0LXNldHRpbmciXSwibnMiOnsiZGF0YXNldF9pZCI6Ijc5NTEwNDAxLWUxZTEtNGJiZC05YjNkLWNhNzhmNGE5NmViMiIsImVwb2NoIjoiNmQwZGZmMTEtNTk3OS00NzQwLTliNzUtNWU4NjlkNjczNWQ0Iiwic2VydmVyX2lkIjoiZjRiMmJiMjUtMWYzMS00MTg4LWFjZmYtZmM4NWJiMDk3NjMyIn0sIm92ZXJzaXplZCI6ZmFsc2UsInJhd19zY2hlbWEiOiJiOTQ4YTBlMzNmYzBhYmI2OTU3YWY3NmJlYWM2NDNhYzcxMzFkMmZjYWMzYWI1MzI2NWMwMmQxNjc4M2Y5NTNlIiwicm93cyI6W3sia2V5IjpbInQiLCJhdWRpdC1zZXR0aW5nIl0sInZhbHVlIjp7ImtleSI6ImF1ZGl0LXNldHRpbmciLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNDozNToyOSIsInZhbHVlIjoi67O07KG065CcIOyEpOyglSJ9fSx7ImtleSI6WyJ0IiwiYmFzZV9uZXh0X21vbnRoX2xpcXVpZGl0eSJdLCJ2YWx1ZSI6eyJrZXkiOiJiYXNlX25leHRfbW9udGhfbGlxdWlkaXR5IiwidXBkYXRlZF9hdCI6IjIwMjYtMTAtMTIgMDQ6MzU6MjkiLCJ2YWx1ZSI6Ilx1MDAxZCswMDAxMDAwLjAwXHUwMDFkIn19LHsia2V5IjpbInQiLCJjYXJkX2xpbWl0Il0sInZhbHVlIjp7ImtleSI6ImNhcmRfbGltaXQiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNDozNToyOSIsInZhbHVlIjoiMCJ9fSx7ImtleSI6WyJ0IiwiY2FzaF9mbG93X2JhbGFuY2UiXSwidmFsdWUiOnsia2V5IjoiY2FzaF9mbG93X2JhbGFuY2UiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNDozNToyOSIsInZhbHVlIjoiMCJ9fSx7ImtleSI6WyJ0IiwiZmFtaWx5X2NhcmRfbGFzdDQiXSwidmFsdWUiOnsia2V5IjoiZmFtaWx5X2NhcmRfbGFzdDQiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNDozNToyOSIsInZhbHVlIjoiIn19LHsia2V5IjpbInQiLCJvd25lcl9jYXJkX2xhc3Q0Il0sInZhbHVlIjp7ImtleSI6Im93bmVyX2NhcmRfbGFzdDQiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNDozNToyOSIsInZhbHVlIjoiIn19LHsia2V5IjpbInQiLCJzY2hlZHVsZWRfaW5jb21lIl0sInZhbHVlIjp7ImtleSI6InNjaGVkdWxlZF9pbmNvbWUiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNDozNToyOSIsInZhbHVlIjoiMCJ9fV0sInRhYmxlIjoiYXBwX3NldHRpbmdzIn0=",
+      "dart": {
+        "ok": false,
+        "error": "MONEY_STRING_INVALID",
+        "storageCode": null
+      },
+      "expected": "서버가 검증하여 전달한 bytes의 저장 성공"
+    },
+    {
+      "codepoint": "U+001E",
+      "persisted_string_repr": "'\\x1e+0001000.00\\x1e'",
+      "manifest_status": 201,
+      "object_status": 200,
+      "independent_hash": "8f9a83873d42bdd4eabff8d9c0e88319df1bb655d2700697a1da3f217955f312",
+      "ref": {
+        "bytes": "1247",
+        "hash": "8f9a83873d42bdd4eabff8d9c0e88319df1bb655d2700697a1da3f217955f312"
+      },
+      "data_base64": "eyJjYW5vbiI6MSwiY291bnQiOiI3IiwiaGVpZ2h0IjowLCJraW5kIjoic25hcHNob3QtbGVhZiIsIm1heCI6WyJ0Iiwic2NoZWR1bGVkX2luY29tZSJdLCJtaW4iOlsidCIsImF1ZGl0LXNldHRpbmciXSwibnMiOnsiZGF0YXNldF9pZCI6ImY2YTNhMjRkLWNhYjAtNDk3My1iZGU1LWU1ZGVlN2M5Zjk5MiIsImVwb2NoIjoiM2M3NjQwZDctNTZkZi00ZDMxLWEyMTItYjQwNmMzMTY1YTBmIiwic2VydmVyX2lkIjoiNGIxYWIzZjYtODE2Ni00MzkyLWI3MWEtYjk3ZjBiNmU5NjFmIn0sIm92ZXJzaXplZCI6ZmFsc2UsInJhd19zY2hlbWEiOiJiOTQ4YTBlMzNmYzBhYmI2OTU3YWY3NmJlYWM2NDNhYzcxMzFkMmZjYWMzYWI1MzI2NWMwMmQxNjc4M2Y5NTNlIiwicm93cyI6W3sia2V5IjpbInQiLCJhdWRpdC1zZXR0aW5nIl0sInZhbHVlIjp7ImtleSI6ImF1ZGl0LXNldHRpbmciLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNDozNTozMiIsInZhbHVlIjoi67O07KG065CcIOyEpOyglSJ9fSx7ImtleSI6WyJ0IiwiYmFzZV9uZXh0X21vbnRoX2xpcXVpZGl0eSJdLCJ2YWx1ZSI6eyJrZXkiOiJiYXNlX25leHRfbW9udGhfbGlxdWlkaXR5IiwidXBkYXRlZF9hdCI6IjIwMjYtMTAtMTIgMDQ6MzU6MzIiLCJ2YWx1ZSI6Ilx1MDAxZSswMDAxMDAwLjAwXHUwMDFlIn19LHsia2V5IjpbInQiLCJjYXJkX2xpbWl0Il0sInZhbHVlIjp7ImtleSI6ImNhcmRfbGltaXQiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNDozNTozMiIsInZhbHVlIjoiMCJ9fSx7ImtleSI6WyJ0IiwiY2FzaF9mbG93X2JhbGFuY2UiXSwidmFsdWUiOnsia2V5IjoiY2FzaF9mbG93X2JhbGFuY2UiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNDozNTozMiIsInZhbHVlIjoiMCJ9fSx7ImtleSI6WyJ0IiwiZmFtaWx5X2NhcmRfbGFzdDQiXSwidmFsdWUiOnsia2V5IjoiZmFtaWx5X2NhcmRfbGFzdDQiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNDozNTozMiIsInZhbHVlIjoiIn19LHsia2V5IjpbInQiLCJvd25lcl9jYXJkX2xhc3Q0Il0sInZhbHVlIjp7ImtleSI6Im93bmVyX2NhcmRfbGFzdDQiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNDozNTozMiIsInZhbHVlIjoiIn19LHsia2V5IjpbInQiLCJzY2hlZHVsZWRfaW5jb21lIl0sInZhbHVlIjp7ImtleSI6InNjaGVkdWxlZF9pbmNvbWUiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNDozNTozMiIsInZhbHVlIjoiMCJ9fV0sInRhYmxlIjoiYXBwX3NldHRpbmdzIn0=",
+      "dart": {
+        "ok": false,
+        "error": "MONEY_STRING_INVALID",
+        "storageCode": null
+      },
+      "expected": "서버가 검증하여 전달한 bytes의 저장 성공"
+    },
+    {
+      "codepoint": "U+001F",
+      "persisted_string_repr": "'\\x1f+0001000.00\\x1f'",
+      "manifest_status": 201,
+      "object_status": 200,
+      "independent_hash": "236499277f42c37076336ca730b10a2c8e2f31f5d816d9289a716490c343d0e9",
+      "ref": {
+        "bytes": "1247",
+        "hash": "236499277f42c37076336ca730b10a2c8e2f31f5d816d9289a716490c343d0e9"
+      },
+      "data_base64": "eyJjYW5vbiI6MSwiY291bnQiOiI3IiwiaGVpZ2h0IjowLCJraW5kIjoic25hcHNob3QtbGVhZiIsIm1heCI6WyJ0Iiwic2NoZWR1bGVkX2luY29tZSJdLCJtaW4iOlsidCIsImF1ZGl0LXNldHRpbmciXSwibnMiOnsiZGF0YXNldF9pZCI6ImVmN2VlZGFjLTFmZmItNGQ2Zi1iMWQwLWE2MjQ1YzgzMDg4NSIsImVwb2NoIjoiMmNkNmMzMDYtYjY5MS00ZGRmLTllMGMtZDc2ODc1MTZlYzhkIiwic2VydmVyX2lkIjoiODJiMDI3NDgtYzdlYi00ODlmLWIzOWItODhiOWM5YTMxM2VkIn0sIm92ZXJzaXplZCI6ZmFsc2UsInJhd19zY2hlbWEiOiJiOTQ4YTBlMzNmYzBhYmI2OTU3YWY3NmJlYWM2NDNhYzcxMzFkMmZjYWMzYWI1MzI2NWMwMmQxNjc4M2Y5NTNlIiwicm93cyI6W3sia2V5IjpbInQiLCJhdWRpdC1zZXR0aW5nIl0sInZhbHVlIjp7ImtleSI6ImF1ZGl0LXNldHRpbmciLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNDozNTozNSIsInZhbHVlIjoi67O07KG065CcIOyEpOyglSJ9fSx7ImtleSI6WyJ0IiwiYmFzZV9uZXh0X21vbnRoX2xpcXVpZGl0eSJdLCJ2YWx1ZSI6eyJrZXkiOiJiYXNlX25leHRfbW9udGhfbGlxdWlkaXR5IiwidXBkYXRlZF9hdCI6IjIwMjYtMTAtMTIgMDQ6MzU6MzUiLCJ2YWx1ZSI6Ilx1MDAxZiswMDAxMDAwLjAwXHUwMDFmIn19LHsia2V5IjpbInQiLCJjYXJkX2xpbWl0Il0sInZhbHVlIjp7ImtleSI6ImNhcmRfbGltaXQiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNDozNTozNSIsInZhbHVlIjoiMCJ9fSx7ImtleSI6WyJ0IiwiY2FzaF9mbG93X2JhbGFuY2UiXSwidmFsdWUiOnsia2V5IjoiY2FzaF9mbG93X2JhbGFuY2UiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNDozNTozNSIsInZhbHVlIjoiMCJ9fSx7ImtleSI6WyJ0IiwiZmFtaWx5X2NhcmRfbGFzdDQiXSwidmFsdWUiOnsia2V5IjoiZmFtaWx5X2NhcmRfbGFzdDQiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNDozNTozNSIsInZhbHVlIjoiIn19LHsia2V5IjpbInQiLCJvd25lcl9jYXJkX2xhc3Q0Il0sInZhbHVlIjp7ImtleSI6Im93bmVyX2NhcmRfbGFzdDQiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNDozNTozNSIsInZhbHVlIjoiIn19LHsia2V5IjpbInQiLCJzY2hlZHVsZWRfaW5jb21lIl0sInZhbHVlIjp7ImtleSI6InNjaGVkdWxlZF9pbmNvbWUiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNDozNTozNSIsInZhbHVlIjoiMCJ9fV0sInRhYmxlIjoiYXBwX3NldHRpbmdzIn0=",
+      "dart": {
+        "ok": false,
+        "error": "MONEY_STRING_INVALID",
+        "storageCode": null
+      },
+      "expected": "서버가 검증하여 전달한 bytes의 저장 성공"
+    }
+  ],
+  "schema": {
+    "initial_usage": [
+      [
+        0,
+        0
+      ]
+    ],
+    "missing_trigger": "object_usage",
+    "configured_object_count": 1,
+    "dart": {
+      "ok": true,
+      "path": "/tmp/e1-schema-864b45ib/private/segmented-store-v1/3024d808d2c60c9119b85ee4d9a38c60f27a47547621d45c07beaf6efd624502.sqlite",
+      "open_us": 41518,
+      "count": 2
+    },
+    "actual_objects": [
+      [
+        2
+      ]
+    ],
+    "actual_payload": [
+      [
+        6591
+      ]
+    ],
+    "usage_after": [
+      [
+        0,
+        0
+      ]
+    ],
+    "sqlite_integrity": [
+      [
+        "ok"
+      ]
+    ],
+    "foreign_keys": [],
+    "reopen": {
+      "ok": false,
+      "error": "STORE_METADATA_CORRUPT",
+      "storageCode": null
+    },
+    "expected": "schema 누락을 쓰기 전에 거부하고 quota를 초과하지 않음"
+  },
+  "bom_money": {
+    "value_repr": "'\\ufeff1000\\ufeff'",
+    "server_error": "REJECT_SETTING_MONEY",
+    "dart": {
+      "ok": true,
+      "kind": "snapshot-leaf",
+      "bytes": "eyJjYW5vbiI6MSwiY291bnQiOiIxIiwiaGVpZ2h0IjowLCJraW5kIjoic25hcHNob3QtbGVhZiIsIm1heCI6WyJ0Iiwic2NoZWR1bGVkX2luY29tZSJdLCJtaW4iOlsidCIsInNjaGVkdWxlZF9pbmNvbWUiXSwibnMiOnsiZGF0YXNldF9pZCI6ImJjYjQ5NmIzLWVkOTctNGEyMi05ODBkLWMyN2NkNGZmODA5NSIsImVwb2NoIjoiNGYxYjZiMzAtOTc5Ny00YTJjLWJkMjQtN2NkZDRjNDYwYjViIiwic2VydmVyX2lkIjoiOWUwZWRmY2YtYTA1My00MWY0LWI4NDItZWU5ZTE0ZDY1ZmU4In0sIm92ZXJzaXplZCI6ZmFsc2UsInJhd19zY2hlbWEiOiJiOTQ4YTBlMzNmYzBhYmI2OTU3YWY3NmJlYWM2NDNhYzcxMzFkMmZjYWMzYWI1MzI2NWMwMmQxNjc4M2Y5NTNlIiwicm93cyI6W3sia2V5IjpbInQiLCJzY2hlZHVsZWRfaW5jb21lIl0sInZhbHVlIjp7ImtleSI6InNjaGVkdWxlZF9pbmNvbWUiLCJ1cGRhdGVkX2F0Ijoic3ludGhldGljIiwidmFsdWUiOiLvu78xMDAw77u/In19XSwidGFibGUiOiJhcHBfc2V0dGluZ3MifQ=="
+    },
+    "expected": "서버가 거부한 금액 문자열을 E1도 거부함"
+  }
+}
