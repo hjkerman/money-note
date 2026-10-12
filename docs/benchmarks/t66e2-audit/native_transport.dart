@@ -13,6 +13,28 @@ late Map job;
 SecurityContext context() => SecurityContext()
   ..useCertificateChain(job['cert'] as String)
   ..usePrivateKey(job['key'] as String);
+
+// E2-A01 correction oracle: an unfinished server HttpResponse pauses its parser
+// and can remain "active" after the peer closes. Keep that historical counter,
+// but independently count this client's actual TCP FD to the synthetic port.
+Future<int> clientSocketOwners(int port) async {
+  final result = await Process.run('ss', [
+    '-Htnp',
+    'state',
+    'all',
+    'dst',
+    '127.0.0.1',
+    'dport',
+    '=',
+    ':$port',
+  ]).timeout(const Duration(seconds: 2));
+  if (result.exitCode != 0) throw StateError('TCP_ORACLE_FAILED');
+  return (result.stdout as String)
+      .split('\n')
+      .where((line) => line.contains('pid=$pid,'))
+      .length;
+}
+
 Future<Map<String, dynamic>> trial(String mode) async {
   final ctx = context();
   final server = await HttpServer.bindSecure(
@@ -73,8 +95,10 @@ Future<Map<String, dynamic>> trial(String mode) async {
 
   final first = await request();
   final before = server.connectionsInfo();
+  final clientBefore = await clientSocketOwners(server.port);
   final second = await request();
   final after = server.connectionsInfo();
+  final clientAfter = await clientSocketOwners(server.port);
   client.close();
   await server.close(force: true);
   return {
@@ -86,6 +110,8 @@ Future<Map<String, dynamic>> trial(String mode) async {
     'active_after_second': after.active,
     'total_connections': after.total,
     'held_responses': pending.length,
+    'client_fd_after_first': clientBefore,
+    'client_fd_after_second': clientAfter,
   };
 }
 
@@ -125,7 +151,7 @@ Future<Map<String, dynamic>> repeatedAcquisition() async {
     CacheNamespace.forTarget(origin, target),
     acquisition: true,
   );
-  final errors = <String>[], active = <int>[];
+  final errors = <String>[], active = <int>[], clientActive = <int>[];
   for (var i = 0; i < 6; i++) {
     try {
       await IncrementalFetcher(
@@ -143,6 +169,7 @@ Future<Map<String, dynamic>> repeatedAcquisition() async {
       errors.add(e.code);
     }
     active.add(server.connectionsInfo().active);
+    clientActive.add(await clientSocketOwners(server.port));
   }
   final path = store.path;
   store.close();
@@ -160,6 +187,7 @@ Future<Map<String, dynamic>> repeatedAcquisition() async {
     'mode': 'repeated-acquisition',
     'errors': errors,
     'active_after_each_failure': active,
+    'client_fd_after_each_failure': clientActive,
     'server_requests': requests,
     'objects': objects,
     'stages': stages,

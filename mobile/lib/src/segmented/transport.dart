@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
+import 'package:http/io_client.dart' show IOStreamedResponse;
 
 import 'c1.dart';
 import 'protocol.dart';
@@ -141,16 +142,26 @@ class AuthenticatedSegmentedTransport implements SegmentedTransport {
         request.bodyBytes = body;
       }
       final response = await client.send(request);
-      checkSession();
-      cancellation.check();
-      final length = response.contentLength;
-      if (length != null && (length < 0 || length > maxResponseBytes)) {
-        abortRequest();
-        rejectSegment('RESPONSE_SIZE_EXCEEDED');
-      }
-      if (response.statusCode >= 300 && response.statusCode < 400) {
-        abortRequest();
-        rejectSegment('REDIRECT_REJECTED');
+      final int? length;
+      try {
+        checkSession();
+        cancellation.check();
+        length = response.contentLength;
+        if (length != null && (length < 0 || length > maxResponseBytes)) {
+          abortRequest();
+          rejectSegment('RESPONSE_SIZE_EXCEEDED');
+        }
+        if (response.statusCode >= 300 && response.statusCode < 400) {
+          abortRequest();
+          rejectSegment('REDIRECT_REJECTED');
+        }
+      } catch (_) {
+        // The failure is already determined. Cleanup must not replace it with
+        // a later timeout/cancel signal while awaiting native stream release.
+        timer.cancel();
+        removeCancellation();
+        await _discardResponse(response);
+        rethrow;
       }
       final bytes = BytesBuilder(copy: false);
       await for (final chunk in response.stream) {
@@ -195,6 +206,28 @@ class AuthenticatedSegmentedTransport implements SegmentedTransport {
       removeCancellation();
     }
   }
+}
+
+Future<void> _discardResponse(http.StreamedResponse response) async {
+  Future<void> release() async {
+    if (response is IOStreamedResponse) {
+      try {
+        // Public response-scoped API: remove this socket from the IOClient pool
+        // and destroy it, without draining the body or closing the shared client.
+        // Abort-before-listen in http 1.6.0 cannot do this. The continuation also
+        // destroys a late socket if the bounded cleanup wait has already ended.
+        await response.detachSocket().then((socket) => socket.destroy());
+        return;
+      } on Object {/* Injected IO responses may not have an inner socket. */}
+    }
+    await response.stream
+        .listen(null, onError: (Object _, StackTrace __) {})
+        .cancel();
+  }
+
+  try {
+    await release().timeout(const Duration(seconds: 2));
+  } on Object {/* Cleanup must not mask the original validation error. */}
 }
 
 class SyncRemoteException implements Exception {

@@ -1,0 +1,65 @@
+{
+  "starting_commit": "814eab506aa8457d10a7302241a26120b9389ff6",
+  "finding": "E2-A01",
+  "role": "구현 교정 검증이며 독립 재감사 결과가 아니다",
+  "environment": {
+    "flutter": "3.47.4",
+    "dart": "3.13.3",
+    "http": "1.6.0",
+    "network": "새 loopback HTTPS server와 임시 자체 서명 인증서",
+    "database": "새 disposable E1 SQLite만 사용"
+  },
+  "before": {
+    "original_native_tests": {"pass": 1, "fail": 4},
+    "client_fd_oracle_against_restored_baseline": {"pass": 1, "fail": 4},
+    "auth_redirect_oversized_client_fd": [1, 1, 1],
+    "auth_redirect_oversized_followup": ["TRANSPORT_TIMEOUT", "TRANSPORT_TIMEOUT", "TRANSPORT_TIMEOUT"],
+    "repeated_acquisition_client_fd": [1, 2, 3, 4, 5, 6]
+  },
+  "oracle_clarification": {
+    "owner_approved": true,
+    "original_audit_report_and_summary": "변경하지 않음",
+    "original_request_scenarios": "변경하지 않음",
+    "intermediate_old_assertions": {"pass": 1, "fail": 4},
+    "reason": "미완료 server response의 active 상태는 client TCP FD 소유권과 다름",
+    "replacement": "client PID와 synthetic destination port의 실제 TCP FD + pool=1 후속 요청",
+    "original_server_active_counter": "숨기지 않고 계속 기록"
+  },
+  "after": {
+    "original_native_tests_with_strengthened_oracle": {"pass": 5, "fail": 0},
+    "additional_tcp_and_persisted_state_tests": {"pass": 5, "fail": 0},
+    "previously_failed_scenarios": {"pass": 4, "fail": 0, "inconclusive": 0},
+    "auth_redirect_oversized_client_fd": [0, 0, 0],
+    "auth_redirect_oversized_followup": ["HTTP_200", "HTTP_200", "HTTP_200"],
+    "auth_redirect_oversized_server_request_counts": [2, 2, 2],
+    "original_validation_errors": ["AUTHENTICATION_CHANGED", "REDIRECT_REJECTED", "RESPONSE_SIZE_EXCEEDED"],
+    "repeated_acquisition_client_fd": [0, 0, 0, 0, 0, 0],
+    "repeated_acquisition_server_active": [1, 2, 3, 4, 5, 6],
+    "positive_control": {"requests": 2, "total_connections": 1, "idle_client_fd": 1},
+    "fresh_sqlite": {"objects": 0, "staging": 0, "acquisition": 0, "integrity": "ok", "foreign_key_violations": 0}
+  },
+  "regression": {
+    "new_flutter_cleanup_tests": 13,
+    "existing_e2_flutter_tests": 124,
+    "existing_e1_flutter_tests": 307,
+    "e1_independent_tests": 111,
+    "e2_non_native_independent_tests": 69,
+    "flutter": {"pass": 983, "fail": 0, "skip": 2},
+    "backend": {"tests_pass": 1315, "subtests_pass": 1540, "fail": 0, "seconds": 1587.52},
+    "safety_and_diagnostic_tests": 60,
+    "flutter_analyze": "PASS",
+    "changed_and_segmented_dart_format": "PASS",
+    "whole_dart_format": "기준 commit과 동일한 기존 10개 파일에서 FAIL, 변경하지 않음",
+    "debug_apk_compile_only": "PASS",
+    "frontend_build": "PASS",
+    "frontend_tests": 21,
+    "ruff": "PASS",
+    "compileall": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "cleanup_wait_bound_seconds": 2,
+  "production_access": "NONE",
+  "deployment": "NOT PERFORMED",
+  "activation": "NOT PERFORMED",
+  "independent_targeted_reaudit": "PENDING"
+}

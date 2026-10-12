@@ -799,14 +799,18 @@ def test_native_ioclient_header_rejection_cleans_connection(native_results, mode
     good = (
         result["second"] == "HTTP_200"
         and result["server_requests"] == 2
-        and result["active_after_first"] == 0
+        # A successful response may retain one reusable idle client socket.
+        # A rejected response must retain no client-owned socket. The server's
+        # deliberately held response counter is preserved, not used as an FD.
+        and result["client_fd_after_first"] == (1 if mode == "positive" else 0)
+        and result["client_fd_after_second"] == 1
     )
     save(
         "native-" + mode,
         expected="정상 또는 거부 응답 처리 뒤 연결을 해제하고 후속 요청 성공",
         observed=result,
         verdict="PASS" if good else "FAIL",
-        oracle="실제 loopback HTTPS/IOClient/server connectionsInfo",
+        oracle="실제 loopback HTTPS·client PID/port TCP FD·pool=1 후속 HTTP_200",
     )
     assert good, result
 
@@ -816,12 +820,12 @@ def test_native_repeated_acquisition_has_no_abandoned_connections(native_results
     state = persisted(result["path"])
     assert state["objects"] == 0 and not state["states"]
     assert result["errors"] == ["RESPONSE_SIZE_EXCEEDED"] * 6
-    good = result["active_after_each_failure"] == [0] * 6
+    good = result["client_fd_after_each_failure"] == [0] * 6
     save(
         "native-repeated",
-        expected="6회 실패 후 매번 native 연결 0, SQLite object/stage 0",
+        expected="6회 실패 후 매번 client TCP FD 0, SQLite object/stage 0",
         observed=result,
         verdict="PASS" if good else "FAIL",
-        oracle="실제 IOClient/acquire·서버 socket 계수·fresh SQLite",
+        oracle="실제 IOClient/acquire·client PID/port TCP FD·fresh SQLite",
     )
     assert good, result
