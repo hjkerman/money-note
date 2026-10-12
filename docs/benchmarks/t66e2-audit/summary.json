@@ -1,0 +1,2777 @@
+{
+  "audit": "T6.6E2",
+  "audited_commit": "69a8fd15b581357ef4be859fec03525bd6070fb4",
+  "baseline": "bd3a7e08c5b810c8c30d26e498d1994218b33b71",
+  "environment": {
+    "flutter": "3.47.4",
+    "dart": "3.13.3",
+    "python": "3.12.3",
+    "sqlite_python": "3.45.1",
+    "data": "NEW_DISPOSABLE_SYNTHETIC_ONLY",
+    "asgi": "ACTUAL_TESTCLIENT_PRIVATE_BRIDGE",
+    "native_http": "REAL_LOOPBACK_HTTPS_IOCLIENT",
+    "measurements_per_cell": 1,
+    "rss_measured": false
+  },
+  "regression": {
+    "new_independent": {
+      "passed": 70,
+      "failed": 4,
+      "base": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 69,
+        "time": 444.378
+      },
+      "native": {
+        "errors": 0,
+        "failures": 4,
+        "skipped": 0,
+        "tests": 5,
+        "time": 9.482
+      }
+    },
+    "original_e1": {
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "tests": 111,
+      "time": 529.394
+    },
+    "full_flutter": {
+      "success": 970,
+      "skip": 2
+    },
+    "e2_existing": {
+      "fetch": 72,
+      "transport": 30,
+      "acquisition_store": 14,
+      "crash": 3,
+      "actual_integration": 5
+    },
+    "backend_first": {
+      "errors": 0,
+      "failures": 1,
+      "skipped": 0,
+      "tests": 2855,
+      "time": 1692.804
+    },
+    "backend_isolated_retry": {
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "tests": 1,
+      "time": 4.978
+    },
+    "backend_full_rerun": {
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "tests": 2855,
+      "time": 1566.937
+    },
+    "backend_status": "PASS",
+    "backend_tests": 1315,
+    "backend_subtests": 1540,
+    "safety": {
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "tests": 27,
+      "time": 1.534
+    },
+    "diagnostics": {
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "tests": 33,
+      "time": 4.839
+    },
+    "frontend_tests": 21,
+    "flutter_analyze": "PASS",
+    "flutter_build": "PASS_NOT_INSTALLED",
+    "changed_dart_format": {
+      "files": 13,
+      "status": "PASS"
+    },
+    "whole_dart_format": {
+      "status": "FAIL_EXISTING_BASELINE",
+      "unchanged_files": [
+        "lib/src/apk_install_bridge.dart",
+        "lib/src/screens/home_shell.dart",
+        "lib/src/screens/management_month_close.dart",
+        "lib/src/screens/management_settings.dart",
+        "lib/src/screens/month_entries_screen.dart",
+        "lib/src/screens/snapshot_manager_screen.dart",
+        "test/date_picker_row_test.dart",
+        "test/offline_notification_identity_test.dart",
+        "test/offline_persistence_test.dart",
+        "test/offline_reconciliation_test.dart"
+      ]
+    },
+    "ruff": "PASS",
+    "compileall": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "findings": [
+    {
+      "id": "E2-A01",
+      "severity": "MEDIUM",
+      "status": "CONFIRMED_FAILURE",
+      "source": "mobile/lib/src/segmented/transport.dart:143",
+      "impact": "header 거부 뒤 native 응답 연결 누적과 후속 요청 timeout",
+      "blocks_e3": true
+    }
+  ],
+  "native_evidence": [
+    {
+      "mode": "positive",
+      "first": "HTTP_200",
+      "second": "HTTP_200",
+      "server_requests": 2,
+      "active_after_first": 0,
+      "active_after_second": 0,
+      "total_connections": 1,
+      "held_responses": 0
+    },
+    {
+      "mode": "auth",
+      "first": "SegmentedException(AUTHENTICATION_CHANGED)",
+      "second": "SegmentedException(TRANSPORT_TIMEOUT)",
+      "server_requests": 1,
+      "active_after_first": 1,
+      "active_after_second": 1,
+      "total_connections": 1,
+      "held_responses": 1
+    },
+    {
+      "mode": "redirect",
+      "first": "SegmentedException(REDIRECT_REJECTED)",
+      "second": "SegmentedException(TRANSPORT_TIMEOUT)",
+      "server_requests": 1,
+      "active_after_first": 1,
+      "active_after_second": 1,
+      "total_connections": 1,
+      "held_responses": 1
+    },
+    {
+      "mode": "oversized",
+      "first": "SegmentedException(RESPONSE_SIZE_EXCEEDED)",
+      "second": "SegmentedException(TRANSPORT_TIMEOUT)",
+      "server_requests": 1,
+      "active_after_first": 1,
+      "active_after_second": 1,
+      "total_connections": 1,
+      "held_responses": 1
+    },
+    {
+      "mode": "repeated-acquisition",
+      "errors": [
+        "RESPONSE_SIZE_EXCEEDED",
+        "RESPONSE_SIZE_EXCEEDED",
+        "RESPONSE_SIZE_EXCEEDED",
+        "RESPONSE_SIZE_EXCEEDED",
+        "RESPONSE_SIZE_EXCEEDED",
+        "RESPONSE_SIZE_EXCEEDED"
+      ],
+      "active_after_each_failure": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "server_requests": 6,
+      "objects": 0,
+      "stages": 0,
+      "path": "/tmp/pytest-of-hjkerman/pytest-144/e2-native-https0/store/segmented-store-v1/4316e202e799b95fef16e5ac130957df2e053d03b56add2e2b31fb749446943e.sqlite"
+    }
+  ],
+  "independent_cases": [
+    {
+      "scenario": "actual-asgi",
+      "expected": "실제 server graph·11 tables·Patricia·HTTP count 일치, G1/G2를 혼합하지 않음",
+      "observed": "cold/identical/incremental/cancel/resume 검증",
+      "verdict": "PASS",
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "measurements": [
+        {
+          "name": "cold",
+          "ok": true,
+          "http": {
+            "object_requests": 178,
+            "manifest_requests": 2,
+            "release_requests": 1,
+            "payload_bytes": 111718,
+            "response_bytes": 200898,
+            "max_active_sends": 1
+          },
+          "metrics": {
+            "manifest_requests": 2,
+            "object_requests": 178,
+            "release_requests": 1,
+            "payload_bytes": 111718,
+            "response_bytes": 200898,
+            "cache_hits": 0,
+            "cache_misses": 178,
+            "downloaded_objects": 178,
+            "verification_us": 1007069,
+            "elapsed_us": 35152059
+          },
+          "actual_graph": 178,
+          "new_refs": 178,
+          "independent_http_objects": 178,
+          "independent_http_response_bytes": 200898,
+          "target": {
+            "context": {
+              "evaluation_date": "2026-10-05",
+              "financial_engine": "f34aef259c801ada33ccb88cfb103ee6654fb4467c49a66ce509f2239ffe449d",
+              "timezone_offset_minutes": 540
+            },
+            "control_ref": {
+              "bytes": "3178",
+              "hash": "43ee9a4520052d1e1b9adc35a2448e8d214444b6ae91d8722cead1d3544077c1"
+            },
+            "hot_ref": {
+              "bytes": "6328",
+              "hash": "5cdedca1a2a3c003459252d5212013edea41038424e8fdfb1daf1994adf94194"
+            },
+            "index_ref": {
+              "bytes": "394",
+              "hash": "45cb7f527de379565a7f838ad9ad68d2edba477a3a34a0a03b9a03fbd817b289"
+            },
+            "ns": {
+              "dataset_id": "ad3d51b3-2311-4b7c-9b00-b6400cce6827",
+              "epoch": "6a685c00-dd62-4a1e-9c86-e0ef0514145e",
+              "server_id": "74d9d247-1cef-4cc3-9765-48cf39227331"
+            },
+            "principal_id": 1,
+            "raw_ref": {
+              "bytes": "2659",
+              "hash": "c201b9187d4bab5e4bec8f2f79437612f9c80aa5c17120608cd713e41b9b99ae"
+            },
+            "revision": "36",
+            "sync_root": "8aeb9e93d0e3eaa805fda9d42e5d39fc79a7a77fc6ae464c06c63c5dec4557d7",
+            "versions": {
+              "canon": 1,
+              "policy_registry": "18be2d36483467e9250d568bcbfed6458c15a364fa99896eb1b8daad05db043d",
+              "projection_schema": "89e2bd7bf3f1683ddff95a0b33b1e9ff08ff19d5a001f4007c40ed4c6c5b3437",
+              "raw_schema": "b948a0e33fc0abb6957af76beac643ac7131d2fcac3ab53265c02d16783f953e",
+              "recurring_ownership": 1,
+              "snapshot": 7,
+              "structural": 1,
+              "sync": 1
+            }
+          },
+          "eleven_tables": 11,
+          "patricia": "PASS"
+        },
+        {
+          "name": "identical",
+          "ok": true,
+          "http": {
+            "object_requests": 178,
+            "manifest_requests": 4,
+            "release_requests": 2,
+            "payload_bytes": 111718,
+            "response_bytes": 203832,
+            "max_active_sends": 1
+          },
+          "metrics": {
+            "manifest_requests": 2,
+            "object_requests": 0,
+            "release_requests": 1,
+            "payload_bytes": 0,
+            "response_bytes": 2934,
+            "cache_hits": 178,
+            "cache_misses": 0,
+            "downloaded_objects": 0,
+            "verification_us": 88288,
+            "elapsed_us": 1578838
+          },
+          "actual_graph": 178,
+          "new_refs": 0,
+          "independent_http_objects": 0,
+          "independent_http_response_bytes": 2934,
+          "target": {
+            "context": {
+              "evaluation_date": "2026-10-05",
+              "financial_engine": "f34aef259c801ada33ccb88cfb103ee6654fb4467c49a66ce509f2239ffe449d",
+              "timezone_offset_minutes": 540
+            },
+            "control_ref": {
+              "bytes": "3178",
+              "hash": "43ee9a4520052d1e1b9adc35a2448e8d214444b6ae91d8722cead1d3544077c1"
+            },
+            "hot_ref": {
+              "bytes": "6328",
+              "hash": "5cdedca1a2a3c003459252d5212013edea41038424e8fdfb1daf1994adf94194"
+            },
+            "index_ref": {
+              "bytes": "394",
+              "hash": "45cb7f527de379565a7f838ad9ad68d2edba477a3a34a0a03b9a03fbd817b289"
+            },
+            "ns": {
+              "dataset_id": "ad3d51b3-2311-4b7c-9b00-b6400cce6827",
+              "epoch": "6a685c00-dd62-4a1e-9c86-e0ef0514145e",
+              "server_id": "74d9d247-1cef-4cc3-9765-48cf39227331"
+            },
+            "principal_id": 1,
+            "raw_ref": {
+              "bytes": "2659",
+              "hash": "c201b9187d4bab5e4bec8f2f79437612f9c80aa5c17120608cd713e41b9b99ae"
+            },
+            "revision": "36",
+            "sync_root": "8aeb9e93d0e3eaa805fda9d42e5d39fc79a7a77fc6ae464c06c63c5dec4557d7",
+            "versions": {
+              "canon": 1,
+              "policy_registry": "18be2d36483467e9250d568bcbfed6458c15a364fa99896eb1b8daad05db043d",
+              "projection_schema": "89e2bd7bf3f1683ddff95a0b33b1e9ff08ff19d5a001f4007c40ed4c6c5b3437",
+              "raw_schema": "b948a0e33fc0abb6957af76beac643ac7131d2fcac3ab53265c02d16783f953e",
+              "recurring_ownership": 1,
+              "snapshot": 7,
+              "structural": 1,
+              "sync": 1
+            }
+          },
+          "eleven_tables": 11,
+          "patricia": "PASS"
+        },
+        {
+          "name": "incremental",
+          "ok": true,
+          "http": {
+            "object_requests": 188,
+            "manifest_requests": 6,
+            "release_requests": 3,
+            "payload_bytes": 132096,
+            "response_bytes": 236700,
+            "max_active_sends": 1
+          },
+          "metrics": {
+            "manifest_requests": 2,
+            "object_requests": 10,
+            "release_requests": 1,
+            "payload_bytes": 20378,
+            "response_bytes": 32868,
+            "cache_hits": 168,
+            "cache_misses": 10,
+            "downloaded_objects": 10,
+            "verification_us": 142586,
+            "elapsed_us": 3689364
+          },
+          "actual_graph": 178,
+          "new_refs": 10,
+          "independent_http_objects": 10,
+          "independent_http_response_bytes": 32868,
+          "target": {
+            "context": {
+              "evaluation_date": "2026-10-05",
+              "financial_engine": "f34aef259c801ada33ccb88cfb103ee6654fb4467c49a66ce509f2239ffe449d",
+              "timezone_offset_minutes": 540
+            },
+            "control_ref": {
+              "bytes": "3178",
+              "hash": "43ee9a4520052d1e1b9adc35a2448e8d214444b6ae91d8722cead1d3544077c1"
+            },
+            "hot_ref": {
+              "bytes": "6420",
+              "hash": "9b58a61e9c8ca6d7a813792b0ec696d48772ea118466fb4215316f28a7a805e6"
+            },
+            "index_ref": {
+              "bytes": "394",
+              "hash": "1d2dbfc7d4d7ffbf980a35f2683005993eeda35b7eac28634b521617594eedf1"
+            },
+            "ns": {
+              "dataset_id": "ad3d51b3-2311-4b7c-9b00-b6400cce6827",
+              "epoch": "6a685c00-dd62-4a1e-9c86-e0ef0514145e",
+              "server_id": "74d9d247-1cef-4cc3-9765-48cf39227331"
+            },
+            "principal_id": 1,
+            "raw_ref": {
+              "bytes": "2659",
+              "hash": "fd5766b9c6ac95053fe1557c91fd765c1aa06e78c770529eaf1c429da903adab"
+            },
+            "revision": "37",
+            "sync_root": "fb2f2912264e403e39b53d2938f3d711912967e03496559f5733ef8d21153d1b",
+            "versions": {
+              "canon": 1,
+              "policy_registry": "18be2d36483467e9250d568bcbfed6458c15a364fa99896eb1b8daad05db043d",
+              "projection_schema": "89e2bd7bf3f1683ddff95a0b33b1e9ff08ff19d5a001f4007c40ed4c6c5b3437",
+              "raw_schema": "b948a0e33fc0abb6957af76beac643ac7131d2fcac3ab53265c02d16783f953e",
+              "recurring_ownership": 1,
+              "snapshot": 7,
+              "structural": 1,
+              "sync": 1
+            }
+          },
+          "eleven_tables": 11,
+          "patricia": "PASS"
+        },
+        {
+          "name": "interrupted",
+          "ok": false,
+          "error": "ACQUISITION_CANCELLED"
+        },
+        {
+          "name": "resumed",
+          "ok": true,
+          "http": {
+            "object_requests": 199,
+            "manifest_requests": 10,
+            "release_requests": 5,
+            "payload_bytes": 152474,
+            "response_bytes": 271207,
+            "max_active_sends": 2
+          },
+          "metrics": {
+            "manifest_requests": 3,
+            "object_requests": 8,
+            "release_requests": 1,
+            "payload_bytes": 9837,
+            "response_bytes": 18428,
+            "cache_hits": 170,
+            "cache_misses": 8,
+            "downloaded_objects": 8,
+            "verification_us": 139983,
+            "elapsed_us": 3137949
+          },
+          "actual_graph": 178,
+          "new_refs": 8,
+          "independent_http_objects": 8,
+          "independent_http_response_bytes": 18428,
+          "target": {
+            "context": {
+              "evaluation_date": "2026-10-05",
+              "financial_engine": "f34aef259c801ada33ccb88cfb103ee6654fb4467c49a66ce509f2239ffe449d",
+              "timezone_offset_minutes": 540
+            },
+            "control_ref": {
+              "bytes": "3178",
+              "hash": "43ee9a4520052d1e1b9adc35a2448e8d214444b6ae91d8722cead1d3544077c1"
+            },
+            "hot_ref": {
+              "bytes": "6420",
+              "hash": "3bf76ff5d14e9dbad8eaf2c3cf23d366f3ceb934d1d4459e550ea246c54ad820"
+            },
+            "index_ref": {
+              "bytes": "394",
+              "hash": "90e44c4e07cb44f12e4d904da7315c82d1c39a4bd6ca046eba7fafeb6f519d9e"
+            },
+            "ns": {
+              "dataset_id": "ad3d51b3-2311-4b7c-9b00-b6400cce6827",
+              "epoch": "6a685c00-dd62-4a1e-9c86-e0ef0514145e",
+              "server_id": "74d9d247-1cef-4cc3-9765-48cf39227331"
+            },
+            "principal_id": 1,
+            "raw_ref": {
+              "bytes": "2659",
+              "hash": "e260b5102438713f70093d66a4ffe228eeb66cfcd79cb0b2430df1b74432c288"
+            },
+            "revision": "38",
+            "sync_root": "3399eb2286171aa929d060fb16f0ec1590c57e34c2a2c0468a54f3f382921175",
+            "versions": {
+              "canon": 1,
+              "policy_registry": "18be2d36483467e9250d568bcbfed6458c15a364fa99896eb1b8daad05db043d",
+              "projection_schema": "89e2bd7bf3f1683ddff95a0b33b1e9ff08ff19d5a001f4007c40ed4c6c5b3437",
+              "raw_schema": "b948a0e33fc0abb6957af76beac643ac7131d2fcac3ab53265c02d16783f953e",
+              "recurring_ownership": 1,
+              "snapshot": 7,
+              "structural": 1,
+              "sync": 1
+            }
+          },
+          "eleven_tables": 11,
+          "patricia": "PASS"
+        }
+      ]
+    },
+    {
+      "scenario": "cache-delete",
+      "expected": "손상은 거부, 누락은 실제 필요한 객체 하나만 취득",
+      "observed": "정상 closure",
+      "verdict": "PASS",
+      "http": {
+        "object_requests": 1,
+        "manifest_requests": 2,
+        "release_requests": 1,
+        "payload_bytes": 576,
+        "response_bytes": 3976,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 178,
+        "states": [
+          [
+            "a00fc23b-83c4-4ccc-bb88-171f513d3dc0",
+            "graph_verified",
+            null
+          ]
+        ],
+        "corrupt": []
+      }
+    },
+    {
+      "scenario": "cancel-before-response",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "ACQUISITION_CANCELLED",
+      "verdict": "PASS",
+      "error": "ACQUISITION_CANCELLED",
+      "action": "retry_same",
+      "http": {
+        "object_requests": 1,
+        "manifest_requests": 1,
+        "release_requests": 1,
+        "payload_bytes": 2659,
+        "response_bytes": 5291,
+        "max_active_sends": 2
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [
+          [
+            "a0ecff72-8449-4028-8b00-43166e17c79d",
+            "interrupted",
+            "ACQUISITION_CANCELLED"
+          ]
+        ],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 3,
+        "statuses": {
+          "201": 1,
+          "200": 1,
+          "204": 1
+        },
+        "response_body_bytes": 5291
+      }
+    },
+    {
+      "scenario": "cancel-before",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "ACQUISITION_CANCELLED",
+      "verdict": "PASS",
+      "error": "ACQUISITION_CANCELLED",
+      "action": "retry_same",
+      "http": {
+        "object_requests": 0,
+        "manifest_requests": 0,
+        "release_requests": 0,
+        "payload_bytes": 0,
+        "response_bytes": 0,
+        "max_active_sends": 0
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 0,
+        "statuses": {},
+        "response_body_bytes": 0
+      }
+    },
+    {
+      "scenario": "cancel-midstream",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "ACQUISITION_CANCELLED",
+      "verdict": "PASS",
+      "error": "ACQUISITION_CANCELLED",
+      "action": "retry_same",
+      "http": {
+        "object_requests": 1,
+        "manifest_requests": 1,
+        "release_requests": 1,
+        "payload_bytes": 2659,
+        "response_bytes": 5291,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [
+          [
+            "f8ce9cf9-4151-4e84-be6c-8b29b1a28c16",
+            "interrupted",
+            "ACQUISITION_CANCELLED"
+          ]
+        ],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 3,
+        "statuses": {
+          "201": 1,
+          "200": 1,
+          "204": 1
+        },
+        "response_body_bytes": 5291
+      }
+    },
+    {
+      "scenario": "cancel-progress",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "ACQUISITION_CANCELLED",
+      "verdict": "PASS",
+      "error": "ACQUISITION_CANCELLED",
+      "action": "retry_same",
+      "http": {
+        "object_requests": 1,
+        "manifest_requests": 1,
+        "release_requests": 1,
+        "payload_bytes": 2659,
+        "response_bytes": 5291,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 1,
+        "states": [
+          [
+            "5897c2dd-45b7-42df-8c52-072374d8804c",
+            "interrupted",
+            "ACQUISITION_CANCELLED"
+          ]
+        ],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 3,
+        "statuses": {
+          "201": 1,
+          "200": 1,
+          "204": 1
+        },
+        "response_body_bytes": 5291
+      }
+    },
+    {
+      "scenario": "chunked",
+      "expected": "인증된 단일 graph의 전체 바이트와 closure 및 제한된 재시도",
+      "observed": "정확한 graph·staging·SQLite 및 HTTP trace 일치",
+      "verdict": "PASS",
+      "http": {
+        "object_requests": 470,
+        "manifest_requests": 2,
+        "release_requests": 1,
+        "payload_bytes": 111718,
+        "response_bytes": 282433,
+        "max_active_sends": 1
+      },
+      "graph_objects": 178,
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 178,
+        "states": [
+          [
+            "0a04fc2f-11f5-42fa-8563-d990823aa155",
+            "graph_verified",
+            null
+          ]
+        ],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 473,
+        "statuses": {
+          "201": 1,
+          "200": 471,
+          "204": 1
+        },
+        "response_body_bytes": 282433
+      }
+    },
+    {
+      "scenario": "cold",
+      "expected": "인증된 단일 graph의 전체 바이트와 closure 및 제한된 재시도",
+      "observed": "정확한 graph·staging·SQLite 및 HTTP trace 일치",
+      "verdict": "PASS",
+      "http": {
+        "object_requests": 178,
+        "manifest_requests": 2,
+        "release_requests": 1,
+        "payload_bytes": 111718,
+        "response_bytes": 200898,
+        "max_active_sends": 1
+      },
+      "graph_objects": 178,
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 178,
+        "states": [
+          [
+            "0cb8eaf1-5d19-44e3-8cc8-65ebb1e6b979",
+            "graph_verified",
+            null
+          ]
+        ],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 181,
+        "statuses": {
+          "201": 1,
+          "200": 179,
+          "204": 1
+        },
+        "response_body_bytes": 200898
+      }
+    },
+    {
+      "scenario": "concurrent",
+      "expected": "대기 queue 없이 두번째 session 거부",
+      "observed": "첫 session 정상, 두번째 ACQUISITION_BUSY",
+      "verdict": "PASS",
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 178,
+        "states": [
+          [
+            "7405d153-b525-404a-931c-027307f9b1c8",
+            "graph_verified",
+            null
+          ]
+        ],
+        "corrupt": []
+      }
+    },
+    {
+      "scenario": "corrupt-cache",
+      "expected": "손상은 거부, 누락은 실제 필요한 객체 하나만 취득",
+      "observed": "REPRESENTATION_INVALID",
+      "verdict": "PASS",
+      "http": {
+        "object_requests": 0,
+        "manifest_requests": 1,
+        "release_requests": 1,
+        "payload_bytes": 0,
+        "response_bytes": 1467,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 178,
+        "states": [
+          [
+            "a04488d6-fe06-478a-be2d-f37c65481ec8",
+            "interrupted",
+            "REPRESENTATION_INVALID"
+          ]
+        ],
+        "corrupt": [
+          "1c87c01de0e80075fc7b8745812b6c00023b844366d259658cdf0d374734777f"
+        ]
+      }
+    },
+    {
+      "scenario": "crash-after-persist",
+      "expected": "SIGKILL 후 fresh process에서 committed byte만 재사용",
+      "observed": "원자성·정확한 missing set·최종 closure 일치",
+      "verdict": "PASS",
+      "http": {
+        "object_requests": 177,
+        "manifest_requests": 2,
+        "release_requests": 1,
+        "payload_bytes": 109059,
+        "response_bytes": 197074,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "before": {
+        "objects": 1,
+        "states": [
+          [
+            "4cc74fbe-66e0-4453-8bd1-5567f57ad714",
+            "acquiring",
+            null
+          ]
+        ],
+        "corrupt": []
+      },
+      "after": {
+        "objects": 178,
+        "states": [
+          [
+            "4cc74fbe-66e0-4453-8bd1-5567f57ad714",
+            "graph_verified",
+            null
+          ]
+        ],
+        "corrupt": []
+      }
+    },
+    {
+      "scenario": "crash-before-persist",
+      "expected": "SIGKILL 후 fresh process에서 committed byte만 재사용",
+      "observed": "원자성·정확한 missing set·최종 closure 일치",
+      "verdict": "PASS",
+      "http": {
+        "object_requests": 178,
+        "manifest_requests": 2,
+        "release_requests": 1,
+        "payload_bytes": 111718,
+        "response_bytes": 200898,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "before": {
+        "objects": 0,
+        "states": [
+          [
+            "c91c715d-eb67-46d3-a00f-8ab8e9dfbf49",
+            "acquiring",
+            null
+          ]
+        ],
+        "corrupt": []
+      },
+      "after": {
+        "objects": 178,
+        "states": [
+          [
+            "c91c715d-eb67-46d3-a00f-8ab8e9dfbf49",
+            "graph_verified",
+            null
+          ]
+        ],
+        "corrupt": []
+      }
+    },
+    {
+      "scenario": "crash-graph-state",
+      "expected": "SIGKILL 후 fresh process에서 committed byte만 재사용",
+      "observed": "원자성·정확한 missing set·최종 closure 일치",
+      "verdict": "PASS",
+      "http": {
+        "object_requests": 0,
+        "manifest_requests": 2,
+        "release_requests": 1,
+        "payload_bytes": 0,
+        "response_bytes": 2934,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "before": {
+        "objects": 178,
+        "states": [
+          [
+            "8aad2ef2-8c3e-45e6-a890-b83bbd0d19ab",
+            "acquiring",
+            null
+          ]
+        ],
+        "corrupt": []
+      },
+      "after": {
+        "objects": 178,
+        "states": [
+          [
+            "8aad2ef2-8c3e-45e6-a890-b83bbd0d19ab",
+            "graph_verified",
+            null
+          ]
+        ],
+        "corrupt": []
+      }
+    },
+    {
+      "scenario": "crash-manifest",
+      "expected": "SIGKILL 후 fresh process에서 committed byte만 재사용",
+      "observed": "원자성·정확한 missing set·최종 closure 일치",
+      "verdict": "PASS",
+      "http": {
+        "object_requests": 178,
+        "manifest_requests": 2,
+        "release_requests": 1,
+        "payload_bytes": 111718,
+        "response_bytes": 200898,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "before": {
+        "objects": 0,
+        "states": [],
+        "corrupt": []
+      },
+      "after": {
+        "objects": 178,
+        "states": [
+          [
+            "944bd35d-7fd7-4cd7-8a46-c3cbf818041c",
+            "graph_verified",
+            null
+          ]
+        ],
+        "corrupt": []
+      }
+    },
+    {
+      "scenario": "crash-progress",
+      "expected": "SIGKILL 후 fresh process에서 committed byte만 재사용",
+      "observed": "원자성·정확한 missing set·최종 closure 일치",
+      "verdict": "PASS",
+      "http": {
+        "object_requests": 177,
+        "manifest_requests": 2,
+        "release_requests": 1,
+        "payload_bytes": 109059,
+        "response_bytes": 197074,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "before": {
+        "objects": 1,
+        "states": [
+          [
+            "c60806c2-5056-47b7-b4c6-0d087060d9ff",
+            "acquiring",
+            null
+          ]
+        ],
+        "corrupt": []
+      },
+      "after": {
+        "objects": 178,
+        "states": [
+          [
+            "c60806c2-5056-47b7-b4c6-0d087060d9ff",
+            "graph_verified",
+            null
+          ]
+        ],
+        "corrupt": []
+      }
+    },
+    {
+      "scenario": "crash-return",
+      "expected": "SIGKILL 후 fresh process에서 committed byte만 재사용",
+      "observed": "원자성·정확한 missing set·최종 closure 일치",
+      "verdict": "PASS",
+      "http": {
+        "object_requests": 0,
+        "manifest_requests": 2,
+        "release_requests": 1,
+        "payload_bytes": 0,
+        "response_bytes": 2934,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "before": {
+        "objects": 178,
+        "states": [
+          [
+            "a0e44235-bdef-4fba-bc10-0fab4b4d9857",
+            "graph_verified",
+            null
+          ]
+        ],
+        "corrupt": []
+      },
+      "after": {
+        "objects": 178,
+        "states": [
+          [
+            "a0e44235-bdef-4fba-bc10-0fab4b4d9857",
+            "graph_verified",
+            null
+          ]
+        ],
+        "corrupt": []
+      }
+    },
+    {
+      "scenario": "crash-transfer",
+      "expected": "SIGKILL 후 fresh process에서 committed byte만 재사용",
+      "observed": "원자성·정확한 missing set·최종 closure 일치",
+      "verdict": "PASS",
+      "http": {
+        "object_requests": 178,
+        "manifest_requests": 2,
+        "release_requests": 1,
+        "payload_bytes": 111718,
+        "response_bytes": 200898,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "before": {
+        "objects": 0,
+        "states": [
+          [
+            "cc5418ef-edbc-4372-ad8a-058d3cd7f437",
+            "acquiring",
+            null
+          ]
+        ],
+        "corrupt": []
+      },
+      "after": {
+        "objects": 178,
+        "states": [
+          [
+            "cc5418ef-edbc-4372-ad8a-058d3cd7f437",
+            "graph_verified",
+            null
+          ]
+        ],
+        "corrupt": []
+      }
+    },
+    {
+      "scenario": "credential-switch",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "AUTHENTICATION_CHANGED",
+      "verdict": "PASS",
+      "error": "AUTHENTICATION_CHANGED",
+      "action": "blocked",
+      "http": {
+        "object_requests": 1,
+        "manifest_requests": 1,
+        "release_requests": 0,
+        "payload_bytes": 2659,
+        "response_bytes": 5291,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [
+          [
+            "5bf3c0d5-320b-41a3-88c8-d40b7031e977",
+            "interrupted",
+            "AUTHENTICATION_CHANGED"
+          ]
+        ],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 2,
+        "statuses": {
+          "201": 1,
+          "200": 1
+        },
+        "response_body_bytes": 5291
+      }
+    },
+    {
+      "scenario": "depth-budget",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "GRAPH_DEPTH_BUDGET",
+      "verdict": "PASS",
+      "error": "GRAPH_DEPTH_BUDGET",
+      "action": "blocked",
+      "http": {
+        "object_requests": 1,
+        "manifest_requests": 1,
+        "release_requests": 1,
+        "payload_bytes": 2659,
+        "response_bytes": 5291,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 1,
+        "states": [
+          [
+            "0dbe0dc0-c668-4189-9d76-34c7abece074",
+            "interrupted",
+            "GRAPH_DEPTH_BUDGET"
+          ]
+        ],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 3,
+        "statuses": {
+          "201": 1,
+          "200": 1,
+          "204": 1
+        },
+        "response_body_bytes": 5291
+      }
+    },
+    {
+      "scenario": "edge-budget",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "GRAPH_EDGE_BUDGET",
+      "verdict": "PASS",
+      "error": "GRAPH_EDGE_BUDGET",
+      "action": "blocked",
+      "http": {
+        "object_requests": 2,
+        "manifest_requests": 1,
+        "release_requests": 1,
+        "payload_bytes": 10495,
+        "response_bytes": 16015,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 2,
+        "states": [
+          [
+            "8c2b88c6-a54d-4d0d-8ead-28be372ee6f7",
+            "interrupted",
+            "GRAPH_EDGE_BUDGET"
+          ]
+        ],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 4,
+        "statuses": {
+          "201": 1,
+          "200": 2,
+          "204": 1
+        },
+        "response_body_bytes": 16015
+      }
+    },
+    {
+      "scenario": "empty-graph",
+      "expected": "10개 빈 raw table와 필수 settings의 정확한 graph closure",
+      "observed": "서버 직접 row·C1·Patricia와 SQLite graph가 일치",
+      "verdict": "PASS",
+      "objects": 24,
+      "tables": 11,
+      "patricia": "PASS",
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사"
+    },
+    {
+      "scenario": "expiry-manifest",
+      "expected": "인증된 단일 graph의 전체 바이트와 closure 및 제한된 재시도",
+      "observed": "정확한 graph·staging·SQLite 및 HTTP trace 일치",
+      "verdict": "PASS",
+      "http": {
+        "object_requests": 178,
+        "manifest_requests": 3,
+        "release_requests": 1,
+        "payload_bytes": 111718,
+        "response_bytes": 201070,
+        "max_active_sends": 1
+      },
+      "graph_objects": 178,
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 178,
+        "states": [
+          [
+            "bc283b40-d55b-4e21-81c5-98fc3225c795",
+            "graph_verified",
+            null
+          ]
+        ],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 182,
+        "statuses": {
+          "410": 1,
+          "200": 180,
+          "204": 1
+        },
+        "response_body_bytes": 201070
+      }
+    },
+    {
+      "scenario": "expiry-terminal",
+      "expected": "인증된 단일 graph의 전체 바이트와 closure 및 제한된 재시도",
+      "observed": "정확한 graph·staging·SQLite 및 HTTP trace 일치",
+      "verdict": "PASS",
+      "http": {
+        "object_requests": 178,
+        "manifest_requests": 4,
+        "release_requests": 2,
+        "payload_bytes": 111718,
+        "response_bytes": 202537,
+        "max_active_sends": 1
+      },
+      "graph_objects": 178,
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 178,
+        "states": [
+          [
+            "0a1dff8e-4567-41ed-a707-10a36f99b59d",
+            "interrupted",
+            "OBSERVATION_EXPIRED"
+          ],
+          [
+            "9dc0e276-9c1a-462d-b58e-1d2d3ed46b4c",
+            "graph_verified",
+            null
+          ]
+        ],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 184,
+        "statuses": {
+          "201": 1,
+          "200": 180,
+          "410": 1,
+          "204": 2
+        },
+        "response_body_bytes": 202537
+      }
+    },
+    {
+      "scenario": "expiry-transfer",
+      "expected": "인증된 단일 graph의 전체 바이트와 closure 및 제한된 재시도",
+      "observed": "정확한 graph·staging·SQLite 및 HTTP trace 일치",
+      "verdict": "PASS",
+      "http": {
+        "object_requests": 179,
+        "manifest_requests": 3,
+        "release_requests": 2,
+        "payload_bytes": 111718,
+        "response_bytes": 202537,
+        "max_active_sends": 1
+      },
+      "graph_objects": 178,
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 178,
+        "states": [
+          [
+            "6f9b49b1-8c5a-4fa2-9af3-026e15f9dae9",
+            "graph_verified",
+            null
+          ],
+          [
+            "91098657-5cce-44ff-b231-f6f3df568324",
+            "interrupted",
+            "OBSERVATION_EXPIRED"
+          ]
+        ],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 184,
+        "statuses": {
+          "201": 1,
+          "200": 180,
+          "410": 1,
+          "204": 2
+        },
+        "response_body_bytes": 202537
+      }
+    },
+    {
+      "scenario": "graph-budget",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "GRAPH_OBJECT_BUDGET",
+      "verdict": "PASS",
+      "error": "GRAPH_OBJECT_BUDGET",
+      "action": "blocked",
+      "http": {
+        "object_requests": 1,
+        "manifest_requests": 1,
+        "release_requests": 1,
+        "payload_bytes": 2659,
+        "response_bytes": 5291,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 1,
+        "states": [
+          [
+            "e57ffa77-49b1-4fdf-b964-a2d878a4bba8",
+            "interrupted",
+            "GRAPH_OBJECT_BUDGET"
+          ]
+        ],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 3,
+        "statuses": {
+          "201": 1,
+          "200": 1,
+          "204": 1
+        },
+        "response_body_bytes": 5291
+      }
+    },
+    {
+      "scenario": "graph-context",
+      "expected": "hash-valid도 context/type/graph 관계가 잘못되면 거부",
+      "observed": "CACHE_CONTEXT_MISMATCH",
+      "verdict": "PASS",
+      "http": {
+        "object_requests": 1,
+        "manifest_requests": 1,
+        "release_requests": 1,
+        "payload_bytes": 2659,
+        "response_bytes": 5291,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [
+          [
+            "fb53110a-7137-4262-93ee-95cadd9042c9",
+            "interrupted",
+            "CACHE_CONTEXT_MISMATCH"
+          ]
+        ],
+        "corrupt": []
+      }
+    },
+    {
+      "scenario": "graph-descriptor",
+      "expected": "hash-valid도 context/type/graph 관계가 잘못되면 거부",
+      "observed": "GRAPH_DESCRIPTOR_INVALID",
+      "verdict": "PASS",
+      "http": {
+        "object_requests": 2,
+        "manifest_requests": 1,
+        "release_requests": 1,
+        "payload_bytes": 10495,
+        "response_bytes": 16015,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 2,
+        "states": [
+          [
+            "aea48e00-d5f6-4f8b-a4f6-c7be1ec4b259",
+            "interrupted",
+            "GRAPH_DESCRIPTOR_INVALID"
+          ]
+        ],
+        "corrupt": []
+      }
+    },
+    {
+      "scenario": "graph-hot-context",
+      "expected": "hash-valid도 context/type/graph 관계가 잘못되면 거부",
+      "observed": "GRAPH_CONTEXT_INVALID",
+      "verdict": "PASS",
+      "http": {
+        "object_requests": 177,
+        "manifest_requests": 1,
+        "release_requests": 1,
+        "payload_bytes": 108540,
+        "response_bytes": 194915,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 177,
+        "states": [
+          [
+            "aa8d7f11-2df3-45ea-b6bb-38b7799edc7a",
+            "interrupted",
+            "GRAPH_CONTEXT_INVALID"
+          ]
+        ],
+        "corrupt": []
+      }
+    },
+    {
+      "scenario": "graph-index-count",
+      "expected": "hash-valid도 context/type/graph 관계가 잘못되면 거부",
+      "observed": "GRAPH_INDEX_COUNT",
+      "verdict": "PASS",
+      "http": {
+        "object_requests": 176,
+        "manifest_requests": 1,
+        "release_requests": 1,
+        "payload_bytes": 102212,
+        "response_bytes": 186199,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 176,
+        "states": [
+          [
+            "474e1778-6c48-4f48-9307-104ae8e9ff63",
+            "interrupted",
+            "GRAPH_INDEX_COUNT"
+          ]
+        ],
+        "corrupt": []
+      }
+    },
+    {
+      "scenario": "graph-manifest-context-dataset_id",
+      "expected": "hash-valid도 context/type/graph 관계가 잘못되면 거부",
+      "observed": "CACHE_CONTEXT_MISMATCH",
+      "verdict": "PASS",
+      "http": {
+        "object_requests": 0,
+        "manifest_requests": 1,
+        "release_requests": 0,
+        "payload_bytes": 0,
+        "response_bytes": 1467,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [],
+        "corrupt": []
+      }
+    },
+    {
+      "scenario": "graph-manifest-context-epoch",
+      "expected": "hash-valid도 context/type/graph 관계가 잘못되면 거부",
+      "observed": "CACHE_CONTEXT_MISMATCH",
+      "verdict": "PASS",
+      "http": {
+        "object_requests": 0,
+        "manifest_requests": 1,
+        "release_requests": 0,
+        "payload_bytes": 0,
+        "response_bytes": 1467,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [],
+        "corrupt": []
+      }
+    },
+    {
+      "scenario": "graph-manifest-context-principal",
+      "expected": "hash-valid도 context/type/graph 관계가 잘못되면 거부",
+      "observed": "CACHE_CONTEXT_MISMATCH",
+      "verdict": "PASS",
+      "http": {
+        "object_requests": 0,
+        "manifest_requests": 1,
+        "release_requests": 0,
+        "payload_bytes": 0,
+        "response_bytes": 1467,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [],
+        "corrupt": []
+      }
+    },
+    {
+      "scenario": "graph-noncanonical",
+      "expected": "hash-valid도 context/type/graph 관계가 잘못되면 거부",
+      "observed": "CANONICAL_INVALID",
+      "verdict": "PASS",
+      "http": {
+        "object_requests": 1,
+        "manifest_requests": 1,
+        "release_requests": 1,
+        "payload_bytes": 4750,
+        "response_bytes": 8079,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [
+          [
+            "726fb6af-08ee-4c54-890b-91c6e80581f2",
+            "interrupted",
+            "CANONICAL_INVALID"
+          ]
+        ],
+        "corrupt": []
+      }
+    },
+    {
+      "scenario": "graph-patricia",
+      "expected": "hash-valid도 context/type/graph 관계가 잘못되면 거부",
+      "observed": "GRAPH_PATRICIA_INVALID",
+      "verdict": "PASS",
+      "http": {
+        "object_requests": 23,
+        "manifest_requests": 1,
+        "release_requests": 1,
+        "payload_bytes": 25114,
+        "response_bytes": 41289,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 23,
+        "states": [
+          [
+            "a019c8e5-2d90-4d42-9e55-e2d5c6fc30c9",
+            "interrupted",
+            "GRAPH_PATRICIA_INVALID"
+          ]
+        ],
+        "corrupt": []
+      }
+    },
+    {
+      "scenario": "graph-version",
+      "expected": "hash-valid도 context/type/graph 관계가 잘못되면 거부",
+      "observed": "UNSUPPORTED_CONTRACT",
+      "verdict": "PASS",
+      "http": {
+        "object_requests": 1,
+        "manifest_requests": 1,
+        "release_requests": 1,
+        "payload_bytes": 2659,
+        "response_bytes": 5291,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [
+          [
+            "21bb79a9-bebe-4e84-8ad8-0807a75281b5",
+            "interrupted",
+            "UNSUPPORTED_CONTRACT"
+          ]
+        ],
+        "corrupt": []
+      }
+    },
+    {
+      "scenario": "graph-wrong-type",
+      "expected": "hash-valid도 context/type/graph 관계가 잘못되면 거부",
+      "observed": "OBJECT_KIND_INVALID",
+      "verdict": "PASS",
+      "http": {
+        "object_requests": 1,
+        "manifest_requests": 1,
+        "release_requests": 1,
+        "payload_bytes": 394,
+        "response_bytes": 2268,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [
+          [
+            "771b8665-4a65-4af4-b16a-a3225cfc8c53",
+            "interrupted",
+            "OBJECT_KIND_INVALID"
+          ]
+        ],
+        "corrupt": []
+      }
+    },
+    {
+      "scenario": "http-truncated",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "RESPONSE_TRUNCATED",
+      "verdict": "PASS",
+      "error": "RESPONSE_TRUNCATED",
+      "action": "retry_same",
+      "http": {
+        "object_requests": 3,
+        "manifest_requests": 1,
+        "release_requests": 1,
+        "payload_bytes": 7977,
+        "response_bytes": 12939,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [
+          [
+            "52316b78-4805-4f73-834e-c7ec2ae02d28",
+            "interrupted",
+            "RESPONSE_TRUNCATED"
+          ]
+        ],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 5,
+        "statuses": {
+          "201": 1,
+          "200": 3,
+          "204": 1
+        },
+        "response_body_bytes": 12939
+      }
+    },
+    {
+      "scenario": "identical-cache",
+      "expected": "fresh observation과 terminal만 요청, payload 0",
+      "observed": "object requests 0",
+      "verdict": "PASS",
+      "http": {
+        "object_requests": 0,
+        "manifest_requests": 2,
+        "release_requests": 1,
+        "payload_bytes": 0,
+        "response_bytes": 2934,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사"
+    },
+    {
+      "scenario": "live-expiry-terminal",
+      "expected": "실제 서버의 정확한 lease 경계·철회가 다음 요청에서 적용",
+      "observed": "401은 중단, 410은 새 관측과 기존 검증 byte 재사용",
+      "verdict": "PASS",
+      "http": {
+        "object_requests": 178,
+        "manifest_requests": 4,
+        "release_requests": 2,
+        "payload_bytes": 111718,
+        "response_bytes": 202537,
+        "max_active_sends": 1
+      },
+      "statuses": [
+        410
+      ],
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 178,
+        "states": [
+          [
+            "23ce2310-4305-4cba-8419-3a1e724ab2bf",
+            "graph_verified",
+            null
+          ],
+          [
+            "a1964ce9-6712-44cb-88b5-6a069ecb1ad9",
+            "interrupted",
+            "OBSERVATION_EXPIRED"
+          ]
+        ],
+        "corrupt": []
+      }
+    },
+    {
+      "scenario": "live-expiry-transfer",
+      "expected": "실제 서버의 정확한 lease 경계·철회가 다음 요청에서 적용",
+      "observed": "401은 중단, 410은 새 관측과 기존 검증 byte 재사용",
+      "verdict": "PASS",
+      "http": {
+        "object_requests": 179,
+        "manifest_requests": 3,
+        "release_requests": 2,
+        "payload_bytes": 111718,
+        "response_bytes": 202537,
+        "max_active_sends": 1
+      },
+      "statuses": [
+        410
+      ],
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 178,
+        "states": [
+          [
+            "a2fe432b-bf0e-4b45-b773-37ceb1a7e8fb",
+            "graph_verified",
+            null
+          ],
+          [
+            "b9f5a396-4084-490b-9b04-753988bd3d9d",
+            "interrupted",
+            "OBSERVATION_EXPIRED"
+          ]
+        ],
+        "corrupt": []
+      }
+    },
+    {
+      "scenario": "live-revocation",
+      "expected": "실제 서버의 정확한 lease 경계·철회가 다음 요청에서 적용",
+      "observed": "401은 중단, 410은 새 관측과 기존 검증 byte 재사용",
+      "verdict": "PASS",
+      "http": {
+        "object_requests": 3,
+        "manifest_requests": 1,
+        "release_requests": 1,
+        "payload_bytes": 10495,
+        "response_bytes": 16311,
+        "max_active_sends": 1
+      },
+      "statuses": [
+        401,
+        401
+      ],
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 2,
+        "states": [
+          [
+            "2703b734-6c49-4561-ab32-cee611f5329a",
+            "interrupted",
+            "AUTH_REQUIRED"
+          ]
+        ],
+        "corrupt": []
+      }
+    },
+    {
+      "scenario": "manifest-extra",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "SHAPE_INVALID",
+      "verdict": "PASS",
+      "error": "SHAPE_INVALID",
+      "action": "blocked",
+      "http": {
+        "object_requests": 0,
+        "manifest_requests": 1,
+        "release_requests": 0,
+        "payload_bytes": 0,
+        "response_bytes": 1480,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 1,
+        "statuses": {
+          "201": 1
+        },
+        "response_body_bytes": 1480
+      }
+    },
+    {
+      "scenario": "manifest-id",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "UUID_INVALID",
+      "verdict": "PASS",
+      "error": "UUID_INVALID",
+      "action": "blocked",
+      "http": {
+        "object_requests": 0,
+        "manifest_requests": 1,
+        "release_requests": 0,
+        "payload_bytes": 0,
+        "response_bytes": 1438,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 1,
+        "statuses": {
+          "201": 1
+        },
+        "response_body_bytes": 1438
+      }
+    },
+    {
+      "scenario": "manifest-inline",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "SHAPE_INVALID",
+      "verdict": "PASS",
+      "error": "SHAPE_INVALID",
+      "action": "blocked",
+      "http": {
+        "object_requests": 0,
+        "manifest_requests": 1,
+        "release_requests": 0,
+        "payload_bytes": 0,
+        "response_bytes": 1471,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 1,
+        "statuses": {
+          "201": 1
+        },
+        "response_body_bytes": 1471
+      }
+    },
+    {
+      "scenario": "manifest-lease",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "LEASE_INVALID",
+      "verdict": "PASS",
+      "error": "LEASE_INVALID",
+      "action": "blocked",
+      "http": {
+        "object_requests": 0,
+        "manifest_requests": 1,
+        "release_requests": 0,
+        "payload_bytes": 0,
+        "response_bytes": 1467,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 1,
+        "statuses": {
+          "201": 1
+        },
+        "response_body_bytes": 1467
+      }
+    },
+    {
+      "scenario": "manifest-nonce",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "MANIFEST_BINDING_INVALID",
+      "verdict": "PASS",
+      "error": "MANIFEST_BINDING_INVALID",
+      "action": "blocked",
+      "http": {
+        "object_requests": 0,
+        "manifest_requests": 1,
+        "release_requests": 0,
+        "payload_bytes": 0,
+        "response_bytes": 1467,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 1,
+        "statuses": {
+          "201": 1
+        },
+        "response_body_bytes": 1467
+      }
+    },
+    {
+      "scenario": "manifest-protocol",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "MANIFEST_INVALID",
+      "verdict": "PASS",
+      "error": "MANIFEST_INVALID",
+      "action": "blocked",
+      "http": {
+        "object_requests": 0,
+        "manifest_requests": 1,
+        "release_requests": 0,
+        "payload_bytes": 0,
+        "response_bytes": 1470,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 1,
+        "statuses": {
+          "201": 1
+        },
+        "response_body_bytes": 1470
+      }
+    },
+    {
+      "scenario": "manifest-root",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "TARGET_HASH_INVALID",
+      "verdict": "PASS",
+      "error": "TARGET_HASH_INVALID",
+      "action": "blocked",
+      "http": {
+        "object_requests": 0,
+        "manifest_requests": 1,
+        "release_requests": 0,
+        "payload_bytes": 0,
+        "response_bytes": 1467,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 1,
+        "statuses": {
+          "201": 1
+        },
+        "response_body_bytes": 1467
+      }
+    },
+    {
+      "scenario": "missing-descendant",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "OBSERVATION_INCOMPLETE",
+      "verdict": "PASS",
+      "error": "OBSERVATION_INCOMPLETE",
+      "action": "new_observation",
+      "http": {
+        "object_requests": 5,
+        "manifest_requests": 3,
+        "release_requests": 3,
+        "payload_bytes": 10495,
+        "response_bytes": 19474,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 2,
+        "states": [
+          [
+            "5d2a2c9f-4b24-4ddf-80ef-16b13c9b91e0",
+            "interrupted",
+            "OBSERVATION_INCOMPLETE"
+          ],
+          [
+            "a6cdfff5-1206-4dcf-8c47-abf272485916",
+            "interrupted",
+            "OBSERVATION_INCOMPLETE"
+          ],
+          [
+            "be3bf947-5e1c-4551-9ea6-6254061ca3df",
+            "interrupted",
+            "OBSERVATION_INCOMPLETE"
+          ]
+        ],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 11,
+        "statuses": {
+          "201": 1,
+          "200": 4,
+          "410": 3,
+          "204": 3
+        },
+        "response_body_bytes": 19474
+      }
+    },
+    {
+      "scenario": "native-auth",
+      "expected": "정상 또는 거부 응답 처리 뒤 연결을 해제하고 후속 요청 성공",
+      "observed": {
+        "mode": "auth",
+        "first": "SegmentedException(AUTHENTICATION_CHANGED)",
+        "second": "SegmentedException(TRANSPORT_TIMEOUT)",
+        "server_requests": 1,
+        "active_after_first": 1,
+        "active_after_second": 1,
+        "total_connections": 1,
+        "held_responses": 1
+      },
+      "verdict": "FAIL",
+      "oracle": "실제 loopback HTTPS/IOClient/server connectionsInfo"
+    },
+    {
+      "scenario": "native-oversized",
+      "expected": "정상 또는 거부 응답 처리 뒤 연결을 해제하고 후속 요청 성공",
+      "observed": {
+        "mode": "oversized",
+        "first": "SegmentedException(RESPONSE_SIZE_EXCEEDED)",
+        "second": "SegmentedException(TRANSPORT_TIMEOUT)",
+        "server_requests": 1,
+        "active_after_first": 1,
+        "active_after_second": 1,
+        "total_connections": 1,
+        "held_responses": 1
+      },
+      "verdict": "FAIL",
+      "oracle": "실제 loopback HTTPS/IOClient/server connectionsInfo"
+    },
+    {
+      "scenario": "native-positive",
+      "expected": "정상 또는 거부 응답 처리 뒤 연결을 해제하고 후속 요청 성공",
+      "observed": {
+        "mode": "positive",
+        "first": "HTTP_200",
+        "second": "HTTP_200",
+        "server_requests": 2,
+        "active_after_first": 0,
+        "active_after_second": 0,
+        "total_connections": 1,
+        "held_responses": 0
+      },
+      "verdict": "PASS",
+      "oracle": "실제 loopback HTTPS/IOClient/server connectionsInfo"
+    },
+    {
+      "scenario": "native-redirect",
+      "expected": "정상 또는 거부 응답 처리 뒤 연결을 해제하고 후속 요청 성공",
+      "observed": {
+        "mode": "redirect",
+        "first": "SegmentedException(REDIRECT_REJECTED)",
+        "second": "SegmentedException(TRANSPORT_TIMEOUT)",
+        "server_requests": 1,
+        "active_after_first": 1,
+        "active_after_second": 1,
+        "total_connections": 1,
+        "held_responses": 1
+      },
+      "verdict": "FAIL",
+      "oracle": "실제 loopback HTTPS/IOClient/server connectionsInfo"
+    },
+    {
+      "scenario": "native-repeated",
+      "expected": "6회 실패 후 매번 native 연결 0, SQLite object/stage 0",
+      "observed": {
+        "mode": "repeated-acquisition",
+        "errors": [
+          "RESPONSE_SIZE_EXCEEDED",
+          "RESPONSE_SIZE_EXCEEDED",
+          "RESPONSE_SIZE_EXCEEDED",
+          "RESPONSE_SIZE_EXCEEDED",
+          "RESPONSE_SIZE_EXCEEDED",
+          "RESPONSE_SIZE_EXCEEDED"
+        ],
+        "active_after_each_failure": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "server_requests": 6,
+        "objects": 0,
+        "stages": 0,
+        "path": "/tmp/pytest-of-hjkerman/pytest-144/e2-native-https0/store/segmented-store-v1/4316e202e799b95fef16e5ac130957df2e053d03b56add2e2b31fb749446943e.sqlite"
+      },
+      "verdict": "FAIL",
+      "oracle": "실제 IOClient/acquire·서버 socket 계수·fresh SQLite"
+    },
+    {
+      "scenario": "permanent-401",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "AUTH_REQUIRED",
+      "verdict": "PASS",
+      "error": "AUTH_REQUIRED",
+      "action": "reauthenticate",
+      "http": {
+        "object_requests": 0,
+        "manifest_requests": 1,
+        "release_requests": 0,
+        "payload_bytes": 0,
+        "response_bytes": 165,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 1,
+        "statuses": {
+          "401": 1
+        },
+        "response_body_bytes": 165
+      }
+    },
+    {
+      "scenario": "permanent-422",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "INVALID_REQUEST",
+      "verdict": "PASS",
+      "error": "INVALID_REQUEST",
+      "action": "blocked",
+      "http": {
+        "object_requests": 0,
+        "manifest_requests": 1,
+        "release_requests": 0,
+        "payload_bytes": 0,
+        "response_bytes": 160,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 1,
+        "statuses": {
+          "422": 1
+        },
+        "response_body_bytes": 160
+      }
+    },
+    {
+      "scenario": "retry-503",
+      "expected": "인증된 단일 graph의 전체 바이트와 closure 및 제한된 재시도",
+      "observed": "정확한 graph·staging·SQLite 및 HTTP trace 일치",
+      "verdict": "PASS",
+      "http": {
+        "object_requests": 178,
+        "manifest_requests": 4,
+        "release_requests": 1,
+        "payload_bytes": 111718,
+        "response_bytes": 201222,
+        "max_active_sends": 1
+      },
+      "graph_objects": 178,
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 178,
+        "states": [
+          [
+            "10716dae-aebf-42dd-aac6-cffde3fbd9e6",
+            "graph_verified",
+            null
+          ]
+        ],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 183,
+        "statuses": {
+          "503": 2,
+          "200": 180,
+          "204": 1
+        },
+        "response_body_bytes": 201222
+      }
+    },
+    {
+      "scenario": "retry-exhaust",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "TRANSPORT_UNAVAILABLE",
+      "verdict": "PASS",
+      "error": "TRANSPORT_UNAVAILABLE",
+      "action": "retry_same",
+      "http": {
+        "object_requests": 0,
+        "manifest_requests": 3,
+        "release_requests": 0,
+        "payload_bytes": 0,
+        "response_bytes": 0,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 3,
+        "statuses": {
+          "ABORTED": 3
+        },
+        "response_body_bytes": 0
+      }
+    },
+    {
+      "scenario": "retry-reset",
+      "expected": "인증된 단일 graph의 전체 바이트와 closure 및 제한된 재시도",
+      "observed": "정확한 graph·staging·SQLite 및 HTTP trace 일치",
+      "verdict": "PASS",
+      "http": {
+        "object_requests": 178,
+        "manifest_requests": 4,
+        "release_requests": 1,
+        "payload_bytes": 111718,
+        "response_bytes": 200898,
+        "max_active_sends": 1
+      },
+      "graph_objects": 178,
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 178,
+        "states": [
+          [
+            "5868deae-a1c1-46fd-b03d-1537a37a3627",
+            "graph_verified",
+            null
+          ]
+        ],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 183,
+        "statuses": {
+          "ABORTED": 2,
+          "200": 180,
+          "204": 1
+        },
+        "response_body_bytes": 200898
+      }
+    },
+    {
+      "scenario": "retry-timeout",
+      "expected": "인증된 단일 graph의 전체 바이트와 closure 및 제한된 재시도",
+      "observed": "정확한 graph·staging·SQLite 및 HTTP trace 일치",
+      "verdict": "PASS",
+      "http": {
+        "object_requests": 178,
+        "manifest_requests": 4,
+        "release_requests": 1,
+        "payload_bytes": 111718,
+        "response_bytes": 200898,
+        "max_active_sends": 1
+      },
+      "graph_objects": 178,
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 178,
+        "states": [
+          [
+            "58ad18dd-9a3c-4c30-9840-a227f250dc4a",
+            "graph_verified",
+            null
+          ]
+        ],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 183,
+        "statuses": {
+          "ABORTED": 2,
+          "200": 180,
+          "204": 1
+        },
+        "response_body_bytes": 200898
+      }
+    },
+    {
+      "scenario": "schema-trigger",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "STORE_SCHEMA_CORRUPT",
+      "verdict": "PASS",
+      "error": "STORE_SCHEMA_CORRUPT",
+      "action": "blocked",
+      "http": {
+        "object_requests": 0,
+        "manifest_requests": 1,
+        "release_requests": 1,
+        "payload_bytes": 0,
+        "response_bytes": 1467,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 2,
+        "statuses": {
+          "201": 1,
+          "204": 1
+        },
+        "response_body_bytes": 1467
+      }
+    },
+    {
+      "scenario": "storage-count",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "GRAPH_OBJECT_BUDGET",
+      "verdict": "PASS",
+      "error": "GRAPH_OBJECT_BUDGET",
+      "action": "blocked",
+      "http": {
+        "object_requests": 1,
+        "manifest_requests": 1,
+        "release_requests": 1,
+        "payload_bytes": 2659,
+        "response_bytes": 5291,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 1,
+        "states": [
+          [
+            "c4cfaf83-6790-4225-8eaf-75f9f8761267",
+            "interrupted",
+            "GRAPH_OBJECT_BUDGET"
+          ]
+        ],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 3,
+        "statuses": {
+          "201": 1,
+          "200": 1,
+          "204": 1
+        },
+        "response_body_bytes": 5291
+      }
+    },
+    {
+      "scenario": "storage-full",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "PERSISTENCE_FAILED",
+      "verdict": "PASS",
+      "error": "PERSISTENCE_FAILED",
+      "action": "blocked",
+      "http": {
+        "object_requests": 148,
+        "manifest_requests": 1,
+        "release_requests": 1,
+        "payload_bytes": 88044,
+        "response_bytes": 159607,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 147,
+        "states": [
+          [
+            "10fc32e6-e142-4a12-baae-476c77bd9537",
+            "interrupted",
+            "PERSISTENCE_FAILED"
+          ]
+        ],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 150,
+        "statuses": {
+          "201": 1,
+          "200": 148,
+          "204": 1
+        },
+        "response_body_bytes": 159607
+      }
+    },
+    {
+      "scenario": "terminal-change",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "IMMUTABLE_MANIFEST_CHANGED",
+      "verdict": "PASS",
+      "error": "IMMUTABLE_MANIFEST_CHANGED",
+      "action": "blocked",
+      "http": {
+        "object_requests": 178,
+        "manifest_requests": 2,
+        "release_requests": 1,
+        "payload_bytes": 111718,
+        "response_bytes": 200898,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 178,
+        "states": [
+          [
+            "164daf26-aef9-4b52-bcbd-6ce84bba6c9b",
+            "interrupted",
+            "IMMUTABLE_MANIFEST_CHANGED"
+          ]
+        ],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 181,
+        "statuses": {
+          "201": 1,
+          "200": 179,
+          "204": 1
+        },
+        "response_body_bytes": 200898
+      }
+    },
+    {
+      "scenario": "transfer-base64",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "CHUNK_INVALID",
+      "verdict": "PASS",
+      "error": "CHUNK_INVALID",
+      "action": "blocked",
+      "http": {
+        "object_requests": 1,
+        "manifest_requests": 1,
+        "release_requests": 1,
+        "payload_bytes": 0,
+        "response_bytes": 5291,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [
+          [
+            "f542f5ad-9650-423d-8011-849f7e0e35d8",
+            "interrupted",
+            "CHUNK_INVALID"
+          ]
+        ],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 3,
+        "statuses": {
+          "201": 1,
+          "200": 1,
+          "204": 1
+        },
+        "response_body_bytes": 5291
+      }
+    },
+    {
+      "scenario": "transfer-bitflip",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "OBJECT_HASH_INVALID",
+      "verdict": "PASS",
+      "error": "OBJECT_HASH_INVALID",
+      "action": "blocked",
+      "http": {
+        "object_requests": 1,
+        "manifest_requests": 1,
+        "release_requests": 1,
+        "payload_bytes": 0,
+        "response_bytes": 5291,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [
+          [
+            "1d0d0ae6-1944-4ff7-bbab-6fb7ff787fe9",
+            "interrupted",
+            "OBJECT_HASH_INVALID"
+          ]
+        ],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 3,
+        "statuses": {
+          "201": 1,
+          "200": 1,
+          "204": 1
+        },
+        "response_body_bytes": 5291
+      }
+    },
+    {
+      "scenario": "transfer-json-truncated",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "REPRESENTATION_INVALID",
+      "verdict": "PASS",
+      "error": "REPRESENTATION_INVALID",
+      "action": "blocked",
+      "http": {
+        "object_requests": 1,
+        "manifest_requests": 1,
+        "release_requests": 1,
+        "payload_bytes": 0,
+        "response_bytes": 5290,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [
+          [
+            "70110b14-d647-4216-9bb2-7c13facaf83c",
+            "interrupted",
+            "REPRESENTATION_INVALID"
+          ]
+        ],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 3,
+        "statuses": {
+          "201": 1,
+          "200": 1,
+          "204": 1
+        },
+        "response_body_bytes": 5290
+      }
+    },
+    {
+      "scenario": "transfer-length",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "CHUNK_INVALID",
+      "verdict": "PASS",
+      "error": "CHUNK_INVALID",
+      "action": "blocked",
+      "http": {
+        "object_requests": 1,
+        "manifest_requests": 1,
+        "release_requests": 1,
+        "payload_bytes": 0,
+        "response_bytes": 5291,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [
+          [
+            "89625090-9b10-4354-b38e-4119a7a25dfc",
+            "interrupted",
+            "CHUNK_INVALID"
+          ]
+        ],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 3,
+        "statuses": {
+          "201": 1,
+          "200": 1,
+          "204": 1
+        },
+        "response_body_bytes": 5291
+      }
+    },
+    {
+      "scenario": "transfer-nonce",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "TRANSFER_BINDING_INVALID",
+      "verdict": "PASS",
+      "error": "TRANSFER_BINDING_INVALID",
+      "action": "blocked",
+      "http": {
+        "object_requests": 1,
+        "manifest_requests": 1,
+        "release_requests": 1,
+        "payload_bytes": 0,
+        "response_bytes": 5291,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [
+          [
+            "60a374b0-141b-4171-9930-b6f906e25535",
+            "interrupted",
+            "TRANSFER_BINDING_INVALID"
+          ]
+        ],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 3,
+        "statuses": {
+          "201": 1,
+          "200": 1,
+          "204": 1
+        },
+        "response_body_bytes": 5291
+      }
+    },
+    {
+      "scenario": "transfer-observation",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "TRANSFER_BINDING_INVALID",
+      "verdict": "PASS",
+      "error": "TRANSFER_BINDING_INVALID",
+      "action": "blocked",
+      "http": {
+        "object_requests": 1,
+        "manifest_requests": 1,
+        "release_requests": 1,
+        "payload_bytes": 0,
+        "response_bytes": 5291,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [
+          [
+            "87576f6f-1d13-43da-804e-7eb1ff34cb3e",
+            "interrupted",
+            "TRANSFER_BINDING_INVALID"
+          ]
+        ],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 3,
+        "statuses": {
+          "201": 1,
+          "200": 1,
+          "204": 1
+        },
+        "response_body_bytes": 5291
+      }
+    },
+    {
+      "scenario": "transfer-offset",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "CHUNK_INVALID",
+      "verdict": "PASS",
+      "error": "CHUNK_INVALID",
+      "action": "blocked",
+      "http": {
+        "object_requests": 1,
+        "manifest_requests": 1,
+        "release_requests": 1,
+        "payload_bytes": 0,
+        "response_bytes": 5291,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [
+          [
+            "182b9a1e-8ba5-4024-b62c-d32e165f358b",
+            "interrupted",
+            "CHUNK_INVALID"
+          ]
+        ],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 3,
+        "statuses": {
+          "201": 1,
+          "200": 1,
+          "204": 1
+        },
+        "response_body_bytes": 5291
+      }
+    },
+    {
+      "scenario": "transfer-oversized",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "RESPONSE_SIZE_EXCEEDED",
+      "verdict": "PASS",
+      "error": "RESPONSE_SIZE_EXCEEDED",
+      "action": "blocked",
+      "http": {
+        "object_requests": 1,
+        "manifest_requests": 1,
+        "release_requests": 1,
+        "payload_bytes": 0,
+        "response_bytes": 2098619,
+        "max_active_sends": 2
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [
+          [
+            "c81ee112-8cec-478d-afa1-945a8e435096",
+            "interrupted",
+            "RESPONSE_SIZE_EXCEEDED"
+          ]
+        ],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 3,
+        "statuses": {
+          "201": 1,
+          "200": 1,
+          "204": 1
+        },
+        "response_body_bytes": 2098619
+      }
+    },
+    {
+      "scenario": "transfer-protocol",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "TRANSFER_BINDING_INVALID",
+      "verdict": "PASS",
+      "error": "TRANSFER_BINDING_INVALID",
+      "action": "blocked",
+      "http": {
+        "object_requests": 1,
+        "manifest_requests": 1,
+        "release_requests": 1,
+        "payload_bytes": 0,
+        "response_bytes": 5291,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [
+          [
+            "806dfe52-42a1-4db8-91c8-98acdba1e61f",
+            "interrupted",
+            "TRANSFER_BINDING_INVALID"
+          ]
+        ],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 3,
+        "statuses": {
+          "201": 1,
+          "200": 1,
+          "204": 1
+        },
+        "response_body_bytes": 5291
+      }
+    },
+    {
+      "scenario": "transfer-ref",
+      "expected": "실패를 명시하고 불완전 후보를 완료로 게시하지 않음",
+      "observed": "CHUNK_BINDING_INVALID",
+      "verdict": "PASS",
+      "error": "CHUNK_BINDING_INVALID",
+      "action": "blocked",
+      "http": {
+        "object_requests": 1,
+        "manifest_requests": 1,
+        "release_requests": 1,
+        "payload_bytes": 0,
+        "response_bytes": 5291,
+        "max_active_sends": 1
+      },
+      "oracle": "직접 서버 SQLite의 C1/hash/typed graph와 HTTP trace, fresh client SQLite BLOB/staging/accounting 검사",
+      "persisted": {
+        "objects": 0,
+        "states": [
+          [
+            "3d0bd819-6765-40c8-bdbc-d8d441291d39",
+            "interrupted",
+            "CHUNK_BINDING_INVALID"
+          ]
+        ],
+        "corrupt": []
+      },
+      "independent_http": {
+        "requests": 3,
+        "statuses": {
+          "201": 1,
+          "200": 1,
+          "204": 1
+        },
+        "response_body_bytes": 5291
+      }
+    }
+  ],
+  "production_access": "NONE",
+  "deployment": "NOT_PERFORMED",
+  "e3_started": false,
+  "implementation_modified": false,
+  "verdict": "FAIL — T6.6E2 CORRECTION REQUIRED"
+}
