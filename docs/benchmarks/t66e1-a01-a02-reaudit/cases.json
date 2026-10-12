@@ -1,0 +1,379 @@
+{
+  "closed-schema-altered-table": {
+    "verdict": "PASS",
+    "expected": "문서화된 exact schema 정책에 따른 거부",
+    "observed": "STORE_SCHEMA_CORRUPT"
+  },
+  "closed-schema-extra-index": {
+    "verdict": "PASS",
+    "expected": "문서화된 exact schema 정책에 따른 거부",
+    "observed": "STORE_SCHEMA_CORRUPT"
+  },
+  "closed-schema-extra-view": {
+    "verdict": "PASS",
+    "expected": "문서화된 exact schema 정책에 따른 거부",
+    "observed": "STORE_SCHEMA_CORRUPT"
+  },
+  "closed-schema-format": {
+    "verdict": "PASS",
+    "expected": "문서화된 exact schema 정책에 따른 거부",
+    "observed": "STORE_SCHEMA_CORRUPT"
+  },
+  "closed-schema-missing-index": {
+    "verdict": "PASS",
+    "expected": "문서화된 exact schema 정책에 따른 거부",
+    "observed": "STORE_SCHEMA_CORRUPT"
+  },
+  "commit-busy-retry": {
+    "verdict": "PASS",
+    "first": {
+      "ok": false,
+      "error": "STORE_BUSY",
+      "sqlite_code": 5
+    },
+    "actual_objects_after_failed_commit": 1,
+    "actual_objects_after_valid_retry": 2,
+    "partial_commit": false
+  },
+  "commit-fence-cleanup-before_commit": {
+    "verdict": "PASS",
+    "ddl_during_transaction": "SQLITE_BUSY(5)",
+    "protected_operation": "COMMIT",
+    "ddl_after_commit": "성공",
+    "following_write": "STORE_SCHEMA_CORRUPT",
+    "actual_objects": 1,
+    "unauthorized_additional_committed_objects": 0
+  },
+  "commit-fence-duplicate-before_commit": {
+    "verdict": "PASS",
+    "ddl_during_transaction": "SQLITE_BUSY(5)",
+    "protected_operation": "COMMIT",
+    "ddl_after_commit": "성공",
+    "following_write": "STORE_SCHEMA_CORRUPT",
+    "actual_objects": 1,
+    "unauthorized_additional_committed_objects": 0
+  },
+  "commit-fence-progress-after_progress_insert": {
+    "verdict": "PASS",
+    "ddl_during_transaction": "SQLITE_BUSY(5)",
+    "protected_operation": "COMMIT",
+    "ddl_after_commit": "성공",
+    "following_write": "STORE_SCHEMA_CORRUPT",
+    "actual_objects": 1,
+    "unauthorized_additional_committed_objects": 0
+  },
+  "commit-fence-put-after_edges_insert": {
+    "verdict": "PASS",
+    "ddl_during_transaction": "SQLITE_BUSY(5)",
+    "protected_operation": "COMMIT",
+    "ddl_after_commit": "성공",
+    "following_write": "STORE_SCHEMA_CORRUPT",
+    "actual_objects": 2,
+    "unauthorized_additional_committed_objects": 0
+  },
+  "commit-fence-put-after_object_insert": {
+    "verdict": "PASS",
+    "ddl_during_transaction": "SQLITE_BUSY(5)",
+    "protected_operation": "COMMIT",
+    "ddl_after_commit": "성공",
+    "following_write": "STORE_SCHEMA_CORRUPT",
+    "actual_objects": 2,
+    "unauthorized_additional_committed_objects": 0
+  },
+  "commit-fence-put-before_commit": {
+    "verdict": "PASS",
+    "ddl_during_transaction": "SQLITE_BUSY(5)",
+    "protected_operation": "COMMIT",
+    "ddl_after_commit": "성공",
+    "following_write": "STORE_SCHEMA_CORRUPT",
+    "actual_objects": 2,
+    "unauthorized_additional_committed_objects": 0
+  },
+  "commit-fence-put-before_object_insert": {
+    "verdict": "PASS",
+    "ddl_during_transaction": "SQLITE_BUSY(5)",
+    "protected_operation": "COMMIT",
+    "ddl_after_commit": "성공",
+    "following_write": "STORE_SCHEMA_CORRUPT",
+    "actual_objects": 2,
+    "unauthorized_additional_committed_objects": 0
+  },
+  "commit-fence-stage-after_staging_insert": {
+    "verdict": "PASS",
+    "ddl_during_transaction": "SQLITE_BUSY(5)",
+    "protected_operation": "COMMIT",
+    "ddl_after_commit": "성공",
+    "following_write": "STORE_SCHEMA_CORRUPT",
+    "actual_objects": 1,
+    "unauthorized_additional_committed_objects": 0
+  },
+  "condition-edge_usage": {
+    "verdict": "PASS",
+    "expected": "쓰기 전 거부 및 기존 전체 행 보존",
+    "observed": "duplicate/cleanup 거부, read 정상, 전체 행 동일",
+    "original": "CREATE TRIGGER edge_usage AFTER INSERT ON edges BEGIN UPDATE usage SET metadata=metadata+256; END",
+    "changed": "CREATE TRIGGER edge_usage AFTER INSERT ON edges WHEN 0 BEGIN UPDATE usage SET metadata=metadata+256; END"
+  },
+  "condition-immutable_body": {
+    "verdict": "PASS",
+    "expected": "쓰기 전 거부 및 기존 전체 행 보존",
+    "observed": "duplicate/cleanup 거부, read 정상, 전체 행 동일",
+    "original": "CREATE TRIGGER immutable_body BEFORE UPDATE ON objects BEGIN SELECT RAISE(ABORT,'immutable object'); END",
+    "changed": "CREATE TRIGGER immutable_body BEFORE UPDATE ON objects WHEN 0 BEGIN SELECT RAISE(ABORT,'immutable object'); END"
+  },
+  "condition-object_usage": {
+    "verdict": "PASS",
+    "expected": "쓰기 전 거부 및 기존 전체 행 보존",
+    "observed": "duplicate/cleanup 거부, read 정상, 전체 행 동일",
+    "original": "CREATE TRIGGER object_usage AFTER INSERT ON objects BEGIN UPDATE usage SET objects=objects+1,payload=payload+length(NEW.body),metadata=metadata+192; END",
+    "changed": "CREATE TRIGGER object_usage AFTER INSERT ON objects WHEN 0 BEGIN UPDATE usage SET objects=objects+1,payload=payload+length(NEW.body),metadata=metadata+192; END"
+  },
+  "condition-progress_release": {
+    "verdict": "PASS",
+    "expected": "쓰기 전 거부 및 기존 전체 행 보존",
+    "observed": "duplicate/cleanup 거부, read 정상, 전체 행 동일",
+    "original": "CREATE TRIGGER progress_release AFTER DELETE ON staging_objects BEGIN UPDATE usage SET metadata=metadata-128; END",
+    "changed": "CREATE TRIGGER progress_release AFTER DELETE ON staging_objects WHEN 0 BEGIN UPDATE usage SET metadata=metadata-128; END"
+  },
+  "condition-progress_usage": {
+    "verdict": "PASS",
+    "expected": "쓰기 전 거부 및 기존 전체 행 보존",
+    "observed": "duplicate/cleanup 거부, read 정상, 전체 행 동일",
+    "original": "CREATE TRIGGER progress_usage AFTER INSERT ON staging_objects BEGIN UPDATE usage SET metadata=metadata+128; END",
+    "changed": "CREATE TRIGGER progress_usage AFTER INSERT ON staging_objects WHEN 0 BEGIN UPDATE usage SET metadata=metadata+128; END"
+  },
+  "condition-refs_release": {
+    "verdict": "PASS",
+    "expected": "쓰기 전 거부 및 기존 전체 행 보존",
+    "observed": "duplicate/cleanup 거부, read 정상, 전체 행 동일",
+    "original": "CREATE TRIGGER refs_release AFTER DELETE ON refs BEGIN UPDATE usage SET metadata=metadata-128; END",
+    "changed": "CREATE TRIGGER refs_release AFTER DELETE ON refs WHEN 0 BEGIN UPDATE usage SET metadata=metadata-128; END"
+  },
+  "condition-refs_usage": {
+    "verdict": "PASS",
+    "expected": "쓰기 전 거부 및 기존 전체 행 보존",
+    "observed": "duplicate/cleanup 거부, read 정상, 전체 행 동일",
+    "original": "CREATE TRIGGER refs_usage AFTER INSERT ON refs BEGIN UPDATE usage SET metadata=metadata+128; END",
+    "changed": "CREATE TRIGGER refs_usage AFTER INSERT ON refs WHEN 0 BEGIN UPDATE usage SET metadata=metadata+128; END"
+  },
+  "condition-root_release": {
+    "verdict": "PASS",
+    "expected": "쓰기 전 거부 및 기존 전체 행 보존",
+    "observed": "duplicate/cleanup 거부, read 정상, 전체 행 동일",
+    "original": "CREATE TRIGGER root_release AFTER DELETE ON staging_roots BEGIN UPDATE usage SET metadata=metadata-128; END",
+    "changed": "CREATE TRIGGER root_release AFTER DELETE ON staging_roots WHEN 0 BEGIN UPDATE usage SET metadata=metadata-128; END"
+  },
+  "condition-root_usage": {
+    "verdict": "PASS",
+    "expected": "쓰기 전 거부 및 기존 전체 행 보존",
+    "observed": "duplicate/cleanup 거부, read 정상, 전체 행 동일",
+    "original": "CREATE TRIGGER root_usage AFTER INSERT ON staging_roots BEGIN UPDATE usage SET metadata=metadata+128; END",
+    "changed": "CREATE TRIGGER root_usage AFTER INSERT ON staging_roots WHEN 0 BEGIN UPDATE usage SET metadata=metadata+128; END"
+  },
+  "condition-staging_release": {
+    "verdict": "PASS",
+    "expected": "쓰기 전 거부 및 기존 전체 행 보존",
+    "observed": "duplicate/cleanup 거부, read 정상, 전체 행 동일",
+    "original": "CREATE TRIGGER staging_release AFTER DELETE ON staging BEGIN UPDATE usage SET stages=stages-1,metadata=metadata-length(OLD.manifest)-256; END",
+    "changed": "CREATE TRIGGER staging_release AFTER DELETE ON staging WHEN 0 BEGIN UPDATE usage SET stages=stages-1,metadata=metadata-length(OLD.manifest)-256; END"
+  },
+  "condition-staging_usage": {
+    "verdict": "PASS",
+    "expected": "쓰기 전 거부 및 기존 전체 행 보존",
+    "observed": "duplicate/cleanup 거부, read 정상, 전체 행 동일",
+    "original": "CREATE TRIGGER staging_usage AFTER INSERT ON staging BEGIN UPDATE usage SET stages=stages+1,metadata=metadata+length(NEW.manifest)+256; END",
+    "changed": "CREATE TRIGGER staging_usage AFTER INSERT ON staging WHEN 0 BEGIN UPDATE usage SET stages=stages+1,metadata=metadata+length(NEW.manifest)+256; END"
+  },
+  "ddl-before-begin-COMMIT": {
+    "verdict": "PASS",
+    "expected": "write lock 경합 시 미변경, DDL 종료 뒤 재검증",
+    "observed": "STORE_BUSY 이후 schema 거부"
+  },
+  "ddl-before-begin-ROLLBACK": {
+    "verdict": "PASS",
+    "expected": "write lock 경합 시 미변경, DDL 종료 뒤 재검증",
+    "observed": "STORE_BUSY 이후 정상 재시도"
+  },
+  "exact-restore": {
+    "verdict": "PASS",
+    "before_failure": "STORE_SCHEMA_CORRUPT",
+    "restored_duplicate": "성공",
+    "restored_second_object": "LOCAL_STORAGE_BUDGET",
+    "committed_objects": 1
+  },
+  "money-differential": {
+    "verdict": "PASS",
+    "total": 4755,
+    "reported": 165,
+    "additional": 4590,
+    "accepted": 3816,
+    "rejected": 939,
+    "whitespace": [
+      9,
+      10,
+      11,
+      12,
+      13,
+      28,
+      29,
+      30,
+      31,
+      32,
+      133,
+      160,
+      5760,
+      8192,
+      8193,
+      8194,
+      8195,
+      8196,
+      8197,
+      8198,
+      8199,
+      8200,
+      8201,
+      8202,
+      8232,
+      8233,
+      8239,
+      8287,
+      12288
+    ],
+    "boundary_codepoints": [
+      0,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      132,
+      133,
+      134,
+      159,
+      160,
+      161,
+      847,
+      1564,
+      5759,
+      5760,
+      5761,
+      6158,
+      8191,
+      8192,
+      8193,
+      8194,
+      8195,
+      8196,
+      8197,
+      8198,
+      8199,
+      8200,
+      8201,
+      8202,
+      8203,
+      8204,
+      8205,
+      8231,
+      8232,
+      8233,
+      8234,
+      8238,
+      8239,
+      8240,
+      8286,
+      8287,
+      8288,
+      12287,
+      12288,
+      12289,
+      65279,
+      1114111
+    ],
+    "unique_committed_objects": 3815,
+    "corpus_sha256": "59bd99165076a10104dbb4c80f3c77a9082b0f5eaa75ba933be637b7d2a584d6",
+    "mismatches": [],
+    "sqlite": "Version(libVersion: 3.53.4, sourceId: 2026-07-24 19:02:57 bf7c7f30031888f4e796e429ab3978879485813aaca6f641c7b33e4e09459bcc, number: 3053004)"
+  },
+  "mutator-cleanup": {
+    "verdict": "PASS",
+    "expected": "schema 재검증 후 거부",
+    "observed": "STORE_SCHEMA_CORRUPT",
+    "committed_objects": 1,
+    "unauthorized_additional_committed_objects": 0
+  },
+  "mutator-duplicate": {
+    "verdict": "PASS",
+    "expected": "schema 재검증 후 거부",
+    "observed": "STORE_SCHEMA_CORRUPT",
+    "committed_objects": 1,
+    "unauthorized_additional_committed_objects": 0
+  },
+  "mutator-progress": {
+    "verdict": "PASS",
+    "expected": "schema 재검증 후 거부",
+    "observed": "STORE_SCHEMA_CORRUPT",
+    "committed_objects": 1,
+    "unauthorized_additional_committed_objects": 0
+  },
+  "mutator-put": {
+    "verdict": "PASS",
+    "expected": "schema 재검증 후 거부",
+    "observed": "STORE_SCHEMA_CORRUPT",
+    "committed_objects": 1,
+    "unauthorized_additional_committed_objects": 0
+  },
+  "mutator-stage": {
+    "verdict": "PASS",
+    "expected": "schema 재검증 후 거부",
+    "observed": "STORE_SCHEMA_CORRUPT",
+    "committed_objects": 1,
+    "unauthorized_additional_committed_objects": 0
+  },
+  "original-one-object": {
+    "verdict": "PASS",
+    "configured_limit": 1,
+    "committed_before": 1,
+    "committed_after": 1,
+    "unauthorized_additional_committed_objects": 0,
+    "insertion": {
+      "ok": false,
+      "error": "STORE_SCHEMA_CORRUPT",
+      "sqlite_code": null
+    },
+    "reopen": {
+      "ok": false,
+      "error": "STORE_SCHEMA_CORRUPT"
+    }
+  },
+  "payload-with-intact-schema": {
+    "verdict": "PASS",
+    "read": {
+      "ok": false,
+      "error": "REPRESENTATION_INVALID",
+      "sqlite_code": null
+    },
+    "schema_definition_restored": true
+  },
+  "performance": {
+    "verdict": "PASS",
+    "samples_per_cell": 200,
+    "cells": 4,
+    "catalog_definitions": 20,
+    "schema_queries_per_transaction": 2
+  },
+  "reused-connection": {
+    "verdict": "PASS",
+    "previous_valid_writes": 4,
+    "subsequent_rejections": 3,
+    "committed_objects": 1
+  }
+}

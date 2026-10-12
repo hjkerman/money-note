@@ -1,0 +1,132 @@
+{
+  "money": [
+    {
+      "codepoint": "U+001C",
+      "persisted_string_repr": "'\\x1c+0001000.00\\x1c'",
+      "manifest_status": 201,
+      "object_status": 200,
+      "independent_hash": "3c17aba73756f7febf9e4a640d771a0e3ade3297be61e50ded46328a8530b3fe",
+      "ref": {
+        "bytes": "1247",
+        "hash": "3c17aba73756f7febf9e4a640d771a0e3ade3297be61e50ded46328a8530b3fe"
+      },
+      "data_base64": "eyJjYW5vbiI6MSwiY291bnQiOiI3IiwiaGVpZ2h0IjowLCJraW5kIjoic25hcHNob3QtbGVhZiIsIm1heCI6WyJ0Iiwic2NoZWR1bGVkX2luY29tZSJdLCJtaW4iOlsidCIsImF1ZGl0LXNldHRpbmciXSwibnMiOnsiZGF0YXNldF9pZCI6ImVhMmE2Mjg1LTE1NWUtNGM2MC1iMTgxLTA1ZDMxMDIyYmViMCIsImVwb2NoIjoiMmY4MGQ2NTAtOTgxZi00YmQ1LWI2YTMtMzNkOTAwYTczOTBiIiwic2VydmVyX2lkIjoiN2FiZjI5NjQtNzI2Yy00ZThmLWI5MmYtNjg3ODc4OWI1OWY2In0sIm92ZXJzaXplZCI6ZmFsc2UsInJhd19zY2hlbWEiOiJiOTQ4YTBlMzNmYzBhYmI2OTU3YWY3NmJlYWM2NDNhYzcxMzFkMmZjYWMzYWI1MzI2NWMwMmQxNjc4M2Y5NTNlIiwicm93cyI6W3sia2V5IjpbInQiLCJhdWRpdC1zZXR0aW5nIl0sInZhbHVlIjp7ImtleSI6ImF1ZGl0LXNldHRpbmciLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNjoyNjo1MyIsInZhbHVlIjoi67O07KG065CcIOyEpOyglSJ9fSx7ImtleSI6WyJ0IiwiYmFzZV9uZXh0X21vbnRoX2xpcXVpZGl0eSJdLCJ2YWx1ZSI6eyJrZXkiOiJiYXNlX25leHRfbW9udGhfbGlxdWlkaXR5IiwidXBkYXRlZF9hdCI6IjIwMjYtMTAtMTIgMDY6MjY6NTMiLCJ2YWx1ZSI6Ilx1MDAxYyswMDAxMDAwLjAwXHUwMDFjIn19LHsia2V5IjpbInQiLCJjYXJkX2xpbWl0Il0sInZhbHVlIjp7ImtleSI6ImNhcmRfbGltaXQiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNjoyNjo1MyIsInZhbHVlIjoiMCJ9fSx7ImtleSI6WyJ0IiwiY2FzaF9mbG93X2JhbGFuY2UiXSwidmFsdWUiOnsia2V5IjoiY2FzaF9mbG93X2JhbGFuY2UiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNjoyNjo1MyIsInZhbHVlIjoiMCJ9fSx7ImtleSI6WyJ0IiwiZmFtaWx5X2NhcmRfbGFzdDQiXSwidmFsdWUiOnsia2V5IjoiZmFtaWx5X2NhcmRfbGFzdDQiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNjoyNjo1MiIsInZhbHVlIjoiIn19LHsia2V5IjpbInQiLCJvd25lcl9jYXJkX2xhc3Q0Il0sInZhbHVlIjp7ImtleSI6Im93bmVyX2NhcmRfbGFzdDQiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNjoyNjo1MiIsInZhbHVlIjoiIn19LHsia2V5IjpbInQiLCJzY2hlZHVsZWRfaW5jb21lIl0sInZhbHVlIjp7ImtleSI6InNjaGVkdWxlZF9pbmNvbWUiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNjoyNjo1MyIsInZhbHVlIjoiMCJ9fV0sInRhYmxlIjoiYXBwX3NldHRpbmdzIn0=",
+      "dart": {
+        "ok": true,
+        "path": "/tmp/e1-money-2z3kk2jx/store/segmented-store-v1/b636d5b2f3cb091cf2255d9eadbdc15615d59a33d023078ea98ad866a4714d7e.sqlite",
+        "open_us": 84141,
+        "count": 1
+      },
+      "expected": "서버가 검증하여 전달한 bytes의 저장 성공"
+    },
+    {
+      "codepoint": "U+001D",
+      "persisted_string_repr": "'\\x1d+0001000.00\\x1d'",
+      "manifest_status": 201,
+      "object_status": 200,
+      "independent_hash": "3b674301d851f30dde5ba820b02498788ba5b100eea86da058ffcc0598447a3c",
+      "ref": {
+        "bytes": "1247",
+        "hash": "3b674301d851f30dde5ba820b02498788ba5b100eea86da058ffcc0598447a3c"
+      },
+      "data_base64": "eyJjYW5vbiI6MSwiY291bnQiOiI3IiwiaGVpZ2h0IjowLCJraW5kIjoic25hcHNob3QtbGVhZiIsIm1heCI6WyJ0Iiwic2NoZWR1bGVkX2luY29tZSJdLCJtaW4iOlsidCIsImF1ZGl0LXNldHRpbmciXSwibnMiOnsiZGF0YXNldF9pZCI6IjJhNzk5ZjgwLTJlYmItNDZhZS05MTNjLWRhY2VjN2Q4NzNmNyIsImVwb2NoIjoiMWU0NjU1NGQtMjA2ZC00MDc4LWE3N2UtYzgzOTk4YjE0MDYzIiwic2VydmVyX2lkIjoiNmY4Njk5ZmMtNDZjYi00MzRhLWEwMTYtNjM1NzJmODdmZGY1In0sIm92ZXJzaXplZCI6ZmFsc2UsInJhd19zY2hlbWEiOiJiOTQ4YTBlMzNmYzBhYmI2OTU3YWY3NmJlYWM2NDNhYzcxMzFkMmZjYWMzYWI1MzI2NWMwMmQxNjc4M2Y5NTNlIiwicm93cyI6W3sia2V5IjpbInQiLCJhdWRpdC1zZXR0aW5nIl0sInZhbHVlIjp7ImtleSI6ImF1ZGl0LXNldHRpbmciLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNjoyNjo1NyIsInZhbHVlIjoi67O07KG065CcIOyEpOyglSJ9fSx7ImtleSI6WyJ0IiwiYmFzZV9uZXh0X21vbnRoX2xpcXVpZGl0eSJdLCJ2YWx1ZSI6eyJrZXkiOiJiYXNlX25leHRfbW9udGhfbGlxdWlkaXR5IiwidXBkYXRlZF9hdCI6IjIwMjYtMTAtMTIgMDY6MjY6NTciLCJ2YWx1ZSI6Ilx1MDAxZCswMDAxMDAwLjAwXHUwMDFkIn19LHsia2V5IjpbInQiLCJjYXJkX2xpbWl0Il0sInZhbHVlIjp7ImtleSI6ImNhcmRfbGltaXQiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNjoyNjo1NyIsInZhbHVlIjoiMCJ9fSx7ImtleSI6WyJ0IiwiY2FzaF9mbG93X2JhbGFuY2UiXSwidmFsdWUiOnsia2V5IjoiY2FzaF9mbG93X2JhbGFuY2UiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNjoyNjo1NyIsInZhbHVlIjoiMCJ9fSx7ImtleSI6WyJ0IiwiZmFtaWx5X2NhcmRfbGFzdDQiXSwidmFsdWUiOnsia2V5IjoiZmFtaWx5X2NhcmRfbGFzdDQiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNjoyNjo1NyIsInZhbHVlIjoiIn19LHsia2V5IjpbInQiLCJvd25lcl9jYXJkX2xhc3Q0Il0sInZhbHVlIjp7ImtleSI6Im93bmVyX2NhcmRfbGFzdDQiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNjoyNjo1NyIsInZhbHVlIjoiIn19LHsia2V5IjpbInQiLCJzY2hlZHVsZWRfaW5jb21lIl0sInZhbHVlIjp7ImtleSI6InNjaGVkdWxlZF9pbmNvbWUiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNjoyNjo1NyIsInZhbHVlIjoiMCJ9fV0sInRhYmxlIjoiYXBwX3NldHRpbmdzIn0=",
+      "dart": {
+        "ok": true,
+        "path": "/tmp/e1-money-79wn5alc/store/segmented-store-v1/c81b52033caf56f8ba9eb3a9b9c63328349cdd7d1558b384d38b7ec6cb90365a.sqlite",
+        "open_us": 66630,
+        "count": 1
+      },
+      "expected": "서버가 검증하여 전달한 bytes의 저장 성공"
+    },
+    {
+      "codepoint": "U+001E",
+      "persisted_string_repr": "'\\x1e+0001000.00\\x1e'",
+      "manifest_status": 201,
+      "object_status": 200,
+      "independent_hash": "ec7327edb30a6f611f05a06224515a5da0befd73d2a716eeefd91d2f667f875c",
+      "ref": {
+        "bytes": "1247",
+        "hash": "ec7327edb30a6f611f05a06224515a5da0befd73d2a716eeefd91d2f667f875c"
+      },
+      "data_base64": "eyJjYW5vbiI6MSwiY291bnQiOiI3IiwiaGVpZ2h0IjowLCJraW5kIjoic25hcHNob3QtbGVhZiIsIm1heCI6WyJ0Iiwic2NoZWR1bGVkX2luY29tZSJdLCJtaW4iOlsidCIsImF1ZGl0LXNldHRpbmciXSwibnMiOnsiZGF0YXNldF9pZCI6ImZlYjE4ZDZmLTBhZmEtNDUxMi05Nzg4LThjMThlM2Q4YjRiZCIsImVwb2NoIjoiMTcxNjA3NDMtNWY5Zi00N2JmLTgwNjgtN2I1OGY1NTgwNTlkIiwic2VydmVyX2lkIjoiMjU4MTJlMjctZmQ1YS00YTJkLTkyZGUtODgxYTY0Y2IzYWEyIn0sIm92ZXJzaXplZCI6ZmFsc2UsInJhd19zY2hlbWEiOiJiOTQ4YTBlMzNmYzBhYmI2OTU3YWY3NmJlYWM2NDNhYzcxMzFkMmZjYWMzYWI1MzI2NWMwMmQxNjc4M2Y5NTNlIiwicm93cyI6W3sia2V5IjpbInQiLCJhdWRpdC1zZXR0aW5nIl0sInZhbHVlIjp7ImtleSI6ImF1ZGl0LXNldHRpbmciLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNjoyNzowMSIsInZhbHVlIjoi67O07KG065CcIOyEpOyglSJ9fSx7ImtleSI6WyJ0IiwiYmFzZV9uZXh0X21vbnRoX2xpcXVpZGl0eSJdLCJ2YWx1ZSI6eyJrZXkiOiJiYXNlX25leHRfbW9udGhfbGlxdWlkaXR5IiwidXBkYXRlZF9hdCI6IjIwMjYtMTAtMTIgMDY6Mjc6MDEiLCJ2YWx1ZSI6Ilx1MDAxZSswMDAxMDAwLjAwXHUwMDFlIn19LHsia2V5IjpbInQiLCJjYXJkX2xpbWl0Il0sInZhbHVlIjp7ImtleSI6ImNhcmRfbGltaXQiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNjoyNzowMSIsInZhbHVlIjoiMCJ9fSx7ImtleSI6WyJ0IiwiY2FzaF9mbG93X2JhbGFuY2UiXSwidmFsdWUiOnsia2V5IjoiY2FzaF9mbG93X2JhbGFuY2UiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNjoyNzowMSIsInZhbHVlIjoiMCJ9fSx7ImtleSI6WyJ0IiwiZmFtaWx5X2NhcmRfbGFzdDQiXSwidmFsdWUiOnsia2V5IjoiZmFtaWx5X2NhcmRfbGFzdDQiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNjoyNzowMSIsInZhbHVlIjoiIn19LHsia2V5IjpbInQiLCJvd25lcl9jYXJkX2xhc3Q0Il0sInZhbHVlIjp7ImtleSI6Im93bmVyX2NhcmRfbGFzdDQiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNjoyNzowMSIsInZhbHVlIjoiIn19LHsia2V5IjpbInQiLCJzY2hlZHVsZWRfaW5jb21lIl0sInZhbHVlIjp7ImtleSI6InNjaGVkdWxlZF9pbmNvbWUiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNjoyNzowMSIsInZhbHVlIjoiMCJ9fV0sInRhYmxlIjoiYXBwX3NldHRpbmdzIn0=",
+      "dart": {
+        "ok": true,
+        "path": "/tmp/e1-money-gylashcf/store/segmented-store-v1/86e5f96994441bcdc48f043e1008daf096a92552fec32bb2dd634f0af0a5f1b6.sqlite",
+        "open_us": 63400,
+        "count": 1
+      },
+      "expected": "서버가 검증하여 전달한 bytes의 저장 성공"
+    },
+    {
+      "codepoint": "U+001F",
+      "persisted_string_repr": "'\\x1f+0001000.00\\x1f'",
+      "manifest_status": 201,
+      "object_status": 200,
+      "independent_hash": "12a28e9217f3a8e3e4de1e8cb5d142385bb0f0850d1319e978f7f0c5cb710091",
+      "ref": {
+        "bytes": "1247",
+        "hash": "12a28e9217f3a8e3e4de1e8cb5d142385bb0f0850d1319e978f7f0c5cb710091"
+      },
+      "data_base64": "eyJjYW5vbiI6MSwiY291bnQiOiI3IiwiaGVpZ2h0IjowLCJraW5kIjoic25hcHNob3QtbGVhZiIsIm1heCI6WyJ0Iiwic2NoZWR1bGVkX2luY29tZSJdLCJtaW4iOlsidCIsImF1ZGl0LXNldHRpbmciXSwibnMiOnsiZGF0YXNldF9pZCI6ImNjOWIwOGYwLTczYmItNDhlZC04YjA0LWM3ZjhhMzYxYTQwNyIsImVwb2NoIjoiYjQ4ZjY2MGQtMWE5MS00ZGViLWJlM2YtMzQ0NmRmNzkxNWY2Iiwic2VydmVyX2lkIjoiNGZhNmU4ZDctNjk5OC00ZDhkLThmZmUtMWQ2NWZmZjRkMjg0In0sIm92ZXJzaXplZCI6ZmFsc2UsInJhd19zY2hlbWEiOiJiOTQ4YTBlMzNmYzBhYmI2OTU3YWY3NmJlYWM2NDNhYzcxMzFkMmZjYWMzYWI1MzI2NWMwMmQxNjc4M2Y5NTNlIiwicm93cyI6W3sia2V5IjpbInQiLCJhdWRpdC1zZXR0aW5nIl0sInZhbHVlIjp7ImtleSI6ImF1ZGl0LXNldHRpbmciLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNjoyNzowNCIsInZhbHVlIjoi67O07KG065CcIOyEpOyglSJ9fSx7ImtleSI6WyJ0IiwiYmFzZV9uZXh0X21vbnRoX2xpcXVpZGl0eSJdLCJ2YWx1ZSI6eyJrZXkiOiJiYXNlX25leHRfbW9udGhfbGlxdWlkaXR5IiwidXBkYXRlZF9hdCI6IjIwMjYtMTAtMTIgMDY6Mjc6MDQiLCJ2YWx1ZSI6Ilx1MDAxZiswMDAxMDAwLjAwXHUwMDFmIn19LHsia2V5IjpbInQiLCJjYXJkX2xpbWl0Il0sInZhbHVlIjp7ImtleSI6ImNhcmRfbGltaXQiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNjoyNzowNCIsInZhbHVlIjoiMCJ9fSx7ImtleSI6WyJ0IiwiY2FzaF9mbG93X2JhbGFuY2UiXSwidmFsdWUiOnsia2V5IjoiY2FzaF9mbG93X2JhbGFuY2UiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNjoyNzowNCIsInZhbHVlIjoiMCJ9fSx7ImtleSI6WyJ0IiwiZmFtaWx5X2NhcmRfbGFzdDQiXSwidmFsdWUiOnsia2V5IjoiZmFtaWx5X2NhcmRfbGFzdDQiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNjoyNzowNCIsInZhbHVlIjoiIn19LHsia2V5IjpbInQiLCJvd25lcl9jYXJkX2xhc3Q0Il0sInZhbHVlIjp7ImtleSI6Im93bmVyX2NhcmRfbGFzdDQiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNjoyNzowNCIsInZhbHVlIjoiIn19LHsia2V5IjpbInQiLCJzY2hlZHVsZWRfaW5jb21lIl0sInZhbHVlIjp7ImtleSI6InNjaGVkdWxlZF9pbmNvbWUiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0xMiAwNjoyNzowNCIsInZhbHVlIjoiMCJ9fV0sInRhYmxlIjoiYXBwX3NldHRpbmdzIn0=",
+      "dart": {
+        "ok": true,
+        "path": "/tmp/e1-money-a14hjjdd/store/segmented-store-v1/3576cff76962cbadab15f1c3ee744fa1a80b32f1e4b926c51deab81e7a913051.sqlite",
+        "open_us": 69685,
+        "count": 1
+      },
+      "expected": "서버가 검증하여 전달한 bytes의 저장 성공"
+    }
+  ],
+  "schema": {
+    "initial_usage": [
+      [
+        0,
+        0
+      ]
+    ],
+    "missing_trigger": "object_usage",
+    "configured_object_count": 1,
+    "dart": {
+      "ok": false,
+      "error": "STORE_SCHEMA_CORRUPT",
+      "storageCode": null
+    },
+    "actual_objects": [
+      [
+        0
+      ]
+    ],
+    "actual_payload": [
+      [
+        null
+      ]
+    ],
+    "usage_after": [
+      [
+        0,
+        0
+      ]
+    ],
+    "sqlite_integrity": [
+      [
+        "ok"
+      ]
+    ],
+    "foreign_keys": [],
+    "reopen": {
+      "ok": false,
+      "error": "STORE_SCHEMA_CORRUPT",
+      "storageCode": null
+    },
+    "expected": "schema 누락을 쓰기 전에 거부하고 quota를 초과하지 않음"
+  },
+  "bom_money": {
+    "value_repr": "'\\ufeff1000\\ufeff'",
+    "server_error": "REJECT_SETTING_MONEY",
+    "dart": {
+      "ok": false,
+      "error": "SegmentedException(MONEY_STRING_INVALID)"
+    },
+    "expected": "서버가 거부한 금액 문자열을 E1도 거부함"
+  }
+}
