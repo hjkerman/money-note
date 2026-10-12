@@ -1,0 +1,1245 @@
+{
+  "audited_correction_commit": "7a09384058bb7b8d8984ac5894167d0645925e64",
+  "baseline": "814eab506aa8457d10a7302241a26120b9389ff6",
+  "audit_date": "2026-10-12",
+  "environment": {
+    "platform": "Linux",
+    "flutter": "3.47.4",
+    "dart": "3.13.3",
+    "http": "1.6.0",
+    "python": "3.12.3",
+    "sqlite_python": "3.45.1"
+  },
+  "scope": "E2-A01 header 거부 시 response 자원 정리",
+  "original_strengthened": {
+    "tests": 5,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 5
+  },
+  "strict_original_assertions": {
+    "tests": 5,
+    "failures": 4,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 1
+  },
+  "restored_baseline": {
+    "tests": 5,
+    "failures": 4,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 1
+  },
+  "correction_tcp": {
+    "tests": 5,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 5
+  },
+  "new_independent": {
+    "tests": 9,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 9
+  },
+  "original_measurements": [
+    {
+      "mode": "positive",
+      "first": "HTTP_200",
+      "second": "HTTP_200",
+      "server_requests": 2,
+      "active_after_first": 0,
+      "active_after_second": 0,
+      "total_connections": 1,
+      "held_responses": 0,
+      "client_fd_after_first": 1,
+      "client_fd_after_second": 1
+    },
+    {
+      "mode": "auth",
+      "first": "SegmentedException(AUTHENTICATION_CHANGED)",
+      "second": "HTTP_200",
+      "server_requests": 2,
+      "active_after_first": 1,
+      "active_after_second": 1,
+      "total_connections": 2,
+      "held_responses": 1,
+      "client_fd_after_first": 0,
+      "client_fd_after_second": 1
+    },
+    {
+      "mode": "redirect",
+      "first": "SegmentedException(REDIRECT_REJECTED)",
+      "second": "HTTP_200",
+      "server_requests": 2,
+      "active_after_first": 1,
+      "active_after_second": 1,
+      "total_connections": 2,
+      "held_responses": 1,
+      "client_fd_after_first": 0,
+      "client_fd_after_second": 1
+    },
+    {
+      "mode": "oversized",
+      "first": "SegmentedException(RESPONSE_SIZE_EXCEEDED)",
+      "second": "HTTP_200",
+      "server_requests": 2,
+      "active_after_first": 1,
+      "active_after_second": 1,
+      "total_connections": 2,
+      "held_responses": 1,
+      "client_fd_after_first": 0,
+      "client_fd_after_second": 1
+    },
+    {
+      "mode": "repeated-acquisition",
+      "errors": [
+        "RESPONSE_SIZE_EXCEEDED",
+        "RESPONSE_SIZE_EXCEEDED",
+        "RESPONSE_SIZE_EXCEEDED",
+        "RESPONSE_SIZE_EXCEEDED",
+        "RESPONSE_SIZE_EXCEEDED",
+        "RESPONSE_SIZE_EXCEEDED"
+      ],
+      "active_after_each_failure": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "client_fd_after_each_failure": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "server_requests": 6,
+      "objects": 0,
+      "stages": 0
+    }
+  ],
+  "baseline_measurements": [
+    {
+      "mode": "positive",
+      "first": "HTTP_200",
+      "second": "HTTP_200",
+      "server_requests": 2,
+      "active_after_first": 0,
+      "active_after_second": 0,
+      "total_connections": 1,
+      "held_responses": 0,
+      "client_fd_after_first": 1,
+      "client_fd_after_second": 1
+    },
+    {
+      "mode": "auth",
+      "first": "SegmentedException(AUTHENTICATION_CHANGED)",
+      "second": "SegmentedException(TRANSPORT_TIMEOUT)",
+      "server_requests": 1,
+      "active_after_first": 1,
+      "active_after_second": 1,
+      "total_connections": 1,
+      "held_responses": 1,
+      "client_fd_after_first": 1,
+      "client_fd_after_second": 1
+    },
+    {
+      "mode": "redirect",
+      "first": "SegmentedException(REDIRECT_REJECTED)",
+      "second": "SegmentedException(TRANSPORT_TIMEOUT)",
+      "server_requests": 1,
+      "active_after_first": 1,
+      "active_after_second": 1,
+      "total_connections": 1,
+      "held_responses": 1,
+      "client_fd_after_first": 1,
+      "client_fd_after_second": 1
+    },
+    {
+      "mode": "oversized",
+      "first": "SegmentedException(RESPONSE_SIZE_EXCEEDED)",
+      "second": "SegmentedException(TRANSPORT_TIMEOUT)",
+      "server_requests": 1,
+      "active_after_first": 1,
+      "active_after_second": 1,
+      "total_connections": 1,
+      "held_responses": 1,
+      "client_fd_after_first": 1,
+      "client_fd_after_second": 1
+    },
+    {
+      "mode": "repeated-acquisition",
+      "errors": [
+        "RESPONSE_SIZE_EXCEEDED",
+        "RESPONSE_SIZE_EXCEEDED",
+        "RESPONSE_SIZE_EXCEEDED",
+        "RESPONSE_SIZE_EXCEEDED",
+        "RESPONSE_SIZE_EXCEEDED",
+        "RESPONSE_SIZE_EXCEEDED"
+      ],
+      "active_after_each_failure": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "client_fd_after_each_failure": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "server_requests": 6,
+      "objects": 0,
+      "stages": 0
+    }
+  ],
+  "new_measurements": [
+    {
+      "scenario": "hold-valid",
+      "limit": 2,
+      "samples": [
+        {
+          "command": {
+            "action": "begin-valid"
+          },
+          "started": true,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "redirect-chunked"
+          },
+          "result": "SegmentedException(REDIRECT_REJECTED)",
+          "milliseconds": 60.638,
+          "client_close_calls": 0,
+          "tcp_fds": [
+            {
+              "fd": 9,
+              "inode": "1290651",
+              "state": "01",
+              "remote": "0100007F:82F3"
+            }
+          ]
+        },
+        {
+          "command": {
+            "action": "finish-valid"
+          },
+          "result": "VERIFIED",
+          "kind": "raw-root",
+          "hash": "c4e2eaeb3f543e89bf6c4e15a124c6e4f111ca5fb1ace29ae1cfa3e4840643d6",
+          "milliseconds": 192.036,
+          "client_close_calls": 0,
+          "tcp_fds": [
+            {
+              "fd": 9,
+              "inode": "1290651",
+              "state": "01",
+              "remote": "0100007F:82F3"
+            }
+          ],
+          "payload_bytes": 2512
+        }
+      ],
+      "requests": [
+        "hold-valid",
+        "redirect-chunked"
+      ]
+    },
+    {
+      "scenario": "auth",
+      "limit": 1,
+      "samples": [
+        {
+          "command": {
+            "action": "request",
+            "mode": "auth"
+          },
+          "result": "SegmentedException(AUTHENTICATION_CHANGED)",
+          "milliseconds": 146.674,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "auth"
+          },
+          "result": "SegmentedException(AUTHENTICATION_CHANGED)",
+          "milliseconds": 45.537,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "auth"
+          },
+          "result": "SegmentedException(AUTHENTICATION_CHANGED)",
+          "milliseconds": 45.092,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "auth"
+          },
+          "result": "SegmentedException(AUTHENTICATION_CHANGED)",
+          "milliseconds": 45.087,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "auth"
+          },
+          "result": "SegmentedException(AUTHENTICATION_CHANGED)",
+          "milliseconds": 45.277,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "auth"
+          },
+          "result": "SegmentedException(AUTHENTICATION_CHANGED)",
+          "milliseconds": 45.265,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "valid"
+          },
+          "result": "VERIFIED",
+          "kind": "raw-root",
+          "hash": "c4e2eaeb3f543e89bf6c4e15a124c6e4f111ca5fb1ace29ae1cfa3e4840643d6",
+          "milliseconds": 67.659,
+          "client_close_calls": 0,
+          "tcp_fds": [
+            {
+              "fd": 9,
+              "inode": "1288604",
+              "state": "01",
+              "remote": "0100007F:A3C1"
+            }
+          ],
+          "payload_bytes": 2512
+        }
+      ],
+      "requests": [
+        "auth",
+        "auth",
+        "auth",
+        "auth",
+        "auth",
+        "auth",
+        "valid"
+      ]
+    },
+    {
+      "scenario": "redirect",
+      "limit": 1,
+      "samples": [
+        {
+          "command": {
+            "action": "request",
+            "mode": "redirect"
+          },
+          "result": "SegmentedException(REDIRECT_REJECTED)",
+          "milliseconds": 146.609,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "redirect"
+          },
+          "result": "SegmentedException(REDIRECT_REJECTED)",
+          "milliseconds": 45.438,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "redirect"
+          },
+          "result": "SegmentedException(REDIRECT_REJECTED)",
+          "milliseconds": 45.536,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "redirect"
+          },
+          "result": "SegmentedException(REDIRECT_REJECTED)",
+          "milliseconds": 45.382,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "redirect"
+          },
+          "result": "SegmentedException(REDIRECT_REJECTED)",
+          "milliseconds": 45.559,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "redirect"
+          },
+          "result": "SegmentedException(REDIRECT_REJECTED)",
+          "milliseconds": 45.576,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "valid"
+          },
+          "result": "VERIFIED",
+          "kind": "raw-root",
+          "hash": "c4e2eaeb3f543e89bf6c4e15a124c6e4f111ca5fb1ace29ae1cfa3e4840643d6",
+          "milliseconds": 66.901,
+          "client_close_calls": 0,
+          "tcp_fds": [
+            {
+              "fd": 9,
+              "inode": "1290626",
+              "state": "01",
+              "remote": "0100007F:B19B"
+            }
+          ],
+          "payload_bytes": 2512
+        }
+      ],
+      "requests": [
+        "redirect",
+        "redirect",
+        "redirect",
+        "redirect",
+        "redirect",
+        "redirect",
+        "valid"
+      ]
+    },
+    {
+      "scenario": "oversized",
+      "limit": 1,
+      "samples": [
+        {
+          "command": {
+            "action": "request",
+            "mode": "oversized"
+          },
+          "result": "SegmentedException(RESPONSE_SIZE_EXCEEDED)",
+          "milliseconds": 141.604,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "oversized"
+          },
+          "result": "SegmentedException(RESPONSE_SIZE_EXCEEDED)",
+          "milliseconds": 45.432,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "oversized"
+          },
+          "result": "SegmentedException(RESPONSE_SIZE_EXCEEDED)",
+          "milliseconds": 45.738,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "oversized"
+          },
+          "result": "SegmentedException(RESPONSE_SIZE_EXCEEDED)",
+          "milliseconds": 45.311,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "oversized"
+          },
+          "result": "SegmentedException(RESPONSE_SIZE_EXCEEDED)",
+          "milliseconds": 46.367,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "oversized"
+          },
+          "result": "SegmentedException(RESPONSE_SIZE_EXCEEDED)",
+          "milliseconds": 45.756,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "valid"
+          },
+          "result": "VERIFIED",
+          "kind": "raw-root",
+          "hash": "c4e2eaeb3f543e89bf6c4e15a124c6e4f111ca5fb1ace29ae1cfa3e4840643d6",
+          "milliseconds": 64.829,
+          "client_close_calls": 0,
+          "tcp_fds": [
+            {
+              "fd": 9,
+              "inode": "1293394",
+              "state": "01",
+              "remote": "0100007F:93B1"
+            }
+          ],
+          "payload_bytes": 2512
+        }
+      ],
+      "requests": [
+        "oversized",
+        "oversized",
+        "oversized",
+        "oversized",
+        "oversized",
+        "oversized",
+        "valid"
+      ]
+    },
+    {
+      "scenario": "huge",
+      "limit": 1,
+      "samples": [
+        {
+          "command": {
+            "action": "request",
+            "mode": "huge"
+          },
+          "result": "SegmentedException(RESPONSE_SIZE_EXCEEDED)",
+          "milliseconds": 138.587,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "huge"
+          },
+          "result": "SegmentedException(RESPONSE_SIZE_EXCEEDED)",
+          "milliseconds": 44.931,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "huge"
+          },
+          "result": "SegmentedException(RESPONSE_SIZE_EXCEEDED)",
+          "milliseconds": 44.485,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "huge"
+          },
+          "result": "SegmentedException(RESPONSE_SIZE_EXCEEDED)",
+          "milliseconds": 44.759,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "huge"
+          },
+          "result": "SegmentedException(RESPONSE_SIZE_EXCEEDED)",
+          "milliseconds": 45.432,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "huge"
+          },
+          "result": "SegmentedException(RESPONSE_SIZE_EXCEEDED)",
+          "milliseconds": 45.352,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "valid"
+          },
+          "result": "VERIFIED",
+          "kind": "raw-root",
+          "hash": "c4e2eaeb3f543e89bf6c4e15a124c6e4f111ca5fb1ace29ae1cfa3e4840643d6",
+          "milliseconds": 64.438,
+          "client_close_calls": 0,
+          "tcp_fds": [
+            {
+              "fd": 9,
+              "inode": "1284052",
+              "state": "01",
+              "remote": "0100007F:93CB"
+            }
+          ],
+          "payload_bytes": 2512
+        }
+      ],
+      "requests": [
+        "huge",
+        "huge",
+        "huge",
+        "huge",
+        "huge",
+        "huge",
+        "valid"
+      ]
+    },
+    {
+      "scenario": "redirect-chunked",
+      "limit": 1,
+      "samples": [
+        {
+          "command": {
+            "action": "request",
+            "mode": "redirect-chunked"
+          },
+          "result": "SegmentedException(REDIRECT_REJECTED)",
+          "milliseconds": 141.399,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "redirect-chunked"
+          },
+          "result": "SegmentedException(REDIRECT_REJECTED)",
+          "milliseconds": 45.869,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "redirect-chunked"
+          },
+          "result": "SegmentedException(REDIRECT_REJECTED)",
+          "milliseconds": 45.491,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "redirect-chunked"
+          },
+          "result": "SegmentedException(REDIRECT_REJECTED)",
+          "milliseconds": 45.626,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "redirect-chunked"
+          },
+          "result": "SegmentedException(REDIRECT_REJECTED)",
+          "milliseconds": 45.259,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "redirect-chunked"
+          },
+          "result": "SegmentedException(REDIRECT_REJECTED)",
+          "milliseconds": 44.968,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "valid"
+          },
+          "result": "VERIFIED",
+          "kind": "raw-root",
+          "hash": "c4e2eaeb3f543e89bf6c4e15a124c6e4f111ca5fb1ace29ae1cfa3e4840643d6",
+          "milliseconds": 64.595,
+          "client_close_calls": 0,
+          "tcp_fds": [
+            {
+              "fd": 9,
+              "inode": "1282815",
+              "state": "01",
+              "remote": "0100007F:97B1"
+            }
+          ],
+          "payload_bytes": 2512
+        }
+      ],
+      "requests": [
+        "redirect-chunked",
+        "redirect-chunked",
+        "redirect-chunked",
+        "redirect-chunked",
+        "redirect-chunked",
+        "redirect-chunked",
+        "valid"
+      ]
+    },
+    {
+      "scenario": "redirect-empty",
+      "limit": 1,
+      "samples": [
+        {
+          "command": {
+            "action": "request",
+            "mode": "redirect-empty"
+          },
+          "result": "SegmentedException(REDIRECT_REJECTED)",
+          "milliseconds": 136.471,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "redirect-empty"
+          },
+          "result": "SegmentedException(REDIRECT_REJECTED)",
+          "milliseconds": 45.379,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "redirect-empty"
+          },
+          "result": "SegmentedException(REDIRECT_REJECTED)",
+          "milliseconds": 45.398,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "redirect-empty"
+          },
+          "result": "SegmentedException(REDIRECT_REJECTED)",
+          "milliseconds": 44.523,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "redirect-empty"
+          },
+          "result": "SegmentedException(REDIRECT_REJECTED)",
+          "milliseconds": 45.303,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "redirect-empty"
+          },
+          "result": "SegmentedException(REDIRECT_REJECTED)",
+          "milliseconds": 45.359,
+          "client_close_calls": 0,
+          "tcp_fds": []
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "valid"
+          },
+          "result": "VERIFIED",
+          "kind": "raw-root",
+          "hash": "c4e2eaeb3f543e89bf6c4e15a124c6e4f111ca5fb1ace29ae1cfa3e4840643d6",
+          "milliseconds": 63.073,
+          "client_close_calls": 0,
+          "tcp_fds": [
+            {
+              "fd": 9,
+              "inode": "1282822",
+              "state": "01",
+              "remote": "0100007F:A8C1"
+            }
+          ],
+          "payload_bytes": 2512
+        }
+      ],
+      "requests": [
+        "redirect-empty",
+        "redirect-empty",
+        "redirect-empty",
+        "redirect-empty",
+        "redirect-empty",
+        "redirect-empty",
+        "valid"
+      ]
+    },
+    {
+      "scenario": "tampered",
+      "limit": 1,
+      "samples": [
+        {
+          "command": {
+            "action": "request",
+            "mode": "tampered"
+          },
+          "result": "SegmentedException(REPRESENTATION_INVALID)",
+          "milliseconds": 155.936,
+          "client_close_calls": 0,
+          "tcp_fds": [
+            {
+              "fd": 9,
+              "inode": "1281902",
+              "state": "01",
+              "remote": "0100007F:AE87"
+            }
+          ]
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "valid"
+          },
+          "result": "VERIFIED",
+          "kind": "raw-root",
+          "hash": "c4e2eaeb3f543e89bf6c4e15a124c6e4f111ca5fb1ace29ae1cfa3e4840643d6",
+          "milliseconds": 57.984,
+          "client_close_calls": 0,
+          "tcp_fds": [
+            {
+              "fd": 9,
+              "inode": "1281902",
+              "state": "01",
+              "remote": "0100007F:AE87"
+            }
+          ],
+          "payload_bytes": 2512
+        }
+      ],
+      "requests": [
+        "tampered",
+        "valid"
+      ]
+    },
+    {
+      "scenario": "wrong-hash",
+      "limit": 1,
+      "samples": [
+        {
+          "command": {
+            "action": "request",
+            "mode": "wrong-hash"
+          },
+          "result": "SegmentedException(OBJECT_HASH_INVALID)",
+          "milliseconds": 163.344,
+          "client_close_calls": 0,
+          "tcp_fds": [
+            {
+              "fd": 9,
+              "inode": "1293401",
+              "state": "01",
+              "remote": "0100007F:97C9"
+            }
+          ]
+        },
+        {
+          "command": {
+            "action": "request",
+            "mode": "valid"
+          },
+          "result": "VERIFIED",
+          "kind": "raw-root",
+          "hash": "c4e2eaeb3f543e89bf6c4e15a124c6e4f111ca5fb1ace29ae1cfa3e4840643d6",
+          "milliseconds": 58.646,
+          "client_close_calls": 0,
+          "tcp_fds": [
+            {
+              "fd": 9,
+              "inode": "1293401",
+              "state": "01",
+              "remote": "0100007F:97C9"
+            }
+          ],
+          "payload_bytes": 2512
+        }
+      ],
+      "requests": [
+        "wrong-hash",
+        "valid"
+      ]
+    }
+  ],
+  "independent_persisted_state": {
+    "preserved-native": {
+      "counts": {
+        "objects": 0,
+        "staging": 0,
+        "acquisition": 0
+      },
+      "integrity": "ok",
+      "foreign_key_violations": [],
+      "user_version": 2
+    },
+    "preserved-correction": {
+      "counts": {
+        "objects": 0,
+        "staging": 0,
+        "acquisition": 0
+      },
+      "integrity": "ok",
+      "foreign_key_violations": [],
+      "user_version": 2
+    }
+  },
+  "historical_evidence_preservation": {
+    "docs/t66e2-independent-audit.md": {
+      "unchanged": true,
+      "sha256": "1086a9abbc69562241f775aa66ea3998874b8c96c4eb6e48c0b1b8af09bda500"
+    },
+    "docs/benchmarks/t66e2-audit/summary.json": {
+      "unchanged": true,
+      "sha256": "f6bc5fadd5f5f0a84bd768eb33a6127ce718b2df1a6a02a5e01e2a8b72ecaac7"
+    }
+  },
+  "replay_script": {
+    "strict-original": {
+      "exit_code": 1,
+      "tests": 5,
+      "failed": 4,
+      "errors": 0,
+      "seconds": 7.179050826001912
+    },
+    "original-strengthened": {
+      "exit_code": 0,
+      "tests": 5,
+      "failed": 0,
+      "errors": 0,
+      "seconds": 6.577908199978992
+    },
+    "correction-tcp": {
+      "exit_code": 0,
+      "tests": 5,
+      "failed": 0,
+      "errors": 0,
+      "seconds": 6.477582410036121
+    },
+    "baseline-tcp": {
+      "exit_code": 1,
+      "tests": 5,
+      "failed": 4,
+      "errors": 0,
+      "seconds": 9.183125133975409
+    }
+  },
+  "cleanup_unit_timing": {
+    "header rejection awaits cleanup; later timeout cannot mask the error": {
+      "result": "success",
+      "elapsed_machine_ms": 48
+    },
+    "bounded cleanup keeps original error and destroys a late detached socket": {
+      "result": "success",
+      "elapsed_machine_ms": 2008
+    }
+  },
+  "header_rejection_exchange_latency_ms": {
+    "samples": 36,
+    "minimum": 44.485,
+    "maximum": 146.674,
+    "median": 45.432
+  },
+  "flutter": {
+    "total": {
+      "success": 983,
+      "skip": 2
+    },
+    "files": {
+      "coherent_get_dag_test.dart": {
+        "success": 91
+      },
+      "t66a_payload_test.dart": {
+        "skip": 2
+      },
+      "authoritative_acquisition_test.dart": {
+        "success": 57
+      },
+      "offline_persistence_test.dart": {
+        "success": 9
+      },
+      "notification_models_test.dart": {
+        "success": 2
+      },
+      "local_snapshot_repository_test.dart": {
+        "success": 7
+      },
+      "offline_notification_identity_test.dart": {
+        "success": 5
+      },
+      "utility_discount_default_test.dart": {
+        "success": 1
+      },
+      "notification_registration_test.dart": {
+        "success": 11
+      },
+      "offline_state_projection_test.dart": {
+        "success": 18
+      },
+      "segmented_acquisition_store_test.dart": {
+        "success": 14
+      },
+      "app_state_test.dart": {
+        "success": 3
+      },
+      "segmented_transport_test.dart": {
+        "success": 30
+      },
+      "authoritative_bundle_test.dart": {
+        "success": 27
+      },
+      "segmented_protocol_test.dart": {
+        "success": 58
+      },
+      "formatters_test.dart": {
+        "success": 2
+      },
+      "offline_lineage_recovery_test.dart": {
+        "success": 8
+      },
+      "authoritative_bundle_trust_boundary_test.dart": {
+        "success": 47
+      },
+      "authoritative_bundle_canonical_test.dart": {
+        "success": 90
+      },
+      "notification_discount_policy_test.dart": {
+        "success": 17
+      },
+      "segmented_crash_test.dart": {
+        "success": 7
+      },
+      "authoritative_bundle_admission_test.dart": {
+        "success": 26
+      },
+      "offline_refresh_test.dart": {
+        "success": 27
+      },
+      "apk_download_controller_test.dart": {
+        "success": 1
+      },
+      "segmented_money_correction_test.dart": {
+        "success": 166
+      },
+      "segmented_fetch_crash_test.dart": {
+        "success": 3
+      },
+      "offline_reconciliation_test.dart": {
+        "success": 14
+      },
+      "segmented_store_test.dart": {
+        "success": 31
+      },
+      "offline_widget_submit_test.dart": {
+        "success": 13
+      },
+      "authoritative_bundle_unicode_test.dart": {
+        "success": 11
+      },
+      "exact_money_domain_test.dart": {
+        "success": 5
+      },
+      "freeze_reaudit_outcome_test.dart": {
+        "success": 11
+      },
+      "submit_latency_diagnostic_test.dart": {
+        "success": 3
+      },
+      "family_screen_test.dart": {
+        "success": 5
+      },
+      "segmented_response_cleanup_test.dart": {
+        "success": 13
+      },
+      "date_picker_row_test.dart": {
+        "success": 1
+      },
+      "recurring_series_widget_test.dart": {
+        "success": 6
+      },
+      "authoritative_bundle_boundary_matrix_test.dart": {
+        "success": 1
+      },
+      "authoritative_rebuild_pending_test.dart": {
+        "success": 11
+      },
+      "segmented_schema_correction_test.dart": {
+        "success": 45
+      },
+      "ai_audit_report_test.dart": {
+        "success": 9
+      },
+      "segmented_fetch_test.dart": {
+        "success": 72
+      },
+      "segmented_http_integration_test.dart": {
+        "success": 5
+      }
+    }
+  },
+  "focused": {
+    "total": {
+      "success": 48
+    },
+    "files": {
+      "segmented_response_cleanup_test.dart": {
+        "success": 13
+      },
+      "segmented_transport_test.dart": {
+        "success": 30
+      },
+      "segmented_http_integration_test.dart": {
+        "success": 5
+      }
+    }
+  },
+  "formatting": {
+    "full_exit_code": 1,
+    "existing_files": {
+      "lib/src/apk_install_bridge.dart": true,
+      "lib/src/screens/home_shell.dart": true,
+      "lib/src/screens/management_month_close.dart": true,
+      "lib/src/screens/management_settings.dart": true,
+      "lib/src/screens/month_entries_screen.dart": true,
+      "lib/src/screens/snapshot_manager_screen.dart": true,
+      "test/date_picker_row_test.dart": true,
+      "test/offline_notification_identity_test.dart": true,
+      "test/offline_persistence_test.dart": true,
+      "test/offline_reconciliation_test.dart": true
+    },
+    "correction_overlap": []
+  },
+  "safety": {
+    "tests": 60,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 60
+  },
+  "checks": {
+    "flutter": {
+      "exit_code": 0,
+      "seconds": 383.3968103060033
+    },
+    "flutter-focused": {
+      "exit_code": 0,
+      "seconds": 316.8938749479712
+    },
+    "flutter-analyze": {
+      "exit_code": 0,
+      "seconds": 2.840623816009611
+    },
+    "flutter-build": {
+      "exit_code": 0,
+      "seconds": 12.564823300053831
+    },
+    "ruff": {
+      "exit_code": 0,
+      "seconds": 0.04030097898794338
+    },
+    "compileall": {
+      "exit_code": 0,
+      "seconds": 0.06608363799750805
+    },
+    "safety": {
+      "exit_code": 0,
+      "seconds": 6.290213014988694
+    },
+    "frontend-test": {
+      "exit_code": 0,
+      "seconds": 1.4697860020096414
+    },
+    "frontend-build": {
+      "exit_code": 0,
+      "seconds": 6.064096113026608
+    }
+  },
+  "backend": {
+    "tests_passed": 1315,
+    "subtests_passed": 1540,
+    "summary": "1315 passed, 1 warning, 1540 subtests passed in 1582.64s (0:26:22)",
+    "junit": {
+      "tests": 2855,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "exit_code": 0,
+    "seconds": 1583.1626858300297
+  },
+  "production_access": "NONE",
+  "deployment": "NOT PERFORMED",
+  "apk_installation": "NOT PERFORMED",
+  "segmented_activation": "NOT PERFORMED",
+  "oracle_clarification": {
+    "original_server_active_assertions": "1 PASS / 4 FAIL 보존",
+    "approved_client_fd_oracle": "원래 네 시나리오 4 PASS",
+    "independent_confirmation": "별도 Python HTTPS 서버와 /proc FD inode/remote-port 교차 검증",
+    "idle_connection_policy": "정상 응답 뒤 재사용 가능한 idle FD 1개 허용"
+  },
+  "verdict": "PASS — T6.6E2-A01 INDEPENDENT TARGETED RE-AUDIT COMPLETE",
+  "finding_status": "E2-A01 CLOSED"
+}
