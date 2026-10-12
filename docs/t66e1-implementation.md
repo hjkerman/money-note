@@ -266,3 +266,149 @@ commit/push는 배포 허가가 아니다.
 ## W. 독립 E1 감사 준비
 
 E1 구현·내부 검증은 완료했고 알려진 Critical/High/Medium blocker는 없다. 이는 독립 감사의 대체가 아니다. 다음 단계는 **T6.6E1 독립 구현 감사**다. 감사 전 E2 시작 또는 production rollout을 승인하지 않는다.
+
+## X. E1-A01 / E1-A02 TARGETED CORRECTION — 2026-10-12
+
+### 1. 시작점과 과거 감사 보존
+
+위 A–W는 최초 구현의 내부 완료 기록이다. 이후 독립 감사는 **FAIL — T6.6E1 CORRECTION REQUIRED**, MEDIUM 2건, independent case 67 PASS/6 FAIL을 보고했다. 이번 수정으로 과거 보고서의 FAIL을 지우거나 독립 재감사 PASS를 선언하지 않는다. `docs/t66e1-independent-audit.md`와 그 원본 재현·fixture·결과는 변경하지 않았다.
+
+수정 시작은 `133391242b44573cfe3c1efb9950fa526be0b7f8`이다. branch main, HEAD/main/origin/main/실제 remote main 일치와 clean working tree를 확인했다. audited implementation은 `141e01186d589a9071ae6a3d0c0023a6472c014d`다.
+
+### 2. 수정 전 원본 재현
+
+원본 `docs/benchmarks/t66e1-audit/test_audit.py`의 `-k 'money or trigger'` 실행은 **7 PASS/6 FAIL/60 deselected**였다. 원본 `reproduce_findings.py`도 실행했다. 과거 evidence를 덮지 않도록 `Path.write_text`의 `findings.json` 출력 목적지만 `/tmp/mn-e1-correction-before-findings.json`으로 redirect했다. 실행 로직·oracle·assertion은 바꾸지 않았다.
+
+| 반례 | 서버/SQLite 직접 관측 | 수정 전 Dart |
+| --- | --- | --- |
+| `\u001c+0001000.00\u001c` | 실제 D2b bootstrap 및 인증 ASGI manifest 201/object 200 | MONEY_STRING_INVALID |
+| 같은 문자열의 U+001D, U+001E, U+001F 변형 | 각각 201/200, 원문 및 별도 hashlib 일치 | 각각 MONEY_STRING_INVALID |
+| `\ufeff1000\ufeff` | 실제 `setting_money`가 REJECT_SETTING_MONEY | hash-valid leaf 검증 성공 |
+| 빈 정상 E1 store에서 `object_usage` DROP 뒤 limit=1로 서로 다른 두 정상 객체 put | 실제 objects=2, payload=6,591, usage.objects=0/payload=0, integrity ok/FK 오류 0 | 둘 다 COMMIT 성공; reopen 때야 STORE_METADATA_CORRUPT |
+
+이 재현은 새 disposable SQLite만 사용했다. BOM negative leaf를 인증 서버가 전달했다고 주장하지 않는다.
+
+### 3. E1-A01 원인·서버 문법·변경
+
+authority는 `backend/isolated_sync/raw.py:setting_money`다. 서버는 검증용 `str.strip()` 뒤 `[+-]?[0-9]+(?:\.0+)?`를 **fullmatch**하고 Decimal로 finite/integral/절댓값 `≤9007199254740991`을 확인한다. `Row.make/admit_row`는 통과한 **원문**을 encode하며 trim한 문자열로 저장하지 않는다.
+
+현재 서버 Python의 whitespace는 정확히 29개다:
+
+`U+0009–000D`, `U+001C–0020`, `U+0085`, `U+00A0`, `U+1680`, `U+2000–200A`, `U+2028`, `U+2029`, `U+202F`, `U+205F`, `U+3000`.
+
+앞·뒤에서만 이 문자를 제거한 검증 view를 사용한다. 내부 whitespace, U+FEFF, U+180E, U+200B, U+2060, NUL, ASCII 외 숫자는 numeric grammar에서 거부된다. empty/whitespace-only, exponent, underscore, fractional/nonfinite도 거부된다.
+
+`mobile/lib/src/segmented/object.dart:_settingMoneyText`가 이 집합을 명시적으로 적용한다. `.trim()` 호출 하나를 교체했으며 grammar·BigInt range 검사는 유지한다. 입력 row/string/object bytes를 수정하지 않고 float 변환도 하지 않는다. C1 encoder/hash domain, backend grammar, 금융 공식은 변경하지 않았다.
+
+### 4. 독립 differential oracle
+
+`scripts/benchmarks/t66e1_money_vectors.py`는 실제 Python `isspace()`를 전체 Unicode codepoint 범위에서 열거하고 실제 `setting_money`, `Row.make`, `segments.leaf`를 호출한다. DB/API는 열지 않는다. 정상 객체의 C1을 별도 Python JSON으로 대조하고 hashlib로 expected Ref를 계산한다. negative 객체는 untrusted hash-valid 자료로 구분한다.
+
+`mobile/test/fixtures/segmented_money_vectors.json`에는 **165 vectors: 서버 accept 98/reject 67**과 29개 whitespace 목록이 고정되어 있다. 기본 양수/음수/zero/large/sign/leading zero/`.0`, whitespace 각각의 leading/trailing/both/internal, BOM 세 위치, 다른 format/control 문자, 빈 문자열과 malformed grammar를 포함한다. Unicode synthetic `updated_at`도 보존한다.
+
+`segmented_money_correction_test.dart`는 모든 vector의 서버 boolean, expected canonical length/hash, Dart 결과를 대조한다. accept 98개는 SQLite put→close→reopen→get과 직접 BLOB 조회에서 원문 문자열/bytes를 확인한다. 다섯 monetary setting key에도 동일 검사를 추가했다. 총 **166 Flutter tests**다. `scripts/benchmarks/test_t66e1_money_vectors.py`는 committed fixture를 현재 backend로 재생성해 직접 대조한다.
+
+### 5. E1-A02 원인과 정의 검증
+
+기존 open은 user_version/profile/8개 table/현재 usage만 검사했고 trigger의 미래 accounting 효과를 확인하지 않았다. `_transaction`은 trigger가 갱신했어야 할 usage만 믿었으므로, `object_usage`가 없으면 실제 insert가 counter에 반영되지 않아 잘못 COMMIT했다.
+
+`mobile/lib/src/segmented/store.dart:_schemaDefinitions/_requireSchema`를 추가했다. 기존 `_schema` initialization DDL을 단일 원본으로 사용해 실제 `sqlite_master.sql`과 **8개 table + 1개 index + 11개 trigger**의 정의를 exact 비교한다. table의 FK/PK/CHECK 및 trigger의 event/table/WHEN/body까지 검사한다. 이름만 맞는 no-op, accounting 약화, 다른 event/table, 추가 trigger, table 변경도 거부한다. SQLite가 저장할 때 제거하는 마지막 semicolon만 trusted DDL에서 제외한다.
+
+동일 의미의 다른 SQL formatting도 이 closed schema에서는 보수적으로 unsupported다. damaged schema는 `STORE_SCHEMA_CORRUPT`, 지원하지 않는 user_version은 기존 `UNSUPPORTED_STORAGE_SCHEMA`다. 자동 trigger 재생성/수리·schema migration·version bump는 없다. 정상 기존 E1 DB의 DDL 자체는 바뀌지 않았다.
+
+### 6. Transaction/connection guarantee
+
+검사는 open의 locked admission, **모든 `_transaction`에서 BEGIN IMMEDIATE 성공 직후·변경 SQL 전**, 명시 health scrub에 적용된다. connection-local PASS flag나 schema-cookie만 cache하지 않는다. 따라서 이미 열린 connection에서도 다음 write에 반드시 다시 확인한다. put/duplicate put/staging/progress/cleanup이 같은 경계를 공유한다.
+
+SQLite는 write transaction을 직렬화하며 CREATE/DROP도 write다. 성공한 BEGIN IMMEDIATE 안에서 확인한 schema는 다른 정상 SQLite connection의 DDL COMMIT으로 중간에 교체되지 않는다. [SQLite transaction](https://www.sqlite.org/lang_transaction.html), [isolation](https://www.sqlite.org/isolation.html)의 계약과 실제 native driver 테스트를 대조했다.
+
+`write transaction excludes concurrent DDL after schema validation`은 실제 별도 connection으로 validation 이후 `before_object_insert`에서 DROP을 시도해 SQLITE_BUSY(5)를 확인한다. 보호 transaction 뒤 DROP은 가능하지만 다음 write는 schema 오류로 거부한다. 이는 추측한 timing race가 아니라 동기 checkpoint다. schema DDL rollback 뒤 정상 duplicate write와 quota 초과 rollback도 확인한다.
+
+검사 실패는 기존 transaction finally에서 ROLLBACK하며 lock/부분 Ref/receipt를 남기지 않는다. caller는 private connection을 직접 받지 않는다. 보장은 정상 SQLite API/locking 모델에 근거하며 raw filesystem 조작이나 `writable_schema`를 통한 임의 엔진 내부 변조까지 방어한다고 주장하지 않는다.
+
+### 7. Committed-row 증거와 schema 정책
+
+수정 후 원본 reproduction은 trigger 누락을 open에서 차단해 **actual objects=0**이다. 사용자 요청의 추가 조건인 “limit=1, 첫 객체 정상 COMMIT, 별도 connection에서 DROP, 열린 connection으로 두 번째 put”도 영구 회귀로 실행했다. 결과는 **actual objects=1, usage.objects=1, 추가 committed objects=0**이다.
+
+`segmented_schema_correction_test.dart`의 `preserved`는 매 destructive test 뒤 fresh SQLite connection으로 원래 identity/BLOB, payload counter, exact staging manifest, 네 root/progress, integrity/FK, 새 write lock 획득을 확인한다. 총 **45 tests**다.
+
+11개 trigger 각각의 before-open 누락, after-open 누락, correct-name/no-op 변조 33개와 weakened body/WHEN/event/table 4개, 재사용 write API 4개, DDL lock/rollback/extra trigger·table/version 경계 4개다. 기존 concurrent valid/conflicting isolate 회귀도 유지한다.
+
+이미 열린 handle의 read는 원래 객체를 full reverify하여 읽을 수 있으나, schema가 손상된 DB의 **새 open은 차단**한다. 이는 원래 bytes를 삭제하지 않는 fail-closed 복구 정책이며 자동 repair를 제공하지 않는다. 별도 SQLite inspection으로 prior good data 보존을 확인한다.
+
+기존 `segmented_store_test.dart`의 payload/kind/validator corruption setup은 임의 UPDATE를 위해 내린 `immutable_body`를 테스트 setup에서 원래 SQL로 복원한다. 기존 corruption assertion은 모두 그대로다. 이렇게 payload 손상과 새 schema 손상 검사를 분리하며, production 구현이 schema를 repair하는 것은 아니다.
+
+### 8. 원본 실패 여섯 건의 수정 후 결과
+
+원본 감사 코드/fixture를 변경하지 않고 전체 **73 PASS/0 FAIL**을 재실행했다. 수정 전/후 JUnit testcase name으로 다음 여섯 건을 개별 대조했다.
+
+| 원본 case | finding | 수정 후 |
+| --- | --- | --- |
+| `test_every_server_admitted_money_string_is_accepted[setting-3]` — U+001C | E1-A01 | PASS |
+| 같은 test의 `[setting-4]` — U+001D | E1-A01 | PASS |
+| 같은 test의 `[setting-5]` — U+001E | E1-A01 | PASS |
+| 같은 test의 `[setting-6]` — U+001F | E1-A01 | PASS |
+| `test_server_rejected_bom_money_is_rejected` | E1-A01 | PASS |
+| `test_missing_schema_trigger_is_rejected_before_writes` | E1-A02 | PASS |
+
+원본 실제 ASGI reproduction도 네 문자열 모두 201/200→Dart 저장 성공, BOM→Dart 거부로 바뀌었다. 재실행 주체는 구현자이며 **독립 targeted 재감사 완료가 아니다**.
+
+### 9. 회귀와 process crash
+
+| 이번 수정 세션의 실행 | 결과 |
+| --- | --- |
+| 신규 correction Flutter | 211 PASS/0 FAIL: money 166 + schema 45 |
+| 기존 E1 targeted | 96 PASS/0 FAIL |
+| 전체 Flutter | 846 PASS/0 FAIL/기존 2 SKIP |
+| 원본 독립 감사 코드 재실행 | 73 PASS/0 FAIL, 위 여섯 실패 모두 PASS |
+| backend-derived oracle 재생성 | 1 PASS |
+| safety/diagnostic + oracle | 60 PASS, 기존 deprecation warning 1 |
+| Flutter analyze/format | PASS |
+| Android debug APK build | PASS, 설치 없음 |
+| backend full regression | **1,315 PASS + 1,540 subtests PASS**, 기존 warning 1, 1,657.12초 |
+| Ruff/compileall/frontend npm build/diff check | PASS |
+
+전체 Flutter에는 OfflineBaseline v4/frozen B/J/Snapshot과 기존 실제 SIGKILL **7개 경계**가 포함되고 기존 E1 targeted에서도 재실행했다. 원본 audit의 progress/cleanup 등 SIGKILL 8개 parameter도 전체 73개 실행에 포함된다. 새 schema 검사는 mutation 전 기존 transaction 안의 read-only 검사이므로 새로운 publication/COMMIT boundary는 없다. 이전 객체·staging 복구, no active generation을 계속 검증한다. OS crash/hardware power loss 보장은 추가하지 않는다.
+
+재현 명령은 개발 checkout에서 다음과 같다. 원본 reproduction의 evidence 출력 redirect는 위 2절과 같으며 감사 `findings.json`을 덮어쓰지 않아야 한다.
+
+```bash
+.venv/bin/python -m pytest -q docs/benchmarks/t66e1-audit/test_audit.py
+.venv/bin/python -m pytest -q scripts/tests scripts/benchmarks
+PYTHONPATH=backend .venv/bin/python scripts/benchmarks/t66e1_money_vectors.py
+cd mobile
+flutter test test/segmented_money_correction_test.dart test/segmented_schema_correction_test.dart
+flutter test test/segmented_protocol_test.dart test/segmented_store_test.dart test/segmented_crash_test.dart
+flutter test
+flutter analyze
+flutter build apk --debug --dart-define=MONEY_NOTE_API_BASE_URL=http://10.0.2.2:18081
+cd ../backend
+../.venv/bin/python -m pytest -q
+cd ..
+.venv/bin/python -m ruff check backend/app backend/isolated_sync backend/tests scripts
+.venv/bin/python -m compileall -q backend/app backend/isolated_sync backend/tests scripts
+git diff --check
+```
+
+### 10. Resource/performance 영향과 한계
+
+기존 예산, parser depth, object format/size, journal/durability profile은 그대로다. 일반 write에 user_version query와 최대 21개 schema row 조회/20개 exact 정의 대조만 추가된다. 객체/BLOB/ledger 전체 scan을 추가하지 않았다. 기존 startup usage 검사와 explicit scrub의 O(N)은 유지한다. 금액 검증도 문자열 양끝을 선형 확인할 뿐 원문·금융 계산을 다시 만들지 않는다.
+
+같은 host Dart JIT process에서 baseline store source와 수정 store를 별도 synthetic directory에 열어 동일 9종 객체를 저장한 뒤, 3 warmups/20 samples의 작은 비교를 실행했다. control object 기준이며 실제 mutation/운영 latency가 아니다.
+
+| operation | 수정 전 median/p95 µs | 수정 후 median/p95 µs |
+| --- | --- | --- |
+| get | 4,179.5 / 4,777 | 2,166 / 3,998 |
+| duplicate put | 3,711 / 4,289 | 3,793 / 4,080 |
+
+4개 cell/80 samples의 순차 JIT microbenchmark이며 get source는 변경되지 않았다. JIT/병행 regression noise 때문에 get 개선이나 엄격한 overhead 상한을 주장하지 않는다. duplicate put은 이 표본에서 median 약 82µs 차이였다. full-dataset scaling/실기기 benchmark를 대신하지 않는다. 재현 전후의 committed-row 수, fixture digest, 회귀와 측정치는 [축약 수정 증거](benchmarks/t66e1-correction/summary.json)에 보존한다.
+
+equivalent DDL의 자동 호환·schema repair, 외부 임의 행 조작의 즉시 탐지, Android 실기기 power-loss, E2/E3는 여전히 범위 밖이다. object read는 매번 재검증하므로 이전 validator flag만으로 BOM 객체를 자동 수락하지 않는다.
+
+### 11. Production 격리·commit·다음 gate
+
+변경 source는 E1 `object.dart`/`store.dart`뿐이다. 기존 test setup 한 곳, focused tests/server-derived fixture·generator/oracle, 이 addendum과 compact evidence만 추가한다. 독립 audit source/report, backend runtime, normal Flutter startup/read/write/online sync/UI/navigation/Android 설정은 변경하지 않는다.
+
+Production SQLite v4, Snapshot v7, OfflineBaseline v4, Android v2.4.0(15), frozen B/J publication, 금융 projection/공식/authority는 유지한다. production DB/API/credential/service/backup 접근, migration, restart, 배포, APK 설치, segmented 활성화는 없다.
+
+이번 수정의 completion gate를 모두 내부 검증했다. `fix(flutter): correct T6.6E1 monetary validation and trigger integrity`로 commit/push하며, 실제 commit hash와 HEAD/main/origin/main/remote main/clean 결과는 최종 응답 및 위 V절 명령으로 확인한다. 구현 판정은 **E1-A01 AND E1-A02 FIXED — READY FOR INDEPENDENT TARGETED RE-AUDIT**다. 다음 gate는 **E1-A01/E1-A02 독립 targeted 재감사**이며, 그 PASS 전 E2 시작을 승인하지 않는다.

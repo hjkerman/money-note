@@ -99,6 +99,9 @@ void main() {
       final path = db.path;
       db.close();
       final direct = inspect(path);
+      final immutable = direct
+          .select("SELECT sql FROM sqlite_master WHERE name='immutable_body'")
+          .single['sql'] as String;
       direct.execute('DROP TRIGGER immutable_body');
       switch (corruption) {
         case 'body':
@@ -114,6 +117,9 @@ void main() {
         case 'missing_payload':
           direct.execute('DELETE FROM objects');
       }
+      // Isolate the original payload/receipt corruption from schema corruption;
+      // required-trigger damage is covered separately by the correction tests.
+      direct.execute(immutable);
       direct.close();
       if (['missing_payload', 'body', 'edge'].contains(corruption)) {
         expect(() => open(), throwsA(isA<SegmentedException>()));

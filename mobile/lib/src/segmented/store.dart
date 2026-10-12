@@ -123,6 +123,7 @@ class SegmentedClientStore {
           db.execute('INSERT INTO profile VALUES(1,?,?,?)',
               [discriminator, cache.key, VerifiedObject.validatorBuild]);
         }
+        _requireSchema(db);
         final profile = db.select('SELECT * FROM profile');
         if (profile.length != 1 ||
             profile.single['discriminator'] != discriminator ||
@@ -185,6 +186,9 @@ class SegmentedClientStore {
     try {
       _db.execute('BEGIN IMMEDIATE');
       begun = true;
+      // DDL is a SQLite write too: this same write transaction excludes schema
+      // changes by other connections until COMMIT/ROLLBACK. Never cache a flag.
+      _requireSchema(_db);
       final result = body();
       final usage = _db.select('SELECT * FROM usage WHERE id=1').single;
       if ((usage['objects'] as int) > limits.objectCount ||
@@ -440,6 +444,11 @@ class SegmentedClientStore {
   StoreHealth inspectStoreHealth() {
     if (_closed) rejectSegment('STORE_CLOSED');
     final issues = <String>[];
+    try {
+      _requireSchema(_db);
+    } on SegmentedException catch (error) {
+      issues.add(error.code);
+    }
     if (!_usageValid(_db)) {
       issues.add('STORE_METADATA_CORRUPT');
     }
@@ -485,6 +494,31 @@ class SegmentedClientStore {
       _db.close();
       _closed = true;
     }
+  }
+}
+
+// Closed, versioned schema: compare actual definitions, not just trigger names.
+// The trusted initialization DDL is the sole schema definition source. SQLite
+// stores these CREATE statements without their final semicolon. Equivalent but
+// differently rewritten DDL is conservatively unsupported, never auto-repaired.
+final _schemaDefinitions = <String, String>{
+  for (final match
+      in RegExp(r'^CREATE (?:TABLE|INDEX|TRIGGER) (\w+).+$', multiLine: true)
+          .allMatches(_schema))
+    match.group(1)!: match.group(0)!.substring(0, match.group(0)!.length - 1)
+};
+
+void _requireSchema(Database db) {
+  if (db.select('PRAGMA user_version').single.values.first !=
+      SegmentedClientStore.schemaVersion) {
+    rejectSegment('UNSUPPORTED_STORAGE_SCHEMA');
+  }
+  final rows = db.select(
+      'SELECT name,sql FROM sqlite_master WHERE sql IS NOT NULL ORDER BY name LIMIT ?',
+      [_schemaDefinitions.length + 1]);
+  if (rows.length != _schemaDefinitions.length ||
+      rows.any((row) => _schemaDefinitions[row['name']] != row['sql'])) {
+    rejectSegment('STORE_SCHEMA_CORRUPT');
   }
 }
 

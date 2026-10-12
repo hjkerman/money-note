@@ -30,6 +30,32 @@ const transferableKinds = {
   'control'
 };
 
+// Validation-only equivalent of backend isolated_sync.raw.setting_money's
+// Python str.strip(). Dart trim() differs for U+001C..U+001F and U+FEFF.
+// Never replace the original row value or its canonical bytes with this view.
+String _settingMoneyText(String value) {
+  bool whitespace(int c) =>
+      (c >= 0x09 && c <= 0x0d) ||
+      (c >= 0x1c && c <= 0x20) ||
+      c == 0x85 ||
+      c == 0xa0 ||
+      c == 0x1680 ||
+      (c >= 0x2000 && c <= 0x200a) ||
+      c == 0x2028 ||
+      c == 0x2029 ||
+      c == 0x202f ||
+      c == 0x205f ||
+      c == 0x3000;
+  var start = 0, end = value.length;
+  while (start < end && whitespace(value.codeUnitAt(start))) {
+    start++;
+  }
+  while (end > start && whitespace(value.codeUnitAt(end - 1))) {
+    end--;
+  }
+  return value.substring(start, end);
+}
+
 String primaryColumn(String table) => switch (table) {
       'card_payment_deferrals' => 'entry_payment_key',
       'notification_candidate_registrations' => 'registration_key',
@@ -232,7 +258,7 @@ class VerifiedObject {
                 'base_next_month_liquidity',
                 'liquidity_status'
               ].contains(fields['key'])) {
-                final text = (fields['value'] as String).trim();
+                final text = _settingMoneyText(fields['value'] as String);
                 if (!RegExp(r'^[+-]?[0-9]+(?:\.0+)?$').hasMatch(text) ||
                     BigInt.parse(text.split('.')[0]).abs() >
                         BigInt.from(maxExactMoney)) {

@@ -1,0 +1,35 @@
+{
+  "task": "T6.6E1 E1-A01/E1-A02 targeted correction",
+  "starting_commit": "133391242b44573cfe3c1efb9950fa526be0b7f8",
+  "profile": "폐기 가능한 synthetic SQLite만 사용; segmented store 비활성",
+  "before": {
+    "original_selected_audit": {"passed": 7, "failed": 6, "deselected": 60},
+    "server_accepted_dart_rejected": ["U+001C", "U+001D", "U+001E", "U+001F"],
+    "server_rejected_dart_accepted": "U+FEFF + 1000 + U+FEFF",
+    "missing_object_usage": {"limit": 1, "committed_objects": 2, "committed_payload_bytes": 6591, "usage_objects": 0, "usage_payload": 0, "reopen_error": "STORE_METADATA_CORRUPT"}
+  },
+  "after": {
+    "original_audit_rerun": {"passed": 73, "failed": 0, "previously_failed_now_pass": 6, "independent_reaudit": false},
+    "original_missing_trigger_reproduction": {"committed_objects": 0, "error": "STORE_SCHEMA_CORRUPT"},
+    "missing_trigger_after_first_valid_commit": {"limit": 1, "committed_objects": 1, "unauthorized_additional_committed_objects": 0},
+    "new_flutter_tests": {"money": 166, "schema": 45, "passed": 211, "failed": 0},
+    "existing_e1_tests": {"passed": 96, "failed": 0},
+    "full_flutter_tests": {"passed": 846, "failed": 0, "skipped": 2},
+    "safety_diagnostic_tests": {"passed": 60, "warnings": 1},
+    "full_backend_tests": {"passed": 1315, "failed": 0, "subtests_passed": 1540, "warnings": 1, "elapsed_seconds": 1657.12}
+  },
+  "server_derived_vectors": {"total": 165, "accepted": 98, "rejected": 67, "python_whitespace_codepoints": 29, "fixture_sha256": "1a241fa849695c988aec4acf3b93b6f3f224133d69b1e8c5d9e11e72ba724868"},
+  "write_schema_check": {"queries_per_transaction": 2, "expected_definitions": 20, "maximum_catalog_rows": 21, "mandatory_triggers": 11, "full_object_scan_added": false},
+  "microbenchmark": {
+    "method": "동일 host Dart JIT에서 시작 commit store와 수정 store를 별도 disposable directory에 열어 서버 golden 객체 9종을 저장; control object get/duplicate put; 순차 cell별 warmup 3회와 측정 20회",
+    "limitations": "JIT 및 병행 회귀 noise가 있고 get source는 동일; 운영·실기기 latency나 고정 overhead 상한을 보장하지 않음",
+    "cells": 4,
+    "measured_samples": 80,
+    "before_get": {"median_us": 4179.5, "p95_us": 4777},
+    "after_get": {"median_us": 2166.0, "p95_us": 3998},
+    "before_duplicate_put": {"median_us": 3711.0, "p95_us": 4289},
+    "after_duplicate_put": {"median_us": 3793.0, "p95_us": 4080}
+  },
+  "production_access": "NONE",
+  "deployment": "NOT PERFORMED"
+}
