@@ -1,16 +1,76 @@
 // Acquisition graph closure only. NOT F(raw), financial validation, or E3's
 // CompleteTargetVerified/publication receipt. No payloads retained in summaries.
 import 'dart:typed_data';
+import 'dart:collection';
 
 import 'c1.dart';
 import 'object.dart';
 import 'protocol.dart';
+import 'work.dart';
 
 class GraphClosure {
-  const GraphClosure(this.objects, this.edges, this.tableRows);
+  const GraphClosure(this.objects, this.edges, this.tableRows,
+      [this.provenance]);
   final List<ObjectRef> objects;
   final int edges;
   final Map<String, String> tableRows;
+  final GraphProvenance? provenance;
+}
+
+// Complete typed-subtree integrity evidence, NOT authorization. The store may
+// reuse it only within a recovered connection/session freshness boundary.
+class GraphProvenance {
+  GraphProvenance._(this.target, this._nodes);
+  final SyncTarget target;
+  // Append-only summaries of fully verified subtrees; no financial payloads.
+  final Map<String, _Summary> _nodes;
+  bool contains(ObjectRef ref) => _nodes[ref.hash]?.ref.matches(ref) ?? false;
+}
+
+class _GraphRefs extends ListBase<ObjectRef> {
+  _GraphRefs(this.roots, this.nodes, this._length);
+  final List<ObjectRef> roots;
+  final Map<String, _Summary> nodes;
+  final int _length;
+  @override
+  int get length => _length;
+  @override
+  set length(int value) => throw UnsupportedError('immutable graph');
+  @override
+  void operator []=(int index, ObjectRef value) =>
+      throw UnsupportedError('immutable graph');
+  @override
+  ObjectRef operator [](int index) {
+    if (index < 0 || index >= length) throw RangeError.index(index, this);
+    ObjectRef seek(ObjectRef ref, int n) {
+      if (n == 0) return ref;
+      n--;
+      for (final child in nodes[ref.hash]!.children) {
+        final count = nodes[child.ref.hash]!.objectCount;
+        if (n < count) return seek(child.ref, n);
+        n -= count;
+      }
+      throw StateError('verified graph count');
+    }
+
+    for (final ref in roots) {
+      final count = nodes[ref.hash]!.objectCount;
+      if (index < count) return seek(ref, index);
+      index -= count;
+    }
+    throw StateError('verified graph roots');
+  }
+
+  @override
+  Iterator<ObjectRef> get iterator => _iterate().iterator;
+  Iterable<ObjectRef> _iterate() sync* {
+    final pending = roots.reversed.toList();
+    while (pending.isNotEmpty) {
+      final ref = pending.removeLast();
+      yield ref;
+      pending.addAll(nodes[ref.hash]!.children.reversed.map((e) => e.ref));
+    }
+  }
 }
 
 class _Summary {
@@ -25,6 +85,8 @@ class _Summary {
   final List<TypedObjectReference> children;
   final bool rootChildren;
   final Map<String, String> tableRows;
+  int objectCount = 1, edgeCount = 0;
+  Uint8List? hotContext;
 }
 
 String _bits(String digest) => [
@@ -106,7 +168,16 @@ Future<GraphClosure> verifyAcquisitionGraph(
         load,
     {required int maxObjects,
     required int maxEdges,
-    int maxPath = 512}) async {
+    int maxPath = 512,
+    GraphProvenance? reuse,
+    SegmentedWork? work}) async {
+  if (reuse != null &&
+      (!reuse.target.ns.matches(target.ns) ||
+          reuse.target.principalId != target.principalId ||
+          !sameBytes(encodeC1(reuse.target.versions.toJson()),
+              encodeC1(target.versions.toJson())))) {
+    rejectSegment('GRAPH_PROVENANCE_CONTEXT');
+  }
   final seen = <String, _Summary>{};
   final visiting = <String>{};
   var edgeCount = 0;
@@ -116,6 +187,16 @@ Future<GraphClosure> verifyAcquisitionGraph(
       rejectSegment('GRAPH_DEPTH_BUDGET');
     }
     if (visiting.contains(edge.ref.hash)) rejectSegment('GRAPH_CYCLE');
+    final reused = reuse?._nodes[edge.ref.hash];
+    if (reused != null) {
+      _membership(edge, reused, root);
+      if (reused.kind == 'hot' &&
+          !sameBytes(reused.hotContext!, encodeC1(target.context.toJson()))) {
+        rejectSegment('GRAPH_CONTEXT_INVALID');
+      }
+      work?.add('graph_reused_subtrees');
+      return reused;
+    }
     final prior = seen[edge.ref.hash];
     if (prior != null) {
       _membership(edge, prior, root);
@@ -128,7 +209,9 @@ Future<GraphClosure> verifyAcquisitionGraph(
     // Drop raw bytes/parsed rows before descending. Only compact typed refs,
     // descriptor/count/prefix metadata survive an await of a descendant.
     VerifiedObject? object = await load(edge, List.unmodifiable(path));
+    work?.add('graph_nodes_examined');
     final node = _summarize(object, target);
+    if (node.kind == 'hot') node.hotContext = encodeC1(object.body['context']);
     object = null;
     _membership(edge, node, root);
     final childSummaries = <_Summary>[];
@@ -154,6 +237,10 @@ Future<GraphClosure> verifyAcquisitionGraph(
       }
     }
     visiting.remove(edge.ref.hash);
+    node.objectCount +=
+        childSummaries.fold<int>(0, (n, s) => n + s.objectCount);
+    node.edgeCount = childSummaries.length +
+        childSummaries.fold<int>(0, (n, s) => n + s.edgeCount);
     seen[edge.ref.hash] = node;
     return node;
   }
@@ -162,13 +249,31 @@ Future<GraphClosure> verifyAcquisitionGraph(
       TypedObjectReference(target.roots['raw']!, {'raw-root'}),
       [target.roots['raw']!.hash],
       true);
+  final roots = <_Summary>[raw];
   for (final role in ['index', 'hot', 'control']) {
     final ref = target.roots[role]!;
-    await visit(
+    roots.add(await visit(
         TypedObjectReference(ref, {role == 'index' ? 'index-root' : role}),
         [ref.hash],
-        true);
+        true));
   }
-  return GraphClosure(List.unmodifiable(seen.values.map((n) => n.ref)),
-      edgeCount, Map.unmodifiable(raw.tableRows));
+  final count = roots.fold<int>(0, (n, s) => n + s.objectCount);
+  final edges = roots.fold<int>(0, (n, s) => n + s.edgeCount);
+  if (count > maxObjects || edges > maxEdges) {
+    rejectSegment('GRAPH_OBJECT_BUDGET');
+  }
+  if (reuse == null && count != seen.length) {
+    rejectSegment('GRAPH_DUPLICATE_CHILD');
+  }
+  final nodes = reuse?._nodes ?? <String, _Summary>{};
+  nodes.addAll(seen);
+  final evidence = GraphProvenance._(target, nodes);
+  return GraphClosure(
+      reuse == null
+          ? List.unmodifiable(seen.values.map((n) => n.ref))
+          : _GraphRefs(
+              List.unmodifiable(roots.map((s) => s.ref)), nodes, count),
+      edges,
+      Map.unmodifiable(raw.tableRows),
+      evidence);
 }

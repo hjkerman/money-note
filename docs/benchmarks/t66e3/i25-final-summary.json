@@ -1,0 +1,108 @@
+{
+  "date": "2026-10-13",
+  "original_committed_baseline": "9a53b139cbb99d40020ba0635cf6b44730f3ca51",
+  "existing_uncommitted_e3_work": "PRESERVED",
+  "implementation_status": "COMPLETE",
+  "verdict": "T6.6E3 COMPLETE — READY FOR INDEPENDENT IMPLEMENTATION AUDIT",
+  "independent_audit_result": "NOT CLAIMED",
+  "i25": "PASS",
+  "measurements": "i25-publication-after.json",
+  "measurement_sha256": "4760a0c5c63487c15f50c0fcfab84efc84d39c1de91cb4cd334851210cec31b4",
+  "source_sha256": {
+    "mobile/lib/src/app_state.dart": "5b3f22d80f25f87d3df6b694285e288097eedc1d758322a249d2d3ad13b13156",
+    "mobile/lib/src/authoritative_snapshot_validation.dart": "70a5a94bbce914df1fcc46871f5531cbd156d3e45cda289415fc078132543ac3",
+    "mobile/lib/src/segmented/store.dart": "fa99df9daf275073fa4369acc52d309c5c4044b2264cd72946301aaa8813f469",
+    "mobile/lib/src/segmented/store_publication.dart": "e1c5a0487e9d768236e51e75a3c951d54dcc23b3d9f784423af40a6f9a22d53b",
+    "mobile/lib/src/segmented/verification.dart": "aa0581cd37be442270dcbb9a9c4cf68e403e7360672a11a459bf2890dc23971d",
+    "mobile/lib/src/segmented/graph.dart": "4738e691fd8b75e41ab01ab408b50406787815bc8956bd6e38951f336fa3172e",
+    "mobile/lib/src/segmented/incremental_verification.dart": "eb2b4fd75765c353e528020508e99e9e606219183f55adc0dadf09ab2c192c29",
+    "mobile/lib/src/segmented/patricia_edit.dart": "42ae58dfc9ec5f56e86d7facce04789fb6c46657aee389a780c88c9301bac82a",
+    "mobile/lib/src/segmented/fetch.dart": "a1e6b4b549dcb5a11d5e0cabcb7806ff42eb831f4192c40b353a103698721253",
+    "mobile/test/segmented_i25_publication_test.dart": "553c072a462e1866390ce7fd6d709161fa2a696a4bb9fba45b7a5a04e046662c"
+  },
+  "new_i25_tests": {
+    "passed": 47,
+    "failed": 0,
+    "baseline": 1,
+    "incremental_verifier": 6,
+    "independent_sqlite_model": 2,
+    "integrated_publication": 30,
+    "additional_process_crash": 8
+  },
+  "all_e3_tests": {
+    "passed": 111,
+    "failed": 0
+  },
+  "authority_race_subset": {
+    "passed": 13,
+    "failed": 0
+  },
+  "e3_process_crash": {
+    "passed": 16,
+    "failed": 0
+  },
+  "full_flutter": {
+    "passed": 1094,
+    "failed": 0,
+    "skipped": 2,
+    "elapsed_seconds": 947
+  },
+  "full_backend": {
+    "tests": 1315,
+    "subtests": 1540,
+    "failed": 0,
+    "warnings": 1,
+    "elapsed_seconds": 1590.01,
+    "result": "PASS"
+  },
+  "intermediate_backend_runs": [
+    {
+      "result": "INCOMPLETE",
+      "detail": "완료 summary 없이 중단; 결과로 세지 않음"
+    },
+    {
+      "tests_passed": 1315,
+      "subtests_passed": 1536,
+      "subtests_failed": 4,
+      "detail": "child app import 경로 누락; PYTHONPATH 수정, source/assertion 변경 없음"
+    },
+    {
+      "tests_passed": 1314,
+      "tests_failed": 1,
+      "subtests_passed": 1540,
+      "elapsed_seconds": 2383.96,
+      "detail": "기존 concurrent quota 사례: 기대 429 대신 503; 별도 재실행 1 PASS"
+    }
+  ],
+  "flutter_analyze": "PASS",
+  "flutter_debug_build": "PASS",
+  "frontend_build": "PASS",
+  "changed_file_formatting": "PASS",
+  "ruff": "PASS",
+  "compileall": "PASS",
+  "git_diff_check": "PASS",
+  "schema": "segmented-store/1 opt-in publication v4; 기존 v3 pin/receipt/trigger 보존",
+  "authority": "기존 AppState/coordinator/ticket/session guard 재사용; data provenance는 권한이 아님",
+  "pinning": "새 generation당 root INSERT 4; current/previous와 transitive descendants/edges 보호; 객체 GC 없음",
+  "normal_flutter_read_write": "UNCHANGED",
+  "snapshot_v7": "UNCHANGED",
+  "offline_baseline_v4": "UNCHANGED",
+  "frozen_bj": "UNCHANGED",
+  "backend_runtime": "UNCHANGED",
+  "production_access": "NONE",
+  "deployment": "NOT PERFORMED",
+  "apk_installation": "NOT PERFORMED",
+  "segmented_offline_activation": "NOT IMPLEMENTED",
+  "e4_r1": "NOT STARTED",
+  "remaining_blockers": 0,
+  "limitations": [
+    "HOST 합성 3개 크기·단일 표본; median/p95·peak RSS·전체 대규모/device/압축 matrix 미측정",
+    "process crash 검증이며 OS/hardware power-loss 보증 아님",
+    "store open O(N) quick/FK/usage scan은 측정 timer 밖; 전체 SQL 문장 수는 별도 계측하지 않음",
+    "읽지 않은 bitrot 즉시 탐지 약속 없음; 관측 손상 시 fail-closed",
+    "향후 같은 connection의 객체 GC/repair는 provenance 무효화·in-flight 보호 추가 설계 필요"
+  ],
+  "commit_reference": "이 파일과 source를 같은 feature commit에 포함; 최종 SHA/remote/clean 검증은 최종 인계 보고서 참조",
+  "safe_to_start_e4": "NO — INDEPENDENT E3 AUDIT PENDING",
+  "safe_to_deploy": "NO"
+}

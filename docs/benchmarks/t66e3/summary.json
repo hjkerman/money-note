@@ -1,0 +1,37 @@
+{
+  "starting_commit": "9a53b139cbb99d40020ba0635cf6b44730f3ca51",
+  "implementation_status": "INCOMPLETE",
+  "remaining_blocker": "I25: 세션 중 accepted provenance 재사용과 증분 index/pin 비용 보완",
+  "new_e3_tests": {"passed": 64, "failed": 0},
+  "authority_race_subset": {"passed": 13, "failed": 0},
+  "process_crash_tests": {"passed": 8, "failed": 0},
+  "full_flutter": {"passed": 1047, "failed": 0, "skipped": 2, "elapsed_seconds": 503},
+  "full_backend": {"tests": 1315, "subtests": 1540, "warnings": 1, "elapsed_seconds": 1599.46, "result": "PASS"},
+  "flutter_analyze": "PASS",
+  "changed_file_formatting": "PASS",
+  "flutter_debug_build": "PASS",
+  "frontend_build": "PASS",
+  "ruff": "PASS",
+  "compileall": "PASS",
+  "git_diff_check": "PASS",
+  "commit_push": "NOT PERFORMED",
+  "production_access": "NONE",
+  "deployment": "NOT PERFORMED",
+  "process_crash_boundaries": [
+    "before_transaction",
+    "after_generation_manifest",
+    "after_generation_pins",
+    "after_publication_begin",
+    "after_accepted_pointer",
+    "before_publication_commit",
+    "after_publication_commit",
+    "during_publication_readback"
+  ],
+  "measurements": [
+    {"operation":"initial","objects":1168,"changed_rows":294,"reused_subtrees":0,"diff_objects_examined":14,"object_requests":1168,"payload_bytes":751847,"verification_us":1909598,"publication_us":23578,"readback_us":5107,"recovery_us":1678982,"store_metadata_bytes":976953,"store_payload_bytes":751847},
+    {"operation":"mutate","objects":1168,"changed_rows":1,"reused_subtrees":11,"diff_objects_examined":6,"object_requests":16,"payload_bytes":165510,"verification_us":4114202,"publication_us":53455,"readback_us":3385,"recovery_us":3361148,"store_metadata_bytes":1295791,"store_payload_bytes":917357},
+    {"operation":"insert_history","objects":2209,"changed_rows":260,"reused_subtrees":10,"diff_objects_examined":9,"object_requests":1448,"payload_bytes":885411,"verification_us":5269526,"publication_us":25779,"readback_us":4529,"recovery_us":4102467,"store_metadata_bytes":2654123,"store_payload_bytes":1802768},
+    {"operation":"delete_history","objects":1168,"changed_rows":260,"reused_subtrees":10,"diff_objects_examined":9,"object_requests":0,"payload_bytes":0,"verification_us":4972137,"publication_us":19363,"readback_us":4860,"recovery_us":3914032,"store_metadata_bytes":2806121,"store_payload_bytes":1802768},
+    {"operation":"unchanged","objects":1168,"changed_rows":0,"reused_subtrees":11,"diff_objects_examined":2,"object_requests":0,"payload_bytes":0,"verification_us":3013978,"publication_us":5176,"readback_us":3433,"recovery_us":3730405,"store_metadata_bytes":2958117,"store_payload_bytes":1802768}
+  ]
+}

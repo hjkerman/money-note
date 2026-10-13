@@ -1,12 +1,18 @@
-// Isolated segmented-store/1. Intentionally has NO accepted pointer or app DI.
+// Isolated segmented-store/1. E1/E2 profiles have no accepted pointer. E3's
+// explicit publication profile adds a segmented-internal pointer, never app DI.
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:sqlite3/sqlite3.dart';
 
 import 'c1.dart';
+import 'graph.dart';
 import 'object.dart';
 import 'protocol.dart';
+import 'verification.dart';
+import 'work.dart';
+
+part 'store_publication.dart';
 
 class ClientStoreLimits {
   const ClientStoreLimits(
@@ -75,7 +81,7 @@ class AcquisitionProgress {
 
 class SegmentedClientStore {
   SegmentedClientStore._(this._db, this.path, this.cache, this.limits,
-      this._fault, this.acquisitionEnabled);
+      this._fault, this.acquisitionEnabled, this.publicationEnabled);
   static const discriminator = 'segmented-store/1';
   static const schemaVersion = 1;
   final Database _db;
@@ -84,13 +90,19 @@ class SegmentedClientStore {
   final ClientStoreLimits limits;
   final StoreFault? _fault;
   final bool acquisitionEnabled;
+  final bool publicationEnabled;
   bool _closed = false;
+  final SegmentedWork work = SegmentedWork();
+  _AcceptedSession? _acceptedSession;
+  final _candidateBindings = Expando<_CandidateBinding>();
 
   // Caller chooses a private root; never invoked by ordinary application startup.
   static SegmentedClientStore open(Directory privateRoot, CacheNamespace cache,
       {ClientStoreLimits limits = const ClientStoreLimits(),
       StoreFault? fault,
-      bool acquisition = false}) {
+      bool acquisition = false,
+      bool publication = false}) {
+    acquisition = acquisition || publication;
     limits.validate();
     final directory = Directory('${privateRoot.path}/segmented-store-v1')
       ..createSync(recursive: true);
@@ -104,7 +116,8 @@ class SegmentedClientStore {
           "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'");
       if (version != 0 &&
           version != schemaVersion &&
-          !(acquisition && version == 2)) {
+          !(acquisition && version == 2) &&
+          !(publication && (version == 3 || version == 4))) {
         rejectSegment('UNSUPPORTED_STORAGE_SCHEMA');
       }
       if (version == 0 && tables.isNotEmpty) {
@@ -124,10 +137,11 @@ class SegmentedClientStore {
       try {
         // Another creator may have initialized while we waited for its lock.
         final lockedVersion =
-            db.select('PRAGMA user_version').single.values.first;
+            db.select('PRAGMA user_version').single.values.first as int;
         if (lockedVersion != 0 &&
             lockedVersion != schemaVersion &&
-            !(acquisition && lockedVersion == 2)) {
+            !(acquisition && lockedVersion == 2) &&
+            !(publication && (lockedVersion == 3 || lockedVersion == 4))) {
           rejectSegment('UNSUPPORTED_STORAGE_SCHEMA');
         }
         if (lockedVersion == 0) {
@@ -138,13 +152,34 @@ class SegmentedClientStore {
         }
         // Opt-in upgrade only, under the same write lock. Validate the complete
         // old profile before adding anything: never repair a damaged v1 store.
-        if (acquisition && lockedVersion != 2) {
+        if (acquisition && lockedVersion < 2) {
           _requireSchema(db);
           if (!_usageValid(db)) rejectSegment('STORE_METADATA_CORRUPT');
           db.execute(_acquisitionSchema);
           db.execute('PRAGMA user_version=2');
         }
-        _requireSchema(db, acquisition: acquisition);
+        if (publication && lockedVersion < 3) {
+          _requireSchema(db, acquisition: true);
+          if (!_usageValid(db, acquisition: true)) {
+            rejectSegment('STORE_METADATA_CORRUPT');
+          }
+          db.execute(_publicationSchema);
+          db.execute('UPDATE accepted SET checksum=? WHERE id=1',
+              [_acceptedChecksum(cache.key, null, null, 0)]);
+          db.execute('PRAGMA user_version=3');
+        }
+        if (publication && lockedVersion < 4) {
+          // Additive opt-in extension: preserve every v3 pin, receipt and
+          // protective trigger. Never repair an invalid old schema.
+          _requireSchema(db,
+              acquisition: true, publication: true, publicationVersion: 3);
+          if (!_usageValid(db, acquisition: true, publication: true)) {
+            rejectSegment('STORE_METADATA_CORRUPT');
+          }
+          db.execute(_incrementalPublicationSchema);
+          db.execute('PRAGMA user_version=4');
+        }
+        _requireSchema(db, acquisition: acquisition, publication: publication);
         final profile = db.select('SELECT * FROM profile');
         if (profile.length != 1 ||
             profile.single['discriminator'] != discriminator ||
@@ -160,7 +195,12 @@ class SegmentedClientStore {
             .select("SELECT name FROM sqlite_master WHERE type='table'")
             .map((r) => r['name'])
             .toSet();
-        if (actualTables.length != (acquisition ? 9 : 8) ||
+        if (actualTables.length !=
+                (publication
+                    ? 13
+                    : acquisition
+                        ? 9
+                        : 8) ||
             !actualTables.containsAll([
               'profile',
               'refs',
@@ -173,7 +213,8 @@ class SegmentedClientStore {
             ])) {
           rejectSegment('STORE_PROFILE_INVALID');
         }
-        if (!_usageValid(db, acquisition: acquisition)) {
+        if (!_usageValid(db,
+            acquisition: acquisition, publication: publication)) {
           rejectSegment('STORE_METADATA_CORRUPT');
         }
         db.execute('COMMIT');
@@ -190,7 +231,7 @@ class SegmentedClientStore {
         rejectSegment('LOCAL_STORAGE_BUDGET');
       }
       return SegmentedClientStore._(
-          db, path, cache, limits, fault, acquisition);
+          db, path, cache, limits, fault, acquisition, publication);
     } on SqliteException catch (error) {
       db?.close();
       rejectSegment(error.resultCode == 5 || error.resultCode == 6
@@ -203,6 +244,7 @@ class SegmentedClientStore {
   }
 
   T _transaction<T>(T Function() body) {
+    work.add('transactions');
     if (_closed) rejectSegment('STORE_CLOSED');
     var begun = false;
     try {
@@ -210,7 +252,8 @@ class SegmentedClientStore {
       begun = true;
       // DDL is a SQLite write too: this same write transaction excludes schema
       // changes by other connections until COMMIT/ROLLBACK. Never cache a flag.
-      _requireSchema(_db, acquisition: acquisitionEnabled);
+      _requireSchema(_db,
+          acquisition: acquisitionEnabled, publication: publicationEnabled);
       final result = body();
       final usage = _db.select('SELECT * FROM usage WHERE id=1').single;
       if ((usage['objects'] as int) > limits.objectCount ||
@@ -227,11 +270,15 @@ class SegmentedClientStore {
       _fault?.call('after_commit');
       return result;
     } on SqliteException catch (error) {
+      _acceptedSession = null;
       throw SegmentedException(
           error.resultCode == 5 || error.resultCode == 6
               ? 'STORE_BUSY'
               : 'PERSISTENCE_FAILED',
           storageCode: error.extendedResultCode);
+    } catch (_) {
+      _acceptedSession = null;
+      rethrow;
     } finally {
       if (begun) {
         // SQLITE_FULL can already have rolled back; do not conceal the error.
@@ -302,6 +349,10 @@ class SegmentedClientStore {
     }
     final obj = VerifiedObject.verify(row['body'] as Uint8List, ref, cache,
         maxBytes: limits.objectBytes);
+    work.add('object_reads');
+    work.add('verified_bytes', obj.bytes.length);
+    if (obj.kind.startsWith('snapshot-')) work.add('raw_object_reads');
+    if (obj.kind.startsWith('index-')) work.add('index_object_reads');
     if (obj.kind != row['kind']) rejectSegment('OBJECT_METADATA_INVALID');
     final edges = _db.select(
         'SELECT e.*,r.bytes FROM edges e JOIN refs r ON r.hash=e.child WHERE parent=? ORDER BY position',
@@ -324,9 +375,18 @@ class SegmentedClientStore {
   VerifiedObject? getVerifiedObject(ObjectRef ref) {
     if (_closed) rejectSegment('STORE_CLOSED');
     try {
-      return _read(ref);
+      final result = _read(ref);
+      if (result == null &&
+          (_acceptedSession?.proof?.graph.provenance?.contains(ref) ?? false)) {
+        _acceptedSession = null;
+      }
+      return result;
     } on SqliteException {
+      _acceptedSession = null;
       rejectSegment('PERSISTENCE_FAILED');
+    } catch (_) {
+      _acceptedSession = null;
+      rethrow;
     }
   }
 
@@ -497,11 +557,13 @@ class SegmentedClientStore {
     if (_closed) rejectSegment('STORE_CLOSED');
     final issues = <String>[];
     try {
-      _requireSchema(_db, acquisition: acquisitionEnabled);
+      _requireSchema(_db,
+          acquisition: acquisitionEnabled, publication: publicationEnabled);
     } on SegmentedException catch (error) {
       issues.add(error.code);
     }
-    if (!_usageValid(_db, acquisition: acquisitionEnabled)) {
+    if (!_usageValid(_db,
+        acquisition: acquisitionEnabled, publication: publicationEnabled)) {
       issues.add('STORE_METADATA_CORRUPT');
     }
     var objects = 0, stagings = 0;
@@ -539,11 +601,13 @@ class SegmentedClientStore {
       }
       stagings++;
     }
+    if (issues.isNotEmpty) _acceptedSession = null;
     return StoreHealth(objects, stagings, List.unmodifiable(issues));
   }
 
   void close() {
     if (!_closed) {
+      _acceptedSession = null;
       _db.close();
       _closed = true;
     }
@@ -568,13 +632,25 @@ final _acquisitionDefinitions = <String, String>{
     match.group(1)!: match.group(0)!.substring(0, match.group(0)!.length - 1)
 };
 
-void _requireSchema(Database db, {bool acquisition = false}) {
+void _requireSchema(Database db,
+    {bool acquisition = false,
+    bool publication = false,
+    int publicationVersion = 4}) {
   if (db.select('PRAGMA user_version').single.values.first !=
-      (acquisition ? 2 : SegmentedClientStore.schemaVersion)) {
+      (publication
+          ? publicationVersion
+          : acquisition
+              ? 2
+              : SegmentedClientStore.schemaVersion)) {
     rejectSegment('UNSUPPORTED_STORAGE_SCHEMA');
   }
-  final definitions =
-      acquisition ? _acquisitionDefinitions : _schemaDefinitions;
+  final definitions = publication
+      ? (publicationVersion == 3
+          ? _publicationDefinitions
+          : _incrementalPublicationDefinitions)
+      : acquisition
+          ? _acquisitionDefinitions
+          : _schemaDefinitions;
   final rows = db.select(
       'SELECT name,sql FROM sqlite_master WHERE sql IS NOT NULL ORDER BY name LIMIT ?',
       [definitions.length + 1]);
@@ -585,7 +661,8 @@ void _requireSchema(Database db, {bool acquisition = false}) {
 }
 
 // Recovery/scrub only: counters bound normal puts without growing-table scans.
-bool _usageValid(Database db, {bool acquisition = false}) {
+bool _usageValid(Database db,
+    {bool acquisition = false, bool publication = false}) {
   final rows = db.select('SELECT * FROM usage');
   if (rows.length != 1) {
     return false;
@@ -602,12 +679,25 @@ bool _usageValid(Database db, {bool acquisition = false}) {
       ? db.select('SELECT count(*)*256 AS n FROM acquisition').single['n']
           as int
       : 0;
+  final publicationCharge = publication
+      ? db.select('''SELECT
+    (SELECT coalesce(sum(length(manifest)+length(receipt)+512),0) FROM generations)+
+    (SELECT count(*)*128 FROM generation_objects)+256 AS n''').single['n']
+          as int
+      : 0;
+  final rootCharge = publication &&
+          db.select('PRAGMA user_version').single.values.first == 4
+      ? db.select('SELECT count(*)*128 AS n FROM generation_roots').single['n']
+          as int
+      : 0;
   return actual['id'] == 1 &&
       ['objects', 'payload', 'stages', 'metadata'].every((key) =>
           actual[key] is int &&
           actual[key] ==
               (expected[key] as int) +
-                  (key == 'metadata' ? acquisitionCharge : 0));
+                  (key == 'metadata'
+                      ? acquisitionCharge + publicationCharge + rootCharge
+                      : 0));
 }
 
 void _validateAcquisition(Object? state, Object? code) {

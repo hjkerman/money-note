@@ -449,14 +449,22 @@ void main() {
     expect(await snapshots.readText((await snapshots.list()).single.filename),
         utf8.decode(snapshot));
   });
-  test('normal startup/read/write code does not import E1', () {
+  test('only explicit AppState E3 boundary may import segmented storage', () {
     for (final file in Directory('lib')
         .listSync(recursive: true)
         .whereType<File>()
         .where((f) =>
             f.path.endsWith('.dart') && !f.path.contains('/segmented/'))) {
-      expect(file.readAsStringSync(), isNot(contains("import 'segmented/")),
-          reason: file.path);
+      final source = file.readAsStringSync();
+      if (file.path.endsWith('/app_state.dart')) {
+        // E3 now reuses AppState authority, but does not initialize the store or
+        // call this explicit orchestration entry point from normal startup.
+        expect(source, isNot(contains('SegmentedClientStore.open(')));
+        expect('publishSegmentedForIsolatedUse('.allMatches(source).length, 1);
+        expect(source, contains('if (_isDisposed ||'));
+        continue;
+      }
+      expect(source, isNot(contains("import 'segmented/")), reason: file.path);
     }
   });
   test(

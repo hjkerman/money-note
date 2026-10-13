@@ -237,7 +237,9 @@ class IncrementalFetcher {
   }
 
   Future<VerifiedStagedGeneration> acquire(
-      {String? resumeId, SyncCancellation? cancellation}) async {
+      {String? resumeId,
+      SyncCancellation? cancellation,
+      AcceptedGeneration? verifiedBase}) async {
     final cancel = cancellation ?? SyncCancellation();
     if (_activeStores.isNotEmpty || !_activeStores.add(_storeKey)) {
       throw const AcquisitionFailure('ACQUISITION_BUSY', 'retry_same', null);
@@ -344,7 +346,13 @@ class IncrementalFetcher {
           },
               maxObjects: min(limits.graphObjects, store.limits.objectCount),
               maxEdges: limits.graphEdges,
-              maxPath: limits.pathDepth);
+              maxPath: limits.pathDepth,
+              // Only the owning recovered store can supply reusable integrity
+              // evidence. Terminal server auth and E3 final authority remain.
+              reuse: verifiedBase == null
+                  ? null
+                  : store.acquisitionProvenance(verifiedBase),
+              work: store.work);
           // The same nonce/body returns the SAME persisted bytes, not regenerated
           // Judgment. Server terminal auth/TTL is authoritative, not phone time.
           final terminal = await _observe(nonce, cancel, metrics);

@@ -121,6 +121,23 @@ def main():
                         conn.execute("UPDATE ledger_entries SET title=? WHERE id=100", ('합성 수정 '+str(uuid4()),))
                         conn.finalize()
                     result = dict(ok=True)
+                elif command in ('insert_history', 'delete_history'):
+                    # E3 split/delete frontier oracle. Only this freshly owned
+                    # RetentionSandbox is reachable; no arbitrary SQL/path API.
+                    count = request['count']
+                    assert type(count) is int and 0 <= count <= 512
+                    with db.connect() as conn:
+                        conn.begin_capture()
+                        for n in range(count):
+                            if command == 'insert_history':
+                                insert(conn, 'ledger_entries', dict(
+                                    id=20000+n, book_section='archive', entry_kind='expense',
+                                    entry_date='2026-07-03', title='E3 합성 경계 '+str(n),
+                                    amount_value=1000, sort_order=n, payment_key='e3-history-'+str(n)))
+                            else:
+                                conn.execute('DELETE FROM ledger_entries WHERE id=?', (20000+n,))
+                        conn.finalize()
+                    result = dict(ok=True)
                 elif command == 'advance':
                     clock[0] += timedelta(seconds=request['seconds'])
                     result = dict(ok=True)

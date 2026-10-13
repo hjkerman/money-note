@@ -514,3 +514,68 @@ void _projectionIdentities(
       flows: flows,
       confirmedActuals: confirmedActuals);
 }
+
+// E3 consumes complete canonical raw rows and the server's hot/control objects.
+// This entry point deliberately has no Snapshot/envelope/fingerprint argument:
+// segmented authority must never manufacture a partial legacy Snapshot.
+void validateSegmentedRawProjection({
+  required Map<String, dynamic> data,
+  required Map<String, dynamic> state,
+  required Map<String, dynamic> policy,
+  required String evaluationDate,
+}) {
+  validateSegmentedRelations(
+      data,
+      (data['app_settings'] as List)
+          .where((r) => r['key'] == 'last_closed_month')
+          .firstOrNull?['value'] as String?);
+  validateSegmentedHotProjection(
+      data: data, state: state, policy: policy, evaluationDate: evaluationDate);
+}
+
+// A closed affected relation set, selected through the accepted reverse index.
+// No new financial semantics; full verification still uses the same predicate.
+void validateSegmentedRelations(Map<String, dynamic> data, String? closed) =>
+    _relationships(data, closed);
+
+void validateSegmentedHotProjection(
+    {required Map<String, dynamic> data,
+    required Map<String, dynamic> state,
+    required Map<String, dynamic> policy,
+    required String evaluationDate}) {
+  validateCanonicalBundlePolicy(policy);
+  _policyIdentity(policy, state);
+  final settings = _indexed(data['app_settings'], 'key');
+  for (final key in ['scheduled_income', 'cash_flow_balance', 'card_limit']) {
+    if (!settings.containsKey(key)) invalidBundle('money setting.$key');
+  }
+  if (bundleCanonicalJson(state['settings']) !=
+      bundleCanonicalJson({
+        for (final row in settings.values) row['key'] as String: row['value']
+      })) {
+    invalidBundle('settings view');
+  }
+  final status = state['month_close_status'];
+  final month = evaluationDate.substring(0, 7);
+  if (status['calendar_date'] != evaluationDate ||
+      status['calendar_month'] != month ||
+      state['card_payment_status']['calendar_date'] != evaluationDate ||
+      status['last_closed_month'] != settings['last_closed_month']?['value']) {
+    invalidBundle('evaluation context');
+  }
+  for (final scope in ['owner', 'family']) {
+    final p = state['${scope}_discount_month'];
+    if (p['month'] != month ||
+        p['scope'] != scope ||
+        !['enabled', 'disabled'].contains(p['policy'])) {
+      invalidBundle('policy context');
+    }
+  }
+  final transit = state['transit_discount_profile'];
+  if (transit['card'] != 'transit' ||
+      transit['month'] != month ||
+      !['none', 'owner'].contains(transit['profile'])) {
+    invalidBundle('transit context');
+  }
+  _projectionIdentities(state, data);
+}

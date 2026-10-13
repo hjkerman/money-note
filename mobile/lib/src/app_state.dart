@@ -14,6 +14,11 @@ import 'offline/offline_lineage_validator.dart';
 import 'offline/offline_projection.dart';
 import 'offline/offline_store.dart';
 import 'offline/online_write_state.dart';
+import 'segmented/api_transport.dart';
+import 'segmented/c1.dart';
+import 'segmented/fetch.dart';
+import 'segmented/store.dart';
+import 'segmented/transport.dart';
 
 export 'local_snapshot_repository.dart' show LocalSnapshotInfo;
 
@@ -412,6 +417,97 @@ class AppState extends ChangeNotifier {
     await _refreshAuthoritativeState(notify: notify);
   }
 
+  // Explicit isolated E3 entry only. No startup caller, UI installation,
+  // OfflineBaseline construction, pending retirement or B/J write is permitted.
+  // AppState owns the original ticket through acquisition AND synchronous commit.
+  Future<SegmentedPublication> publishSegmentedForIsolatedUse(
+      SegmentedClientStore store,
+      {String? resumeId,
+      SyncCancellation? cancellation}) async {
+    if (_isDisposed || !isOnline || _onlineWriteInFlight || user == null) {
+      rejectSegment('PUBLICATION_MODE_INELIGIBLE');
+    }
+    if (!store.publicationEnabled ||
+        store.cache.origin != api.baseUrl ||
+        store.cache.principalId != user!.id) {
+      rejectSegment('CACHE_CONTEXT_MISMATCH');
+    }
+    final selected = user!.id;
+    final ticket = _refreshCoordinator.begin(
+        _lineageGeneration, _authenticationGeneration);
+    final transport = segmentedTransportForApi(api);
+    final cancel = cancellation ?? SyncCancellation();
+    void requireAuthority() {
+      if (_isDisposed) rejectSegment('PUBLICATION_MODE_INELIGIBLE');
+      cancel.check();
+      _requireRefreshAuthority(ticket, selected, store.cache.principalId);
+      transport.checkSession();
+      // The real credential getter is pure. Recheck the AppState condition too
+      // so even a test-controlled synchronous session callback cannot bypass it.
+      _requireRefreshAuthority(ticket, selected, store.cache.principalId);
+    }
+
+    PreparedGeneration? prepared;
+    try {
+      requireAuthority();
+      final expected = await store.recoverAcceptedGeneration();
+      requireAuthority();
+      final acquired = await IncrementalFetcher(store, transport).acquire(
+          resumeId: resumeId, cancellation: cancel, verifiedBase: expected);
+      requireAuthority();
+      final verifiedDataVersion = store.publicationDataVersion;
+      final proof = await store.verifyPublicationCandidate(
+          acquired.manifest, expected,
+          verifiedDataVersion: verifiedDataVersion);
+      requireAuthority();
+      prepared = store.prepareGeneration(
+          syncUuid(), acquired.stagingId, proof, expected,
+          verifiedDataVersion: verifiedDataVersion,
+          authorityHistory: {
+            'lineage': ticket.lineageGeneration,
+            'authentication': ticket.authenticationGeneration,
+            'request': ticket.requestGeneration,
+          });
+      final operation = prepared;
+      final result = await _withLineageLock(() async {
+        requireAuthority();
+        // No await in this body. The native SQLite COMMIT and readback finish
+        // before _withLineageLock awaits the completed action's result.
+        return store.commitPreparedGeneration(operation,
+            finalAuthorityFence: requireAuthority);
+      });
+      try {
+        requireAuthority();
+      } on Object catch (error) {
+        // An event after native COMMIT can revoke return/installation authority,
+        // not roll back the already committed isolated cache namespace.
+        throw PublicationCommittedException(
+            result.generationId, result.sequence, error);
+      }
+      return result; // Segmented-internal publication ONLY, never Offline-ready.
+    } finally {
+      if (prepared != null) {
+        try {
+          store.discardUnacceptedGeneration(prepared.id);
+        } on Object {/* primary outcome wins */}
+      }
+    }
+  }
+
+  void _requireRefreshAuthority(
+      RefreshTicket ticket, int selectedUser, int candidatePrincipal,
+      {bool allowBaselineWhileFinalizing = false}) {
+    if (user?.id != selectedUser ||
+        candidatePrincipal != selectedUser ||
+        !_refreshCoordinator.mayInstall(ticket,
+            currentLineageGeneration: _lineageGeneration,
+            currentAuthenticationGeneration: _authenticationGeneration,
+            modeAllowed: _refreshModeAllowed(allowBaselineWhileFinalizing))) {
+      throw MoneyNoteApiException(
+          '상태가 변경되어 오래된 authoritative refresh 결과를 폐기했습니다.');
+    }
+  }
+
   Future<void> _refreshAuthoritativeState({
     bool notify = true,
     bool allowBaselineWhileFinalizing = false,
@@ -454,18 +550,12 @@ class AppState extends ChangeNotifier {
         modeAllowed: () => _refreshModeAllowed(allowBaselineWhileFinalizing));
     final candidate = bundle.candidate;
     final after = bundle.envelope;
-    bool mayInstall() =>
-        user?.id == authenticatedUser &&
-        candidate.user.id == authenticatedUser &&
-        _refreshCoordinator.mayInstall(ticket,
-            currentLineageGeneration: _lineageGeneration,
-            currentAuthenticationGeneration: _authenticationGeneration,
-            modeAllowed: _refreshModeAllowed(allowBaselineWhileFinalizing));
     void requireInstallAuthority() {
-      if (!mayInstall()) {
-        throw MoneyNoteApiException(
-            '상태가 변경되어 오래된 authoritative refresh 결과를 폐기했습니다.');
+      if (authenticatedUser == null) {
+        throw MoneyNoteApiException('로그인 사용자 정보가 없습니다.');
       }
+      _requireRefreshAuthority(ticket, authenticatedUser, candidate.user.id,
+          allowBaselineWhileFinalizing: allowBaselineWhileFinalizing);
     }
 
     await _withLineageLock(() async {
