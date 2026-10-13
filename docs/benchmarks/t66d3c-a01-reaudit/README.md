@@ -57,4 +57,4 @@ Git에 넣지 않았다. 개별 실행 JSON/JUnit/log는 `/tmp/mn-d3c-a01-reaudi
 새 연결로 수행한다. `/proc/self/fd`로 열린 실제 inode와 현재 pathname inode를 구분한다.
 기존 DB의 WAL/SHM 파일을 수동 교체하는 실험은 수행하지 않았다.
 
-최종 판정과 근거는 [재감사 보고서](../../t66d3c-a01-independent-reaudit.md)에 있다.
+최종 판정과 근거는 [재감사 보고서](../../t66/d/audits/t66d3c-a01-independent-reaudit.md)에 있다.

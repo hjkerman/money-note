@@ -16,11 +16,11 @@
 
 시작 branch `main`, HEAD/main/origin/main/실제 remote main은 모두 `45ee6fb32ee33b236fc366b0931400d0d31b8f0f`, working tree는 clean이었다. 이번 변경은 문서뿐이다. 운영 DB·API·설정·credential에 접근하지 않았고 배포·APK 설치·제품 실행 경로 변경도 없다. 과거 T6.5/T6.6A 감사 보고서를 재작성하거나 새 독립 감사로 주장하지 않는다.
 
-규범 원본은 [architecture.md](architecture.md)의 `서버 authority와 클라이언트 신뢰 경계`와 [domain-model.md](domain-model.md)다. [offline-mode.md](offline-mode.md), [security.md](security.md), [runbook.md](runbook.md)의 복구 계약도 보존한다. 이 문서의 미래 제안이 현재 wire/storage 계약을 암묵적으로 변경하지 않는다.
+규범 원본은 [architecture.md](../../architecture.md)의 `서버 authority와 클라이언트 신뢰 경계`와 [domain-model.md](../../domain-model.md)다. [offline-mode.md](../../offline-mode.md), [security.md](../../security.md), [runbook.md](../../runbook.md)의 복구 계약도 보존한다. 이 문서의 미래 제안이 현재 wire/storage 계약을 암묵적으로 변경하지 않는다.
 
 ## 2. 측정 기준선과 해결해야 할 문제
 
-아래는 새 T6.6B 실측이 아니라 **commit된 [T6.6A 보고서](t66a-payload-attribution.md)와 [aggregate](benchmarks/t66a/attribution.json)의 HOST/synthetic 증거**다. Seed 1234, 평가일 2026-10-05, UTC+540분, synthetic principal 1, 현행 registry, 동일 active 구성을 사용했다. 실기기 결과가 아니다.
+아래는 새 T6.6B 실측이 아니라 **commit된 [T6.6A 보고서](../a/t66a-payload-attribution.md)와 [aggregate](../../benchmarks/t66a/attribution.json)의 HOST/synthetic 증거**다. Seed 1234, 평가일 2026-10-05, UTC+540분, synthetic principal 1, 현행 registry, 동일 active 구성을 사용했다. 실기기 결과가 아니다.
 
 | fixture | ledger / current / archive | bundle bytes | Snapshot bytes | typed state bytes | durable baseline bytes |
 | --- | --- | --- | --- | --- | --- |
@@ -50,20 +50,20 @@
 
 | 책임 | 실제 소스·함수 | 확인한 현재 계약 |
 | --- | --- | --- |
-| coherent bundle | [authoritative_state.py](../backend/app/services/authoritative_state.py): `_construct`, `_prepare`, `_terminal_guard` | 동일 read view·고정 평가 context, 원 credential, 별도 terminal freshness guard, bounded rebuild, all-or-nothing |
-| wire model | [authoritative_schemas.py](../backend/app/authoritative_schemas.py): `AuthoritativeState`, `AuthoritativeProjections` | bundle v1, principal/authority/Snapshot/12 projections |
-| full Snapshot | [snapshot.py](../backend/app/services/snapshot.py): `_export_snapshot`, `snapshot_state_fingerprint`, `_replace_snapshot_tables`, `restore_snapshot` | 11개 전체 table, v7 manifest/정확한 canonical SHA, replace·FK·복구 검증 |
-| DB identity | [db.py](../backend/app/db.py), [db_migrations.py](../backend/app/db_migrations.py) | DB version 4; authoritative row trigger revision; migrated partial UNIQUE 등 |
+| coherent bundle | [authoritative_state.py](../../../backend/app/services/authoritative_state.py): `_construct`, `_prepare`, `_terminal_guard` | 동일 read view·고정 평가 context, 원 credential, 별도 terminal freshness guard, bounded rebuild, all-or-nothing |
+| wire model | [authoritative_schemas.py](../../../backend/app/authoritative_schemas.py): `AuthoritativeState`, `AuthoritativeProjections` | bundle v1, principal/authority/Snapshot/12 projections |
+| full Snapshot | [snapshot.py](../../../backend/app/services/snapshot.py): `_export_snapshot`, `snapshot_state_fingerprint`, `_replace_snapshot_tables`, `restore_snapshot` | 11개 전체 table, v7 manifest/정확한 canonical SHA, replace·FK·복구 검증 |
+| DB identity | [db.py](../../../backend/app/db.py), [db_migrations.py](../../../backend/app/db_migrations.py) | DB version 4; authoritative row trigger revision; migrated partial UNIQUE 등 |
 | 금융 계산 | repositories/entries·panels·cash_flows, services/summary·card_payment_reads·card_payments·month | backend가 계산·선택·분류·할당·마감을 소유 |
-| mobile admission | [authoritative_bundle.dart](../mobile/lib/src/authoritative_bundle.dart): `AuthoritativeBundle.decode` | UTF-8, raw token/duplicate key, JSON, Unicode, required/type, money, Snapshot/authority/관계, freeze, typed |
-| raw 구조 검증 | [authoritative_snapshot_validation.dart](../mobile/lib/src/authoritative_snapshot_validation.dart), [authoritative_bundle_canonical.dart](../mobile/lib/src/authoritative_bundle_canonical.dart) | hashes, metadata, raw identity/reference/동일 필드, N4; 금융 projection 재계산 아님 |
-| normal acquisition | [coherent_refresh_coordinator.dart](../mobile/lib/src/coherent_refresh_coordinator.dart): `acquire`, `_acquireBundle` | 1 bundle GET; candidate/envelope 동일 응답; ticket/auth/request/mutation guards |
-| 게시·설치 | [app_state.dart](../mobile/lib/src/app_state.dart): `_refreshAuthoritativeState` | mode/lineage lock → complete baseline → guarded durable publish → eligible pending retirement → 전체 state 설치 |
-| baseline | [offline_data.dart](../mobile/lib/src/offline/offline_data.dart): `OfflineBaseline` | schema v4, typed state + 전체 Snapshot + fingerprint + defaults + optional resolved reconciliation ID |
-| 저장·lineage | [offline_store.dart](../mobile/lib/src/offline/offline_store.dart): `replaceBaseline`, `_writeJsonAtomic`, `recoveryLineageFingerprint` | whole JSON temp flush/readback/guarded rename; whole baseline lineage hash |
-| provisional view | [offline_projection.dart](../mobile/lib/src/offline/offline_projection.dart): `OfflineProjection.from` | frozen B의 typed state에 input-only J를 임시 반영 |
-| 서버 조정 | [offline_reconciliation.py](../backend/app/services/offline_reconciliation.py): `apply_mobile_wins` | 검증한 전체 B 복원 + ordered J 재생을 단일 transaction으로 commit; 별도 pre-server artifact |
-| 별도 백업 | [local_snapshot_repository.dart](../mobile/lib/src/local_snapshot_repository.dart), AppState `saveLaunchSnapshot` | launch/foreground의 별도 full Snapshot, 최근 30개; normal 금융 GET 수와 분리 |
+| mobile admission | [authoritative_bundle.dart](../../../mobile/lib/src/authoritative_bundle.dart): `AuthoritativeBundle.decode` | UTF-8, raw token/duplicate key, JSON, Unicode, required/type, money, Snapshot/authority/관계, freeze, typed |
+| raw 구조 검증 | [authoritative_snapshot_validation.dart](../../../mobile/lib/src/authoritative_snapshot_validation.dart), [authoritative_bundle_canonical.dart](../../../mobile/lib/src/authoritative_bundle_canonical.dart) | hashes, metadata, raw identity/reference/동일 필드, N4; 금융 projection 재계산 아님 |
+| normal acquisition | [coherent_refresh_coordinator.dart](../../../mobile/lib/src/coherent_refresh_coordinator.dart): `acquire`, `_acquireBundle` | 1 bundle GET; candidate/envelope 동일 응답; ticket/auth/request/mutation guards |
+| 게시·설치 | [app_state.dart](../../../mobile/lib/src/app_state.dart): `_refreshAuthoritativeState` | mode/lineage lock → complete baseline → guarded durable publish → eligible pending retirement → 전체 state 설치 |
+| baseline | [offline_data.dart](../../../mobile/lib/src/offline/offline_data.dart): `OfflineBaseline` | schema v4, typed state + 전체 Snapshot + fingerprint + defaults + optional resolved reconciliation ID |
+| 저장·lineage | [offline_store.dart](../../../mobile/lib/src/offline/offline_store.dart): `replaceBaseline`, `_writeJsonAtomic`, `recoveryLineageFingerprint` | whole JSON temp flush/readback/guarded rename; whole baseline lineage hash |
+| provisional view | [offline_projection.dart](../../../mobile/lib/src/offline/offline_projection.dart): `OfflineProjection.from` | frozen B의 typed state에 input-only J를 임시 반영 |
+| 서버 조정 | [offline_reconciliation.py](../../../backend/app/services/offline_reconciliation.py): `apply_mobile_wins` | 검증한 전체 B 복원 + ordered J 재생을 단일 transaction으로 commit; 별도 pre-server artifact |
+| 별도 백업 | [local_snapshot_repository.dart](../../../mobile/lib/src/local_snapshot_repository.dart), AppState `saveLaunchSnapshot` | launch/foreground의 별도 full Snapshot, 최근 30개; normal 금융 GET 수와 분리 |
 
 CURRENT OfflineBaseline v4는 envelope의 revision/evaluation_date를 별도 필드로 저장하지 않는다. Snapshot fingerprint와 typed context를 보존한다. 미래 manifest의 revision을 현행 baseline에 이미 저장한다고 가정하면 안 된다. 현재 local lineage fingerprint는 server state fingerprint와도 다르다.
 
@@ -137,7 +137,7 @@ PROPOSED cold는 **현재 view에 원문을 반복 전달할 필요가 적고, �
 | 과거 settings/policy | 해당 사용월 정책이 과거 계산에 영향; 일부 설정 변경/정리 가능 | raw 이력과 current descriptor/registry 분리, 영향 projection 서버가 재생성 |
 | registrations | target 삭제 후 key가 남아 dedup 의미 유지 | 전체 durable key index, target 생존을 무조건 요구하지 않음 |
 
-**특별한 현재 변경:** [month.py](../backend/app/services/month.py)의 `close_current_month`는 current row를 archive에 **새 ID로 INSERT한 후 원래 행 DELETE**하며 stable payment key/epoch를 유지하고 registration target을 새 ID로 바꾼다. Future delta는 이를 단순 book_section UPDATE나 동일 row ID로 표현하면 안 된다. Date 변경은 month partition 간 이동, source 삭제는 FK/epoch 해제, payment 취소는 cash/allocation 변경을 동반한다. 재개방을 위한 별도 canonical reopen 기능은 이 검토에서 확인하지 않았지만 명시적 Snapshot restore/reset/Mobile Wins가 과거 전체를 교체할 수 있다.
+**특별한 현재 변경:** [month.py](../../../backend/app/services/month.py)의 `close_current_month`는 current row를 archive에 **새 ID로 INSERT한 후 원래 행 DELETE**하며 stable payment key/epoch를 유지하고 registration target을 새 ID로 바꾼다. Future delta는 이를 단순 book_section UPDATE나 동일 row ID로 표현하면 안 된다. Date 변경은 month partition 간 이동, source 삭제는 FK/epoch 해제, payment 취소는 cash/allocation 변경을 동반한다. 재개방을 위한 별도 canonical reopen 기능은 이 검토에서 확인하지 않았지만 명시적 Snapshot restore/reset/Mobile Wins가 과거 전체를 교체할 수 있다.
 
 | 교차 의존성 | 필요한 것 | 필요하지 않은 것 |
 | --- | --- | --- |
@@ -382,7 +382,7 @@ UI page를 덜 받더라도 full Snapshot transfer/hash/write가 남으면 B 단
 
 ## 20. Restore request 25MiB 상한
 
-CURRENT [config.py](../backend/app/config.py)의 `MONEY_NOTE_SNAPSHOT_RESTORE_MAX_BYTES` 기본값은 **25 × 1024 × 1024 = 26,214,400B**다. [security.py](../backend/app/security.py)의 `ApiBodyLimitMiddleware`는 `/api/admin/snapshot/restore`, `/api/offline-reconciliation/mobile-wins` POST 등에 적용하며 Content-Length 사전 검사와 실제 ASGI body chunk 누적을 모두 사용한다. 운영 override 값은 접근하지 않아 모른다.
+CURRENT [config.py](../../../backend/app/config.py)의 `MONEY_NOTE_SNAPSHOT_RESTORE_MAX_BYTES` 기본값은 **25 × 1024 × 1024 = 26,214,400B**다. [security.py](../../../backend/app/security.py)의 `ApiBodyLimitMiddleware`는 `/api/admin/snapshot/restore`, `/api/offline-reconciliation/mobile-wins` POST 등에 적용하며 Content-Length 사전 검사와 실제 ASGI body chunk 누적을 모두 사용한다. 운영 override 값은 접근하지 않아 모른다.
 
 T6.6A 50k one-shot은 bundle 28,164,304B, Snapshot **28,076,353B**였다. Snapshot만 기본 상한보다 **1,861,953B** 크며 restore password/wrapper와 MW journal/artifact metadata가 추가된다. **실제 50k restore HTTP 413을 관측한 것은 아니다.** Backend request parser가 수신하는 정확한 직렬화와 설정을 포함해 향후 테스트해야 한다.
 
@@ -569,7 +569,7 @@ Full-resync path와 steady-state path 모두 같은 logical state·typed financi
 
 소스 참조·11/12 inventory·export ordering·revision trigger·actual migrated N4 constraint·현재 raw validators·publication guard·reconciliation transaction·request middleware를 읽어 대조했다. Byte figures는 T6.6A committed aggregate와 대조하고, 겹치는 timing categories를 합산하지 않았다. Reference paths/Markdown links와 `git diff --check`를 검증한다. 실행한 검사 결과는 아래 검증 기록에 기재한다.
 
-재현용 read-only 입력은 [scripts/benchmarks/README.md](../scripts/benchmarks/README.md)의 T6.6A 도구와 [environment.json](benchmarks/t66a/environment.json)이다. 기존 큰 `/tmp` body나 운영 사본 없이 committed aggregate와 source로 이 설계 근거를 확인할 수 있다. 신규 synthetic benchmark·실기기 측정을 수행했다고 주장하지 않는다.
+재현용 read-only 입력은 [scripts/benchmarks/README.md](../../../scripts/benchmarks/README.md)의 T6.6A 도구와 [environment.json](../../benchmarks/t66a/environment.json)이다. 기존 큰 `/tmp` body나 운영 사본 없이 committed aggregate와 source로 이 설계 근거를 확인할 수 있다. 신규 synthetic benchmark·실기기 측정을 수행했다고 주장하지 않는다.
 
 문서만 변경하므로 full backend/Flutter/Android 회귀가 자동 필수는 아니다. 저장소 지침에 따라 isolated backend targeted validation과 frontend production build를 실행하고, 실제 결과만 기록한다. 운영을 읽는 deploy dry-run은 실행하지 않는다.
 

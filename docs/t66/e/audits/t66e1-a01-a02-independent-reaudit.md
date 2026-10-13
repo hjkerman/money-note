@@ -51,7 +51,7 @@ addendum 및 원래 독립 감사 보고서를 읽었다. 원래 FAIL 보고서�
 | `scripts/benchmarks/t66e1_money_vectors.py` | 실제 backend validator를 사용하는 vector 생성 |
 | `scripts/benchmarks/test_t66e1_money_vectors.py` | 재생성 일치 확인 |
 | `docs/benchmarks/t66e1-correction/summary.json` | 구현 측 결과와 제한된 측정 |
-| `docs/t66e1-implementation.md` | 교정 원인·정책·증거 addendum |
+| `docs/t66/e/implementation/t66e1-implementation.md` | 교정 원인·정책·증거 addendum |
 
 Dependency/lockfile, backend 구현, 금융 공식, 기존 app startup/DI, UI, production
 schema, Snapshot/Offline 저장 구현 변경은 없다. supporting change는 두 finding에
@@ -261,9 +261,9 @@ snapshot으로 검사한 5개 mutator에서 누락 schema 이후 추가 변경�
 - 기존 object, staging manifest, roots 및 progress의 실패 전후 보존.
 - 실제 schema 정의의 변화, COMMIT/ROLLBACK 결과와 다음 write의 재검증.
 
-증거는 [cases.json](benchmarks/t66e1-a01-a02-reaudit/cases.json),
-[original-replay.json](benchmarks/t66e1-a01-a02-reaudit/original-replay.json),
-[results.json](benchmarks/t66e1-a01-a02-reaudit/results.json)에 있다. 예외가 났다는
+증거는 [cases.json](../../../benchmarks/t66e1-a01-a02-reaudit/cases.json),
+[original-replay.json](../../../benchmarks/t66e1-a01-a02-reaudit/original-replay.json),
+[results.json](../../../benchmarks/t66e1-a01-a02-reaudit/results.json)에 있다. 예외가 났다는
 이유만으로 안전하다고 판정하지 않았다. Temporary DB 경로는 해당 실행의 disposable
 fixture이며 지속적인 보존 또는 production 데이터 경로가 아니다.
 
@@ -305,7 +305,7 @@ DELETE journal/EXTRA sync, disposable store에서 수행했다. Duplicate warmup
 마지막 cell은 같은 SQL/정의 비교의 독립 분리 측정이며 private helper의 직접 profiling은
 아니다. 두 transaction median 차이는 약 78µs다. JIT, filesystem sync, 병행 backend
 회귀 noise를 포함하므로 고정 overhead 상한이나 실기기 결과로 해석하지 않는다.
-측정 원자료는 [performance.json](benchmarks/t66e1-a01-a02-reaudit/performance.json)에 있다.
+측정 원자료는 [performance.json](../../../benchmarks/t66e1-a01-a02-reaudit/performance.json)에 있다.
 
 새 schema 검사는 user_version 1 query와 catalog 1 query이며, 지원 schema의 20개
 정의만 비교한다. 객체·금융 행·과거 generation의 전체 scan을 추가하지 않는다.
@@ -436,7 +436,7 @@ Segmented sync/endpoint/normal-runtime GC를 활성화하지 않았다. APK는 �
 재귀적인 self-hash 없이 정확히 식별한다.
 
 ```sh
-git log -1 --format=%H -- docs/t66e1-a01-a02-independent-reaudit.md
+git log -1 --format=%H -- docs/t66/e/audits/t66e1-a01-a02-independent-reaudit.md
 git show --stat --oneline HEAD
 git rev-parse HEAD main origin/main
 git ls-remote origin refs/heads/main
@@ -456,7 +456,7 @@ AUDITED CORRECTION COMMIT:
 98f0bfaeb5b454796eb9dc40290ae1e340ce80ca
 
 AUDIT COMMIT:
-git log -1 --format=%H -- docs/t66e1-a01-a02-independent-reaudit.md
+git log -1 --format=%H -- docs/t66/e/audits/t66e1-a01-a02-independent-reaudit.md
 
 REPOSITORY STATE:
 VERIFIED

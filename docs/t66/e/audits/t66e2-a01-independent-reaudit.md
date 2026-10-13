@@ -32,7 +32,7 @@ origin/main`과 `git ls-remote origin refs/heads/main` 모두 대상 hash를 반
 | Flutter 교정 검사 | `mobile/test/segmented_response_cleanup_test.dart`: 새 13 tests |
 | 실제 TCP 검사 | `docs/benchmarks/t66e2-a01/test_cleanup.py`: 새 5 tests |
 | 원래 감사 도구 보강 | `docs/benchmarks/t66e2-audit/native_transport.dart`, `test_audit.py`: client FD 계측과 판정 oracle |
-| 문서/측정 | `docs/benchmarks/t66e2-a01/{README.md,summary.json}`, `docs/t66e2-implementation.md` addendum |
+| 문서/측정 | `docs/benchmarks/t66e2-a01/{README.md,summary.json}`, `docs/t66/e/implementation/t66e2-implementation.md` addendum |
 
 제품 변경은 transport 한 파일에 한정된다. dependency/lockfile, backend, store/graph/fetch,
 금융 공식, startup/UI, Snapshot/Offline, Android version, production 설정 변경은 없다.
@@ -308,7 +308,7 @@ HEAD/main/origin/main/actual remote main 및 clean 검증 결과는 최종 응�
 자기 참조 hash를 넣기 위한 추가 commit은 만들지 않는다. 감사 commit 조회 명령은 다음과 같다.
 
 ```sh
-git log -1 --format=%H -- docs/t66e2-a01-independent-reaudit.md
+git log -1 --format=%H -- docs/t66/e/audits/t66e2-a01-independent-reaudit.md
 ```
 
 ## 필수 최종 footer

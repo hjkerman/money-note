@@ -38,7 +38,7 @@ security/runbook의 해당 계약도 확인했다. 도메인과 확정 금융 pr
 | E1 지원 변경 | `mobile/lib/src/segmented/store.dart`: opt-in schema v2, acquisition bookkeeping, 불필요한 staging count 생략 |
 | 테스트 | `mobile/test/segmented_{acquisition_store,fetch,fetch_crash,http_integration,transport}_test.dart` |
 | 합성 지원 | `mobile/test/support/segmented_e2_fixture.dart`, `segmented_fetch_crash_worker.dart`, `scripts/benchmarks/t66e2_server.py` |
-| 문서/측정 | `docs/t66e2-implementation.md`, `docs/benchmarks/t66e2/{README.md,summary.json}` |
+| 문서/측정 | `docs/t66/e/implementation/t66e2-implementation.md`, `docs/benchmarks/t66e2/{README.md,summary.json}` |
 
 dependency/lockfile, backend 구현, production schema, 금융 공식, Snapshot, OfflineBaseline,
 AppState/UI/startup, 배포 설정 또는 Android version은 변경하지 않았다.
@@ -484,7 +484,7 @@ hash를 report 내용에 넣기 위한 추가 commit은 만들지 않는다. 이
 다음 명령으로 조회한다.
 
 ```sh
-git log -1 --format=%H -- docs/t66e2-independent-audit.md
+git log -1 --format=%H -- docs/t66/e/audits/t66e2-independent-audit.md
 ```
 
 ## 필수 최종 footer

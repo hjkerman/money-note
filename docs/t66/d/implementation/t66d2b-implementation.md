@@ -32,13 +32,13 @@ PASS와 이번 구현·내부 검증은 별도 증거다. 독립 D2b 감사는 �
 
 | 파일 | 상태·책임 |
 | --- | --- |
-| [capture.py](../backend/isolated_sync/capture.py) | 기존 admission 호출 두 곳을 기본 동작이 동일한 `_validate_capture_schema()` hook으로 분리 |
-| [store.py](../backend/isolated_sync/store.py) | IMPLEMENTED: SQLite immutable objects, bounded LRU, lazy D2a adapters |
-| [maintenance.py](../backend/isolated_sync/maintenance.py) | IMPLEMENTED: capture coalescing, reverse closure, exact maintained inputs |
-| [finalization.py](../backend/isolated_sync/finalization.py) | IMPLEMENTED: isolated schema, bootstrap, pre-commit finalizer, 두 번째 fence |
-| [test_isolated_sync_finalization.py](../backend/tests/test_isolated_sync_finalization.py) | 실제 file-backed SQLite·독립 full-state oracle·실패/재시작/금융 동등성 |
-| [t66d2b.py](../scripts/benchmarks/t66d2b.py) | 자체 synthetic DB만 생성하는 opt-in benchmark |
-| [test_t66d2b.py](../scripts/benchmarks/test_t66d2b.py) | compact summary 값 보존·임시 출력 범위·덮어쓰기 방지 |
+| [capture.py](../../../../backend/isolated_sync/capture.py) | 기존 admission 호출 두 곳을 기본 동작이 동일한 `_validate_capture_schema()` hook으로 분리 |
+| [store.py](../../../../backend/isolated_sync/store.py) | IMPLEMENTED: SQLite immutable objects, bounded LRU, lazy D2a adapters |
+| [maintenance.py](../../../../backend/isolated_sync/maintenance.py) | IMPLEMENTED: capture coalescing, reverse closure, exact maintained inputs |
+| [finalization.py](../../../../backend/isolated_sync/finalization.py) | IMPLEMENTED: isolated schema, bootstrap, pre-commit finalizer, 두 번째 fence |
+| [test_isolated_sync_finalization.py](../../../../backend/tests/test_isolated_sync_finalization.py) | 실제 file-backed SQLite·독립 full-state oracle·실패/재시작/금융 동등성 |
+| [t66d2b.py](../../../../scripts/benchmarks/t66d2b.py) | 자체 synthetic DB만 생성하는 opt-in benchmark |
+| [test_t66d2b.py](../../../../scripts/benchmarks/test_t66d2b.py) | compact summary 값 보존·임시 출력 범위·덮어쓰기 방지 |
 | 이 문서와 compact benchmark 요약 | 구현 증거·한계·재현 |
 
 `backend/app`, 정상 migration 목록, D2a 알고리즘, API, mobile, frontend 제품 코드는
@@ -293,7 +293,7 @@ fresh evaluation을 해야 한다. Optional v1 compaction은 금지 상태다.
 
 ## Y. Scaling·write amplification
 
-최종 알고리즘/schema 기준 실측은 [summary.json](benchmarks/t66d2b/summary.json)에 있다.
+최종 알고리즘/schema 기준 실측은 [summary.json](../../../benchmarks/t66d2b/summary.json)에 있다.
 Benchmark fixture 식별값은 `seed=662600`, evaluation date는 2026-10-05이며 current ledger 105행을 고정한다.
 이 generator는 RNG를 사용하지 않고 행 번호로 값을 결정하므로 seed field는 profile label이다.
 376/1k/5k/10k의 archive만 늘린다. Payment relationship seed와 설정은 동일하다.
@@ -371,11 +371,11 @@ RSS는 process high-water이며 bootstrap/reference 검증도 포함한다.
 ## Z. 남은 O(N) — 완료 차단 항목
 
 **D2B-G01 / Medium / 구현 completeness·성능 의존성:**
-[financial_relationships.py](../backend/app/services/financial_relationships.py)의
+[financial_relationships.py](../../../../backend/app/services/financial_relationships.py)의
 `_validate_card_payment_rows()`는 여섯 관계 table 전체를 읽는다.
 `validate_runtime_recurring_ownership()`도 전체 ledger를 읽는다.
-[card_payments.py](../backend/app/services/card_payments.py)의 event writer와
-[entries.py](../backend/app/repositories/entries.py)의 `_delete_card_payment_references()`
+[card_payments.py](../../../../backend/app/services/card_payments.py)의 event writer와
+[entries.py](../../../../backend/app/repositories/entries.py)의 `_delete_card_payment_references()`
 등이 이 경로에 의존한다. 실제 두 parity scenario에서 전체 ledger SELECT를 확인했다.
 
 추가로 현재 Summary의 `cash_flow_total`, policy horizon/closed-month 계산과 전체
@@ -486,7 +486,7 @@ D3 착수나 배포는 허용하지 않는다.
 호출한 것이다. 같은 template의 모든 과거 발생을 읽는 국소 query도 history-dependent다.
 이를 단순히 `WHERE source_id=?`라는 이유로 bounded라고 분류하지 않는다.
 
-새 [inputs.py](../backend/isolated_sync/inputs.py)의 `BoundedInputs`를 `begin_capture()`
+새 [inputs.py](../../../../backend/isolated_sync/inputs.py)의 `BoundedInputs`를 `begin_capture()`
 뒤 명시적으로 생성해 기존 command에 `conn=`으로 전달한다. 새로운 금융 엔진이나
 HTTP route가 아니다. Raw SQL은 그대로 전달하며 query를 가로채서 결과를 위장하지 않는다.
 
@@ -517,7 +517,7 @@ HTTP route가 아니다. Raw SQL은 그대로 전달하며 query를 가로채서
 
 ### F~J. 입력 scope·payment·recurring·삭제
 
-[financial_inputs.py](../backend/app/services/financial_inputs.py)는 구현을 자동 생성하지
+[financial_inputs.py](../../../../backend/app/services/financial_inputs.py)는 구현을 자동 생성하지
 않는 opt-in scope 경계다. `backend/app`은 `isolated_sync`를 import하지 않는다.
 일반 SQLite connection에는 원 query와 validator가 그대로 실행된다. 기존
 `CardOwnershipReadView`는 자기 query_only·schema·savepoint/lifetime 검사를 유지한 채
@@ -563,7 +563,7 @@ Hash는 server 인증이 아니며 privileged DB/authorizer 우회 공격까지 
 
 ### K~L. 동등성·SQL 증거
 
-[d2b_financial_reference.py](../backend/tests/d2b_financial_reference.py)는 기존 함수를 호출해
+[d2b_financial_reference.py](../../../../backend/tests/d2b_financial_reference.py)는 기존 함수를 호출해
 12개 projection을 비교하는 **test-only 입력 조립**이다. Full bundle/Snapshot을 숨겨 호출하지
 않는다. Summary, payment allocation/status, current/confirmed entries, panels, cash, settings,
 month status, owner/family policy, transit profile, Judgment를 legacy full-state 계산과 비교한다.
@@ -578,7 +578,7 @@ cash wide cancellation, source 삭제/SET NULL, 중복 발생, missing key, 과�
 
 ### M. 새 benchmark 방법과 증거
 
-[t66d2b_writers.py](../scripts/benchmarks/t66d2b_writers.py)는 376/1k/5k/10k, 고정 hot 105행,
+[t66d2b_writers.py](../../../../scripts/benchmarks/t66d2b_writers.py)는 376/1k/5k/10k, 고정 hot 105행,
 seed 662602/evaluation 2026-10-05, 10개 금융 workload마다 warmup 3 + measured 20을 수행한다.
 실제 command → 12개 projection → finalizer → SQLite COMMIT을 측정한다. Cash/payment/recurring/
 fixed/delete의 다음 표본 준비도 같은 finalizer로 하되 측정 밖에서 수행하여 hot 규모를 유지한다.
@@ -686,9 +686,9 @@ D3 착수나 production 활성화 허가가 아니다.
 
 ## AI. 최종 HOST/synthetic 실측
 
-새 [bounded-writers-summary.json](benchmarks/t66d2b/bounded-writers-summary.json)은
+새 [bounded-writers-summary.json](../../../benchmarks/t66d2b/bounded-writers-summary.json)은
 **최종 소스/격리 profile 3**의 별도 artifact다. 이전
-[summary.json](benchmarks/t66d2b/summary.json)은 원 미완료 시도의 28-cell raw-row 결과로
+[summary.json](../../../benchmarks/t66d2b/summary.json)은 원 미완료 시도의 28-cell raw-row 결과로
 그대로 보존했다. 이번 raw report는 1,501,120 bytes이며 SHA-256은
 `2493f8fc4608d5f0ac34459a86ea12f89712513bcad8af48c9cbde8f4c9721ae`다.
 `/tmp/money-note-d2b-bounded-writers-verified.json`에 모든 원 표본을 보존한다.

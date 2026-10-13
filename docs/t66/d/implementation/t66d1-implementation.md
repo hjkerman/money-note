@@ -10,7 +10,7 @@
 
 ## 2. C66-B01 명세 보완
 
-[T6.6C §8, §35](t66c-delta-sync-protocol.md)의 관련 문단만 보완했다. v1은 logical raw state 변경 없이 root/representation만 바꾸는 선택적 maintenance compaction을 금지한다. 정상 committed mutation에 필요한 split/merge/rebalance는 허용한다. 동일 epoch·동일 revision의 root 불일치 거부는 유지한다. 향후 선택적 compaction은 안전한 epoch/bootstrap 등 별도 authority transition의 독립 검토가 필요하다. compaction 구현은 없다.
+[T6.6C §8, §35](../../c/t66c-delta-sync-protocol.md)의 관련 문단만 보완했다. v1은 logical raw state 변경 없이 root/representation만 바꾸는 선택적 maintenance compaction을 금지한다. 정상 committed mutation에 필요한 split/merge/rebalance는 허용한다. 동일 epoch·동일 revision의 root 불일치 거부는 유지한다. 향후 선택적 compaction은 안전한 epoch/bootstrap 등 별도 authority transition의 독립 검토가 필요하다. compaction 구현은 없다.
 
 ## 3. 격리·버전 경계
 
@@ -41,7 +41,7 @@
 
 `begin_capture()`는 기존 transaction/savepoint 안의 시작을 거부하고 `BEGIN IMMEDIATE`로 writer lock을 확보한 뒤 schema/context를 확인한다. 재사용된 완료 tx_id도 거부한다. metadata API 외 직접 수정, revision 직접 수정, DDL/ATTACH, FK/recursive trigger 비활성화와 `defer_foreign_keys=OFF`를 지원 connection의 authorizer가 거부한다. `cached_statements=0`으로 privileged metadata statement의 prepared-statement 재사용에 따른 guard 우회를 피한다.
 
-이 authorizer는 악성 Python 코드에 대한 sandbox가 아니다. `set_authorizer(None)`, private metadata 권한 사용, 별도 privileged connection의 metadata 위조, FK OFF, DB 파일 변조는 지원 writer 계약 밖이다. 이는 [T6.6C §12](t66c-delta-sync-protocol.md)의 trusted backend 전제와 같다. 일반 direct SQL은 허용하며 capture는 Python writer 호출 횟수가 아니라 실제 DB trigger로 수행한다.
+이 authorizer는 악성 Python 코드에 대한 sandbox가 아니다. `set_authorizer(None)`, private metadata 권한 사용, 별도 privileged connection의 metadata 위조, FK OFF, DB 파일 변조는 지원 writer 계약 밖이다. 이는 [T6.6C §12](../../c/t66c-delta-sync-protocol.md)의 trusted backend 전제와 같다. 일반 direct SQL은 허용하며 capture는 Python writer 호출 횟수가 아니라 실제 DB trigger로 수행한다.
 
 ## 5. Capture contract와 33개 trigger
 
@@ -96,22 +96,22 @@ native COMMIT이 금융 FK와 fence를 모두 검사한다. D1 finalizer가 모�
 
 | 현재 source / 함수군 | authoritative 변경·경계 | 이번 증거 / 후속 의존성 |
 | --- | --- | --- |
-| [db.py](../backend/app/db.py) `connect/session/borrowed_or_new_session` | 기존 transaction 소유·commit, 33 revision triggers | 원본 불변; normal wrapper 변경은 D2 이후 |
-| [entries.py](../backend/app/repositories/entries.py) create/update/delete/reorder/append_planned/confirm | ledger, 관련 payment·registration, recurring source/child | 33개 event 재생 + 실제 borrowed recurring writer 동등성; 전체 정상 연결 유보 |
-| [panels.py repository](../backend/app/repositories/panels.py) create/update/delete/delete_by_type | panels·registration | table 재생 + 실제 fixed create/confirm; 자체 session 경로 연결 유보 |
-| [cash_flows.py](../backend/app/repositories/cash_flows.py) create/delete | cash·fixed panel unlink | 실제 create/readback·동등성 + FK SET NULL |
-| [notification_registration.py](../backend/app/repositories/notification_registration.py) save_registration, entries/panels의 registration rewrite | registration identity/fingerprint | full old/new 재생; target은 logical reference로 D2 index 필요 |
-| [card_payments.py](../backend/app/services/card_payments.py) event/create/delete, discount, late entry, defer/cancel, batch/reset/policy | events/allocations/items/batches/deferrals/ledger/cash/settings | 모든 raw table 사건·cascade 재생; 전체 service 연결과 maintained aggregate는 D2 이후 |
-| [card_charge/profiles.py](../backend/app/services/card_charge/profiles.py) set_transit_discount_profile | app_settings UPSERT | 실제 borrowed policy writer 동등성, 금융 함수 불변 |
-| [operations.py](../backend/app/routers/operations.py) patch_setting, [labels.py](../backend/app/repositories/labels.py) upsert_label | settings/labels UPSERT, own session | UPSERT 및 두 table coverage; own-session integration 유보 |
-| [services/panels.py](../backend/app/services/panels.py) confirm_fixed_panel / complete_panels_by_type | panel+cash, Claim/Family bulk delete+필수 backup | 실제 fixed writer + raw bulk/cascade; backup gate 불변 |
-| [month.py](../backend/app/services/month.py) close_current_month | archive 새 ID INSERT/current DELETE, registration, source/fixed reset, income·batch | old/new ID와 다중 table 재생; 실제 month-close 정상 회귀, profile top-level 통합 유보 |
-| [snapshot.py](../backend/app/services/snapshot.py) restore/_replace_snapshot_tables | 11개 교체, 비민감 settings만 교체, mandatory backup/dry-run | 실제 raw replacement+v7 roundtrip; 전체 restore adapter는 아래 의존성 |
-| [reset.py](../backend/app/services/reset.py) reset_ledger_data | 운용 8 table bulk delete + mandatory backup | raw DELETE/cascade coverage; epoch rotation·정상 reset 통합 유보 |
-| [offline_reconciliation.py](../backend/app/services/offline_reconciliation.py) apply_mobile_wins | B 교체+순서 J+receipt를 한 IMMEDIATE transaction | 원본 불변, 기존 전체 suite; 정상 wrapper·epoch/root integration 유보 |
-| [share_auth.py](../backend/app/share_auth.py) ensure_default_share_pin/set_share_pin | 민감 settings 2개 | 두 key 양방향 visibility/비복사 테스트; startup/own session 연결 유보 |
-| [db_migrations.py](../backend/app/db_migrations.py), [recurring_compatibility.py](../backend/app/services/recurring_compatibility.py) upgrade/_write_epoch | default/backfill/recurring checkpoint | 기존 정상 4까지 먼저 초기화; profile 설치의 전후 보존·원자 rollback; future bootstrap 필요 |
-| [recurring_canonicalization.py](../backend/app/services/recurring_canonicalization.py) execute(apply), [clean_panel_dates.py](../backend/scripts/clean_panel_dates.py) main | 별도 SQLite maintenance writes | 이번에 실행하지 않음. 향후 audited wrapper 또는 quiescent epoch/bootstrap; context 없는 profile write는 거부 |
+| [db.py](../../../../backend/app/db.py) `connect/session/borrowed_or_new_session` | 기존 transaction 소유·commit, 33 revision triggers | 원본 불변; normal wrapper 변경은 D2 이후 |
+| [entries.py](../../../../backend/app/repositories/entries.py) create/update/delete/reorder/append_planned/confirm | ledger, 관련 payment·registration, recurring source/child | 33개 event 재생 + 실제 borrowed recurring writer 동등성; 전체 정상 연결 유보 |
+| [panels.py repository](../../../../backend/app/repositories/panels.py) create/update/delete/delete_by_type | panels·registration | table 재생 + 실제 fixed create/confirm; 자체 session 경로 연결 유보 |
+| [cash_flows.py](../../../../backend/app/repositories/cash_flows.py) create/delete | cash·fixed panel unlink | 실제 create/readback·동등성 + FK SET NULL |
+| [notification_registration.py](../../../../backend/app/repositories/notification_registration.py) save_registration, entries/panels의 registration rewrite | registration identity/fingerprint | full old/new 재생; target은 logical reference로 D2 index 필요 |
+| [card_payments.py](../../../../backend/app/services/card_payments.py) event/create/delete, discount, late entry, defer/cancel, batch/reset/policy | events/allocations/items/batches/deferrals/ledger/cash/settings | 모든 raw table 사건·cascade 재생; 전체 service 연결과 maintained aggregate는 D2 이후 |
+| [card_charge/profiles.py](../../../../backend/app/services/card_charge/profiles.py) set_transit_discount_profile | app_settings UPSERT | 실제 borrowed policy writer 동등성, 금융 함수 불변 |
+| [operations.py](../../../../backend/app/routers/operations.py) patch_setting, [labels.py](../../../../backend/app/repositories/labels.py) upsert_label | settings/labels UPSERT, own session | UPSERT 및 두 table coverage; own-session integration 유보 |
+| [services/panels.py](../../../../backend/app/services/panels.py) confirm_fixed_panel / complete_panels_by_type | panel+cash, Claim/Family bulk delete+필수 backup | 실제 fixed writer + raw bulk/cascade; backup gate 불변 |
+| [month.py](../../../../backend/app/services/month.py) close_current_month | archive 새 ID INSERT/current DELETE, registration, source/fixed reset, income·batch | old/new ID와 다중 table 재생; 실제 month-close 정상 회귀, profile top-level 통합 유보 |
+| [snapshot.py](../../../../backend/app/services/snapshot.py) restore/_replace_snapshot_tables | 11개 교체, 비민감 settings만 교체, mandatory backup/dry-run | 실제 raw replacement+v7 roundtrip; 전체 restore adapter는 아래 의존성 |
+| [reset.py](../../../../backend/app/services/reset.py) reset_ledger_data | 운용 8 table bulk delete + mandatory backup | raw DELETE/cascade coverage; epoch rotation·정상 reset 통합 유보 |
+| [offline_reconciliation.py](../../../../backend/app/services/offline_reconciliation.py) apply_mobile_wins | B 교체+순서 J+receipt를 한 IMMEDIATE transaction | 원본 불변, 기존 전체 suite; 정상 wrapper·epoch/root integration 유보 |
+| [share_auth.py](../../../../backend/app/share_auth.py) ensure_default_share_pin/set_share_pin | 민감 settings 2개 | 두 key 양방향 visibility/비복사 테스트; startup/own session 연결 유보 |
+| [db_migrations.py](../../../../backend/app/db_migrations.py), [recurring_compatibility.py](../../../../backend/app/services/recurring_compatibility.py) upgrade/_write_epoch | default/backfill/recurring checkpoint | 기존 정상 4까지 먼저 초기화; profile 설치의 전후 보존·원자 rollback; future bootstrap 필요 |
+| [recurring_canonicalization.py](../../../../backend/app/services/recurring_canonicalization.py) execute(apply), [clean_panel_dates.py](../../../../backend/scripts/clean_panel_dates.py) main | 별도 SQLite maintenance writes | 이번에 실행하지 않음. 향후 audited wrapper 또는 quiescent epoch/bootstrap; context 없는 profile write는 거부 |
 | auth/create_user, audit, startup maintenance, reconciliation receipt table | Snapshot 11개 밖 users/sessions/audit/receipt | 금융 row capture 밖; 원 transaction의 원자성은 유지, future control/receipt review 필요 |
 
 **중요한 통합 의존성:** 기존 `restore_snapshot`/`validate_reconciled_financial_state`의 전체 FK 검사는 pre-finalize fence의 의도적인 미해결 FK도 오류로 본다. D1은 이를 숨기거나 기존 validator를 수정하지 않았다. 이번 raw replacement 시험은 validate v7 → authorized replacement → capture finalize → native FK/commit 순서의 **격리 증거**다. 정상 restore/Mobile Wins를 activate하기 전, 기존 필수 backup·금융 검사·epoch rotation을 보존하고 오직 검증된 현재 fence만 구분하는 audited adapter와 D2 root finalizer가 필요하다. 이 작업은 현재 runtime에 영향이 없는 명시적 후속 prerequisite이며, 정상 경로를 이미 지원한다고 주장하지 않는다.

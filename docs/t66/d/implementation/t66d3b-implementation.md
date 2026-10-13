@@ -1,6 +1,6 @@
 # T6.6D3b 구현 보고서
 
-이 문서는 격리된 authenticated manifest/object transfer 구현과 내부 검증을 기록한다. 독립 D3b 감사와 production 활성화 승인을 대신하지 않는다. 규범 원본은 [T6.6C](t66c-delta-sync-protocol.md) §4, §7–11, §15–17이다.
+이 문서는 격리된 authenticated manifest/object transfer 구현과 내부 검증을 기록한다. 독립 D3b 감사와 production 활성화 승인을 대신하지 않는다. 규범 원본은 [T6.6C](../../c/t66c-delta-sync-protocol.md) §4, §7–11, §15–17이다.
 
 ## A. 시작 Git 검증
 
@@ -20,7 +20,7 @@
 | `scripts/benchmarks/test_t66d3b.py` | diagnostic 출력 경로·overwrite·startup 격리 검사 |
 | `docs/specimens/t66d3b-release-artifacts.json` | 네 artifact의 exact C1 bytes/base64와 SHA-256 |
 | `docs/benchmarks/t66d3b/summary.json` | 최종 source 측정 요약 |
-| `docs/t66d3b-implementation.md` | 본 보고서 |
+| `docs/t66/d/implementation/t66d3b-implementation.md` | 본 보고서 |
 
 기존 `backend/app`, mobile, frontend, schema migration, Snapshot exporter/restore, 금융 공식은 변경하지 않았다. 기존 D1 capture/fence, D2a 알고리즘, D2b finalizer도 변경하지 않았다. D3a의 선택적 receipt는 wire field나 authoritative certificate가 아니며 기존 caller의 반환값·lease·pin·retirement 흐름을 바꾸지 않는다.
 
@@ -168,7 +168,7 @@ Root 한 개 전송 SQL trace에서 ledger/cash/allocation/raw-row/reverse/objec
 
 ## Y. 성능 — VERIFIED
 
-최종 요약은 [summary.json](benchmarks/t66d3b/summary.json)에 둔다. 376/1k/5k/10k × observation create/manifest retry/root/leaf/deep Patricia/changed tree objects/unchanged retry/concurrent의 32 cell이며 각 3 warmups +20 measurements다. Bootstrap, 전체 graph oracle/path discovery, writer 준비는 timing 밖이다. Concurrent cell은 두 요청의 완료 시간이며 다른 cell은 단일 요청이다. Changed-objects cell은 최대 3개 새 tree object의 HTTP batch이며 전체 초기 sync나 완전한 mutation+sync latency가 아니다.
+최종 요약은 [summary.json](../../../benchmarks/t66d3b/summary.json)에 둔다. 376/1k/5k/10k × observation create/manifest retry/root/leaf/deep Patricia/changed tree objects/unchanged retry/concurrent의 32 cell이며 각 3 warmups +20 measurements다. Bootstrap, 전체 graph oracle/path discovery, writer 준비는 timing 밖이다. Concurrent cell은 두 요청의 완료 시간이며 다른 cell은 단일 요청이다. Changed-objects cell은 최대 3개 새 tree object의 HTTP batch이며 전체 초기 sync나 완전한 mutation+sync latency가 아니다.
 
 Auth, admission, path resolution, terminal 검사, wire bytes, SQL statements/rows, object reads/bytes, path edges, VM steps, 누적 process peak RSS를 구분한다. 누적 RSS에는 bootstrap/reference graph도 들어가므로 요청별 heap peak로 해석하지 않는다. 최종 측정과 backend 회귀는 같은 HOST에서 겹쳐 실행했으며 CPU 전용 측정이나 배포/mobile latency가 아니다. 서로 다른 stage median을 합산한 transaction latency를 만들지 않는다. Diagnostic 전용 ContextVar 계측으로 object resolution, typed-path/shape validation, base64, JSON serialization도 분리했다. 이 값은 중첩된 inclusive timing이며 합산할 수 없다. Object resolution은 admission의 Store 조회도 포함하고 outer HTTP terminal lookup은 제외한다. 크기별 시간이 단조 증가하지 않는 것은 공유 HOST 측정의 변동을 포함하며 속도 개선으로 해석하지 않는다.
 
@@ -273,13 +273,13 @@ worker 안에서 만든 ticket은 `prepare()` 반환 전 dispatcher가 알 수 �
 
 | 파일 | 한정 변경 |
 | --- | --- |
-| [workers.py](../backend/isolated_sync/workers.py) | 기존 threadpool 위의 bounded worker lease, native 완료·미시작 abort, exact-once 반환 |
-| [http.py](../backend/isolated_sync/http.py) | 사전 cancellation Event, ticket 공유, lease dispatch와 격리 app shutdown 신호 |
-| [transfer.py](../backend/isolated_sync/transfer.py) | 기존 path 알고리즘 앞의 선택적 cancellation checkpoint와 response assembly 전 검사 |
-| [test_isolated_sync_transfer_cancellation.py](../backend/tests/test_isolated_sync_transfer_cancellation.py) | 실제 ASGI·SQLite·queue·shutdown·race·stress 회귀 |
-| [t66d3b_cancellation.py](../scripts/benchmarks/t66d3b_cancellation.py) | 합성 HTTP 전후·취소 cleanup·admission 측정 |
-| [release artifacts](specimens/t66d3b-release-artifacts.json) | 변경된 격리 source에 맞는 engine descriptor 재생성 |
-| [수정 성능 요약](benchmarks/t66d3b/cancellation.json) | 새 표본의 compact 요약; 최초 summary.json은 보존 |
+| [workers.py](../../../../backend/isolated_sync/workers.py) | 기존 threadpool 위의 bounded worker lease, native 완료·미시작 abort, exact-once 반환 |
+| [http.py](../../../../backend/isolated_sync/http.py) | 사전 cancellation Event, ticket 공유, lease dispatch와 격리 app shutdown 신호 |
+| [transfer.py](../../../../backend/isolated_sync/transfer.py) | 기존 path 알고리즘 앞의 선택적 cancellation checkpoint와 response assembly 전 검사 |
+| [test_isolated_sync_transfer_cancellation.py](../../../../backend/tests/test_isolated_sync_transfer_cancellation.py) | 실제 ASGI·SQLite·queue·shutdown·race·stress 회귀 |
+| [t66d3b_cancellation.py](../../../../scripts/benchmarks/t66d3b_cancellation.py) | 합성 HTTP 전후·취소 cleanup·admission 측정 |
+| [release artifacts](../../../specimens/t66d3b-release-artifacts.json) | 변경된 격리 source에 맞는 engine descriptor 재생성 |
+| [수정 성능 요약](../../../benchmarks/t66d3b/cancellation.json) | 새 표본의 compact 요약; 최초 summary.json은 보존 |
 
 D1/D2a/D2b/D3a, DB schema, 금융 공식, Judgment, Snapshot v7, OfflineBaseline,
 pending/journal/reconciliation은 수정하지 않았다. 정상 `backend/app`, mobile,

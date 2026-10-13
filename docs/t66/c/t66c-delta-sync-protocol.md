@@ -4,7 +4,7 @@
 
 **T6.6C PROTOCOL DESIGN COMPLETE — READY FOR INDEPENDENT DESIGN AUDIT**
 
-이 문서는 승인된 [T6.6B D+C 설계](t66b-hot-cold-design.md)를 구체화한 **PROPOSED CONTRACT**다. 새 endpoint·migration·storage·validator·압축은 구현하거나 활성화하지 않았다. 독립 T6.6C 설계 감사와 이후 구현 승인이 필요하다. 사용자 제공 T6.6B 독립 판정은 APPROVE, 설계 차단 모순 0, 제품 결정 0이다. 해당 감사 원문을 새로 수행했다고 주장하지 않는다.
+이 문서는 승인된 [T6.6B D+C 설계](../b/t66b-hot-cold-design.md)를 구체화한 **PROPOSED CONTRACT**다. 새 endpoint·migration·storage·validator·압축은 구현하거나 활성화하지 않았다. 독립 T6.6C 설계 감사와 이후 구현 승인이 필요하다. 사용자 제공 T6.6B 독립 판정은 APPROVE, 설계 차단 모순 0, 제품 결정 0이다. 해당 감사 원문을 새로 수행했다고 주장하지 않는다.
 
 `MUST`는 필수, `MUST NOT`은 금지, `SHOULD`는 예외 사유를 기록해야 하는 권고다. 각 절의 새 동작은 별도 표시가 없어도 PROPOSED다. `CURRENT IMPLEMENTATION`은 현재 소스, `IMPLEMENTATION PROOF REQUIRED`는 아직 검증하지 않은 구현 gate, `OPTIONAL FUTURE OPTIMIZATION`은 v1에 필요하지 않은 개선이다.
 
@@ -12,20 +12,20 @@
 
 ## 2. CURRENT 계약·소스와 binding 제약
 
-규범 원본은 [architecture.md](architecture.md)의 신뢰 경계, [domain-model.md](domain-model.md), [offline-mode.md](offline-mode.md), [security.md](security.md), [runbook.md](runbook.md)다. 문서의 역사적 단계 기록과 사용자 제공 최신 감사 판정을 구분한다.
+규범 원본은 [architecture.md](../../architecture.md)의 신뢰 경계, [domain-model.md](../../domain-model.md), [offline-mode.md](../../offline-mode.md), [security.md](../../security.md), [runbook.md](../../runbook.md)다. 문서의 역사적 단계 기록과 사용자 제공 최신 감사 판정을 구분한다.
 
 | 실제 소스 | 확인한 계약 |
 | --- | --- |
-| [authoritative_state.py](../backend/app/services/authoritative_state.py): `_construct`, `_prepare`, `_terminal_guard` | 같은 read view·평가 문맥, 원 credential, 완전 응답 준비와 terminal freshness, bounded retry |
-| [snapshot.py](../backend/app/services/snapshot.py): `_export_snapshot`, `_build_manifest`, `snapshot_state_fingerprint`, `restore_snapshot` | 11개 전체 table, flat canonical SHA, 정책 호환, mandatory backup·rollback |
-| [db.py](../backend/app/db.py): `SCHEMA`, `session`, `borrowed_or_new_session` | 33개 row revision triggers, 같은 connection transaction, FK ON |
-| [db_migrations.py](../backend/app/db_migrations.py): `_validate_revision_triggers`, `_validate_current_schema` | 현재 DB checkpoint 4, 예상 trigger 본문·추가 authoritative trigger 엄격 검사, migrated N4 index |
-| [responses.py](../backend/app/routers/responses.py): `financial_response` | 필수 금융 response bytes 준비가 commit 이전, socket 유실은 ambiguous |
-| [authoritative_schemas.py](../backend/app/authoritative_schemas.py): `AuthoritativeProjections` | 12개 필수 typed projections |
-| [authoritative_bundle.dart](../mobile/lib/src/authoritative_bundle.dart), [authoritative_snapshot_validation.dart](../mobile/lib/src/authoritative_snapshot_validation.dart) | strict raw token·Unicode·schema·hash·raw 구조·N4; Category C 재계산 없음 |
-| [coherent_refresh_coordinator.dart](../mobile/lib/src/coherent_refresh_coordinator.dart), [app_state.dart](../mobile/lib/src/app_state.dart) | ticket/auth/lineage/mode, 같은 candidate/envelope, durable publish 뒤 pending 정리·전체 설치 |
-| [offline_store.dart](../mobile/lib/src/offline/offline_store.dart), [offline_data.dart](../mobile/lib/src/offline/offline_data.dart) | full v4 baseline, 전체 lineage hash, 원자 temp/readback/guarded rename, frozen B/J·artifact |
-| [offline_reconciliation.py](../backend/app/services/offline_reconciliation.py): `apply_mobile_wins` | 검증한 B 복원 + ordered J를 단일 transaction에 적용, receipt/status·artifacts 유지 |
+| [authoritative_state.py](../../../backend/app/services/authoritative_state.py): `_construct`, `_prepare`, `_terminal_guard` | 같은 read view·평가 문맥, 원 credential, 완전 응답 준비와 terminal freshness, bounded retry |
+| [snapshot.py](../../../backend/app/services/snapshot.py): `_export_snapshot`, `_build_manifest`, `snapshot_state_fingerprint`, `restore_snapshot` | 11개 전체 table, flat canonical SHA, 정책 호환, mandatory backup·rollback |
+| [db.py](../../../backend/app/db.py): `SCHEMA`, `session`, `borrowed_or_new_session` | 33개 row revision triggers, 같은 connection transaction, FK ON |
+| [db_migrations.py](../../../backend/app/db_migrations.py): `_validate_revision_triggers`, `_validate_current_schema` | 현재 DB checkpoint 4, 예상 trigger 본문·추가 authoritative trigger 엄격 검사, migrated N4 index |
+| [responses.py](../../../backend/app/routers/responses.py): `financial_response` | 필수 금융 response bytes 준비가 commit 이전, socket 유실은 ambiguous |
+| [authoritative_schemas.py](../../../backend/app/authoritative_schemas.py): `AuthoritativeProjections` | 12개 필수 typed projections |
+| [authoritative_bundle.dart](../../../mobile/lib/src/authoritative_bundle.dart), [authoritative_snapshot_validation.dart](../../../mobile/lib/src/authoritative_snapshot_validation.dart) | strict raw token·Unicode·schema·hash·raw 구조·N4; Category C 재계산 없음 |
+| [coherent_refresh_coordinator.dart](../../../mobile/lib/src/coherent_refresh_coordinator.dart), [app_state.dart](../../../mobile/lib/src/app_state.dart) | ticket/auth/lineage/mode, 같은 candidate/envelope, durable publish 뒤 pending 정리·전체 설치 |
+| [offline_store.dart](../../../mobile/lib/src/offline/offline_store.dart), [offline_data.dart](../../../mobile/lib/src/offline/offline_data.dart) | full v4 baseline, 전체 lineage hash, 원자 temp/readback/guarded rename, frozen B/J·artifact |
+| [offline_reconciliation.py](../../../backend/app/services/offline_reconciliation.py): `apply_mobile_wins` | 검증한 B 복원 + ordered J를 단일 transaction에 적용, receipt/status·artifacts 유지 |
 
 Backend는 Summary·judgment·discount·grouping/allocation·month-close·archived actual·recurring/fixed 계산의 유일한 authority다. 모바일은 A: transport/표현/authority/generation/publication, B: raw 구조/identity/복구를 검증하고 C의 금융 엔진을 복제해서는 안 된다(MUST NOT). Hash는 인증·금융 계산 증명이 아니다.
 
@@ -111,7 +111,7 @@ C1 규칙:
 - 지원 historical REAL의 integral money는 기존 Python Snapshot canonical encoder처럼 `1000.0`/`-0.0`을 유지한다. Float를 int로 합치지 않는다. v1의 supported numeric raw/projection fields는 정수 또는 이러한 integral REAL이다. Policy rate/parameters의 문자열은 그대로 보존한다. 새 fractional non-money numeric schema는 명시적 canonical/version 검토 없이 추가하지 않는다.
 - Bool/null은 `true`/`false`/`null`. 숫자 lexical preflight를 JSON decode 이전에 수행한다. `-1e-400` 같은 금액을 decode한 0으로 승인하지 않는다.
 
-Hash 검증은 **받은 canonical bytes**에 한다. JSON 재직렬화로 invalid token을 숨기지 않는다. C1 formatter의 cross-language byte parity는 구현 gate이며 supported legacy scalar와 [C1 vectors](specimens/t66c-canonical-vectors.json)로 입증해야 한다. 특히 Dart String의 기본 UTF-16 key 정렬이 scalar/UTF-8 순서와 같다고 가정하지 않는다(V05). 현행 B-2 helper를 변경하지 않으며 새 consumer가 올바른 comparator를 사용해야 한다. 기존 money/Unicode 계약을 바꾸는 새 normalization은 없다.
+Hash 검증은 **받은 canonical bytes**에 한다. JSON 재직렬화로 invalid token을 숨기지 않는다. C1 formatter의 cross-language byte parity는 구현 gate이며 supported legacy scalar와 [C1 vectors](../../specimens/t66c-canonical-vectors.json)로 입증해야 한다. 특히 Dart String의 기본 UTF-16 key 정렬이 scalar/UTF-8 순서와 같다고 가정하지 않는다(V05). 현행 B-2 helper를 변경하지 않으며 새 consumer가 올바른 comparator를 사용해야 한다. 기존 money/Unicode 계약을 바꾸는 새 normalization은 없다.
 
 ## 8. Partitioning·Snapshot B+tree
 
@@ -439,7 +439,7 @@ Historical update는 같은 PK의 raw bytes·관련 table leaf/paths와 facts를
 
 ## 21. 구체 JSON 예제와 해석 규칙
 
-완전한 request/response 예제는 [t66c-protocol-examples.json](specimens/t66c-protocol-examples.json)에 있다. 실제 credential/사용자 데이터는 없다. **모든 `<h:...>`는 상징 hash placeholder**이며 real computed hash라고 주장하지 않는다. `Ref.bytes`도 설명용 declared size이지 실측이 아니다. Placeholder를 동일 label로 일관되게 사용하며 canonical object/hash test vectors와 혼동하지 않는다. 실제 구현 wire에서는 64-hex와 실제 bytes가 필수다.
+완전한 request/response 예제는 [t66c-protocol-examples.json](../../specimens/t66c-protocol-examples.json)에 있다. 실제 credential/사용자 데이터는 없다. **모든 `<h:...>`는 상징 hash placeholder**이며 real computed hash라고 주장하지 않는다. `Ref.bytes`도 설명용 declared size이지 실측이 아니다. Placeholder를 동일 label로 일관되게 사용하며 canonical object/hash test vectors와 혼동하지 않는다. 실제 구현 wire에서는 64-hex와 실제 bytes가 필수다.
 
 | 예제 ID | required 상황·정확한 결과 |
 | --- | --- |

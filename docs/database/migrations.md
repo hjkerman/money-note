@@ -1,6 +1,6 @@
 # SQLite 스키마 버전과 구 DB 호환성
 
-서버 DB와 계산 결과가 원본이라는 원칙은 [도메인 모델](domain-model.md)을 따른다. 이 문서는 startup의 구조 migration과 명시적인 one-time 데이터 의미 checkpoint를 설명한다. Snapshot JSON의 `schema_version`과 DB의 `PRAGMA user_version`은 별개의 버전이다.
+서버 DB와 계산 결과가 원본이라는 원칙은 [도메인 모델](../domain-model.md)을 따른다. 이 문서는 startup의 구조 migration과 명시적인 one-time 데이터 의미 checkpoint를 설명한다. Snapshot JSON의 `schema_version`과 DB의 `PRAGMA user_version`은 별개의 버전이다.
 
 ## 현재 경로
 
@@ -73,7 +73,7 @@ Snapshot v4/v5/v6/v7은 계속 지원한다. Restore는 현재 DB의 데이터 �
 
 `user_version`은 **DB 구조와 명시적 semantic checkpoint**, Snapshot `schema_version`은 **가져오는 데이터의 호환 의미**를 식별한다. v4~v6은 현재 DB에 복원할 수 있지만 underlying recurring ownership이 증명돼야 한다. v6 fixed의 missing 확인 월은 유효한 연결/처리일의 월로 정규화하며, 중복 소유·날짜·역할·timestamp 모순은 거부한다. Recurring의 missing source/epoch는 아래 완전한 canonical key witness로만 admission에서 영속화한다. Timestamp/content/월내 유일 후보로 source를 만들지 않으며 runtime edit/delete에서 lazy binding하지 않는다. **삭제 시 mutable 필드 재매칭으로 새 관계를 만들지 않는다.** Unprovable 관계는 목적지 변경 또는 checkpoint 기록 전에 fail closed한다.
 
-구 API 이미지로 artifact rollback해도 DB는 자동으로 이전 버전이 되지 않는다. schema 변경 릴리스의 이전 이미지 호환성은 배포 전에 따로 검증해야 한다. 운영 DB 접근·복구·배포 절차는 [runbook](runbook.md)을 따른다.
+구 API 이미지로 artifact rollback해도 DB는 자동으로 이전 버전이 되지 않는다. schema 변경 릴리스의 이전 이미지 호환성은 배포 전에 따로 검증해야 한다. 운영 DB 접근·복구·배포 절차는 [runbook](../runbook.md)을 따른다.
 
 ## Version 4 recurring identity checkpoint
 

@@ -60,7 +60,7 @@ E2 transport, E3 closure/publication, rollout은 감사 대상이 아니다. 그
 | `mobile/test/support/segmented_fixture.dart`, `segmented_crash_worker.dart` | fixture와 child process |
 | `mobile/test/fixtures/segmented_server_golden.json` | 서버 golden |
 | `scripts/benchmarks/t66e1_fixture.py` | synthetic 서버 fixture 생성기 |
-| `docs/t66e1-implementation.md` | 구현 보고서 |
+| `docs/t66/e/implementation/t66e1-implementation.md` | 구현 보고서 |
 
 Lockfile에는 glob 2.2.0, native_toolchain_c 0.19.3, sqlite3 3.7.0 추가와 hooks
 2.0.2→2.2.0, record_use 0.6.0→1.1.1 변경이 있다. 기존 Flutter runtime source,
@@ -396,7 +396,7 @@ DB·계정·금융 행은 새 disposable synthetic 자료다. ASGI는 TestClient
 Commit/push는 배포 허가가 아니다.
 
 ```sh
-git log -1 --format='%H %s' -- docs/t66e1-independent-audit.md
+git log -1 --format='%H %s' -- docs/t66/e/audits/t66e1-independent-audit.md
 git rev-parse HEAD main origin/main
 git ls-remote origin refs/heads/main
 git status --porcelain

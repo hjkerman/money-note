@@ -17,7 +17,7 @@
 
 운영 모델은 한 owner·한 장부다. 여기서 principal/owner 검증은 다른 인증 generation이나 로컬 사용자의 state를 설치하지 않기 위한 경계이며, 공유 장부에 없는 복수-owner 금융 row 격리 보장을 뜻하지 않는다.
 
-T6.6 서버 representation retention은 [T6.6C §16-S](t66c-delta-sync-protocol.md)의
+T6.6 서버 representation retention은 [T6.6C §16-S](t66/c/t66c-delta-sync-protocol.md)의
 소유자 승인 정책을 따른다. 현재 금융 원장 행은 보존하지만 obsolete immutable tree
 버전은 영구 보관하지 않는다. Current complete generation·live observation·실제
 in-flight preparation·미해결 publication·승인된 explicit obligation만 live roots다.
@@ -117,10 +117,10 @@ T6.6은 불필요한 금융 재검증 비용을 줄일 수 있지만 full Snapsh
 ## 구성
 
 - 백엔드: FastAPI + SQLite
-- DB startup은 `PRAGMA user_version`으로 빈 DB, 인정된 unversioned DB, 현재 DB를 구분하고 단계별 SQLite transaction에서 업그레이드한다. 상세 계약은 [DB migration](database-migrations.md)에 둔다.
+- DB startup은 `PRAGMA user_version`으로 빈 DB, 인정된 unversioned DB, 현재 DB를 구분하고 단계별 SQLite transaction에서 업그레이드한다. 상세 계약은 [DB migration](database/migrations.md)에 둔다.
 - 프론트엔드: Vite + React + TypeScript
 - 배포: API는 Docker Compose로 loopback에 바인딩하고, Apache가 HTTPS 정적 웹과 `/api`, `/share` reverse proxy를 담당
-- 모바일 앱: 웹 축소판이 아니라 홈 상태 확인, 빠른 입력, 현금흐름, 당월 내역, 정산과 운영 설정에 집중하는 별도 클라이언트다. 기준 화면은 [모바일 앱 설계](mobile-design.md)에 둔다.
+- 모바일 앱: 웹 축소판이 아니라 홈 상태 확인, 빠른 입력, 현금흐름, 당월 내역, 정산과 운영 설정에 집중하는 별도 클라이언트다. 기준 화면은 [모바일 앱 설계](guides/mobile-design.md)에 둔다.
 - 모바일 앱은 서버 DB를 원본으로 사용한다. 검증된 마지막 정상 baseline이 있을 때만 제한된 Offline Mode를 명시적으로 선택할 수 있으며, 없으면 종료 또는 온라인 동기화를 안내한다.
 
 ## 데이터 흐름
@@ -214,7 +214,7 @@ Summary 계산은 한 SQLite read transaction과 connection을 공유한다. 예
 
 Summary와 DB 설정의 표준 이름은 `scheduled_income`, `cash_flow_balance`, `remaining_liquidity`다. 일반 런타임 API에는 과거 alias를 노출하지 않는다. Snapshot v7도 표준 key만 저장하며, v4 restore 경계에서만 원문 검증 후 과거 key를 정규화한다.
 
-결제 압박 Judgment를 장차 확보된 재원 기준으로 전환하는 조건과 범위는 [미래 재무 건전화 전환](future-financial-health-transition.md)에 기록한다.
+결제 압박 Judgment를 장차 확보된 재원 기준으로 전환하는 조건과 범위는 [미래 재무 건전화 전환](guides/future-financial-health-transition.md)에 기록한다.
 
 ## 인증 흐름
 
@@ -243,7 +243,7 @@ Summary와 DB 설정의 표준 이름은 `scheduled_income`, `cash_flow_balance`
 
 금융 변경 HTTP router는 existing business command에 같은 SQLite connection을 전달하고 필수 status·presenter·model·최종 응답 bytes를 commit 전에 준비한다. command 단독 호출은 기존처럼 자신의 transaction을 소유하고, borrowed connection에서는 중첩 BEGIN/commit하지 않는다. prepared Response가 FastAPI의 handler 종료 후 재직렬화를 우회하며 socket 전송은 transaction 밖이다. Reconciliation은 기존 transaction 안에서 canonical committed receipt를 저장하고 같은 ID로 결과를 재사용하는 별도 idempotency 경계를 유지한다.
 
-`backend/app/repository.py`와 `frontend/src/components/LedgerTables.tsx`는 기존 import를 보호하는 호환 re-export 계층이다. 새 구현을 이 파일에 다시 쌓지 않는다. 현재 사용 근거와 보류 판정은 [호환성 inventory](compatibility-inventory.md)에 둔다.
+`backend/app/repository.py`와 `frontend/src/components/LedgerTables.tsx`는 기존 import를 보호하는 호환 re-export 계층이다. 새 구현을 이 파일에 다시 쌓지 않는다. 현재 사용 근거와 보류 판정은 [호환성 inventory](guides/compatibility-inventory.md)에 둔다.
 
 ## 판단 모듈
 

@@ -47,4 +47,4 @@ observation을 유지한 채 중간 세대 객체를 회수한다. 결과와 임
 
 성능 값은 개발 호스트에서 다른 감사 사례와 겹쳐 측정했다. Production latency, hardware
 power-loss durability, 전체 default quota의 최대 부하를 입증하지 않는다. 상세 판정과 수정
-범위는 [독립 감사 보고서](../../t66d3c-independent-audit.md)에 있다.
+범위는 [독립 감사 보고서](../../t66/d/audits/t66d3c-independent-audit.md)에 있다.

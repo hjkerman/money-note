@@ -21,7 +21,7 @@
 
 - T6.3 개발 변경: Summary의 기존 transaction 내부에서만 pure card/payment ownership PASS를 재사용한다. Read-only/same-transaction guard와 scope 종료 폐기로 cross-request/date/policy/ABA stale cache를 막으며, 날짜 민감 projection·recurring/Snapshot validator·금융 공식·15-request submit protocol은 변경하지 않는다. 성능/정확성 독립 재감사 및 배포 승인은 별도다.
 
-- Owner-approved one-time canonicalization: 소유자 R01–R11 YES 11은 private explicit manifest에만 적용한다. 별도 offline 도구가 pinned approval/backup/receipt, 전체 DB·relationship fingerprint, 기준 날짜, 한 transaction, metadata field allowlist와 정확한 금융 차이 0원을 요구한다. 보존 사본의 dry-run/폐기용 apply, strict startup 및 current v7 round-trip을 검증했다. Actual manifest는 Git 밖 비공개 `/tmp`에 있고 자동 compatibility는 변경하지 않았다. Live DB/service/master/recovery는 불변이며 별도 독립 재감사·fresh live backup/admission/운영 승인이 남는다. [운영 계약](owner-recurring-canonicalization.md).
+- Owner-approved one-time canonicalization: 소유자 R01–R11 YES 11은 private explicit manifest에만 적용한다. 별도 offline 도구가 pinned approval/backup/receipt, 전체 DB·relationship fingerprint, 기준 날짜, 한 transaction, metadata field allowlist와 정확한 금융 차이 0원을 요구한다. 보존 사본의 dry-run/폐기용 apply, strict startup 및 current v7 round-trip을 검증했다. Actual manifest는 Git 밖 비공개 `/tmp`에 있고 자동 compatibility는 변경하지 않았다. Live DB/service/master/recovery는 불변이며 별도 독립 재감사·fresh live backup/admission/운영 승인이 남는다. [운영 계약](guides/owner-recurring-canonicalization.md).
 
 - Compatibility witness completeness closure: same-key NULL-source witness를 conflict 집합에서 버리지 않는다. 전체 relevant grouping 뒤 partial/상충 epoch·child-kind conflict를 거부하고, 지원 v4~v6 recovery도 negative constraint로 보존한다. NULL-source는 positive ownership proof가 아니며 absent/matching epoch도 별도 완전한 canonical proof가 필요하다. Startup/restore helper와 version 4 atomic checkpoint를 유지한다. Production-derived 11개는 계속 blocked, recovery 23개는 5 허용/18 거부이며 운영 수정·배포 없이 독립 재감사 대기다.
 
@@ -99,15 +99,15 @@
 - **정기결제 원본 관계**: 확인으로 생성된 원장 지출은 planned 템플릿 id를 명시적으로 참조한다. 동일 제목·금액의 수동 지출을 승인 내역으로 오인하지 않는다.
 - **월마감 급여 확정**: 월마감 성공 시 기본 예정 수입을 월마감 실행일의 실제 `급여` 현금흐름으로 기록해 Active 계좌 잔액에 즉시 반영한다. 현행 Summary는 그 누계와 별도로 그 이후 받을 다음 급여 예정액을 한 번 선반영한다.
 - **Active 계좌 잔액**: `cash_flow_balance`는 수동 보정값과 서버 기준일까지 실제 발생한 현금흐름 누계다. 월마감 급여는 실행일에 즉시 포함하며, 사용자가 입력한 미래 날짜 현금흐름은 발생일 전 잔액에 포함하지 않는다.
-- **AI 회계감사의 현행 모델 의존성**: 모바일 감사 Markdown은 서버 Summary의 `scheduled_income`, `cash_flow_balance`, 화면용 `current_month_spendable`을 현재 재무 상태로 제공하고 다음 급여 선반영을 과도기 운용 모델로 설명한다. 재무 건전화 전환 시 [미래 재무 건전화 전환](future-financial-health-transition.md)의 절차에 따라 같이 갱신한다.
+- **AI 회계감사의 현행 모델 의존성**: 모바일 감사 Markdown은 서버 Summary의 `scheduled_income`, `cash_flow_balance`, 화면용 `current_month_spendable`을 현재 재무 상태로 제공하고 다음 급여 선반영을 과도기 운용 모델로 설명한다. 재무 건전화 전환 시 [미래 재무 건전화 전환](guides/future-financial-health-transition.md)의 절차에 따라 같이 갱신한다.
 - **카드 의무의 단일 반영**: 카드 사용은 월마감 전 `card_total`, 월마감 후 활성 결제 batch의 이월 제외 미결제액으로 잔여 유동성에 이어서 반영된다. 즉시결제는 현금과 미결제액을 함께 줄이고, 결제일 후 수동 잔액 보정 완료는 이미 실제 잔액에 반영된 batch 채무의 Summary 재차감을 멈춘다.
 - **결제 이력 보호**: 즉시결제가 만든 현금흐름은 일반 현금흐름 삭제로 지울 수 없고 결제 이벤트 취소만 허용한다. 일부라도 즉시결제된 원장 행도 일반 원장 삭제를 거부해 실제 은행 출금 이력을 사후 재작성하지 않는다.
 - **Summary 읽기 일관성**: Summary의 예정 수입, 실제 잔액, 카드 의무, 고정 의무, 동결과 잔여 유동성은 하나의 SQLite read transaction에서 계산한다.
 - **빈 예산 주기 월마감**: 원장 지출이 0건이어도 `last_closed_month`에서 이어지는 다음 예산 주기를 정상 마감한다. 급여, 반복 템플릿 reset, 결제 batch와 idempotency 의미는 지출이 있는 달과 같다.
-- **제거가 확정된 정산 기능**: Claim과 Family Card는 제거 시점만 미정이다. 날짜 경과가 아니라 현실적 경제적 독립 여부로 결정하며, 현재 경계와 전환 순서는 각각 [청구 기능 제거 가이드](claim-removal.md)와 [가족카드 제거 가이드](family-card-removal.md)에 고정한다.
+- **제거가 확정된 정산 기능**: Claim과 Family Card는 제거 시점만 미정이다. 날짜 경과가 아니라 현실적 경제적 독립 여부로 결정하며, 현재 경계와 전환 순서는 각각 [청구 기능 제거 가이드](guides/claim-removal.md)와 [가족카드 제거 가이드](guides/family-card-removal.md)에 고정한다.
 
-카드 교체 절차는 [카드 정책 변경](card-policy-change.md), 가족카드 경계는 [가족카드 제거](family-card-removal.md), 백업 안전성은 [실행 방법](runbook.md)과 [보안 운영](security.md)에 상세히 적혀 있다.
-예산 주기는 현재도 매월 1일~말일이다. 미래 재무 건전화 시에는 실제 급여 현금흐름을 유지하면서 다음 급여 예정액의 직접 선반영만 제거한다. 결제 압박 Judgment 기준은 아직 보류하며 [미래 재무 건전화 전환](future-financial-health-transition.md)에 둔다.
+카드 교체 절차는 [카드 정책 변경](guides/card-policy-change.md), 가족카드 경계는 [가족카드 제거](guides/family-card-removal.md), 백업 안전성은 [실행 방법](runbook.md)과 [보안 운영](security.md)에 상세히 적혀 있다.
+예산 주기는 현재도 매월 1일~말일이다. 미래 재무 건전화 시에는 실제 급여 현금흐름을 유지하면서 다음 급여 예정액의 직접 선반영만 제거한다. 결제 압박 Judgment 기준은 아직 보류하며 [미래 재무 건전화 전환](guides/future-financial-health-transition.md)에 둔다.
 
 ## 의도적으로 하지 않는 것
 
@@ -121,7 +121,7 @@
 ## 기술 부채와 제한
 
 - `backend/app/services/card_payments.py`는 결제·이월·취소의 transaction command를 유지하고, read model은 `card_payment_reads.py`가 소유한다. `mobile/lib/src/app_state.dart`는 영역별 새로고침과 Offline lineage 조율을 계속 담당한다. 추가 분리는 선행 특성 테스트가 필요하다.
-- DB startup은 [versioned migration](database-migrations.md)의 `PRAGMA user_version` 계약을 따르며, 구 DB/Snapshot 지원 판정은 [호환성 inventory](compatibility-inventory.md)에 둔다.
+- DB startup은 [versioned migration](database/migrations.md)의 `PRAGMA user_version` 계약을 따르며, 구 DB/Snapshot 지원 판정은 [호환성 inventory](guides/compatibility-inventory.md)에 둔다.
 - 로그인·공유 PIN 실패 제한은 단일 API 프로세스 메모리에 있다. 현재 배포에는 맞지만 다중 인스턴스에는 적합하지 않다.
 - Android 알림 수집은 리스너가 끊긴 동안 알림창에서 사라진 원문을 복구할 수 없고, 외부 앱 문구 변경에 파서 보강이 필요할 수 있다.
 - 카드 정책 이력은 현재 월 단위라 같은 달 안의 설정 시각 전후 거래나 서로 다른 범용카드 동시 사용을 구분하지 못한다.
@@ -156,11 +156,15 @@
 | 인증, 비밀정보, 공개 경계와 위협 대응 | `docs/security.md` |
 | HTTP 계약 | `docs/api.md` |
 | SQLite 스키마와 컬럼 의미 | `docs/database.md` |
-| 향후 결제 압박 기준과 재무 건전화 전환 조건 | `docs/future-financial-health-transition.md` |
+| 향후 결제 압박 기준과 재무 건전화 전환 조건 | `docs/guides/future-financial-health-transition.md` |
 | 손검증과 회귀 시나리오 | `docs/test-plan.md` |
 | 현재 기술 부채와 외부 제약 | `docs/known-issues.md` |
 | 모바일 Offline Mode 상태 머신, 로컬 저장과 reconciliation 경계 | `docs/offline-mode.md` |
-| Android 화면·UX 기준 | `docs/mobile-design.md` |
-| 카드 교체 시 정책 이력 변경 절차 | `docs/card-policy-change.md` |
-| 가족카드 제거 경계와 절차 | `docs/family-card-removal.md` |
+| Android 화면·UX 기준 | `docs/guides/mobile-design.md` |
+| 카드 교체 시 정책 이력 변경 절차 | `docs/guides/card-policy-change.md` |
+| 가족카드 제거 경계와 절차 | `docs/guides/family-card-removal.md` |
+| 보충 분야별 가이드 모음 | `docs/guides/README.md` |
+| T6.6 설계, 구현, 감사 문서 지도 | `docs/t66/README.md` |
+| T6.5 구현 기록 | `docs/t65/README.md` |
+| 데이터베이스 migration 이력 | `docs/database/migrations.md` |
 | Agent가 지켜야 할 작업·검증·배포 규칙 | `AGENTS.md` |

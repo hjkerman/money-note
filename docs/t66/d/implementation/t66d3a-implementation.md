@@ -24,14 +24,14 @@ observation, 재조회·만료 거부·cold-bootstrap epoch 무효화다.
 
 | 파일 | 책임 |
 | --- | --- |
-| [observation.py](../backend/isolated_sync/observation.py) | `ObservationRepository`, `accepted_generation`, `ObservationInputs`, `financial_scope`, `hot_projections`, 오류·limit·context |
-| [observation_schema.py](../backend/isolated_sync/observation_schema.py) | 자체 생성 synthetic DB의 checkpoint `1000004`, exact schema admission, `ObservationSandbox/Connection` |
-| [inputs.py](../backend/isolated_sync/inputs.py) | 기존 pure input query를 `MaintainedInputs`에 분리; writer `BoundedInputs`의 별도 lifetime/overlay 유지 |
-| [finalization.py](../backend/isolated_sync/finalization.py) | exact 확장 profile을 받는 admission, cold bootstrap의 격리 epoch hook; 기본 D2b 계약 유지 |
-| [test_isolated_sync_observation.py](../backend/tests/test_isolated_sync_observation.py) | 금융·인증·pin·중단·동시성·오류·격리 테스트 |
-| [t66d3a.py](../scripts/benchmarks/t66d3a.py) | 자체 생성 DB 전용 HOST 측정; SQL plan/row/object/byte 계측 |
-| [test_t66d3a.py](../scripts/benchmarks/test_t66d3a.py) | 출력 경로·덮어쓰기 거부 및 반환 BLOB byte 계측 검증 |
-| [summary.json](benchmarks/t66d3a/summary.json) | compact 실측 요약; 전체 표본·plan은 `/tmp` 원본 |
+| [observation.py](../../../../backend/isolated_sync/observation.py) | `ObservationRepository`, `accepted_generation`, `ObservationInputs`, `financial_scope`, `hot_projections`, 오류·limit·context |
+| [observation_schema.py](../../../../backend/isolated_sync/observation_schema.py) | 자체 생성 synthetic DB의 checkpoint `1000004`, exact schema admission, `ObservationSandbox/Connection` |
+| [inputs.py](../../../../backend/isolated_sync/inputs.py) | 기존 pure input query를 `MaintainedInputs`에 분리; writer `BoundedInputs`의 별도 lifetime/overlay 유지 |
+| [finalization.py](../../../../backend/isolated_sync/finalization.py) | exact 확장 profile을 받는 admission, cold bootstrap의 격리 epoch hook; 기본 D2b 계약 유지 |
+| [test_isolated_sync_observation.py](../../../../backend/tests/test_isolated_sync_observation.py) | 금융·인증·pin·중단·동시성·오류·격리 테스트 |
+| [t66d3a.py](../../../../scripts/benchmarks/t66d3a.py) | 자체 생성 DB 전용 HOST 측정; SQL plan/row/object/byte 계측 |
+| [test_t66d3a.py](../../../../scripts/benchmarks/test_t66d3a.py) | 출력 경로·덮어쓰기 거부 및 반환 BLOB byte 계측 검증 |
+| [summary.json](../../../benchmarks/t66d3a/summary.json) | compact 실측 요약; 전체 표본·plan은 `/tmp` 원본 |
 
 이번 변경에는 `backend/app/`, mobile, frontend 제품 source 수정이 없다.
 다만 시작 commit의 D2b에는 기존 app 파일의 명시적 opt-in branch가 이미 있다.
@@ -328,7 +328,7 @@ Process peak RSS 최대 **325,348KiB**는 bootstrap/oracle/전 cell 누적이며
 
 원본: `/tmp/money-note-d3a-final-measurements.json` (**803,192B**), SHA-256
 `586f791c8f3efd8608b3248e39076e058f084b928479130d4aacbdfc3f838e13`.
-[compact summary](benchmarks/t66d3a/summary.json)에 source hashes와 전체 cell 통계를 남겼다.
+[compact summary](../../../benchmarks/t66d3a/summary.json)에 source hashes와 전체 cell 통계를 남겼다.
 
 이는 HOST/SYNTHETIC backend metadata 측정이며 phone/network/deployed latency가 아니다.
 
@@ -562,7 +562,7 @@ retired다. 두 경우 모두 raw financial state, accepted generation과 pin은
 
 ### AB.5 신규 테스트·독립 persisted-state 증거
 
-[test_isolated_sync_observation.py](../backend/tests/test_isolated_sync_observation.py)에
+[test_isolated_sync_observation.py](../../../../backend/tests/test_isolated_sync_observation.py)에
 신규 **32개**를 추가했다. `lease_state()`는 매번 별도의 일반 `sqlite3.connect()`에서
 status/5-role pins/budget을 직접 읽으며 response 자체를 증거로 쓰지 않는다.
 
@@ -592,7 +592,7 @@ Retirement는 이 index에서 해당 principal의 available/expired 범위만 �
 오류 재적용은 이미 찾은 ID별 PK lookup이다. Ledger/descendant/Patricia/tree/flat Snapshot
 전체 작업을 새로 추가하지 않는다. Schema/index 추가나 admission 완화가 없다.
 
-[cost utility](../scripts/benchmarks/t66d3a_expiry.py)는 audited source를 `git show`로
+[cost utility](../../../../scripts/benchmarks/t66d3a_expiry.py)는 audited source를 `git show`로
 메모리에 읽어 비교한다(checkout/reset 없음). 자체 생성 synthetic DB, H=105 고정,
 376/1k 행 × audited/corrected 각각 3 warmups + 20 create/lookup 쌍, 총 80 measured 쌍이다.
 두 구현은 동일한 현재 engine artifact/context를 쓰므로 release compatibility 시험이 아니라
@@ -612,7 +612,7 @@ HOST 부하/순차 실행 잡음이 있다. 작은 차이를 엄밀한 latency �
 SQL 개수만으로 access bound를 증명하지 않으며 위 EXPLAIN과 기존 full-history 금지 테스트를
 함께 사용한다. 기존 5k/10k baseline 측정은 이 수정의 신규 측정으로 재표시하지 않는다.
 
-신규 [요약](benchmarks/t66d3a/expiry-correction-summary.json)에 source hashes/환경/실측을
+신규 [요약](../../../benchmarks/t66d3a/expiry-correction-summary.json)에 source hashes/환경/실측을
 저장한다. Raw 40,332 bytes는 `/tmp/money-note-d3a-expiry-costs.json`, SHA-256
 `75507ec649fbf8d73961a8361c70fd5f1ce396944c23ae8a1bedacf4655f9436`다.
 기존 `summary.json`과 최초 보고 수치는 덮어쓰지 않았다.

@@ -32,7 +32,7 @@ C1/SHA-256, typed graph, Patricia, ASGI oracle을 재사용한다.
 감사 commit은 이 보고서를 최초 추가한 commit으로 확인할 수 있다.
 
 ```sh
-git log -1 --format=%H -- docs/t66d3c-a01-independent-reaudit.md
+git log -1 --format=%H -- docs/t66/d/audits/t66d3c-a01-independent-reaudit.md
 ```
 
 ## D. 원래 D3C-A01
@@ -58,7 +58,7 @@ SQLite 조회를 비교한다. 원본 테스트를 수정하지 않고 실행해
 | `backend/tests/test_isolated_sync_retention_ownership.py` | 31개 ownership 회귀 |
 | `docs/benchmarks/t66d3c-a01/summary.json` | 구현자의 측정 자료 |
 | `docs/specimens/t66d3b-release-artifacts.json` | source 변경에 따른 engine artifact 갱신 |
-| `docs/t66d3c-implementation.md` | correction addendum |
+| `docs/t66/d/implementation/t66d3c-implementation.md` | correction addendum |
 
 전체 source/test diff와 addendum을 검토했다. `retention.py`의 mark/sweep/retention SQL,
 schema version, certificate 의미, production app, 금융 공식, Snapshot v7, mobile은
@@ -327,7 +327,7 @@ npm --prefix frontend run build
 git diff --check
 ```
 
-JUnit와 최종 단일 실행의 개별 결과는 [results.json](benchmarks/t66d3c-a01-reaudit/results.json)에
+JUnit와 최종 단일 실행의 개별 결과는 [results.json](../../../benchmarks/t66d3c-a01-reaudit/results.json)에
 집계했다. Backend JUnit의 2,855개 testcase는 1,315 tests와 1,540 subtests를 합친 수다.
 D3c admission/retention/mark/sweep/concurrency/crash, D3B-M01, D3a, D2b, isolated schema,
 Snapshot v7을 포함한 전체 backend를 실제 실행했다. 중간 감사 harness 수정 전 실행과

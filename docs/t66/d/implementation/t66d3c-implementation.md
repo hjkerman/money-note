@@ -68,10 +68,10 @@ Available 관측의 pins를 제거하는 작업은 수행하지 않았다.
 | frozen B/J/pending/local previous | 규범의 모바일 local store/pins | 자동으로 서버 pin이라고 해석하지 않음 |
 | 미래 shared backup/large restore | 현재 segmented backup dependency 없음 | DEFERRED TO R1 |
 
-근거는 [규범 §6](t66c-delta-sync-protocol.md#6-revisioncontext관측-identity)의
+근거는 [규범 §6](../../c/t66c-delta-sync-protocol.md#6-revisioncontext관측-identity)의
 서버가 client base root를 보관하지 않을 수 있다는 설명,
-[§16](t66c-delta-sync-protocol.md#16-coherent-observation-수명인가)의 lease/root count,
-[§24](t66c-delta-sync-protocol.md#24-mobile-physical-store와-publication-전제)의 local
+[§16](../../c/t66c-delta-sync-protocol.md#16-coherent-observation-수명인가)의 lease/root count,
+[§24](../../c/t66c-delta-sync-protocol.md#24-mobile-physical-store와-publication-전제)의 local
 generation/pin 정의와 §32의 **local SQLite** GC 문맥이다. §32의 previous/frozen
 목록만으로 서버 previous 세대의 정확한 선택·해제 규칙을 도출할 수 없다.
 
@@ -81,7 +81,7 @@ generation/pin 정의와 §32의 **local SQLite** GC 문맥이다. §32의 previ
 
 ## I. Current/previous generation retention — 계약 blocker 1
 
-실제 [finalization.py](../backend/isolated_sync/finalization.py)의 `SQL`은
+실제 [finalization.py](../../../../backend/isolated_sync/finalization.py)의 `SQL`은
 `sync_commits.raw_hash/index_hash/input_hash`에 `sync_objects` FK를 둔다.
 `sync_authority_fence.finalized_tx_id`도 complete certificate를 참조한다.
 `FinalizationConnection.finalize()`는 매번 complete row를 추가하고 current를
@@ -333,7 +333,7 @@ Production DB/API/credential/service 접근 NONE, 배포 NOT PERFORMED.
 Completion gate 미충족으로 commit/push하지 않았다. HEAD는 시작 commit 그대로다.
 이 문서를 uncommitted 상태로 보존한다. 기존 tracked source 변경은 없다.
 최종 HEAD/main/origin/main/실제 remote main도 모두 시작 commit과 같았다.
-Working tree에는 `?? docs/t66d3c-implementation.md`만 남았다.
+Working tree에는 `?? docs/t66/d/implementation/t66d3c-implementation.md`만 남았다.
 `git diff --check`와 신규 문서의 no-index whitespace 검사도 통과했다.
 
 ## AO. 판정과 다음 단계
@@ -794,7 +794,7 @@ Commit/push는 deployment 허가가 아니다.
 ## A. 독립 finding과 수정 시작 상태
 
 위 최초 BLOCKED/구현 완료 기록과 독립 감사의 **FAIL**을 보존한다.
-`docs/t66d3c-independent-audit.md`와 재현 코드는 수정하지 않았다. 독립 감사는
+`docs/t66/d/audits/t66d3c-independent-audit.md`와 재현 코드는 수정하지 않았다. 독립 감사는
 73 PASS / 1 FAIL이며, 유일한 Medium blocker는 D3C-A01이었다. 이는 이번 실행 수가 아니다.
 수정 시작 시 branch `main`, HEAD/main/origin/main/실제 remote main은 모두
 `6434d5e24cff316ff9a611b27b1d6cfc83e63d5c`, working tree는 clean이었다.
@@ -974,7 +974,7 @@ git diff --check
 
 SQL 추가 없이 실제 FD witness와 COMMIT 전 고정 개수의 identity/path 검사만 추가한다.
 첫 native shim compile은 steady-state 측정 밖이다. 대표 matched hot-path/maintenance
-결과는 [이번 correction 측정](benchmarks/t66d3c-a01/summary.json)에 기록한다.
+결과는 [이번 correction 측정](../../../benchmarks/t66d3c-a01/summary.json)에 기록한다.
 376행, profile별 6 workloads, 3 warmups/20 measurements의 **12 cells / 240 samples**다.
 이전 측정치를 새 결과로 표시하지 않는다. 이 비교는 current D3b-profile과 corrected
 D3c-profile 사이이며, A01 수정 전후 전체 HTTP latency 비교가 아니다.

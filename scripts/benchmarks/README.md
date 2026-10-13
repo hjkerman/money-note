@@ -1,7 +1,7 @@
 # 격리된 payload 진단
 
 이 디렉터리는 제품 startup/배포 경로에서 호출하지 않는 synthetic 진단 도구다.
-T6.6A의 측정 계약·결과·한계는 [보고서](../../docs/t66a-payload-attribution.md)에 둔다.
+T6.6A의 측정 계약·결과·한계는 [보고서](../../docs/t66/a/t66a-payload-attribution.md)에 둔다.
 기존 DB 입력은 받지 않으며 `MONEY_NOTE_*`를 제거한 뒤 임시 migrated DB를 생성한다.
 큰 body와 DB는 Git에 넣지 않는다. 아래 `T66A_DIR`에는 `mktemp -d` 결과를 사용한다.
 

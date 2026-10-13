@@ -2,7 +2,7 @@
 
 이 문서는 현재 구현된 SQLite DB 기준이다. 서버 DB가 source of truth다.
 
-Startup의 DB `PRAGMA user_version`과 역사적 schema 업그레이드 계약은 [DB migration](database-migrations.md)에 둔다. Snapshot JSON `schema_version`과는 독립적이다.
+Startup의 DB `PRAGMA user_version`과 역사적 schema 업그레이드 계약은 [DB migration](database/migrations.md)에 둔다. Snapshot JSON `schema_version`과는 독립적이다.
 
 ## 공통 규칙
 
@@ -287,7 +287,7 @@ Mobile Wins 논리 요청과 authoritative outcome을 durable하게 보존한다
 
 ## Versioned startup migration
 
-인정된 **unversioned legacy DB**만 `PRAGMA user_version` 0→1→2→3의 transaction 단계에서 다음 컬럼·인덱스를 보강한다. 이미 version 3인 DB는 이 backfill을 매 startup 재실행하지 않고 현재 구조를 검증한다. 지원 구조와 거부 조건은 [DB migration](database-migrations.md)을 따른다.
+인정된 **unversioned legacy DB**만 `PRAGMA user_version` 0→1→2→3의 transaction 단계에서 다음 컬럼·인덱스를 보강한다. 이미 version 3인 DB는 이 backfill을 매 startup 재실행하지 않고 현재 구조를 검증한다. 지원 구조와 거부 조건은 [DB migration](database/migrations.md)을 따른다.
 
 - `ledger_entries.source_planned_entry_id`
 - `monthly_panels.confirmed_month`

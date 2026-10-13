@@ -20,7 +20,7 @@ E1은 protocol model, 개별 immutable object 검증, durable object/staging 저
 
 ## B. Binding server protocol 대조
 
-규범은 `docs/t66c-delta-sync-protocol.md` §7–15, §23–27, §30, §38과 `docs/architecture.md`의 서버 authority/클라이언트 신뢰 경계다. `docs/offline-mode.md`, `docs/domain-model.md`, `docs/project-state.md`, `docs/known-issues.md`, D3C-A01 재감사도 확인했다.
+규범은 `docs/t66/c/t66c-delta-sync-protocol.md` §7–15, §23–27, §30, §38과 `docs/architecture.md`의 서버 authority/클라이언트 신뢰 경계다. `docs/offline-mode.md`, `docs/domain-model.md`, `docs/project-state.md`, `docs/known-issues.md`, D3C-A01 재감사도 확인했다.
 
 실제 source를 대조했다:
 
@@ -255,7 +255,7 @@ normal startup/AppState/API/offline/screen/navigation에서 E1을 import하지 �
 모든 completion gate를 통과한 뒤 이 문서를 포함한 E1 변경만 `feat(flutter): add T6.6E1 segmented immutable client store`로 commit하고 origin/main에 push한다. 자기 참조 hash를 문서에 고정하지 않는다. 실제 최종 hash/원격 일치/clean 확인은 최종 작업 보고서에 기록하고 다음 명령으로 재확인할 수 있다.
 
 ```bash
-git log -1 --format='%H %s' -- docs/t66e1-implementation.md
+git log -1 --format='%H %s' -- docs/t66/e/implementation/t66e1-implementation.md
 git rev-parse HEAD main origin/main
 git ls-remote origin refs/heads/main
 git status --porcelain
@@ -271,7 +271,7 @@ E1 구현·내부 검증은 완료했고 알려진 Critical/High/Medium blocker�
 
 ### 1. 시작점과 과거 감사 보존
 
-위 A–W는 최초 구현의 내부 완료 기록이다. 이후 독립 감사는 **FAIL — T6.6E1 CORRECTION REQUIRED**, MEDIUM 2건, independent case 67 PASS/6 FAIL을 보고했다. 이번 수정으로 과거 보고서의 FAIL을 지우거나 독립 재감사 PASS를 선언하지 않는다. `docs/t66e1-independent-audit.md`와 그 원본 재현·fixture·결과는 변경하지 않았다.
+위 A–W는 최초 구현의 내부 완료 기록이다. 이후 독립 감사는 **FAIL — T6.6E1 CORRECTION REQUIRED**, MEDIUM 2건, independent case 67 PASS/6 FAIL을 보고했다. 이번 수정으로 과거 보고서의 FAIL을 지우거나 독립 재감사 PASS를 선언하지 않는다. `docs/t66/e/audits/t66e1-independent-audit.md`와 그 원본 재현·fixture·결과는 변경하지 않았다.
 
 수정 시작은 `133391242b44573cfe3c1efb9950fa526be0b7f8`이다. branch main, HEAD/main/origin/main/실제 remote main 일치와 clean working tree를 확인했다. audited implementation은 `141e01186d589a9071ae6a3d0c0023a6472c014d`다.
 
@@ -401,7 +401,7 @@ git diff --check
 | get | 4,179.5 / 4,777 | 2,166 / 3,998 |
 | duplicate put | 3,711 / 4,289 | 3,793 / 4,080 |
 
-4개 cell/80 samples의 순차 JIT microbenchmark이며 get source는 변경되지 않았다. JIT/병행 regression noise 때문에 get 개선이나 엄격한 overhead 상한을 주장하지 않는다. duplicate put은 이 표본에서 median 약 82µs 차이였다. full-dataset scaling/실기기 benchmark를 대신하지 않는다. 재현 전후의 committed-row 수, fixture digest, 회귀와 측정치는 [축약 수정 증거](benchmarks/t66e1-correction/summary.json)에 보존한다.
+4개 cell/80 samples의 순차 JIT microbenchmark이며 get source는 변경되지 않았다. JIT/병행 regression noise 때문에 get 개선이나 엄격한 overhead 상한을 주장하지 않는다. duplicate put은 이 표본에서 median 약 82µs 차이였다. full-dataset scaling/실기기 benchmark를 대신하지 않는다. 재현 전후의 committed-row 수, fixture digest, 회귀와 측정치는 [축약 수정 증거](../../../benchmarks/t66e1-correction/summary.json)에 보존한다.
 
 equivalent DDL의 자동 호환·schema repair, 외부 임의 행 조작의 즉시 탐지, Android 실기기 power-loss, E2/E3는 여전히 범위 밖이다. object read는 매번 재검증하므로 이전 validator flag만으로 BOM 객체를 자동 수락하지 않는다.
 

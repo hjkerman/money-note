@@ -32,9 +32,9 @@ Seed 1234, 서버 평가일 2026-10-05, UTC+540분, synthetic owner ID 1, 현행
 | confirmed-heavy 600 | 1,200 | 1,200 | 0 | 600 | 600 | 4 | 1,696,801 |
 | 10k 다양성 control | 10,000 | 105 | 9,895 | 104 | 1 | 4 | 6,180,091 |
 
-모두 HTTP 200, Content-Type `application/json`, Content-Encoding 없음이다. 정확한 body SHA-256·response headers는 [attribution.json](benchmarks/t66a/attribution.json), parameter/environment는 [environment.json](benchmarks/t66a/environment.json)에 있다. 6종 모두 실제 canonical Snapshot admission 및 migrated DB INSERT/relationship 복구 경로를 SAVEPOINT 안에서 통과했고 rollback했다. 같은 관측의 legacy 14-GET state/Snapshot과 동등함도 검사했다. 별도 fresh DB 두 개의 376 응답이 byte-identical함을 회귀 테스트로 고정했다.
+모두 HTTP 200, Content-Type `application/json`, Content-Encoding 없음이다. 정확한 body SHA-256·response headers는 [attribution.json](../../benchmarks/t66a/attribution.json), parameter/environment는 [environment.json](../../benchmarks/t66a/environment.json)에 있다. 6종 모두 실제 canonical Snapshot admission 및 migrated DB INSERT/relationship 복구 경로를 SAVEPOINT 안에서 통과했고 rollback했다. 같은 관측의 legacy 14-GET state/Snapshot과 동등함도 검사했다. 별도 fresh DB 두 개의 376 응답이 byte-identical함을 회귀 테스트로 고정했다.
 
-주 fixture·codec·Dart 단계는 warmup 3회 + measured 20회다. p95는 nearest-rank 19번째 표본이며 보편적 tail 보증이 아니다. min/max/stdev와 모든 primary timing 표본은 [samples.csv](benchmarks/t66a/samples.csv)에 있다. RSS는 별도 child 1회, 50k는 제한된 one-shot으로 구분한다.
+주 fixture·codec·Dart 단계는 warmup 3회 + measured 20회다. p95는 nearest-rank 19번째 표본이며 보편적 tail 보증이 아니다. min/max/stdev와 모든 primary timing 표본은 [samples.csv](../../benchmarks/t66a/samples.csv)에 있다. RSS는 별도 child 1회, 50k는 제한된 one-shot으로 구분한다.
 
 ## 3. 실제 bundle 구조와 소유권
 
@@ -156,7 +156,7 @@ Confirmed-heavy는 source 600 + child 600의 raw Snapshot과 typed child/confirm
 
 7,479,394-byte generator는 rich state에 약 4분의 1 current / 4분의 3 archive를 추가하고 payment key·금액·sort/title 구성이 다르다. typed entries 2,502행과 약 1.89MB의 entries가 핵심 차이다. 통합 audit는 current 추가 100행을 고정한다. B-3 초기 5,635,112와 통합 5,684,312 차이는 title/merchant·sort_order 자릿수 등 실제 raw 문자열/숫자와 작은 projection 차이다.
 
-이번 current-like 306,370과 5k 2,889,309는 통합 audit의 306,369 / 2,889,308보다 1바이트 크다. Synthetic timestamp/key 고정에 따른 UPDATE가 revision을 각각 4/5자리로 늘렸기 때문이다. Snapshot/state 크기는 동일하고 1k/10k는 revision 자릿수가 이미 같아 body 크기도 같다. SHA는 고정 timestamp/key 내용 때문에 과거 SHA와 달라지는 것이 정상이다. [specimen-comparison.json](benchmarks/t66a/specimen-comparison.json)에 출처·SHA·구성을 보존했다.
+이번 current-like 306,370과 5k 2,889,309는 통합 audit의 306,369 / 2,889,308보다 1바이트 크다. Synthetic timestamp/key 고정에 따른 UPDATE가 revision을 각각 4/5자리로 늘렸기 때문이다. Snapshot/state 크기는 동일하고 1k/10k는 revision 자릿수가 이미 같아 body 크기도 같다. SHA는 고정 timestamp/key 내용 때문에 과거 SHA와 달라지는 것이 정상이다. [specimen-comparison.json](../../benchmarks/t66a/specimen-comparison.json)에 출처·SHA·구성을 보존했다.
 
 이번 실제 legacy 14 response body 합계(재직렬화한 assembled old JSON이 아님)는 10k 11,280,605바이트다. 보존된 old assembled JSON의 11,280,839바이트를 실제 14 response의 11,280,605와 혼용하지 않았다.
 
@@ -182,7 +182,7 @@ Archive 전체 row bytes는 5,518,683이며 cold 후보와 다르다. NULL-date 
 - Snapshot ≈ 7316 + N × 558.882 bytes
 - typed state = 87,661 bytes (이번 고정 fixture에 한함)
 
-최대 absolute fit residual은 약 966바이트다. ID/title/sort/count 자릿수 변화가 있어 완벽한 직선이 아니다. 임의 사용자 문자열·current 비율·active payment·confirmed 밀도까지 이 식으로 일반화하지 않는다. 다양성 control과 7.48MB specimen이 그 반례다. [growth.json](benchmarks/t66a/growth.json)에 식과 residual을 기록했다.
+최대 absolute fit residual은 약 966바이트다. ID/title/sort/count 자릿수 변화가 있어 완벽한 직선이 아니다. 임의 사용자 문자열·current 비율·active payment·confirmed 밀도까지 이 식으로 일반화하지 않는다. 다양성 control과 7.48MB specimen이 그 반례다. [growth.json](../../benchmarks/t66a/growth.json)에 식과 residual을 기록했다.
 
 역사 row와 metadata의 증가를 분리하면 다음과 같다. archive/cold는 row object 자체의 원문 bytes이며 array delimiter는 포함하지 않는다. manifest 및 non-data는 앞의 disjoint value span 합계로, 부모 key·delimiter는 외곽 구조에 있다. 두 metadata 열은 서로 포함 관계이므로 더하지 않는다.
 
@@ -199,7 +199,7 @@ Archive 전체 row bytes는 5,518,683이며 cold 후보와 다르다. NULL-date 
 
 제품 FastAPI에는 gzip/Brotli middleware가 없고 API client도 별도 codec을 추가하지 않는다. **실제 IOClient request는 Accept-Encoding: gzip**이다. gzip을 지원한다는 것과 서버가 gzip으로 보낸다는 것은 다르다.
 
-무변경 FastAPI를 실제 local Uvicorn으로 실행해 3회 raw HTTP로 확인했다. 매번 Content-Encoding 없음, Content-Type application/json, Content-Length 306370, SHA가 frozen 376과 동일했다. headers에는 Cache-Control no-store, Pragma, X-Content-Type-Options, Referrer-Policy, X-Frame-Options, Permissions-Policy가 보존됐다. [native-http.json](benchmarks/t66a/native-http.json)이 원문 header 관측이다.
+무변경 FastAPI를 실제 local Uvicorn으로 실행해 3회 raw HTTP로 확인했다. 매번 Content-Encoding 없음, Content-Type application/json, Content-Length 306370, SHA가 frozen 376과 동일했다. headers에는 Cache-Control no-store, Pragma, X-Content-Type-Options, Referrer-Policy, X-Frame-Options, Permissions-Policy가 보존됐다. [native-http.json](../../benchmarks/t66a/native-http.json)이 원문 header 관측이다.
 
 저장소 runbook의 Apache 예시에는 compression 활성화가 명시되지 않는다. **실제 운영 Apache/TLS/proxy 설정은 접근하지 않았으므로 운영 compression 활성 여부를 주장하지 않는다.** 확인 범위는 이 local backend/transport다.
 
@@ -266,7 +266,7 @@ Brotli quality가 커졌다고 크기가 단조 감소하지 않았다. 이번 n
 
 ## 14. CPU·메모리·실제 모바일 transport 실험
 
-대표 codec CPU median은 다음과 같다. wall과 process CPU는 다르며 전체 통계는 [compression.csv](benchmarks/t66a/compression.csv)에 있다.
+대표 codec CPU median은 다음과 같다. wall과 process CPU는 다르며 전체 통계는 [compression.csv](../../benchmarks/t66a/compression.csv)에 있다.
 
 | fixture | gzip6 encode / decode CPU ms | Brotli4 encode / decode CPU ms |
 | --- | --- | --- |
@@ -297,7 +297,7 @@ Decimal Mbps, body bits/throughput, 지속 goodput가 일정하다는 가정이�
 | 50 | 0.909 | 0.017 | 0.007 | 860.6 | 885.6 |
 | 100 | 0.455 | 0.009 | 0.003 | 414.6 | 434.3 |
 
-10k의 HOST encode+decode는 gzip6 약 31.44ms, Brotli4 약 17.03ms다. 동일 가정의 break-even은 각각 약 1419 / 2651Mbps다. gzip decode를 실제 Dart HOST 5.04ms로 바꾸면 net 절감은 약 1.73ms 줄어든다. 실제 이동통신 latency·배터리·thermal·memory 측정은 아니다. 모든 fixture의 모델은 [bandwidth-model.json](benchmarks/t66a/bandwidth-model.json)에 있다.
+10k의 HOST encode+decode는 gzip6 약 31.44ms, Brotli4 약 17.03ms다. 동일 가정의 break-even은 각각 약 1419 / 2651Mbps다. gzip decode를 실제 Dart HOST 5.04ms로 바꾸면 net 절감은 약 1.73ms 줄어든다. 실제 이동통신 latency·배터리·thermal·memory 측정은 아니다. 모든 fixture의 모델은 [bandwidth-model.json](../../benchmarks/t66a/bandwidth-model.json)에 있다.
 
 gzip1→6의 10k 추가 절감은 27,834바이트, encode wall 증가는 약 15.68ms다. 느린 망에는 level6, 빠른 망/CPU budget에는 level1을 검토할 근거이며 고정 배포 level을 여기서 정하지 않는다. q9는 작은 추가 byte 절감에 큰 CPU 비용을 지불한다.
 
@@ -342,7 +342,7 @@ Snapshot export를 construct에 더하거나 JSON render를 prepare에 다시 �
 | 5000 | 1932.0 / 2090.0 |
 | 10000 | 3996.0 / 4311.7 |
 
-출처 원본 SHA와 20개 observation ID를 [reference-latency.json](benchmarks/t66a/reference-latency.json)에 보존했다. 이번 개별 단계 median들을 더해 새 AppState end-to-end 실측이라고 주장하지 않는다. Fixture timestamp/revision과 HOST 실행 상태가 달라 과거 1740.7ms backend와 이번 1348.5ms 차이를 제품 최적화 효과로 해석하지 않는다.
+출처 원본 SHA와 20개 observation ID를 [reference-latency.json](../../benchmarks/t66a/reference-latency.json)에 보존했다. 이번 개별 단계 median들을 더해 새 AppState end-to-end 실측이라고 주장하지 않는다. Fixture timestamp/revision과 HOST 실행 상태가 달라 과거 1740.7ms backend와 이번 1348.5ms 차이를 제품 최적화 효과로 해석하지 않는다.
 
 ## 17. OfflineBaseline 크기와 durable 비용
 
@@ -418,7 +418,7 @@ Android native/APK/physical device는 이번 characterization-only 변경에서 
 
 ## 22. 재현 명령·산출물·한계
 
-재현 절차는 [scripts/benchmarks/README.md](../scripts/benchmarks/README.md)에 있다. 큰 원문은 `/tmp/mn-t66a-9WAluE`에만 두었으며 body-*.json, 원시 로그·측정 JSON을 재부팅 뒤 보존한다고 보장하지 않는다. 동일 seed/context/key/timestamp로 재생성할 수 있다. 과거 선택적 specimen 비교는 해당 /tmp 원본이 있어야 하지만 주 6종 생성·압축·admission 검증은 거기에 의존하지 않는다.
+재현 절차는 [scripts/benchmarks/README.md](../../../scripts/benchmarks/README.md)에 있다. 큰 원문은 `/tmp/mn-t66a-9WAluE`에만 두었으며 body-*.json, 원시 로그·측정 JSON을 재부팅 뒤 보존한다고 보장하지 않는다. 동일 seed/context/key/timestamp로 재생성할 수 있다. 과거 선택적 specimen 비교는 해당 /tmp 원본이 있어야 하지만 주 6종 생성·압축·admission 검증은 거기에 의존하지 않는다.
 
 Tracked artifacts는 총 약 0.6MB이며 multi-MB body, DB, credential이 없다.
 

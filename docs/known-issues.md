@@ -2,7 +2,7 @@
 
 ## Owner-attested explicit canonicalization — 독립 재감사 대기 / live 미실행
 
-소유자가 11개 관계를 모두 YES로 승인했다. 자동 admission의 증명 불가 상태를 완화하지 않고 별도 명시적 manifest 도구를 추가했다. 보존 COPY의 11개 dry-run/폐기용 apply는 metadata 외 변화와 금융 차이 0원을 검증하고 strict startup/current Snapshot round-trip을 통과했다. 지급된 historical archive의 삭제 거부는 정상 보호 규칙이며 유지한다. 검토 날짜 경과 및 불완전 receipt 승인 반례도 test-first로 차단했다. 실제 운영은 아직 적용/배포하지 않았고 fresh backup·precondition 재검토·독립 감사·별도 실행 승인이 필요하다. [상세 절차](owner-recurring-canonicalization.md).
+소유자가 11개 관계를 모두 YES로 승인했다. 자동 admission의 증명 불가 상태를 완화하지 않고 별도 명시적 manifest 도구를 추가했다. 보존 COPY의 11개 dry-run/폐기용 apply는 metadata 외 변화와 금융 차이 0원을 검증하고 strict startup/current Snapshot round-trip을 통과했다. 지급된 historical archive의 삭제 거부는 정상 보호 규칙이며 유지한다. 검토 날짜 경과 및 불완전 receipt 승인 반례도 test-first로 차단했다. 실제 운영은 아직 적용/배포하지 않았고 fresh backup·precondition 재검토·독립 감사·별도 실행 승인이 필요하다. [상세 절차](guides/owner-recurring-canonicalization.md).
 
 ## Historical recurring compatibility — 독립 재감사 대기
 
@@ -70,7 +70,7 @@ Cross-month recurring 취소의 정확한 확인 epoch, legacy explicit monetary
 
 말일 월마감 급여는 닫힌 사용월에 기록되지만 활성 카드 결제 batch의 결제월은 다음 달이다. 따라서 현재 결제 압박 Judgment는 다음 달에 별도 `이달 기준 수입`이 없으면 `scheduled_income`을 fallback으로 사용한다. 미래 재무 건전화 전환 전에는 이 기준을 별도로 확정해야 한다.
 
-다음 급여를 미리 담보로 쓰지 않게 되는 시점에는 월 주기나 누적 현금흐름을 바꾸지 않고 Summary의 `scheduled_income` 직접 선반영을 제거한다. Judgment 기준은 아직 결정하지 않았으며 [미래 재무 건전화 전환](future-financial-health-transition.md)을 따른다.
+다음 급여를 미리 담보로 쓰지 않게 되는 시점에는 월 주기나 누적 현금흐름을 바꾸지 않고 Summary의 `scheduled_income` 직접 선반영을 제거한다. Judgment 기준은 아직 결정하지 않았으며 [미래 재무 건전화 전환](guides/future-financial-health-transition.md)을 따른다.
 
 ## Judgment 지속 개선
 
@@ -83,7 +83,7 @@ Judgment 문구는 현재 대부분 서버에서 완성된 문장으로 내려�
 
 본인 앱, 청구 공유, 가족카드 공유 문구 pool은 분리되어 있고 청구 공유 문구는 개인 카드 총액과 현금흐름 정확한 수치를 노출하지 않는다. 남은 작업은 기능 결함이 아니라 실사용 표본에 따라 분기 기준과 후보 문구를 계속 다듬는 일이다. 문구와 규칙의 단일 진실 원천은 `backend/app/services/judgment/`다.
 
-문구 후보 파일의 관리 방식은 [Judgment 문구 관리](judgment-messages.md)를 따른다.
+문구 후보 파일의 관리 방식은 [Judgment 문구 관리](guides/judgment-messages.md)를 따른다.
 
 ## 주의사항
 

@@ -48,7 +48,7 @@ SQLite/JSON/hash oracle로 삭제 집합을 계산했으며, synthetic 실제 �
 
 ## D. Binding 보존 정책
 
-`docs/t66c-delta-sync-protocol.md:331`의 §16-S를 규범으로 적용했다. 현재 complete 세대,
+`docs/t66/c/t66c-delta-sync-protocol.md:331`의 §16-S를 규범으로 적용했다. 현재 complete 세대,
 유효 observation의 다섯 root, 아직 객체가 필요한 실제 native worker, 미해결 publication/recovery,
 승인된 explicit obligation은 보호한다. Historical certificate는 증거를 보존하되 영구 graph root로
 취급하지 않는다. 임의 previous 세대의 자동 rollback 보존은 요구하지 않는다.
@@ -71,8 +71,8 @@ SQLite/JSON/hash oracle로 삭제 집합을 계산했으며, synthetic 실제 �
 | `docs/benchmarks/t66d3c/summary.json` | 48 cells / 960 samples / 4 maintenance 결과 |
 | `docs/project-state.md` | D3c 상태 |
 | `docs/specimens/t66d3b-release-artifacts.json` | financial_engine source manifest hash만 변경 |
-| `docs/t66c-delta-sync-protocol.md` | 승인된 §16-S 명확화 |
-| `docs/t66d3c-implementation.md` | 구현 보고서 |
+| `docs/t66/c/t66c-delta-sync-protocol.md` | 승인된 §16-S 명확화 |
+| `docs/t66/d/implementation/t66d3c-implementation.md` | 구현 보고서 |
 | `scripts/benchmarks/t66d3c.py` | 명시 synthetic benchmark |
 
 Production schema/routes/startup/auth defaults, 금융 공식, Snapshot v7, OfflineBaseline v4,

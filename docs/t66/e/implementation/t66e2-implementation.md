@@ -479,7 +479,7 @@ addendum뿐이며 원본 독립 감사 보고서는 그대로다. Commit message
 기록한다. 자기 참조 없이 이 addendum의 commit은 다음 명령으로 찾을 수 있다.
 
 ```sh
-git log -1 --format=%H -- docs/t66e2-implementation.md
+git log -1 --format=%H -- docs/t66/e/implementation/t66e2-implementation.md
 ```
 
 다음 단계는 **독립 E2-A01 targeted 재감사**이며, PASS 전 E3 시작·배포·segmented sync 활성화는

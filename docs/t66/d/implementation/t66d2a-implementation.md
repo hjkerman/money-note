@@ -21,15 +21,15 @@ root/index의 동일 transaction 저장과 pre-commit authoritative finalizer다
 
 ## 2. 계약과 source 대조
 
-[AGENTS](../AGENTS.md), [architecture](architecture.md), [domain](domain-model.md),
-[Offline](offline-mode.md), [project-state](project-state.md), [known-issues](known-issues.md),
-[T6.6A](t66a-payload-attribution.md), [T6.6B](t66b-hot-cold-design.md),
-[T6.6C](t66c-delta-sync-protocol.md), [D1](t66d1-implementation.md)를 기준으로 했다.
-[기존 schema](../backend/app/db.py), [migration](../backend/app/db_migrations.py),
-[Snapshot](../backend/app/services/snapshot.py),
-[raw ownership](../backend/app/services/financial_relationships.py),
-[recurring ownership](../backend/app/services/legacy_recurring.py),
-[모바일 raw 구조](../mobile/lib/src/authoritative_snapshot_validation.dart)와 대조했다.
+[AGENTS](../../../../AGENTS.md), [architecture](../../../architecture.md), [domain](../../../domain-model.md),
+[Offline](../../../offline-mode.md), [project-state](../../../project-state.md), [known-issues](../../../known-issues.md),
+[T6.6A](../../a/t66a-payload-attribution.md), [T6.6B](../../b/t66b-hot-cold-design.md),
+[T6.6C](../../c/t66c-delta-sync-protocol.md), [D1](t66d1-implementation.md)를 기준으로 했다.
+[기존 schema](../../../../backend/app/db.py), [migration](../../../../backend/app/db_migrations.py),
+[Snapshot](../../../../backend/app/services/snapshot.py),
+[raw ownership](../../../../backend/app/services/financial_relationships.py),
+[recurring ownership](../../../../backend/app/services/legacy_recurring.py),
+[모바일 raw 구조](../../../../mobile/lib/src/authoritative_snapshot_validation.dart)와 대조했다.
 
 새 facts는 Category B의 raw 저장·복구 관계다. 할인, payment partition/remaining,
 Summary, month-close eligibility, archived effective amount를 계산하지 않는다.
@@ -40,13 +40,13 @@ Snapshot v7와 OfflineBaseline v4는 변경하지 않았다.
 
 | 파일 | 구현·호출 계약 |
 | --- | --- |
-| [canonical.py](../backend/isolated_sync/canonical.py) | `decode_json`, `decode_c1`, `encode`, `hash_bytes`, `Namespace/Context/Key/Object`, `row_hash` |
-| [raw.py](../backend/isolated_sync/raw.py) | exact 11-table column/type/domain, `Row.make`; direct `Row` 생성도 admission·PK 일치를 검사 |
-| [segments.py](../backend/isolated_sync/segments.py) | `Tree.build/lookup/put/delete/move/validate`, immutable `Node`, `raw_root` |
-| [facts.py](../backend/isolated_sync/facts.py) | `row_facts`, `build_facts`, `validate_state`, `validate_index`, borrowed-connection `read_state` |
-| [patricia.py](../backend/isolated_sync/patricia.py) | `Fact`, persistent `Index.build/lookup/put/delete/facts/validate/object` |
-| [roots.py](../backend/isolated_sync/roots.py) | exact Target envelope shape·U64·version/context 확인 후 `sync_root` hash만 계산 |
-| [rebuild.py](../backend/isolated_sync/rebuild.py) | explicit 전체 raw state → complete trees/raw-root/index; read-only mapping으로 반환 |
+| [canonical.py](../../../../backend/isolated_sync/canonical.py) | `decode_json`, `decode_c1`, `encode`, `hash_bytes`, `Namespace/Context/Key/Object`, `row_hash` |
+| [raw.py](../../../../backend/isolated_sync/raw.py) | exact 11-table column/type/domain, `Row.make`; direct `Row` 생성도 admission·PK 일치를 검사 |
+| [segments.py](../../../../backend/isolated_sync/segments.py) | `Tree.build/lookup/put/delete/move/validate`, immutable `Node`, `raw_root` |
+| [facts.py](../../../../backend/isolated_sync/facts.py) | `row_facts`, `build_facts`, `validate_state`, `validate_index`, borrowed-connection `read_state` |
+| [patricia.py](../../../../backend/isolated_sync/patricia.py) | `Fact`, persistent `Index.build/lookup/put/delete/facts/validate/object` |
+| [roots.py](../../../../backend/isolated_sync/roots.py) | exact Target envelope shape·U64·version/context 확인 후 `sync_root` hash만 계산 |
+| [rebuild.py](../../../../backend/isolated_sync/rebuild.py) | explicit 전체 raw state → complete trees/raw-root/index; read-only mapping으로 반환 |
 
 모든 입력은 명시적 값/borrowed connection이다. 정상 설정 경로의 DB를 자동으로 열지 않는다.
 `Object`와 `Row`는 immutable bytes를 보유하고 decoded view는 사본이다.
@@ -108,12 +108,12 @@ D2b는 D1 excluded marker를 transfer row로 취급하면 안 된다.
 
 ## 5. Canonical vectors·언어 간 검증·hash framing
 
-[committed vectors](specimens/t66c-canonical-vectors.json)의 유효 8개는 exact bytes,
+[committed vectors](../../../specimens/t66c-canonical-vectors.json)의 유효 8개는 exact bytes,
 길이, 독립 `hashlib.sha256`과 일치했다. 잘못된 surrogate 3개는 거부했다.
 기존 expected vector를 수정하지 않았다. Raw duplicate keys, fractional·underflow,
 초대형 exponent/integer, noncanonical token도 fail-closed한다.
 
-[격리 Dart formatter](../scripts/benchmarks/t66d2a_c1.dart)는 제품 모바일 코드와 무관하다.
+[격리 Dart formatter](../../../../scripts/benchmarks/t66d2a_c1.dart)는 제품 모바일 코드와 무관하다.
 유효 vectors 8개 + 추가 controls 11개 및 invalid surrogate 3개를 실행했다.
 Python/Dart가 INTEGER extrema, integral REAL/−0, scalar key order, Unicode/NUL,
 null/bool/array 및 대표 row representation에서 같은 UTF-8 bytes를 냈다.
@@ -201,7 +201,7 @@ Input 순서 3개씩, random mutation, 255-bit 공통 prefix/one-bit divergence,
 
 ## 9. 독립 oracle·SQLite·randomized 증거
 
-[독립 reference](../backend/tests/isolated_sync_reference.py)는 json.dumps 기반 유효
+[독립 reference](../../../../backend/tests/isolated_sync_reference.py)는 json.dumps 기반 유효
 C1 serializer, 직접 hashlib framing, serialized graph traversal, bit-at-a-time Patricia,
 별도 complete facts extractor를 쓴다. Fact key/value 전체를 대조하므로 extractor와
 같은 함수가 만든 root끼리만 비교하는 순환 oracle이 아니다.
@@ -263,7 +263,7 @@ connection/transaction의 DDL·schema generation과 결합해 재사용할 수 �
 
 ## 12. HOST 알고리즘 성능
 
-측정 원문·CPU/wall min/max/stdev·모든 samples는 [performance.json](benchmarks/t66d2a/performance.json)에 보존했다.
+측정 원문·CPU/wall min/max/stdev·모든 samples는 [performance.json](../../../benchmarks/t66d2a/performance.json)에 보존했다.
 HOST: Intel Core i7-8750H(6 cores/12 threads), RAM 약 23,885 MiB,
 Linux 6.8.0-146, Python 3.12.3, SQLite 3.45.1이다.
 별도 correctness 테스트와 일부 병행한 측정이며 완전히 idle인 host 결과는 아니다.
@@ -307,7 +307,7 @@ Warmup 3회, 작은 fixture 20 samples, 비용이 큰 5k/10k는 5 samples를 사
 각 단계는 독립 inclusive 측정이며 합산해 end-to-end라고 부르지 않는다.
 메모리는 별도 full rebuild 1회의 tracemalloc peak와 process RSS high-watermark다.
 
-추가 [updates.json](benchmarks/t66d2a/updates.json)은 동일 admitted base에서 title 한 필드만
+추가 [updates.json](../../../benchmarks/t66d2a/updates.json)은 동일 admitted base에서 title 한 필드만
 변경한 tree path 및 old/new row facts 경로를 각각 warmup 3 + sample 20회 측정했다.
 Full target F(raw) 재구축 root와도 일치했다. D1 capture/fence/commit 비용은 포함하지 않는다.
 

@@ -1,6 +1,6 @@
 # Money Note Domain Model
 
-Owner-attested 역사적 관계의 별도 one-time 계약은 [owner canonicalization](owner-recurring-canonicalization.md)에 정의한다. 자동 compatibility의 immutable proof는 변경하지 않는다. 명시 승인 manifest만 exact source/child/key/epoch를 지정하며, fresh verified backup·검토 fingerprint·동일 기준 날짜·dry-run·금융 차이 0원·단일 transaction을 요구한다. 기존 source FK가 있는 child의 missing epoch 두 열과 정상 revision 증가 외에는 수정하지 않는다. Source의 현재 확인/금액/0원 override/archive 위치를 바꾸거나 유사 행을 추론하지 않는다.
+Owner-attested 역사적 관계의 별도 one-time 계약은 [owner canonicalization](guides/owner-recurring-canonicalization.md)에 정의한다. 자동 compatibility의 immutable proof는 변경하지 않는다. 명시 승인 manifest만 exact source/child/key/epoch를 지정하며, fresh verified backup·검토 fingerprint·동일 기준 날짜·dry-run·금융 차이 0원·단일 transaction을 요구한다. 기존 source FK가 있는 child의 missing epoch 두 열과 정상 revision 증가 외에는 수정하지 않는다. Source의 현재 확인/금액/0원 override/archive 위치를 바꾸거나 유사 행을 추론하지 않는다.
 
 > 이 문서는 Money Note의 도메인 모델에 대한 기준 문서다.
 >
@@ -406,7 +406,7 @@ Claim은 다음에 포함되지 않는다.
 - 소비 통계
 - 잔여 유동성
 
-Claim은 제거가 확정되었지만 시점은 미정인 운영 기능이다. 사용자가 생활비와 예외적인 큰 지출까지 가족 지원 없이 자체 소득·자산으로 감당할 수 있는 현실적 경제적 독립 상태가 제거 조건이다. 그전까지 현재 도메인 의미와 데이터를 유지하며, 제거 범위와 Snapshot 전환 순서는 [청구 기능 제거 가이드](claim-removal.md)를 따른다.
+Claim은 제거가 확정되었지만 시점은 미정인 운영 기능이다. 사용자가 생활비와 예외적인 큰 지출까지 가족 지원 없이 자체 소득·자산으로 감당할 수 있는 현실적 경제적 독립 상태가 제거 조건이다. 그전까지 현재 도메인 의미와 데이터를 유지하며, 제거 범위와 Snapshot 전환 순서는 [청구 기능 제거 가이드](guides/claim-removal.md)를 따른다.
 
 ---
 
@@ -613,9 +613,9 @@ Offline의 조기 처리 예상값은 서버가 제공한 확인 월/처리 대�
 
 예산 주기의 존재는 카드 지출 행 존재 여부로 결정하지 않는다. `last_closed_month`가 있으면 그 다음 달이 마감 대상이며, 원장 지출이 0건인 빈 달도 급여 확정, 반복 템플릿 reset, 결제 batch 생성과 `last_closed_month` 전진을 수행한다. 같은 target 재실행은 빈 달에서도 중복 급여나 batch를 만들지 않는다.
 
-`이달 기준 수입` 표시가 있는 현금흐름 입금 합계는 현재 카드 결제 압박 Judgment의 기준 수입이다. 월마감이 만든 `급여`도 이 표식을 가진다. 급여 발생월은 월마감 실행일의 달이므로 말일 마감 뒤 다음 달 결제 batch에는 같은 달 기준 수입이 없을 수 있으며, 이 경우 Judgment는 `scheduled_income`을 fallback으로 사용한다. 이 기준의 미래 변경은 [미래 재무 건전화 전환](future-financial-health-transition.md)에서 결정한다.
+`이달 기준 수입` 표시가 있는 현금흐름 입금 합계는 현재 카드 결제 압박 Judgment의 기준 수입이다. 월마감이 만든 `급여`도 이 표식을 가진다. 급여 발생월은 월마감 실행일의 달이므로 말일 마감 뒤 다음 달 결제 batch에는 같은 달 기준 수입이 없을 수 있으며, 이 경우 Judgment는 `scheduled_income`을 fallback으로 사용한다. 이 기준의 미래 변경은 [미래 재무 건전화 전환](guides/future-financial-health-transition.md)에서 결정한다.
 
-다음 급여를 미리 담보로 쓰지 않게 되는 미래에는 월 주기와 실제 급여 현금흐름은 유지하고 계산식에서 별도 `scheduled_income` 선반영만 제거한다. 전환 조건과 Judgment 후속 결정은 [미래 재무 건전화 전환](future-financial-health-transition.md)에 기록한다.
+다음 급여를 미리 담보로 쓰지 않게 되는 미래에는 월 주기와 실제 급여 현금흐름은 유지하고 계산식에서 별도 `scheduled_income` 선반영만 제거한다. 전환 조건과 Judgment 후속 결정은 [미래 재무 건전화 전환](guides/future-financial-health-transition.md)에 기록한다.
 
 ---
 
