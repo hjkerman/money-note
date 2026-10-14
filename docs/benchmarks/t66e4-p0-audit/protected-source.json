@@ -1,0 +1,118 @@
+{
+  "mobile/lib/main.dart": {
+    "sha256": "ee9f472e83a77e7e86c5ce544dca63e2770b35c57da9178aa00995f5832dc354",
+    "unchanged_from_HEAD": true
+  },
+  "mobile/pubspec.yaml": {
+    "sha256": "ce582a273b8cad6095b67655bd645342eb4592be8fb0b6158307e302dc2f4bb6",
+    "unchanged_from_HEAD": true
+  },
+  "mobile/pubspec.lock": {
+    "sha256": "669da919f8110efd863187877d1990ead6d92dea6199ea77e3199edfce740988",
+    "unchanged_from_HEAD": true
+  },
+  "mobile/lib/src/app_state.dart": {
+    "sha256": "5b3f22d80f25f87d3df6b694285e288097eedc1d758322a249d2d3ad13b13156",
+    "unchanged_from_HEAD": true
+  },
+  "mobile/lib/src/coherent_refresh_coordinator.dart": {
+    "sha256": "85cca7a72805c1355857691cc3bf5f3cdcb90dd554a82c02a65b8e0fbff3833a",
+    "unchanged_from_HEAD": true
+  },
+  "mobile/lib/src/authoritative_bundle_canonical.dart": {
+    "sha256": "9ada1650a62333f77dad47cc075eca15ebec04bfe66a45d14b61590a148d8cf0",
+    "unchanged_from_HEAD": true
+  },
+  "mobile/lib/src/authoritative_bundle_validation.dart": {
+    "sha256": "9c525d7f3b76a6b2358902c4078a465ab53fcee0b1f892f8f531ea49206df44d",
+    "unchanged_from_HEAD": true
+  },
+  "mobile/lib/src/authoritative_snapshot_validation.dart": {
+    "sha256": "70a5a94bbce914df1fcc46871f5531cbd156d3e45cda289415fc078132543ac3",
+    "unchanged_from_HEAD": true
+  },
+  "mobile/lib/src/local_snapshot_repository.dart": {
+    "sha256": "316c491e512873b500e5417a4b5dff4ebf8885d6a398d5a57cf63b2c28d25432",
+    "unchanged_from_HEAD": true
+  },
+  "mobile/lib/src/offline/offline_projection.dart": {
+    "sha256": "b1a855d88995e89867f2872ce0f70198e34da877015f9824c67ef8a9f54dc7d9",
+    "unchanged_from_HEAD": true
+  },
+  "mobile/lib/src/offline/offline_lineage_validator.dart": {
+    "sha256": "0e4f5db34a4257fc071f68652e46863f1565e42a32e72914bf785186e2e5b705",
+    "unchanged_from_HEAD": true
+  },
+  "mobile/lib/src/offline/online_write_state.dart": {
+    "sha256": "97b87c50d436b188dfce89be77e9ec6a70630d99378d0e1ba1cbe9007606791f",
+    "unchanged_from_HEAD": true
+  },
+  "mobile/lib/src/segmented/c1.dart": {
+    "sha256": "388c675265a2d0c6579b9a3819eb6a590d059c7667eec98e22641d6664551c46",
+    "unchanged_from_HEAD": true
+  },
+  "mobile/lib/src/segmented/protocol.dart": {
+    "sha256": "58f70712efd73899817e97d686ea7c326f77414a89da86cd7e07ac05816c606d",
+    "unchanged_from_HEAD": true
+  },
+  "mobile/lib/src/segmented/store.dart": {
+    "sha256": "fa99df9daf275073fa4369acc52d309c5c4044b2264cd72946301aaa8813f469",
+    "unchanged_from_HEAD": true
+  },
+  "mobile/lib/src/segmented/store_publication.dart": {
+    "sha256": "e1c5a0487e9d768236e51e75a3c951d54dcc23b3d9f784423af40a6f9a22d53b",
+    "unchanged_from_HEAD": true
+  },
+  "mobile/lib/src/segmented/fetch.dart": {
+    "sha256": "a1e6b4b549dcb5a11d5e0cabcb7806ff42eb831f4192c40b353a103698721253",
+    "unchanged_from_HEAD": true
+  },
+  "mobile/lib/src/segmented/transport.dart": {
+    "sha256": "39a1e2ba3ede2ad71e05bef15e3a49602701e72933cefba71f9738a15927efb8",
+    "unchanged_from_HEAD": true
+  },
+  "mobile/lib/src/segmented/verification.dart": {
+    "sha256": "aa0581cd37be442270dcbb9a9c4cf68e403e7360672a11a459bf2890dc23971d",
+    "unchanged_from_HEAD": true
+  },
+  "mobile/lib/src/segmented/graph.dart": {
+    "sha256": "4738e691fd8b75e41ab01ab408b50406787815bc8956bd6e38951f336fa3172e",
+    "unchanged_from_HEAD": true
+  },
+  "backend/app/money.py": {
+    "sha256": "696276ff70b0ec70e12ec592ec03863edf8911d04b92f26350d787a71b2e79db",
+    "unchanged_from_HEAD": true
+  },
+  "backend/isolated_sync/raw.py": {
+    "sha256": "ee05786836a38a5f208b7bfa2845294f6405f5fd4073e780f7413ab1d4c4a9fb",
+    "unchanged_from_HEAD": true
+  },
+  "backend/isolated_sync/canonical.py": {
+    "sha256": "3202c48ec6d38158e7e4eca43177285bf5068aa1c6f31af70796e2d97dc8565f",
+    "unchanged_from_HEAD": true
+  },
+  "backend/isolated_sync/segments.py": {
+    "sha256": "84a7aca85c3c7392fb4a76e6d8ccc64ac6726074e10acb28394feac53fac0d0f",
+    "unchanged_from_HEAD": true
+  },
+  "backend/app/services/snapshot.py": {
+    "sha256": "92bba975d0c0e4776b6ef775a647009ad1de6887a36b5c0a9270ad2ba7bb5240",
+    "unchanged_from_HEAD": true
+  },
+  "backend/app/services/authoritative_state.py": {
+    "sha256": "e953aa895de993472f5d04159b9951cf901ca4cf0defc3af8672e2cc6c39daab",
+    "unchanged_from_HEAD": true
+  },
+  "backend/app/services/offline_reconciliation.py": {
+    "sha256": "06ee8798e20ca4d9afaecd993afbf4bfe9db721eae0df35d823c8d665be09b56",
+    "unchanged_from_HEAD": true
+  },
+  "backend/app/db.py": {
+    "sha256": "378783da0a16e5af77a26e7b4534c5f210f90d49829f29ab1d4c748cae82e2c2",
+    "unchanged_from_HEAD": true
+  },
+  "backend/app/db_migrations.py": {
+    "sha256": "24c1445294cddc08ddbdf69cc1a399d8c29276db9dc2842e00eeac06319390ea",
+    "unchanged_from_HEAD": true
+  }
+}

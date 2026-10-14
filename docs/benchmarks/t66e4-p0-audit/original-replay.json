@@ -1,0 +1,44 @@
+{
+  "before": {
+    "bundle": false,
+    "baseline": false,
+    "legacy_input": false,
+    "wire_unchanged": true,
+    "source_codepoints": [
+      28,
+      43,
+      48,
+      48,
+      48,
+      49,
+      48,
+      48,
+      48,
+      46,
+      48,
+      48,
+      31
+    ]
+  },
+  "after": {
+    "bundle": true,
+    "baseline": true,
+    "legacy_input": false,
+    "wire_unchanged": true,
+    "source_codepoints": [
+      28,
+      43,
+      48,
+      48,
+      48,
+      49,
+      48,
+      48,
+      48,
+      46,
+      48,
+      48,
+      31
+    ]
+  }
+}

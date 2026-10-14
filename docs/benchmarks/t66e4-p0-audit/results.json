@@ -1,0 +1,1149 @@
+{
+  "scope": "T6.6E4-P0 independent targeted audit",
+  "verdict": "PASS — T6.6E4-P0 INDEPENDENT TARGETED AUDIT COMPLETE",
+  "committed_baseline": "ab59d6bbc39f27c36beb059f984ef527ac7b0bef",
+  "uncommitted_implementation": "PRESERVED",
+  "initial_target_files": 18,
+  "preservation": {
+    "docs/benchmarks/t66e4-contract/README.md": {
+      "initial_sha256": "c3829749dcc46f0c8dff7fc7ba1988f8f2e125ebab2325138bc1649ce051ca02",
+      "final_sha256": "c3829749dcc46f0c8dff7fc7ba1988f8f2e125ebab2325138bc1649ce051ca02",
+      "unchanged": true
+    },
+    "docs/benchmarks/t66e4-contract/probe.py": {
+      "initial_sha256": "73af6d49e0cf60ca66321d9e75108961288499c1f88879f51f9b4fe29a270147",
+      "final_sha256": "73af6d49e0cf60ca66321d9e75108961288499c1f88879f51f9b4fe29a270147",
+      "unchanged": true
+    },
+    "docs/benchmarks/t66e4-contract/probe_test.dart": {
+      "initial_sha256": "599cd5c1e281e31fff1a454fdff079280f41101a5d98ae93cb826dbf8238b083",
+      "final_sha256": "599cd5c1e281e31fff1a454fdff079280f41101a5d98ae93cb826dbf8238b083",
+      "unchanged": true
+    },
+    "docs/benchmarks/t66e4-contract/summary.json": {
+      "initial_sha256": "ab8a0095230616d8902a0f6841136618f1e886d31dbab09fa5414e0901d51aea",
+      "final_sha256": "ab8a0095230616d8902a0f6841136618f1e886d31dbab09fa5414e0901d51aea",
+      "unchanged": true
+    },
+    "docs/benchmarks/t66e4-p0/README.md": {
+      "initial_sha256": "195f74325e89f9a182fadddb4bddef6b6bf70005d4e9d0b153856a6688a5ba1b",
+      "final_sha256": "195f74325e89f9a182fadddb4bddef6b6bf70005d4e9d0b153856a6688a5ba1b",
+      "unchanged": true
+    },
+    "docs/benchmarks/t66e4-p0/preserved-history.sha256": {
+      "initial_sha256": "9131cc67952d8908c0d730eed938f594a0f49be1958b0ce8ab1887ae0f6e8f5a",
+      "final_sha256": "9131cc67952d8908c0d730eed938f594a0f49be1958b0ce8ab1887ae0f6e8f5a",
+      "unchanged": true
+    },
+    "docs/benchmarks/t66e4-p0/summary.json": {
+      "initial_sha256": "ebfba724cc3190596525a3892786cc8085ce821da421970ba74d39b6274ebee6",
+      "final_sha256": "ebfba724cc3190596525a3892786cc8085ce821da421970ba74d39b6274ebee6",
+      "unchanged": true
+    },
+    "docs/t66e4-implementation.md": {
+      "initial_sha256": "19ac0d394406f59897305610607841eba5eb8661a5732f108bc346e0dd4614fe",
+      "final_sha256": "19ac0d394406f59897305610607841eba5eb8661a5732f108bc346e0dd4614fe",
+      "unchanged": true
+    },
+    "docs/t66e4-p0-implementation.md": {
+      "initial_sha256": "c423df697e4f9722039e02ff49597e65dd3e39d8ba6c5b74210b710da6ae8f8c",
+      "final_sha256": "c423df697e4f9722039e02ff49597e65dd3e39d8ba6c5b74210b710da6ae8f8c",
+      "unchanged": true
+    },
+    "mobile/lib/src/api_client.dart": {
+      "initial_sha256": "2f5645a1e32971569862410aee0833c958bd65c7d8e44f0caba0d7551e91ae0b",
+      "final_sha256": "2f5645a1e32971569862410aee0833c958bd65c7d8e44f0caba0d7551e91ae0b",
+      "unchanged": true
+    },
+    "mobile/lib/src/authoritative_bundle.dart": {
+      "initial_sha256": "d94e9733fa39fcaefe8fd99d1df7524460d1a55f08545d86d2e33c8d668088df",
+      "final_sha256": "d94e9733fa39fcaefe8fd99d1df7524460d1a55f08545d86d2e33c8d668088df",
+      "unchanged": true
+    },
+    "mobile/lib/src/models.dart": {
+      "initial_sha256": "d1872834092738195659eef810a1ec193fbb24e75cbd18d9c89717f7d7a83e87",
+      "final_sha256": "d1872834092738195659eef810a1ec193fbb24e75cbd18d9c89717f7d7a83e87",
+      "unchanged": true
+    },
+    "mobile/lib/src/money.dart": {
+      "initial_sha256": "c98c980c11edeb773b91e5b368397175fde1ff30c24d1752968eae72ca99dce8",
+      "final_sha256": "c98c980c11edeb773b91e5b368397175fde1ff30c24d1752968eae72ca99dce8",
+      "unchanged": true
+    },
+    "mobile/lib/src/offline/offline_data.dart": {
+      "initial_sha256": "7c742732d687100e1183b4018b79a1e5b4827b78ed1a16ae84adbdd820c0e9ef",
+      "final_sha256": "7c742732d687100e1183b4018b79a1e5b4827b78ed1a16ae84adbdd820c0e9ef",
+      "unchanged": true
+    },
+    "mobile/lib/src/offline/offline_store.dart": {
+      "initial_sha256": "a8d767e509881a1a8e9d3196d1fd955b1b4cf793a36f3ffd593b869b686bf8c2",
+      "final_sha256": "a8d767e509881a1a8e9d3196d1fd955b1b4cf793a36f3ffd593b869b686bf8c2",
+      "unchanged": true
+    },
+    "mobile/lib/src/segmented/object.dart": {
+      "initial_sha256": "f170248a3d11ddc1ec093bc7de632da1200001ae25bf5c2a3e3d422485862a4a",
+      "final_sha256": "f170248a3d11ddc1ec093bc7de632da1200001ae25bf5c2a3e3d422485862a4a",
+      "unchanged": true
+    },
+    "mobile/test/authoritative_money_compatibility_test.dart": {
+      "initial_sha256": "240e463815a6a12ff1df8487784b23cf69ea2161f0d49cd5fa446f0320de3977",
+      "final_sha256": "240e463815a6a12ff1df8487784b23cf69ea2161f0d49cd5fa446f0320de3977",
+      "unchanged": true
+    },
+    "mobile/test/fixtures/money_before_e4_p0.dart.txt": {
+      "initial_sha256": "9f1aef7d287f6c9c321f8d4e2fb5b9a33b4f62df9a1270820aed2a814889a02e",
+      "final_sha256": "9f1aef7d287f6c9c321f8d4e2fb5b9a33b4f62df9a1270820aed2a814889a02e",
+      "unchanged": true
+    }
+  },
+  "HEAD_main_origin_remote_equal": true,
+  "staged_paths": [],
+  "commit": "NOT PERFORMED",
+  "push": "NOT PERFORMED",
+  "independent": {
+    "python_cases": [
+      {
+        "name": "test_independent_backend_authoritative_and_e1_admission",
+        "result": "PASS"
+      },
+      {
+        "name": "test_pre_correction_input_oracle_and_journal_admission",
+        "result": "PASS"
+      },
+      {
+        "name": "test_raw_c1_and_hashes_against_python_server_bytes",
+        "result": "PASS"
+      },
+      {
+        "name": "test_original_five_diagnostics_and_frozen_source_are_intact",
+        "result": "PASS"
+      },
+      {
+        "name": "test_original_pre_p0_readers_and_corrected_real_wire",
+        "result": "PASS"
+      }
+    ],
+    "flutter_cases": [
+      {
+        "name": "original backend/E1-compatible representation is accepted only at authoritative legacy boundary",
+        "result": "success"
+      },
+      {
+        "name": "fresh Python process reads durable raw bytes and independently recomputes v7 fingerprint and v4 lineage",
+        "result": "success"
+      },
+      {
+        "name": "failed baseline authority publication preserves existing B, J and pending bytes",
+        "result": "success"
+      },
+      {
+        "name": "existing formatted journal bytes survive reopen and replay without input normalization",
+        "result": "success"
+      },
+      {
+        "name": "old accepted BOM/leading-zero input appends exact raw value and retains previous journal prefix",
+        "result": "success"
+      },
+      {
+        "name": "pending acknowledgment still requires original token and never rewrites J",
+        "result": "success"
+      },
+      {
+        "name": "recovery artifact permits compatible B and original J but never permits nested compatible J input",
+        "result": "success"
+      },
+      {
+        "name": "MW B compatibility cannot relax nested J request admission or issue HTTP",
+        "result": "success"
+      },
+      {
+        "name": "actual append rejects read-compatible nested settings/scheduled_income and preserves bytes",
+        "result": "success"
+      },
+      {
+        "name": "actual append rejects read-compatible nested app_settings/scheduled_income and preserves bytes",
+        "result": "success"
+      },
+      {
+        "name": "actual append rejects read-compatible nested settings/cash_flow_balance and preserves bytes",
+        "result": "success"
+      },
+      {
+        "name": "actual append rejects read-compatible nested app_settings/cash_flow_balance and preserves bytes",
+        "result": "success"
+      },
+      {
+        "name": "actual append rejects read-compatible nested settings/card_limit and preserves bytes",
+        "result": "success"
+      },
+      {
+        "name": "actual append rejects read-compatible nested app_settings/card_limit and preserves bytes",
+        "result": "success"
+      },
+      {
+        "name": "actual append rejects read-compatible nested settings/base_next_month_liquidity and preserves bytes",
+        "result": "success"
+      },
+      {
+        "name": "actual append rejects read-compatible nested app_settings/base_next_month_liquidity and preserves bytes",
+        "result": "success"
+      },
+      {
+        "name": "actual append rejects read-compatible nested settings/liquidity_status and preserves bytes",
+        "result": "success"
+      },
+      {
+        "name": "actual append rejects read-compatible nested app_settings/liquidity_status and preserves bytes",
+        "result": "success"
+      }
+    ],
+    "unique_pass": 23,
+    "fail": 0,
+    "differential": {
+      "cases": 24836,
+      "accepted": 4903,
+      "rejected": 19933,
+      "mismatches": {
+        "authoritative": [],
+        "e1": [],
+        "frozen": [],
+        "raw": [],
+        "c1_hash": [],
+        "non_setting": []
+      },
+      "frozen_accepted": 3866,
+      "families": {
+        "character-boundary": {
+          "accepted": 622,
+          "rejected": 17258
+        },
+        "internal-character": {
+          "accepted": 30,
+          "rejected": 1401
+        },
+        "whitespace-cross-product": {
+          "accepted": 4205,
+          "rejected": 0
+        },
+        "whitespace-format-mixed": {
+          "accepted": 0,
+          "rejected": 580
+        },
+        "grammar-and-range": {
+          "accepted": 36,
+          "rejected": 186
+        },
+        "explicit-regression": {
+          "accepted": 4,
+          "rejected": 11
+        },
+        "seeded-malformed": {
+          "accepted": 6,
+          "rejected": 497
+        }
+      },
+      "seed": 2026101404,
+      "unicode_version": "15.0.0",
+      "python_whitespace": [
+        9,
+        10,
+        11,
+        12,
+        13,
+        28,
+        29,
+        30,
+        31,
+        32,
+        133,
+        160,
+        5760,
+        8192,
+        8193,
+        8194,
+        8195,
+        8196,
+        8197,
+        8198,
+        8199,
+        8200,
+        8201,
+        8202,
+        8232,
+        8233,
+        8239,
+        8287,
+        12288
+      ],
+      "tested_characters": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132,
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        147,
+        148,
+        149,
+        150,
+        151,
+        152,
+        153,
+        154,
+        155,
+        156,
+        157,
+        158,
+        159,
+        160,
+        173,
+        233,
+        769,
+        847,
+        1536,
+        1537,
+        1538,
+        1539,
+        1540,
+        1541,
+        1564,
+        1633,
+        1757,
+        1807,
+        2192,
+        2193,
+        2274,
+        5760,
+        6158,
+        8192,
+        8193,
+        8194,
+        8195,
+        8196,
+        8197,
+        8198,
+        8199,
+        8200,
+        8201,
+        8202,
+        8203,
+        8204,
+        8205,
+        8206,
+        8207,
+        8232,
+        8233,
+        8234,
+        8235,
+        8236,
+        8237,
+        8238,
+        8239,
+        8287,
+        8288,
+        8289,
+        8290,
+        8291,
+        8292,
+        8294,
+        8295,
+        8296,
+        8297,
+        8298,
+        8299,
+        8300,
+        8301,
+        8302,
+        8303,
+        8722,
+        12288,
+        44544,
+        54620,
+        65279,
+        65291,
+        65297,
+        65529,
+        65530,
+        65531,
+        69821,
+        69837,
+        78896,
+        78897,
+        78898,
+        78899,
+        78900,
+        78901,
+        78902,
+        78903,
+        78904,
+        78905,
+        78906,
+        78907,
+        78908,
+        78909,
+        78910,
+        78911,
+        113824,
+        113825,
+        113826,
+        113827,
+        119155,
+        119156,
+        119157,
+        119158,
+        119159,
+        119160,
+        119161,
+        119162,
+        128512,
+        917505,
+        917536,
+        917537,
+        917538,
+        917539,
+        917540,
+        917541,
+        917542,
+        917543,
+        917544,
+        917545,
+        917546,
+        917547,
+        917548,
+        917549,
+        917550,
+        917551,
+        917552,
+        917553,
+        917554,
+        917555,
+        917556,
+        917557,
+        917558,
+        917559,
+        917560,
+        917561,
+        917562,
+        917563,
+        917564,
+        917565,
+        917566,
+        917567,
+        917568,
+        917569,
+        917570,
+        917571,
+        917572,
+        917573,
+        917574,
+        917575,
+        917576,
+        917577,
+        917578,
+        917579,
+        917580,
+        917581,
+        917582,
+        917583,
+        917584,
+        917585,
+        917586,
+        917587,
+        917588,
+        917589,
+        917590,
+        917591,
+        917592,
+        917593,
+        917594,
+        917595,
+        917596,
+        917597,
+        917598,
+        917599,
+        917600,
+        917601,
+        917602,
+        917603,
+        917604,
+        917605,
+        917606,
+        917607,
+        917608,
+        917609,
+        917610,
+        917611,
+        917612,
+        917613,
+        917614,
+        917615,
+        917616,
+        917617,
+        917618,
+        917619,
+        917620,
+        917621,
+        917622,
+        917623,
+        917624,
+        917625,
+        917626,
+        917627,
+        917628,
+        917629,
+        917630,
+        917631
+      ],
+      "all_unicode_format_characters": 170,
+      "corpus_sha256": "0dd15785c7a3d33b551455dd1fc57e9f0ea181a4fb26f974870dc3b5120a7115",
+      "frozen_source_sha256": "9f1aef7d287f6c9c321f8d4e2fb5b9a33b4f62df9a1270820aed2a814889a02e",
+      "cross_oracles": {
+        "neither": 19815,
+        "both": 3748,
+        "authoritative_only": 1155,
+        "input_only": 118
+      }
+    }
+  },
+  "historical_original_diagnostic": {
+    "counts": {
+      "success": 3,
+      "failure": 2
+    },
+    "files": {
+      "probe_test.dart": {
+        "success": 3,
+        "failure": 2
+      }
+    },
+    "cases": [
+      {
+        "name": "backend complete Snapshot and coherent bundle preserve the raw string",
+        "result": "success"
+      },
+      {
+        "name": "backend-derived monetary differential identifies the legacy boundary",
+        "result": "success"
+      },
+      {
+        "name": "existing E1/E2/E3 accepts the complete server graph and persists bytes",
+        "result": "success"
+      },
+      {
+        "name": "CURRENT full bundle admission rejects the server-approved original",
+        "result": "failure"
+      },
+      {
+        "name": "CURRENT OfflineBaseline v4 parser rejects the same complete Snapshot",
+        "result": "failure"
+      }
+    ]
+  },
+  "original_counterexample_replay": {
+    "before": {
+      "bundle": false,
+      "baseline": false,
+      "legacy_input": false,
+      "wire_unchanged": true,
+      "source_codepoints": [
+        28,
+        43,
+        48,
+        48,
+        48,
+        49,
+        48,
+        48,
+        48,
+        46,
+        48,
+        48,
+        31
+      ]
+    },
+    "after": {
+      "bundle": true,
+      "baseline": true,
+      "legacy_input": false,
+      "wire_unchanged": true,
+      "source_codepoints": [
+        28,
+        43,
+        48,
+        48,
+        48,
+        49,
+        48,
+        48,
+        48,
+        46,
+        48,
+        48,
+        31
+      ]
+    }
+  },
+  "reported_corpus_rebuilt": {
+    "cases": 4755,
+    "accepted": 3816,
+    "rejected": 939,
+    "sha256": "59bd99165076a10104dbb4c80f3c77a9082b0f5eaa75ba933be637b7d2a584d6"
+  },
+  "regression": {
+    "flutter": {
+      "counts": {
+        "success": 1277,
+        "skip": 2
+      },
+      "files": {
+        "coherent_get_dag_test.dart": {
+          "success": 91
+        },
+        "authoritative_acquisition_test.dart": {
+          "success": 57
+        },
+        "t66a_payload_test.dart": {
+          "skip": 2
+        },
+        "offline_persistence_test.dart": {
+          "success": 9
+        },
+        "local_snapshot_repository_test.dart": {
+          "success": 7
+        },
+        "notification_models_test.dart": {
+          "success": 2
+        },
+        "offline_notification_identity_test.dart": {
+          "success": 5
+        },
+        "notification_registration_test.dart": {
+          "success": 11
+        },
+        "utility_discount_default_test.dart": {
+          "success": 1
+        },
+        "offline_state_projection_test.dart": {
+          "success": 18
+        },
+        "segmented_acquisition_store_test.dart": {
+          "success": 14
+        },
+        "app_state_test.dart": {
+          "success": 3
+        },
+        "authoritative_money_compatibility_test.dart": {
+          "success": 183
+        },
+        "segmented_publication_crash_test.dart": {
+          "success": 16
+        },
+        "segmented_incremental_verification_test.dart": {
+          "success": 6
+        },
+        "segmented_transport_test.dart": {
+          "success": 30
+        },
+        "authoritative_bundle_test.dart": {
+          "success": 27
+        },
+        "segmented_protocol_test.dart": {
+          "success": 58
+        },
+        "offline_lineage_recovery_test.dart": {
+          "success": 8
+        },
+        "authoritative_bundle_boundary_matrix_test.dart": {
+          "success": 1
+        },
+        "formatters_test.dart": {
+          "success": 2
+        },
+        "authoritative_bundle_trust_boundary_test.dart": {
+          "success": 47
+        },
+        "segmented_root_pin_model_test.dart": {
+          "success": 2
+        },
+        "segmented_crash_test.dart": {
+          "success": 7
+        },
+        "notification_discount_policy_test.dart": {
+          "success": 17
+        },
+        "segmented_authority_test.dart": {
+          "success": 19
+        },
+        "segmented_publication_test.dart": {
+          "success": 36
+        },
+        "segmented_fetch_crash_test.dart": {
+          "success": 3
+        },
+        "authoritative_bundle_canonical_test.dart": {
+          "success": 90
+        },
+        "authoritative_bundle_admission_test.dart": {
+          "success": 26
+        },
+        "offline_refresh_test.dart": {
+          "success": 27
+        },
+        "apk_download_controller_test.dart": {
+          "success": 1
+        },
+        "segmented_money_correction_test.dart": {
+          "success": 166
+        },
+        "offline_reconciliation_test.dart": {
+          "success": 14
+        },
+        "segmented_store_test.dart": {
+          "success": 31
+        },
+        "offline_widget_submit_test.dart": {
+          "success": 13
+        },
+        "authoritative_bundle_unicode_test.dart": {
+          "success": 11
+        },
+        "exact_money_domain_test.dart": {
+          "success": 5
+        },
+        "freeze_reaudit_outcome_test.dart": {
+          "success": 11
+        },
+        "segmented_i25_publication_test.dart": {
+          "success": 30
+        },
+        "submit_latency_diagnostic_test.dart": {
+          "success": 3
+        },
+        "family_screen_test.dart": {
+          "success": 5
+        },
+        "segmented_fetch_test.dart": {
+          "success": 72
+        },
+        "segmented_i25_baseline_test.dart": {
+          "success": 1
+        },
+        "segmented_response_cleanup_test.dart": {
+          "success": 13
+        },
+        "date_picker_row_test.dart": {
+          "success": 1
+        },
+        "recurring_series_widget_test.dart": {
+          "success": 6
+        },
+        "authoritative_rebuild_pending_test.dart": {
+          "success": 11
+        },
+        "segmented_schema_correction_test.dart": {
+          "success": 45
+        },
+        "ai_audit_report_test.dart": {
+          "success": 9
+        },
+        "segmented_diff_integration_test.dart": {
+          "success": 1
+        },
+        "segmented_http_integration_test.dart": {
+          "success": 5
+        }
+      }
+    },
+    "P0_tests": {
+      "pass": 183,
+      "fail": 0,
+      "executed_within_full_flutter": true
+    },
+    "sigkill": {
+      "E1": 7,
+      "E2": 3,
+      "E3": 16,
+      "pass": 26,
+      "executed_within_full_flutter": true
+    },
+    "backend": {
+      "tests": 1315,
+      "subtests": 1540,
+      "fail": 0,
+      "warnings": 1,
+      "pytest_seconds": 1706.82
+    },
+    "safety": {
+      "pass": 60
+    },
+    "frontend": {
+      "pass": 21,
+      "build": "PASS"
+    }
+  },
+  "timings": {
+    "analyze-exit": {
+      "exit_code": 0,
+      "seconds": 3.861353048007004,
+      "command": [
+        "/home/hjkerman/.flutter/bin/flutter",
+        "analyze",
+        "--no-pub"
+      ]
+    },
+    "audit-analyze-exit": {
+      "exit_code": 0
+    },
+    "backend-exit": {
+      "exit_code": 0,
+      "seconds": 1707.373618668993
+    },
+    "build-exit": {
+      "exit_code": 0,
+      "seconds": 26.913213852996705,
+      "command": [
+        "/home/hjkerman/.flutter/bin/flutter",
+        "build",
+        "apk",
+        "--debug",
+        "--no-pub",
+        "--dart-define=MONEY_NOTE_API_BASE_URL=https://independent-p0.synthetic"
+      ]
+    },
+    "flutter-exit": {
+      "exit_code": 0,
+      "seconds": 836.5712988949963
+    },
+    "frontend-build-exit": {
+      "exit_code": 0,
+      "seconds": 6.626569027022924,
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ]
+    },
+    "frontend-test-exit": {
+      "exit_code": 0,
+      "seconds": 1.5243414870055858,
+      "command": [
+        "npm",
+        "test"
+      ]
+    },
+    "independent-exit": {
+      "exit_code": 0,
+      "seconds": 24.085900526988553
+    },
+    "independent-final-exit": {
+      "exit_code": 0,
+      "seconds": 20.23279027402168
+    },
+    "integration-exit": {
+      "exit_code": 0,
+      "seconds": 6.969575496012112
+    },
+    "original-exit": {
+      "exit_code": 1,
+      "seconds": 12.541551844013156
+    },
+    "original-replay-exit": {
+      "exit_code": 0,
+      "seconds": 3.8299363649857696
+    },
+    "safety-exit": {
+      "exit_code": 0,
+      "seconds": 6.484307175007416,
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "scripts/tests",
+        "scripts/benchmarks",
+        "--junitxml=/tmp/mn-e4-p0-audit/safety.xml"
+      ]
+    }
+  },
+  "static_checks": {
+    "ruff": {
+      "command": [
+        ".venv/bin/ruff",
+        "check",
+        "backend",
+        "scripts",
+        "docs/benchmarks/t66e4-p0-audit"
+      ],
+      "exit_code": 0,
+      "seconds": 0.010261222982080653
+    },
+    "compileall": {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "compileall",
+        "-q",
+        "backend",
+        "scripts",
+        "docs/benchmarks/t66e4-p0-audit"
+      ],
+      "exit_code": 0,
+      "seconds": 0.04621918601333164
+    },
+    "changed-format": {
+      "command": [
+        "/home/hjkerman/.flutter/bin/dart",
+        "format",
+        "--output=none",
+        "--set-exit-if-changed",
+        "mobile/lib/src/api_client.dart",
+        "mobile/lib/src/authoritative_bundle.dart",
+        "mobile/lib/src/models.dart",
+        "mobile/lib/src/money.dart",
+        "mobile/lib/src/offline/offline_data.dart",
+        "mobile/lib/src/offline/offline_store.dart",
+        "mobile/lib/src/segmented/object.dart",
+        "mobile/test/authoritative_money_compatibility_test.dart"
+      ],
+      "exit_code": 0,
+      "seconds": 0.11146768898470327
+    },
+    "full-format": {
+      "command": [
+        "/home/hjkerman/.flutter/bin/dart",
+        "format",
+        "--output=none",
+        "--set-exit-if-changed",
+        "mobile/lib",
+        "mobile/test"
+      ],
+      "exit_code": 1,
+      "seconds": 0.4164733130019158
+    },
+    "diff-check": {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.00489100199774839
+    },
+    "preexisting_format": [
+      {
+        "path": "mobile/lib/src/apk_install_bridge.dart",
+        "not_in_correction": true,
+        "unchanged_from_HEAD": true
+      },
+      {
+        "path": "mobile/lib/src/screens/home_shell.dart",
+        "not_in_correction": true,
+        "unchanged_from_HEAD": true
+      },
+      {
+        "path": "mobile/lib/src/screens/management_month_close.dart",
+        "not_in_correction": true,
+        "unchanged_from_HEAD": true
+      },
+      {
+        "path": "mobile/lib/src/screens/management_settings.dart",
+        "not_in_correction": true,
+        "unchanged_from_HEAD": true
+      },
+      {
+        "path": "mobile/lib/src/screens/month_entries_screen.dart",
+        "not_in_correction": true,
+        "unchanged_from_HEAD": true
+      },
+      {
+        "path": "mobile/lib/src/screens/snapshot_manager_screen.dart",
+        "not_in_correction": true,
+        "unchanged_from_HEAD": true
+      },
+      {
+        "path": "mobile/test/date_picker_row_test.dart",
+        "not_in_correction": true,
+        "unchanged_from_HEAD": true
+      },
+      {
+        "path": "mobile/test/offline_notification_identity_test.dart",
+        "not_in_correction": true,
+        "unchanged_from_HEAD": true
+      },
+      {
+        "path": "mobile/test/offline_persistence_test.dart",
+        "not_in_correction": true,
+        "unchanged_from_HEAD": true
+      },
+      {
+        "path": "mobile/test/offline_reconciliation_test.dart",
+        "not_in_correction": true,
+        "unchanged_from_HEAD": true
+      }
+    ]
+  },
+  "audit_source_hashes": {
+    "differential.dart": "860564ed865d2702fa938bef06b626e1c8a87c8a3803f6f79162bb914cb6c9d3",
+    "inspect_state.py": "5955c59a0bd6b1a3edcd00ced8c9c2d39215311a0359bd4cefc9b17794a0cd5d",
+    "integration_test.dart": "21561a850fd1e50994f95535faa11ca85176f4294c67828eedcbfa6e40b410c0",
+    "legacy_read.dart": "8d51007f51c99509108c4b87f2311d8cefb494a58d141e71904e6c412f010199",
+    "make_corpus.py": "74d96540df8a90a7d2826c708a92e0386d3dc0cb0633948818676c013147bcd3",
+    "test_audit.py": "488ea4ccfb9e3a20f453ce85c8fa722d9c6a5f89216b49f91932797d7a50fb51"
+  },
+  "production": {
+    "access": "NONE",
+    "deployment": "NOT PERFORMED",
+    "apk_installation": "NOT PERFORMED",
+    "segmented_activation": "NOT PERFORMED"
+  },
+  "findings": {
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 0
+  },
+  "safe_to_resume_E4": true,
+  "safe_to_start_R1": false,
+  "safe_to_deploy": false
+}

@@ -1,0 +1,132 @@
+{
+  "HEAD": "ab59d6bbc39f27c36beb059f984ef527ac7b0bef",
+  "status": " M mobile/lib/src/api_client.dart\n M mobile/lib/src/authoritative_bundle.dart\n M mobile/lib/src/models.dart\n M mobile/lib/src/money.dart\n M mobile/lib/src/offline/offline_data.dart\n M mobile/lib/src/offline/offline_store.dart\n M mobile/lib/src/segmented/object.dart\n?? docs/benchmarks/t66e4-contract/README.md\n?? docs/benchmarks/t66e4-contract/probe.py\n?? docs/benchmarks/t66e4-contract/probe_test.dart\n?? docs/benchmarks/t66e4-contract/summary.json\n?? docs/benchmarks/t66e4-p0/README.md\n?? docs/benchmarks/t66e4-p0/preserved-history.sha256\n?? docs/benchmarks/t66e4-p0/summary.json\n?? docs/t66e4-implementation.md\n?? docs/t66e4-p0-implementation.md\n?? mobile/test/authoritative_money_compatibility_test.dart\n?? mobile/test/fixtures/money_before_e4_p0.dart.txt\n",
+  "files": {
+    "docs/benchmarks/t66e4-contract/README.md": {
+      "sha256": "c3829749dcc46f0c8dff7fc7ba1988f8f2e125ebab2325138bc1649ce051ca02",
+      "bytes": 4882,
+      "tracked": false
+    },
+    "docs/benchmarks/t66e4-contract/probe.py": {
+      "sha256": "73af6d49e0cf60ca66321d9e75108961288499c1f88879f51f9b4fe29a270147",
+      "bytes": 3742,
+      "tracked": false
+    },
+    "docs/benchmarks/t66e4-contract/probe_test.dart": {
+      "sha256": "599cd5c1e281e31fff1a454fdff079280f41101a5d98ae93cb826dbf8238b083",
+      "bytes": 6534,
+      "tracked": false
+    },
+    "docs/benchmarks/t66e4-contract/summary.json": {
+      "sha256": "ab8a0095230616d8902a0f6841136618f1e886d31dbab09fa5414e0901d51aea",
+      "bytes": 1438,
+      "tracked": false
+    },
+    "docs/benchmarks/t66e4-p0/README.md": {
+      "sha256": "195f74325e89f9a182fadddb4bddef6b6bf70005d4e9d0b153856a6688a5ba1b",
+      "bytes": 3650,
+      "tracked": false
+    },
+    "docs/benchmarks/t66e4-p0/preserved-history.sha256": {
+      "sha256": "9131cc67952d8908c0d730eed938f594a0f49be1958b0ce8ab1887ae0f6e8f5a",
+      "bytes": 531,
+      "tracked": false
+    },
+    "docs/benchmarks/t66e4-p0/summary.json": {
+      "sha256": "ebfba724cc3190596525a3892786cc8085ce821da421970ba74d39b6274ebee6",
+      "bytes": 2107,
+      "tracked": false
+    },
+    "docs/t66e4-implementation.md": {
+      "sha256": "19ac0d394406f59897305610607841eba5eb8661a5732f108bc346e0dd4614fe",
+      "bytes": 14781,
+      "tracked": false
+    },
+    "docs/t66e4-p0-implementation.md": {
+      "sha256": "c423df697e4f9722039e02ff49597e65dd3e39d8ba6c5b74210b710da6ae8f8c",
+      "bytes": 14595,
+      "tracked": false
+    },
+    "mobile/lib/src/api_client.dart": {
+      "sha256": "2f5645a1e32971569862410aee0833c958bd65c7d8e44f0caba0d7551e91ae0b",
+      "bytes": 24191,
+      "tracked": true
+    },
+    "mobile/lib/src/authoritative_bundle.dart": {
+      "sha256": "d94e9733fa39fcaefe8fd99d1df7524460d1a55f08545d86d2e33c8d668088df",
+      "bytes": 4835,
+      "tracked": true
+    },
+    "mobile/lib/src/models.dart": {
+      "sha256": "d1872834092738195659eef810a1ec193fbb24e75cbd18d9c89717f7d7a83e87",
+      "bytes": 23985,
+      "tracked": true
+    },
+    "mobile/lib/src/money.dart": {
+      "sha256": "c98c980c11edeb773b91e5b368397175fde1ff30c24d1752968eae72ca99dce8",
+      "bytes": 6153,
+      "tracked": true
+    },
+    "mobile/lib/src/offline/offline_data.dart": {
+      "sha256": "7c742732d687100e1183b4018b79a1e5b4827b78ed1a16ae84adbdd820c0e9ef",
+      "bytes": 21182,
+      "tracked": true
+    },
+    "mobile/lib/src/offline/offline_store.dart": {
+      "sha256": "a8d767e509881a1a8e9d3196d1fd955b1b4cf793a36f3ffd593b869b686bf8c2",
+      "bytes": 31228,
+      "tracked": true
+    },
+    "mobile/lib/src/segmented/object.dart": {
+      "sha256": "f170248a3d11ddc1ec093bc7de632da1200001ae25bf5c2a3e3d422485862a4a",
+      "bytes": 14479,
+      "tracked": true
+    },
+    "mobile/test/authoritative_money_compatibility_test.dart": {
+      "sha256": "240e463815a6a12ff1df8487784b23cf69ea2161f0d49cd5fa446f0320de3977",
+      "bytes": 22275,
+      "tracked": false
+    },
+    "mobile/test/fixtures/money_before_e4_p0.dart.txt": {
+      "sha256": "9f1aef7d287f6c9c321f8d4e2fb5b9a33b4f62df9a1270820aed2a814889a02e",
+      "bytes": 2346,
+      "tracked": false
+    }
+  },
+  "original_five": [
+    {
+      "path": "docs/t66e4-implementation.md",
+      "expected": "19ac0d394406f59897305610607841eba5eb8661a5732f108bc346e0dd4614fe",
+      "actual": "19ac0d394406f59897305610607841eba5eb8661a5732f108bc346e0dd4614fe",
+      "match": true
+    },
+    {
+      "path": "docs/benchmarks/t66e4-contract/README.md",
+      "expected": "c3829749dcc46f0c8dff7fc7ba1988f8f2e125ebab2325138bc1649ce051ca02",
+      "actual": "c3829749dcc46f0c8dff7fc7ba1988f8f2e125ebab2325138bc1649ce051ca02",
+      "match": true
+    },
+    {
+      "path": "docs/benchmarks/t66e4-contract/probe.py",
+      "expected": "73af6d49e0cf60ca66321d9e75108961288499c1f88879f51f9b4fe29a270147",
+      "actual": "73af6d49e0cf60ca66321d9e75108961288499c1f88879f51f9b4fe29a270147",
+      "match": true
+    },
+    {
+      "path": "docs/benchmarks/t66e4-contract/probe_test.dart",
+      "expected": "599cd5c1e281e31fff1a454fdff079280f41101a5d98ae93cb826dbf8238b083",
+      "actual": "599cd5c1e281e31fff1a454fdff079280f41101a5d98ae93cb826dbf8238b083",
+      "match": true
+    },
+    {
+      "path": "docs/benchmarks/t66e4-contract/summary.json",
+      "expected": "ab8a0095230616d8902a0f6841136618f1e886d31dbab09fa5414e0901d51aea",
+      "actual": "ab8a0095230616d8902a0f6841136618f1e886d31dbab09fa5414e0901d51aea",
+      "match": true
+    }
+  ],
+  "frozen_money_sha256": "9f1aef7d287f6c9c321f8d4e2fb5b9a33b4f62df9a1270820aed2a814889a02e",
+  "prefix_byte_identical": true,
+  "archive_byte_identical": true,
+  "staged_paths": []
+}

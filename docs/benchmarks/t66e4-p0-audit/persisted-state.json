@@ -1,0 +1,29 @@
+[
+  {
+    "case": "fresh-persisted",
+    "result": "PASS",
+    "fingerprint": "cd2ef02c8f356fab0dd2390a812aec2d8f0b6971222e8c2abfebbd4fbcffc42f",
+    "lineage": "0a4f2c65fc690abaaecc487d0e60381227f127d3b033a8897daf0cd513ac02a6",
+    "original_codepoints": [
+      28,
+      43,
+      48,
+      48,
+      48,
+      49,
+      48,
+      48,
+      48,
+      46,
+      48,
+      48,
+      31
+    ],
+    "normalization_changes_fingerprint": true,
+    "files": {
+      "journal.ndjson": "5d9c0fa5edb86d7ae2ae4194bd1d541114f9ea16e6731be0bcee2efc8ec6d60d",
+      "baseline.json": "47cd2dd58f4abfe7bee0ee761490d147d938d342e0572b903aec4d04621a50ce",
+      "online-write-1.json": "66bb817e480c3d70faaf2bde0d31f9601f7f064ae1830e5b665e00c6379f0b95"
+    }
+  }
+]
