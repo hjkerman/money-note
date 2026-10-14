@@ -1,0 +1,355 @@
+{
+  "corruption-body": {
+    "ok": false,
+    "error": "SegmentedException(OBJECT_HASH_INVALID)"
+  },
+  "corruption-pin": {
+    "ok": false,
+    "error": "SegmentedException(GENERATION_RECEIPT_INVALID)"
+  },
+  "corruption-receipt": {
+    "ok": false,
+    "error": "SegmentedException(GENERATION_RECEIPT_INVALID)"
+  },
+  "corruption-schema": {
+    "ok": false,
+    "error": "SegmentedException(STORE_SCHEMA_CORRUPT)"
+  },
+  "crash-after": {
+    "boundary": "after_publication_commit",
+    "persisted": {
+      "pointer": {
+        "id": 1,
+        "current_id": "9bbebd3c-3442-4fc7-81ff-c53c9457f8d4",
+        "previous_id": "7800ca45-547d-49fd-b762-5e6aa102d994",
+        "sequence": 2,
+        "checksum": "4a72e8ffd0b44802b0bb8485a5be7c819efca420c14c9d5715e604ff302db685"
+      },
+      "generations": [
+        {
+          "id": "9bbebd3c-3442-4fc7-81ff-c53c9457f8d4",
+          "target": "aa0a532a09da5316e614f3a0c92b828bf7649121d29fc7af3092fea7dda47f16",
+          "objects": 142,
+          "roots": 4,
+          "receipt_validator": "segmented-e3/2"
+        },
+        {
+          "id": "7800ca45-547d-49fd-b762-5e6aa102d994",
+          "target": "73ce81fd1a5fcd81796bd0d90bbb686e98448da26be6a77aa2d3e2c64e8b84a7",
+          "objects": 142,
+          "roots": 4,
+          "receipt_validator": "segmented-e3/2"
+        }
+      ],
+      "root_pin_rows": 8
+    }
+  },
+  "crash-before": {
+    "boundary": "before_publication_commit",
+    "persisted": {
+      "pointer": {
+        "id": 1,
+        "current_id": "fe86b368-190e-4258-b12c-16c13ed68d8a",
+        "previous_id": null,
+        "sequence": 1,
+        "checksum": "e0f9b14d234cd388b1ed41d1db29f90eddb341628f579e8fad8d68fbaf5545ca"
+      },
+      "generations": [
+        {
+          "id": "fe86b368-190e-4258-b12c-16c13ed68d8a",
+          "target": "73ce81fd1a5fcd81796bd0d90bbb686e98448da26be6a77aa2d3e2c64e8b84a7",
+          "objects": 142,
+          "roots": 4,
+          "receipt_validator": "segmented-e3/2"
+        }
+      ],
+      "root_pin_rows": 8
+    }
+  },
+  "external-commit": {
+    "sql_statements": 942,
+    "pin_insert": 0,
+    "pin_delete": 0,
+    "pin_update": 0,
+    "rows_returned": 1291,
+    "body_bytes_read": 201955,
+    "raw_rows_read": 114,
+    "raw_objects_read": 33,
+    "index_objects_read": 256
+  },
+  "fault-after": {
+    "outcome": {
+      "ok": false,
+      "error": "PublicationCommittedException(2)",
+      "committed_error": true,
+      "latency_us": 621054
+    },
+    "persisted": {
+      "pointer": {
+        "id": 1,
+        "current_id": "3a33b31c-ed6b-4d73-a482-0c0e38930539",
+        "previous_id": "316101b4-6cef-4d06-bd30-00596801ed57",
+        "sequence": 2,
+        "checksum": "daa9d3be5976d5741627be04ad4a173800d79012e2bfee8adbdf1f7cbfa15afc"
+      },
+      "generations": [
+        {
+          "id": "3a33b31c-ed6b-4d73-a482-0c0e38930539",
+          "target": "aa0a532a09da5316e614f3a0c92b828bf7649121d29fc7af3092fea7dda47f16",
+          "objects": 142,
+          "roots": 4,
+          "receipt_validator": "segmented-e3/2"
+        },
+        {
+          "id": "316101b4-6cef-4d06-bd30-00596801ed57",
+          "target": "73ce81fd1a5fcd81796bd0d90bbb686e98448da26be6a77aa2d3e2c64e8b84a7",
+          "objects": 142,
+          "roots": 4,
+          "receipt_validator": "segmented-e3/2"
+        }
+      ],
+      "root_pin_rows": 8
+    }
+  },
+  "fault-before": {
+    "outcome": {
+      "ok": false,
+      "error": "SegmentedException(AUDIT_FAULT)",
+      "committed_error": false,
+      "latency_us": 208974
+    },
+    "persisted": {
+      "pointer": {
+        "id": 1,
+        "current_id": "619c3b9a-62fc-446b-af2d-5b24af251011",
+        "previous_id": null,
+        "sequence": 1,
+        "checksum": "27cc922d0d0503757480a3b77d3666ec65044b25ca76133f9639d3afac755c3a"
+      },
+      "generations": [
+        {
+          "id": "619c3b9a-62fc-446b-af2d-5b24af251011",
+          "target": "73ce81fd1a5fcd81796bd0d90bbb686e98448da26be6a77aa2d3e2c64e8b84a7",
+          "objects": 142,
+          "roots": 4,
+          "receipt_validator": "segmented-e3/2"
+        }
+      ],
+      "root_pin_rows": 8
+    }
+  },
+  "guard-fails": {
+    "outcome": {
+      "ok": false,
+      "error": "SegmentedException(AUDIT_GUARD)",
+      "committed_error": false,
+      "latency_us": 612944
+    },
+    "persisted": {
+      "pointer": {
+        "id": 1,
+        "current_id": "44813fd0-be0d-4709-b52f-909676491387",
+        "previous_id": null,
+        "sequence": 1,
+        "checksum": "d13bd7120324fc44ee1c4f6a46491e7a1a71191c2ebd1836f64a72cb03aeaac5"
+      },
+      "generations": [
+        {
+          "id": "44813fd0-be0d-4709-b52f-909676491387",
+          "target": "73ce81fd1a5fcd81796bd0d90bbb686e98448da26be6a77aa2d3e2c64e8b84a7",
+          "objects": 142,
+          "roots": 4,
+          "receipt_validator": "segmented-e3/2"
+        }
+      ],
+      "root_pin_rows": 8
+    }
+  },
+  "invalid-child-bytes": {
+    "full": {
+      "accepted": false,
+      "error": "SegmentedException(OBJECT_LENGTH_INVALID)"
+    },
+    "incremental": {
+      "accepted": false,
+      "error": "SegmentedException(GRAPH_EDGE_INVALID)"
+    }
+  },
+  "invalid-hot-context": {
+    "full": {
+      "accepted": false,
+      "error": "SegmentedException(GRAPH_CONTEXT_INVALID)"
+    },
+    "incremental": {
+      "accepted": false,
+      "error": "SegmentedException(GRAPH_CONTEXT_INVALID)"
+    }
+  },
+  "invalid-hot-extra": {
+    "full": {
+      "accepted": false,
+      "error": "SegmentedException(RAW_HOT_ASSOCIATION_INVALID)"
+    },
+    "incremental": {
+      "accepted": false,
+      "error": "SegmentedException(RAW_HOT_ASSOCIATION_INVALID)"
+    }
+  },
+  "invalid-hot-money": {
+    "full": {
+      "accepted": false,
+      "error": "SegmentedException(RAW_HOT_ASSOCIATION_INVALID)"
+    },
+    "incremental": {
+      "accepted": false,
+      "error": "SegmentedException(RAW_HOT_ASSOCIATION_INVALID)"
+    }
+  },
+  "invalid-index-value": {
+    "full": {
+      "accepted": false,
+      "error": "SegmentedException(GLOBAL_INDEX_INVALID)"
+    },
+    "incremental": {
+      "accepted": false,
+      "error": "SegmentedException(GLOBAL_INDEX_INVALID)"
+    }
+  },
+  "invalid-malformed-new": {
+    "full": {
+      "accepted": false,
+      "error": "SegmentedException(REPRESENTATION_INVALID)"
+    },
+    "incremental": {
+      "accepted": false,
+      "error": "SegmentedException(REPRESENTATION_INVALID)"
+    }
+  },
+  "invalid-missing-new": {
+    "full": {
+      "accepted": false,
+      "error": "SegmentedException(OBJECT_MISSING)"
+    },
+    "incremental": {
+      "accepted": false,
+      "error": "SegmentedException(OBJECT_MISSING)"
+    }
+  },
+  "invalid-stale-index": {
+    "full": {
+      "accepted": false,
+      "error": "SegmentedException(RAW_HOT_ASSOCIATION_INVALID)"
+    },
+    "incremental": {
+      "accepted": false,
+      "error": "SegmentedException(GLOBAL_INDEX_INVALID)"
+    }
+  },
+  "invalid-stale-revision": {
+    "full": {
+      "accepted": false,
+      "error": "SegmentedException(TARGET_STALE)"
+    },
+    "incremental": {
+      "accepted": false,
+      "error": "SegmentedException(TARGET_STALE)"
+    }
+  },
+  "invalid-unsupported": {
+    "full": {
+      "accepted": false,
+      "error": "SegmentedException(UNSUPPORTED_CONTRACT)"
+    },
+    "incremental": {
+      "accepted": false,
+      "error": "SegmentedException(UNSUPPORTED_CONTRACT)"
+    }
+  },
+  "invalid-wrong-epoch": {
+    "full": {
+      "accepted": false,
+      "error": "SegmentedException(BASE_CONTEXT_INVALID)"
+    },
+    "incremental": {
+      "accepted": false,
+      "error": "SegmentedException(BASE_PROVENANCE_INVALID)"
+    }
+  },
+  "invalid-wrong-principal": {
+    "full": {
+      "accepted": false,
+      "error": "SegmentedException(BASE_CONTEXT_INVALID)"
+    },
+    "incremental": {
+      "accepted": false,
+      "error": "SegmentedException(BASE_PROVENANCE_INVALID)"
+    }
+  },
+  "reopened-preparation": {
+    "ok": false,
+    "error": "SegmentedException(PREPARATION_CONNECTION_CHANGED)"
+  },
+  "sqlite-busy": {
+    "first_error": "AcquisitionFailure(STORE_BUSY,retry_same)",
+    "after_retry": {
+      "pointer": {
+        "id": 1,
+        "current_id": "04688531-6a01-4e55-be6d-91bf21839caf",
+        "previous_id": "6b9a87c4-3cdd-4c2a-830d-cf39fa0d80f4",
+        "sequence": 2,
+        "checksum": "8146e669a4d9a54aa6553fa7f771bd9245e46ae69e3d87f882ca23cd9e6b50aa"
+      },
+      "generations": [
+        {
+          "id": "04688531-6a01-4e55-be6d-91bf21839caf",
+          "target": "aa0a532a09da5316e614f3a0c92b828bf7649121d29fc7af3092fea7dda47f16",
+          "objects": 142,
+          "roots": 4,
+          "receipt_validator": "segmented-e3/2"
+        },
+        {
+          "id": "6b9a87c4-3cdd-4c2a-830d-cf39fa0d80f4",
+          "target": "73ce81fd1a5fcd81796bd0d90bbb686e98448da26be6a77aa2d3e2c64e8b84a7",
+          "objects": 142,
+          "roots": 4,
+          "receipt_validator": "segmented-e3/2"
+        }
+      ],
+      "root_pin_rows": 8
+    }
+  },
+  "stage-retention": {
+    "pointer": {
+      "id": 1,
+      "current_id": "7f54b9ab-7dae-428d-8061-701a7b78ec6a",
+      "previous_id": "cb24ec7f-28d3-4f6e-b8e4-4b8ba456df3f",
+      "sequence": 2,
+      "checksum": "f4d4ffe497260e448053074e1116cd3589153b7dceea1fd7c7a7d01fa05027ff"
+    },
+    "generations": [
+      {
+        "id": "7f54b9ab-7dae-428d-8061-701a7b78ec6a",
+        "target": "aa0a532a09da5316e614f3a0c92b828bf7649121d29fc7af3092fea7dda47f16",
+        "objects": 142,
+        "roots": 4,
+        "receipt_validator": "segmented-e3/2"
+      },
+      {
+        "id": "cb24ec7f-28d3-4f6e-b8e4-4b8ba456df3f",
+        "target": "73ce81fd1a5fcd81796bd0d90bbb686e98448da26be6a77aa2d3e2c64e8b84a7",
+        "objects": 142,
+        "roots": 4,
+        "receipt_validator": "segmented-e3/2"
+      }
+    ],
+    "root_pin_rows": 8
+  },
+  "stale-base": {
+    "ok": false,
+    "error": "SegmentedException(PUBLICATION_CONFLICT)"
+  },
+  "corruption-missing-body": {
+    "ok": false,
+    "error": "SegmentedException(OBJECT_MISSING)"
+  }
+}

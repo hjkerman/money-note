@@ -1,0 +1,118 @@
+{
+  "4": [
+    {
+      "scenario": "cold",
+      "sequence": 1,
+      "objects": 142,
+      "sql_statements": 5389,
+      "pin_insert": 142,
+      "pin_delete": 0,
+      "pin_update": 0,
+      "rows_returned": 14094,
+      "body_bytes_read": 379657,
+      "raw_rows_read": 190,
+      "raw_objects_read": 55,
+      "index_objects_read": 512
+    },
+    {
+      "scenario": "identical",
+      "sequence": 1,
+      "objects": 142,
+      "sql_statements": 5626,
+      "pin_insert": 142,
+      "pin_delete": 142,
+      "pin_update": 0,
+      "rows_returned": 10908,
+      "body_bytes_read": 862900,
+      "raw_rows_read": 418,
+      "raw_objects_read": 121,
+      "index_objects_read": 1152
+    },
+    {
+      "scenario": "single-change",
+      "sequence": 2,
+      "objects": 142,
+      "sql_statements": 5831,
+      "pin_insert": 142,
+      "pin_delete": 0,
+      "pin_update": 0,
+      "rows_returned": 11361,
+      "body_bytes_read": 870104,
+      "raw_rows_read": 428,
+      "raw_objects_read": 123,
+      "index_objects_read": 1152
+    },
+    {
+      "scenario": "repeated",
+      "sequence": 2,
+      "objects": 142,
+      "sql_statements": 6552,
+      "pin_insert": 142,
+      "pin_delete": 142,
+      "pin_update": 0,
+      "rows_returned": 11964,
+      "body_bytes_read": 1066465,
+      "raw_rows_read": 532,
+      "raw_objects_read": 154,
+      "index_objects_read": 1408
+    }
+  ],
+  "400": [
+    {
+      "scenario": "cold",
+      "sequence": 1,
+      "objects": 1728,
+      "sql_statements": 64077,
+      "pin_insert": 1728,
+      "pin_delete": 0,
+      "pin_update": 0,
+      "rows_returned": 166356,
+      "body_bytes_read": 4714371,
+      "raw_rows_read": 2170,
+      "raw_objects_read": 65,
+      "index_objects_read": 6848
+    },
+    {
+      "scenario": "identical",
+      "sequence": 1,
+      "objects": 1728,
+      "sql_statements": 65906,
+      "pin_insert": 1728,
+      "pin_delete": 1728,
+      "pin_update": 0,
+      "rows_returned": 126698,
+      "body_bytes_read": 10557902,
+      "raw_rows_read": 4774,
+      "raw_objects_read": 143,
+      "index_objects_read": 15408
+    },
+    {
+      "scenario": "single-change",
+      "sequence": 2,
+      "objects": 1728,
+      "sql_statements": 66202,
+      "pin_insert": 1728,
+      "pin_delete": 0,
+      "pin_update": 0,
+      "rows_returned": 127359,
+      "body_bytes_read": 10859562,
+      "raw_rows_read": 5286,
+      "raw_objects_read": 147,
+      "index_objects_read": 15408
+    },
+    {
+      "scenario": "repeated",
+      "sequence": 2,
+      "objects": 1728,
+      "sql_statements": 76354,
+      "pin_insert": 1728,
+      "pin_delete": 1728,
+      "pin_update": 0,
+      "rows_returned": 138862,
+      "body_bytes_read": 13045045,
+      "raw_rows_read": 6076,
+      "raw_objects_read": 182,
+      "index_objects_read": 18832
+    }
+  ]
+}

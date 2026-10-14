@@ -1,0 +1,169 @@
+[
+  {
+    "database": "cost-final-db/test_independent_sql_cost_diff1/store/segmented-store-v1/969f7f0993bbab54830961364e03295ea442765aa855cec0741e544526b7949a.sqlite",
+    "result": {
+      "pointer": {
+        "id": 1,
+        "current_id": "51730ffe-f4d5-4528-9b9a-5d6ce22efa31",
+        "previous_id": "0f2e47e9-b999-4856-97a2-1f93bfeb6b2b",
+        "sequence": 6,
+        "checksum": "d648392841cf9502f6c35aabdf64d182a308e239acd5e952a93635497dc3e59e"
+      },
+      "generations": [
+        {
+          "id": "51730ffe-f4d5-4528-9b9a-5d6ce22efa31",
+          "target": "29d883e7354f0c66529d6e96a57983cf27bb7178393a60016e54e165da352c80",
+          "objects": 1728,
+          "roots": 4,
+          "receipt_validator": "segmented-e3/2"
+        },
+        {
+          "id": "0f2e47e9-b999-4856-97a2-1f93bfeb6b2b",
+          "target": "8380b8789729c248631870668cf12721cd054c2380ec1c52231bc0af36d6a345",
+          "objects": 1728,
+          "roots": 4,
+          "receipt_validator": "segmented-e3/2"
+        }
+      ],
+      "root_pin_rows": 8
+    }
+  },
+  {
+    "database": "cost-final-db/test_independent_sql_cost_diff0/store/segmented-store-v1/67d3f3116198c112a0f204f89fb175b48c4c7a0f1e44f28d1113a904aa6be0e5.sqlite",
+    "result": {
+      "pointer": {
+        "id": 1,
+        "current_id": "4440bcb8-f1d4-4549-8189-383ee9514ae7",
+        "previous_id": "4a9de94a-1afd-4be9-a108-f891a3f2e5a2",
+        "sequence": 6,
+        "checksum": "e9ff923ceef2574ea3bfbdf02958a0ab460e1683e816dd2e2b65e3c694838fb1"
+      },
+      "generations": [
+        {
+          "id": "4440bcb8-f1d4-4549-8189-383ee9514ae7",
+          "target": "782710322c6ee981c1b4e406770a8572863496e8d2ae3f2fe6f9ac015f32c494",
+          "objects": 142,
+          "roots": 4,
+          "receipt_validator": "segmented-e3/2"
+        },
+        {
+          "id": "4a9de94a-1afd-4be9-a108-f891a3f2e5a2",
+          "target": "97078b0c668b82c772cd783decc5235ad2af9b980bac23751c3d83a0592da2ba",
+          "objects": 142,
+          "roots": 4,
+          "receipt_validator": "segmented-e3/2"
+        }
+      ],
+      "root_pin_rows": 8
+    }
+  },
+  {
+    "database": "extra-db/test_preserved_pre_i25_source_1/before-store/segmented-store-v1/bef44fd9ab6d7104bd0bfb680539559b5aa9c1059fb6b76bc9b3cc094bc41eb9.sqlite",
+    "result": {
+      "pointer": {
+        "id": 1,
+        "current_id": "cc026d5c-0e29-448c-921a-bf8c1124da3f",
+        "previous_id": "01806efe-d4cc-47bc-855c-5f680e7d5229",
+        "sequence": 2,
+        "checksum": "1318a2cea128ee64622481fa2d4fc63f9814ab6e969986a572cee3e309b5690f"
+      },
+      "generations": [
+        {
+          "id": "cc026d5c-0e29-448c-921a-bf8c1124da3f",
+          "target": "4bcade4256f580056a61ed83156272bdc4d791d4e04d01bdb0dcc1df10e3df1c",
+          "objects": 1728,
+          "roots": 1728,
+          "receipt_validator": "segmented-e3/1"
+        },
+        {
+          "id": "01806efe-d4cc-47bc-855c-5f680e7d5229",
+          "target": "58fcfdb0199f6b7c88248345fe6f58c505d048b80da16caaaa079935ad04b2a0",
+          "objects": 1728,
+          "roots": 1728,
+          "receipt_validator": "segmented-e3/1"
+        }
+      ],
+      "root_pin_rows": 0
+    }
+  },
+  {
+    "database": "extra-db/test_preserved_pre_i25_source_0/before-store/segmented-store-v1/79f8dcd35386e767b6b2213b9d2e9a4fd3ac6fdc096350f3b843effaaa697d3b.sqlite",
+    "result": {
+      "pointer": {
+        "id": 1,
+        "current_id": "c4d3b816-721a-4ab1-90b4-08ef766116fb",
+        "previous_id": "cc73cb73-2088-4200-b3f9-58f5f9d831da",
+        "sequence": 2,
+        "checksum": "281ef92185aceb6709c0cd9a3ba8e4dabc29fcc0e9a8c2d31fade6c838e94638"
+      },
+      "generations": [
+        {
+          "id": "c4d3b816-721a-4ab1-90b4-08ef766116fb",
+          "target": "aa0a532a09da5316e614f3a0c92b828bf7649121d29fc7af3092fea7dda47f16",
+          "objects": 142,
+          "roots": 142,
+          "receipt_validator": "segmented-e3/1"
+        },
+        {
+          "id": "cc73cb73-2088-4200-b3f9-58f5f9d831da",
+          "target": "73ce81fd1a5fcd81796bd0d90bbb686e98448da26be6a77aa2d3e2c64e8b84a7",
+          "objects": 142,
+          "roots": 142,
+          "receipt_validator": "segmented-e3/1"
+        }
+      ],
+      "root_pin_rows": 0
+    }
+  },
+  {
+    "database": "independent-final-db/test_real_sigkill_and_fresh_pr1/store/segmented-store-v1/79f8dcd35386e767b6b2213b9d2e9a4fd3ac6fdc096350f3b843effaaa697d3b.sqlite",
+    "result": {
+      "pointer": {
+        "id": 1,
+        "current_id": "9bbebd3c-3442-4fc7-81ff-c53c9457f8d4",
+        "previous_id": "7800ca45-547d-49fd-b762-5e6aa102d994",
+        "sequence": 2,
+        "checksum": "4a72e8ffd0b44802b0bb8485a5be7c819efca420c14c9d5715e604ff302db685"
+      },
+      "generations": [
+        {
+          "id": "9bbebd3c-3442-4fc7-81ff-c53c9457f8d4",
+          "target": "aa0a532a09da5316e614f3a0c92b828bf7649121d29fc7af3092fea7dda47f16",
+          "objects": 142,
+          "roots": 4,
+          "receipt_validator": "segmented-e3/2"
+        },
+        {
+          "id": "7800ca45-547d-49fd-b762-5e6aa102d994",
+          "target": "73ce81fd1a5fcd81796bd0d90bbb686e98448da26be6a77aa2d3e2c64e8b84a7",
+          "objects": 142,
+          "roots": 4,
+          "receipt_validator": "segmented-e3/2"
+        }
+      ],
+      "root_pin_rows": 8
+    }
+  },
+  {
+    "database": "independent-final-db/test_real_sigkill_and_fresh_pr0/store/segmented-store-v1/79f8dcd35386e767b6b2213b9d2e9a4fd3ac6fdc096350f3b843effaaa697d3b.sqlite",
+    "result": {
+      "pointer": {
+        "id": 1,
+        "current_id": "fe86b368-190e-4258-b12c-16c13ed68d8a",
+        "previous_id": null,
+        "sequence": 1,
+        "checksum": "e0f9b14d234cd388b1ed41d1db29f90eddb341628f579e8fad8d68fbaf5545ca"
+      },
+      "generations": [
+        {
+          "id": "fe86b368-190e-4258-b12c-16c13ed68d8a",
+          "target": "73ce81fd1a5fcd81796bd0d90bbb686e98448da26be6a77aa2d3e2c64e8b84a7",
+          "objects": 142,
+          "roots": 4,
+          "receipt_validator": "segmented-e3/2"
+        }
+      ],
+      "root_pin_rows": 4
+    }
+  }
+]

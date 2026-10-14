@@ -1,0 +1,625 @@
+{
+  "audited_commit": "de1eb7c956aa0aaaec2bb5b9d031e0948dd1887d",
+  "baseline": "9a53b139cbb99d40020ba0635cf6b44730f3ca51",
+  "repository_initial": {
+    "branch": "main",
+    "HEAD": "de1eb7c956aa0aaaec2bb5b9d031e0948dd1887d",
+    "main": "de1eb7c956aa0aaaec2bb5b9d031e0948dd1887d",
+    "origin/main": "de1eb7c956aa0aaaec2bb5b9d031e0948dd1887d",
+    "remote/main": "de1eb7c956aa0aaaec2bb5b9d031e0948dd1887d",
+    "clean": true
+  },
+  "verdict": "PASS — T6.6E3 INDEPENDENT IMPLEMENTATION AUDIT COMPLETE",
+  "independent_cases": {
+    "python": [
+      {
+        "name": "test_independent_sql_cost_diff_and_retained_graph[4]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_independent_sql_cost_diff_and_retained_graph[400]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_complete_and_incremental_reject_independent_invalid_targets[index-value]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_complete_and_incremental_reject_independent_invalid_targets[stale-index]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_complete_and_incremental_reject_independent_invalid_targets[hot-money]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_complete_and_incremental_reject_independent_invalid_targets[hot-extra]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_complete_and_incremental_reject_independent_invalid_targets[hot-context]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_complete_and_incremental_reject_independent_invalid_targets[unsupported]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_complete_and_incremental_reject_independent_invalid_targets[child-bytes]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_complete_and_incremental_reject_independent_invalid_targets[missing-new]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_complete_and_incremental_reject_independent_invalid_targets[malformed-new]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_complete_and_incremental_reject_independent_invalid_targets[wrong-epoch]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_complete_and_incremental_reject_independent_invalid_targets[wrong-principal]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_complete_and_incremental_reject_independent_invalid_targets[stale-revision]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_rollback_vs_committed_error_and_fresh_recovery[fault-before]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_rollback_vs_committed_error_and_fresh_recovery[fault-after]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_rollback_vs_committed_error_and_fresh_recovery[guard-fails]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_concurrent_stale_base_cannot_commit",
+        "result": "PASS"
+      },
+      {
+        "name": "test_real_sigkill_and_fresh_process_recovery[crash-before]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_real_sigkill_and_fresh_process_recovery[crash-after]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_external_corruption_invalidates_provenance_and_fails_closed[schema]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_external_corruption_invalidates_provenance_and_fails_closed[receipt]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_external_corruption_invalidates_provenance_and_fails_closed[body]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_external_corruption_invalidates_provenance_and_fails_closed[pin]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_external_valid_commit_forces_complete_recovery",
+        "result": "PASS"
+      },
+      {
+        "name": "test_cached_preparation_cannot_move_to_reopened_connection",
+        "result": "PASS"
+      },
+      {
+        "name": "test_stage_cleanup_preserves_current_previous_and_shared_objects",
+        "result": "PASS"
+      },
+      {
+        "name": "test_real_busy_failure_preserves_prior_accepted_target",
+        "result": "PASS"
+      },
+      {
+        "name": "test_external_corruption_invalidates_provenance_and_fails_closed[missing-body]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_preserved_pre_i25_source_reproduces_full_n_work[4]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_preserved_pre_i25_source_reproduces_full_n_work[400]",
+        "result": "PASS"
+      }
+    ],
+    "python_pass": 31,
+    "flutter_authority_pass": 15,
+    "unique_pass": 46,
+    "fail": 0,
+    "inconclusive": 0
+  },
+  "regression": {
+    "flutter": {
+      "total": {
+        "success": 1094,
+        "skip": 2
+      },
+      "files": {
+        "coherent_get_dag_test.dart": {
+          "success": 91
+        },
+        "authoritative_acquisition_test.dart": {
+          "success": 57
+        },
+        "t66a_payload_test.dart": {
+          "skip": 2
+        },
+        "offline_persistence_test.dart": {
+          "success": 9
+        },
+        "local_snapshot_repository_test.dart": {
+          "success": 7
+        },
+        "notification_models_test.dart": {
+          "success": 2
+        },
+        "offline_notification_identity_test.dart": {
+          "success": 5
+        },
+        "notification_registration_test.dart": {
+          "success": 11
+        },
+        "utility_discount_default_test.dart": {
+          "success": 1
+        },
+        "offline_state_projection_test.dart": {
+          "success": 18
+        },
+        "segmented_acquisition_store_test.dart": {
+          "success": 14
+        },
+        "app_state_test.dart": {
+          "success": 3
+        },
+        "segmented_transport_test.dart": {
+          "success": 30
+        },
+        "authoritative_bundle_test.dart": {
+          "success": 27
+        },
+        "segmented_protocol_test.dart": {
+          "success": 58
+        },
+        "segmented_incremental_verification_test.dart": {
+          "success": 6
+        },
+        "offline_lineage_recovery_test.dart": {
+          "success": 8
+        },
+        "formatters_test.dart": {
+          "success": 2
+        },
+        "authoritative_bundle_trust_boundary_test.dart": {
+          "success": 47
+        },
+        "segmented_publication_crash_test.dart": {
+          "success": 16
+        },
+        "segmented_crash_test.dart": {
+          "success": 7
+        },
+        "authoritative_bundle_boundary_matrix_test.dart": {
+          "success": 1
+        },
+        "segmented_root_pin_model_test.dart": {
+          "success": 2
+        },
+        "notification_discount_policy_test.dart": {
+          "success": 17
+        },
+        "segmented_authority_test.dart": {
+          "success": 19
+        },
+        "segmented_publication_test.dart": {
+          "success": 36
+        },
+        "segmented_fetch_crash_test.dart": {
+          "success": 3
+        },
+        "authoritative_bundle_canonical_test.dart": {
+          "success": 90
+        },
+        "authoritative_bundle_admission_test.dart": {
+          "success": 26
+        },
+        "offline_refresh_test.dart": {
+          "success": 27
+        },
+        "apk_download_controller_test.dart": {
+          "success": 1
+        },
+        "segmented_money_correction_test.dart": {
+          "success": 166
+        },
+        "offline_reconciliation_test.dart": {
+          "success": 14
+        },
+        "segmented_store_test.dart": {
+          "success": 31
+        },
+        "offline_widget_submit_test.dart": {
+          "success": 13
+        },
+        "authoritative_bundle_unicode_test.dart": {
+          "success": 11
+        },
+        "exact_money_domain_test.dart": {
+          "success": 5
+        },
+        "freeze_reaudit_outcome_test.dart": {
+          "success": 11
+        },
+        "segmented_i25_publication_test.dart": {
+          "success": 30
+        },
+        "submit_latency_diagnostic_test.dart": {
+          "success": 3
+        },
+        "family_screen_test.dart": {
+          "success": 5
+        },
+        "segmented_fetch_test.dart": {
+          "success": 72
+        },
+        "segmented_i25_baseline_test.dart": {
+          "success": 1
+        },
+        "segmented_response_cleanup_test.dart": {
+          "success": 13
+        },
+        "date_picker_row_test.dart": {
+          "success": 1
+        },
+        "recurring_series_widget_test.dart": {
+          "success": 6
+        },
+        "authoritative_rebuild_pending_test.dart": {
+          "success": 11
+        },
+        "segmented_schema_correction_test.dart": {
+          "success": 45
+        },
+        "ai_audit_report_test.dart": {
+          "success": 9
+        },
+        "segmented_http_integration_test.dart": {
+          "success": 5
+        },
+        "segmented_diff_integration_test.dart": {
+          "success": 1
+        }
+      }
+    },
+    "backend": {
+      "tests": 1315,
+      "subtests": 1540,
+      "fail": 0,
+      "warning": 1
+    },
+    "native_e2_a01": {
+      "pass": 5
+    },
+    "safety_diagnostics": {
+      "pass": 60
+    },
+    "frontend": {
+      "pass": 21,
+      "build": "PASS"
+    },
+    "analyze": "PASS",
+    "debug_apk_build": "PASS",
+    "apk_installed": false
+  },
+  "timings": {
+    "analyze-exit": {
+      "exit_code": 0,
+      "seconds": 3.310572661997867
+    },
+    "audit-dart-analyze-exit": {
+      "exit_code": 0
+    },
+    "authority-exit": {
+      "exit_code": 0,
+      "seconds": 66.66012951100129
+    },
+    "backend-exit": {
+      "exit_code": 0,
+      "seconds": 1737.4716171900072
+    },
+    "build-exit": {
+      "exit_code": 0,
+      "seconds": 20.017310081006144
+    },
+    "cost-final-exit": {
+      "exit_code": 0,
+      "seconds": 153.89716068400594
+    },
+    "flutter-exit": {
+      "exit_code": 0,
+      "seconds": 828.6972336809995
+    },
+    "frontend-build-exit": {
+      "exit_code": 0,
+      "seconds": 5.9082422140054405
+    },
+    "frontend-test-exit": {
+      "exit_code": 0,
+      "seconds": 1.6042201219970593
+    },
+    "independent-exit": {
+      "exit_code": 0,
+      "seconds": 326.93434182100464
+    },
+    "independent-extra-exit": {
+      "exit_code": 0,
+      "seconds": 160.73805534900748
+    },
+    "native-e2-exit": {
+      "exit_code": 0,
+      "seconds": 8.329184759000782
+    },
+    "safety-exit": {
+      "exit_code": 0,
+      "seconds": 6.781835425004829
+    }
+  },
+  "checks": {
+    "ruff": {
+      "command": [
+        ".venv/bin/ruff",
+        "check",
+        "backend",
+        "scripts",
+        "docs/benchmarks/t66e3-audit"
+      ],
+      "exit_code": 0,
+      "seconds": 0.01770857098745182
+    },
+    "compileall": {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "compileall",
+        "-q",
+        "backend",
+        "scripts",
+        "docs/benchmarks/t66e3-audit"
+      ],
+      "exit_code": 0,
+      "seconds": 0.050681421998888254
+    },
+    "changed-format": {
+      "command": [
+        "/home/hjkerman/.flutter/bin/dart",
+        "format",
+        "--output=none",
+        "--set-exit-if-changed",
+        "mobile/lib/src/app_state.dart",
+        "mobile/lib/src/authoritative_snapshot_validation.dart",
+        "mobile/lib/src/segmented/fetch.dart",
+        "mobile/lib/src/segmented/graph.dart",
+        "mobile/lib/src/segmented/incremental_verification.dart",
+        "mobile/lib/src/segmented/patricia_edit.dart",
+        "mobile/lib/src/segmented/store.dart",
+        "mobile/lib/src/segmented/store_publication.dart",
+        "mobile/lib/src/segmented/verification.dart",
+        "mobile/lib/src/segmented/work.dart",
+        "mobile/test/segmented_authority_test.dart",
+        "mobile/test/segmented_diff_integration_test.dart",
+        "mobile/test/segmented_i25_baseline_test.dart",
+        "mobile/test/segmented_i25_publication_test.dart",
+        "mobile/test/segmented_incremental_verification_test.dart",
+        "mobile/test/segmented_publication_crash_test.dart",
+        "mobile/test/segmented_publication_test.dart",
+        "mobile/test/segmented_root_pin_model_test.dart",
+        "mobile/test/segmented_store_test.dart",
+        "mobile/test/support/segmented_publication_crash_worker.dart"
+      ],
+      "exit_code": 0,
+      "seconds": 0.17915243199968245
+    },
+    "audit-format": {
+      "command": [
+        "/home/hjkerman/.flutter/bin/dart",
+        "format",
+        "--output=none",
+        "--set-exit-if-changed",
+        "docs/benchmarks/t66e3-audit"
+      ],
+      "exit_code": 0,
+      "seconds": 0.0665658249927219
+    },
+    "full-format": {
+      "command": [
+        "/home/hjkerman/.flutter/bin/dart",
+        "format",
+        "--output=none",
+        "--set-exit-if-changed",
+        "mobile/lib",
+        "mobile/test"
+      ],
+      "exit_code": 1,
+      "seconds": 0.4063539099879563
+    },
+    "diff-check": {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.003016165006556548
+    },
+    "preexisting_format": [
+      {
+        "path": "mobile/lib/src/apk_install_bridge.dart",
+        "not_in_diff": true,
+        "unchanged_from_base": true
+      },
+      {
+        "path": "mobile/lib/src/screens/home_shell.dart",
+        "not_in_diff": true,
+        "unchanged_from_base": true
+      },
+      {
+        "path": "mobile/lib/src/screens/management_month_close.dart",
+        "not_in_diff": true,
+        "unchanged_from_base": true
+      },
+      {
+        "path": "mobile/lib/src/screens/management_settings.dart",
+        "not_in_diff": true,
+        "unchanged_from_base": true
+      },
+      {
+        "path": "mobile/lib/src/screens/month_entries_screen.dart",
+        "not_in_diff": true,
+        "unchanged_from_base": true
+      },
+      {
+        "path": "mobile/lib/src/screens/snapshot_manager_screen.dart",
+        "not_in_diff": true,
+        "unchanged_from_base": true
+      },
+      {
+        "path": "mobile/test/date_picker_row_test.dart",
+        "not_in_diff": true,
+        "unchanged_from_base": true
+      },
+      {
+        "path": "mobile/test/offline_notification_identity_test.dart",
+        "not_in_diff": true,
+        "unchanged_from_base": true
+      },
+      {
+        "path": "mobile/test/offline_persistence_test.dart",
+        "not_in_diff": true,
+        "unchanged_from_base": true
+      },
+      {
+        "path": "mobile/test/offline_reconciliation_test.dart",
+        "not_in_diff": true,
+        "unchanged_from_base": true
+      }
+    ]
+  },
+  "query_plans": [
+    {
+      "sql": "SELECT count(*) FROM generation_roots WHERE generation_id=?",
+      "plan": [
+        [
+          3,
+          0,
+          0,
+          "SEARCH generation_roots USING PRIMARY KEY (generation_id=?)"
+        ]
+      ]
+    },
+    {
+      "sql": "SELECT body FROM objects WHERE hash=?",
+      "plan": [
+        [
+          2,
+          0,
+          0,
+          "SEARCH objects USING PRIMARY KEY (hash=?)"
+        ]
+      ]
+    },
+    {
+      "sql": "SELECT child FROM edges WHERE parent=? ORDER BY position",
+      "plan": [
+        [
+          3,
+          0,
+          0,
+          "SEARCH edges USING PRIMARY KEY (parent=?)"
+        ]
+      ]
+    },
+    {
+      "sql": "SELECT bytes FROM refs WHERE hash=?",
+      "plan": [
+        [
+          2,
+          0,
+          0,
+          "SEARCH refs USING PRIMARY KEY (hash=?)"
+        ]
+      ]
+    }
+  ],
+  "fresh_sqlite_oracle": {
+    "databases": 6,
+    "pass": 6
+  },
+  "preserved_original_artifacts": {
+    "i25-before-worktree.tgz": {
+      "unchanged": true,
+      "sha256": "1ad514a7732c4307ed15c65122a085d1640c9bf0aea9e91f711bca29405693e5"
+    },
+    "i25-before.json": {
+      "unchanged": true,
+      "sha256": "1909d3f2473aa096da1dbcbece63e7fb3e703e5d86a9a5511d8a75b491694420"
+    },
+    "README.md": {
+      "unchanged": true,
+      "sha256": "f742af9a5e539c8bb91b77c85a71020bd76af70cb84470b73cbf054718742b66"
+    },
+    "summary.json": {
+      "unchanged": true,
+      "sha256": "5fab06ed55428007a4f07c8e6c7c7ce5df7eaa2994c23588bd6fc7f1d941afd0"
+    },
+    "i25-publication-after.json": {
+      "unchanged": true,
+      "sha256": "4760a0c5c63487c15f50c0fcfab84efc84d39c1de91cb4cd334851210cec31b4"
+    },
+    "i25-final-summary.json": {
+      "unchanged": true,
+      "sha256": "8dace5877976bebdb22eaa19542ead9947e29add7f2626e026d5f71e7c67332f"
+    },
+    "i25-verifier-only.json": {
+      "unchanged": true,
+      "sha256": "ed1935db90139d5bfe47033cc40e64dc2611a44f291e61afadc341afde7cdda1"
+    }
+  },
+  "history": {
+    "first_independent_trial": {
+      "pass": 19,
+      "fail": 1,
+      "cause": "감사 harness가 계약에 없는 100KB 상한을 가정했다. bounded leaf/H 비용으로 수정하고 실제 작업량을 보존했다. 기존 제품 assertion은 변경하지 않았다."
+    },
+    "split_runs": {
+      "independent.xml": 28,
+      "independent-extra.xml": 3,
+      "cost-final.xml": 2,
+      "duplicate_cost_cases": 2
+    }
+  },
+  "production": {
+    "access": "NONE",
+    "deploy": "NOT PERFORMED",
+    "activation": "NOT PERFORMED"
+  },
+  "findings": {
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 0
+  }
+}
