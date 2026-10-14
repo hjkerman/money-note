@@ -10,6 +10,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'models.dart';
 import 'money.dart';
 
+// Grammar source only. This does not authorize a command or change J admission.
+enum _WriteMoneySource { input, mobileWinsBaseline }
+
 const _tokenKey = 'money_note_session_token';
 const _secureStorage = FlutterSecureStorage(
   aOptions: AndroidOptions(migrateWithBackup: true),
@@ -145,11 +148,12 @@ class MoneyNoteApiClient {
   }
 
   Future<AppSettings> settings() {
-    return _get('/api/settings', AppSettings.fromJson);
+    return _get('/api/settings', AppSettings.fromJson, settingsResponse: true);
   }
 
   Future<AppSettings> updateSetting(String key, String value) {
-    return _patch('/api/settings/$key', {'value': value}, AppSettings.fromJson);
+    return _patch('/api/settings/$key', {'value': value}, AppSettings.fromJson,
+        settingsResponse: true);
   }
 
   Future<CardDiscountMonth> discountMonth(String month, String scope) {
@@ -502,14 +506,15 @@ class MoneyNoteApiClient {
         'password': password,
       },
       (json) => json,
+      moneySource: _WriteMoneySource.mobileWinsBaseline,
     );
   }
 
-  Future<T> _get<T>(
-      String path, T Function(Map<String, dynamic>) parser) async {
+  Future<T> _get<T>(String path, T Function(Map<String, dynamic>) parser,
+      {bool settingsResponse = false}) async {
     final response =
         await _request(() => _client.get(_uri(path), headers: _headers()));
-    return parser(_parseMap(response));
+    return parser(_parseMap(response, settingsResponse: settingsResponse));
   }
 
   Future<List<T>> _getList<T>(
@@ -522,8 +527,9 @@ class MoneyNoteApiClient {
   }
 
   Future<T> _post<T>(String path, Map<String, dynamic> body,
-      T Function(Map<String, dynamic>) parser) async {
-    _validateWriteMoney(body);
+      T Function(Map<String, dynamic>) parser,
+      {_WriteMoneySource moneySource = _WriteMoneySource.input}) async {
+    _validateWriteMoney(body, source: moneySource);
     final response = await _request(() => _client.post(
           _uri(path),
           headers: {'Content-Type': 'application/json', ..._headers()},
@@ -533,14 +539,15 @@ class MoneyNoteApiClient {
   }
 
   Future<T> _patch<T>(String path, Map<String, dynamic> body,
-      T Function(Map<String, dynamic>) parser) async {
+      T Function(Map<String, dynamic>) parser,
+      {bool settingsResponse = false}) async {
     _validateWriteMoney(body);
     final response = await _request(() => _client.patch(
           _uri(path),
           headers: {'Content-Type': 'application/json', ..._headers()},
           body: jsonEncode(body),
         ));
-    return parser(_parseMap(response));
+    return parser(_parseMap(response, settingsResponse: settingsResponse));
   }
 
   Future<void> _delete(String path) async {
@@ -549,9 +556,18 @@ class MoneyNoteApiClient {
     _parseJson(response);
   }
 
-  void _validateWriteMoney(Map<String, dynamic> body) {
+  void _validateWriteMoney(Map<String, dynamic> body,
+      {_WriteMoneySource source = _WriteMoneySource.input}) {
     try {
-      validateMoneyPayload(body);
+      if (source == _WriteMoneySource.mobileWinsBaseline) {
+        validateAuthoritativeMoneyPayload(body['baseline_snapshot']);
+        validateMoneyPayload({
+          for (final e in body.entries)
+            if (e.key != 'baseline_snapshot') e.key: e.value
+        });
+      } else {
+        validateMoneyPayload(body);
+      }
     } on FormatException {
       // Proven pre-request rejection, not a possibly committed transport loss.
       throw MoneyNoteApiException('정확한 금액 범위 또는 형식이 올바르지 않습니다.',
@@ -581,15 +597,16 @@ class MoneyNoteApiClient {
         : {'Authorization': 'Bearer $token'};
   }
 
-  Map<String, dynamic> _parseMap(http.Response response) {
-    final decoded = _parseJson(response);
+  Map<String, dynamic> _parseMap(http.Response response,
+      {bool settingsResponse = false}) {
+    final decoded = _parseJson(response, settingsResponse: settingsResponse);
     if (decoded is! Map<String, dynamic>) {
       throw MoneyNoteApiException('응답 형식이 올바르지 않습니다.');
     }
     return decoded;
   }
 
-  dynamic _parseJson(http.Response response) {
+  dynamic _parseJson(http.Response response, {bool settingsResponse = false}) {
     if (response.statusCode < 200 || response.statusCode >= 300) {
       if (response.statusCode >= 500) {
         _throwServerUnavailable(_readError(response));
@@ -598,7 +615,11 @@ class MoneyNoteApiClient {
     }
     if (response.body.isEmpty) return <String, dynamic>{};
     final decoded = jsonDecode(utf8.decode(response.bodyBytes));
-    validateMoneyPayload(decoded);
+    if (settingsResponse) {
+      validateAuthoritativeSettingsMoney(decoded);
+    } else {
+      validateAuthoritativeMoneyPayload(decoded);
+    }
     return decoded;
   }
 

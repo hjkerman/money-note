@@ -36,7 +36,7 @@ class AuthoritativeBundle {
       {BundleStageObserver? onStage}) {
     _stage('unicode', onStage, () => validateBundleUnicode(wire));
     _stage('presence_types', onStage, () => validateBundleShape(wire));
-    _stage('money', onStage, () => validateMoneyPayload(wire));
+    _stage('money', onStage, () => validateAuthoritativeMoneyPayload(wire));
     _stage('snapshot_authority_relationships', onStage,
         () => validateAuthoritativeSnapshot(wire));
     return AuthoritativeBundle._(

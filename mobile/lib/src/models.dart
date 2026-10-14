@@ -556,7 +556,7 @@ class AppSettings {
   String get familyCardLast4 => values['family_card_last4'] ?? '';
 
   factory AppSettings.fromJson(Map<String, dynamic> json) {
-    validateMoneyPayload(json);
+    validateAuthoritativeSettingsMoney(json);
     return AppSettings(
         values:
             json.map((key, value) => MapEntry(key, value?.toString() ?? '')));

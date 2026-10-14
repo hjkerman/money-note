@@ -1,0 +1,41 @@
+{
+  "baseline": "ab59d6bbc39f27c36beb059f984ef527ac7b0bef",
+  "verdict": "BLOCKED",
+  "implementation_complete": false,
+  "product_source_changed": false,
+  "diagnostic_tests": {"passed": 5, "failed": 0},
+  "initial_probe_setup": {
+    "passed": 0,
+    "failed": 1,
+    "setting": "scheduled_income",
+    "stage": "backend judgment float parsing before observation creation"
+  },
+  "complete_probe": {
+    "setting": "cash_flow_balance",
+    "value": "\u001c+0001000.00\u001f",
+    "backend_complete_snapshot": true,
+    "backend_complete_bundle": true,
+    "segmented_accepted_sequence": 1,
+    "independent_sqlite_foreign_key_errors": 0,
+    "fresh_store_complete_recovery": true,
+    "legacy_bundle_rejected": true,
+    "legacy_baseline_v4_rejected": true,
+    "legacy_error": "money must be an exact safe integer"
+  },
+  "differential": {"vectors": 12, "backend_legacy_dart_mismatches": 7},
+  "limited_flutter_regression": {"passed": 271, "failed": 0},
+  "limited_backend_regression": {"tests": 117, "subtests": 357, "failed": 0},
+  "flutter_analyze": "PASS",
+  "frontend_build": "PASS",
+  "ruff": "PASS",
+  "compileall": "PASS",
+  "full_flutter_regression": "NOT RUN",
+  "full_backend_regression": "NOT RUN",
+  "flutter_apk_build": "NOT RUN",
+  "e4_implementation_tests": "NOT RUN",
+  "e4_process_crash_tests": "NOT RUN",
+  "r1_activation_gate": "CLOSED",
+  "production_access": "NONE",
+  "commit": null,
+  "push": "NOT PERFORMED"
+}

@@ -1,0 +1,53 @@
+{
+  "scope": "T6.6E4-P0",
+  "baseline": "ab59d6bbc39f27c36beb059f984ef527ac7b0bef",
+  "status": "COMPLETE",
+  "independent_audit_pass_claimed": false,
+  "targeted_tests": {"passed": 183, "failed": 0},
+  "authoritative_differential": {
+    "cases": 4755,
+    "backend_accepted": 3816,
+    "backend_rejected": 939,
+    "mismatches": 0,
+    "corpus_sha256": "59bd99165076a10104dbb4c80f3c77a9082b0f5eaa75ba933be637b7d2a584d6",
+    "oracle": "actual isolated_sync.raw.setting_money; existing independent E1 corpus"
+  },
+  "frozen_input_differential": {
+    "cases": 4755,
+    "mismatches": 0,
+    "oracle": "separate Dart process executing byte-identical pre-P0 source archive",
+    "archive_sha256": "9f1aef7d287f6c9c321f8d4e2fb5b9a33b4f62df9a1270820aed2a814889a02e"
+  },
+  "historical_probe": {
+    "files_modified": false,
+    "before": {"passed": 5, "failed": 0},
+    "after": {"passed": 3, "failed": 2},
+    "after_failure_reason": "historical assertions expected legacy rejection; valid original now accepted"
+  },
+  "full_flutter": {"passed": 1277, "failed": 0, "skipped": 2, "reporter_elapsed": "13:34"},
+  "full_backend": {"tests": 1315, "subtests": 1540, "failed": 0, "warnings": 1, "elapsed_seconds": 1808.12},
+  "existing_sigkill_regression": {"passed": 26, "failed": 0, "skipped": 0, "E1": 7, "E2": 3, "E3": 16},
+  "flutter_analyze": "PASS",
+  "debug_apk_build": "PASS",
+  "frontend_build": "PASS",
+  "changed_dart_format": "PASS",
+  "ruff": "PASS",
+  "compileall": "PASS",
+  "diff_check": "PASS",
+  "original_five_files": "BYTE-IDENTICAL",
+  "frozen_exactMoney_and_validateMoneyPayload": "BYTE-IDENTICAL",
+  "raw_values": "PRESERVED",
+  "snapshot_v7_fingerprint": "UNCHANGED",
+  "offline_baseline_v4_lineage": "UNCHANGED",
+  "E1_canonical_bytes_and_hashes": "UNCHANGED",
+  "new_floating_point_conversion": false,
+  "E4_adapter_integration_started": false,
+  "R1_implemented": false,
+  "R1_gate": "CLOSED",
+  "production_access": "NONE",
+  "deployment": "NOT PERFORMED",
+  "apk_installation": "NOT PERFORMED",
+  "segmented_activation": "NOT PERFORMED",
+  "commit": null,
+  "push": "NOT PERFORMED"
+}

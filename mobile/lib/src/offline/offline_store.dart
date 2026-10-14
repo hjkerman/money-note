@@ -16,6 +16,9 @@ typedef MobileRecoveryWriteHook = Future<void> Function();
 typedef JournalAppendWriteHook = Future<void> Function();
 typedef ManualRetryCleanupHook = Future<void> Function();
 
+// Validation source only, never publication authority or a B/J mode switch.
+enum _JsonMoneySource { input, authoritativeBaseline, recoveryArtifact }
+
 class PendingManualPanelRetry {
   const PendingManualPanelRetry(this.key, this.input, this.digest,
       [this.legacyDigests = const {}, this.ownerId]);
@@ -98,7 +101,8 @@ class OfflineStore {
   Future<void> replaceBaseline(OfflineBaseline baseline,
       {void Function()? beforePublish}) async {
     await _writeJsonAtomic(await _file(_baselineFilename), baseline.toJson(),
-        beforePublish: beforePublish);
+        beforePublish: beforePublish,
+        moneySource: _JsonMoneySource.authoritativeBaseline);
   }
 
   Future<PendingOnlineWrite?> loadPendingOnlineWrite(int userId) async {
@@ -527,7 +531,8 @@ class OfflineStore {
     };
 
     await _beforeMobileRecoveryWrite?.call();
-    await _writeJsonAtomic(target, artifact);
+    await _writeJsonAtomic(target, artifact,
+        moneySource: _JsonMoneySource.recoveryArtifact);
     final verified = await verifyMobileRecoveryArtifact(target.path);
     await _pruneMobileRecoveryArtifacts();
     return MobileRecoveryArtifact(
@@ -729,8 +734,22 @@ class OfflineStore {
   }
 
   Future<void> _writeJsonAtomic(File target, Map<String, dynamic> payload,
-      {void Function()? beforePublish}) async {
-    validateMoneyPayload(payload);
+      {void Function()? beforePublish,
+      _JsonMoneySource moneySource = _JsonMoneySource.input}) async {
+    switch (moneySource) {
+      case _JsonMoneySource.input:
+        validateMoneyPayload(payload);
+      case _JsonMoneySource.authoritativeBaseline:
+        validateAuthoritativeMoneyPayload(payload);
+      case _JsonMoneySource.recoveryArtifact:
+        validateAuthoritativeMoneyPayload(payload['baseline']);
+        // J, retry inputs and reconciliation metadata retain the original
+        // validator, even if they contain a field named settings/app_settings.
+        validateMoneyPayload({
+          for (final e in payload.entries)
+            if (e.key != 'baseline') e.key: e.value
+        });
+    }
     final temporary = File(
         '${target.path}.${_clock().microsecondsSinceEpoch}.${_random.nextInt(1 << 32)}.tmp');
     try {

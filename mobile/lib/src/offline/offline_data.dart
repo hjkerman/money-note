@@ -340,7 +340,7 @@ class OfflineBaseline {
       };
 
   factory OfflineBaseline.fromJson(Map<String, dynamic> json) {
-    validateMoneyPayload(json);
+    validateAuthoritativeMoneyPayload(json);
     final version = json['schema_version'];
     if (version != 1 &&
         version != 2 &&
