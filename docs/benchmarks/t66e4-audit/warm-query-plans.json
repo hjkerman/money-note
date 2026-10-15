@@ -1,0 +1,141 @@
+[
+  {
+    "sql": "SELECT * FROM profile",
+    "plan": [
+      [
+        2,
+        0,
+        216,
+        "SCAN profile"
+      ]
+    ]
+  },
+  {
+    "sql": "SELECT name,sql FROM sqlite_master WHERE sql IS NOT NULL ORDER BY name LIMIT ?",
+    "plan": [
+      [
+        4,
+        0,
+        216,
+        "SCAN sqlite_master"
+      ],
+      [
+        18,
+        0,
+        0,
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    ]
+  },
+  {
+    "sql": "SELECT * FROM frozen WHERE id=?",
+    "plan": [
+      [
+        2,
+        0,
+        39,
+        "SEARCH frozen USING PRIMARY KEY (id=?)"
+      ]
+    ]
+  },
+  {
+    "sql": "SELECT * FROM generations WHERE id=?",
+    "plan": [
+      [
+        2,
+        0,
+        39,
+        "SEARCH generations USING PRIMARY KEY (id=?)"
+      ]
+    ]
+  },
+  {
+    "sql": "SELECT count(*) AS n FROM generation_roots WHERE generation_id=?",
+    "plan": [
+      [
+        3,
+        0,
+        56,
+        "SEARCH generation_roots USING PRIMARY KEY (generation_id=?)"
+      ]
+    ]
+  },
+  {
+    "sql": "SELECT 1 FROM generation_roots WHERE generation_id=? AND hash=?",
+    "plan": [
+      [
+        2,
+        0,
+        39,
+        "SEARCH generation_roots USING PRIMARY KEY (generation_id=? AND hash=?)"
+      ]
+    ]
+  },
+  {
+    "sql": "SELECT receipt_checksum FROM generations WHERE id=?",
+    "plan": [
+      [
+        2,
+        0,
+        39,
+        "SEARCH generations USING PRIMARY KEY (id=?)"
+      ]
+    ]
+  },
+  {
+    "sql": "SELECT length(body) AS n FROM objects WHERE hash=?",
+    "plan": [
+      [
+        2,
+        0,
+        39,
+        "SEARCH objects USING PRIMARY KEY (hash=?)"
+      ]
+    ]
+  },
+  {
+    "sql": "SELECT o.*,r.bytes AS size FROM objects o JOIN refs r USING(hash) WHERE hash=?",
+    "plan": [
+      [
+        3,
+        0,
+        45,
+        "SEARCH r USING PRIMARY KEY (hash=?)"
+      ],
+      [
+        8,
+        0,
+        45,
+        "SEARCH o USING PRIMARY KEY (hash=?)"
+      ]
+    ]
+  },
+  {
+    "sql": "SELECT e.*,r.bytes FROM edges e JOIN refs r ON r.hash=e.child WHERE parent=? ORDER BY position",
+    "plan": [
+      [
+        4,
+        0,
+        56,
+        "SEARCH e USING PRIMARY KEY (parent=?)"
+      ],
+      [
+        10,
+        0,
+        45,
+        "SEARCH r USING PRIMARY KEY (hash=?)"
+      ]
+    ]
+  },
+  {
+    "sql": "SELECT id FROM frozen ORDER BY id",
+    "plan": [
+      [
+        3,
+        0,
+        216,
+        "SCAN frozen"
+      ]
+    ]
+  }
+]

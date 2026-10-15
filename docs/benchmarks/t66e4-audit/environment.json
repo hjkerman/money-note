@@ -1,0 +1,30 @@
+{
+  "platform": "Linux-6.8.0-146-generic-x86_64-with-glibc2.39",
+  "python": "3.13.9",
+  "python_sqlite": "3.51.0",
+  "flutter": {
+    "frameworkVersion": "3.47.4",
+    "channel": "stable",
+    "repositoryUrl": "https://github.com/flutter/flutter.git",
+    "frameworkRevision": "9584c6713b324636289d067944a46fd6b49df14b",
+    "frameworkCommitDate": "2026-09-10 15:25:10 -0700",
+    "engineRevision": "06a2e2a110089dff50fe635cffd2a61e1b24fbcd",
+    "engineCommitDate": "2026-09-03 16:07:13.000Z",
+    "engineContentHash": "0e228ec8c8d2abc9fcf1d053e8a40665bb859ec7",
+    "engineBuildDate": "2026-09-03 09:39:13.722",
+    "dartSdkVersion": "3.13.3",
+    "devToolsVersion": "2.60.0",
+    "flutterVersion": "3.47.4",
+    "flutterRoot": "/home/hjkerman/.flutter"
+  },
+  "backend_venv": {
+    "python": "3.12.3",
+    "sqlite": "3.45.1"
+  },
+  "dart_sqlite": {
+    "version": "3.53.4",
+    "version_number": 3053004,
+    "source_id": "2026-07-24 19:02:57 bf7c7f30031888f4e796e429ab3978879485813aaca6f641c7b33e4e09459bcc",
+    "evidence": "독립 driver에서 sqlite3.version을 직접 출력함"
+  }
+}

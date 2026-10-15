@@ -1,0 +1,310 @@
+[
+  {
+    "id": "E4-I01",
+    "group": "independent",
+    "name": "FA01 positive native=false, independent persisted graph and identity",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I02",
+    "group": "independent",
+    "name": "FA02 unknown pending native=false survives matching downloaded source and restart",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I03",
+    "group": "independent",
+    "name": "FA03 stale mode native=false at after_e3_acceptance cannot retire or install UI",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I04",
+    "group": "independent",
+    "name": "FA03 stale mode native=false at before_source_rename cannot retire or install UI",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I05",
+    "group": "independent",
+    "name": "FA03 stale mode native=false at before_installation cannot retire or install UI",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I06",
+    "group": "independent",
+    "name": "FA03 stale mode native=false at before_pending_retire cannot retire or install UI",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I07",
+    "group": "independent",
+    "name": "FA04 credential replacement after accepted COMMIT native=false",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I08",
+    "group": "independent",
+    "name": "FA05 cancellation at final retirement native=false is persistent no-op",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I09",
+    "group": "independent",
+    "name": "FA06 different current principal after acceptance native=false",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I10",
+    "group": "independent",
+    "name": "FA01 positive native=true, independent persisted graph and identity",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I11",
+    "group": "independent",
+    "name": "FA02 unknown pending native=true survives matching downloaded source and restart",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I12",
+    "group": "independent",
+    "name": "FA03 stale mode native=true at after_e3_acceptance cannot retire or install UI",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I13",
+    "group": "independent",
+    "name": "FA03 stale mode native=true at before_source_rename cannot retire or install UI",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I14",
+    "group": "independent",
+    "name": "FA03 stale mode native=true at before_installation cannot retire or install UI",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I15",
+    "group": "independent",
+    "name": "FA03 stale mode native=true at before_pending_retire cannot retire or install UI",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I16",
+    "group": "independent",
+    "name": "FA04 credential replacement after accepted COMMIT native=true",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I17",
+    "group": "independent",
+    "name": "FA05 cancellation at final retirement native=true is persistent no-op",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I18",
+    "group": "independent",
+    "name": "FA06 different current principal after acceptance native=true",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I19",
+    "group": "independent",
+    "name": "FA07 new legacy request while original waits cannot authorize old prepared B",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I20",
+    "group": "independent",
+    "name": "FA08 frozen G1 remains separate from accepted/installed G2-G3 across reopen",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I21",
+    "group": "independent",
+    "name": "FA09 installed frozen ownership cannot be discarded, with unchanged rows",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I22",
+    "group": "independent",
+    "name": "FA10 reader lifetime differs from durable frozen lifetime, detached view closes",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I23",
+    "group": "independent",
+    "name": "FA11 warm Frozen-B invalidation trigger, previous B and marker untouched",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I24",
+    "group": "independent",
+    "name": "FA11 warm Frozen-B invalidation receipt, previous B and marker untouched",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I25",
+    "group": "independent",
+    "name": "FA11 warm Frozen-B invalidation root_pin, previous B and marker untouched",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I26",
+    "group": "independent",
+    "name": "FA11 warm Frozen-B invalidation raw_bytes, previous B and marker untouched",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I27",
+    "group": "independent",
+    "name": "FA11 warm Frozen-B invalidation missing_raw, previous B and marker untouched",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I28",
+    "group": "independent",
+    "name": "FA11 warm Frozen-B invalidation lineage, previous B and marker untouched",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I29",
+    "group": "independent",
+    "name": "FA11 warm Frozen-B invalidation source, previous B and marker untouched",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I30",
+    "group": "independent",
+    "name": "FA11 warm Frozen-B invalidation schema, previous B and marker untouched",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I31",
+    "group": "independent",
+    "name": "FA12 failed frozen install transaction retains old installed owner and prepared pin",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I32",
+    "group": "independent",
+    "name": "FA13 wrong owner and changed lineage cannot share cached frozen authority",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I33",
+    "group": "independent",
+    "name": "FA14 real SQLite read snapshot excludes concurrent G2 COMMIT then permits retry",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I34",
+    "group": "extra",
+    "name": "FA15 equal v7 contents cannot substitute resolved reconciliation lineage",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I35",
+    "group": "extra",
+    "name": "FA16 real AppState offline entry remains closed after successful isolated E4",
+    "result": "success",
+    "file": "independent_test.dart"
+  },
+  {
+    "id": "E4-I36",
+    "group": "cost",
+    "name": "independent instrumented Frozen-B SQL and full-IO cost history=5",
+    "result": "success",
+    "file": "cost_test.dart"
+  },
+  {
+    "id": "E4-I37",
+    "group": "cost",
+    "name": "independent instrumented Frozen-B SQL and full-IO cost history=512",
+    "result": "success",
+    "file": "cost_test.dart"
+  },
+  {
+    "id": "E4-I38",
+    "group": "crash",
+    "name": "test_g1_g2_process_crash[after_frozen_prepare]",
+    "result": "success"
+  },
+  {
+    "id": "E4-I39",
+    "group": "crash",
+    "name": "test_g1_g2_process_crash[after_legacy_commit]",
+    "result": "success"
+  },
+  {
+    "id": "E4-I40",
+    "group": "crash",
+    "name": "test_g1_g2_process_crash[after_frozen_install]",
+    "result": "success"
+  },
+  {
+    "id": "E4-I41",
+    "group": "crash",
+    "name": "test_g1_g2_process_crash[after_e4_installation]",
+    "result": "success"
+  },
+  {
+    "id": "E4-I42",
+    "group": "crash",
+    "name": "test_g1_g2_process_crash[native_after_segmented_install_pointer]",
+    "result": "success"
+  },
+  {
+    "id": "E4-I43",
+    "group": "crash",
+    "name": "test_g1_g2_process_crash[native_during_installation_readback]",
+    "result": "success"
+  },
+  {
+    "id": "E4-I44",
+    "group": "p0-replay",
+    "name": "test_original_p0_reader_assertions_after_e4_additions",
+    "result": "success"
+  },
+  {
+    "id": "E4-I45",
+    "group": "stale_recovery",
+    "name": "FA17 older cancelled recovery cannot overwrite a newer successful original-ticket installation",
+    "result": "failure",
+    "file": "stale_recovery_test.dart"
+  }
+]
