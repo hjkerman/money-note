@@ -1,0 +1,62 @@
+[
+  {
+    "history": 5,
+    "phase": "warm1",
+    "differences": {}
+  },
+  {
+    "history": 5,
+    "phase": "warm2",
+    "differences": {}
+  },
+  {
+    "history": 5,
+    "phase": "store_only_warm",
+    "differences": {}
+  },
+  {
+    "history": 5,
+    "phase": "unrelated_accepted",
+    "differences": {}
+  },
+  {
+    "history": 5,
+    "phase": "warm_after_fallback",
+    "differences": {}
+  },
+  {
+    "history": 5,
+    "phase": "warm_after_reopen",
+    "differences": {}
+  },
+  {
+    "history": 512,
+    "phase": "warm1",
+    "differences": {}
+  },
+  {
+    "history": 512,
+    "phase": "warm2",
+    "differences": {}
+  },
+  {
+    "history": 512,
+    "phase": "store_only_warm",
+    "differences": {}
+  },
+  {
+    "history": 512,
+    "phase": "unrelated_accepted",
+    "differences": {}
+  },
+  {
+    "history": 512,
+    "phase": "warm_after_fallback",
+    "differences": {}
+  },
+  {
+    "history": 512,
+    "phase": "warm_after_reopen",
+    "differences": {}
+  }
+]

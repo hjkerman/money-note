@@ -1,0 +1,10 @@
+{
+  "original_e4_files": 71,
+  "unchanged": 69,
+  "expected_changed": [
+    "mobile/lib/src/segmented/store_frozen.dart",
+    "mobile/lib/src/segmented/workspace.dart"
+  ],
+  "original_reproducer_unchanged": true,
+  "original_fail_report_unchanged": true
+}

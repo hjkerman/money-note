@@ -1,0 +1,539 @@
+[
+  {
+    "run": "invalid-predecessor-final.json",
+    "id": "RA16",
+    "native": false,
+    "before_recovery": {
+      "accepted": [
+        {
+          "id": 1,
+          "current_id": "bc19e4a3-3748-472b-b4bd-65ce22a0131c",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "c25e71b536d31f125f37f0c15bf2ce276fc69b48ab5f5e4f60c6605fca3c5dd5"
+        }
+      ],
+      "installed": [
+        {
+          "id": 1,
+          "generation_id": "bc19e4a3-3748-472b-b4bd-65ce22a0131c",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "c25e71b536d31f125f37f0c15bf2ce276fc69b48ab5f5e4f60c6605fca3c5dd5"
+        }
+      ],
+      "frozen": [
+        {
+          "id": "1f046a16-0b89-4dbe-83ae-a4e97729ff0b",
+          "generation_id": "bc19e4a3-3748-472b-b4bd-65ce22a0131c",
+          "binding": "83bff5c8bceafc9420b673e0a2a7c9eb7d463bef017bedc98751952f47030a2b",
+          "checksum": "83bff5c8bceafc9420b673e0a2a7c9eb7d463bef017bedc98751952f47030a2b",
+          "receipt_checksum": "87ffa349a660f2b4568f0e5b35cfddb5fc1aab7ba558003d795a1df0a712d288",
+          "state": "installed"
+        },
+        {
+          "id": "9d46c2bd-37a3-4b34-bccf-5341267b4326",
+          "generation_id": "bc19e4a3-3748-472b-b4bd-65ce22a0131c",
+          "binding": "4c9b2a45eed2c5a1791300c9ff9bb7d5057a93578830ebfb50fe9303555501cf",
+          "checksum": "4c9b2a45eed2c5a1791300c9ff9bb7d5057a93578830ebfb50fe9303555501cf",
+          "receipt_checksum": "87ffa349a660f2b4568f0e5b35cfddb5fc1aab7ba558003d795a1df0a712d288",
+          "state": "prepared"
+        }
+      ],
+      "generation_roots": [
+        {
+          "generation_id": "bc19e4a3-3748-472b-b4bd-65ce22a0131c",
+          "hash": "1c856ec4ffbfbc2cd7413344f2ae75dedaf14dec90056dea1bd0055433de2033"
+        },
+        {
+          "generation_id": "bc19e4a3-3748-472b-b4bd-65ce22a0131c",
+          "hash": "ba7537e84423b72d9301870933c3c9fad43088ce960122108453e9e1d58dbd6d"
+        },
+        {
+          "generation_id": "bc19e4a3-3748-472b-b4bd-65ce22a0131c",
+          "hash": "be23d6c6abe3b200889a06c716fd9f668e7a0a316120d2253690b33a79c1d3b6"
+        },
+        {
+          "generation_id": "bc19e4a3-3748-472b-b4bd-65ce22a0131c",
+          "hash": "d87d335952f356623c8874f83622701cec17d063a4439487579474fdc6de58b5"
+        }
+      ],
+      "source_bytes": 341,
+      "source_sha256": "4e0c33a2a3c8d830ed53d2d806825ff830462d1d97f5453c5189ac601a26cc22",
+      "source": {
+        "storage": "segmented-store/1",
+        "namespace": "246880ce409427a7937164a71675a333cee33244b26badcbd3717f7ae3e08049",
+        "frozen": "9d46c2bd-37a3-4b34-bccf-5341267b4326",
+        "binding": "4c9b2a45eed2c5a1791300c9ff9bb7d5057a93578830ebfb50fe9303555501cf",
+        "previous_file": "bc46a143595bd2603442a8d83dddc29ce6533955fce0125854a301c27f02b7b6",
+        "previous_source": null
+      },
+      "baseline_bytes": 15737,
+      "baseline_sha256": "bc46a143595bd2603442a8d83dddc29ce6533955fce0125854a301c27f02b7b6",
+      "pending_bytes": 118,
+      "pending_sha256": "3f1281580312a6358f2cefe193867ef4ed981283724ce3a88925ce87495a21e5",
+      "pending": {
+        "schema_version": 1,
+        "user_id": 1,
+        "token": "1792055283792330-4087e979fcac08d78306864080dffba5",
+        "status": "outcomeUnknown"
+      },
+      "refs_count": 150,
+      "refs_sha256": "5fd2f504a88d3925242ebb1b2b81e7db50e31288ec9fc48e6356b24ca50f5742"
+    },
+    "after_source_exists": false,
+    "after_sql": {
+      "accepted": [
+        {
+          "id": 1,
+          "current_id": "bc19e4a3-3748-472b-b4bd-65ce22a0131c",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "c25e71b536d31f125f37f0c15bf2ce276fc69b48ab5f5e4f60c6605fca3c5dd5"
+        }
+      ],
+      "installed": [
+        {
+          "id": 1,
+          "generation_id": "bc19e4a3-3748-472b-b4bd-65ce22a0131c",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "c25e71b536d31f125f37f0c15bf2ce276fc69b48ab5f5e4f60c6605fca3c5dd5"
+        }
+      ],
+      "frozen": [
+        {
+          "id": "1f046a16-0b89-4dbe-83ae-a4e97729ff0b",
+          "generation_id": "bc19e4a3-3748-472b-b4bd-65ce22a0131c",
+          "binding": "83bff5c8bceafc9420b673e0a2a7c9eb7d463bef017bedc98751952f47030a2b",
+          "checksum": "83bff5c8bceafc9420b673e0a2a7c9eb7d463bef017bedc98751952f47030a2b",
+          "receipt_checksum": "87ffa349a660f2b4568f0e5b35cfddb5fc1aab7ba558003d795a1df0a712d288",
+          "state": "installed"
+        }
+      ],
+      "generation_roots": [
+        {
+          "generation_id": "bc19e4a3-3748-472b-b4bd-65ce22a0131c",
+          "hash": "1c856ec4ffbfbc2cd7413344f2ae75dedaf14dec90056dea1bd0055433de2033"
+        },
+        {
+          "generation_id": "bc19e4a3-3748-472b-b4bd-65ce22a0131c",
+          "hash": "ba7537e84423b72d9301870933c3c9fad43088ce960122108453e9e1d58dbd6d"
+        },
+        {
+          "generation_id": "bc19e4a3-3748-472b-b4bd-65ce22a0131c",
+          "hash": "be23d6c6abe3b200889a06c716fd9f668e7a0a316120d2253690b33a79c1d3b6"
+        },
+        {
+          "generation_id": "bc19e4a3-3748-472b-b4bd-65ce22a0131c",
+          "hash": "d87d335952f356623c8874f83622701cec17d063a4439487579474fdc6de58b5"
+        }
+      ]
+    },
+    "baseline_unchanged": true,
+    "pending_unchanged": true,
+    "recovery_error": null,
+    "fresh_error": "FROZEN_BINDING_INVALID"
+  },
+  {
+    "run": "invalid-predecessor-final.json",
+    "id": "RA17",
+    "native": true,
+    "before_recovery": {
+      "accepted": [
+        {
+          "id": 1,
+          "current_id": "2f8238ec-5ef4-4e83-ae2d-904b44a5f710",
+          "previous_id": "dc648fc2-4135-4b28-a478-645d9fb09aee",
+          "sequence": 2,
+          "checksum": "bd5392a5c10dac9b44b4c2fb300c0bc1194bdd9e3c24cb54bdd18acbd03740ed"
+        }
+      ],
+      "installed": [
+        {
+          "id": 1,
+          "generation_id": "dc648fc2-4135-4b28-a478-645d9fb09aee",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "9ce78a428354675f6d91c49c2900dd9ecae5cd0464b37a3f12820f57ea140e81"
+        }
+      ],
+      "frozen": [
+        {
+          "id": "246b27f7-e741-40c9-ac12-7760af653bd5",
+          "generation_id": "dc648fc2-4135-4b28-a478-645d9fb09aee",
+          "binding": "eb6cf5057b21b0da57cedbeff404591fb81bbcf6179794832cd4980ccaf91929",
+          "checksum": "eb6cf5057b21b0da57cedbeff404591fb81bbcf6179794832cd4980ccaf91929",
+          "receipt_checksum": "87ffa349a660f2b4568f0e5b35cfddb5fc1aab7ba558003d795a1df0a712d288",
+          "state": "installed"
+        }
+      ],
+      "generation_roots": [
+        {
+          "generation_id": "2f8238ec-5ef4-4e83-ae2d-904b44a5f710",
+          "hash": "33b7578ab2a26036fe368b6f7c9f3edd748d1d11582298f030fbfab91bc7744d"
+        },
+        {
+          "generation_id": "2f8238ec-5ef4-4e83-ae2d-904b44a5f710",
+          "hash": "6e7d3b0f54edffe93549dd2b559aeac02aec4461703661ba93a9301356407513"
+        },
+        {
+          "generation_id": "2f8238ec-5ef4-4e83-ae2d-904b44a5f710",
+          "hash": "ad5e610bfff5a89a0428c13bc54f47198cab5690a617ebe0a76006ac8c11dbb5"
+        },
+        {
+          "generation_id": "2f8238ec-5ef4-4e83-ae2d-904b44a5f710",
+          "hash": "f815329c29b375442cd0a235fdf0176d5358c66803a3752532e7830f6484a8f7"
+        },
+        {
+          "generation_id": "dc648fc2-4135-4b28-a478-645d9fb09aee",
+          "hash": "1c856ec4ffbfbc2cd7413344f2ae75dedaf14dec90056dea1bd0055433de2033"
+        },
+        {
+          "generation_id": "dc648fc2-4135-4b28-a478-645d9fb09aee",
+          "hash": "ba7537e84423b72d9301870933c3c9fad43088ce960122108453e9e1d58dbd6d"
+        },
+        {
+          "generation_id": "dc648fc2-4135-4b28-a478-645d9fb09aee",
+          "hash": "be23d6c6abe3b200889a06c716fd9f668e7a0a316120d2253690b33a79c1d3b6"
+        },
+        {
+          "generation_id": "dc648fc2-4135-4b28-a478-645d9fb09aee",
+          "hash": "d87d335952f356623c8874f83622701cec17d063a4439487579474fdc6de58b5"
+        }
+      ],
+      "source_bytes": 441,
+      "source_sha256": "ec331a2fbbbc72eb9fb942a03ad3ffbc347d11d9835e16e5f2755b1f21eb8be8",
+      "source": {
+        "storage": "segmented-store/1",
+        "kind": "segmented",
+        "namespace": "246880ce409427a7937164a71675a333cee33244b26badcbd3717f7ae3e08049",
+        "generation": "2f8238ec-5ef4-4e83-ae2d-904b44a5f710",
+        "sequence": 2,
+        "legacy_frozen": "246b27f7-e741-40c9-ac12-7760af653bd5",
+        "legacy_binding": "eb6cf5057b21b0da57cedbeff404591fb81bbcf6179794832cd4980ccaf91929",
+        "previous_installation": "dc648fc2-4135-4b28-a478-645d9fb09aee",
+        "previous_sequence": 1,
+        "previous_source": null
+      },
+      "baseline_bytes": 15737,
+      "baseline_sha256": "f02d5a2da1012301bdb7d02a11eb4633aa801e0e96b82c67d6d421829d110498",
+      "pending_bytes": 118,
+      "pending_sha256": "794f51ef30e9609af3f355062a71973984e5c8e46a665c4fb8323d7d49e94511",
+      "pending": {
+        "schema_version": 1,
+        "user_id": 1,
+        "token": "1792055306109806-72b4ac0340be47280cd4d844b81c320c",
+        "status": "outcomeUnknown"
+      },
+      "refs_count": 162,
+      "refs_sha256": "547e2964dc98539776e276dd78372b2c4642db82f9538f148cf4c1a19b83ceeb"
+    },
+    "after_source_exists": false,
+    "after_sql": {
+      "accepted": [
+        {
+          "id": 1,
+          "current_id": "2f8238ec-5ef4-4e83-ae2d-904b44a5f710",
+          "previous_id": "dc648fc2-4135-4b28-a478-645d9fb09aee",
+          "sequence": 2,
+          "checksum": "bd5392a5c10dac9b44b4c2fb300c0bc1194bdd9e3c24cb54bdd18acbd03740ed"
+        }
+      ],
+      "installed": [
+        {
+          "id": 1,
+          "generation_id": "dc648fc2-4135-4b28-a478-645d9fb09aee",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "9ce78a428354675f6d91c49c2900dd9ecae5cd0464b37a3f12820f57ea140e81"
+        }
+      ],
+      "frozen": [
+        {
+          "id": "246b27f7-e741-40c9-ac12-7760af653bd5",
+          "generation_id": "dc648fc2-4135-4b28-a478-645d9fb09aee",
+          "binding": "eb6cf5057b21b0da57cedbeff404591fb81bbcf6179794832cd4980ccaf91929",
+          "checksum": "eb6cf5057b21b0da57cedbeff404591fb81bbcf6179794832cd4980ccaf91929",
+          "receipt_checksum": "87ffa349a660f2b4568f0e5b35cfddb5fc1aab7ba558003d795a1df0a712d288",
+          "state": "installed"
+        }
+      ],
+      "generation_roots": [
+        {
+          "generation_id": "2f8238ec-5ef4-4e83-ae2d-904b44a5f710",
+          "hash": "33b7578ab2a26036fe368b6f7c9f3edd748d1d11582298f030fbfab91bc7744d"
+        },
+        {
+          "generation_id": "2f8238ec-5ef4-4e83-ae2d-904b44a5f710",
+          "hash": "6e7d3b0f54edffe93549dd2b559aeac02aec4461703661ba93a9301356407513"
+        },
+        {
+          "generation_id": "2f8238ec-5ef4-4e83-ae2d-904b44a5f710",
+          "hash": "ad5e610bfff5a89a0428c13bc54f47198cab5690a617ebe0a76006ac8c11dbb5"
+        },
+        {
+          "generation_id": "2f8238ec-5ef4-4e83-ae2d-904b44a5f710",
+          "hash": "f815329c29b375442cd0a235fdf0176d5358c66803a3752532e7830f6484a8f7"
+        },
+        {
+          "generation_id": "dc648fc2-4135-4b28-a478-645d9fb09aee",
+          "hash": "1c856ec4ffbfbc2cd7413344f2ae75dedaf14dec90056dea1bd0055433de2033"
+        },
+        {
+          "generation_id": "dc648fc2-4135-4b28-a478-645d9fb09aee",
+          "hash": "ba7537e84423b72d9301870933c3c9fad43088ce960122108453e9e1d58dbd6d"
+        },
+        {
+          "generation_id": "dc648fc2-4135-4b28-a478-645d9fb09aee",
+          "hash": "be23d6c6abe3b200889a06c716fd9f668e7a0a316120d2253690b33a79c1d3b6"
+        },
+        {
+          "generation_id": "dc648fc2-4135-4b28-a478-645d9fb09aee",
+          "hash": "d87d335952f356623c8874f83622701cec17d063a4439487579474fdc6de58b5"
+        }
+      ]
+    },
+    "baseline_unchanged": true,
+    "pending_unchanged": true,
+    "recovery_error": null,
+    "fresh_error": "FROZEN_BINDING_INVALID"
+  },
+  {
+    "run": "invalid-predecessor-install-final.json",
+    "id": "RA18",
+    "initial_frozen": "d4b6494b-8829-4856-a41e-82d2d1239118",
+    "before_recovery": {
+      "accepted": [
+        {
+          "id": 1,
+          "current_id": "557d7d69-4caf-4144-88ee-194e89c9b205",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "dc3aff6bf790783c0124b39e8844325b53bdd4c26ff06a8246451a54b54ba8fb"
+        }
+      ],
+      "installed": [
+        {
+          "id": 1,
+          "generation_id": "557d7d69-4caf-4144-88ee-194e89c9b205",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "dc3aff6bf790783c0124b39e8844325b53bdd4c26ff06a8246451a54b54ba8fb"
+        }
+      ],
+      "frozen": [
+        {
+          "id": "b6fe32a3-5382-4f52-a348-e717be102752",
+          "generation_id": "557d7d69-4caf-4144-88ee-194e89c9b205",
+          "binding": "b4e882147821e28308e4cf4ffcff4173ad7a58c63d52c591135d4461eff0f84a",
+          "checksum": "b4e882147821e28308e4cf4ffcff4173ad7a58c63d52c591135d4461eff0f84a",
+          "receipt_checksum": "04661dcf5a8c6d075b788f4581e7179add7dafbe875f163bf16bcfe4737987de",
+          "state": "prepared"
+        },
+        {
+          "id": "d4b6494b-8829-4856-a41e-82d2d1239118",
+          "generation_id": "557d7d69-4caf-4144-88ee-194e89c9b205",
+          "binding": "0d3f1fa5ce79d9caf65910b8e0bbb9c2bcc8661cd71f053fb76c7db2ca94d9fe",
+          "checksum": "0d3f1fa5ce79d9caf65910b8e0bbb9c2bcc8661cd71f053fb76c7db2ca94d9fe",
+          "receipt_checksum": "04661dcf5a8c6d075b788f4581e7179add7dafbe875f163bf16bcfe4737987de",
+          "state": "installed"
+        }
+      ],
+      "generation_roots": [
+        {
+          "generation_id": "557d7d69-4caf-4144-88ee-194e89c9b205",
+          "hash": "0fe1feb891574d0446012fdd753207ad026383472057c88cf3b74bff66fae287"
+        },
+        {
+          "generation_id": "557d7d69-4caf-4144-88ee-194e89c9b205",
+          "hash": "24f2f9b84a7cad2794825c13480228ccc974d8ad0c7e9156468e53269e217674"
+        },
+        {
+          "generation_id": "557d7d69-4caf-4144-88ee-194e89c9b205",
+          "hash": "5837025540cff8b16e9782d367f2b846dd747c4f246c4f64851cc785c5dae1fc"
+        },
+        {
+          "generation_id": "557d7d69-4caf-4144-88ee-194e89c9b205",
+          "hash": "d9075809f088035a00c2fad6fd5cf85612984818bd8969ec384a34d9d711c1ef"
+        }
+      ],
+      "source_bytes": 341,
+      "source_sha256": "d1e0528373008e2f88f46582e0b9c707edcf9b1a4f7934e683f00dd9a1576709",
+      "source": {
+        "storage": "segmented-store/1",
+        "namespace": "004f9c74918b5939d7a3b08c0ef98adebc094ff8fd5a091e038d6dc84e36d7e8",
+        "frozen": "b6fe32a3-5382-4f52-a348-e717be102752",
+        "binding": "b4e882147821e28308e4cf4ffcff4173ad7a58c63d52c591135d4461eff0f84a",
+        "previous_file": "4083799feda7c3fc9f53ea590d2a301cf73c962c339bc540bd1caf2737266f69",
+        "previous_source": null
+      },
+      "baseline_bytes": 15737,
+      "baseline_sha256": "4083799feda7c3fc9f53ea590d2a301cf73c962c339bc540bd1caf2737266f69",
+      "pending_bytes": 118,
+      "pending_sha256": "5c0bb037b2df573933254048f142c18d2e4b8477a4445b03d559923d6e8de6e0",
+      "pending": {
+        "schema_version": 1,
+        "user_id": 1,
+        "token": "1792054806821652-a8145bef5e28ca6b172b26781db3cf79",
+        "status": "outcomeUnknown"
+      },
+      "refs_count": 150,
+      "refs_sha256": "274e137522cd76314dde40c16ae1927d3e3ae9c9d4bf86f2ee8d3aafed9664c2"
+    },
+    "after_native_install": {
+      "accepted": [
+        {
+          "id": 1,
+          "current_id": "557d7d69-4caf-4144-88ee-194e89c9b205",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "dc3aff6bf790783c0124b39e8844325b53bdd4c26ff06a8246451a54b54ba8fb"
+        }
+      ],
+      "installed": [
+        {
+          "id": 1,
+          "generation_id": "557d7d69-4caf-4144-88ee-194e89c9b205",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "dc3aff6bf790783c0124b39e8844325b53bdd4c26ff06a8246451a54b54ba8fb"
+        }
+      ],
+      "frozen": [
+        {
+          "id": "d4b6494b-8829-4856-a41e-82d2d1239118",
+          "generation_id": "557d7d69-4caf-4144-88ee-194e89c9b205",
+          "binding": "0d3f1fa5ce79d9caf65910b8e0bbb9c2bcc8661cd71f053fb76c7db2ca94d9fe",
+          "checksum": "0d3f1fa5ce79d9caf65910b8e0bbb9c2bcc8661cd71f053fb76c7db2ca94d9fe",
+          "receipt_checksum": "04661dcf5a8c6d075b788f4581e7179add7dafbe875f163bf16bcfe4737987de",
+          "state": "installed"
+        }
+      ],
+      "generation_roots": [
+        {
+          "generation_id": "557d7d69-4caf-4144-88ee-194e89c9b205",
+          "hash": "0fe1feb891574d0446012fdd753207ad026383472057c88cf3b74bff66fae287"
+        },
+        {
+          "generation_id": "557d7d69-4caf-4144-88ee-194e89c9b205",
+          "hash": "24f2f9b84a7cad2794825c13480228ccc974d8ad0c7e9156468e53269e217674"
+        },
+        {
+          "generation_id": "557d7d69-4caf-4144-88ee-194e89c9b205",
+          "hash": "5837025540cff8b16e9782d367f2b846dd747c4f246c4f64851cc785c5dae1fc"
+        },
+        {
+          "generation_id": "557d7d69-4caf-4144-88ee-194e89c9b205",
+          "hash": "d9075809f088035a00c2fad6fd5cf85612984818bd8969ec384a34d9d711c1ef"
+        }
+      ],
+      "source_bytes": 345,
+      "source_sha256": "0c3be34cf2d3d554c538832667c28f583fe555a64c142a77b4c9556a3192973d",
+      "source": {
+        "storage": "segmented-store/1",
+        "kind": "segmented",
+        "namespace": "004f9c74918b5939d7a3b08c0ef98adebc094ff8fd5a091e038d6dc84e36d7e8",
+        "generation": "557d7d69-4caf-4144-88ee-194e89c9b205",
+        "sequence": 1,
+        "legacy_frozen": null,
+        "legacy_binding": null,
+        "previous_installation": "557d7d69-4caf-4144-88ee-194e89c9b205",
+        "previous_sequence": 1,
+        "previous_source": null
+      },
+      "baseline_bytes": 15737,
+      "baseline_sha256": "4083799feda7c3fc9f53ea590d2a301cf73c962c339bc540bd1caf2737266f69",
+      "pending_bytes": 118,
+      "pending_sha256": "5c0bb037b2df573933254048f142c18d2e4b8477a4445b03d559923d6e8de6e0",
+      "pending": {
+        "schema_version": 1,
+        "user_id": 1,
+        "token": "1792054806821652-a8145bef5e28ca6b172b26781db3cf79",
+        "status": "outcomeUnknown"
+      },
+      "refs_count": 150,
+      "refs_sha256": "274e137522cd76314dde40c16ae1927d3e3ae9c9d4bf86f2ee8d3aafed9664c2"
+    },
+    "installed_successfully": true,
+    "install_error": null,
+    "read_error": "FROZEN_BINDING_INVALID",
+    "fresh_recovery_error": null,
+    "fresh_read_error": "FROZEN_BINDING_INVALID",
+    "fresh_process_exit": 1,
+    "fresh_process_errors": [
+      "{\"testID\":3,\"error\":\"SegmentedException(FROZEN_BINDING_INVALID)\",\"stackTrace\":\"package:money_note_mobile/src/segmented/c1.dart 16:37         rejectSegment\\npackage:money_note_mobile/src/segmented/workspace.dart 530:7  E4Workspace.readFrozenBaseline\\n\",\"isFailure\":false,\"type\":\"error\",\"time\":12243}"
+    ],
+    "baseline_unchanged": true,
+    "pending_unchanged": true,
+    "independent_graph": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "557d7d69-4caf-4144-88ee-194e89c9b205",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "dc3aff6bf790783c0124b39e8844325b53bdd4c26ff06a8246451a54b54ba8fb"
+        },
+        "installed": {
+          "id": 1,
+          "generation_id": "557d7d69-4caf-4144-88ee-194e89c9b205",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "dc3aff6bf790783c0124b39e8844325b53bdd4c26ff06a8246451a54b54ba8fb"
+        }
+      },
+      "frozen": [
+        {
+          "id": "d4b6494b-8829-4856-a41e-82d2d1239118",
+          "generation": "557d7d69-4caf-4144-88ee-194e89c9b205",
+          "state": "installed",
+          "binding": {
+            "baseline_sha256": "0b8e8b1d2a584b3743f0d19d79866a262352f69f9c44dae50a727dc665d71a5d",
+            "generation": "557d7d69-4caf-4144-88ee-194e89c9b205",
+            "legacy_fingerprint": "9617a7ca78a274fb06223578916eb85478cd240d95775d150b9f940eefae46d5",
+            "legacy_lineage": "5ca9c2c581252dfb3ff4766c8d3ac692e1b3a75e1355a50c1e159c027cb2b599",
+            "namespace": "004f9c74918b5939d7a3b08c0ef98adebc094ff8fd5a091e038d6dc84e36d7e8",
+            "resolved_id": null,
+            "sequence": 1,
+            "snapshot_id": "bf39e66777c88443fbacf856b8ad147a36213d5116dc9978ecfa8fdd191eb73d",
+            "synced_at": "2026-10-15T09:00:06.493180Z",
+            "user": {
+              "display_name": "Owner",
+              "id": 1,
+              "share_pin_needs_change": false,
+              "username": "owner"
+            },
+            "version": 1
+          }
+        }
+      ],
+      "generations": {
+        "557d7d69-4caf-4144-88ee-194e89c9b205": {
+          "sync_root": "984c8e8b6f984d2ceb4541184c745aa0a57dcbda82ca313d0594c34290dfb50d",
+          "objects": 150,
+          "receipt": "04661dcf5a8c6d075b788f4581e7179add7dafbe875f163bf16bcfe4737987de",
+          "source_sha256": "8dbba2fe0d08ffba8b70babd437557b2afe46afc79980fb70bb1df4cfc0b81aa",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "fa5831adf5591685783e755f37fdaada50029777fb558eb82bef4090f2aa1c93",
+          "closure_count": 150,
+          "closure_sha256": "d45547a7163360b172fd3621eff766093f1e61616a4adb6d598a1e50d6dd099f"
+        }
+      },
+      "objects": 150,
+      "pins": 4
+    }
+  }
+]

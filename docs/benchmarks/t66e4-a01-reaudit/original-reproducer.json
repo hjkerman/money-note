@@ -1,0 +1,162 @@
+{
+  "initial_frozen": "1eaf5185-b1dc-48d2-a2fc-f9fdacebadd3",
+  "new_frozen": "aa5e76b5-2a3d-4f42-8602-6cbc3b65becd",
+  "new_installation_succeeded": true,
+  "source_before_old_recovery": {
+    "storage": "segmented-store/1",
+    "namespace": "a8d408efb932c5a679b4c98b72c44f230cbfb96bf22a84eed235988cd42e5f70",
+    "frozen": "aa5e76b5-2a3d-4f42-8602-6cbc3b65becd",
+    "binding": "7066feb13288b7f289e8fb0044f03d6f0e4a94150a139cec22e9cdc28b07c728",
+    "previous_file": "e1124ebf96014d1cc3cf16e3dd90c39c0fdf9fe3c20bac02e19b64dd414d702d",
+    "previous_source": {
+      "storage": "segmented-store/1",
+      "namespace": "a8d408efb932c5a679b4c98b72c44f230cbfb96bf22a84eed235988cd42e5f70",
+      "frozen": "1eaf5185-b1dc-48d2-a2fc-f9fdacebadd3",
+      "binding": "42e28d2dfa32f1f2f17b9686d7abaa066ff020d9f9e1f7c0959cc6720c63c91e",
+      "previous_file": null,
+      "previous_source": null
+    }
+  },
+  "source_after_old_recovery": {
+    "storage": "segmented-store/1",
+    "namespace": "a8d408efb932c5a679b4c98b72c44f230cbfb96bf22a84eed235988cd42e5f70",
+    "frozen": "aa5e76b5-2a3d-4f42-8602-6cbc3b65becd",
+    "binding": "7066feb13288b7f289e8fb0044f03d6f0e4a94150a139cec22e9cdc28b07c728",
+    "previous_file": "e1124ebf96014d1cc3cf16e3dd90c39c0fdf9fe3c20bac02e19b64dd414d702d",
+    "previous_source": {
+      "storage": "segmented-store/1",
+      "namespace": "a8d408efb932c5a679b4c98b72c44f230cbfb96bf22a84eed235988cd42e5f70",
+      "frozen": "1eaf5185-b1dc-48d2-a2fc-f9fdacebadd3",
+      "binding": "42e28d2dfa32f1f2f17b9686d7abaa066ff020d9f9e1f7c0959cc6720c63c91e",
+      "previous_file": null,
+      "previous_source": null
+    }
+  },
+  "legacy_b_unchanged_after_success": true,
+  "unknown_marker_unchanged": true,
+  "older_error": "SegmentedException",
+  "older_error_code": "ACQUISITION_CANCELLED",
+  "fresh_store_opened": true,
+  "frozen_read_error": null,
+  "fresh_recovery_error": null,
+  "committed": {
+    "accepted": [
+      {
+        "id": 1,
+        "current_id": "db15e799-2d61-4fdd-847a-6fe90268672d",
+        "previous_id": "c495c19b-1c07-4b12-8098-726bfc40f566",
+        "sequence": 2,
+        "checksum": "e00323e503560db695fcfb06733b0189740a6beb79c034b2cbd645cd13d3286f"
+      }
+    ],
+    "installed": [
+      {
+        "id": 1,
+        "generation_id": "db15e799-2d61-4fdd-847a-6fe90268672d",
+        "previous_id": "c495c19b-1c07-4b12-8098-726bfc40f566",
+        "sequence": 2,
+        "checksum": "e00323e503560db695fcfb06733b0189740a6beb79c034b2cbd645cd13d3286f"
+      }
+    ],
+    "frozen": [
+      {
+        "id": "aa5e76b5-2a3d-4f42-8602-6cbc3b65becd",
+        "generation_id": "db15e799-2d61-4fdd-847a-6fe90268672d",
+        "checksum": "7066feb13288b7f289e8fb0044f03d6f0e4a94150a139cec22e9cdc28b07c728",
+        "state": "installed"
+      }
+    ],
+    "foreign_keys": 0
+  },
+  "independent_graph": {
+    "pointers": {
+      "accepted": {
+        "id": 1,
+        "current_id": "db15e799-2d61-4fdd-847a-6fe90268672d",
+        "previous_id": "c495c19b-1c07-4b12-8098-726bfc40f566",
+        "sequence": 2,
+        "checksum": "e00323e503560db695fcfb06733b0189740a6beb79c034b2cbd645cd13d3286f"
+      },
+      "installed": {
+        "id": 1,
+        "generation_id": "db15e799-2d61-4fdd-847a-6fe90268672d",
+        "previous_id": "c495c19b-1c07-4b12-8098-726bfc40f566",
+        "sequence": 2,
+        "checksum": "e00323e503560db695fcfb06733b0189740a6beb79c034b2cbd645cd13d3286f"
+      }
+    },
+    "frozen": [
+      {
+        "id": "aa5e76b5-2a3d-4f42-8602-6cbc3b65becd",
+        "generation": "db15e799-2d61-4fdd-847a-6fe90268672d",
+        "state": "installed",
+        "binding": {
+          "baseline_sha256": "3fa80e27e05fae8341b1f7e4cf989c806c2eb53846a1b7c34fb58d40a3283c00",
+          "generation": "db15e799-2d61-4fdd-847a-6fe90268672d",
+          "legacy_fingerprint": "a5e8a46a1402f043b972c1cdb063f925ad7fe2c47d5c63e0e39f1d012e108a13",
+          "legacy_lineage": "31e0b4b4a53788b05bec0254dfc79a81be5f1457c974ca7d95554f643db46f04",
+          "namespace": "a8d408efb932c5a679b4c98b72c44f230cbfb96bf22a84eed235988cd42e5f70",
+          "resolved_id": null,
+          "sequence": 2,
+          "snapshot_id": "f93c74985e63538d0debe5fe2d02c9c2b1f1f6e1075933905f045debd3827961",
+          "synced_at": "2026-10-15T07:41:28.306132Z",
+          "user": {
+            "display_name": "Owner",
+            "id": 1,
+            "share_pin_needs_change": false,
+            "username": "owner"
+          },
+          "version": 1
+        }
+      }
+    ],
+    "generations": {
+      "c495c19b-1c07-4b12-8098-726bfc40f566": {
+        "sync_root": "ed66f61f590de5849999eacdc2081aeaf0047be91f9f859910c955b9461c1e92",
+        "objects": 154,
+        "receipt": "4625f8090293799d91a12795a0f8ce432f2ef8ff71da218eb1f4de951547d610",
+        "source_sha256": "be138f6378f02beee2f302a7f6b6743f61899f53bbe9e6efd892b24225d73243",
+        "table_rows": {
+          "ledger_entries": 8,
+          "monthly_panels": 1,
+          "cash_flows": 1,
+          "card_payment_batches": 1,
+          "card_payment_batch_items": 1,
+          "card_payment_events": 1,
+          "card_payment_allocations": 1,
+          "card_payment_deferrals": 1,
+          "notification_candidate_registrations": 1,
+          "app_settings": 6,
+          "app_labels": 19
+        },
+        "control_sha256": "76414c435f24771d4847d3ec9fb325032caf2469af44bb11242b419ad5602889",
+        "closure_count": 154,
+        "closure_sha256": "770c4dcbd11727004bc723c9987ac33fcc0e804978a47223c6e7441e2b120f1e"
+      },
+      "db15e799-2d61-4fdd-847a-6fe90268672d": {
+        "sync_root": "f67ae728e16b1fb9b37ed516cc58dcb15bda4ad529fe387e541f1de4e21dcbaf",
+        "objects": 154,
+        "receipt": "255e869bf29d76c2bb9a0d5182b929e842f0f604975a3a9548671396a0bf2eba",
+        "source_sha256": "90f94a4f0f2ced4ebde2b8f309a3869dab243e162b38e27b97767ea195768dea",
+        "table_rows": {
+          "ledger_entries": 8,
+          "monthly_panels": 1,
+          "cash_flows": 1,
+          "card_payment_batches": 1,
+          "card_payment_batch_items": 1,
+          "card_payment_events": 1,
+          "card_payment_allocations": 1,
+          "card_payment_deferrals": 1,
+          "notification_candidate_registrations": 1,
+          "app_settings": 6,
+          "app_labels": 19
+        },
+        "control_sha256": "76414c435f24771d4847d3ec9fb325032caf2469af44bb11242b419ad5602889",
+        "closure_count": 154,
+        "closure_sha256": "7a2b661db75bb99f2e203087c7ed9240ee94689315fda9fc3f58ec5efbf49638"
+      }
+    },
+    "objects": 165,
+    "pins": 8
+  }
+}

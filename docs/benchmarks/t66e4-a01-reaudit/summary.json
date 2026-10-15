@@ -1,0 +1,1255 @@
+{
+  "original": {
+    "done_success": true,
+    "counts": {
+      "success": 1
+    },
+    "files": {
+      "stale_recovery_test.dart": {
+        "success": 1
+      }
+    },
+    "errors": []
+  },
+  "correction_unit": {
+    "done_success": true,
+    "counts": {
+      "success": 21
+    },
+    "files": {
+      "segmented_e4_a01_test.dart": {
+        "success": 21
+      }
+    },
+    "errors": []
+  },
+  "original_phase_a": {
+    "done_success": true,
+    "counts": {
+      "success": 35
+    },
+    "files": {
+      "independent_test.dart": {
+        "success": 35
+      }
+    },
+    "errors": []
+  },
+  "correction_concurrent": {
+    "done_success": true,
+    "counts": {
+      "success": 1
+    },
+    "files": {
+      "concurrent_recovery_test.dart": {
+        "success": 1
+      }
+    },
+    "errors": []
+  },
+  "new": {
+    "done_success": true,
+    "counts": {
+      "success": 12
+    },
+    "files": {
+      "independent_test.dart": {
+        "success": 12
+      }
+    },
+    "errors": []
+  },
+  "new_extra": {
+    "done_success": true,
+    "counts": {
+      "success": 2
+    },
+    "files": {
+      "independent_test.dart": {
+        "success": 2
+      }
+    },
+    "errors": []
+  },
+  "newer_failed": {
+    "done_success": true,
+    "counts": {
+      "success": 1
+    },
+    "files": {
+      "independent_test.dart": {
+        "success": 1
+      }
+    },
+    "errors": []
+  },
+  "invalid_predecessor": {
+    "done_success": false,
+    "counts": {
+      "failure": 2
+    },
+    "files": {
+      "independent_test.dart": {
+        "failure": 2
+      }
+    },
+    "errors": [
+      {
+        "name": "RA16 missing predecessor source with an existing installed SQL owner must fail closed native=false",
+        "error": "Expected: <true>\n  Actual: <false>\nA recovery that returns normally must preserve a verified source for the existing installed owner.\n"
+      },
+      {
+        "name": "RA17 missing predecessor source with an existing installed SQL owner must fail closed native=true",
+        "error": "Expected: <true>\n  Actual: <false>\nA recovery that returns normally must preserve a verified source for the existing installed owner.\n"
+      }
+    ]
+  },
+  "invalid_predecessor_install": {
+    "done_success": false,
+    "counts": {
+      "failure": 1
+    },
+    "files": {
+      "independent_test.dart": {
+        "failure": 1
+      }
+    },
+    "errors": [
+      {
+        "name": "RA18 AppState must not report native installation success while losing its existing Frozen-B lineage association",
+        "error": "Expected: 'd4b6494b-8829-4856-a41e-82d2d1239118'\n  Actual: <null>\n   Which: not an <Instance of 'String'>\nA reported successful native installation must preserve the already installed Frozen-B association.\n"
+      }
+    ]
+  },
+  "invalid_predecessor_first": {
+    "done_success": false,
+    "counts": {
+      "failure": 2
+    },
+    "files": {
+      "independent_test.dart": {
+        "failure": 2
+      }
+    },
+    "errors": [
+      {
+        "name": "RA16 missing predecessor source with an existing installed SQL owner must fail closed native=false",
+        "error": "Expected: not null\n  Actual: <null>\nAn invalid predecessor ownership relation must be rejected before restoring/deleting source.\n"
+      },
+      {
+        "name": "RA17 missing predecessor source with an existing installed SQL owner must fail closed native=true",
+        "error": "Expected: not null\n  Actual: <null>\nAn invalid predecessor ownership relation must be rejected before restoring/deleting source.\n"
+      }
+    ]
+  },
+  "invalid_predecessor_install_first": {
+    "done_success": false,
+    "counts": {
+      "failure": 1
+    },
+    "files": {
+      "independent_test.dart": {
+        "failure": 1
+      }
+    },
+    "errors": [
+      {
+        "name": "RA18 AppState must not report native installation success while losing its existing Frozen-B lineage association",
+        "error": "Expected: <false>\n  Actual: <true>\nInvalid predecessor ownership must block installation before source lineage can be forgotten.\n"
+      }
+    ]
+  },
+  "journal_observation": {
+    "done_success": true,
+    "counts": {
+      "success": 1
+    },
+    "files": {
+      "independent_test.dart": {
+        "success": 1
+      }
+    },
+    "errors": []
+  },
+  "ticket_observation": {
+    "done_success": true,
+    "counts": {
+      "success": 1
+    },
+    "files": {
+      "observed_test.dart": {
+        "success": 1
+      }
+    },
+    "errors": []
+  },
+  "original_cost": {
+    "done_success": true,
+    "counts": {
+      "success": 2
+    },
+    "files": {
+      "cost_test.dart": {
+        "success": 2
+      }
+    },
+    "errors": []
+  },
+  "new_cost": {
+    "done_success": true,
+    "counts": {
+      "success": 2
+    },
+    "files": {
+      "cost_test.dart": {
+        "success": 2
+      }
+    },
+    "errors": []
+  },
+  "flutter_full": {
+    "done_success": true,
+    "counts": {
+      "success": 1461,
+      "skip": 2
+    },
+    "files": {
+      "coherent_get_dag_test.dart": {
+        "success": 91
+      },
+      "segmented_adapter_isolation_test.dart": {
+        "success": 23
+      },
+      "authoritative_acquisition_test.dart": {
+        "success": 57
+      },
+      "segmented_e4_provenance_test.dart": {
+        "success": 11
+      },
+      "segmented_e4_handoff_test.dart": {
+        "success": 35
+      },
+      "segmented_publication_crash_test.dart": {
+        "success": 16
+      },
+      "t66a_payload_test.dart": {
+        "skip": 2
+      },
+      "offline_persistence_test.dart": {
+        "success": 9
+      },
+      "local_snapshot_repository_test.dart": {
+        "success": 7
+      },
+      "notification_models_test.dart": {
+        "success": 2
+      },
+      "offline_notification_identity_test.dart": {
+        "success": 5
+      },
+      "notification_registration_test.dart": {
+        "success": 11
+      },
+      "utility_discount_default_test.dart": {
+        "success": 1
+      },
+      "offline_state_projection_test.dart": {
+        "success": 18
+      },
+      "segmented_acquisition_store_test.dart": {
+        "success": 14
+      },
+      "authoritative_money_compatibility_test.dart": {
+        "success": 183
+      },
+      "authoritative_bundle_boundary_matrix_test.dart": {
+        "success": 1
+      },
+      "app_state_test.dart": {
+        "success": 3
+      },
+      "segmented_incremental_verification_test.dart": {
+        "success": 6
+      },
+      "segmented_i25_baseline_test.dart": {
+        "success": 1
+      },
+      "segmented_authority_test.dart": {
+        "success": 19
+      },
+      "segmented_adapter_crash_test.dart": {
+        "success": 4
+      },
+      "segmented_transport_test.dart": {
+        "success": 30
+      },
+      "authoritative_bundle_test.dart": {
+        "success": 27
+      },
+      "segmented_protocol_test.dart": {
+        "success": 58
+      },
+      "offline_lineage_recovery_test.dart": {
+        "success": 8
+      },
+      "formatters_test.dart": {
+        "success": 2
+      },
+      "authoritative_bundle_trust_boundary_test.dart": {
+        "success": 47
+      },
+      "segmented_crash_test.dart": {
+        "success": 7
+      },
+      "segmented_e4_handoff_crash_test.dart": {
+        "success": 13
+      },
+      "segmented_root_pin_model_test.dart": {
+        "success": 2
+      },
+      "notification_discount_policy_test.dart": {
+        "success": 17
+      },
+      "segmented_e4_frozen_test.dart": {
+        "success": 19
+      },
+      "segmented_e4_a01_test.dart": {
+        "success": 21
+      },
+      "segmented_publication_test.dart": {
+        "success": 36
+      },
+      "segmented_fetch_crash_test.dart": {
+        "success": 3
+      },
+      "segmented_adapter_authority_test.dart": {
+        "success": 16
+      },
+      "authoritative_bundle_canonical_test.dart": {
+        "success": 90
+      },
+      "authoritative_bundle_admission_test.dart": {
+        "success": 26
+      },
+      "offline_refresh_test.dart": {
+        "success": 27
+      },
+      "apk_download_controller_test.dart": {
+        "success": 1
+      },
+      "segmented_money_correction_test.dart": {
+        "success": 166
+      },
+      "segmented_http_integration_test.dart": {
+        "success": 5
+      },
+      "offline_reconciliation_test.dart": {
+        "success": 14
+      },
+      "segmented_store_test.dart": {
+        "success": 31
+      },
+      "segmented_adapters_test.dart": {
+        "success": 42
+      },
+      "offline_widget_submit_test.dart": {
+        "success": 13
+      },
+      "authoritative_bundle_unicode_test.dart": {
+        "success": 11
+      },
+      "exact_money_domain_test.dart": {
+        "success": 5
+      },
+      "freeze_reaudit_outcome_test.dart": {
+        "success": 11
+      },
+      "segmented_diff_integration_test.dart": {
+        "success": 1
+      },
+      "segmented_i25_publication_test.dart": {
+        "success": 30
+      },
+      "submit_latency_diagnostic_test.dart": {
+        "success": 3
+      },
+      "family_screen_test.dart": {
+        "success": 5
+      },
+      "segmented_fetch_test.dart": {
+        "success": 72
+      },
+      "segmented_response_cleanup_test.dart": {
+        "success": 13
+      },
+      "date_picker_row_test.dart": {
+        "success": 1
+      },
+      "recurring_series_widget_test.dart": {
+        "success": 6
+      },
+      "authoritative_rebuild_pending_test.dart": {
+        "success": 11
+      },
+      "segmented_schema_correction_test.dart": {
+        "success": 45
+      },
+      "ai_audit_report_test.dart": {
+        "success": 9
+      }
+    },
+    "errors": []
+  },
+  "historical_diagnostic": {
+    "done_success": false,
+    "counts": {
+      "success": 3,
+      "failure": 2
+    },
+    "files": {
+      "probe_test.dart": {
+        "success": 3,
+        "failure": 2
+      }
+    },
+    "errors": [
+      {
+        "name": "CURRENT full bundle admission rejects the server-approved original",
+        "error": "Expected: throws <Instance of 'FormatException'> with `message`: 'money must be an exact safe integer'\n  Actual: <Closure: () => AuthoritativeBundle>\n   Which: returned <Instance of 'AuthoritativeBundle'>\n"
+      },
+      {
+        "name": "CURRENT OfflineBaseline v4 parser rejects the same complete Snapshot",
+        "error": "Expected: throws <Instance of 'FormatException'> with `message`: 'money must be an exact safe integer'\n  Actual: <Closure: () => OfflineBaseline>\n   Which: returned <Instance of 'OfflineBaseline'>\n"
+      }
+    ]
+  },
+  "p0_integration": {
+    "done_success": true,
+    "counts": {
+      "success": 18
+    },
+    "files": {
+      "integration_test.dart": {
+        "success": 18
+      }
+    },
+    "errors": []
+  },
+  "interrupted_harness": {
+    "done_success": false,
+    "counts": {
+      "error": 1
+    },
+    "files": {
+      "independent_test.dart": {
+        "error": 1
+      }
+    },
+    "errors": [
+      {
+        "name": "RA01 same operation becomes legitimately installed while its rollback recovery waits",
+        "error": "SqliteException(1): while preparing statement, no such table: object_refs, SQL logic error (code 1)\n  Causing statement: SELECT * FROM object_refs ORDER BY 1,2"
+      },
+      {
+        "name": "loading /home/hjkerman/codex/money-note/docs/benchmarks/t66e4-a01-reaudit/independent_test.dart",
+        "error": "Bad state: Cannot close sink while adding stream."
+      }
+    ]
+  },
+  "empty_extra_selection": {
+    "done_success": true,
+    "counts": {},
+    "files": {},
+    "errors": []
+  },
+  "observer_path_error": {
+    "done_success": false,
+    "counts": {
+      "error": 1
+    },
+    "files": {
+      "observed_test.dart": {
+        "error": 1
+      }
+    },
+    "errors": [
+      {
+        "name": "FA17 older cancelled recovery cannot overwrite a newer successful original-ticket installation",
+        "error": "Bad state: synthetic backend oracle failed: /tmp/mn-e4-ticket-observer-ywynmb3f/.venv/bin/python: can't open file '/tmp/mn-e4-ticket-observer-ywynmb3f/mobile/test/support/e4_backend_oracle.py': [Errno 2] No such file or directory\n"
+      }
+    ]
+  },
+  "phase-a-crash": {
+    "tests": 6,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 689.476
+  },
+  "correction-crash": {
+    "tests": 6,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 511.059
+  },
+  "p0-compatible": {
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 4.794
+  },
+  "p0-original": {
+    "tests": 5,
+    "failures": 1,
+    "errors": 0,
+    "seconds": 51.976
+  },
+  "e2-cleanup": {
+    "tests": 5,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 12.546
+  },
+  "backend-full": {
+    "tests": 2855,
+    "failures": 1,
+    "errors": 0,
+    "seconds": 2281.554
+  },
+  "backend-focused": {
+    "tests": 1,
+    "failures": 1,
+    "errors": 0,
+    "seconds": 5.201
+  },
+  "backend-final": {
+    "tests": 2855,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 1705.487
+  },
+  "scripts": {
+    "tests": 27,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 1.099
+  },
+  "new_independent": {
+    "success": 17,
+    "failure": 3
+  },
+  "original_phase_a_cases": {
+    "success": 45
+  },
+  "implementation_correction_cases": {
+    "success": 28
+  },
+  "checks": {
+    "original-reproducer-exit.json": {
+      "exit_code": 0,
+      "seconds": 33.097373499011155
+    },
+    "invalid-predecessor-final-exit.json": {
+      "exit_code": 1,
+      "seconds": 61.083721519011306
+    },
+    "independent-exit.json": {
+      "exit_code": 0,
+      "seconds": 173.17567103198962
+    },
+    "e2-cleanup-exit.json": {
+      "exit_code": 0,
+      "seconds": 13.2514024550037
+    },
+    "invalid-predecessor-exit.json": {
+      "exit_code": 1,
+      "seconds": 78.44465777900768
+    },
+    "backend-full-exit.json": {
+      "exit_code": 1,
+      "seconds": 2282.2253447600233
+    },
+    "phase-a-crash-exit.json": {
+      "exit_code": 0,
+      "seconds": 690.1605416510138
+    },
+    "frontend-test-exit.json": {
+      "command": [
+        "npm",
+        "test",
+        "--",
+        "--reporter=json",
+        "--outputFile=/tmp/mn-e4-a01-reaudit/frontend.json"
+      ],
+      "exit_code": 0,
+      "seconds": 2.7168946390156634
+    },
+    "build-exit.json": {
+      "command": [
+        "/home/hjkerman/.flutter/bin/flutter",
+        "build",
+        "apk",
+        "--debug",
+        "--no-pub",
+        "--dart-define=MONEY_NOTE_API_BASE_URL=https://reaudit.invalid"
+      ],
+      "exit_code": 0,
+      "seconds": 62.5826349289855
+    },
+    "scripts-exit.json": {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "scripts/tests",
+        "--junitxml=/tmp/mn-e4-a01-reaudit/scripts.xml"
+      ],
+      "exit_code": 0,
+      "seconds": 1.8950017929892056
+    },
+    "newer-failed-exit.json": {
+      "exit_code": 0,
+      "seconds": 72.45690510800341
+    },
+    "p0-integration-exit.json": {
+      "exit_code": 0,
+      "seconds": 14.85570394800743
+    },
+    "ruff-exit.json": {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "backend/app",
+        "backend/tests",
+        "scripts/local_deploy.py",
+        "scripts/tests"
+      ],
+      "exit_code": 0,
+      "seconds": 0.07939452101709321
+    },
+    "phase-a-independent-exit.json": {
+      "exit_code": 0,
+      "seconds": 313.2874317220121
+    },
+    "p0-original-exit.json": {
+      "exit_code": 1,
+      "seconds": 52.768024482997134
+    },
+    "correction-concurrent-exit.json": {
+      "exit_code": 0,
+      "seconds": 23.592583167977864
+    },
+    "historical-diagnostic-exit.json": {
+      "exit_code": 1,
+      "seconds": 16.520383975992445
+    },
+    "journal-observation-exit.json": {
+      "exit_code": 0,
+      "seconds": 69.87151055698632
+    },
+    "correction-tests-exit.json": {
+      "exit_code": 0,
+      "seconds": 971.333458284993
+    },
+    "audit-final-checks-exit.json": [
+      {
+        "command": [
+          ".venv/bin/python",
+          "-m",
+          "ruff",
+          "check",
+          "docs/benchmarks/t66e4-a01-reaudit"
+        ],
+        "exit_code": 0
+      },
+      {
+        "command": [
+          ".venv/bin/python",
+          "-m",
+          "compileall",
+          "-q",
+          "docs/benchmarks/t66e4-a01-reaudit"
+        ],
+        "exit_code": 0
+      },
+      {
+        "command": [
+          "/home/hjkerman/.flutter/bin/dart",
+          "format",
+          "--output=none",
+          "--set-exit-if-changed",
+          "docs/benchmarks/t66e4-a01-reaudit/independent_test.dart",
+          "docs/benchmarks/t66e4-a01-reaudit/cost_test.dart",
+          "docs/benchmarks/t66e4-a01-reaudit/fresh_cost_test.dart"
+        ],
+        "exit_code": 0
+      },
+      {
+        "command": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "frontend-build-exit.json": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit_code": 0,
+      "seconds": 10.7812364140118
+    },
+    "correction-crash-exit.json": {
+      "exit_code": 0,
+      "seconds": 511.5159676889889
+    },
+    "invalid-predecessor-install-exit.json": {
+      "exit_code": 1,
+      "seconds": 41.0735045770125
+    },
+    "independent-extra-exit.json": {
+      "exit_code": 79,
+      "seconds": 25.234342450014083
+    },
+    "analyze-exit.json": {
+      "command": [
+        "/home/hjkerman/.flutter/bin/flutter",
+        "analyze",
+        "--no-pub"
+      ],
+      "exit_code": 0,
+      "seconds": 9.553458281996427
+    },
+    "invalid-predecessor-install-final-exit.json": {
+      "exit_code": 1,
+      "seconds": 52.320096382987686
+    },
+    "independent-final-exit.json": {
+      "exit_code": 0,
+      "seconds": 754.4755195929902
+    },
+    "flutter-full-exit.json": {
+      "exit_code": 0,
+      "seconds": 3756.4984549380024
+    },
+    "p0-compatible-exit.json": {
+      "exit_code": 0,
+      "seconds": 5.182116997020785
+    },
+    "backend-final-exit.json": {
+      "exit_code": 0,
+      "seconds": 1706.1484305790218
+    },
+    "compileall-exit.json": {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "compileall",
+        "-q",
+        "backend/app",
+        "backend/tests",
+        "scripts"
+      ],
+      "exit_code": 0,
+      "seconds": 0.12582937101251446
+    },
+    "backend-focused-exit.json": {
+      "exit_code": 1,
+      "seconds": 5.630692706006812
+    },
+    "independent-extra-final-exit.json": {
+      "exit_code": 0,
+      "seconds": 139.76245538701187
+    }
+  },
+  "format_changed": {
+    "exit_code": 0,
+    "paths": [
+      "docs/benchmarks/t66e4-a01/concurrent_recovery_test.dart",
+      "docs/benchmarks/t66e4-a01/crash_child_test.dart",
+      "mobile/lib/src/segmented/store_frozen.dart",
+      "mobile/lib/src/segmented/workspace.dart",
+      "mobile/test/segmented_e4_a01_test.dart"
+    ]
+  },
+  "format_full": {
+    "exit_code": 1,
+    "differences": [
+      "mobile/lib/src/apk_install_bridge.dart",
+      "mobile/lib/src/screens/home_shell.dart",
+      "mobile/lib/src/screens/management_month_close.dart",
+      "mobile/lib/src/screens/management_settings.dart",
+      "mobile/lib/src/screens/month_entries_screen.dart",
+      "mobile/lib/src/screens/snapshot_manager_screen.dart",
+      "mobile/test/date_picker_row_test.dart",
+      "mobile/test/offline_notification_identity_test.dart",
+      "mobile/test/offline_persistence_test.dart",
+      "mobile/test/offline_reconciliation_test.dart"
+    ],
+    "all_outside_correction": true
+  },
+  "preservation": {
+    "original_e4_files": 71,
+    "unchanged": 69,
+    "expected_changed": [
+      "mobile/lib/src/segmented/store_frozen.dart",
+      "mobile/lib/src/segmented/workspace.dart"
+    ],
+    "original_reproducer_unchanged": true,
+    "original_fail_report_unchanged": true
+  },
+  "backend_stdout_counts": {
+    "tests": 1315,
+    "subtests": 1540
+  },
+  "p0_differential": {
+    "accepted": 4903,
+    "rejected": 19933,
+    "mismatches": {
+      "authoritative": [],
+      "e1": [],
+      "frozen": [],
+      "raw": [],
+      "c1_hash": [],
+      "non_setting": []
+    },
+    "frozen_accepted": 3866,
+    "families": {
+      "character-boundary": {
+        "accepted": 622,
+        "rejected": 17258
+      },
+      "internal-character": {
+        "accepted": 30,
+        "rejected": 1401
+      },
+      "whitespace-cross-product": {
+        "accepted": 4205,
+        "rejected": 0
+      },
+      "whitespace-format-mixed": {
+        "accepted": 0,
+        "rejected": 580
+      },
+      "grammar-and-range": {
+        "accepted": 36,
+        "rejected": 186
+      },
+      "explicit-regression": {
+        "accepted": 4,
+        "rejected": 11
+      },
+      "seeded-malformed": {
+        "accepted": 6,
+        "rejected": 497
+      }
+    },
+    "seed": 2026101404,
+    "unicode_version": "15.0.0",
+    "python_whitespace": [
+      9,
+      10,
+      11,
+      12,
+      13,
+      28,
+      29,
+      30,
+      31,
+      32,
+      133,
+      160,
+      5760,
+      8192,
+      8193,
+      8194,
+      8195,
+      8196,
+      8197,
+      8198,
+      8199,
+      8200,
+      8201,
+      8202,
+      8232,
+      8233,
+      8239,
+      8287,
+      12288
+    ],
+    "tested_characters": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110,
+      111,
+      112,
+      113,
+      114,
+      115,
+      116,
+      117,
+      118,
+      119,
+      120,
+      121,
+      122,
+      123,
+      124,
+      125,
+      126,
+      127,
+      128,
+      129,
+      130,
+      131,
+      132,
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142,
+      143,
+      144,
+      145,
+      146,
+      147,
+      148,
+      149,
+      150,
+      151,
+      152,
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      173,
+      233,
+      769,
+      847,
+      1536,
+      1537,
+      1538,
+      1539,
+      1540,
+      1541,
+      1564,
+      1633,
+      1757,
+      1807,
+      2192,
+      2193,
+      2274,
+      5760,
+      6158,
+      8192,
+      8193,
+      8194,
+      8195,
+      8196,
+      8197,
+      8198,
+      8199,
+      8200,
+      8201,
+      8202,
+      8203,
+      8204,
+      8205,
+      8206,
+      8207,
+      8232,
+      8233,
+      8234,
+      8235,
+      8236,
+      8237,
+      8238,
+      8239,
+      8287,
+      8288,
+      8289,
+      8290,
+      8291,
+      8292,
+      8294,
+      8295,
+      8296,
+      8297,
+      8298,
+      8299,
+      8300,
+      8301,
+      8302,
+      8303,
+      8722,
+      12288,
+      44544,
+      54620,
+      65279,
+      65291,
+      65297,
+      65529,
+      65530,
+      65531,
+      69821,
+      69837,
+      78896,
+      78897,
+      78898,
+      78899,
+      78900,
+      78901,
+      78902,
+      78903,
+      78904,
+      78905,
+      78906,
+      78907,
+      78908,
+      78909,
+      78910,
+      78911,
+      113824,
+      113825,
+      113826,
+      113827,
+      119155,
+      119156,
+      119157,
+      119158,
+      119159,
+      119160,
+      119161,
+      119162,
+      128512,
+      917505,
+      917536,
+      917537,
+      917538,
+      917539,
+      917540,
+      917541,
+      917542,
+      917543,
+      917544,
+      917545,
+      917546,
+      917547,
+      917548,
+      917549,
+      917550,
+      917551,
+      917552,
+      917553,
+      917554,
+      917555,
+      917556,
+      917557,
+      917558,
+      917559,
+      917560,
+      917561,
+      917562,
+      917563,
+      917564,
+      917565,
+      917566,
+      917567,
+      917568,
+      917569,
+      917570,
+      917571,
+      917572,
+      917573,
+      917574,
+      917575,
+      917576,
+      917577,
+      917578,
+      917579,
+      917580,
+      917581,
+      917582,
+      917583,
+      917584,
+      917585,
+      917586,
+      917587,
+      917588,
+      917589,
+      917590,
+      917591,
+      917592,
+      917593,
+      917594,
+      917595,
+      917596,
+      917597,
+      917598,
+      917599,
+      917600,
+      917601,
+      917602,
+      917603,
+      917604,
+      917605,
+      917606,
+      917607,
+      917608,
+      917609,
+      917610,
+      917611,
+      917612,
+      917613,
+      917614,
+      917615,
+      917616,
+      917617,
+      917618,
+      917619,
+      917620,
+      917621,
+      917622,
+      917623,
+      917624,
+      917625,
+      917626,
+      917627,
+      917628,
+      917629,
+      917630,
+      917631
+    ],
+    "all_unicode_format_characters": 170,
+    "corpus_sha256": "0dd15785c7a3d33b551455dd1fc57e9f0ea181a4fb26f974870dc3b5120a7115",
+    "frozen_source_sha256": "9f1aef7d287f6c9c321f8d4e2fb5b9a33b4f62df9a1270820aed2a814889a02e"
+  },
+  "audit_verdict": "FAIL",
+  "confirmed_finding": {
+    "id": "E4-RA01",
+    "severity": "MEDIUM",
+    "phase_b_blocked": true
+  }
+}
