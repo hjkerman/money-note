@@ -242,10 +242,132 @@ class E4Workspace extends OfflineStore {
     return '${s.type}:${s.size}:${s.modified.microsecondsSinceEpoch}:${s.changed.microsecondsSinceEpoch}';
   }
 
+  // A data-only recovery owns only the exact durable source it observed,
+  // including the local operation UUID/sequence, not merely its sync_root.
+  // This check and rename/unlink are synchronous on the owning isolate. Run
+  // it AFTER hooks as well as after awaits; never restore a copied old source
+  // on behalf of a newer operation. SQLite ownership is fenced separately.
+  void _requireRecoverySource(Map<String, dynamic>? expected) {
+    if (expected == null
+        ? _source.existsSync()
+        : !_source.existsSync() ||
+            jsonEncode(_readSource()) != jsonEncode(expected)) {
+      throw const _SupersededSourceRecovery();
+    }
+  }
+
+  void _restoreRecoverySource(
+      Map<String, dynamic> expected, void Function() fence) {
+    void check() {
+      _requireRecoverySource(expected);
+      fence();
+    }
+
+    final previous = expected['previous_source'];
+    if (previous != null) {
+      _writeSource(Map<String, dynamic>.from(previous), check);
+    } else {
+      _fault?.call('before_source_rename');
+      check();
+      _source.deleteSync();
+    }
+  }
+
+  void _requirePreviousBaseline(Map<String, dynamic> source) {
+    final unchanged = source['previous_file'] == null
+        ? !_baselineFile.existsSync()
+        : _baselineFile.existsSync() &&
+            localChecksum(_baselineFile.readAsBytesSync()) ==
+                source['previous_file'];
+    if (!unchanged) rejectSegment('LEGACY_LINEAGE_UNAVAILABLE');
+    requireOnlineHandoffSync();
+  }
+
+  // A crash after the old source was restored but before SQLite COMMIT can
+  // leave an unreferenced preparation. Release only that bounded orphan, under
+  // the still-installed source/B owner, never a new or ambiguous legacy B.
+  void _discardAbandonedPreparations(SegmentedClientStore store,
+      Map<String, dynamic> source, FrozenGeneration installed) {
+    final abandoned = store
+        .frozenGenerations()
+        .where((f) => !f.installed && f.id != installed.id)
+        .toList();
+    if (abandoned.isEmpty) return;
+    final baselineBytes = localChecksum(_baselineFile.readAsBytesSync());
+    for (final preparation in abandoned) {
+      if (preparation.binding['baseline_sha256'] ==
+          installed.binding['baseline_sha256']) {
+        rejectSegment('FROZEN_HANDOFF_RECOVERY_REQUIRED');
+      }
+      store.discardFrozenPreparation(preparation, finalAuthorityFence: () {
+        _requireRecoverySource(source);
+        requireOnlineHandoffSync();
+        final owner = store
+            .frozenGenerations()
+            .where((f) => f.id == installed.id && f.installed);
+        if (owner.length != 1 ||
+            owner.single.checksum != installed.checksum ||
+            localChecksum(_baselineFile.readAsBytesSync()) != baselineBytes) {
+          rejectSegment('LEGACY_LINEAGE_UNAVAILABLE');
+        }
+      });
+    }
+  }
+
+  Future<void> _recoverNativePreparations(
+      SegmentedClientStore store, Map<String, dynamic> source) async {
+    final preparations =
+        store.frozenGenerations().where((f) => !f.installed).toList();
+    if (preparations.isEmpty) return; // bounded metadata, no legacy scan
+    if (source['legacy_frozen'] != null) {
+      final frozen =
+          await store.recoverFrozenGeneration(source['legacy_frozen']);
+      await readFrozenBaseline(store, frozen.id, store.cache.principalId);
+      _requireRecoverySource(source);
+      if (!frozen.installed) rejectSegment('FROZEN_HANDOFF_RECOVERY_REQUIRED');
+      _discardAbandonedPreparations(store, source, frozen);
+      return;
+    }
+    // A first legacy preparation can also have an installed native predecessor
+    // and no frozen B yet. Prove it never replaced B before releasing its pin.
+    final previousFile = _baselineFile.existsSync()
+        ? localChecksum(_baselineFile.readAsBytesSync())
+        : null;
+    final baseline = await super.loadBaseline();
+    _requireRecoverySource(source);
+    for (final preparation in preparations) {
+      if (baseline != null &&
+          localChecksum(encodeC1(baseline.toJson())) ==
+              preparation.binding['baseline_sha256']) {
+        rejectSegment('FROZEN_HANDOFF_RECOVERY_REQUIRED');
+      }
+      store.discardFrozenPreparation(preparation, finalAuthorityFence: () {
+        _requireRecoverySource(source);
+        _requirePreviousBaseline({'previous_file': previousFile});
+        final installed = store.installedGeneration();
+        if (installed?.id != source['generation'] ||
+            installed?.sequence != source['sequence']) {
+          throw const _SupersededSourceRecovery();
+        }
+      });
+    }
+  }
+
   // Native source readback, NOT a restored ticket. Does not install UI, replay
   // J, retire markers, or enable Offline. Crash recovery may only finalize data
   // association, or discard a provably never-published preparation.
   Future<FrozenGeneration?> recoverLegacyHandoff(
+      SegmentedClientStore store) async {
+    try {
+      return await _recoverLegacyHandoff(store);
+    } on _SupersededSourceRecovery {
+      // Another operation owns the source now. This is NOT installation
+      // success or restored authority; leave its files, lineage and pins alone.
+      return null;
+    }
+  }
+
+  Future<FrozenGeneration?> _recoverLegacyHandoff(
       SegmentedClientStore store) async {
     if (!_source.existsSync()) {
       final all = store.frozenGenerations();
@@ -258,14 +380,24 @@ class E4Workspace extends OfflineStore {
       if (metadata.mode != ConnectivityMode.online || journal.isNotEmpty) {
         return null;
       }
+      final previousFile = _baselineFile.existsSync()
+          ? localChecksum(_baselineFile.readAsBytesSync())
+          : null;
       final old = await super.loadBaseline();
+      _requireRecoverySource(null);
       for (final p in preparations) {
         if (old != null &&
             localChecksum(encodeC1(old.toJson())) ==
                 p.binding['baseline_sha256']) {
           rejectSegment('FROZEN_HANDOFF_RECOVERY_REQUIRED');
         }
-        store.discardFrozenPreparation(p, finalAuthorityFence: () {});
+        store.discardFrozenPreparation(p, finalAuthorityFence: () {
+          _requireRecoverySource(null);
+          _requirePreviousBaseline({'previous_file': previousFile});
+          if (store.installedGeneration() != null) {
+            throw const _SupersededSourceRecovery();
+          }
+        });
       }
       return null;
     }
@@ -276,18 +408,16 @@ class E4Workspace extends OfflineStore {
     }
     if (source['kind'] == 'segmented') {
       final installed = await store.recoverInstalledGeneration();
+      _requireRecoverySource(source);
       if (installed?.id == source['generation'] &&
           installed?.sequence == source['sequence']) {
+        await _recoverNativePreparations(store, source);
         return null;
       }
       if (installed?.id == source['previous_installation'] &&
           installed?.sequence == source['previous_sequence']) {
-        if (source['previous_source'] != null) {
-          _writeSource(
-              Map<String, dynamic>.from(source['previous_source']), () {});
-        } else {
-          _source.deleteSync();
-        }
+        store.restoreUncommittedSource(installed,
+            restoreSource: () => _restoreRecoverySource(source, () {}));
         return null;
       }
       rejectSegment('INSTALLATION_METADATA_INVALID');
@@ -304,9 +434,12 @@ class E4Workspace extends OfflineStore {
         identical(_cachedStore, store) &&
         _cachedB != null) {
       await readFrozenBaseline(store, frozen.id, store.cache.principalId);
+      _requireRecoverySource(source);
+      _discardAbandonedPreparations(store, source, frozen);
       return frozen;
     }
     final baseline = await super.loadBaseline();
+    _requireRecoverySource(source);
     fullBaselineReads++;
     if (baseline != null &&
         localChecksum(encodeC1(baseline.toJson())) ==
@@ -314,10 +447,12 @@ class E4Workspace extends OfflineStore {
       await readFrozenBaseline(store, frozen.id, store.cache.principalId);
       if (!frozen.installed) {
         final metadata = await loadMetadata(), journal = await loadJournal();
+        _requireRecoverySource(source);
         if (metadata.mode != ConnectivityMode.online || journal.isNotEmpty) {
           rejectSegment('FROZEN_HANDOFF_RECOVERY_REQUIRED');
         }
         return store.finishFrozenHandoff(frozen, finalAuthorityFence: () {
+          _requireRecoverySource(source);
           requireOnlineHandoffSync();
           // Data-only recovery: no legacy publication/installation authority.
           if (localChecksum(_baselineFile.readAsBytesSync()) !=
@@ -326,6 +461,8 @@ class E4Workspace extends OfflineStore {
           }
         });
       }
+      _requireRecoverySource(source);
+      _discardAbandonedPreparations(store, source, frozen);
       return frozen;
     }
     final unchanged = source['previous_file'] == null
@@ -334,23 +471,48 @@ class E4Workspace extends OfflineStore {
             localChecksum(_baselineFile.readAsBytesSync()) ==
                 source['previous_file'];
     final metadata = await loadMetadata(), journal = await loadJournal();
+    _requireRecoverySource(source);
     if (!frozen.installed &&
         unchanged &&
         metadata.mode == ConnectivityMode.online &&
         journal.isEmpty) {
-      if (source['previous_source'] != null) {
-        _writeSource(
-            Map<String, dynamic>.from(source['previous_source']), () {});
-      } else {
-        _source.deleteSync();
-      }
-      store.discardFrozenPreparation(frozen, finalAuthorityFence: () {
-        if (_baselineFile.existsSync() &&
-            localChecksum(_baselineFile.readAsBytesSync()) !=
-                source['previous_file']) {
-          rejectSegment('LEGACY_LINEAGE_UNAVAILABLE');
+      // BEGIN IMMEDIATE validates/deletes ONLY this prepared SQL owner before
+      // its final fence restores the source. No await/hook after the final
+      // source/B check and rename/unlink. A missing/installed owner cannot
+      // mutate the file first. The old installed pin remains protected.
+      var restored = false;
+      try {
+        store.discardFrozenPreparation(frozen, finalAuthorityFence: () {
+          _restoreRecoverySource(
+              source, () => _requirePreviousBaseline(source));
+          restored = true;
+        });
+      } catch (_) {
+        // File replace is not a SQLite transaction. If COMMIT failed after
+        // replace, put back THIS preparation only while both durable owners
+        // still match. A post-COMMIT error (row gone) is not a rollback.
+        if (restored) {
+          try {
+            final previous = source['previous_source'] == null
+                ? null
+                : Map<String, dynamic>.from(source['previous_source']);
+            _requireRecoverySource(previous);
+            final remaining = store.frozenGenerations().where((f) =>
+                f.id == frozen.id &&
+                f.checksum == frozen.checksum &&
+                !f.installed);
+            if (remaining.length == 1) {
+              store.restoreUncommittedSource(store.installedGeneration(),
+                  preparation: remaining.single,
+                  restoreSource: () => _writeSource(source, () {
+                        _requireRecoverySource(previous);
+                        _requirePreviousBaseline(source);
+                      }));
+            }
+          } on Object {/* retain pins and the primary persistence error */}
         }
-      });
+        rethrow;
+      }
       return null;
     }
     rejectSegment('FROZEN_HANDOFF_RECOVERY_REQUIRED');
@@ -466,6 +628,10 @@ class E4Workspace extends OfflineStore {
             operations: List.unmodifiable(operations)),
         OfflineProjection.from(baseline, operations));
   }
+}
+
+class _SupersededSourceRecovery implements Exception {
+  const _SupersededSourceRecovery();
 }
 
 class E4LegacyInstallation {

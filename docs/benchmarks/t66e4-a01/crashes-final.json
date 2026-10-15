@@ -1,0 +1,506 @@
+[
+  {
+    "boundary": "native_only_source_restore_before_commit",
+    "expected_frozen": null,
+    "immediate_source_sha256": "b5d0db30be6ea7bcc6fba8c88028849ae2dd8cf3e00ff1ca0fec606adc39221e",
+    "source_sha256": "b5d0db30be6ea7bcc6fba8c88028849ae2dd8cf3e00ff1ca0fec606adc39221e",
+    "immediate_frozen": [
+      {
+        "id": "5eec08cc-06c5-4e27-b037-a18b47e64a4e",
+        "generation": "092e6d72-2059-41b6-a5d0-f56bf4f418e9",
+        "state": "prepared",
+        "binding": {
+          "baseline_sha256": "6db1d7a737838dea4a44170342e3ebc989d12eaa58845fb138708e51a6e081bc",
+          "generation": "092e6d72-2059-41b6-a5d0-f56bf4f418e9",
+          "legacy_fingerprint": "24876714ec49c975fc79398eb991c5a5dc20d964a4220cdd3da6362fb5ab1649",
+          "legacy_lineage": "0fc9da87402b3f9903f877a71fa60c83bc070c8770629697c2dd3cfbdd8ef269",
+          "namespace": "9437ea9d6813f35d4df2392b3bd96b0307ecbe2c17305450ea1dcf733f28c9d7",
+          "resolved_id": null,
+          "sequence": 1,
+          "snapshot_id": "81a70bc7856a651682f1deea2af80fd5252af1ccadfa6633e75e7fb9cfda9416",
+          "synced_at": "2026-10-16T00:00:00.000Z",
+          "user": {
+            "display_name": "Owner",
+            "id": 1,
+            "share_pin_needs_change": false,
+            "username": "owner"
+          },
+          "version": 1
+        }
+      }
+    ],
+    "recovered_frozen": [],
+    "pointers": {
+      "accepted": {
+        "id": 1,
+        "current_id": "092e6d72-2059-41b6-a5d0-f56bf4f418e9",
+        "previous_id": null,
+        "sequence": 1,
+        "checksum": "296bd21e42513dda0a4199a4329115283d0ca42ecb49ef15610b34f1ef7e76ae"
+      },
+      "installed": {
+        "id": 1,
+        "generation_id": "092e6d72-2059-41b6-a5d0-f56bf4f418e9",
+        "previous_id": null,
+        "sequence": 1,
+        "checksum": "296bd21e42513dda0a4199a4329115283d0ca42ecb49ef15610b34f1ef7e76ae"
+      }
+    },
+    "objects": 146,
+    "pins": 4,
+    "legacy": null,
+    "pending_preserved": true,
+    "r1_gate": "CLOSED"
+  },
+  {
+    "boundary": "native_source_restore_before_commit",
+    "expected_frozen": "96b41039-c649-4264-aef3-c0b535e9d73b",
+    "immediate_source_sha256": "4530a1eb728862c611ab8964af7ad3f04664d2f8c90ede917c443ef45285bb4b",
+    "source_sha256": "4530a1eb728862c611ab8964af7ad3f04664d2f8c90ede917c443ef45285bb4b",
+    "immediate_frozen": [
+      {
+        "id": "16a5762e-1e96-4f58-bdb1-8a4d2a30e949",
+        "generation": "ba3f4e46-ae7f-4fc5-8076-a5b7fd24b87c",
+        "state": "prepared",
+        "binding": {
+          "baseline_sha256": "4908aab05b63e349c2d404650375bf13f90e7edec746f729729654759791dad5",
+          "generation": "ba3f4e46-ae7f-4fc5-8076-a5b7fd24b87c",
+          "legacy_fingerprint": "fdebde7c3c80a7d0dd7d7e36a6a4890460772c1f6d1b337d18b59aa4eec7401f",
+          "legacy_lineage": "dd7527943862f8e1b8fe9d3332e94457f91d08dcac823d9ed4c4d012ed64ba67",
+          "namespace": "628203708bf98906d524bc16472d148f33c417f584a0b952c07eeaece61628a5",
+          "resolved_id": null,
+          "sequence": 1,
+          "snapshot_id": "f176f20ea3004066dbc75ae9e656b6237a20bc0838213a614c1dd98468222e6e",
+          "synced_at": "2026-10-16T00:00:00.000Z",
+          "user": {
+            "display_name": "Owner",
+            "id": 1,
+            "share_pin_needs_change": false,
+            "username": "owner"
+          },
+          "version": 1
+        }
+      },
+      {
+        "id": "96b41039-c649-4264-aef3-c0b535e9d73b",
+        "generation": "ba3f4e46-ae7f-4fc5-8076-a5b7fd24b87c",
+        "state": "installed",
+        "binding": {
+          "baseline_sha256": "5fbbea5528abcc0e8eaadba8773fbdbfa5d9d9ee2f2056fdf88ebc8e5c7c130e",
+          "generation": "ba3f4e46-ae7f-4fc5-8076-a5b7fd24b87c",
+          "legacy_fingerprint": "fdebde7c3c80a7d0dd7d7e36a6a4890460772c1f6d1b337d18b59aa4eec7401f",
+          "legacy_lineage": "9251aa7d56b23d25da949919de337ed7b0e585703c7cfd08bfddb5f090795ba5",
+          "namespace": "628203708bf98906d524bc16472d148f33c417f584a0b952c07eeaece61628a5",
+          "resolved_id": null,
+          "sequence": 1,
+          "snapshot_id": "f176f20ea3004066dbc75ae9e656b6237a20bc0838213a614c1dd98468222e6e",
+          "synced_at": "2026-10-15T06:35:43.630169Z",
+          "user": {
+            "display_name": "Owner",
+            "id": 1,
+            "share_pin_needs_change": false,
+            "username": "owner"
+          },
+          "version": 1
+        }
+      }
+    ],
+    "recovered_frozen": [
+      {
+        "id": "96b41039-c649-4264-aef3-c0b535e9d73b",
+        "generation": "ba3f4e46-ae7f-4fc5-8076-a5b7fd24b87c",
+        "state": "installed",
+        "binding": {
+          "baseline_sha256": "5fbbea5528abcc0e8eaadba8773fbdbfa5d9d9ee2f2056fdf88ebc8e5c7c130e",
+          "generation": "ba3f4e46-ae7f-4fc5-8076-a5b7fd24b87c",
+          "legacy_fingerprint": "fdebde7c3c80a7d0dd7d7e36a6a4890460772c1f6d1b337d18b59aa4eec7401f",
+          "legacy_lineage": "9251aa7d56b23d25da949919de337ed7b0e585703c7cfd08bfddb5f090795ba5",
+          "namespace": "628203708bf98906d524bc16472d148f33c417f584a0b952c07eeaece61628a5",
+          "resolved_id": null,
+          "sequence": 1,
+          "snapshot_id": "f176f20ea3004066dbc75ae9e656b6237a20bc0838213a614c1dd98468222e6e",
+          "synced_at": "2026-10-15T06:35:43.630169Z",
+          "user": {
+            "display_name": "Owner",
+            "id": 1,
+            "share_pin_needs_change": false,
+            "username": "owner"
+          },
+          "version": 1
+        }
+      }
+    ],
+    "pointers": {
+      "accepted": {
+        "id": 1,
+        "current_id": "ba3f4e46-ae7f-4fc5-8076-a5b7fd24b87c",
+        "previous_id": null,
+        "sequence": 1,
+        "checksum": "42ba6fdce181658c663d57c3a9798c44a1aa5c81fa577cf129c8a9783a6a789b"
+      },
+      "installed": {
+        "id": 1,
+        "generation_id": "ba3f4e46-ae7f-4fc5-8076-a5b7fd24b87c",
+        "previous_id": null,
+        "sequence": 1,
+        "checksum": "42ba6fdce181658c663d57c3a9798c44a1aa5c81fa577cf129c8a9783a6a789b"
+      }
+    },
+    "objects": 146,
+    "pins": 4,
+    "legacy": {
+      "fingerprint": "fdebde7c3c80a7d0dd7d7e36a6a4890460772c1f6d1b337d18b59aa4eec7401f",
+      "lineage": "9251aa7d56b23d25da949919de337ed7b0e585703c7cfd08bfddb5f090795ba5",
+      "sha256": "898ad3ec78d86a28903d454653f2d136031fb0f68027a3d019f5d96d2969a26b"
+    },
+    "pending_preserved": true,
+    "r1_gate": "CLOSED"
+  },
+  {
+    "boundary": "source_restore_after_commit",
+    "expected_frozen": "4350b5ee-410e-4b0c-9d0b-8daa47ff94eb",
+    "immediate_source_sha256": "375a9a95b58ec92be44a122edbdab256080e8950d9069aaabf0e9593af228946",
+    "source_sha256": "375a9a95b58ec92be44a122edbdab256080e8950d9069aaabf0e9593af228946",
+    "immediate_frozen": [
+      {
+        "id": "4350b5ee-410e-4b0c-9d0b-8daa47ff94eb",
+        "generation": "35384309-d6f5-4e02-b70c-440a982a2937",
+        "state": "installed",
+        "binding": {
+          "baseline_sha256": "f44ed911ebbbfa0664ecae82bf805c7488f48d9a0f7f1c861bdf9d4259f633ec",
+          "generation": "35384309-d6f5-4e02-b70c-440a982a2937",
+          "legacy_fingerprint": "5004eecbc6915adc8cbe59a06f5487a7046783c4646e3dd6c5eb7453803c08f9",
+          "legacy_lineage": "a14861d33a46ddddbc8b93ac80d295fc59c8b8db5fe29afa177373619d83a368",
+          "namespace": "fbe6d932df88db0d52527bf6544c53a65fe9ca45ac525ec9b49eccf7753a0118",
+          "resolved_id": null,
+          "sequence": 1,
+          "snapshot_id": "6b959968b2645dd2b30a8b2316f9441feb2ea12bcddcf24ee276daa15279d48b",
+          "synced_at": "2026-10-15T06:33:59.251134Z",
+          "user": {
+            "display_name": "Owner",
+            "id": 1,
+            "share_pin_needs_change": false,
+            "username": "owner"
+          },
+          "version": 1
+        }
+      }
+    ],
+    "recovered_frozen": [
+      {
+        "id": "4350b5ee-410e-4b0c-9d0b-8daa47ff94eb",
+        "generation": "35384309-d6f5-4e02-b70c-440a982a2937",
+        "state": "installed",
+        "binding": {
+          "baseline_sha256": "f44ed911ebbbfa0664ecae82bf805c7488f48d9a0f7f1c861bdf9d4259f633ec",
+          "generation": "35384309-d6f5-4e02-b70c-440a982a2937",
+          "legacy_fingerprint": "5004eecbc6915adc8cbe59a06f5487a7046783c4646e3dd6c5eb7453803c08f9",
+          "legacy_lineage": "a14861d33a46ddddbc8b93ac80d295fc59c8b8db5fe29afa177373619d83a368",
+          "namespace": "fbe6d932df88db0d52527bf6544c53a65fe9ca45ac525ec9b49eccf7753a0118",
+          "resolved_id": null,
+          "sequence": 1,
+          "snapshot_id": "6b959968b2645dd2b30a8b2316f9441feb2ea12bcddcf24ee276daa15279d48b",
+          "synced_at": "2026-10-15T06:33:59.251134Z",
+          "user": {
+            "display_name": "Owner",
+            "id": 1,
+            "share_pin_needs_change": false,
+            "username": "owner"
+          },
+          "version": 1
+        }
+      }
+    ],
+    "pointers": {
+      "accepted": {
+        "id": 1,
+        "current_id": "35384309-d6f5-4e02-b70c-440a982a2937",
+        "previous_id": null,
+        "sequence": 1,
+        "checksum": "2b5d6d96a898ca006ec40d7a30986f7dedf55a4f4a00ede8ffe5f4b9353b9ec9"
+      },
+      "installed": {
+        "id": 1,
+        "generation_id": "35384309-d6f5-4e02-b70c-440a982a2937",
+        "previous_id": null,
+        "sequence": 1,
+        "checksum": "2b5d6d96a898ca006ec40d7a30986f7dedf55a4f4a00ede8ffe5f4b9353b9ec9"
+      }
+    },
+    "objects": 146,
+    "pins": 4,
+    "legacy": {
+      "fingerprint": "5004eecbc6915adc8cbe59a06f5487a7046783c4646e3dd6c5eb7453803c08f9",
+      "lineage": "a14861d33a46ddddbc8b93ac80d295fc59c8b8db5fe29afa177373619d83a368",
+      "sha256": "38be0edd334c2067113f8d703afbb27a91577ef99c5fa069e34189f6e8b7217c"
+    },
+    "pending_preserved": true,
+    "r1_gate": "CLOSED"
+  },
+  {
+    "boundary": "source_restore_before_commit",
+    "expected_frozen": "801f80c6-f4b1-4e2e-b6a5-b5c259509098",
+    "immediate_source_sha256": "72626ca01d862b68d1b88a751d236678a9c5b6bb5e9ab16f6f5c1628be1516d4",
+    "source_sha256": "72626ca01d862b68d1b88a751d236678a9c5b6bb5e9ab16f6f5c1628be1516d4",
+    "immediate_frozen": [
+      {
+        "id": "801f80c6-f4b1-4e2e-b6a5-b5c259509098",
+        "generation": "bf65b230-e2db-4bd2-bede-889c82f41cd1",
+        "state": "installed",
+        "binding": {
+          "baseline_sha256": "b830c1a8136ed639281c4805977226aa311b0fb163c2e32300b7b3e08f02e053",
+          "generation": "bf65b230-e2db-4bd2-bede-889c82f41cd1",
+          "legacy_fingerprint": "784c368237ca55e0b74fe13b2f17c92d38edc89377902b43a2d824bc42221c8a",
+          "legacy_lineage": "826b333b2e680e97a3a9ea961c81d87b6ac92d00ed0d016d4f26d990b134f67b",
+          "namespace": "9a0c0c28fa78252b982636dd67bbf9a1ad7720c3fe9a159c2be7dab588012ee8",
+          "resolved_id": null,
+          "sequence": 1,
+          "snapshot_id": "edcc9a5056ed43f25b5f99e55f4ca37725ce611e14cf51952902c255060f85ce",
+          "synced_at": "2026-10-15T06:32:07.618087Z",
+          "user": {
+            "display_name": "Owner",
+            "id": 1,
+            "share_pin_needs_change": false,
+            "username": "owner"
+          },
+          "version": 1
+        }
+      },
+      {
+        "id": "daf559d7-4487-46ed-87f0-8c5cb6001d98",
+        "generation": "bf65b230-e2db-4bd2-bede-889c82f41cd1",
+        "state": "prepared",
+        "binding": {
+          "baseline_sha256": "f3e71a4598c53c0f036b9fafb11f54038736ebddd9c4711a57b913221d0d309d",
+          "generation": "bf65b230-e2db-4bd2-bede-889c82f41cd1",
+          "legacy_fingerprint": "784c368237ca55e0b74fe13b2f17c92d38edc89377902b43a2d824bc42221c8a",
+          "legacy_lineage": "a38d3a13ed81fc9eab6cff882de9015a5fcf61da7e23254ba8c65fb362c15835",
+          "namespace": "9a0c0c28fa78252b982636dd67bbf9a1ad7720c3fe9a159c2be7dab588012ee8",
+          "resolved_id": null,
+          "sequence": 1,
+          "snapshot_id": "edcc9a5056ed43f25b5f99e55f4ca37725ce611e14cf51952902c255060f85ce",
+          "synced_at": "2026-10-16T00:00:00.000Z",
+          "user": {
+            "display_name": "Owner",
+            "id": 1,
+            "share_pin_needs_change": false,
+            "username": "owner"
+          },
+          "version": 1
+        }
+      }
+    ],
+    "recovered_frozen": [
+      {
+        "id": "801f80c6-f4b1-4e2e-b6a5-b5c259509098",
+        "generation": "bf65b230-e2db-4bd2-bede-889c82f41cd1",
+        "state": "installed",
+        "binding": {
+          "baseline_sha256": "b830c1a8136ed639281c4805977226aa311b0fb163c2e32300b7b3e08f02e053",
+          "generation": "bf65b230-e2db-4bd2-bede-889c82f41cd1",
+          "legacy_fingerprint": "784c368237ca55e0b74fe13b2f17c92d38edc89377902b43a2d824bc42221c8a",
+          "legacy_lineage": "826b333b2e680e97a3a9ea961c81d87b6ac92d00ed0d016d4f26d990b134f67b",
+          "namespace": "9a0c0c28fa78252b982636dd67bbf9a1ad7720c3fe9a159c2be7dab588012ee8",
+          "resolved_id": null,
+          "sequence": 1,
+          "snapshot_id": "edcc9a5056ed43f25b5f99e55f4ca37725ce611e14cf51952902c255060f85ce",
+          "synced_at": "2026-10-15T06:32:07.618087Z",
+          "user": {
+            "display_name": "Owner",
+            "id": 1,
+            "share_pin_needs_change": false,
+            "username": "owner"
+          },
+          "version": 1
+        }
+      }
+    ],
+    "pointers": {
+      "accepted": {
+        "id": 1,
+        "current_id": "bf65b230-e2db-4bd2-bede-889c82f41cd1",
+        "previous_id": null,
+        "sequence": 1,
+        "checksum": "b1027f17af9e3bb0072c743a463639c34c573e0b206813c74cf930df6304513a"
+      },
+      "installed": {
+        "id": 1,
+        "generation_id": "bf65b230-e2db-4bd2-bede-889c82f41cd1",
+        "previous_id": null,
+        "sequence": 1,
+        "checksum": "b1027f17af9e3bb0072c743a463639c34c573e0b206813c74cf930df6304513a"
+      }
+    },
+    "objects": 146,
+    "pins": 4,
+    "legacy": {
+      "fingerprint": "784c368237ca55e0b74fe13b2f17c92d38edc89377902b43a2d824bc42221c8a",
+      "lineage": "826b333b2e680e97a3a9ea961c81d87b6ac92d00ed0d016d4f26d990b134f67b",
+      "sha256": "c89c539d5425d3c15dfe749d19eb4f1c496a25654bb7b3953f1b37fd3f0b3a6e"
+    },
+    "pending_preserved": true,
+    "r1_gate": "CLOSED"
+  },
+  {
+    "boundary": "stale_after_conflict",
+    "expected_frozen": "512e20b1-0be4-4210-b2f0-0c5ca7d51071",
+    "immediate_source_sha256": "300b3e3832fa9493127586313697500c02d77da16005825b8e1b631da652f5a1",
+    "source_sha256": "300b3e3832fa9493127586313697500c02d77da16005825b8e1b631da652f5a1",
+    "immediate_frozen": [
+      {
+        "id": "512e20b1-0be4-4210-b2f0-0c5ca7d51071",
+        "generation": "26e4d2dd-7450-4f83-9afb-bec993116858",
+        "state": "installed",
+        "binding": {
+          "baseline_sha256": "5bbe643fad62da4f2bc2cde8451606512a516390ff9abef742424fda80406957",
+          "generation": "26e4d2dd-7450-4f83-9afb-bec993116858",
+          "legacy_fingerprint": "9524505f175243095a63f38460e73e55fef72f3c0b27b3952a6610cfa3ea2544",
+          "legacy_lineage": "d097cd54610b8f82d1b91e540a7807ac10b45ed8ca7c203e74e288c4eabf3e6c",
+          "namespace": "44277977d570648cfb9fc590f36dca551fbe31baa65c802503d21c97c9d6f56b",
+          "resolved_id": null,
+          "sequence": 2,
+          "snapshot_id": "3e00a0e1f220029220ebda6f051c9369cce74ef8e15bcb0638651f47406bf56f",
+          "synced_at": "2026-10-15T06:30:01.259957Z",
+          "user": {
+            "display_name": "Owner",
+            "id": 1,
+            "share_pin_needs_change": false,
+            "username": "owner"
+          },
+          "version": 1
+        }
+      }
+    ],
+    "recovered_frozen": [
+      {
+        "id": "512e20b1-0be4-4210-b2f0-0c5ca7d51071",
+        "generation": "26e4d2dd-7450-4f83-9afb-bec993116858",
+        "state": "installed",
+        "binding": {
+          "baseline_sha256": "5bbe643fad62da4f2bc2cde8451606512a516390ff9abef742424fda80406957",
+          "generation": "26e4d2dd-7450-4f83-9afb-bec993116858",
+          "legacy_fingerprint": "9524505f175243095a63f38460e73e55fef72f3c0b27b3952a6610cfa3ea2544",
+          "legacy_lineage": "d097cd54610b8f82d1b91e540a7807ac10b45ed8ca7c203e74e288c4eabf3e6c",
+          "namespace": "44277977d570648cfb9fc590f36dca551fbe31baa65c802503d21c97c9d6f56b",
+          "resolved_id": null,
+          "sequence": 2,
+          "snapshot_id": "3e00a0e1f220029220ebda6f051c9369cce74ef8e15bcb0638651f47406bf56f",
+          "synced_at": "2026-10-15T06:30:01.259957Z",
+          "user": {
+            "display_name": "Owner",
+            "id": 1,
+            "share_pin_needs_change": false,
+            "username": "owner"
+          },
+          "version": 1
+        }
+      }
+    ],
+    "pointers": {
+      "accepted": {
+        "id": 1,
+        "current_id": "26e4d2dd-7450-4f83-9afb-bec993116858",
+        "previous_id": "efbd2fe7-bbdb-4ad6-8e5e-ed97ac2aefa1",
+        "sequence": 2,
+        "checksum": "c48bb982e39bbe478cf845b8557e9c5d2fa7e2d5d51d76047d55c18f04ce9a17"
+      },
+      "installed": {
+        "id": 1,
+        "generation_id": "26e4d2dd-7450-4f83-9afb-bec993116858",
+        "previous_id": "efbd2fe7-bbdb-4ad6-8e5e-ed97ac2aefa1",
+        "sequence": 2,
+        "checksum": "c48bb982e39bbe478cf845b8557e9c5d2fa7e2d5d51d76047d55c18f04ce9a17"
+      }
+    },
+    "objects": 157,
+    "pins": 8,
+    "legacy": {
+      "fingerprint": "9524505f175243095a63f38460e73e55fef72f3c0b27b3952a6610cfa3ea2544",
+      "lineage": "d097cd54610b8f82d1b91e540a7807ac10b45ed8ca7c203e74e288c4eabf3e6c",
+      "sha256": "07e647aa793fda6a51342e1410c5b6ae6539c2af5dcc940c7ec1a99866c80ea7"
+    },
+    "pending_preserved": true,
+    "r1_gate": "CLOSED"
+  },
+  {
+    "boundary": "stale_before_release",
+    "expected_frozen": "b6a136c1-f37c-4b53-af2d-c6a1818e2d04",
+    "immediate_source_sha256": "5a01066dc442b5b68542c7fccc462728b5d8be3aeb38198d8355af4c254d3549",
+    "source_sha256": "5a01066dc442b5b68542c7fccc462728b5d8be3aeb38198d8355af4c254d3549",
+    "immediate_frozen": [
+      {
+        "id": "b6a136c1-f37c-4b53-af2d-c6a1818e2d04",
+        "generation": "fca66a79-4c64-4c81-ba71-94a55cdfefb0",
+        "state": "installed",
+        "binding": {
+          "baseline_sha256": "5076c0c57cef057a80bc8c081e23bb06ce73b15ae0d4b3bb97fcc91ec3fd8a53",
+          "generation": "fca66a79-4c64-4c81-ba71-94a55cdfefb0",
+          "legacy_fingerprint": "d87204af730a20160f998d99bcf968dab444985a0ec62a9a14e672c5a7bdbc91",
+          "legacy_lineage": "eaa8e3517ccd6e8a588811488ee43e8ea8771baa8d8c56286eb964280c3d1fe7",
+          "namespace": "be48a6698daa7fef60fde1ce2335e586ad01a7ff90516e992b7c579ef936735f",
+          "resolved_id": null,
+          "sequence": 2,
+          "snapshot_id": "10a3b2d3bae4949a90a04bbbd056b178091b081bab10c5e65c73fa7f9147b75c",
+          "synced_at": "2026-10-15T06:27:53.008031Z",
+          "user": {
+            "display_name": "Owner",
+            "id": 1,
+            "share_pin_needs_change": false,
+            "username": "owner"
+          },
+          "version": 1
+        }
+      }
+    ],
+    "recovered_frozen": [
+      {
+        "id": "b6a136c1-f37c-4b53-af2d-c6a1818e2d04",
+        "generation": "fca66a79-4c64-4c81-ba71-94a55cdfefb0",
+        "state": "installed",
+        "binding": {
+          "baseline_sha256": "5076c0c57cef057a80bc8c081e23bb06ce73b15ae0d4b3bb97fcc91ec3fd8a53",
+          "generation": "fca66a79-4c64-4c81-ba71-94a55cdfefb0",
+          "legacy_fingerprint": "d87204af730a20160f998d99bcf968dab444985a0ec62a9a14e672c5a7bdbc91",
+          "legacy_lineage": "eaa8e3517ccd6e8a588811488ee43e8ea8771baa8d8c56286eb964280c3d1fe7",
+          "namespace": "be48a6698daa7fef60fde1ce2335e586ad01a7ff90516e992b7c579ef936735f",
+          "resolved_id": null,
+          "sequence": 2,
+          "snapshot_id": "10a3b2d3bae4949a90a04bbbd056b178091b081bab10c5e65c73fa7f9147b75c",
+          "synced_at": "2026-10-15T06:27:53.008031Z",
+          "user": {
+            "display_name": "Owner",
+            "id": 1,
+            "share_pin_needs_change": false,
+            "username": "owner"
+          },
+          "version": 1
+        }
+      }
+    ],
+    "pointers": {
+      "accepted": {
+        "id": 1,
+        "current_id": "fca66a79-4c64-4c81-ba71-94a55cdfefb0",
+        "previous_id": "bade6386-320c-40a3-a57a-5a89011746dc",
+        "sequence": 2,
+        "checksum": "d28e34d22155c415251db931abf38691301c106c3fff1a030a358dfd6502549d"
+      },
+      "installed": {
+        "id": 1,
+        "generation_id": "fca66a79-4c64-4c81-ba71-94a55cdfefb0",
+        "previous_id": "bade6386-320c-40a3-a57a-5a89011746dc",
+        "sequence": 2,
+        "checksum": "d28e34d22155c415251db931abf38691301c106c3fff1a030a358dfd6502549d"
+      }
+    },
+    "objects": 157,
+    "pins": 8,
+    "legacy": {
+      "fingerprint": "d87204af730a20160f998d99bcf968dab444985a0ec62a9a14e672c5a7bdbc91",
+      "lineage": "eaa8e3517ccd6e8a588811488ee43e8ea8771baa8d8c56286eb964280c3d1fe7",
+      "sha256": "c56e6588a5217f5886009a0aecaa926b77f4409e7d34934df207112710764a75"
+    },
+    "pending_preserved": true,
+    "r1_gate": "CLOSED"
+  }
+]

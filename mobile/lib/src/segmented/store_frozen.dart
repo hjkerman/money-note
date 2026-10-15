@@ -115,6 +115,34 @@ extension SegmentedFrozenStore on SegmentedClientStore {
     return actual;
   }
 
+  // Data-only source rollback, not installation authority. Hold the same
+  // SQLite writer lock as installation while comparing the recovered pointer
+  // and synchronously restoring its still-owned file. Never roll back a
+  // newer installed generation after an asynchronous recovery.
+  void restoreUncommittedSource(AcceptedGeneration? expected,
+      {FrozenGeneration? preparation, required void Function() restoreSource}) {
+    _requireFrozen();
+    _transaction(() {}, finalFence: () {
+      final current = installedGeneration();
+      if (current?.id != expected?.id ||
+          current?.sequence != expected?.sequence ||
+          (expected != null && expected._namespace != cache.key)) {
+        rejectSegment('PUBLICATION_CONFLICT');
+      }
+      if (preparation != null) {
+        final owner = _frozen(preparation.id);
+        if (owner.installed || owner.checksum != preparation.checksum) {
+          rejectSegment('FROZEN_RELEASE_REJECTED');
+        }
+      }
+      if (restoreSource is Future Function() &&
+          restoreSource is! Never Function()) {
+        rejectSegment('ASYNC_PUBLICATION_FENCE');
+      }
+      restoreSource();
+    });
+  }
+
   T withInstalledRead<T>(
       AcceptedGeneration expected, T Function(AcceptedReadView) read) {
     _requireNoAcceptedReader();

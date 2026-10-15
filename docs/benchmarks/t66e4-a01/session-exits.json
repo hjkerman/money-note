@@ -1,0 +1,103 @@
+{
+  "focused_first": {
+    "exit": 0,
+    "running": false
+  },
+  "backend": {
+    "exit": 0,
+    "running": false
+  },
+  "new_initial": {
+    "exit": 0,
+    "running": false
+  },
+  "independent_first_bad_path": {
+    "exit": 1,
+    "running": false
+  },
+  "p0_integration": {
+    "exit": 0,
+    "running": false
+  },
+  "crash_first_import_failure": {
+    "exit": 1,
+    "running": false
+  },
+  "crash_final": {
+    "exit": 0,
+    "running": false
+  },
+  "phase_a_crash": {
+    "exit": 0,
+    "running": false
+  },
+  "cost": {
+    "exit": 0,
+    "running": false
+  },
+  "validation": {
+    "exit": 0,
+    "running": false
+  },
+  "p0_original": {
+    "exit": 1,
+    "running": false
+  },
+  "historical_diagnostic": {
+    "exit": 1,
+    "running": false
+  },
+  "independent_final": {
+    "exit": 0,
+    "running": false
+  },
+  "concurrent_new": {
+    "exit": 0,
+    "running": false
+  },
+  "new_final_native": {
+    "exit": 0,
+    "running": false
+  },
+  "phase_a_native_final": {
+    "exit": 0,
+    "running": false
+  },
+  "flutter_pre_native_full": {
+    "exit": 0,
+    "running": false
+  },
+  "native_focused": {
+    "exit": 0,
+    "running": false
+  },
+  "crash_native_final": {
+    "exit": 0,
+    "running": false
+  },
+  "independent_native_final": {
+    "exit": 0,
+    "running": false
+  },
+  "cost_and_validation_final": {
+    "exit": 0,
+    "running": false
+  },
+  "crash_strict": {
+    "exit": 0,
+    "running": false
+  },
+  "validation_final_with_concurrent": {
+    "exit": 0,
+    "running": false
+  },
+  "completion_guard_while_full_running": {
+    "exit": 1,
+    "running": false,
+    "meaning": "진행 중 전체 회귀의 완료 artifact 생성을 거부"
+  },
+  "flutter_final": {
+    "exit": 0,
+    "running": false
+  }
+}
