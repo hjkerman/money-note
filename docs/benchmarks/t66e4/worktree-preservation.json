@@ -1,0 +1,120 @@
+{
+  "scope": "T6.6E4 implementation resumption; INCOMPLETE",
+  "policy": "보존 snapshot이며 현재 권한이나 자동 복원 수단이 아니다.",
+  "refs": {
+    "HEAD": "671bb8668c16cba5f3729d9fb63fda4dbd1c67c5",
+    "main": "671bb8668c16cba5f3729d9fb63fda4dbd1c67c5",
+    "origin/main": "ab59d6bbc39f27c36beb059f984ef527ac7b0bef"
+  },
+  "actual_remote_main": "ab59d6bbc39f27c36beb059f984ef527ac7b0bef",
+  "P0_implementation": "35d7c53f1652310de75e492a98491efc3fd5cbba",
+  "P0_audit": "671bb8668c16cba5f3729d9fb63fda4dbd1c67c5",
+  "P0_audited_current_and_checkpoint_hashes": "18 MATCHED",
+  "P0_protected_sources_unchanged": 26,
+  "P0_protected_sources_E4_extensions": 3,
+  "E4_committed": false,
+  "pushed": false,
+  "staged_changes": false,
+  "files": {
+    "docs/benchmarks/t66e4/README.md": {
+      "sha256": "8c846b231724a71c68a85107f8a78991ac3cc964a7ca45449ce6ba13f41cd395",
+      "bytes": 4759,
+      "tracked": false
+    },
+    "docs/benchmarks/t66e4/measure.dart": {
+      "sha256": "46062480c9c47c609f61c56a9582308e208961246ca670bd1333c140b4688dde",
+      "bytes": 5910,
+      "tracked": false
+    },
+    "docs/benchmarks/t66e4/measure.py": {
+      "sha256": "7376043e8f2b8597e9ef082d11ea7e5b766adfb723b706fbe5050c918efa1d71",
+      "bytes": 2249,
+      "tracked": false
+    },
+    "docs/benchmarks/t66e4/pagination-before.json": {
+      "sha256": "6dc72abafc3bd0e2b716432fe37316fc0aba19a5eea4b02d0f9e2317925ed3dd",
+      "bytes": 475,
+      "tracked": false
+    },
+    "docs/benchmarks/t66e4/read-cost-final.json": {
+      "sha256": "4135fc5c495a09f8937293541298c89829291417fe7aa0489d1c09e679b46660",
+      "bytes": 16176,
+      "tracked": false
+    },
+    "docs/benchmarks/t66e4/read-cost-with-storage.json": {
+      "sha256": "08dcd02f55cf0a6d26061929cddcf68fd933ef0be82dc5ed7c97690e51cb07cb",
+      "bytes": 16341,
+      "tracked": false
+    },
+    "docs/benchmarks/t66e4/regression-summary.json": {
+      "sha256": "ed3234f7c6633a50c4d158bc562a2f083a61e8756c9308bbcb1b594e0432f337",
+      "bytes": 6445,
+      "tracked": false
+    },
+    "docs/benchmarks/t66e4/summarize_flutter.py": {
+      "sha256": "9ff44f2570e5477481c129282d217ff6226e82f0283b3158be116a487c03fc1d",
+      "bytes": 1414,
+      "tracked": false
+    },
+    "docs/t66e4-implementation-resumption.md": {
+      "sha256": "ef109c36660e2ecfe4052bd2ee4246df375cfe2b1adf5657f2d5ee94356e923e",
+      "bytes": 21663,
+      "tracked": false
+    },
+    "mobile/lib/src/app_state.dart": {
+      "sha256": "7f9c83d3306f10f5555e9542f6611d600cf2e298c0186149b90da7de9552b804",
+      "bytes": 91840,
+      "tracked": true
+    },
+    "mobile/lib/src/segmented/adapters.dart": {
+      "sha256": "71c7062fe9d72113f1f2c20ea41a0e791acec16bcd36abf41fc867fc157f41fe",
+      "bytes": 9445,
+      "tracked": false
+    },
+    "mobile/lib/src/segmented/store.dart": {
+      "sha256": "5e7c2b6e436b0bd2e5f234d069b3cac85061ecf31f173ee7d7a8d634db51b195",
+      "bytes": 30114,
+      "tracked": true
+    },
+    "mobile/lib/src/segmented/store_publication.dart": {
+      "sha256": "50e7aeef5faa72644cd59a017048d242f4a2b72e0c3c9e4a90275ae8bbd662f3",
+      "bytes": 28927,
+      "tracked": true
+    },
+    "mobile/lib/src/segmented/store_read.dart": {
+      "sha256": "826a72fb3b94189cfe8b368b378bba17678d48bdf13485207cb09522a960bf09",
+      "bytes": 8620,
+      "tracked": false
+    },
+    "mobile/test/segmented_adapter_authority_test.dart": {
+      "sha256": "bc1ba9ec58b05f178a2d019d57a85aec474899998e9866ffd904ef6a80105341",
+      "bytes": 11890,
+      "tracked": false
+    },
+    "mobile/test/segmented_adapter_crash_test.dart": {
+      "sha256": "8f9db98b3b7b6a0894f7a6cc4755fde690c8790705eb5efa28ef23ee865a24da",
+      "bytes": 6613,
+      "tracked": false
+    },
+    "mobile/test/segmented_adapter_isolation_test.dart": {
+      "sha256": "c570709a14f7d50451dfdc8eed4f780a3064926e025085e6cabd01cda93d0714",
+      "bytes": 3586,
+      "tracked": false
+    },
+    "mobile/test/segmented_adapters_test.dart": {
+      "sha256": "08b06e29c49acd63eecd6125f52a6754a473ee7d77c208ef4bedf59331a94d21",
+      "bytes": 21460,
+      "tracked": false
+    },
+    "mobile/test/support/e4_backend_oracle.py": {
+      "sha256": "3c10172526846042fa0e9068a697ca546ffce267314bc646aa2ad984df6a3800",
+      "bytes": 4154,
+      "tracked": false
+    },
+    "mobile/test/support/segmented_read_crash_child.dart": {
+      "sha256": "9aafdad14daf8a9dfa26964af39924218431ccd531cb64bc7e3a7f49f5b2e185",
+      "bytes": 1121,
+      "tracked": false
+    }
+  }
+}

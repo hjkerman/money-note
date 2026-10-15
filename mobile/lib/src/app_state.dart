@@ -15,10 +15,12 @@ import 'offline/offline_projection.dart';
 import 'offline/offline_store.dart';
 import 'offline/online_write_state.dart';
 import 'segmented/api_transport.dart';
+import 'segmented/adapters.dart';
 import 'segmented/c1.dart';
 import 'segmented/fetch.dart';
 import 'segmented/store.dart';
 import 'segmented/transport.dart';
+import 'segmented/verification.dart';
 
 export 'local_snapshot_repository.dart' show LocalSnapshotInfo;
 
@@ -506,6 +508,409 @@ class AppState extends ChangeNotifier {
       throw MoneyNoteApiException(
           '상태가 변경되어 오래된 authoritative refresh 결과를 폐기했습니다.');
     }
+  }
+
+  // Explicit E4 legacy boundary only. This is NOT the ordinary incremental
+  // refresh: full v7 materialization is requested here, never at startup. The
+  // concrete opt-in workspace keeps the general-user §31 gate CLOSED.
+  Future<E4LegacyInstallation> installSegmentedLegacyForIsolatedUse(
+      SegmentedClientStore store,
+      {SyncCancellation? cancellation}) async {
+    if (offlineStore is! E4Workspace ||
+        !store.adaptersEnabled ||
+        _isDisposed ||
+        !isOnline ||
+        _onlineWriteInFlight ||
+        user == null) {
+      rejectSegment('E4_INSTALL_MODE_INELIGIBLE');
+    }
+    if (store.cache.origin != api.baseUrl ||
+        store.cache.principalId != user!.id) {
+      rejectSegment('CACHE_CONTEXT_MISMATCH');
+    }
+    final workspace = offlineStore as E4Workspace, selected = user!;
+    final ticket = _refreshCoordinator.begin(
+        _lineageGeneration, _authenticationGeneration);
+    final transport = segmentedTransportForApi(api),
+        cancel = cancellation ?? SyncCancellation();
+    SegmentedPublication? publication;
+    void authority() {
+      cancel.check();
+      if (_isDisposed || _onlineWriteInFlight || !isOnline) {
+        rejectSegment('E4_INSTALL_AUTHORITY_STALE');
+      }
+      _requireRefreshAuthority(ticket, selected.id, store.cache.principalId);
+      transport.checkSession();
+      _requireRefreshAuthority(ticket, selected.id, store.cache.principalId);
+      if (_isDisposed || _onlineWriteInFlight || !isOnline) {
+        rejectSegment('E4_INSTALL_AUTHORITY_STALE');
+      }
+      if (publication != null) {
+        final accepted = store.acceptedGeneration();
+        if (accepted.id != publication.generationId ||
+            accepted.sequence != publication.sequence) {
+          rejectSegment('PUBLICATION_CONFLICT');
+        }
+      }
+    }
+
+    authority();
+    final pending = await workspace.loadPendingOnlineWrite(selected.id);
+    authority();
+    void installationAuthority() {
+      workspace.requireOnlineHandoffSync();
+      workspace.requirePendingIdentitySync(pending, selected.id);
+      authority();
+    }
+
+    workspace.requireOnlineHandoffSync();
+    // Recover DATA only; never resume a persisted ticket or retire a marker.
+    await workspace.recoverLegacyHandoff(store);
+    authority();
+    final expected = await store.recoverAcceptedGeneration();
+    authority();
+    final acquired = await IncrementalFetcher(store, transport)
+        .acquire(cancellation: cancel, verifiedBase: expected);
+    authority();
+    final version = store.publicationDataVersion;
+    final proof = await store.verifyPublicationCandidate(
+        acquired.manifest, expected,
+        verifiedDataVersion: version);
+    authority();
+    final prepared = store.prepareGeneration(
+        syncUuid(), acquired.stagingId, proof, expected,
+        verifiedDataVersion: version,
+        authorityHistory: {
+          'lineage': ticket.lineageGeneration,
+          'authentication': ticket.authenticationGeneration,
+          'request': ticket.requestGeneration
+        });
+    var handoffComplete = false;
+    try {
+      publication = await _withLineageLock(() async {
+        authority();
+        return store.commitPreparedGeneration(prepared,
+            finalAuthorityFence: installationAuthority);
+      });
+      authority();
+      workspace.handoffPoint('after_e3_acceptance');
+      authority();
+      final accepted = store.acceptedGeneration();
+      final full = await store.verifyAcceptedForMaterialization(accepted);
+      authority();
+      final bundle = store.withAcceptedRead(
+          accepted, (r) => materializeLegacyRead(r, selected),
+          materializationProof: full);
+      final baseline = legacyBaseline(bundle, DateTime.now().toUtc());
+      final binding = workspace.bindingFor(accepted, baseline, store.cache.key);
+      workspace.handoffPoint('after_legacy_materialization');
+      authority();
+      final result = await _withLineageLock(() async {
+        authority();
+        workspace.requireOnlineHandoffSync();
+        final frozen = store.prepareFrozenGeneration(accepted, full, binding,
+            frozenId: syncUuid(), finalAuthorityFence: installationAuthority);
+        workspace.prepareLegacySource(frozen, installationAuthority);
+        await workspace.replaceBaseline(baseline, beforePublish: () {
+          installationAuthority();
+        });
+        workspace.handoffPoint('after_legacy_commit');
+        authority();
+        // Verify exact guarded rename/readback before pins may be finalized or
+        // a confirmed marker retired. Pending remains durable on every failure.
+        await workspace.readFrozenBaseline(store, frozen.id, selected.id);
+        authority();
+        workspace.requireOnlineHandoffSync();
+        final installed = store.finishFrozenHandoff(frozen,
+            finalAuthorityFence: installationAuthority);
+        store.commitInstalledGeneration(accepted,
+            finalAuthorityFence: installationAuthority);
+        workspace.handoffPoint('before_installation');
+        installationAuthority();
+        if (pending?.status ==
+            OnlineWriteStatus.serverCommittedRebuildPending) {
+          workspace.retireConfirmedSync(pending!, installationAuthority);
+        }
+        // NO await, hooks or session getter between retirement and full UI
+        // assignment. The original ticket authorized BOTH transitions.
+        _offlineBaseline = baseline;
+        _restoreAuthoritativeBaseline(baseline);
+        lastSuccessfulSyncAt = baseline.syncedAt;
+        if (pending?.status ==
+            OnlineWriteStatus.serverCommittedRebuildPending) {
+          _pendingOnlineWrite = null;
+        } else {
+          _pendingOnlineWrite = pending;
+        }
+        usesConservativeCardEstimate = false;
+        networkUnavailable = false;
+        offlineEntryMessage = '';
+        serverFailurePromptPending = false;
+        handoffComplete = true;
+        try {
+          workspace.handoffPoint('after_e4_installation');
+          authority();
+          notifyListeners();
+        } catch (error) {
+          throw E4InstallationCommittedException(installed.id, error);
+        }
+        return E4LegacyInstallation(publication!, installed,
+            pending?.status == OnlineWriteStatus.outcomeUnknown);
+      });
+      try {
+        authority();
+      } catch (error) {
+        throw E4InstallationCommittedException(result.frozen.id, error);
+      }
+      return result;
+    } finally {
+      if (!handoffComplete) {
+        try {
+          await workspace.recoverLegacyHandoff(store);
+        } on Object {/* preserve ambiguous pins and primary outcome */}
+      }
+      try {
+        store.discardUnacceptedGeneration(prepared.id);
+      } on Object {/* primary outcome wins */}
+    }
+  }
+
+  // Segmented-native counterpart: no flat Snapshot/lineage/legacy B work in
+  // ordinary incremental refresh. Still explicit opt-in, never startup DI.
+  Future<E4SegmentedInstallation> refreshSegmentedForIsolatedUse(
+      SegmentedClientStore store,
+      {SyncCancellation? cancellation}) async {
+    if (offlineStore is! E4Workspace ||
+        !store.adaptersEnabled ||
+        _isDisposed ||
+        !isOnline ||
+        _onlineWriteInFlight ||
+        user == null) {
+      rejectSegment('E4_INSTALL_MODE_INELIGIBLE');
+    }
+    if (store.cache.origin != api.baseUrl ||
+        store.cache.principalId != user!.id) {
+      rejectSegment('CACHE_CONTEXT_MISMATCH');
+    }
+    final workspace = offlineStore as E4Workspace, selected = user!;
+    final ticket = _refreshCoordinator.begin(
+        _lineageGeneration, _authenticationGeneration);
+    final transport = segmentedTransportForApi(api),
+        cancel = cancellation ?? SyncCancellation();
+    SegmentedPublication? publication;
+    void authority() {
+      cancel.check();
+      if (_isDisposed || _onlineWriteInFlight || !isOnline) {
+        rejectSegment('E4_INSTALL_AUTHORITY_STALE');
+      }
+      _requireRefreshAuthority(ticket, selected.id, store.cache.principalId);
+      transport.checkSession();
+      _requireRefreshAuthority(ticket, selected.id, store.cache.principalId);
+      if (_isDisposed || _onlineWriteInFlight || !isOnline) {
+        rejectSegment('E4_INSTALL_AUTHORITY_STALE');
+      }
+      if (publication != null) {
+        final actual = store.acceptedGeneration();
+        if (actual.id != publication.generationId ||
+            actual.sequence != publication.sequence) {
+          rejectSegment('PUBLICATION_CONFLICT');
+        }
+      }
+    }
+
+    authority();
+    final pending = await workspace.loadPendingOnlineWrite(selected.id);
+    authority();
+    workspace.requireOnlineHandoffSync();
+    void installationAuthority() {
+      workspace.requireOnlineHandoffSync();
+      workspace.requirePendingIdentitySync(pending, selected.id);
+      authority();
+    }
+
+    await workspace.recoverLegacyHandoff(store);
+    authority();
+    final expected = await store.recoverAcceptedGeneration();
+    authority();
+    final acquired = await IncrementalFetcher(store, transport)
+        .acquire(cancellation: cancel, verifiedBase: expected);
+    authority();
+    final version = store.publicationDataVersion;
+    final proof = await store.verifyPublicationCandidate(
+        acquired.manifest, expected,
+        verifiedDataVersion: version);
+    authority();
+    final prepared = store.prepareGeneration(
+        syncUuid(), acquired.stagingId, proof, expected,
+        verifiedDataVersion: version,
+        authorityHistory: {
+          'lineage': ticket.lineageGeneration,
+          'authentication': ticket.authenticationGeneration,
+          'request': ticket.requestGeneration
+        });
+    try {
+      publication = await _withLineageLock(() async {
+        authority();
+        return store.commitPreparedGeneration(prepared,
+            finalAuthorityFence: installationAuthority);
+      });
+      authority();
+      workspace.handoffPoint('after_e3_acceptance');
+      authority();
+      final accepted = store.acceptedGeneration();
+      final result = await _withLineageLock(() async {
+        authority();
+        workspace.requireOnlineHandoffSync();
+        workspace.requirePendingIdentitySync(pending, selected.id);
+        workspace.prepareSegmentedSource(
+            store, accepted, installationAuthority);
+        store.commitInstalledGeneration(accepted,
+            finalAuthorityFence: installationAuthority);
+        final data = store.withInstalledRead(
+            accepted, (read) => readSegmentedAuthority(read, selected));
+        workspace.handoffPoint('before_installation');
+        installationAuthority();
+        if (pending?.status ==
+            OnlineWriteStatus.serverCommittedRebuildPending) {
+          workspace.retireConfirmedSync(pending!, installationAuthority);
+        }
+        // The complete-store handle stays separate from the legacy B envelope.
+        final c = data.candidate;
+        user = c.user;
+        summary = c.summary;
+        cardPaymentStatus = c.cardPaymentStatus;
+        judgment = c.judgment;
+        monthCloseStatus = c.monthCloseStatus;
+        settings = c.settings;
+        ownerDiscountMonth = c.ownerDiscountMonth;
+        familyDiscountMonth = c.familyDiscountMonth;
+        transitDiscountProfile = c.transitDiscountProfile;
+        entries = c.entries;
+        confirmedPlannedEntries = c.confirmedPlannedEntries;
+        panels = c.panels;
+        cashFlows = c.cashFlows;
+        lastSuccessfulSyncAt = DateTime.now().toUtc();
+        _pendingOnlineWrite =
+            pending?.status == OnlineWriteStatus.serverCommittedRebuildPending
+                ? null
+                : pending;
+        usesConservativeCardEstimate = false;
+        networkUnavailable = false;
+        serverFailurePromptPending = false;
+        offlineEntryMessage = '';
+        try {
+          workspace.handoffPoint('after_e4_installation');
+          authority();
+          notifyListeners();
+        } catch (error) {
+          throw E4InstallationCommittedException(accepted.id!, error);
+        }
+        return E4SegmentedInstallation(publication!, data,
+            pending?.status == OnlineWriteStatus.outcomeUnknown);
+      });
+      try {
+        authority();
+      } catch (error) {
+        throw E4InstallationCommittedException(accepted.id!, error);
+      }
+      return result;
+    } finally {
+      try {
+        store.discardUnacceptedGeneration(prepared.id);
+      } on Object {/* primary outcome wins */}
+    }
+  }
+
+  // Explicit isolated E4 read only. No automatic caller, UI installation,
+  // baseline write, pending retirement or persisted data-source switch. A
+  // cached receipt is data evidence, never current AppState/session authority.
+  Future<SegmentedAdapterRead> readSegmentedForIsolatedUse(
+      SegmentedClientStore store,
+      {bool materializeLegacy = false,
+      bool includePending = false,
+      SyncCancellation? cancellation}) async {
+    if (_isDisposed ||
+        user == null ||
+        _onlineWriteInFlight ||
+        ![
+          ConnectivityMode.online,
+          ConnectivityMode.offline,
+          ConnectivityMode.reconciliationRequired
+        ].contains(connectivityMode)) {
+      rejectSegment('READ_MODE_INELIGIBLE');
+    }
+    if (!store.publicationEnabled ||
+        store.cache.origin != api.baseUrl ||
+        store.cache.principalId != user!.id) {
+      rejectSegment('CACHE_CONTEXT_MISMATCH');
+    }
+    final selected = user!, mode = connectivityMode;
+    final ticket = _refreshCoordinator.begin(
+        _lineageGeneration, _authenticationGeneration);
+    final transport = segmentedTransportForApi(api);
+    final cancel = cancellation ?? SyncCancellation();
+    void requireReadContext() {
+      if (_isDisposed ||
+          user?.id != selected.id ||
+          _onlineWriteInFlight ||
+          !_refreshCoordinator.mayInstall(ticket,
+              currentLineageGeneration: _lineageGeneration,
+              currentAuthenticationGeneration: _authenticationGeneration,
+              modeAllowed: connectivityMode == mode)) {
+        rejectSegment('READ_AUTHORITY_STALE');
+      }
+    }
+
+    void requireAuthority() {
+      cancel.check();
+      requireReadContext();
+      transport.checkSession();
+      // Match E3's reentrancy defense around the session getter. This does not
+      // turn a historical receipt or a previous guard result into authority.
+      cancel.check();
+      requireReadContext();
+    }
+
+    requireAuthority();
+    final accepted = await store.recoverAcceptedGeneration();
+    requireAuthority();
+    if (accepted.id == null) rejectSegment('ACCEPTED_READ_UNAVAILABLE');
+    CompleteGenerationProof? full;
+    if (materializeLegacy) {
+      full = await store.verifyAcceptedForMaterialization(accepted);
+      requireAuthority();
+    }
+    final pending = includePending
+        ? (offlineStore is E4Workspace
+            ? await (offlineStore as E4Workspace)
+                .readPendingForIsolatedUse(store, selected.id)
+            : await readPendingLegacyView(offlineStore, selected.id))
+        : null;
+    requireAuthority();
+    final onlinePending = includePending
+        ? await offlineStore.loadPendingOnlineWrite(selected.id)
+        : null;
+    requireAuthority();
+    if (onlinePending != null && mode != ConnectivityMode.online) {
+      rejectSegment('LEGACY_LINEAGE_UNAVAILABLE');
+    }
+    if (pending != null && pending.bundle.metadata.mode != mode) {
+      rejectSegment('LEGACY_LINEAGE_UNAVAILABLE');
+    }
+    final result = await _withLineageLock(() async {
+      requireAuthority();
+      return store.withAcceptedRead(accepted, (read) {
+        final value = SegmentedAdapterRead(
+            readSegmentedAuthority(read, selected),
+            pending,
+            materializeLegacy ? materializeLegacyRead(read, selected) : null,
+            onlinePending);
+        requireAuthority();
+        return value;
+      }, materializationProof: full);
+    });
+    requireAuthority();
+    return result;
   }
 
   Future<void> _refreshAuthoritativeState({

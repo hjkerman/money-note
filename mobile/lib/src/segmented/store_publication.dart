@@ -368,6 +368,7 @@ extension SegmentedPublicationStore on SegmentedClientStore {
   // body. The only fence is the actual AppState-owned throwing guard closure.
   SegmentedPublication commitPreparedGeneration(PreparedGeneration prepared,
       {required void Function() finalAuthorityFence}) {
+    _requireNoAcceptedReader();
     _requirePublication();
     if (!identical(prepared._owner, this)) {
       rejectSegment('PREPARATION_CONNECTION_CHANGED');
@@ -490,6 +491,19 @@ extension SegmentedPublicationStore on SegmentedClientStore {
   bool discardUnacceptedGeneration(String id) => _transaction<bool>(() {
         _requirePublication();
         uuidValue(id);
+        // E4 frozen exclusion: begin
+        if (adaptersEnabled &&
+            _db.select(
+                'SELECT 1 FROM installed WHERE generation_id=? OR previous_id=?',
+                [id, id]).isNotEmpty) {
+          return false;
+        }
+        if (adaptersEnabled &&
+            _db.select('SELECT 1 FROM frozen WHERE generation_id=?',
+                [id]).isNotEmpty) {
+          return false;
+        }
+        // E4 frozen exclusion: end
         if (_db.select(
             'SELECT 1 FROM accepted WHERE current_id=? OR previous_id=?',
             [id, id]).isNotEmpty) {
@@ -569,7 +583,9 @@ extension SegmentedPublicationStore on SegmentedClientStore {
     // Prepared-only pin leaks after interrupted operations are reclaimable;
     // current and previous remain pinned. Immutable bytes are never swept here.
     for (final row in _db.select(
-        'SELECT id FROM generations WHERE id IS NOT ? AND id IS NOT ?',
+        adaptersEnabled
+            ? 'SELECT id FROM generations WHERE id IS NOT ? AND id IS NOT ? AND id NOT IN (SELECT generation_id FROM frozen) AND id NOT IN (SELECT generation_id FROM installed UNION SELECT previous_id FROM installed WHERE previous_id IS NOT NULL)'
+            : 'SELECT id FROM generations WHERE id IS NOT ? AND id IS NOT ?',
         [after.id, after.previousId])) {
       discardUnacceptedGeneration(row['id'] as String);
     }

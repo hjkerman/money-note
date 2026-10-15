@@ -1,0 +1,98 @@
+[
+  {
+    "history": 4,
+    "objects": 153,
+    "baseline_bytes": 14637,
+    "before": {
+      "reads": 2,
+      "full_baseline_parses": 2,
+      "baseline_bytes_read": 29274,
+      "full_lineage_hashes": 2,
+      "lineage_bytes_hashed": 29408,
+      "elapsed_us": 16611
+    },
+    "cold": {
+      "full_baseline_parses": 1,
+      "lineage_verifications": 1,
+      "elapsed_us": 71811
+    },
+    "warm": {
+      "reads": 3,
+      "full_baseline_parses": 0,
+      "lineage_verifications": 0,
+      "full_frozen_recoveries": 0,
+      "verification_work": {
+        "full_recoveries": 0,
+        "accepted_reads": 0,
+        "accepted_metadata_reads": 0,
+        "transactions": 0,
+        "object_reads": 6,
+        "verified_bytes": 28353,
+        "graph_nodes_examined": 0,
+        "raw_object_reads": 0,
+        "index_object_reads": 0,
+        "full_verifications": 0,
+        "full_raw_rows": 0,
+        "full_fact_rows": 0,
+        "canonical_full_builds": 0,
+        "pin_inserts": 0,
+        "accepted_writes": 0,
+        "read_snapshots": 0,
+        "adapter_object_reads": 6,
+        "frozen_full_recoveries": 0,
+        "frozen_provenance_reuses": 6
+      },
+      "elapsed_us": 95245
+    },
+    "rss_bytes": 203427840,
+    "pin_rows": 8
+  },
+  {
+    "history": 400,
+    "objects": 1744,
+    "baseline_bytes": 234509,
+    "before": {
+      "reads": 2,
+      "full_baseline_parses": 2,
+      "baseline_bytes_read": 469018,
+      "full_lineage_hashes": 2,
+      "lineage_bytes_hashed": 469152,
+      "elapsed_us": 72585
+    },
+    "cold": {
+      "full_baseline_parses": 1,
+      "lineage_verifications": 1,
+      "elapsed_us": 512607
+    },
+    "warm": {
+      "reads": 3,
+      "full_baseline_parses": 0,
+      "lineage_verifications": 0,
+      "full_frozen_recoveries": 0,
+      "verification_work": {
+        "full_recoveries": 0,
+        "accepted_reads": 0,
+        "accepted_metadata_reads": 0,
+        "transactions": 0,
+        "object_reads": 6,
+        "verified_bytes": 28353,
+        "graph_nodes_examined": 0,
+        "raw_object_reads": 0,
+        "index_object_reads": 0,
+        "full_verifications": 0,
+        "full_raw_rows": 0,
+        "full_fact_rows": 0,
+        "canonical_full_builds": 0,
+        "pin_inserts": 0,
+        "accepted_writes": 0,
+        "read_snapshots": 0,
+        "adapter_object_reads": 6,
+        "frozen_full_recoveries": 0,
+        "frozen_provenance_reuses": 6
+      },
+      "elapsed_us": 68118
+    },
+    "rss_bytes": 248799232,
+    "pin_rows": 8
+  }
+]

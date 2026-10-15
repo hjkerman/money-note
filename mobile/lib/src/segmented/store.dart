@@ -13,6 +13,8 @@ import 'verification.dart';
 import 'work.dart';
 
 part 'store_publication.dart';
+part 'store_read.dart';
+part 'store_frozen.dart';
 
 class ClientStoreLimits {
   const ClientStoreLimits(
@@ -92,8 +94,17 @@ class SegmentedClientStore {
   final bool acquisitionEnabled;
   final bool publicationEnabled;
   bool _closed = false;
+  bool _readingAccepted = false;
+  bool get adaptersEnabled {
+    if (_closed) rejectSegment('STORE_CLOSED');
+    return _db.select('PRAGMA user_version').single.values.first == 5;
+  }
+
+  final _frozenSessions = <String, _FrozenSession>{};
+  final _materializationProofs = Expando<_ReadProofBinding>();
   final SegmentedWork work = SegmentedWork();
   _AcceptedSession? _acceptedSession;
+  _AcceptedSession? _installedSession;
   final _candidateBindings = Expando<_CandidateBinding>();
 
   // Caller chooses a private root; never invoked by ordinary application startup.
@@ -101,7 +112,9 @@ class SegmentedClientStore {
       {ClientStoreLimits limits = const ClientStoreLimits(),
       StoreFault? fault,
       bool acquisition = false,
-      bool publication = false}) {
+      bool publication = false,
+      bool adapters = false}) {
+    publication = publication || adapters;
     acquisition = acquisition || publication;
     limits.validate();
     final directory = Directory('${privateRoot.path}/segmented-store-v1')
@@ -117,7 +130,8 @@ class SegmentedClientStore {
       if (version != 0 &&
           version != schemaVersion &&
           !(acquisition && version == 2) &&
-          !(publication && (version == 3 || version == 4))) {
+          !(publication && (version == 3 || version == 4)) &&
+          !(adapters && version == 5)) {
         rejectSegment('UNSUPPORTED_STORAGE_SCHEMA');
       }
       if (version == 0 && tables.isNotEmpty) {
@@ -141,7 +155,8 @@ class SegmentedClientStore {
         if (lockedVersion != 0 &&
             lockedVersion != schemaVersion &&
             !(acquisition && lockedVersion == 2) &&
-            !(publication && (lockedVersion == 3 || lockedVersion == 4))) {
+            !(publication && (lockedVersion == 3 || lockedVersion == 4)) &&
+            !(adapters && lockedVersion == 5)) {
           rejectSegment('UNSUPPORTED_STORAGE_SCHEMA');
         }
         if (lockedVersion == 0) {
@@ -179,6 +194,15 @@ class SegmentedClientStore {
           db.execute(_incrementalPublicationSchema);
           db.execute('PRAGMA user_version=4');
         }
+        if (adapters && lockedVersion < 5) {
+          _requireSchema(db,
+              acquisition: true, publication: true, publicationVersion: 4);
+          if (!_usageValid(db, acquisition: true, publication: true)) {
+            rejectSegment('STORE_METADATA_CORRUPT');
+          }
+          db.execute(_frozenSchema);
+          db.execute('PRAGMA user_version=5');
+        }
         _requireSchema(db, acquisition: acquisition, publication: publication);
         final profile = db.select('SELECT * FROM profile');
         if (profile.length != 1 ||
@@ -197,7 +221,7 @@ class SegmentedClientStore {
             .toSet();
         if (actualTables.length !=
                 (publication
-                    ? 13
+                    ? (adapters ? 15 : 13)
                     : acquisition
                         ? 9
                         : 8) ||
@@ -243,7 +267,9 @@ class SegmentedClientStore {
     }
   }
 
-  T _transaction<T>(T Function() body) {
+  T _transaction<T>(T Function() body,
+      {void Function()? finalFence, void Function()? onCommitted}) {
+    _requireNoAcceptedReader();
     work.add('transactions');
     if (_closed) rejectSegment('STORE_CLOSED');
     var begun = false;
@@ -265,12 +291,19 @@ class SegmentedClientStore {
         rejectSegment('LOCAL_METADATA_BUDGET');
       }
       _fault?.call('before_commit');
+      if (finalFence is Future Function() && finalFence is! Never Function()) {
+        rejectSegment('ASYNC_PUBLICATION_FENCE');
+      }
+      finalFence?.call();
       _db.execute('COMMIT');
       begun = false;
+      onCommitted?.call();
       _fault?.call('after_commit');
       return result;
     } on SqliteException catch (error) {
       _acceptedSession = null;
+      _frozenSessions.clear();
+      _installedSession = null;
       throw SegmentedException(
           error.resultCode == 5 || error.resultCode == 6
               ? 'STORE_BUSY'
@@ -278,6 +311,8 @@ class SegmentedClientStore {
           storageCode: error.extendedResultCode);
     } catch (_) {
       _acceptedSession = null;
+      _frozenSessions.clear();
+      _installedSession = null;
       rethrow;
     } finally {
       if (begun) {
@@ -377,15 +412,26 @@ class SegmentedClientStore {
     try {
       final result = _read(ref);
       if (result == null &&
-          (_acceptedSession?.proof?.graph.provenance?.contains(ref) ?? false)) {
+          ((_acceptedSession?.proof?.graph.provenance?.contains(ref) ??
+                  false) ||
+              (_installedSession?.proof?.graph.provenance?.contains(ref) ??
+                  false) ||
+              _frozenSessions.values.any(
+                  (s) => s.proof.graph.provenance?.contains(ref) ?? false))) {
         _acceptedSession = null;
+        _installedSession = null;
+        _frozenSessions.clear();
       }
       return result;
     } on SqliteException {
       _acceptedSession = null;
+      _frozenSessions.clear();
+      _installedSession = null;
       rejectSegment('PERSISTENCE_FAILED');
     } catch (_) {
       _acceptedSession = null;
+      _installedSession = null;
+      _frozenSessions.clear();
       rethrow;
     }
   }
@@ -601,16 +647,27 @@ class SegmentedClientStore {
       }
       stagings++;
     }
-    if (issues.isNotEmpty) _acceptedSession = null;
+    if (issues.isNotEmpty) {
+      _acceptedSession = null;
+      _installedSession = null;
+      _frozenSessions.clear();
+    }
     return StoreHealth(objects, stagings, List.unmodifiable(issues));
   }
 
   void close() {
+    _requireNoAcceptedReader();
     if (!_closed) {
       _acceptedSession = null;
+      _installedSession = null;
+      _frozenSessions.clear();
       _db.close();
       _closed = true;
     }
+  }
+
+  void _requireNoAcceptedReader() {
+    if (_readingAccepted) rejectSegment('ACCEPTED_READ_IN_PROGRESS');
   }
 }
 
@@ -635,7 +692,9 @@ final _acquisitionDefinitions = <String, String>{
 void _requireSchema(Database db,
     {bool acquisition = false,
     bool publication = false,
-    int publicationVersion = 4}) {
+    int? publicationVersion}) {
+  publicationVersion ??=
+      db.select('PRAGMA user_version').single.values.first == 5 ? 5 : 4;
   if (db.select('PRAGMA user_version').single.values.first !=
       (publication
           ? publicationVersion
@@ -647,7 +706,9 @@ void _requireSchema(Database db,
   final definitions = publication
       ? (publicationVersion == 3
           ? _publicationDefinitions
-          : _incrementalPublicationDefinitions)
+          : publicationVersion == 5
+              ? _frozenDefinitions
+              : _incrementalPublicationDefinitions)
       : acquisition
           ? _acquisitionDefinitions
           : _schemaDefinitions;
@@ -686,9 +747,16 @@ bool _usageValid(Database db,
           as int
       : 0;
   final rootCharge = publication &&
-          db.select('PRAGMA user_version').single.values.first == 4
+          (db.select('PRAGMA user_version').single.values.first as int) >= 4
       ? db.select('SELECT count(*)*128 AS n FROM generation_roots').single['n']
           as int
+      : 0;
+  final frozenCharge = publication &&
+          db.select('PRAGMA user_version').single.values.first == 5
+      ? db
+          .select(
+              'SELECT coalesce(sum(length(binding)+512),0)+(SELECT count(*)*256 FROM installed) AS n FROM frozen')
+          .single['n'] as int
       : 0;
   return actual['id'] == 1 &&
       ['objects', 'payload', 'stages', 'metadata'].every((key) =>
@@ -696,7 +764,10 @@ bool _usageValid(Database db,
           actual[key] ==
               (expected[key] as int) +
                   (key == 'metadata'
-                      ? acquisitionCharge + publicationCharge + rootCharge
+                      ? acquisitionCharge +
+                          publicationCharge +
+                          rootCharge +
+                          frozenCharge
                       : 0));
 }
 

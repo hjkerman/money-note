@@ -1,0 +1,42 @@
+{
+  "scope": "T6.6E4 targeted completion 개발 중 실패 이력; 최종 verdict가 아님",
+  "child_import_before_correction": {
+    "pass": 6,
+    "fail": 2,
+    "cause": "새 child fixture의 상대 import 경로 오류",
+    "correction": "실제 mobile fixture 경로로 수정; 기존 assertion 보존"
+  },
+  "first_full_regression_before_catalog_correction": {
+    "done_success": false,
+    "pass": 1362,
+    "skip": 2,
+    "error": 70,
+    "failure": 4,
+    "cause": "v5 schema catalog parser가 CREATE UNIQUE INDEX 정의를 누락하여 STORE_SCHEMA_CORRUPT; 후속 setUp/child 오류 포함",
+    "correction": "닫힌 schema 비교를 유지하고 UNIQUE INDEX 정의를 정확히 catalog에 추가"
+  },
+  "parallel_cost_harness_timeout": {
+    "pass": 1,
+    "error": 1,
+    "done_success": false,
+    "history": 400,
+    "timeout_seconds": 600,
+    "cause": "실제 synthetic D3a/D3b 큰 fixture 비용 검증을 전체 회귀와 중복 실행하여 유한 harness 시간 초과",
+    "correction": "중복 비용 fixture 실행 제거; 단일 전체 회귀에서 비용 생성; 테스트 harness만 1200초로 유한 확장",
+    "product_timeouts_changed": false,
+    "work_count_assertions_changed": false
+  },
+  "original_historical_monetary_probe_rerun": {
+    "pass": 3,
+    "failure": 2,
+    "original_bytes": "PRESERVED",
+    "meaning": "교정 전 server-valid string 거부 기대를 원래대로 보존. 현재 admission oracle가 아님"
+  },
+  "namespace_negative_oracle_correction": {
+    "initial_failed_cases": 2,
+    "cause": "E2는 context 오류를 AcquisitionFailure로 감싸지만 새 시험이 SegmentedException을 기대함. 인증 race의 만료 전 synthetic lease가 다음 사례에 LEASE_LIMIT로 간섭함",
+    "correction": "정확한 AcquisitionFailure(CACHE_CONTEXT_MISMATCH) oracle 적용; 각 사례 전 실제 synthetic server clock으로 lease 만료를 격리",
+    "product_changed": false,
+    "assertion_broadened_to_arbitrary_exception": false
+  }
+}

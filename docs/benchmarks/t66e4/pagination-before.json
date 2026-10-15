@@ -1,0 +1,12 @@
+{
+  "scenario": "large table materialization crosses 256-row page using exact typed string key",
+  "history_rows": 300,
+  "ledger_rows": 301,
+  "before_fix_pass": 0,
+  "before_fix_fail": 1,
+  "observed_error": "KEY_INVALID",
+  "root_cause": "새 E4 materializer가 두 번째 page의 i-key 값에 정수를 전달했으며, binding TreeKey wire는 문자열을 요구한다.",
+  "original_e1_parser_changed": false,
+  "legacy_data_modified": false,
+  "e4_committed": false
+}

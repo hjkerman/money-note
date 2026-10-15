@@ -1,0 +1,245 @@
+{
+  "scope": "T6.6E4 targeted completion 최종",
+  "status": "COMPLETE",
+  "baseline": "671bb8668c16cba5f3729d9fb63fda4dbd1c67c5",
+  "full_flutter": {
+    "done_success": true,
+    "totals": {
+      "success": 1440,
+      "skip": 2
+    },
+    "files": {
+      "ai_audit_report_test.dart": {
+        "success": 9
+      },
+      "apk_download_controller_test.dart": {
+        "success": 1
+      },
+      "app_state_test.dart": {
+        "success": 3
+      },
+      "authoritative_acquisition_test.dart": {
+        "success": 57
+      },
+      "authoritative_bundle_admission_test.dart": {
+        "success": 26
+      },
+      "authoritative_bundle_boundary_matrix_test.dart": {
+        "success": 1
+      },
+      "authoritative_bundle_canonical_test.dart": {
+        "success": 90
+      },
+      "authoritative_bundle_test.dart": {
+        "success": 27
+      },
+      "authoritative_bundle_trust_boundary_test.dart": {
+        "success": 47
+      },
+      "authoritative_bundle_unicode_test.dart": {
+        "success": 11
+      },
+      "authoritative_money_compatibility_test.dart": {
+        "success": 183
+      },
+      "authoritative_rebuild_pending_test.dart": {
+        "success": 11
+      },
+      "coherent_get_dag_test.dart": {
+        "success": 91
+      },
+      "date_picker_row_test.dart": {
+        "success": 1
+      },
+      "exact_money_domain_test.dart": {
+        "success": 5
+      },
+      "family_screen_test.dart": {
+        "success": 5
+      },
+      "formatters_test.dart": {
+        "success": 2
+      },
+      "freeze_reaudit_outcome_test.dart": {
+        "success": 11
+      },
+      "local_snapshot_repository_test.dart": {
+        "success": 7
+      },
+      "notification_discount_policy_test.dart": {
+        "success": 17
+      },
+      "notification_models_test.dart": {
+        "success": 2
+      },
+      "notification_registration_test.dart": {
+        "success": 11
+      },
+      "offline_lineage_recovery_test.dart": {
+        "success": 8
+      },
+      "offline_notification_identity_test.dart": {
+        "success": 5
+      },
+      "offline_persistence_test.dart": {
+        "success": 9
+      },
+      "offline_reconciliation_test.dart": {
+        "success": 14
+      },
+      "offline_refresh_test.dart": {
+        "success": 27
+      },
+      "offline_state_projection_test.dart": {
+        "success": 18
+      },
+      "offline_widget_submit_test.dart": {
+        "success": 13
+      },
+      "recurring_series_widget_test.dart": {
+        "success": 6
+      },
+      "segmented_acquisition_store_test.dart": {
+        "success": 14
+      },
+      "segmented_adapter_authority_test.dart": {
+        "success": 16
+      },
+      "segmented_adapter_crash_test.dart": {
+        "success": 4
+      },
+      "segmented_adapter_isolation_test.dart": {
+        "success": 23
+      },
+      "segmented_adapters_test.dart": {
+        "success": 42
+      },
+      "segmented_authority_test.dart": {
+        "success": 19
+      },
+      "segmented_crash_test.dart": {
+        "success": 7
+      },
+      "segmented_diff_integration_test.dart": {
+        "success": 1
+      },
+      "segmented_e4_frozen_test.dart": {
+        "success": 19
+      },
+      "segmented_e4_handoff_crash_test.dart": {
+        "success": 13
+      },
+      "segmented_e4_handoff_test.dart": {
+        "success": 35
+      },
+      "segmented_e4_provenance_test.dart": {
+        "success": 11
+      },
+      "segmented_fetch_crash_test.dart": {
+        "success": 3
+      },
+      "segmented_fetch_test.dart": {
+        "success": 72
+      },
+      "segmented_http_integration_test.dart": {
+        "success": 5
+      },
+      "segmented_i25_baseline_test.dart": {
+        "success": 1
+      },
+      "segmented_i25_publication_test.dart": {
+        "success": 30
+      },
+      "segmented_incremental_verification_test.dart": {
+        "success": 6
+      },
+      "segmented_money_correction_test.dart": {
+        "success": 166
+      },
+      "segmented_protocol_test.dart": {
+        "success": 58
+      },
+      "segmented_publication_crash_test.dart": {
+        "success": 16
+      },
+      "segmented_publication_test.dart": {
+        "success": 36
+      },
+      "segmented_response_cleanup_test.dart": {
+        "success": 13
+      },
+      "segmented_root_pin_model_test.dart": {
+        "success": 2
+      },
+      "segmented_schema_correction_test.dart": {
+        "success": 45
+      },
+      "segmented_store_test.dart": {
+        "success": 31
+      },
+      "segmented_transport_test.dart": {
+        "success": 30
+      },
+      "submit_latency_diagnostic_test.dart": {
+        "success": 3
+      },
+      "t66a_payload_test.dart": {
+        "skip": 2
+      },
+      "utility_discount_default_test.dart": {
+        "success": 1
+      }
+    }
+  },
+  "targeted": {
+    "T01": 35,
+    "T02": 19,
+    "T03": 11,
+    "process_crash": 13,
+    "total": 78
+  },
+  "all_new_e4": {
+    "total": 163,
+    "handoff_authority_suite": 51,
+    "process_crash": 17
+  },
+  "existing_sigkill": 26,
+  "combined_sigkill": 43,
+  "p0": {
+    "independent_python": 5,
+    "independent_flutter": 18,
+    "differential_cases": 24836,
+    "mismatches": {
+      "authoritative": 0,
+      "e1": 0,
+      "frozen": 0,
+      "raw": 0,
+      "c1_hash": 0,
+      "non_setting": 0
+    },
+    "existing_flutter": 183,
+    "audited_files": "18 MATCHED",
+    "original_diagnostics": "5 PRESERVED; historical 3 PASS / 2 FAIL"
+  },
+  "backend": {
+    "tests": 1315,
+    "subtests": 1540,
+    "junit_cases": 2855,
+    "failures": 0,
+    "warnings": 1,
+    "elapsed_seconds": 1615.594
+  },
+  "validation": {
+    "flutter_analyze": "PASS",
+    "flutter_debug_build": "PASS; synthetic URL; not installed",
+    "changed_file_formatting": "19 PASS; 0 changed",
+    "ruff": "PASS",
+    "compileall": "PASS",
+    "frontend_build": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "authority": "기존 AppState/coordinator/original ticket/session과 no-await COMMIT 보존",
+  "production": "startup/read/write unchanged; no deploy/install/activation",
+  "r1_gate": "CLOSED",
+  "independent_e4_audit": "PENDING"
+}
