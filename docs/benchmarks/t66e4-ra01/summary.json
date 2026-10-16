@@ -1,0 +1,821 @@
+{
+  "original_before": {
+    "done_success": false,
+    "counts": {
+      "failure": 3
+    },
+    "files": {
+      "independent_test.dart": {
+        "failure": 3
+      }
+    },
+    "errors": [
+      {
+        "name": "RA16 missing predecessor source with an existing installed SQL owner must fail closed native=false",
+        "error": "Expected: <true>\n  Actual: <false>\nA recovery that returns normally must preserve a verified source for the existing installed owner.\n"
+      },
+      {
+        "name": "RA17 missing predecessor source with an existing installed SQL owner must fail closed native=true",
+        "error": "Expected: <true>\n  Actual: <false>\nA recovery that returns normally must preserve a verified source for the existing installed owner.\n"
+      },
+      {
+        "name": "RA18 AppState must not report native installation success while losing its existing Frozen-B lineage association",
+        "error": "Expected: '8aa7da30-8125-4f0b-9eea-d9882da3846a'\n  Actual: <null>\n   Which: not an <Instance of 'String'>\nA reported successful native installation must preserve the already installed Frozen-B association.\n"
+      }
+    ]
+  },
+  "original_after": {
+    "done_success": true,
+    "counts": {
+      "success": 18
+    },
+    "files": {
+      "independent_test.dart": {
+        "success": 18
+      }
+    },
+    "errors": []
+  },
+  "phase_a_and_a01_concurrent": {
+    "done_success": true,
+    "counts": {
+      "success": 37
+    },
+    "files": {
+      "independent_test.dart": {
+        "success": 35
+      },
+      "stale_recovery_test.dart": {
+        "success": 1
+      },
+      "concurrent_recovery_test.dart": {
+        "success": 1
+      }
+    },
+    "errors": []
+  },
+  "flutter_full": {
+    "done_success": true,
+    "counts": {
+      "success": 1503,
+      "skip": 2
+    },
+    "files": {
+      "coherent_get_dag_test.dart": {
+        "success": 91
+      },
+      "segmented_adapter_isolation_test.dart": {
+        "success": 23
+      },
+      "authoritative_acquisition_test.dart": {
+        "success": 57
+      },
+      "segmented_e4_provenance_test.dart": {
+        "success": 11
+      },
+      "segmented_e4_handoff_test.dart": {
+        "success": 35
+      },
+      "segmented_publication_crash_test.dart": {
+        "success": 16
+      },
+      "t66a_payload_test.dart": {
+        "skip": 2
+      },
+      "offline_persistence_test.dart": {
+        "success": 9
+      },
+      "local_snapshot_repository_test.dart": {
+        "success": 7
+      },
+      "notification_models_test.dart": {
+        "success": 2
+      },
+      "offline_notification_identity_test.dart": {
+        "success": 5
+      },
+      "notification_registration_test.dart": {
+        "success": 11
+      },
+      "utility_discount_default_test.dart": {
+        "success": 1
+      },
+      "segmented_e4_ra01_test.dart": {
+        "success": 42
+      },
+      "segmented_i25_baseline_test.dart": {
+        "success": 1
+      },
+      "offline_state_projection_test.dart": {
+        "success": 18
+      },
+      "segmented_acquisition_store_test.dart": {
+        "success": 14
+      },
+      "authoritative_money_compatibility_test.dart": {
+        "success": 183
+      },
+      "authoritative_bundle_boundary_matrix_test.dart": {
+        "success": 1
+      },
+      "app_state_test.dart": {
+        "success": 3
+      },
+      "segmented_incremental_verification_test.dart": {
+        "success": 6
+      },
+      "segmented_authority_test.dart": {
+        "success": 19
+      },
+      "segmented_adapter_crash_test.dart": {
+        "success": 4
+      },
+      "segmented_transport_test.dart": {
+        "success": 30
+      },
+      "authoritative_bundle_test.dart": {
+        "success": 27
+      },
+      "segmented_protocol_test.dart": {
+        "success": 58
+      },
+      "offline_lineage_recovery_test.dart": {
+        "success": 8
+      },
+      "formatters_test.dart": {
+        "success": 2
+      },
+      "authoritative_bundle_trust_boundary_test.dart": {
+        "success": 47
+      },
+      "segmented_crash_test.dart": {
+        "success": 7
+      },
+      "segmented_e4_handoff_crash_test.dart": {
+        "success": 13
+      },
+      "segmented_root_pin_model_test.dart": {
+        "success": 2
+      },
+      "notification_discount_policy_test.dart": {
+        "success": 17
+      },
+      "segmented_e4_frozen_test.dart": {
+        "success": 19
+      },
+      "segmented_e4_a01_test.dart": {
+        "success": 21
+      },
+      "segmented_publication_test.dart": {
+        "success": 36
+      },
+      "segmented_fetch_crash_test.dart": {
+        "success": 3
+      },
+      "segmented_adapter_authority_test.dart": {
+        "success": 16
+      },
+      "authoritative_bundle_canonical_test.dart": {
+        "success": 90
+      },
+      "authoritative_bundle_admission_test.dart": {
+        "success": 26
+      },
+      "offline_refresh_test.dart": {
+        "success": 27
+      },
+      "apk_download_controller_test.dart": {
+        "success": 1
+      },
+      "segmented_money_correction_test.dart": {
+        "success": 166
+      },
+      "offline_reconciliation_test.dart": {
+        "success": 14
+      },
+      "segmented_store_test.dart": {
+        "success": 31
+      },
+      "segmented_adapters_test.dart": {
+        "success": 42
+      },
+      "offline_widget_submit_test.dart": {
+        "success": 13
+      },
+      "authoritative_bundle_unicode_test.dart": {
+        "success": 11
+      },
+      "segmented_http_integration_test.dart": {
+        "success": 5
+      },
+      "exact_money_domain_test.dart": {
+        "success": 5
+      },
+      "freeze_reaudit_outcome_test.dart": {
+        "success": 11
+      },
+      "segmented_i25_publication_test.dart": {
+        "success": 30
+      },
+      "segmented_diff_integration_test.dart": {
+        "success": 1
+      },
+      "submit_latency_diagnostic_test.dart": {
+        "success": 3
+      },
+      "family_screen_test.dart": {
+        "success": 5
+      },
+      "segmented_fetch_test.dart": {
+        "success": 72
+      },
+      "segmented_response_cleanup_test.dart": {
+        "success": 13
+      },
+      "date_picker_row_test.dart": {
+        "success": 1
+      },
+      "recurring_series_widget_test.dart": {
+        "success": 6
+      },
+      "authoritative_rebuild_pending_test.dart": {
+        "success": 11
+      },
+      "segmented_schema_correction_test.dart": {
+        "success": 45
+      },
+      "ai_audit_report_test.dart": {
+        "success": 9
+      }
+    },
+    "errors": []
+  },
+  "p0_integration": {
+    "done_success": true,
+    "counts": {
+      "success": 18
+    },
+    "files": {
+      "integration_test.dart": {
+        "success": 18
+      }
+    },
+    "errors": []
+  },
+  "historical_diagnostic": {
+    "done_success": false,
+    "counts": {
+      "success": 3,
+      "failure": 2
+    },
+    "files": {
+      "probe_test.dart": {
+        "success": 3,
+        "failure": 2
+      }
+    },
+    "errors": [
+      {
+        "name": "CURRENT full bundle admission rejects the server-approved original",
+        "error": "Expected: throws <Instance of 'FormatException'> with `message`: 'money must be an exact safe integer'\n  Actual: <Closure: () => AuthoritativeBundle>\n   Which: returned <Instance of 'AuthoritativeBundle'>\n"
+      },
+      {
+        "name": "CURRENT OfflineBaseline v4 parser rejects the same complete Snapshot",
+        "error": "Expected: throws <Instance of 'FormatException'> with `message`: 'money must be an exact safe integer'\n  Actual: <Closure: () => OfflineBaseline>\n   Which: returned <Instance of 'OfflineBaseline'>\n"
+      }
+    ]
+  },
+  "cost_before": {
+    "done_success": true,
+    "counts": {
+      "success": 2
+    },
+    "files": {
+      "cost_test.dart": {
+        "success": 2
+      }
+    },
+    "errors": []
+  },
+  "cost_after": {
+    "done_success": true,
+    "counts": {
+      "success": 4
+    },
+    "files": {
+      "cost_test.dart": {
+        "success": 4
+      }
+    },
+    "errors": []
+  },
+  "phase_a_cost": {
+    "done_success": true,
+    "counts": {
+      "success": 2
+    },
+    "files": {
+      "cost_test.dart": {
+        "success": 2
+      }
+    },
+    "errors": []
+  },
+  "backend": {
+    "tests": 2855,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 1625.403
+  },
+  "crash-complete-final": {
+    "tests": 7,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 770.706
+  },
+  "prior-crashes-p0-verified": {
+    "tests": 17,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 1099.462
+  },
+  "e2-cleanup": {
+    "tests": 9,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 43.321
+  },
+  "new_unit": {
+    "success": 42
+  },
+  "new_case_count": 51,
+  "checks": {
+    "analyze": {
+      "exit": 0,
+      "seconds": 4.9239851479942445,
+      "command": [
+        "/home/hjkerman/.flutter/bin/flutter",
+        "analyze",
+        "--no-pub"
+      ]
+    },
+    "build": {
+      "exit": 0,
+      "seconds": 10.539246867992915,
+      "command": [
+        "/home/hjkerman/.flutter/bin/flutter",
+        "build",
+        "apk",
+        "--debug",
+        "--no-pub",
+        "--dart-define=MONEY_NOTE_API_BASE_URL=https://ra01.invalid"
+      ]
+    },
+    "format": {
+      "exit": 0,
+      "seconds": 0.31469272600952536,
+      "command": [
+        "/home/hjkerman/.flutter/bin/dart",
+        "format",
+        "--output=none",
+        "--set-exit-if-changed",
+        "mobile/lib/src/app_state.dart",
+        "mobile/lib/src/segmented/store_frozen.dart",
+        "mobile/lib/src/segmented/workspace.dart",
+        "mobile/test/segmented_e4_ra01_test.dart",
+        "docs/benchmarks/t66e4-ra01/crash_child_test.dart",
+        "docs/benchmarks/t66e4-ra01/cost_test.dart",
+        "docs/benchmarks/t66e4-ra01/corruption_selector_test.dart"
+      ]
+    },
+    "ruff": {
+      "exit": 0,
+      "seconds": 0.06432712299283594,
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "backend/app",
+        "backend/tests",
+        "scripts/local_deploy.py",
+        "scripts/tests",
+        "docs/benchmarks/t66e4-ra01"
+      ]
+    },
+    "compileall": {
+      "exit": 0,
+      "seconds": 0.11449282901594415,
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "compileall",
+        "-q",
+        "backend/app",
+        "backend/tests",
+        "scripts",
+        "docs/benchmarks/t66e4-ra01"
+      ]
+    },
+    "frontend_test": {
+      "exit": 0,
+      "seconds": 2.022867681022035,
+      "command": [
+        "npm",
+        "--prefix",
+        "frontend",
+        "test"
+      ]
+    },
+    "frontend_build": {
+      "exit": 0,
+      "seconds": 7.9322725030069705,
+      "command": [
+        "npm",
+        "--prefix",
+        "frontend",
+        "run",
+        "build"
+      ]
+    },
+    "p0_preservation": {
+      "exit": 0,
+      "seconds": 0.16449632600415498,
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "docs/benchmarks/t66e4-targeted/verify_preservation.py"
+      ]
+    },
+    "historical_hashes": {
+      "exit": 0,
+      "seconds": 0.004005652008345351,
+      "command": [
+        "sha256sum",
+        "-c",
+        "docs/benchmarks/t66e4-p0/preserved-history.sha256"
+      ]
+    },
+    "scripts": {
+      "exit": 0,
+      "seconds": 1.4168527029978577,
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "scripts/tests",
+        "--junitxml=/tmp/mn-e4-ra01/checks-release-final/scripts.xml"
+      ]
+    },
+    "diff_check": {
+      "exit": 0,
+      "seconds": 0.01626260401098989,
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ]
+    },
+    "preservation": {
+      "unchanged": [
+        "AGENTS.md",
+        "docs/benchmarks/t66e4-a01-reaudit/README.md",
+        "docs/benchmarks/t66e4-a01-reaudit/cases.json",
+        "docs/benchmarks/t66e4-a01-reaudit/collect.py",
+        "docs/benchmarks/t66e4-a01-reaudit/cost-comparison.json",
+        "docs/benchmarks/t66e4-a01-reaudit/cost_test.dart",
+        "docs/benchmarks/t66e4-a01-reaudit/crashes.json",
+        "docs/benchmarks/t66e4-a01-reaudit/finding-e4-ra01.json",
+        "docs/benchmarks/t66e4-a01-reaudit/fresh_cost_test.dart",
+        "docs/benchmarks/t66e4-a01-reaudit/independent_test.dart",
+        "docs/benchmarks/t66e4-a01-reaudit/inventory.json",
+        "docs/benchmarks/t66e4-a01-reaudit/measure.py",
+        "docs/benchmarks/t66e4-a01-reaudit/new-cost.json",
+        "docs/benchmarks/t66e4-a01-reaudit/observe_request.py",
+        "docs/benchmarks/t66e4-a01-reaudit/operation-observation.json",
+        "docs/benchmarks/t66e4-a01-reaudit/original-cost.json",
+        "docs/benchmarks/t66e4-a01-reaudit/original-reproducer.json",
+        "docs/benchmarks/t66e4-a01-reaudit/persisted.json",
+        "docs/benchmarks/t66e4-a01-reaudit/preservation.json",
+        "docs/benchmarks/t66e4-a01-reaudit/summary.json",
+        "docs/benchmarks/t66e4-a01/README.md",
+        "docs/benchmarks/t66e4-a01/collect.py",
+        "docs/benchmarks/t66e4-a01/concurrent-recovery.json",
+        "docs/benchmarks/t66e4-a01/concurrent_recovery_test.dart",
+        "docs/benchmarks/t66e4-a01/cost-comparison-final.json",
+        "docs/benchmarks/t66e4-a01/cost-comparison.json",
+        "docs/benchmarks/t66e4-a01/cost-final.json",
+        "docs/benchmarks/t66e4-a01/cost.json",
+        "docs/benchmarks/t66e4-a01/crash_child_test.dart",
+        "docs/benchmarks/t66e4-a01/crashes-final.json",
+        "docs/benchmarks/t66e4-a01/crashes-strict.json",
+        "docs/benchmarks/t66e4-a01/crashes.json",
+        "docs/benchmarks/t66e4-a01/reproducer-final.json",
+        "docs/benchmarks/t66e4-a01/reproducer.json",
+        "docs/benchmarks/t66e4-a01/session-exits.json",
+        "docs/benchmarks/t66e4-a01/summary.json",
+        "docs/benchmarks/t66e4-a01/test_crash.py",
+        "docs/benchmarks/t66e4-a01/validate.py",
+        "docs/benchmarks/t66e4-audit/README.md",
+        "docs/benchmarks/t66e4-audit/collect.py",
+        "docs/benchmarks/t66e4-audit/cost.json",
+        "docs/benchmarks/t66e4-audit/cost_test.dart",
+        "docs/benchmarks/t66e4-audit/crash.json",
+        "docs/benchmarks/t66e4-audit/crash_child_test.dart",
+        "docs/benchmarks/t66e4-audit/environment.json",
+        "docs/benchmarks/t66e4-audit/finding-e4-a01.json",
+        "docs/benchmarks/t66e4-audit/independent-cases.json",
+        "docs/benchmarks/t66e4-audit/independent_test.dart",
+        "docs/benchmarks/t66e4-audit/measure.py",
+        "docs/benchmarks/t66e4-audit/persisted-state.json",
+        "docs/benchmarks/t66e4-audit/source-inventory.json",
+        "docs/benchmarks/t66e4-audit/stale_recovery_test.dart",
+        "docs/benchmarks/t66e4-audit/state_oracle.py",
+        "docs/benchmarks/t66e4-audit/summary.json",
+        "docs/benchmarks/t66e4-audit/test_crash.py",
+        "docs/benchmarks/t66e4-audit/test_p0_replay.py",
+        "docs/benchmarks/t66e4-audit/warm-query-plans.json",
+        "docs/benchmarks/t66e4-contract/README.md",
+        "docs/benchmarks/t66e4-contract/probe.py",
+        "docs/benchmarks/t66e4-contract/probe_test.dart",
+        "docs/benchmarks/t66e4-contract/summary.json",
+        "docs/benchmarks/t66e4-p0-audit/README.md",
+        "docs/benchmarks/t66e4-p0-audit/differential.dart",
+        "docs/benchmarks/t66e4-p0-audit/differential.json",
+        "docs/benchmarks/t66e4-p0-audit/inspect_state.py",
+        "docs/benchmarks/t66e4-p0-audit/integration_test.dart",
+        "docs/benchmarks/t66e4-p0-audit/legacy_read.dart",
+        "docs/benchmarks/t66e4-p0-audit/make_corpus.py",
+        "docs/benchmarks/t66e4-p0-audit/original-replay.json",
+        "docs/benchmarks/t66e4-p0-audit/persisted-state.json",
+        "docs/benchmarks/t66e4-p0-audit/protected-source.json",
+        "docs/benchmarks/t66e4-p0-audit/results.json",
+        "docs/benchmarks/t66e4-p0-audit/test_audit.py",
+        "docs/benchmarks/t66e4-p0-audit/worktree-targets.json",
+        "docs/benchmarks/t66e4-p0/README.md",
+        "docs/benchmarks/t66e4-p0/preserved-history.sha256",
+        "docs/benchmarks/t66e4-p0/summary.json",
+        "docs/benchmarks/t66e4-targeted/README.md",
+        "docs/benchmarks/t66e4-targeted/development-runs.json",
+        "docs/benchmarks/t66e4-targeted/frozen-legacy-work-final.json",
+        "docs/benchmarks/t66e4-targeted/frozen-sql-cost.json",
+        "docs/benchmarks/t66e4-targeted/frozen-sql-with-open.json",
+        "docs/benchmarks/t66e4-targeted/handoff_child_test.dart",
+        "docs/benchmarks/t66e4-targeted/measure.dart",
+        "docs/benchmarks/t66e4-targeted/regression-summary.json",
+        "docs/benchmarks/t66e4-targeted/source-hashes.json",
+        "docs/benchmarks/t66e4-targeted/verify_cost.py",
+        "docs/benchmarks/t66e4-targeted/verify_preservation.py",
+        "docs/benchmarks/t66e4/README.md",
+        "docs/benchmarks/t66e4/measure.dart",
+        "docs/benchmarks/t66e4/measure.py",
+        "docs/benchmarks/t66e4/pagination-before.json",
+        "docs/benchmarks/t66e4/read-cost-final.json",
+        "docs/benchmarks/t66e4/read-cost-with-storage.json",
+        "docs/benchmarks/t66e4/regression-summary.json",
+        "docs/benchmarks/t66e4/summarize_flutter.py",
+        "docs/benchmarks/t66e4/worktree-preservation.json",
+        "docs/t66/c/t66c-delta-sync-protocol.md",
+        "docs/t66e4-a01-correction.md",
+        "docs/t66e4-a01-independent-reaudit.md",
+        "docs/t66e4-implementation-resumption.md",
+        "docs/t66e4-implementation.md",
+        "docs/t66e4-independent-audit.md",
+        "docs/t66e4-p0-implementation.md",
+        "docs/t66e4-p0-independent-audit.md",
+        "mobile/lib/src/api_client.dart",
+        "mobile/lib/src/coherent_refresh_coordinator.dart",
+        "mobile/lib/src/money.dart",
+        "mobile/lib/src/offline/offline_data.dart",
+        "mobile/lib/src/offline/offline_lineage_validator.dart",
+        "mobile/lib/src/offline/offline_projection.dart",
+        "mobile/lib/src/offline/offline_store.dart",
+        "mobile/lib/src/offline/online_write_state.dart",
+        "mobile/lib/src/segmented/adapters.dart",
+        "mobile/lib/src/segmented/api_transport.dart",
+        "mobile/lib/src/segmented/c1.dart",
+        "mobile/lib/src/segmented/fetch.dart",
+        "mobile/lib/src/segmented/graph.dart",
+        "mobile/lib/src/segmented/incremental_verification.dart",
+        "mobile/lib/src/segmented/object.dart",
+        "mobile/lib/src/segmented/patricia_edit.dart",
+        "mobile/lib/src/segmented/protocol.dart",
+        "mobile/lib/src/segmented/store.dart",
+        "mobile/lib/src/segmented/store_publication.dart",
+        "mobile/lib/src/segmented/store_read.dart",
+        "mobile/lib/src/segmented/transport.dart",
+        "mobile/lib/src/segmented/verification.dart",
+        "mobile/lib/src/segmented/work.dart",
+        "mobile/test/authoritative_money_compatibility_test.dart",
+        "mobile/test/fixtures/segmented_money_vectors.json",
+        "mobile/test/fixtures/segmented_server_golden.json",
+        "mobile/test/offline_lineage_recovery_test.dart",
+        "mobile/test/offline_notification_identity_test.dart",
+        "mobile/test/offline_persistence_test.dart",
+        "mobile/test/offline_reconciliation_test.dart",
+        "mobile/test/offline_refresh_test.dart",
+        "mobile/test/offline_state_projection_test.dart",
+        "mobile/test/offline_widget_submit_test.dart",
+        "mobile/test/segmented_acquisition_store_test.dart",
+        "mobile/test/segmented_adapter_authority_test.dart",
+        "mobile/test/segmented_adapter_crash_test.dart",
+        "mobile/test/segmented_adapter_isolation_test.dart",
+        "mobile/test/segmented_adapters_test.dart",
+        "mobile/test/segmented_authority_test.dart",
+        "mobile/test/segmented_crash_test.dart",
+        "mobile/test/segmented_diff_integration_test.dart",
+        "mobile/test/segmented_e4_a01_test.dart",
+        "mobile/test/segmented_e4_frozen_test.dart",
+        "mobile/test/segmented_e4_handoff_crash_test.dart",
+        "mobile/test/segmented_e4_handoff_test.dart",
+        "mobile/test/segmented_e4_provenance_test.dart",
+        "mobile/test/segmented_fetch_crash_test.dart",
+        "mobile/test/segmented_fetch_test.dart",
+        "mobile/test/segmented_http_integration_test.dart",
+        "mobile/test/segmented_i25_baseline_test.dart",
+        "mobile/test/segmented_i25_publication_test.dart",
+        "mobile/test/segmented_incremental_verification_test.dart",
+        "mobile/test/segmented_money_correction_test.dart",
+        "mobile/test/segmented_protocol_test.dart",
+        "mobile/test/segmented_publication_crash_test.dart",
+        "mobile/test/segmented_publication_test.dart",
+        "mobile/test/segmented_response_cleanup_test.dart",
+        "mobile/test/segmented_root_pin_model_test.dart",
+        "mobile/test/segmented_schema_correction_test.dart",
+        "mobile/test/segmented_store_test.dart",
+        "mobile/test/segmented_transport_test.dart",
+        "mobile/test/support/offline_mode_fixtures.dart",
+        "mobile/test/support/segmented_crash_worker.dart",
+        "mobile/test/support/segmented_e2_fixture.dart",
+        "mobile/test/support/segmented_fetch_crash_worker.dart",
+        "mobile/test/support/segmented_fixture.dart",
+        "mobile/test/support/segmented_publication_crash_worker.dart",
+        "mobile/test/support/segmented_read_crash_child.dart"
+      ],
+      "authorized_product_paths": [
+        "mobile/lib/src/app_state.dart",
+        "mobile/lib/src/segmented/store_frozen.dart",
+        "mobile/lib/src/segmented/workspace.dart"
+      ]
+    }
+  },
+  "intermediate_runs": {
+    "new-first": {
+      "done_success": false,
+      "counts": {
+        "success": 8,
+        "failure": 3,
+        "error": 6
+      },
+      "files": {
+        "segmented_e4_ra01_test.dart": {
+          "success": 8,
+          "failure": 3,
+          "error": 6
+        }
+      },
+      "errors": [
+        {
+          "name": "RA01C valid legacy-to-native handoff preserves exact source lineage and fresh-process read",
+          "error": "Expected: contains {\n            'hash': '03e21c77c232c73525ba91cf071ccb63961b4ec9bb22f0eec139359666eabb6b',\n            'kind': 'index-node',\n            'body': 'bbd3d74295cb922acaf6ee55bc6eccacf79ab30d1455ba9d966d16537b00d28a',\n            'validator': 'segmented-e1/1'\n          }\n  Actual: [\n            {\n              'hash': '03e21c77c232c73525ba91cf071ccb63961b4ec9bb22f0eec139359666eabb6b',\n              'kind': 'index-node',\n              'body': 'bbd3d74295cb922acaf6ee55bc6eccacf79ab30d1455ba9d966d16537b00d28a',\n              'validator': 'segmented-e1/1'\n            },\n            {\n              'hash': '0639cfc0f63f995d3ac896b37c9b9d8db5dbe1432170d714e03c33f746c8c5fd',\n              'kind': 'index-node',\n              'body': '10856d3d34821657a877bda9a542fd6f983f6a7cbdd65841a28930019d0eb0a8',\n              'validator': 'segmented-e1/1'\n            },\n            {\n              'hash': '08bdf643d2613529837fb7c20be7da9d6ca64aa5ee42fb07882c25f9b5982622',\n              'kind': 'index-node',\n              'body': 'feed96a754b3fb4854a77f9d9931d32e914b9e3eb10abbfa37320121d67c9359',\n              'validator': 'segmented-e1/1'\n            },\n            {\n              'hash': "
+        },
+        {
+          "name": "RA01C repeated native installation keeps shared descendants and immutable canonical B",
+          "error": "Expected: contains {\n            'hash': '03e21c77c232c73525ba91cf071ccb63961b4ec9bb22f0eec139359666eabb6b',\n            'kind': 'index-node',\n            'body': 'bbd3d74295cb922acaf6ee55bc6eccacf79ab30d1455ba9d966d16537b00d28a',\n            'validator': 'segmented-e1/1'\n          }\n  Actual: [\n            {\n              'hash': '03e21c77c232c73525ba91cf071ccb63961b4ec9bb22f0eec139359666eabb6b',\n              'kind': 'index-node',\n              'body': 'bbd3d74295cb922acaf6ee55bc6eccacf79ab30d1455ba9d966d16537b00d28a',\n              'validator': 'segmented-e1/1'\n            },\n            {\n              'hash': '0639cfc0f63f995d3ac896b37c9b9d8db5dbe1432170d714e03c33f746c8c5fd',\n              'kind': 'index-node',\n              'body': '10856d3d34821657a877bda9a542fd6f983f6a7cbdd65841a28930019d0eb0a8',\n              'validator': 'segmented-e1/1'\n            },\n            {\n              'hash': '08bdf643d2613529837fb7c20be7da9d6ca64aa5ee42fb07882c25f9b5982622',\n              'kind': 'index-node',\n              'body': 'feed96a754b3fb4854a77f9d9931d32e914b9e3eb10abbfa37320121d67c9359',\n              'validator': 'segmented-e1/1'\n            },\n            {\n              'hash': "
+        },
+        {
+          "name": "RA01C committed native current ownership does not require its obsolete historical hint",
+          "error": "Expected: contains {\n            'hash': '03e21c77c232c73525ba91cf071ccb63961b4ec9bb22f0eec139359666eabb6b',\n            'kind': 'index-node',\n            'body': 'bbd3d74295cb922acaf6ee55bc6eccacf79ab30d1455ba9d966d16537b00d28a',\n            'validator': 'segmented-e1/1'\n          }\n  Actual: [\n            {\n              'hash': '03e21c77c232c73525ba91cf071ccb63961b4ec9bb22f0eec139359666eabb6b',\n              'kind': 'index-node',\n              'body': 'bbd3d74295cb922acaf6ee55bc6eccacf79ab30d1455ba9d966d16537b00d28a',\n              'validator': 'segmented-e1/1'\n            },\n            {\n              'hash': '0639cfc0f63f995d3ac896b37c9b9d8db5dbe1432170d714e03c33f746c8c5fd',\n              'kind': 'index-node',\n              'body': '10856d3d34821657a877bda9a542fd6f983f6a7cbdd65841a28930019d0eb0a8',\n              'validator': 'segmented-e1/1'\n            },\n            {\n              'hash': '08bdf643d2613529837fb7c20be7da9d6ca64aa5ee42fb07882c25f9b5982622',\n              'kind': 'index-node',\n              'body': 'feed96a754b3fb4854a77f9d9931d32e914b9e3eb10abbfa37320121d67c9359',\n              'validator': 'segmented-e1/1'\n            },\n            {\n              'hash': "
+        },
+        {
+          "name": "RA01C invalid predecessor foreign_principal native=false preserves all recovery evidence",
+          "error": "SegmentedException(TARGET_HASH_INVALID)"
+        },
+        {
+          "name": "RA01C invalid predecessor foreign_dataset native=false preserves all recovery evidence",
+          "error": "SegmentedException(TARGET_HASH_INVALID)"
+        },
+        {
+          "name": "RA01C invalid predecessor foreign_epoch native=false preserves all recovery evidence",
+          "error": "SegmentedException(TARGET_HASH_INVALID)"
+        },
+        {
+          "name": "RA01C invalid predecessor foreign_principal native=true preserves all recovery evidence",
+          "error": "SegmentedException(TARGET_HASH_INVALID)"
+        },
+        {
+          "name": "RA01C invalid predecessor foreign_dataset native=true preserves all recovery evidence",
+          "error": "SegmentedException(TARGET_HASH_INVALID)"
+        },
+        {
+          "name": "loading /home/hjkerman/codex/money-note/mobile/test/segmented_e4_ra01_test.dart",
+          "error": "Bad state: Cannot close sink while adding stream."
+        }
+      ]
+    },
+    "new-second": {
+      "done_success": false,
+      "counts": {
+        "success": 6,
+        "error": 1
+      },
+      "files": {
+        "segmented_e4_ra01_test.dart": {
+          "success": 6,
+          "error": 1
+        }
+      },
+      "errors": [
+        {
+          "name": "loading /home/hjkerman/codex/money-note/mobile/test/segmented_e4_ra01_test.dart",
+          "error": "Bad state: Cannot close sink while adding stream."
+        }
+      ]
+    },
+    "new-third": {
+      "done_success": false,
+      "counts": {
+        "success": 34,
+        "error": 1,
+        "failure": 1
+      },
+      "files": {
+        "segmented_e4_ra01_test.dart": {
+          "success": 34,
+          "error": 1,
+          "failure": 1
+        }
+      },
+      "errors": [
+        {
+          "name": "RA01C competing original tickets cannot let the older native installation replace the winner",
+          "error": "AcquisitionFailure(ACQUISITION_BUSY,retry_same)"
+        },
+        {
+          "name": "RA01C final mode change cannot install native state or retire unknown input",
+          "error": "Expected: throws <Instance of 'Exception'>\n  Actual: <Instance of 'Future<E4SegmentedInstallation>'>\n   Which: emitted <Instance of 'E4SegmentedInstallation'>\n"
+        }
+      ]
+    },
+    "flutter-full-final": {
+      "done_success": null,
+      "counts": {
+        "success": 226,
+        "error": 4
+      },
+      "files": {
+        "coherent_get_dag_test.dart": {
+          "success": 91
+        },
+        "segmented_adapter_isolation_test.dart": {
+          "success": 23
+        },
+        "authoritative_acquisition_test.dart": {
+          "success": 57
+        },
+        "segmented_e4_provenance_test.dart": {
+          "success": 11
+        },
+        "segmented_e4_handoff_test.dart": {
+          "success": 31,
+          "error": 3
+        },
+        "segmented_publication_crash_test.dart": {
+          "success": 13,
+          "error": 1
+        }
+      },
+      "errors": [
+        {
+          "name": "segmented-native T01 native complete-store handoff pending=true has no legacy baseline rewrite",
+          "error": "E4InstallationCommittedException"
+        },
+        {
+          "name": "loading /home/hjkerman/codex/money-note/mobile/test/segmented_e4_handoff_test.dart",
+          "error": "Bad state: Cannot close sink while adding stream."
+        },
+        {
+          "name": "loading /home/hjkerman/codex/money-note/mobile/test/segmented_publication_crash_test.dart",
+          "error": "Bad state: Cannot close sink while adding stream."
+        }
+      ]
+    }
+  },
+  "historical_p0_fixture": {
+    "tests": 5,
+    "failures": 1,
+    "errors": 0,
+    "seconds": 37.456
+  },
+  "backend_counts": {
+    "tests": 1315,
+    "subtests": 1540
+  },
+  "completion_guard": "COMPLETE",
+  "independent_reaudit": "PENDING",
+  "activation": {
+    "r1": "CLOSED",
+    "phase_b": "NOT_STARTED",
+    "deployed": false
+  }
+}

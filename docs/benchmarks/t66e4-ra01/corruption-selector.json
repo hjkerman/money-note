@@ -1,0 +1,12 @@
+{
+  "selected_hash": "010c96db8a3879f8f708a96c2a2468a95428a5e0520741b1b8da82079ab3b4e9",
+  "attempts": 4,
+  "frozen_generation": "7e14054d-4cd4-4057-84e1-25b113c0f238",
+  "reachable_from_frozen": false,
+  "fresh_frozen_read": true,
+  "source_preserved": true,
+  "baseline_preserved": true,
+  "source_sha256": "c4a8188bfca7b5ef5b674e0e6873b81bb20ce2926d24d1c5d32f7b46ebb6a7b7",
+  "baseline_sha256": "3d775350177b3c91d435f4a094432e468e13145449c01b1c08bf743f3c9887f0",
+  "scope": "fixture attribution, not a new publication correctness case"
+}

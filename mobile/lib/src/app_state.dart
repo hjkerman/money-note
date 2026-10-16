@@ -730,6 +730,8 @@ class AppState extends ChangeNotifier {
 
     await workspace.recoverLegacyHandoff(store);
     authority();
+    await workspace.verifySegmentedInstallationBase(store);
+    authority();
     final expected = await store.recoverAcceptedGeneration();
     authority();
     final acquired = await IncrementalFetcher(store, transport)
@@ -758,21 +760,40 @@ class AppState extends ChangeNotifier {
       workspace.handoffPoint('after_e3_acceptance');
       authority();
       final accepted = store.acceptedGeneration();
+      Map<String, dynamic>? nativeSource;
+      void requireNativeSource() {
+        if (nativeSource == null) rejectSegment('SOURCE_PROVENANCE_REQUIRED');
+        workspace.requireNativeInstallationSource(
+            store, accepted, nativeSource!);
+      }
+
+      void nativeInstallationAuthority() {
+        installationAuthority();
+        requireNativeSource();
+      }
+
+      void nativeInstalledAuthority() {
+        // The confirmed marker was legitimately retired before UI assignment.
+        // Recheck current request/session and DATA, not that deleted marker.
+        authority();
+        requireNativeSource();
+      }
+
       final result = await _withLineageLock(() async {
         authority();
         workspace.requireOnlineHandoffSync();
         workspace.requirePendingIdentitySync(pending, selected.id);
-        workspace.prepareSegmentedSource(
-            store, accepted, installationAuthority);
-        store.commitInstalledGeneration(accepted,
-            finalAuthorityFence: installationAuthority);
+        store.commitInstalledGeneration(accepted, prepareSource: () {
+          nativeSource = workspace.prepareSegmentedSource(
+              store, accepted, installationAuthority);
+        }, finalAuthorityFence: nativeInstallationAuthority);
         final data = store.withInstalledRead(
             accepted, (read) => readSegmentedAuthority(read, selected));
         workspace.handoffPoint('before_installation');
-        installationAuthority();
+        nativeInstallationAuthority();
         if (pending?.status ==
             OnlineWriteStatus.serverCommittedRebuildPending) {
-          workspace.retireConfirmedSync(pending!, installationAuthority);
+          workspace.retireConfirmedSync(pending!, nativeInstallationAuthority);
         }
         // The complete-store handle stays separate from the legacy B envelope.
         final c = data.candidate;
@@ -800,7 +821,7 @@ class AppState extends ChangeNotifier {
         offlineEntryMessage = '';
         try {
           workspace.handoffPoint('after_e4_installation');
-          authority();
+          nativeInstalledAuthority();
           notifyListeners();
         } catch (error) {
           throw E4InstallationCommittedException(accepted.id!, error);
@@ -809,7 +830,7 @@ class AppState extends ChangeNotifier {
             pending?.status == OnlineWriteStatus.outcomeUnknown);
       });
       try {
-        authority();
+        nativeInstalledAuthority();
       } catch (error) {
         throw E4InstallationCommittedException(accepted.id!, error);
       }

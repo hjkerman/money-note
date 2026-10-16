@@ -42,7 +42,8 @@ extension SegmentedFrozenStore on SegmentedClientStore {
   }
 
   AcceptedGeneration commitInstalledGeneration(AcceptedGeneration expected,
-      {required void Function() finalAuthorityFence}) {
+      {required void Function() finalAuthorityFence,
+      void Function()? prepareSource}) {
     var committed = false;
     try {
       final result = _transaction(() {
@@ -53,6 +54,13 @@ extension SegmentedFrozenStore on SegmentedClientStore {
           rejectSegment('PUBLICATION_CONFLICT');
         }
         final previous = installedGeneration();
+        // E4 source preparation shares this writer lock. All file/fault hooks
+        // precede the final source + original AppState fence and native COMMIT.
+        if (prepareSource is Future Function() &&
+            prepareSource is! Never Function()) {
+          rejectSegment('ASYNC_PUBLICATION_FENCE');
+        }
+        prepareSource?.call();
         if (previous?.id == expected.id) return previous!;
         _db.execute(
             'INSERT INTO installed VALUES(1,?,?,?,?) ON CONFLICT(id) DO UPDATE SET generation_id=excluded.generation_id,previous_id=excluded.previous_id,sequence=excluded.sequence,checksum=excluded.checksum',

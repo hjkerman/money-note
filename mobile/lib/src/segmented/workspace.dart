@@ -19,13 +19,19 @@ class E4Workspace extends OfflineStore {
   File get _baselineFile => File('${root.path}/offline-mode/baseline.json');
   Map<String, dynamic> _readSource() {
     if (_source.lengthSync() > 16384) rejectSegment('LOCAL_METADATA_BUDGET');
-    final value = jsonDecode(_source.readAsStringSync());
+    return _sourceRecord(jsonDecode(_source.readAsStringSync()));
+  }
+
+  Map<String, dynamic> _sourceRecord(Object? value) {
     if (value is! Map<String, dynamic>) rejectSegment('FROZEN_BINDING_INVALID');
     if (value['storage'] != SegmentedClientStore.discriminator) {
       rejectSegment('FROZEN_BINDING_INVALID');
     }
     hashValue(value['namespace']);
     if (value['kind'] == 'segmented') {
+      if (value['frozen'] != null || value['binding'] != null) {
+        rejectSegment('SOURCE_PROVENANCE_INVALID');
+      }
       uuidValue(value['generation']);
       if (value['sequence'] is! int ||
           value['sequence'] < 1 ||
@@ -50,6 +56,12 @@ class E4Workspace extends OfflineStore {
       }
     } else {
       if (value['kind'] != null) rejectSegment('FROZEN_BINDING_INVALID');
+      if (value['legacy_frozen'] != null ||
+          value['legacy_binding'] != null ||
+          value['generation'] != null ||
+          value['sequence'] != null) {
+        rejectSegment('SOURCE_PROVENANCE_INVALID');
+      }
       uuidValue(value['frozen']);
       hashValue(value['binding']);
       if (value['previous_file'] != null) hashValue(value['previous_file']);
@@ -123,10 +135,14 @@ class E4Workspace extends OfflineStore {
     if (guard is Future Function() && guard is! Never Function()) {
       rejectSegment('ASYNC_PUBLICATION_FENCE');
     }
+    final encoded = jsonEncode(value);
+    if (utf8.encode(encoded).length > 16384) {
+      rejectSegment('LOCAL_METADATA_BUDGET');
+    }
     root.createSync(recursive: true);
     final tmp = File('${_source.path}.prepared');
     try {
-      tmp.writeAsStringSync(jsonEncode(value), flush: true);
+      tmp.writeAsStringSync(encoded, flush: true);
       jsonDecode(tmp.readAsStringSync());
       _fault?.call('before_source_rename');
       guard();
@@ -168,11 +184,16 @@ class E4Workspace extends OfflineStore {
     }
   }
 
-  void prepareSegmentedSource(SegmentedClientStore store,
+  Map<String, dynamic> prepareSegmentedSource(SegmentedClientStore store,
       AcceptedGeneration target, void Function() guard) {
     final old = _source.existsSync() ? _readSource() : null;
     final previous = store.installedGeneration();
-    _writeSource({
+    _requireSourceOwner(store, old);
+    if (target.manifest == null || target.id == null) {
+      rejectSegment('INSTALLATION_METADATA_INVALID');
+    }
+    store.cache.verifyTarget(target.manifest!.target);
+    final prepared = <String, dynamic>{
       'storage': SegmentedClientStore.discriminator,
       'kind': 'segmented',
       'namespace': store.cache.key,
@@ -185,7 +206,106 @@ class E4Workspace extends OfflineStore {
       'previous_source': old == null
           ? null
           : {...old, 'previous_source': null, 'previous_file': null}
-    }, guard);
+    };
+    _writeSource(prepared, () {
+      guard();
+      _requireRecoverySource(old);
+      _requireSourceOwner(store, old);
+    });
+    return Map<String, dynamic>.unmodifiable(prepared);
+  }
+
+  // A source is DATA provenance, never an AppState permit. Native installed
+  // identity and legacy Frozen-B identity are distinct obligations. A legacy
+  // B may have committed before its native installed pointer was finalized.
+  FrozenGeneration? _requireSourceOwner(
+      SegmentedClientStore store, Map<String, dynamic>? value) {
+    final installed = store.installedGeneration();
+    final owners = store.frozenGenerations().where((f) => f.installed).toList();
+    if (value == null) {
+      if (installed != null || owners.isNotEmpty) {
+        rejectSegment('SOURCE_PROVENANCE_REQUIRED');
+      }
+      return null; // Genuine first source, not an invented predecessor.
+    }
+    final source = _sourceRecord(value);
+    if (source['namespace'] != store.cache.key || owners.length > 1) {
+      rejectSegment('SOURCE_PROVENANCE_INVALID');
+    }
+    if (source['kind'] == 'segmented' &&
+        (installed?.id != source['generation'] ||
+            installed?.sequence != source['sequence'])) {
+      rejectSegment('SOURCE_PROVENANCE_INVALID');
+    }
+    final id = source['legacy_frozen'] ?? source['frozen'];
+    final binding = source['legacy_binding'] ?? source['binding'];
+    if (owners.isEmpty) {
+      if (source['kind'] != 'segmented' || id != null || binding != null) {
+        rejectSegment('SOURCE_PROVENANCE_INVALID');
+      }
+      return null;
+    }
+    final frozen = owners.single;
+    if (id != frozen.id || binding != frozen.checksum) {
+      rejectSegment('SOURCE_PROVENANCE_INVALID');
+    }
+    return frozen; // _frozen also validates namespace/receipt/required root pins.
+  }
+
+  Future<void> verifySegmentedInstallationBase(
+      SegmentedClientStore store) async {
+    final source = _source.existsSync() ? _readSource() : null;
+    final frozen = _requireSourceOwner(store, source);
+    if (frozen != null) {
+      await readFrozenBaseline(store, frozen.id, store.cache.principalId);
+    }
+    _requireRecoverySource(source);
+    _requireSourceOwner(store, source);
+  }
+
+  // Called in the installed transaction's final fence and before retirement/UI.
+  // The expected source is the exact preparation of THIS original request, not
+  // a reconstructed predecessor or cached authorization result.
+  void requireNativeInstallationSource(SegmentedClientStore store,
+      AcceptedGeneration target, Map<String, dynamic> expected) {
+    _requireRecoverySource(expected);
+    if (expected['kind'] != 'segmented' ||
+        expected['generation'] != target.id ||
+        expected['sequence'] != target.sequence) {
+      rejectSegment('SOURCE_PROVENANCE_INVALID');
+    }
+    final frozen = _requireSourceOwner(store, expected);
+    final previous = expected['previous_source'];
+    if (previous == null) {
+      if (expected['previous_installation'] != null || frozen != null) {
+        rejectSegment('SOURCE_PROVENANCE_REQUIRED');
+      }
+    } else {
+      final prior = _sourceRecord(previous);
+      if (prior['namespace'] != store.cache.key ||
+          (prior['kind'] == 'segmented' &&
+              (prior['generation'] != expected['previous_installation'] ||
+                  prior['sequence'] != expected['previous_sequence'])) ||
+          (prior['legacy_frozen'] ?? prior['frozen']) !=
+              expected['legacy_frozen'] ||
+          (prior['legacy_binding'] ?? prior['binding']) !=
+              expected['legacy_binding']) {
+        rejectSegment('SOURCE_PROVENANCE_INVALID');
+      }
+    }
+    final installed = store.installedGeneration()!;
+    if (expected['previous_installation'] != installed.id &&
+        expected['previous_installation'] != installed.previousId) {
+      rejectSegment('PUBLICATION_CONFLICT');
+    }
+    if (frozen != null &&
+        (!identical(_cachedStore, store) ||
+            _cachedB == null ||
+            _cachedKey !=
+                '${store.cache.key}:${frozen.id}:${frozen.checksum}:${frozen.receiptIdentity}:${store.publicationDataVersion}' ||
+            _cachedFile != _stamp())) {
+      rejectSegment('VERIFICATION_STALE');
+    }
   }
 
   void handoffPoint(String point) => _fault?.call(point);
@@ -256,10 +376,13 @@ class E4Workspace extends OfflineStore {
     }
   }
 
-  void _restoreRecoverySource(
+  void _restoreRecoverySource(SegmentedClientStore store,
       Map<String, dynamic> expected, void Function() fence) {
     void check() {
       _requireRecoverySource(expected);
+      final previous = expected['previous_source'];
+      _requireSourceOwner(
+          store, previous == null ? null : Map<String, dynamic>.from(previous));
       fence();
     }
 
@@ -407,17 +530,33 @@ class E4Workspace extends OfflineStore {
       rejectSegment('FROZEN_BINDING_INVALID');
     }
     if (source['kind'] == 'segmented') {
+      // Missing predecessor is not permission to erase an already installed
+      // source. Reject obvious ownership contradictions before full recovery;
+      // a committed current source does not need its obsolete rollback hint.
+      final current = store.installedGeneration();
+      if (current?.id == source['generation'] &&
+          current?.sequence == source['sequence']) {
+        _requireSourceOwner(store, source);
+      } else if (current?.id == source['previous_installation'] &&
+          current?.sequence == source['previous_sequence']) {
+        final previous = source['previous_source'];
+        _requireSourceOwner(store,
+            previous == null ? null : Map<String, dynamic>.from(previous));
+      } else {
+        rejectSegment('INSTALLATION_METADATA_INVALID');
+      }
       final installed = await store.recoverInstalledGeneration();
       _requireRecoverySource(source);
       if (installed?.id == source['generation'] &&
           installed?.sequence == source['sequence']) {
+        _requireSourceOwner(store, source);
         await _recoverNativePreparations(store, source);
         return null;
       }
       if (installed?.id == source['previous_installation'] &&
           installed?.sequence == source['previous_sequence']) {
         store.restoreUncommittedSource(installed,
-            restoreSource: () => _restoreRecoverySource(source, () {}));
+            restoreSource: () => _restoreRecoverySource(store, source, () {}));
         return null;
       }
       rejectSegment('INSTALLATION_METADATA_INVALID');
@@ -484,7 +623,7 @@ class E4Workspace extends OfflineStore {
       try {
         store.discardFrozenPreparation(frozen, finalAuthorityFence: () {
           _restoreRecoverySource(
-              source, () => _requirePreviousBaseline(source));
+              store, source, () => _requirePreviousBaseline(source));
           restored = true;
         });
       } catch (_) {

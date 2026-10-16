@@ -1,0 +1,63 @@
+{
+  "unit-final": {
+    "session_id": 1539,
+    "exit_code": 0,
+    "running": false
+  },
+  "cost-owner-final": {
+    "session_id": 84514,
+    "exit_code": 0,
+    "running": false
+  },
+  "phase-a-final": {
+    "session_id": 88530,
+    "exit_code": 0,
+    "running": false
+  },
+  "prior-crashes-p0-final": {
+    "session_id": 92429,
+    "exit_code": 0,
+    "running": false
+  },
+  "new-crashes-final": {
+    "session_id": 26887,
+    "exit_code": 0,
+    "running": false
+  },
+  "reaudit-final": {
+    "session_id": 21281,
+    "exit_code": 0,
+    "running": false
+  },
+  "checks-final": {
+    "session_id": 47684,
+    "exit_code": 0,
+    "running": false
+  },
+  "original-cost-observed": {
+    "session_id": 58371,
+    "exit_code": 0,
+    "running": false
+  },
+  "selector": {
+    "session_id": 46338,
+    "exit_code": 0,
+    "running": false
+  },
+  "historical-p0": {
+    "session_id": 19180,
+    "exit_code": 1,
+    "running": false
+  },
+  "flutter-interrupted": {
+    "session_id": 63761,
+    "exit_code": 0,
+    "running": false,
+    "classification": "중간 regression 검출 뒤 중단. exit 0이어도 완료 PASS 증거가 아님."
+  },
+  "flutter-full-final": {
+    "session_id": 42269,
+    "exit_code": 0,
+    "running": false
+  }
+}

@@ -1,0 +1,16 @@
+[
+  {
+    "audit": "frozen_corruption_target",
+    "history": 5,
+    "selected_hash": "0971d78945f972d4b43eb59cb996ea8973c9c65b344bde08fca8b02de4baeaa5",
+    "frozen_generation": "41e4622c-42eb-41ce-9a41-832b57b0ac65",
+    "reachable_from_frozen": true
+  },
+  {
+    "audit": "frozen_corruption_target",
+    "history": 512,
+    "selected_hash": "1730b042781e659e3879b6d85e6f4eb484a25a1f76c6f84dadef31bb9987e014",
+    "frozen_generation": "e969cb50-25a0-4d90-a29e-16ad9fb7d80d",
+    "reachable_from_frozen": true
+  }
+]
