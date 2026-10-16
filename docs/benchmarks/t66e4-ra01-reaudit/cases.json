@@ -1,0 +1,1210 @@
+{
+  "original_three": [
+    {
+      "name": "RA16 missing predecessor source with an existing installed SQL owner must fail closed native=false",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA17 missing predecessor source with an existing installed SQL owner must fail closed native=true",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA18 AppState must not report native installation success while losing its existing Frozen-B lineage association",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    }
+  ],
+  "previous_independent": [
+    {
+      "name": "RA01 same operation becomes legitimately installed while its rollback recovery waits",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA02 exact stale source replay cannot resurrect a deleted SQL preparation",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA03 four competing recoveries on two SQLite handles release only the abandoned owner",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA04 competing SQLite writer excludes recovery file mutation before BEGIN IMMEDIATE",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA05 missing mandatory trigger after async recovery checks fails before changing source",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA06 changed legacy B after async unchanged check cannot be restored or unpinned",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA07 journal appearing during recovery preserves preparation and exact ordered bytes",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA08 null expected installed owner cannot invoke restoration over a valid source",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA09 changed source at native restoration hook is preserved under SQL fence",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA10 same binding checksum different UUID and lineage-preserving bytes remains newer owner",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA11 same frozen source with changed durable operation metadata causes stale no-op",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA12 legitimate source rollback and repeated reopen retain legacy lineage and unknown pending",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA13 second connection cannot commit between SQL ownership check and source rename",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA14 COMMIT-busy compensation cannot overwrite a newly replaced valid source",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA15 newer AppState installation failure preserves the previous owner before old recovery resumes",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA16 missing predecessor source with an existing installed SQL owner must fail closed native=false",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA17 missing predecessor source with an existing installed SQL owner must fail closed native=true",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA18 AppState must not report native installation success while losing its existing Frozen-B lineage association",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    }
+  ],
+  "new_independent": [
+    {
+      "name": "NR01 first-source transaction fails after rename then valid retry installs",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR02 alternating legacy/native transitions retain latest distinct lineage",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR03 malformed predecessor type List<Object?> is not absence",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR03 malformed predecessor type String is not absence",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR03 malformed predecessor type int is not absence",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR03 malformed predecessor type bool is not absence",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR04 null source cannot erase installed native-only owner on reopen",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR05 original request invalidated while verified base waits",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR06 schema changed after verified base cannot rename current source",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR07 different metadata owner at native rename is never overwritten",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR08 native rollback rejects wrong previous_sequence even with exact Frozen binding",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR08 native rollback rejects wrong previous_installation even with exact Frozen binding",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR09 same generation with stale predecessor operation sequence is rejected",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR10 legitimate rollback repeated after two independent handle reopenings",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR11 failed conditional native commit and retry cannot retire unknown marker",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR12 prepared legacy source without an owner recovers then first native installs",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR13 native predecessor Frozen association preserved when damaged hint rejects recovery",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR14 source binding change before final SQL fence cannot report installed success",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    }
+  ],
+  "flutter_full": [
+    {
+      "name": "RA01C genuine first native installation has no invented Frozen-B predecessor",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C initial native source preserves an ordinary unsourced legacy v4 file",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C valid legacy-to-native handoff preserves exact source lineage and fresh-process read",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C repeated native installation keeps shared descendants and immutable canonical B",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C confirmed retirement succeeds only after valid native source handoff",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C missing predecessor cannot retire even a confirmed pending marker",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C committed native current ownership does not require its obsolete historical hint",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C committed legacy B before native pointer finalization is a valid handoff base",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C native current owner cannot forget a separately installed Frozen-B obligation",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C absent current sidecar with durable owners cannot silently become first installation",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C invalid predecessor missing native=false preserves all recovery evidence",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C invalid predecessor foreign_principal native=false preserves all recovery evidence",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C invalid predecessor foreign_dataset native=false preserves all recovery evidence",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C invalid predecessor foreign_epoch native=false preserves all recovery evidence",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C invalid predecessor wrong_uuid native=false preserves all recovery evidence",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C invalid predecessor wrong_binding native=false preserves all recovery evidence",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C invalid predecessor wrong_lineage native=false preserves all recovery evidence",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C invalid predecessor cross_kind_alias native=false preserves all recovery evidence",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C invalid predecessor missing native=true preserves all recovery evidence",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C invalid predecessor foreign_principal native=true preserves all recovery evidence",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C invalid predecessor foreign_dataset native=true preserves all recovery evidence",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C invalid predecessor foreign_epoch native=true preserves all recovery evidence",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C invalid predecessor wrong_uuid native=true preserves all recovery evidence",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C invalid predecessor wrong_sequence native=true preserves all recovery evidence",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C invalid predecessor wrong_lineage native=true preserves all recovery evidence",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C invalid predecessor cross_kind_alias native=true preserves all recovery evidence",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C a changed predecessor after an async wait cannot be repaired from the old cached map",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C source replacement in the prepare session getter is rechecked synchronously",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C source replacement in the commit session getter is rechecked synchronously",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C native source preparation and final owner check exclude a competing SQLite writer",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C real native COMMIT BUSY preserves Frozen-B and recovers its verified predecessor",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C asynchronous source preparation cannot enter the native publication callback",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C an oversized predecessor cannot replace a readable bounded source",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C source rename failure before mutation keeps a valid prior source readable",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C post-COMMIT readback error is committed failure, never a claimed rollback",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C valid native predecessor rollback stays idempotent and independently readable",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C first uncommitted native source may be removed when no durable owner existed",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C first unpublished legacy preparation may release its null predecessor",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C missing frozen root pin blocks native installation before changing its source",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C competing original tickets cannot let the older native installation replace the winner",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C final credential change cannot install native state or retire unknown input",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01C final mode change cannot install native state or retire unknown input",
+      "file": "segmented_e4_ra01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "A01 delayed metadata recovery preserves newer legacy source",
+      "file": "segmented_e4_a01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "A01 delayed metadata recovery preserves newer native source",
+      "file": "segmented_e4_a01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "A01 delayed journal recovery preserves newer legacy source",
+      "file": "segmented_e4_a01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "A01 delayed journal recovery preserves newer native source",
+      "file": "segmented_e4_a01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "A01 same binding and generation but different frozen operation UUID is not the old owner",
+      "file": "segmented_e4_a01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "A01 concurrent recoveries of a current unfinished owner are idempotent",
+      "file": "segmented_e4_a01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "A01 current published preparation can still finalize after logout and recover twice",
+      "file": "segmented_e4_a01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "A01 source replacement in synchronous rename hook is rechecked before mutation",
+      "file": "segmented_e4_a01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "A01 storage failure before_commit preserves recoverable source and pending",
+      "file": "segmented_e4_a01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "A01 storage failure after_commit preserves recoverable source and pending",
+      "file": "segmented_e4_a01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "A01 actual SQLITE_BUSY at COMMIT restores the still-owned prepared source",
+      "file": "segmented_e4_a01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "A01 wrong source namespace fails closed without modifying source/pins/B/pending",
+      "file": "segmented_e4_a01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "A01 wrong source binding fails closed without modifying source/pins/B/pending",
+      "file": "segmented_e4_a01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "A01 failed source rename cannot discard the current preparation",
+      "file": "segmented_e4_a01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "A01 interrupted source restore releases only the abandoned preparation on reopen",
+      "file": "segmented_e4_a01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "A01 delayed finalization cannot release the newer installed frozen owner",
+      "file": "segmented_e4_a01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "A01 current uncommitted native source restores its predecessor idempotently",
+      "file": "segmented_e4_a01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "A01 native SQL ownership fence rejects a stale installed sequence",
+      "file": "segmented_e4_a01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "A01 native ownership transaction rejects asynchronous file callbacks",
+      "file": "segmented_e4_a01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "A01 restored native source retains legacy B and releases only its abandoned preparation",
+      "file": "segmented_e4_a01_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "A01 first legacy preparation with a native-only predecessor is recoverable without inventing B",
+      "file": "segmented_e4_a01_test.dart",
+      "result": "PASS"
+    }
+  ],
+  "new_provenance": [
+    {
+      "name": "NP-principal_id foreign native predecessor preserves current Frozen readable association",
+      "file": "provenance_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NP-dataset_id foreign native predecessor preserves current Frozen readable association",
+      "file": "provenance_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NP-epoch foreign native predecessor preserves current Frozen readable association",
+      "file": "provenance_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NP-lineage identical Snapshot content with changed synced_at is not prior lineage",
+      "file": "provenance_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NP-receipt truncated required receipt cannot become native success",
+      "file": "provenance_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NP-pin removed after E3 acceptance cannot pass source preparation",
+      "file": "provenance_test.dart",
+      "result": "PASS"
+    }
+  ],
+  "phase_a_dart": [
+    {
+      "name": "FA01 positive native=false, independent persisted graph and identity",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA02 unknown pending native=false survives matching downloaded source and restart",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA17 older cancelled recovery cannot overwrite a newer successful original-ticket installation",
+      "file": "stale_recovery_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA03 stale mode native=false at after_e3_acceptance cannot retire or install UI",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA03 stale mode native=false at before_source_rename cannot retire or install UI",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA03 stale mode native=false at before_installation cannot retire or install UI",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA03 stale mode native=false at before_pending_retire cannot retire or install UI",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA04 credential replacement after accepted COMMIT native=false",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA05 cancellation at final retirement native=false is persistent no-op",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA06 different current principal after acceptance native=false",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA01 positive native=true, independent persisted graph and identity",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA02 unknown pending native=true survives matching downloaded source and restart",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA03 stale mode native=true at after_e3_acceptance cannot retire or install UI",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA03 stale mode native=true at before_source_rename cannot retire or install UI",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA03 stale mode native=true at before_installation cannot retire or install UI",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA03 stale mode native=true at before_pending_retire cannot retire or install UI",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA04 credential replacement after accepted COMMIT native=true",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA05 cancellation at final retirement native=true is persistent no-op",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA06 different current principal after acceptance native=true",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA07 new legacy request while original waits cannot authorize old prepared B",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA08 frozen G1 remains separate from accepted/installed G2-G3 across reopen",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA09 installed frozen ownership cannot be discarded, with unchanged rows",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA10 reader lifetime differs from durable frozen lifetime, detached view closes",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA11 warm Frozen-B invalidation trigger, previous B and marker untouched",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA11 warm Frozen-B invalidation receipt, previous B and marker untouched",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA11 warm Frozen-B invalidation root_pin, previous B and marker untouched",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA11 warm Frozen-B invalidation raw_bytes, previous B and marker untouched",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA11 warm Frozen-B invalidation missing_raw, previous B and marker untouched",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA11 warm Frozen-B invalidation lineage, previous B and marker untouched",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA11 warm Frozen-B invalidation source, previous B and marker untouched",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA11 warm Frozen-B invalidation schema, previous B and marker untouched",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA12 failed frozen install transaction retains old installed owner and prepared pin",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA13 wrong owner and changed lineage cannot share cached frozen authority",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA14 real SQLite read snapshot excludes concurrent G2 COMMIT then permits retry",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA15 equal v7 contents cannot substitute resolved reconciliation lineage",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA16 real AppState offline entry remains closed after successful isolated E4",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    }
+  ],
+  "a01_concurrent": [
+    {
+      "name": "A01 concurrent old and winning recoveries preserve the newer original-ticket installation",
+      "file": "concurrent_recovery_test.dart",
+      "result": "PASS"
+    }
+  ],
+  "p0_integration": [
+    {
+      "name": "original backend/E1-compatible representation is accepted only at authoritative legacy boundary",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "fresh Python process reads durable raw bytes and independently recomputes v7 fingerprint and v4 lineage",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "failed baseline authority publication preserves existing B, J and pending bytes",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "existing formatted journal bytes survive reopen and replay without input normalization",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "old accepted BOM/leading-zero input appends exact raw value and retains previous journal prefix",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "pending acknowledgment still requires original token and never rewrites J",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "recovery artifact permits compatible B and original J but never permits nested compatible J input",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "MW B compatibility cannot relax nested J request admission or issue HTTP",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "actual append rejects read-compatible nested settings/scheduled_income and preserves bytes",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "actual append rejects read-compatible nested app_settings/scheduled_income and preserves bytes",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "actual append rejects read-compatible nested settings/cash_flow_balance and preserves bytes",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "actual append rejects read-compatible nested app_settings/cash_flow_balance and preserves bytes",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "actual append rejects read-compatible nested settings/card_limit and preserves bytes",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "actual append rejects read-compatible nested app_settings/card_limit and preserves bytes",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "actual append rejects read-compatible nested settings/base_next_month_liquidity and preserves bytes",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "actual append rejects read-compatible nested app_settings/base_next_month_liquidity and preserves bytes",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "actual append rejects read-compatible nested settings/liquidity_status and preserves bytes",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "actual append rejects read-compatible nested app_settings/liquidity_status and preserves bytes",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    }
+  ],
+  "historical_diagnostic": [
+    {
+      "name": "backend complete Snapshot and coherent bundle preserve the raw string",
+      "file": "probe_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "backend-derived monetary differential identifies the legacy boundary",
+      "file": "probe_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "existing E1/E2/E3 accepts the complete server graph and persists bytes",
+      "file": "probe_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "CURRENT full bundle admission rejects the server-approved original",
+      "file": "probe_test.dart",
+      "result": "FAIL"
+    },
+    {
+      "name": "CURRENT OfflineBaseline v4 parser rejects the same complete Snapshot",
+      "file": "probe_test.dart",
+      "result": "FAIL"
+    }
+  ],
+  "correction_cost": [
+    {
+      "name": "independent post-conflict and owned-recovery cost history=5",
+      "file": "cost_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "independent post-conflict and owned-recovery cost history=512",
+      "file": "cost_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01 independent native prerequisite/handoff cost history=5",
+      "file": "cost_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01 independent native prerequisite/handoff cost history=512",
+      "file": "cost_test.dart",
+      "result": "PASS"
+    }
+  ],
+  "phase_a_cost": [
+    {
+      "name": "independent instrumented Frozen-B SQL and full-IO cost history=5",
+      "file": "cost_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "independent instrumented Frozen-B SQL and full-IO cost history=512",
+      "file": "cost_test.dart",
+      "result": "PASS"
+    }
+  ],
+  "independent_cost": [
+    {
+      "name": "NC7 independent warm read around rejected native provenance",
+      "file": "cost_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NC256 independent warm read around rejected native provenance",
+      "file": "cost_test.dart",
+      "result": "PASS"
+    }
+  ],
+  "harness_first_compile": [
+    {
+      "name": "loading /home/hjkerman/codex/money-note/docs/benchmarks/t66e4-ra01-reaudit/independent_test.dart",
+      "file": "independent_test.dart",
+      "result": "FAIL"
+    }
+  ],
+  "harness_overbroad_retention": [
+    {
+      "name": "NR01 first-source transaction fails after rename then valid retry installs",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR02 alternating legacy/native transitions retain latest distinct lineage",
+      "file": "independent_test.dart",
+      "result": "FAIL"
+    },
+    {
+      "name": "NR03 malformed predecessor type List<Object?> is not absence",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR03 malformed predecessor type String is not absence",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR03 malformed predecessor type int is not absence",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR03 malformed predecessor type bool is not absence",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR04 null source cannot erase installed native-only owner on reopen",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR05 original request invalidated while verified base waits",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR06 schema changed after verified base cannot rename current source",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR07 different metadata owner at native rename is never overwritten",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR08 native rollback rejects wrong previous_sequence even with exact Frozen binding",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR08 native rollback rejects wrong previous_installation even with exact Frozen binding",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR09 same generation with stale predecessor operation sequence is rejected",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR10 legitimate rollback repeated after two independent handle reopenings",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR11 failed conditional native commit and retry cannot retire unknown marker",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR12 prepared legacy source without an owner recovers then first native installs",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR13 native predecessor Frozen association preserved when damaged hint rejects recovery",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR14 source binding change before final SQL fence cannot report installed success",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    }
+  ],
+  "harness_cost_compile_1": [
+    {
+      "name": "loading /home/hjkerman/codex/money-note/docs/benchmarks/t66e4-ra01-reaudit/cost_test.dart",
+      "file": "cost_test.dart",
+      "result": "FAIL"
+    }
+  ],
+  "harness_cost_compile_2": [
+    {
+      "name": "loading /home/hjkerman/codex/money-note/docs/benchmarks/t66e4-ra01-reaudit/cost_test.dart",
+      "file": "cost_test.dart",
+      "result": "FAIL"
+    }
+  ],
+  "harness_provenance_compile": [
+    {
+      "name": "loading /home/hjkerman/codex/money-note/docs/benchmarks/t66e4-ra01-reaudit/provenance_test.dart",
+      "file": "provenance_test.dart",
+      "result": "FAIL"
+    }
+  ],
+  "new_crash": [
+    {
+      "name": "test_independent_native_provenance_crash[first_before_commit]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_independent_native_provenance_crash[first_after_commit]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_independent_native_provenance_crash[alternating_legacy_before_native]",
+      "result": "PASS"
+    }
+  ],
+  "phase_a_crash": [
+    {
+      "name": "test_g1_g2_process_crash[after_frozen_prepare]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_g1_g2_process_crash[after_legacy_commit]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_g1_g2_process_crash[after_frozen_install]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_g1_g2_process_crash[after_e4_installation]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_g1_g2_process_crash[native_after_segmented_install_pointer]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_g1_g2_process_crash[native_during_installation_readback]",
+      "result": "PASS"
+    }
+  ],
+  "a01_crash": [
+    {
+      "name": "test_a01_process_death[stale_before_release]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_a01_process_death[stale_after_conflict]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_a01_process_death[source_restore_before_commit]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_a01_process_death[source_restore_after_commit]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_a01_process_death[native_source_restore_before_commit]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_a01_process_death[native_only_source_restore_before_commit]",
+      "result": "PASS"
+    }
+  ],
+  "ra01_crash": [
+    {
+      "name": "test_native_source_process_death[before_source]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_native_source_process_death[after_pointer_before_commit]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_native_source_process_death[after_commit]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_native_source_process_death[during_readback]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_native_source_process_death[invalid_rejected]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_native_source_process_death[recovery_before_commit]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_native_source_process_death[recovery_after_commit]",
+      "result": "PASS"
+    }
+  ],
+  "e2_cleanup": [
+    {
+      "name": "test_native_rejection_releases_client_tcp_fd_and_pool[auth]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_native_rejection_releases_client_tcp_fd_and_pool[redirect]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_native_rejection_releases_client_tcp_fd_and_pool[oversized]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_native_repeated_acquisition_releases_every_client_tcp_fd",
+      "result": "PASS"
+    },
+    {
+      "name": "test_native_valid_response_preserves_reusable_idle_socket",
+      "result": "PASS"
+    }
+  ],
+  "p0_replay": [
+    {
+      "name": "test_original_p0_reader_assertions_after_e4_additions",
+      "result": "PASS"
+    }
+  ],
+  "historical_p0": [
+    {
+      "name": "test_independent_backend_authoritative_and_e1_admission",
+      "result": "PASS"
+    },
+    {
+      "name": "test_pre_correction_input_oracle_and_journal_admission",
+      "result": "PASS"
+    },
+    {
+      "name": "test_raw_c1_and_hashes_against_python_server_bytes",
+      "result": "PASS"
+    },
+    {
+      "name": "test_original_five_diagnostics_and_frozen_source_are_intact",
+      "result": "PASS"
+    },
+    {
+      "name": "test_original_pre_p0_readers_and_corrected_real_wire",
+      "result": "FAIL"
+    }
+  ],
+  "e2_independent": [
+    {
+      "name": "test_six_rejections_then_verified_object_same_pool[auth-AUTHENTICATION_CHANGED]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_six_rejections_then_verified_object_same_pool[redirect-REDIRECT_REJECTED]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_six_rejections_then_verified_object_same_pool[oversized-RESPONSE_SIZE_EXCEEDED]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_six_rejections_then_verified_object_same_pool[huge-RESPONSE_SIZE_EXCEEDED]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_six_rejections_then_verified_object_same_pool[redirect-chunked-REDIRECT_REJECTED]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_six_rejections_then_verified_object_same_pool[redirect-empty-REDIRECT_REJECTED]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_rejection_does_not_destroy_another_live_response",
+      "result": "PASS"
+    },
+    {
+      "name": "test_valid_path_rejects_corruption_and_remains_reusable[tampered-REPRESENTATION_INVALID]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_valid_path_rejects_corruption_and_remains_reusable[wrong-hash-OBJECT_HASH_INVALID]",
+      "result": "PASS"
+    }
+  ]
+}

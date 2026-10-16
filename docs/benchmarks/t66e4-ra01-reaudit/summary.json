@@ -1,0 +1,957 @@
+{
+  "original_three": {
+    "counts": {
+      "PASS": 3
+    },
+    "done_success": true,
+    "files": {
+      "independent_test.dart": {
+        "PASS": 3
+      }
+    },
+    "errors": [],
+    "log_sha256": "7275532f94329afb00c60b6e455d5dd4d13548e380119b5ee0487c14d0ef7f0e"
+  },
+  "previous_independent": {
+    "counts": {
+      "PASS": 18
+    },
+    "done_success": true,
+    "files": {
+      "independent_test.dart": {
+        "PASS": 18
+      }
+    },
+    "errors": [],
+    "log_sha256": "c5a3fb9346f68f8b81126598b11ed8945532e969ee44cde949c2111c96cc7ff8"
+  },
+  "new_independent": {
+    "counts": {
+      "PASS": 18
+    },
+    "done_success": true,
+    "files": {
+      "independent_test.dart": {
+        "PASS": 18
+      }
+    },
+    "errors": [],
+    "log_sha256": "6168fd891e5e8f0408b03b59a4461242798635e5802c498c1c26e35a049a9564"
+  },
+  "flutter_full": {
+    "counts": {
+      "PASS": 1503,
+      "SKIP": 2
+    },
+    "done_success": true,
+    "files": {
+      "coherent_get_dag_test.dart": {
+        "PASS": 91
+      },
+      "segmented_adapter_isolation_test.dart": {
+        "PASS": 23
+      },
+      "authoritative_acquisition_test.dart": {
+        "PASS": 57
+      },
+      "segmented_e4_provenance_test.dart": {
+        "PASS": 11
+      },
+      "segmented_e4_handoff_test.dart": {
+        "PASS": 35
+      },
+      "segmented_publication_crash_test.dart": {
+        "PASS": 16
+      },
+      "t66a_payload_test.dart": {
+        "SKIP": 2
+      },
+      "offline_persistence_test.dart": {
+        "PASS": 9
+      },
+      "local_snapshot_repository_test.dart": {
+        "PASS": 7
+      },
+      "notification_models_test.dart": {
+        "PASS": 2
+      },
+      "offline_notification_identity_test.dart": {
+        "PASS": 5
+      },
+      "notification_registration_test.dart": {
+        "PASS": 11
+      },
+      "utility_discount_default_test.dart": {
+        "PASS": 1
+      },
+      "segmented_e4_ra01_test.dart": {
+        "PASS": 42
+      },
+      "segmented_i25_baseline_test.dart": {
+        "PASS": 1
+      },
+      "offline_state_projection_test.dart": {
+        "PASS": 18
+      },
+      "segmented_acquisition_store_test.dart": {
+        "PASS": 14
+      },
+      "authoritative_money_compatibility_test.dart": {
+        "PASS": 183
+      },
+      "authoritative_bundle_boundary_matrix_test.dart": {
+        "PASS": 1
+      },
+      "app_state_test.dart": {
+        "PASS": 3
+      },
+      "segmented_incremental_verification_test.dart": {
+        "PASS": 6
+      },
+      "segmented_authority_test.dart": {
+        "PASS": 19
+      },
+      "segmented_adapter_crash_test.dart": {
+        "PASS": 4
+      },
+      "segmented_transport_test.dart": {
+        "PASS": 30
+      },
+      "authoritative_bundle_test.dart": {
+        "PASS": 27
+      },
+      "segmented_protocol_test.dart": {
+        "PASS": 58
+      },
+      "offline_lineage_recovery_test.dart": {
+        "PASS": 8
+      },
+      "formatters_test.dart": {
+        "PASS": 2
+      },
+      "authoritative_bundle_trust_boundary_test.dart": {
+        "PASS": 47
+      },
+      "segmented_crash_test.dart": {
+        "PASS": 7
+      },
+      "segmented_e4_handoff_crash_test.dart": {
+        "PASS": 13
+      },
+      "segmented_root_pin_model_test.dart": {
+        "PASS": 2
+      },
+      "notification_discount_policy_test.dart": {
+        "PASS": 17
+      },
+      "segmented_e4_frozen_test.dart": {
+        "PASS": 19
+      },
+      "segmented_e4_a01_test.dart": {
+        "PASS": 21
+      },
+      "segmented_publication_test.dart": {
+        "PASS": 36
+      },
+      "segmented_fetch_crash_test.dart": {
+        "PASS": 3
+      },
+      "segmented_adapter_authority_test.dart": {
+        "PASS": 16
+      },
+      "authoritative_bundle_canonical_test.dart": {
+        "PASS": 90
+      },
+      "authoritative_bundle_admission_test.dart": {
+        "PASS": 26
+      },
+      "offline_refresh_test.dart": {
+        "PASS": 27
+      },
+      "apk_download_controller_test.dart": {
+        "PASS": 1
+      },
+      "segmented_money_correction_test.dart": {
+        "PASS": 166
+      },
+      "offline_reconciliation_test.dart": {
+        "PASS": 14
+      },
+      "segmented_store_test.dart": {
+        "PASS": 31
+      },
+      "segmented_adapters_test.dart": {
+        "PASS": 42
+      },
+      "offline_widget_submit_test.dart": {
+        "PASS": 13
+      },
+      "authoritative_bundle_unicode_test.dart": {
+        "PASS": 11
+      },
+      "segmented_http_integration_test.dart": {
+        "PASS": 5
+      },
+      "exact_money_domain_test.dart": {
+        "PASS": 5
+      },
+      "freeze_reaudit_outcome_test.dart": {
+        "PASS": 11
+      },
+      "segmented_i25_publication_test.dart": {
+        "PASS": 30
+      },
+      "segmented_diff_integration_test.dart": {
+        "PASS": 1
+      },
+      "submit_latency_diagnostic_test.dart": {
+        "PASS": 3
+      },
+      "family_screen_test.dart": {
+        "PASS": 5
+      },
+      "segmented_fetch_test.dart": {
+        "PASS": 72
+      },
+      "segmented_response_cleanup_test.dart": {
+        "PASS": 13
+      },
+      "date_picker_row_test.dart": {
+        "PASS": 1
+      },
+      "recurring_series_widget_test.dart": {
+        "PASS": 6
+      },
+      "authoritative_rebuild_pending_test.dart": {
+        "PASS": 11
+      },
+      "segmented_schema_correction_test.dart": {
+        "PASS": 45
+      },
+      "ai_audit_report_test.dart": {
+        "PASS": 9
+      }
+    },
+    "errors": [],
+    "log_sha256": "33638a1752c92729261730de33892f7cc3b417256e91de7764d99ac7d8f2e63c"
+  },
+  "new_provenance": {
+    "counts": {
+      "PASS": 6
+    },
+    "done_success": true,
+    "files": {
+      "provenance_test.dart": {
+        "PASS": 6
+      }
+    },
+    "errors": [],
+    "log_sha256": "ec3574c12d4c1fb1dcece8669dec1d2bad08b119908da2e06389383c15514e2b"
+  },
+  "phase_a_dart": {
+    "counts": {
+      "PASS": 36
+    },
+    "done_success": true,
+    "files": {
+      "independent_test.dart": {
+        "PASS": 35
+      },
+      "stale_recovery_test.dart": {
+        "PASS": 1
+      }
+    },
+    "errors": [],
+    "log_sha256": "f7b5660316465178cb8e9f964e933b38d61a68f9e2f600e277ace4b09125d016"
+  },
+  "a01_concurrent": {
+    "counts": {
+      "PASS": 1
+    },
+    "done_success": true,
+    "files": {
+      "concurrent_recovery_test.dart": {
+        "PASS": 1
+      }
+    },
+    "errors": [],
+    "log_sha256": "208432875e776d3af7fa7a4444a8c3b05eaaf146a1f3201e17521cb6aa314e19"
+  },
+  "p0_integration": {
+    "counts": {
+      "PASS": 18
+    },
+    "done_success": true,
+    "files": {
+      "integration_test.dart": {
+        "PASS": 18
+      }
+    },
+    "errors": [],
+    "log_sha256": "9fd995b0c046b5d1e635de0aa560ef5debb32b8182f071779e4fc5296ba6e1bf"
+  },
+  "historical_diagnostic": {
+    "counts": {
+      "PASS": 3,
+      "FAIL": 2
+    },
+    "done_success": false,
+    "files": {
+      "probe_test.dart": {
+        "PASS": 3,
+        "FAIL": 2
+      }
+    },
+    "errors": [
+      {
+        "name": "CURRENT full bundle admission rejects the server-approved original",
+        "error": "Expected: throws <Instance of 'FormatException'> with `message`: 'money must be an exact safe integer'\n  Actual: <Closure: () => AuthoritativeBundle>\n   Which: returned <Instance of 'AuthoritativeBundle'>\n"
+      },
+      {
+        "name": "CURRENT OfflineBaseline v4 parser rejects the same complete Snapshot",
+        "error": "Expected: throws <Instance of 'FormatException'> with `message`: 'money must be an exact safe integer'\n  Actual: <Closure: () => OfflineBaseline>\n   Which: returned <Instance of 'OfflineBaseline'>\n"
+      }
+    ],
+    "log_sha256": "ca2a46c08a8fefa1c2dbc61d3064b84f8abe685ae72934900d8dc2a50b397209"
+  },
+  "correction_cost": {
+    "counts": {
+      "PASS": 4
+    },
+    "done_success": true,
+    "files": {
+      "cost_test.dart": {
+        "PASS": 4
+      }
+    },
+    "errors": [],
+    "log_sha256": "ba82269b31e47bc722760ea59a7ddc106629fac2e7397bd58f0a6cba96d3c3c8"
+  },
+  "phase_a_cost": {
+    "counts": {
+      "PASS": 2
+    },
+    "done_success": true,
+    "files": {
+      "cost_test.dart": {
+        "PASS": 2
+      }
+    },
+    "errors": [],
+    "log_sha256": "2ea7e4bedd5442972c32be9cca12ce7488324ad1b7fded6cfa34c782841e9b4b"
+  },
+  "independent_cost": {
+    "counts": {
+      "PASS": 2
+    },
+    "done_success": true,
+    "files": {
+      "cost_test.dart": {
+        "PASS": 2
+      }
+    },
+    "errors": [],
+    "log_sha256": "f60f2426ceecf838636b76f6a0da068a945693a365ab877079d540958d660b8d"
+  },
+  "harness_first_compile": {
+    "counts": {
+      "FAIL": 1
+    },
+    "done_success": false,
+    "files": {
+      "independent_test.dart": {
+        "FAIL": 1
+      }
+    },
+    "errors": [
+      {
+        "name": "loading /home/hjkerman/codex/money-note/docs/benchmarks/t66e4-ra01-reaudit/independent_test.dart",
+        "error": "Failed to load \"/home/hjkerman/codex/money-note/docs/benchmarks/t66e4-ra01-reaudit/independent_test.dart\":\nCompilation failed for testPath=/home/hjkerman/codex/money-note/docs/benchmarks/t66e4-ra01-reaudit/independent_test.dart: ../docs/benchmarks/t66e4-ra01-reaudit/independent_test.dart:163:17: Error: Method not found: 'syncUuid'.\n      frozenId: syncUuid(),\n                ^^^^^^^^\n../docs/benchmarks/t66e4-ra01-reaudit/independent_test.dart:418:15: Error: Method not found: 'syncUuid'.\n            : syncUuid();\n              ^^^^^^^^\n."
+      }
+    ],
+    "log_sha256": "550d4b3a06fa0222ce49ff96831385a31c0bd09ad6a345dab687c85d8a3d3b09"
+  },
+  "harness_overbroad_retention": {
+    "counts": {
+      "PASS": 17,
+      "FAIL": 1
+    },
+    "done_success": false,
+    "files": {
+      "independent_test.dart": {
+        "PASS": 17,
+        "FAIL": 1
+      }
+    },
+    "errors": [
+      {
+        "name": "NR02 alternating legacy/native transitions retain latest distinct lineage",
+        "error": "Expected: <true>\n  Actual: <false>\ngeneration_roots {generation_id: 73e033f7-f83a-4512-a26f-0de019163e5f, hash: ce36796c15a709e841d97c837a04a20105ad38c54e97c2258b623039e0209c84}\n"
+      }
+    ],
+    "log_sha256": "f6e35b2e07bccffab72ca3c983852ce5485e61c77c498a14690517aa5dec8760"
+  },
+  "harness_cost_compile_1": {
+    "counts": {
+      "FAIL": 1
+    },
+    "done_success": false,
+    "files": {
+      "cost_test.dart": {
+        "FAIL": 1
+      }
+    },
+    "errors": [
+      {
+        "name": "loading /home/hjkerman/codex/money-note/docs/benchmarks/t66e4-ra01-reaudit/cost_test.dart",
+        "error": "Failed to load \"/home/hjkerman/codex/money-note/docs/benchmarks/t66e4-ra01-reaudit/cost_test.dart\":\nCompilation failed for testPath=/home/hjkerman/codex/money-note/docs/benchmarks/t66e4-ra01-reaudit/cost_test.dart: /home/hjkerman/codex/money-note/docs/benchmarks/t66e4-ra01-reaudit/cost_test.dart:129:21: Error: 'SegmentedException' isn't a type.\n                isA<SegmentedException>().having(\n                    ^^^^^^^^^^^^^^^^^^\n/home/hjkerman/codex/money-note/docs/benchmarks/t66e4-ra01-reaudit/cost_test.dart:130:28: Error: The getter 'code' isn't defined for the type 'Object?'.\n - 'Object' is from 'dart:core'.\nTry correcting the name to the name of an existing getter, or defining a getter or field named 'code'.\n                  (e) => e.code,\n                           ^^^^\n."
+      }
+    ],
+    "log_sha256": "44549d29e1a0b9ad2a84c080ba93bd43de9359461e499c48c8749137ec7acd24"
+  },
+  "harness_cost_compile_2": {
+    "counts": {
+      "FAIL": 1
+    },
+    "done_success": false,
+    "files": {
+      "cost_test.dart": {
+        "FAIL": 1
+      }
+    },
+    "errors": [
+      {
+        "name": "loading /home/hjkerman/codex/money-note/docs/benchmarks/t66e4-ra01-reaudit/cost_test.dart",
+        "error": "Failed to load \"/home/hjkerman/codex/money-note/docs/benchmarks/t66e4-ra01-reaudit/cost_test.dart\":\nCompilation failed for testPath=/home/hjkerman/codex/money-note/docs/benchmarks/t66e4-ra01-reaudit/cost_test.dart: /home/hjkerman/codex/money-note/docs/benchmarks/t66e4-ra01-reaudit/cost_test.dart:130:21: Error: 'SegmentedException' isn't a type.\n                isA<SegmentedException>().having(\n                    ^^^^^^^^^^^^^^^^^^\n/home/hjkerman/codex/money-note/docs/benchmarks/t66e4-ra01-reaudit/cost_test.dart:131:28: Error: The getter 'code' isn't defined for the type 'Object?'.\n - 'Object' is from 'dart:core'.\nTry correcting the name to the name of an existing getter, or defining a getter or field named 'code'.\n                  (e) => e.code,\n                           ^^^^\n."
+      }
+    ],
+    "log_sha256": "bbdf2628ae18862b9e723b900ea0ccac4646a50512328afbf962bae84a1d51e3"
+  },
+  "harness_provenance_compile": {
+    "counts": {
+      "FAIL": 1
+    },
+    "done_success": false,
+    "files": {
+      "provenance_test.dart": {
+        "FAIL": 1
+      }
+    },
+    "errors": [
+      {
+        "name": "loading /home/hjkerman/codex/money-note/docs/benchmarks/t66e4-ra01-reaudit/provenance_test.dart",
+        "error": "Failed to load \"/home/hjkerman/codex/money-note/docs/benchmarks/t66e4-ra01-reaudit/provenance_test.dart\":\nCompilation failed for testPath=/home/hjkerman/codex/money-note/docs/benchmarks/t66e4-ra01-reaudit/provenance_test.dart: ../docs/benchmarks/t66e4-ra01-reaudit/provenance_test.dart:22:8: Error: 'FrozenGeneration' isn't a type.\n  late FrozenGeneration frozen;\n       ^^^^^^^^^^^^^^^^\n../docs/benchmarks/t66e4-ra01-reaudit/provenance_test.dart:98:19: Error: The method 'acceptedGeneration' isn't defined for the type 'SegmentedClientStore'.\n - 'SegmentedClientStore' is from 'package:money_note_mobile/src/segmented/store.dart' ('lib/src/segmented/store.dart').\nTry correcting the name to the name of an existing method, or defining a method named 'acceptedGeneration'.\n          h.store.acceptedGeneration(),\n                  ^^^^^^^^^^^^^^^^^^\n../docs/benchmarks/t66e4-ra01-reaudit/provenance_test.dart:103:27: Error: The method 'acceptedGeneration' isn't defined for the type 'SegmentedClientStore'.\n - 'SegmentedClientStore' is from 'package:money_note_mobile/src/segmented/store.dart' ('lib/src/segmented/store.dart').\nTry correcting the name to the name of an existing method, or defining a method named 'acceptedGeneration'.\n        final t = h.store.acceptedGeneration().manifest!.target.toJson()\n                          ^^^^^^^^^^^^^^^^^^\n."
+      }
+    ],
+    "log_sha256": "6737fd604eeb9f3f3cb070b430f50b87480a9179f468f4974e1a20f2e8027f07"
+  },
+  "backend": {
+    "tests": 2855,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 2496.146
+  },
+  "new_crash": {
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 368.377
+  },
+  "phase_a_crash": {
+    "tests": 6,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 666.944
+  },
+  "a01_crash": {
+    "tests": 6,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 666.731
+  },
+  "ra01_crash": {
+    "tests": 7,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 689.489
+  },
+  "e2_cleanup": {
+    "tests": 5,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 7.846
+  },
+  "p0_replay": {
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 5.298
+  },
+  "historical_p0": {
+    "tests": 5,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 51.391
+  },
+  "e2_independent": {
+    "tests": 9,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 23.787
+  },
+  "backend_counts": {
+    "tests": 1315,
+    "subtests": 1540
+  },
+  "checks": {
+    "analyze": {
+      "exit": 0,
+      "seconds": 4.0217745549743995,
+      "command": [
+        "/home/hjkerman/.flutter/bin/flutter",
+        "analyze",
+        "--no-pub"
+      ]
+    },
+    "build": {
+      "exit": 0,
+      "seconds": 33.1218620580039,
+      "command": [
+        "/home/hjkerman/.flutter/bin/flutter",
+        "build",
+        "apk",
+        "--debug",
+        "--no-pub",
+        "--dart-define=MONEY_NOTE_API_BASE_URL=https://ra01.invalid"
+      ]
+    },
+    "format": {
+      "exit": 0,
+      "seconds": 0.2646882099797949,
+      "command": [
+        "/home/hjkerman/.flutter/bin/dart",
+        "format",
+        "--output=none",
+        "--set-exit-if-changed",
+        "mobile/lib/src/app_state.dart",
+        "mobile/lib/src/segmented/store_frozen.dart",
+        "mobile/lib/src/segmented/workspace.dart",
+        "mobile/test/segmented_e4_ra01_test.dart",
+        "docs/benchmarks/t66e4-ra01/crash_child_test.dart",
+        "docs/benchmarks/t66e4-ra01/cost_test.dart",
+        "docs/benchmarks/t66e4-ra01/corruption_selector_test.dart"
+      ]
+    },
+    "ruff": {
+      "exit": 0,
+      "seconds": 0.06436195300193503,
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "backend/app",
+        "backend/tests",
+        "scripts/local_deploy.py",
+        "scripts/tests",
+        "docs/benchmarks/t66e4-ra01"
+      ]
+    },
+    "compileall": {
+      "exit": 0,
+      "seconds": 0.06434156495379284,
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "compileall",
+        "-q",
+        "backend/app",
+        "backend/tests",
+        "scripts",
+        "docs/benchmarks/t66e4-ra01"
+      ]
+    },
+    "frontend_test": {
+      "exit": 0,
+      "seconds": 2.1220461030025035,
+      "command": [
+        "npm",
+        "--prefix",
+        "frontend",
+        "test"
+      ]
+    },
+    "frontend_build": {
+      "exit": 0,
+      "seconds": 6.878152452991344,
+      "command": [
+        "npm",
+        "--prefix",
+        "frontend",
+        "run",
+        "build"
+      ]
+    },
+    "p0_preservation": {
+      "exit": 0,
+      "seconds": 0.11435642797732726,
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "docs/benchmarks/t66e4-targeted/verify_preservation.py"
+      ]
+    },
+    "historical_hashes": {
+      "exit": 0,
+      "seconds": 0.003951595979742706,
+      "command": [
+        "sha256sum",
+        "-c",
+        "docs/benchmarks/t66e4-p0/preserved-history.sha256"
+      ]
+    },
+    "scripts": {
+      "exit": 0,
+      "seconds": 1.1664570309803821,
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "scripts/tests",
+        "--junitxml=/tmp/mn-e4-ra01-reaudit/checks/scripts.xml"
+      ]
+    },
+    "diff_check": {
+      "exit": 0,
+      "seconds": 0.008023843984119594,
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ]
+    },
+    "preservation": {
+      "unchanged": [
+        "AGENTS.md",
+        "docs/benchmarks/t66e4-a01-reaudit/README.md",
+        "docs/benchmarks/t66e4-a01-reaudit/cases.json",
+        "docs/benchmarks/t66e4-a01-reaudit/collect.py",
+        "docs/benchmarks/t66e4-a01-reaudit/cost-comparison.json",
+        "docs/benchmarks/t66e4-a01-reaudit/cost_test.dart",
+        "docs/benchmarks/t66e4-a01-reaudit/crashes.json",
+        "docs/benchmarks/t66e4-a01-reaudit/finding-e4-ra01.json",
+        "docs/benchmarks/t66e4-a01-reaudit/fresh_cost_test.dart",
+        "docs/benchmarks/t66e4-a01-reaudit/independent_test.dart",
+        "docs/benchmarks/t66e4-a01-reaudit/inventory.json",
+        "docs/benchmarks/t66e4-a01-reaudit/measure.py",
+        "docs/benchmarks/t66e4-a01-reaudit/new-cost.json",
+        "docs/benchmarks/t66e4-a01-reaudit/observe_request.py",
+        "docs/benchmarks/t66e4-a01-reaudit/operation-observation.json",
+        "docs/benchmarks/t66e4-a01-reaudit/original-cost.json",
+        "docs/benchmarks/t66e4-a01-reaudit/original-reproducer.json",
+        "docs/benchmarks/t66e4-a01-reaudit/persisted.json",
+        "docs/benchmarks/t66e4-a01-reaudit/preservation.json",
+        "docs/benchmarks/t66e4-a01-reaudit/summary.json",
+        "docs/benchmarks/t66e4-a01/README.md",
+        "docs/benchmarks/t66e4-a01/collect.py",
+        "docs/benchmarks/t66e4-a01/concurrent-recovery.json",
+        "docs/benchmarks/t66e4-a01/concurrent_recovery_test.dart",
+        "docs/benchmarks/t66e4-a01/cost-comparison-final.json",
+        "docs/benchmarks/t66e4-a01/cost-comparison.json",
+        "docs/benchmarks/t66e4-a01/cost-final.json",
+        "docs/benchmarks/t66e4-a01/cost.json",
+        "docs/benchmarks/t66e4-a01/crash_child_test.dart",
+        "docs/benchmarks/t66e4-a01/crashes-final.json",
+        "docs/benchmarks/t66e4-a01/crashes-strict.json",
+        "docs/benchmarks/t66e4-a01/crashes.json",
+        "docs/benchmarks/t66e4-a01/reproducer-final.json",
+        "docs/benchmarks/t66e4-a01/reproducer.json",
+        "docs/benchmarks/t66e4-a01/session-exits.json",
+        "docs/benchmarks/t66e4-a01/summary.json",
+        "docs/benchmarks/t66e4-a01/test_crash.py",
+        "docs/benchmarks/t66e4-a01/validate.py",
+        "docs/benchmarks/t66e4-audit/README.md",
+        "docs/benchmarks/t66e4-audit/collect.py",
+        "docs/benchmarks/t66e4-audit/cost.json",
+        "docs/benchmarks/t66e4-audit/cost_test.dart",
+        "docs/benchmarks/t66e4-audit/crash.json",
+        "docs/benchmarks/t66e4-audit/crash_child_test.dart",
+        "docs/benchmarks/t66e4-audit/environment.json",
+        "docs/benchmarks/t66e4-audit/finding-e4-a01.json",
+        "docs/benchmarks/t66e4-audit/independent-cases.json",
+        "docs/benchmarks/t66e4-audit/independent_test.dart",
+        "docs/benchmarks/t66e4-audit/measure.py",
+        "docs/benchmarks/t66e4-audit/persisted-state.json",
+        "docs/benchmarks/t66e4-audit/source-inventory.json",
+        "docs/benchmarks/t66e4-audit/stale_recovery_test.dart",
+        "docs/benchmarks/t66e4-audit/state_oracle.py",
+        "docs/benchmarks/t66e4-audit/summary.json",
+        "docs/benchmarks/t66e4-audit/test_crash.py",
+        "docs/benchmarks/t66e4-audit/test_p0_replay.py",
+        "docs/benchmarks/t66e4-audit/warm-query-plans.json",
+        "docs/benchmarks/t66e4-contract/README.md",
+        "docs/benchmarks/t66e4-contract/probe.py",
+        "docs/benchmarks/t66e4-contract/probe_test.dart",
+        "docs/benchmarks/t66e4-contract/summary.json",
+        "docs/benchmarks/t66e4-p0-audit/README.md",
+        "docs/benchmarks/t66e4-p0-audit/differential.dart",
+        "docs/benchmarks/t66e4-p0-audit/differential.json",
+        "docs/benchmarks/t66e4-p0-audit/inspect_state.py",
+        "docs/benchmarks/t66e4-p0-audit/integration_test.dart",
+        "docs/benchmarks/t66e4-p0-audit/legacy_read.dart",
+        "docs/benchmarks/t66e4-p0-audit/make_corpus.py",
+        "docs/benchmarks/t66e4-p0-audit/original-replay.json",
+        "docs/benchmarks/t66e4-p0-audit/persisted-state.json",
+        "docs/benchmarks/t66e4-p0-audit/protected-source.json",
+        "docs/benchmarks/t66e4-p0-audit/results.json",
+        "docs/benchmarks/t66e4-p0-audit/test_audit.py",
+        "docs/benchmarks/t66e4-p0-audit/worktree-targets.json",
+        "docs/benchmarks/t66e4-p0/README.md",
+        "docs/benchmarks/t66e4-p0/preserved-history.sha256",
+        "docs/benchmarks/t66e4-p0/summary.json",
+        "docs/benchmarks/t66e4-targeted/README.md",
+        "docs/benchmarks/t66e4-targeted/development-runs.json",
+        "docs/benchmarks/t66e4-targeted/frozen-legacy-work-final.json",
+        "docs/benchmarks/t66e4-targeted/frozen-sql-cost.json",
+        "docs/benchmarks/t66e4-targeted/frozen-sql-with-open.json",
+        "docs/benchmarks/t66e4-targeted/handoff_child_test.dart",
+        "docs/benchmarks/t66e4-targeted/measure.dart",
+        "docs/benchmarks/t66e4-targeted/regression-summary.json",
+        "docs/benchmarks/t66e4-targeted/source-hashes.json",
+        "docs/benchmarks/t66e4-targeted/verify_cost.py",
+        "docs/benchmarks/t66e4-targeted/verify_preservation.py",
+        "docs/benchmarks/t66e4/README.md",
+        "docs/benchmarks/t66e4/measure.dart",
+        "docs/benchmarks/t66e4/measure.py",
+        "docs/benchmarks/t66e4/pagination-before.json",
+        "docs/benchmarks/t66e4/read-cost-final.json",
+        "docs/benchmarks/t66e4/read-cost-with-storage.json",
+        "docs/benchmarks/t66e4/regression-summary.json",
+        "docs/benchmarks/t66e4/summarize_flutter.py",
+        "docs/benchmarks/t66e4/worktree-preservation.json",
+        "docs/t66/c/t66c-delta-sync-protocol.md",
+        "docs/t66e4-a01-correction.md",
+        "docs/t66e4-a01-independent-reaudit.md",
+        "docs/t66e4-implementation-resumption.md",
+        "docs/t66e4-implementation.md",
+        "docs/t66e4-independent-audit.md",
+        "docs/t66e4-p0-implementation.md",
+        "docs/t66e4-p0-independent-audit.md",
+        "mobile/lib/src/api_client.dart",
+        "mobile/lib/src/coherent_refresh_coordinator.dart",
+        "mobile/lib/src/money.dart",
+        "mobile/lib/src/offline/offline_data.dart",
+        "mobile/lib/src/offline/offline_lineage_validator.dart",
+        "mobile/lib/src/offline/offline_projection.dart",
+        "mobile/lib/src/offline/offline_store.dart",
+        "mobile/lib/src/offline/online_write_state.dart",
+        "mobile/lib/src/segmented/adapters.dart",
+        "mobile/lib/src/segmented/api_transport.dart",
+        "mobile/lib/src/segmented/c1.dart",
+        "mobile/lib/src/segmented/fetch.dart",
+        "mobile/lib/src/segmented/graph.dart",
+        "mobile/lib/src/segmented/incremental_verification.dart",
+        "mobile/lib/src/segmented/object.dart",
+        "mobile/lib/src/segmented/patricia_edit.dart",
+        "mobile/lib/src/segmented/protocol.dart",
+        "mobile/lib/src/segmented/store.dart",
+        "mobile/lib/src/segmented/store_publication.dart",
+        "mobile/lib/src/segmented/store_read.dart",
+        "mobile/lib/src/segmented/transport.dart",
+        "mobile/lib/src/segmented/verification.dart",
+        "mobile/lib/src/segmented/work.dart",
+        "mobile/test/authoritative_money_compatibility_test.dart",
+        "mobile/test/fixtures/segmented_money_vectors.json",
+        "mobile/test/fixtures/segmented_server_golden.json",
+        "mobile/test/offline_lineage_recovery_test.dart",
+        "mobile/test/offline_notification_identity_test.dart",
+        "mobile/test/offline_persistence_test.dart",
+        "mobile/test/offline_reconciliation_test.dart",
+        "mobile/test/offline_refresh_test.dart",
+        "mobile/test/offline_state_projection_test.dart",
+        "mobile/test/offline_widget_submit_test.dart",
+        "mobile/test/segmented_acquisition_store_test.dart",
+        "mobile/test/segmented_adapter_authority_test.dart",
+        "mobile/test/segmented_adapter_crash_test.dart",
+        "mobile/test/segmented_adapter_isolation_test.dart",
+        "mobile/test/segmented_adapters_test.dart",
+        "mobile/test/segmented_authority_test.dart",
+        "mobile/test/segmented_crash_test.dart",
+        "mobile/test/segmented_diff_integration_test.dart",
+        "mobile/test/segmented_e4_a01_test.dart",
+        "mobile/test/segmented_e4_frozen_test.dart",
+        "mobile/test/segmented_e4_handoff_crash_test.dart",
+        "mobile/test/segmented_e4_handoff_test.dart",
+        "mobile/test/segmented_e4_provenance_test.dart",
+        "mobile/test/segmented_fetch_crash_test.dart",
+        "mobile/test/segmented_fetch_test.dart",
+        "mobile/test/segmented_http_integration_test.dart",
+        "mobile/test/segmented_i25_baseline_test.dart",
+        "mobile/test/segmented_i25_publication_test.dart",
+        "mobile/test/segmented_incremental_verification_test.dart",
+        "mobile/test/segmented_money_correction_test.dart",
+        "mobile/test/segmented_protocol_test.dart",
+        "mobile/test/segmented_publication_crash_test.dart",
+        "mobile/test/segmented_publication_test.dart",
+        "mobile/test/segmented_response_cleanup_test.dart",
+        "mobile/test/segmented_root_pin_model_test.dart",
+        "mobile/test/segmented_schema_correction_test.dart",
+        "mobile/test/segmented_store_test.dart",
+        "mobile/test/segmented_transport_test.dart",
+        "mobile/test/support/offline_mode_fixtures.dart",
+        "mobile/test/support/segmented_crash_worker.dart",
+        "mobile/test/support/segmented_e2_fixture.dart",
+        "mobile/test/support/segmented_fetch_crash_worker.dart",
+        "mobile/test/support/segmented_fixture.dart",
+        "mobile/test/support/segmented_publication_crash_worker.dart",
+        "mobile/test/support/segmented_read_crash_child.dart"
+      ],
+      "authorized_product_paths": [
+        "mobile/lib/src/app_state.dart",
+        "mobile/lib/src/segmented/store_frozen.dart",
+        "mobile/lib/src/segmented/workspace.dart"
+      ]
+    }
+  },
+  "exits": {
+    "audit-ruff": "0",
+    "backend-full": "0",
+    "checks": "0",
+    "correction-cost": "0",
+    "e2-independent": "0",
+    "flutter-full": "0",
+    "full-format": "1",
+    "historical-diagnostic": "1",
+    "independent-cost-final": "0",
+    "independent-cost-rerun": "1",
+    "independent-cost": "1",
+    "new-crash": "0",
+    "new-independent-final": "0",
+    "new-independent-rerun": "1",
+    "new-independent": "1",
+    "original-three": "0",
+    "p0-historical": "1",
+    "phase-a-cost": "0",
+    "previous-independent": "0",
+    "provenance-final": "0",
+    "provenance": "1",
+    "regressions": "0"
+  },
+  "regression_exits": [
+    {
+      "name": "phase-a-dart",
+      "command": [
+        "/home/hjkerman/.flutter/bin/flutter",
+        "test",
+        "--no-pub",
+        "--machine",
+        "../docs/benchmarks/t66e4-audit/independent_test.dart",
+        "../docs/benchmarks/t66e4-audit/stale_recovery_test.dart"
+      ],
+      "exit": 0,
+      "seconds": 316.2329851600225
+    },
+    {
+      "name": "a01-concurrent",
+      "command": [
+        "/home/hjkerman/.flutter/bin/flutter",
+        "test",
+        "--no-pub",
+        "--machine",
+        "../docs/benchmarks/t66e4-a01/concurrent_recovery_test.dart"
+      ],
+      "exit": 0,
+      "seconds": 29.672133137006313
+    },
+    {
+      "name": "p0-integration",
+      "command": [
+        "/home/hjkerman/.flutter/bin/flutter",
+        "test",
+        "--no-pub",
+        "--machine",
+        "../docs/benchmarks/t66e4-p0-audit/integration_test.dart"
+      ],
+      "exit": 0,
+      "seconds": 12.589018383005168
+    },
+    {
+      "name": "phase-a-crash",
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66e4-audit/test_crash.py",
+        "--junitxml=/tmp/mn-e4-ra01-reaudit/regressions/phase-a-crash.xml"
+      ],
+      "exit": 0,
+      "seconds": 667.5384104879922
+    },
+    {
+      "name": "a01-crash",
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66e4-a01/test_crash.py",
+        "--junitxml=/tmp/mn-e4-ra01-reaudit/regressions/a01-crash.xml"
+      ],
+      "exit": 0,
+      "seconds": 667.3179291720153
+    },
+    {
+      "name": "ra01-crash",
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66e4-ra01/test_crash.py",
+        "--junitxml=/tmp/mn-e4-ra01-reaudit/regressions/ra01-crash.xml"
+      ],
+      "exit": 0,
+      "seconds": 690.0537375269923
+    },
+    {
+      "name": "e2-cleanup",
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66e2-a01/test_cleanup.py",
+        "--junitxml=/tmp/mn-e4-ra01-reaudit/regressions/e2-cleanup.xml"
+      ],
+      "exit": 0,
+      "seconds": 8.28148634696845
+    },
+    {
+      "name": "p0-replay",
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66e4-audit/test_p0_replay.py",
+        "--junitxml=/tmp/mn-e4-ra01-reaudit/regressions/p0-replay.xml"
+      ],
+      "exit": 0,
+      "seconds": 5.776717106986325
+    }
+  ],
+  "target_files_unchanged": true,
+  "historical_files_unchanged": true,
+  "product_diff_since_target": "",
+  "completion_guard": "COMPLETE"
+}

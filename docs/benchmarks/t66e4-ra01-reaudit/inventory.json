@@ -1,0 +1,336 @@
+{
+  "target": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+  "tree": "13ca80b840e584a7c61dc3a37feec7c3d31d92e0",
+  "refs": {
+    "HEAD": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+    "main": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+    "origin/main": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2"
+  },
+  "remote_main": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2\trefs/heads/main",
+  "status_before": "",
+  "diff": [
+    {
+      "path": "docs/benchmarks/t66e4-ra01/README.md",
+      "sha256": "3963d9155122afdbfa28bbec42909d45a58043a6cfbcdaa0ff7fe719bf734dd0",
+      "git_blob": "5e07e3fb9b33388f184534957ea0c16fcabd5b55"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-ra01/baseline-inventory.json",
+      "sha256": "e1e1f04f654707ec0f32c0d2e70a6c5dee8466c7a8e4b11d20333cdb6f34070b",
+      "git_blob": "79639f8e23c6af44d57ac1989acf4b140852d531"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-ra01/cases.json",
+      "sha256": "31c26f0b8f4abf2cc2353191b63342aaed7f809a96a44641622ee09573083ad0",
+      "git_blob": "e4bfcde50802238cc3d0c64175e4fae05bb01aa0"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-ra01/collect.py",
+      "sha256": "50b7d8dbab6da7665554c2dddb9da5aacf40436a99e3a1ddeb2b9622c2e5d902",
+      "git_blob": "eddbe47b1605fbb52c2f9108f52b278f330b11c1"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-ra01/corruption-selector.json",
+      "sha256": "f2b0d6b9be9a859d0ef0ab814464ae579fcbd5a64642a8d613f6eb439fbaf052",
+      "git_blob": "682672ab9527599fb23ef001682139823acc4132"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-ra01/corruption_selector_test.dart",
+      "sha256": "e2f8ca7164ad1fd45a34c0405caf9f76ebefe6533d3824b0d52869e652261dab",
+      "git_blob": "a22980cebd73b2aa94291e071c1401a9a329d54a"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-ra01/cost-after.json",
+      "sha256": "98e5907879c8a1876ca2b859c7a883b2690b3be1f6b7900a65f26b18f15f7811",
+      "git_blob": "1ee66f1f025d68a4310b994b3a9938403396cb9a"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-ra01/cost-before.json",
+      "sha256": "b0b6d8dffc259ac1c5a6003389630e888e4221816b92d19980829b5d1dea2e6a",
+      "git_blob": "d537869b125480e1b8fb96fbb8dcc5da85bfffde"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-ra01/cost-comparison.json",
+      "sha256": "f6f3c82c151edcef68e750dc88960a2f34557aa38937ee49fa000604786c7fc8",
+      "git_blob": "46c6dbc3aabc7876fdf6abfbf2aa3a457b1195f4"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-ra01/cost-fixture-observations.json",
+      "sha256": "5a70ffafadefa4ad3f56b3941d31467374d541fb3bf5f9b757c3f485d6777d42",
+      "git_blob": "81a10eae11f6ec4d585302d3f7e14868d5a60d23"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-ra01/cost_test.dart",
+      "sha256": "9fdf53d73efe27aabbdf91d964e9bdc7d46630cb9dfb01930ddb4e83c7c3f66d",
+      "git_blob": "fd87f82920d7c2a86dc4b90dcabbdb27223e1019"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-ra01/crash_child_test.dart",
+      "sha256": "018753412c43cb794e757ceeccabfa83fce60eebc0c76528d9c68d06bed8c589",
+      "git_blob": "287ff4aca094b74fd4ce64456c43cb3fdb64aae0"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-ra01/crashes.json",
+      "sha256": "36cb32c706f648942a7506fa490e2e10f36f5af4400b06607004dfb10f25f2c5",
+      "git_blob": "a9dfee2dbea7653cda8aa635af2265374f22cb94"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-ra01/measure.py",
+      "sha256": "d743997b4aa92041eac6cfa861893135470d55906490d613489363b3eded0209",
+      "git_blob": "b4b831d029b29a9659c3da3c18005d8225c15dfa"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-ra01/native-handoff-cost.json",
+      "sha256": "3ec6e063feca8be13aa13739d424af171c22b0b30e0d5e73d2f3f8a79bcc9369",
+      "git_blob": "760510ab3f266c23ae60229cb1aae3a5d51c7e38"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-ra01/observe_original_cost.py",
+      "sha256": "45acbf978345fe8a22bcc1d1a7a6a4a0b5a59c0f5832c0601f297b9fffaacabe",
+      "git_blob": "19f539eeaba15a4d76f8b5cc144975758aea770e"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-ra01/p0-differential.json",
+      "sha256": "4acd258f62a9bc126a7828975c941dbd73152c1cf88a2a8ab5616cbeac353e5c",
+      "git_blob": "4d325e5d09021e6d7776b77a3d912d258e28029a"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-ra01/reproducer-after.json",
+      "sha256": "9b7d219f06fdbaf10940197322eb5e8b5d5d9929a4d507b8b1b14ea894d2decf",
+      "git_blob": "b35af613d277d2127e2448d79d8eb843682009b5"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-ra01/reproducer-before.json",
+      "sha256": "8f709778711ff4ba85f514290ca1c5d1b20635a0821e0d08ff60ee389ad2b66b",
+      "git_blob": "801e3e27c879777d6c2a44ecc182dce93938fa64"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-ra01/session-exits.json",
+      "sha256": "23362c1a9cec207dae9c09fc6c69333808f9a49c71ea2dcd6bc03c62d134870b",
+      "git_blob": "8dd330519648e43de5bb9e3fc8fb587179f5b85a"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-ra01/source-hashes.json",
+      "sha256": "2844f126e7777fcc62e51b214930588932f01f9cea3d8e687482a7984ef36311",
+      "git_blob": "d17b0b9b95f549106e0f3bf57b7a686d2fffee46"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-ra01/summary.json",
+      "sha256": "94c3884eac711c305de46dc6897fcaee93b4ff4a5ab70d81e80ac3b00a9176b8",
+      "git_blob": "89489d5ee89057edb9940242d767d178b672854f"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-ra01/test_crash.py",
+      "sha256": "01dc81f499c08a504c5b2a91c44f7e95b35a117779036d0e83ca0fc5c9d92bf1",
+      "git_blob": "55096a0bfb0babd442c42cecc07bb5e09675924f"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-ra01/validate.py",
+      "sha256": "7f56bddb8b3d2514f81bde2bfb922c15e780bd2acc20b02606d6f4166c742d55",
+      "git_blob": "764e027764e880cf8b4cbd87f71513865477c498"
+    },
+    {
+      "path": "docs/t66e4-ra01-correction.md",
+      "sha256": "4bb9fe28697741c6171419d7f02b4c22d4efdb5dcc22e2d5f6c68143e1df7dca",
+      "git_blob": "b3f17d5e52c6ea29ad80d0a63f0f0409e2799888"
+    },
+    {
+      "path": "mobile/lib/src/app_state.dart",
+      "sha256": "898773a78a965f3550d64bab03f068d9797795fdef347bed5a87253c8de6660a",
+      "git_blob": "767d6a989b67a6dab7498aafebee36a29072edca"
+    },
+    {
+      "path": "mobile/lib/src/segmented/store_frozen.dart",
+      "sha256": "b80520fffb69fa0e133b1ec09c89d23cff8061c20666d9a96baad5d09356db84",
+      "git_blob": "5d414dadf65b0d8a329e7c854f5855e6f58794a0"
+    },
+    {
+      "path": "mobile/lib/src/segmented/workspace.dart",
+      "sha256": "b4a0f36c5b67ee99e21ab70e70bcd3090b33efd8ae72bc34d035b4a44342f988",
+      "git_blob": "69c3a80ac5c3b9e26bf09004146d6b224e6cfd78"
+    },
+    {
+      "path": "mobile/test/segmented_e4_ra01_test.dart",
+      "sha256": "ef5ab145fea7822c8d80d7d93f6f75963f8f409929f248dfc176f818e87c8f80",
+      "git_blob": "4d5f60b819fb0500f17eb63ca07fcd2558749124"
+    }
+  ],
+  "historical": [
+    {
+      "path": "docs/benchmarks/t66e4-a01-reaudit/README.md",
+      "sha256": "5c288fbeb08a56f95450b91a873d06549de9ad1a7759f33815d65a891f5a9e33"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-a01-reaudit/cases.json",
+      "sha256": "fe4d52648bcdf56d0ae06384b97188b240eec01d9fbf5d1a4484ee35483709a4"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-a01-reaudit/collect.py",
+      "sha256": "1e94074237bf06fc7cf7c741c3a149b4d86b59ae315348d7096eeec79435ec9b"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-a01-reaudit/cost-comparison.json",
+      "sha256": "2a1f9d090eb5d25d94836e9624e7616037cf2b772bc873791fc3bc4cf2000521"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-a01-reaudit/cost_test.dart",
+      "sha256": "2512ae88014faa1634015811eda913bcc8589a00d0e9b32a19816828ad24feef"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-a01-reaudit/crashes.json",
+      "sha256": "57721751e13fc7f59bf7c08f6ccfbfe4d676c3729ccfa691688bb0f6e4a3eace"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-a01-reaudit/finding-e4-ra01.json",
+      "sha256": "96a795294d0e6bf251c46850647f4af1485c415a864cd6a79ed8e01b9af3543d"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-a01-reaudit/fresh_cost_test.dart",
+      "sha256": "31e49081bc434c65efc353984702c1f8c99754b9fc64be6db078920cad97a7b3"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-a01-reaudit/independent_test.dart",
+      "sha256": "48daf543881cb141243dce9ac15f2320a399dc46291e9bd191698f97e75df20d"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-a01-reaudit/inventory.json",
+      "sha256": "ade613f621a8c67c6ad3e804ace3f9284d3d6f089d9163685de7a0a2fbbf0fed"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-a01-reaudit/measure.py",
+      "sha256": "d7be27de422db3728a949a165bcb1094da9991a22f97b58676f5d1d57de4eab7"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-a01-reaudit/new-cost.json",
+      "sha256": "b264862fa891e66b68195912ed974d705b80db0d6bd76549fe1b18564a6f77c6"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-a01-reaudit/observe_request.py",
+      "sha256": "7804a3297fcf6d3cd8914e74d2288cfdf08cd5d013db379fda4f3318cab629d7"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-a01-reaudit/operation-observation.json",
+      "sha256": "52572f1fce5dc79e69f802dcbfbd8a15674c2b02f1a42212a11658b5d11906a1"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-a01-reaudit/original-cost.json",
+      "sha256": "b27abe552b1850e0a8cd08e1606f61d5df6da0f8bcfc336831e39d14de6be026"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-a01-reaudit/original-reproducer.json",
+      "sha256": "642aa9160b548ef37454750dd58556ab93e5a1f2a815eeecb1fbbcd0db8e695e"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-a01-reaudit/persisted.json",
+      "sha256": "2a2d5aeab574bc456f1c5b4cd9608619df874ce3704835083d388f2f6271c8f6"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-a01-reaudit/preservation.json",
+      "sha256": "4b2d0bf44eca159f61f2f73330aa3bc7c4f15b114b596e9f9b1eeb501c32bea3"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-a01-reaudit/summary.json",
+      "sha256": "e0c43e54964457362d9606d9bec2ab5ee9ec17032b380d0304c1b2c16dceea66"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-audit/README.md",
+      "sha256": "c7d2e17d3026ab5b77bd5ffa416b426609db462235bbed163f8fbd61ea52b096"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-audit/collect.py",
+      "sha256": "739761cc22273d6fb423bd589822777f7e71fa31101acf56e77cec8aba5e911c"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-audit/cost.json",
+      "sha256": "53365ec7957caad6d1bb6538ed4ac30f203c0eccebdb6fa7bc611a21169df539"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-audit/cost_test.dart",
+      "sha256": "274a0b63452f8fe50c86eb6fa2fdfd6f3c81dc3054db3fefb97af6c7bd8d562c"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-audit/crash.json",
+      "sha256": "6e93c93e046034f14f538d462fd2f2121a8e4d374ea7092787734030e310253d"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-audit/crash_child_test.dart",
+      "sha256": "708cdffa631d5e0ff8cae0b856fd1d2ed44d9fa5dfee4c1e2ca9ae878722f9be"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-audit/environment.json",
+      "sha256": "ed7492693e521a1cf2fb2d7473a317e0cab54c086650ec9b8a2df3916151bc5a"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-audit/finding-e4-a01.json",
+      "sha256": "dbc543a961a22e63bb4f89283cfaf1342c68c41cdc6d43ad13a2a6f74de5a1ed"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-audit/independent-cases.json",
+      "sha256": "62abb450948bb428899c831884de377cdbe8e69a0fb7a695e53133cd92c4b2fc"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-audit/independent_test.dart",
+      "sha256": "da7547b848aed830873b7fc9381f424ae3a56765b118644ffcd993cd0a773287"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-audit/measure.py",
+      "sha256": "d7be27de422db3728a949a165bcb1094da9991a22f97b58676f5d1d57de4eab7"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-audit/persisted-state.json",
+      "sha256": "941df8453d5de7cecb5ed79b3956cbf153e3623798ab708bfcbc7055925ad48d"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-audit/source-inventory.json",
+      "sha256": "aa21c9379da48081cb7ad43f03db1f296e343ef85bedae4602432d453ac6fa61"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-audit/stale_recovery_test.dart",
+      "sha256": "117b2554dd489809814e600fcc61072d83d253b8605a754190aa2b07737b79a9"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-audit/state_oracle.py",
+      "sha256": "f6958e519085d366788bb3c711dc1113c5894ce8423074c70bbf9f24c9369e16"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-audit/summary.json",
+      "sha256": "77d0ef098f3bd0cfcd6e41d8ebbff5099f222b075d2a357c4779e80585069e71"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-audit/test_crash.py",
+      "sha256": "c3fbf1243eb3fadc0db3b7d5ffb0207312c38da5774514682a36787e990a854f"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-audit/test_p0_replay.py",
+      "sha256": "cdd795e4cef363a53454ae6d03dbe19796fb25c00e516cd5eb64f57ca899965e"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-audit/warm-query-plans.json",
+      "sha256": "a8f9eac5abe00768027bdedad7d014d1ca5da0c5ef522ce435f067735ca43802"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-contract/README.md",
+      "sha256": "c3829749dcc46f0c8dff7fc7ba1988f8f2e125ebab2325138bc1649ce051ca02"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-contract/probe.py",
+      "sha256": "73af6d49e0cf60ca66321d9e75108961288499c1f88879f51f9b4fe29a270147"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-contract/probe_test.dart",
+      "sha256": "599cd5c1e281e31fff1a454fdff079280f41101a5d98ae93cb826dbf8238b083"
+    },
+    {
+      "path": "docs/benchmarks/t66e4-contract/summary.json",
+      "sha256": "ab8a0095230616d8902a0f6841136618f1e886d31dbab09fa5414e0901d51aea"
+    },
+    {
+      "path": "docs/t66e4-a01-independent-reaudit.md",
+      "sha256": "c24e6a94bf8b512dd655fc6e2c99573fa4370d397841b8e479dda6115e7268af"
+    },
+    {
+      "path": "docs/t66e4-independent-audit.md",
+      "sha256": "17034ea419de2fd4f827adc63c7958360e7880bbf013928653afc63f9d9b032f"
+    }
+  ]
+}

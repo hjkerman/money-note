@@ -1,0 +1,4055 @@
+{
+  "new-crash/alternating_legacy_before_native.json": {
+    "boundary": "alternating_legacy_before_native",
+    "saved": {
+      "target": {
+        "context": {
+          "evaluation_date": "2026-10-05",
+          "financial_engine": "f34aef259c801ada33ccb88cfb103ee6654fb4467c49a66ce509f2239ffe449d",
+          "timezone_offset_minutes": 540
+        },
+        "control_ref": {
+          "bytes": "3178",
+          "hash": "c355114946cc5476ea69955b322f425ba7f64caa3627fc2a0bd7d15cdef6ca4a"
+        },
+        "hot_ref": {
+          "bytes": "6365",
+          "hash": "47df503a52d1c4e1e8dc34a845de32c056def9730a8f84e70f260d668f48b736"
+        },
+        "index_ref": {
+          "bytes": "394",
+          "hash": "105e70f330da3abde5fd661788b4f5855952e3efc510d7b08bbbdd98fe6aa825"
+        },
+        "ns": {
+          "dataset_id": "8ffd7027-b533-4535-b058-7060e4893fff",
+          "epoch": "3211b832-a062-4d32-a4cd-08272001937e",
+          "server_id": "53a56657-95b8-4975-9c51-d0282d589d38"
+        },
+        "principal_id": 1,
+        "raw_ref": {
+          "bytes": "2642",
+          "hash": "b4ed0ff05c4fd119a68a67a7158bd5114a6477883c6931cd2550072041a37f7c"
+        },
+        "revision": "32",
+        "sync_root": "4e14a95a6351b9b229fd064cf245e3c4fb3fa07ea43e540b4e3c237e2449b91e",
+        "versions": {
+          "canon": 1,
+          "policy_registry": "18be2d36483467e9250d568bcbfed6458c15a364fa99896eb1b8daad05db043d",
+          "projection_schema": "89e2bd7bf3f1683ddff95a0b33b1e9ff08ff19d5a001f4007c40ed4c6c5b3437",
+          "raw_schema": "b948a0e33fc0abb6957af76beac643ac7131d2fcac3ab53265c02d16783f953e",
+          "recurring_ownership": 1,
+          "snapshot": 7,
+          "structural": 1,
+          "sync": 1
+        }
+      },
+      "store": "/tmp/pytest-of-hjkerman/pytest-56/test_independent_native_proven2/owned/segmented-store-v1/449d862bb8a139901d82759d330e38011b4f1749106a32ef6a10203ec6c7ebf3.sqlite",
+      "installed": "ec4d2f88-6669-4fed-9f1c-a365d331fcbe",
+      "frozen": "b75936d5-920e-4473-a2fd-b09a2cea08c0",
+      "lineage": "bd67fcd6c9e2f9452e93fa6f71f5d67606360d96b1e87528804cce74cd6deec2",
+      "fingerprint": "123a3126b0dcbd2a98c0ab53753c7c204088ccf29d69b5c6582149afc2b0ef4b",
+      "baseline": {
+        "bytes": 16929,
+        "sha256": "f90c4df7c93b02fa32377564fab27e431e8930575fe759204f317548842afe17"
+      },
+      "pending": {
+        "bytes": 118,
+        "sha256": "152bca9d189929629742b885d8048da237ae0fdb9f7dec8857181a35c3d928cd"
+      },
+      "source": {
+        "storage": "segmented-store/1",
+        "namespace": "449d862bb8a139901d82759d330e38011b4f1749106a32ef6a10203ec6c7ebf3",
+        "frozen": "b75936d5-920e-4473-a2fd-b09a2cea08c0",
+        "binding": "db52a3cb2a9d43942a1c53ef414d7b86f52d59e26b290d019e3dc6f84a4fb16e",
+        "previous_file": "abe8073249d748c84f189bdf0b1ee0d52eb5a1fff0a7fd3218034ed381c8aa08",
+        "previous_source": {
+          "storage": "segmented-store/1",
+          "kind": "segmented",
+          "namespace": "449d862bb8a139901d82759d330e38011b4f1749106a32ef6a10203ec6c7ebf3",
+          "generation": "ec4d2f88-6669-4fed-9f1c-a365d331fcbe",
+          "sequence": 2,
+          "legacy_frozen": "2ebd5642-bbb0-4630-9590-070d63f67611",
+          "legacy_binding": "37fddf14a9101b46162e9a49a5b34b8ce23d2fe257d7d6af64125386afdc3af3",
+          "previous_installation": "48df8948-587b-44b4-843b-75fb4eded585",
+          "previous_sequence": 1,
+          "previous_source": null,
+          "previous_file": null
+        }
+      }
+    },
+    "before_reopen": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "40d6f0f9-e2da-45b4-9706-9e7578b96edb",
+          "previous_id": "ec4d2f88-6669-4fed-9f1c-a365d331fcbe",
+          "sequence": 3,
+          "checksum": "ca53a7b2d27d28ce2df19c54ed5b8f6d01d5ae3357a51328ec63a6e66108cfe6"
+        },
+        "installed": {
+          "id": 1,
+          "generation_id": "ec4d2f88-6669-4fed-9f1c-a365d331fcbe",
+          "previous_id": "48df8948-587b-44b4-843b-75fb4eded585",
+          "sequence": 2,
+          "checksum": "e2ed31df7e64006b969f67c1deca974660114e49f81616b3906b51a60bac3ac8"
+        }
+      },
+      "frozen": [
+        {
+          "id": "2ebd5642-bbb0-4630-9590-070d63f67611",
+          "generation": "48df8948-587b-44b4-843b-75fb4eded585",
+          "state": "installed",
+          "binding": {
+            "baseline_sha256": "2ad63503100a26fb0fb1f79482cad7957e6a889184962d6f81df081bd397bfdb",
+            "generation": "48df8948-587b-44b4-843b-75fb4eded585",
+            "legacy_fingerprint": "c1b2247884648b9eb689a92c1f830ebf360c081bc784ff6608018010679666ed",
+            "legacy_lineage": "0304133d7c1e875ea7dc29d2f6b36414e2f2c8633fbfd988d8ad5e5b27bfdba3",
+            "namespace": "449d862bb8a139901d82759d330e38011b4f1749106a32ef6a10203ec6c7ebf3",
+            "resolved_id": null,
+            "sequence": 1,
+            "snapshot_id": "ea965677d10e01003ea8ad13d4ff367274b41e67103bedd298cca539601cde08",
+            "synced_at": "2026-10-16T02:06:24.991695Z",
+            "user": {
+              "display_name": "Owner",
+              "id": 1,
+              "share_pin_needs_change": false,
+              "username": "owner"
+            },
+            "version": 1
+          }
+        },
+        {
+          "id": "b75936d5-920e-4473-a2fd-b09a2cea08c0",
+          "generation": "40d6f0f9-e2da-45b4-9706-9e7578b96edb",
+          "state": "prepared",
+          "binding": {
+            "baseline_sha256": "3fadea7ae484b098ec0b1efe72c3cb03ef149ee3fe5b431f99d97d88e5a363cf",
+            "generation": "40d6f0f9-e2da-45b4-9706-9e7578b96edb",
+            "legacy_fingerprint": "123a3126b0dcbd2a98c0ab53753c7c204088ccf29d69b5c6582149afc2b0ef4b",
+            "legacy_lineage": "bd67fcd6c9e2f9452e93fa6f71f5d67606360d96b1e87528804cce74cd6deec2",
+            "namespace": "449d862bb8a139901d82759d330e38011b4f1749106a32ef6a10203ec6c7ebf3",
+            "resolved_id": null,
+            "sequence": 3,
+            "snapshot_id": "ea7ff9db8de9c2178caf1e7fd580bddd3426aa25e0b106fa1a94faac94d8fcc6",
+            "synced_at": "2026-10-16T02:06:41.324844Z",
+            "user": {
+              "display_name": "Owner",
+              "id": 1,
+              "share_pin_needs_change": false,
+              "username": "owner"
+            },
+            "version": 1
+          }
+        }
+      ],
+      "objects": 180,
+      "pins": 12,
+      "generations": {
+        "40d6f0f9-e2da-45b4-9706-9e7578b96edb": {
+          "sync_root": "4e14a95a6351b9b229fd064cf245e3c4fb3fa07ea43e540b4e3c237e2449b91e",
+          "objects": 158,
+          "receipt": "c54756cab35ac6e2616c619b2ddb19a32fb825a5eb62902ff1a505b8dfb2c7ac",
+          "closure_count": 158,
+          "closure_digest": "c14bd7de0ba6a02fcdae98addf1b595ee21674bee937a36f3118e11d84706232",
+          "source_counts": {
+            "ledger_entries": 9,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "8967aad58fe1055d20f63a4e200356ef5f739aaef7d17f38f1a7e88da6b04451",
+          "control_digest": "b80708b19f7a5e60bdd102b9a7498843684fc5b614e08f90031373bd4759f0a2"
+        },
+        "48df8948-587b-44b4-843b-75fb4eded585": {
+          "sync_root": "c7fb263ac17b17de63d1c7b2e64ab41b5ca8fa2a80530ca0870acc729dcf26ed",
+          "objects": 158,
+          "receipt": "3dd09ae6c2c47354a3e246d0d9ba3eb4b365f95c664920d06d7e83db186c1bcb",
+          "closure_count": 158,
+          "closure_digest": "508d6b10d1fa00651ed9efb8f0bda8bd58e0b5e972fec9b8872eebe87540c398",
+          "source_counts": {
+            "ledger_entries": 9,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "ea8b144da4bad9ec9c7aaaf9150957bf3b286ec60d6e16508c51c2d307930fc3",
+          "control_digest": "b80708b19f7a5e60bdd102b9a7498843684fc5b614e08f90031373bd4759f0a2"
+        },
+        "ec4d2f88-6669-4fed-9f1c-a365d331fcbe": {
+          "sync_root": "d13553d3082e4296cb0a43b5c8c4473eb69b405585ffa39961d34e1ee54abebf",
+          "objects": 158,
+          "receipt": "1100941e2b80b5b82aa1a1ad320095ffe4f046e1b21bb9b3a079bffd20a02805",
+          "closure_count": 158,
+          "closure_digest": "8d00258222c21bb80aedc3d41825afc62bac645c526cf7f5c91976186d2065e0",
+          "source_counts": {
+            "ledger_entries": 9,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "9920b0ecb71bd09a26a7d50b08cbe71c51219756194177fc2cceef818df77089",
+          "control_digest": "b80708b19f7a5e60bdd102b9a7498843684fc5b614e08f90031373bd4759f0a2"
+        }
+      }
+    },
+    "after_reopen": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "40d6f0f9-e2da-45b4-9706-9e7578b96edb",
+          "previous_id": "ec4d2f88-6669-4fed-9f1c-a365d331fcbe",
+          "sequence": 3,
+          "checksum": "ca53a7b2d27d28ce2df19c54ed5b8f6d01d5ae3357a51328ec63a6e66108cfe6"
+        },
+        "installed": {
+          "id": 1,
+          "generation_id": "ec4d2f88-6669-4fed-9f1c-a365d331fcbe",
+          "previous_id": "48df8948-587b-44b4-843b-75fb4eded585",
+          "sequence": 2,
+          "checksum": "e2ed31df7e64006b969f67c1deca974660114e49f81616b3906b51a60bac3ac8"
+        }
+      },
+      "frozen": [
+        {
+          "id": "b75936d5-920e-4473-a2fd-b09a2cea08c0",
+          "generation": "40d6f0f9-e2da-45b4-9706-9e7578b96edb",
+          "state": "installed",
+          "binding": {
+            "baseline_sha256": "3fadea7ae484b098ec0b1efe72c3cb03ef149ee3fe5b431f99d97d88e5a363cf",
+            "generation": "40d6f0f9-e2da-45b4-9706-9e7578b96edb",
+            "legacy_fingerprint": "123a3126b0dcbd2a98c0ab53753c7c204088ccf29d69b5c6582149afc2b0ef4b",
+            "legacy_lineage": "bd67fcd6c9e2f9452e93fa6f71f5d67606360d96b1e87528804cce74cd6deec2",
+            "namespace": "449d862bb8a139901d82759d330e38011b4f1749106a32ef6a10203ec6c7ebf3",
+            "resolved_id": null,
+            "sequence": 3,
+            "snapshot_id": "ea7ff9db8de9c2178caf1e7fd580bddd3426aa25e0b106fa1a94faac94d8fcc6",
+            "synced_at": "2026-10-16T02:06:41.324844Z",
+            "user": {
+              "display_name": "Owner",
+              "id": 1,
+              "share_pin_needs_change": false,
+              "username": "owner"
+            },
+            "version": 1
+          }
+        }
+      ],
+      "objects": 180,
+      "pins": 12,
+      "generations": {
+        "40d6f0f9-e2da-45b4-9706-9e7578b96edb": {
+          "sync_root": "4e14a95a6351b9b229fd064cf245e3c4fb3fa07ea43e540b4e3c237e2449b91e",
+          "objects": 158,
+          "receipt": "c54756cab35ac6e2616c619b2ddb19a32fb825a5eb62902ff1a505b8dfb2c7ac",
+          "closure_count": 158,
+          "closure_digest": "c14bd7de0ba6a02fcdae98addf1b595ee21674bee937a36f3118e11d84706232",
+          "source_counts": {
+            "ledger_entries": 9,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "8967aad58fe1055d20f63a4e200356ef5f739aaef7d17f38f1a7e88da6b04451",
+          "control_digest": "b80708b19f7a5e60bdd102b9a7498843684fc5b614e08f90031373bd4759f0a2"
+        },
+        "48df8948-587b-44b4-843b-75fb4eded585": {
+          "sync_root": "c7fb263ac17b17de63d1c7b2e64ab41b5ca8fa2a80530ca0870acc729dcf26ed",
+          "objects": 158,
+          "receipt": "3dd09ae6c2c47354a3e246d0d9ba3eb4b365f95c664920d06d7e83db186c1bcb",
+          "closure_count": 158,
+          "closure_digest": "508d6b10d1fa00651ed9efb8f0bda8bd58e0b5e972fec9b8872eebe87540c398",
+          "source_counts": {
+            "ledger_entries": 9,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "ea8b144da4bad9ec9c7aaaf9150957bf3b286ec60d6e16508c51c2d307930fc3",
+          "control_digest": "b80708b19f7a5e60bdd102b9a7498843684fc5b614e08f90031373bd4759f0a2"
+        },
+        "ec4d2f88-6669-4fed-9f1c-a365d331fcbe": {
+          "sync_root": "d13553d3082e4296cb0a43b5c8c4473eb69b405585ffa39961d34e1ee54abebf",
+          "objects": 158,
+          "receipt": "1100941e2b80b5b82aa1a1ad320095ffe4f046e1b21bb9b3a079bffd20a02805",
+          "closure_count": 158,
+          "closure_digest": "8d00258222c21bb80aedc3d41825afc62bac645c526cf7f5c91976186d2065e0",
+          "source_counts": {
+            "ledger_entries": 9,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "9920b0ecb71bd09a26a7d50b08cbe71c51219756194177fc2cceef818df77089",
+          "control_digest": "b80708b19f7a5e60bdd102b9a7498843684fc5b614e08f90031373bd4759f0a2"
+        }
+      },
+      "legacy": {
+        "fingerprint": "123a3126b0dcbd2a98c0ab53753c7c204088ccf29d69b5c6582149afc2b0ef4b",
+        "lineage": "bd67fcd6c9e2f9452e93fa6f71f5d67606360d96b1e87528804cce74cd6deec2",
+        "sha256": "f90c4df7c93b02fa32377564fab27e431e8930575fe759204f317548842afe17"
+      }
+    },
+    "fresh_process": {
+      "installed": "ec4d2f88-6669-4fed-9f1c-a365d331fcbe",
+      "frozen": "b75936d5-920e-4473-a2fd-b09a2cea08c0",
+      "readable": true,
+      "r1": "CLOSED"
+    }
+  },
+  "new-crash/first_after_commit.json": {
+    "boundary": "first_after_commit",
+    "saved": {
+      "target": {
+        "context": {
+          "evaluation_date": "2026-10-05",
+          "financial_engine": "f34aef259c801ada33ccb88cfb103ee6654fb4467c49a66ce509f2239ffe449d",
+          "timezone_offset_minutes": 540
+        },
+        "control_ref": {
+          "bytes": "3178",
+          "hash": "2d648f0975818998927c9d78f4c0d930edf92ae01604fd92ca9a6a2e360569c6"
+        },
+        "hot_ref": {
+          "bytes": "6273",
+          "hash": "a8ad6e141c8941d949c1221627919f989fbca26721895e255a9b848295ecf9ca"
+        },
+        "index_ref": {
+          "bytes": "394",
+          "hash": "8c5264c1a363b4d607d821182d82299bdbad225411ff9d20a34884e92405f38b"
+        },
+        "ns": {
+          "dataset_id": "a7640c4e-ae27-40fb-a452-e6d6f9a0f8d0",
+          "epoch": "bba3accc-e689-4a45-acf3-9338e13f6a5e",
+          "server_id": "a4ea976b-d8c9-4585-bc9f-f0b679e563bc"
+        },
+        "principal_id": 1,
+        "raw_ref": {
+          "bytes": "2642",
+          "hash": "4395ac8de71ffd393bc3a3e29a9b5c4eed5e92046362fa76311aad57ae64a45a"
+        },
+        "revision": "30",
+        "sync_root": "1e3b4408d3465bb0b6847f35e34d6a08346ebfc0c35b16036fd6e786f30dc5be",
+        "versions": {
+          "canon": 1,
+          "policy_registry": "18be2d36483467e9250d568bcbfed6458c15a364fa99896eb1b8daad05db043d",
+          "projection_schema": "89e2bd7bf3f1683ddff95a0b33b1e9ff08ff19d5a001f4007c40ed4c6c5b3437",
+          "raw_schema": "b948a0e33fc0abb6957af76beac643ac7131d2fcac3ab53265c02d16783f953e",
+          "recurring_ownership": 1,
+          "snapshot": 7,
+          "structural": 1,
+          "sync": 1
+        }
+      },
+      "store": "/tmp/pytest-of-hjkerman/pytest-56/test_independent_native_proven1/owned/segmented-store-v1/ca77db0dda32a6ff92599435a513381b958d87e29d5f611a43496757b1a93cd8.sqlite",
+      "installed": "2c457210-80db-4610-be6f-da31d4880e58",
+      "frozen": null,
+      "lineage": null,
+      "fingerprint": null,
+      "baseline": null,
+      "pending": {
+        "bytes": 118,
+        "sha256": "16de9c0146300b4c0ab628a7d041fa51e4a183bf0ad866f9af2467bb08e2d3c6"
+      },
+      "source": {
+        "storage": "segmented-store/1",
+        "kind": "segmented",
+        "namespace": "ca77db0dda32a6ff92599435a513381b958d87e29d5f611a43496757b1a93cd8",
+        "generation": "2c457210-80db-4610-be6f-da31d4880e58",
+        "sequence": 1,
+        "legacy_frozen": null,
+        "legacy_binding": null,
+        "previous_installation": null,
+        "previous_sequence": null,
+        "previous_source": null
+      }
+    },
+    "before_reopen": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "2c457210-80db-4610-be6f-da31d4880e58",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "9b8ff579075534893f3ea65e4968a102e29837ff9644c6c06ddf49d098b14852"
+        },
+        "installed": {
+          "id": 1,
+          "generation_id": "2c457210-80db-4610-be6f-da31d4880e58",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "9b8ff579075534893f3ea65e4968a102e29837ff9644c6c06ddf49d098b14852"
+        }
+      },
+      "frozen": [],
+      "objects": 158,
+      "pins": 4,
+      "generations": {
+        "2c457210-80db-4610-be6f-da31d4880e58": {
+          "sync_root": "1e3b4408d3465bb0b6847f35e34d6a08346ebfc0c35b16036fd6e786f30dc5be",
+          "objects": 158,
+          "receipt": "c765d80bcd0eaa974acc051c34ba088044d21bc5bd3e1b21129e0505fdeeadf6",
+          "closure_count": 158,
+          "closure_digest": "5f2de07409a8a05b00372391fcef7e5abe9a2b0dc9d23baccb0d3ad44101eac7",
+          "source_counts": {
+            "ledger_entries": 9,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "cc7b64fe6262e9da276774dc3ff3e48279c453f5162d668e927a16c611575d51",
+          "control_digest": "dfec192e2f8efca99141bf93a8b3c38762c845d9a1ed4c572901580fcdfeee55"
+        }
+      }
+    },
+    "after_reopen": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "2c457210-80db-4610-be6f-da31d4880e58",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "9b8ff579075534893f3ea65e4968a102e29837ff9644c6c06ddf49d098b14852"
+        },
+        "installed": {
+          "id": 1,
+          "generation_id": "2c457210-80db-4610-be6f-da31d4880e58",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "9b8ff579075534893f3ea65e4968a102e29837ff9644c6c06ddf49d098b14852"
+        }
+      },
+      "frozen": [],
+      "objects": 158,
+      "pins": 4,
+      "generations": {
+        "2c457210-80db-4610-be6f-da31d4880e58": {
+          "sync_root": "1e3b4408d3465bb0b6847f35e34d6a08346ebfc0c35b16036fd6e786f30dc5be",
+          "objects": 158,
+          "receipt": "c765d80bcd0eaa974acc051c34ba088044d21bc5bd3e1b21129e0505fdeeadf6",
+          "closure_count": 158,
+          "closure_digest": "5f2de07409a8a05b00372391fcef7e5abe9a2b0dc9d23baccb0d3ad44101eac7",
+          "source_counts": {
+            "ledger_entries": 9,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "cc7b64fe6262e9da276774dc3ff3e48279c453f5162d668e927a16c611575d51",
+          "control_digest": "dfec192e2f8efca99141bf93a8b3c38762c845d9a1ed4c572901580fcdfeee55"
+        }
+      }
+    },
+    "fresh_process": {
+      "installed": "2c457210-80db-4610-be6f-da31d4880e58",
+      "frozen": null,
+      "readable": true,
+      "r1": "CLOSED"
+    }
+  },
+  "new-crash/first_before_commit.json": {
+    "boundary": "first_before_commit",
+    "saved": {
+      "target": {
+        "context": {
+          "evaluation_date": "2026-10-05",
+          "financial_engine": "f34aef259c801ada33ccb88cfb103ee6654fb4467c49a66ce509f2239ffe449d",
+          "timezone_offset_minutes": 540
+        },
+        "control_ref": {
+          "bytes": "3178",
+          "hash": "23813a8f41c47452b30f2b23e10bdc64be929ea87fbaa0682a29ae71e678e847"
+        },
+        "hot_ref": {
+          "bytes": "6273",
+          "hash": "41d3ca66115689393c6fdb4bcd0a15084c250d3c1a86b7b2231c50f32024d29d"
+        },
+        "index_ref": {
+          "bytes": "394",
+          "hash": "fccbb6ab0e05c969fa5e92bc87150e3a1a715c1cd5546521d3475915d2a7d47d"
+        },
+        "ns": {
+          "dataset_id": "2536daf2-2bfa-4530-ae44-a4b546e47e22",
+          "epoch": "a1409477-f24a-4f8c-9481-13a24af7b82f",
+          "server_id": "87a2302a-c83e-47b0-a8fb-4f1899e7172d"
+        },
+        "principal_id": 1,
+        "raw_ref": {
+          "bytes": "2642",
+          "hash": "ed6edfd41eb482a1ba7a34ae91fec069d1ec304d4c14ea87cad97fddadc5158d"
+        },
+        "revision": "30",
+        "sync_root": "7486e7c85a8b4440440d0708eef56a3c33f44ef49b3f01ce256ef83b4911d28e",
+        "versions": {
+          "canon": 1,
+          "policy_registry": "18be2d36483467e9250d568bcbfed6458c15a364fa99896eb1b8daad05db043d",
+          "projection_schema": "89e2bd7bf3f1683ddff95a0b33b1e9ff08ff19d5a001f4007c40ed4c6c5b3437",
+          "raw_schema": "b948a0e33fc0abb6957af76beac643ac7131d2fcac3ab53265c02d16783f953e",
+          "recurring_ownership": 1,
+          "snapshot": 7,
+          "structural": 1,
+          "sync": 1
+        }
+      },
+      "store": "/tmp/pytest-of-hjkerman/pytest-56/test_independent_native_proven0/owned/segmented-store-v1/416aaa0a882edeb5d10ab2d6cccb943c755c641d98501685638c89bc9b96e95c.sqlite",
+      "installed": "db8c9573-bee1-4745-9b41-c91433d462bc",
+      "frozen": null,
+      "lineage": null,
+      "fingerprint": null,
+      "baseline": null,
+      "pending": {
+        "bytes": 118,
+        "sha256": "535818de00c610390105ec953539706a4dfe52fa21443e6d4d4b2fea3a7b8386"
+      },
+      "source": {
+        "storage": "segmented-store/1",
+        "kind": "segmented",
+        "namespace": "416aaa0a882edeb5d10ab2d6cccb943c755c641d98501685638c89bc9b96e95c",
+        "generation": "db8c9573-bee1-4745-9b41-c91433d462bc",
+        "sequence": 1,
+        "legacy_frozen": null,
+        "legacy_binding": null,
+        "previous_installation": null,
+        "previous_sequence": null,
+        "previous_source": null
+      }
+    },
+    "before_reopen": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "db8c9573-bee1-4745-9b41-c91433d462bc",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "ce82a3946709b453d439125be3aa2f9d7809e3e38c0cd72362ab8c0e670d4cb4"
+        },
+        "installed": null
+      },
+      "frozen": [],
+      "objects": 158,
+      "pins": 4,
+      "generations": {
+        "db8c9573-bee1-4745-9b41-c91433d462bc": {
+          "sync_root": "7486e7c85a8b4440440d0708eef56a3c33f44ef49b3f01ce256ef83b4911d28e",
+          "objects": 158,
+          "receipt": "a2d5a4813cb368f83660ff24dadbdbf14835f58cd1d5d504876debdfffe11b20",
+          "closure_count": 158,
+          "closure_digest": "41764e6d7706fc2593a4ed7dab2c447c638c65048777f6ed4722e1f84edf8ccc",
+          "source_counts": {
+            "ledger_entries": 9,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "4722706449554c00b1f3b7d20dbf614757fc2b2aa6b978922c3619dfa1196fa7",
+          "control_digest": "646ccca90857e22de9eff28da27b419b335bcf2ce8478442a2924212e7ac9647"
+        }
+      }
+    },
+    "after_reopen": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "db8c9573-bee1-4745-9b41-c91433d462bc",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "ce82a3946709b453d439125be3aa2f9d7809e3e38c0cd72362ab8c0e670d4cb4"
+        },
+        "installed": null
+      },
+      "frozen": [],
+      "objects": 158,
+      "pins": 4,
+      "generations": {
+        "db8c9573-bee1-4745-9b41-c91433d462bc": {
+          "sync_root": "7486e7c85a8b4440440d0708eef56a3c33f44ef49b3f01ce256ef83b4911d28e",
+          "objects": 158,
+          "receipt": "a2d5a4813cb368f83660ff24dadbdbf14835f58cd1d5d504876debdfffe11b20",
+          "closure_count": 158,
+          "closure_digest": "41764e6d7706fc2593a4ed7dab2c447c638c65048777f6ed4722e1f84edf8ccc",
+          "source_counts": {
+            "ledger_entries": 9,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "4722706449554c00b1f3b7d20dbf614757fc2b2aa6b978922c3619dfa1196fa7",
+          "control_digest": "646ccca90857e22de9eff28da27b419b335bcf2ce8478442a2924212e7ac9647"
+        }
+      }
+    },
+    "fresh_process": {
+      "installed": null,
+      "frozen": null,
+      "readable": true,
+      "r1": "CLOSED"
+    }
+  },
+  "regressions/phase-a-crash/crash-after_e4_installation.json": {
+    "boundary": "after_e4_installation",
+    "immediate": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "97c981a5-dfd2-4924-a0ea-7d6541ba609e",
+          "previous_id": "a645dc80-a057-476a-8f94-63e98e928c68",
+          "sequence": 2,
+          "checksum": "1617935249a458491c12d6aaa7f21a3cf76dd40532b83e8a8aca8ed0c2bd5cde"
+        },
+        "installed": {
+          "id": 1,
+          "generation_id": "97c981a5-dfd2-4924-a0ea-7d6541ba609e",
+          "previous_id": "a645dc80-a057-476a-8f94-63e98e928c68",
+          "sequence": 2,
+          "checksum": "1617935249a458491c12d6aaa7f21a3cf76dd40532b83e8a8aca8ed0c2bd5cde"
+        }
+      },
+      "frozen": [
+        {
+          "id": "bb610fa2-59d8-4e1c-a8c4-99140e39f06a",
+          "generation": "97c981a5-dfd2-4924-a0ea-7d6541ba609e",
+          "state": "installed",
+          "binding": {
+            "baseline_sha256": "d24351a7f648078724713160d594097775a2bf90c4c0ec853132123feb414ec5",
+            "generation": "97c981a5-dfd2-4924-a0ea-7d6541ba609e",
+            "legacy_fingerprint": "f778052f90a0ffeef0ca103c77f5a6c65f326efae90635fcdcbf8d35e4a152f1",
+            "legacy_lineage": "cd7d545c745bf798a202cf099dc36ceecdf78be41f9b3abb7ea0d5286f2fedb2",
+            "namespace": "feed1be2ea6a79510f17787b485c20b7f8e62132170047a91c07eb5411c72cb8",
+            "resolved_id": null,
+            "sequence": 2,
+            "snapshot_id": "7f849f31919cd311e09f6702f8f6104ff6eb07f3481108209fe88eb20beea4c2",
+            "synced_at": "2026-10-16T01:54:45.731444Z",
+            "user": {
+              "display_name": "Owner",
+              "id": 1,
+              "share_pin_needs_change": false,
+              "username": "owner"
+            },
+            "version": 1
+          }
+        }
+      ],
+      "objects": 165,
+      "pins": 8,
+      "generations": {
+        "97c981a5-dfd2-4924-a0ea-7d6541ba609e": {
+          "sync_root": "e49e2e76f43307042ae0b94d716913aaaefd4be8d011f021227852921237be58",
+          "objects": 154,
+          "receipt": "f49ad0802a268c7421ce3addec50a4160a6c610ba7605f7e8b756bace6ce9832",
+          "closure_count": 154,
+          "closure_digest": "9daf9b8b304fbc116c7eb6ac48d1bfee99e66164b6f08fb201819bd34f78aaf5",
+          "source_counts": {
+            "ledger_entries": 8,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "1d6347ed80576e1aa1f53f02b7969c190ac4382433f88d22ef567c53fe76a7e5",
+          "control_digest": "c007d0d9f7c748052c063b8ecd49f504ff17beb4cdf4089faed1d9295160447d"
+        },
+        "a645dc80-a057-476a-8f94-63e98e928c68": {
+          "sync_root": "3afb5a65cea088774c801621f336640011f7632c532b839c9336e7d2a4aab035",
+          "objects": 154,
+          "receipt": "cafdff75ecb29de82894e80b0a7a738e32590a01b6c7eacba8443fe630033464",
+          "closure_count": 154,
+          "closure_digest": "7a60cdca27a4b8f95b9c5356267792f57bfb803a91cdbd95229b6a81291e1fe1",
+          "source_counts": {
+            "ledger_entries": 8,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "28c82c50a52a86c2b132d8811dc971d06d8517700f510d4323b145577136e923",
+          "control_digest": "c007d0d9f7c748052c063b8ecd49f504ff17beb4cdf4089faed1d9295160447d"
+        }
+      }
+    },
+    "recovered": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "97c981a5-dfd2-4924-a0ea-7d6541ba609e",
+          "previous_id": "a645dc80-a057-476a-8f94-63e98e928c68",
+          "sequence": 2,
+          "checksum": "1617935249a458491c12d6aaa7f21a3cf76dd40532b83e8a8aca8ed0c2bd5cde"
+        },
+        "installed": {
+          "id": 1,
+          "generation_id": "97c981a5-dfd2-4924-a0ea-7d6541ba609e",
+          "previous_id": "a645dc80-a057-476a-8f94-63e98e928c68",
+          "sequence": 2,
+          "checksum": "1617935249a458491c12d6aaa7f21a3cf76dd40532b83e8a8aca8ed0c2bd5cde"
+        }
+      },
+      "frozen": [
+        {
+          "id": "bb610fa2-59d8-4e1c-a8c4-99140e39f06a",
+          "generation": "97c981a5-dfd2-4924-a0ea-7d6541ba609e",
+          "state": "installed",
+          "binding": {
+            "baseline_sha256": "d24351a7f648078724713160d594097775a2bf90c4c0ec853132123feb414ec5",
+            "generation": "97c981a5-dfd2-4924-a0ea-7d6541ba609e",
+            "legacy_fingerprint": "f778052f90a0ffeef0ca103c77f5a6c65f326efae90635fcdcbf8d35e4a152f1",
+            "legacy_lineage": "cd7d545c745bf798a202cf099dc36ceecdf78be41f9b3abb7ea0d5286f2fedb2",
+            "namespace": "feed1be2ea6a79510f17787b485c20b7f8e62132170047a91c07eb5411c72cb8",
+            "resolved_id": null,
+            "sequence": 2,
+            "snapshot_id": "7f849f31919cd311e09f6702f8f6104ff6eb07f3481108209fe88eb20beea4c2",
+            "synced_at": "2026-10-16T01:54:45.731444Z",
+            "user": {
+              "display_name": "Owner",
+              "id": 1,
+              "share_pin_needs_change": false,
+              "username": "owner"
+            },
+            "version": 1
+          }
+        }
+      ],
+      "objects": 165,
+      "pins": 8,
+      "generations": {
+        "97c981a5-dfd2-4924-a0ea-7d6541ba609e": {
+          "sync_root": "e49e2e76f43307042ae0b94d716913aaaefd4be8d011f021227852921237be58",
+          "objects": 154,
+          "receipt": "f49ad0802a268c7421ce3addec50a4160a6c610ba7605f7e8b756bace6ce9832",
+          "closure_count": 154,
+          "closure_digest": "9daf9b8b304fbc116c7eb6ac48d1bfee99e66164b6f08fb201819bd34f78aaf5",
+          "source_counts": {
+            "ledger_entries": 8,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "1d6347ed80576e1aa1f53f02b7969c190ac4382433f88d22ef567c53fe76a7e5",
+          "control_digest": "c007d0d9f7c748052c063b8ecd49f504ff17beb4cdf4089faed1d9295160447d"
+        },
+        "a645dc80-a057-476a-8f94-63e98e928c68": {
+          "sync_root": "3afb5a65cea088774c801621f336640011f7632c532b839c9336e7d2a4aab035",
+          "objects": 154,
+          "receipt": "cafdff75ecb29de82894e80b0a7a738e32590a01b6c7eacba8443fe630033464",
+          "closure_count": 154,
+          "closure_digest": "7a60cdca27a4b8f95b9c5356267792f57bfb803a91cdbd95229b6a81291e1fe1",
+          "source_counts": {
+            "ledger_entries": 8,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "28c82c50a52a86c2b132d8811dc971d06d8517700f510d4323b145577136e923",
+          "control_digest": "c007d0d9f7c748052c063b8ecd49f504ff17beb4cdf4089faed1d9295160447d"
+        }
+      },
+      "legacy": {
+        "fingerprint": "f778052f90a0ffeef0ca103c77f5a6c65f326efae90635fcdcbf8d35e4a152f1",
+        "lineage": "cd7d545c745bf798a202cf099dc36ceecdf78be41f9b3abb7ea0d5286f2fedb2",
+        "sha256": "aa0d48f2d6d947ec5589c163df3a27ce0ee7e3668a7d5dd1c5b50434d38975e3"
+      }
+    },
+    "marker_sha256": "b4bebde471af75cb105ccfb5c59ab02ea3b7e32bf7e1f1332612cb8d1a406285",
+    "baseline_sha256": "aa0d48f2d6d947ec5589c163df3a27ce0ee7e3668a7d5dd1c5b50434d38975e3"
+  },
+  "regressions/phase-a-crash/crash-after_frozen_install.json": {
+    "boundary": "after_frozen_install",
+    "immediate": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "e1a24004-9ab2-48b7-ad95-25ea298633a6",
+          "previous_id": "8ab24407-65be-4a5c-b6bd-6fb50750ef4c",
+          "sequence": 2,
+          "checksum": "5bfcdb1e3e70d828e3eea993cf6a1938fb897508621117061f44b729c34979ca"
+        },
+        "installed": {
+          "id": 1,
+          "generation_id": "8ab24407-65be-4a5c-b6bd-6fb50750ef4c",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "01f0eac57bc57ac9ed52f64b96412180a5aa5ab87f5f895272e97c33e87fb613"
+        }
+      },
+      "frozen": [
+        {
+          "id": "a0f71693-6985-48f7-814c-93931ed036e3",
+          "generation": "e1a24004-9ab2-48b7-ad95-25ea298633a6",
+          "state": "prepared",
+          "binding": {
+            "baseline_sha256": "88e26e9d15b188f106c4847f1bb581755fcb57663781bc92e53ee2ca1d180e0f",
+            "generation": "e1a24004-9ab2-48b7-ad95-25ea298633a6",
+            "legacy_fingerprint": "da347805961058bc43bd05de16bf3caed5c2eaf7de804ff8fe8312ef487f8e80",
+            "legacy_lineage": "d49bc90a509cb77dc2a51ca8138db84fdbf701bc5a6f09943c7a153adff74916",
+            "namespace": "095f11be6e394802db34dee007becdd74f7767f70fe64dcc2856339dda6ab074",
+            "resolved_id": null,
+            "sequence": 2,
+            "snapshot_id": "50cf8f5068f3d924e9e6d6c6747d6f74e8d4c59e94c0f1ee01ea5245005dd7b5",
+            "synced_at": "2026-10-16T01:52:57.116642Z",
+            "user": {
+              "display_name": "Owner",
+              "id": 1,
+              "share_pin_needs_change": false,
+              "username": "owner"
+            },
+            "version": 1
+          }
+        },
+        {
+          "id": "af07d859-e5df-4667-a9c5-caa8a5a64dae",
+          "generation": "8ab24407-65be-4a5c-b6bd-6fb50750ef4c",
+          "state": "installed",
+          "binding": {
+            "baseline_sha256": "9f71698d58424d4d8f79144293800a8abd176301296cdfb748e644f028279ea5",
+            "generation": "8ab24407-65be-4a5c-b6bd-6fb50750ef4c",
+            "legacy_fingerprint": "6d57db91cc9034e3c6f956ba97c5354ec6a7127d7bf2c6d7da6ae7490d83990a",
+            "legacy_lineage": "404a3efd18eda8fd61657a85024dd022fcc65c08479f438108537ba496c8fbf0",
+            "namespace": "095f11be6e394802db34dee007becdd74f7767f70fe64dcc2856339dda6ab074",
+            "resolved_id": null,
+            "sequence": 1,
+            "snapshot_id": "23b74eafa1aa8cc61333aec54de5dd3bf2b43af6992635b238097a7ac404a653",
+            "synced_at": "2026-10-16T01:52:51.043736Z",
+            "user": {
+              "display_name": "Owner",
+              "id": 1,
+              "share_pin_needs_change": false,
+              "username": "owner"
+            },
+            "version": 1
+          }
+        }
+      ],
+      "objects": 165,
+      "pins": 8,
+      "generations": {
+        "8ab24407-65be-4a5c-b6bd-6fb50750ef4c": {
+          "sync_root": "84c99258326e7af99540a0eae5ff1fccca8b1bbb697184126534c42f2c5d8fb5",
+          "objects": 154,
+          "receipt": "f399bdf5b24daa8e738cbbf31389446f51ff9a098eb2af59e9f6b2875cc1cb02",
+          "closure_count": 154,
+          "closure_digest": "2ddb9aa6ed6dd9c9fac07a43dde171e0c7cf350b0c8abcc2e14d93815363853e",
+          "source_counts": {
+            "ledger_entries": 8,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "4ff88c27bf1de065c568f43e8204b2142ed140cceb1be75c7ff916739d1bee29",
+          "control_digest": "a16ca8fba8f0b67bbb4c08b9d1058188ff153b8496f647933603145731e78bd0"
+        },
+        "e1a24004-9ab2-48b7-ad95-25ea298633a6": {
+          "sync_root": "9a49d0af470f0ec71ebe7af9b502c5dd6893d24e2dbcd8494c800649d14b7b1e",
+          "objects": 154,
+          "receipt": "73114e5d9b3bc5083bee1af7853d6bb5ff506c52f7d4af47613f7d5c3f7a1267",
+          "closure_count": 154,
+          "closure_digest": "66e95f85cf320d817fcad15922daebbbaacbfdf62d8be6a8d67e0bf086be25db",
+          "source_counts": {
+            "ledger_entries": 8,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "004ceceaf2151a4c7a9da2559cf438e96c8f58500f8a08e724f9c57432640ddb",
+          "control_digest": "a16ca8fba8f0b67bbb4c08b9d1058188ff153b8496f647933603145731e78bd0"
+        }
+      }
+    },
+    "recovered": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "e1a24004-9ab2-48b7-ad95-25ea298633a6",
+          "previous_id": "8ab24407-65be-4a5c-b6bd-6fb50750ef4c",
+          "sequence": 2,
+          "checksum": "5bfcdb1e3e70d828e3eea993cf6a1938fb897508621117061f44b729c34979ca"
+        },
+        "installed": {
+          "id": 1,
+          "generation_id": "8ab24407-65be-4a5c-b6bd-6fb50750ef4c",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "01f0eac57bc57ac9ed52f64b96412180a5aa5ab87f5f895272e97c33e87fb613"
+        }
+      },
+      "frozen": [
+        {
+          "id": "a0f71693-6985-48f7-814c-93931ed036e3",
+          "generation": "e1a24004-9ab2-48b7-ad95-25ea298633a6",
+          "state": "installed",
+          "binding": {
+            "baseline_sha256": "88e26e9d15b188f106c4847f1bb581755fcb57663781bc92e53ee2ca1d180e0f",
+            "generation": "e1a24004-9ab2-48b7-ad95-25ea298633a6",
+            "legacy_fingerprint": "da347805961058bc43bd05de16bf3caed5c2eaf7de804ff8fe8312ef487f8e80",
+            "legacy_lineage": "d49bc90a509cb77dc2a51ca8138db84fdbf701bc5a6f09943c7a153adff74916",
+            "namespace": "095f11be6e394802db34dee007becdd74f7767f70fe64dcc2856339dda6ab074",
+            "resolved_id": null,
+            "sequence": 2,
+            "snapshot_id": "50cf8f5068f3d924e9e6d6c6747d6f74e8d4c59e94c0f1ee01ea5245005dd7b5",
+            "synced_at": "2026-10-16T01:52:57.116642Z",
+            "user": {
+              "display_name": "Owner",
+              "id": 1,
+              "share_pin_needs_change": false,
+              "username": "owner"
+            },
+            "version": 1
+          }
+        }
+      ],
+      "objects": 165,
+      "pins": 8,
+      "generations": {
+        "8ab24407-65be-4a5c-b6bd-6fb50750ef4c": {
+          "sync_root": "84c99258326e7af99540a0eae5ff1fccca8b1bbb697184126534c42f2c5d8fb5",
+          "objects": 154,
+          "receipt": "f399bdf5b24daa8e738cbbf31389446f51ff9a098eb2af59e9f6b2875cc1cb02",
+          "closure_count": 154,
+          "closure_digest": "2ddb9aa6ed6dd9c9fac07a43dde171e0c7cf350b0c8abcc2e14d93815363853e",
+          "source_counts": {
+            "ledger_entries": 8,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "4ff88c27bf1de065c568f43e8204b2142ed140cceb1be75c7ff916739d1bee29",
+          "control_digest": "a16ca8fba8f0b67bbb4c08b9d1058188ff153b8496f647933603145731e78bd0"
+        },
+        "e1a24004-9ab2-48b7-ad95-25ea298633a6": {
+          "sync_root": "9a49d0af470f0ec71ebe7af9b502c5dd6893d24e2dbcd8494c800649d14b7b1e",
+          "objects": 154,
+          "receipt": "73114e5d9b3bc5083bee1af7853d6bb5ff506c52f7d4af47613f7d5c3f7a1267",
+          "closure_count": 154,
+          "closure_digest": "66e95f85cf320d817fcad15922daebbbaacbfdf62d8be6a8d67e0bf086be25db",
+          "source_counts": {
+            "ledger_entries": 8,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "004ceceaf2151a4c7a9da2559cf438e96c8f58500f8a08e724f9c57432640ddb",
+          "control_digest": "a16ca8fba8f0b67bbb4c08b9d1058188ff153b8496f647933603145731e78bd0"
+        }
+      },
+      "legacy": {
+        "fingerprint": "da347805961058bc43bd05de16bf3caed5c2eaf7de804ff8fe8312ef487f8e80",
+        "lineage": "d49bc90a509cb77dc2a51ca8138db84fdbf701bc5a6f09943c7a153adff74916",
+        "sha256": "9192b77da49054ca7bb5c93e9e6c58036e074ffafc87a7c6d0fee94b6088ff35"
+      }
+    },
+    "marker_sha256": "083e757e1d46f8dee670aeb327f405ab2a956b484271229b15143f031a71cc7d",
+    "baseline_sha256": "9192b77da49054ca7bb5c93e9e6c58036e074ffafc87a7c6d0fee94b6088ff35"
+  },
+  "regressions/phase-a-crash/crash-after_frozen_prepare.json": {
+    "boundary": "after_frozen_prepare",
+    "immediate": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "531bc608-d6ee-4be7-8b60-2054596c5f14",
+          "previous_id": "98cf2f4d-1b5a-4324-8e65-155577bdabbe",
+          "sequence": 2,
+          "checksum": "1fad9ae22c1b5f3516fddfd37c3f9aac2632dc8fea23e42f02c2e8b97ca9e899"
+        },
+        "installed": {
+          "id": 1,
+          "generation_id": "98cf2f4d-1b5a-4324-8e65-155577bdabbe",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "6315102c446d66de4d9998665aa962914eb20e4c89ed7e04cc0fd5a2e4597f36"
+        }
+      },
+      "frozen": [
+        {
+          "id": "38921256-9a3c-4cc3-9214-e2aab9d9f291",
+          "generation": "98cf2f4d-1b5a-4324-8e65-155577bdabbe",
+          "state": "installed",
+          "binding": {
+            "baseline_sha256": "3ab3eaefbaf6a548f96e38d17a9a9357d6c76488fadbc3493ea30e475b194277",
+            "generation": "98cf2f4d-1b5a-4324-8e65-155577bdabbe",
+            "legacy_fingerprint": "84ac042ce3e07cc1dbca45479ab2050c4e5cfb4dbb7f1da2473a5c25bf4fc616",
+            "legacy_lineage": "d4d2138e0b00c2d630e63dfcd8f8c9b49ffb9313f1851d140ecd75322a398233",
+            "namespace": "f76aea31ff936f208ad073d144e58e495119a045dba985ccc8f6b4b18e1e3afb",
+            "resolved_id": null,
+            "sequence": 1,
+            "snapshot_id": "ef314a0e0068ff8bd76b10a49a02b95c172ca315a0bfd537607a4513b23fd212",
+            "synced_at": "2026-10-16T01:48:54.328678Z",
+            "user": {
+              "display_name": "Owner",
+              "id": 1,
+              "share_pin_needs_change": false,
+              "username": "owner"
+            },
+            "version": 1
+          }
+        }
+      ],
+      "objects": 165,
+      "pins": 8,
+      "generations": {
+        "531bc608-d6ee-4be7-8b60-2054596c5f14": {
+          "sync_root": "27fd2fbdb2bf2412fead8f220b5acfb3d08cf9964b2e4f375aac847e35d7c2e6",
+          "objects": 154,
+          "receipt": "f4ba1219c1d05cb4b36c81febbe5a4d776b81c28bbc5b0414f938fde5e8a35d7",
+          "closure_count": 154,
+          "closure_digest": "32243ce8493258a7ae7e5c2c03cd755d15cebc3bc098418a3711e41de158aa2f",
+          "source_counts": {
+            "ledger_entries": 8,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "e0698030623c757b9cf15278bdb095a9ca76e943f14380178f5067f6668bb3f9",
+          "control_digest": "fcd42ac3a0fbfcb9ce60e049d09d517d49c16586b6c151686c6c9a1f81b56e30"
+        },
+        "98cf2f4d-1b5a-4324-8e65-155577bdabbe": {
+          "sync_root": "bd13aed8ff5db357b3a7de58352c2ca5918d87fe61a68b1aa9381a783f3e70a9",
+          "objects": 154,
+          "receipt": "9a9d72ce8887086cfc0b24204e25ef7440765f4e36c25863108cc6b77acdaca4",
+          "closure_count": 154,
+          "closure_digest": "b1f288b54898ec94fa818a278ace4a894a61a2c3aacfe192bc25f18cf15adac8",
+          "source_counts": {
+            "ledger_entries": 8,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "f27ff46f815be388c26c8ebe10a4a740864f6516d0e22b84bc5c836cca543fd1",
+          "control_digest": "fcd42ac3a0fbfcb9ce60e049d09d517d49c16586b6c151686c6c9a1f81b56e30"
+        }
+      }
+    },
+    "recovered": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "531bc608-d6ee-4be7-8b60-2054596c5f14",
+          "previous_id": "98cf2f4d-1b5a-4324-8e65-155577bdabbe",
+          "sequence": 2,
+          "checksum": "1fad9ae22c1b5f3516fddfd37c3f9aac2632dc8fea23e42f02c2e8b97ca9e899"
+        },
+        "installed": {
+          "id": 1,
+          "generation_id": "98cf2f4d-1b5a-4324-8e65-155577bdabbe",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "6315102c446d66de4d9998665aa962914eb20e4c89ed7e04cc0fd5a2e4597f36"
+        }
+      },
+      "frozen": [
+        {
+          "id": "38921256-9a3c-4cc3-9214-e2aab9d9f291",
+          "generation": "98cf2f4d-1b5a-4324-8e65-155577bdabbe",
+          "state": "installed",
+          "binding": {
+            "baseline_sha256": "3ab3eaefbaf6a548f96e38d17a9a9357d6c76488fadbc3493ea30e475b194277",
+            "generation": "98cf2f4d-1b5a-4324-8e65-155577bdabbe",
+            "legacy_fingerprint": "84ac042ce3e07cc1dbca45479ab2050c4e5cfb4dbb7f1da2473a5c25bf4fc616",
+            "legacy_lineage": "d4d2138e0b00c2d630e63dfcd8f8c9b49ffb9313f1851d140ecd75322a398233",
+            "namespace": "f76aea31ff936f208ad073d144e58e495119a045dba985ccc8f6b4b18e1e3afb",
+            "resolved_id": null,
+            "sequence": 1,
+            "snapshot_id": "ef314a0e0068ff8bd76b10a49a02b95c172ca315a0bfd537607a4513b23fd212",
+            "synced_at": "2026-10-16T01:48:54.328678Z",
+            "user": {
+              "display_name": "Owner",
+              "id": 1,
+              "share_pin_needs_change": false,
+              "username": "owner"
+            },
+            "version": 1
+          }
+        }
+      ],
+      "objects": 165,
+      "pins": 8,
+      "generations": {
+        "531bc608-d6ee-4be7-8b60-2054596c5f14": {
+          "sync_root": "27fd2fbdb2bf2412fead8f220b5acfb3d08cf9964b2e4f375aac847e35d7c2e6",
+          "objects": 154,
+          "receipt": "f4ba1219c1d05cb4b36c81febbe5a4d776b81c28bbc5b0414f938fde5e8a35d7",
+          "closure_count": 154,
+          "closure_digest": "32243ce8493258a7ae7e5c2c03cd755d15cebc3bc098418a3711e41de158aa2f",
+          "source_counts": {
+            "ledger_entries": 8,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "e0698030623c757b9cf15278bdb095a9ca76e943f14380178f5067f6668bb3f9",
+          "control_digest": "fcd42ac3a0fbfcb9ce60e049d09d517d49c16586b6c151686c6c9a1f81b56e30"
+        },
+        "98cf2f4d-1b5a-4324-8e65-155577bdabbe": {
+          "sync_root": "bd13aed8ff5db357b3a7de58352c2ca5918d87fe61a68b1aa9381a783f3e70a9",
+          "objects": 154,
+          "receipt": "9a9d72ce8887086cfc0b24204e25ef7440765f4e36c25863108cc6b77acdaca4",
+          "closure_count": 154,
+          "closure_digest": "b1f288b54898ec94fa818a278ace4a894a61a2c3aacfe192bc25f18cf15adac8",
+          "source_counts": {
+            "ledger_entries": 8,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "f27ff46f815be388c26c8ebe10a4a740864f6516d0e22b84bc5c836cca543fd1",
+          "control_digest": "fcd42ac3a0fbfcb9ce60e049d09d517d49c16586b6c151686c6c9a1f81b56e30"
+        }
+      },
+      "legacy": {
+        "fingerprint": "84ac042ce3e07cc1dbca45479ab2050c4e5cfb4dbb7f1da2473a5c25bf4fc616",
+        "lineage": "d4d2138e0b00c2d630e63dfcd8f8c9b49ffb9313f1851d140ecd75322a398233",
+        "sha256": "189958e32ccb71264a907bf51d56e6d6fb73262789b957df3e765dd1f2a2c354"
+      }
+    },
+    "marker_sha256": "540e744ad8c0c442703c7aec1427155d03eabb54ceda2a68ee0aebe62af1b3c9",
+    "baseline_sha256": "189958e32ccb71264a907bf51d56e6d6fb73262789b957df3e765dd1f2a2c354"
+  },
+  "regressions/phase-a-crash/crash-after_legacy_commit.json": {
+    "boundary": "after_legacy_commit",
+    "immediate": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "ed2fac6a-38c3-41d6-9cbc-061983a9c79a",
+          "previous_id": "f6c4e49c-968a-419f-9056-5f7ea3b143c6",
+          "sequence": 2,
+          "checksum": "e87b23abe11b9eab96e797051767c59d574e777f8655de3c799b2e42dee34f25"
+        },
+        "installed": {
+          "id": 1,
+          "generation_id": "f6c4e49c-968a-419f-9056-5f7ea3b143c6",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "8fe8bdedaf6e285b7bcc0499182ecc5e0dc898981806cb953bc4ab93941672a4"
+        }
+      },
+      "frozen": [
+        {
+          "id": "3483d8dc-36b4-4466-8d64-d5454c0563bf",
+          "generation": "ed2fac6a-38c3-41d6-9cbc-061983a9c79a",
+          "state": "prepared",
+          "binding": {
+            "baseline_sha256": "5d4a79766563a78c51a10fa3d34931afe407dc7264c47bfeae449457d1d3f38b",
+            "generation": "ed2fac6a-38c3-41d6-9cbc-061983a9c79a",
+            "legacy_fingerprint": "979f1e2b9e460b604de984e13aaa6f70a22d6c5923a446e6c93316125be029f4",
+            "legacy_lineage": "ad4ccc675a90d96e49770f731a1251db2a8af30be31f599c17d929df40902b10",
+            "namespace": "1bce60d9fcc6cd1752f109758fcf2984cf5a33b9b7d6b067823043b84bc4ed2c",
+            "resolved_id": null,
+            "sequence": 2,
+            "snapshot_id": "cece07b05955427801c324ced508d7a3272b919987ecdc4b85ff87c4fb31a24b",
+            "synced_at": "2026-10-16T01:50:59.664959Z",
+            "user": {
+              "display_name": "Owner",
+              "id": 1,
+              "share_pin_needs_change": false,
+              "username": "owner"
+            },
+            "version": 1
+          }
+        },
+        {
+          "id": "3e44f2c8-98d7-4714-8651-2365ed94e252",
+          "generation": "f6c4e49c-968a-419f-9056-5f7ea3b143c6",
+          "state": "installed",
+          "binding": {
+            "baseline_sha256": "bd09ca3d74c57a6a466e57459a40c0ee5b14c237bc9170fba6a6ec8d17c8f2b4",
+            "generation": "f6c4e49c-968a-419f-9056-5f7ea3b143c6",
+            "legacy_fingerprint": "e9c921aa300bbdfca404767721c892097f6acaa27dd08fa37d448334f6511a6a",
+            "legacy_lineage": "314553ed8896d9570dcbb7941441b55d76a4526663b730f23bd4cdfe9c7a87d8",
+            "namespace": "1bce60d9fcc6cd1752f109758fcf2984cf5a33b9b7d6b067823043b84bc4ed2c",
+            "resolved_id": null,
+            "sequence": 1,
+            "snapshot_id": "5b393f38f8f3645bd482146439fc78b1c97aea9d444c4a585efb26fae54baf75",
+            "synced_at": "2026-10-16T01:50:53.347943Z",
+            "user": {
+              "display_name": "Owner",
+              "id": 1,
+              "share_pin_needs_change": false,
+              "username": "owner"
+            },
+            "version": 1
+          }
+        }
+      ],
+      "objects": 165,
+      "pins": 8,
+      "generations": {
+        "ed2fac6a-38c3-41d6-9cbc-061983a9c79a": {
+          "sync_root": "b6190aacfe779a30d28d9333c1a71e735b494c967f7001f1962a64b41a0d7cb9",
+          "objects": 154,
+          "receipt": "4246bd1d5f27e998689ff690cf251d9607d8257e200db01f058507a3cb34d8f5",
+          "closure_count": 154,
+          "closure_digest": "ed0bb44f48d4f18cf31c931152d17a32987f2f3fcaf5d75af6fd1d5314829613",
+          "source_counts": {
+            "ledger_entries": 8,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "4b05423badd969a42b04f5a8b981318f5e1992a7d41c660f1782b9ca215a71e6",
+          "control_digest": "84a3fe5be6c8662626be1bf682577e2b39d01beb4d14612f8a8bba264061ae71"
+        },
+        "f6c4e49c-968a-419f-9056-5f7ea3b143c6": {
+          "sync_root": "1a9a82e8018b96013e117b2a93723fd31829c94c33681aaa81f82e777277663c",
+          "objects": 154,
+          "receipt": "49d790b338a553e1d1f6d0afe328cef345f6c7e736c067a4f5d05b95340f12ab",
+          "closure_count": 154,
+          "closure_digest": "705173e29c3dbb9e710fb14064a2373a7b1cabb913264e32553a35e8e055d79f",
+          "source_counts": {
+            "ledger_entries": 8,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "b21aa995884b2f401ca70c84c6ae2ac1d63f562fcf55e4e6cb317f994065b266",
+          "control_digest": "84a3fe5be6c8662626be1bf682577e2b39d01beb4d14612f8a8bba264061ae71"
+        }
+      }
+    },
+    "recovered": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "ed2fac6a-38c3-41d6-9cbc-061983a9c79a",
+          "previous_id": "f6c4e49c-968a-419f-9056-5f7ea3b143c6",
+          "sequence": 2,
+          "checksum": "e87b23abe11b9eab96e797051767c59d574e777f8655de3c799b2e42dee34f25"
+        },
+        "installed": {
+          "id": 1,
+          "generation_id": "f6c4e49c-968a-419f-9056-5f7ea3b143c6",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "8fe8bdedaf6e285b7bcc0499182ecc5e0dc898981806cb953bc4ab93941672a4"
+        }
+      },
+      "frozen": [
+        {
+          "id": "3483d8dc-36b4-4466-8d64-d5454c0563bf",
+          "generation": "ed2fac6a-38c3-41d6-9cbc-061983a9c79a",
+          "state": "installed",
+          "binding": {
+            "baseline_sha256": "5d4a79766563a78c51a10fa3d34931afe407dc7264c47bfeae449457d1d3f38b",
+            "generation": "ed2fac6a-38c3-41d6-9cbc-061983a9c79a",
+            "legacy_fingerprint": "979f1e2b9e460b604de984e13aaa6f70a22d6c5923a446e6c93316125be029f4",
+            "legacy_lineage": "ad4ccc675a90d96e49770f731a1251db2a8af30be31f599c17d929df40902b10",
+            "namespace": "1bce60d9fcc6cd1752f109758fcf2984cf5a33b9b7d6b067823043b84bc4ed2c",
+            "resolved_id": null,
+            "sequence": 2,
+            "snapshot_id": "cece07b05955427801c324ced508d7a3272b919987ecdc4b85ff87c4fb31a24b",
+            "synced_at": "2026-10-16T01:50:59.664959Z",
+            "user": {
+              "display_name": "Owner",
+              "id": 1,
+              "share_pin_needs_change": false,
+              "username": "owner"
+            },
+            "version": 1
+          }
+        }
+      ],
+      "objects": 165,
+      "pins": 8,
+      "generations": {
+        "ed2fac6a-38c3-41d6-9cbc-061983a9c79a": {
+          "sync_root": "b6190aacfe779a30d28d9333c1a71e735b494c967f7001f1962a64b41a0d7cb9",
+          "objects": 154,
+          "receipt": "4246bd1d5f27e998689ff690cf251d9607d8257e200db01f058507a3cb34d8f5",
+          "closure_count": 154,
+          "closure_digest": "ed0bb44f48d4f18cf31c931152d17a32987f2f3fcaf5d75af6fd1d5314829613",
+          "source_counts": {
+            "ledger_entries": 8,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "4b05423badd969a42b04f5a8b981318f5e1992a7d41c660f1782b9ca215a71e6",
+          "control_digest": "84a3fe5be6c8662626be1bf682577e2b39d01beb4d14612f8a8bba264061ae71"
+        },
+        "f6c4e49c-968a-419f-9056-5f7ea3b143c6": {
+          "sync_root": "1a9a82e8018b96013e117b2a93723fd31829c94c33681aaa81f82e777277663c",
+          "objects": 154,
+          "receipt": "49d790b338a553e1d1f6d0afe328cef345f6c7e736c067a4f5d05b95340f12ab",
+          "closure_count": 154,
+          "closure_digest": "705173e29c3dbb9e710fb14064a2373a7b1cabb913264e32553a35e8e055d79f",
+          "source_counts": {
+            "ledger_entries": 8,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "b21aa995884b2f401ca70c84c6ae2ac1d63f562fcf55e4e6cb317f994065b266",
+          "control_digest": "84a3fe5be6c8662626be1bf682577e2b39d01beb4d14612f8a8bba264061ae71"
+        }
+      },
+      "legacy": {
+        "fingerprint": "979f1e2b9e460b604de984e13aaa6f70a22d6c5923a446e6c93316125be029f4",
+        "lineage": "ad4ccc675a90d96e49770f731a1251db2a8af30be31f599c17d929df40902b10",
+        "sha256": "4eb13e6acf459f9ffc7a0c6b2b53646eb0c0a69a79c40863249f9cbd8452f089"
+      }
+    },
+    "marker_sha256": "0ddd1771ead1bbbc51169a32c924b31ccff1c4d561610d0af7a19f3f4e5d737a",
+    "baseline_sha256": "4eb13e6acf459f9ffc7a0c6b2b53646eb0c0a69a79c40863249f9cbd8452f089"
+  },
+  "regressions/phase-a-crash/crash-native_after_segmented_install_pointer.json": {
+    "boundary": "native_after_segmented_install_pointer",
+    "immediate": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "efda30ef-330f-4729-8e25-478d4914e0bd",
+          "previous_id": "7a015d46-286f-4fc7-a069-6ce9a4691d92",
+          "sequence": 2,
+          "checksum": "51fac839d94a158aa269fc238ef415486c35634c4ff700c35ef1e729f757e291"
+        },
+        "installed": {
+          "id": 1,
+          "generation_id": "7a015d46-286f-4fc7-a069-6ce9a4691d92",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "f873ba859e61590c4abe89c5850dc2a9defdf6061ca5e22b026c631f2300f984"
+        }
+      },
+      "frozen": [
+        {
+          "id": "ad58728a-4430-46e1-b688-a9ada2ea0ea7",
+          "generation": "7a015d46-286f-4fc7-a069-6ce9a4691d92",
+          "state": "installed",
+          "binding": {
+            "baseline_sha256": "d7690137f348fdd047def8bc93609f92c8dc3f8b78b5f341c3d94b79168cbb34",
+            "generation": "7a015d46-286f-4fc7-a069-6ce9a4691d92",
+            "legacy_fingerprint": "a60e19864113f1948b805d30b123c90f7868c2129a2af38a4b6e6935aacb80ce",
+            "legacy_lineage": "72f26c27cd275cbd992a6d4b0fc7b208882eea79fb362ee55e44ea6393b6cd81",
+            "namespace": "89b06ce2bf740b4d44bbe538d7c3b8e29d66522fd188845cb74b425e896cf6f2",
+            "resolved_id": null,
+            "sequence": 1,
+            "snapshot_id": "9413bb4bfbf085a69c39aa4b4aecc76e0438fd26d56d904bc8fa368cba245c68",
+            "synced_at": "2026-10-16T01:56:23.725679Z",
+            "user": {
+              "display_name": "Owner",
+              "id": 1,
+              "share_pin_needs_change": false,
+              "username": "owner"
+            },
+            "version": 1
+          }
+        }
+      ],
+      "objects": 165,
+      "pins": 8,
+      "generations": {
+        "7a015d46-286f-4fc7-a069-6ce9a4691d92": {
+          "sync_root": "ea116da40cbe62ecb1553eea18f38c03f3ad1057c5c5964e1ca22bf4ceeb79f1",
+          "objects": 154,
+          "receipt": "e66168da5157aaf562a7b3752131c55d5172915a7c99a614417aeca4444914b0",
+          "closure_count": 154,
+          "closure_digest": "1216962b4da5b39f4236084aeb83ef2dcaeff9d5f2a757cdb2480bae7ef795c8",
+          "source_counts": {
+            "ledger_entries": 8,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "7b682d336164a70f60af53e4551c9108f5b9b4fe058e38a452d76f184d5ec88b",
+          "control_digest": "a3c7c7ba5c9e3edf6aff9b3e6ae3f68b1aac83e3c4e674cd2fbf8b5b328e1815"
+        },
+        "efda30ef-330f-4729-8e25-478d4914e0bd": {
+          "sync_root": "7c82786f58caf9e93adc3360de04423a9442428a53e36678a8e36548ebecb94f",
+          "objects": 154,
+          "receipt": "c9d61bb8aed49002c32df492f31a7d03efe2ae515fe69da124e13c77a7455c29",
+          "closure_count": 154,
+          "closure_digest": "a72f081720f977e8cd145233fc4459f3c6dbea916eb67b981a356926149ace44",
+          "source_counts": {
+            "ledger_entries": 8,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "21c814827ee4401500a55f7bff266eacb04a2dad742b272b41910ebc41ea5200",
+          "control_digest": "a3c7c7ba5c9e3edf6aff9b3e6ae3f68b1aac83e3c4e674cd2fbf8b5b328e1815"
+        }
+      }
+    },
+    "recovered": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "efda30ef-330f-4729-8e25-478d4914e0bd",
+          "previous_id": "7a015d46-286f-4fc7-a069-6ce9a4691d92",
+          "sequence": 2,
+          "checksum": "51fac839d94a158aa269fc238ef415486c35634c4ff700c35ef1e729f757e291"
+        },
+        "installed": {
+          "id": 1,
+          "generation_id": "7a015d46-286f-4fc7-a069-6ce9a4691d92",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "f873ba859e61590c4abe89c5850dc2a9defdf6061ca5e22b026c631f2300f984"
+        }
+      },
+      "frozen": [
+        {
+          "id": "ad58728a-4430-46e1-b688-a9ada2ea0ea7",
+          "generation": "7a015d46-286f-4fc7-a069-6ce9a4691d92",
+          "state": "installed",
+          "binding": {
+            "baseline_sha256": "d7690137f348fdd047def8bc93609f92c8dc3f8b78b5f341c3d94b79168cbb34",
+            "generation": "7a015d46-286f-4fc7-a069-6ce9a4691d92",
+            "legacy_fingerprint": "a60e19864113f1948b805d30b123c90f7868c2129a2af38a4b6e6935aacb80ce",
+            "legacy_lineage": "72f26c27cd275cbd992a6d4b0fc7b208882eea79fb362ee55e44ea6393b6cd81",
+            "namespace": "89b06ce2bf740b4d44bbe538d7c3b8e29d66522fd188845cb74b425e896cf6f2",
+            "resolved_id": null,
+            "sequence": 1,
+            "snapshot_id": "9413bb4bfbf085a69c39aa4b4aecc76e0438fd26d56d904bc8fa368cba245c68",
+            "synced_at": "2026-10-16T01:56:23.725679Z",
+            "user": {
+              "display_name": "Owner",
+              "id": 1,
+              "share_pin_needs_change": false,
+              "username": "owner"
+            },
+            "version": 1
+          }
+        }
+      ],
+      "objects": 165,
+      "pins": 8,
+      "generations": {
+        "7a015d46-286f-4fc7-a069-6ce9a4691d92": {
+          "sync_root": "ea116da40cbe62ecb1553eea18f38c03f3ad1057c5c5964e1ca22bf4ceeb79f1",
+          "objects": 154,
+          "receipt": "e66168da5157aaf562a7b3752131c55d5172915a7c99a614417aeca4444914b0",
+          "closure_count": 154,
+          "closure_digest": "1216962b4da5b39f4236084aeb83ef2dcaeff9d5f2a757cdb2480bae7ef795c8",
+          "source_counts": {
+            "ledger_entries": 8,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "7b682d336164a70f60af53e4551c9108f5b9b4fe058e38a452d76f184d5ec88b",
+          "control_digest": "a3c7c7ba5c9e3edf6aff9b3e6ae3f68b1aac83e3c4e674cd2fbf8b5b328e1815"
+        },
+        "efda30ef-330f-4729-8e25-478d4914e0bd": {
+          "sync_root": "7c82786f58caf9e93adc3360de04423a9442428a53e36678a8e36548ebecb94f",
+          "objects": 154,
+          "receipt": "c9d61bb8aed49002c32df492f31a7d03efe2ae515fe69da124e13c77a7455c29",
+          "closure_count": 154,
+          "closure_digest": "a72f081720f977e8cd145233fc4459f3c6dbea916eb67b981a356926149ace44",
+          "source_counts": {
+            "ledger_entries": 8,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "21c814827ee4401500a55f7bff266eacb04a2dad742b272b41910ebc41ea5200",
+          "control_digest": "a3c7c7ba5c9e3edf6aff9b3e6ae3f68b1aac83e3c4e674cd2fbf8b5b328e1815"
+        }
+      },
+      "legacy": {
+        "fingerprint": "a60e19864113f1948b805d30b123c90f7868c2129a2af38a4b6e6935aacb80ce",
+        "lineage": "72f26c27cd275cbd992a6d4b0fc7b208882eea79fb362ee55e44ea6393b6cd81",
+        "sha256": "f9663dbb2dae3b8970e014946e99f4a042d3c89cd48e473fd7c39be4d9909ebe"
+      }
+    },
+    "marker_sha256": "43ede1ed2c72c062463c8da11bafe6bb1fc282142154480125add14c0cd3d21a",
+    "baseline_sha256": "f9663dbb2dae3b8970e014946e99f4a042d3c89cd48e473fd7c39be4d9909ebe"
+  },
+  "regressions/phase-a-crash/crash-native_during_installation_readback.json": {
+    "boundary": "native_during_installation_readback",
+    "immediate": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "890d7b90-5f2b-44fe-88d8-3f99369389ae",
+          "previous_id": "3fc83977-1938-4bcf-b6dc-89ad24262715",
+          "sequence": 2,
+          "checksum": "c51185b3195d5ff65144215da983925eabaa7706f4c1f4e317dec5f4e8e747d3"
+        },
+        "installed": {
+          "id": 1,
+          "generation_id": "890d7b90-5f2b-44fe-88d8-3f99369389ae",
+          "previous_id": "3fc83977-1938-4bcf-b6dc-89ad24262715",
+          "sequence": 2,
+          "checksum": "c51185b3195d5ff65144215da983925eabaa7706f4c1f4e317dec5f4e8e747d3"
+        }
+      },
+      "frozen": [
+        {
+          "id": "e3f0b1be-f117-4d94-8cf0-3cd88c0826f5",
+          "generation": "3fc83977-1938-4bcf-b6dc-89ad24262715",
+          "state": "installed",
+          "binding": {
+            "baseline_sha256": "7e4d62547c9771ae78759da50860177120e9ae8bba20aaf0ab50ec8f1759f3ca",
+            "generation": "3fc83977-1938-4bcf-b6dc-89ad24262715",
+            "legacy_fingerprint": "0353cc15d82a86952ccc4bf886b30fc8fdfa6ea9592bd23758a9f32787b53022",
+            "legacy_lineage": "c774c7a86ebb7505c9610c68d21241a0e74d5c8697f0f983e5fc1000c663683b",
+            "namespace": "66b6c79be0e302e70af5e8f04267be362be2b58341f2a0e3949914bd6435552e",
+            "resolved_id": null,
+            "sequence": 1,
+            "snapshot_id": "9457cb7e2834479b8a469411af52c77cf8c9764fe5896f0ecc5aa65e7ca36f7f",
+            "synced_at": "2026-10-16T01:58:05.854675Z",
+            "user": {
+              "display_name": "Owner",
+              "id": 1,
+              "share_pin_needs_change": false,
+              "username": "owner"
+            },
+            "version": 1
+          }
+        }
+      ],
+      "objects": 165,
+      "pins": 8,
+      "generations": {
+        "3fc83977-1938-4bcf-b6dc-89ad24262715": {
+          "sync_root": "61c7ae83e554dc29922c0714721ba5de647122aa2c32e55b3b890a49b9ec8e1a",
+          "objects": 154,
+          "receipt": "11cbcd5a82ea609194f31242354d2e1c75ce8d48a286dd1175694c1b701c8db6",
+          "closure_count": 154,
+          "closure_digest": "da1cdbbcc7b19a3ce7dbce8032f8f80711dad09e660691eb3528c9b03f7b3f07",
+          "source_counts": {
+            "ledger_entries": 8,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "23c2b8db4c1ef5e96dd912c0aeed583faeda56fc4152cedab331f261b6b3a3f8",
+          "control_digest": "13e1e20eb5a71eedb1d508263fad8460409210145f61076f005fc0ea45bdb89e"
+        },
+        "890d7b90-5f2b-44fe-88d8-3f99369389ae": {
+          "sync_root": "83c0c853491a3a4c7d7a73560177b3d3bb3c1ebca448f2f133f17cd75c546676",
+          "objects": 154,
+          "receipt": "e45dc81e9a6fb49a2a1ee74f7c55451622034cb7256ef486cbc713485c6207f5",
+          "closure_count": 154,
+          "closure_digest": "e55e0065463bf255e06cc50622ceeeffef56e96f189e6fff3a781fd93d0e8afe",
+          "source_counts": {
+            "ledger_entries": 8,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "6e09d91b91109b7ce1f608f58c9c12e13c50c1db4767b3e6064271710c758477",
+          "control_digest": "13e1e20eb5a71eedb1d508263fad8460409210145f61076f005fc0ea45bdb89e"
+        }
+      }
+    },
+    "recovered": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "890d7b90-5f2b-44fe-88d8-3f99369389ae",
+          "previous_id": "3fc83977-1938-4bcf-b6dc-89ad24262715",
+          "sequence": 2,
+          "checksum": "c51185b3195d5ff65144215da983925eabaa7706f4c1f4e317dec5f4e8e747d3"
+        },
+        "installed": {
+          "id": 1,
+          "generation_id": "890d7b90-5f2b-44fe-88d8-3f99369389ae",
+          "previous_id": "3fc83977-1938-4bcf-b6dc-89ad24262715",
+          "sequence": 2,
+          "checksum": "c51185b3195d5ff65144215da983925eabaa7706f4c1f4e317dec5f4e8e747d3"
+        }
+      },
+      "frozen": [
+        {
+          "id": "e3f0b1be-f117-4d94-8cf0-3cd88c0826f5",
+          "generation": "3fc83977-1938-4bcf-b6dc-89ad24262715",
+          "state": "installed",
+          "binding": {
+            "baseline_sha256": "7e4d62547c9771ae78759da50860177120e9ae8bba20aaf0ab50ec8f1759f3ca",
+            "generation": "3fc83977-1938-4bcf-b6dc-89ad24262715",
+            "legacy_fingerprint": "0353cc15d82a86952ccc4bf886b30fc8fdfa6ea9592bd23758a9f32787b53022",
+            "legacy_lineage": "c774c7a86ebb7505c9610c68d21241a0e74d5c8697f0f983e5fc1000c663683b",
+            "namespace": "66b6c79be0e302e70af5e8f04267be362be2b58341f2a0e3949914bd6435552e",
+            "resolved_id": null,
+            "sequence": 1,
+            "snapshot_id": "9457cb7e2834479b8a469411af52c77cf8c9764fe5896f0ecc5aa65e7ca36f7f",
+            "synced_at": "2026-10-16T01:58:05.854675Z",
+            "user": {
+              "display_name": "Owner",
+              "id": 1,
+              "share_pin_needs_change": false,
+              "username": "owner"
+            },
+            "version": 1
+          }
+        }
+      ],
+      "objects": 165,
+      "pins": 8,
+      "generations": {
+        "3fc83977-1938-4bcf-b6dc-89ad24262715": {
+          "sync_root": "61c7ae83e554dc29922c0714721ba5de647122aa2c32e55b3b890a49b9ec8e1a",
+          "objects": 154,
+          "receipt": "11cbcd5a82ea609194f31242354d2e1c75ce8d48a286dd1175694c1b701c8db6",
+          "closure_count": 154,
+          "closure_digest": "da1cdbbcc7b19a3ce7dbce8032f8f80711dad09e660691eb3528c9b03f7b3f07",
+          "source_counts": {
+            "ledger_entries": 8,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "23c2b8db4c1ef5e96dd912c0aeed583faeda56fc4152cedab331f261b6b3a3f8",
+          "control_digest": "13e1e20eb5a71eedb1d508263fad8460409210145f61076f005fc0ea45bdb89e"
+        },
+        "890d7b90-5f2b-44fe-88d8-3f99369389ae": {
+          "sync_root": "83c0c853491a3a4c7d7a73560177b3d3bb3c1ebca448f2f133f17cd75c546676",
+          "objects": 154,
+          "receipt": "e45dc81e9a6fb49a2a1ee74f7c55451622034cb7256ef486cbc713485c6207f5",
+          "closure_count": 154,
+          "closure_digest": "e55e0065463bf255e06cc50622ceeeffef56e96f189e6fff3a781fd93d0e8afe",
+          "source_counts": {
+            "ledger_entries": 8,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "source_digest": "6e09d91b91109b7ce1f608f58c9c12e13c50c1db4767b3e6064271710c758477",
+          "control_digest": "13e1e20eb5a71eedb1d508263fad8460409210145f61076f005fc0ea45bdb89e"
+        }
+      },
+      "legacy": {
+        "fingerprint": "0353cc15d82a86952ccc4bf886b30fc8fdfa6ea9592bd23758a9f32787b53022",
+        "lineage": "c774c7a86ebb7505c9610c68d21241a0e74d5c8697f0f983e5fc1000c663683b",
+        "sha256": "546904626fe977c98ae2e7bb3947157baf53a6f70b040c613754d4414b242518"
+      }
+    },
+    "marker_sha256": "f547db28a7269f5b6b72dfe21e3be457d9ebfce3514f71f7769922fc7a86c6fe",
+    "baseline_sha256": "546904626fe977c98ae2e7bb3947157baf53a6f70b040c613754d4414b242518"
+  },
+  "regressions/a01-crash/native_only_source_restore_before_commit.json": {
+    "boundary": "native_only_source_restore_before_commit",
+    "expected_frozen": null,
+    "immediate_source_sha256": "72f0d3989c8cfe3971241b7bd107c3a626333e58be384dc23f0a3c9b527e7557",
+    "source_sha256": "72f0d3989c8cfe3971241b7bd107c3a626333e58be384dc23f0a3c9b527e7557",
+    "immediate_frozen": [
+      {
+        "id": "43eed5da-f404-46df-a698-bc54bb6b0c74",
+        "generation": "4e4ad951-6a61-448f-8ccf-d4a91fb65785",
+        "state": "prepared",
+        "binding": {
+          "baseline_sha256": "1fd04234ac691a8e45ec13380f6c805d8fa36134cc98ae8bd77bad5c81961e86",
+          "generation": "4e4ad951-6a61-448f-8ccf-d4a91fb65785",
+          "legacy_fingerprint": "5fa1105ee1251a0d069e9f9f446dbbc960ce05753a2b1f76ebe3164b2a1d1bdf",
+          "legacy_lineage": "1439266f82b224ff1b4299e026530e5c34f999343c7967738469a98fe22ef912",
+          "namespace": "580a3608b00dd17fdbd234a2b30806ec9b85c0b5d56ff0bd6ea189ea5a6bfd12",
+          "resolved_id": null,
+          "sequence": 1,
+          "snapshot_id": "b5bea6897de9882d272b1839d849e98b9fa2b4266fe3c7b8f46118e358fbb269",
+          "synced_at": "2026-10-16T00:00:00.000Z",
+          "user": {
+            "display_name": "Owner",
+            "id": 1,
+            "share_pin_needs_change": false,
+            "username": "owner"
+          },
+          "version": 1
+        }
+      }
+    ],
+    "recovered_frozen": [],
+    "pointers": {
+      "accepted": {
+        "id": 1,
+        "current_id": "4e4ad951-6a61-448f-8ccf-d4a91fb65785",
+        "previous_id": null,
+        "sequence": 1,
+        "checksum": "2b11f9c433ccd74848e677b8f30e6ef8ef7e865815f765c9ccd451dd9a176185"
+      },
+      "installed": {
+        "id": 1,
+        "generation_id": "4e4ad951-6a61-448f-8ccf-d4a91fb65785",
+        "previous_id": null,
+        "sequence": 1,
+        "checksum": "2b11f9c433ccd74848e677b8f30e6ef8ef7e865815f765c9ccd451dd9a176185"
+      }
+    },
+    "objects": 146,
+    "pins": 4,
+    "legacy": null,
+    "pending_preserved": true,
+    "r1_gate": "CLOSED"
+  },
+  "regressions/a01-crash/native_source_restore_before_commit.json": {
+    "boundary": "native_source_restore_before_commit",
+    "expected_frozen": "b481c245-803e-49a0-afce-7ec8a41503ab",
+    "immediate_source_sha256": "dd27e718eed4a07a9372c102a17d9a29a2ad9db65010a191c7f499638c3ece90",
+    "source_sha256": "dd27e718eed4a07a9372c102a17d9a29a2ad9db65010a191c7f499638c3ece90",
+    "immediate_frozen": [
+      {
+        "id": "5a144457-6143-4413-b6e2-587ab3065a8d",
+        "generation": "2e7d9fd2-6939-4451-b2f2-38b4aab0461e",
+        "state": "prepared",
+        "binding": {
+          "baseline_sha256": "4d172df404bf8969217680e1a24fe06adda6b7d00c6b2ae1ac9f683aaad24969",
+          "generation": "2e7d9fd2-6939-4451-b2f2-38b4aab0461e",
+          "legacy_fingerprint": "57def72ba9cda4fb8788edd90ad2d51302d9959809db577ba2cf1f1fdb932ed4",
+          "legacy_lineage": "cf52ff592e54328b3ac0a8c57c896768df6e11e50d8e49fff0a72d45ceaaec28",
+          "namespace": "87cd609a7252b9566d7187d84e24203af80d5c30fe320639edb52ffe32753779",
+          "resolved_id": null,
+          "sequence": 1,
+          "snapshot_id": "5bcd49ab70e36cd91b3934716a69584b1f341777b07c4364beb66cb0668cd7a5",
+          "synced_at": "2026-10-16T00:00:00.000Z",
+          "user": {
+            "display_name": "Owner",
+            "id": 1,
+            "share_pin_needs_change": false,
+            "username": "owner"
+          },
+          "version": 1
+        }
+      },
+      {
+        "id": "b481c245-803e-49a0-afce-7ec8a41503ab",
+        "generation": "2e7d9fd2-6939-4451-b2f2-38b4aab0461e",
+        "state": "installed",
+        "binding": {
+          "baseline_sha256": "3634df9db6ec43b3e2f954a01fbb58bb759e39523103f6342831248ef5b5c3c0",
+          "generation": "2e7d9fd2-6939-4451-b2f2-38b4aab0461e",
+          "legacy_fingerprint": "57def72ba9cda4fb8788edd90ad2d51302d9959809db577ba2cf1f1fdb932ed4",
+          "legacy_lineage": "5241fe79e5d6a1bbed2f7a29acd7d49d85542b2f49d766987c10c38d526ada2f",
+          "namespace": "87cd609a7252b9566d7187d84e24203af80d5c30fe320639edb52ffe32753779",
+          "resolved_id": null,
+          "sequence": 1,
+          "snapshot_id": "5bcd49ab70e36cd91b3934716a69584b1f341777b07c4364beb66cb0668cd7a5",
+          "synced_at": "2026-10-16T02:07:25.272167Z",
+          "user": {
+            "display_name": "Owner",
+            "id": 1,
+            "share_pin_needs_change": false,
+            "username": "owner"
+          },
+          "version": 1
+        }
+      }
+    ],
+    "recovered_frozen": [
+      {
+        "id": "b481c245-803e-49a0-afce-7ec8a41503ab",
+        "generation": "2e7d9fd2-6939-4451-b2f2-38b4aab0461e",
+        "state": "installed",
+        "binding": {
+          "baseline_sha256": "3634df9db6ec43b3e2f954a01fbb58bb759e39523103f6342831248ef5b5c3c0",
+          "generation": "2e7d9fd2-6939-4451-b2f2-38b4aab0461e",
+          "legacy_fingerprint": "57def72ba9cda4fb8788edd90ad2d51302d9959809db577ba2cf1f1fdb932ed4",
+          "legacy_lineage": "5241fe79e5d6a1bbed2f7a29acd7d49d85542b2f49d766987c10c38d526ada2f",
+          "namespace": "87cd609a7252b9566d7187d84e24203af80d5c30fe320639edb52ffe32753779",
+          "resolved_id": null,
+          "sequence": 1,
+          "snapshot_id": "5bcd49ab70e36cd91b3934716a69584b1f341777b07c4364beb66cb0668cd7a5",
+          "synced_at": "2026-10-16T02:07:25.272167Z",
+          "user": {
+            "display_name": "Owner",
+            "id": 1,
+            "share_pin_needs_change": false,
+            "username": "owner"
+          },
+          "version": 1
+        }
+      }
+    ],
+    "pointers": {
+      "accepted": {
+        "id": 1,
+        "current_id": "2e7d9fd2-6939-4451-b2f2-38b4aab0461e",
+        "previous_id": null,
+        "sequence": 1,
+        "checksum": "028680e37a119b6a0576288401930282e4ba8c62e7e50fef94917215642cb155"
+      },
+      "installed": {
+        "id": 1,
+        "generation_id": "2e7d9fd2-6939-4451-b2f2-38b4aab0461e",
+        "previous_id": null,
+        "sequence": 1,
+        "checksum": "028680e37a119b6a0576288401930282e4ba8c62e7e50fef94917215642cb155"
+      }
+    },
+    "objects": 146,
+    "pins": 4,
+    "legacy": {
+      "fingerprint": "57def72ba9cda4fb8788edd90ad2d51302d9959809db577ba2cf1f1fdb932ed4",
+      "lineage": "5241fe79e5d6a1bbed2f7a29acd7d49d85542b2f49d766987c10c38d526ada2f",
+      "sha256": "7a3450820488026585f271cccf9e23094b19b2c5aebe3be8507ad7e91b75aa6c"
+    },
+    "pending_preserved": true,
+    "r1_gate": "CLOSED"
+  },
+  "regressions/a01-crash/source_restore_after_commit.json": {
+    "boundary": "source_restore_after_commit",
+    "expected_frozen": "2725bc51-e73a-40ba-a30b-159be90419fa",
+    "immediate_source_sha256": "be08072e52d3ae832279da4b8ac1719e8fd7f3577c8dfc9b9286f87d97192200",
+    "source_sha256": "be08072e52d3ae832279da4b8ac1719e8fd7f3577c8dfc9b9286f87d97192200",
+    "immediate_frozen": [
+      {
+        "id": "2725bc51-e73a-40ba-a30b-159be90419fa",
+        "generation": "1c7f36c0-6925-44da-870a-15dba8e0a9ae",
+        "state": "installed",
+        "binding": {
+          "baseline_sha256": "991d0f5232466c01d9e4763fb0c4b6cd60a5acd8070b99bab00cb9a1fbb25d2b",
+          "generation": "1c7f36c0-6925-44da-870a-15dba8e0a9ae",
+          "legacy_fingerprint": "ef3f7c6526ba8aefd5885129532c50c82e34f7f1721f174548c07d0f5d86b06c",
+          "legacy_lineage": "05a0d34b882a405e7e7fe008610451a71a44c747eadc77ff3bf6754cb1659a94",
+          "namespace": "0b219ea6707ca3a4b1fed9263cba6ad2f4e1bf8d5a8510ba7c11af2467e5455e",
+          "resolved_id": null,
+          "sequence": 1,
+          "snapshot_id": "20300685cda87928798cab2a9255ce190bc7dd8398f7a618031ba78cf0aec5a1",
+          "synced_at": "2026-10-16T02:05:19.237376Z",
+          "user": {
+            "display_name": "Owner",
+            "id": 1,
+            "share_pin_needs_change": false,
+            "username": "owner"
+          },
+          "version": 1
+        }
+      }
+    ],
+    "recovered_frozen": [
+      {
+        "id": "2725bc51-e73a-40ba-a30b-159be90419fa",
+        "generation": "1c7f36c0-6925-44da-870a-15dba8e0a9ae",
+        "state": "installed",
+        "binding": {
+          "baseline_sha256": "991d0f5232466c01d9e4763fb0c4b6cd60a5acd8070b99bab00cb9a1fbb25d2b",
+          "generation": "1c7f36c0-6925-44da-870a-15dba8e0a9ae",
+          "legacy_fingerprint": "ef3f7c6526ba8aefd5885129532c50c82e34f7f1721f174548c07d0f5d86b06c",
+          "legacy_lineage": "05a0d34b882a405e7e7fe008610451a71a44c747eadc77ff3bf6754cb1659a94",
+          "namespace": "0b219ea6707ca3a4b1fed9263cba6ad2f4e1bf8d5a8510ba7c11af2467e5455e",
+          "resolved_id": null,
+          "sequence": 1,
+          "snapshot_id": "20300685cda87928798cab2a9255ce190bc7dd8398f7a618031ba78cf0aec5a1",
+          "synced_at": "2026-10-16T02:05:19.237376Z",
+          "user": {
+            "display_name": "Owner",
+            "id": 1,
+            "share_pin_needs_change": false,
+            "username": "owner"
+          },
+          "version": 1
+        }
+      }
+    ],
+    "pointers": {
+      "accepted": {
+        "id": 1,
+        "current_id": "1c7f36c0-6925-44da-870a-15dba8e0a9ae",
+        "previous_id": null,
+        "sequence": 1,
+        "checksum": "a45e907ceec26e78829d49d18e9e422b445fa6b0221e4463bf752850d43ec17b"
+      },
+      "installed": {
+        "id": 1,
+        "generation_id": "1c7f36c0-6925-44da-870a-15dba8e0a9ae",
+        "previous_id": null,
+        "sequence": 1,
+        "checksum": "a45e907ceec26e78829d49d18e9e422b445fa6b0221e4463bf752850d43ec17b"
+      }
+    },
+    "objects": 146,
+    "pins": 4,
+    "legacy": {
+      "fingerprint": "ef3f7c6526ba8aefd5885129532c50c82e34f7f1721f174548c07d0f5d86b06c",
+      "lineage": "05a0d34b882a405e7e7fe008610451a71a44c747eadc77ff3bf6754cb1659a94",
+      "sha256": "e53837126b6ef98eeebac157ff3c62d6f3976b853327647efb9884594d2eea79"
+    },
+    "pending_preserved": true,
+    "r1_gate": "CLOSED"
+  },
+  "regressions/a01-crash/source_restore_before_commit.json": {
+    "boundary": "source_restore_before_commit",
+    "expected_frozen": "88d0192d-d5fc-45b2-8c92-21ec4be6d24d",
+    "immediate_source_sha256": "42beed80370c1f236bbbcb6c302ae64f57820bb4b45e9784e6bd93922a8714a7",
+    "source_sha256": "42beed80370c1f236bbbcb6c302ae64f57820bb4b45e9784e6bd93922a8714a7",
+    "immediate_frozen": [
+      {
+        "id": "227e3258-9a9d-45d7-9b69-3a1e5b490510",
+        "generation": "53d57251-6ab8-443e-b227-6b67b88bc684",
+        "state": "prepared",
+        "binding": {
+          "baseline_sha256": "eb89cff22d1f41e2a62e85aa3e97c56bc7a632e8b49dfde6083f29b7c3902641",
+          "generation": "53d57251-6ab8-443e-b227-6b67b88bc684",
+          "legacy_fingerprint": "7e08a62b25ef2be539e3722b350f92c947634f2045577fd8ec8e7903239f598a",
+          "legacy_lineage": "88c7966455cbb7c1029e76c03eefbefeaab7b37cf02f64db362212484a930247",
+          "namespace": "eb012509d82864ccad2c5d777a10febea0af4385851a7e07035f2d55537fa876",
+          "resolved_id": null,
+          "sequence": 1,
+          "snapshot_id": "89559f92b443b6066cace255d1e726e789e0fa526d024f8e850ebe8a2a770295",
+          "synced_at": "2026-10-16T00:00:00.000Z",
+          "user": {
+            "display_name": "Owner",
+            "id": 1,
+            "share_pin_needs_change": false,
+            "username": "owner"
+          },
+          "version": 1
+        }
+      },
+      {
+        "id": "88d0192d-d5fc-45b2-8c92-21ec4be6d24d",
+        "generation": "53d57251-6ab8-443e-b227-6b67b88bc684",
+        "state": "installed",
+        "binding": {
+          "baseline_sha256": "495681e125c835b6c1f85ee4993d4189dde94ac92b4e3ede6801b9920dff61ad",
+          "generation": "53d57251-6ab8-443e-b227-6b67b88bc684",
+          "legacy_fingerprint": "7e08a62b25ef2be539e3722b350f92c947634f2045577fd8ec8e7903239f598a",
+          "legacy_lineage": "bf59990456177682a912a8cb9454a76c81543cd8632741817c3c746e34b53dad",
+          "namespace": "eb012509d82864ccad2c5d777a10febea0af4385851a7e07035f2d55537fa876",
+          "resolved_id": null,
+          "sequence": 1,
+          "snapshot_id": "89559f92b443b6066cace255d1e726e789e0fa526d024f8e850ebe8a2a770295",
+          "synced_at": "2026-10-16T02:03:30.169069Z",
+          "user": {
+            "display_name": "Owner",
+            "id": 1,
+            "share_pin_needs_change": false,
+            "username": "owner"
+          },
+          "version": 1
+        }
+      }
+    ],
+    "recovered_frozen": [
+      {
+        "id": "88d0192d-d5fc-45b2-8c92-21ec4be6d24d",
+        "generation": "53d57251-6ab8-443e-b227-6b67b88bc684",
+        "state": "installed",
+        "binding": {
+          "baseline_sha256": "495681e125c835b6c1f85ee4993d4189dde94ac92b4e3ede6801b9920dff61ad",
+          "generation": "53d57251-6ab8-443e-b227-6b67b88bc684",
+          "legacy_fingerprint": "7e08a62b25ef2be539e3722b350f92c947634f2045577fd8ec8e7903239f598a",
+          "legacy_lineage": "bf59990456177682a912a8cb9454a76c81543cd8632741817c3c746e34b53dad",
+          "namespace": "eb012509d82864ccad2c5d777a10febea0af4385851a7e07035f2d55537fa876",
+          "resolved_id": null,
+          "sequence": 1,
+          "snapshot_id": "89559f92b443b6066cace255d1e726e789e0fa526d024f8e850ebe8a2a770295",
+          "synced_at": "2026-10-16T02:03:30.169069Z",
+          "user": {
+            "display_name": "Owner",
+            "id": 1,
+            "share_pin_needs_change": false,
+            "username": "owner"
+          },
+          "version": 1
+        }
+      }
+    ],
+    "pointers": {
+      "accepted": {
+        "id": 1,
+        "current_id": "53d57251-6ab8-443e-b227-6b67b88bc684",
+        "previous_id": null,
+        "sequence": 1,
+        "checksum": "7436f4ea1e94766ef2cd0f86af10d2d79042c5d3d5da01d640c9864620ea90f3"
+      },
+      "installed": {
+        "id": 1,
+        "generation_id": "53d57251-6ab8-443e-b227-6b67b88bc684",
+        "previous_id": null,
+        "sequence": 1,
+        "checksum": "7436f4ea1e94766ef2cd0f86af10d2d79042c5d3d5da01d640c9864620ea90f3"
+      }
+    },
+    "objects": 146,
+    "pins": 4,
+    "legacy": {
+      "fingerprint": "7e08a62b25ef2be539e3722b350f92c947634f2045577fd8ec8e7903239f598a",
+      "lineage": "bf59990456177682a912a8cb9454a76c81543cd8632741817c3c746e34b53dad",
+      "sha256": "24866b256330f43d30a636708ad810bdacf5919e08a781c88ae3e4b76495760c"
+    },
+    "pending_preserved": true,
+    "r1_gate": "CLOSED"
+  },
+  "regressions/a01-crash/stale_after_conflict.json": {
+    "boundary": "stale_after_conflict",
+    "expected_frozen": "a50af153-0edc-48ae-859e-4df04d4f1635",
+    "immediate_source_sha256": "1700076e7382820e0507794d160b55b15c27332e1a835534cd8f7d6137e6bfcb",
+    "source_sha256": "1700076e7382820e0507794d160b55b15c27332e1a835534cd8f7d6137e6bfcb",
+    "immediate_frozen": [
+      {
+        "id": "a50af153-0edc-48ae-859e-4df04d4f1635",
+        "generation": "94672591-db48-49d3-a13a-57fe45af3970",
+        "state": "installed",
+        "binding": {
+          "baseline_sha256": "bb104aa7eaa1ebf1efff74537c68e1b3209845f98138fbc9c1eadc37bdee5b3d",
+          "generation": "94672591-db48-49d3-a13a-57fe45af3970",
+          "legacy_fingerprint": "f234101eeab08a5db9e7edb3c09e163fc927049fe601bb91c0a8381e4342bfe7",
+          "legacy_lineage": "1ad7194fc2bac0479ddaf8e3a8884a5513cb93b5e36a43407e8f661a5d440d6a",
+          "namespace": "600297c79f8c465eb71bcd3a4999733b09bd926a5ef337d9d627aca30ce4a20c",
+          "resolved_id": null,
+          "sequence": 2,
+          "snapshot_id": "d3e8d11308fd579b353f3d139681ebd4d0e0bf6c7ea4b0e88647cef2c01fe769",
+          "synced_at": "2026-10-16T02:01:42.027571Z",
+          "user": {
+            "display_name": "Owner",
+            "id": 1,
+            "share_pin_needs_change": false,
+            "username": "owner"
+          },
+          "version": 1
+        }
+      }
+    ],
+    "recovered_frozen": [
+      {
+        "id": "a50af153-0edc-48ae-859e-4df04d4f1635",
+        "generation": "94672591-db48-49d3-a13a-57fe45af3970",
+        "state": "installed",
+        "binding": {
+          "baseline_sha256": "bb104aa7eaa1ebf1efff74537c68e1b3209845f98138fbc9c1eadc37bdee5b3d",
+          "generation": "94672591-db48-49d3-a13a-57fe45af3970",
+          "legacy_fingerprint": "f234101eeab08a5db9e7edb3c09e163fc927049fe601bb91c0a8381e4342bfe7",
+          "legacy_lineage": "1ad7194fc2bac0479ddaf8e3a8884a5513cb93b5e36a43407e8f661a5d440d6a",
+          "namespace": "600297c79f8c465eb71bcd3a4999733b09bd926a5ef337d9d627aca30ce4a20c",
+          "resolved_id": null,
+          "sequence": 2,
+          "snapshot_id": "d3e8d11308fd579b353f3d139681ebd4d0e0bf6c7ea4b0e88647cef2c01fe769",
+          "synced_at": "2026-10-16T02:01:42.027571Z",
+          "user": {
+            "display_name": "Owner",
+            "id": 1,
+            "share_pin_needs_change": false,
+            "username": "owner"
+          },
+          "version": 1
+        }
+      }
+    ],
+    "pointers": {
+      "accepted": {
+        "id": 1,
+        "current_id": "94672591-db48-49d3-a13a-57fe45af3970",
+        "previous_id": "b0573b50-478c-4494-8963-f6e0a529474c",
+        "sequence": 2,
+        "checksum": "fc526da2ff31645e38007aa148392d2436fa56964ea7d956c61e2e5d7fc86f6d"
+      },
+      "installed": {
+        "id": 1,
+        "generation_id": "94672591-db48-49d3-a13a-57fe45af3970",
+        "previous_id": "b0573b50-478c-4494-8963-f6e0a529474c",
+        "sequence": 2,
+        "checksum": "fc526da2ff31645e38007aa148392d2436fa56964ea7d956c61e2e5d7fc86f6d"
+      }
+    },
+    "objects": 157,
+    "pins": 8,
+    "legacy": {
+      "fingerprint": "f234101eeab08a5db9e7edb3c09e163fc927049fe601bb91c0a8381e4342bfe7",
+      "lineage": "1ad7194fc2bac0479ddaf8e3a8884a5513cb93b5e36a43407e8f661a5d440d6a",
+      "sha256": "a9b3d3e629acc3097846c47e9882a5be21985b9cd5daf1a7df84addcf42c3d8c"
+    },
+    "pending_preserved": true,
+    "r1_gate": "CLOSED"
+  },
+  "regressions/a01-crash/stale_before_release.json": {
+    "boundary": "stale_before_release",
+    "expected_frozen": "de96663c-d57a-4ee2-9264-0bd05b0c1a83",
+    "immediate_source_sha256": "c048edb0df4fe019918dde6252ac020b13843c44c1bfad1a1494a1ea44690ae1",
+    "source_sha256": "c048edb0df4fe019918dde6252ac020b13843c44c1bfad1a1494a1ea44690ae1",
+    "immediate_frozen": [
+      {
+        "id": "de96663c-d57a-4ee2-9264-0bd05b0c1a83",
+        "generation": "bc0939b9-23f3-4467-82f6-9dd0eaa77d85",
+        "state": "installed",
+        "binding": {
+          "baseline_sha256": "1ae310752a4e221785302e55a4571a0470a611ce8781e2f173211833ac72d0ac",
+          "generation": "bc0939b9-23f3-4467-82f6-9dd0eaa77d85",
+          "legacy_fingerprint": "08f80f66c80eda0e4f175bf9f7aa444b5e823c956bcaf3f9f4b86bf09238df1b",
+          "legacy_lineage": "fdaa03ee479adbdac525c6a88665f2c6b8eed9c1381721648ee635aeddc23f5d",
+          "namespace": "c5f6295f273805a56f77a335a6da2761979dd08998502c13adbc554f6c37db3e",
+          "resolved_id": null,
+          "sequence": 2,
+          "snapshot_id": "d33900056a0bb4c3255c01a35db24a7f88e78b0c9ccc6b73b8823ed4ba00f091",
+          "synced_at": "2026-10-16T01:59:56.429529Z",
+          "user": {
+            "display_name": "Owner",
+            "id": 1,
+            "share_pin_needs_change": false,
+            "username": "owner"
+          },
+          "version": 1
+        }
+      }
+    ],
+    "recovered_frozen": [
+      {
+        "id": "de96663c-d57a-4ee2-9264-0bd05b0c1a83",
+        "generation": "bc0939b9-23f3-4467-82f6-9dd0eaa77d85",
+        "state": "installed",
+        "binding": {
+          "baseline_sha256": "1ae310752a4e221785302e55a4571a0470a611ce8781e2f173211833ac72d0ac",
+          "generation": "bc0939b9-23f3-4467-82f6-9dd0eaa77d85",
+          "legacy_fingerprint": "08f80f66c80eda0e4f175bf9f7aa444b5e823c956bcaf3f9f4b86bf09238df1b",
+          "legacy_lineage": "fdaa03ee479adbdac525c6a88665f2c6b8eed9c1381721648ee635aeddc23f5d",
+          "namespace": "c5f6295f273805a56f77a335a6da2761979dd08998502c13adbc554f6c37db3e",
+          "resolved_id": null,
+          "sequence": 2,
+          "snapshot_id": "d33900056a0bb4c3255c01a35db24a7f88e78b0c9ccc6b73b8823ed4ba00f091",
+          "synced_at": "2026-10-16T01:59:56.429529Z",
+          "user": {
+            "display_name": "Owner",
+            "id": 1,
+            "share_pin_needs_change": false,
+            "username": "owner"
+          },
+          "version": 1
+        }
+      }
+    ],
+    "pointers": {
+      "accepted": {
+        "id": 1,
+        "current_id": "bc0939b9-23f3-4467-82f6-9dd0eaa77d85",
+        "previous_id": "3f557871-6c9b-4d43-a5a9-acb470bc3840",
+        "sequence": 2,
+        "checksum": "199699584d6a2927416730a3ee8ebad84ad0b58952f523964eee63422b6e4d44"
+      },
+      "installed": {
+        "id": 1,
+        "generation_id": "bc0939b9-23f3-4467-82f6-9dd0eaa77d85",
+        "previous_id": "3f557871-6c9b-4d43-a5a9-acb470bc3840",
+        "sequence": 2,
+        "checksum": "199699584d6a2927416730a3ee8ebad84ad0b58952f523964eee63422b6e4d44"
+      }
+    },
+    "objects": 157,
+    "pins": 8,
+    "legacy": {
+      "fingerprint": "08f80f66c80eda0e4f175bf9f7aa444b5e823c956bcaf3f9f4b86bf09238df1b",
+      "lineage": "fdaa03ee479adbdac525c6a88665f2c6b8eed9c1381721648ee635aeddc23f5d",
+      "sha256": "da4e9c7ebcee18742b52a3e758fcbef7f4a6ddb5fa3bfed25ca68862ba37a7d2"
+    },
+    "pending_preserved": true,
+    "r1_gate": "CLOSED"
+  },
+  "regressions/ra01-crash/after_commit.json": {
+    "boundary": "after_commit",
+    "expected_installed": "64d1b4ad-0ba7-42db-880b-3d6c0d788258",
+    "immediate_source": {
+      "storage": "segmented-store/1",
+      "kind": "segmented",
+      "namespace": "289cb81da3279c841344e476bcd00edf69809d2c1e3f82561d614a317727959b",
+      "generation": "64d1b4ad-0ba7-42db-880b-3d6c0d788258",
+      "sequence": 2,
+      "legacy_frozen": "4aa17e28-0d47-498e-b6e7-9e096eb8fd22",
+      "legacy_binding": "8ef7ea9f59a32139b641a495d34cd33fc57d6f76a218109484e980ddeb208ea4",
+      "previous_installation": "89f84b6c-5521-430c-8303-1a0696099f86",
+      "previous_sequence": 1,
+      "previous_source": {
+        "storage": "segmented-store/1",
+        "namespace": "289cb81da3279c841344e476bcd00edf69809d2c1e3f82561d614a317727959b",
+        "frozen": "4aa17e28-0d47-498e-b6e7-9e096eb8fd22",
+        "binding": "8ef7ea9f59a32139b641a495d34cd33fc57d6f76a218109484e980ddeb208ea4",
+        "previous_file": null,
+        "previous_source": null
+      }
+    },
+    "recovered": {
+      "recovery_error": null,
+      "frozen_read": true,
+      "r1_gate": "CLOSED",
+      "installed": "64d1b4ad-0ba7-42db-880b-3d6c0d788258",
+      "source": {
+        "storage": "segmented-store/1",
+        "kind": "segmented",
+        "namespace": "289cb81da3279c841344e476bcd00edf69809d2c1e3f82561d614a317727959b",
+        "generation": "64d1b4ad-0ba7-42db-880b-3d6c0d788258",
+        "sequence": 2,
+        "legacy_frozen": "4aa17e28-0d47-498e-b6e7-9e096eb8fd22",
+        "legacy_binding": "8ef7ea9f59a32139b641a495d34cd33fc57d6f76a218109484e980ddeb208ea4",
+        "previous_installation": "89f84b6c-5521-430c-8303-1a0696099f86",
+        "previous_sequence": 1,
+        "previous_source": {
+          "storage": "segmented-store/1",
+          "namespace": "289cb81da3279c841344e476bcd00edf69809d2c1e3f82561d614a317727959b",
+          "frozen": "4aa17e28-0d47-498e-b6e7-9e096eb8fd22",
+          "binding": "8ef7ea9f59a32139b641a495d34cd33fc57d6f76a218109484e980ddeb208ea4",
+          "previous_file": null,
+          "previous_source": null
+        }
+      }
+    },
+    "source_sha256": "e097b0a2307d591fcddb7e7db8b67ff14fabe70d2330d7d6511a95753a840e77",
+    "baseline_preserved": true,
+    "pending_preserved": true,
+    "before_reopen": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "64d1b4ad-0ba7-42db-880b-3d6c0d788258",
+          "previous_id": "89f84b6c-5521-430c-8303-1a0696099f86",
+          "sequence": 2,
+          "checksum": "8a7bdf3630de1609af802b5b56cb8eb6116df0b8c03e3cbde19fc11047f8565d"
+        },
+        "installed": {
+          "id": 1,
+          "generation_id": "64d1b4ad-0ba7-42db-880b-3d6c0d788258",
+          "previous_id": "89f84b6c-5521-430c-8303-1a0696099f86",
+          "sequence": 2,
+          "checksum": "8a7bdf3630de1609af802b5b56cb8eb6116df0b8c03e3cbde19fc11047f8565d"
+        }
+      },
+      "frozen": [
+        {
+          "id": "4aa17e28-0d47-498e-b6e7-9e096eb8fd22",
+          "generation": "89f84b6c-5521-430c-8303-1a0696099f86",
+          "state": "installed",
+          "binding": {
+            "baseline_sha256": "175ce52539e6113fc072b0ac3a5d05f4483c9ed0c8d04becedf644eb15329c8b",
+            "generation": "89f84b6c-5521-430c-8303-1a0696099f86",
+            "legacy_fingerprint": "4ec9b84f94e9d0d8f500e871edb6954598cb7e1fc9cd8719bbd1c36978cb2085",
+            "legacy_lineage": "4d66f7bdd2ffe204666228baa549f53a31e24f170e6ac23efd15965e33b98549",
+            "namespace": "289cb81da3279c841344e476bcd00edf69809d2c1e3f82561d614a317727959b",
+            "resolved_id": null,
+            "sequence": 1,
+            "snapshot_id": "b1ec181e573bc76da69a30e4ba2ebde0f20d90a28339217d8a18e621e9331067",
+            "synced_at": "2026-10-16T02:14:11.337802Z",
+            "user": {
+              "display_name": "Owner",
+              "id": 1,
+              "share_pin_needs_change": false,
+              "username": "owner"
+            },
+            "version": 1
+          }
+        }
+      ],
+      "objects": 161,
+      "pins": 12,
+      "generations": {
+        "120f8929-a5fc-46b7-b0fc-a6967422e5a4": {
+          "sync_root": "f5125dadfe32b13f90d11bebb812ca3dc0a590116683bc2d79cf87ad56478304",
+          "objects": 150,
+          "receipt": "9c646fb8f4fa41b1e4a8868ba761b55a320cec2f4affd10bc3aa7d617e1a3aac",
+          "source_sha256": "b38ddc5a1edbd4fa921070b4c2f9cd75401e5131c11069a0fb9b9c4310f8073c",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "bac8b98711540e94df36d0f37228990ecf3a3fb109ed469d7021ea3faa29e589",
+          "closure_count": 150,
+          "closure_sha256": "223611266b927f5dd68f9af9fabf354fb0267683c2101be7264ce919f437d5d7"
+        },
+        "64d1b4ad-0ba7-42db-880b-3d6c0d788258": {
+          "sync_root": "f5125dadfe32b13f90d11bebb812ca3dc0a590116683bc2d79cf87ad56478304",
+          "objects": 150,
+          "receipt": "fae0d1749f320f82868fad06a8de79a7744cddc7f5023a0eb20989c8bab04308",
+          "source_sha256": "b38ddc5a1edbd4fa921070b4c2f9cd75401e5131c11069a0fb9b9c4310f8073c",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "bac8b98711540e94df36d0f37228990ecf3a3fb109ed469d7021ea3faa29e589",
+          "closure_count": 150,
+          "closure_sha256": "223611266b927f5dd68f9af9fabf354fb0267683c2101be7264ce919f437d5d7"
+        },
+        "89f84b6c-5521-430c-8303-1a0696099f86": {
+          "sync_root": "a48735103a3155eb87b5b29d31455bfe68207a2c6d29a0d611540a930c7c4532",
+          "objects": 150,
+          "receipt": "44b1c42892362db2a565e7e9cc7d59f5d1231b5430669dd0b2f2758fa07b2d73",
+          "source_sha256": "023618cd4fc69f2ebfcba15876e101ac3b62eefe601e2f43957047cd70219989",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "bac8b98711540e94df36d0f37228990ecf3a3fb109ed469d7021ea3faa29e589",
+          "closure_count": 150,
+          "closure_sha256": "5c34bec876470953cb677a7dc1e558e822d3520286baaf354c8b4c5af423ff32"
+        }
+      }
+    },
+    "after_reopen": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "64d1b4ad-0ba7-42db-880b-3d6c0d788258",
+          "previous_id": "89f84b6c-5521-430c-8303-1a0696099f86",
+          "sequence": 2,
+          "checksum": "8a7bdf3630de1609af802b5b56cb8eb6116df0b8c03e3cbde19fc11047f8565d"
+        },
+        "installed": {
+          "id": 1,
+          "generation_id": "64d1b4ad-0ba7-42db-880b-3d6c0d788258",
+          "previous_id": "89f84b6c-5521-430c-8303-1a0696099f86",
+          "sequence": 2,
+          "checksum": "8a7bdf3630de1609af802b5b56cb8eb6116df0b8c03e3cbde19fc11047f8565d"
+        }
+      },
+      "frozen": [
+        {
+          "id": "4aa17e28-0d47-498e-b6e7-9e096eb8fd22",
+          "generation": "89f84b6c-5521-430c-8303-1a0696099f86",
+          "state": "installed",
+          "binding": {
+            "baseline_sha256": "175ce52539e6113fc072b0ac3a5d05f4483c9ed0c8d04becedf644eb15329c8b",
+            "generation": "89f84b6c-5521-430c-8303-1a0696099f86",
+            "legacy_fingerprint": "4ec9b84f94e9d0d8f500e871edb6954598cb7e1fc9cd8719bbd1c36978cb2085",
+            "legacy_lineage": "4d66f7bdd2ffe204666228baa549f53a31e24f170e6ac23efd15965e33b98549",
+            "namespace": "289cb81da3279c841344e476bcd00edf69809d2c1e3f82561d614a317727959b",
+            "resolved_id": null,
+            "sequence": 1,
+            "snapshot_id": "b1ec181e573bc76da69a30e4ba2ebde0f20d90a28339217d8a18e621e9331067",
+            "synced_at": "2026-10-16T02:14:11.337802Z",
+            "user": {
+              "display_name": "Owner",
+              "id": 1,
+              "share_pin_needs_change": false,
+              "username": "owner"
+            },
+            "version": 1
+          }
+        }
+      ],
+      "objects": 161,
+      "pins": 8,
+      "generations": {
+        "64d1b4ad-0ba7-42db-880b-3d6c0d788258": {
+          "sync_root": "f5125dadfe32b13f90d11bebb812ca3dc0a590116683bc2d79cf87ad56478304",
+          "objects": 150,
+          "receipt": "fae0d1749f320f82868fad06a8de79a7744cddc7f5023a0eb20989c8bab04308",
+          "source_sha256": "b38ddc5a1edbd4fa921070b4c2f9cd75401e5131c11069a0fb9b9c4310f8073c",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "bac8b98711540e94df36d0f37228990ecf3a3fb109ed469d7021ea3faa29e589",
+          "closure_count": 150,
+          "closure_sha256": "223611266b927f5dd68f9af9fabf354fb0267683c2101be7264ce919f437d5d7"
+        },
+        "89f84b6c-5521-430c-8303-1a0696099f86": {
+          "sync_root": "a48735103a3155eb87b5b29d31455bfe68207a2c6d29a0d611540a930c7c4532",
+          "objects": 150,
+          "receipt": "44b1c42892362db2a565e7e9cc7d59f5d1231b5430669dd0b2f2758fa07b2d73",
+          "source_sha256": "023618cd4fc69f2ebfcba15876e101ac3b62eefe601e2f43957047cd70219989",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "bac8b98711540e94df36d0f37228990ecf3a3fb109ed469d7021ea3faa29e589",
+          "closure_count": 150,
+          "closure_sha256": "5c34bec876470953cb677a7dc1e558e822d3520286baaf354c8b4c5af423ff32"
+        }
+      },
+      "legacy": {
+        "fingerprint": "4ec9b84f94e9d0d8f500e871edb6954598cb7e1fc9cd8719bbd1c36978cb2085",
+        "lineage": "4d66f7bdd2ffe204666228baa549f53a31e24f170e6ac23efd15965e33b98549",
+        "sha256": "7afd533f3b05e123fb7b784e31ca05bd450dbe93517199f23b530c0f5c57abb4"
+      }
+    }
+  },
+  "regressions/ra01-crash/after_pointer_before_commit.json": {
+    "boundary": "after_pointer_before_commit",
+    "expected_installed": "efc52bbd-b1fe-475f-aa35-069a486a167b",
+    "immediate_source": {
+      "storage": "segmented-store/1",
+      "kind": "segmented",
+      "namespace": "dec852fb880f95beca90f99b4ec72dc3a9ebadaff54900785728dd0657ebd69c",
+      "generation": "b68d227c-1e8c-47b7-985f-d5b7254b6d9a",
+      "sequence": 2,
+      "legacy_frozen": "052dc026-fb7b-4a33-8443-9bce516c1209",
+      "legacy_binding": "bd425d24e1cbdf4df4c931bdb134ebbb340d31dad93b3c8475e6a1d996da5d31",
+      "previous_installation": "efc52bbd-b1fe-475f-aa35-069a486a167b",
+      "previous_sequence": 1,
+      "previous_source": {
+        "storage": "segmented-store/1",
+        "namespace": "dec852fb880f95beca90f99b4ec72dc3a9ebadaff54900785728dd0657ebd69c",
+        "frozen": "052dc026-fb7b-4a33-8443-9bce516c1209",
+        "binding": "bd425d24e1cbdf4df4c931bdb134ebbb340d31dad93b3c8475e6a1d996da5d31",
+        "previous_file": null,
+        "previous_source": null
+      }
+    },
+    "recovered": {
+      "recovery_error": null,
+      "frozen_read": true,
+      "r1_gate": "CLOSED",
+      "installed": "efc52bbd-b1fe-475f-aa35-069a486a167b",
+      "source": {
+        "storage": "segmented-store/1",
+        "namespace": "dec852fb880f95beca90f99b4ec72dc3a9ebadaff54900785728dd0657ebd69c",
+        "frozen": "052dc026-fb7b-4a33-8443-9bce516c1209",
+        "binding": "bd425d24e1cbdf4df4c931bdb134ebbb340d31dad93b3c8475e6a1d996da5d31",
+        "previous_file": null,
+        "previous_source": null
+      }
+    },
+    "source_sha256": "ceab86ed549a7a63cec8ff97f845710a8b0a8a8571c143575f2aa041e9e57005",
+    "baseline_preserved": true,
+    "pending_preserved": true,
+    "before_reopen": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "b68d227c-1e8c-47b7-985f-d5b7254b6d9a",
+          "previous_id": "efc52bbd-b1fe-475f-aa35-069a486a167b",
+          "sequence": 2,
+          "checksum": "90881888ba87cc59b643a752c52fd4c475e4d207d007e89c18e6575711b44127"
+        },
+        "installed": {
+          "id": 1,
+          "generation_id": "efc52bbd-b1fe-475f-aa35-069a486a167b",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "0095aae80620e51add8ff444ad6e64fd760a63117051d1a4c88a52a9886f8707"
+        }
+      },
+      "frozen": [
+        {
+          "id": "052dc026-fb7b-4a33-8443-9bce516c1209",
+          "generation": "efc52bbd-b1fe-475f-aa35-069a486a167b",
+          "state": "installed",
+          "binding": {
+            "baseline_sha256": "dfd6669c3f0a02c22599896b35a9b4660194e4a6a757ddb09bc3ddb7b0801c33",
+            "generation": "efc52bbd-b1fe-475f-aa35-069a486a167b",
+            "legacy_fingerprint": "29cd6fb3f9cc15b0a630ef1f07d0db497628950acd4ef49852e173c8005a4a6f",
+            "legacy_lineage": "dcf6b43f106ae48a52a81d3f1760c9eb7b1d97942a90947874a526421d03c6ca",
+            "namespace": "dec852fb880f95beca90f99b4ec72dc3a9ebadaff54900785728dd0657ebd69c",
+            "resolved_id": null,
+            "sequence": 1,
+            "snapshot_id": "260b4afc19f5c75ef1e4bb81002e2b18edb4bf5cb0f207f72cb7eb51346fad28",
+            "synced_at": "2026-10-16T02:12:27.778310Z",
+            "user": {
+              "display_name": "Owner",
+              "id": 1,
+              "share_pin_needs_change": false,
+              "username": "owner"
+            },
+            "version": 1
+          }
+        }
+      ],
+      "objects": 161,
+      "pins": 12,
+      "generations": {
+        "685d7c6d-91f3-42c2-98fc-45e40cf1c725": {
+          "sync_root": "1d6c813b30d0828789b37f68250fa406fe93209545edb2d3a97409a2c2fcd4d0",
+          "objects": 150,
+          "receipt": "e7f8ce45fb6ff6da0f7a4562bb646ae66318fb1177eb0ef66924b66f31ef70ae",
+          "source_sha256": "95dc377ba064a216b91936c3a4777e565751ee772f286a9876abb06a62ab2245",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "b8fcb57e7bdf1d6077aaff6cf55e1d950f02a4d01f4768177b0670a4b9993776",
+          "closure_count": 150,
+          "closure_sha256": "f7837c37151786a316a6a68bb93cda1ea906227c93bbc2ed66c8bdbde7398b79"
+        },
+        "b68d227c-1e8c-47b7-985f-d5b7254b6d9a": {
+          "sync_root": "1d6c813b30d0828789b37f68250fa406fe93209545edb2d3a97409a2c2fcd4d0",
+          "objects": 150,
+          "receipt": "de6d43728f860b43cce1a694bb26aaaee7ed25a4d9c0ddbe43963a2537dc714d",
+          "source_sha256": "95dc377ba064a216b91936c3a4777e565751ee772f286a9876abb06a62ab2245",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "b8fcb57e7bdf1d6077aaff6cf55e1d950f02a4d01f4768177b0670a4b9993776",
+          "closure_count": 150,
+          "closure_sha256": "f7837c37151786a316a6a68bb93cda1ea906227c93bbc2ed66c8bdbde7398b79"
+        },
+        "efc52bbd-b1fe-475f-aa35-069a486a167b": {
+          "sync_root": "31b38a49eea5e372ae7a1c1cce3db019708368946532d5af36c026f8d2d19095",
+          "objects": 150,
+          "receipt": "b5b0da01b6313b1d420e98514a8a2bb110e5ddf040a55432355ec1a2df6b6c54",
+          "source_sha256": "c27e60781eed1936aee9bc1749c224c97ea5684ead377c73d71e15e6b6a56640",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "b8fcb57e7bdf1d6077aaff6cf55e1d950f02a4d01f4768177b0670a4b9993776",
+          "closure_count": 150,
+          "closure_sha256": "3af18a13d9181da6d03292ba61b6b87084464a08f6db9fd2ffd9e385b104d90a"
+        }
+      }
+    },
+    "after_reopen": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "b68d227c-1e8c-47b7-985f-d5b7254b6d9a",
+          "previous_id": "efc52bbd-b1fe-475f-aa35-069a486a167b",
+          "sequence": 2,
+          "checksum": "90881888ba87cc59b643a752c52fd4c475e4d207d007e89c18e6575711b44127"
+        },
+        "installed": {
+          "id": 1,
+          "generation_id": "efc52bbd-b1fe-475f-aa35-069a486a167b",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "0095aae80620e51add8ff444ad6e64fd760a63117051d1a4c88a52a9886f8707"
+        }
+      },
+      "frozen": [
+        {
+          "id": "052dc026-fb7b-4a33-8443-9bce516c1209",
+          "generation": "efc52bbd-b1fe-475f-aa35-069a486a167b",
+          "state": "installed",
+          "binding": {
+            "baseline_sha256": "dfd6669c3f0a02c22599896b35a9b4660194e4a6a757ddb09bc3ddb7b0801c33",
+            "generation": "efc52bbd-b1fe-475f-aa35-069a486a167b",
+            "legacy_fingerprint": "29cd6fb3f9cc15b0a630ef1f07d0db497628950acd4ef49852e173c8005a4a6f",
+            "legacy_lineage": "dcf6b43f106ae48a52a81d3f1760c9eb7b1d97942a90947874a526421d03c6ca",
+            "namespace": "dec852fb880f95beca90f99b4ec72dc3a9ebadaff54900785728dd0657ebd69c",
+            "resolved_id": null,
+            "sequence": 1,
+            "snapshot_id": "260b4afc19f5c75ef1e4bb81002e2b18edb4bf5cb0f207f72cb7eb51346fad28",
+            "synced_at": "2026-10-16T02:12:27.778310Z",
+            "user": {
+              "display_name": "Owner",
+              "id": 1,
+              "share_pin_needs_change": false,
+              "username": "owner"
+            },
+            "version": 1
+          }
+        }
+      ],
+      "objects": 161,
+      "pins": 8,
+      "generations": {
+        "b68d227c-1e8c-47b7-985f-d5b7254b6d9a": {
+          "sync_root": "1d6c813b30d0828789b37f68250fa406fe93209545edb2d3a97409a2c2fcd4d0",
+          "objects": 150,
+          "receipt": "de6d43728f860b43cce1a694bb26aaaee7ed25a4d9c0ddbe43963a2537dc714d",
+          "source_sha256": "95dc377ba064a216b91936c3a4777e565751ee772f286a9876abb06a62ab2245",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "b8fcb57e7bdf1d6077aaff6cf55e1d950f02a4d01f4768177b0670a4b9993776",
+          "closure_count": 150,
+          "closure_sha256": "f7837c37151786a316a6a68bb93cda1ea906227c93bbc2ed66c8bdbde7398b79"
+        },
+        "efc52bbd-b1fe-475f-aa35-069a486a167b": {
+          "sync_root": "31b38a49eea5e372ae7a1c1cce3db019708368946532d5af36c026f8d2d19095",
+          "objects": 150,
+          "receipt": "b5b0da01b6313b1d420e98514a8a2bb110e5ddf040a55432355ec1a2df6b6c54",
+          "source_sha256": "c27e60781eed1936aee9bc1749c224c97ea5684ead377c73d71e15e6b6a56640",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "b8fcb57e7bdf1d6077aaff6cf55e1d950f02a4d01f4768177b0670a4b9993776",
+          "closure_count": 150,
+          "closure_sha256": "3af18a13d9181da6d03292ba61b6b87084464a08f6db9fd2ffd9e385b104d90a"
+        }
+      },
+      "legacy": {
+        "fingerprint": "29cd6fb3f9cc15b0a630ef1f07d0db497628950acd4ef49852e173c8005a4a6f",
+        "lineage": "dcf6b43f106ae48a52a81d3f1760c9eb7b1d97942a90947874a526421d03c6ca",
+        "sha256": "6354ad82aabaf6081fc471f96d7941845bb2f3f111234cbeb8293b8039d55409"
+      }
+    }
+  },
+  "regressions/ra01-crash/before_source.json": {
+    "boundary": "before_source",
+    "expected_installed": "1c9af3cf-d61b-489a-bc1c-7e29fafd77e2",
+    "immediate_source": {
+      "storage": "segmented-store/1",
+      "namespace": "73c614fb69bafff0baadf7cd2101299f0f7068f400923e8fe335252a59226135",
+      "frozen": "ebd3e8b9-ee19-40bd-8f12-c3bf59992353",
+      "binding": "5bd19070267c333c86222acf33ed918261984998e345952b8db305ce1c371d9a",
+      "previous_file": null,
+      "previous_source": null
+    },
+    "recovered": {
+      "recovery_error": null,
+      "frozen_read": true,
+      "r1_gate": "CLOSED",
+      "installed": "1c9af3cf-d61b-489a-bc1c-7e29fafd77e2",
+      "source": {
+        "storage": "segmented-store/1",
+        "namespace": "73c614fb69bafff0baadf7cd2101299f0f7068f400923e8fe335252a59226135",
+        "frozen": "ebd3e8b9-ee19-40bd-8f12-c3bf59992353",
+        "binding": "5bd19070267c333c86222acf33ed918261984998e345952b8db305ce1c371d9a",
+        "previous_file": null,
+        "previous_source": null
+      }
+    },
+    "source_sha256": "4046f71cd5328332492d699ed9f5f187e8517bd2dafa3635cdeaf414123d185d",
+    "baseline_preserved": true,
+    "pending_preserved": true,
+    "before_reopen": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "27724336-e431-45ba-b0ba-3ca3c837811a",
+          "previous_id": "1c9af3cf-d61b-489a-bc1c-7e29fafd77e2",
+          "sequence": 2,
+          "checksum": "88e9ca312926508e63c7d93c40db73773dd48e1a319aaef5d77e5643e6629be8"
+        },
+        "installed": {
+          "id": 1,
+          "generation_id": "1c9af3cf-d61b-489a-bc1c-7e29fafd77e2",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "c11dfc6eb066fa65ea1d001785f2a343ff5dbf79940585162b6096f442c1d328"
+        }
+      },
+      "frozen": [
+        {
+          "id": "ebd3e8b9-ee19-40bd-8f12-c3bf59992353",
+          "generation": "1c9af3cf-d61b-489a-bc1c-7e29fafd77e2",
+          "state": "installed",
+          "binding": {
+            "baseline_sha256": "e02593dd8e21626c6e10aecdcd25a3b43b8901bb4c2029ecf5c2b9c106b99623",
+            "generation": "1c9af3cf-d61b-489a-bc1c-7e29fafd77e2",
+            "legacy_fingerprint": "7fced6a027da976b12a46d98afab16867f1d4e49e73f217d3853c1f44669b365",
+            "legacy_lineage": "3e89e41a9f55b16ad4ac03bb21b3c8b4a7a634aa0b755ff5660d1a38f74e6dd4",
+            "namespace": "73c614fb69bafff0baadf7cd2101299f0f7068f400923e8fe335252a59226135",
+            "resolved_id": null,
+            "sequence": 1,
+            "snapshot_id": "2b7e7ae8c1fd100d0068ca02c5a22186caaa5899b18bb6c70b416e44e286f429",
+            "synced_at": "2026-10-16T02:10:55.261223Z",
+            "user": {
+              "display_name": "Owner",
+              "id": 1,
+              "share_pin_needs_change": false,
+              "username": "owner"
+            },
+            "version": 1
+          }
+        }
+      ],
+      "objects": 161,
+      "pins": 12,
+      "generations": {
+        "1c9af3cf-d61b-489a-bc1c-7e29fafd77e2": {
+          "sync_root": "38cf50a47bea980d7bd41c1fb2b1b39fb4ae97e211121e57fcd4012a5fe5ced3",
+          "objects": 150,
+          "receipt": "39e31d19a8a6ce3d07ec20fd9c7a0fc61527cc4e0ddcc420c2926575b455d02d",
+          "source_sha256": "8e12b5a11341cb2241bbe1d3a0ad97f74f1b081d53c63dd72a41ba5a4a59ae94",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "12629957d084d2369e971ed2011e480243e035bfd8399680dafb1638dc421001",
+          "closure_count": 150,
+          "closure_sha256": "6bb163172518d042575adbd3e481bf93d5d250ce7d532532f7a65e7dc57a5a5c"
+        },
+        "27724336-e431-45ba-b0ba-3ca3c837811a": {
+          "sync_root": "5ae069cdd3e0da96243a5a50b552a2d5578682e0927961fb32b3bfd498471960",
+          "objects": 150,
+          "receipt": "bd2a114fa78f191583fe5f4f07c79320bb67c524a578feb5e4ca41ab135ff29d",
+          "source_sha256": "c9fa640cbb3cdd13b5f965a54f3cd9a595008811f77a696d1e89c66ee50168fc",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "12629957d084d2369e971ed2011e480243e035bfd8399680dafb1638dc421001",
+          "closure_count": 150,
+          "closure_sha256": "3b825daa836582f891ed0c7217204983fee3b5d88754ac352992971c2b5fe04b"
+        },
+        "c56ca161-9359-4fc4-a225-dd4338dac333": {
+          "sync_root": "5ae069cdd3e0da96243a5a50b552a2d5578682e0927961fb32b3bfd498471960",
+          "objects": 150,
+          "receipt": "b3721108996c4ce8b47114f4de3885d8a0394f9b180754f224fcce1de4fda4ab",
+          "source_sha256": "c9fa640cbb3cdd13b5f965a54f3cd9a595008811f77a696d1e89c66ee50168fc",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "12629957d084d2369e971ed2011e480243e035bfd8399680dafb1638dc421001",
+          "closure_count": 150,
+          "closure_sha256": "3b825daa836582f891ed0c7217204983fee3b5d88754ac352992971c2b5fe04b"
+        }
+      }
+    },
+    "after_reopen": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "27724336-e431-45ba-b0ba-3ca3c837811a",
+          "previous_id": "1c9af3cf-d61b-489a-bc1c-7e29fafd77e2",
+          "sequence": 2,
+          "checksum": "88e9ca312926508e63c7d93c40db73773dd48e1a319aaef5d77e5643e6629be8"
+        },
+        "installed": {
+          "id": 1,
+          "generation_id": "1c9af3cf-d61b-489a-bc1c-7e29fafd77e2",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "c11dfc6eb066fa65ea1d001785f2a343ff5dbf79940585162b6096f442c1d328"
+        }
+      },
+      "frozen": [
+        {
+          "id": "ebd3e8b9-ee19-40bd-8f12-c3bf59992353",
+          "generation": "1c9af3cf-d61b-489a-bc1c-7e29fafd77e2",
+          "state": "installed",
+          "binding": {
+            "baseline_sha256": "e02593dd8e21626c6e10aecdcd25a3b43b8901bb4c2029ecf5c2b9c106b99623",
+            "generation": "1c9af3cf-d61b-489a-bc1c-7e29fafd77e2",
+            "legacy_fingerprint": "7fced6a027da976b12a46d98afab16867f1d4e49e73f217d3853c1f44669b365",
+            "legacy_lineage": "3e89e41a9f55b16ad4ac03bb21b3c8b4a7a634aa0b755ff5660d1a38f74e6dd4",
+            "namespace": "73c614fb69bafff0baadf7cd2101299f0f7068f400923e8fe335252a59226135",
+            "resolved_id": null,
+            "sequence": 1,
+            "snapshot_id": "2b7e7ae8c1fd100d0068ca02c5a22186caaa5899b18bb6c70b416e44e286f429",
+            "synced_at": "2026-10-16T02:10:55.261223Z",
+            "user": {
+              "display_name": "Owner",
+              "id": 1,
+              "share_pin_needs_change": false,
+              "username": "owner"
+            },
+            "version": 1
+          }
+        }
+      ],
+      "objects": 161,
+      "pins": 12,
+      "generations": {
+        "1c9af3cf-d61b-489a-bc1c-7e29fafd77e2": {
+          "sync_root": "38cf50a47bea980d7bd41c1fb2b1b39fb4ae97e211121e57fcd4012a5fe5ced3",
+          "objects": 150,
+          "receipt": "39e31d19a8a6ce3d07ec20fd9c7a0fc61527cc4e0ddcc420c2926575b455d02d",
+          "source_sha256": "8e12b5a11341cb2241bbe1d3a0ad97f74f1b081d53c63dd72a41ba5a4a59ae94",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "12629957d084d2369e971ed2011e480243e035bfd8399680dafb1638dc421001",
+          "closure_count": 150,
+          "closure_sha256": "6bb163172518d042575adbd3e481bf93d5d250ce7d532532f7a65e7dc57a5a5c"
+        },
+        "27724336-e431-45ba-b0ba-3ca3c837811a": {
+          "sync_root": "5ae069cdd3e0da96243a5a50b552a2d5578682e0927961fb32b3bfd498471960",
+          "objects": 150,
+          "receipt": "bd2a114fa78f191583fe5f4f07c79320bb67c524a578feb5e4ca41ab135ff29d",
+          "source_sha256": "c9fa640cbb3cdd13b5f965a54f3cd9a595008811f77a696d1e89c66ee50168fc",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "12629957d084d2369e971ed2011e480243e035bfd8399680dafb1638dc421001",
+          "closure_count": 150,
+          "closure_sha256": "3b825daa836582f891ed0c7217204983fee3b5d88754ac352992971c2b5fe04b"
+        },
+        "c56ca161-9359-4fc4-a225-dd4338dac333": {
+          "sync_root": "5ae069cdd3e0da96243a5a50b552a2d5578682e0927961fb32b3bfd498471960",
+          "objects": 150,
+          "receipt": "b3721108996c4ce8b47114f4de3885d8a0394f9b180754f224fcce1de4fda4ab",
+          "source_sha256": "c9fa640cbb3cdd13b5f965a54f3cd9a595008811f77a696d1e89c66ee50168fc",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "12629957d084d2369e971ed2011e480243e035bfd8399680dafb1638dc421001",
+          "closure_count": 150,
+          "closure_sha256": "3b825daa836582f891ed0c7217204983fee3b5d88754ac352992971c2b5fe04b"
+        }
+      },
+      "legacy": {
+        "fingerprint": "7fced6a027da976b12a46d98afab16867f1d4e49e73f217d3853c1f44669b365",
+        "lineage": "3e89e41a9f55b16ad4ac03bb21b3c8b4a7a634aa0b755ff5660d1a38f74e6dd4",
+        "sha256": "81b7134ac2a82cb99e0d4cb317b177ee31dd2b9ea4978a171088075594624539"
+      }
+    }
+  },
+  "regressions/ra01-crash/during_readback.json": {
+    "boundary": "during_readback",
+    "expected_installed": "29c44daf-9e3e-4d79-bd83-af41d2439e19",
+    "immediate_source": {
+      "storage": "segmented-store/1",
+      "kind": "segmented",
+      "namespace": "f5661f492893235c27d281139650f04cff137a502ef84375a8c24e68e20613f2",
+      "generation": "29c44daf-9e3e-4d79-bd83-af41d2439e19",
+      "sequence": 2,
+      "legacy_frozen": "6922e5a7-f023-4a3b-9b96-e84a48979b4c",
+      "legacy_binding": "ee91e3d52865ef70b01a05b00c0d10c726cd4f2fee90e4ca9ef38b6eb0269c97",
+      "previous_installation": "0207559d-ac45-4917-916b-aecded467b08",
+      "previous_sequence": 1,
+      "previous_source": {
+        "storage": "segmented-store/1",
+        "namespace": "f5661f492893235c27d281139650f04cff137a502ef84375a8c24e68e20613f2",
+        "frozen": "6922e5a7-f023-4a3b-9b96-e84a48979b4c",
+        "binding": "ee91e3d52865ef70b01a05b00c0d10c726cd4f2fee90e4ca9ef38b6eb0269c97",
+        "previous_file": null,
+        "previous_source": null
+      }
+    },
+    "recovered": {
+      "recovery_error": null,
+      "frozen_read": true,
+      "r1_gate": "CLOSED",
+      "installed": "29c44daf-9e3e-4d79-bd83-af41d2439e19",
+      "source": {
+        "storage": "segmented-store/1",
+        "kind": "segmented",
+        "namespace": "f5661f492893235c27d281139650f04cff137a502ef84375a8c24e68e20613f2",
+        "generation": "29c44daf-9e3e-4d79-bd83-af41d2439e19",
+        "sequence": 2,
+        "legacy_frozen": "6922e5a7-f023-4a3b-9b96-e84a48979b4c",
+        "legacy_binding": "ee91e3d52865ef70b01a05b00c0d10c726cd4f2fee90e4ca9ef38b6eb0269c97",
+        "previous_installation": "0207559d-ac45-4917-916b-aecded467b08",
+        "previous_sequence": 1,
+        "previous_source": {
+          "storage": "segmented-store/1",
+          "namespace": "f5661f492893235c27d281139650f04cff137a502ef84375a8c24e68e20613f2",
+          "frozen": "6922e5a7-f023-4a3b-9b96-e84a48979b4c",
+          "binding": "ee91e3d52865ef70b01a05b00c0d10c726cd4f2fee90e4ca9ef38b6eb0269c97",
+          "previous_file": null,
+          "previous_source": null
+        }
+      }
+    },
+    "source_sha256": "e7e28dd901bd47ee8dff826de9f04279a718013c44a29bcfb94bcf9ff3faec10",
+    "baseline_preserved": true,
+    "pending_preserved": true,
+    "before_reopen": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "29c44daf-9e3e-4d79-bd83-af41d2439e19",
+          "previous_id": "0207559d-ac45-4917-916b-aecded467b08",
+          "sequence": 2,
+          "checksum": "912967798b61e0e2de224fdf602d2f16e7977ef62af2b1ee2b5005b2348e230f"
+        },
+        "installed": {
+          "id": 1,
+          "generation_id": "29c44daf-9e3e-4d79-bd83-af41d2439e19",
+          "previous_id": "0207559d-ac45-4917-916b-aecded467b08",
+          "sequence": 2,
+          "checksum": "912967798b61e0e2de224fdf602d2f16e7977ef62af2b1ee2b5005b2348e230f"
+        }
+      },
+      "frozen": [
+        {
+          "id": "6922e5a7-f023-4a3b-9b96-e84a48979b4c",
+          "generation": "0207559d-ac45-4917-916b-aecded467b08",
+          "state": "installed",
+          "binding": {
+            "baseline_sha256": "6264af6d7e11270c21588df40d806e629b8a43dfc92e26dff7342dbb92dfec78",
+            "generation": "0207559d-ac45-4917-916b-aecded467b08",
+            "legacy_fingerprint": "6b7464e9b89a82cd4e8d627ef84d6d9c4939d719fe16319ec3fbfe4b93c5a109",
+            "legacy_lineage": "45ff526f84dff35085ab21b32e2e47d170cf47d1599002e2cbcc77852eb7de53",
+            "namespace": "f5661f492893235c27d281139650f04cff137a502ef84375a8c24e68e20613f2",
+            "resolved_id": null,
+            "sequence": 1,
+            "snapshot_id": "44b5bc9e4cced0f4a8e3b7cf7a9b1333d61e2a9624b7fe3a92a81524ba5f749d",
+            "synced_at": "2026-10-16T02:15:57.797943Z",
+            "user": {
+              "display_name": "Owner",
+              "id": 1,
+              "share_pin_needs_change": false,
+              "username": "owner"
+            },
+            "version": 1
+          }
+        }
+      ],
+      "objects": 161,
+      "pins": 12,
+      "generations": {
+        "0207559d-ac45-4917-916b-aecded467b08": {
+          "sync_root": "8d02eea5381dd3f533666522d7398659018d4ef84fe1e95be7eac40e8692c016",
+          "objects": 150,
+          "receipt": "da44e6f51b45f4acde165372f9d559b6873544eef34bfe95b565ce0d1f3205dd",
+          "source_sha256": "d7cf65fc0d5dab7825287ba35d7066398f4ddb0ed3b6d0aed0f1b493b526d90a",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "85085ba765b7df156bd1de9eff980cf8cb453c64abfb71355f3003b0b521a5ed",
+          "closure_count": 150,
+          "closure_sha256": "9b002ccc6a2951fd7cbdb1e0ce9f928f3d2fdc12948ea0df3ed62874bc3173b6"
+        },
+        "29c44daf-9e3e-4d79-bd83-af41d2439e19": {
+          "sync_root": "06c2c6c859380d3040f404dbd5614609f1c50c60254581369f689477c08e6846",
+          "objects": 150,
+          "receipt": "f74d825cd4ab10c4a42f8a1acf157c4287332376d1cdde3be2238bc314ac5c5d",
+          "source_sha256": "e56130ab3b3e28711ecc70d5736fd1cce71ee2c27932091e0539af10cdcf9917",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "85085ba765b7df156bd1de9eff980cf8cb453c64abfb71355f3003b0b521a5ed",
+          "closure_count": 150,
+          "closure_sha256": "280cd37d533d294d120e51d4b657db29efcc83bf5370ea369fc9752002df7027"
+        },
+        "ebbbcb81-dac9-4d70-a3d2-79be27aa49a4": {
+          "sync_root": "06c2c6c859380d3040f404dbd5614609f1c50c60254581369f689477c08e6846",
+          "objects": 150,
+          "receipt": "b90abd52bc4fd89a50ec98813d6d98825400ef6d6581e975a1f8e5cae3d70922",
+          "source_sha256": "e56130ab3b3e28711ecc70d5736fd1cce71ee2c27932091e0539af10cdcf9917",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "85085ba765b7df156bd1de9eff980cf8cb453c64abfb71355f3003b0b521a5ed",
+          "closure_count": 150,
+          "closure_sha256": "280cd37d533d294d120e51d4b657db29efcc83bf5370ea369fc9752002df7027"
+        }
+      }
+    },
+    "after_reopen": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "29c44daf-9e3e-4d79-bd83-af41d2439e19",
+          "previous_id": "0207559d-ac45-4917-916b-aecded467b08",
+          "sequence": 2,
+          "checksum": "912967798b61e0e2de224fdf602d2f16e7977ef62af2b1ee2b5005b2348e230f"
+        },
+        "installed": {
+          "id": 1,
+          "generation_id": "29c44daf-9e3e-4d79-bd83-af41d2439e19",
+          "previous_id": "0207559d-ac45-4917-916b-aecded467b08",
+          "sequence": 2,
+          "checksum": "912967798b61e0e2de224fdf602d2f16e7977ef62af2b1ee2b5005b2348e230f"
+        }
+      },
+      "frozen": [
+        {
+          "id": "6922e5a7-f023-4a3b-9b96-e84a48979b4c",
+          "generation": "0207559d-ac45-4917-916b-aecded467b08",
+          "state": "installed",
+          "binding": {
+            "baseline_sha256": "6264af6d7e11270c21588df40d806e629b8a43dfc92e26dff7342dbb92dfec78",
+            "generation": "0207559d-ac45-4917-916b-aecded467b08",
+            "legacy_fingerprint": "6b7464e9b89a82cd4e8d627ef84d6d9c4939d719fe16319ec3fbfe4b93c5a109",
+            "legacy_lineage": "45ff526f84dff35085ab21b32e2e47d170cf47d1599002e2cbcc77852eb7de53",
+            "namespace": "f5661f492893235c27d281139650f04cff137a502ef84375a8c24e68e20613f2",
+            "resolved_id": null,
+            "sequence": 1,
+            "snapshot_id": "44b5bc9e4cced0f4a8e3b7cf7a9b1333d61e2a9624b7fe3a92a81524ba5f749d",
+            "synced_at": "2026-10-16T02:15:57.797943Z",
+            "user": {
+              "display_name": "Owner",
+              "id": 1,
+              "share_pin_needs_change": false,
+              "username": "owner"
+            },
+            "version": 1
+          }
+        }
+      ],
+      "objects": 161,
+      "pins": 8,
+      "generations": {
+        "0207559d-ac45-4917-916b-aecded467b08": {
+          "sync_root": "8d02eea5381dd3f533666522d7398659018d4ef84fe1e95be7eac40e8692c016",
+          "objects": 150,
+          "receipt": "da44e6f51b45f4acde165372f9d559b6873544eef34bfe95b565ce0d1f3205dd",
+          "source_sha256": "d7cf65fc0d5dab7825287ba35d7066398f4ddb0ed3b6d0aed0f1b493b526d90a",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "85085ba765b7df156bd1de9eff980cf8cb453c64abfb71355f3003b0b521a5ed",
+          "closure_count": 150,
+          "closure_sha256": "9b002ccc6a2951fd7cbdb1e0ce9f928f3d2fdc12948ea0df3ed62874bc3173b6"
+        },
+        "29c44daf-9e3e-4d79-bd83-af41d2439e19": {
+          "sync_root": "06c2c6c859380d3040f404dbd5614609f1c50c60254581369f689477c08e6846",
+          "objects": 150,
+          "receipt": "f74d825cd4ab10c4a42f8a1acf157c4287332376d1cdde3be2238bc314ac5c5d",
+          "source_sha256": "e56130ab3b3e28711ecc70d5736fd1cce71ee2c27932091e0539af10cdcf9917",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "85085ba765b7df156bd1de9eff980cf8cb453c64abfb71355f3003b0b521a5ed",
+          "closure_count": 150,
+          "closure_sha256": "280cd37d533d294d120e51d4b657db29efcc83bf5370ea369fc9752002df7027"
+        }
+      },
+      "legacy": {
+        "fingerprint": "6b7464e9b89a82cd4e8d627ef84d6d9c4939d719fe16319ec3fbfe4b93c5a109",
+        "lineage": "45ff526f84dff35085ab21b32e2e47d170cf47d1599002e2cbcc77852eb7de53",
+        "sha256": "cb443c5b35a5b6ee3a4ff50d003ba060fcf0d09492471695ccd8f4ae5e790099"
+      }
+    }
+  },
+  "regressions/ra01-crash/invalid_rejected.json": {
+    "boundary": "invalid_rejected",
+    "expected_installed": "8a84af0c-d7eb-4a8e-912f-7760d4d3fa13",
+    "immediate_source": {
+      "storage": "segmented-store/1",
+      "kind": "segmented",
+      "namespace": "74a4fbc87183b65e0f9be720bcd8bc2ce04f4b90a0fd63606324306f12b89378",
+      "generation": "56d2198a-3915-4d91-966d-2434271c3a13",
+      "sequence": 2,
+      "legacy_frozen": "56a5f1a3-98ca-40b0-9328-c83ae77b1aae",
+      "legacy_binding": "94e91a908b6dd4cca1084583457172fe12a1a39d2dc3537a58a54089077114d4",
+      "previous_installation": "8a84af0c-d7eb-4a8e-912f-7760d4d3fa13",
+      "previous_sequence": 1,
+      "previous_source": null
+    },
+    "recovered": {
+      "recovery_error": "SOURCE_PROVENANCE_REQUIRED",
+      "frozen_read": true,
+      "r1_gate": "CLOSED",
+      "installed": "8a84af0c-d7eb-4a8e-912f-7760d4d3fa13",
+      "source": {
+        "storage": "segmented-store/1",
+        "kind": "segmented",
+        "namespace": "74a4fbc87183b65e0f9be720bcd8bc2ce04f4b90a0fd63606324306f12b89378",
+        "generation": "56d2198a-3915-4d91-966d-2434271c3a13",
+        "sequence": 2,
+        "legacy_frozen": "56a5f1a3-98ca-40b0-9328-c83ae77b1aae",
+        "legacy_binding": "94e91a908b6dd4cca1084583457172fe12a1a39d2dc3537a58a54089077114d4",
+        "previous_installation": "8a84af0c-d7eb-4a8e-912f-7760d4d3fa13",
+        "previous_sequence": 1,
+        "previous_source": null
+      }
+    },
+    "source_sha256": "ffb49d8ef1e873de2bdbde38b44f205be48d24c3ad84c0a6cace76cb92eeaa09",
+    "baseline_preserved": true,
+    "pending_preserved": true,
+    "before_reopen": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "56d2198a-3915-4d91-966d-2434271c3a13",
+          "previous_id": "8a84af0c-d7eb-4a8e-912f-7760d4d3fa13",
+          "sequence": 2,
+          "checksum": "3c3a21276211b280a3783c4617196aff12cef32503c708477a39709673987d9e"
+        },
+        "installed": {
+          "id": 1,
+          "generation_id": "8a84af0c-d7eb-4a8e-912f-7760d4d3fa13",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "e8e67e030614df9cf8ee8d980c757c3188709e2868220a3fc8f70f21fb3e3e8d"
+        }
+      },
+      "frozen": [
+        {
+          "id": "56a5f1a3-98ca-40b0-9328-c83ae77b1aae",
+          "generation": "8a84af0c-d7eb-4a8e-912f-7760d4d3fa13",
+          "state": "installed",
+          "binding": {
+            "baseline_sha256": "935a6137161564bbdb011e2114baab369a33352a8da0992a84caecb184e76774",
+            "generation": "8a84af0c-d7eb-4a8e-912f-7760d4d3fa13",
+            "legacy_fingerprint": "a3890a24096ad50e4a8e29c7f8075b7fe004075343f656731c7dd3b57b19d55c",
+            "legacy_lineage": "b646391288e020ccb5143050f5ea22bf800048160982c0d4c764fa36a11e3094",
+            "namespace": "74a4fbc87183b65e0f9be720bcd8bc2ce04f4b90a0fd63606324306f12b89378",
+            "resolved_id": null,
+            "sequence": 1,
+            "snapshot_id": "02168c211931f989cc50c6728a4960ad3f7205f71f418d5b56fb0bdc712f9df0",
+            "synced_at": "2026-10-16T02:17:34.055696Z",
+            "user": {
+              "display_name": "Owner",
+              "id": 1,
+              "share_pin_needs_change": false,
+              "username": "owner"
+            },
+            "version": 1
+          }
+        }
+      ],
+      "objects": 161,
+      "pins": 8,
+      "generations": {
+        "56d2198a-3915-4d91-966d-2434271c3a13": {
+          "sync_root": "36d426ceae13f6e8ad0a0141cb9927cc3d3af3186770593fbf21ba6110bbb213",
+          "objects": 150,
+          "receipt": "f29c09a98b9a9c85873eb9972e9282d54bee2eb6945cfe0707e984808d0b56df",
+          "source_sha256": "c79be97b3031707ba5539a3faeecb00acc7e7c0ad42d1d4d136eb2671d609a92",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "e3ad945181e90e88affd37ed601f4bf7d5f3d2b668cd26eb34d0a9dd2bc945cb",
+          "closure_count": 150,
+          "closure_sha256": "d2c9ff6fd5dd4fad2148e4564423a50dc4f59b8e75e14003eefb065baca9f78d"
+        },
+        "8a84af0c-d7eb-4a8e-912f-7760d4d3fa13": {
+          "sync_root": "e8f26ec4fac442d000b242b48a8a8ecb3d30f212e1e78bc4a6b88fa0700b71a7",
+          "objects": 150,
+          "receipt": "aa47a706c32dcbc300ba937bb00d9d77258d8b0c4b0db8c11df032a9c8469aa8",
+          "source_sha256": "ccaf55bd6df7282ba9153be8b6ad70fbacd7d143e76011d7af76780482b6d2e1",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "e3ad945181e90e88affd37ed601f4bf7d5f3d2b668cd26eb34d0a9dd2bc945cb",
+          "closure_count": 150,
+          "closure_sha256": "1b75bb80bf774a3db3c3c82d8256768866f875f4639721f42c297a251dde23f8"
+        }
+      }
+    },
+    "after_reopen": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "56d2198a-3915-4d91-966d-2434271c3a13",
+          "previous_id": "8a84af0c-d7eb-4a8e-912f-7760d4d3fa13",
+          "sequence": 2,
+          "checksum": "3c3a21276211b280a3783c4617196aff12cef32503c708477a39709673987d9e"
+        },
+        "installed": {
+          "id": 1,
+          "generation_id": "8a84af0c-d7eb-4a8e-912f-7760d4d3fa13",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "e8e67e030614df9cf8ee8d980c757c3188709e2868220a3fc8f70f21fb3e3e8d"
+        }
+      },
+      "frozen": [
+        {
+          "id": "56a5f1a3-98ca-40b0-9328-c83ae77b1aae",
+          "generation": "8a84af0c-d7eb-4a8e-912f-7760d4d3fa13",
+          "state": "installed",
+          "binding": {
+            "baseline_sha256": "935a6137161564bbdb011e2114baab369a33352a8da0992a84caecb184e76774",
+            "generation": "8a84af0c-d7eb-4a8e-912f-7760d4d3fa13",
+            "legacy_fingerprint": "a3890a24096ad50e4a8e29c7f8075b7fe004075343f656731c7dd3b57b19d55c",
+            "legacy_lineage": "b646391288e020ccb5143050f5ea22bf800048160982c0d4c764fa36a11e3094",
+            "namespace": "74a4fbc87183b65e0f9be720bcd8bc2ce04f4b90a0fd63606324306f12b89378",
+            "resolved_id": null,
+            "sequence": 1,
+            "snapshot_id": "02168c211931f989cc50c6728a4960ad3f7205f71f418d5b56fb0bdc712f9df0",
+            "synced_at": "2026-10-16T02:17:34.055696Z",
+            "user": {
+              "display_name": "Owner",
+              "id": 1,
+              "share_pin_needs_change": false,
+              "username": "owner"
+            },
+            "version": 1
+          }
+        }
+      ],
+      "objects": 161,
+      "pins": 8,
+      "generations": {
+        "56d2198a-3915-4d91-966d-2434271c3a13": {
+          "sync_root": "36d426ceae13f6e8ad0a0141cb9927cc3d3af3186770593fbf21ba6110bbb213",
+          "objects": 150,
+          "receipt": "f29c09a98b9a9c85873eb9972e9282d54bee2eb6945cfe0707e984808d0b56df",
+          "source_sha256": "c79be97b3031707ba5539a3faeecb00acc7e7c0ad42d1d4d136eb2671d609a92",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "e3ad945181e90e88affd37ed601f4bf7d5f3d2b668cd26eb34d0a9dd2bc945cb",
+          "closure_count": 150,
+          "closure_sha256": "d2c9ff6fd5dd4fad2148e4564423a50dc4f59b8e75e14003eefb065baca9f78d"
+        },
+        "8a84af0c-d7eb-4a8e-912f-7760d4d3fa13": {
+          "sync_root": "e8f26ec4fac442d000b242b48a8a8ecb3d30f212e1e78bc4a6b88fa0700b71a7",
+          "objects": 150,
+          "receipt": "aa47a706c32dcbc300ba937bb00d9d77258d8b0c4b0db8c11df032a9c8469aa8",
+          "source_sha256": "ccaf55bd6df7282ba9153be8b6ad70fbacd7d143e76011d7af76780482b6d2e1",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "e3ad945181e90e88affd37ed601f4bf7d5f3d2b668cd26eb34d0a9dd2bc945cb",
+          "closure_count": 150,
+          "closure_sha256": "1b75bb80bf774a3db3c3c82d8256768866f875f4639721f42c297a251dde23f8"
+        }
+      },
+      "legacy": {
+        "fingerprint": "a3890a24096ad50e4a8e29c7f8075b7fe004075343f656731c7dd3b57b19d55c",
+        "lineage": "b646391288e020ccb5143050f5ea22bf800048160982c0d4c764fa36a11e3094",
+        "sha256": "62cad0f41edbcc6210ad3fe2e14bd503d37aef76fc3e08dc4dce9b00bd39e80b"
+      }
+    }
+  },
+  "regressions/ra01-crash/recovery_after_commit.json": {
+    "boundary": "recovery_after_commit",
+    "expected_installed": "63eafcf0-a22b-4666-98d4-977b96950a4c",
+    "immediate_source": {
+      "storage": "segmented-store/1",
+      "namespace": "27f3bba99ff8ea3306028aadf44f7eda821c3f80f7423d789bba928f092dd4bf",
+      "frozen": "e584e7c8-edfe-4ea3-986c-caa483b9387f",
+      "binding": "430e468dc17e5efc922b3d0412cd2fca1affa5baad938f522b8d06d7bef12eca",
+      "previous_file": null,
+      "previous_source": null
+    },
+    "recovered": {
+      "recovery_error": null,
+      "frozen_read": true,
+      "r1_gate": "CLOSED",
+      "installed": "63eafcf0-a22b-4666-98d4-977b96950a4c",
+      "source": {
+        "storage": "segmented-store/1",
+        "namespace": "27f3bba99ff8ea3306028aadf44f7eda821c3f80f7423d789bba928f092dd4bf",
+        "frozen": "e584e7c8-edfe-4ea3-986c-caa483b9387f",
+        "binding": "430e468dc17e5efc922b3d0412cd2fca1affa5baad938f522b8d06d7bef12eca",
+        "previous_file": null,
+        "previous_source": null
+      }
+    },
+    "source_sha256": "b60eb0a736ea08c3fa76919ec27d8b9d06630194e599f63246ea02d2d4ca3907",
+    "baseline_preserved": true,
+    "pending_preserved": true,
+    "before_reopen": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "fceb4424-debc-4307-aff5-455f48ccef54",
+          "previous_id": "63eafcf0-a22b-4666-98d4-977b96950a4c",
+          "sequence": 2,
+          "checksum": "29164d1a5f251b0ac6d1187ae0bd0cb8e418cc07702252cdde258d9334badfdf"
+        },
+        "installed": {
+          "id": 1,
+          "generation_id": "63eafcf0-a22b-4666-98d4-977b96950a4c",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "9a92cbcbdb1422a26ffa7833751b3247a7de2b95bcf827556bbdc334efb23cd4"
+        }
+      },
+      "frozen": [
+        {
+          "id": "e584e7c8-edfe-4ea3-986c-caa483b9387f",
+          "generation": "63eafcf0-a22b-4666-98d4-977b96950a4c",
+          "state": "installed",
+          "binding": {
+            "baseline_sha256": "c19943112fbb72dfef312f82dc2ca7a8c5efb09c4c29ae62573e4a78de00e452",
+            "generation": "63eafcf0-a22b-4666-98d4-977b96950a4c",
+            "legacy_fingerprint": "8fb5394b1584e6d21f2ac5161b2e84c653fb27069538a796d36911f3877ca147",
+            "legacy_lineage": "54c6899e021f625ce8460cc79323194901edcb10c4281098c3839f18733aa289",
+            "namespace": "27f3bba99ff8ea3306028aadf44f7eda821c3f80f7423d789bba928f092dd4bf",
+            "resolved_id": null,
+            "sequence": 1,
+            "snapshot_id": "1257878cfdec9f4cf1095b7bacf2f73869c0d79adce2b5af161b6b28bcfefd52",
+            "synced_at": "2026-10-16T02:20:50.915451Z",
+            "user": {
+              "display_name": "Owner",
+              "id": 1,
+              "share_pin_needs_change": false,
+              "username": "owner"
+            },
+            "version": 1
+          }
+        }
+      ],
+      "objects": 161,
+      "pins": 8,
+      "generations": {
+        "63eafcf0-a22b-4666-98d4-977b96950a4c": {
+          "sync_root": "ebaef258c6ea218020895bb8a1a0eefad16773ae06bbadef3a23f49528b90aab",
+          "objects": 150,
+          "receipt": "58e3a8ad2fa072e9b225bdc2a9f952606579f11e626b28125a15e2b8c8f89fd7",
+          "source_sha256": "16494c05d0a2b82eff0ff230563c3ac1edde22a536a64e7a261e2c926a8cd4f3",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "260ccf096d97ffad88f2975223d86861bed770609fbcc648c1c57d9eb4df0e67",
+          "closure_count": 150,
+          "closure_sha256": "3ff60a823f76ccca6d6f32f8439ccf2c4f701ee382b835be21aa2c8df478e46b"
+        },
+        "fceb4424-debc-4307-aff5-455f48ccef54": {
+          "sync_root": "44585ec5189fb9ecb8c09ca1f01363a33c964755ecf939a7fb243237100ceaeb",
+          "objects": 150,
+          "receipt": "535b6263f6378d4492e835ad546eb33c89da064b990a2be2b82e36dcdf34e55c",
+          "source_sha256": "659fd12ed82fd4e5c66a393f3a71a9d742888997508d05bf911ce9766eba8ae5",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "260ccf096d97ffad88f2975223d86861bed770609fbcc648c1c57d9eb4df0e67",
+          "closure_count": 150,
+          "closure_sha256": "6219a1ffb0f4e2c01b169717259bc74d9586d27278456e4c800b45d647b55440"
+        }
+      }
+    },
+    "after_reopen": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "fceb4424-debc-4307-aff5-455f48ccef54",
+          "previous_id": "63eafcf0-a22b-4666-98d4-977b96950a4c",
+          "sequence": 2,
+          "checksum": "29164d1a5f251b0ac6d1187ae0bd0cb8e418cc07702252cdde258d9334badfdf"
+        },
+        "installed": {
+          "id": 1,
+          "generation_id": "63eafcf0-a22b-4666-98d4-977b96950a4c",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "9a92cbcbdb1422a26ffa7833751b3247a7de2b95bcf827556bbdc334efb23cd4"
+        }
+      },
+      "frozen": [
+        {
+          "id": "e584e7c8-edfe-4ea3-986c-caa483b9387f",
+          "generation": "63eafcf0-a22b-4666-98d4-977b96950a4c",
+          "state": "installed",
+          "binding": {
+            "baseline_sha256": "c19943112fbb72dfef312f82dc2ca7a8c5efb09c4c29ae62573e4a78de00e452",
+            "generation": "63eafcf0-a22b-4666-98d4-977b96950a4c",
+            "legacy_fingerprint": "8fb5394b1584e6d21f2ac5161b2e84c653fb27069538a796d36911f3877ca147",
+            "legacy_lineage": "54c6899e021f625ce8460cc79323194901edcb10c4281098c3839f18733aa289",
+            "namespace": "27f3bba99ff8ea3306028aadf44f7eda821c3f80f7423d789bba928f092dd4bf",
+            "resolved_id": null,
+            "sequence": 1,
+            "snapshot_id": "1257878cfdec9f4cf1095b7bacf2f73869c0d79adce2b5af161b6b28bcfefd52",
+            "synced_at": "2026-10-16T02:20:50.915451Z",
+            "user": {
+              "display_name": "Owner",
+              "id": 1,
+              "share_pin_needs_change": false,
+              "username": "owner"
+            },
+            "version": 1
+          }
+        }
+      ],
+      "objects": 161,
+      "pins": 8,
+      "generations": {
+        "63eafcf0-a22b-4666-98d4-977b96950a4c": {
+          "sync_root": "ebaef258c6ea218020895bb8a1a0eefad16773ae06bbadef3a23f49528b90aab",
+          "objects": 150,
+          "receipt": "58e3a8ad2fa072e9b225bdc2a9f952606579f11e626b28125a15e2b8c8f89fd7",
+          "source_sha256": "16494c05d0a2b82eff0ff230563c3ac1edde22a536a64e7a261e2c926a8cd4f3",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "260ccf096d97ffad88f2975223d86861bed770609fbcc648c1c57d9eb4df0e67",
+          "closure_count": 150,
+          "closure_sha256": "3ff60a823f76ccca6d6f32f8439ccf2c4f701ee382b835be21aa2c8df478e46b"
+        },
+        "fceb4424-debc-4307-aff5-455f48ccef54": {
+          "sync_root": "44585ec5189fb9ecb8c09ca1f01363a33c964755ecf939a7fb243237100ceaeb",
+          "objects": 150,
+          "receipt": "535b6263f6378d4492e835ad546eb33c89da064b990a2be2b82e36dcdf34e55c",
+          "source_sha256": "659fd12ed82fd4e5c66a393f3a71a9d742888997508d05bf911ce9766eba8ae5",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "260ccf096d97ffad88f2975223d86861bed770609fbcc648c1c57d9eb4df0e67",
+          "closure_count": 150,
+          "closure_sha256": "6219a1ffb0f4e2c01b169717259bc74d9586d27278456e4c800b45d647b55440"
+        }
+      },
+      "legacy": {
+        "fingerprint": "8fb5394b1584e6d21f2ac5161b2e84c653fb27069538a796d36911f3877ca147",
+        "lineage": "54c6899e021f625ce8460cc79323194901edcb10c4281098c3839f18733aa289",
+        "sha256": "ad99034dde002b9705bf38e260289dc191b4e8650e52d63252a39ee33d03669b"
+      }
+    }
+  },
+  "regressions/ra01-crash/recovery_before_commit.json": {
+    "boundary": "recovery_before_commit",
+    "expected_installed": "934ff510-5b28-43c8-8349-6873ed3c8c05",
+    "immediate_source": {
+      "storage": "segmented-store/1",
+      "kind": "segmented",
+      "namespace": "81cceeefff33fc34f9a3e03d3bdf4d9a26079fa3f9a891bef98e852dba9e5f43",
+      "generation": "2b2de41f-4b5c-4a8c-9c2c-349b95ac7ac2",
+      "sequence": 2,
+      "legacy_frozen": "09fa8576-30fd-401d-8fc1-003f501b333d",
+      "legacy_binding": "a807b87f440a72b7c11ecc74503c518d9e5f287e5a7d2292c4a579347c507ffd",
+      "previous_installation": "934ff510-5b28-43c8-8349-6873ed3c8c05",
+      "previous_sequence": 1,
+      "previous_source": {
+        "storage": "segmented-store/1",
+        "namespace": "81cceeefff33fc34f9a3e03d3bdf4d9a26079fa3f9a891bef98e852dba9e5f43",
+        "frozen": "09fa8576-30fd-401d-8fc1-003f501b333d",
+        "binding": "a807b87f440a72b7c11ecc74503c518d9e5f287e5a7d2292c4a579347c507ffd",
+        "previous_file": null,
+        "previous_source": null
+      }
+    },
+    "recovered": {
+      "recovery_error": null,
+      "frozen_read": true,
+      "r1_gate": "CLOSED",
+      "installed": "934ff510-5b28-43c8-8349-6873ed3c8c05",
+      "source": {
+        "storage": "segmented-store/1",
+        "namespace": "81cceeefff33fc34f9a3e03d3bdf4d9a26079fa3f9a891bef98e852dba9e5f43",
+        "frozen": "09fa8576-30fd-401d-8fc1-003f501b333d",
+        "binding": "a807b87f440a72b7c11ecc74503c518d9e5f287e5a7d2292c4a579347c507ffd",
+        "previous_file": null,
+        "previous_source": null
+      }
+    },
+    "source_sha256": "f4a6e1454bae2203862710bd8dbb437d1cfc55781acdd20f20d3fb8a8ab814f2",
+    "baseline_preserved": true,
+    "pending_preserved": true,
+    "before_reopen": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "2b2de41f-4b5c-4a8c-9c2c-349b95ac7ac2",
+          "previous_id": "934ff510-5b28-43c8-8349-6873ed3c8c05",
+          "sequence": 2,
+          "checksum": "bb307df3d7c27048ff88657562fd35828d16236b4b34c08eab49d25d874532ee"
+        },
+        "installed": {
+          "id": 1,
+          "generation_id": "934ff510-5b28-43c8-8349-6873ed3c8c05",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "8dbb9fabda03f9e4ee8c3efb75f8980024e79f3b273554933f5de5f3fc977c7e"
+        }
+      },
+      "frozen": [
+        {
+          "id": "09fa8576-30fd-401d-8fc1-003f501b333d",
+          "generation": "934ff510-5b28-43c8-8349-6873ed3c8c05",
+          "state": "installed",
+          "binding": {
+            "baseline_sha256": "f2472e881e57ab49f5ad16ca476fb19d6e2b8af9e75b482d63c5a4b016c8dba1",
+            "generation": "934ff510-5b28-43c8-8349-6873ed3c8c05",
+            "legacy_fingerprint": "4d48bb4c66003b02fa69056e8bf3da29e6ea264c18b420e067a6cf14dd150873",
+            "legacy_lineage": "d8d88cc8de08bf5c5b36efd9c71087004839e2398a71b9f783156799ae6d01aa",
+            "namespace": "81cceeefff33fc34f9a3e03d3bdf4d9a26079fa3f9a891bef98e852dba9e5f43",
+            "resolved_id": null,
+            "sequence": 1,
+            "snapshot_id": "fac21aff8938673010e867b8f106b110b244b9c28d5629eea8400b33515e31de",
+            "synced_at": "2026-10-16T02:19:12.957626Z",
+            "user": {
+              "display_name": "Owner",
+              "id": 1,
+              "share_pin_needs_change": false,
+              "username": "owner"
+            },
+            "version": 1
+          }
+        }
+      ],
+      "objects": 161,
+      "pins": 8,
+      "generations": {
+        "2b2de41f-4b5c-4a8c-9c2c-349b95ac7ac2": {
+          "sync_root": "55018e30acbe2a9a2615597bd6da97e4f0774db2c0d566b5f9c4533bb4bf853a",
+          "objects": 150,
+          "receipt": "b176104317471f0143cf4fb5c368228bdb62b76f13c8b96c3c231edd42091297",
+          "source_sha256": "9ae294a9f0f207b937908a3ebec38837c8039caf317b5f3f22b29d16d7c54d32",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "d2848ee62b037ba72ec3c60e6c6b56a5e86dd5ef098e5663b36a9b204f83082f",
+          "closure_count": 150,
+          "closure_sha256": "9befc7a6a017bfeb34e16cde81c5ce5c4e51b357876c5764fed8dff425cea8c9"
+        },
+        "934ff510-5b28-43c8-8349-6873ed3c8c05": {
+          "sync_root": "ab2efa4fff7fd88403f02a9901ea36548169aa04c960fb2be65aa8cb525614a7",
+          "objects": 150,
+          "receipt": "514995dcfb09407fb935ed0130060ea6383894e05ff1700cb4067e16fedad37b",
+          "source_sha256": "79b4a6583253676f1b51bc19acd5d133bd921dbc094226721e53674c2b1f8a9a",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "d2848ee62b037ba72ec3c60e6c6b56a5e86dd5ef098e5663b36a9b204f83082f",
+          "closure_count": 150,
+          "closure_sha256": "4bb525e4b25533f5cad01e885dc409c8ab7cee956efb705c35c431117bf72c87"
+        }
+      }
+    },
+    "after_reopen": {
+      "pointers": {
+        "accepted": {
+          "id": 1,
+          "current_id": "2b2de41f-4b5c-4a8c-9c2c-349b95ac7ac2",
+          "previous_id": "934ff510-5b28-43c8-8349-6873ed3c8c05",
+          "sequence": 2,
+          "checksum": "bb307df3d7c27048ff88657562fd35828d16236b4b34c08eab49d25d874532ee"
+        },
+        "installed": {
+          "id": 1,
+          "generation_id": "934ff510-5b28-43c8-8349-6873ed3c8c05",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "8dbb9fabda03f9e4ee8c3efb75f8980024e79f3b273554933f5de5f3fc977c7e"
+        }
+      },
+      "frozen": [
+        {
+          "id": "09fa8576-30fd-401d-8fc1-003f501b333d",
+          "generation": "934ff510-5b28-43c8-8349-6873ed3c8c05",
+          "state": "installed",
+          "binding": {
+            "baseline_sha256": "f2472e881e57ab49f5ad16ca476fb19d6e2b8af9e75b482d63c5a4b016c8dba1",
+            "generation": "934ff510-5b28-43c8-8349-6873ed3c8c05",
+            "legacy_fingerprint": "4d48bb4c66003b02fa69056e8bf3da29e6ea264c18b420e067a6cf14dd150873",
+            "legacy_lineage": "d8d88cc8de08bf5c5b36efd9c71087004839e2398a71b9f783156799ae6d01aa",
+            "namespace": "81cceeefff33fc34f9a3e03d3bdf4d9a26079fa3f9a891bef98e852dba9e5f43",
+            "resolved_id": null,
+            "sequence": 1,
+            "snapshot_id": "fac21aff8938673010e867b8f106b110b244b9c28d5629eea8400b33515e31de",
+            "synced_at": "2026-10-16T02:19:12.957626Z",
+            "user": {
+              "display_name": "Owner",
+              "id": 1,
+              "share_pin_needs_change": false,
+              "username": "owner"
+            },
+            "version": 1
+          }
+        }
+      ],
+      "objects": 161,
+      "pins": 8,
+      "generations": {
+        "2b2de41f-4b5c-4a8c-9c2c-349b95ac7ac2": {
+          "sync_root": "55018e30acbe2a9a2615597bd6da97e4f0774db2c0d566b5f9c4533bb4bf853a",
+          "objects": 150,
+          "receipt": "b176104317471f0143cf4fb5c368228bdb62b76f13c8b96c3c231edd42091297",
+          "source_sha256": "9ae294a9f0f207b937908a3ebec38837c8039caf317b5f3f22b29d16d7c54d32",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "d2848ee62b037ba72ec3c60e6c6b56a5e86dd5ef098e5663b36a9b204f83082f",
+          "closure_count": 150,
+          "closure_sha256": "9befc7a6a017bfeb34e16cde81c5ce5c4e51b357876c5764fed8dff425cea8c9"
+        },
+        "934ff510-5b28-43c8-8349-6873ed3c8c05": {
+          "sync_root": "ab2efa4fff7fd88403f02a9901ea36548169aa04c960fb2be65aa8cb525614a7",
+          "objects": 150,
+          "receipt": "514995dcfb09407fb935ed0130060ea6383894e05ff1700cb4067e16fedad37b",
+          "source_sha256": "79b4a6583253676f1b51bc19acd5d133bd921dbc094226721e53674c2b1f8a9a",
+          "table_rows": {
+            "ledger_entries": 7,
+            "monthly_panels": 1,
+            "cash_flows": 1,
+            "card_payment_batches": 1,
+            "card_payment_batch_items": 1,
+            "card_payment_events": 1,
+            "card_payment_allocations": 1,
+            "card_payment_deferrals": 1,
+            "notification_candidate_registrations": 1,
+            "app_settings": 6,
+            "app_labels": 19
+          },
+          "control_sha256": "d2848ee62b037ba72ec3c60e6c6b56a5e86dd5ef098e5663b36a9b204f83082f",
+          "closure_count": 150,
+          "closure_sha256": "4bb525e4b25533f5cad01e885dc409c8ab7cee956efb705c35c431117bf72c87"
+        }
+      },
+      "legacy": {
+        "fingerprint": "4d48bb4c66003b02fa69056e8bf3da29e6ea264c18b420e067a6cf14dd150873",
+        "lineage": "d8d88cc8de08bf5c5b36efd9c71087004839e2398a71b9f783156799ae6d01aa",
+        "sha256": "3b1784ea799b49e825d3b8adcba64b188c44804891377684cc59b2e9c9a31a46"
+      }
+    }
+  }
+}

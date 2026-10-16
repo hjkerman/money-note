@@ -1,0 +1,16 @@
+{
+  "files": [
+    "lib/src/apk_install_bridge.dart",
+    "lib/src/screens/home_shell.dart",
+    "lib/src/screens/management_month_close.dart",
+    "lib/src/screens/management_settings.dart",
+    "lib/src/screens/month_entries_screen.dart",
+    "lib/src/screens/snapshot_manager_screen.dart",
+    "test/date_picker_row_test.dart",
+    "test/offline_notification_identity_test.dart",
+    "test/offline_persistence_test.dart",
+    "test/offline_reconciliation_test.dart"
+  ],
+  "outside_correction": true,
+  "unchanged": true
+}
