@@ -1,0 +1,230 @@
+{
+  "busy": {
+    "first_status": 503,
+    "error": {
+      "error": {
+        "action": "retry_same",
+        "code": "ROOT_NOT_READY",
+        "current_ns": null,
+        "retry_after_ms": 100
+      },
+      "protocol": 1,
+      "request_id": "cf3cd1fd-e95d-446c-9d78-dd483d4e94ea"
+    },
+    "seconds": 1.0792877119965851,
+    "retry_status": 201,
+    "duplicate_status": 200,
+    "active_before": 0,
+    "active_after": 0
+  },
+  "concurrent": {
+    "results": [
+      {
+        "history": [
+          {
+            "status": 503,
+            "code": "ROOT_NOT_READY"
+          },
+          {
+            "status": 503,
+            "code": "ROOT_NOT_READY"
+          },
+          {
+            "status": 503,
+            "code": "ROOT_NOT_READY"
+          }
+        ],
+        "response": {
+          "error": {
+            "action": "retry_same",
+            "code": "ROOT_NOT_READY",
+            "current_ns": null,
+            "retry_after_ms": 100
+          },
+          "protocol": 1,
+          "request_id": null
+        },
+        "status": 503
+      },
+      {
+        "history": [
+          {
+            "status": 201,
+            "code": null
+          }
+        ],
+        "response": {
+          "base_sync_root": null,
+          "change_kind": "initial",
+          "expires_at": "2026-10-05T00:15:00Z",
+          "inline_objects": [],
+          "observation_id": "dc9917b6-6bac-4aac-8e92-1a24c53065d0",
+          "protocol": 1,
+          "request_id": "c03bf0dc-e8b3-4e9a-9256-dbd8218c2441",
+          "status": "available",
+          "target": {
+            "context": {
+              "evaluation_date": "2026-10-05",
+              "financial_engine": "f34aef259c801ada33ccb88cfb103ee6654fb4467c49a66ce509f2239ffe449d",
+              "timezone_offset_minutes": 540
+            },
+            "control_ref": {
+              "bytes": "3178",
+              "hash": "93d3a285423262e9a2707e1f61b84f6b0b23d609cc07cfe033eb1b11c9e09b32"
+            },
+            "hot_ref": {
+              "bytes": "6357",
+              "hash": "bddfabc76724cac3c65948a05917b07a6d76d19c086431328ebc1b0441ec6bf6"
+            },
+            "index_ref": {
+              "bytes": "394",
+              "hash": "f69939301a13b7e187ebdd44d43415cb350d82fbae9901535b0fa9e5fa30981d"
+            },
+            "ns": {
+              "dataset_id": "d00cb688-76f7-417b-bfe9-c2a1642414a3",
+              "epoch": "2bbda0b3-bdd6-4ba3-b86e-cda95f1e224f",
+              "server_id": "6148e7d2-b2ce-460f-8641-a9a19c8d16dd"
+            },
+            "principal_id": 1,
+            "raw_ref": {
+              "bytes": "2613",
+              "hash": "9d74c8d67734d4efe25cfc1c0957d8f85cc6608adb87a4a0c7918523bf5fc34b"
+            },
+            "revision": "28",
+            "sync_root": "1a36fa7707a2fade320f2789644791320ce7e72753a08c0597fec344fa6da19d",
+            "versions": {
+              "canon": 1,
+              "policy_registry": "18be2d36483467e9250d568bcbfed6458c15a364fa99896eb1b8daad05db043d",
+              "projection_schema": "89e2bd7bf3f1683ddff95a0b33b1e9ff08ff19d5a001f4007c40ed4c6c5b3437",
+              "raw_schema": "b948a0e33fc0abb6957af76beac643ac7131d2fcac3ab53265c02d16783f953e",
+              "recurring_ownership": 1,
+              "snapshot": 7,
+              "structural": 1,
+              "sync": 1
+            }
+          },
+          "validated_at": "2026-10-05T00:00:00Z"
+        },
+        "status": 201
+      },
+      {
+        "history": [
+          {
+            "status": 503,
+            "code": "ROOT_NOT_READY"
+          },
+          {
+            "status": 503,
+            "code": "ROOT_NOT_READY"
+          },
+          {
+            "status": 503,
+            "code": "ROOT_NOT_READY"
+          }
+        ],
+        "response": {
+          "error": {
+            "action": "retry_same",
+            "code": "ROOT_NOT_READY",
+            "current_ns": null,
+            "retry_after_ms": 100
+          },
+          "protocol": 1,
+          "request_id": null
+        },
+        "status": 503
+      },
+      {
+        "history": [
+          {
+            "status": 503,
+            "code": "ROOT_NOT_READY"
+          },
+          {
+            "status": 503,
+            "code": "ROOT_NOT_READY"
+          },
+          {
+            "status": 503,
+            "code": "ROOT_NOT_READY"
+          }
+        ],
+        "response": {
+          "error": {
+            "action": "retry_same",
+            "code": "ROOT_NOT_READY",
+            "current_ns": null,
+            "retry_after_ms": 100
+          },
+          "protocol": 1,
+          "request_id": null
+        },
+        "status": 503
+      },
+      {
+        "history": [
+          {
+            "status": 201,
+            "code": null
+          }
+        ],
+        "response": {
+          "base_sync_root": null,
+          "change_kind": "initial",
+          "expires_at": "2026-10-05T00:15:00Z",
+          "inline_objects": [],
+          "observation_id": "b14a5a6e-ea83-4eb0-93a5-a962a6ae579f",
+          "protocol": 1,
+          "request_id": "cc9ac613-b42d-4ab1-98dc-82f2231528a3",
+          "status": "available",
+          "target": {
+            "context": {
+              "evaluation_date": "2026-10-05",
+              "financial_engine": "f34aef259c801ada33ccb88cfb103ee6654fb4467c49a66ce509f2239ffe449d",
+              "timezone_offset_minutes": 540
+            },
+            "control_ref": {
+              "bytes": "3178",
+              "hash": "93d3a285423262e9a2707e1f61b84f6b0b23d609cc07cfe033eb1b11c9e09b32"
+            },
+            "hot_ref": {
+              "bytes": "6357",
+              "hash": "bddfabc76724cac3c65948a05917b07a6d76d19c086431328ebc1b0441ec6bf6"
+            },
+            "index_ref": {
+              "bytes": "394",
+              "hash": "f69939301a13b7e187ebdd44d43415cb350d82fbae9901535b0fa9e5fa30981d"
+            },
+            "ns": {
+              "dataset_id": "d00cb688-76f7-417b-bfe9-c2a1642414a3",
+              "epoch": "2bbda0b3-bdd6-4ba3-b86e-cda95f1e224f",
+              "server_id": "6148e7d2-b2ce-460f-8641-a9a19c8d16dd"
+            },
+            "principal_id": 1,
+            "raw_ref": {
+              "bytes": "2613",
+              "hash": "9d74c8d67734d4efe25cfc1c0957d8f85cc6608adb87a4a0c7918523bf5fc34b"
+            },
+            "revision": "28",
+            "sync_root": "1a36fa7707a2fade320f2789644791320ce7e72753a08c0597fec344fa6da19d",
+            "versions": {
+              "canon": 1,
+              "policy_registry": "18be2d36483467e9250d568bcbfed6458c15a364fa99896eb1b8daad05db043d",
+              "projection_schema": "89e2bd7bf3f1683ddff95a0b33b1e9ff08ff19d5a001f4007c40ed4c6c5b3437",
+              "raw_schema": "b948a0e33fc0abb6957af76beac643ac7131d2fcac3ab53265c02d16783f953e",
+              "recurring_ownership": 1,
+              "snapshot": 7,
+              "structural": 1,
+              "sync": 1
+            }
+          },
+          "validated_at": "2026-10-05T00:00:00Z"
+        },
+        "status": 201
+      }
+    ],
+    "active": 2,
+    "pin_rows": 10,
+    "followup_status": 201
+  }
+}

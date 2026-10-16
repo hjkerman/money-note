@@ -1,0 +1,823 @@
+{
+  "test": "original_test.py::test_bounded_concurrent_quota_and_same_request_status",
+  "assertion_failed": true,
+  "elapsed_us": 1904435,
+  "database_identity": {
+    "device": 64512,
+    "inode": 1049500
+  },
+  "events": [
+    {
+      "event": "prepare_begin",
+      "us": 101154,
+      "pid": 330390,
+      "thread": 138163192329920,
+      "request_id": "c720f4e0-73d1-4c2c-b07f-2deb2f8fed6b",
+      "phase": "prepare"
+    },
+    {
+      "event": "prepare_begin",
+      "us": 103488,
+      "pid": 330390,
+      "thread": 138163183937216,
+      "request_id": "d6c8135c-4051-4abf-abf4-aa1794186d68",
+      "phase": "prepare"
+    },
+    {
+      "event": "prepare_begin",
+      "us": 104892,
+      "pid": 330390,
+      "thread": 138163158759104,
+      "request_id": "ae9cc2de-c4f0-487b-b783-2182ffcada21",
+      "phase": "prepare"
+    },
+    {
+      "event": "prepare_begin",
+      "us": 105038,
+      "pid": 330390,
+      "thread": 138163167151808,
+      "request_id": "096d680b-7106-4247-8c0d-2af7cb310eeb",
+      "phase": "prepare"
+    },
+    {
+      "event": "prepare_begin",
+      "us": 105218,
+      "pid": 330390,
+      "thread": 138163175544512,
+      "request_id": "2c6eb0c6-8b3d-458d-b2a7-90dbbab86139",
+      "phase": "prepare"
+    },
+    {
+      "event": "create_begin",
+      "us": 236962,
+      "pid": 330390,
+      "thread": 138163158759104,
+      "request_id": "ae9cc2de-c4f0-487b-b783-2182ffcada21",
+      "phase": "create"
+    },
+    {
+      "event": "create_begin",
+      "us": 344345,
+      "pid": 330390,
+      "thread": 138163192329920,
+      "request_id": "c720f4e0-73d1-4c2c-b07f-2deb2f8fed6b",
+      "phase": "create"
+    },
+    {
+      "event": "create_begin",
+      "us": 521175,
+      "pid": 330390,
+      "thread": 138163175544512,
+      "request_id": "2c6eb0c6-8b3d-458d-b2a7-90dbbab86139",
+      "phase": "create"
+    },
+    {
+      "event": "create_begin",
+      "us": 551981,
+      "pid": 330390,
+      "thread": 138163167151808,
+      "request_id": "096d680b-7106-4247-8c0d-2af7cb310eeb",
+      "phase": "create"
+    },
+    {
+      "event": "create_begin",
+      "us": 557148,
+      "pid": 330390,
+      "thread": 138163183937216,
+      "request_id": "d6c8135c-4051-4abf-abf4-aa1794186d68",
+      "phase": "create"
+    },
+    {
+      "event": "create_end",
+      "us": 980714,
+      "pid": 330390,
+      "thread": 138163158759104,
+      "request_id": "ae9cc2de-c4f0-487b-b783-2182ffcada21",
+      "phase": "create"
+    },
+    {
+      "event": "prepare_end",
+      "us": 980987,
+      "pid": 330390,
+      "thread": 138163158759104,
+      "request_id": "ae9cc2de-c4f0-487b-b783-2182ffcada21",
+      "phase": "prepare"
+    },
+    {
+      "event": "terminal_begin",
+      "us": 981690,
+      "pid": 330390,
+      "thread": 138163158759104,
+      "request_id": "ae9cc2de-c4f0-487b-b783-2182ffcada21",
+      "phase": "terminal"
+    },
+    {
+      "event": "lookup_begin",
+      "us": 981703,
+      "pid": 330390,
+      "thread": 138163158759104,
+      "request_id": "ae9cc2de-c4f0-487b-b783-2182ffcada21",
+      "phase": "lookup"
+    },
+    {
+      "event": "create_end",
+      "us": 1170097,
+      "pid": 330390,
+      "thread": 138163183937216,
+      "request_id": "d6c8135c-4051-4abf-abf4-aa1794186d68",
+      "phase": "create"
+    },
+    {
+      "event": "prepare_end",
+      "us": 1170325,
+      "pid": 330390,
+      "thread": 138163183937216,
+      "request_id": "d6c8135c-4051-4abf-abf4-aa1794186d68",
+      "phase": "prepare"
+    },
+    {
+      "event": "terminal_begin",
+      "us": 1170915,
+      "pid": 330390,
+      "thread": 138163183937216,
+      "request_id": "d6c8135c-4051-4abf-abf4-aa1794186d68",
+      "phase": "terminal"
+    },
+    {
+      "event": "lookup_begin",
+      "us": 1170927,
+      "pid": 330390,
+      "thread": 138163183937216,
+      "request_id": "d6c8135c-4051-4abf-abf4-aa1794186d68",
+      "phase": "lookup"
+    },
+    {
+      "event": "create_end",
+      "us": 1380292,
+      "pid": 330390,
+      "thread": 138163167151808,
+      "request_id": "096d680b-7106-4247-8c0d-2af7cb310eeb",
+      "phase": "create"
+    },
+    {
+      "event": "prepare_end",
+      "us": 1380540,
+      "pid": 330390,
+      "thread": 138163167151808,
+      "request_id": "096d680b-7106-4247-8c0d-2af7cb310eeb",
+      "phase": "prepare"
+    },
+    {
+      "event": "terminal_begin",
+      "us": 1381031,
+      "pid": 330390,
+      "thread": 138163167151808,
+      "request_id": "096d680b-7106-4247-8c0d-2af7cb310eeb",
+      "phase": "terminal"
+    },
+    {
+      "event": "lookup_begin",
+      "us": 1381042,
+      "pid": 330390,
+      "thread": 138163167151808,
+      "request_id": "096d680b-7106-4247-8c0d-2af7cb310eeb",
+      "phase": "lookup"
+    },
+    {
+      "event": "lookup_end",
+      "us": 1457077,
+      "pid": 330390,
+      "thread": 138163183937216,
+      "request_id": "d6c8135c-4051-4abf-abf4-aa1794186d68",
+      "phase": "lookup"
+    },
+    {
+      "event": "terminal_end",
+      "us": 1457145,
+      "pid": 330390,
+      "thread": 138163183937216,
+      "request_id": "d6c8135c-4051-4abf-abf4-aa1794186d68",
+      "phase": "terminal"
+    },
+    {
+      "event": "http_response",
+      "us": 1459185,
+      "pid": 330390,
+      "thread": 138163720808128,
+      "request_id": null,
+      "phase": null,
+      "status": 201,
+      "response_request_id": "d6c8135c-4051-4abf-abf4-aa1794186d68"
+    },
+    {
+      "event": "lookup_end",
+      "us": 1500348,
+      "pid": 330390,
+      "thread": 138163167151808,
+      "request_id": "096d680b-7106-4247-8c0d-2af7cb310eeb",
+      "phase": "lookup"
+    },
+    {
+      "event": "terminal_end",
+      "us": 1500416,
+      "pid": 330390,
+      "thread": 138163167151808,
+      "request_id": "096d680b-7106-4247-8c0d-2af7cb310eeb",
+      "phase": "terminal"
+    },
+    {
+      "event": "http_response",
+      "us": 1501917,
+      "pid": 330390,
+      "thread": 138163943102144,
+      "request_id": null,
+      "phase": null,
+      "status": 201,
+      "response_request_id": "096d680b-7106-4247-8c0d-2af7cb310eeb"
+    },
+    {
+      "event": "create_end",
+      "us": 1681319,
+      "pid": 330390,
+      "thread": 138163175544512,
+      "request_id": "2c6eb0c6-8b3d-458d-b2a7-90dbbab86139",
+      "phase": "create"
+    },
+    {
+      "event": "prepare_end",
+      "us": 1681585,
+      "pid": 330390,
+      "thread": 138163175544512,
+      "request_id": "2c6eb0c6-8b3d-458d-b2a7-90dbbab86139",
+      "phase": "prepare"
+    },
+    {
+      "event": "terminal_begin",
+      "us": 1682108,
+      "pid": 330390,
+      "thread": 138163175544512,
+      "request_id": "2c6eb0c6-8b3d-458d-b2a7-90dbbab86139",
+      "phase": "terminal"
+    },
+    {
+      "event": "lookup_begin",
+      "us": 1682120,
+      "pid": 330390,
+      "thread": 138163175544512,
+      "request_id": "2c6eb0c6-8b3d-458d-b2a7-90dbbab86139",
+      "phase": "lookup"
+    },
+    {
+      "event": "create_error",
+      "us": 1753245,
+      "pid": 330390,
+      "thread": 138163192329920,
+      "request_id": "c720f4e0-73d1-4c2c-b07f-2deb2f8fed6b",
+      "phase": "create",
+      "error_type": "ObservationError",
+      "code": "ROOT_NOT_READY",
+      "sqlite_errorcode": null,
+      "sqlite_errorname": null,
+      "message": null,
+      "exception_chain": [
+        {
+          "error_type": "ObservationError",
+          "code": "ROOT_NOT_READY",
+          "sqlite_errorcode": null,
+          "sqlite_errorname": null,
+          "message": null,
+          "frames": [
+            {
+              "file": "forensics.py",
+              "line": 207,
+              "function": "invoke"
+            },
+            {
+              "file": "observation.py",
+              "line": 510,
+              "function": "create"
+            },
+            {
+              "file": "observation.py",
+              "line": 52,
+              "function": "reject"
+            }
+          ]
+        },
+        {
+          "error_type": "OperationalError",
+          "code": null,
+          "sqlite_errorcode": 5,
+          "sqlite_errorname": "SQLITE_BUSY",
+          "message": "database is locked",
+          "frames": [
+            {
+              "file": "observation.py",
+              "line": 398,
+              "function": "create"
+            },
+            {
+              "file": "contextlib.py",
+              "line": 137,
+              "function": "__enter__"
+            },
+            {
+              "file": "observation.py",
+              "line": 267,
+              "function": "_connection"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "event": "create_end",
+      "us": 1753260,
+      "pid": 330390,
+      "thread": 138163192329920,
+      "request_id": "c720f4e0-73d1-4c2c-b07f-2deb2f8fed6b",
+      "phase": "create"
+    },
+    {
+      "event": "prepare_error",
+      "us": 1756144,
+      "pid": 330390,
+      "thread": 138163192329920,
+      "request_id": "c720f4e0-73d1-4c2c-b07f-2deb2f8fed6b",
+      "phase": "prepare",
+      "error_type": "ObservationError",
+      "code": "ROOT_NOT_READY",
+      "sqlite_errorcode": null,
+      "sqlite_errorname": null,
+      "message": null,
+      "exception_chain": [
+        {
+          "error_type": "ObservationError",
+          "code": "ROOT_NOT_READY",
+          "sqlite_errorcode": null,
+          "sqlite_errorname": null,
+          "message": null,
+          "frames": [
+            {
+              "file": "forensics.py",
+              "line": 207,
+              "function": "invoke"
+            },
+            {
+              "file": "http.py",
+              "line": 155,
+              "function": "prepare"
+            },
+            {
+              "file": "forensics.py",
+              "line": 207,
+              "function": "invoke"
+            },
+            {
+              "file": "observation.py",
+              "line": 510,
+              "function": "create"
+            },
+            {
+              "file": "observation.py",
+              "line": 52,
+              "function": "reject"
+            }
+          ]
+        },
+        {
+          "error_type": "OperationalError",
+          "code": null,
+          "sqlite_errorcode": 5,
+          "sqlite_errorname": "SQLITE_BUSY",
+          "message": "database is locked",
+          "frames": [
+            {
+              "file": "observation.py",
+              "line": 398,
+              "function": "create"
+            },
+            {
+              "file": "contextlib.py",
+              "line": 137,
+              "function": "__enter__"
+            },
+            {
+              "file": "observation.py",
+              "line": 267,
+              "function": "_connection"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "event": "prepare_end",
+      "us": 1756156,
+      "pid": 330390,
+      "thread": 138163192329920,
+      "request_id": "c720f4e0-73d1-4c2c-b07f-2deb2f8fed6b",
+      "phase": "prepare"
+    },
+    {
+      "event": "http_response",
+      "us": 1762691,
+      "pid": 330390,
+      "thread": 138163959887552,
+      "request_id": null,
+      "phase": null,
+      "status": 503,
+      "response_request_id": "c720f4e0-73d1-4c2c-b07f-2deb2f8fed6b"
+    },
+    {
+      "event": "lookup_end",
+      "us": 1766251,
+      "pid": 330390,
+      "thread": 138163175544512,
+      "request_id": "2c6eb0c6-8b3d-458d-b2a7-90dbbab86139",
+      "phase": "lookup"
+    },
+    {
+      "event": "terminal_end",
+      "us": 1766315,
+      "pid": 330390,
+      "thread": 138163175544512,
+      "request_id": "2c6eb0c6-8b3d-458d-b2a7-90dbbab86139",
+      "phase": "terminal"
+    },
+    {
+      "event": "http_response",
+      "us": 1767860,
+      "pid": 330390,
+      "thread": 138163951494848,
+      "request_id": null,
+      "phase": null,
+      "status": 201,
+      "response_request_id": "2c6eb0c6-8b3d-458d-b2a7-90dbbab86139"
+    },
+    {
+      "event": "lookup_end",
+      "us": 1888455,
+      "pid": 330390,
+      "thread": 138163158759104,
+      "request_id": "ae9cc2de-c4f0-487b-b783-2182ffcada21",
+      "phase": "lookup"
+    },
+    {
+      "event": "terminal_end",
+      "us": 1888537,
+      "pid": 330390,
+      "thread": 138163158759104,
+      "request_id": "ae9cc2de-c4f0-487b-b783-2182ffcada21",
+      "phase": "terminal"
+    },
+    {
+      "event": "http_response",
+      "us": 1890013,
+      "pid": 330390,
+      "thread": 138163729200832,
+      "request_id": null,
+      "phase": null,
+      "status": 201,
+      "response_request_id": "ae9cc2de-c4f0-487b-b783-2182ffcada21"
+    }
+  ],
+  "responses": [
+    {
+      "method": "POST",
+      "endpoint": "/api/sync/v1/observations",
+      "status": 201,
+      "body": {
+        "base_sync_root": null,
+        "change_kind": "initial",
+        "expires_at": "2026-10-05T00:15:00Z",
+        "inline_objects": [],
+        "observation_id": "8d012470-19eb-4df4-bf45-c79992fff1a7",
+        "protocol": 1,
+        "request_id": "d6c8135c-4051-4abf-abf4-aa1794186d68",
+        "status": "available",
+        "target": {
+          "context": {
+            "evaluation_date": "2026-10-05",
+            "financial_engine": "f34aef259c801ada33ccb88cfb103ee6654fb4467c49a66ce509f2239ffe449d",
+            "timezone_offset_minutes": 540
+          },
+          "control_ref": {
+            "bytes": "3178",
+            "hash": "b51d528eed4fba42cf0fd673b6d5bc77c32fd2b265c0ee8b2a9a80ab94ab59e9"
+          },
+          "hot_ref": {
+            "bytes": "6260",
+            "hash": "e1c3b757cf50635da9251ddd603fb8a6227b9e0d7b63e6e626818a6602ecb60d"
+          },
+          "index_ref": {
+            "bytes": "395",
+            "hash": "83a16d6af578e6214d8b18235b85fade78f0c8b16150731e3cc5cf50d764ae58"
+          },
+          "ns": {
+            "dataset_id": "04e978ab-88a2-449e-b703-5c693bb6865c",
+            "epoch": "06f462ad-8858-4bf3-ba51-c9593cea9dec",
+            "server_id": "8713b965-f217-4044-948a-04501a9bad26"
+          },
+          "principal_id": 1,
+          "raw_ref": {
+            "bytes": "2645",
+            "hash": "116e19326da4c6cc8d1ef7ca270420fbf891d5ce31a881befd6a55901b8a096c"
+          },
+          "revision": "284",
+          "sync_root": "4f8acaeeae944060feed9ec6434e11501ac03bb9a47092e4c3406efead957cf3",
+          "versions": {
+            "canon": 1,
+            "policy_registry": "18be2d36483467e9250d568bcbfed6458c15a364fa99896eb1b8daad05db043d",
+            "projection_schema": "89e2bd7bf3f1683ddff95a0b33b1e9ff08ff19d5a001f4007c40ed4c6c5b3437",
+            "raw_schema": "b948a0e33fc0abb6957af76beac643ac7131d2fcac3ab53265c02d16783f953e",
+            "recurring_ownership": 1,
+            "snapshot": 7,
+            "structural": 1,
+            "sync": 1
+          }
+        },
+        "validated_at": "2026-10-05T00:00:00Z"
+      },
+      "headers": {
+        "content-type": "application/json",
+        "cache-control": "no-store",
+        "x-content-type-options": "nosniff"
+      },
+      "elapsed_us": 1367325,
+      "completed": true
+    },
+    {
+      "method": "POST",
+      "endpoint": "/api/sync/v1/observations",
+      "status": 201,
+      "body": {
+        "base_sync_root": null,
+        "change_kind": "initial",
+        "expires_at": "2026-10-05T00:15:00Z",
+        "inline_objects": [],
+        "observation_id": "1d29117b-b1ac-4140-8997-a7af52619ba1",
+        "protocol": 1,
+        "request_id": "096d680b-7106-4247-8c0d-2af7cb310eeb",
+        "status": "available",
+        "target": {
+          "context": {
+            "evaluation_date": "2026-10-05",
+            "financial_engine": "f34aef259c801ada33ccb88cfb103ee6654fb4467c49a66ce509f2239ffe449d",
+            "timezone_offset_minutes": 540
+          },
+          "control_ref": {
+            "bytes": "3178",
+            "hash": "b51d528eed4fba42cf0fd673b6d5bc77c32fd2b265c0ee8b2a9a80ab94ab59e9"
+          },
+          "hot_ref": {
+            "bytes": "6315",
+            "hash": "ba320afa2e39838972c3ae9d86590257ca51160f195b5eb3cdb4fb4d48897d41"
+          },
+          "index_ref": {
+            "bytes": "395",
+            "hash": "83a16d6af578e6214d8b18235b85fade78f0c8b16150731e3cc5cf50d764ae58"
+          },
+          "ns": {
+            "dataset_id": "04e978ab-88a2-449e-b703-5c693bb6865c",
+            "epoch": "06f462ad-8858-4bf3-ba51-c9593cea9dec",
+            "server_id": "8713b965-f217-4044-948a-04501a9bad26"
+          },
+          "principal_id": 1,
+          "raw_ref": {
+            "bytes": "2645",
+            "hash": "116e19326da4c6cc8d1ef7ca270420fbf891d5ce31a881befd6a55901b8a096c"
+          },
+          "revision": "284",
+          "sync_root": "c6826c798675dfcb693377c50fc79beff51cd4ebffb495e4f5be5a05b011f9f7",
+          "versions": {
+            "canon": 1,
+            "policy_registry": "18be2d36483467e9250d568bcbfed6458c15a364fa99896eb1b8daad05db043d",
+            "projection_schema": "89e2bd7bf3f1683ddff95a0b33b1e9ff08ff19d5a001f4007c40ed4c6c5b3437",
+            "raw_schema": "b948a0e33fc0abb6957af76beac643ac7131d2fcac3ab53265c02d16783f953e",
+            "recurring_ownership": 1,
+            "snapshot": 7,
+            "structural": 1,
+            "sync": 1
+          }
+        },
+        "validated_at": "2026-10-05T00:00:00Z"
+      },
+      "headers": {
+        "content-type": "application/json",
+        "cache-control": "no-store",
+        "x-content-type-options": "nosniff"
+      },
+      "elapsed_us": 1409321,
+      "completed": true
+    },
+    {
+      "method": "POST",
+      "endpoint": "/api/sync/v1/observations",
+      "status": 503,
+      "body": {
+        "error": {
+          "action": "retry_same",
+          "code": "ROOT_NOT_READY",
+          "current_ns": null,
+          "retry_after_ms": 100
+        },
+        "protocol": 1,
+        "request_id": "c720f4e0-73d1-4c2c-b07f-2deb2f8fed6b"
+      },
+      "headers": {
+        "content-type": "application/json",
+        "cache-control": "no-store",
+        "x-content-type-options": "nosniff"
+      },
+      "elapsed_us": 1669622,
+      "completed": true
+    },
+    {
+      "method": "POST",
+      "endpoint": "/api/sync/v1/observations",
+      "status": 201,
+      "body": {
+        "base_sync_root": null,
+        "change_kind": "initial",
+        "expires_at": "2026-10-05T00:15:00Z",
+        "inline_objects": [],
+        "observation_id": "fe888d53-844c-4d3e-9bb1-ed9e116f0ad5",
+        "protocol": 1,
+        "request_id": "2c6eb0c6-8b3d-458d-b2a7-90dbbab86139",
+        "status": "available",
+        "target": {
+          "context": {
+            "evaluation_date": "2026-10-05",
+            "financial_engine": "f34aef259c801ada33ccb88cfb103ee6654fb4467c49a66ce509f2239ffe449d",
+            "timezone_offset_minutes": 540
+          },
+          "control_ref": {
+            "bytes": "3178",
+            "hash": "b51d528eed4fba42cf0fd673b6d5bc77c32fd2b265c0ee8b2a9a80ab94ab59e9"
+          },
+          "hot_ref": {
+            "bytes": "6236",
+            "hash": "57055c1bf77f4fd1f001b78c66b6ed69536a2471feac4f4bc6d957b84b96db40"
+          },
+          "index_ref": {
+            "bytes": "395",
+            "hash": "83a16d6af578e6214d8b18235b85fade78f0c8b16150731e3cc5cf50d764ae58"
+          },
+          "ns": {
+            "dataset_id": "04e978ab-88a2-449e-b703-5c693bb6865c",
+            "epoch": "06f462ad-8858-4bf3-ba51-c9593cea9dec",
+            "server_id": "8713b965-f217-4044-948a-04501a9bad26"
+          },
+          "principal_id": 1,
+          "raw_ref": {
+            "bytes": "2645",
+            "hash": "116e19326da4c6cc8d1ef7ca270420fbf891d5ce31a881befd6a55901b8a096c"
+          },
+          "revision": "284",
+          "sync_root": "66c058b6ffb63af966080e1ce6c6d1735c976834b0936eda00af6856f303435a",
+          "versions": {
+            "canon": 1,
+            "policy_registry": "18be2d36483467e9250d568bcbfed6458c15a364fa99896eb1b8daad05db043d",
+            "projection_schema": "89e2bd7bf3f1683ddff95a0b33b1e9ff08ff19d5a001f4007c40ed4c6c5b3437",
+            "raw_schema": "b948a0e33fc0abb6957af76beac643ac7131d2fcac3ab53265c02d16783f953e",
+            "recurring_ownership": 1,
+            "snapshot": 7,
+            "structural": 1,
+            "sync": 1
+          }
+        },
+        "validated_at": "2026-10-05T00:00:00Z"
+      },
+      "headers": {
+        "content-type": "application/json",
+        "cache-control": "no-store",
+        "x-content-type-options": "nosniff"
+      },
+      "elapsed_us": 1674218,
+      "completed": true
+    },
+    {
+      "method": "POST",
+      "endpoint": "/api/sync/v1/observations",
+      "status": 201,
+      "body": {
+        "base_sync_root": null,
+        "change_kind": "initial",
+        "expires_at": "2026-10-05T00:15:00Z",
+        "inline_objects": [],
+        "observation_id": "e03ecabd-4d67-4cf8-81f1-a551f15cebc9",
+        "protocol": 1,
+        "request_id": "ae9cc2de-c4f0-487b-b783-2182ffcada21",
+        "status": "available",
+        "target": {
+          "context": {
+            "evaluation_date": "2026-10-05",
+            "financial_engine": "f34aef259c801ada33ccb88cfb103ee6654fb4467c49a66ce509f2239ffe449d",
+            "timezone_offset_minutes": 540
+          },
+          "control_ref": {
+            "bytes": "3178",
+            "hash": "b51d528eed4fba42cf0fd673b6d5bc77c32fd2b265c0ee8b2a9a80ab94ab59e9"
+          },
+          "hot_ref": {
+            "bytes": "6188",
+            "hash": "0446e9feb2eb7a70be2dd95c8fb2d9068d82b619362a0e8d9bb55cf8b3d377db"
+          },
+          "index_ref": {
+            "bytes": "395",
+            "hash": "83a16d6af578e6214d8b18235b85fade78f0c8b16150731e3cc5cf50d764ae58"
+          },
+          "ns": {
+            "dataset_id": "04e978ab-88a2-449e-b703-5c693bb6865c",
+            "epoch": "06f462ad-8858-4bf3-ba51-c9593cea9dec",
+            "server_id": "8713b965-f217-4044-948a-04501a9bad26"
+          },
+          "principal_id": 1,
+          "raw_ref": {
+            "bytes": "2645",
+            "hash": "116e19326da4c6cc8d1ef7ca270420fbf891d5ce31a881befd6a55901b8a096c"
+          },
+          "revision": "284",
+          "sync_root": "1b97cc8f4f0ab5ca50e8c5de38d31dbe5bc8b56eecf700b878852273ab9d1790",
+          "versions": {
+            "canon": 1,
+            "policy_registry": "18be2d36483467e9250d568bcbfed6458c15a364fa99896eb1b8daad05db043d",
+            "projection_schema": "89e2bd7bf3f1683ddff95a0b33b1e9ff08ff19d5a001f4007c40ed4c6c5b3437",
+            "raw_schema": "b948a0e33fc0abb6957af76beac643ac7131d2fcac3ab53265c02d16783f953e",
+            "recurring_ownership": 1,
+            "snapshot": 7,
+            "structural": 1,
+            "sync": 1
+          }
+        },
+        "validated_at": "2026-10-05T00:00:00Z"
+      },
+      "headers": {
+        "content-type": "application/json",
+        "cache-control": "no-store",
+        "x-content-type-options": "nosniff"
+      },
+      "elapsed_us": 1794858,
+      "completed": true
+    }
+  ],
+  "handles": {},
+  "statements": {},
+  "persisted": {
+    "observations": [
+      [
+        "096d680b-7106-4247-8c0d-2af7cb310eeb",
+        "available",
+        1
+      ],
+      [
+        "2c6eb0c6-8b3d-458d-b2a7-90dbbab86139",
+        "available",
+        1
+      ],
+      [
+        "ae9cc2de-c4f0-487b-b783-2182ffcada21",
+        "available",
+        1
+      ],
+      [
+        "d6c8135c-4051-4abf-abf4-aa1794186d68",
+        "available",
+        1
+      ]
+    ],
+    "pins": [
+      [
+        "control",
+        1,
+        4
+      ],
+      [
+        "hot",
+        1,
+        4
+      ],
+      [
+        "index",
+        1,
+        4
+      ],
+      [
+        "input",
+        1,
+        4
+      ],
+      [
+        "raw",
+        1,
+        4
+      ]
+    ],
+    "journal_mode": "delete",
+    "integrity": "ok",
+    "foreign_key_check": []
+  },
+  "original_test_sha256": "ddee07457cea3d99a830b367bb013abe8a6a2cb8474026aa27973ba8f218ade7",
+  "observer_mode": "response_exception_only"
+}

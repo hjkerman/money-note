@@ -1,0 +1,133 @@
+{
+  "classification": "OBSERVER_SELF_DEFECT_NOT_PRODUCT_FINDING",
+  "raw_sha256": "6333d3002d9bad30872b7be9831e93a6a994a47103f022d26f3e9b1714f42a90",
+  "statuses": [
+    500,
+    500,
+    500,
+    500,
+    500
+  ],
+  "errors": [
+    {
+      "event": "create_error",
+      "us": 824645,
+      "pid": 325123,
+      "thread": 128433589831360,
+      "request_id": "98d91f60-2900-4329-b971-f0df2f7e78d3",
+      "phase": "create",
+      "error_type": "ProgrammingError",
+      "code": null,
+      "sqlite_errorcode": null,
+      "sqlite_errorname": null,
+      "message": "Cannot operate on a closed database."
+    },
+    {
+      "event": "create_error",
+      "us": 998277,
+      "pid": 325123,
+      "thread": 128433581438656,
+      "request_id": "9517cee9-fc67-4b66-b3df-8df2482965ea",
+      "phase": "create",
+      "error_type": "ProgrammingError",
+      "code": null,
+      "sqlite_errorcode": null,
+      "sqlite_errorname": null,
+      "message": "Cannot operate on a closed database."
+    },
+    {
+      "event": "create_error",
+      "us": 1156918,
+      "pid": 325123,
+      "thread": 128433615009472,
+      "request_id": "63c4797f-6ce1-4336-a533-f2fe9dada3a9",
+      "phase": "create",
+      "error_type": "ProgrammingError",
+      "code": null,
+      "sqlite_errorcode": null,
+      "sqlite_errorname": null,
+      "message": "Cannot operate on a closed database."
+    },
+    {
+      "event": "create_error",
+      "us": 1312714,
+      "pid": 325123,
+      "thread": 128433598224064,
+      "request_id": "88cb3f82-a165-428a-96bd-74f4a0773fec",
+      "phase": "create",
+      "error_type": "ProgrammingError",
+      "code": null,
+      "sqlite_errorcode": null,
+      "sqlite_errorname": null,
+      "message": "Cannot operate on a closed database."
+    },
+    {
+      "event": "create_error",
+      "us": 1467299,
+      "pid": 325123,
+      "thread": 128433606616768,
+      "request_id": "5f4c1960-ace7-4c45-bf21-627121956149",
+      "phase": "create",
+      "error_type": "ProgrammingError",
+      "code": null,
+      "sqlite_errorcode": null,
+      "sqlite_errorname": null,
+      "message": "Cannot operate on a closed database."
+    }
+  ],
+  "persisted": {
+    "observations": [
+      [
+        "63c4797f-6ce1-4336-a533-f2fe9dada3a9",
+        "available",
+        1
+      ],
+      [
+        "88cb3f82-a165-428a-96bd-74f4a0773fec",
+        "available",
+        1
+      ],
+      [
+        "9517cee9-fc67-4b66-b3df-8df2482965ea",
+        "available",
+        1
+      ],
+      [
+        "98d91f60-2900-4329-b971-f0df2f7e78d3",
+        "available",
+        1
+      ]
+    ],
+    "pins": [
+      [
+        "control",
+        1,
+        4
+      ],
+      [
+        "hot",
+        1,
+        4
+      ],
+      [
+        "index",
+        1,
+        4
+      ],
+      [
+        "input",
+        1,
+        4
+      ],
+      [
+        "raw",
+        1,
+        4
+      ]
+    ],
+    "journal_mode": "delete",
+    "integrity": "ok",
+    "foreign_key_check": []
+  },
+  "cause": "The observer read in_transaction on an already closed handle before the repository idempotent close. Corrected observer preserves sqlite3.close idempotence; this run is excluded from product reproduction counts."
+}

@@ -1,0 +1,4007 @@
+{
+  "test": "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+  "assertion_failed": false,
+  "elapsed_us": 1478450,
+  "database_identity": {
+    "device": 64512,
+    "inode": 1049521
+  },
+  "events": [
+    {
+      "event": "prepare_begin",
+      "us": 69566,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "prepare"
+    },
+    {
+      "event": "connect_begin",
+      "us": 69655,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "prepare"
+    },
+    {
+      "event": "prepare_begin",
+      "us": 71965,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "prepare"
+    },
+    {
+      "event": "connect_begin",
+      "us": 71981,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "prepare"
+    },
+    {
+      "event": "prepare_begin",
+      "us": 72700,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "prepare"
+    },
+    {
+      "event": "connect_begin",
+      "us": 72717,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "prepare"
+    },
+    {
+      "event": "prepare_begin",
+      "us": 74143,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "prepare"
+    },
+    {
+      "event": "connect_begin",
+      "us": 74160,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "prepare"
+    },
+    {
+      "event": "prepare_begin",
+      "us": 74207,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "prepare"
+    },
+    {
+      "event": "connect_begin",
+      "us": 74223,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "prepare"
+    },
+    {
+      "event": "connect_end",
+      "us": 150155,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "prepare",
+      "connection": 1,
+      "elapsed_us": 80499
+    },
+    {
+      "event": "close_begin",
+      "us": 150588,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "prepare",
+      "connection": 1,
+      "in_transaction": false
+    },
+    {
+      "event": "close_end",
+      "us": 154023,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "prepare",
+      "connection": 1
+    },
+    {
+      "event": "create_begin",
+      "us": 154048,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create"
+    },
+    {
+      "event": "connect_begin",
+      "us": 154108,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create"
+    },
+    {
+      "event": "connect_end",
+      "us": 215507,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "prepare",
+      "connection": 3,
+      "elapsed_us": 142788
+    },
+    {
+      "event": "close_begin",
+      "us": 216400,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "prepare",
+      "connection": 3,
+      "in_transaction": false
+    },
+    {
+      "event": "close_end",
+      "us": 217293,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "prepare",
+      "connection": 3
+    },
+    {
+      "event": "create_begin",
+      "us": 217316,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create"
+    },
+    {
+      "event": "connect_begin",
+      "us": 217375,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create"
+    },
+    {
+      "event": "connect_end",
+      "us": 217945,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "prepare",
+      "connection": 2,
+      "elapsed_us": 145962
+    },
+    {
+      "event": "close_begin",
+      "us": 218833,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "prepare",
+      "connection": 2,
+      "in_transaction": false
+    },
+    {
+      "event": "close_end",
+      "us": 222499,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "prepare",
+      "connection": 2
+    },
+    {
+      "event": "create_begin",
+      "us": 222519,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create"
+    },
+    {
+      "event": "connect_begin",
+      "us": 222564,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create"
+    },
+    {
+      "event": "connect_end",
+      "us": 308310,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "prepare",
+      "connection": 5,
+      "elapsed_us": 234085
+    },
+    {
+      "event": "close_begin",
+      "us": 309296,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "prepare",
+      "connection": 5,
+      "in_transaction": false
+    },
+    {
+      "event": "close_end",
+      "us": 319124,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "prepare",
+      "connection": 5
+    },
+    {
+      "event": "create_begin",
+      "us": 319147,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create"
+    },
+    {
+      "event": "connect_begin",
+      "us": 319197,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create"
+    },
+    {
+      "event": "connect_end",
+      "us": 395243,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "elapsed_us": 241133
+    },
+    {
+      "event": "sql_begin",
+      "us": 395268,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "PRAGMA busy_timeout=5000"
+    },
+    {
+      "event": "sql_end",
+      "us": 395320,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "PRAGMA busy_timeout=5000",
+      "elapsed_us": 50
+    },
+    {
+      "event": "sql_begin",
+      "us": 395364,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "BEGIN IMMEDIATE"
+    },
+    {
+      "event": "sqlite_trace",
+      "us": 395430,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "BEGIN IMMEDIATE"
+    },
+    {
+      "event": "sql_end",
+      "us": 395513,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "BEGIN IMMEDIATE",
+      "elapsed_us": 147
+    },
+    {
+      "event": "sql_begin",
+      "us": 395526,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "SAVEPOINT observation_attempt"
+    },
+    {
+      "event": "sql_end",
+      "us": 395787,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "SAVEPOINT observation_attempt",
+      "elapsed_us": 259
+    },
+    {
+      "event": "connect_end",
+      "us": 408661,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "prepare",
+      "connection": 4,
+      "elapsed_us": 334500
+    },
+    {
+      "event": "close_begin",
+      "us": 409592,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "prepare",
+      "connection": 4,
+      "in_transaction": false
+    },
+    {
+      "event": "close_end",
+      "us": 411224,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "prepare",
+      "connection": 4
+    },
+    {
+      "event": "create_begin",
+      "us": 411254,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create"
+    },
+    {
+      "event": "connect_begin",
+      "us": 411326,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create"
+    },
+    {
+      "event": "connect_end",
+      "us": 413368,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "elapsed_us": 195992
+    },
+    {
+      "event": "sql_begin",
+      "us": 413386,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "PRAGMA busy_timeout=5000"
+    },
+    {
+      "event": "sql_end",
+      "us": 413585,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "PRAGMA busy_timeout=5000",
+      "elapsed_us": 198
+    },
+    {
+      "event": "sql_begin",
+      "us": 413601,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "BEGIN IMMEDIATE"
+    },
+    {
+      "event": "sqlite_trace",
+      "us": 413666,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "BEGIN IMMEDIATE"
+    },
+    {
+      "event": "connect_end",
+      "us": 418028,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "elapsed_us": 195462
+    },
+    {
+      "event": "sql_begin",
+      "us": 418044,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "PRAGMA busy_timeout=5000"
+    },
+    {
+      "event": "sql_end",
+      "us": 418140,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "PRAGMA busy_timeout=5000",
+      "elapsed_us": 95
+    },
+    {
+      "event": "sql_begin",
+      "us": 418155,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "BEGIN IMMEDIATE"
+    },
+    {
+      "event": "sqlite_trace",
+      "us": 418184,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "BEGIN IMMEDIATE"
+    },
+    {
+      "event": "connect_end",
+      "us": 442857,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "elapsed_us": 123659
+    },
+    {
+      "event": "sql_begin",
+      "us": 442874,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "PRAGMA busy_timeout=5000"
+    },
+    {
+      "event": "sql_end",
+      "us": 442905,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "PRAGMA busy_timeout=5000",
+      "elapsed_us": 30
+    },
+    {
+      "event": "sql_begin",
+      "us": 442918,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "BEGIN IMMEDIATE"
+    },
+    {
+      "event": "sqlite_trace",
+      "us": 442938,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "BEGIN IMMEDIATE"
+    },
+    {
+      "event": "sql_begin",
+      "us": 512580,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "SAVEPOINT observation_read_5d957c3200f741ad908e4a8a63d1a6fb"
+    },
+    {
+      "event": "sql_end",
+      "us": 512657,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "SAVEPOINT observation_read_5d957c3200f741ad908e4a8a63d1a6fb",
+      "elapsed_us": 76
+    },
+    {
+      "event": "sql_begin",
+      "us": 523193,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "SAVEPOINT card_read_c0316b5d763d4d738379709dce394830"
+    },
+    {
+      "event": "sql_end",
+      "us": 523243,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "SAVEPOINT card_read_c0316b5d763d4d738379709dce394830",
+      "elapsed_us": 49
+    },
+    {
+      "event": "sql_begin",
+      "us": 532282,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "RELEASE card_read_c0316b5d763d4d738379709dce394830"
+    },
+    {
+      "event": "sql_end",
+      "us": 532347,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "RELEASE card_read_c0316b5d763d4d738379709dce394830",
+      "elapsed_us": 63
+    },
+    {
+      "event": "sql_begin",
+      "us": 532436,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "SAVEPOINT card_read_c0316b5d763d4d738379709dce394830"
+    },
+    {
+      "event": "sql_end",
+      "us": 532483,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "SAVEPOINT card_read_c0316b5d763d4d738379709dce394830",
+      "elapsed_us": 46
+    },
+    {
+      "event": "connect_end",
+      "us": 541769,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "elapsed_us": 130442
+    },
+    {
+      "event": "sql_begin",
+      "us": 541789,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "PRAGMA busy_timeout=5000"
+    },
+    {
+      "event": "sql_end",
+      "us": 541851,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "PRAGMA busy_timeout=5000",
+      "elapsed_us": 61
+    },
+    {
+      "event": "sql_begin",
+      "us": 541873,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "BEGIN IMMEDIATE"
+    },
+    {
+      "event": "sqlite_trace",
+      "us": 541912,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "BEGIN IMMEDIATE"
+    },
+    {
+      "event": "sql_begin",
+      "us": 542255,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "RELEASE card_read_c0316b5d763d4d738379709dce394830"
+    },
+    {
+      "event": "sql_end",
+      "us": 542275,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "RELEASE card_read_c0316b5d763d4d738379709dce394830",
+      "elapsed_us": 19
+    },
+    {
+      "event": "sql_begin",
+      "us": 542305,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "SAVEPOINT card_read_c0316b5d763d4d738379709dce394830"
+    },
+    {
+      "event": "sql_end",
+      "us": 542322,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "SAVEPOINT card_read_c0316b5d763d4d738379709dce394830",
+      "elapsed_us": 16
+    },
+    {
+      "event": "sql_begin",
+      "us": 544233,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "RELEASE card_read_c0316b5d763d4d738379709dce394830"
+    },
+    {
+      "event": "sql_end",
+      "us": 544254,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "RELEASE card_read_c0316b5d763d4d738379709dce394830",
+      "elapsed_us": 20
+    },
+    {
+      "event": "sql_begin",
+      "us": 544284,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "SAVEPOINT card_read_c0316b5d763d4d738379709dce394830"
+    },
+    {
+      "event": "sql_end",
+      "us": 544301,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "SAVEPOINT card_read_c0316b5d763d4d738379709dce394830",
+      "elapsed_us": 16
+    },
+    {
+      "event": "sql_begin",
+      "us": 554265,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "RELEASE card_read_c0316b5d763d4d738379709dce394830"
+    },
+    {
+      "event": "sql_end",
+      "us": 554279,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "RELEASE card_read_c0316b5d763d4d738379709dce394830",
+      "elapsed_us": 14
+    },
+    {
+      "event": "sql_begin",
+      "us": 554297,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "SAVEPOINT card_read_c0316b5d763d4d738379709dce394830"
+    },
+    {
+      "event": "sql_end",
+      "us": 554307,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "SAVEPOINT card_read_c0316b5d763d4d738379709dce394830",
+      "elapsed_us": 10
+    },
+    {
+      "event": "sql_begin",
+      "us": 554488,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "RELEASE card_read_c0316b5d763d4d738379709dce394830"
+    },
+    {
+      "event": "sql_end",
+      "us": 554501,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "RELEASE card_read_c0316b5d763d4d738379709dce394830",
+      "elapsed_us": 12
+    },
+    {
+      "event": "sql_begin",
+      "us": 554517,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "SAVEPOINT card_read_c0316b5d763d4d738379709dce394830"
+    },
+    {
+      "event": "sql_end",
+      "us": 554526,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "SAVEPOINT card_read_c0316b5d763d4d738379709dce394830",
+      "elapsed_us": 9
+    },
+    {
+      "event": "sql_begin",
+      "us": 575833,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "RELEASE card_read_c0316b5d763d4d738379709dce394830"
+    },
+    {
+      "event": "sql_end",
+      "us": 575848,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "RELEASE card_read_c0316b5d763d4d738379709dce394830",
+      "elapsed_us": 15
+    },
+    {
+      "event": "sql_begin",
+      "us": 576741,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "RELEASE observation_read_5d957c3200f741ad908e4a8a63d1a6fb"
+    },
+    {
+      "event": "sql_end",
+      "us": 576756,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "RELEASE observation_read_5d957c3200f741ad908e4a8a63d1a6fb",
+      "elapsed_us": 15
+    },
+    {
+      "event": "commit_begin",
+      "us": 621256,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "in_transaction": true
+    },
+    {
+      "event": "sqlite_trace",
+      "us": 621276,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "sql": "COMMIT"
+    },
+    {
+      "event": "commit_end",
+      "us": 646522,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6
+    },
+    {
+      "event": "close_begin",
+      "us": 646539,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "in_transaction": false
+    },
+    {
+      "event": "close_end",
+      "us": 647233,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6
+    },
+    {
+      "event": "close_begin",
+      "us": 647241,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6,
+      "in_transaction": null
+    },
+    {
+      "event": "close_end",
+      "us": 647244,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create",
+      "connection": 6
+    },
+    {
+      "event": "create_end",
+      "us": 647319,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "create"
+    },
+    {
+      "event": "prepare_end",
+      "us": 647473,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "prepare"
+    },
+    {
+      "event": "sql_end",
+      "us": 647560,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "BEGIN IMMEDIATE",
+      "elapsed_us": 229402
+    },
+    {
+      "event": "sql_begin",
+      "us": 647574,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "SAVEPOINT observation_attempt"
+    },
+    {
+      "event": "sql_end",
+      "us": 647641,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "SAVEPOINT observation_attempt",
+      "elapsed_us": 66
+    },
+    {
+      "event": "terminal_begin",
+      "us": 648060,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "terminal"
+    },
+    {
+      "event": "lookup_begin",
+      "us": 648069,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "lookup"
+    },
+    {
+      "event": "connect_begin",
+      "us": 648088,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "lookup"
+    },
+    {
+      "event": "sql_begin",
+      "us": 704274,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "SAVEPOINT observation_read_9abd7a9b83cc4959b842899af84e7322"
+    },
+    {
+      "event": "sql_end",
+      "us": 704292,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "SAVEPOINT observation_read_9abd7a9b83cc4959b842899af84e7322",
+      "elapsed_us": 18
+    },
+    {
+      "event": "sql_begin",
+      "us": 704661,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "SAVEPOINT card_read_13f695f9435d433b95e2c6ed336830e0"
+    },
+    {
+      "event": "sql_end",
+      "us": 704683,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "SAVEPOINT card_read_13f695f9435d433b95e2c6ed336830e0",
+      "elapsed_us": 22
+    },
+    {
+      "event": "sql_begin",
+      "us": 705226,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "RELEASE card_read_13f695f9435d433b95e2c6ed336830e0"
+    },
+    {
+      "event": "sql_end",
+      "us": 705247,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "RELEASE card_read_13f695f9435d433b95e2c6ed336830e0",
+      "elapsed_us": 20
+    },
+    {
+      "event": "sql_begin",
+      "us": 705268,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "SAVEPOINT card_read_13f695f9435d433b95e2c6ed336830e0"
+    },
+    {
+      "event": "sql_end",
+      "us": 705287,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "SAVEPOINT card_read_13f695f9435d433b95e2c6ed336830e0",
+      "elapsed_us": 18
+    },
+    {
+      "event": "sql_begin",
+      "us": 710723,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "RELEASE card_read_13f695f9435d433b95e2c6ed336830e0"
+    },
+    {
+      "event": "sql_end",
+      "us": 710745,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "RELEASE card_read_13f695f9435d433b95e2c6ed336830e0",
+      "elapsed_us": 22
+    },
+    {
+      "event": "sql_begin",
+      "us": 710796,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "SAVEPOINT card_read_13f695f9435d433b95e2c6ed336830e0"
+    },
+    {
+      "event": "sql_end",
+      "us": 710879,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "SAVEPOINT card_read_13f695f9435d433b95e2c6ed336830e0",
+      "elapsed_us": 81
+    },
+    {
+      "event": "sql_begin",
+      "us": 711567,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "RELEASE card_read_13f695f9435d433b95e2c6ed336830e0"
+    },
+    {
+      "event": "sql_end",
+      "us": 711593,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "RELEASE card_read_13f695f9435d433b95e2c6ed336830e0",
+      "elapsed_us": 25
+    },
+    {
+      "event": "sql_begin",
+      "us": 711610,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "SAVEPOINT card_read_13f695f9435d433b95e2c6ed336830e0"
+    },
+    {
+      "event": "sql_end",
+      "us": 711636,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "SAVEPOINT card_read_13f695f9435d433b95e2c6ed336830e0",
+      "elapsed_us": 25
+    },
+    {
+      "event": "sql_begin",
+      "us": 736770,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "RELEASE card_read_13f695f9435d433b95e2c6ed336830e0"
+    },
+    {
+      "event": "sql_end",
+      "us": 736785,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "RELEASE card_read_13f695f9435d433b95e2c6ed336830e0",
+      "elapsed_us": 14
+    },
+    {
+      "event": "sql_begin",
+      "us": 736800,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "SAVEPOINT card_read_13f695f9435d433b95e2c6ed336830e0"
+    },
+    {
+      "event": "sql_end",
+      "us": 736808,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "SAVEPOINT card_read_13f695f9435d433b95e2c6ed336830e0",
+      "elapsed_us": 8
+    },
+    {
+      "event": "sql_begin",
+      "us": 737199,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "RELEASE card_read_13f695f9435d433b95e2c6ed336830e0"
+    },
+    {
+      "event": "sql_end",
+      "us": 737232,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "RELEASE card_read_13f695f9435d433b95e2c6ed336830e0",
+      "elapsed_us": 32
+    },
+    {
+      "event": "sql_begin",
+      "us": 737270,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "SAVEPOINT card_read_13f695f9435d433b95e2c6ed336830e0"
+    },
+    {
+      "event": "sql_end",
+      "us": 737296,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "SAVEPOINT card_read_13f695f9435d433b95e2c6ed336830e0",
+      "elapsed_us": 25
+    },
+    {
+      "event": "connect_end",
+      "us": 738371,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "lookup",
+      "connection": 11,
+      "elapsed_us": 90282
+    },
+    {
+      "event": "sql_begin",
+      "us": 738386,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "lookup",
+      "connection": 11,
+      "sql": "PRAGMA busy_timeout=5000"
+    },
+    {
+      "event": "sql_end",
+      "us": 738403,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "lookup",
+      "connection": 11,
+      "sql": "PRAGMA busy_timeout=5000",
+      "elapsed_us": 16
+    },
+    {
+      "event": "sql_begin",
+      "us": 738413,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "lookup",
+      "connection": 11,
+      "sql": "BEGIN IMMEDIATE"
+    },
+    {
+      "event": "sqlite_trace",
+      "us": 738425,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "lookup",
+      "connection": 11,
+      "sql": "BEGIN IMMEDIATE"
+    },
+    {
+      "event": "sql_begin",
+      "us": 742542,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "RELEASE card_read_13f695f9435d433b95e2c6ed336830e0"
+    },
+    {
+      "event": "sql_end",
+      "us": 742554,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "RELEASE card_read_13f695f9435d433b95e2c6ed336830e0",
+      "elapsed_us": 11
+    },
+    {
+      "event": "sql_begin",
+      "us": 743284,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "RELEASE observation_read_9abd7a9b83cc4959b842899af84e7322"
+    },
+    {
+      "event": "sql_end",
+      "us": 743296,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "RELEASE observation_read_9abd7a9b83cc4959b842899af84e7322",
+      "elapsed_us": 12
+    },
+    {
+      "event": "commit_begin",
+      "us": 781356,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "in_transaction": true
+    },
+    {
+      "event": "sqlite_trace",
+      "us": 781374,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "sql": "COMMIT"
+    },
+    {
+      "event": "commit_end",
+      "us": 806477,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8
+    },
+    {
+      "event": "close_begin",
+      "us": 806493,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "in_transaction": false
+    },
+    {
+      "event": "close_end",
+      "us": 807164,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8
+    },
+    {
+      "event": "close_begin",
+      "us": 807173,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8,
+      "in_transaction": null
+    },
+    {
+      "event": "close_end",
+      "us": 807176,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create",
+      "connection": 8
+    },
+    {
+      "event": "create_end",
+      "us": 807247,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "create"
+    },
+    {
+      "event": "prepare_end",
+      "us": 807403,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "prepare"
+    },
+    {
+      "event": "terminal_begin",
+      "us": 807841,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "terminal"
+    },
+    {
+      "event": "lookup_begin",
+      "us": 807849,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "lookup"
+    },
+    {
+      "event": "connect_begin",
+      "us": 807870,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "lookup"
+    },
+    {
+      "event": "sql_end",
+      "us": 820491,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "lookup",
+      "connection": 11,
+      "sql": "BEGIN IMMEDIATE",
+      "elapsed_us": 82076
+    },
+    {
+      "event": "sql_begin",
+      "us": 820505,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "lookup",
+      "connection": 11,
+      "sql": "SAVEPOINT observation_attempt"
+    },
+    {
+      "event": "sql_end",
+      "us": 820562,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "lookup",
+      "connection": 11,
+      "sql": "SAVEPOINT observation_attempt",
+      "elapsed_us": 57
+    },
+    {
+      "event": "sqlite_trace",
+      "us": 853665,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "lookup",
+      "connection": 11,
+      "sql": "COMMIT"
+    },
+    {
+      "event": "close_begin",
+      "us": 854743,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "lookup",
+      "connection": 11,
+      "in_transaction": false
+    },
+    {
+      "event": "close_end",
+      "us": 855522,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "lookup",
+      "connection": 11
+    },
+    {
+      "event": "close_begin",
+      "us": 855532,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "lookup",
+      "connection": 11,
+      "in_transaction": null
+    },
+    {
+      "event": "close_end",
+      "us": 855537,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "lookup",
+      "connection": 11
+    },
+    {
+      "event": "lookup_end",
+      "us": 855550,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "lookup"
+    },
+    {
+      "event": "terminal_end",
+      "us": 855592,
+      "pid": 340037,
+      "thread": 124583327798976,
+      "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+      "phase": "terminal"
+    },
+    {
+      "event": "http_response",
+      "us": 856972,
+      "pid": 340037,
+      "thread": 124583606818496,
+      "request_id": null,
+      "phase": null,
+      "status": 201,
+      "response_request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe"
+    },
+    {
+      "event": "connect_end",
+      "us": 857234,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "lookup",
+      "connection": 12,
+      "elapsed_us": 49363
+    },
+    {
+      "event": "sql_begin",
+      "us": 857250,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "lookup",
+      "connection": 12,
+      "sql": "PRAGMA busy_timeout=5000"
+    },
+    {
+      "event": "sql_end",
+      "us": 857264,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "lookup",
+      "connection": 12,
+      "sql": "PRAGMA busy_timeout=5000",
+      "elapsed_us": 14
+    },
+    {
+      "event": "sql_begin",
+      "us": 857274,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "lookup",
+      "connection": 12,
+      "sql": "BEGIN IMMEDIATE"
+    },
+    {
+      "event": "sqlite_trace",
+      "us": 857285,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "lookup",
+      "connection": 12,
+      "sql": "BEGIN IMMEDIATE"
+    },
+    {
+      "event": "sql_end",
+      "us": 857300,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "lookup",
+      "connection": 12,
+      "sql": "BEGIN IMMEDIATE",
+      "elapsed_us": 25
+    },
+    {
+      "event": "sql_begin",
+      "us": 857307,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "lookup",
+      "connection": 12,
+      "sql": "SAVEPOINT observation_attempt"
+    },
+    {
+      "event": "sql_end",
+      "us": 857317,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "lookup",
+      "connection": 12,
+      "sql": "SAVEPOINT observation_attempt",
+      "elapsed_us": 10
+    },
+    {
+      "event": "sqlite_trace",
+      "us": 885009,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "lookup",
+      "connection": 12,
+      "sql": "COMMIT"
+    },
+    {
+      "event": "close_begin",
+      "us": 885027,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "lookup",
+      "connection": 12,
+      "in_transaction": false
+    },
+    {
+      "event": "close_end",
+      "us": 885685,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "lookup",
+      "connection": 12
+    },
+    {
+      "event": "close_begin",
+      "us": 885693,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "lookup",
+      "connection": 12,
+      "in_transaction": null
+    },
+    {
+      "event": "close_end",
+      "us": 885697,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "lookup",
+      "connection": 12
+    },
+    {
+      "event": "lookup_end",
+      "us": 885708,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "lookup"
+    },
+    {
+      "event": "terminal_end",
+      "us": 885747,
+      "pid": 340037,
+      "thread": 124582765782720,
+      "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+      "phase": "terminal"
+    },
+    {
+      "event": "http_response",
+      "us": 886771,
+      "pid": 340037,
+      "thread": 124583590033088,
+      "request_id": null,
+      "phase": null,
+      "status": 201,
+      "response_request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757"
+    },
+    {
+      "event": "sql_end",
+      "us": 943204,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "BEGIN IMMEDIATE",
+      "elapsed_us": 529600
+    },
+    {
+      "event": "sql_begin",
+      "us": 943227,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "SAVEPOINT observation_attempt"
+    },
+    {
+      "event": "sql_end",
+      "us": 943274,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "SAVEPOINT observation_attempt",
+      "elapsed_us": 47
+    },
+    {
+      "event": "sql_begin",
+      "us": 991148,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "SAVEPOINT observation_read_a962f07d0f94415aa8e374545b2a0b73"
+    },
+    {
+      "event": "sql_end",
+      "us": 991165,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "SAVEPOINT observation_read_a962f07d0f94415aa8e374545b2a0b73",
+      "elapsed_us": 16
+    },
+    {
+      "event": "sql_begin",
+      "us": 991383,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "SAVEPOINT card_read_2b0df576f4774d0cb819b365a4a7e3a3"
+    },
+    {
+      "event": "sql_end",
+      "us": 991393,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "SAVEPOINT card_read_2b0df576f4774d0cb819b365a4a7e3a3",
+      "elapsed_us": 10
+    },
+    {
+      "event": "sql_begin",
+      "us": 991569,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "RELEASE card_read_2b0df576f4774d0cb819b365a4a7e3a3"
+    },
+    {
+      "event": "sql_end",
+      "us": 991579,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "RELEASE card_read_2b0df576f4774d0cb819b365a4a7e3a3",
+      "elapsed_us": 10
+    },
+    {
+      "event": "sql_begin",
+      "us": 991592,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "SAVEPOINT card_read_2b0df576f4774d0cb819b365a4a7e3a3"
+    },
+    {
+      "event": "sql_end",
+      "us": 991600,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "SAVEPOINT card_read_2b0df576f4774d0cb819b365a4a7e3a3",
+      "elapsed_us": 7
+    },
+    {
+      "event": "sql_begin",
+      "us": 994392,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "RELEASE card_read_2b0df576f4774d0cb819b365a4a7e3a3"
+    },
+    {
+      "event": "sql_end",
+      "us": 994403,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "RELEASE card_read_2b0df576f4774d0cb819b365a4a7e3a3",
+      "elapsed_us": 11
+    },
+    {
+      "event": "sql_begin",
+      "us": 994417,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "SAVEPOINT card_read_2b0df576f4774d0cb819b365a4a7e3a3"
+    },
+    {
+      "event": "sql_end",
+      "us": 994425,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "SAVEPOINT card_read_2b0df576f4774d0cb819b365a4a7e3a3",
+      "elapsed_us": 8
+    },
+    {
+      "event": "sql_begin",
+      "us": 994605,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "RELEASE card_read_2b0df576f4774d0cb819b365a4a7e3a3"
+    },
+    {
+      "event": "sql_end",
+      "us": 994615,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "RELEASE card_read_2b0df576f4774d0cb819b365a4a7e3a3",
+      "elapsed_us": 9
+    },
+    {
+      "event": "sql_begin",
+      "us": 994632,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "SAVEPOINT card_read_2b0df576f4774d0cb819b365a4a7e3a3"
+    },
+    {
+      "event": "sql_end",
+      "us": 994641,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "SAVEPOINT card_read_2b0df576f4774d0cb819b365a4a7e3a3",
+      "elapsed_us": 8
+    },
+    {
+      "event": "sql_begin",
+      "us": 1002372,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "RELEASE card_read_2b0df576f4774d0cb819b365a4a7e3a3"
+    },
+    {
+      "event": "sql_end",
+      "us": 1002383,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "RELEASE card_read_2b0df576f4774d0cb819b365a4a7e3a3",
+      "elapsed_us": 11
+    },
+    {
+      "event": "sql_begin",
+      "us": 1002398,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "SAVEPOINT card_read_2b0df576f4774d0cb819b365a4a7e3a3"
+    },
+    {
+      "event": "sql_end",
+      "us": 1002405,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "SAVEPOINT card_read_2b0df576f4774d0cb819b365a4a7e3a3",
+      "elapsed_us": 7
+    },
+    {
+      "event": "sql_begin",
+      "us": 1002546,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "RELEASE card_read_2b0df576f4774d0cb819b365a4a7e3a3"
+    },
+    {
+      "event": "sql_end",
+      "us": 1002556,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "RELEASE card_read_2b0df576f4774d0cb819b365a4a7e3a3",
+      "elapsed_us": 10
+    },
+    {
+      "event": "sql_begin",
+      "us": 1002569,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "SAVEPOINT card_read_2b0df576f4774d0cb819b365a4a7e3a3"
+    },
+    {
+      "event": "sql_end",
+      "us": 1002577,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "SAVEPOINT card_read_2b0df576f4774d0cb819b365a4a7e3a3",
+      "elapsed_us": 7
+    },
+    {
+      "event": "sql_begin",
+      "us": 1006539,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "RELEASE card_read_2b0df576f4774d0cb819b365a4a7e3a3"
+    },
+    {
+      "event": "sql_end",
+      "us": 1006550,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "RELEASE card_read_2b0df576f4774d0cb819b365a4a7e3a3",
+      "elapsed_us": 11
+    },
+    {
+      "event": "sql_begin",
+      "us": 1007217,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "RELEASE observation_read_a962f07d0f94415aa8e374545b2a0b73"
+    },
+    {
+      "event": "sql_end",
+      "us": 1007229,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "RELEASE observation_read_a962f07d0f94415aa8e374545b2a0b73",
+      "elapsed_us": 11
+    },
+    {
+      "event": "commit_begin",
+      "us": 1042346,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "in_transaction": true
+    },
+    {
+      "event": "sqlite_trace",
+      "us": 1042364,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "sql": "COMMIT"
+    },
+    {
+      "event": "commit_end",
+      "us": 1067800,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7
+    },
+    {
+      "event": "close_begin",
+      "us": 1067818,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "in_transaction": false
+    },
+    {
+      "event": "close_end",
+      "us": 1068556,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7
+    },
+    {
+      "event": "close_begin",
+      "us": 1068566,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7,
+      "in_transaction": null
+    },
+    {
+      "event": "close_end",
+      "us": 1068569,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create",
+      "connection": 7
+    },
+    {
+      "event": "create_end",
+      "us": 1068652,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "create"
+    },
+    {
+      "event": "prepare_end",
+      "us": 1068851,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "prepare"
+    },
+    {
+      "event": "terminal_begin",
+      "us": 1069214,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "terminal"
+    },
+    {
+      "event": "lookup_begin",
+      "us": 1069221,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "lookup"
+    },
+    {
+      "event": "connect_begin",
+      "us": 1069241,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "lookup"
+    },
+    {
+      "event": "sql_end",
+      "us": 1070860,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "BEGIN IMMEDIATE",
+      "elapsed_us": 528986
+    },
+    {
+      "event": "sql_begin",
+      "us": 1070873,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "SAVEPOINT observation_attempt"
+    },
+    {
+      "event": "sql_end",
+      "us": 1070898,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "SAVEPOINT observation_attempt",
+      "elapsed_us": 25
+    },
+    {
+      "event": "sql_begin",
+      "us": 1123996,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "SAVEPOINT observation_read_bf12f934c45449c494fe7605f640f9b8"
+    },
+    {
+      "event": "sql_end",
+      "us": 1124014,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "SAVEPOINT observation_read_bf12f934c45449c494fe7605f640f9b8",
+      "elapsed_us": 18
+    },
+    {
+      "event": "sql_begin",
+      "us": 1124364,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "SAVEPOINT card_read_f14e777cb87a4d0c9dd4dd95e42c989c"
+    },
+    {
+      "event": "sql_end",
+      "us": 1124376,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "SAVEPOINT card_read_f14e777cb87a4d0c9dd4dd95e42c989c",
+      "elapsed_us": 11
+    },
+    {
+      "event": "sql_begin",
+      "us": 1124843,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "RELEASE card_read_f14e777cb87a4d0c9dd4dd95e42c989c"
+    },
+    {
+      "event": "sql_end",
+      "us": 1124863,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "RELEASE card_read_f14e777cb87a4d0c9dd4dd95e42c989c",
+      "elapsed_us": 19
+    },
+    {
+      "event": "sql_begin",
+      "us": 1124886,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "SAVEPOINT card_read_f14e777cb87a4d0c9dd4dd95e42c989c"
+    },
+    {
+      "event": "sql_end",
+      "us": 1124901,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "SAVEPOINT card_read_f14e777cb87a4d0c9dd4dd95e42c989c",
+      "elapsed_us": 15
+    },
+    {
+      "event": "sql_begin",
+      "us": 1142919,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "RELEASE card_read_f14e777cb87a4d0c9dd4dd95e42c989c"
+    },
+    {
+      "event": "sql_end",
+      "us": 1142947,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "RELEASE card_read_f14e777cb87a4d0c9dd4dd95e42c989c",
+      "elapsed_us": 28
+    },
+    {
+      "event": "sql_begin",
+      "us": 1142986,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "SAVEPOINT card_read_f14e777cb87a4d0c9dd4dd95e42c989c"
+    },
+    {
+      "event": "sql_end",
+      "us": 1143003,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "SAVEPOINT card_read_f14e777cb87a4d0c9dd4dd95e42c989c",
+      "elapsed_us": 17
+    },
+    {
+      "event": "sql_begin",
+      "us": 1143431,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "RELEASE card_read_f14e777cb87a4d0c9dd4dd95e42c989c"
+    },
+    {
+      "event": "sql_end",
+      "us": 1143464,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "RELEASE card_read_f14e777cb87a4d0c9dd4dd95e42c989c",
+      "elapsed_us": 32
+    },
+    {
+      "event": "sql_begin",
+      "us": 1143486,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "SAVEPOINT card_read_f14e777cb87a4d0c9dd4dd95e42c989c"
+    },
+    {
+      "event": "sql_end",
+      "us": 1143503,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "SAVEPOINT card_read_f14e777cb87a4d0c9dd4dd95e42c989c",
+      "elapsed_us": 16
+    },
+    {
+      "event": "connect_end",
+      "us": 1144266,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "lookup",
+      "connection": 13,
+      "elapsed_us": 75024
+    },
+    {
+      "event": "sql_begin",
+      "us": 1144282,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "lookup",
+      "connection": 13,
+      "sql": "PRAGMA busy_timeout=5000"
+    },
+    {
+      "event": "sql_end",
+      "us": 1144331,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "lookup",
+      "connection": 13,
+      "sql": "PRAGMA busy_timeout=5000",
+      "elapsed_us": 48
+    },
+    {
+      "event": "sql_begin",
+      "us": 1144343,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "lookup",
+      "connection": 13,
+      "sql": "BEGIN IMMEDIATE"
+    },
+    {
+      "event": "sqlite_trace",
+      "us": 1144356,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "lookup",
+      "connection": 13,
+      "sql": "BEGIN IMMEDIATE"
+    },
+    {
+      "event": "sql_begin",
+      "us": 1152643,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "RELEASE card_read_f14e777cb87a4d0c9dd4dd95e42c989c"
+    },
+    {
+      "event": "sql_end",
+      "us": 1152656,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "RELEASE card_read_f14e777cb87a4d0c9dd4dd95e42c989c",
+      "elapsed_us": 12
+    },
+    {
+      "event": "sql_begin",
+      "us": 1152672,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "SAVEPOINT card_read_f14e777cb87a4d0c9dd4dd95e42c989c"
+    },
+    {
+      "event": "sql_end",
+      "us": 1152681,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "SAVEPOINT card_read_f14e777cb87a4d0c9dd4dd95e42c989c",
+      "elapsed_us": 8
+    },
+    {
+      "event": "sql_begin",
+      "us": 1152835,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "RELEASE card_read_f14e777cb87a4d0c9dd4dd95e42c989c"
+    },
+    {
+      "event": "sql_end",
+      "us": 1152846,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "RELEASE card_read_f14e777cb87a4d0c9dd4dd95e42c989c",
+      "elapsed_us": 10
+    },
+    {
+      "event": "sql_begin",
+      "us": 1152863,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "SAVEPOINT card_read_f14e777cb87a4d0c9dd4dd95e42c989c"
+    },
+    {
+      "event": "sql_end",
+      "us": 1152871,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "SAVEPOINT card_read_f14e777cb87a4d0c9dd4dd95e42c989c",
+      "elapsed_us": 8
+    },
+    {
+      "event": "sql_begin",
+      "us": 1156999,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "RELEASE card_read_f14e777cb87a4d0c9dd4dd95e42c989c"
+    },
+    {
+      "event": "sql_end",
+      "us": 1157011,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "RELEASE card_read_f14e777cb87a4d0c9dd4dd95e42c989c",
+      "elapsed_us": 11
+    },
+    {
+      "event": "sql_begin",
+      "us": 1157691,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "RELEASE observation_read_bf12f934c45449c494fe7605f640f9b8"
+    },
+    {
+      "event": "sql_end",
+      "us": 1157703,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "RELEASE observation_read_bf12f934c45449c494fe7605f640f9b8",
+      "elapsed_us": 12
+    },
+    {
+      "event": "commit_begin",
+      "us": 1192810,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "in_transaction": true
+    },
+    {
+      "event": "sqlite_trace",
+      "us": 1192824,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "sql": "COMMIT"
+    },
+    {
+      "event": "commit_end",
+      "us": 1218182,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10
+    },
+    {
+      "event": "close_begin",
+      "us": 1218196,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "in_transaction": false
+    },
+    {
+      "event": "close_end",
+      "us": 1218886,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10
+    },
+    {
+      "event": "close_begin",
+      "us": 1218894,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10,
+      "in_transaction": null
+    },
+    {
+      "event": "close_end",
+      "us": 1218898,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create",
+      "connection": 10
+    },
+    {
+      "event": "create_end",
+      "us": 1218961,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "create"
+    },
+    {
+      "event": "prepare_end",
+      "us": 1219112,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "prepare"
+    },
+    {
+      "event": "terminal_begin",
+      "us": 1219458,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "terminal"
+    },
+    {
+      "event": "lookup_begin",
+      "us": 1219465,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "lookup"
+    },
+    {
+      "event": "connect_begin",
+      "us": 1219483,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "lookup"
+    },
+    {
+      "event": "sql_end",
+      "us": 1223236,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "lookup",
+      "connection": 13,
+      "sql": "BEGIN IMMEDIATE",
+      "elapsed_us": 78891
+    },
+    {
+      "event": "sql_begin",
+      "us": 1223248,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "lookup",
+      "connection": 13,
+      "sql": "SAVEPOINT observation_attempt"
+    },
+    {
+      "event": "sql_end",
+      "us": 1223267,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "lookup",
+      "connection": 13,
+      "sql": "SAVEPOINT observation_attempt",
+      "elapsed_us": 18
+    },
+    {
+      "event": "sqlite_trace",
+      "us": 1248944,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "lookup",
+      "connection": 13,
+      "sql": "COMMIT"
+    },
+    {
+      "event": "close_begin",
+      "us": 1248961,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "lookup",
+      "connection": 13,
+      "in_transaction": false
+    },
+    {
+      "event": "close_end",
+      "us": 1249578,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "lookup",
+      "connection": 13
+    },
+    {
+      "event": "close_begin",
+      "us": 1249585,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "lookup",
+      "connection": 13,
+      "in_transaction": null
+    },
+    {
+      "event": "close_end",
+      "us": 1249589,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "lookup",
+      "connection": 13
+    },
+    {
+      "event": "lookup_end",
+      "us": 1249600,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "lookup"
+    },
+    {
+      "event": "terminal_end",
+      "us": 1249638,
+      "pid": 340037,
+      "thread": 124582757390016,
+      "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+      "phase": "terminal"
+    },
+    {
+      "event": "http_response",
+      "us": 1250820,
+      "pid": 340037,
+      "thread": 124583615211200,
+      "request_id": null,
+      "phase": null,
+      "status": 201,
+      "response_request_id": "73504120-c2ef-4716-b0e8-c7325f608307"
+    },
+    {
+      "event": "connect_end",
+      "us": 1267522,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "lookup",
+      "connection": 14,
+      "elapsed_us": 48037
+    },
+    {
+      "event": "sql_begin",
+      "us": 1267538,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "lookup",
+      "connection": 14,
+      "sql": "PRAGMA busy_timeout=5000"
+    },
+    {
+      "event": "sql_end",
+      "us": 1267552,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "lookup",
+      "connection": 14,
+      "sql": "PRAGMA busy_timeout=5000",
+      "elapsed_us": 13
+    },
+    {
+      "event": "sql_begin",
+      "us": 1267562,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "lookup",
+      "connection": 14,
+      "sql": "BEGIN IMMEDIATE"
+    },
+    {
+      "event": "sqlite_trace",
+      "us": 1267573,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "lookup",
+      "connection": 14,
+      "sql": "BEGIN IMMEDIATE"
+    },
+    {
+      "event": "sql_end",
+      "us": 1267588,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "lookup",
+      "connection": 14,
+      "sql": "BEGIN IMMEDIATE",
+      "elapsed_us": 26
+    },
+    {
+      "event": "sql_begin",
+      "us": 1267594,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "lookup",
+      "connection": 14,
+      "sql": "SAVEPOINT observation_attempt"
+    },
+    {
+      "event": "sql_end",
+      "us": 1267604,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "lookup",
+      "connection": 14,
+      "sql": "SAVEPOINT observation_attempt",
+      "elapsed_us": 9
+    },
+    {
+      "event": "sqlite_trace",
+      "us": 1293418,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "lookup",
+      "connection": 14,
+      "sql": "COMMIT"
+    },
+    {
+      "event": "close_begin",
+      "us": 1293436,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "lookup",
+      "connection": 14,
+      "in_transaction": false
+    },
+    {
+      "event": "close_end",
+      "us": 1294071,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "lookup",
+      "connection": 14
+    },
+    {
+      "event": "close_begin",
+      "us": 1294078,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "lookup",
+      "connection": 14,
+      "in_transaction": null
+    },
+    {
+      "event": "close_end",
+      "us": 1294081,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "lookup",
+      "connection": 14
+    },
+    {
+      "event": "lookup_end",
+      "us": 1294090,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "lookup"
+    },
+    {
+      "event": "terminal_end",
+      "us": 1294125,
+      "pid": 340037,
+      "thread": 124582774175424,
+      "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+      "phase": "terminal"
+    },
+    {
+      "event": "http_response",
+      "us": 1294992,
+      "pid": 340037,
+      "thread": 124583378155200,
+      "request_id": null,
+      "phase": null,
+      "status": 201,
+      "response_request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8"
+    },
+    {
+      "event": "sql_end",
+      "us": 1372792,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "BEGIN IMMEDIATE",
+      "elapsed_us": 929867
+    },
+    {
+      "event": "sql_begin",
+      "us": 1372842,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "SAVEPOINT observation_attempt"
+    },
+    {
+      "event": "sql_end",
+      "us": 1372914,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "SAVEPOINT observation_attempt",
+      "elapsed_us": 70
+    },
+    {
+      "event": "sql_begin",
+      "us": 1423394,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "SAVEPOINT observation_read_2f51013f4045491eb3c64bec7c5f94f5"
+    },
+    {
+      "event": "sql_end",
+      "us": 1423412,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "SAVEPOINT observation_read_2f51013f4045491eb3c64bec7c5f94f5",
+      "elapsed_us": 18
+    },
+    {
+      "event": "sql_begin",
+      "us": 1423651,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "SAVEPOINT card_read_024c7f35c0c34b39ad2d5af6a76e3f84"
+    },
+    {
+      "event": "sql_end",
+      "us": 1423662,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "SAVEPOINT card_read_024c7f35c0c34b39ad2d5af6a76e3f84",
+      "elapsed_us": 11
+    },
+    {
+      "event": "sql_begin",
+      "us": 1423855,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "RELEASE card_read_024c7f35c0c34b39ad2d5af6a76e3f84"
+    },
+    {
+      "event": "sql_end",
+      "us": 1423866,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "RELEASE card_read_024c7f35c0c34b39ad2d5af6a76e3f84",
+      "elapsed_us": 11
+    },
+    {
+      "event": "sql_begin",
+      "us": 1423881,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "SAVEPOINT card_read_024c7f35c0c34b39ad2d5af6a76e3f84"
+    },
+    {
+      "event": "sql_end",
+      "us": 1423889,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "SAVEPOINT card_read_024c7f35c0c34b39ad2d5af6a76e3f84",
+      "elapsed_us": 8
+    },
+    {
+      "event": "sql_begin",
+      "us": 1426984,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "RELEASE card_read_024c7f35c0c34b39ad2d5af6a76e3f84"
+    },
+    {
+      "event": "sql_end",
+      "us": 1426996,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "RELEASE card_read_024c7f35c0c34b39ad2d5af6a76e3f84",
+      "elapsed_us": 12
+    },
+    {
+      "event": "sql_begin",
+      "us": 1427012,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "SAVEPOINT card_read_024c7f35c0c34b39ad2d5af6a76e3f84"
+    },
+    {
+      "event": "sql_end",
+      "us": 1427021,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "SAVEPOINT card_read_024c7f35c0c34b39ad2d5af6a76e3f84",
+      "elapsed_us": 8
+    },
+    {
+      "event": "sql_begin",
+      "us": 1427220,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "RELEASE card_read_024c7f35c0c34b39ad2d5af6a76e3f84"
+    },
+    {
+      "event": "sql_end",
+      "us": 1427231,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "RELEASE card_read_024c7f35c0c34b39ad2d5af6a76e3f84",
+      "elapsed_us": 10
+    },
+    {
+      "event": "sql_begin",
+      "us": 1427246,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "SAVEPOINT card_read_024c7f35c0c34b39ad2d5af6a76e3f84"
+    },
+    {
+      "event": "sql_end",
+      "us": 1427254,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "SAVEPOINT card_read_024c7f35c0c34b39ad2d5af6a76e3f84",
+      "elapsed_us": 8
+    },
+    {
+      "event": "sql_begin",
+      "us": 1435821,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "RELEASE card_read_024c7f35c0c34b39ad2d5af6a76e3f84"
+    },
+    {
+      "event": "sql_end",
+      "us": 1435835,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "RELEASE card_read_024c7f35c0c34b39ad2d5af6a76e3f84",
+      "elapsed_us": 13
+    },
+    {
+      "event": "sql_begin",
+      "us": 1435851,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "SAVEPOINT card_read_024c7f35c0c34b39ad2d5af6a76e3f84"
+    },
+    {
+      "event": "sql_end",
+      "us": 1435860,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "SAVEPOINT card_read_024c7f35c0c34b39ad2d5af6a76e3f84",
+      "elapsed_us": 9
+    },
+    {
+      "event": "sql_begin",
+      "us": 1436029,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "RELEASE card_read_024c7f35c0c34b39ad2d5af6a76e3f84"
+    },
+    {
+      "event": "sql_end",
+      "us": 1436040,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "RELEASE card_read_024c7f35c0c34b39ad2d5af6a76e3f84",
+      "elapsed_us": 10
+    },
+    {
+      "event": "sql_begin",
+      "us": 1436054,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "SAVEPOINT card_read_024c7f35c0c34b39ad2d5af6a76e3f84"
+    },
+    {
+      "event": "sql_end",
+      "us": 1436063,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "SAVEPOINT card_read_024c7f35c0c34b39ad2d5af6a76e3f84",
+      "elapsed_us": 8
+    },
+    {
+      "event": "sql_begin",
+      "us": 1440312,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "RELEASE card_read_024c7f35c0c34b39ad2d5af6a76e3f84"
+    },
+    {
+      "event": "sql_end",
+      "us": 1440325,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "RELEASE card_read_024c7f35c0c34b39ad2d5af6a76e3f84",
+      "elapsed_us": 12
+    },
+    {
+      "event": "sql_begin",
+      "us": 1441063,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "RELEASE observation_read_2f51013f4045491eb3c64bec7c5f94f5"
+    },
+    {
+      "event": "sql_end",
+      "us": 1441076,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "RELEASE observation_read_2f51013f4045491eb3c64bec7c5f94f5",
+      "elapsed_us": 13
+    },
+    {
+      "event": "sqlite_trace",
+      "us": 1462851,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "sql": "ROLLBACK"
+    },
+    {
+      "event": "close_begin",
+      "us": 1462870,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "in_transaction": false
+    },
+    {
+      "event": "close_end",
+      "us": 1463605,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9
+    },
+    {
+      "event": "close_begin",
+      "us": 1463614,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9,
+      "in_transaction": null
+    },
+    {
+      "event": "close_end",
+      "us": 1463617,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "connection": 9
+    },
+    {
+      "event": "create_error",
+      "us": 1464171,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create",
+      "error_type": "ObservationError",
+      "code": "LEASE_LIMIT",
+      "sqlite_errorcode": null,
+      "sqlite_errorname": null,
+      "message": null,
+      "exception_chain": [
+        {
+          "error_type": "ObservationError",
+          "code": "LEASE_LIMIT",
+          "sqlite_errorcode": null,
+          "sqlite_errorname": null,
+          "message": null,
+          "frames": [
+            {
+              "file": "forensics.py",
+              "line": 207,
+              "function": "invoke"
+            },
+            {
+              "file": "observation.py",
+              "line": 461,
+              "function": "create"
+            },
+            {
+              "file": "observation.py",
+              "line": 52,
+              "function": "reject"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "event": "create_end",
+      "us": 1464178,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "create"
+    },
+    {
+      "event": "prepare_error",
+      "us": 1464522,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "prepare",
+      "error_type": "ObservationError",
+      "code": "LEASE_LIMIT",
+      "sqlite_errorcode": null,
+      "sqlite_errorname": null,
+      "message": null,
+      "exception_chain": [
+        {
+          "error_type": "ObservationError",
+          "code": "LEASE_LIMIT",
+          "sqlite_errorcode": null,
+          "sqlite_errorname": null,
+          "message": null,
+          "frames": [
+            {
+              "file": "forensics.py",
+              "line": 207,
+              "function": "invoke"
+            },
+            {
+              "file": "http.py",
+              "line": 155,
+              "function": "prepare"
+            },
+            {
+              "file": "forensics.py",
+              "line": 207,
+              "function": "invoke"
+            },
+            {
+              "file": "observation.py",
+              "line": 461,
+              "function": "create"
+            },
+            {
+              "file": "observation.py",
+              "line": 52,
+              "function": "reject"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "event": "prepare_end",
+      "us": 1464528,
+      "pid": 340037,
+      "thread": 124582748997312,
+      "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d",
+      "phase": "prepare"
+    },
+    {
+      "event": "http_response",
+      "us": 1465506,
+      "pid": 340037,
+      "thread": 124583598425792,
+      "request_id": null,
+      "phase": null,
+      "status": 429,
+      "response_request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d"
+    }
+  ],
+  "responses": [
+    {
+      "method": "POST",
+      "endpoint": "/api/sync/v1/observations",
+      "status": 201,
+      "body": {
+        "base_sync_root": null,
+        "change_kind": "initial",
+        "expires_at": "2026-10-05T00:15:00Z",
+        "inline_objects": [],
+        "observation_id": "2bce0e4f-7587-47bd-90f6-e12ff0c2b8de",
+        "protocol": 1,
+        "request_id": "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+        "status": "available",
+        "target": {
+          "context": {
+            "evaluation_date": "2026-10-05",
+            "financial_engine": "f34aef259c801ada33ccb88cfb103ee6654fb4467c49a66ce509f2239ffe449d",
+            "timezone_offset_minutes": 540
+          },
+          "control_ref": {
+            "bytes": "3178",
+            "hash": "53fc3a4348a02ad346955155557112788c72f33a8b9a4baa47602388f83f52a1"
+          },
+          "hot_ref": {
+            "bytes": "6233",
+            "hash": "45a7798ea12a80e278122c1cdf74859b62066d055d9745aced4be97a70f20d9d"
+          },
+          "index_ref": {
+            "bytes": "395",
+            "hash": "0eea5c09eb1f38c7980d72e576cd76dcd2adc5cc832e3b8be226bd4686c3e650"
+          },
+          "ns": {
+            "dataset_id": "2a186233-848d-465e-9619-da966d783854",
+            "epoch": "496de6f1-21bf-46bf-8a94-7fc0a447ec29",
+            "server_id": "34412bca-18cc-4314-9446-44bfd8a502ab"
+          },
+          "principal_id": 1,
+          "raw_ref": {
+            "bytes": "2645",
+            "hash": "5d92d8ee82209c94db2b89c7b79ce4891ffcbcd4e657588479b64876baf4b3de"
+          },
+          "revision": "284",
+          "sync_root": "b8454bd0e9a825df5599d693430be343d2e1704eade6d375935bd15d78513f6e",
+          "versions": {
+            "canon": 1,
+            "policy_registry": "18be2d36483467e9250d568bcbfed6458c15a364fa99896eb1b8daad05db043d",
+            "projection_schema": "89e2bd7bf3f1683ddff95a0b33b1e9ff08ff19d5a001f4007c40ed4c6c5b3437",
+            "raw_schema": "b948a0e33fc0abb6957af76beac643ac7131d2fcac3ab53265c02d16783f953e",
+            "recurring_ownership": 1,
+            "snapshot": 7,
+            "structural": 1,
+            "sync": 1
+          }
+        },
+        "validated_at": "2026-10-05T00:00:00Z"
+      },
+      "headers": {
+        "content-type": "application/json",
+        "cache-control": "no-store",
+        "x-content-type-options": "nosniff"
+      },
+      "elapsed_us": 792590,
+      "completed": true
+    },
+    {
+      "method": "POST",
+      "endpoint": "/api/sync/v1/observations",
+      "status": 201,
+      "body": {
+        "base_sync_root": null,
+        "change_kind": "initial",
+        "expires_at": "2026-10-05T00:15:00Z",
+        "inline_objects": [],
+        "observation_id": "e2720a72-edcc-498a-a13b-a7bfd4fbbc35",
+        "protocol": 1,
+        "request_id": "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+        "status": "available",
+        "target": {
+          "context": {
+            "evaluation_date": "2026-10-05",
+            "financial_engine": "f34aef259c801ada33ccb88cfb103ee6654fb4467c49a66ce509f2239ffe449d",
+            "timezone_offset_minutes": 540
+          },
+          "control_ref": {
+            "bytes": "3178",
+            "hash": "53fc3a4348a02ad346955155557112788c72f33a8b9a4baa47602388f83f52a1"
+          },
+          "hot_ref": {
+            "bytes": "6195",
+            "hash": "27f86efae786704f30a879f9b3450eb0c08e10becee4979eb9756842307f9574"
+          },
+          "index_ref": {
+            "bytes": "395",
+            "hash": "0eea5c09eb1f38c7980d72e576cd76dcd2adc5cc832e3b8be226bd4686c3e650"
+          },
+          "ns": {
+            "dataset_id": "2a186233-848d-465e-9619-da966d783854",
+            "epoch": "496de6f1-21bf-46bf-8a94-7fc0a447ec29",
+            "server_id": "34412bca-18cc-4314-9446-44bfd8a502ab"
+          },
+          "principal_id": 1,
+          "raw_ref": {
+            "bytes": "2645",
+            "hash": "5d92d8ee82209c94db2b89c7b79ce4891ffcbcd4e657588479b64876baf4b3de"
+          },
+          "revision": "284",
+          "sync_root": "4be293acda5c759d43266b9e25cba3ec017b26f03f199dd14cf702e8b5c0f097",
+          "versions": {
+            "canon": 1,
+            "policy_registry": "18be2d36483467e9250d568bcbfed6458c15a364fa99896eb1b8daad05db043d",
+            "projection_schema": "89e2bd7bf3f1683ddff95a0b33b1e9ff08ff19d5a001f4007c40ed4c6c5b3437",
+            "raw_schema": "b948a0e33fc0abb6957af76beac643ac7131d2fcac3ab53265c02d16783f953e",
+            "recurring_ownership": 1,
+            "snapshot": 7,
+            "structural": 1,
+            "sync": 1
+          }
+        },
+        "validated_at": "2026-10-05T00:00:00Z"
+      },
+      "headers": {
+        "content-type": "application/json",
+        "cache-control": "no-store",
+        "x-content-type-options": "nosniff"
+      },
+      "elapsed_us": 821721,
+      "completed": true
+    },
+    {
+      "method": "POST",
+      "endpoint": "/api/sync/v1/observations",
+      "status": 201,
+      "body": {
+        "base_sync_root": null,
+        "change_kind": "initial",
+        "expires_at": "2026-10-05T00:15:00Z",
+        "inline_objects": [],
+        "observation_id": "e8f4460d-be3c-47a2-957a-92f20bd06a4a",
+        "protocol": 1,
+        "request_id": "73504120-c2ef-4716-b0e8-c7325f608307",
+        "status": "available",
+        "target": {
+          "context": {
+            "evaluation_date": "2026-10-05",
+            "financial_engine": "f34aef259c801ada33ccb88cfb103ee6654fb4467c49a66ce509f2239ffe449d",
+            "timezone_offset_minutes": 540
+          },
+          "control_ref": {
+            "bytes": "3178",
+            "hash": "53fc3a4348a02ad346955155557112788c72f33a8b9a4baa47602388f83f52a1"
+          },
+          "hot_ref": {
+            "bytes": "6221",
+            "hash": "bab260b20785e13c33477354d33bb6b6bb2baf05e9e6b046d2ae99df19ce6bda"
+          },
+          "index_ref": {
+            "bytes": "395",
+            "hash": "0eea5c09eb1f38c7980d72e576cd76dcd2adc5cc832e3b8be226bd4686c3e650"
+          },
+          "ns": {
+            "dataset_id": "2a186233-848d-465e-9619-da966d783854",
+            "epoch": "496de6f1-21bf-46bf-8a94-7fc0a447ec29",
+            "server_id": "34412bca-18cc-4314-9446-44bfd8a502ab"
+          },
+          "principal_id": 1,
+          "raw_ref": {
+            "bytes": "2645",
+            "hash": "5d92d8ee82209c94db2b89c7b79ce4891ffcbcd4e657588479b64876baf4b3de"
+          },
+          "revision": "284",
+          "sync_root": "654bf136a3c1ea432e9aa13a8e4488dcb5a32cb9ac7fe1c498fae48876b286ce",
+          "versions": {
+            "canon": 1,
+            "policy_registry": "18be2d36483467e9250d568bcbfed6458c15a364fa99896eb1b8daad05db043d",
+            "projection_schema": "89e2bd7bf3f1683ddff95a0b33b1e9ff08ff19d5a001f4007c40ed4c6c5b3437",
+            "raw_schema": "b948a0e33fc0abb6957af76beac643ac7131d2fcac3ab53265c02d16783f953e",
+            "recurring_ownership": 1,
+            "snapshot": 7,
+            "structural": 1,
+            "sync": 1
+          }
+        },
+        "validated_at": "2026-10-05T00:00:00Z"
+      },
+      "headers": {
+        "content-type": "application/json",
+        "cache-control": "no-store",
+        "x-content-type-options": "nosniff"
+      },
+      "elapsed_us": 1186066,
+      "completed": true
+    },
+    {
+      "method": "POST",
+      "endpoint": "/api/sync/v1/observations",
+      "status": 201,
+      "body": {
+        "base_sync_root": null,
+        "change_kind": "initial",
+        "expires_at": "2026-10-05T00:15:00Z",
+        "inline_objects": [],
+        "observation_id": "26968743-b02c-484c-a0a0-2a1a0b80f6b9",
+        "protocol": 1,
+        "request_id": "1e64a897-4912-4e7e-aa18-0c36627632d8",
+        "status": "available",
+        "target": {
+          "context": {
+            "evaluation_date": "2026-10-05",
+            "financial_engine": "f34aef259c801ada33ccb88cfb103ee6654fb4467c49a66ce509f2239ffe449d",
+            "timezone_offset_minutes": 540
+          },
+          "control_ref": {
+            "bytes": "3178",
+            "hash": "53fc3a4348a02ad346955155557112788c72f33a8b9a4baa47602388f83f52a1"
+          },
+          "hot_ref": {
+            "bytes": "6249",
+            "hash": "e916f1c1ecf00b225d8d5c5b83fd0d27c4b741711cabaad14a67095623a2eb79"
+          },
+          "index_ref": {
+            "bytes": "395",
+            "hash": "0eea5c09eb1f38c7980d72e576cd76dcd2adc5cc832e3b8be226bd4686c3e650"
+          },
+          "ns": {
+            "dataset_id": "2a186233-848d-465e-9619-da966d783854",
+            "epoch": "496de6f1-21bf-46bf-8a94-7fc0a447ec29",
+            "server_id": "34412bca-18cc-4314-9446-44bfd8a502ab"
+          },
+          "principal_id": 1,
+          "raw_ref": {
+            "bytes": "2645",
+            "hash": "5d92d8ee82209c94db2b89c7b79ce4891ffcbcd4e657588479b64876baf4b3de"
+          },
+          "revision": "284",
+          "sync_root": "bffabed0f7c6916ee2a97358e6a0035873a0e5bdc69367e2aa21132497b107a9",
+          "versions": {
+            "canon": 1,
+            "policy_registry": "18be2d36483467e9250d568bcbfed6458c15a364fa99896eb1b8daad05db043d",
+            "projection_schema": "89e2bd7bf3f1683ddff95a0b33b1e9ff08ff19d5a001f4007c40ed4c6c5b3437",
+            "raw_schema": "b948a0e33fc0abb6957af76beac643ac7131d2fcac3ab53265c02d16783f953e",
+            "recurring_ownership": 1,
+            "snapshot": 7,
+            "structural": 1,
+            "sync": 1
+          }
+        },
+        "validated_at": "2026-10-05T00:00:00Z"
+      },
+      "headers": {
+        "content-type": "application/json",
+        "cache-control": "no-store",
+        "x-content-type-options": "nosniff"
+      },
+      "elapsed_us": 1231453,
+      "completed": true
+    },
+    {
+      "method": "POST",
+      "endpoint": "/api/sync/v1/observations",
+      "status": 429,
+      "body": {
+        "error": {
+          "action": "retry_same",
+          "code": "LEASE_LIMIT",
+          "current_ns": null,
+          "retry_after_ms": 100
+        },
+        "protocol": 1,
+        "request_id": "64291d96-4a22-4709-8b7b-a3013a3df39d"
+      },
+      "headers": {
+        "content-type": "application/json",
+        "cache-control": "no-store",
+        "x-content-type-options": "nosniff"
+      },
+      "elapsed_us": 1399777,
+      "completed": true
+    }
+  ],
+  "handles": {
+    "1": {
+      "thread": 124583327798976,
+      "closed": true
+    },
+    "2": {
+      "thread": 124582765782720,
+      "closed": true
+    },
+    "3": {
+      "thread": 124582757390016,
+      "closed": true
+    },
+    "4": {
+      "thread": 124582774175424,
+      "closed": true
+    },
+    "5": {
+      "thread": 124582748997312,
+      "closed": true
+    },
+    "6": {
+      "thread": 124583327798976,
+      "closed": true
+    },
+    "7": {
+      "thread": 124582757390016,
+      "closed": true
+    },
+    "8": {
+      "thread": 124582765782720,
+      "closed": true
+    },
+    "9": {
+      "thread": 124582748997312,
+      "closed": true
+    },
+    "10": {
+      "thread": 124582774175424,
+      "closed": true
+    },
+    "11": {
+      "thread": 124583327798976,
+      "closed": true
+    },
+    "12": {
+      "thread": 124582765782720,
+      "closed": true
+    },
+    "13": {
+      "thread": 124582757390016,
+      "closed": true
+    },
+    "14": {
+      "thread": 124582774175424,
+      "closed": true
+    }
+  },
+  "statements": {
+    "BEGIN IMMEDIATE": 9,
+    "INSERT INTO sync_objects VALUES (?,?,?)": 5,
+    "INSERT INTO sync_observation_pins VALUES (?,?,?,1)": 20,
+    "INSERT INTO sync_observation_views VALUES (?,?,?)": 4,
+    "INSERT INTO sync_observations VALUES (?,?,?,?,?,?,?,?,?,?,?,?, 'available')": 4,
+    "PRAGMA busy_timeout=5000": 9,
+    "PRAGMA foreign_key_list(app_labels)": 19,
+    "PRAGMA foreign_key_list(app_settings)": 19,
+    "PRAGMA foreign_key_list(audit_logs)": 19,
+    "PRAGMA foreign_key_list(auth_sessions)": 19,
+    "PRAGMA foreign_key_list(authoritative_state_revision)": 19,
+    "PRAGMA foreign_key_list(card_payment_allocations)": 19,
+    "PRAGMA foreign_key_list(card_payment_batch_items)": 19,
+    "PRAGMA foreign_key_list(card_payment_batches)": 19,
+    "PRAGMA foreign_key_list(card_payment_deferrals)": 19,
+    "PRAGMA foreign_key_list(card_payment_events)": 19,
+    "PRAGMA foreign_key_list(cash_flows)": 19,
+    "PRAGMA foreign_key_list(ledger_entries)": 19,
+    "PRAGMA foreign_key_list(monthly_panels)": 19,
+    "PRAGMA foreign_key_list(notification_candidate_registrations)": 19,
+    "PRAGMA foreign_key_list(offline_reconciliation_operations)": 19,
+    "PRAGMA foreign_key_list(offline_reconciliations)": 19,
+    "PRAGMA foreign_key_list(share_sessions)": 19,
+    "PRAGMA foreign_key_list(users)": 19,
+    "PRAGMA foreign_keys": 19,
+    "PRAGMA foreign_keys=ON": 14,
+    "PRAGMA index_info(idx_card_payment_events_idempotency)": 19,
+    "PRAGMA index_info(sqlite_autoindex_auth_sessions_1)": 19,
+    "PRAGMA index_info(sqlite_autoindex_card_payment_batch_items_1)": 19,
+    "PRAGMA index_info(sqlite_autoindex_offline_reconciliation_operations_2)": 19,
+    "PRAGMA index_info(sqlite_autoindex_share_sessions_1)": 19,
+    "PRAGMA index_info(sqlite_autoindex_users_1)": 19,
+    "PRAGMA index_list(audit_logs)": 19,
+    "PRAGMA index_list(auth_sessions)": 38,
+    "PRAGMA index_list(card_payment_allocations)": 19,
+    "PRAGMA index_list(card_payment_batch_items)": 38,
+    "PRAGMA index_list(card_payment_batches)": 19,
+    "PRAGMA index_list(card_payment_events)": 38,
+    "PRAGMA index_list(cash_flows)": 19,
+    "PRAGMA index_list(ledger_entries)": 19,
+    "PRAGMA index_list(monthly_panels)": 19,
+    "PRAGMA index_list(offline_reconciliation_operations)": 19,
+    "PRAGMA index_list(share_sessions)": 38,
+    "PRAGMA index_list(users)": 38,
+    "PRAGMA query_only": 800,
+    "PRAGMA query_only=0": 5,
+    "PRAGMA query_only=1": 5,
+    "PRAGMA query_only=ON": 10,
+    "PRAGMA recursive_triggers": 19,
+    "PRAGMA recursive_triggers=ON": 14,
+    "PRAGMA schema_version": 85,
+    "PRAGMA table_info(app_labels)": 38,
+    "PRAGMA table_info(app_settings)": 38,
+    "PRAGMA table_info(audit_logs)": 38,
+    "PRAGMA table_info(auth_sessions)": 38,
+    "PRAGMA table_info(authoritative_state_revision)": 38,
+    "PRAGMA table_info(card_payment_allocations)": 38,
+    "PRAGMA table_info(card_payment_batch_items)": 38,
+    "PRAGMA table_info(card_payment_batches)": 38,
+    "PRAGMA table_info(card_payment_deferrals)": 38,
+    "PRAGMA table_info(card_payment_events)": 38,
+    "PRAGMA table_info(cash_flows)": 38,
+    "PRAGMA table_info(ledger_entries)": 38,
+    "PRAGMA table_info(monthly_panels)": 38,
+    "PRAGMA table_info(notification_candidate_registrations)": 38,
+    "PRAGMA table_info(offline_reconciliation_operations)": 38,
+    "PRAGMA table_info(offline_reconciliations)": 38,
+    "PRAGMA table_info(share_sessions)": 38,
+    "PRAGMA table_info(users)": 38,
+    "PRAGMA table_xinfo(app_labels)": 19,
+    "PRAGMA table_xinfo(app_settings)": 19,
+    "PRAGMA table_xinfo(card_payment_allocations)": 19,
+    "PRAGMA table_xinfo(card_payment_batch_items)": 19,
+    "PRAGMA table_xinfo(card_payment_batches)": 19,
+    "PRAGMA table_xinfo(card_payment_deferrals)": 19,
+    "PRAGMA table_xinfo(card_payment_events)": 19,
+    "PRAGMA table_xinfo(cash_flows)": 19,
+    "PRAGMA table_xinfo(ledger_entries)": 19,
+    "PRAGMA table_xinfo(monthly_panels)": 19,
+    "PRAGMA table_xinfo(notification_candidate_registrations)": 19,
+    "PRAGMA temp.schema_version": 85,
+    "PRAGMA user_version": 38,
+    "RELEASE card_read_024c7f35c0c34b39ad2d5af6a76e3f84": 6,
+    "RELEASE card_read_13f695f9435d433b95e2c6ed336830e0": 6,
+    "RELEASE card_read_2b0df576f4774d0cb819b365a4a7e3a3": 6,
+    "RELEASE card_read_c0316b5d763d4d738379709dce394830": 6,
+    "RELEASE card_read_f14e777cb87a4d0c9dd4dd95e42c989c": 6,
+    "RELEASE observation_read_2f51013f4045491eb3c64bec7c5f94f5": 1,
+    "RELEASE observation_read_5d957c3200f741ad908e4a8a63d1a6fb": 1,
+    "RELEASE observation_read_9abd7a9b83cc4959b842899af84e7322": 1,
+    "RELEASE observation_read_a962f07d0f94415aa8e374545b2a0b73": 1,
+    "RELEASE observation_read_bf12f934c45449c494fe7605f640f9b8": 1,
+    "SAVEPOINT card_read_024c7f35c0c34b39ad2d5af6a76e3f84": 6,
+    "SAVEPOINT card_read_13f695f9435d433b95e2c6ed336830e0": 6,
+    "SAVEPOINT card_read_2b0df576f4774d0cb819b365a4a7e3a3": 6,
+    "SAVEPOINT card_read_c0316b5d763d4d738379709dce394830": 6,
+    "SAVEPOINT card_read_f14e777cb87a4d0c9dd4dd95e42c989c": 6,
+    "SAVEPOINT observation_attempt": 9,
+    "SAVEPOINT observation_read_2f51013f4045491eb3c64bec7c5f94f5": 1,
+    "SAVEPOINT observation_read_5d957c3200f741ad908e4a8a63d1a6fb": 1,
+    "SAVEPOINT observation_read_9abd7a9b83cc4959b842899af84e7322": 1,
+    "SAVEPOINT observation_read_a962f07d0f94415aa8e374545b2a0b73": 1,
+    "SAVEPOINT observation_read_bf12f934c45449c494fe7605f640f9b8": 1,
+    "SELECT * FROM card_payment_allocations WHERE id=?": 5,
+    "SELECT * FROM card_payment_batch_items WHERE id=?": 5,
+    "SELECT * FROM card_payment_batches WHERE id=?": 5,
+    "SELECT * FROM card_payment_batches WHERE status = 'active' ORDER BY id DESC LIMIT 1": 10,
+    "SELECT * FROM card_payment_events WHERE batch_id = ? ORDER BY event_date DESC, id DESC": 5,
+    "SELECT * FROM card_payment_events WHERE id=?": 5,
+    "SELECT * FROM cash_flows WHERE id=?": 5,
+    "SELECT * FROM cash_flows WHERE occurred_on >= ? AND occurred_on <= ? ORDER BY occurred_on DESC, sort_order DESC, id DESC": 10,
+    "SELECT * FROM ledger_entries WHERE book_section = 'current' AND entry_kind = 'planned' AND confirmed_month = ? ORDER BY COALESCE(due_day, 99), sort_order, id": 5,
+    "SELECT * FROM ledger_entries WHERE book_section = ? AND NOT (entry_kind = 'planned' AND COALESCE(confirmed_month, '') = ?) ORDER BY CASE WHEN entry_kind = 'planned' THEN COALESCE(due_day, 99) ELSE 0 END, CASE WHEN entry_kind = 'planned' THEN NULL ELSE entry_date END, sort_order, id": 5,
+    "SELECT * FROM ledger_entries WHERE id=?": 5,
+    "SELECT * FROM sync_capture_commits WHERE tx_id=?": 5,
+    "SELECT * FROM sync_capture_profile": 19,
+    "SELECT * FROM sync_commits WHERE tx_id=?": 14,
+    "SELECT * FROM sync_current WHERE id=1": 5,
+    "SELECT * FROM sync_finalization_profile": 19,
+    "SELECT * FROM sync_observation_pins WHERE observation_id=? AND active=1": 4,
+    "SELECT * FROM sync_observation_profile": 19,
+    "SELECT * FROM sync_observations WHERE id=?": 4,
+    "SELECT 1 FROM sync_objects WHERE hash=?": 8,
+    "SELECT 1 FROM sync_tx_context": 10,
+    "SELECT MIN(substr(entry_date, 1, 7)) AS month FROM ledger_entries WHERE book_section = 'current' AND entry_kind != 'planned' AND entry_date IS NOT NULL": 5,
+    "SELECT a.amount_value FROM card_payment_allocations a JOIN card_payment_events e ON e.id=a.payment_event_id WHERE a.entry_payment_key=? AND e.event_type='discount'": 10,
+    "SELECT a.entry_payment_key,a.amount_value FROM card_payment_allocations a JOIN card_payment_events e ON e.id=a.payment_event_id WHERE e.event_type=? AND e.batch_id=?": 20,
+    "SELECT amount_value FROM cash_flows WHERE occurred_on BETWEEN ? AND ?": 5,
+    "SELECT amount_value FROM cash_flows WHERE substr(occurred_on,1,7)=? AND is_primary_income=1 AND amount_value>0": 5,
+    "SELECT amount_value FROM ledger_entries WHERE book_section = 'current' AND entry_kind = 'planned'": 5,
+    "SELECT amount_value FROM monthly_panels WHERE panel_type = 'fixed' AND confirmed_at IS NOT NULL AND confirmed_cash_flow_id IS NOT NULL AND confirmed_month > ?": 5,
+    "SELECT amount_value FROM monthly_panels WHERE panel_type = ?": 20,
+    "SELECT amount_value FROM monthly_panels WHERE panel_type = ? AND (confirmed_at IS NULL OR confirmed_cash_flow_id IS NULL)": 5,
+    "SELECT card_payment_allocations.entry_payment_key, card_payment_allocations.amount_value AS amount FROM card_payment_allocations JOIN card_payment_events ON card_payment_events.id = card_payment_allocations.payment_event_id WHERE card_payment_events.event_type = 'discount' AND card_payment_allocations.entry_payment_key IN (?)": 5,
+    "SELECT cash_flows.amount_value FROM monthly_panels JOIN cash_flows ON cash_flows.id = monthly_panels.confirmed_cash_flow_id WHERE monthly_panels.panel_type = 'fixed' AND monthly_panels.confirmed_at IS NOT NULL": 5,
+    "SELECT count(*) FROM sync_observations": 4,
+    "SELECT count(*) FROM sync_observations WHERE principal_id=? AND status='available'": 5,
+    "SELECT entry_kind,confirmed_month,confirmed_at FROM ledger_entries WHERE id=?": 5,
+    "SELECT hot_hash,control_hash FROM sync_observation_views WHERE identity=?": 5,
+    "SELECT id FROM card_payment_batches WHERE status='active'": 5,
+    "SELECT id FROM ledger_entries WHERE payment_key=?": 5,
+    "SELECT id FROM ledger_entries WHERE source_planned_entry_id=?": 5,
+    "SELECT id, revision, typeof(revision) FROM authoritative_state_revision": 19,
+    "SELECT id,request_body FROM sync_observations WHERE credential_hash=? AND request_id=?": 5,
+    "SELECT id,used_bytes,typeof(used_bytes) FROM sync_observation_budget": 19,
+    "SELECT input_hash FROM sync_commits WHERE tx_id=?": 14,
+    "SELECT key FROM sync_totals WHERE domain=? ORDER BY key DESC LIMIT ?": 10,
+    "SELECT key, value FROM app_settings": 25,
+    "SELECT key, value FROM app_settings ORDER BY key": 25,
+    "SELECT kind,body FROM sync_objects WHERE hash=?": 206,
+    "SELECT ledger_entries.*, card_payment_deferrals.from_payment_month AS deferred_from_payment_month, card_payment_deferrals.target_payment_month AS deferred_target_payment_month FROM card_payment_batch_items JOIN ledger_entries ON ledger_entries.id = card_payment_batch_items.entry_id LEFT JOIN card_payment_deferrals ON card_payment_deferrals.entry_payment_key = ledger_entries.payment_key WHERE card_payment_batch_items.batch_id = ? AND ledger_entries.entry_kind != 'planned' AND COALESCE(ledger_entries.amount_value, 0) > 0 ORDER BY CASE WHEN card_payment_deferrals.target_payment_month = ? THEN 0 WHEN card_payment_deferrals.from_payment_month = ? THEN 2 ELSE 1 END, ledger_entries.entry_date, ledger_entries.sort_order, ledger_entries.id": 10,
+    "SELECT ledger_entries.payment_key, ledger_entries.amount_value, ledger_entries.entry_date, ledger_entries.title, ledger_entries.usage_place, ledger_entries.spending_category, ledger_entries.discount_override, ledger_entries.aux_amount_value FROM ledger_entries WHERE ledger_entries.book_section = 'current' AND ledger_entries.entry_kind != 'planned' AND ledger_entries.payment_key IS NOT NULL": 5,
+    "SELECT ledger_entries.payment_key, ledger_entries.amount_value, ledger_entries.title, ledger_entries.usage_place, ledger_entries.spending_category, ledger_entries.discount_override, ledger_entries.aux_amount_value FROM ledger_entries WHERE substr(ledger_entries.entry_date,1,7) = ? AND ledger_entries.payment_key IS NOT NULL AND ledger_entries.entry_kind != 'planned'": 10,
+    "SELECT length(body) FROM sync_objects WHERE hash=?": 29,
+    "SELECT month, title, amount_value, discount_amount, discount_override FROM monthly_panels WHERE panel_type = ?": 10,
+    "SELECT monthly_panels.*, CASE WHEN confirmed_cash_flow.id IS NOT NULL THEN ABS(confirmed_cash_flow.amount_value) ELSE NULL END AS confirmed_amount_value FROM monthly_panels LEFT JOIN cash_flows AS confirmed_cash_flow ON confirmed_cash_flow.id = monthly_panels.confirmed_cash_flow_id WHERE (monthly_panels.month = ? OR monthly_panels.panel_type IN ('fixed', 'frozen', 'claim', 'family_card')) AND NOT (monthly_panels.panel_type = 'fixed' AND monthly_panels.confirmed_at IS NOT NULL AND monthly_panels.confirmed_cash_flow_id IS NOT NULL) ORDER BY CASE WHEN monthly_panels.panel_type = 'fixed' THEN 0 ELSE 1 END, CASE WHEN monthly_panels.spent_on IS NULL THEN 1 ELSE 0 END, monthly_panels.spent_on, monthly_panels.sort_order, monthly_panels.id": 5,
+    "SELECT monthly_panels.*, CASE WHEN confirmed_cash_flow.id IS NOT NULL THEN ABS(confirmed_cash_flow.amount_value) ELSE NULL END AS confirmed_amount_value FROM monthly_panels LEFT JOIN cash_flows AS confirmed_cash_flow ON confirmed_cash_flow.id = monthly_panels.confirmed_cash_flow_id WHERE (monthly_panels.month = ? OR monthly_panels.panel_type IN ('fixed', 'frozen', 'claim', 'family_card')) ORDER BY CASE WHEN monthly_panels.panel_type = 'fixed' THEN 0 ELSE 1 END, CASE WHEN monthly_panels.spent_on IS NULL THEN 1 ELSE 0 END, monthly_panels.spent_on, monthly_panels.sort_order, monthly_panels.id": 5,
+    "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'": 19,
+    "SELECT name FROM sqlite_master WHERE type IN ('index', 'trigger')": 19,
+    "SELECT name, tbl_name, sql FROM sqlite_master WHERE type='trigger'": 19,
+    "SELECT namespace FROM sync_current WHERE id=1": 4,
+    "SELECT p.id, p.title, p.amount_value FROM monthly_panels AS p LEFT JOIN cash_flows AS confirmed_flow ON confirmed_flow.id = p.confirmed_cash_flow_id WHERE p.panel_type = 'fixed' AND p.month <= ? AND NOT ( p.confirmed_month = ? AND p.confirmed_at IS NOT NULL AND confirmed_flow.id IS NOT NULL ) ORDER BY p.sort_order, p.id": 5,
+    "SELECT planned.id, planned.title, planned.amount_value, planned.usage_place, planned.usage_item, planned.due_day, planned.created_at FROM ledger_entries AS planned WHERE planned.book_section = 'current' AND planned.entry_kind = 'planned' AND NOT ( planned.confirmed_month = ? AND planned.confirmed_at IS NOT NULL AND ( EXISTS ( SELECT 1 FROM ledger_entries AS generated WHERE generated.source_planned_entry_id = planned.id AND generated.entry_kind = 'expense' AND generated.confirmed_month = planned.confirmed_month AND generated.confirmed_at = planned.confirmed_at ) OR EXISTS ( SELECT 1 FROM ledger_entries AS legacy_generated WHERE legacy_generated.source_planned_entry_id IS NULL AND legacy_generated.entry_kind = 'expense' AND substr(legacy_generated.entry_date,1,7) = ? AND legacy_generated.title = planned.title AND COALESCE(legacy_generated.usage_place, '') = COALESCE(planned.usage_place, '') AND COALESCE(legacy_generated.usage_item, '') = COALESCE(planned.usage_item, '') AND COALESCE(legacy_generated.amount_value, 0) = COALESCE(planned.amount_value, 0) ) ) ) ORDER BY COALESCE(planned.due_day, 99), planned.sort_order, planned.id": 5,
+    "SELECT revision,typeof(revision) FROM authoritative_state_revision WHERE id=1": 5,
+    "SELECT rowid FROM audit_logs LIMIT 0": 19,
+    "SELECT rowid FROM auth_sessions LIMIT 0": 19,
+    "SELECT rowid FROM card_payment_allocations LIMIT 0": 19,
+    "SELECT rowid FROM card_payment_batch_items LIMIT 0": 19,
+    "SELECT rowid FROM card_payment_batches LIMIT 0": 19,
+    "SELECT rowid FROM card_payment_events LIMIT 0": 19,
+    "SELECT rowid FROM cash_flows LIMIT 0": 19,
+    "SELECT rowid FROM ledger_entries LIMIT 0": 19,
+    "SELECT rowid FROM monthly_panels LIMIT 0": 19,
+    "SELECT rowid FROM share_sessions LIMIT 0": 19,
+    "SELECT rowid FROM users LIMIT 0": 19,
+    "SELECT s.user_id,s.expires_at,u.is_active FROM auth_sessions s JOIN users u ON u.id=s.user_id WHERE s.session_token_hash=?": 27,
+    "SELECT sql FROM sqlite_master WHERE type = 'index' AND name = ?": 19,
+    "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?": 209,
+    "SELECT sql FROM sqlite_master WHERE type='trigger'": 19,
+    "SELECT src_table,src_key FROM sync_reverse WHERE dst_table=? AND dst_key=? AND field=? AND src_table=?": 40,
+    "SELECT total FROM sync_cash_prefix WHERE ordinal=?": 50,
+    "SELECT total FROM sync_totals WHERE domain=? AND key=?": 15,
+    "SELECT tx_id,namespace,revision,raw_hash,index_hash FROM sync_current WHERE id=1": 5,
+    "SELECT type,name,tbl_name,sql FROM sqlite_master WHERE tbl_name LIKE 'sync_%' OR name LIKE 'sync_%' ORDER BY type,name": 19,
+    "SELECT used_bytes FROM sync_observation_budget WHERE id=1": 4,
+    "SELECT user_id FROM auth_sessions WHERE session_token_hash=?": 5,
+    "SELECT value FROM app_settings WHERE key = 'last_closed_month'": 5,
+    "SELECT value FROM app_settings WHERE key = ?": 35,
+    "SELECT value FROM app_settings WHERE key='last_closed_month'": 20,
+    "UPDATE sync_observation_budget SET used_bytes=used_bytes+? WHERE id=1": 4,
+    "UPDATE sync_observations SET status='retired' WHERE principal_id=? AND status='available' AND expires_at<=? AND namespace=? RETURNING id": 5
+  },
+  "persisted": {
+    "observations": [
+      [
+        "1e64a897-4912-4e7e-aa18-0c36627632d8",
+        "available",
+        1
+      ],
+      [
+        "73504120-c2ef-4716-b0e8-c7325f608307",
+        "available",
+        1
+      ],
+      [
+        "aa0ac7bf-2067-4e57-888f-6289c5d4b757",
+        "available",
+        1
+      ],
+      [
+        "cca509dc-0b14-4b36-9d65-32a6f49ee0fe",
+        "available",
+        1
+      ]
+    ],
+    "pins": [
+      [
+        "control",
+        1,
+        4
+      ],
+      [
+        "hot",
+        1,
+        4
+      ],
+      [
+        "index",
+        1,
+        4
+      ],
+      [
+        "input",
+        1,
+        4
+      ],
+      [
+        "raw",
+        1,
+        4
+      ]
+    ],
+    "journal_mode": "delete",
+    "integrity": "ok",
+    "foreign_key_check": []
+  },
+  "original_test_sha256": "a6e90a389ffa47c850d0c5551826680572085912943ab5d424e0229b0818202f",
+  "observer_mode": "sql_timeline",
+  "observer_sha256": "08d51d30a9471224ecb889931f11b407e2fa0fed1bd7bc62da5beac321956782"
+}

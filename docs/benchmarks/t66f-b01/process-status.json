@@ -1,0 +1,36 @@
+{
+  "before_full": {
+    "observed_exec_exit": 1,
+    "terminal_summary": "1 failed, 1314 passed, 1 warning, 1540 subtests passed in 1558.03s (0:25:58)"
+  },
+  "full_run_1": {
+    "observed_exec_exit": null,
+    "session": "expired_before_resumed_poll",
+    "terminal_junit": "PASS",
+    "terminal_summary": "1315 passed, 1 warning, 1540 subtests passed in 1696.49s (0:28:16)"
+  },
+  "full_run_2": {
+    "observed_exec_exit": null,
+    "session": "expired_before_resumed_poll",
+    "terminal_junit": "PASS",
+    "terminal_summary": "1315 passed, 1 warning, 1540 subtests passed in 1568.76s (0:26:08)"
+  },
+  "quiet_campaign": {
+    "observed_exec_exit": 0,
+    "per_iteration_exits": [
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "order_reversed": {
+    "observed_exec_exit": 0,
+    "junit_tests": 3
+  },
+  "final_completion_guard": {
+    "observed_exec_exit": 0,
+    "checks": "all required JUnit summaries, invariants and preservation verified"
+  },
+  "note": "Expired exec sessions do not supply a collected native exit code. Completed full-suite JUnit and matching terminal pytest summaries establish test results; no exit code is fabricated."
+}

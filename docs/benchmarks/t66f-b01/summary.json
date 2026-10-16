@@ -1,0 +1,1852 @@
+{
+  "starting_commit": "c479a379b54e196439c522c1fdf56eca713ca8ad",
+  "classification": "TEST HARNESS",
+  "product_modified": false,
+  "environment": {
+    "python": "3.12.3",
+    "platform": "Linux-6.8.0-146-generic-x86_64-with-glibc2.39",
+    "sqlite": "3.45.1"
+  },
+  "original_isolated": {
+    "state": "COMPLETE",
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 3.777,
+    "failure_evidence": [],
+    "sha256": "6c1ee86436c802f57e979f6ab6babed3c9f5df51b15830f391e502ad66fcaeac"
+  },
+  "before_full": {
+    "state": "COMPLETE",
+    "tests": 2855,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 1558.01,
+    "failure_evidence": [
+      {
+        "name": "test_bounded_concurrent_quota_and_same_request_status",
+        "evidence": "db = <isolated_sync.observation_schema.ObservationSandbox object at 0x79c34b578aa0>\n\n    def test_bounded_concurrent_quota_and_same_request_status(db):\n        # This tests serialized quota admission, not the default one-second busy\n        # deadline. Five real creates plus their terminal lookups compete for the\n        # writer lock; use the same finite synthetic budget as the D3a quota race.\n        # Default busy/retry semantics are independently tested below and in B01.\n        repo = ObservationRepository(db, clock=lambda: NOW, evaluation=lambda: EVAL,\n                                     limits=ObservationLimits(lock_wait_ms=5000))\n        c = TestClient(create_app(repo, limits=TransferLimits(concurrent_requests=8)))\n>       barrier = Barrier(5)\nE       assert [201, 201, 201, 201, 503] == [201, 201, 201, 201, 429]\nE         \nE         At index 4 diff: 503 != 429\nE         Use -v to get more diff\n\ntests/test_isolated_sync_transfer.py:497: AssertionError"
+      }
+    ],
+    "sha256": "d26915815245607b566d67fe77380a0a4a055f5d16b98c2dd1ec24f5554794d6",
+    "log_sha256": "fa5608cd897a4330a34e5e43798f7fd0b1a415cad5d9f3a4db2ca00676b60a69",
+    "summary": "1 failed, 1314 passed, 1 warning, 1540 subtests passed in 1558.03s (0:25:58)",
+    "main_pass": 1314,
+    "subtests_pass": 1540
+  },
+  "after_full_1": {
+    "state": "COMPLETE",
+    "tests": 2855,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 1696.48,
+    "failure_evidence": [],
+    "sha256": "0740f75e8fb993796005ee658ae0243db498907d754ceca0c8b392c2df4afb8c",
+    "log_sha256": "7ff4f0c8446fc158d4d5dc7e3845c576c520a95e6e2aeebb286de44a587cabb1",
+    "summary": "1315 passed, 1 warning, 1540 subtests passed in 1696.49s (0:28:16)",
+    "main_pass": 1315,
+    "subtests_pass": 1540
+  },
+  "after_full_2": {
+    "state": "COMPLETE",
+    "tests": 2855,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 1568.75,
+    "failure_evidence": [],
+    "sha256": "15e700caa4782508bd028446372febcc61c68beed965dd7c76d04740f6220424",
+    "log_sha256": "1b36773ab39533216cfd78cca9f88b06b45d4c5a1106c353306bf1c665dadc41",
+    "summary": "1315 passed, 1 warning, 1540 subtests passed in 1568.76s (0:26:08)",
+    "main_pass": 1315,
+    "subtests_pass": 1540
+  },
+  "before_repeated": {
+    "state": "COMPLETE",
+    "pass_count": 6,
+    "fail_count": 2,
+    "rows": [
+      {
+        "iteration": 1,
+        "exit": 0,
+        "seconds": 5.126130850985646,
+        "failures": 0,
+        "errors": 0,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "command": [
+          "/home/hjkerman/codex/money-note/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "forensics",
+          "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+          "--b01-output=/tmp/mn-f-b01.DE2VbO/repeated-under-suite/1.json",
+          "--junitxml=/tmp/mn-f-b01.DE2VbO/repeated-under-suite/1.xml"
+        ]
+      },
+      {
+        "iteration": 2,
+        "exit": 1,
+        "seconds": 5.125569384021219,
+        "failures": 1,
+        "errors": 0,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          503
+        ],
+        "command": [
+          "/home/hjkerman/codex/money-note/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "forensics",
+          "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+          "--b01-output=/tmp/mn-f-b01.DE2VbO/repeated-under-suite/2.json",
+          "--junitxml=/tmp/mn-f-b01.DE2VbO/repeated-under-suite/2.xml"
+        ]
+      },
+      {
+        "iteration": 3,
+        "exit": 0,
+        "seconds": 5.226240485033486,
+        "failures": 0,
+        "errors": 0,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "command": [
+          "/home/hjkerman/codex/money-note/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "forensics",
+          "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+          "--b01-output=/tmp/mn-f-b01.DE2VbO/repeated-under-suite/3.json",
+          "--junitxml=/tmp/mn-f-b01.DE2VbO/repeated-under-suite/3.xml"
+        ]
+      },
+      {
+        "iteration": 4,
+        "exit": 1,
+        "seconds": 5.125728679995518,
+        "failures": 1,
+        "errors": 0,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          503
+        ],
+        "command": [
+          "/home/hjkerman/codex/money-note/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "forensics",
+          "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+          "--b01-output=/tmp/mn-f-b01.DE2VbO/repeated-under-suite/4.json",
+          "--junitxml=/tmp/mn-f-b01.DE2VbO/repeated-under-suite/4.xml"
+        ]
+      },
+      {
+        "iteration": 5,
+        "exit": 0,
+        "seconds": 5.3263021989841945,
+        "failures": 0,
+        "errors": 0,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "command": [
+          "/home/hjkerman/codex/money-note/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "forensics",
+          "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+          "--b01-output=/tmp/mn-f-b01.DE2VbO/repeated-under-suite/5.json",
+          "--junitxml=/tmp/mn-f-b01.DE2VbO/repeated-under-suite/5.xml"
+        ]
+      },
+      {
+        "iteration": 6,
+        "exit": 0,
+        "seconds": 5.175766005995683,
+        "failures": 0,
+        "errors": 0,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "command": [
+          "/home/hjkerman/codex/money-note/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "forensics",
+          "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+          "--b01-output=/tmp/mn-f-b01.DE2VbO/repeated-under-suite/6.json",
+          "--junitxml=/tmp/mn-f-b01.DE2VbO/repeated-under-suite/6.xml"
+        ]
+      },
+      {
+        "iteration": 7,
+        "exit": 0,
+        "seconds": 5.27603284799261,
+        "failures": 0,
+        "errors": 0,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "command": [
+          "/home/hjkerman/codex/money-note/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "forensics",
+          "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+          "--b01-output=/tmp/mn-f-b01.DE2VbO/repeated-under-suite/7.json",
+          "--junitxml=/tmp/mn-f-b01.DE2VbO/repeated-under-suite/7.xml"
+        ]
+      },
+      {
+        "iteration": 8,
+        "exit": 0,
+        "seconds": 5.0253833860042505,
+        "failures": 0,
+        "errors": 0,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "command": [
+          "/home/hjkerman/codex/money-note/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "forensics",
+          "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+          "--b01-output=/tmp/mn-f-b01.DE2VbO/repeated-under-suite/8.json",
+          "--junitxml=/tmp/mn-f-b01.DE2VbO/repeated-under-suite/8.xml"
+        ]
+      }
+    ],
+    "max_successful_begin_wait_us": 1005854,
+    "sql_errors": [
+      {
+        "event": "sql_error",
+        "us": 1530737,
+        "pid": 325311,
+        "thread": 131965126690496,
+        "request_id": "ef655f50-d4bb-4863-a598-495f174a5174",
+        "phase": "create",
+        "connection": 8,
+        "sql": "BEGIN IMMEDIATE",
+        "elapsed_us": 1002708,
+        "error_type": "OperationalError",
+        "code": null,
+        "sqlite_errorcode": 5,
+        "sqlite_errorname": "SQLITE_BUSY",
+        "message": "database is locked"
+      },
+      {
+        "event": "sql_error",
+        "us": 1600027,
+        "pid": 325344,
+        "thread": 123651856766656,
+        "request_id": "cd952277-fe6c-4306-abf5-ec7c9a6da6f1",
+        "phase": "create",
+        "connection": 9,
+        "sql": "BEGIN IMMEDIATE",
+        "elapsed_us": 1007129,
+        "error_type": "OperationalError",
+        "code": null,
+        "sqlite_errorcode": 5,
+        "sqlite_errorname": "SQLITE_BUSY",
+        "message": "database is locked"
+      }
+    ],
+    "work": [
+      {
+        "iteration": 1,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "sql_calls": {
+          "BEGIN": 9,
+          "INSERT": 33,
+          "PRAGMA": 2775,
+          "RELEASE": 35,
+          "SAVEPOINT": 44,
+          "SELECT": 1450,
+          "UPDATE": 9
+        },
+        "observer_mode": "sql_timeline",
+        "handles": 14,
+        "all_closed": true,
+        "available": 4,
+        "pins": 20
+      },
+      {
+        "iteration": 2,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          503
+        ],
+        "sql_calls": {
+          "BEGIN": 9,
+          "INSERT": 33,
+          "PRAGMA": 2485,
+          "RELEASE": 28,
+          "SAVEPOINT": 36,
+          "SELECT": 1272,
+          "UPDATE": 8
+        },
+        "observer_mode": "sql_timeline",
+        "handles": 14,
+        "all_closed": true,
+        "available": 4,
+        "pins": 20
+      },
+      {
+        "iteration": 3,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "sql_calls": {
+          "BEGIN": 9,
+          "INSERT": 33,
+          "PRAGMA": 2775,
+          "RELEASE": 35,
+          "SAVEPOINT": 44,
+          "SELECT": 1450,
+          "UPDATE": 9
+        },
+        "observer_mode": "sql_timeline",
+        "handles": 14,
+        "all_closed": true,
+        "available": 4,
+        "pins": 20
+      },
+      {
+        "iteration": 4,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          503
+        ],
+        "sql_calls": {
+          "BEGIN": 9,
+          "INSERT": 33,
+          "PRAGMA": 2485,
+          "RELEASE": 28,
+          "SAVEPOINT": 36,
+          "SELECT": 1272,
+          "UPDATE": 8
+        },
+        "observer_mode": "sql_timeline",
+        "handles": 14,
+        "all_closed": true,
+        "available": 4,
+        "pins": 20
+      },
+      {
+        "iteration": 5,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "sql_calls": {
+          "BEGIN": 9,
+          "INSERT": 33,
+          "PRAGMA": 2775,
+          "RELEASE": 35,
+          "SAVEPOINT": 44,
+          "SELECT": 1450,
+          "UPDATE": 9
+        },
+        "observer_mode": "sql_timeline",
+        "handles": 14,
+        "all_closed": true,
+        "available": 4,
+        "pins": 20
+      },
+      {
+        "iteration": 6,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "sql_calls": {
+          "BEGIN": 9,
+          "INSERT": 33,
+          "PRAGMA": 2775,
+          "RELEASE": 35,
+          "SAVEPOINT": 44,
+          "SELECT": 1450,
+          "UPDATE": 9
+        },
+        "observer_mode": "sql_timeline",
+        "handles": 14,
+        "all_closed": true,
+        "available": 4,
+        "pins": 20
+      },
+      {
+        "iteration": 7,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "sql_calls": {
+          "BEGIN": 9,
+          "INSERT": 33,
+          "PRAGMA": 2775,
+          "RELEASE": 35,
+          "SAVEPOINT": 44,
+          "SELECT": 1450,
+          "UPDATE": 9
+        },
+        "observer_mode": "sql_timeline",
+        "handles": 14,
+        "all_closed": true,
+        "available": 4,
+        "pins": 20
+      },
+      {
+        "iteration": 8,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "sql_calls": {
+          "BEGIN": 9,
+          "INSERT": 33,
+          "PRAGMA": 2775,
+          "RELEASE": 35,
+          "SAVEPOINT": 44,
+          "SELECT": 1450,
+          "UPDATE": 9
+        },
+        "observer_mode": "sql_timeline",
+        "handles": 14,
+        "all_closed": true,
+        "available": 4,
+        "pins": 20
+      }
+    ]
+  },
+  "baseline_copy_repeated": {
+    "state": "COMPLETE",
+    "pass_count": 2,
+    "fail_count": 2,
+    "rows": [
+      {
+        "iteration": 1,
+        "exit": 0,
+        "seconds": 5.927620259986725,
+        "failures": 0,
+        "errors": 0,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "command": [
+          "/home/hjkerman/codex/money-note/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "forensics",
+          "/tmp/mn-f-b01.DE2VbO/baseline-copy/original_test.py::test_bounded_concurrent_quota_and_same_request_status",
+          "--b01-output=/tmp/mn-f-b01.DE2VbO/baseline-copy/1.json",
+          "--junitxml=/tmp/mn-f-b01.DE2VbO/baseline-copy/1.xml"
+        ],
+        "baseline": true,
+        "test_source_sha256": "ddee07457cea3d99a830b367bb013abe8a6a2cb8474026aa27973ba8f218ade7"
+      },
+      {
+        "iteration": 2,
+        "exit": 0,
+        "seconds": 5.176613436022308,
+        "failures": 0,
+        "errors": 0,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "command": [
+          "/home/hjkerman/codex/money-note/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "forensics",
+          "/tmp/mn-f-b01.DE2VbO/baseline-copy/original_test.py::test_bounded_concurrent_quota_and_same_request_status",
+          "--b01-output=/tmp/mn-f-b01.DE2VbO/baseline-copy/2.json",
+          "--junitxml=/tmp/mn-f-b01.DE2VbO/baseline-copy/2.xml"
+        ],
+        "baseline": true,
+        "test_source_sha256": "ddee07457cea3d99a830b367bb013abe8a6a2cb8474026aa27973ba8f218ade7"
+      },
+      {
+        "iteration": 3,
+        "exit": 1,
+        "seconds": 5.577447209972888,
+        "failures": 1,
+        "errors": 0,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          503
+        ],
+        "command": [
+          "/home/hjkerman/codex/money-note/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "forensics",
+          "/tmp/mn-f-b01.DE2VbO/baseline-copy/original_test.py::test_bounded_concurrent_quota_and_same_request_status",
+          "--b01-output=/tmp/mn-f-b01.DE2VbO/baseline-copy/3.json",
+          "--junitxml=/tmp/mn-f-b01.DE2VbO/baseline-copy/3.xml"
+        ],
+        "baseline": true,
+        "test_source_sha256": "ddee07457cea3d99a830b367bb013abe8a6a2cb8474026aa27973ba8f218ade7"
+      },
+      {
+        "iteration": 4,
+        "exit": 1,
+        "seconds": 5.476706848014146,
+        "failures": 1,
+        "errors": 0,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          503
+        ],
+        "command": [
+          "/home/hjkerman/codex/money-note/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "forensics",
+          "/tmp/mn-f-b01.DE2VbO/baseline-copy/original_test.py::test_bounded_concurrent_quota_and_same_request_status",
+          "--b01-output=/tmp/mn-f-b01.DE2VbO/baseline-copy/4.json",
+          "--junitxml=/tmp/mn-f-b01.DE2VbO/baseline-copy/4.xml"
+        ],
+        "baseline": true,
+        "test_source_sha256": "ddee07457cea3d99a830b367bb013abe8a6a2cb8474026aa27973ba8f218ade7"
+      }
+    ],
+    "max_successful_begin_wait_us": 1002123,
+    "sql_errors": [
+      {
+        "event": "sql_error",
+        "us": 1646826,
+        "pid": 329380,
+        "thread": 139859570194112,
+        "request_id": "432d82c0-50f2-4245-a94f-86dc67f390cb",
+        "phase": "create",
+        "connection": 9,
+        "sql": "BEGIN IMMEDIATE",
+        "elapsed_us": 1002713,
+        "error_type": "OperationalError",
+        "code": null,
+        "sqlite_errorcode": 5,
+        "sqlite_errorname": "SQLITE_BUSY",
+        "message": "database is locked"
+      },
+      {
+        "event": "sql_error",
+        "us": 1573887,
+        "pid": 329441,
+        "thread": 123357081097920,
+        "request_id": "732ac46a-4be2-4de9-96f2-d485d96078ec",
+        "phase": "create",
+        "connection": 8,
+        "sql": "BEGIN IMMEDIATE",
+        "elapsed_us": 1001974,
+        "error_type": "OperationalError",
+        "code": null,
+        "sqlite_errorcode": 5,
+        "sqlite_errorname": "SQLITE_BUSY",
+        "message": "database is locked"
+      }
+    ],
+    "work": [
+      {
+        "iteration": 1,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "sql_calls": {
+          "BEGIN": 9,
+          "INSERT": 33,
+          "PRAGMA": 2775,
+          "RELEASE": 35,
+          "SAVEPOINT": 44,
+          "SELECT": 1450,
+          "UPDATE": 9
+        },
+        "observer_mode": "sql_timeline",
+        "handles": 14,
+        "all_closed": true,
+        "available": 4,
+        "pins": 20
+      },
+      {
+        "iteration": 2,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "sql_calls": {
+          "BEGIN": 9,
+          "INSERT": 33,
+          "PRAGMA": 2775,
+          "RELEASE": 35,
+          "SAVEPOINT": 44,
+          "SELECT": 1450,
+          "UPDATE": 9
+        },
+        "observer_mode": "sql_timeline",
+        "handles": 14,
+        "all_closed": true,
+        "available": 4,
+        "pins": 20
+      },
+      {
+        "iteration": 3,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          503
+        ],
+        "sql_calls": {
+          "BEGIN": 9,
+          "INSERT": 33,
+          "PRAGMA": 2485,
+          "RELEASE": 28,
+          "SAVEPOINT": 36,
+          "SELECT": 1272,
+          "UPDATE": 8
+        },
+        "observer_mode": "sql_timeline",
+        "handles": 14,
+        "all_closed": true,
+        "available": 4,
+        "pins": 20
+      },
+      {
+        "iteration": 4,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          503
+        ],
+        "sql_calls": {
+          "BEGIN": 9,
+          "INSERT": 33,
+          "PRAGMA": 2485,
+          "RELEASE": 28,
+          "SAVEPOINT": 36,
+          "SELECT": 1272,
+          "UPDATE": 8
+        },
+        "observer_mode": "sql_timeline",
+        "handles": 14,
+        "all_closed": true,
+        "available": 4,
+        "pins": 20
+      }
+    ]
+  },
+  "baseline_light_repeated": {
+    "state": "COMPLETE",
+    "pass_count": 1,
+    "fail_count": 3,
+    "rows": [
+      {
+        "iteration": 1,
+        "exit": 0,
+        "seconds": 6.027594473969657,
+        "failures": 0,
+        "errors": 0,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "command": [
+          "/home/hjkerman/codex/money-note/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "forensics",
+          "/tmp/mn-f-b01.DE2VbO/baseline-light/original_test.py::test_bounded_concurrent_quota_and_same_request_status",
+          "--b01-output=/tmp/mn-f-b01.DE2VbO/baseline-light/1.json",
+          "--junitxml=/tmp/mn-f-b01.DE2VbO/baseline-light/1.xml",
+          "--b01-light"
+        ],
+        "baseline": true,
+        "light": true,
+        "test_source_sha256": "ddee07457cea3d99a830b367bb013abe8a6a2cb8474026aa27973ba8f218ade7"
+      },
+      {
+        "iteration": 2,
+        "exit": 1,
+        "seconds": 5.877576132013928,
+        "failures": 1,
+        "errors": 0,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          503
+        ],
+        "command": [
+          "/home/hjkerman/codex/money-note/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "forensics",
+          "/tmp/mn-f-b01.DE2VbO/baseline-light/original_test.py::test_bounded_concurrent_quota_and_same_request_status",
+          "--b01-output=/tmp/mn-f-b01.DE2VbO/baseline-light/2.json",
+          "--junitxml=/tmp/mn-f-b01.DE2VbO/baseline-light/2.xml",
+          "--b01-light"
+        ],
+        "baseline": true,
+        "light": true,
+        "test_source_sha256": "ddee07457cea3d99a830b367bb013abe8a6a2cb8474026aa27973ba8f218ade7"
+      },
+      {
+        "iteration": 3,
+        "exit": 1,
+        "seconds": 5.927415301033761,
+        "failures": 1,
+        "errors": 0,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          503
+        ],
+        "command": [
+          "/home/hjkerman/codex/money-note/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "forensics",
+          "/tmp/mn-f-b01.DE2VbO/baseline-light/original_test.py::test_bounded_concurrent_quota_and_same_request_status",
+          "--b01-output=/tmp/mn-f-b01.DE2VbO/baseline-light/3.json",
+          "--junitxml=/tmp/mn-f-b01.DE2VbO/baseline-light/3.xml",
+          "--b01-light"
+        ],
+        "baseline": true,
+        "light": true,
+        "test_source_sha256": "ddee07457cea3d99a830b367bb013abe8a6a2cb8474026aa27973ba8f218ade7"
+      },
+      {
+        "iteration": 4,
+        "exit": 1,
+        "seconds": 5.92755467799725,
+        "failures": 1,
+        "errors": 0,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          503
+        ],
+        "command": [
+          "/home/hjkerman/codex/money-note/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "forensics",
+          "/tmp/mn-f-b01.DE2VbO/baseline-light/original_test.py::test_bounded_concurrent_quota_and_same_request_status",
+          "--b01-output=/tmp/mn-f-b01.DE2VbO/baseline-light/4.json",
+          "--junitxml=/tmp/mn-f-b01.DE2VbO/baseline-light/4.xml",
+          "--b01-light"
+        ],
+        "baseline": true,
+        "light": true,
+        "test_source_sha256": "ddee07457cea3d99a830b367bb013abe8a6a2cb8474026aa27973ba8f218ade7"
+      }
+    ],
+    "max_successful_begin_wait_us": null,
+    "sql_errors": [],
+    "work": [
+      {
+        "iteration": 1,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "sql_calls": {},
+        "observer_mode": "response_exception_only",
+        "handles": null,
+        "all_closed": null,
+        "available": 4,
+        "pins": 20
+      },
+      {
+        "iteration": 2,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          503
+        ],
+        "sql_calls": {},
+        "observer_mode": "response_exception_only",
+        "handles": null,
+        "all_closed": null,
+        "available": 4,
+        "pins": 20
+      },
+      {
+        "iteration": 3,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          503
+        ],
+        "sql_calls": {},
+        "observer_mode": "response_exception_only",
+        "handles": null,
+        "all_closed": null,
+        "available": 4,
+        "pins": 20
+      },
+      {
+        "iteration": 4,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          503
+        ],
+        "sql_calls": {},
+        "observer_mode": "response_exception_only",
+        "handles": null,
+        "all_closed": null,
+        "available": 4,
+        "pins": 20
+      }
+    ]
+  },
+  "after_repeated": {
+    "state": "COMPLETE",
+    "pass_count": 8,
+    "fail_count": 0,
+    "rows": [
+      {
+        "iteration": 1,
+        "exit": 0,
+        "seconds": 5.426980242016725,
+        "failures": 0,
+        "errors": 0,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "command": [
+          "/home/hjkerman/codex/money-note/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "forensics",
+          "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+          "--b01-output=/tmp/mn-f-b01.DE2VbO/repeated-after-under-suite/1.json",
+          "--junitxml=/tmp/mn-f-b01.DE2VbO/repeated-after-under-suite/1.xml"
+        ]
+      },
+      {
+        "iteration": 2,
+        "exit": 0,
+        "seconds": 5.527431106020231,
+        "failures": 0,
+        "errors": 0,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "command": [
+          "/home/hjkerman/codex/money-note/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "forensics",
+          "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+          "--b01-output=/tmp/mn-f-b01.DE2VbO/repeated-after-under-suite/2.json",
+          "--junitxml=/tmp/mn-f-b01.DE2VbO/repeated-after-under-suite/2.xml"
+        ]
+      },
+      {
+        "iteration": 3,
+        "exit": 0,
+        "seconds": 5.276348634972237,
+        "failures": 0,
+        "errors": 0,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "command": [
+          "/home/hjkerman/codex/money-note/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "forensics",
+          "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+          "--b01-output=/tmp/mn-f-b01.DE2VbO/repeated-after-under-suite/3.json",
+          "--junitxml=/tmp/mn-f-b01.DE2VbO/repeated-after-under-suite/3.xml"
+        ]
+      },
+      {
+        "iteration": 4,
+        "exit": 0,
+        "seconds": 5.57699659402715,
+        "failures": 0,
+        "errors": 0,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "command": [
+          "/home/hjkerman/codex/money-note/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "forensics",
+          "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+          "--b01-output=/tmp/mn-f-b01.DE2VbO/repeated-after-under-suite/4.json",
+          "--junitxml=/tmp/mn-f-b01.DE2VbO/repeated-after-under-suite/4.xml"
+        ]
+      },
+      {
+        "iteration": 5,
+        "exit": 0,
+        "seconds": 5.426805388997309,
+        "failures": 0,
+        "errors": 0,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "command": [
+          "/home/hjkerman/codex/money-note/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "forensics",
+          "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+          "--b01-output=/tmp/mn-f-b01.DE2VbO/repeated-after-under-suite/5.json",
+          "--junitxml=/tmp/mn-f-b01.DE2VbO/repeated-after-under-suite/5.xml"
+        ]
+      },
+      {
+        "iteration": 6,
+        "exit": 0,
+        "seconds": 5.326835644955281,
+        "failures": 0,
+        "errors": 0,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "command": [
+          "/home/hjkerman/codex/money-note/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "forensics",
+          "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+          "--b01-output=/tmp/mn-f-b01.DE2VbO/repeated-after-under-suite/6.json",
+          "--junitxml=/tmp/mn-f-b01.DE2VbO/repeated-after-under-suite/6.xml"
+        ]
+      },
+      {
+        "iteration": 7,
+        "exit": 0,
+        "seconds": 5.4770715099875815,
+        "failures": 0,
+        "errors": 0,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "command": [
+          "/home/hjkerman/codex/money-note/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "forensics",
+          "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+          "--b01-output=/tmp/mn-f-b01.DE2VbO/repeated-after-under-suite/7.json",
+          "--junitxml=/tmp/mn-f-b01.DE2VbO/repeated-after-under-suite/7.xml"
+        ]
+      },
+      {
+        "iteration": 8,
+        "exit": 0,
+        "seconds": 5.026390782033559,
+        "failures": 0,
+        "errors": 0,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "command": [
+          "/home/hjkerman/codex/money-note/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "forensics",
+          "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+          "--b01-output=/tmp/mn-f-b01.DE2VbO/repeated-after-under-suite/8.json",
+          "--junitxml=/tmp/mn-f-b01.DE2VbO/repeated-after-under-suite/8.xml"
+        ]
+      }
+    ],
+    "max_successful_begin_wait_us": 1230290,
+    "sql_errors": [],
+    "work": [
+      {
+        "iteration": 1,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "sql_calls": {
+          "BEGIN": 9,
+          "INSERT": 33,
+          "PRAGMA": 2775,
+          "RELEASE": 35,
+          "SAVEPOINT": 44,
+          "SELECT": 1450,
+          "UPDATE": 9
+        },
+        "observer_mode": "sql_timeline",
+        "handles": 14,
+        "all_closed": true,
+        "available": 4,
+        "pins": 20
+      },
+      {
+        "iteration": 2,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "sql_calls": {
+          "BEGIN": 9,
+          "INSERT": 33,
+          "PRAGMA": 2775,
+          "RELEASE": 35,
+          "SAVEPOINT": 44,
+          "SELECT": 1450,
+          "UPDATE": 9
+        },
+        "observer_mode": "sql_timeline",
+        "handles": 14,
+        "all_closed": true,
+        "available": 4,
+        "pins": 20
+      },
+      {
+        "iteration": 3,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "sql_calls": {
+          "BEGIN": 9,
+          "INSERT": 33,
+          "PRAGMA": 2775,
+          "RELEASE": 35,
+          "SAVEPOINT": 44,
+          "SELECT": 1450,
+          "UPDATE": 9
+        },
+        "observer_mode": "sql_timeline",
+        "handles": 14,
+        "all_closed": true,
+        "available": 4,
+        "pins": 20
+      },
+      {
+        "iteration": 4,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "sql_calls": {
+          "BEGIN": 9,
+          "INSERT": 33,
+          "PRAGMA": 2775,
+          "RELEASE": 35,
+          "SAVEPOINT": 44,
+          "SELECT": 1450,
+          "UPDATE": 9
+        },
+        "observer_mode": "sql_timeline",
+        "handles": 14,
+        "all_closed": true,
+        "available": 4,
+        "pins": 20
+      },
+      {
+        "iteration": 5,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "sql_calls": {
+          "BEGIN": 9,
+          "INSERT": 33,
+          "PRAGMA": 2775,
+          "RELEASE": 35,
+          "SAVEPOINT": 44,
+          "SELECT": 1450,
+          "UPDATE": 9
+        },
+        "observer_mode": "sql_timeline",
+        "handles": 14,
+        "all_closed": true,
+        "available": 4,
+        "pins": 20
+      },
+      {
+        "iteration": 6,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "sql_calls": {
+          "BEGIN": 9,
+          "INSERT": 33,
+          "PRAGMA": 2775,
+          "RELEASE": 35,
+          "SAVEPOINT": 44,
+          "SELECT": 1450,
+          "UPDATE": 9
+        },
+        "observer_mode": "sql_timeline",
+        "handles": 14,
+        "all_closed": true,
+        "available": 4,
+        "pins": 20
+      },
+      {
+        "iteration": 7,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "sql_calls": {
+          "BEGIN": 9,
+          "INSERT": 33,
+          "PRAGMA": 2775,
+          "RELEASE": 35,
+          "SAVEPOINT": 44,
+          "SELECT": 1450,
+          "UPDATE": 9
+        },
+        "observer_mode": "sql_timeline",
+        "handles": 14,
+        "all_closed": true,
+        "available": 4,
+        "pins": 20
+      },
+      {
+        "iteration": 8,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "sql_calls": {
+          "BEGIN": 9,
+          "INSERT": 33,
+          "PRAGMA": 2775,
+          "RELEASE": 35,
+          "SAVEPOINT": 44,
+          "SELECT": 1450,
+          "UPDATE": 9
+        },
+        "observer_mode": "sql_timeline",
+        "handles": 14,
+        "all_closed": true,
+        "available": 4,
+        "pins": 20
+      }
+    ]
+  },
+  "after_quiet_repeated": {
+    "state": "COMPLETE",
+    "pass_count": 4,
+    "fail_count": 0,
+    "rows": [
+      {
+        "iteration": 1,
+        "exit": 0,
+        "seconds": 4.32387549901614,
+        "failures": 0,
+        "errors": 0,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "command": [
+          "/home/hjkerman/codex/money-note/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "forensics",
+          "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+          "--b01-output=/tmp/mn-f-b01.DE2VbO/repeated-after-quiet/1.json",
+          "--junitxml=/tmp/mn-f-b01.DE2VbO/repeated-after-quiet/1.xml"
+        ],
+        "baseline": false,
+        "light": false,
+        "test_source_sha256": "a6e90a389ffa47c850d0c5551826680572085912943ab5d424e0229b0818202f"
+      },
+      {
+        "iteration": 2,
+        "exit": 0,
+        "seconds": 4.123684898018837,
+        "failures": 0,
+        "errors": 0,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "command": [
+          "/home/hjkerman/codex/money-note/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "forensics",
+          "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+          "--b01-output=/tmp/mn-f-b01.DE2VbO/repeated-after-quiet/2.json",
+          "--junitxml=/tmp/mn-f-b01.DE2VbO/repeated-after-quiet/2.xml"
+        ],
+        "baseline": false,
+        "light": false,
+        "test_source_sha256": "a6e90a389ffa47c850d0c5551826680572085912943ab5d424e0229b0818202f"
+      },
+      {
+        "iteration": 3,
+        "exit": 0,
+        "seconds": 4.324151604028884,
+        "failures": 0,
+        "errors": 0,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "command": [
+          "/home/hjkerman/codex/money-note/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "forensics",
+          "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+          "--b01-output=/tmp/mn-f-b01.DE2VbO/repeated-after-quiet/3.json",
+          "--junitxml=/tmp/mn-f-b01.DE2VbO/repeated-after-quiet/3.xml"
+        ],
+        "baseline": false,
+        "light": false,
+        "test_source_sha256": "a6e90a389ffa47c850d0c5551826680572085912943ab5d424e0229b0818202f"
+      },
+      {
+        "iteration": 4,
+        "exit": 0,
+        "seconds": 4.474485521961469,
+        "failures": 0,
+        "errors": 0,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "command": [
+          "/home/hjkerman/codex/money-note/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "forensics",
+          "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+          "--b01-output=/tmp/mn-f-b01.DE2VbO/repeated-after-quiet/4.json",
+          "--junitxml=/tmp/mn-f-b01.DE2VbO/repeated-after-quiet/4.xml"
+        ],
+        "baseline": false,
+        "light": false,
+        "test_source_sha256": "a6e90a389ffa47c850d0c5551826680572085912943ab5d424e0229b0818202f"
+      }
+    ],
+    "max_successful_begin_wait_us": 929867,
+    "sql_errors": [],
+    "work": [
+      {
+        "iteration": 1,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "sql_calls": {
+          "BEGIN": 9,
+          "INSERT": 33,
+          "PRAGMA": 2775,
+          "RELEASE": 35,
+          "SAVEPOINT": 44,
+          "SELECT": 1450,
+          "UPDATE": 9
+        },
+        "observer_mode": "sql_timeline",
+        "handles": 14,
+        "all_closed": true,
+        "available": 4,
+        "pins": 20
+      },
+      {
+        "iteration": 2,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "sql_calls": {
+          "BEGIN": 9,
+          "INSERT": 33,
+          "PRAGMA": 2775,
+          "RELEASE": 35,
+          "SAVEPOINT": 44,
+          "SELECT": 1450,
+          "UPDATE": 9
+        },
+        "observer_mode": "sql_timeline",
+        "handles": 14,
+        "all_closed": true,
+        "available": 4,
+        "pins": 20
+      },
+      {
+        "iteration": 3,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "sql_calls": {
+          "BEGIN": 9,
+          "INSERT": 33,
+          "PRAGMA": 2775,
+          "RELEASE": 35,
+          "SAVEPOINT": 44,
+          "SELECT": 1450,
+          "UPDATE": 9
+        },
+        "observer_mode": "sql_timeline",
+        "handles": 14,
+        "all_closed": true,
+        "available": 4,
+        "pins": 20
+      },
+      {
+        "iteration": 4,
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          429
+        ],
+        "sql_calls": {
+          "BEGIN": 9,
+          "INSERT": 33,
+          "PRAGMA": 2775,
+          "RELEASE": 35,
+          "SAVEPOINT": 44,
+          "SELECT": 1450,
+          "UPDATE": 9
+        },
+        "observer_mode": "sql_timeline",
+        "handles": 14,
+        "all_closed": true,
+        "available": 4,
+        "pins": 20
+      }
+    ]
+  },
+  "targeted": {
+    "state": "COMPLETE",
+    "tests": 4,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 8.794,
+    "failure_evidence": [],
+    "sha256": "711b5d8436ee93f0a60dbd2908b983949acba0917e4fd016f450fd46d8813ff5"
+  },
+  "related": {
+    "state": "COMPLETE",
+    "tests": 90,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 245.271,
+    "failure_evidence": [],
+    "sha256": "7e20ecd53033373bfd71a09a39174b6a31551bc4f152cfc37c3eaebc28c1ee18"
+  },
+  "order_first": {
+    "state": "COMPLETE",
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 7.464,
+    "failure_evidence": [],
+    "sha256": "1646da64d52c4f778ed886468a0dccf4c6ab80df17d9047bb4dda0704557372f"
+  },
+  "order_reversed": {
+    "state": "COMPLETE",
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 6.094,
+    "failure_evidence": [],
+    "sha256": "0cf399dba4b69819c8dbc25767417ea272f22d6b4df6e052b385edafaa86b4e0"
+  },
+  "real_http": {
+    "state": "COMPLETE",
+    "tests": 2,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 10.507,
+    "failure_evidence": [],
+    "sha256": "8501e25fb0279c3508560e2a1886c83ae3d537c9acb6e0bcbfc19e0fd21524a6"
+  },
+  "flutter_http": {
+    "done": true,
+    "counts": {
+      "success": 3
+    },
+    "sha256": "4afe0133c5f45b5a5bae5036b0567b9de4068df10186db4f9fc1520bb46af950"
+  },
+  "preservation": {
+    "protected_count": 221,
+    "hashes": {
+      "backend/app/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "backend/app/auth.py": "e585573bc62a787d083b30bcfdc2af58315f74f6a5a381024fdbb978f9fdd6d0",
+      "backend/app/authoritative_schemas.py": "05159495bf39e3e2dbcaadb2d0143f5e591500c6417086ea73a911e29a2be864",
+      "backend/app/config.py": "bc1621b00df36f053e9f3cb46fef6bfb28862754b6a75877bf64719f8485434c",
+      "backend/app/db.py": "378783da0a16e5af77a26e7b4534c5f210f90d49829f29ab1d4c748cae82e2c2",
+      "backend/app/db_migrations.py": "24c1445294cddc08ddbdf69cc1a399d8c29276db9dc2842e00eeac06319390ea",
+      "backend/app/main.py": "f132c6143936a5308c8ebffa207da2d65ff77f839891cb1bf279b64e9f36124c",
+      "backend/app/money.py": "696276ff70b0ec70e12ec592ec03863edf8911d04b92f26350d787a71b2e79db",
+      "backend/app/repositories/__init__.py": "669fbcbb55363e4295b001c141b0860c4070b7569f1c6ed71e1a05a0457a391e",
+      "backend/app/repositories/cash_flows.py": "88ff64494840e1724434cd96f354b5e05763e885644ef183e8d16f02a0351e9a",
+      "backend/app/repositories/common.py": "c83aefb6d0b0bf928436622c8cb6e1313b6e59f950350cb245106de18dc58481",
+      "backend/app/repositories/entries.py": "d3f5fdea24fe0fb414da627a364e66e355fdf94650a8328eb375e6bf5fc6b749",
+      "backend/app/repositories/labels.py": "f7b76ff9bd90f84e1e94f01004d7e4309e620619718c9aac4cbdfd3b98b56f89",
+      "backend/app/repositories/notification_registration.py": "ec2eb1a9a52108817c550d9bda495ac3ea27cc45d2f0ba975a73d1c790d75ce9",
+      "backend/app/repositories/panels.py": "0ddc88afe0c9809af64d839c3ca9c6d2f3e3f846f4f130315b5e088699b2a737",
+      "backend/app/repositories/settings.py": "ee7f93a48ddfe92dde669f64537ffeed5abb932a0189cdfe4cb7c2eb2c6c1e6c",
+      "backend/app/repository.py": "2ce9203979d330476f1ac3b26958454dc8d46cf6359846871334f9f67d6df4d7",
+      "backend/app/routers/__init__.py": "0059de36e45511b1669e2f298b41b1a11b07b333dd3e08fc395fa49583a570bd",
+      "backend/app/routers/admin.py": "9c934b2f09292851e48d1fdaad3e7e5cc58808c64b47e5dcf1dfacf18ce3d605",
+      "backend/app/routers/audit.py": "591a6bc9f7eb35fd63e95cf3938a3fc7154ce35e18ca438d6ba7f520a28efaaf",
+      "backend/app/routers/auth.py": "456c1f312cfb869a1a32b3d219a4a6c6a5fe778dcf862e6bb3cd2d07f620a14b",
+      "backend/app/routers/authoritative_state.py": "2779d8ecfd716df15927d75599f3804c34465bdd60474b2f80f5af0a5a30304f",
+      "backend/app/routers/card_payments.py": "a3241b9b40301811286dfaa71e3fb3265ec7789cb64647b47e43c9c133711e89",
+      "backend/app/routers/entries.py": "c85cc3a5e4550308a41e1f16e93129f0bb314163f6cfa0941d451c3f09f51c93",
+      "backend/app/routers/money_input.py": "0399a822648d193eab419d897f38a5115c660bed3546a6d8d34cea00971b76bb",
+      "backend/app/routers/month.py": "ccfd3bed56d6398620fd93e75290be72976639eb52c5122fff0ab74fe37275b1",
+      "backend/app/routers/offline_reconciliation.py": "0969c443c715724aaf5596293f00695870796ab43a0d8e1e57ffc7e55a6e6df9",
+      "backend/app/routers/operations.py": "2762b5903813ae4944319dc47803a6f53e4e60a79a21ac8405394e526c5c1f24",
+      "backend/app/routers/responses.py": "0d6f677f3424d3f28a44daf0b2ff96f4b506444e3b7b4524141cc6dd74cc737b",
+      "backend/app/routers/share.py": "268233c964f743232d57a6efd9fcb3efa1edcaf0571cf03f975f711154d605a3",
+      "backend/app/schemas.py": "711055144f3854f622d741bee388b10db42a2aa0f89a9596838b3aef3550105e",
+      "backend/app/security.py": "52d7e145ea28ef3bf911bce1b22d3176ac2148dd2542a9fcfadd6da5a35603db",
+      "backend/app/services/audit.py": "dfba99b21732a6f68d646d209f349c72e40c6bcf6ab8ef0d1e8571c435056a31",
+      "backend/app/services/authoritative_state.py": "e953aa895de993472f5d04159b9951cf901ca4cf0defc3af8672e2cc6c39daab",
+      "backend/app/services/card_charge/__init__.py": "f3f5247e1ea34ddbba5e6d4f3a45974065b6ff1464fe0fe2794d92bae0b35d30",
+      "backend/app/services/card_charge/activation.py": "69ec1c5ad01185b7c4401be0a27941fb3d4cef0029db6461bc7df6cab98672e6",
+      "backend/app/services/card_charge/classifier.py": "3fb3036cfaa5b3b9527cbbb9b858fd2735b7b7d808e03e41ddfedf462616f40e",
+      "backend/app/services/card_charge/evaluator.py": "34732d9463528f877fb4c17f61eff126de3693c6c7c394bbabfa1599e5e29c9c",
+      "backend/app/services/card_charge/models.py": "81287daf57687f4aeddb0c2f2b65eb4016ffe6741d6bf50ab79c4e3563b98df7",
+      "backend/app/services/card_charge/policies.py": "4d76887bd7ee87c0e3951bbc2a72535e8ad8af3b790005e021150a6f53a56e38",
+      "backend/app/services/card_charge/profiles.py": "3471e13f72296add3843cd305dd7a4aef233fb8a82b1642267913d80489f3b6e",
+      "backend/app/services/card_charge/registry.py": "2439219434b46ac6356802641469bd490e5a8251e65b2bdd2e3c22ff23ca57f9",
+      "backend/app/services/card_payment_reads.py": "8338c733235b44611a8883fd65a6d6c4e0faa1de13ceb286cb962ec3d4e836ca",
+      "backend/app/services/card_payments.py": "434526deec871f58a638b7153a8515ed6575174bac15c254fb11454459be332b",
+      "backend/app/services/clock.py": "19a6150c2daa74caf85923de27d1064cce3118c616d9f9f2220e45f3ad1a3bd6",
+      "backend/app/services/discounts.py": "ae864007d225b30cb7d96e8e0905f2a29028a74c3c682d67dc586fcd1e9b3c01",
+      "backend/app/services/financial_inputs.py": "2d3ccef5df7892ad8f9311998cb7e07adacc62e873326ee440b40de00bbf0ac4",
+      "backend/app/services/financial_periods.py": "e92f41a98e8cf116c0620527838f2b817d972d6f8ff52143367f011b8e80b5cd",
+      "backend/app/services/financial_relationships.py": "fce7c71297a1d3a7642839ae4a685615ddfcb5aac5da0076f2d182e34c7ca850",
+      "backend/app/services/judgment/__init__.py": "3dee2bbc9d6020d3535d50db5c4ff546cca36d88dd3fdbc37c5bbeb3e41f2734",
+      "backend/app/services/judgment/categories.py": "858e81c1d1e98ddfcaabb25dbe0a5f7f4536c618a01bd78c2e212866fb174216",
+      "backend/app/services/judgment/claim.py": "82da9ceaf5014fb90f7b49802eb6fb981f1544bd4f3a7c683d2ed96b7e94a8f2",
+      "backend/app/services/judgment/common.py": "b0ea1b97d7b735677643f9f1097d4a1f81b70bf036a1d6c563c2dc687492fc3f",
+      "backend/app/services/judgment/family_card.py": "12d06d6f009d22ebcc8da839236f9845f87cbba7d23f5a2346b2567c341d3884",
+      "backend/app/services/judgment/features.py": "428b9c7839d0b631896e8f13c00b35e116b898b579a8bbe2458ac37f2950729c",
+      "backend/app/services/judgment/insight.py": "6f3743c7dc15c2619daa3d91f05c7b30252feaacbf6ffd927cb4d56b4d3127be",
+      "backend/app/services/judgment/messages/__init__.py": "d19e19306377a66bec867015a3efc0228eba7e42063be133921fceea0fc0bfb5",
+      "backend/app/services/judgment/messages/claim.yaml": "7a27690050fb5e6192cf17327ace6a86b0dd7f4a83dc289ab176be36745aeb70",
+      "backend/app/services/judgment/messages/family_card.yaml": "733f9fb6dca675a07d1101d2e2de38c8a4d019ceef02e4be5a097d9fb1390061",
+      "backend/app/services/judgment/messages/insight.yaml": "403d52b186c84b0939a6a63ce27133b5ef64e44a0d548a57a5dc3d508131077d",
+      "backend/app/services/legacy_recurring.py": "b86691f13e783a450e5478cb99bd0b7260e8dd8f206a2dd5793307bad1a718c2",
+      "backend/app/services/liquidity_names.py": "856640a0ae25cf54d9097c0641d4d286e9080c6e4f28d1d2652e29533a6eecb0",
+      "backend/app/services/maintenance.py": "009c463baa7ee814ea0ef58d2a20c6a88fa4f0ad9f989bd2450087d6ad678ad9",
+      "backend/app/services/month.py": "19df44738fb3b8fa130cbe9bb67e563eb8a5ddb4bfced02e119eba6cb2028b78",
+      "backend/app/services/offline_reconciliation.py": "06ee8798e20ca4d9afaecd993afbf4bfe9db721eae0df35d823c8d665be09b56",
+      "backend/app/services/operation_stats.py": "888c2c0b97ab05bf42c0f009b51e8bf01b00b4a3d85eb8ae5b900870e02ffabc",
+      "backend/app/services/panels.py": "ab2f37c23d8469a447d9c919a887d98904ac2b5da265617210f8f0012df3aeac",
+      "backend/app/services/presentation.py": "d2ac009ea06f166025dee719ad953279d141e6f2dfe551aa96fa281dd450ba87",
+      "backend/app/services/recurring_canonicalization.py": "591beb91ba0b861fbaf49eb60cd26d22bf166bd4bb76d4e5b212a6b80eebf032",
+      "backend/app/services/recurring_compatibility.py": "f1e6fea49c0efc0e3d293b478f18744a39477d7a55901cae1050bb3a57174c15",
+      "backend/app/services/reset.py": "546d5fbf3249fac7451ac5418a59ace68e5a5879a1264b1e59b7b73c52288ed6",
+      "backend/app/services/share.py": "421ce10569be7df723cde9ca55a64fe824f60350f5bb824c6b010710916480a1",
+      "backend/app/services/share_html.py": "6a1be7fcb84f4ba99323c6892d869c83679997c9291698941c0827f1bb3f96d6",
+      "backend/app/services/snapshot.py": "92bba975d0c0e4776b6ef775a647009ad1de6887a36b5c0a9270ad2ba7bb5240",
+      "backend/app/services/summary.py": "75ad773d6649a36067ff14f90fdd070fc42e440e7a0614dddfb19a05212bb6a7",
+      "backend/app/share_auth.py": "f42f233df65c4e1af5255f9cd7c149cd9a7f47dcd9faec234ac4415795691074",
+      "backend/isolated_sync/__init__.py": "afc7ef873af4580fa13cf3edeafe9b912b61117ee4a49d13f068f6d5a252fcca",
+      "backend/isolated_sync/artifacts.py": "a3c7faacf2eeebb1ce9d3356ccd52908141a66652bf9130cf39984fde62aeeac",
+      "backend/isolated_sync/canonical.py": "3202c48ec6d38158e7e4eca43177285bf5068aa1c6f31af70796e2d97dc8565f",
+      "backend/isolated_sync/capture.py": "0669295f7f7331926589b55f9e2213003711a9538193376fcff25cc42f9b18b4",
+      "backend/isolated_sync/facts.py": "de3f7951df69ced3f48010eaca98ebe4e443aa2af59feaa43e046d16582bb03d",
+      "backend/isolated_sync/finalization.py": "218755e0028c72f73405ffa4e737ab8e7a29de11b83c28b056810a760ec773b6",
+      "backend/isolated_sync/http.py": "9f8a9cae10ec871df11e2e87467269ef1337bfee371bc5719ed7a6ebb910184e",
+      "backend/isolated_sync/inputs.py": "94d5134f65da87b9a9548abf1a4d87b9f8da17494c8d230a74206caa516556fd",
+      "backend/isolated_sync/maintenance.py": "186be0bcf2b9d0c70abd998cd8af82ed84602f854b10146c026c8df4bb36129e",
+      "backend/isolated_sync/observation.py": "635e17038f4cc11d7db59dd6208aa1d1fbfd5a5750b04b20c40cc7714c399a3e",
+      "backend/isolated_sync/observation_schema.py": "86d2fb0e9f5265f1423a57543fe810901d657d35134afdcdc7c619cca24ec7ba",
+      "backend/isolated_sync/owned_sqlite.py": "afabc1f85893bbf2b09527887be58e20c177e8cd192bfff36124fc6c60bcae88",
+      "backend/isolated_sync/patricia.py": "f498d09fd2138077941d04a48c40996a0257b028202b28238cb82ddaef5d4f76",
+      "backend/isolated_sync/raw.py": "ee05786836a38a5f208b7bfa2845294f6405f5fd4073e780f7413ab1d4c4a9fb",
+      "backend/isolated_sync/rebuild.py": "af5b6f77e0b26b30e9fc8c4966e197ab83ff5389ce552fa56b337c5ab2f4556a",
+      "backend/isolated_sync/retention.py": "16ee13af8cb5f69c3d0c789bd4c80af0a667904b39051438251fc5b88f6f0b74",
+      "backend/isolated_sync/retention_schema.py": "539dd2fb7bf11c472c4cc55b1e6bad47de2d03b1e764ada995fc34607fd67034",
+      "backend/isolated_sync/roots.py": "d517c08201904b94d3fa594ea5c53003dc4e645829d19ba1e802cdb78cb2ccd7",
+      "backend/isolated_sync/segments.py": "84a7aca85c3c7392fb4a76e6d8ccc64ac6726074e10acb28394feac53fac0d0f",
+      "backend/isolated_sync/store.py": "bd6ccd68f36a5a568952bfb09b1532e2f81905ab50002d8ca6df96bd9ec58cae",
+      "backend/isolated_sync/transfer.py": "00bb23e6a0eff6a87542d5fddeb3bf560a0106e0eed381906413181499fb775a",
+      "backend/isolated_sync/workers.py": "4da19afe85c41ad0e3df1d212797870c29238afa29b2a353743351e732699d65",
+      "docs/benchmarks/t66f-phase-b/README.md": "11d311929be1c5ef1d12ad13c54707f30bdccfa296747f6287e1b66e5c500249",
+      "docs/benchmarks/t66f-phase-b/boundary-trace.md": "5277efd165f7788c7598f1444d71de2b002b910ab5cdd4900796d3193b233aa7",
+      "docs/benchmarks/t66f-phase-b/cases.json": "e1f716883bdfe0519e8456c7f0304748e3f95529e4fd05d6b7707178e23d66fb",
+      "docs/benchmarks/t66f-phase-b/collect.py": "cfdc4c0411e38713983c84bee65acc9d42685f0120a6919d54ce58db856fd7b3",
+      "docs/benchmarks/t66f-phase-b/cost_test.dart": "f6b8aaa241a683139d62be4e2aefe74425f1c895ea78855d8b3bf9354af9d1c7",
+      "docs/benchmarks/t66f-phase-b/coverage.md": "af742b7a4e15d89601d291235e5f57000f01f06de3cce9f9ac1caefdc228e46d",
+      "docs/benchmarks/t66f-phase-b/crash_child_test.dart": "91a0bfdfadc313daebaa8f36575d5cfbc39bb3371c2ca47c54f5ef00e4505fb6",
+      "docs/benchmarks/t66f-phase-b/evidence/backend-full.log": "9cb32b49a3af7323f2be692d3a4fecbffe4fd63d956368c8833f189118a0fac8",
+      "docs/benchmarks/t66f-phase-b/evidence/backend-independent__backend-kill-after_commit.json": "f6e37bc99effb35aa7b50d4962ad41796ed5baa3ac0f47ab93c67a4cc8701493",
+      "docs/benchmarks/t66f-phase-b/evidence/backend-independent__backend-kill-after_finalize.json": "2b8d6f1fe70983ae344a3e01bcc4c1519a258a4793a18cc34aa62656e769083a",
+      "docs/benchmarks/t66f-phase-b/evidence/backend-independent__backend-kill-before_finalize.json": "271652f1148a11f60e3ba06c2c258db6dabe1dabe3ec254e8d19766aaabe3e88",
+      "docs/benchmarks/t66f-phase-b/evidence/backend-independent__expiry.json": "3ee77b875d19b5b50015ddd5cc67546b609b844940f59acc0390ce7e65b33a75",
+      "docs/benchmarks/t66f-phase-b/evidence/backend-independent__old-new-root.json": "fc1bf188e75c6c4ce5708b3d3a586f690ba38efbd20296b9bd2d0924a6932492",
+      "docs/benchmarks/t66f-phase-b/evidence/backend-rerun.log": "5f6a85aa96ff32c72cce30663cfcd8707ae80ed55a0b84fc9805e33d89732a4a",
+      "docs/benchmarks/t66f-phase-b/evidence/cost-final__cost.json": "28c3e0e1523eef5dbf0950c81957fb7e75490bb54ca5583b07085c5ff5119385",
+      "docs/benchmarks/t66f-phase-b/evidence/crash-final__after_e3_acceptance.json": "9d52b4f792fab3e473983f7b621ee710a6bf283cf3cb251c996cc8885e177d75",
+      "docs/benchmarks/t66f-phase-b/evidence/crash-final__after_e4_installation.json": "6d26c199bf230e7f1ea84ef3a193d0e038f9b20af9fb3b2041dc838e34251a8f",
+      "docs/benchmarks/t66f-phase-b/evidence/crash-final__before_source_rename.json": "29372dc48b06d577abdecbff626fa7fa5a8561bf76143ff9fc9a38a3e20f0815",
+      "docs/benchmarks/t66f-phase-b/evidence/crash-final__native_before_commit.json": "9c464b8e2af10f34d6cdd9211ef7fc7aab1af9c1e48ee75a44a063b402aa04ba",
+      "docs/benchmarks/t66f-phase-b/evidence/e2-independent__test_rejection_does_not_destro0.json": "03f49c81f90e88da76e629366de31c69e74c4f8cfdd82a26e59c0184cb5df6ce",
+      "docs/benchmarks/t66f-phase-b/evidence/e2-independent__test_six_rejections_then_verif0.json": "59b7730f73e884fb9cb4a2f09eac992c4cdacea74394c2bc8cb1b68df910906e",
+      "docs/benchmarks/t66f-phase-b/evidence/e2-independent__test_six_rejections_then_verif1.json": "d307656398184ed27dcc5ca4948f506ea647fb5487a1bd888261665c33d75db1",
+      "docs/benchmarks/t66f-phase-b/evidence/e2-independent__test_six_rejections_then_verif2.json": "0f9f78dee041f71c2ee675acc949da7593b0a6e78f1956941334e39ad26d28c3",
+      "docs/benchmarks/t66f-phase-b/evidence/e2-independent__test_six_rejections_then_verif3.json": "2ffb46a83b1bfde1f11066b23ca8d9357e2be9cfce6b5bcfacf9c74c2dc0962b",
+      "docs/benchmarks/t66f-phase-b/evidence/e2-independent__test_six_rejections_then_verif4.json": "38d9f115bcdd83d79c3f43d5b99ad37d5ea005777e1ee0c302749a90463987b5",
+      "docs/benchmarks/t66f-phase-b/evidence/e2-independent__test_six_rejections_then_verif5.json": "6cfb29d8a076955a6bf7aefaf9f39660a1afef2bc1d1bc5bd17884895b3615a0",
+      "docs/benchmarks/t66f-phase-b/evidence/e2-independent__test_valid_path_rejects_corrup0.json": "f08e99557d4b6f156ecfdee4c896a027e583b2bbf9ada97e566fc5901e18b88e",
+      "docs/benchmarks/t66f-phase-b/evidence/e2-independent__test_valid_path_rejects_corrup1.json": "a8013c232f4032e8b8bd8db083f042498ebad23e52162ff11c34b96f0ca0ceff",
+      "docs/benchmarks/t66f-phase-b/evidence/environment.json": "60e399da0745dc06b9a9614ab13f67c897ab5c3f3ddb4e10b09ea7f7cdf875e8",
+      "docs/benchmarks/t66f-phase-b/evidence/final-checks.json": "58255e72afdf37e52d0710feec0fc1c4212832085a6c2bce307c884b3cf339ae",
+      "docs/benchmarks/t66f-phase-b/evidence/format-repository.log": "37632ba6b142152d58cb7fc33ce504959f07ec265fe4e370ad964132f6b1ce60",
+      "docs/benchmarks/t66f-phase-b/evidence/generation-cost-final__256.json": "c7ab0aff9fe9a72818978227da598103c18843041d94bd57dda219c9173e5260",
+      "docs/benchmarks/t66f-phase-b/evidence/generation-cost-final__7.json": "df671dd0fb9ebe217f147bc2813adeae6cc60b80a789b112af378e094f8d7226",
+      "docs/benchmarks/t66f-phase-b/evidence/history-preservation.json": "a086e9f9c8c0768e6da69a2509713fc1060067aac5bced6108720b58dfa58f1d",
+      "docs/benchmarks/t66f-phase-b/evidence/http-concurrency__busy.json": "f25cccf4558f4c4ed5ea7d942af164f30637cfc39c1351fe08e5a88158854897",
+      "docs/benchmarks/t66f-phase-b/evidence/http-concurrency__concurrent.json": "54501c12dc6018dfcf43a3eec6de8e7b5654335c516848a75c0a526c49c06c0c",
+      "docs/benchmarks/t66f-phase-b/evidence/integration-campaign.json": "899eaf4442aefe7ded7b4e38edd7f1d2a2fbc5cd7ea4f0fbc471683a8752f814",
+      "docs/benchmarks/t66f-phase-b/evidence/original-phase-a-cost__cost.json": "4abdea8ce5178918dba3898b336c2cc3682754d61a2bcb9ec64c005cc2bc4d67",
+      "docs/benchmarks/t66f-phase-b/evidence/previous-ra01-cost__cost.json": "6dece7553fe6f58dab936b9498728677dd35bdd710a51a3d0941992c88356b97",
+      "docs/benchmarks/t66f-phase-b/evidence/previous-ra01-cost__cost.json.handoff.json": "05dd80ff33e853cf37eb08dd9af7a846a17cf10c65463005ee650eef063b9110",
+      "docs/benchmarks/t66f-phase-b/fresh_test.dart": "c820b35dbfb9666b2ee2c7ebd4c09d5de833f2e896b74fdfb41476a4dc9b716a",
+      "docs/benchmarks/t66f-phase-b/harness.dart": "fccdd8e6a130d9458da304c36ccfd2d89e140e10beabd690bc164b70492b3e67",
+      "docs/benchmarks/t66f-phase-b/integration_test.dart": "92f79b2cffb6cb1e1d6742c06fb082d927cce4da2c12f37c7931222e4183071c",
+      "docs/benchmarks/t66f-phase-b/inventory.json": "94dc47747275ca7d4e33e47e212c4f333272216370031573049539f1a0665537",
+      "docs/benchmarks/t66f-phase-b/measure.py": "2b17fb22031495f2554ed8b99cbb5f7591fff330ff81df988c408458c6ec5bb5",
+      "docs/benchmarks/t66f-phase-b/regression-cases.json": "e9604eed58241390491f4965a3424fbc2e3682304688b0e2c73406817516e00d",
+      "docs/benchmarks/t66f-phase-b/server.py": "4ee84e25e39ca19106059683a236912fac5a2367a5424e49f75856a09daa087f",
+      "docs/benchmarks/t66f-phase-b/summary.json": "e5bb4ce8632413648b4796c44405d0037d0c56e643e53bc39af1bff660b2040f",
+      "docs/benchmarks/t66f-phase-b/test_backend.py": "327d9e812c2ae62c63ed09215708d518ef4c646e90e1dedcbd41ee62c769ec26",
+      "docs/benchmarks/t66f-phase-b/test_crash.py": "77ffd87913b020dd7b983c1f5662cbb662875e14b9fd2c8495a4a97dac4afaf2",
+      "docs/benchmarks/t66f-phase-b/test_generation_cost.py": "ec35579186fb4bd81d66a72640823a49bff5214270a57c7ada5d20889d5b8f1c",
+      "docs/benchmarks/t66f-phase-b/test_http_concurrency.py": "4d034c999eead31349b1b2dc8950d9e806903db2b087bf32628a24401323c71d",
+      "docs/t66/c/t66c-delta-sync-protocol.md": "0c7b3cf523bdfd056ec82171d664ca2236df009eb7eec21c27a1fee0706ab24c",
+      "docs/t66e4-a01-correction.md": "5982a0a91bb6643c16700c480b471b9e8a482808199d9b7e1d1deb6698820228",
+      "docs/t66e4-a01-independent-reaudit.md": "c24e6a94bf8b512dd655fc6e2c99573fa4370d397841b8e479dda6115e7268af",
+      "docs/t66e4-independent-audit.md": "17034ea419de2fd4f827adc63c7958360e7880bbf013928653afc63f9d9b032f",
+      "docs/t66e4-ra01-correction.md": "4bb9fe28697741c6171419d7f02b4c22d4efdb5dcc22e2d5f6c68143e1df7dca",
+      "docs/t66f-phase-b-independent-verification.md": "36ab8141311f8cc7b9cc043ea59dd83e7ca424d5d99cf225a6eb79e016e4e024",
+      "mobile/lib/main.dart": "ee9f472e83a77e7e86c5ce544dca63e2770b35c57da9178aa00995f5832dc354",
+      "mobile/lib/src/ai_audit_report.dart": "5d8dfe8188e40bee9b790d53c5cff2e38d86a140de26ef1de59e940f387c027c",
+      "mobile/lib/src/api_client.dart": "2f5645a1e32971569862410aee0833c958bd65c7d8e44f0caba0d7551e91ae0b",
+      "mobile/lib/src/apk_download_controller.dart": "2cfc6987f9ef26646582c2af856d4a626928cf1e2634a8f32fb636110c36543b",
+      "mobile/lib/src/apk_download_service.dart": "7ad1e20de06fc4ba058cda79e56d7ce993e1a3618efab6a6d6a9ef1ae772caca",
+      "mobile/lib/src/apk_install_bridge.dart": "2d3874039bd4af9c86c70cdcde371c7e5987411524971059707d3228b80cac87",
+      "mobile/lib/src/app.dart": "5874a68ccc37ca4a12d3d267a84a5e6283864eb6a71f6899e6d64e5ed367b87e",
+      "mobile/lib/src/app_state.dart": "898773a78a965f3550d64bab03f068d9797795fdef347bed5a87253c8de6660a",
+      "mobile/lib/src/authoritative_bundle.dart": "d94e9733fa39fcaefe8fd99d1df7524460d1a55f08545d86d2e33c8d668088df",
+      "mobile/lib/src/authoritative_bundle_canonical.dart": "9ada1650a62333f77dad47cc075eca15ebec04bfe66a45d14b61590a148d8cf0",
+      "mobile/lib/src/authoritative_bundle_contract.dart": "e73247c7fa077f2a66b33f299d838572735da861554dd34b4553f59d2be086ff",
+      "mobile/lib/src/authoritative_bundle_validation.dart": "9c525d7f3b76a6b2358902c4078a465ab53fcee0b1f892f8f531ea49206df44d",
+      "mobile/lib/src/authoritative_snapshot_validation.dart": "70a5a94bbce914df1fcc46871f5531cbd156d3e45cda289415fc078132543ac3",
+      "mobile/lib/src/chatgpt_share_bridge.dart": "0a379b79f83eede70db340db04d5c66e7e1a5d9fb2637c6d73cd03240c892539",
+      "mobile/lib/src/coherent_refresh_coordinator.dart": "85cca7a72805c1355857691cc3bf5f3cdcb90dd554a82c02a65b8e0fbff3833a",
+      "mobile/lib/src/coherent_refresh_models.dart": "df4d4c0467968edbfa92aaae767490e858b4f02b1edea80607799f8b44f7a8da",
+      "mobile/lib/src/discount_default.dart": "645b6d0f320fdb30b70bd7d53d9e3cb21c1f0a19a0ce04b4699f015890d536b4",
+      "mobile/lib/src/formatters.dart": "d4c019c89780ed07e809407c20ae25cb090e8297b987bc043e90914682df490b",
+      "mobile/lib/src/generated/bundle_policy_manifest.dart": "3b2ceafe23e7802f241bc7b326324cd3adaabf9d9f96dd59fb709fde3e298b0a",
+      "mobile/lib/src/local_snapshot_repository.dart": "316c491e512873b500e5417a4b5dff4ebf8885d6a398d5a57cf63b2c28d25432",
+      "mobile/lib/src/models.dart": "d1872834092738195659eef810a1ec193fbb24e75cbd18d9c89717f7d7a83e87",
+      "mobile/lib/src/money.dart": "c98c980c11edeb773b91e5b368397175fde1ff30c24d1752968eae72ca99dce8",
+      "mobile/lib/src/mutation_contract.dart": "bfce833436045d4bba50df6b110e82606b2203f21ea90918f0f45ed65863e4a7",
+      "mobile/lib/src/notification_bridge.dart": "91bc7eb4b712a304ba6aee3c635b8e4d75caa39a9d02ad10e797c8e3ebae6230",
+      "mobile/lib/src/offline/offline_data.dart": "7c742732d687100e1183b4018b79a1e5b4827b78ed1a16ae84adbdd820c0e9ef",
+      "mobile/lib/src/offline/offline_lineage_validator.dart": "0e4f5db34a4257fc071f68652e46863f1565e42a32e72914bf785186e2e5b705",
+      "mobile/lib/src/offline/offline_projection.dart": "b1a855d88995e89867f2872ce0f70198e34da877015f9824c67ef8a9f54dc7d9",
+      "mobile/lib/src/offline/offline_store.dart": "a8d767e509881a1a8e9d3196d1fd955b1b4cf793a36f3ffd593b869b686bf8c2",
+      "mobile/lib/src/offline/online_write_state.dart": "97b87c50d436b188dfce89be77e9ec6a70630d99378d0e1ba1cbe9007606791f",
+      "mobile/lib/src/screens/ai_audit_sheet.dart": "22a8624994b82cc2f0a056b1bbf9f013c860b80adb7b80921ba2804a3d7d9c7e",
+      "mobile/lib/src/screens/cash_flow_screen.dart": "33a77a61fe16b71652bde25662c8303f4121d8dd1315641e5036ed0754c487c6",
+      "mobile/lib/src/screens/family_screen.dart": "aec121f2e02948468284936d57849e1895fd32ae3d232340ae08de075024535d",
+      "mobile/lib/src/screens/home_shell.dart": "e2e4b53496b9950f27666377c6fae7543021cbf770ad412f31d6196b8aa4b5d4",
+      "mobile/lib/src/screens/input_screen.dart": "0c7830d69dd1a439891b9174bdf287bbc88dbe3fe91626b2cee2b03e5dfeb17a",
+      "mobile/lib/src/screens/login_screen.dart": "ff9ee3e06c8750792d5195244ddb7db50f3e969b55f008cb46dd705b08877580",
+      "mobile/lib/src/screens/management_month_close.dart": "a2eff07900932e10c987e09e46607b800ca1880f2d06a873f780ad7615e6bc90",
+      "mobile/lib/src/screens/management_panel.dart": "75356d81f3b4a404221b42e4c22d7c12fe7872c816c96c27f6f67d4a09ca6faf",
+      "mobile/lib/src/screens/management_planned.dart": "4d74dc64b59bfb0fc1073a80ad969165f0886bedffb9a5f14e2d7f5b9801a218",
+      "mobile/lib/src/screens/management_screen.dart": "a27c68c2177133e1bec7751ef751fde0b0545d4befea1a65fdbf0a00a85e36ce",
+      "mobile/lib/src/screens/management_settings.dart": "8b87e1950d8de7db6bba3ed945d59785ea3de149c11110ad2f435b1f49528df8",
+      "mobile/lib/src/screens/month_entries_screen.dart": "f876b19c0872f533e226ab366ff45a8ce61fb0af568672aad9bdcd130cac5e81",
+      "mobile/lib/src/screens/notification_archive_screen.dart": "fd9f5ef4016c151285461414ce4e2a5a6c32d733cf244f33b37eae6ffaf93aa5",
+      "mobile/lib/src/screens/notification_import_screen.dart": "bc767c0efdaa1b2059672f4c1da8354700a0373486a4661f042f0b0d96d12f40",
+      "mobile/lib/src/screens/snapshot_manager_screen.dart": "29ce8c5acd5c959d9d235916128ba1a149a112236958ee7dd8351c70f31c27bd",
+      "mobile/lib/src/screens/status_screen.dart": "8017daff2c8f615c38d99e2784b1ea49df52a35584bd26c3c1a5a1b576efac69",
+      "mobile/lib/src/segmented/adapters.dart": "c78c3fe759175fb0eee6255b4a4ba2b7d4d980d7e2fb70c93e6520c606cb4bd2",
+      "mobile/lib/src/segmented/api_transport.dart": "8279f845bf5e29ccdaa84033fd2fdb601bd98c36124d0bc297c4b779db33855c",
+      "mobile/lib/src/segmented/c1.dart": "388c675265a2d0c6579b9a3819eb6a590d059c7667eec98e22641d6664551c46",
+      "mobile/lib/src/segmented/fetch.dart": "a1e6b4b549dcb5a11d5e0cabcb7806ff42eb831f4192c40b353a103698721253",
+      "mobile/lib/src/segmented/graph.dart": "4738e691fd8b75e41ab01ab408b50406787815bc8956bd6e38951f336fa3172e",
+      "mobile/lib/src/segmented/incremental_verification.dart": "eb2b4fd75765c353e528020508e99e9e606219183f55adc0dadf09ab2c192c29",
+      "mobile/lib/src/segmented/object.dart": "f170248a3d11ddc1ec093bc7de632da1200001ae25bf5c2a3e3d422485862a4a",
+      "mobile/lib/src/segmented/patricia_edit.dart": "42ae58dfc9ec5f56e86d7facce04789fb6c46657aee389a780c88c9301bac82a",
+      "mobile/lib/src/segmented/protocol.dart": "58f70712efd73899817e97d686ea7c326f77414a89da86cd7e07ac05816c606d",
+      "mobile/lib/src/segmented/store.dart": "d354c1282e9142850ff5074056cb7335c31a46c39e18af687afa951d52d66d6c",
+      "mobile/lib/src/segmented/store_frozen.dart": "b80520fffb69fa0e133b1ec09c89d23cff8061c20666d9a96baad5d09356db84",
+      "mobile/lib/src/segmented/store_publication.dart": "f415573f6e6af5a781994138b7ad0250f3551d5a96c70a6df17265f73e6f2089",
+      "mobile/lib/src/segmented/store_read.dart": "e6d25b2831d2c743008942b410d61e14eed78396d60474242f303876278c8519",
+      "mobile/lib/src/segmented/transport.dart": "39a1e2ba3ede2ad71e05bef15e3a49602701e72933cefba71f9738a15927efb8",
+      "mobile/lib/src/segmented/verification.dart": "aa0581cd37be442270dcbb9a9c4cf68e403e7360672a11a459bf2890dc23971d",
+      "mobile/lib/src/segmented/work.dart": "5ca35bf40db1d6b0d11426a5ef639c914def5e077caa929523fa56bf45aa39f6",
+      "mobile/lib/src/segmented/workspace.dart": "b4a0f36c5b67ee99e21ab70e70bcd3090b33efd8ae72bc34d035b4a44342f988",
+      "mobile/lib/src/theme.dart": "ae3c2eb1de3a6ab8ac7beda9f75ccb805200c99260058681be3eb30388a32074",
+      "mobile/lib/src/widgets/date_picker_row.dart": "677f979cb57a1f3a0d65c94eff3ea0a2f9dc113c434ae24244245b0496a6c19a",
+      "mobile/lib/src/widgets/money_card.dart": "d37069842f826ae4a841c317fe797fe60befb085fe5d70d34b3f3ef1d8ab02e6"
+    },
+    "changed": [],
+    "original_assertions_sha256": "4017c845031f7c016025f9e6241666c399e2910724175a1280793f21be83cbed",
+    "original_assertions_unchanged": true,
+    "original_test_sha256": "ddee07457cea3d99a830b367bb013abe8a6a2cb8474026aa27973ba8f218ade7",
+    "corrected_test_sha256": "a6e90a389ffa47c850d0c5551826680572085912943ab5d424e0229b0818202f"
+  }
+}

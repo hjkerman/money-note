@@ -22,7 +22,7 @@ from app import auth
 from isolated_sync.artifacts import release_bundle
 from isolated_sync.canonical import encode
 from isolated_sync.http import create_app
-from isolated_sync.observation import ObservationRepository
+from isolated_sync.observation import Limits as ObservationLimits, ObservationRepository
 from isolated_sync.observation_schema import ObservationSandbox
 from isolated_sync.raw import MONEY_SETTINGS, SENSITIVE, TABLES
 from isolated_sync.transfer import TransferLimits
@@ -487,7 +487,14 @@ def test_full_generation_http_reconstruction_oracle(db):
 
 
 def test_bounded_concurrent_quota_and_same_request_status(db):
-    c = client(db, limits=TransferLimits(concurrent_requests=8))
+    # This tests serialized quota admission, not the default one-second busy
+    # deadline. Five real creates plus their terminal lookups compete for the
+    # writer lock; use the same finite synthetic budget as the D3a quota race.
+    # Default busy/retry semantics are independently tested below and in B01.
+    repo = ObservationRepository(
+        db, clock=lambda: NOW, evaluation=lambda: EVAL, limits=ObservationLimits(lock_wait_ms=5000)
+    )
+    c = TestClient(create_app(repo, limits=TransferLimits(concurrent_requests=8)))
     barrier = Barrier(5)
     def create_one():
         barrier.wait(10)

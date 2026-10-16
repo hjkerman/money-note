@@ -1,0 +1,37 @@
+{
+  "ruff": {
+    "command": ".venv/bin/python -m ruff check backend/app backend/isolated_sync backend/tests docs/benchmarks/t66f-b01",
+    "exit": 0,
+    "seconds": 3.034
+  },
+  "compileall": {
+    "command": ".venv/bin/python -m compileall -q backend/app backend/isolated_sync backend/tests docs/benchmarks/t66f-b01",
+    "exit": 0,
+    "seconds": 1.975
+  },
+  "format_new": {
+    "command": ".venv/bin/python -m ruff format --check docs/benchmarks/t66f-b01",
+    "exit": 0,
+    "seconds": 3.656
+  },
+  "format_changed_range": {
+    "command": ".venv/bin/python -m ruff format --check --range=493-498 backend/tests/test_isolated_sync_transfer.py",
+    "exit": 0,
+    "seconds": 2.762
+  },
+  "diff_check": {
+    "command": "git diff --check",
+    "exit": 0,
+    "seconds": 2.502
+  },
+  "frontend_build": {
+    "command": "npm --prefix frontend run build",
+    "exit": 0,
+    "seconds": 7.777
+  },
+  "frontend_test": {
+    "command": "npm --prefix frontend test",
+    "exit": 0,
+    "seconds": 4.378
+  }
+}

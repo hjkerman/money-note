@@ -1,0 +1,13 @@
+{
+  "full_collection_test": {
+    "sha256": "12ad28f6e131b3201b9f394958b37980a21e269a320b382098b0d746aa0db866",
+    "ast_sha256": "ce7a4c4d32feb495303d660406763ddef87ad35a30a75b856e169bb28bdd99db"
+  },
+  "formatted_test": {
+    "sha256": "a6e90a389ffa47c850d0c5551826680572085912943ab5d424e0229b0818202f",
+    "ast_sha256": "ce7a4c4d32feb495303d660406763ddef87ad35a30a75b856e169bb28bdd99db"
+  },
+  "ast_unchanged": true,
+  "original_assertions": "unchanged",
+  "note": "Only quota setup statement formatting; original assertions preserved byte-for-byte."
+}
