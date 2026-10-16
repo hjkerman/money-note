@@ -1,0 +1,1119 @@
+{
+  "integration": {
+    "counts": {
+      "PASS": 33
+    },
+    "done_success": true,
+    "files": {
+      "integration_test.dart": {
+        "PASS": 33
+      }
+    },
+    "errors": [],
+    "log_sha256": "c8ff9784cd699911873a6e5e9a1301d41e079949fdbfc108554c4bf408c1adab"
+  },
+  "independent_cost": {
+    "counts": {
+      "PASS": 2
+    },
+    "done_success": true,
+    "files": {
+      "cost_test.dart": {
+        "PASS": 2
+      }
+    },
+    "errors": [],
+    "log_sha256": "b3a11db5a5f3919c9c89cae943c9ecf96ab07203e26238908aa3857fb03aaf11"
+  },
+  "flutter_first": {
+    "counts": {
+      "PASS": 1501,
+      "SKIP": 2,
+      "FAIL": 2
+    },
+    "done_success": false,
+    "files": {
+      "coherent_get_dag_test.dart": {
+        "PASS": 91
+      },
+      "segmented_adapter_isolation_test.dart": {
+        "PASS": 23
+      },
+      "authoritative_acquisition_test.dart": {
+        "PASS": 57
+      },
+      "segmented_e4_provenance_test.dart": {
+        "PASS": 11
+      },
+      "segmented_e4_handoff_test.dart": {
+        "PASS": 35
+      },
+      "segmented_publication_crash_test.dart": {
+        "PASS": 16
+      },
+      "t66a_payload_test.dart": {
+        "SKIP": 2
+      },
+      "offline_persistence_test.dart": {
+        "PASS": 9
+      },
+      "local_snapshot_repository_test.dart": {
+        "PASS": 7
+      },
+      "notification_models_test.dart": {
+        "PASS": 2
+      },
+      "offline_notification_identity_test.dart": {
+        "PASS": 5
+      },
+      "notification_registration_test.dart": {
+        "PASS": 11
+      },
+      "utility_discount_default_test.dart": {
+        "PASS": 1
+      },
+      "segmented_e4_ra01_test.dart": {
+        "PASS": 42
+      },
+      "segmented_i25_baseline_test.dart": {
+        "PASS": 1
+      },
+      "offline_state_projection_test.dart": {
+        "PASS": 18
+      },
+      "segmented_acquisition_store_test.dart": {
+        "PASS": 14
+      },
+      "authoritative_money_compatibility_test.dart": {
+        "PASS": 183
+      },
+      "authoritative_bundle_boundary_matrix_test.dart": {
+        "PASS": 1
+      },
+      "app_state_test.dart": {
+        "PASS": 3
+      },
+      "segmented_incremental_verification_test.dart": {
+        "PASS": 6
+      },
+      "segmented_authority_test.dart": {
+        "PASS": 19
+      },
+      "segmented_adapter_crash_test.dart": {
+        "PASS": 4
+      },
+      "segmented_transport_test.dart": {
+        "PASS": 30
+      },
+      "authoritative_bundle_test.dart": {
+        "PASS": 27
+      },
+      "segmented_protocol_test.dart": {
+        "PASS": 58
+      },
+      "offline_lineage_recovery_test.dart": {
+        "PASS": 8
+      },
+      "formatters_test.dart": {
+        "PASS": 2
+      },
+      "authoritative_bundle_trust_boundary_test.dart": {
+        "PASS": 47
+      },
+      "segmented_crash_test.dart": {
+        "PASS": 7
+      },
+      "segmented_e4_handoff_crash_test.dart": {
+        "PASS": 11,
+        "FAIL": 2
+      },
+      "segmented_root_pin_model_test.dart": {
+        "PASS": 2
+      },
+      "notification_discount_policy_test.dart": {
+        "PASS": 17
+      },
+      "segmented_e4_frozen_test.dart": {
+        "PASS": 19
+      },
+      "segmented_e4_a01_test.dart": {
+        "PASS": 21
+      },
+      "segmented_publication_test.dart": {
+        "PASS": 36
+      },
+      "segmented_fetch_crash_test.dart": {
+        "PASS": 3
+      },
+      "segmented_adapter_authority_test.dart": {
+        "PASS": 16
+      },
+      "authoritative_bundle_canonical_test.dart": {
+        "PASS": 90
+      },
+      "authoritative_bundle_admission_test.dart": {
+        "PASS": 26
+      },
+      "offline_refresh_test.dart": {
+        "PASS": 27
+      },
+      "apk_download_controller_test.dart": {
+        "PASS": 1
+      },
+      "segmented_money_correction_test.dart": {
+        "PASS": 166
+      },
+      "offline_reconciliation_test.dart": {
+        "PASS": 14
+      },
+      "segmented_store_test.dart": {
+        "PASS": 31
+      },
+      "segmented_adapters_test.dart": {
+        "PASS": 42
+      },
+      "offline_widget_submit_test.dart": {
+        "PASS": 13
+      },
+      "authoritative_bundle_unicode_test.dart": {
+        "PASS": 11
+      },
+      "segmented_http_integration_test.dart": {
+        "PASS": 5
+      },
+      "exact_money_domain_test.dart": {
+        "PASS": 5
+      },
+      "freeze_reaudit_outcome_test.dart": {
+        "PASS": 11
+      },
+      "segmented_i25_publication_test.dart": {
+        "PASS": 30
+      },
+      "segmented_diff_integration_test.dart": {
+        "PASS": 1
+      },
+      "submit_latency_diagnostic_test.dart": {
+        "PASS": 3
+      },
+      "family_screen_test.dart": {
+        "PASS": 5
+      },
+      "segmented_fetch_test.dart": {
+        "PASS": 72
+      },
+      "segmented_response_cleanup_test.dart": {
+        "PASS": 13
+      },
+      "date_picker_row_test.dart": {
+        "PASS": 1
+      },
+      "recurring_series_widget_test.dart": {
+        "PASS": 6
+      },
+      "authoritative_rebuild_pending_test.dart": {
+        "PASS": 11
+      },
+      "segmented_schema_correction_test.dart": {
+        "PASS": 45
+      },
+      "ai_audit_report_test.dart": {
+        "PASS": 9
+      }
+    },
+    "errors": [
+      {
+        "name": "T01/T02 actual SIGKILL after_frozen_prepare preserves complete B/pins/pending and fresh recovery",
+        "error": "owned E4 child barrier timeout: "
+      },
+      {
+        "name": "T01/T02 actual SIGKILL after_source_prepare preserves complete B/pins/pending and fresh recovery",
+        "error": "owned E4 child barrier timeout: "
+      }
+    ],
+    "log_sha256": "f0b57741f5e1c44253e8dd52d4183fb9d280bfbbf67e0b1b84867b6cb96b0dae"
+  },
+  "flutter_final": {
+    "counts": {
+      "PASS": 1503,
+      "SKIP": 2
+    },
+    "done_success": true,
+    "files": {
+      "coherent_get_dag_test.dart": {
+        "PASS": 91
+      },
+      "segmented_adapter_isolation_test.dart": {
+        "PASS": 23
+      },
+      "authoritative_acquisition_test.dart": {
+        "PASS": 57
+      },
+      "segmented_e4_provenance_test.dart": {
+        "PASS": 11
+      },
+      "segmented_e4_handoff_test.dart": {
+        "PASS": 35
+      },
+      "segmented_publication_crash_test.dart": {
+        "PASS": 16
+      },
+      "t66a_payload_test.dart": {
+        "SKIP": 2
+      },
+      "offline_persistence_test.dart": {
+        "PASS": 9
+      },
+      "local_snapshot_repository_test.dart": {
+        "PASS": 7
+      },
+      "notification_models_test.dart": {
+        "PASS": 2
+      },
+      "offline_notification_identity_test.dart": {
+        "PASS": 5
+      },
+      "notification_registration_test.dart": {
+        "PASS": 11
+      },
+      "utility_discount_default_test.dart": {
+        "PASS": 1
+      },
+      "segmented_e4_ra01_test.dart": {
+        "PASS": 42
+      },
+      "segmented_i25_baseline_test.dart": {
+        "PASS": 1
+      },
+      "offline_state_projection_test.dart": {
+        "PASS": 18
+      },
+      "segmented_acquisition_store_test.dart": {
+        "PASS": 14
+      },
+      "authoritative_money_compatibility_test.dart": {
+        "PASS": 183
+      },
+      "authoritative_bundle_boundary_matrix_test.dart": {
+        "PASS": 1
+      },
+      "app_state_test.dart": {
+        "PASS": 3
+      },
+      "segmented_incremental_verification_test.dart": {
+        "PASS": 6
+      },
+      "segmented_authority_test.dart": {
+        "PASS": 19
+      },
+      "segmented_adapter_crash_test.dart": {
+        "PASS": 4
+      },
+      "segmented_transport_test.dart": {
+        "PASS": 30
+      },
+      "authoritative_bundle_test.dart": {
+        "PASS": 27
+      },
+      "segmented_protocol_test.dart": {
+        "PASS": 58
+      },
+      "offline_lineage_recovery_test.dart": {
+        "PASS": 8
+      },
+      "formatters_test.dart": {
+        "PASS": 2
+      },
+      "authoritative_bundle_trust_boundary_test.dart": {
+        "PASS": 47
+      },
+      "segmented_crash_test.dart": {
+        "PASS": 7
+      },
+      "segmented_e4_handoff_crash_test.dart": {
+        "PASS": 13
+      },
+      "segmented_root_pin_model_test.dart": {
+        "PASS": 2
+      },
+      "notification_discount_policy_test.dart": {
+        "PASS": 17
+      },
+      "segmented_e4_frozen_test.dart": {
+        "PASS": 19
+      },
+      "segmented_e4_a01_test.dart": {
+        "PASS": 21
+      },
+      "segmented_publication_test.dart": {
+        "PASS": 36
+      },
+      "segmented_fetch_crash_test.dart": {
+        "PASS": 3
+      },
+      "segmented_adapter_authority_test.dart": {
+        "PASS": 16
+      },
+      "authoritative_bundle_canonical_test.dart": {
+        "PASS": 90
+      },
+      "authoritative_bundle_admission_test.dart": {
+        "PASS": 26
+      },
+      "offline_refresh_test.dart": {
+        "PASS": 27
+      },
+      "apk_download_controller_test.dart": {
+        "PASS": 1
+      },
+      "segmented_money_correction_test.dart": {
+        "PASS": 166
+      },
+      "offline_reconciliation_test.dart": {
+        "PASS": 14
+      },
+      "segmented_store_test.dart": {
+        "PASS": 31
+      },
+      "segmented_adapters_test.dart": {
+        "PASS": 42
+      },
+      "offline_widget_submit_test.dart": {
+        "PASS": 13
+      },
+      "authoritative_bundle_unicode_test.dart": {
+        "PASS": 11
+      },
+      "segmented_http_integration_test.dart": {
+        "PASS": 5
+      },
+      "exact_money_domain_test.dart": {
+        "PASS": 5
+      },
+      "freeze_reaudit_outcome_test.dart": {
+        "PASS": 11
+      },
+      "segmented_i25_publication_test.dart": {
+        "PASS": 30
+      },
+      "segmented_diff_integration_test.dart": {
+        "PASS": 1
+      },
+      "submit_latency_diagnostic_test.dart": {
+        "PASS": 3
+      },
+      "family_screen_test.dart": {
+        "PASS": 5
+      },
+      "segmented_fetch_test.dart": {
+        "PASS": 72
+      },
+      "segmented_response_cleanup_test.dart": {
+        "PASS": 13
+      },
+      "date_picker_row_test.dart": {
+        "PASS": 1
+      },
+      "recurring_series_widget_test.dart": {
+        "PASS": 6
+      },
+      "authoritative_rebuild_pending_test.dart": {
+        "PASS": 11
+      },
+      "segmented_schema_correction_test.dart": {
+        "PASS": 45
+      },
+      "ai_audit_report_test.dart": {
+        "PASS": 9
+      }
+    },
+    "errors": [],
+    "log_sha256": "886d3cd68044d6df809fda80e3c93d332ea2c8ec8f34009ecee1fe4024771668"
+  },
+  "previous_targeted": {
+    "counts": {
+      "PASS": 42
+    },
+    "done_success": true,
+    "files": {
+      "independent_test.dart": {
+        "PASS": 36
+      },
+      "provenance_test.dart": {
+        "PASS": 6
+      }
+    },
+    "errors": [],
+    "log_sha256": "cf5e9712e17e735dff33c7f289ca6d8cb762eb841261cebe323d725daa69f82b"
+  },
+  "phase_a_dart": {
+    "counts": {
+      "PASS": 36
+    },
+    "done_success": true,
+    "files": {
+      "independent_test.dart": {
+        "PASS": 35
+      },
+      "stale_recovery_test.dart": {
+        "PASS": 1
+      }
+    },
+    "errors": [],
+    "log_sha256": "c94aa39da20fe8bf154c724862a63392e9fd8b8d6db0fc1c7c4022b4bce042b7"
+  },
+  "a01_concurrent": {
+    "counts": {
+      "PASS": 1
+    },
+    "done_success": true,
+    "files": {
+      "concurrent_recovery_test.dart": {
+        "PASS": 1
+      }
+    },
+    "errors": [],
+    "log_sha256": "a9a0152d32081e4647e68bb5a9b3c707e2a9f6bba6155fdcc2ddeb4d0e911edf"
+  },
+  "p0_integration": {
+    "counts": {
+      "PASS": 18
+    },
+    "done_success": true,
+    "files": {
+      "integration_test.dart": {
+        "PASS": 18
+      }
+    },
+    "errors": [],
+    "log_sha256": "e0d6b4fd9b6f729acff3e2b3e4b6e1d3d78753828395e8516244bdf6bd57ec0b"
+  },
+  "original_phase_a_cost": {
+    "counts": {
+      "PASS": 2
+    },
+    "done_success": true,
+    "files": {
+      "cost_test.dart": {
+        "PASS": 2
+      }
+    },
+    "errors": [],
+    "log_sha256": "a8b3893ee85603c83a14bf0706e1b6509111e9db8ad286e09ad913a7c9880af8"
+  },
+  "previous_ra01_cost": {
+    "counts": {
+      "PASS": 4
+    },
+    "done_success": true,
+    "files": {
+      "cost_test.dart": {
+        "PASS": 4
+      }
+    },
+    "errors": [],
+    "log_sha256": "a67f65ab9608ff564e740fb350cf4f08ea9a96bdd1fbb5bfa0325b5c9a137bcf"
+  },
+  "new_backend": {
+    "tests": 6,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 9.451,
+    "failure_evidence": [],
+    "xml_sha256": "f2acfe0e221e2685adf8eed1be628ca8ebd942b83844214f564f13f96d917316"
+  },
+  "new_crash": {
+    "tests": 4,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 616.909,
+    "failure_evidence": [],
+    "xml_sha256": "c23dcee1c95c0480c15d36a71f80b88c3bfc915e5c5406fce8f0da01077e1ea1"
+  },
+  "new_http_concurrency": {
+    "tests": 2,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 6.652,
+    "failure_evidence": [],
+    "xml_sha256": "4b382e1ed28960aac7005accbaf166e90b3df1aebc715a665f15a618e133967b"
+  },
+  "new_generation_cost": {
+    "tests": 2,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 11.476,
+    "failure_evidence": [],
+    "xml_sha256": "022176c818f12c6905343785dc571eed2cb5c4a43de970d8bd271c86b40b633f"
+  },
+  "backend_first": {
+    "tests": 2855,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 2300.278,
+    "failure_evidence": [
+      {
+        "name": "test_bounded_concurrent_quota_and_same_request_status",
+        "evidence": "db = <isolated_sync.observation_schema.ObservationSandbox object at 0x779cb2da6750>\n\n    def test_bounded_concurrent_quota_and_same_request_status(db):\n        c = client(db, limits=TransferLimits(concurrent_requests=8))\n        barrier = Barrier(5)\n        def create_one():\n            barrier.wait(10)\n            return observe(c)\n        with ThreadPoolExecutor(5) as pool:\n            results = list(pool.map(lambda _: create_one(), range(5)))\n>       assert sorted(r.status_code for r in results) == [201]*4+[429]\nE       assert [201, 201, 201, 201, 503] == [201, 201, 201, 201, 429]\nE         \nE         At index 4 diff: 503 != 429\nE         Use -v to get more diff\n\ntests/test_isolated_sync_transfer.py:497: AssertionError"
+      }
+    ],
+    "xml_sha256": "53ccba913b38d0de045ce588e8024f10a5d74c6cbec1fcd89a3d5d4dfdc12843",
+    "main_tests": {
+      "FAIL": 1,
+      "PASS": 1314
+    },
+    "subtests_passed": 1540
+  },
+  "backend_focused": {
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 3.961,
+    "failure_evidence": [],
+    "xml_sha256": "420f951a3809b86b06bc9297bba54f9e36b8d413c99cb183782626183b337217"
+  },
+  "backend_final": {
+    "tests": 2855,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 1877.878,
+    "failure_evidence": [
+      {
+        "name": "test_bounded_concurrent_quota_and_same_request_status",
+        "evidence": "db = <isolated_sync.observation_schema.ObservationSandbox object at 0x7e7ca5017ec0>\n\n    def test_bounded_concurrent_quota_and_same_request_status(db):\n        c = client(db, limits=TransferLimits(concurrent_requests=8))\n        barrier = Barrier(5)\n        def create_one():\n            barrier.wait(10)\n            return observe(c)\n        with ThreadPoolExecutor(5) as pool:\n            results = list(pool.map(lambda _: create_one(), range(5)))\n>       assert sorted(r.status_code for r in results) == [201]*4+[429]\nE       assert [201, 201, 201, 201, 503] == [201, 201, 201, 201, 429]\nE         \nE         At index 4 diff: 503 != 429\nE         Use -v to get more diff\n\ntests/test_isolated_sync_transfer.py:497: AssertionError"
+      }
+    ],
+    "xml_sha256": "4e3787b1a97e88a294d63774cc496757eb28bbb13aefbd710b129161620b0099",
+    "main_tests": {
+      "FAIL": 1,
+      "PASS": 1314
+    },
+    "subtests_passed": 1540
+  },
+  "backend_identity_original": {
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 8.673,
+    "failure_evidence": [],
+    "xml_sha256": "7547f08c85eee99f3928841fabfb4b5088d761e9a157bbce4296477c534da2f1"
+  },
+  "e2_independent": {
+    "tests": 9,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 53.044,
+    "failure_evidence": [],
+    "xml_sha256": "95806c833e2f36f2ae11d9841e9e8046dc0f5d9abcd76a829ec05b922d923607"
+  },
+  "scripts": {
+    "tests": 27,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 0.87,
+    "failure_evidence": [],
+    "xml_sha256": "87be017bb99826d9ffdea41f43a337e67ea25a35c7ddfb12edb5e96583dc63cc"
+  },
+  "phase_a_crash": {
+    "tests": 6,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 608.017,
+    "failure_evidence": [],
+    "xml_sha256": "a69d954728167db9499450c5125b37947c638bb22313dcc42bf2f6f5b11d38b5"
+  },
+  "a01_crash": {
+    "tests": 6,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 637.7,
+    "failure_evidence": [],
+    "xml_sha256": "da681e1ebb9723062714d8f03f239c55478ba9335ff3e492576cd4076d929619"
+  },
+  "ra01_crash": {
+    "tests": 7,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 986.243,
+    "failure_evidence": [],
+    "xml_sha256": "5acd838285aee347ab491b2f45595b45e5487e7f02ef81e833e947d3ba63ce65"
+  },
+  "e2_cleanup": {
+    "tests": 5,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 8.605,
+    "failure_evidence": [],
+    "xml_sha256": "37cc4c8f45605128c4b476caf0a5cfa5465ae83ff8a5af89b879b082c2a69f40"
+  },
+  "p0_replay": {
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 5.946,
+    "failure_evidence": [],
+    "xml_sha256": "6ae6a1cb138a59ae757a621d9ff60ce9e50bc78ba15b33c8f7dd3809233ea3bd"
+  },
+  "new_independent_counts": {
+    "PASS": 49
+  },
+  "actual_new_sigkill_cases": 7,
+  "exits": {
+    "additional-integration-2": "1",
+    "additional-integration": "1",
+    "analyze": "0",
+    "backend-focused": "0",
+    "backend-full": "1",
+    "backend-identity-original": "0",
+    "backend-rerun": "1",
+    "build": "0",
+    "collect": "0",
+    "compileall-final": "0",
+    "compileall": "0",
+    "cost-driver": "0",
+    "cost-final-driver": "0",
+    "diff-check": "0",
+    "e2-independent": "0",
+    "first-flow-2": "1",
+    "first-flow": "1",
+    "flutter-full": "1",
+    "flutter-rerun": "0",
+    "format-changed": "0",
+    "format-repository": "1",
+    "frontend-build": "0",
+    "frontend-test": "0",
+    "generation-cost-final": "0",
+    "generation-cost": "0",
+    "historical-five": "0",
+    "history-preservation": "0",
+    "integration-campaign": "0",
+    "integration-complete": "1",
+    "integration-final-valid": "1",
+    "integration-final": "1",
+    "integration-verified": "1",
+    "integration": "1",
+    "new-backend": "0",
+    "new-crash-2": "0",
+    "new-crash-final": "0",
+    "new-crash": "1",
+    "new-http-concurrency": "0",
+    "original-phase-a-cost": "0",
+    "previous-ra01-cost": "0",
+    "previous-regressions": "0",
+    "previous-targeted-dart": "0",
+    "principal-capability": "1",
+    "provenance-resume-truncation": "0",
+    "real-epoch-final": "0",
+    "real-epoch": "1",
+    "ruff-final": "0",
+    "ruff": "0",
+    "schema-quota": "0",
+    "scripts": "0"
+  },
+  "all_recorded_sources_unchanged": true,
+  "tracked_diff": "docs/benchmarks/t66f-phase-b/collect.py\ndocs/t66f-phase-b-independent-verification.md",
+  "product_diff_since_audited_product": "",
+  "phase_b_verdict": "INCONCLUSIVE",
+  "reason": "필수 backend 전체 회귀가 두 번 같은 concurrency assertion에서 실패했다. 단독 PASS와 허용된 503 semantics만으로 원인을 확정하거나 gate를 통과시킬 수 없다.",
+  "confirmed_new_product_correctness_blockers": 0,
+  "binding_t66f_exit": "NOT SATISFIED",
+  "remaining_upper_gates": [
+    "R1",
+    "§35 전체 scaling/compression grid",
+    "§26 실제 Android durability 증명"
+  ],
+  "static_checks": {
+    "format-changed": {
+      "command": [
+        "/home/hjkerman/.flutter/bin/dart",
+        "format",
+        "--output=none",
+        "--set-exit-if-changed",
+        "docs/benchmarks/t66f-phase-b/cost_test.dart",
+        "docs/benchmarks/t66f-phase-b/crash_child_test.dart",
+        "docs/benchmarks/t66f-phase-b/fresh_test.dart",
+        "docs/benchmarks/t66f-phase-b/harness.dart",
+        "docs/benchmarks/t66f-phase-b/integration_test.dart"
+      ],
+      "exit": 0,
+      "seconds": 0.21499870700063184
+    },
+    "ruff-final": {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "backend/app",
+        "backend/tests",
+        "scripts/local_deploy.py",
+        "scripts/tests",
+        "docs/benchmarks/t66f-phase-b"
+      ],
+      "exit": 0,
+      "seconds": 0.0645150970085524
+    },
+    "compileall-final": {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "compileall",
+        "-q",
+        "backend/app",
+        "backend/isolated_sync",
+        "backend/tests",
+        "scripts",
+        "docs/benchmarks/t66f-phase-b"
+      ],
+      "exit": 0,
+      "seconds": 0.11453990201698616
+    },
+    "diff-check": {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 0.008103335974738002
+    },
+    "historical-five": {
+      "command": [
+        "sha256sum",
+        "-c",
+        "docs/benchmarks/t66e4-p0/preserved-history.sha256"
+      ],
+      "exit": 0,
+      "seconds": 0.004051988013088703
+    }
+  },
+  "format_baseline": {
+    "reported_differences": 10,
+    "paths": [
+      "lib/src/apk_install_bridge.dart",
+      "lib/src/screens/home_shell.dart",
+      "lib/src/screens/management_month_close.dart",
+      "lib/src/screens/management_settings.dart",
+      "lib/src/screens/month_entries_screen.dart",
+      "lib/src/screens/snapshot_manager_screen.dart",
+      "test/date_picker_row_test.dart",
+      "test/offline_notification_identity_test.dart",
+      "test/offline_persistence_test.dart",
+      "test/offline_reconciliation_test.dart"
+    ],
+    "product_paths_modified": false,
+    "explanation": "full-repository --output=none가 찾은 10개 기존 파일은 감사 diff 밖이며 실제 수정하지 않았다."
+  },
+  "initial_harness_attempts": {
+    "initial_http_binding": {
+      "counts": {
+        "FAIL": 1
+      },
+      "done_success": false,
+      "files": {
+        "integration_test.dart": {
+          "FAIL": 1
+        }
+      },
+      "errors": [
+        {
+          "name": "FB01 real TLS cold → identical → localized → split → delete → later delta",
+          "error": "AcquisitionFailure(REPRESENTATION_INVALID,blocked)"
+        }
+      ],
+      "log_sha256": "c1701f260dd791a2cf05fb91ff04e19ae960894e52836a32b050cf0cad5ae00b"
+    },
+    "initial_workspace_path": {
+      "counts": {
+        "FAIL": 1
+      },
+      "done_success": false,
+      "files": {
+        "integration_test.dart": {
+          "FAIL": 1
+        }
+      },
+      "errors": [
+        {
+          "name": "FB01 real TLS cold → identical → localized → split → delete → later delta",
+          "error": "Bad state: fresh process failed: [, {\"success\":false,\"type\":\"done\",\"time\":17528}, {\"testID\":3,\"result\":\"error\",\"skipped\":false,\"hidden\":false,\"type\":\"testDone\",\"time\":17490}, {\"testID\":3,\"error\":\"PathNotFoundException: Cannot open file, path = '/tmp/mn-phase-b-TRNXYM/e4-source.json' (OS Error: No such file or directory, errno = 2)\",\"stackTrace\":\"dart:io                                                _File.readAsStringSync\\n../docs/benchmarks/t66f-phase-b/fresh_test.dart 38:49  main.<fn>\\n\",\"isFailure\":false,\"type\":\"error\",\"time\":17490}, {\"test\":{\"id\":3,\"name\":\"FB fresh-process accepted and Frozen-B recovery\",\"suiteID\":0,\"groupIDs\":[2],\"metadata\":{\"skip\":false,\"skipReason\":null},\"line\":11,\"column\":3,\"url\":\"file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-phase-b/fresh_test.dart\"},\"type\":\"testStart\",\"time\":12807}, {\"group\":{\"id\":2,\"suiteID\":0,\"parentID\":null,\"name\":\"\",\"metadata\":{\"skip\":false,\"skipReason\":null},\"testCount\":1,\"line\":null,\"column\":null,\"url\":null},\"type\":\"group\",\"time\":12806}, {\"testID\":1,\"result\":\"success\",\"skipped\":false,\"hidden\":true,\"type\":\"testDone\",\"time\":12803}, [{\"event\":\"test.startedProcess\",\"params\":{\"vmServiceUri\":null}}]]"
+        }
+      ],
+      "log_sha256": "ec0b6464c13d570285fdd2f39f6392c84d1cf80b6839d55c6dff8c06d62dca1c"
+    },
+    "initial_import": {
+      "counts": {
+        "FAIL": 1
+      },
+      "done_success": false,
+      "files": {
+        "integration_test.dart": {
+          "FAIL": 1
+        }
+      },
+      "errors": [
+        {
+          "name": "loading /home/hjkerman/codex/money-note/docs/benchmarks/t66f-phase-b/integration_test.dart",
+          "error": "Failed to load \"/home/hjkerman/codex/money-note/docs/benchmarks/t66f-phase-b/integration_test.dart\":\nCompilation failed for testPath=/home/hjkerman/codex/money-note/docs/benchmarks/t66f-phase-b/integration_test.dart: ../docs/benchmarks/t66f-phase-b/integration_test.dart:249:48: Error: Can't find ')' to match '('.\n      final prepared = Map<String,dynamic>.from(h.workspace.prepareSegmentedSource(\n                                               ^\n../docs/benchmarks/t66f-phase-b/integration_test.dart:287:14: Error: Can't find '}' to match '{'.\n    () async {\n             ^\n../docs/benchmarks/t66f-phase-b/integration_test.dart:340:6: Error: Expected a declaration, but got ','.\n    },\n     ^\n../docs/benchmarks/t66f-phase-b/integration_test.dart:341:3: Error: Expected a declaration, but got ')'.\n  );\n  ^\n../docs/benchmarks/t66f-phase-b/integration_test.dart:341:4: Error: Unexpected token ';'.\n  );\n   ^\n../docs/benchmarks/t66f-phase-b/integration_test.dart:343:3: Error: 'for' can't be used as an identifier because it's a keyword.\nTry renaming this to be an identifier that isn't a keyword.\n  for (final mode in [\n  ^^^\n../docs/benchmarks/t66f-phase-b/integration_test.dart:343:8: Error: Can't have modifier 'final' here.\nTry removing 'final'.\n  for (final mode in [\n       ^^^^^\n../docs/benchmarks/t66f-phase-b/integration_test.dart:343:19: Error: Expected ')' before this.\n  for (final mode in [\n                  ^^\n../docs/benchmarks/t66f-phase-b/integration_test.dart:390:3: Error: 'for' can't be used as an identifier because it's a keyword.\nTry renaming this to be an identifier that isn't a keyword.\n  for (final change in [\n  ^^^\n../docs/benchmarks/t66f-phase-b/integration_test.dart:390:8: Error: Can't have modifier 'final' here.\nTry removing 'final'.\n  for (final change in [\n       ^^^^^\n../docs/benchmarks/t66f-phase-b/integration_test.dart:390:21: Error: Expected ')' before this.\n  for (final change in [\n                    ^^\n../docs/benchmarks/t66f-phase-b/integration_test.dart:437:5: Error: Expected an identifier, but got ''FB06 partial real transfer canceled then resumed with fresh authorization''.\nTry inserting an identifier before ''FB06 partial real transfer canceled then resumed with fresh authorization''.\n    'FB06 partial real transfer canceled then resumed with fresh authorization',\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+        }
+      ],
+      "log_sha256": "9631050ab5d8377663ebd7fcc57469ef853290d4fd203a60a83cb34c39bff550"
+    },
+    "initial_installed_source_fixture": {
+      "counts": {
+        "PASS": 30,
+        "FAIL": 1
+      },
+      "done_success": false,
+      "files": {
+        "integration_test.dart": {
+          "PASS": 30,
+          "FAIL": 1
+        }
+      },
+      "errors": [
+        {
+          "name": "FB04 RA01 required predecessor rejection preserves a valid Frozen source",
+          "error": "Expected: <Instance of 'SegmentedException'> with `code`: 'SOURCE_PROVENANCE_REQUIRED'\n  Actual: <null>\n   Which: is not an instance of 'SegmentedException'\n"
+        }
+      ],
+      "log_sha256": "c4428727c51ad4007311dc261fb1636475571a4065536c9d2454a4a2adb16e5a"
+    },
+    "explicit_epoch_status_fixture": {
+      "counts": {
+        "FAIL": 1
+      },
+      "done_success": false,
+      "files": {
+        "integration_test.dart": {
+          "FAIL": 1
+        }
+      },
+      "errors": [
+        {
+          "name": "FB19 real backend epoch rotation rejects new-context installation and preserves old Frozen B",
+          "error": "Expected: <410>\n  Actual: <409>\n"
+        }
+      ],
+      "log_sha256": "de0ba0a8d8a137a1b5b0cebe5ba356993ad17a0cd3afc6beca83d3dd34581d61"
+    }
+  },
+  "text_log_preservation": [
+    {
+      "file": "evidence/backend-full.log",
+      "original_sha256": "3924149cf5bc6d3f8451ffef454545f55f15266ef054f80f11b386dbe18aa41b",
+      "persisted_sha256": "9cb32b49a3af7323f2be692d3a4fecbffe4fd63d956368c8833f189118a0fac8",
+      "normalization": "행 끝 공백만 제거; 원문 SHA 보존, assertion과 실패 내용은 변경하지 않음"
+    },
+    {
+      "file": "evidence/backend-rerun.log",
+      "original_sha256": "ae9100b68aa7e9e72d40b702abc846cac94bc38e5ca2297687c6675f0b002120",
+      "persisted_sha256": "5f6a85aa96ff32c72cce30663cfcd8707ae80ed55a0b84fc9805e33d89732a4a",
+      "normalization": "행 끝 공백만 제거; 원문 SHA 보존, assertion과 실패 내용은 변경하지 않음"
+    },
+    {
+      "file": "evidence/format-repository.log",
+      "original_sha256": "37632ba6b142152d58cb7fc33ce504959f07ec265fe4e370ad964132f6b1ce60",
+      "persisted_sha256": "37632ba6b142152d58cb7fc33ce504959f07ec265fe4e370ad964132f6b1ce60",
+      "normalization": "행 끝 공백만 제거; 원문 SHA 보존, assertion과 실패 내용은 변경하지 않음"
+    }
+  ],
+  "evidence_manifest": [
+    {
+      "file": "evidence/integration-campaign.json",
+      "original_bytes": 3787761,
+      "original_sha256": "e979df82a05962f4dcf917e1280b4fa40493f49718ccdf57eabaa06f949e79cf",
+      "persisted_sha256": "899eaf4442aefe7ded7b4e38edd7f1d2a2fbc5cd7ea4f0fbc471683a8752f814"
+    },
+    {
+      "file": "evidence/cost-final__cost.json",
+      "original_bytes": 970114,
+      "original_sha256": "b302cc044c183602c768e5c76f0ec04a84c1b5935aaa2129185ffe4b1d80bcf6",
+      "persisted_sha256": "28c3e0e1523eef5dbf0950c81957fb7e75490bb54ca5583b07085c5ff5119385"
+    },
+    {
+      "file": "evidence/history-preservation.json",
+      "original_bytes": 126,
+      "original_sha256": "0a086bdf08c20feafd395aea8c496c544ca7133deea53209c5d7cf07c3fa1129",
+      "persisted_sha256": "a086e9f9c8c0768e6da69a2509713fc1060067aac5bced6108720b58dfa58f1d"
+    },
+    {
+      "file": "evidence/environment.json",
+      "original_bytes": 241,
+      "original_sha256": "69eeda37161a3afb9639cdfe3c92b4bb471680afb0112da17181f989811a7132",
+      "persisted_sha256": "60e399da0745dc06b9a9614ab13f67c897ab5c3f3ddb4e10b09ea7f7cdf875e8"
+    },
+    {
+      "file": "evidence/final-checks.json",
+      "original_bytes": 1428,
+      "original_sha256": "a021e0a9d85dc2fd0080dbadc764868970b749c933ccc4691a59ac43df0a6279",
+      "persisted_sha256": "58255e72afdf37e52d0710feec0fc1c4212832085a6c2bce307c884b3cf339ae"
+    },
+    {
+      "file": "evidence/backend-independent__old-new-root.json",
+      "original_bytes": 3505,
+      "original_sha256": "fdf026a997e3b430a04442c626f4e703d6d94c072cb7024c2e3463845c9f231e",
+      "persisted_sha256": "fc1bf188e75c6c4ce5708b3d3a586f690ba38efbd20296b9bd2d0924a6932492"
+    },
+    {
+      "file": "evidence/backend-independent__backend-kill-before_finalize.json",
+      "original_bytes": 1420,
+      "original_sha256": "f2f85fa509da4ac3d46c72513957e0a30a2eab52343862b3ae5b6a39d61d5bd2",
+      "persisted_sha256": "271652f1148a11f60e3ba06c2c258db6dabe1dabe3ec254e8d19766aaabe3e88"
+    },
+    {
+      "file": "evidence/backend-independent__expiry.json",
+      "original_bytes": 597,
+      "original_sha256": "bbbda2df3a4c34851a6c75a9edbad89fae128b0a0c70361b6b5175411da25530",
+      "persisted_sha256": "3ee77b875d19b5b50015ddd5cc67546b609b844940f59acc0390ce7e65b33a75"
+    },
+    {
+      "file": "evidence/backend-independent__backend-kill-after_commit.json",
+      "original_bytes": 1444,
+      "original_sha256": "90eb02da75733fbec349f506c5c2b86886e566cbf62efcaf70da216707863e41",
+      "persisted_sha256": "f6e37bc99effb35aa7b50d4962ad41796ed5baa3ac0f47ab93c67a4cc8701493"
+    },
+    {
+      "file": "evidence/backend-independent__backend-kill-after_finalize.json",
+      "original_bytes": 1419,
+      "original_sha256": "b566e5e7a43de978944942f2233a57e3498d0250e173fdb38233bfe31a989ec3",
+      "persisted_sha256": "2b8d6f1fe70983ae344a3e01bcc4c1519a258a4793a18cc34aa62656e769083a"
+    },
+    {
+      "file": "evidence/crash-final__before_source_rename.json",
+      "original_bytes": 64386,
+      "original_sha256": "47c5dbe9d156eab61302c6699074f230e09a9dc9efd6c725bc78ecd5ed2713b7",
+      "persisted_sha256": "29372dc48b06d577abdecbff626fa7fa5a8561bf76143ff9fc9a38a3e20f0815"
+    },
+    {
+      "file": "evidence/crash-final__after_e4_installation.json",
+      "original_bytes": 64958,
+      "original_sha256": "8cf14138999ea6808dc8f51f28afdff3ef1cdaf3114ba4dd8e21b11bb65e6289",
+      "persisted_sha256": "6d26c199bf230e7f1ea84ef3a193d0e038f9b20af9fb3b2041dc838e34251a8f"
+    },
+    {
+      "file": "evidence/crash-final__native_before_commit.json",
+      "original_bytes": 64386,
+      "original_sha256": "c5aa98c21d6b64bba96dd27f11cbbd48854d86ffc71c7e31d6df268f7f5eeacd",
+      "persisted_sha256": "9c464b8e2af10f34d6cdd9211ef7fc7aab1af9c1e48ee75a44a063b402aa04ba"
+    },
+    {
+      "file": "evidence/crash-final__after_e3_acceptance.json",
+      "original_bytes": 64384,
+      "original_sha256": "181c6468c088d9c884d3a465112033b6671a0f255c1f55cd877e87053336f5fc",
+      "persisted_sha256": "9d52b4f792fab3e473983f7b621ee710a6bf283cf3cb251c996cc8885e177d75"
+    },
+    {
+      "file": "evidence/http-concurrency__busy.json",
+      "original_bytes": 383,
+      "original_sha256": "65df2ead8daa7ab049430573eb84e5ec6b4bb4aa9e84c506c31799726e70a8b2",
+      "persisted_sha256": "f25cccf4558f4c4ed5ea7d942af164f30637cfc39c1351fe08e5a88158854897"
+    },
+    {
+      "file": "evidence/http-concurrency__concurrent.json",
+      "original_bytes": 6186,
+      "original_sha256": "5e867422447f31b1a3ac6f4c7521af35d4a43154b20061dede9979cc02193930",
+      "persisted_sha256": "54501c12dc6018dfcf43a3eec6de8e7b5654335c516848a75c0a526c49c06c0c"
+    },
+    {
+      "file": "evidence/generation-cost-final__256.json",
+      "original_bytes": 8523,
+      "original_sha256": "d449823cd7e5778ccc042c763a5e24d91ae14efb6a03526b8eec6f290728a018",
+      "persisted_sha256": "c7ab0aff9fe9a72818978227da598103c18843041d94bd57dda219c9173e5260"
+    },
+    {
+      "file": "evidence/generation-cost-final__7.json",
+      "original_bytes": 8512,
+      "original_sha256": "c68d76e53456559bfe00fcae8c9235b198bed3ab02a72fa2a205418752d56896",
+      "persisted_sha256": "df671dd0fb9ebe217f147bc2813adeae6cc60b80a789b112af378e094f8d7226"
+    },
+    {
+      "file": "evidence/e2-independent__test_valid_path_rejects_corrup1.json",
+      "original_bytes": 4315,
+      "original_sha256": "3e4b2683fcba559919fd74c26f1c9aec41858a556116483c4bf30a0bd165f786",
+      "persisted_sha256": "a8013c232f4032e8b8bd8db083f042498ebad23e52162ff11c34b96f0ca0ceff"
+    },
+    {
+      "file": "evidence/e2-independent__test_six_rejections_then_verif1.json",
+      "original_bytes": 5428,
+      "original_sha256": "788ef373515a256a6aa7986505be4b9a05cdc2f0c095a8436b3d4381a4110815",
+      "persisted_sha256": "d307656398184ed27dcc5ca4948f506ea647fb5487a1bd888261665c33d75db1"
+    },
+    {
+      "file": "evidence/e2-independent__test_six_rejections_then_verif0.json",
+      "original_bytes": 5411,
+      "original_sha256": "14de77cf636619100181e40ec6bdcb047a87091ecce98cec7a4a9413759cff62",
+      "persisted_sha256": "59b7730f73e884fb9cb4a2f09eac992c4cdacea74394c2bc8cb1b68df910906e"
+    },
+    {
+      "file": "evidence/e2-independent__test_rejection_does_not_destro0.json",
+      "original_bytes": 4425,
+      "original_sha256": "d12728b3fba52edc2914bb3b860ea2355d8522fa965bab8d2291ac2261553239",
+      "persisted_sha256": "03f49c81f90e88da76e629366de31c69e74c4f8cfdd82a26e59c0184cb5df6ce"
+    },
+    {
+      "file": "evidence/e2-independent__test_six_rejections_then_verif5.json",
+      "original_bytes": 5499,
+      "original_sha256": "df4a12b6c4cfd64912ab57129effa84ce51056cd489305d58fac45bea874e7ba",
+      "persisted_sha256": "6cfb29d8a076955a6bf7aefaf9f39660a1afef2bc1d1bc5bd17884895b3615a0"
+    },
+    {
+      "file": "evidence/e2-independent__test_six_rejections_then_verif2.json",
+      "original_bytes": 5469,
+      "original_sha256": "fd9ece0d16a62499d22593c60f4c4713946141b2961cb1dc98c88d196f1cbec7",
+      "persisted_sha256": "0f9f78dee041f71c2ee675acc949da7593b0a6e78f1956941334e39ad26d28c3"
+    },
+    {
+      "file": "evidence/e2-independent__test_six_rejections_then_verif4.json",
+      "original_bytes": 5524,
+      "original_sha256": "5494f6a47b80b1523f32dbf6a671f1351020ba18cc3abc676cd5b1ebdc0d49fb",
+      "persisted_sha256": "38d9f115bcdd83d79c3f43d5b99ad37d5ea005777e1ee0c302749a90463987b5"
+    },
+    {
+      "file": "evidence/e2-independent__test_valid_path_rejects_corrup0.json",
+      "original_bytes": 4314,
+      "original_sha256": "1c599df4a32470b5a260f94e05abb7ace7ae72b348a34786e966a41961b64432",
+      "persisted_sha256": "f08e99557d4b6f156ecfdee4c896a027e583b2bbf9ada97e566fc5901e18b88e"
+    },
+    {
+      "file": "evidence/e2-independent__test_six_rejections_then_verif3.json",
+      "original_bytes": 5411,
+      "original_sha256": "458bd29881283fd9a0827626cbafc9b380b26584eae1aa9e748140c7ae1a7ed1",
+      "persisted_sha256": "2ffb46a83b1bfde1f11066b23ca8d9357e2be9cfce6b5bcfacf9c74c2dc0962b"
+    },
+    {
+      "file": "evidence/original-phase-a-cost__cost.json",
+      "original_bytes": 1740119,
+      "original_sha256": "fb9148bd0d0c9f0c03889ad053ce92bf8ed1db9392c3bcc5419b135236db35c8",
+      "persisted_sha256": "4abdea8ce5178918dba3898b336c2cc3682754d61a2bcb9ec64c005cc2bc4d67"
+    },
+    {
+      "file": "evidence/previous-ra01-cost__cost.json",
+      "original_bytes": 1743479,
+      "original_sha256": "a2926823a77d3fb3dd29b4dd0ec63f796e26567120cb7ce6eb155812bad5e72f",
+      "persisted_sha256": "6dece7553fe6f58dab936b9498728677dd35bdd710a51a3d0941992c88356b97"
+    },
+    {
+      "file": "evidence/previous-ra01-cost__cost.json.handoff.json",
+      "original_bytes": 1942117,
+      "original_sha256": "c6fd63f6915bccfc0213ab47b4e31461644ad4d36fb8bc60ac680889e2786096",
+      "persisted_sha256": "05dd80ff33e853cf37eb08dd9af7a846a17cf10c65463005ee650eef063b9110"
+    }
+  ],
+  "completion": "EXECUTED_WITH_UNSATISFIED_GATES"
+}

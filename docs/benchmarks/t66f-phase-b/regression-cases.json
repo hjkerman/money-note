@@ -1,0 +1,1042 @@
+{
+  "integration": [
+    {
+      "name": "FB01 real TLS cold → identical → localized → split → delete → later delta",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FB02 real legacy handoff preserves backend v7 identity and unknown pending",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FB03 Frozen G1 survives real G2 publication and native source switch",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FB04 RA01 required predecessor rejection preserves a valid Frozen source",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FB05 A01 delayed canceled real acquisition recovery cannot revert B",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FB-N-wrong_principal real wire injection cannot produce accepted or installed authority",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FB-N-wrong_epoch real wire injection cannot produce accepted or installed authority",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FB-N-unsupported real wire injection cannot produce accepted or installed authority",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FB-N-wrong_root real wire injection cannot produce accepted or installed authority",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FB-N-malformed real wire injection cannot produce accepted or installed authority",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FB-N-bad_object real wire injection cannot produce accepted or installed authority",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FB-N-wrong_object real wire injection cannot produce accepted or installed authority",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FB-N-wrong_observation real wire injection cannot produce accepted or installed authority",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FB-A-credential original-ticket rejection during actual object response",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FB-A-logout original-ticket rejection during actual object response",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FB-A-offline original-ticket rejection during actual object response",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FB-A-newer_legacy original-ticket rejection during actual object response",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FB-A-cancel original-ticket rejection during actual object response",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FB06 partial real transfer canceled then resumed with fresh authorization",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FB07 current logical read scope excludes concurrent writer commit",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FB08 P0 raw admission and R1 activation remain distinct from installed sync",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FB09 real backend header rejection releases six TCP responses with pool limit one",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FB10 empty financial tables traverse all certified empty roots over real TLS",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FB11-false real mid-transfer expiry reacquires an authorized complete generation",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FB11-true real mid-transfer expiry reacquires an authorized complete generation",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FB12 credential transition after real E3 acceptance cannot install over valid Frozen B",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FB13 real capability response keeps R1 support unavailable",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FB14 actual authenticated other principal cannot enter principal-one cache or installation",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FB15 schema trigger loss cannot bypass E1 through a real cached E4 refresh",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FB16 object quota failure preserves prior valid Frozen source and unknown pending",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FB17 matching server content never acknowledges or rebases ordered Frozen J inputs",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FB18 actual truncated object response retries boundedly and stores only complete bytes",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FB19 real backend epoch rotation rejects new-context installation and preserves old Frozen B",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    }
+  ],
+  "independent_cost": [
+    {
+      "name": "FC7 independently observed real D→E work",
+      "file": "cost_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FC256 independently observed real D→E work",
+      "file": "cost_test.dart",
+      "result": "PASS"
+    }
+  ],
+  "previous_targeted": [
+    {
+      "name": "NR01 first-source transaction fails after rename then valid retry installs",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NP-principal_id foreign native predecessor preserves current Frozen readable association",
+      "file": "provenance_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01 same operation becomes legitimately installed while its rollback recovery waits",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA02 exact stale source replay cannot resurrect a deleted SQL preparation",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NP-dataset_id foreign native predecessor preserves current Frozen readable association",
+      "file": "provenance_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR02 alternating legacy/native transitions retain latest distinct lineage",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA03 four competing recoveries on two SQLite handles release only the abandoned owner",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NP-epoch foreign native predecessor preserves current Frozen readable association",
+      "file": "provenance_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR03 malformed predecessor type List<Object?> is not absence",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA04 competing SQLite writer excludes recovery file mutation before BEGIN IMMEDIATE",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NP-lineage identical Snapshot content with changed synced_at is not prior lineage",
+      "file": "provenance_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR03 malformed predecessor type String is not absence",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA05 missing mandatory trigger after async recovery checks fails before changing source",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NP-receipt truncated required receipt cannot become native success",
+      "file": "provenance_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR03 malformed predecessor type int is not absence",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA06 changed legacy B after async unchanged check cannot be restored or unpinned",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NP-pin removed after E3 acceptance cannot pass source preparation",
+      "file": "provenance_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR03 malformed predecessor type bool is not absence",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA07 journal appearing during recovery preserves preparation and exact ordered bytes",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA08 null expected installed owner cannot invoke restoration over a valid source",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR04 null source cannot erase installed native-only owner on reopen",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA09 changed source at native restoration hook is preserved under SQL fence",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR05 original request invalidated while verified base waits",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR06 schema changed after verified base cannot rename current source",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA10 same binding checksum different UUID and lineage-preserving bytes remains newer owner",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA11 same frozen source with changed durable operation metadata causes stale no-op",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR07 different metadata owner at native rename is never overwritten",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR08 native rollback rejects wrong previous_sequence even with exact Frozen binding",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA12 legitimate source rollback and repeated reopen retain legacy lineage and unknown pending",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA13 second connection cannot commit between SQL ownership check and source rename",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR08 native rollback rejects wrong previous_installation even with exact Frozen binding",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA14 COMMIT-busy compensation cannot overwrite a newly replaced valid source",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR09 same generation with stale predecessor operation sequence is rejected",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA15 newer AppState installation failure preserves the previous owner before old recovery resumes",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA16 missing predecessor source with an existing installed SQL owner must fail closed native=false",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR10 legitimate rollback repeated after two independent handle reopenings",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA17 missing predecessor source with an existing installed SQL owner must fail closed native=true",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR11 failed conditional native commit and retry cannot retire unknown marker",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA18 AppState must not report native installation success while losing its existing Frozen-B lineage association",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR12 prepared legacy source without an owner recovers then first native installs",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR13 native predecessor Frozen association preserved when damaged hint rejects recovery",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "NR14 source binding change before final SQL fence cannot report installed success",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    }
+  ],
+  "phase_a_dart": [
+    {
+      "name": "FA01 positive native=false, independent persisted graph and identity",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA02 unknown pending native=false survives matching downloaded source and restart",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA17 older cancelled recovery cannot overwrite a newer successful original-ticket installation",
+      "file": "stale_recovery_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA03 stale mode native=false at after_e3_acceptance cannot retire or install UI",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA03 stale mode native=false at before_source_rename cannot retire or install UI",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA03 stale mode native=false at before_installation cannot retire or install UI",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA03 stale mode native=false at before_pending_retire cannot retire or install UI",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA04 credential replacement after accepted COMMIT native=false",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA05 cancellation at final retirement native=false is persistent no-op",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA06 different current principal after acceptance native=false",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA01 positive native=true, independent persisted graph and identity",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA02 unknown pending native=true survives matching downloaded source and restart",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA03 stale mode native=true at after_e3_acceptance cannot retire or install UI",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA03 stale mode native=true at before_source_rename cannot retire or install UI",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA03 stale mode native=true at before_installation cannot retire or install UI",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA03 stale mode native=true at before_pending_retire cannot retire or install UI",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA04 credential replacement after accepted COMMIT native=true",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA05 cancellation at final retirement native=true is persistent no-op",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA06 different current principal after acceptance native=true",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA07 new legacy request while original waits cannot authorize old prepared B",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA08 frozen G1 remains separate from accepted/installed G2-G3 across reopen",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA09 installed frozen ownership cannot be discarded, with unchanged rows",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA10 reader lifetime differs from durable frozen lifetime, detached view closes",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA11 warm Frozen-B invalidation trigger, previous B and marker untouched",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA11 warm Frozen-B invalidation receipt, previous B and marker untouched",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA11 warm Frozen-B invalidation root_pin, previous B and marker untouched",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA11 warm Frozen-B invalidation raw_bytes, previous B and marker untouched",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA11 warm Frozen-B invalidation missing_raw, previous B and marker untouched",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA11 warm Frozen-B invalidation lineage, previous B and marker untouched",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA11 warm Frozen-B invalidation source, previous B and marker untouched",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA11 warm Frozen-B invalidation schema, previous B and marker untouched",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA12 failed frozen install transaction retains old installed owner and prepared pin",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA13 wrong owner and changed lineage cannot share cached frozen authority",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA14 real SQLite read snapshot excludes concurrent G2 COMMIT then permits retry",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA15 equal v7 contents cannot substitute resolved reconciliation lineage",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "FA16 real AppState offline entry remains closed after successful isolated E4",
+      "file": "independent_test.dart",
+      "result": "PASS"
+    }
+  ],
+  "a01_concurrent": [
+    {
+      "name": "A01 concurrent old and winning recoveries preserve the newer original-ticket installation",
+      "file": "concurrent_recovery_test.dart",
+      "result": "PASS"
+    }
+  ],
+  "p0_integration": [
+    {
+      "name": "original backend/E1-compatible representation is accepted only at authoritative legacy boundary",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "fresh Python process reads durable raw bytes and independently recomputes v7 fingerprint and v4 lineage",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "failed baseline authority publication preserves existing B, J and pending bytes",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "existing formatted journal bytes survive reopen and replay without input normalization",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "old accepted BOM/leading-zero input appends exact raw value and retains previous journal prefix",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "pending acknowledgment still requires original token and never rewrites J",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "recovery artifact permits compatible B and original J but never permits nested compatible J input",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "MW B compatibility cannot relax nested J request admission or issue HTTP",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "actual append rejects read-compatible nested settings/scheduled_income and preserves bytes",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "actual append rejects read-compatible nested app_settings/scheduled_income and preserves bytes",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "actual append rejects read-compatible nested settings/cash_flow_balance and preserves bytes",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "actual append rejects read-compatible nested app_settings/cash_flow_balance and preserves bytes",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "actual append rejects read-compatible nested settings/card_limit and preserves bytes",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "actual append rejects read-compatible nested app_settings/card_limit and preserves bytes",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "actual append rejects read-compatible nested settings/base_next_month_liquidity and preserves bytes",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "actual append rejects read-compatible nested app_settings/base_next_month_liquidity and preserves bytes",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "actual append rejects read-compatible nested settings/liquidity_status and preserves bytes",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "actual append rejects read-compatible nested app_settings/liquidity_status and preserves bytes",
+      "file": "integration_test.dart",
+      "result": "PASS"
+    }
+  ],
+  "original_phase_a_cost": [
+    {
+      "name": "independent instrumented Frozen-B SQL and full-IO cost history=5",
+      "file": "cost_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "independent instrumented Frozen-B SQL and full-IO cost history=512",
+      "file": "cost_test.dart",
+      "result": "PASS"
+    }
+  ],
+  "previous_ra01_cost": [
+    {
+      "name": "independent post-conflict and owned-recovery cost history=5",
+      "file": "cost_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "independent post-conflict and owned-recovery cost history=512",
+      "file": "cost_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01 independent native prerequisite/handoff cost history=5",
+      "file": "cost_test.dart",
+      "result": "PASS"
+    },
+    {
+      "name": "RA01 independent native prerequisite/handoff cost history=512",
+      "file": "cost_test.dart",
+      "result": "PASS"
+    }
+  ],
+  "new_backend": [
+    {
+      "name": "test_true_backend_kill_preserves_complete_roots[before_finalize]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_true_backend_kill_preserves_complete_roots[after_finalize]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_true_backend_kill_preserves_complete_roots[after_commit]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_unfinalized_native_commit_rejected_without_source_change",
+      "result": "PASS"
+    },
+    {
+      "name": "test_old_observation_cannot_transfer_a_new_generation_root",
+      "result": "PASS"
+    },
+    {
+      "name": "test_expired_observation_remains_retired_after_clock_reversal",
+      "result": "PASS"
+    }
+  ],
+  "new_crash": [
+    {
+      "name": "test_real_d_to_e_process_termination[after_e3_acceptance]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_real_d_to_e_process_termination[before_source_rename]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_real_d_to_e_process_termination[native_before_commit]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_real_d_to_e_process_termination[after_e4_installation]",
+      "result": "PASS"
+    }
+  ],
+  "new_http_concurrency": [
+    {
+      "name": "test_real_sql_writer_conflict_has_bounded_retry_and_no_false_lease",
+      "result": "PASS"
+    },
+    {
+      "name": "test_real_five_authenticated_requests_obey_worker_and_lease_budgets",
+      "result": "PASS"
+    }
+  ],
+  "new_generation_cost": [
+    {
+      "name": "test_real_generation_mutation_cost_and_independent_complete_oracle[7]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_real_generation_mutation_cost_and_independent_complete_oracle[256]",
+      "result": "PASS"
+    }
+  ],
+  "backend_focused": [
+    {
+      "name": "test_bounded_concurrent_quota_and_same_request_status",
+      "result": "PASS"
+    }
+  ],
+  "backend_identity_original": [
+    {
+      "name": "test_D3C_A01_open_inode_race_must_not_delete_other_database",
+      "result": "PASS"
+    }
+  ],
+  "e2_independent": [
+    {
+      "name": "test_six_rejections_then_verified_object_same_pool[auth-AUTHENTICATION_CHANGED]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_six_rejections_then_verified_object_same_pool[redirect-REDIRECT_REJECTED]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_six_rejections_then_verified_object_same_pool[oversized-RESPONSE_SIZE_EXCEEDED]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_six_rejections_then_verified_object_same_pool[huge-RESPONSE_SIZE_EXCEEDED]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_six_rejections_then_verified_object_same_pool[redirect-chunked-REDIRECT_REJECTED]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_six_rejections_then_verified_object_same_pool[redirect-empty-REDIRECT_REJECTED]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_rejection_does_not_destroy_another_live_response",
+      "result": "PASS"
+    },
+    {
+      "name": "test_valid_path_rejects_corruption_and_remains_reusable[tampered-REPRESENTATION_INVALID]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_valid_path_rejects_corruption_and_remains_reusable[wrong-hash-OBJECT_HASH_INVALID]",
+      "result": "PASS"
+    }
+  ],
+  "scripts": [
+    {
+      "name": "test_default_dry_run_never_builds_or_writes_production",
+      "result": "PASS"
+    },
+    {
+      "name": "test_production_paths_reject_symlinks[data]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_production_paths_reject_symlinks[.local-deploy]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_production_paths_reject_symlinks[downloads]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_production_checkout_is_rejected_before_commands",
+      "result": "PASS"
+    },
+    {
+      "name": "test_compose_cannot_redirect_persistent_database",
+      "result": "PASS"
+    },
+    {
+      "name": "test_build_archive_rejects_data_secrets_and_links[backend/data/private.db-False]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_build_archive_rejects_data_secrets_and_links[frontend/.env.production-False]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_build_archive_rejects_data_secrets_and_links[backend/app/link-True]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_committed_archive_closes_frontend_relative_imports",
+      "result": "PASS"
+    },
+    {
+      "name": "test_stage_only_preserves_archive_layout_and_validates_before_publication",
+      "result": "PASS"
+    },
+    {
+      "name": "test_failed_frontend_validation_cannot_build_or_publish_backend",
+      "result": "PASS"
+    },
+    {
+      "name": "test_shared_input_and_packaging_changes_revalidate_frontend[backend/tests/fixtures/confirmed_recurring_actual.json]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_shared_input_and_packaging_changes_revalidate_frontend[scripts/local_deploy.py]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_failed_build_aborts_before_production_writes",
+      "result": "PASS"
+    },
+    {
+      "name": "test_success_publishes_index_last_and_preserves_data",
+      "result": "PASS"
+    },
+    {
+      "name": "test_failed_health_restores_old_image_and_keeps_old_web",
+      "result": "PASS"
+    },
+    {
+      "name": "test_failed_web_publication_restores_image_and_root_files",
+      "result": "PASS"
+    },
+    {
+      "name": "test_three_successes_retain_only_current_and_previous_artifacts",
+      "result": "PASS"
+    },
+    {
+      "name": "test_manual_rollback_uses_one_retained_backup",
+      "result": "PASS"
+    },
+    {
+      "name": "test_interrupted_attempt_blocks_another_publication",
+      "result": "PASS"
+    },
+    {
+      "name": "test_apk_retains_one_previous_version_without_service_restart",
+      "result": "PASS"
+    },
+    {
+      "name": "test_concurrent_build_cannot_race_retention",
+      "result": "PASS"
+    },
+    {
+      "name": "test_failed_deploy_does_not_prune_previous_success_backup",
+      "result": "PASS"
+    },
+    {
+      "name": "test_symlink_web_asset_cannot_redirect_publication",
+      "result": "PASS"
+    },
+    {
+      "name": "test_repeated_identical_image_builds_do_not_accumulate_old_tags",
+      "result": "PASS"
+    },
+    {
+      "name": "test_checkout_change_during_apk_build_aborts_before_publication",
+      "result": "PASS"
+    }
+  ],
+  "phase_a_crash": [
+    {
+      "name": "test_g1_g2_process_crash[after_frozen_prepare]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_g1_g2_process_crash[after_legacy_commit]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_g1_g2_process_crash[after_frozen_install]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_g1_g2_process_crash[after_e4_installation]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_g1_g2_process_crash[native_after_segmented_install_pointer]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_g1_g2_process_crash[native_during_installation_readback]",
+      "result": "PASS"
+    }
+  ],
+  "a01_crash": [
+    {
+      "name": "test_a01_process_death[stale_before_release]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_a01_process_death[stale_after_conflict]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_a01_process_death[source_restore_before_commit]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_a01_process_death[source_restore_after_commit]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_a01_process_death[native_source_restore_before_commit]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_a01_process_death[native_only_source_restore_before_commit]",
+      "result": "PASS"
+    }
+  ],
+  "ra01_crash": [
+    {
+      "name": "test_native_source_process_death[before_source]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_native_source_process_death[after_pointer_before_commit]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_native_source_process_death[after_commit]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_native_source_process_death[during_readback]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_native_source_process_death[invalid_rejected]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_native_source_process_death[recovery_before_commit]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_native_source_process_death[recovery_after_commit]",
+      "result": "PASS"
+    }
+  ],
+  "e2_cleanup": [
+    {
+      "name": "test_native_rejection_releases_client_tcp_fd_and_pool[auth]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_native_rejection_releases_client_tcp_fd_and_pool[redirect]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_native_rejection_releases_client_tcp_fd_and_pool[oversized]",
+      "result": "PASS"
+    },
+    {
+      "name": "test_native_repeated_acquisition_releases_every_client_tcp_fd",
+      "result": "PASS"
+    },
+    {
+      "name": "test_native_valid_response_preserves_reusable_idle_socket",
+      "result": "PASS"
+    }
+  ],
+  "p0_replay": [
+    {
+      "name": "test_original_p0_reader_assertions_after_e4_additions",
+      "result": "PASS"
+    }
+  ]
+}

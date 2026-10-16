@@ -1,0 +1,11 @@
+Changed lib/src/apk_install_bridge.dart
+Changed lib/src/screens/home_shell.dart
+Changed lib/src/screens/management_month_close.dart
+Changed lib/src/screens/management_settings.dart
+Changed lib/src/screens/month_entries_screen.dart
+Changed lib/src/screens/snapshot_manager_screen.dart
+Changed test/date_picker_row_test.dart
+Changed test/offline_notification_identity_test.dart
+Changed test/offline_persistence_test.dart
+Changed test/offline_reconciliation_test.dart
+Formatted 136 files (10 changed) in 0.85 seconds.

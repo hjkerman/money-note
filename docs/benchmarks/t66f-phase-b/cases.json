@@ -1,0 +1,394 @@
+[
+  {
+    "id": "FB01",
+    "suite": "integration",
+    "test": "FB01 real TLS cold → identical → localized → split → delete → later delta",
+    "expected": "실제 G1–G7의 complete graph/금융 bytes 일치, 동일 generation 객체 요청 0, delta 요청은 target closure에서 cache를 뺀 집합",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FB02",
+    "suite": "integration",
+    "test": "FB02 real legacy handoff preserves backend v7 identity and unknown pending",
+    "expected": "backend v7 identity와 legacy 설치 lineage 일치, unknown pending 원문 보존, fresh process Frozen read 성공",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FB03",
+    "suite": "integration",
+    "test": "FB03 Frozen G1 survives real G2 publication and native source switch",
+    "expected": "G2 설치 이후 Frozen G1의 source/lineage/pins/값 보존",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FB04",
+    "suite": "integration",
+    "test": "FB04 RA01 required predecessor rejection preserves a valid Frozen source",
+    "expected": "미설치 target의 필수 predecessor 누락을 거부하고 기존 유효 Frozen source/pins/B/pending 보존",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FB05",
+    "suite": "integration",
+    "test": "FB05 A01 delayed canceled real acquisition recovery cannot revert B",
+    "expected": "취소된 A의 delayed recovery 이후 B의 source/B/pending/pins와 fresh read 보존",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FB-N-wrong_principal",
+    "suite": "integration",
+    "test": "FB-N-wrong_principal real wire injection cannot produce accepted or installed authority",
+    "expected": "해당 wire/context 부정을 거부하며 accepted/installed를 만들지 않고 같은 client의 후속 유효 요청은 성공",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FB-N-wrong_epoch",
+    "suite": "integration",
+    "test": "FB-N-wrong_epoch real wire injection cannot produce accepted or installed authority",
+    "expected": "해당 wire/context 부정을 거부하며 accepted/installed를 만들지 않고 같은 client의 후속 유효 요청은 성공",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FB-N-unsupported",
+    "suite": "integration",
+    "test": "FB-N-unsupported real wire injection cannot produce accepted or installed authority",
+    "expected": "해당 wire/context 부정을 거부하며 accepted/installed를 만들지 않고 같은 client의 후속 유효 요청은 성공",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FB-N-wrong_root",
+    "suite": "integration",
+    "test": "FB-N-wrong_root real wire injection cannot produce accepted or installed authority",
+    "expected": "해당 wire/context 부정을 거부하며 accepted/installed를 만들지 않고 같은 client의 후속 유효 요청은 성공",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FB-N-malformed",
+    "suite": "integration",
+    "test": "FB-N-malformed real wire injection cannot produce accepted or installed authority",
+    "expected": "해당 wire/context 부정을 거부하며 accepted/installed를 만들지 않고 같은 client의 후속 유효 요청은 성공",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FB-N-bad_object",
+    "suite": "integration",
+    "test": "FB-N-bad_object real wire injection cannot produce accepted or installed authority",
+    "expected": "해당 wire/context 부정을 거부하며 accepted/installed를 만들지 않고 같은 client의 후속 유효 요청은 성공",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FB-N-wrong_object",
+    "suite": "integration",
+    "test": "FB-N-wrong_object real wire injection cannot produce accepted or installed authority",
+    "expected": "해당 wire/context 부정을 거부하며 accepted/installed를 만들지 않고 같은 client의 후속 유효 요청은 성공",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FB-N-wrong_observation",
+    "suite": "integration",
+    "test": "FB-N-wrong_observation real wire injection cannot produce accepted or installed authority",
+    "expected": "해당 wire/context 부정을 거부하며 accepted/installed를 만들지 않고 같은 client의 후속 유효 요청은 성공",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FB-A-credential",
+    "suite": "integration",
+    "test": "FB-A-credential original-ticket rejection during actual object response",
+    "expected": "취득 도중 authority 변경 시 E3/E4 무권한 COMMIT 없이 기존 durable state 보존",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FB-A-logout",
+    "suite": "integration",
+    "test": "FB-A-logout original-ticket rejection during actual object response",
+    "expected": "취득 도중 authority 변경 시 E3/E4 무권한 COMMIT 없이 기존 durable state 보존",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FB-A-offline",
+    "suite": "integration",
+    "test": "FB-A-offline original-ticket rejection during actual object response",
+    "expected": "취득 도중 authority 변경 시 E3/E4 무권한 COMMIT 없이 기존 durable state 보존",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FB-A-newer_legacy",
+    "suite": "integration",
+    "test": "FB-A-newer_legacy original-ticket rejection during actual object response",
+    "expected": "취득 도중 authority 변경 시 E3/E4 무권한 COMMIT 없이 기존 durable state 보존",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FB-A-cancel",
+    "suite": "integration",
+    "test": "FB-A-cancel original-ticket rejection during actual object response",
+    "expected": "취득 도중 authority 변경 시 E3/E4 무권한 COMMIT 없이 기존 durable state 보존",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FB06",
+    "suite": "integration",
+    "test": "FB06 partial real transfer canceled then resumed with fresh authorization",
+    "expected": "4개 durable object 뒤 취소·재개 시 missing objects만 실제 재전송",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FB07",
+    "suite": "integration",
+    "test": "FB07 current logical read scope excludes concurrent writer commit",
+    "expected": "G1 snapshot은 혼합되지 않으며 competing COMMIT은 scope 종료까지 거부, 이후 G2 read는 G2와 일치",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FB08",
+    "suite": "integration",
+    "test": "FB08 P0 raw admission and R1 activation remain distinct from installed sync",
+    "expected": "P0 raw 원문과 local input admission 분리, R1 recovery gate 차단",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FB09",
+    "suite": "integration",
+    "test": "FB09 real backend header rejection releases six TCP responses with pool limit one",
+    "expected": "6번 stalled-body header 거부 뒤 TCP 소유권 누적 없음, limit=1 같은 client의 C1/hash 검증 정상 요청 성공",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FB10",
+    "suite": "integration",
+    "test": "FB10 empty financial tables traverse all certified empty roots over real TLS",
+    "expected": "empty financial tables도 모든 필수 certified root를 실제 HTTP로 완전 취득",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FB11-false",
+    "suite": "integration",
+    "test": "FB11-false real mid-transfer expiry reacquires an authorized complete generation",
+    "expected": "전송 중 lease 만료 후 fresh same-generation observation으로 complete closure 취득",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FB11-true",
+    "suite": "integration",
+    "test": "FB11-true real mid-transfer expiry reacquires an authorized complete generation",
+    "expected": "전송 중 lease 만료와 generation churn 후 fresh target으로 complete closure 취득",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FB12",
+    "suite": "integration",
+    "test": "FB12 credential transition after real E3 acceptance cannot install over valid Frozen B",
+    "expected": "E3 COMMIT 직후 credential 교체는 기존 Frozen source를 변경하는 E4 설치를 차단",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FB13",
+    "suite": "integration",
+    "test": "FB13 real capability response keeps R1 support unavailable",
+    "expected": "실제 capabilities 404/no-store, R1 지원 허위 광고 없음",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FB14",
+    "suite": "integration",
+    "test": "FB14 actual authenticated other principal cannot enter principal-one cache or installation",
+    "expected": "principal 2의 실제 인증된 Target을 principal 1 cache/설치에 사용하지 못함",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FB15",
+    "suite": "integration",
+    "test": "FB15 schema trigger loss cannot bypass E1 through a real cached E4 refresh",
+    "expected": "mandatory trigger 손실 시 실제 cached refresh도 fail closed, 기존 Frozen source 보존",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FB16",
+    "suite": "integration",
+    "test": "FB16 object quota failure preserves prior valid Frozen source and unknown pending",
+    "expected": "object quota 실패 시 기존 source/pins/objects/B/pending 보존",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FB17",
+    "suite": "integration",
+    "test": "FB17 matching server content never acknowledges or rebases ordered Frozen J inputs",
+    "expected": "server와 유사한 거래가 있어도 Frozen J의 두 UUID/sequence/payload/lineage 원문 보존, implicit ACK/rebase 없음",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FB18",
+    "suite": "integration",
+    "test": "FB18 actual truncated object response retries boundedly and stores only complete bytes",
+    "expected": "잘린 실제 HTTP object를 bounded retry하고 완전한 C1 bytes만 저장",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FB19",
+    "suite": "integration",
+    "test": "FB19 real backend epoch rotation rejects new-context installation and preserves old Frozen B",
+    "expected": "명시 epoch bootstrap의 old lease 409/EPOCH_CHANGED, context 혼용 설치 거부, old Frozen source 보존",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FC7",
+    "suite": "independent_cost",
+    "test": "FC7 independently observed real D→E work",
+    "expected": "실제 HTTP/SQL/object/pin 관측에서 identical 및 changed-frontier/frozen reuse 비용과 complete oracle 일치",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "FC256",
+    "suite": "independent_cost",
+    "test": "FC256 independently observed real D→E work",
+    "expected": "실제 HTTP/SQL/object/pin 관측에서 identical 및 changed-frontier/frozen reuse 비용과 complete oracle 일치",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "test_true_backend_kill_preserves_complete_roots[before_finalize]",
+    "suite": "new_backend",
+    "test": "test_true_backend_kill_preserves_complete_roots[before_finalize]",
+    "expected": "완전한 backend root/capture/lease만 durable하며 SIGKILL 또는 잘못된 lifecycle에서 fail closed",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "test_true_backend_kill_preserves_complete_roots[after_finalize]",
+    "suite": "new_backend",
+    "test": "test_true_backend_kill_preserves_complete_roots[after_finalize]",
+    "expected": "완전한 backend root/capture/lease만 durable하며 SIGKILL 또는 잘못된 lifecycle에서 fail closed",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "test_true_backend_kill_preserves_complete_roots[after_commit]",
+    "suite": "new_backend",
+    "test": "test_true_backend_kill_preserves_complete_roots[after_commit]",
+    "expected": "완전한 backend root/capture/lease만 durable하며 SIGKILL 또는 잘못된 lifecycle에서 fail closed",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "test_unfinalized_native_commit_rejected_without_source_change",
+    "suite": "new_backend",
+    "test": "test_unfinalized_native_commit_rejected_without_source_change",
+    "expected": "완전한 backend root/capture/lease만 durable하며 SIGKILL 또는 잘못된 lifecycle에서 fail closed",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "test_old_observation_cannot_transfer_a_new_generation_root",
+    "suite": "new_backend",
+    "test": "test_old_observation_cannot_transfer_a_new_generation_root",
+    "expected": "완전한 backend root/capture/lease만 durable하며 SIGKILL 또는 잘못된 lifecycle에서 fail closed",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "test_expired_observation_remains_retired_after_clock_reversal",
+    "suite": "new_backend",
+    "test": "test_expired_observation_remains_retired_after_clock_reversal",
+    "expected": "완전한 backend root/capture/lease만 durable하며 SIGKILL 또는 잘못된 lifecycle에서 fail closed",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "test_real_d_to_e_process_termination[after_e3_acceptance]",
+    "suite": "new_crash",
+    "test": "test_real_d_to_e_process_termination[after_e3_acceptance]",
+    "expected": "실제 SIGKILL 후 fresh process에서 complete source/receipt/pins/lineage와 Frozen read 회복",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "test_real_d_to_e_process_termination[before_source_rename]",
+    "suite": "new_crash",
+    "test": "test_real_d_to_e_process_termination[before_source_rename]",
+    "expected": "실제 SIGKILL 후 fresh process에서 complete source/receipt/pins/lineage와 Frozen read 회복",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "test_real_d_to_e_process_termination[native_before_commit]",
+    "suite": "new_crash",
+    "test": "test_real_d_to_e_process_termination[native_before_commit]",
+    "expected": "실제 SIGKILL 후 fresh process에서 complete source/receipt/pins/lineage와 Frozen read 회복",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "test_real_d_to_e_process_termination[after_e4_installation]",
+    "suite": "new_crash",
+    "test": "test_real_d_to_e_process_termination[after_e4_installation]",
+    "expected": "실제 SIGKILL 후 fresh process에서 complete source/receipt/pins/lineage와 Frozen read 회복",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "test_real_sql_writer_conflict_has_bounded_retry_and_no_false_lease",
+    "suite": "new_http_concurrency",
+    "test": "test_real_sql_writer_conflict_has_bounded_retry_and_no_false_lease",
+    "expected": "실제 TLS 경쟁에서 bounded visible retry/lease budget/pins/release 일치",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "test_real_five_authenticated_requests_obey_worker_and_lease_budgets",
+    "suite": "new_http_concurrency",
+    "test": "test_real_five_authenticated_requests_obey_worker_and_lease_budgets",
+    "expected": "실제 TLS 경쟁에서 bounded visible retry/lease budget/pins/release 일치",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "test_real_generation_mutation_cost_and_independent_complete_oracle[7]",
+    "suite": "new_generation_cost",
+    "test": "test_real_generation_mutation_cost_and_independent_complete_oracle[7]",
+    "expected": "실제 신규 immutable 집합·revision과 독립 complete F(raw)/Patricia oracle 일치",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  },
+  {
+    "id": "test_real_generation_mutation_cost_and_independent_complete_oracle[256]",
+    "suite": "new_generation_cost",
+    "test": "test_real_generation_mutation_cost_and_independent_complete_oracle[256]",
+    "expected": "실제 신규 immutable 집합·revision과 독립 complete F(raw)/Patricia oracle 일치",
+    "actual": "PASS",
+    "oracle": "실제 실행 assertion과 evidence JSON의 HTTP/별도 SQLite/독립 graph 또는 fresh-process 결과"
+  }
+]
