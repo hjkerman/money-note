@@ -94,7 +94,7 @@ for line in protocol.splitlines():
         else "evidence/cases.json; evidence/checks-summary.json; " + prior
     )
     limit = (
-        "지원 가능한 세 N에서 정상 반복의 독립 SQL/object 비용은 bounded다. 두 큰 N 및 전체 bytes hashed/physical writes/peak isolation은 미검증이다."
+        "지원 가능한 세 N에서 정상 반복의 독립 SQL/object 비용은 bounded다. 두 큰 N 및 전층 논리 bytes hashed/validated/written은 미검증이다. physical I/O/pure peak는 추가 관찰 한계이며 새 F 필수 threshold가 아니다."
         if ident == "I25"
         else "§31/R1 chunk/MW/apply/receipt의 소유와 전체 F dependency를 유지한다."
         if ident == "I23"
@@ -195,7 +195,7 @@ result = dict(
     mandatory_unverified=[
         "50k 전체 backend→Flutter transfer/publication/read 및 I25/storage/resource grid",
         "100k 전체 backend→Flutter transfer/publication/read 및 I25/storage/resource grid",
-        "전체 정상 경로 bytes hashed/validated/written 및 peak resource의 독립 전체 accounting",
+        "전체 정상 경로 논리 bytes hashed/validated/written의 독립 accounting",
     ],
     device_unavailable=["actual Android VFS/pragmas/I/O/power-loss proof"],
     r1_deferred=[

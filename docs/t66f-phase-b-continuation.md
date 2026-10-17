@@ -10,7 +10,7 @@ Flutter 전체 **1503 PASS / 0 FAIL / 2 SKIP**다.
 
 그러나 현재 E2의 지원 상한은 100,000 objects이고 실제 50k/100k generation은 각각
 200,331/400,532 objects다. 따라서 전체 D→E 및 E3 I25/storage/resource의 의무 grid를
-완료했다고 선언할 수 없다. 추가로 전체 hash/write/peak accounting, actual Android proof와
+완료했다고 선언할 수 없다. 추가로 전층 논리 hash/validate/write byte accounting, actual Android proof와
 R1 상위 exit 증거가 남는다. 확정 Critical/High/Medium 제품 correctness 결함은 새로 발견하지 않았다.
 증거 부재를 제품 결함이나 PASS로 바꾸지 않는다.
 
@@ -222,8 +222,9 @@ client unique 정상 변경은 실제 object request가 존재하고 ABA warm re
 계측기의 `sync_pins` 문자열은 실제 observation pin table 이름을 포괄하지 않아 pin 수 근거로 쓰지 않았다.
 Backend grid 표의 active 구간은 writer/finalizer와 observation POST이며 이후 lease DELETE와 full oracle는 제외한다.
 반면 client total은 E2의 terminal observation retry와 release를 포함한다. 두 경계를 중복 합산하지 않는다.
-backend 전체 hashing 입력 bytes/physical write bytes는 독립 완전 계측하지 못했다. 이 항목은
-전층 cost 최종 PASS를 제한하며 wall-clock으로 대체하지 않았다.
+backend 전체 hashing 입력과 실제 논리적 insert/update bytes의 독립 accounting은 미완료다.
+이 필수 byte 증거를 wall-clock으로 대체하지 않았다. 물리 pager write/I/O는 별도의 추가 관찰 한계이며,
+§35의 논리 bytes written을 넘어서는 새 HOST F 필수 threshold로 만들지 않는다.
 
 ## 21. E1/E2 저장
 
@@ -414,7 +415,7 @@ before/after/wire/기존 Frozen fingerprint를 별도 gzip에 보존한다. 기�
 |backend DB identity|새 7개 + B01 회귀|검증한 replacement/permit 경계 PASS|
 |E3 I25|세 supported N의 native SQL/object/root-pin 및 fallback|큰 N·전층 hash/write 미완료, INCONCLUSIVE|
 |E4 repeated Frozen|세 supported N의 20 repeats 및 unrelated acceptance|관찰한 범위 PASS; 큰 N INCONCLUSIVE|
-|전층 resource/storage|실제 HTTP/SQL/BLOB/DB sizes/RSS|full peak/physical/hash bytes 미완료, INCONCLUSIVE|
+|전층 resource/storage|실제 HTTP/SQL/BLOB/DB sizes/RSS|큰 N과 전층 논리 byte accounting 미완료, INCONCLUSIVE; physical I/O/pure peak는 추가 한계|
 |Android VFS/I/O/power|새 증거 없음|필수 rollout proof 미확보; HOST 대체 금지|
 |R1/migration/rollback|제품 미변경/closed gate|DEFERRED; 상위 전체 F exit 미충족|
 
@@ -422,7 +423,9 @@ before/after/wire/기존 Frozen fingerprint를 별도 gzip에 보존한다. 기�
 
 Phase B는 INCONCLUSIVE다. 현재 필수 미검증을 3개 묶음으로 명시한다:
 ① 50k 전체 D→E/I25/storage/resource, ② 100k 같은 경계,
-③ 전체 정상 경로의 hash/validated/write byte 및 분리된 peak resource accounting.
+③ 전체 정상 경로의 논리 bytes hashed/validated/written에 대한 독립 accounting.
+§35의 memory는 HOST RSS로 보고했으나 큰 두 N의 client resource는 미관찰이다.
+물리 I/O 또는 fixture와 분리된 순수 peak를 관찰하지 못한 사실만으로 새 필수 F gate를 추가하지 않는다.
 아울러 §38 actual Android proof와 §31/33/34 R1 dependency는 전체 F/activation exit에서 미충족이다.
 따라서 **SAFE TO DECLARE T6.6F COMPLETE: NO**다. 정상 작은 fixture 기능 PASS만으로 상위 exit를
 SATISFIED로 만들지 않는다. 확정 correctness/cost violation이 없다는 사실도 missing proof를 대체하지 않는다.
@@ -751,7 +754,7 @@ NEW LOW:
 0
 
 UNRESOLVED PHASE B BLOCKERS:
-3개 필수 증거 묶음: 50k D→E, 100k D→E, 전체 hash/write/peak accounting
+3개 필수 증거 묶음: 50k D→E, 100k D→E, 전층 논리 hash/validate/write byte accounting
 
 MANDATORY F REQUIREMENTS UNVERIFIED:
 위 3개 묶음 및 상위 Android proof/R1 dependency; coverage-final.json 참조

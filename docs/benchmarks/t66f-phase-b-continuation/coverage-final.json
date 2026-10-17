@@ -966,7 +966,7 @@
       "new_evidence": "evidence/grid-summary.json; evidence/cost-summary.json; evidence/budget-50000.json",
       "audited_product": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
       "evidence_still_applicable": true,
-      "limitation": "지원 가능한 세 N에서 정상 반복의 독립 SQL/object 비용은 bounded다. 두 큰 N 및 전체 bytes hashed/physical writes/peak isolation은 미검증이다.",
+      "limitation": "지원 가능한 세 N에서 정상 반복의 독립 SQL/object 비용은 bounded다. 두 큰 N 및 전층 논리 bytes hashed/validated/written은 미검증이다. physical I/O/pure peak는 추가 관찰 한계이며 새 F 필수 threshold가 아니다.",
       "owner": "독립 F 감사",
       "remaining_action": "필수 미완료 규모/metric proof를 독립 검증한다. 지원 한도나 규범을 감사 중 변경하지 않는다.",
       "final_acceptance": "해당 규범 의무에 맞는 증거; 하위/기존 PASS를 전체 F PASS로 확장하지 않음"
@@ -1678,7 +1678,7 @@
   "mandatory_unverified": [
     "50k 전체 backend→Flutter transfer/publication/read 및 I25/storage/resource grid",
     "100k 전체 backend→Flutter transfer/publication/read 및 I25/storage/resource grid",
-    "전체 정상 경로 bytes hashed/validated/written 및 peak resource의 독립 전체 accounting"
+    "전체 정상 경로 논리 bytes hashed/validated/written의 독립 accounting"
   ],
   "device_unavailable": [
     "actual Android VFS/pragmas/I/O/power-loss proof"
