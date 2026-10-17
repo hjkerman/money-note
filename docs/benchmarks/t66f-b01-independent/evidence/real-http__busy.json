@@ -1,0 +1,18 @@
+{
+  "first_status": 503,
+  "error": {
+    "error": {
+      "action": "retry_same",
+      "code": "ROOT_NOT_READY",
+      "current_ns": null,
+      "retry_after_ms": 100
+    },
+    "protocol": 1,
+    "request_id": "ecc46673-45a6-43ac-8b08-3b43c0fa0c5a"
+  },
+  "seconds": 1.0913111319532618,
+  "retry_status": 201,
+  "duplicate_status": 200,
+  "active_before": 0,
+  "active_after": 0
+}

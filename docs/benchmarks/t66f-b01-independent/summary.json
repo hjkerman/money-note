@@ -1,0 +1,1655 @@
+{
+  "independent-final": {
+    "tests": 14,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "cases": [
+      {
+        "name": "test_I01_exact_assertions_scope_and_supported_budget",
+        "result": "PASS"
+      },
+      {
+        "name": "test_I02_five_long_waiters_and_one_short_probe_preserve_exact_quota",
+        "result": "PASS"
+      },
+      {
+        "name": "test_I03_auth_is_rechecked_after_supported_lock_wait",
+        "result": "PASS"
+      },
+      {
+        "name": "test_I04_duplicate_and_conflicting_nonce_cannot_expand_quota",
+        "result": "PASS"
+      },
+      {
+        "name": "test_I05_cancelled_native_operation_keeps_permit_until_native_exit[authenticated]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_I05_cancelled_native_operation_keeps_permit_until_native_exit[sqlite_wait]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_I06_pre_and_post_commit_failures_have_distinct_durable_results[False]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_I06_pre_and_post_commit_failures_have_distinct_durable_results[True]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_I07_stale_A_request_never_acts_on_replacement_B[authenticated]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_I07_stale_A_request_never_acts_on_replacement_B[serialized]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_I08_fixture_order_does_not_change_another_repository_budget[ordering0]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_I08_fixture_order_does_not_change_another_repository_budget[ordering1]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_I09_native_busy_timeout_and_close_are_connection_local[1000]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_I09_native_busy_timeout_and_close_are_connection_local[5000]",
+        "result": "PASS"
+      }
+    ],
+    "seconds": 17.075,
+    "sha256": "c1aa271d9da1193c3d93c10cabf2dbfb6f7e57d9f8caea327ffbb016f8caed12",
+    "exit": 0
+  },
+  "correction": {
+    "tests": 4,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "cases": [
+      {
+        "name": "test_default_deadline_and_quota_budget_wait_on_same_writer",
+        "result": "PASS"
+      },
+      {
+        "name": "test_busy_and_invalid_requests_release_all_permits_on_disposable_lifespan[0]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_busy_and_invalid_requests_release_all_permits_on_disposable_lifespan[1]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_original_quota_status_and_pin_assertions_remain_byte_exact",
+        "result": "PASS"
+      }
+    ],
+    "seconds": 8.347,
+    "sha256": "6d2200186291e5688abe00dd589af47fd27175b66e5e8f1d9ee4e2c9ca0ebec1",
+    "exit": 0
+  },
+  "related": {
+    "tests": 90,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "cases": [
+      {
+        "name": "test_idempotent_retry_request_conflict_and_quota",
+        "result": "PASS"
+      },
+      {
+        "name": "test_terminal_identity_changes_before_lock_acquisition[epoch]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_terminal_identity_changes_before_lock_acquisition[cancel]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_terminal_identity_changes_before_lock_acquisition[principal]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_concurrent_observers_same_target",
+        "result": "PASS"
+      },
+      {
+        "name": "test_terminal_context_counterexamples[cancel]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_quota_replacement_clock_rollback",
+        "result": "PASS"
+      },
+      {
+        "name": "test_sticky_quota_retirement_survives_failed_publication[records]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_sticky_quota_retirement_survives_failed_publication[metadata]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_sticky_quota_retirement_survives_failed_publication[total_bytes]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_sticky_quota_retirement_survives_failed_publication[pin]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_sticky_quota_retirement_survives_failed_publication[before_commit]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_sticky_quota_retirement_survives_failed_publication[auth]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_sticky_quota_retirement_survives_failed_publication[context]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_sticky_quota_retirement_survives_failed_publication[new_expiry]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_quota_rejection_preserves_expired_and_live_memberships",
+        "result": "PASS"
+      },
+      {
+        "name": "test_concurrent_quota_replacement_is_atomic",
+        "result": "PASS"
+      },
+      {
+        "name": "test_retirement_process_crash_boundary[before_commit-quota_error]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_retirement_process_crash_boundary[after_commit-quota_error]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_retirement_queries_use_existing_quota_index",
+        "result": "PASS"
+      },
+      {
+        "name": "test_retirement_commit_failure_is_not_reported_as_durable_expiry[quota_error]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_terminal_auth_expiry_cancellation_after_buffering[revoke-objects_prepared]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_terminal_auth_expiry_cancellation_after_buffering[revoke-serialized]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_terminal_auth_expiry_cancellation_after_buffering[revoke-terminal]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_terminal_auth_expiry_cancellation_after_buffering[cancel-objects_prepared]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_terminal_auth_expiry_cancellation_after_buffering[cancel-serialized]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_terminal_auth_expiry_cancellation_after_buffering[cancel-terminal]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_terminal_auth_expiry_cancellation_after_buffering[expire-objects_prepared]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_terminal_auth_expiry_cancellation_after_buffering[expire-serialized]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_terminal_auth_expiry_cancellation_after_buffering[expire-terminal]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_bounded_concurrent_quota_and_same_request_status",
+        "result": "PASS"
+      },
+      {
+        "name": "test_concurrent_duplicate_manifest_and_object_retries",
+        "result": "PASS"
+      },
+      {
+        "name": "test_transfer_concurrency_budget_and_busy_retry",
+        "result": "PASS"
+      },
+      {
+        "name": "test_unknown_base_version_is_unsupported_not_full_resync[recurring_ownership]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_real_asgi_cancel_retains_native_permit_and_cleans_sqlite[authenticated]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_real_asgi_cancel_retains_native_permit_and_cleans_sqlite[objects_prepared]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_real_asgi_cancel_retains_native_permit_and_cleans_sqlite[serialized]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_real_asgi_cancel_retains_native_permit_and_cleans_sqlite[terminal]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_cancel_before_ticket_creation_is_not_forgotten",
+        "result": "PASS"
+      },
+      {
+        "name": "test_asgi_manifest_cancellation_leaves_absent_or_complete_pins[pin_raw]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_asgi_manifest_cancellation_leaves_absent_or_complete_pins[before_commit]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_asgi_manifest_cancellation_leaves_absent_or_complete_pins[serialized]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_cancel_during_body_admission_has_no_worker_or_permit_leak",
+        "result": "PASS"
+      },
+      {
+        "name": "test_cancelled_worker_late_result_or_exception_is_observed[False]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_cancelled_worker_late_result_or_exception_is_observed[True]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_asgi_completion_cancellation_race_exact_once[cancel_first]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_asgi_completion_cancellation_race_exact_once[complete_first]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_submission_failure_releases_exactly_once[create_task]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_submission_failure_releases_exactly_once[executor]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_supervisor_shutdown_cannot_release_a_running_worker[before_start]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_supervisor_shutdown_cannot_release_a_running_worker[running]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_one_lease_cannot_dispatch_parallel_native_operations",
+        "result": "PASS"
+      },
+      {
+        "name": "test_cancelled_queued_worker_keeps_admission_bounded",
+        "result": "PASS"
+      },
+      {
+        "name": "test_cancel_while_real_anyio_executor_limiter_is_occupied",
+        "result": "PASS"
+      },
+      {
+        "name": "test_cancel_before_native_start_never_authenticates_or_returns_success",
+        "result": "PASS"
+      },
+      {
+        "name": "test_native_exit_after_original_loop_closed_returns_capacity",
+        "result": "PASS"
+      },
+      {
+        "name": "test_path_checkpoints_stop_cancelled_batch_before_next_object",
+        "result": "PASS"
+      },
+      {
+        "name": "test_shutdown_signals_handles_without_releasing_live_capacity",
+        "result": "PASS"
+      },
+      {
+        "name": "test_bounded_cancellation_stress_never_overadmits_and_recovers",
+        "result": "PASS"
+      },
+      {
+        "name": "test_initial_creation_never_adopts_a_preexisting_path[file]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_initial_creation_never_adopts_a_preexisting_path[symlink]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_exclusively_created_inode_is_bound_before_initial_sqlite_open",
+        "result": "PASS"
+      },
+      {
+        "name": "test_sqlite_open_substitution_commits_no_unauthorized_deletion[symlink-before_open]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_sqlite_open_substitution_commits_no_unauthorized_deletion[symlink-after_open]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_sqlite_open_substitution_commits_no_unauthorized_deletion[symlink-aba]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_sqlite_open_substitution_commits_no_unauthorized_deletion[atomic-before_open]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_sqlite_open_substitution_commits_no_unauthorized_deletion[atomic-after_open]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_sqlite_open_substitution_commits_no_unauthorized_deletion[atomic-aba]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_all_destructive_maintenance_connections_are_bound[maintain]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_all_destructive_maintenance_connections_are_bound[release]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_all_destructive_maintenance_connections_are_bound[protect]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_all_destructive_maintenance_connections_are_bound[unprotect]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_all_destructive_maintenance_connections_are_bound[collect]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_swap_between_gc_batches_keeps_only_authorized_prior_commit",
+        "result": "PASS"
+      },
+      {
+        "name": "test_reused_connection_cannot_be_redirected_and_new_connection_rejects",
+        "result": "PASS"
+      },
+      {
+        "name": "test_ownership_error_before_commit_rolls_back_actual_deletes[explicit]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_ownership_error_before_commit_rolls_back_actual_deletes[context]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_descriptor_validation_is_not_replaceable_by_copied_marker_or_path_check",
+        "result": "PASS"
+      },
+      {
+        "name": "test_wrong_external_ownership_identity_rejects_actual_opened_fd",
+        "result": "PASS"
+      },
+      {
+        "name": "test_missing_descriptor_observation_fails_closed_without_connection_leak",
+        "result": "PASS"
+      },
+      {
+        "name": "test_unreviewed_native_platform_fails_closed[platform]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_unreviewed_native_platform_fails_closed[sqlite]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_quiescent_migration_open_is_independently_bound",
+        "result": "PASS"
+      },
+      {
+        "name": "test_fd_reuse_during_wal_connections_keeps_actual_inode_binding",
+        "result": "PASS"
+      },
+      {
+        "name": "test_crash_during_unowned_open_preserves_both_databases",
+        "result": "PASS"
+      },
+      {
+        "name": "test_wal_parallel_connections_post_open_swap_have_no_unauthorized_commit",
+        "result": "PASS"
+      },
+      {
+        "name": "test_process_interruption_around_admission_and_gc_commit[opened]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_process_interruption_around_admission_and_gc_commit[before_commit]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_process_interruption_around_admission_and_gc_commit[after_commit]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_legitimate_owned_gc_and_repeat_preserve_reachable_objects_and_evidence",
+        "result": "PASS"
+      }
+    ],
+    "seconds": 228.301,
+    "sha256": "8b3fcfb10e52cb11fc125f872f55fd198ba9e35967c8acc014b3bbeab289979c",
+    "exit": 0
+  },
+  "identity-independent": {
+    "tests": 6,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "cases": [
+      {
+        "name": "test_independent_open_replacement[symlink-before]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_independent_open_replacement[symlink-after]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_independent_open_replacement[symlink-aba]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_independent_open_replacement[atomic-before]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_independent_open_replacement[atomic-after]",
+        "result": "PASS"
+      },
+      {
+        "name": "test_independent_open_replacement[atomic-aba]",
+        "result": "PASS"
+      }
+    ],
+    "seconds": 11.882,
+    "sha256": "451216bf39bd5a3ede1231557477a7e1c00fbcfbd34c61158f889e1ab881292d",
+    "exit": 0
+  },
+  "real-http": {
+    "tests": 2,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "cases": [
+      {
+        "name": "test_real_sql_writer_conflict_has_bounded_retry_and_no_false_lease",
+        "result": "PASS"
+      },
+      {
+        "name": "test_real_five_authenticated_requests_obey_worker_and_lease_budgets",
+        "result": "PASS"
+      }
+    ],
+    "seconds": 9.799,
+    "sha256": "e8ad3a6f29a4dbd19bbb7f67cd3621be65dec59910f548dc46e3297b38b67b75",
+    "exit": 0
+  },
+  "quota-first": {
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "cases": [
+      {
+        "name": "test_bounded_concurrent_quota_and_same_request_status",
+        "result": "PASS"
+      },
+      {
+        "name": "test_manifest_real_auth_retry_conflict_and_read_only",
+        "result": "PASS"
+      },
+      {
+        "name": "test_concurrent_duplicate_manifest_and_object_retries",
+        "result": "PASS"
+      }
+    ],
+    "seconds": 5.992,
+    "sha256": "20e627777877ef9476074de985a7f7942a81dd7258c9858935b57959320aeffb",
+    "exit": 0
+  },
+  "quota-last": {
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "cases": [
+      {
+        "name": "test_manifest_real_auth_retry_conflict_and_read_only",
+        "result": "PASS"
+      },
+      {
+        "name": "test_concurrent_duplicate_manifest_and_object_retries",
+        "result": "PASS"
+      },
+      {
+        "name": "test_bounded_concurrent_quota_and_same_request_status",
+        "result": "PASS"
+      }
+    ],
+    "seconds": 6.219,
+    "sha256": "ae5a534769ae3303856ed108a1020f20bfda7f625c3c1c2632f55480f173c94c",
+    "exit": 0
+  },
+  "selected_flutter": {
+    "counts": {
+      "PASS": 4
+    },
+    "cases": [
+      {
+        "name": "I10 real TLS quota rejection and same-client E2 recovery",
+        "result": "PASS"
+      },
+      {
+        "name": "FB01 real TLS cold → identical → localized → split → delete → later delta",
+        "result": "PASS"
+      },
+      {
+        "name": "FB13 real capability response keeps R1 support unavailable",
+        "result": "PASS"
+      },
+      {
+        "name": "FB14 actual authenticated other principal cannot enter principal-one cache or installation",
+        "result": "PASS"
+      }
+    ],
+    "errors": [],
+    "done": true,
+    "sha256": "dcaaff47de9f8494fa08f47efd36acfd209af9983cc5b03342d7aefe5c31a1b1"
+  },
+  "full_flutter": "NOT RERUN IN B01 TARGETED VALIDATION",
+  "full-1": {
+    "tests": 2855,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 1487.272,
+    "sha256": "bf30361b464e58536752558a88988b13212e18c8ace2ad011b7d4885a798028f",
+    "main_tests": 1315,
+    "subtests": 1540,
+    "log_sha256": "cc739e9561a98ce74f79831478a631d12388ac892cb809e070a58689868fb58f",
+    "process": {
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--junitxml=/tmp/mn-t66f-b01-independent/full-1.xml"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/backend",
+      "start_utc": "2026-10-17T04:11:19.316604+00:00",
+      "pid": 350638,
+      "timeout": false,
+      "exit": 0,
+      "seconds": 1487.8431343709817,
+      "end_utc": "2026-10-17T04:36:07.159855+00:00"
+    },
+    "warning_count": 1,
+    "warnings": [
+      "/home/hjkerman/codex/money-note/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead."
+    ]
+  },
+  "full-2": {
+    "tests": 2855,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 1516.477,
+    "sha256": "b8b21f9e9fd534357e24f288ad4d2eefee49452c6010ff1c2b178b59e350ac5b",
+    "main_tests": 1315,
+    "subtests": 1540,
+    "log_sha256": "5b04c17f8716d52ae841e3c4ed861229b18cc495b90e3a6492f9a5c1e105fec3",
+    "process": {
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--junitxml=/tmp/mn-t66f-b01-independent/full-2.xml"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/backend",
+      "start_utc": "2026-10-17T04:36:07.160143+00:00",
+      "pid": 354186,
+      "timeout": false,
+      "exit": 0,
+      "seconds": 1517.0543248589966,
+      "end_utc": "2026-10-17T05:01:24.214586+00:00"
+    },
+    "warning_count": 1,
+    "warnings": [
+      "/home/hjkerman/codex/money-note/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead."
+    ]
+  },
+  "repetitions": [
+    {
+      "cohort": "baseline",
+      "iteration": 1,
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "repeat_plugin",
+        "/tmp/mn-t66f-b01-independent/repetition/original_exact_test.py::test_bounded_concurrent_quota_and_same_request_status",
+        "--junitxml=/tmp/mn-t66f-b01-independent/repetition/baseline-1.xml"
+      ],
+      "exit": 1,
+      "seconds": 5.375673127011396,
+      "record": "baseline-1.json",
+      "statuses": [
+        201,
+        201,
+        201,
+        201,
+        503
+      ],
+      "execute": 3871,
+      "select": 1272,
+      "handles": 14,
+      "all_handles_closed": true,
+      "raw_sha256": "271eae80fc3c88f502209d6f3a6e5ce3c6f49684532bd91f55c77091ec8c47a0",
+      "source_sha256": "ddee07457cea3d99a830b367bb013abe8a6a2cb8474026aa27973ba8f218ade7",
+      "record_path": "repetition/baseline-1.json"
+    },
+    {
+      "cohort": "baseline",
+      "iteration": 2,
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "repeat_plugin",
+        "/tmp/mn-t66f-b01-independent/repetition/original_exact_test.py::test_bounded_concurrent_quota_and_same_request_status",
+        "--junitxml=/tmp/mn-t66f-b01-independent/repetition/baseline-2.xml"
+      ],
+      "exit": 0,
+      "seconds": 5.225204081041738,
+      "record": "baseline-2.json",
+      "statuses": [
+        201,
+        201,
+        201,
+        201,
+        429
+      ],
+      "execute": 4355,
+      "select": 1450,
+      "handles": 14,
+      "all_handles_closed": true,
+      "raw_sha256": "0d63ba73d60af0877237e0630c848305df9a540b3ce1d810264486ac720a8982",
+      "source_sha256": "ddee07457cea3d99a830b367bb013abe8a6a2cb8474026aa27973ba8f218ade7",
+      "record_path": "repetition/baseline-2.json"
+    },
+    {
+      "cohort": "baseline",
+      "iteration": 3,
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "repeat_plugin",
+        "/tmp/mn-t66f-b01-independent/repetition/original_exact_test.py::test_bounded_concurrent_quota_and_same_request_status",
+        "--junitxml=/tmp/mn-t66f-b01-independent/repetition/baseline-3.xml"
+      ],
+      "exit": 0,
+      "seconds": 5.0744971570093185,
+      "record": "baseline-3.json",
+      "statuses": [
+        201,
+        201,
+        201,
+        201,
+        429
+      ],
+      "execute": 4355,
+      "select": 1450,
+      "handles": 14,
+      "all_handles_closed": true,
+      "raw_sha256": "0ab2f89e1537ac7bed64fdd24a68260c081e7537fdce6ede2910513ad15cfcd8",
+      "source_sha256": "ddee07457cea3d99a830b367bb013abe8a6a2cb8474026aa27973ba8f218ade7",
+      "record_path": "repetition/baseline-3.json"
+    },
+    {
+      "cohort": "baseline",
+      "iteration": 4,
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "repeat_plugin",
+        "/tmp/mn-t66f-b01-independent/repetition/original_exact_test.py::test_bounded_concurrent_quota_and_same_request_status",
+        "--junitxml=/tmp/mn-t66f-b01-independent/repetition/baseline-4.xml"
+      ],
+      "exit": 0,
+      "seconds": 4.523398305987939,
+      "record": "baseline-4.json",
+      "statuses": [
+        201,
+        201,
+        201,
+        201,
+        429
+      ],
+      "execute": 4355,
+      "select": 1450,
+      "handles": 14,
+      "all_handles_closed": true,
+      "raw_sha256": "29a634451aaace41756d017d7b22adc81db9614f1a57deb14c4a6793a094ddb6",
+      "source_sha256": "ddee07457cea3d99a830b367bb013abe8a6a2cb8474026aa27973ba8f218ade7",
+      "record_path": "repetition/baseline-4.json"
+    },
+    {
+      "cohort": "corrected",
+      "iteration": 1,
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "repeat_plugin",
+        "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+        "--junitxml=/tmp/mn-t66f-b01-independent/repetition/corrected-1.xml"
+      ],
+      "exit": 0,
+      "seconds": 4.623244491987862,
+      "record": "corrected-1.json",
+      "statuses": [
+        201,
+        201,
+        201,
+        201,
+        429
+      ],
+      "execute": 4355,
+      "select": 1450,
+      "handles": 14,
+      "all_handles_closed": true,
+      "raw_sha256": "f575b0f455219de9f17f65c3c977f5ed39313cf8144459cdfac2e51861a3cc1e",
+      "source_sha256": "a6e90a389ffa47c850d0c5551826680572085912943ab5d424e0229b0818202f",
+      "record_path": "repetition/corrected-1.json"
+    },
+    {
+      "cohort": "corrected",
+      "iteration": 2,
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "repeat_plugin",
+        "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+        "--junitxml=/tmp/mn-t66f-b01-independent/repetition/corrected-2.xml"
+      ],
+      "exit": 0,
+      "seconds": 5.124969419965055,
+      "record": "corrected-2.json",
+      "statuses": [
+        201,
+        201,
+        201,
+        201,
+        429
+      ],
+      "execute": 4355,
+      "select": 1450,
+      "handles": 14,
+      "all_handles_closed": true,
+      "raw_sha256": "f730edafe402d59ae65abb6ef0f82eee6e48f8094b92fb0c619743aebbeb0cc8",
+      "source_sha256": "a6e90a389ffa47c850d0c5551826680572085912943ab5d424e0229b0818202f",
+      "record_path": "repetition/corrected-2.json"
+    },
+    {
+      "cohort": "corrected",
+      "iteration": 3,
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "repeat_plugin",
+        "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+        "--junitxml=/tmp/mn-t66f-b01-independent/repetition/corrected-3.xml"
+      ],
+      "exit": 0,
+      "seconds": 4.72372082300717,
+      "record": "corrected-3.json",
+      "statuses": [
+        201,
+        201,
+        201,
+        201,
+        429
+      ],
+      "execute": 4355,
+      "select": 1450,
+      "handles": 14,
+      "all_handles_closed": true,
+      "raw_sha256": "ea54c301beaa2335c2cb1af4e3f9badf3a346f895c525e11cefffb90a932579a",
+      "source_sha256": "a6e90a389ffa47c850d0c5551826680572085912943ab5d424e0229b0818202f",
+      "record_path": "repetition/corrected-3.json"
+    },
+    {
+      "cohort": "corrected",
+      "iteration": 4,
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "repeat_plugin",
+        "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+        "--junitxml=/tmp/mn-t66f-b01-independent/repetition/corrected-4.xml"
+      ],
+      "exit": 0,
+      "seconds": 5.1742889520246536,
+      "record": "corrected-4.json",
+      "statuses": [
+        201,
+        201,
+        201,
+        201,
+        429
+      ],
+      "execute": 4355,
+      "select": 1450,
+      "handles": 14,
+      "all_handles_closed": true,
+      "raw_sha256": "5191ff0ba99221b41192cf5542905f2799eb8205e3fcbb43c502a0f2033fcadd",
+      "source_sha256": "a6e90a389ffa47c850d0c5551826680572085912943ab5d424e0229b0818202f",
+      "record_path": "repetition/corrected-4.json"
+    },
+    {
+      "cohort": "corrected",
+      "iteration": 5,
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "repeat_plugin",
+        "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+        "--junitxml=/tmp/mn-t66f-b01-independent/repetition/corrected-5.xml"
+      ],
+      "exit": 0,
+      "seconds": 4.973909237014595,
+      "record": "corrected-5.json",
+      "statuses": [
+        201,
+        201,
+        201,
+        201,
+        429
+      ],
+      "execute": 4355,
+      "select": 1450,
+      "handles": 14,
+      "all_handles_closed": true,
+      "raw_sha256": "fbe0a308429acb60af0f47aa7303e01ce8a9aabc1da452ed3294c4a179f39d6f",
+      "source_sha256": "a6e90a389ffa47c850d0c5551826680572085912943ab5d424e0229b0818202f",
+      "record_path": "repetition/corrected-5.json"
+    },
+    {
+      "cohort": "corrected",
+      "iteration": 6,
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "repeat_plugin",
+        "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+        "--junitxml=/tmp/mn-t66f-b01-independent/repetition/corrected-6.xml"
+      ],
+      "exit": 0,
+      "seconds": 5.024689244048204,
+      "record": "corrected-6.json",
+      "statuses": [
+        201,
+        201,
+        201,
+        201,
+        429
+      ],
+      "execute": 4355,
+      "select": 1450,
+      "handles": 14,
+      "all_handles_closed": true,
+      "raw_sha256": "0f5abcd1a8d88bd7640e96702f976dff7aab7bed47cca04921e110d3031d2370",
+      "source_sha256": "a6e90a389ffa47c850d0c5551826680572085912943ab5d424e0229b0818202f",
+      "record_path": "repetition/corrected-6.json"
+    },
+    {
+      "cohort": "corrected",
+      "iteration": 7,
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "repeat_plugin",
+        "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+        "--junitxml=/tmp/mn-t66f-b01-independent/repetition/corrected-7.xml"
+      ],
+      "exit": 0,
+      "seconds": 5.1749098299769685,
+      "record": "corrected-7.json",
+      "statuses": [
+        201,
+        201,
+        201,
+        201,
+        429
+      ],
+      "execute": 4355,
+      "select": 1450,
+      "handles": 14,
+      "all_handles_closed": true,
+      "raw_sha256": "f982b6dcae5bf1f0496b66f608ff35594793093daa9f4d4400e7f36c6219654c",
+      "source_sha256": "a6e90a389ffa47c850d0c5551826680572085912943ab5d424e0229b0818202f",
+      "record_path": "repetition/corrected-7.json"
+    },
+    {
+      "cohort": "corrected",
+      "iteration": 8,
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "repeat_plugin",
+        "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+        "--junitxml=/tmp/mn-t66f-b01-independent/repetition/corrected-8.xml"
+      ],
+      "exit": 0,
+      "seconds": 4.97480051900493,
+      "record": "corrected-8.json",
+      "statuses": [
+        201,
+        201,
+        201,
+        201,
+        429
+      ],
+      "execute": 4355,
+      "select": 1450,
+      "handles": 14,
+      "all_handles_closed": true,
+      "raw_sha256": "ecced51afa7885e5238510dd91873cbe8dce5528a2665efc6e6f5c1317054cdd",
+      "source_sha256": "a6e90a389ffa47c850d0c5551826680572085912943ab5d424e0229b0818202f",
+      "record_path": "repetition/corrected-8.json"
+    },
+    {
+      "cohort": "corrected",
+      "iteration": 9,
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "repeat_plugin",
+        "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+        "--junitxml=/tmp/mn-t66f-b01-independent/repetition/corrected-9.xml"
+      ],
+      "exit": 0,
+      "seconds": 5.024816615972668,
+      "record": "corrected-9.json",
+      "statuses": [
+        201,
+        201,
+        201,
+        201,
+        429
+      ],
+      "execute": 4355,
+      "select": 1450,
+      "handles": 14,
+      "all_handles_closed": true,
+      "raw_sha256": "2e2a69ab257175cf05353f0431f71eb9d2a8b2ad2a487835803a4ea6763bd3e5",
+      "source_sha256": "a6e90a389ffa47c850d0c5551826680572085912943ab5d424e0229b0818202f",
+      "record_path": "repetition/corrected-9.json"
+    },
+    {
+      "cohort": "corrected",
+      "iteration": 10,
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "repeat_plugin",
+        "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+        "--junitxml=/tmp/mn-t66f-b01-independent/repetition/corrected-10.xml"
+      ],
+      "exit": 0,
+      "seconds": 4.573432806006167,
+      "record": "corrected-10.json",
+      "statuses": [
+        201,
+        201,
+        201,
+        201,
+        429
+      ],
+      "execute": 4355,
+      "select": 1450,
+      "handles": 14,
+      "all_handles_closed": true,
+      "raw_sha256": "fa16b0687576fc5ab5d654c8e511f8e8930265197eeb8814f4363cf9777bba5f",
+      "source_sha256": "a6e90a389ffa47c850d0c5551826680572085912943ab5d424e0229b0818202f",
+      "record_path": "repetition/corrected-10.json"
+    },
+    {
+      "cohort": "corrected",
+      "iteration": 11,
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "repeat_plugin",
+        "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+        "--junitxml=/tmp/mn-t66f-b01-independent/repetition/corrected-11.xml"
+      ],
+      "exit": 0,
+      "seconds": 4.723994903033599,
+      "record": "corrected-11.json",
+      "statuses": [
+        201,
+        201,
+        201,
+        201,
+        429
+      ],
+      "execute": 4355,
+      "select": 1450,
+      "handles": 14,
+      "all_handles_closed": true,
+      "raw_sha256": "100ff33f1054525f4b565249ded03f0d49652e8fd813ef06520adbf2ca05994c",
+      "source_sha256": "a6e90a389ffa47c850d0c5551826680572085912943ab5d424e0229b0818202f",
+      "record_path": "repetition/corrected-11.json"
+    },
+    {
+      "cohort": "corrected",
+      "iteration": 12,
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "repeat_plugin",
+        "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+        "--junitxml=/tmp/mn-t66f-b01-independent/repetition/corrected-12.xml"
+      ],
+      "exit": 0,
+      "seconds": 4.9747587610036135,
+      "record": "corrected-12.json",
+      "statuses": [
+        201,
+        201,
+        201,
+        201,
+        429
+      ],
+      "execute": 4355,
+      "select": 1450,
+      "handles": 14,
+      "all_handles_closed": true,
+      "raw_sha256": "f42ef79fc9e6b4132c136207f9da4bdec427eff30aca6ea64aa1992fc1fbf85a",
+      "source_sha256": "a6e90a389ffa47c850d0c5551826680572085912943ab5d424e0229b0818202f",
+      "record_path": "repetition/corrected-12.json"
+    },
+    {
+      "cohort": "corrected",
+      "iteration": 1,
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "repeat_plugin",
+        "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+        "--junitxml=/tmp/mn-t66f-b01-independent/teardown-repetition/corrected-1.xml"
+      ],
+      "exit": 0,
+      "seconds": 6.778730548045132,
+      "record": "corrected-1.json",
+      "statuses": [
+        201,
+        201,
+        201,
+        201,
+        429
+      ],
+      "execute": 4355,
+      "select": 1450,
+      "handles": 14,
+      "all_handles_closed": true,
+      "raw_sha256": "0f496dd7dce38dd31e1574481d9a43aed070c2f50e28ec25a2a25e65590a88e6",
+      "source_sha256": "a6e90a389ffa47c850d0c5551826680572085912943ab5d424e0229b0818202f",
+      "record_path": "teardown-repetition/corrected-1.json"
+    },
+    {
+      "cohort": "corrected",
+      "iteration": 2,
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "repeat_plugin",
+        "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+        "--junitxml=/tmp/mn-t66f-b01-independent/teardown-repetition/corrected-2.xml"
+      ],
+      "exit": 0,
+      "seconds": 6.628105016017798,
+      "record": "corrected-2.json",
+      "statuses": [
+        201,
+        201,
+        201,
+        201,
+        429
+      ],
+      "execute": 4355,
+      "select": 1450,
+      "handles": 14,
+      "all_handles_closed": true,
+      "raw_sha256": "34244e949508ce57a262e1496a3368102fa9c090f79f8c1e63f2325019e2a5aa",
+      "source_sha256": "a6e90a389ffa47c850d0c5551826680572085912943ab5d424e0229b0818202f",
+      "record_path": "teardown-repetition/corrected-2.json"
+    },
+    {
+      "cohort": "corrected",
+      "iteration": 3,
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "repeat_plugin",
+        "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+        "--junitxml=/tmp/mn-t66f-b01-independent/teardown-repetition/corrected-3.xml"
+      ],
+      "exit": 0,
+      "seconds": 6.62879096501274,
+      "record": "corrected-3.json",
+      "statuses": [
+        201,
+        201,
+        201,
+        201,
+        429
+      ],
+      "execute": 4355,
+      "select": 1450,
+      "handles": 14,
+      "all_handles_closed": true,
+      "raw_sha256": "8f41a15d9ff65c35f9ebad70653a80eb3d393da6b3e219d7001859067a1db089",
+      "source_sha256": "a6e90a389ffa47c850d0c5551826680572085912943ab5d424e0229b0818202f",
+      "record_path": "teardown-repetition/corrected-3.json"
+    },
+    {
+      "cohort": "corrected",
+      "iteration": 4,
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "repeat_plugin",
+        "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+        "--junitxml=/tmp/mn-t66f-b01-independent/teardown-repetition/corrected-4.xml"
+      ],
+      "exit": 0,
+      "seconds": 6.477631404006388,
+      "record": "corrected-4.json",
+      "statuses": [
+        201,
+        201,
+        201,
+        201,
+        429
+      ],
+      "execute": 4355,
+      "select": 1450,
+      "handles": 14,
+      "all_handles_closed": true,
+      "raw_sha256": "1ffb030a73eb13ff84abba7445b50bff579b7d32ad025da7d89e29b242d9583d",
+      "source_sha256": "a6e90a389ffa47c850d0c5551826680572085912943ab5d424e0229b0818202f",
+      "record_path": "teardown-repetition/corrected-4.json"
+    },
+    {
+      "cohort": "corrected",
+      "iteration": 1,
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "repeat_plugin",
+        "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+        "--junitxml=/tmp/mn-t66f-b01-independent/gc-repetition/corrected-1.xml"
+      ],
+      "exit": 0,
+      "seconds": 5.87592471804237,
+      "record": "corrected-1.json",
+      "statuses": [
+        201,
+        201,
+        201,
+        201,
+        429
+      ],
+      "execute": 4355,
+      "select": 1450,
+      "handles": 14,
+      "all_handles_closed": true,
+      "raw_sha256": "522c00eff09ea1fad35c4bb3c3a98d007b01e67ef7926314c848175c18fc0bde",
+      "source_sha256": "a6e90a389ffa47c850d0c5551826680572085912943ab5d424e0229b0818202f",
+      "record_path": "gc-repetition/corrected-1.json"
+    }
+  ],
+  "corrected_repeated_counts": {
+    "PASS": 17
+  },
+  "baseline_repeated_counts": {
+    "FAIL": 1,
+    "PASS": 3
+  },
+  "new_independent_counts": {
+    "PASS": 15,
+    "FAIL": 0,
+    "INCONCLUSIVE": 0
+  },
+  "theme_coverage": {
+    "01 exact assertion": [
+      "I01",
+      "corrected repetitions17"
+    ],
+    "02/03/04 lock budgets and 503": [
+      "I02",
+      "baseline exact-copy failure"
+    ],
+    "05 quota": [
+      "I02",
+      "I04",
+      "I10"
+    ],
+    "06 nonce": [
+      "I04"
+    ],
+    "07/08/09 permits and recovery": [
+      "I02",
+      "I03",
+      "I05-authenticated",
+      "I05-sqlite_wait",
+      "I06-False",
+      "I06-True",
+      "I10"
+    ],
+    "10/11 scope/default": [
+      "I01",
+      "I08-5000",
+      "I08-1000",
+      "I09-1000",
+      "I09-5000"
+    ],
+    "12 identity": [
+      "I07-authenticated",
+      "I07-serialized",
+      "existing actual-open6"
+    ],
+    "13 cleanup": [
+      "I02",
+      "I09-1000",
+      "I09-5000",
+      "original fixture FD/GC observation"
+    ],
+    "14 ordering": [
+      "I08-5000",
+      "I08-1000",
+      "related90",
+      "full runs"
+    ],
+    "15 product immutable": [
+      "I01",
+      "inventory hashes",
+      "Git product diff"
+    ]
+  },
+  "all_recorded_files_preserved": true,
+  "product_diff_from_phase_b": "",
+  "checks": {
+    "ruff": {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "backend/app",
+        "backend/isolated_sync",
+        "backend/tests",
+        "docs/benchmarks/t66f-b01-independent"
+      ],
+      "exit": 0,
+      "seconds": 0.03210500400746241
+    },
+    "compileall": {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "compileall",
+        "-q",
+        "backend/app",
+        "backend/isolated_sync",
+        "backend/tests",
+        "docs/benchmarks/t66f-b01-independent"
+      ],
+      "exit": 0,
+      "seconds": 0.06429292302345857
+    },
+    "format-python": {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "docs/benchmarks/t66f-b01-independent"
+      ],
+      "exit": 0,
+      "seconds": 0.03200444096000865
+    },
+    "format-correction-range": {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "--range=493-498",
+        "backend/tests/test_isolated_sync_transfer.py"
+      ],
+      "exit": 0,
+      "seconds": 0.06414680299349129
+    },
+    "format-dart": {
+      "command": [
+        "/home/hjkerman/.flutter/bin/dart",
+        "format",
+        "--output=none",
+        "--set-exit-if-changed",
+        "docs/benchmarks/t66f-b01-independent/http_quota_test.dart"
+      ],
+      "exit": 0,
+      "seconds": 0.11423294700216502
+    },
+    "frontend-build": {
+      "command": [
+        "npm",
+        "--prefix",
+        "frontend",
+        "run",
+        "build"
+      ],
+      "exit": 0,
+      "seconds": 4.874225491017569
+    },
+    "diff-check": {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 0.007917497016023844
+    }
+  },
+  "verdict": "PASS",
+  "root_cause": "TEST HARNESS",
+  "historical_individual_root_causes": "NOT RETROSPECTIVELY PROVEN",
+  "phase_b": "INCOMPLETE — CONTINUATION REQUIRED",
+  "phase_b_continuation": "YES",
+  "r1": "DEFERRED / CLOSED",
+  "new_findings": {
+    "CRITICAL": 0,
+    "HIGH": 0,
+    "MEDIUM": 0,
+    "LOW": 0,
+    "INFORMATIONAL": 1
+  },
+  "fixture_gc_observation": {
+    "product_handles": 14,
+    "product_handles_closed": true,
+    "native_fd_before": 1,
+    "native_fd_after_call": 2,
+    "native_fd_after_fixture_teardown": 2,
+    "native_fd_after_explicit_gc": 0,
+    "classification": "B01-IV01 INFORMATIONAL; 원 backup fixture context는 native close가 아님"
+  },
+  "evidence_manifest": [
+    {
+      "file": "evidence/flutter-quota.json",
+      "sha256": "165b1dd612467c6405554ff6b2384312f13c2aea497b3a1f77e30b6e3258b68d",
+      "bytes": 81035
+    },
+    {
+      "file": "evidence/checks.json",
+      "sha256": "e4d9993e6d458551fafc32207624e3e2a22baaa5e372034cc13cf1025c8f9c5d",
+      "bytes": 1663
+    },
+    {
+      "file": "evidence/cases-final__I02.json",
+      "sha256": "18f9797efa453862379ca1cf1af7e0dfc0d00fb75bddee4215093b1323afa701",
+      "bytes": 85507
+    },
+    {
+      "file": "evidence/cases-final__I08-1000.json",
+      "sha256": "ec8c12eb4c8bbaf48e33ec83786f705459154d6a7e5c748a5a813e4c3eb2358d",
+      "bytes": 2548
+    },
+    {
+      "file": "evidence/cases-final__I09-5000.json",
+      "sha256": "58144120fe4d56f3040f8b4747cb1e312820187d8cbcb0dd44023b5c1b4678cd",
+      "bytes": 1145
+    },
+    {
+      "file": "evidence/cases-final__I09-1000.json",
+      "sha256": "3aaf31bc3e8a5b74dd584d860e441e191b9bb70057abe81db40f3c1e015c8519",
+      "bytes": 1145
+    },
+    {
+      "file": "evidence/cases-final__I08-5000.json",
+      "sha256": "815cd9f4927d1c9e33eeaed509a1e5c1f6df74e26cc73c415b4bb1ac42e8ed08",
+      "bytes": 2548
+    },
+    {
+      "file": "evidence/cases-final__I04.json",
+      "sha256": "2b3344e53745cee18c019161869b2b2bb1cb1454a0475fd8fcd73640889db972",
+      "bytes": 100433
+    },
+    {
+      "file": "evidence/cases-final__I07-serialized.json",
+      "sha256": "fc1bba53aaf0ce98ba7453340e4506db5de2c55f9b38dfe6a664ba172faefdf7",
+      "bytes": 41393
+    },
+    {
+      "file": "evidence/cases-final__I05-sqlite_wait.json",
+      "sha256": "f211208949b257c9f1d87f3774d9ce531ba95824ed8a788fe575de5635cf9521",
+      "bytes": 22356
+    },
+    {
+      "file": "evidence/cases-final__I07-authenticated.json",
+      "sha256": "7485eacd1cc83f5500be902a5637815a8641fc274600628c9ea64bf42f814881",
+      "bytes": 39306
+    },
+    {
+      "file": "evidence/cases-final__I03.json",
+      "sha256": "9a67be6b001609c084abb737983a6e4c5203e008630629d6a1cd2b414e31c38a",
+      "bytes": 24515
+    },
+    {
+      "file": "evidence/cases-final__I01.json",
+      "sha256": "5a259ba97d6937ad5a39351202645ed19627e823abe61b6837bdc8d64f0ac95f",
+      "bytes": 967
+    },
+    {
+      "file": "evidence/cases-final__I06-True.json",
+      "sha256": "b800d7c80841c6e632774b9f8787205ff7d9cabcf734ac740cd3fb5fbe640b7d",
+      "bytes": 36612
+    },
+    {
+      "file": "evidence/cases-final__I05-authenticated.json",
+      "sha256": "ee0fe2172be6542851d582023d2e799a83636ca8e8280650453207917278eef2",
+      "bytes": 19984
+    },
+    {
+      "file": "evidence/cases-final__I06-False.json",
+      "sha256": "8018dc251f734932893803c4ecffb428ff89bd668216486e557a6ed6e6b239d8",
+      "bytes": 43849
+    },
+    {
+      "file": "evidence/correction__assertions.json",
+      "sha256": "319a9adf786a7529f56763905450970c6431e36fd075e52a2e4fc2b2b06fd12d",
+      "bytes": 481
+    },
+    {
+      "file": "evidence/correction__lifecycle-1.json",
+      "sha256": "0dc7505a2010a4d2d2a2ef3c891281e0d7fe34c28883034887b95fbcb22006cb",
+      "bytes": 588
+    },
+    {
+      "file": "evidence/correction__budget-comparator.json",
+      "sha256": "28f8c07bab76ed3731936d1862cac2c3c8c600d7237cb6a651fb32ec3d5ffe07",
+      "bytes": 753
+    },
+    {
+      "file": "evidence/correction__lifecycle-0.json",
+      "sha256": "aaf8f14c3a972ff1cbc0a5b4ca667412aac1ab7457d1cb4854f95da169d4bb2f",
+      "bytes": 588
+    },
+    {
+      "file": "evidence/real-http__busy.json",
+      "sha256": "c32f83d2047a0391f4add8857d357c388d417047129dd59abe1de78c0be16fc0",
+      "bytes": 383
+    },
+    {
+      "file": "evidence/real-http__concurrent.json",
+      "sha256": "a1ecc76071751b7579dee284aaade736f1b3d813cbb77a07a2bbbf960d4513f7",
+      "bytes": 6186
+    },
+    {
+      "file": "evidence/repetition__baseline-1.json",
+      "sha256": "271eae80fc3c88f502209d6f3a6e5ce3c6f49684532bd91f55c77091ec8c47a0",
+      "bytes": 67901
+    },
+    {
+      "file": "evidence/repetition__baseline-2.json",
+      "sha256": "0d63ba73d60af0877237e0630c848305df9a540b3ce1d810264486ac720a8982",
+      "bytes": 78142
+    },
+    {
+      "file": "evidence/repetition__corrected-1.json",
+      "sha256": "f575b0f455219de9f17f65c3c977f5ed39313cf8144459cdfac2e51861a3cc1e",
+      "bytes": 78160
+    },
+    {
+      "file": "evidence/gc-repetition__corrected-1.json",
+      "sha256": "522c00eff09ea1fad35c4bb3c3a98d007b01e67ef7926314c848175c18fc0bde",
+      "bytes": 78621
+    },
+    {
+      "file": "evidence/flutter-existing-compact.json",
+      "original_sha256": "c20eb9f17b7f1634f90ca31fe7ded35e2a24af1eeef25558f66f17183a98d148",
+      "persisted_sha256": "823122b11d8531caefd88a610175338c8790cde59f3786f2412f4312cec3a7d5",
+      "normalization": "기존 oracle의 source/closure/B bytes를 count/digest로 보존; 원 assertions 변경 없음"
+    },
+    {
+      "file": "evidence/existing-identity__swap_aba_atomic.json",
+      "sha256": "90ccac81f9c4ee514ca1bb54f096649277da87c7fcd8d3a10713bee58c88f926",
+      "bytes": 350
+    },
+    {
+      "file": "evidence/existing-identity__swap_aba_symlink.json",
+      "sha256": "fbe0950de74e0e19f5a42967fc19ab175c52495bbb5d9b97120f97676f86567c",
+      "bytes": 351
+    },
+    {
+      "file": "evidence/existing-identity__swap_after_atomic.json",
+      "sha256": "8857aa6ab00c393cc00fae1a04c75a602b4443490db75ce1385a75e547d28113",
+      "bytes": 352
+    },
+    {
+      "file": "evidence/existing-identity__swap_after_symlink.json",
+      "sha256": "3ef3d931ad9ab58aa6e36ee635627d30f45b8649b79a6497cfbf347dc3cc7298",
+      "bytes": 353
+    },
+    {
+      "file": "evidence/existing-identity__swap_before_atomic.json",
+      "sha256": "d548f5cc2f86c01cdcd6e4683c83bd67e4bd37f45d466c9112e9fb953f6d6b53",
+      "bytes": 353
+    },
+    {
+      "file": "evidence/existing-identity__swap_before_symlink.json",
+      "sha256": "4894c2d58f73894a3c25be5bfd18acaebb21b107116ca32deb14a43ed7263f1e",
+      "bytes": 354
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "assertions_sha256": "4017c845031f7c016025f9e6241666c399e2910724175a1280793f21be83cbed",
+  "assertions": [
+    "    assert sorted(r.status_code for r in results) == [201]*4+[429]\n",
+    "        assert conn.execute(\"SELECT count(*) FROM sync_observations WHERE status='available'\").fetchone()[0] == 4\n",
+    "        assert conn.execute('SELECT count(*) FROM sync_observation_pins').fetchone()[0] == 20\n"
+  ],
+  "default_lock_wait_ms": 1000,
+  "test_lock_wait_ms": 5000
+}

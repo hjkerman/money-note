@@ -1,0 +1,19 @@
+{
+  "scenario": "swap_before_symlink",
+  "result": "PASS",
+  "unauthorized_committed_deletions": 0,
+  "identities": {
+    "authorized": [
+      64512,
+      1049724
+    ],
+    "replacement": [
+      64512,
+      1049735
+    ]
+  },
+  "original_count": 283,
+  "replacement_count": 283,
+  "replacement_deleted": [],
+  "error": "REJECT_SYNTHETIC_OWNERSHIP"
+}

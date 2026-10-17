@@ -1,0 +1,30 @@
+{
+  "busy": {
+    "error": {
+      "action": "retry_same",
+      "code": "ROOT_NOT_READY",
+      "current_ns": null,
+      "retry_after_ms": 100
+    },
+    "protocol": 1,
+    "request_id": "be816102-c6bd-4918-a830-98660dac3a6c"
+  },
+  "invalid": {
+    "error": {
+      "action": "blocked",
+      "code": "UNSUPPORTED_CONTRACT",
+      "current_ns": null,
+      "retry_after_ms": null
+    },
+    "protocol": 1,
+    "request_id": "22a633be-d726-4fff-a31d-66a83f1cba6b"
+  },
+  "success": 201,
+  "permits": {
+    "leases": 0,
+    "jobs": 0,
+    "running": 0,
+    "tasks": 0
+  },
+  "pins": 5
+}

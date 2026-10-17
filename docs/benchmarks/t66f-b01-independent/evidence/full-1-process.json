@@ -1,0 +1,16 @@
+{
+  "command": [
+    "/home/hjkerman/codex/money-note/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "--junitxml=/tmp/mn-t66f-b01-independent/full-1.xml"
+  ],
+  "cwd": "/home/hjkerman/codex/money-note/backend",
+  "start_utc": "2026-10-17T04:11:19.316604+00:00",
+  "pid": 350638,
+  "timeout": false,
+  "exit": 0,
+  "seconds": 1487.8431343709817,
+  "end_utc": "2026-10-17T04:36:07.159855+00:00"
+}

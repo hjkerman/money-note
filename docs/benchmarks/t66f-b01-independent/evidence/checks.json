@@ -1,0 +1,86 @@
+{
+  "ruff": {
+    "command": [
+      ".venv/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "backend/app",
+      "backend/isolated_sync",
+      "backend/tests",
+      "docs/benchmarks/t66f-b01-independent"
+    ],
+    "exit": 0,
+    "seconds": 0.03210500400746241
+  },
+  "compileall": {
+    "command": [
+      ".venv/bin/python",
+      "-m",
+      "compileall",
+      "-q",
+      "backend/app",
+      "backend/isolated_sync",
+      "backend/tests",
+      "docs/benchmarks/t66f-b01-independent"
+    ],
+    "exit": 0,
+    "seconds": 0.06429292302345857
+  },
+  "format-python": {
+    "command": [
+      ".venv/bin/python",
+      "-m",
+      "ruff",
+      "format",
+      "--check",
+      "docs/benchmarks/t66f-b01-independent"
+    ],
+    "exit": 0,
+    "seconds": 0.03200444096000865
+  },
+  "format-correction-range": {
+    "command": [
+      ".venv/bin/python",
+      "-m",
+      "ruff",
+      "format",
+      "--check",
+      "--range=493-498",
+      "backend/tests/test_isolated_sync_transfer.py"
+    ],
+    "exit": 0,
+    "seconds": 0.06414680299349129
+  },
+  "format-dart": {
+    "command": [
+      "/home/hjkerman/.flutter/bin/dart",
+      "format",
+      "--output=none",
+      "--set-exit-if-changed",
+      "docs/benchmarks/t66f-b01-independent/http_quota_test.dart"
+    ],
+    "exit": 0,
+    "seconds": 0.11423294700216502
+  },
+  "frontend-build": {
+    "command": [
+      "npm",
+      "--prefix",
+      "frontend",
+      "run",
+      "build"
+    ],
+    "exit": 0,
+    "seconds": 4.874225491017569
+  },
+  "diff-check": {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit": 0,
+    "seconds": 0.007917497016023844
+  }
+}

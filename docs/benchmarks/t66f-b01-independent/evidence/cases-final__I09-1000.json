@@ -1,0 +1,37 @@
+{
+  "connection_admission_ms": 100,
+  "repository_budget_ms": 1000,
+  "default_after": 1000,
+  "sqlite_context_manager_closes_handle": false,
+  "fd_before": [],
+  "fd_after": [],
+  "state": {
+    "sync_observations": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "sync_observation_pins": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "sync_objects": {
+      "count": 1198,
+      "sha256": "2b84638dc6687abc52a299b086513b889453b76035a48677022e6caae079559e"
+    },
+    "sync_current": {
+      "count": 1,
+      "sha256": "12cf12f39365e5f05cf121f8717e1223a77cbfa0a2ba37aeed2ac80db0c26926"
+    },
+    "sync_observation_budget": {
+      "count": 1,
+      "sha256": "fcbd8f2ee97e86ea25ede7fbf892fa8f8d0846fb35e5e9c91a20c7996fe7f963"
+    },
+    "financial_sha256": "baefb2c93d7e4914832ef41b2454c7a3e2670ea7b819681ea00451ee7ec3bdf0",
+    "journal": "delete",
+    "integrity": "ok",
+    "foreign_keys": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  }
+}

@@ -1,0 +1,210 @@
+{
+  "results": [
+    {
+      "history": [
+        {
+          "status": 503,
+          "code": "ROOT_NOT_READY"
+        },
+        {
+          "status": 503,
+          "code": "ROOT_NOT_READY"
+        },
+        {
+          "status": 503,
+          "code": "ROOT_NOT_READY"
+        }
+      ],
+      "response": {
+        "error": {
+          "action": "retry_same",
+          "code": "ROOT_NOT_READY",
+          "current_ns": null,
+          "retry_after_ms": 100
+        },
+        "protocol": 1,
+        "request_id": null
+      },
+      "status": 503
+    },
+    {
+      "history": [
+        {
+          "status": 503,
+          "code": "ROOT_NOT_READY"
+        },
+        {
+          "status": 503,
+          "code": "ROOT_NOT_READY"
+        },
+        {
+          "status": 503,
+          "code": "ROOT_NOT_READY"
+        }
+      ],
+      "response": {
+        "error": {
+          "action": "retry_same",
+          "code": "ROOT_NOT_READY",
+          "current_ns": null,
+          "retry_after_ms": 100
+        },
+        "protocol": 1,
+        "request_id": null
+      },
+      "status": 503
+    },
+    {
+      "history": [
+        {
+          "status": 503,
+          "code": "ROOT_NOT_READY"
+        },
+        {
+          "status": 503,
+          "code": "ROOT_NOT_READY"
+        },
+        {
+          "status": 503,
+          "code": "ROOT_NOT_READY"
+        }
+      ],
+      "response": {
+        "error": {
+          "action": "retry_same",
+          "code": "ROOT_NOT_READY",
+          "current_ns": null,
+          "retry_after_ms": 100
+        },
+        "protocol": 1,
+        "request_id": null
+      },
+      "status": 503
+    },
+    {
+      "history": [
+        {
+          "status": 201,
+          "code": null
+        }
+      ],
+      "response": {
+        "base_sync_root": null,
+        "change_kind": "initial",
+        "expires_at": "2026-10-05T00:15:00Z",
+        "inline_objects": [],
+        "observation_id": "3c6f5b94-cdc4-49e3-b8c9-942813ca5a5a",
+        "protocol": 1,
+        "request_id": "8b50688d-2d6e-4f70-8305-8f0b89a5f590",
+        "status": "available",
+        "target": {
+          "context": {
+            "evaluation_date": "2026-10-05",
+            "financial_engine": "f34aef259c801ada33ccb88cfb103ee6654fb4467c49a66ce509f2239ffe449d",
+            "timezone_offset_minutes": 540
+          },
+          "control_ref": {
+            "bytes": "3178",
+            "hash": "4350b4a34eed31df69a66cea201197fd5e23c39616bf592c676d7a01335b9922"
+          },
+          "hot_ref": {
+            "bytes": "6357",
+            "hash": "07d19dfa2850cae63a7f2b728777e6379197953a136c86c2859fad1ba4f09cde"
+          },
+          "index_ref": {
+            "bytes": "394",
+            "hash": "45169bf445af2247f309cd771edc5048eb919d024183fd3586c8bc11b8f25af8"
+          },
+          "ns": {
+            "dataset_id": "c6942357-aa82-4253-aa76-6c2b6c2ec2da",
+            "epoch": "d1362641-1ac7-461d-9ee1-228b34db88fa",
+            "server_id": "eea6338f-be3a-43a4-9bd0-c23bce455645"
+          },
+          "principal_id": 1,
+          "raw_ref": {
+            "bytes": "2613",
+            "hash": "61a88c1ea51b7bd1cf875ae8f30b749303a942e26396a519eaafafcdc5d0ab20"
+          },
+          "revision": "28",
+          "sync_root": "25a07f1727938182cbec5bc457b6467475becd300b2b8719b822c3e8b6dc2244",
+          "versions": {
+            "canon": 1,
+            "policy_registry": "18be2d36483467e9250d568bcbfed6458c15a364fa99896eb1b8daad05db043d",
+            "projection_schema": "89e2bd7bf3f1683ddff95a0b33b1e9ff08ff19d5a001f4007c40ed4c6c5b3437",
+            "raw_schema": "b948a0e33fc0abb6957af76beac643ac7131d2fcac3ab53265c02d16783f953e",
+            "recurring_ownership": 1,
+            "snapshot": 7,
+            "structural": 1,
+            "sync": 1
+          }
+        },
+        "validated_at": "2026-10-05T00:00:00Z"
+      },
+      "status": 201
+    },
+    {
+      "history": [
+        {
+          "status": 201,
+          "code": null
+        }
+      ],
+      "response": {
+        "base_sync_root": null,
+        "change_kind": "initial",
+        "expires_at": "2026-10-05T00:15:00Z",
+        "inline_objects": [],
+        "observation_id": "33e0ff7f-f295-4f07-88c5-b58c51739242",
+        "protocol": 1,
+        "request_id": "0773920e-9f79-4317-b682-74ca9b1479e4",
+        "status": "available",
+        "target": {
+          "context": {
+            "evaluation_date": "2026-10-05",
+            "financial_engine": "f34aef259c801ada33ccb88cfb103ee6654fb4467c49a66ce509f2239ffe449d",
+            "timezone_offset_minutes": 540
+          },
+          "control_ref": {
+            "bytes": "3178",
+            "hash": "4350b4a34eed31df69a66cea201197fd5e23c39616bf592c676d7a01335b9922"
+          },
+          "hot_ref": {
+            "bytes": "6357",
+            "hash": "07d19dfa2850cae63a7f2b728777e6379197953a136c86c2859fad1ba4f09cde"
+          },
+          "index_ref": {
+            "bytes": "394",
+            "hash": "45169bf445af2247f309cd771edc5048eb919d024183fd3586c8bc11b8f25af8"
+          },
+          "ns": {
+            "dataset_id": "c6942357-aa82-4253-aa76-6c2b6c2ec2da",
+            "epoch": "d1362641-1ac7-461d-9ee1-228b34db88fa",
+            "server_id": "eea6338f-be3a-43a4-9bd0-c23bce455645"
+          },
+          "principal_id": 1,
+          "raw_ref": {
+            "bytes": "2613",
+            "hash": "61a88c1ea51b7bd1cf875ae8f30b749303a942e26396a519eaafafcdc5d0ab20"
+          },
+          "revision": "28",
+          "sync_root": "25a07f1727938182cbec5bc457b6467475becd300b2b8719b822c3e8b6dc2244",
+          "versions": {
+            "canon": 1,
+            "policy_registry": "18be2d36483467e9250d568bcbfed6458c15a364fa99896eb1b8daad05db043d",
+            "projection_schema": "89e2bd7bf3f1683ddff95a0b33b1e9ff08ff19d5a001f4007c40ed4c6c5b3437",
+            "raw_schema": "b948a0e33fc0abb6957af76beac643ac7131d2fcac3ab53265c02d16783f953e",
+            "recurring_ownership": 1,
+            "snapshot": 7,
+            "structural": 1,
+            "sync": 1
+          }
+        },
+        "validated_at": "2026-10-05T00:00:00Z"
+      },
+      "status": 201
+    }
+  ],
+  "active": 2,
+  "pin_rows": 10,
+  "followup_status": 201
+}

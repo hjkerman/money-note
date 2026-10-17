@@ -1,0 +1,15 @@
+{
+  "tests": 1,
+  "failures": 1,
+  "errors": 0,
+  "skipped": 0,
+  "cases": [
+    {
+      "name": "test_bounded_concurrent_quota_and_same_request_status",
+      "result": "FAIL",
+      "failure": "db = <isolated_sync.observation_schema.ObservationSandbox object at 0x777e871af3e0>\n\n    def test_bounded_concurrent_quota_and_same_request_status(db):\n        c = client(db, limits=TransferLimits(concurrent_requests=8))\n        barrier = Barrier(5)\n        def create_one():\n            barrier.wait(10)\n            return observe(c)\n        with ThreadPoolExecutor(5) as pool:\n            results = list(pool.map(lambda _: create_one(), range(5)))\n>       assert sorted(r.status_code for r in results) == [201]*4+[429]\nE       assert [201, 201, 201, 201, 503] == [201, 201, 201, 201, 429]\nE         \nE         At index 4 diff: 503 != 429\nE         Use -v to get more diff\n\n/tmp/mn-t66f-b01-independent/repetition/original_exact_test.py:497: AssertionError"
+    }
+  ],
+  "seconds": 4.234,
+  "sha256": "18573e0ef67e433806aadd53401b43936de4f57834c4ca81ce92510bbe0900f6"
+}

@@ -1,0 +1,43 @@
+{
+  "assertions_before": [
+    "assert sorted(r.status_code for r in results) == [201]*4+[429]",
+    "assert conn.execute(\"SELECT count(*) FROM sync_observations WHERE status='available'\").fetchone()[0] == 4",
+    "assert conn.execute('SELECT count(*) FROM sync_observation_pins').fetchone()[0] == 20"
+  ],
+  "assertions_after": [
+    "assert sorted(r.status_code for r in results) == [201]*4+[429]",
+    "assert conn.execute(\"SELECT count(*) FROM sync_observations WHERE status='available'\").fetchone()[0] == 4",
+    "assert conn.execute('SELECT count(*) FROM sync_observation_pins').fetchone()[0] == 20"
+  ],
+  "status_vectors": [
+    [
+      201,
+      201,
+      201,
+      201,
+      429
+    ],
+    [
+      201,
+      201,
+      201,
+      429,
+      503
+    ],
+    [
+      201,
+      201,
+      201,
+      201,
+      503
+    ]
+  ],
+  "strict_results": [
+    true,
+    false,
+    false
+  ],
+  "default": 1000,
+  "supported_max": 5000,
+  "product_diff": ""
+}

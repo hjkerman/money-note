@@ -1,0 +1,1327 @@
+[
+  {
+    "id": "I01",
+    "test": "test_I01_exact_assertions_scope_and_supported_budget",
+    "result": "PASS",
+    "initial": "원 transfer 합성 template의 새 disposable clone; static case는 Git source oracle",
+    "lock_budget_ms": null,
+    "expected": "원 세 assert exact equality·bad status vector 거부·다른 helpers/제품 불변·기본1000/기존지원5000",
+    "actual": {
+      "http_statuses": [],
+      "sqlite_errors": [],
+      "all_observed_product_handles_closed": null,
+      "durable_or_static_oracle": {
+        "assertions_before": [
+          "assert sorted(r.status_code for r in results) == [201]*4+[429]",
+          "assert conn.execute(\"SELECT count(*) FROM sync_observations WHERE status='available'\").fetchone()[0] == 4",
+          "assert conn.execute('SELECT count(*) FROM sync_observation_pins').fetchone()[0] == 20"
+        ],
+        "assertions_after": [
+          "assert sorted(r.status_code for r in results) == [201]*4+[429]",
+          "assert conn.execute(\"SELECT count(*) FROM sync_observations WHERE status='available'\").fetchone()[0] == 4",
+          "assert conn.execute('SELECT count(*) FROM sync_observation_pins').fetchone()[0] == 20"
+        ],
+        "status_vectors": [
+          [
+            201,
+            201,
+            201,
+            201,
+            429
+          ],
+          [
+            201,
+            201,
+            201,
+            429,
+            503
+          ],
+          [
+            201,
+            201,
+            201,
+            201,
+            503
+          ]
+        ],
+        "strict_results": [
+          true,
+          false,
+          false
+        ],
+        "default": 1000,
+        "supported_max": 5000,
+        "product_diff": ""
+      }
+    },
+    "oracle": "C SQLite return/trace·별도 raw connection·실제 permit 재획득·/proc FD 또는 exact Git AST",
+    "evidence": "evidence/cases-final__I01.json"
+  },
+  {
+    "id": "I02",
+    "test": "test_I02_five_long_waiters_and_one_short_probe_preserve_exact_quota",
+    "result": "PASS",
+    "initial": "원 transfer 합성 template의 새 disposable clone; static case는 Git source oracle",
+    "lock_budget_ms": [
+      1000,
+      5000
+    ],
+    "expected": "실제 writer 동안 short BEGIN이 BUSY/503, 해제 뒤 long 5개는 정확히 네201/한429·Available4/pins20·FD0",
+    "actual": {
+      "http_statuses": [
+        503,
+        201,
+        201,
+        201,
+        201,
+        429
+      ],
+      "sqlite_errors": [
+        {
+          "sql": "BEGIN IMMEDIATE",
+          "sqlite_code": 5,
+          "sqlite_name": "SQLITE_BUSY",
+          "elapsed_us": 1001950
+        }
+      ],
+      "all_observed_product_handles_closed": true,
+      "durable_or_static_oracle": {
+        "before": {
+          "sync_observations": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "sync_observation_pins": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "sync_objects": {
+            "count": 1198,
+            "sha256": "2b84638dc6687abc52a299b086513b889453b76035a48677022e6caae079559e"
+          },
+          "sync_current": {
+            "count": 1,
+            "sha256": "12cf12f39365e5f05cf121f8717e1223a77cbfa0a2ba37aeed2ac80db0c26926"
+          },
+          "sync_observation_budget": {
+            "count": 1,
+            "sha256": "fcbd8f2ee97e86ea25ede7fbf892fa8f8d0846fb35e5e9c91a20c7996fe7f963"
+          },
+          "financial_sha256": "baefb2c93d7e4914832ef41b2454c7a3e2670ea7b819681ea00451ee7ec3bdf0",
+          "journal": "delete",
+          "integrity": "ok",
+          "foreign_keys": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        },
+        "after": {
+          "sync_observations": {
+            "count": 4,
+            "sha256": "bc9bba414afdec764a589c5300e75b9b392bd7ac05d877734e171c4047dcae6c"
+          },
+          "sync_observation_pins": {
+            "count": 20,
+            "sha256": "78f574c850d3fd2da25efd7a2e02da3f467b93c85af8f34315e9851082ee03dc"
+          },
+          "sync_objects": {
+            "count": 1203,
+            "sha256": "153caa9fda643023ed33344ac26961923d1f8d66b5ec94a2c9acb0859f10c82d"
+          },
+          "sync_current": {
+            "count": 1,
+            "sha256": "12cf12f39365e5f05cf121f8717e1223a77cbfa0a2ba37aeed2ac80db0c26926"
+          },
+          "sync_observation_budget": {
+            "count": 1,
+            "sha256": "99e90a041fb754fcb12bbd902319a35183acf29bd9ccb099ebc9af44ddddfeab"
+          },
+          "financial_sha256": "baefb2c93d7e4914832ef41b2454c7a3e2670ea7b819681ea00451ee7ec3bdf0",
+          "journal": "delete",
+          "integrity": "ok",
+          "foreign_keys": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        },
+        "native_fd_before": [],
+        "native_fd_after": [],
+        "execute_calls": 4613,
+        "select_calls": 1518
+      }
+    },
+    "oracle": "C SQLite return/trace·별도 raw connection·실제 permit 재획득·/proc FD 또는 exact Git AST",
+    "evidence": "evidence/cases-final__I02.json"
+  },
+  {
+    "id": "I03",
+    "test": "test_I03_auth_is_rechecked_after_supported_lock_wait",
+    "result": "PASS",
+    "initial": "원 transfer 합성 template의 새 disposable clone; static case는 Git source oracle",
+    "lock_budget_ms": 5000,
+    "expected": "writer wait 중 credential 폐기 후401/no mutation, 별도 유효 synthetic session으로201",
+    "actual": {
+      "http_statuses": [
+        401,
+        201
+      ],
+      "sqlite_errors": [],
+      "all_observed_product_handles_closed": true,
+      "durable_or_static_oracle": {
+        "before": {
+          "sync_observations": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "sync_observation_pins": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "sync_objects": {
+            "count": 1198,
+            "sha256": "2b84638dc6687abc52a299b086513b889453b76035a48677022e6caae079559e"
+          },
+          "sync_current": {
+            "count": 1,
+            "sha256": "12cf12f39365e5f05cf121f8717e1223a77cbfa0a2ba37aeed2ac80db0c26926"
+          },
+          "sync_observation_budget": {
+            "count": 1,
+            "sha256": "fcbd8f2ee97e86ea25ede7fbf892fa8f8d0846fb35e5e9c91a20c7996fe7f963"
+          },
+          "financial_sha256": "baefb2c93d7e4914832ef41b2454c7a3e2670ea7b819681ea00451ee7ec3bdf0",
+          "journal": "delete",
+          "integrity": "ok",
+          "foreign_keys": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        },
+        "after": {
+          "sync_observations": {
+            "count": 1,
+            "sha256": "c7a29596324f889357f0be14a7933d84f9074ee616a3d6f180d66fbebe874567"
+          },
+          "sync_observation_pins": {
+            "count": 5,
+            "sha256": "58955d442617f4481a9987bd6d85a7f6a4f470ced0715eae0093fade6f2976c0"
+          },
+          "sync_objects": {
+            "count": 1200,
+            "sha256": "58fc062c0c01634e2c316ae2c43da0d2ceb09381b8003dacaf8cb16eb26a377c"
+          },
+          "sync_current": {
+            "count": 1,
+            "sha256": "12cf12f39365e5f05cf121f8717e1223a77cbfa0a2ba37aeed2ac80db0c26926"
+          },
+          "sync_observation_budget": {
+            "count": 1,
+            "sha256": "7b175edd449ab87702cbb8836fff6729762cba386a4aa4549f6a45cff1d9b84c"
+          },
+          "financial_sha256": "baefb2c93d7e4914832ef41b2454c7a3e2670ea7b819681ea00451ee7ec3bdf0",
+          "journal": "delete",
+          "integrity": "ok",
+          "foreign_keys": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        },
+        "execute_calls": 1289,
+        "select_calls": 403
+      }
+    },
+    "oracle": "C SQLite return/trace·별도 raw connection·실제 permit 재획득·/proc FD 또는 exact Git AST",
+    "evidence": "evidence/cases-final__I03.json"
+  },
+  {
+    "id": "I04",
+    "test": "test_I04_duplicate_and_conflicting_nonce_cannot_expand_quota",
+    "result": "PASS",
+    "initial": "원 transfer 합성 template의 새 disposable clone; static case는 Git source oracle",
+    "lock_budget_ms": 5000,
+    "expected": "동일 nonce201/200 bytes 동일·한 observation, 다른 body409, quota4 초과429와 same-nonce200",
+    "actual": {
+      "http_statuses": [
+        201,
+        200,
+        409,
+        201,
+        201,
+        201,
+        429,
+        200
+      ],
+      "sqlite_errors": [],
+      "all_observed_product_handles_closed": true,
+      "durable_or_static_oracle": {
+        "one": {
+          "sync_observations": {
+            "count": 1,
+            "sha256": "e3d20d8622c61211af11434ec4d935802f50466793e5eb5bc3b2eceda2d22f9f"
+          },
+          "sync_observation_pins": {
+            "count": 5,
+            "sha256": "5030cc070e461b1898f63b7844ccbb27a84731d3257802604c14750ce8d6a44f"
+          },
+          "sync_objects": {
+            "count": 1200,
+            "sha256": "0ef9339fd80fb63341222e185685125014d36f30d66a95d964172ee6f8526e75"
+          },
+          "sync_current": {
+            "count": 1,
+            "sha256": "12cf12f39365e5f05cf121f8717e1223a77cbfa0a2ba37aeed2ac80db0c26926"
+          },
+          "sync_observation_budget": {
+            "count": 1,
+            "sha256": "6c89417e9d5f5f7fcb844fc26798c4f9700eb60400fca72035c837d091add04c"
+          },
+          "financial_sha256": "baefb2c93d7e4914832ef41b2454c7a3e2670ea7b819681ea00451ee7ec3bdf0",
+          "journal": "delete",
+          "integrity": "ok",
+          "foreign_keys": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        },
+        "full": {
+          "sync_observations": {
+            "count": 4,
+            "sha256": "3d87186afcf34ab8cf96ada7e490b2a553072caff5ea0fd57e78d39ebf5a30eb"
+          },
+          "sync_observation_pins": {
+            "count": 20,
+            "sha256": "48f5ca4baa3ac2e25dbf7829a29046b57ec8f91fdadde501c98ec44f36497cfa"
+          },
+          "sync_objects": {
+            "count": 1203,
+            "sha256": "c10a977c00c93eb2ae2fb0d51585ccca21439db1126f1fa4803afe64803a755f"
+          },
+          "sync_current": {
+            "count": 1,
+            "sha256": "12cf12f39365e5f05cf121f8717e1223a77cbfa0a2ba37aeed2ac80db0c26926"
+          },
+          "sync_observation_budget": {
+            "count": 1,
+            "sha256": "93543b1b384bcf6616edf215f936e0590b93ea91ca13faf3b6dc8f9255f15bc7"
+          },
+          "financial_sha256": "baefb2c93d7e4914832ef41b2454c7a3e2670ea7b819681ea00451ee7ec3bdf0",
+          "journal": "delete",
+          "integrity": "ok",
+          "foreign_keys": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        },
+        "execute_calls": 5833,
+        "select_calls": 1885
+      }
+    },
+    "oracle": "C SQLite return/trace·별도 raw connection·실제 permit 재획득·/proc FD 또는 exact Git AST",
+    "evidence": "evidence/cases-final__I04.json"
+  },
+  {
+    "id": "I05-authenticated",
+    "test": "test_I05_cancelled_native_operation_keeps_permit_until_native_exit[authenticated]",
+    "result": "PASS",
+    "initial": "원 transfer 합성 template의 새 disposable clone; static case는 Git source oracle",
+    "lock_budget_ms": 5000,
+    "expected": "취소돼도 native 작업 동안 permit 유지/다음503, native exit 뒤 unchanged state와 정상201·capacity 복구",
+    "actual": {
+      "http_statuses": [
+        503,
+        201
+      ],
+      "sqlite_errors": [],
+      "all_observed_product_handles_closed": true,
+      "durable_or_static_oracle": {
+        "before": {
+          "sync_observations": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "sync_observation_pins": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "sync_objects": {
+            "count": 1198,
+            "sha256": "2b84638dc6687abc52a299b086513b889453b76035a48677022e6caae079559e"
+          },
+          "sync_current": {
+            "count": 1,
+            "sha256": "12cf12f39365e5f05cf121f8717e1223a77cbfa0a2ba37aeed2ac80db0c26926"
+          },
+          "sync_observation_budget": {
+            "count": 1,
+            "sha256": "fcbd8f2ee97e86ea25ede7fbf892fa8f8d0846fb35e5e9c91a20c7996fe7f963"
+          },
+          "financial_sha256": "baefb2c93d7e4914832ef41b2454c7a3e2670ea7b819681ea00451ee7ec3bdf0",
+          "journal": "delete",
+          "integrity": "ok",
+          "foreign_keys": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        },
+        "after": {
+          "sync_observations": {
+            "count": 1,
+            "sha256": "bbcf33726681a3dab52f41460923cacb4f6162c31c81bfa4e51feac253feb6fa"
+          },
+          "sync_observation_pins": {
+            "count": 5,
+            "sha256": "a4df053124153576da1dc55adc4c3cc15841f9e2a8a7c63a67e4f1f76eb2bfae"
+          },
+          "sync_objects": {
+            "count": 1200,
+            "sha256": "fcecdcf86fa11a3337bc01ad0c059fbb47c09a195c2c4438e6c2e0cb533c874a"
+          },
+          "sync_current": {
+            "count": 1,
+            "sha256": "12cf12f39365e5f05cf121f8717e1223a77cbfa0a2ba37aeed2ac80db0c26926"
+          },
+          "sync_observation_budget": {
+            "count": 1,
+            "sha256": "b9e0d45f0fb7dbfc4d2e6d7db79a85147a5dfcd2f4136bf3eb6e1d2813848ccd"
+          },
+          "financial_sha256": "baefb2c93d7e4914832ef41b2454c7a3e2670ea7b819681ea00451ee7ec3bdf0",
+          "journal": "delete",
+          "integrity": "ok",
+          "foreign_keys": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        },
+        "execute_calls": 1033,
+        "select_calls": 336
+      }
+    },
+    "oracle": "C SQLite return/trace·별도 raw connection·실제 permit 재획득·/proc FD 또는 exact Git AST",
+    "evidence": "evidence/cases-final__I05-authenticated.json"
+  },
+  {
+    "id": "I05-sqlite_wait",
+    "test": "test_I05_cancelled_native_operation_keeps_permit_until_native_exit[sqlite_wait]",
+    "result": "PASS",
+    "initial": "원 transfer 합성 template의 새 disposable clone; static case는 Git source oracle",
+    "lock_budget_ms": 5000,
+    "expected": "취소돼도 native 작업 동안 permit 유지/다음503, native exit 뒤 unchanged state와 정상201·capacity 복구",
+    "actual": {
+      "http_statuses": [
+        503,
+        201
+      ],
+      "sqlite_errors": [],
+      "all_observed_product_handles_closed": true,
+      "durable_or_static_oracle": {
+        "before": {
+          "sync_observations": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "sync_observation_pins": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "sync_objects": {
+            "count": 1198,
+            "sha256": "2b84638dc6687abc52a299b086513b889453b76035a48677022e6caae079559e"
+          },
+          "sync_current": {
+            "count": 1,
+            "sha256": "12cf12f39365e5f05cf121f8717e1223a77cbfa0a2ba37aeed2ac80db0c26926"
+          },
+          "sync_observation_budget": {
+            "count": 1,
+            "sha256": "fcbd8f2ee97e86ea25ede7fbf892fa8f8d0846fb35e5e9c91a20c7996fe7f963"
+          },
+          "financial_sha256": "baefb2c93d7e4914832ef41b2454c7a3e2670ea7b819681ea00451ee7ec3bdf0",
+          "journal": "delete",
+          "integrity": "ok",
+          "foreign_keys": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        },
+        "after": {
+          "sync_observations": {
+            "count": 1,
+            "sha256": "8334eb892974e58becbf604ca5700d9d1b76e516f6f6b0fbdf62770dc48ebb5c"
+          },
+          "sync_observation_pins": {
+            "count": 5,
+            "sha256": "9a2d29ebac3701fdaa482621f5cde1801127cc594fe934de871fb4096bf89799"
+          },
+          "sync_objects": {
+            "count": 1200,
+            "sha256": "cd05a9ccfb7a52cbd43076a08fa8865cd0c1ea7eefada82606321ecdc7b77c3f"
+          },
+          "sync_current": {
+            "count": 1,
+            "sha256": "12cf12f39365e5f05cf121f8717e1223a77cbfa0a2ba37aeed2ac80db0c26926"
+          },
+          "sync_observation_budget": {
+            "count": 1,
+            "sha256": "a8d0e1e15444071c24192f2aa6ab2135502064853774e47f3cdc6f451a804b41"
+          },
+          "financial_sha256": "baefb2c93d7e4914832ef41b2454c7a3e2670ea7b819681ea00451ee7ec3bdf0",
+          "journal": "delete",
+          "integrity": "ok",
+          "foreign_keys": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        },
+        "execute_calls": 1288,
+        "select_calls": 402
+      }
+    },
+    "oracle": "C SQLite return/trace·별도 raw connection·실제 permit 재획득·/proc FD 또는 exact Git AST",
+    "evidence": "evidence/cases-final__I05-sqlite_wait.json"
+  },
+  {
+    "id": "I06-False",
+    "test": "test_I06_pre_and_post_commit_failures_have_distinct_durable_results[False]",
+    "result": "PASS",
+    "initial": "원 transfer 합성 template의 새 disposable clone; static case는 Git source oracle",
+    "lock_budget_ms": 5000,
+    "expected": "COMMIT 전 SQL 오류는 rollback/다음201, COMMIT 후 오류는 complete lease/pins 유지/다음200",
+    "actual": {
+      "http_statuses": [
+        500,
+        201,
+        200
+      ],
+      "sqlite_errors": [
+        {
+          "sql": "SELECT",
+          "sqlite_code": 1,
+          "sqlite_name": "SQLITE_ERROR",
+          "elapsed_us": 27
+        }
+      ],
+      "all_observed_product_handles_closed": true,
+      "durable_or_static_oracle": {
+        "before": {
+          "sync_observations": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "sync_observation_pins": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "sync_objects": {
+            "count": 1198,
+            "sha256": "2b84638dc6687abc52a299b086513b889453b76035a48677022e6caae079559e"
+          },
+          "sync_current": {
+            "count": 1,
+            "sha256": "12cf12f39365e5f05cf121f8717e1223a77cbfa0a2ba37aeed2ac80db0c26926"
+          },
+          "sync_observation_budget": {
+            "count": 1,
+            "sha256": "fcbd8f2ee97e86ea25ede7fbf892fa8f8d0846fb35e5e9c91a20c7996fe7f963"
+          },
+          "financial_sha256": "baefb2c93d7e4914832ef41b2454c7a3e2670ea7b819681ea00451ee7ec3bdf0",
+          "journal": "delete",
+          "integrity": "ok",
+          "foreign_keys": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        },
+        "after_error": {
+          "sync_observations": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "sync_observation_pins": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "sync_objects": {
+            "count": 1198,
+            "sha256": "2b84638dc6687abc52a299b086513b889453b76035a48677022e6caae079559e"
+          },
+          "sync_current": {
+            "count": 1,
+            "sha256": "12cf12f39365e5f05cf121f8717e1223a77cbfa0a2ba37aeed2ac80db0c26926"
+          },
+          "sync_observation_budget": {
+            "count": 1,
+            "sha256": "fcbd8f2ee97e86ea25ede7fbf892fa8f8d0846fb35e5e9c91a20c7996fe7f963"
+          },
+          "financial_sha256": "baefb2c93d7e4914832ef41b2454c7a3e2670ea7b819681ea00451ee7ec3bdf0",
+          "journal": "delete",
+          "integrity": "ok",
+          "foreign_keys": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        },
+        "final": {
+          "sync_observations": {
+            "count": 1,
+            "sha256": "99d11781e97ef1f0dc8c5113eb3cc899db9cb5e006e47f57155bcedb5c32bd47"
+          },
+          "sync_observation_pins": {
+            "count": 5,
+            "sha256": "288cd5c051fa25cc14f11603216dee7f17ffb23102d456385760e8434ddd3b71"
+          },
+          "sync_objects": {
+            "count": 1200,
+            "sha256": "1372f40befce55096dddeac57464cdc38df9442c438f562c316e731d8d7d0855"
+          },
+          "sync_current": {
+            "count": 1,
+            "sha256": "12cf12f39365e5f05cf121f8717e1223a77cbfa0a2ba37aeed2ac80db0c26926"
+          },
+          "sync_observation_budget": {
+            "count": 1,
+            "sha256": "50ea505b4fac3c404c435321e703f8a67e69187b9a534fd5bb593c05fcca4498"
+          },
+          "financial_sha256": "baefb2c93d7e4914832ef41b2454c7a3e2670ea7b819681ea00451ee7ec3bdf0",
+          "journal": "delete",
+          "integrity": "ok",
+          "foreign_keys": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        },
+        "execute_calls": 2209,
+        "select_calls": 720
+      }
+    },
+    "oracle": "C SQLite return/trace·별도 raw connection·실제 permit 재획득·/proc FD 또는 exact Git AST",
+    "evidence": "evidence/cases-final__I06-False.json"
+  },
+  {
+    "id": "I06-True",
+    "test": "test_I06_pre_and_post_commit_failures_have_distinct_durable_results[True]",
+    "result": "PASS",
+    "initial": "원 transfer 합성 template의 새 disposable clone; static case는 Git source oracle",
+    "lock_budget_ms": 5000,
+    "expected": "COMMIT 전 SQL 오류는 rollback/다음201, COMMIT 후 오류는 complete lease/pins 유지/다음200",
+    "actual": {
+      "http_statuses": [
+        500,
+        200,
+        200
+      ],
+      "sqlite_errors": [
+        {
+          "sql": "SELECT",
+          "sqlite_code": 1,
+          "sqlite_name": "SQLITE_ERROR",
+          "elapsed_us": 63
+        }
+      ],
+      "all_observed_product_handles_closed": true,
+      "durable_or_static_oracle": {
+        "before": {
+          "sync_observations": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "sync_observation_pins": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "sync_objects": {
+            "count": 1198,
+            "sha256": "2b84638dc6687abc52a299b086513b889453b76035a48677022e6caae079559e"
+          },
+          "sync_current": {
+            "count": 1,
+            "sha256": "12cf12f39365e5f05cf121f8717e1223a77cbfa0a2ba37aeed2ac80db0c26926"
+          },
+          "sync_observation_budget": {
+            "count": 1,
+            "sha256": "fcbd8f2ee97e86ea25ede7fbf892fa8f8d0846fb35e5e9c91a20c7996fe7f963"
+          },
+          "financial_sha256": "baefb2c93d7e4914832ef41b2454c7a3e2670ea7b819681ea00451ee7ec3bdf0",
+          "journal": "delete",
+          "integrity": "ok",
+          "foreign_keys": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        },
+        "after_error": {
+          "sync_observations": {
+            "count": 1,
+            "sha256": "4b86fdee73105f185c79bf9767aa2678b9c0195048f0a048777a28d9cb0a05c8"
+          },
+          "sync_observation_pins": {
+            "count": 5,
+            "sha256": "07ec42d504d9fb77e565fe098739a12378796357063a6afd8a61a0619390d521"
+          },
+          "sync_objects": {
+            "count": 1200,
+            "sha256": "39a886009932654972c2e0b5ca04d16cad409991dba54b9714e8c5a99aee420f"
+          },
+          "sync_current": {
+            "count": 1,
+            "sha256": "12cf12f39365e5f05cf121f8717e1223a77cbfa0a2ba37aeed2ac80db0c26926"
+          },
+          "sync_observation_budget": {
+            "count": 1,
+            "sha256": "217d4c666758d40d4b44c6f1bba3a6f5f4b8fb6d70715764357e8399d72623b9"
+          },
+          "financial_sha256": "baefb2c93d7e4914832ef41b2454c7a3e2670ea7b819681ea00451ee7ec3bdf0",
+          "journal": "delete",
+          "integrity": "ok",
+          "foreign_keys": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        },
+        "final": {
+          "sync_observations": {
+            "count": 1,
+            "sha256": "4b86fdee73105f185c79bf9767aa2678b9c0195048f0a048777a28d9cb0a05c8"
+          },
+          "sync_observation_pins": {
+            "count": 5,
+            "sha256": "07ec42d504d9fb77e565fe098739a12378796357063a6afd8a61a0619390d521"
+          },
+          "sync_objects": {
+            "count": 1200,
+            "sha256": "39a886009932654972c2e0b5ca04d16cad409991dba54b9714e8c5a99aee420f"
+          },
+          "sync_current": {
+            "count": 1,
+            "sha256": "12cf12f39365e5f05cf121f8717e1223a77cbfa0a2ba37aeed2ac80db0c26926"
+          },
+          "sync_observation_budget": {
+            "count": 1,
+            "sha256": "217d4c666758d40d4b44c6f1bba3a6f5f4b8fb6d70715764357e8399d72623b9"
+          },
+          "financial_sha256": "baefb2c93d7e4914832ef41b2454c7a3e2670ea7b819681ea00451ee7ec3bdf0",
+          "journal": "delete",
+          "integrity": "ok",
+          "foreign_keys": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        },
+        "execute_calls": 1852,
+        "select_calls": 586
+      }
+    },
+    "oracle": "C SQLite return/trace·별도 raw connection·실제 permit 재획득·/proc FD 또는 exact Git AST",
+    "evidence": "evidence/cases-final__I06-True.json"
+  },
+  {
+    "id": "I07-authenticated",
+    "test": "test_I07_stale_A_request_never_acts_on_replacement_B[authenticated]",
+    "result": "PASS",
+    "initial": "원 transfer 합성 template의 새 disposable clone; static case는 Git source oracle",
+    "lock_budget_ms": 5000,
+    "expected": "A stale request는 B에 작용하지 못함, B own request201, A inode 복원 후 absent201/committed200",
+    "actual": {
+      "http_statuses": [
+        500,
+        201,
+        201
+      ],
+      "sqlite_errors": [],
+      "all_observed_product_handles_closed": true,
+      "durable_or_static_oracle": {
+        "A_before": {
+          "sync_observations": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "sync_observation_pins": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "sync_objects": {
+            "count": 1198,
+            "sha256": "2b84638dc6687abc52a299b086513b889453b76035a48677022e6caae079559e"
+          },
+          "sync_current": {
+            "count": 1,
+            "sha256": "12cf12f39365e5f05cf121f8717e1223a77cbfa0a2ba37aeed2ac80db0c26926"
+          },
+          "sync_observation_budget": {
+            "count": 1,
+            "sha256": "fcbd8f2ee97e86ea25ede7fbf892fa8f8d0846fb35e5e9c91a20c7996fe7f963"
+          },
+          "financial_sha256": "baefb2c93d7e4914832ef41b2454c7a3e2670ea7b819681ea00451ee7ec3bdf0",
+          "journal": "wal",
+          "integrity": "ok",
+          "foreign_keys": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        },
+        "A_after_rejection": {
+          "sync_observations": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "sync_observation_pins": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "sync_objects": {
+            "count": 1198,
+            "sha256": "2b84638dc6687abc52a299b086513b889453b76035a48677022e6caae079559e"
+          },
+          "sync_current": {
+            "count": 1,
+            "sha256": "12cf12f39365e5f05cf121f8717e1223a77cbfa0a2ba37aeed2ac80db0c26926"
+          },
+          "sync_observation_budget": {
+            "count": 1,
+            "sha256": "fcbd8f2ee97e86ea25ede7fbf892fa8f8d0846fb35e5e9c91a20c7996fe7f963"
+          },
+          "financial_sha256": "baefb2c93d7e4914832ef41b2454c7a3e2670ea7b819681ea00451ee7ec3bdf0",
+          "journal": "wal",
+          "integrity": "ok",
+          "foreign_keys": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        },
+        "B_before": {
+          "sync_observations": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "sync_observation_pins": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "sync_objects": {
+            "count": 1198,
+            "sha256": "2b84638dc6687abc52a299b086513b889453b76035a48677022e6caae079559e"
+          },
+          "sync_current": {
+            "count": 1,
+            "sha256": "12cf12f39365e5f05cf121f8717e1223a77cbfa0a2ba37aeed2ac80db0c26926"
+          },
+          "sync_observation_budget": {
+            "count": 1,
+            "sha256": "fcbd8f2ee97e86ea25ede7fbf892fa8f8d0846fb35e5e9c91a20c7996fe7f963"
+          },
+          "financial_sha256": "baefb2c93d7e4914832ef41b2454c7a3e2670ea7b819681ea00451ee7ec3bdf0",
+          "journal": "wal",
+          "integrity": "ok",
+          "foreign_keys": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        },
+        "B_after_valid_own_request": {
+          "sync_observations": {
+            "count": 1,
+            "sha256": "0966250bbce9d2eca1eed28de1ec14ac6252a6f0a271e87cfb2d918a6024d3fd"
+          },
+          "sync_observation_pins": {
+            "count": 5,
+            "sha256": "301f1c493744fd12acaaa7e24efab56aca53845e58e82ea6d52835788fbd53af"
+          },
+          "sync_objects": {
+            "count": 1200,
+            "sha256": "a0f06b37996bbdc347846d9a7a2795b331dd9a2dc52e48b4c1c1d4dc0e20f3b4"
+          },
+          "sync_current": {
+            "count": 1,
+            "sha256": "12cf12f39365e5f05cf121f8717e1223a77cbfa0a2ba37aeed2ac80db0c26926"
+          },
+          "sync_observation_budget": {
+            "count": 1,
+            "sha256": "0adb087c1c386dc996f7833c9cc7a7242b587997e7c1fb74e91a84bc96f86e03"
+          },
+          "financial_sha256": "baefb2c93d7e4914832ef41b2454c7a3e2670ea7b819681ea00451ee7ec3bdf0",
+          "journal": "wal",
+          "integrity": "ok",
+          "foreign_keys": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        },
+        "A_identity": [
+          64512,
+          1049751
+        ],
+        "B_identity": [
+          64512,
+          1049757
+        ],
+        "execute_calls": 1962,
+        "select_calls": 653
+      }
+    },
+    "oracle": "C SQLite return/trace·별도 raw connection·실제 permit 재획득·/proc FD 또는 exact Git AST",
+    "evidence": "evidence/cases-final__I07-authenticated.json"
+  },
+  {
+    "id": "I07-serialized",
+    "test": "test_I07_stale_A_request_never_acts_on_replacement_B[serialized]",
+    "result": "PASS",
+    "initial": "원 transfer 합성 template의 새 disposable clone; static case는 Git source oracle",
+    "lock_budget_ms": 5000,
+    "expected": "A stale request는 B에 작용하지 못함, B own request201, A inode 복원 후 absent201/committed200",
+    "actual": {
+      "http_statuses": [
+        500,
+        201,
+        200
+      ],
+      "sqlite_errors": [],
+      "all_observed_product_handles_closed": true,
+      "durable_or_static_oracle": {
+        "A_before": {
+          "sync_observations": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "sync_observation_pins": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "sync_objects": {
+            "count": 1198,
+            "sha256": "2b84638dc6687abc52a299b086513b889453b76035a48677022e6caae079559e"
+          },
+          "sync_current": {
+            "count": 1,
+            "sha256": "12cf12f39365e5f05cf121f8717e1223a77cbfa0a2ba37aeed2ac80db0c26926"
+          },
+          "sync_observation_budget": {
+            "count": 1,
+            "sha256": "fcbd8f2ee97e86ea25ede7fbf892fa8f8d0846fb35e5e9c91a20c7996fe7f963"
+          },
+          "financial_sha256": "baefb2c93d7e4914832ef41b2454c7a3e2670ea7b819681ea00451ee7ec3bdf0",
+          "journal": "wal",
+          "integrity": "ok",
+          "foreign_keys": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        },
+        "A_after_rejection": {
+          "sync_observations": {
+            "count": 1,
+            "sha256": "17ec62a12eac8b26674401f76045ab23290c0bf11fb20cbbe8b1e511c95673b2"
+          },
+          "sync_observation_pins": {
+            "count": 5,
+            "sha256": "703be62a02a570af5ec7206c067355fb37498d219d991c4c7ec6d75c71cd99c5"
+          },
+          "sync_objects": {
+            "count": 1200,
+            "sha256": "2cbd4b28ea340cd3dea27ddf01a46c8f2cb9fb814c2af5298834905fd9fbf112"
+          },
+          "sync_current": {
+            "count": 1,
+            "sha256": "12cf12f39365e5f05cf121f8717e1223a77cbfa0a2ba37aeed2ac80db0c26926"
+          },
+          "sync_observation_budget": {
+            "count": 1,
+            "sha256": "ead0b17241a8ba27b866c46f5852e09a9e0639dc0efede684339351b023f236f"
+          },
+          "financial_sha256": "baefb2c93d7e4914832ef41b2454c7a3e2670ea7b819681ea00451ee7ec3bdf0",
+          "journal": "wal",
+          "integrity": "ok",
+          "foreign_keys": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        },
+        "B_before": {
+          "sync_observations": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "sync_observation_pins": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "sync_objects": {
+            "count": 1198,
+            "sha256": "2b84638dc6687abc52a299b086513b889453b76035a48677022e6caae079559e"
+          },
+          "sync_current": {
+            "count": 1,
+            "sha256": "12cf12f39365e5f05cf121f8717e1223a77cbfa0a2ba37aeed2ac80db0c26926"
+          },
+          "sync_observation_budget": {
+            "count": 1,
+            "sha256": "fcbd8f2ee97e86ea25ede7fbf892fa8f8d0846fb35e5e9c91a20c7996fe7f963"
+          },
+          "financial_sha256": "baefb2c93d7e4914832ef41b2454c7a3e2670ea7b819681ea00451ee7ec3bdf0",
+          "journal": "wal",
+          "integrity": "ok",
+          "foreign_keys": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        },
+        "B_after_valid_own_request": {
+          "sync_observations": {
+            "count": 1,
+            "sha256": "9f7843c6e5e9a20517edbc58bfdb7e0904f21ae1ea431b87b03f967b17a15b4d"
+          },
+          "sync_observation_pins": {
+            "count": 5,
+            "sha256": "d281f567c7fc6decd581159749f84d0836b5f48f64f0de37cc6b6dd7e896d697"
+          },
+          "sync_objects": {
+            "count": 1200,
+            "sha256": "4421d3ede9eb845d7e50d8139f381ff8468a357781c096ee614e35ba76f087f8"
+          },
+          "sync_current": {
+            "count": 1,
+            "sha256": "12cf12f39365e5f05cf121f8717e1223a77cbfa0a2ba37aeed2ac80db0c26926"
+          },
+          "sync_observation_budget": {
+            "count": 1,
+            "sha256": "f0b653459da3f713983b1fab960af39e293efa6f6f26ea82de02aef108b8b70d"
+          },
+          "financial_sha256": "baefb2c93d7e4914832ef41b2454c7a3e2670ea7b819681ea00451ee7ec3bdf0",
+          "journal": "wal",
+          "integrity": "ok",
+          "foreign_keys": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        },
+        "A_identity": [
+          64512,
+          1049751
+        ],
+        "B_identity": [
+          64512,
+          1049757
+        ],
+        "execute_calls": 2240,
+        "select_calls": 741
+      }
+    },
+    "oracle": "C SQLite return/trace·별도 raw connection·실제 permit 재획득·/proc FD 또는 exact Git AST",
+    "evidence": "evidence/cases-final__I07-serialized.json"
+  },
+  {
+    "id": "I08-5000",
+    "test": "test_I08_fixture_order_does_not_change_another_repository_budget[ordering0]",
+    "result": "PASS",
+    "initial": "원 transfer 합성 template의 새 disposable clone; static case는 Git source oracle",
+    "lock_budget_ms": [
+      1000,
+      5000
+    ],
+    "expected": "5초/1초 fixture 실행 순서 양쪽에서 실제 PRAGMA·다른 repo 기본1000 보존·closed handles",
+    "actual": {
+      "http_statuses": [],
+      "sqlite_errors": [],
+      "all_observed_product_handles_closed": null,
+      "durable_or_static_oracle": {
+        "order": [
+          5000,
+          1000
+        ],
+        "phases": [
+          {
+            "wait": 5000,
+            "pragmas": [
+              "PRAGMA busy_timeout=5000",
+              "PRAGMA busy_timeout=5000"
+            ],
+            "handles": 3,
+            "state": {
+              "sync_observations": {
+                "count": 1,
+                "sha256": "95b91562af2d4cae674ecf84cce93bd7e16b98072f5fadc064bd8b3414bf1684"
+              },
+              "sync_observation_pins": {
+                "count": 5,
+                "sha256": "583ae91ed42a0487b8e1a8c646c89f4f139b4ed61fbc94cce20fdfd40b661209"
+              },
+              "sync_objects": {
+                "count": 1200,
+                "sha256": "8689158a1ad25f35e11c20349fb4ab6bddbcbc60d2066363eb4c92a7ef824732"
+              },
+              "sync_current": {
+                "count": 1,
+                "sha256": "12cf12f39365e5f05cf121f8717e1223a77cbfa0a2ba37aeed2ac80db0c26926"
+              },
+              "sync_observation_budget": {
+                "count": 1,
+                "sha256": "dcef09d6ffd0873c24e4e1dc766eada1a1ff5347678f9fae793a6d17583154eb"
+              },
+              "financial_sha256": "baefb2c93d7e4914832ef41b2454c7a3e2670ea7b819681ea00451ee7ec3bdf0",
+              "journal": "delete",
+              "integrity": "ok",
+              "foreign_keys": {
+                "count": 0,
+                "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+              }
+            }
+          },
+          {
+            "wait": 1000,
+            "pragmas": [
+              "PRAGMA busy_timeout=1000",
+              "PRAGMA busy_timeout=1000"
+            ],
+            "handles": 3,
+            "state": {
+              "sync_observations": {
+                "count": 1,
+                "sha256": "827c98ca5aa8af696ea7ed7e1517e819ae9a6879038ff49bcadf859c42ba3a08"
+              },
+              "sync_observation_pins": {
+                "count": 5,
+                "sha256": "999f3c4b061cd981d37246cb5b4dfac7686c3ce90b7c6c4d084817ad8c7d8e79"
+              },
+              "sync_objects": {
+                "count": 1200,
+                "sha256": "874fd15d5541815621b68c0ed8b2fba6ccdfe0acb18b5612db35bb2c411baee8"
+              },
+              "sync_current": {
+                "count": 1,
+                "sha256": "12cf12f39365e5f05cf121f8717e1223a77cbfa0a2ba37aeed2ac80db0c26926"
+              },
+              "sync_observation_budget": {
+                "count": 1,
+                "sha256": "e425197344fd9907ea380c7f4e3e75f62c7ead399006c50068635681f71c3e6d"
+              },
+              "financial_sha256": "baefb2c93d7e4914832ef41b2454c7a3e2670ea7b819681ea00451ee7ec3bdf0",
+              "journal": "delete",
+              "integrity": "ok",
+              "foreign_keys": {
+                "count": 0,
+                "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+              }
+            }
+          }
+        ],
+        "global_default": 1000
+      }
+    },
+    "oracle": "C SQLite return/trace·별도 raw connection·실제 permit 재획득·/proc FD 또는 exact Git AST",
+    "evidence": "evidence/cases-final__I08-5000.json"
+  },
+  {
+    "id": "I08-1000",
+    "test": "test_I08_fixture_order_does_not_change_another_repository_budget[ordering1]",
+    "result": "PASS",
+    "initial": "원 transfer 합성 template의 새 disposable clone; static case는 Git source oracle",
+    "lock_budget_ms": [
+      1000,
+      5000
+    ],
+    "expected": "5초/1초 fixture 실행 순서 양쪽에서 실제 PRAGMA·다른 repo 기본1000 보존·closed handles",
+    "actual": {
+      "http_statuses": [],
+      "sqlite_errors": [],
+      "all_observed_product_handles_closed": null,
+      "durable_or_static_oracle": {
+        "order": [
+          1000,
+          5000
+        ],
+        "phases": [
+          {
+            "wait": 1000,
+            "pragmas": [
+              "PRAGMA busy_timeout=1000",
+              "PRAGMA busy_timeout=1000"
+            ],
+            "handles": 3,
+            "state": {
+              "sync_observations": {
+                "count": 1,
+                "sha256": "db0b8a6656d3358558171bc1ad66382410b5af5d169e9640c11762e4033b56eb"
+              },
+              "sync_observation_pins": {
+                "count": 5,
+                "sha256": "5697b89ad90db3825353b788843fb6057e85211cfc0a212ba0dfae3d0202d99b"
+              },
+              "sync_objects": {
+                "count": 1200,
+                "sha256": "820465a8299940dec1ddfe53d09d816fa3269113dd38c0f9f1b11cc498070959"
+              },
+              "sync_current": {
+                "count": 1,
+                "sha256": "12cf12f39365e5f05cf121f8717e1223a77cbfa0a2ba37aeed2ac80db0c26926"
+              },
+              "sync_observation_budget": {
+                "count": 1,
+                "sha256": "7e323709e8c05ff136284f62dfb9bacfffcf7cdb1d191571b474441ca6f21553"
+              },
+              "financial_sha256": "baefb2c93d7e4914832ef41b2454c7a3e2670ea7b819681ea00451ee7ec3bdf0",
+              "journal": "delete",
+              "integrity": "ok",
+              "foreign_keys": {
+                "count": 0,
+                "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+              }
+            }
+          },
+          {
+            "wait": 5000,
+            "pragmas": [
+              "PRAGMA busy_timeout=5000",
+              "PRAGMA busy_timeout=5000"
+            ],
+            "handles": 3,
+            "state": {
+              "sync_observations": {
+                "count": 1,
+                "sha256": "90fa666e6e0402c6b0cda53f732a19f12ae60c247ff626e55f8d5df19afa8d78"
+              },
+              "sync_observation_pins": {
+                "count": 5,
+                "sha256": "160854a68bccb0fcd5ce07e776e84ca3f9f6abf6304856301ed57d02dfd829ce"
+              },
+              "sync_objects": {
+                "count": 1200,
+                "sha256": "6ed3f7e41d3b5637a668d2ed0332ec94248cf2f301c849f686d0f77bceaba8dd"
+              },
+              "sync_current": {
+                "count": 1,
+                "sha256": "12cf12f39365e5f05cf121f8717e1223a77cbfa0a2ba37aeed2ac80db0c26926"
+              },
+              "sync_observation_budget": {
+                "count": 1,
+                "sha256": "25bd5975c20e76ec6c057c6ad433c0eef6f4a03b7c4a7b43e979e329694f295f"
+              },
+              "financial_sha256": "baefb2c93d7e4914832ef41b2454c7a3e2670ea7b819681ea00451ee7ec3bdf0",
+              "journal": "delete",
+              "integrity": "ok",
+              "foreign_keys": {
+                "count": 0,
+                "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+              }
+            }
+          }
+        ],
+        "global_default": 1000
+      }
+    },
+    "oracle": "C SQLite return/trace·별도 raw connection·실제 permit 재획득·/proc FD 또는 exact Git AST",
+    "evidence": "evidence/cases-final__I08-1000.json"
+  },
+  {
+    "id": "I09-1000",
+    "test": "test_I09_native_busy_timeout_and_close_are_connection_local[1000]",
+    "result": "PASS",
+    "initial": "원 transfer 합성 template의 새 disposable clone; static case는 Git source oracle",
+    "lock_budget_ms": 1000,
+    "expected": "native admission100ms→해당 repo1000/5000만 적용→handle close, plain SQLite context와 close 구별",
+    "actual": {
+      "http_statuses": [],
+      "sqlite_errors": [],
+      "all_observed_product_handles_closed": null,
+      "durable_or_static_oracle": {
+        "connection_admission_ms": 100,
+        "repository_budget_ms": 1000,
+        "default_after": 1000,
+        "sqlite_context_manager_closes_handle": false,
+        "fd_before": [],
+        "fd_after": [],
+        "state": {
+          "sync_observations": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "sync_observation_pins": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "sync_objects": {
+            "count": 1198,
+            "sha256": "2b84638dc6687abc52a299b086513b889453b76035a48677022e6caae079559e"
+          },
+          "sync_current": {
+            "count": 1,
+            "sha256": "12cf12f39365e5f05cf121f8717e1223a77cbfa0a2ba37aeed2ac80db0c26926"
+          },
+          "sync_observation_budget": {
+            "count": 1,
+            "sha256": "fcbd8f2ee97e86ea25ede7fbf892fa8f8d0846fb35e5e9c91a20c7996fe7f963"
+          },
+          "financial_sha256": "baefb2c93d7e4914832ef41b2454c7a3e2670ea7b819681ea00451ee7ec3bdf0",
+          "journal": "delete",
+          "integrity": "ok",
+          "foreign_keys": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        }
+      }
+    },
+    "oracle": "C SQLite return/trace·별도 raw connection·실제 permit 재획득·/proc FD 또는 exact Git AST",
+    "evidence": "evidence/cases-final__I09-1000.json"
+  },
+  {
+    "id": "I09-5000",
+    "test": "test_I09_native_busy_timeout_and_close_are_connection_local[5000]",
+    "result": "PASS",
+    "initial": "원 transfer 합성 template의 새 disposable clone; static case는 Git source oracle",
+    "lock_budget_ms": 5000,
+    "expected": "native admission100ms→해당 repo1000/5000만 적용→handle close, plain SQLite context와 close 구별",
+    "actual": {
+      "http_statuses": [],
+      "sqlite_errors": [],
+      "all_observed_product_handles_closed": null,
+      "durable_or_static_oracle": {
+        "connection_admission_ms": 100,
+        "repository_budget_ms": 5000,
+        "default_after": 1000,
+        "sqlite_context_manager_closes_handle": false,
+        "fd_before": [],
+        "fd_after": [],
+        "state": {
+          "sync_observations": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "sync_observation_pins": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "sync_objects": {
+            "count": 1198,
+            "sha256": "2b84638dc6687abc52a299b086513b889453b76035a48677022e6caae079559e"
+          },
+          "sync_current": {
+            "count": 1,
+            "sha256": "12cf12f39365e5f05cf121f8717e1223a77cbfa0a2ba37aeed2ac80db0c26926"
+          },
+          "sync_observation_budget": {
+            "count": 1,
+            "sha256": "fcbd8f2ee97e86ea25ede7fbf892fa8f8d0846fb35e5e9c91a20c7996fe7f963"
+          },
+          "financial_sha256": "baefb2c93d7e4914832ef41b2454c7a3e2670ea7b819681ea00451ee7ec3bdf0",
+          "journal": "delete",
+          "integrity": "ok",
+          "foreign_keys": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        }
+      }
+    },
+    "oracle": "C SQLite return/trace·별도 raw connection·실제 permit 재획득·/proc FD 또는 exact Git AST",
+    "evidence": "evidence/cases-final__I09-5000.json"
+  },
+  {
+    "id": "I10",
+    "test": "I10 real TLS quota rejection and same-client E2 recovery",
+    "result": "PASS",
+    "initial": "새 실제 TLS backend/Flutter store",
+    "lock_budget_ms": 1000,
+    "expected": "실제 TLS quota429 세 번 후 같은 limit1 client가 release 뒤 E2 bytes/hash/closure 검증 성공·accepted는 null",
+    "actual": "4 leases201 +probe429 +E2 3×429 +release204 +verified acquisition",
+    "oracle": "실제 HTTP observer와 별도 client SQLite/서버 bytes",
+    "evidence": "evidence/flutter-quota.json"
+  }
+]

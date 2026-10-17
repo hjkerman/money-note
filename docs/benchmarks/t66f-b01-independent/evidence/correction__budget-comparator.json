@@ -1,0 +1,37 @@
+{
+  "default_wait_ms": 1000,
+  "quota_wait_ms": 5000,
+  "failed_status": 503,
+  "failed_body": {
+    "error": {
+      "action": "retry_same",
+      "code": "ROOT_NOT_READY",
+      "current_ns": null,
+      "retry_after_ms": 100
+    },
+    "protocol": 1,
+    "request_id": "b3f85c4c-f017-45ac-962c-49c776968b9a"
+  },
+  "long_status": 201,
+  "retry_status": 201,
+  "duplicate_status": 200,
+  "sqlite_errors": [
+    {
+      "wait_seconds": 1.0020917389774695,
+      "code": 5,
+      "name": "SQLITE_BUSY",
+      "error": "database is locked"
+    }
+  ],
+  "persisted_observations": [
+    [
+      "b3f85c4c-f017-45ac-962c-49c776968b9a",
+      "available"
+    ],
+    [
+      "ebff7f6e-13f9-48ef-9265-4b690fbdf2df",
+      "available"
+    ]
+  ],
+  "pins": 10
+}
