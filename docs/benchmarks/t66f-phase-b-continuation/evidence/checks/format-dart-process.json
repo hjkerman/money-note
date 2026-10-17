@@ -1,0 +1,15 @@
+{
+  "command": [
+    "/home/hjkerman/.flutter/bin/dart",
+    "format",
+    "--output=none",
+    "--set-exit-if-changed",
+    "docs/benchmarks/t66f-phase-b-continuation"
+  ],
+  "cwd": "/home/hjkerman/codex/money-note",
+  "start_unix": 1792238372.285534,
+  "status": "PASS",
+  "end_unix": 1792238372.3892207,
+  "seconds": 0.10368728637695312,
+  "exit": 0
+}

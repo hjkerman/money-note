@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/home/hjkerman/.flutter/bin/flutter",
+    "analyze",
+    "--no-pub"
+  ],
+  "cwd": "/home/hjkerman/codex/money-note/mobile",
+  "start_unix": 1792236418.9630592,
+  "status": "PASS",
+  "end_unix": 1792236424.2957306,
+  "seconds": 5.332672119140625,
+  "exit": 0
+}

@@ -1,0 +1,44 @@
+{
+  "marker": {
+    "pid": 376067,
+    "boundary": "after_finalize"
+  },
+  "signal": "SIGKILL",
+  "before": {
+    "title": "card",
+    "current": {
+      "id": 1,
+      "namespace": {
+        "sha256": "401d55af7f7fb6b006b8cce2aa531247b97feaaabd2407629f43a85759e332aa"
+      },
+      "raw_schema": "b948a0e33fc0abb6957af76beac643ac7131d2fcac3ab53265c02d16783f953e",
+      "revision": 22,
+      "raw_hash": "8f341a8dba04c8a5d0b172e563d3e57e35aa8ffec946e98974acd7fb440ffdea",
+      "index_hash": "65ab155fad48ecf79cca6be87d21da46cceef29e892b8b2c2201af7af52ef28c",
+      "tx_id": "f4972bc8-5dfe-4a3e-b0df-55a1bd95a5c6"
+    },
+    "raw_revision": 22,
+    "context": 0
+  },
+  "after": {
+    "title": "card",
+    "current": {
+      "id": 1,
+      "namespace": {
+        "sha256": "401d55af7f7fb6b006b8cce2aa531247b97feaaabd2407629f43a85759e332aa"
+      },
+      "raw_schema": "b948a0e33fc0abb6957af76beac643ac7131d2fcac3ab53265c02d16783f953e",
+      "revision": 22,
+      "raw_hash": "8f341a8dba04c8a5d0b172e563d3e57e35aa8ffec946e98974acd7fb440ffdea",
+      "index_hash": "65ab155fad48ecf79cca6be87d21da46cceef29e892b8b2c2201af7af52ef28c",
+      "tx_id": "f4972bc8-5dfe-4a3e-b0df-55a1bd95a5c6"
+    },
+    "raw_revision": 22,
+    "context": 0
+  },
+  "verified_roots": [
+    "8f341a8dba04c8a5d0b172e563d3e57e35aa8ffec946e98974acd7fb440ffdea",
+    "65ab155fad48ecf79cca6be87d21da46cceef29e892b8b2c2201af7af52ef28c",
+    22
+  ]
+}

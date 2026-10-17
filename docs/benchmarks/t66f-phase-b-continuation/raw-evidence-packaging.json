@@ -1,0 +1,7 @@
+{
+  "initial_diff_check_exit": 2,
+  "initial_diff_check_output": "docs/benchmarks/t66f-phase-b-continuation/evidence/identity.xml:10: trailing whitespace.\n+    \ndocs/benchmarks/t66f-phase-b-continuation/evidence/identity.xml:15: trailing whitespace.\n+    \ndocs/benchmarks/t66f-phase-b-continuation/evidence/identity.xml:25: trailing whitespace.\n+    \ndocs/benchmarks/t66f-phase-b-continuation/evidence/identity.xml:33: trailing whitespace.\n+    \n",
+  "initial_failure_junit_sha256": "641223d9839e4ccb534e31d6e211cfb14586d108e0445d9b85dc2c8c0bb9c49e",
+  "raw_bytes_unchanged": true,
+  "representation": "identity.xml.gz; byte-exact decompression"
+}

@@ -1,0 +1,2157 @@
+[
+  {
+    "n": 1000,
+    "status": "PASS",
+    "graph": {
+      "objects": 4132,
+      "bytes": 2749721,
+      "kinds": {
+        "control": 1,
+        "hot": 1,
+        "index-root": 1,
+        "index-node": 2056,
+        "index-leaf": 2057,
+        "raw-root": 1,
+        "snapshot-leaf": 14,
+        "snapshot-node": 1
+      },
+      "roots": {
+        "raw_ref": {
+          "bytes": "2625",
+          "hash": "43f755a51798f7fb352290b9cf4560e62f6bdd62fdbb97082e45791c1e17fb5f"
+        },
+        "index_ref": {
+          "bytes": "396",
+          "hash": "4f863c7924dcb99576a907a59a11ec4a2db5cf7ca52973bf2298e3d6858643e4"
+        },
+        "hot_ref": {
+          "bytes": "87364",
+          "hash": "ebcfbc7c5babe137b6639e29a681c672854908678f1faec9ccd03c61bcc4cc89"
+        },
+        "control_ref": {
+          "bytes": "3178",
+          "hash": "0695c1888413bfda9dafc6c6353b5297fb6403eade4375c036b98a253197e5cc"
+        }
+      }
+    },
+    "counts": {
+      "ledger_entries": 1000,
+      "monthly_panels": 2,
+      "cash_flows": 2,
+      "app_settings": 7,
+      "app_labels": 19,
+      "sync_objects": 4162
+    },
+    "compression": {
+      "boundary": "offline actual backend full authoritative bundle bytes; no wire Content-Encoding",
+      "raw_bytes": 649444,
+      "sha256": "60d577eaa5912cf74ae10347abb132af0d0dcfb3a6a879298c5eb34bd14c98f6",
+      "algorithms": {
+        "gzip6": {
+          "bytes": 20761,
+          "ratio": 0.031967344374572715,
+          "latency_ns": {
+            "n": 20,
+            "min": 6923755,
+            "median": 8374231.5,
+            "p95": 10606487,
+            "max": 10789780,
+            "stdev": 1404562.832410377
+          },
+          "samples_ns": [
+            8620608,
+            7848585,
+            7468349,
+            7217780,
+            8127855,
+            7014027,
+            7619975,
+            7459430,
+            8123325,
+            6923755,
+            7849988,
+            10789780,
+            9962585,
+            9827217,
+            10385679,
+            10365292,
+            10606487,
+            9988744,
+            10181310,
+            10435716
+          ]
+        },
+        "brotli4": {
+          "bytes": 11012,
+          "ratio": 0.01695604239934467,
+          "latency_ns": {
+            "n": 20,
+            "min": 3261761,
+            "median": 5452199.0,
+            "p95": 5670525,
+            "max": 5720639,
+            "stdev": 806900.0003537515
+          },
+          "samples_ns": [
+            5598601,
+            3674621,
+            3261761,
+            3577906,
+            3653839,
+            5441942,
+            5371960,
+            5529934,
+            5294180,
+            5291173,
+            5330110,
+            5524961,
+            5497119,
+            5462456,
+            5570564,
+            5670525,
+            5720639,
+            5558654,
+            5499676,
+            5273687
+          ]
+        }
+      }
+    },
+    "cold_bootstrap_ns": 16706951051,
+    "max_rss_kib": 107412,
+    "db_files": {
+      "main": 9883648,
+      "-wal": 0,
+      "-shm": 0
+    },
+    "phases": [
+      {
+        "phase": "unchanged",
+        "distributions": {
+          "total_ns": {
+            "n": 20,
+            "min": 759425398,
+            "median": 1089406725.0,
+            "p95": 1170339487,
+            "max": 1220357033,
+            "stdev": 122860669.3384648
+          },
+          "generation_ns": {
+            "n": 20,
+            "min": 0,
+            "median": 0.0,
+            "p95": 0,
+            "max": 0,
+            "stdev": 0.0
+          },
+          "http_ns": {
+            "n": 20,
+            "min": 759392083,
+            "median": 1089361055.5,
+            "p95": 1170287165,
+            "max": 1220306522,
+            "stdev": 122858970.99864972
+          },
+          "http_entity_bytes": {
+            "n": 20,
+            "min": 1534,
+            "median": 1534.0,
+            "p95": 1534,
+            "max": 1534,
+            "stdev": 0.0
+          }
+        },
+        "counters": {
+          "sql": {
+            "n": 20,
+            "min": 1120,
+            "median": 1120.0,
+            "p95": 1120,
+            "max": 1120
+          },
+          "SELECT": {
+            "n": 20,
+            "min": 516,
+            "median": 516.0,
+            "p95": 516,
+            "max": 516
+          },
+          "rows_returned": {
+            "n": 20,
+            "min": 4528,
+            "median": 4528.0,
+            "p95": 4528,
+            "max": 4528
+          },
+          "blob_bytes_returned": {
+            "n": 20,
+            "min": 216786,
+            "median": 216786.0,
+            "p95": 216786,
+            "max": 216786
+          },
+          "bound_blob_bytes": {
+            "n": 20,
+            "min": 5152,
+            "median": 5152.0,
+            "p95": 5152,
+            "max": 5152
+          },
+          "INSERT": {
+            "n": 20,
+            "min": 7,
+            "median": 7.0,
+            "p95": 7,
+            "max": 7
+          },
+          "UPDATE": {
+            "n": 20,
+            "min": 2,
+            "median": 2.0,
+            "p95": 2,
+            "max": 2
+          },
+          "DELETE": {
+            "n": 20,
+            "min": 0,
+            "median": 0.0,
+            "p95": 0,
+            "max": 0
+          }
+        },
+        "hot_bytes": [
+          87364
+        ],
+        "control_bytes": [
+          3178
+        ]
+      },
+      {
+        "phase": "card",
+        "distributions": {
+          "total_ns": {
+            "n": 20,
+            "min": 2528244300,
+            "median": 3166252591.0,
+            "p95": 3606208100,
+            "max": 4074322452,
+            "stdev": 370283557.959904
+          },
+          "generation_ns": {
+            "n": 20,
+            "min": 1659979413,
+            "median": 2216448191.5,
+            "p95": 2546486869,
+            "max": 2745229617,
+            "stdev": 293129321.9230242
+          },
+          "http_ns": {
+            "n": 20,
+            "min": 762423851,
+            "median": 1115391026.0,
+            "p95": 1231596194,
+            "max": 1329030337,
+            "stdev": 165717586.18739855
+          },
+          "http_entity_bytes": {
+            "n": 20,
+            "min": 1528,
+            "median": 1528.0,
+            "p95": 1528,
+            "max": 1528,
+            "stdev": 0.0
+          }
+        },
+        "counters": {
+          "sql": {
+            "n": 20,
+            "min": 2385,
+            "median": 2385.0,
+            "p95": 2385,
+            "max": 2385
+          },
+          "SELECT": {
+            "n": 20,
+            "min": 1421,
+            "median": 1421.0,
+            "p95": 1421,
+            "max": 1421
+          },
+          "rows_returned": {
+            "n": 20,
+            "min": 8729,
+            "median": 8729.0,
+            "p95": 8729,
+            "max": 8729
+          },
+          "blob_bytes_returned": {
+            "n": 20,
+            "min": 731317,
+            "median": 731317.0,
+            "p95": 731317,
+            "max": 731317
+          },
+          "bound_blob_bytes": {
+            "n": 20,
+            "min": 6291,
+            "median": 6291.0,
+            "p95": 6291,
+            "max": 6291
+          },
+          "INSERT": {
+            "n": 20,
+            "min": 15,
+            "median": 15.0,
+            "p95": 15,
+            "max": 15
+          },
+          "UPDATE": {
+            "n": 20,
+            "min": 4,
+            "median": 4.0,
+            "p95": 4,
+            "max": 4
+          },
+          "DELETE": {
+            "n": 20,
+            "min": 3,
+            "median": 3.0,
+            "p95": 3,
+            "max": 3
+          }
+        },
+        "hot_bytes": [
+          87364
+        ],
+        "control_bytes": [
+          3178
+        ]
+      },
+      {
+        "phase": "cash",
+        "distributions": {
+          "total_ns": {
+            "n": 20,
+            "min": 1112356537,
+            "median": 1363418638.0,
+            "p95": 1786801237,
+            "max": 1856604404,
+            "stdev": 222184514.9001344
+          },
+          "generation_ns": {
+            "n": 20,
+            "min": 403131712,
+            "median": 573009192.0,
+            "p95": 664514951,
+            "max": 680101903,
+            "stdev": 88204290.186911
+          },
+          "http_ns": {
+            "n": 20,
+            "min": 678904072,
+            "median": 872445321.5,
+            "p95": 1106647408,
+            "max": 1220662492,
+            "stdev": 156465437.5691314
+          },
+          "http_entity_bytes": {
+            "n": 20,
+            "min": 1528,
+            "median": 1528.0,
+            "p95": 1528,
+            "max": 1528,
+            "stdev": 0.0
+          }
+        },
+        "counters": {
+          "sql": {
+            "n": 20,
+            "min": 2439,
+            "median": 2439.0,
+            "p95": 2439,
+            "max": 2439
+          },
+          "SELECT": {
+            "n": 20,
+            "min": 1453,
+            "median": 1453.0,
+            "p95": 1453,
+            "max": 1453
+          },
+          "rows_returned": {
+            "n": 20,
+            "min": 8515,
+            "median": 8515.0,
+            "p95": 8515,
+            "max": 8515
+          },
+          "blob_bytes_returned": {
+            "n": 20,
+            "min": 288782,
+            "median": 288782.0,
+            "p95": 288782,
+            "max": 288782
+          },
+          "bound_blob_bytes": {
+            "n": 20,
+            "min": 6149,
+            "median": 6149.0,
+            "p95": 6149,
+            "max": 6149
+          },
+          "INSERT": {
+            "n": 20,
+            "min": 37,
+            "median": 37.0,
+            "p95": 37,
+            "max": 37
+          },
+          "UPDATE": {
+            "n": 20,
+            "min": 4,
+            "median": 4.0,
+            "p95": 4,
+            "max": 4
+          },
+          "DELETE": {
+            "n": 20,
+            "min": 3,
+            "median": 3.0,
+            "p95": 3,
+            "max": 3
+          }
+        },
+        "hot_bytes": [
+          87364
+        ],
+        "control_bytes": [
+          3178
+        ]
+      }
+    ]
+  },
+  {
+    "n": 5000,
+    "status": "PASS",
+    "graph": {
+      "objects": 20148,
+      "bytes": 13146158,
+      "kinds": {
+        "control": 1,
+        "hot": 1,
+        "index-root": 1,
+        "index-node": 10056,
+        "index-leaf": 10057,
+        "raw-root": 1,
+        "snapshot-leaf": 30,
+        "snapshot-node": 1
+      },
+      "roots": {
+        "raw_ref": {
+          "bytes": "2625",
+          "hash": "c700e56b9b66de07828d62f6956f130cdde5b7dd32410a79ffc394ae08ff7e1b"
+        },
+        "index_ref": {
+          "bytes": "397",
+          "hash": "3c870d77ede136f3ca8ca7f4ae499639f630f5615889f534f636bca0c23f541d"
+        },
+        "hot_ref": {
+          "bytes": "87364",
+          "hash": "2281f91dab1986445b1508ed6d1d1e834d9a83a900c31c5a04736afd3b4a7be9"
+        },
+        "control_ref": {
+          "bytes": "3178",
+          "hash": "a8e75e245f4e0a555b7b00a12cb71f8325744f6928445629c10a3bf6f700b6d2"
+        }
+      }
+    },
+    "counts": {
+      "ledger_entries": 5000,
+      "monthly_panels": 2,
+      "cash_flows": 2,
+      "app_settings": 7,
+      "app_labels": 19,
+      "sync_objects": 20178
+    },
+    "compression": {
+      "boundary": "offline actual backend full authoritative bundle bytes; no wire Content-Encoding",
+      "raw_bytes": 2877441,
+      "sha256": "d89498c2f108deb3d71e7a3c9a95484a5d2fbd08fe2895b642f9f8e734dfe5b5",
+      "algorithms": {
+        "gzip6": {
+          "bytes": 71847,
+          "ratio": 0.024969061051121465,
+          "latency_ns": {
+            "n": 20,
+            "min": 27914235,
+            "median": 29348756.5,
+            "p95": 32390478,
+            "max": 32953954,
+            "stdev": 1505329.6422658605
+          },
+          "samples_ns": [
+            32390478,
+            32024028,
+            30359830,
+            28147660,
+            27914235,
+            28575456,
+            28810722,
+            29210791,
+            28900689,
+            29337675,
+            29175901,
+            29359838,
+            29467085,
+            28596312,
+            28956011,
+            31474613,
+            32953954,
+            31309101,
+            31104504,
+            31174687
+          ]
+        },
+        "brotli4": {
+          "bytes": 29821,
+          "ratio": 0.010363722488141373,
+          "latency_ns": {
+            "n": 20,
+            "min": 21749838,
+            "median": 24428554.0,
+            "p95": 27358936,
+            "max": 27741995,
+            "stdev": 1542498.163357139
+          },
+          "samples_ns": [
+            24542976,
+            24788844,
+            24592234,
+            23511785,
+            22850654,
+            23131268,
+            24809939,
+            22639645,
+            22744644,
+            23856622,
+            21749838,
+            23257047,
+            23422970,
+            24976472,
+            25155018,
+            24721376,
+            24314132,
+            27358936,
+            27741995,
+            26345717
+          ]
+        }
+      }
+    },
+    "cold_bootstrap_ns": 79339566162,
+    "max_rss_kib": 218064,
+    "db_files": {
+      "main": 41103360,
+      "-wal": 0,
+      "-shm": 0
+    },
+    "phases": [
+      {
+        "phase": "unchanged",
+        "distributions": {
+          "total_ns": {
+            "n": 20,
+            "min": 721647887,
+            "median": 867389870.5,
+            "p95": 1069652852,
+            "max": 1159987792,
+            "stdev": 122465638.25905143
+          },
+          "generation_ns": {
+            "n": 20,
+            "min": 0,
+            "median": 0.0,
+            "p95": 0,
+            "max": 0,
+            "stdev": 0.0
+          },
+          "http_ns": {
+            "n": 20,
+            "min": 721610984,
+            "median": 867340716.5,
+            "p95": 1069605880,
+            "max": 1159940042,
+            "stdev": 122465050.15500098
+          },
+          "http_entity_bytes": {
+            "n": 20,
+            "min": 1534,
+            "median": 1534.0,
+            "p95": 1534,
+            "max": 1534,
+            "stdev": 0.0
+          }
+        },
+        "counters": {
+          "sql": {
+            "n": 20,
+            "min": 1120,
+            "median": 1120.0,
+            "p95": 1120,
+            "max": 1120
+          },
+          "SELECT": {
+            "n": 20,
+            "min": 516,
+            "median": 516.0,
+            "p95": 516,
+            "max": 516
+          },
+          "rows_returned": {
+            "n": 20,
+            "min": 4528,
+            "median": 4528.0,
+            "p95": 4528,
+            "max": 4528
+          },
+          "blob_bytes_returned": {
+            "n": 20,
+            "min": 219415,
+            "median": 219415.0,
+            "p95": 219415,
+            "max": 219415
+          },
+          "bound_blob_bytes": {
+            "n": 20,
+            "min": 5152,
+            "median": 5152.0,
+            "p95": 5152,
+            "max": 5152
+          },
+          "INSERT": {
+            "n": 20,
+            "min": 7,
+            "median": 7.0,
+            "p95": 7,
+            "max": 7
+          },
+          "UPDATE": {
+            "n": 20,
+            "min": 2,
+            "median": 2.0,
+            "p95": 2,
+            "max": 2
+          },
+          "DELETE": {
+            "n": 20,
+            "min": 0,
+            "median": 0.0,
+            "p95": 0,
+            "max": 0
+          }
+        },
+        "hot_bytes": [
+          87364
+        ],
+        "control_bytes": [
+          3178
+        ]
+      },
+      {
+        "phase": "card",
+        "distributions": {
+          "total_ns": {
+            "n": 20,
+            "min": 2251285916,
+            "median": 3296513320.5,
+            "p95": 3622392547,
+            "max": 3677817092,
+            "stdev": 443684686.0315311
+          },
+          "generation_ns": {
+            "n": 20,
+            "min": 1534045132,
+            "median": 2295916304.5,
+            "p95": 2471194047,
+            "max": 2489982230,
+            "stdev": 300403378.1582211
+          },
+          "http_ns": {
+            "n": 20,
+            "min": 711350211,
+            "median": 946891819.5,
+            "p95": 1178343245,
+            "max": 1218886634,
+            "stdev": 176128648.81703532
+          },
+          "http_entity_bytes": {
+            "n": 20,
+            "min": 1528,
+            "median": 1528.0,
+            "p95": 1528,
+            "max": 1528,
+            "stdev": 0.0
+          }
+        },
+        "counters": {
+          "sql": {
+            "n": 20,
+            "min": 2401,
+            "median": 2401.0,
+            "p95": 2401,
+            "max": 2401
+          },
+          "SELECT": {
+            "n": 20,
+            "min": 1437,
+            "median": 1437.0,
+            "p95": 1437,
+            "max": 1437
+          },
+          "rows_returned": {
+            "n": 20,
+            "min": 8745,
+            "median": 8745.0,
+            "p95": 8745,
+            "max": 8745
+          },
+          "blob_bytes_returned": {
+            "n": 20,
+            "min": 750077,
+            "median": 750077.0,
+            "p95": 750077,
+            "max": 750077
+          },
+          "bound_blob_bytes": {
+            "n": 20,
+            "min": 6291,
+            "median": 6291.0,
+            "p95": 6291,
+            "max": 6291
+          },
+          "INSERT": {
+            "n": 20,
+            "min": 15,
+            "median": 15.0,
+            "p95": 15,
+            "max": 15
+          },
+          "UPDATE": {
+            "n": 20,
+            "min": 4,
+            "median": 4.0,
+            "p95": 4,
+            "max": 4
+          },
+          "DELETE": {
+            "n": 20,
+            "min": 3,
+            "median": 3.0,
+            "p95": 3,
+            "max": 3
+          }
+        },
+        "hot_bytes": [
+          87364
+        ],
+        "control_bytes": [
+          3178
+        ]
+      },
+      {
+        "phase": "cash",
+        "distributions": {
+          "total_ns": {
+            "n": 20,
+            "min": 1074858288,
+            "median": 1297151893.0,
+            "p95": 1743937268,
+            "max": 1755412821,
+            "stdev": 238354562.44409823
+          },
+          "generation_ns": {
+            "n": 20,
+            "min": 381783397,
+            "median": 483410308.0,
+            "p95": 650634966,
+            "max": 687523844,
+            "stdev": 98267287.57336277
+          },
+          "http_ns": {
+            "n": 20,
+            "min": 668582941,
+            "median": 784313429.0,
+            "p95": 1107627785,
+            "max": 1132793466,
+            "stdev": 166267175.38946873
+          },
+          "http_entity_bytes": {
+            "n": 20,
+            "min": 1528,
+            "median": 1528.0,
+            "p95": 1528,
+            "max": 1528,
+            "stdev": 0.0
+          }
+        },
+        "counters": {
+          "sql": {
+            "n": 20,
+            "min": 2446,
+            "median": 2446.0,
+            "p95": 2446,
+            "max": 2446
+          },
+          "SELECT": {
+            "n": 20,
+            "min": 1460,
+            "median": 1460.0,
+            "p95": 1460,
+            "max": 1460
+          },
+          "rows_returned": {
+            "n": 20,
+            "min": 8522,
+            "median": 8522.0,
+            "p95": 8522,
+            "max": 8522
+          },
+          "blob_bytes_returned": {
+            "n": 20,
+            "min": 295048,
+            "median": 295048.0,
+            "p95": 295048,
+            "max": 295048
+          },
+          "bound_blob_bytes": {
+            "n": 20,
+            "min": 6149,
+            "median": 6149.0,
+            "p95": 6149,
+            "max": 6149
+          },
+          "INSERT": {
+            "n": 20,
+            "min": 37,
+            "median": 37.0,
+            "p95": 37,
+            "max": 37
+          },
+          "UPDATE": {
+            "n": 20,
+            "min": 4,
+            "median": 4.0,
+            "p95": 4,
+            "max": 4
+          },
+          "DELETE": {
+            "n": 20,
+            "min": 3,
+            "median": 3.0,
+            "p95": 3,
+            "max": 3
+          }
+        },
+        "hot_bytes": [
+          87364
+        ],
+        "control_bytes": [
+          3178
+        ]
+      }
+    ]
+  },
+  {
+    "n": 10000,
+    "status": "PASS",
+    "graph": {
+      "objects": 40170,
+      "bytes": 26160538,
+      "kinds": {
+        "control": 1,
+        "hot": 1,
+        "index-root": 1,
+        "index-node": 20056,
+        "index-leaf": 20057,
+        "raw-root": 1,
+        "snapshot-leaf": 50,
+        "snapshot-node": 3
+      },
+      "roots": {
+        "raw_ref": {
+          "bytes": "2627",
+          "hash": "ce9ba830b81be502fe286c83568225968abb8052b735a52b881c1866a21d1190"
+        },
+        "index_ref": {
+          "bytes": "397",
+          "hash": "07814f51b4781acc6ba9111b135bbfb94186e5ef263cceb38194388fa384937c"
+        },
+        "hot_ref": {
+          "bytes": "87364",
+          "hash": "b6db312d79ab07f686ab301612b80f65ce9c963679192b5d0d83ce6de202c268"
+        },
+        "control_ref": {
+          "bytes": "3178",
+          "hash": "8ed3ada664ab3c24b87b77b1c94bb6c5e4f328d270bea938df41c1f838052a9b"
+        }
+      }
+    },
+    "counts": {
+      "ledger_entries": 10000,
+      "monthly_panels": 2,
+      "cash_flows": 2,
+      "app_settings": 7,
+      "app_labels": 19,
+      "sync_objects": 40200
+    },
+    "compression": {
+      "boundary": "offline actual backend full authoritative bundle bytes; no wire Content-Encoding",
+      "raw_bytes": 5663442,
+      "sha256": "ed9353a98b3dd4cd83ffb5132c5ceff398a5d6822173153eabb568b1775077fb",
+      "algorithms": {
+        "gzip6": {
+          "bytes": 134823,
+          "ratio": 0.023805841041543287,
+          "latency_ns": {
+            "n": 20,
+            "min": 53077301,
+            "median": 57501405.0,
+            "p95": 59802794,
+            "max": 61855171,
+            "stdev": 2506593.1318169455
+          },
+          "samples_ns": [
+            58186749,
+            54192593,
+            55118207,
+            56889579,
+            58035518,
+            59802794,
+            53077301,
+            54398226,
+            58206727,
+            57431939,
+            59002348,
+            54660718,
+            55547771,
+            57570871,
+            59111396,
+            59243544,
+            53272920,
+            54283558,
+            59749932,
+            61855171
+          ]
+        },
+        "brotli4": {
+          "bytes": 52450,
+          "ratio": 0.009261152493483644,
+          "latency_ns": {
+            "n": 20,
+            "min": 37496876,
+            "median": 40203678.5,
+            "p95": 42644257,
+            "max": 42873985,
+            "stdev": 1589363.538787242
+          },
+          "samples_ns": [
+            40315810,
+            40081136,
+            40523745,
+            41037066,
+            41673887,
+            38863340,
+            37496876,
+            39967186,
+            39405660,
+            41127790,
+            42431814,
+            42019555,
+            38269073,
+            38206066,
+            39060366,
+            42873985,
+            42644257,
+            40091547,
+            41398944,
+            38559399
+          ]
+        }
+      }
+    },
+    "cold_bootstrap_ns": 133035312228,
+    "max_rss_kib": 342540,
+    "db_files": {
+      "main": 80519168,
+      "-wal": 0,
+      "-shm": 0
+    },
+    "phases": [
+      {
+        "phase": "unchanged",
+        "distributions": {
+          "total_ns": {
+            "n": 20,
+            "min": 627471776,
+            "median": 683266813.5,
+            "p95": 1143145394,
+            "max": 1193028012,
+            "stdev": 191980226.5580381
+          },
+          "generation_ns": {
+            "n": 20,
+            "min": 0,
+            "median": 0.0,
+            "p95": 0,
+            "max": 0,
+            "stdev": 0.0
+          },
+          "http_ns": {
+            "n": 20,
+            "min": 627433888,
+            "median": 683213238.5,
+            "p95": 1143099377,
+            "max": 1192976453,
+            "stdev": 191977642.9500426
+          },
+          "http_entity_bytes": {
+            "n": 20,
+            "min": 1535,
+            "median": 1535.0,
+            "p95": 1535,
+            "max": 1535,
+            "stdev": 0.0
+          }
+        },
+        "counters": {
+          "sql": {
+            "n": 20,
+            "min": 1120,
+            "median": 1120.0,
+            "p95": 1120,
+            "max": 1120
+          },
+          "SELECT": {
+            "n": 20,
+            "min": 516,
+            "median": 516.0,
+            "p95": 516,
+            "max": 516
+          },
+          "rows_returned": {
+            "n": 20,
+            "min": 4528,
+            "median": 4528.0,
+            "p95": 4528,
+            "max": 4528
+          },
+          "blob_bytes_returned": {
+            "n": 20,
+            "min": 216472,
+            "median": 216472.0,
+            "p95": 216472,
+            "max": 216472
+          },
+          "bound_blob_bytes": {
+            "n": 20,
+            "min": 5156,
+            "median": 5156.0,
+            "p95": 5156,
+            "max": 5156
+          },
+          "INSERT": {
+            "n": 20,
+            "min": 7,
+            "median": 7.0,
+            "p95": 7,
+            "max": 7
+          },
+          "UPDATE": {
+            "n": 20,
+            "min": 2,
+            "median": 2.0,
+            "p95": 2,
+            "max": 2
+          },
+          "DELETE": {
+            "n": 20,
+            "min": 0,
+            "median": 0.0,
+            "p95": 0,
+            "max": 0
+          }
+        },
+        "hot_bytes": [
+          87364
+        ],
+        "control_bytes": [
+          3178
+        ]
+      },
+      {
+        "phase": "card",
+        "distributions": {
+          "total_ns": {
+            "n": 20,
+            "min": 1965608296,
+            "median": 2160857461.0,
+            "p95": 3032231566,
+            "max": 3384991600,
+            "stdev": 427836942.8586117
+          },
+          "generation_ns": {
+            "n": 20,
+            "min": 1343848397,
+            "median": 1453149586.5,
+            "p95": 2020826981,
+            "max": 2648399727,
+            "stdev": 323083389.73353547
+          },
+          "http_ns": {
+            "n": 20,
+            "min": 621717448,
+            "median": 671006442.5,
+            "p95": 1110388280,
+            "max": 1155539603,
+            "stdev": 172001335.75804418
+          },
+          "http_entity_bytes": {
+            "n": 20,
+            "min": 1529,
+            "median": 1529.0,
+            "p95": 1529,
+            "max": 1529,
+            "stdev": 0.0
+          }
+        },
+        "counters": {
+          "sql": {
+            "n": 20,
+            "min": 2410,
+            "median": 2410.0,
+            "p95": 2410,
+            "max": 2410
+          },
+          "SELECT": {
+            "n": 20,
+            "min": 1446,
+            "median": 1446.0,
+            "p95": 1446,
+            "max": 1446
+          },
+          "rows_returned": {
+            "n": 20,
+            "min": 8754,
+            "median": 8754.0,
+            "p95": 8754,
+            "max": 8754
+          },
+          "blob_bytes_returned": {
+            "n": 20,
+            "min": 752394,
+            "median": 752394.0,
+            "p95": 752394,
+            "max": 752394
+          },
+          "bound_blob_bytes": {
+            "n": 20,
+            "min": 6296,
+            "median": 6296.0,
+            "p95": 6296,
+            "max": 6296
+          },
+          "INSERT": {
+            "n": 20,
+            "min": 15,
+            "median": 15.0,
+            "p95": 15,
+            "max": 15
+          },
+          "UPDATE": {
+            "n": 20,
+            "min": 4,
+            "median": 4.0,
+            "p95": 4,
+            "max": 4
+          },
+          "DELETE": {
+            "n": 20,
+            "min": 3,
+            "median": 3.0,
+            "p95": 3,
+            "max": 3
+          }
+        },
+        "hot_bytes": [
+          87364
+        ],
+        "control_bytes": [
+          3178
+        ]
+      },
+      {
+        "phase": "cash",
+        "distributions": {
+          "total_ns": {
+            "n": 20,
+            "min": 1003769070,
+            "median": 1126420422.0,
+            "p95": 1818341449,
+            "max": 1871895835,
+            "stdev": 277118935.32027763
+          },
+          "generation_ns": {
+            "n": 20,
+            "min": 375146218,
+            "median": 436939143.0,
+            "p95": 673932393,
+            "max": 708601934,
+            "stdev": 120677518.42022435
+          },
+          "http_ns": {
+            "n": 20,
+            "min": 616314010,
+            "median": 697844300.0,
+            "p95": 1151986074,
+            "max": 1197900841,
+            "stdev": 176605183.23897135
+          },
+          "http_entity_bytes": {
+            "n": 20,
+            "min": 1529,
+            "median": 1529.0,
+            "p95": 1529,
+            "max": 1529,
+            "stdev": 0.0
+          }
+        },
+        "counters": {
+          "sql": {
+            "n": 20,
+            "min": 2449,
+            "median": 2449.0,
+            "p95": 2449,
+            "max": 2449
+          },
+          "SELECT": {
+            "n": 20,
+            "min": 1463,
+            "median": 1463.0,
+            "p95": 1463,
+            "max": 1463
+          },
+          "rows_returned": {
+            "n": 20,
+            "min": 8525,
+            "median": 8525.0,
+            "p95": 8525,
+            "max": 8525
+          },
+          "blob_bytes_returned": {
+            "n": 20,
+            "min": 293725,
+            "median": 293725.0,
+            "p95": 293725,
+            "max": 293725
+          },
+          "bound_blob_bytes": {
+            "n": 20,
+            "min": 6154,
+            "median": 6154.0,
+            "p95": 6154,
+            "max": 6154
+          },
+          "INSERT": {
+            "n": 20,
+            "min": 37,
+            "median": 37.0,
+            "p95": 37,
+            "max": 37
+          },
+          "UPDATE": {
+            "n": 20,
+            "min": 4,
+            "median": 4.0,
+            "p95": 4,
+            "max": 4
+          },
+          "DELETE": {
+            "n": 20,
+            "min": 3,
+            "median": 3.0,
+            "p95": 3,
+            "max": 3
+          }
+        },
+        "hot_bytes": [
+          87364
+        ],
+        "control_bytes": [
+          3178
+        ]
+      }
+    ]
+  },
+  {
+    "n": 50000,
+    "status": "PASS",
+    "graph": {
+      "objects": 200331,
+      "bytes": 130710592,
+      "kinds": {
+        "control": 1,
+        "hot": 1,
+        "index-root": 1,
+        "index-node": 100056,
+        "index-leaf": 100057,
+        "raw-root": 1,
+        "snapshot-leaf": 206,
+        "snapshot-node": 8
+      },
+      "roots": {
+        "raw_ref": {
+          "bytes": "2628",
+          "hash": "6705da3a88eea569142e080e80e4629ea1e778804ae9d8e2eb4f7303cababe90"
+        },
+        "index_ref": {
+          "bytes": "398",
+          "hash": "7b747e8b770cdbfce4868562f217d21a123577c8faae9107f1ab476f6e6b764c"
+        },
+        "hot_ref": {
+          "bytes": "87364",
+          "hash": "69cf2d2512b9551096a40df23c25ec72ea7a1dcf4c9a09cddc4c7db060d096f1"
+        },
+        "control_ref": {
+          "bytes": "3178",
+          "hash": "11860a07ec681f88a9a3b9b78130bad695cab04e4d5652027919f3bf3a1f2f11"
+        }
+      }
+    },
+    "counts": {
+      "ledger_entries": 50000,
+      "monthly_panels": 2,
+      "cash_flows": 2,
+      "app_settings": 7,
+      "app_labels": 19,
+      "sync_objects": 200361
+    },
+    "compression": {
+      "boundary": "offline actual backend full authoritative bundle bytes; no wire Content-Encoding",
+      "raw_bytes": 28103439,
+      "sha256": "1c33d7bf4f36db94efe03eea1b1e42dba128e529af297b2f5bc731b1e0e16bea",
+      "algorithms": {
+        "gzip6": {
+          "bytes": 648149,
+          "ratio": 0.023062978164344942,
+          "latency_ns": {
+            "n": 20,
+            "min": 167781323,
+            "median": 202184612.0,
+            "p95": 218085989,
+            "max": 237006651,
+            "stdev": 18526551.151027817
+          },
+          "samples_ns": [
+            218085989,
+            237006651,
+            202767779,
+            212233241,
+            212703290,
+            209988948,
+            198397547,
+            194693827,
+            197090337,
+            201601445,
+            210741047,
+            217501836,
+            211491269,
+            209336664,
+            200109838,
+            174039816,
+            167781323,
+            169424119,
+            173910080,
+            180095167
+          ]
+        },
+        "brotli4": {
+          "bytes": 230120,
+          "ratio": 0.008188321721053427,
+          "latency_ns": {
+            "n": 20,
+            "min": 130815609,
+            "median": 138594444.0,
+            "p95": 204427108,
+            "max": 215479348,
+            "stdev": 24362170.499278918
+          },
+          "samples_ns": [
+            138775275,
+            137345523,
+            138429623,
+            142766764,
+            141820952,
+            139077456,
+            135222668,
+            135238323,
+            137755074,
+            138759265,
+            136241494,
+            135297991,
+            134278872,
+            130815609,
+            137726829,
+            154196270,
+            162338212,
+            186470684,
+            215479348,
+            204427108
+          ]
+        }
+      }
+    },
+    "cold_bootstrap_ns": 574114294079,
+    "max_rss_kib": 1393184,
+    "db_files": {
+      "main": 395755520,
+      "-wal": 0,
+      "-shm": 0
+    },
+    "phases": [
+      {
+        "phase": "unchanged",
+        "distributions": {
+          "total_ns": {
+            "n": 20,
+            "min": 658259826,
+            "median": 732721492.0,
+            "p95": 841940225,
+            "max": 1047016936,
+            "stdev": 85638096.40025726
+          },
+          "generation_ns": {
+            "n": 20,
+            "min": 0,
+            "median": 0.0,
+            "p95": 0,
+            "max": 0,
+            "stdev": 0.0
+          },
+          "http_ns": {
+            "n": 20,
+            "min": 658214369,
+            "median": 732675424.5,
+            "p95": 841900623,
+            "max": 1046981725,
+            "stdev": 85640254.75575432
+          },
+          "http_entity_bytes": {
+            "n": 20,
+            "min": 1535,
+            "median": 1535.0,
+            "p95": 1535,
+            "max": 1535,
+            "stdev": 0.0
+          }
+        },
+        "counters": {
+          "sql": {
+            "n": 20,
+            "min": 1120,
+            "median": 1120.0,
+            "p95": 1120,
+            "max": 1120
+          },
+          "SELECT": {
+            "n": 20,
+            "min": 516,
+            "median": 516.0,
+            "p95": 516,
+            "max": 516
+          },
+          "rows_returned": {
+            "n": 20,
+            "min": 4528,
+            "median": 4528.0,
+            "p95": 4528,
+            "max": 4528
+          },
+          "blob_bytes_returned": {
+            "n": 20,
+            "min": 217305,
+            "median": 217305.0,
+            "p95": 217305,
+            "max": 217305
+          },
+          "bound_blob_bytes": {
+            "n": 20,
+            "min": 5156,
+            "median": 5156.0,
+            "p95": 5156,
+            "max": 5156
+          },
+          "INSERT": {
+            "n": 20,
+            "min": 7,
+            "median": 7.0,
+            "p95": 7,
+            "max": 7
+          },
+          "UPDATE": {
+            "n": 20,
+            "min": 2,
+            "median": 2.0,
+            "p95": 2,
+            "max": 2
+          },
+          "DELETE": {
+            "n": 20,
+            "min": 0,
+            "median": 0.0,
+            "p95": 0,
+            "max": 0
+          }
+        },
+        "hot_bytes": [
+          87364
+        ],
+        "control_bytes": [
+          3178
+        ]
+      },
+      {
+        "phase": "card",
+        "distributions": {
+          "total_ns": {
+            "n": 20,
+            "min": 2084376587,
+            "median": 2207214382.0,
+            "p95": 2300419101,
+            "max": 2332835243,
+            "stdev": 63464432.7884579
+          },
+          "generation_ns": {
+            "n": 20,
+            "min": 1414724544,
+            "median": 1521856376.0,
+            "p95": 1571925129,
+            "max": 1629364258,
+            "stdev": 55012237.99339772
+          },
+          "http_ns": {
+            "n": 20,
+            "min": 640525891,
+            "median": 690704497.0,
+            "p95": 747470569,
+            "max": 748059411,
+            "stdev": 32336458.42098589
+          },
+          "http_entity_bytes": {
+            "n": 20,
+            "min": 1529,
+            "median": 1529.0,
+            "p95": 1529,
+            "max": 1529,
+            "stdev": 0.0
+          }
+        },
+        "counters": {
+          "sql": {
+            "n": 20,
+            "min": 2432,
+            "median": 2432.0,
+            "p95": 2432,
+            "max": 2432
+          },
+          "SELECT": {
+            "n": 20,
+            "min": 1468,
+            "median": 1468.0,
+            "p95": 1468,
+            "max": 1468
+          },
+          "rows_returned": {
+            "n": 20,
+            "min": 8776,
+            "median": 8776.0,
+            "p95": 8776,
+            "max": 8776
+          },
+          "blob_bytes_returned": {
+            "n": 20,
+            "min": 772997,
+            "median": 772997.0,
+            "p95": 772997,
+            "max": 772997
+          },
+          "bound_blob_bytes": {
+            "n": 20,
+            "min": 6296,
+            "median": 6296.0,
+            "p95": 6296,
+            "max": 6296
+          },
+          "INSERT": {
+            "n": 20,
+            "min": 15,
+            "median": 15.0,
+            "p95": 15,
+            "max": 15
+          },
+          "UPDATE": {
+            "n": 20,
+            "min": 4,
+            "median": 4.0,
+            "p95": 4,
+            "max": 4
+          },
+          "DELETE": {
+            "n": 20,
+            "min": 3,
+            "median": 3.0,
+            "p95": 3,
+            "max": 3
+          }
+        },
+        "hot_bytes": [
+          87364
+        ],
+        "control_bytes": [
+          3178
+        ]
+      },
+      {
+        "phase": "cash",
+        "distributions": {
+          "total_ns": {
+            "n": 20,
+            "min": 1009555349,
+            "median": 1094334977.0,
+            "p95": 1150713039,
+            "max": 1468508025,
+            "stdev": 91222576.5158716
+          },
+          "generation_ns": {
+            "n": 20,
+            "min": 372951959,
+            "median": 418649774.0,
+            "p95": 477757528,
+            "max": 575899671,
+            "stdev": 41462431.287474275
+          },
+          "http_ns": {
+            "n": 20,
+            "min": 622295076,
+            "median": 664188816.0,
+            "p95": 713623262,
+            "max": 892557688,
+            "stdev": 55244623.08166871
+          },
+          "http_entity_bytes": {
+            "n": 20,
+            "min": 1529,
+            "median": 1529.0,
+            "p95": 1529,
+            "max": 1529,
+            "stdev": 0.0
+          }
+        },
+        "counters": {
+          "sql": {
+            "n": 20,
+            "min": 2459,
+            "median": 2459.0,
+            "p95": 2459,
+            "max": 2459
+          },
+          "SELECT": {
+            "n": 20,
+            "min": 1473,
+            "median": 1473.0,
+            "p95": 1473,
+            "max": 1473
+          },
+          "rows_returned": {
+            "n": 20,
+            "min": 8535,
+            "median": 8535.0,
+            "p95": 8535,
+            "max": 8535
+          },
+          "blob_bytes_returned": {
+            "n": 20,
+            "min": 299705,
+            "median": 299705.0,
+            "p95": 299705,
+            "max": 299705
+          },
+          "bound_blob_bytes": {
+            "n": 20,
+            "min": 6154,
+            "median": 6154.0,
+            "p95": 6154,
+            "max": 6154
+          },
+          "INSERT": {
+            "n": 20,
+            "min": 37,
+            "median": 37.0,
+            "p95": 37,
+            "max": 37
+          },
+          "UPDATE": {
+            "n": 20,
+            "min": 4,
+            "median": 4.0,
+            "p95": 4,
+            "max": 4
+          },
+          "DELETE": {
+            "n": 20,
+            "min": 3,
+            "median": 3.0,
+            "p95": 3,
+            "max": 3
+          }
+        },
+        "hot_bytes": [
+          87364
+        ],
+        "control_bytes": [
+          3178
+        ]
+      }
+    ]
+  },
+  {
+    "n": 100000,
+    "status": "PASS",
+    "graph": {
+      "objects": 400532,
+      "bytes": 261543083,
+      "kinds": {
+        "control": 1,
+        "hot": 1,
+        "index-root": 1,
+        "index-node": 200056,
+        "index-leaf": 200057,
+        "raw-root": 1,
+        "snapshot-leaf": 401,
+        "snapshot-node": 14
+      },
+      "roots": {
+        "raw_ref": {
+          "bytes": "2631",
+          "hash": "99c4f73ad94cb9ed7427f6175bd0e2c30f952ccb503e1d32897bf39f85a56474"
+        },
+        "index_ref": {
+          "bytes": "398",
+          "hash": "f8dd73c7b8bb68f9bf703d2c7e90f3eb595808b780bf50ea30ded5a40469f4cb"
+        },
+        "hot_ref": {
+          "bytes": "87364",
+          "hash": "2782dd4bc62844491f9b17d07ce886758586099f84a10f17e0df0d33ce0ffa89"
+        },
+        "control_ref": {
+          "bytes": "3178",
+          "hash": "144db61d4faeb776f7c5204914bd2db4238e0d60242aabb2d270bf1aab77779a"
+        }
+      }
+    },
+    "counts": {
+      "ledger_entries": 100000,
+      "monthly_panels": 2,
+      "cash_flows": 2,
+      "app_settings": 7,
+      "app_labels": 19,
+      "sync_objects": 400562
+    },
+    "compression": {
+      "boundary": "offline actual backend full authoritative bundle bytes; no wire Content-Encoding",
+      "raw_bytes": 56154440,
+      "sha256": "aef20f2dcbc89c967caa862920167cd011edb8a8e23523791adcaf1ae22d7565",
+      "algorithms": {
+        "gzip6": {
+          "bytes": 1288409,
+          "ratio": 0.022944027222068283,
+          "latency_ns": {
+            "n": 20,
+            "min": 400340900,
+            "median": 401684276.5,
+            "p95": 404549109,
+            "max": 404681178,
+            "stdev": 1254778.312714288
+          },
+          "samples_ns": [
+            401231534,
+            400472718,
+            402917149,
+            403226595,
+            401807798,
+            401930390,
+            402208855,
+            401560755,
+            403284289,
+            401191925,
+            401498836,
+            400483596,
+            401543003,
+            402314164,
+            404549109,
+            404681178,
+            400447863,
+            401375151,
+            400340900,
+            402073258
+          ]
+        },
+        "brotli4": {
+          "bytes": 454351,
+          "ratio": 0.008091096625663083,
+          "latency_ns": {
+            "n": 20,
+            "min": 316950546,
+            "median": 319992898.0,
+            "p95": 321307419,
+            "max": 322002241,
+            "stdev": 1437610.0688653556
+          },
+          "samples_ns": [
+            318614296,
+            320029853,
+            322002241,
+            321241200,
+            321307419,
+            318136169,
+            317348902,
+            316950546,
+            318590442,
+            320232781,
+            320022933,
+            319064924,
+            321286135,
+            319288847,
+            321117279,
+            320952128,
+            320720772,
+            319798742,
+            319962863,
+            318024508
+          ]
+        }
+      }
+    },
+    "cold_bootstrap_ns": 1036601848334,
+    "max_rss_kib": 2706808,
+    "db_files": {
+      "main": 791764992,
+      "-wal": 0,
+      "-shm": 0
+    },
+    "phases": [
+      {
+        "phase": "unchanged",
+        "distributions": {
+          "total_ns": {
+            "n": 20,
+            "min": 475521498,
+            "median": 582968077.0,
+            "p95": 612452445,
+            "max": 621309710,
+            "stdev": 38924690.9400114
+          },
+          "generation_ns": {
+            "n": 20,
+            "min": 0,
+            "median": 0.0,
+            "p95": 0,
+            "max": 0,
+            "stdev": 0.0
+          },
+          "http_ns": {
+            "n": 20,
+            "min": 475491152,
+            "median": 582934004.0,
+            "p95": 612417459,
+            "max": 621266362,
+            "stdev": 38922650.39788473
+          },
+          "http_entity_bytes": {
+            "n": 20,
+            "min": 1536,
+            "median": 1536.0,
+            "p95": 1536,
+            "max": 1536,
+            "stdev": 0.0
+          }
+        },
+        "counters": {
+          "sql": {
+            "n": 20,
+            "min": 1120,
+            "median": 1120.0,
+            "p95": 1120,
+            "max": 1120
+          },
+          "SELECT": {
+            "n": 20,
+            "min": 516,
+            "median": 516.0,
+            "p95": 516,
+            "max": 516
+          },
+          "rows_returned": {
+            "n": 20,
+            "min": 4528,
+            "median": 4528.0,
+            "p95": 4528,
+            "max": 4528
+          },
+          "blob_bytes_returned": {
+            "n": 20,
+            "min": 218307,
+            "median": 218307.0,
+            "p95": 218307,
+            "max": 218307
+          },
+          "bound_blob_bytes": {
+            "n": 20,
+            "min": 5160,
+            "median": 5160.0,
+            "p95": 5160,
+            "max": 5160
+          },
+          "INSERT": {
+            "n": 20,
+            "min": 7,
+            "median": 7.0,
+            "p95": 7,
+            "max": 7
+          },
+          "UPDATE": {
+            "n": 20,
+            "min": 2,
+            "median": 2.0,
+            "p95": 2,
+            "max": 2
+          },
+          "DELETE": {
+            "n": 20,
+            "min": 0,
+            "median": 0.0,
+            "p95": 0,
+            "max": 0
+          }
+        },
+        "hot_bytes": [
+          87364
+        ],
+        "control_bytes": [
+          3178
+        ]
+      },
+      {
+        "phase": "card",
+        "distributions": {
+          "total_ns": {
+            "n": 20,
+            "min": 1644765949,
+            "median": 1836275292.0,
+            "p95": 1957351355,
+            "max": 2085250204,
+            "stdev": 103043486.72227266
+          },
+          "generation_ns": {
+            "n": 20,
+            "min": 1103000891,
+            "median": 1228436250.0,
+            "p95": 1367664467,
+            "max": 1416795885,
+            "stdev": 75710289.17034757
+          },
+          "http_ns": {
+            "n": 20,
+            "min": 512496052,
+            "median": 569044201.0,
+            "p95": 645815395,
+            "max": 668407732,
+            "stdev": 41106476.389551446
+          },
+          "http_entity_bytes": {
+            "n": 20,
+            "min": 1530,
+            "median": 1530.0,
+            "p95": 1530,
+            "max": 1530,
+            "stdev": 0.0
+          }
+        },
+        "counters": {
+          "sql": {
+            "n": 20,
+            "min": 2435,
+            "median": 2435.0,
+            "p95": 2435,
+            "max": 2435
+          },
+          "SELECT": {
+            "n": 20,
+            "min": 1471,
+            "median": 1471.0,
+            "p95": 1471,
+            "max": 1471
+          },
+          "rows_returned": {
+            "n": 20,
+            "min": 8779,
+            "median": 8779.0,
+            "p95": 8779,
+            "max": 8779
+          },
+          "blob_bytes_returned": {
+            "n": 20,
+            "min": 778614,
+            "median": 778614.0,
+            "p95": 778614,
+            "max": 778614
+          },
+          "bound_blob_bytes": {
+            "n": 20,
+            "min": 6301,
+            "median": 6301.0,
+            "p95": 6301,
+            "max": 6301
+          },
+          "INSERT": {
+            "n": 20,
+            "min": 15,
+            "median": 15.0,
+            "p95": 15,
+            "max": 15
+          },
+          "UPDATE": {
+            "n": 20,
+            "min": 4,
+            "median": 4.0,
+            "p95": 4,
+            "max": 4
+          },
+          "DELETE": {
+            "n": 20,
+            "min": 3,
+            "median": 3.0,
+            "p95": 3,
+            "max": 3
+          }
+        },
+        "hot_bytes": [
+          87364
+        ],
+        "control_bytes": [
+          3178
+        ]
+      },
+      {
+        "phase": "cash",
+        "distributions": {
+          "total_ns": {
+            "n": 20,
+            "min": 738871747,
+            "median": 906255351.0,
+            "p95": 995318714,
+            "max": 1021252887,
+            "stdev": 65906020.57583324
+          },
+          "generation_ns": {
+            "n": 20,
+            "min": 282765604,
+            "median": 348500599.0,
+            "p95": 394283337,
+            "max": 418578012,
+            "stdev": 35857128.39649645
+          },
+          "http_ns": {
+            "n": 20,
+            "min": 456070375,
+            "median": 547606116.5,
+            "p95": 634733630,
+            "max": 648159099,
+            "stdev": 46322232.61402119
+          },
+          "http_entity_bytes": {
+            "n": 20,
+            "min": 1530,
+            "median": 1530.0,
+            "p95": 1530,
+            "max": 1530,
+            "stdev": 0.0
+          }
+        },
+        "counters": {
+          "sql": {
+            "n": 20,
+            "min": 2465,
+            "median": 2465.0,
+            "p95": 2465,
+            "max": 2465
+          },
+          "SELECT": {
+            "n": 20,
+            "min": 1479,
+            "median": 1479.0,
+            "p95": 1479,
+            "max": 1479
+          },
+          "rows_returned": {
+            "n": 20,
+            "min": 8541,
+            "median": 8541.0,
+            "p95": 8541,
+            "max": 8541
+          },
+          "blob_bytes_returned": {
+            "n": 20,
+            "min": 303805,
+            "median": 303805.0,
+            "p95": 303805,
+            "max": 303805
+          },
+          "bound_blob_bytes": {
+            "n": 20,
+            "min": 6159,
+            "median": 6159.0,
+            "p95": 6159,
+            "max": 6159
+          },
+          "INSERT": {
+            "n": 20,
+            "min": 37,
+            "median": 37.0,
+            "p95": 37,
+            "max": 37
+          },
+          "UPDATE": {
+            "n": 20,
+            "min": 4,
+            "median": 4.0,
+            "p95": 4,
+            "max": 4
+          },
+          "DELETE": {
+            "n": 20,
+            "min": 3,
+            "median": 3.0,
+            "p95": 3,
+            "max": 3
+          }
+        },
+        "hot_bytes": [
+          87364
+        ],
+        "control_bytes": [
+          3178
+        ]
+      }
+    ]
+  }
+]

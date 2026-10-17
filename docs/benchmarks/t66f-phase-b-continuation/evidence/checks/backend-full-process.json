@@ -1,0 +1,15 @@
+{
+  "command": [
+    "/home/hjkerman/codex/money-note/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "--junitxml=/tmp/mn-f-continuation/checks/backend-full.xml"
+  ],
+  "cwd": "/home/hjkerman/codex/money-note/backend",
+  "start_unix": 1792220276.5823672,
+  "status": "PASS",
+  "end_unix": 1792223073.7541878,
+  "seconds": 2797.171821117401,
+  "exit": 0
+}

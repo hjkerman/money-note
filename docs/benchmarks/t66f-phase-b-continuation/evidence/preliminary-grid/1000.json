@@ -1,0 +1,2894 @@
+{
+  "n": 1000,
+  "hot_ledger_rows": 105,
+  "d": {
+    "unchanged": 0,
+    "card": 1,
+    "cash": 1
+  },
+  "seed": 662602,
+  "warmups": 3,
+  "measurements": 20,
+  "phases": [
+    {
+      "phase": "unchanged",
+      "samples": [
+        {
+          "trial": 3,
+          "total_ns": 287016404,
+          "generation_ns": 0,
+          "http_ns": 286997933,
+          "status": 201,
+          "change_kind": "unchanged",
+          "http_entity_bytes": 1534,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 1120,
+            "PRAGMA": 577,
+            "rows_returned": 4528,
+            "SELECT": 516,
+            "BEGIN": 2,
+            "SAVEPOINT": 9,
+            "blob_bytes_returned": 216786,
+            "RELEASE": 7,
+            "bound_blob_bytes": 5152,
+            "UPDATE": 2,
+            "INSERT": 7
+          },
+          "sync_root": "9deb7932953385a264f568a1dff9582bbe2339fa9c28147425981b763d15030c"
+        },
+        {
+          "trial": 4,
+          "total_ns": 280599547,
+          "generation_ns": 0,
+          "http_ns": 280582318,
+          "status": 201,
+          "change_kind": "unchanged",
+          "http_entity_bytes": 1534,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 1120,
+            "PRAGMA": 577,
+            "rows_returned": 4528,
+            "SELECT": 516,
+            "BEGIN": 2,
+            "SAVEPOINT": 9,
+            "blob_bytes_returned": 216786,
+            "RELEASE": 7,
+            "bound_blob_bytes": 5152,
+            "UPDATE": 2,
+            "INSERT": 7
+          },
+          "sync_root": "9deb7932953385a264f568a1dff9582bbe2339fa9c28147425981b763d15030c"
+        },
+        {
+          "trial": 5,
+          "total_ns": 279411859,
+          "generation_ns": 0,
+          "http_ns": 279393240,
+          "status": 201,
+          "change_kind": "unchanged",
+          "http_entity_bytes": 1534,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 1120,
+            "PRAGMA": 577,
+            "rows_returned": 4528,
+            "SELECT": 516,
+            "BEGIN": 2,
+            "SAVEPOINT": 9,
+            "blob_bytes_returned": 216786,
+            "RELEASE": 7,
+            "bound_blob_bytes": 5152,
+            "UPDATE": 2,
+            "INSERT": 7
+          },
+          "sync_root": "9deb7932953385a264f568a1dff9582bbe2339fa9c28147425981b763d15030c"
+        },
+        {
+          "trial": 6,
+          "total_ns": 280118022,
+          "generation_ns": 0,
+          "http_ns": 280100065,
+          "status": 201,
+          "change_kind": "unchanged",
+          "http_entity_bytes": 1534,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 1120,
+            "PRAGMA": 577,
+            "rows_returned": 4528,
+            "SELECT": 516,
+            "BEGIN": 2,
+            "SAVEPOINT": 9,
+            "blob_bytes_returned": 216786,
+            "RELEASE": 7,
+            "bound_blob_bytes": 5152,
+            "UPDATE": 2,
+            "INSERT": 7
+          },
+          "sync_root": "9deb7932953385a264f568a1dff9582bbe2339fa9c28147425981b763d15030c"
+        },
+        {
+          "trial": 7,
+          "total_ns": 289626193,
+          "generation_ns": 0,
+          "http_ns": 289608402,
+          "status": 201,
+          "change_kind": "unchanged",
+          "http_entity_bytes": 1534,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 1120,
+            "PRAGMA": 577,
+            "rows_returned": 4528,
+            "SELECT": 516,
+            "BEGIN": 2,
+            "SAVEPOINT": 9,
+            "blob_bytes_returned": 216786,
+            "RELEASE": 7,
+            "bound_blob_bytes": 5152,
+            "UPDATE": 2,
+            "INSERT": 7
+          },
+          "sync_root": "9deb7932953385a264f568a1dff9582bbe2339fa9c28147425981b763d15030c"
+        },
+        {
+          "trial": 8,
+          "total_ns": 281234016,
+          "generation_ns": 0,
+          "http_ns": 281215576,
+          "status": 201,
+          "change_kind": "unchanged",
+          "http_entity_bytes": 1534,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 1120,
+            "PRAGMA": 577,
+            "rows_returned": 4528,
+            "SELECT": 516,
+            "BEGIN": 2,
+            "SAVEPOINT": 9,
+            "blob_bytes_returned": 216786,
+            "RELEASE": 7,
+            "bound_blob_bytes": 5152,
+            "UPDATE": 2,
+            "INSERT": 7
+          },
+          "sync_root": "9deb7932953385a264f568a1dff9582bbe2339fa9c28147425981b763d15030c"
+        },
+        {
+          "trial": 9,
+          "total_ns": 281393944,
+          "generation_ns": 0,
+          "http_ns": 281376491,
+          "status": 201,
+          "change_kind": "unchanged",
+          "http_entity_bytes": 1534,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 1120,
+            "PRAGMA": 577,
+            "rows_returned": 4528,
+            "SELECT": 516,
+            "BEGIN": 2,
+            "SAVEPOINT": 9,
+            "blob_bytes_returned": 216786,
+            "RELEASE": 7,
+            "bound_blob_bytes": 5152,
+            "UPDATE": 2,
+            "INSERT": 7
+          },
+          "sync_root": "9deb7932953385a264f568a1dff9582bbe2339fa9c28147425981b763d15030c"
+        },
+        {
+          "trial": 10,
+          "total_ns": 283813357,
+          "generation_ns": 0,
+          "http_ns": 283795489,
+          "status": 201,
+          "change_kind": "unchanged",
+          "http_entity_bytes": 1534,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 1120,
+            "PRAGMA": 577,
+            "rows_returned": 4528,
+            "SELECT": 516,
+            "BEGIN": 2,
+            "SAVEPOINT": 9,
+            "blob_bytes_returned": 216786,
+            "RELEASE": 7,
+            "bound_blob_bytes": 5152,
+            "UPDATE": 2,
+            "INSERT": 7
+          },
+          "sync_root": "9deb7932953385a264f568a1dff9582bbe2339fa9c28147425981b763d15030c"
+        },
+        {
+          "trial": 11,
+          "total_ns": 282514447,
+          "generation_ns": 0,
+          "http_ns": 282496519,
+          "status": 201,
+          "change_kind": "unchanged",
+          "http_entity_bytes": 1534,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 1120,
+            "PRAGMA": 577,
+            "rows_returned": 4528,
+            "SELECT": 516,
+            "BEGIN": 2,
+            "SAVEPOINT": 9,
+            "blob_bytes_returned": 216786,
+            "RELEASE": 7,
+            "bound_blob_bytes": 5152,
+            "UPDATE": 2,
+            "INSERT": 7
+          },
+          "sync_root": "9deb7932953385a264f568a1dff9582bbe2339fa9c28147425981b763d15030c"
+        },
+        {
+          "trial": 12,
+          "total_ns": 283567393,
+          "generation_ns": 0,
+          "http_ns": 283550386,
+          "status": 201,
+          "change_kind": "unchanged",
+          "http_entity_bytes": 1534,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 1120,
+            "PRAGMA": 577,
+            "rows_returned": 4528,
+            "SELECT": 516,
+            "BEGIN": 2,
+            "SAVEPOINT": 9,
+            "blob_bytes_returned": 216786,
+            "RELEASE": 7,
+            "bound_blob_bytes": 5152,
+            "UPDATE": 2,
+            "INSERT": 7
+          },
+          "sync_root": "9deb7932953385a264f568a1dff9582bbe2339fa9c28147425981b763d15030c"
+        },
+        {
+          "trial": 13,
+          "total_ns": 284670458,
+          "generation_ns": 0,
+          "http_ns": 284652072,
+          "status": 201,
+          "change_kind": "unchanged",
+          "http_entity_bytes": 1534,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 1120,
+            "PRAGMA": 577,
+            "rows_returned": 4528,
+            "SELECT": 516,
+            "BEGIN": 2,
+            "SAVEPOINT": 9,
+            "blob_bytes_returned": 216786,
+            "RELEASE": 7,
+            "bound_blob_bytes": 5152,
+            "UPDATE": 2,
+            "INSERT": 7
+          },
+          "sync_root": "9deb7932953385a264f568a1dff9582bbe2339fa9c28147425981b763d15030c"
+        },
+        {
+          "trial": 14,
+          "total_ns": 298575604,
+          "generation_ns": 0,
+          "http_ns": 298557833,
+          "status": 201,
+          "change_kind": "unchanged",
+          "http_entity_bytes": 1534,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 1120,
+            "PRAGMA": 577,
+            "rows_returned": 4528,
+            "SELECT": 516,
+            "BEGIN": 2,
+            "SAVEPOINT": 9,
+            "blob_bytes_returned": 216786,
+            "RELEASE": 7,
+            "bound_blob_bytes": 5152,
+            "UPDATE": 2,
+            "INSERT": 7
+          },
+          "sync_root": "9deb7932953385a264f568a1dff9582bbe2339fa9c28147425981b763d15030c"
+        },
+        {
+          "trial": 15,
+          "total_ns": 352630815,
+          "generation_ns": 0,
+          "http_ns": 352610231,
+          "status": 201,
+          "change_kind": "unchanged",
+          "http_entity_bytes": 1534,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 1120,
+            "PRAGMA": 577,
+            "rows_returned": 4528,
+            "SELECT": 516,
+            "BEGIN": 2,
+            "SAVEPOINT": 9,
+            "blob_bytes_returned": 216786,
+            "RELEASE": 7,
+            "bound_blob_bytes": 5152,
+            "UPDATE": 2,
+            "INSERT": 7
+          },
+          "sync_root": "9deb7932953385a264f568a1dff9582bbe2339fa9c28147425981b763d15030c"
+        },
+        {
+          "trial": 16,
+          "total_ns": 351921535,
+          "generation_ns": 0,
+          "http_ns": 351900766,
+          "status": 201,
+          "change_kind": "unchanged",
+          "http_entity_bytes": 1534,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 1120,
+            "PRAGMA": 577,
+            "rows_returned": 4528,
+            "SELECT": 516,
+            "BEGIN": 2,
+            "SAVEPOINT": 9,
+            "blob_bytes_returned": 216786,
+            "RELEASE": 7,
+            "bound_blob_bytes": 5152,
+            "UPDATE": 2,
+            "INSERT": 7
+          },
+          "sync_root": "9deb7932953385a264f568a1dff9582bbe2339fa9c28147425981b763d15030c"
+        },
+        {
+          "trial": 17,
+          "total_ns": 353487676,
+          "generation_ns": 0,
+          "http_ns": 353465826,
+          "status": 201,
+          "change_kind": "unchanged",
+          "http_entity_bytes": 1534,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 1120,
+            "PRAGMA": 577,
+            "rows_returned": 4528,
+            "SELECT": 516,
+            "BEGIN": 2,
+            "SAVEPOINT": 9,
+            "blob_bytes_returned": 216786,
+            "RELEASE": 7,
+            "bound_blob_bytes": 5152,
+            "UPDATE": 2,
+            "INSERT": 7
+          },
+          "sync_root": "9deb7932953385a264f568a1dff9582bbe2339fa9c28147425981b763d15030c"
+        },
+        {
+          "trial": 18,
+          "total_ns": 360049890,
+          "generation_ns": 0,
+          "http_ns": 360028327,
+          "status": 201,
+          "change_kind": "unchanged",
+          "http_entity_bytes": 1534,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 1120,
+            "PRAGMA": 577,
+            "rows_returned": 4528,
+            "SELECT": 516,
+            "BEGIN": 2,
+            "SAVEPOINT": 9,
+            "blob_bytes_returned": 216786,
+            "RELEASE": 7,
+            "bound_blob_bytes": 5152,
+            "UPDATE": 2,
+            "INSERT": 7
+          },
+          "sync_root": "9deb7932953385a264f568a1dff9582bbe2339fa9c28147425981b763d15030c"
+        },
+        {
+          "trial": 19,
+          "total_ns": 354789069,
+          "generation_ns": 0,
+          "http_ns": 354769402,
+          "status": 201,
+          "change_kind": "unchanged",
+          "http_entity_bytes": 1534,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 1120,
+            "PRAGMA": 577,
+            "rows_returned": 4528,
+            "SELECT": 516,
+            "BEGIN": 2,
+            "SAVEPOINT": 9,
+            "blob_bytes_returned": 216786,
+            "RELEASE": 7,
+            "bound_blob_bytes": 5152,
+            "UPDATE": 2,
+            "INSERT": 7
+          },
+          "sync_root": "9deb7932953385a264f568a1dff9582bbe2339fa9c28147425981b763d15030c"
+        },
+        {
+          "trial": 20,
+          "total_ns": 353366796,
+          "generation_ns": 0,
+          "http_ns": 353345457,
+          "status": 201,
+          "change_kind": "unchanged",
+          "http_entity_bytes": 1534,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 1120,
+            "PRAGMA": 577,
+            "rows_returned": 4528,
+            "SELECT": 516,
+            "BEGIN": 2,
+            "SAVEPOINT": 9,
+            "blob_bytes_returned": 216786,
+            "RELEASE": 7,
+            "bound_blob_bytes": 5152,
+            "UPDATE": 2,
+            "INSERT": 7
+          },
+          "sync_root": "9deb7932953385a264f568a1dff9582bbe2339fa9c28147425981b763d15030c"
+        },
+        {
+          "trial": 21,
+          "total_ns": 351946252,
+          "generation_ns": 0,
+          "http_ns": 351925147,
+          "status": 201,
+          "change_kind": "unchanged",
+          "http_entity_bytes": 1534,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 1120,
+            "PRAGMA": 577,
+            "rows_returned": 4528,
+            "SELECT": 516,
+            "BEGIN": 2,
+            "SAVEPOINT": 9,
+            "blob_bytes_returned": 216786,
+            "RELEASE": 7,
+            "bound_blob_bytes": 5152,
+            "UPDATE": 2,
+            "INSERT": 7
+          },
+          "sync_root": "9deb7932953385a264f568a1dff9582bbe2339fa9c28147425981b763d15030c"
+        },
+        {
+          "trial": 22,
+          "total_ns": 352961330,
+          "generation_ns": 0,
+          "http_ns": 352938875,
+          "status": 201,
+          "change_kind": "unchanged",
+          "http_entity_bytes": 1534,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 1120,
+            "PRAGMA": 577,
+            "rows_returned": 4528,
+            "SELECT": 516,
+            "BEGIN": 2,
+            "SAVEPOINT": 9,
+            "blob_bytes_returned": 216786,
+            "RELEASE": 7,
+            "bound_blob_bytes": 5152,
+            "UPDATE": 2,
+            "INSERT": 7
+          },
+          "sync_root": "9deb7932953385a264f568a1dff9582bbe2339fa9c28147425981b763d15030c"
+        }
+      ],
+      "distributions": {
+        "total_ns": {
+          "n": 20,
+          "min": 279411859,
+          "median": 288321298.5,
+          "p95": 354789069,
+          "max": 360049890,
+          "stdev": 35214735.51495454
+        },
+        "generation_ns": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0,
+          "stdev": 0.0
+        },
+        "http_ns": {
+          "n": 20,
+          "min": 279393240,
+          "median": 288303167.5,
+          "p95": 354769402,
+          "max": 360028327,
+          "stdev": 35213112.28499239
+        },
+        "http_entity_bytes": {
+          "n": 20,
+          "min": 1534,
+          "median": 1534.0,
+          "p95": 1534,
+          "max": 1534,
+          "stdev": 0.0
+        }
+      },
+      "query_plans": {
+        "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'": [
+          "SCAN sqlite_master"
+        ],
+        "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?": [
+          "SCAN sqlite_master"
+        ],
+        "SELECT rowid FROM ledger_entries LIMIT 0": [
+          "SCAN ledger_entries USING COVERING INDEX sync_input_ledger_month"
+        ],
+        "SELECT rowid FROM audit_logs LIMIT 0": [
+          "SCAN audit_logs USING COVERING INDEX idx_audit_logs_occurred"
+        ],
+        "SELECT rowid FROM cash_flows LIMIT 0": [
+          "SCAN cash_flows USING COVERING INDEX sync_input_cash_sort"
+        ],
+        "SELECT rowid FROM card_payment_batches LIMIT 0": [
+          "SCAN card_payment_batches USING COVERING INDEX idx_card_payment_batches_active"
+        ],
+        "SELECT rowid FROM share_sessions LIMIT 0": [
+          "SCAN share_sessions USING COVERING INDEX idx_share_sessions_token"
+        ],
+        "SELECT rowid FROM card_payment_batch_items LIMIT 0": [
+          "SCAN card_payment_batch_items USING COVERING INDEX sync_fk_item_entry"
+        ],
+        "SELECT rowid FROM card_payment_allocations LIMIT 0": [
+          "SCAN card_payment_allocations USING COVERING INDEX sync_fk_allocation_event"
+        ],
+        "SELECT rowid FROM auth_sessions LIMIT 0": [
+          "SCAN auth_sessions USING COVERING INDEX idx_auth_sessions_user"
+        ],
+        "SELECT rowid FROM users LIMIT 0": [
+          "SCAN users USING COVERING INDEX sqlite_autoindex_users_1"
+        ],
+        "SELECT rowid FROM card_payment_events LIMIT 0": [
+          "SCAN card_payment_events USING COVERING INDEX sync_fk_event_cash"
+        ],
+        "SELECT rowid FROM monthly_panels LIMIT 0": [
+          "SCAN monthly_panels USING COVERING INDEX sync_fk_panel_cash"
+        ],
+        "SELECT sql FROM sqlite_master WHERE type = 'index' AND name = ?": [
+          "SCAN sqlite_master"
+        ],
+        "SELECT name FROM sqlite_master WHERE type IN ('index', 'trigger')": [
+          "SCAN sqlite_master"
+        ],
+        "SELECT name, tbl_name, sql FROM sqlite_master WHERE type='trigger'": [
+          "SCAN sqlite_master"
+        ],
+        "SELECT id, revision, typeof(revision) FROM authoritative_state_revision": [
+          "SCAN authoritative_state_revision"
+        ],
+        "SELECT type,name,tbl_name,sql FROM sqlite_master WHERE tbl_name LIKE 'sync_%' OR name LIKE 'sync_%' ORDER BY type,name": [
+          "SCAN sqlite_master",
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        "SELECT sql FROM sqlite_master WHERE type='trigger'": [
+          "SCAN sqlite_master"
+        ],
+        "SELECT * FROM sync_capture_profile": [
+          "SCAN sync_capture_profile"
+        ],
+        "SELECT * FROM sync_finalization_profile": [
+          "SCAN sync_finalization_profile"
+        ],
+        "SELECT * FROM sync_retention_profile": [
+          "SCAN sync_retention_profile"
+        ],
+        "SELECT * FROM sync_observation_profile": [
+          "SCAN sync_observation_profile"
+        ],
+        "SELECT id,serial,typeof(serial) FROM sync_gc_fence": [
+          "SCAN sync_gc_fence"
+        ],
+        "SELECT id,used_bytes,typeof(used_bytes) FROM sync_observation_budget": [
+          "SCAN sync_observation_budget"
+        ],
+        "SELECT user_id FROM auth_sessions WHERE session_token_hash=?": [
+          "SEARCH auth_sessions USING INDEX sqlite_autoindex_auth_sessions_1 (session_token_hash=?)"
+        ],
+        "SELECT s.user_id,s.expires_at,u.is_active FROM auth_sessions s\n            JOIN users u ON u.id=s.user_id WHERE s.session_token_hash=?": [
+          "SEARCH s USING INDEX sqlite_autoindex_auth_sessions_1 (session_token_hash=?)",
+          "SEARCH u USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT request_hash,namespace FROM sync_observation_replays WHERE credential_hash=? AND request_id=?": [
+          "SEARCH sync_observation_replays USING INDEX sqlite_autoindex_sync_observation_replays_1 (credential_hash=? AND request_id=?)"
+        ],
+        "SELECT id,request_body FROM sync_observations WHERE credential_hash=? AND request_id=?": [
+          "SEARCH sync_observations USING INDEX sqlite_autoindex_sync_observations_2 (credential_hash=? AND request_id=?)"
+        ],
+        "SELECT 1 FROM sync_tx_context": [
+          "SCAN sync_tx_context USING COVERING INDEX sqlite_autoindex_sync_tx_context_1"
+        ],
+        "SELECT * FROM sync_current WHERE id=1": [
+          "SEARCH sync_current USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT length(body) FROM sync_objects WHERE hash=?": [
+          "SEARCH sync_objects USING INDEX sqlite_autoindex_sync_objects_1 (hash=?)"
+        ],
+        "SELECT kind,body FROM sync_objects WHERE hash=?": [
+          "SEARCH sync_objects USING INDEX sqlite_autoindex_sync_objects_1 (hash=?)"
+        ],
+        "SELECT * FROM sync_commits WHERE tx_id=?": [
+          "SEARCH sync_commits USING INDEX sqlite_autoindex_sync_commits_1 (tx_id=?)"
+        ],
+        "SELECT revision,typeof(revision) FROM authoritative_state_revision WHERE id=1": [
+          "SEARCH authoritative_state_revision USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT * FROM sync_capture_commits WHERE tx_id=?": [
+          "SEARCH sync_capture_commits USING INDEX sqlite_autoindex_sync_capture_commits_1 (tx_id=?)"
+        ],
+        "SELECT input_hash FROM sync_commits WHERE tx_id=?": [
+          "SEARCH sync_commits USING INDEX sqlite_autoindex_sync_commits_1 (tx_id=?)"
+        ],
+        "SELECT key, value FROM app_settings ORDER BY key": [
+          "SCAN app_settings USING INDEX sqlite_autoindex_app_settings_1"
+        ],
+        "SELECT value FROM app_settings WHERE key='last_closed_month'": [
+          "SEARCH app_settings USING INDEX sqlite_autoindex_app_settings_1 (key=?)"
+        ],
+        "SELECT id FROM card_payment_batches WHERE status='active'": [
+          "SEARCH card_payment_batches USING COVERING INDEX idx_card_payment_batches_active (status=?)"
+        ],
+        "SELECT src_table,src_key FROM sync_reverse WHERE dst_table=? AND dst_key=? AND field=? AND src_table=?": [
+          "SEARCH sync_reverse USING COVERING INDEX sync_input_reverse_field (dst_table=? AND dst_key=? AND field=? AND src_table=?)"
+        ],
+        "SELECT * FROM card_payment_batches WHERE id=?": [
+          "SEARCH card_payment_batches USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT * FROM card_payment_batch_items WHERE id=?": [
+          "SEARCH card_payment_batch_items USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT * FROM card_payment_events WHERE id=?": [
+          "SEARCH card_payment_events USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT entry_kind,confirmed_month,confirmed_at FROM ledger_entries WHERE id=?": [
+          "SEARCH ledger_entries USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT id FROM ledger_entries WHERE source_planned_entry_id=?": [
+          "SEARCH ledger_entries USING COVERING INDEX sync_fk_entry_source (source_planned_entry_id=?)"
+        ],
+        "SELECT * FROM ledger_entries WHERE id=?": [
+          "SEARCH ledger_entries USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT id FROM ledger_entries WHERE payment_key=?": [
+          "SEARCH ledger_entries USING COVERING INDEX idx_ledger_payment_key (payment_key=?)"
+        ],
+        "SELECT * FROM card_payment_allocations WHERE id=?": [
+          "SEARCH card_payment_allocations USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT * FROM cash_flows WHERE id=?": [
+          "SEARCH cash_flows USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "\n        SELECT *\n        FROM ledger_entries\n        WHERE book_section = ? AND NOT (entry_kind = 'planned' AND COALESCE(confirmed_month, '') = ?)\n        ORDER BY\n          CASE WHEN entry_kind = 'planned' THEN COALESCE(due_day, 99) ELSE 0 END,\n          CASE WHEN entry_kind = 'planned' THEN NULL ELSE entry_date END,\n          sort_order,\n          id\n        ": [
+          "SEARCH ledger_entries USING INDEX idx_ledger_section_order (book_section=?)",
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        "\n                SELECT monthly_panels.*,\n                       CASE WHEN confirmed_cash_flow.id IS NOT NULL\n                            THEN ABS(confirmed_cash_flow.amount_value) ELSE NULL END AS confirmed_amount_value\n                FROM monthly_panels\n                LEFT JOIN cash_flows AS confirmed_cash_flow\n                  ON confirmed_cash_flow.id = monthly_panels.confirmed_cash_flow_id\n                WHERE (monthly_panels.month = ? OR monthly_panels.panel_type IN ('fixed', 'frozen', 'claim', 'family_card'))\n                ORDER BY\n                  CASE WHEN monthly_panels.panel_type = 'fixed' THEN 0 ELSE 1 END,\n                  CASE WHEN monthly_panels.spent_on IS NULL THEN 1 ELSE 0 END,\n                  monthly_panels.spent_on,\n                  monthly_panels.sort_order,\n                  monthly_panels.id\n                ": [
+          "MULTI-INDEX OR",
+          "INDEX 1",
+          "SEARCH monthly_panels USING INDEX idx_panels_month_type_order (month=?)",
+          "INDEX 2",
+          "SEARCH monthly_panels USING INDEX sync_input_panel_type (panel_type=?)",
+          "SEARCH confirmed_cash_flow USING INTEGER PRIMARY KEY (rowid=?) LEFT-JOIN",
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        "\n        SELECT amount_value\n        FROM ledger_entries\n        WHERE book_section = 'current'\n          AND entry_kind = 'planned'\n        ": [
+          "SEARCH ledger_entries USING INDEX sync_input_ledger_kind (entry_kind=?)"
+        ],
+        "\n        SELECT ledger_entries.payment_key,\n               ledger_entries.amount_value,\n               ledger_entries.entry_date,\n               ledger_entries.title,\n               ledger_entries.usage_place,\n               ledger_entries.spending_category,\n               ledger_entries.discount_override,\n               ledger_entries.aux_amount_value\n        FROM ledger_entries\n        WHERE ledger_entries.book_section = 'current'\n          AND ledger_entries.entry_kind != 'planned'\n          AND ledger_entries.payment_key IS NOT NULL\n        ": [
+          "SEARCH ledger_entries USING INDEX idx_ledger_section_order (book_section=?)"
+        ],
+        "SELECT a.amount_value FROM card_payment_allocations a\n                JOIN card_payment_events e ON e.id=a.payment_event_id\n                WHERE a.entry_payment_key=? AND e.event_type='discount'": [
+          "SEARCH a USING INDEX idx_card_payment_allocations_entry (entry_payment_key=?)",
+          "SEARCH e USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "\n        SELECT *\n        FROM card_payment_batches\n        WHERE status = 'active'\n        ORDER BY id DESC\n        LIMIT 1\n        ": [
+          "SEARCH card_payment_batches USING INDEX idx_card_payment_batches_active (status=?)"
+        ],
+        "SELECT value FROM app_settings WHERE key = ?": [
+          "SEARCH app_settings USING INDEX sqlite_autoindex_app_settings_1 (key=?)"
+        ],
+        "SELECT key, value FROM app_settings": [
+          "SCAN app_settings"
+        ],
+        "\n            SELECT ledger_entries.*,\n                   card_payment_deferrals.from_payment_month AS deferred_from_payment_month,\n                   card_payment_deferrals.target_payment_month AS deferred_target_payment_month\n            FROM card_payment_batch_items\n            JOIN ledger_entries\n              ON ledger_entries.id = card_payment_batch_items.entry_id\n            LEFT JOIN card_payment_deferrals\n              ON card_payment_deferrals.entry_payment_key = ledger_entries.payment_key\n            WHERE card_payment_batch_items.batch_id = ?\n              AND ledger_entries.entry_kind != 'planned'\n              AND COALESCE(ledger_entries.amount_value, 0) > 0\n            ORDER BY\n              CASE WHEN card_payment_deferrals.target_payment_month = ? THEN 0\n                   WHEN card_payment_deferrals.from_payment_month = ? THEN 2\n                   ELSE 1 END,\n              ledger_entries.entry_date,\n              ledger_entries.sort_order,\n              ledger_entries.id\n        ": [
+          "SEARCH card_payment_batch_items USING COVERING INDEX idx_card_payment_batch_items_batch (batch_id=?)",
+          "SEARCH ledger_entries USING INTEGER PRIMARY KEY (rowid=?)",
+          "SEARCH card_payment_deferrals USING INDEX sqlite_autoindex_card_payment_deferrals_1 (entry_payment_key=?) LEFT-JOIN",
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        "SELECT a.entry_payment_key,a.amount_value FROM card_payment_allocations a\n               JOIN card_payment_events e ON e.id=a.payment_event_id WHERE e.event_type=? AND e.batch_id=?": [
+          "SEARCH e USING COVERING INDEX sync_input_event_type_batch (event_type=? AND batch_id=?)",
+          "SEARCH a USING INDEX sync_fk_allocation_event (payment_event_id=?)"
+        ],
+        "SELECT amount_value FROM monthly_panels WHERE panel_type = ?": [
+          "SEARCH monthly_panels USING INDEX sync_input_panel_type (panel_type=?)"
+        ],
+        "\n        SELECT cash_flows.amount_value\n        FROM monthly_panels\n        JOIN cash_flows ON cash_flows.id = monthly_panels.confirmed_cash_flow_id\n        WHERE monthly_panels.panel_type = 'fixed'\n          AND monthly_panels.confirmed_at IS NOT NULL\n        ": [
+          "SEARCH monthly_panels USING INDEX sync_input_panel_type (panel_type=?)",
+          "SEARCH cash_flows USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT amount_value FROM monthly_panels WHERE panel_type = ? AND (confirmed_at IS NULL OR confirmed_cash_flow_id IS NULL)": [
+          "SEARCH monthly_panels USING INDEX sync_input_panel_type (panel_type=?)"
+        ],
+        "SELECT total FROM sync_cash_prefix WHERE ordinal=?": [
+          "SEARCH sync_cash_prefix USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT amount_value FROM monthly_panels\n           WHERE panel_type = 'fixed' AND confirmed_at IS NOT NULL\n             AND confirmed_cash_flow_id IS NOT NULL AND confirmed_month > ?": [
+          "SEARCH monthly_panels USING INDEX sync_input_panel_type (panel_type=?)"
+        ],
+        "SELECT month, title, amount_value, discount_amount, discount_override FROM monthly_panels WHERE panel_type = ?": [
+          "SEARCH monthly_panels USING INDEX sync_input_panel_type (panel_type=?)"
+        ],
+        "\n        SELECT amount_value\n        FROM cash_flows\n        WHERE occurred_on BETWEEN ? AND ?\n        ": [
+          "SEARCH cash_flows USING INDEX idx_cash_flows_order (occurred_on>? AND occurred_on<?)"
+        ],
+        "SELECT amount_value FROM cash_flows\n            WHERE substr(occurred_on,1,7)=? AND is_primary_income=1 AND amount_value>0": [
+          "SEARCH cash_flows USING INDEX sync_input_cash_month (<expr>=? AND is_primary_income=?)"
+        ],
+        "\n            SELECT ledger_entries.payment_key,\n                   ledger_entries.amount_value,\n                   ledger_entries.title,\n                   ledger_entries.usage_place,\n                   ledger_entries.spending_category,\n                   ledger_entries.discount_override,\n                   ledger_entries.aux_amount_value\n            FROM ledger_entries\n            WHERE substr(ledger_entries.entry_date,1,7) = ?\n              AND ledger_entries.payment_key IS NOT NULL\n              AND ledger_entries.entry_kind != 'planned'\n            ": [
+          "SEARCH ledger_entries USING INDEX sync_input_ledger_month (<expr>=?)"
+        ],
+        "\n            SELECT *\n            FROM card_payment_events\n            WHERE batch_id = ?\n            ORDER BY event_date DESC, id DESC\n            ": [
+          "SEARCH card_payment_events USING INDEX sync_fk_event_batch (batch_id=?)",
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        "SELECT value FROM app_settings WHERE key = 'last_closed_month'": [
+          "SEARCH app_settings USING INDEX sqlite_autoindex_app_settings_1 (key=?)"
+        ],
+        "\n        SELECT MIN(substr(entry_date, 1, 7)) AS month\n        FROM ledger_entries\n        WHERE book_section = 'current'\n          AND entry_kind != 'planned'\n          AND entry_date IS NOT NULL\n        ": [
+          "SEARCH ledger_entries USING INDEX idx_ledger_section_order (book_section=?)"
+        ],
+        "\n        SELECT p.id, p.title, p.amount_value\n        FROM monthly_panels AS p\n        LEFT JOIN cash_flows AS confirmed_flow\n          ON confirmed_flow.id = p.confirmed_cash_flow_id\n        WHERE p.panel_type = 'fixed'\n          AND p.month <= ?\n          AND NOT (\n            p.confirmed_month = ?\n            AND p.confirmed_at IS NOT NULL\n            AND confirmed_flow.id IS NOT NULL\n          )\n        ORDER BY p.sort_order, p.id\n        ": [
+          "SEARCH p USING INDEX sync_input_panel_type (panel_type=?)",
+          "SEARCH confirmed_flow USING INTEGER PRIMARY KEY (rowid=?) LEFT-JOIN",
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        "\n        SELECT planned.id, planned.title, planned.amount_value,\n               planned.usage_place, planned.usage_item, planned.due_day,\n               planned.created_at\n        FROM ledger_entries AS planned\n        WHERE planned.book_section = 'current'\n          AND planned.entry_kind = 'planned'\n          AND NOT (\n            planned.confirmed_month = ?\n            AND planned.confirmed_at IS NOT NULL\n            AND (\n              EXISTS (\n                SELECT 1\n                FROM ledger_entries AS generated\n                WHERE generated.source_planned_entry_id = planned.id\n                  AND generated.entry_kind = 'expense'\n                  AND generated.confirmed_month = planned.confirmed_month\n                  AND generated.confirmed_at = planned.confirmed_at\n              )\n              OR EXISTS (\n                SELECT 1\n                FROM ledger_entries AS legacy_generated\n                WHERE legacy_generated.source_planned_entry_id IS NULL\n                  AND legacy_generated.entry_kind = 'expense'\n                  AND substr(legacy_generated.entry_date,1,7) = ?\n                  AND legacy_generated.title = planned.title\n                  AND COALESCE(legacy_generated.usage_place, '') = COALESCE(planned.usage_place, '')\n                  AND COALESCE(legacy_generated.usage_item, '') = COALESCE(planned.usage_item, '')\n                  AND COALESCE(legacy_generated.amount_value, 0) = COALESCE(planned.amount_value, 0)\n              )\n            )\n          )\n        ORDER BY COALESCE(planned.due_day, 99), planned.sort_order, planned.id\n        ": [
+          "SEARCH planned USING INDEX sync_input_ledger_kind (entry_kind=?)",
+          "CORRELATED SCALAR SUBQUERY 1",
+          "SEARCH generated USING INDEX sync_input_recurring_epoch (source_planned_entry_id=? AND confirmed_month=? AND confirmed_at=?)",
+          "CORRELATED SCALAR SUBQUERY 2",
+          "SEARCH legacy_generated USING INDEX sync_input_ledger_month (<expr>=?)",
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        "\n            SELECT card_payment_allocations.entry_payment_key,\n                   card_payment_allocations.amount_value AS amount\n            FROM card_payment_allocations\n            JOIN card_payment_events\n              ON card_payment_events.id = card_payment_allocations.payment_event_id\n            WHERE card_payment_events.event_type = 'discount'\n              AND card_payment_allocations.entry_payment_key IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\n            ": [
+          "SEARCH card_payment_events USING COVERING INDEX sync_input_event_type_batch (event_type=?)",
+          "SEARCH card_payment_allocations USING INDEX sync_fk_allocation_event (payment_event_id=?)"
+        ],
+        "\n                SELECT monthly_panels.*,\n                       CASE WHEN confirmed_cash_flow.id IS NOT NULL\n                            THEN ABS(confirmed_cash_flow.amount_value) ELSE NULL END AS confirmed_amount_value\n                FROM monthly_panels\n                LEFT JOIN cash_flows AS confirmed_cash_flow\n                  ON confirmed_cash_flow.id = monthly_panels.confirmed_cash_flow_id\n                WHERE (monthly_panels.month = ? OR monthly_panels.panel_type IN ('fixed', 'frozen', 'claim', 'family_card')) AND NOT (monthly_panels.panel_type = 'fixed' AND monthly_panels.confirmed_at IS NOT NULL AND monthly_panels.confirmed_cash_flow_id IS NOT NULL)\n                ORDER BY\n                  CASE WHEN monthly_panels.panel_type = 'fixed' THEN 0 ELSE 1 END,\n                  CASE WHEN monthly_panels.spent_on IS NULL THEN 1 ELSE 0 END,\n                  monthly_panels.spent_on,\n                  monthly_panels.sort_order,\n                  monthly_panels.id\n                ": [
+          "MULTI-INDEX OR",
+          "INDEX 1",
+          "SEARCH monthly_panels USING INDEX idx_panels_month_type_order (month=?)",
+          "INDEX 2",
+          "SEARCH monthly_panels USING INDEX sync_input_panel_type (panel_type=?)",
+          "SEARCH confirmed_cash_flow USING INTEGER PRIMARY KEY (rowid=?) LEFT-JOIN",
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        "\n            SELECT *\n            FROM cash_flows WHERE occurred_on >= ? AND occurred_on <= ?\n            ORDER BY occurred_on DESC, sort_order DESC, id DESC\n            ": [
+          "SEARCH cash_flows USING INDEX idx_cash_flows_order (occurred_on>? AND occurred_on<?)"
+        ],
+        "SELECT key FROM sync_totals WHERE domain=? ORDER BY key DESC LIMIT ?": [
+          "SEARCH sync_totals USING COVERING INDEX sqlite_autoindex_sync_totals_1 (domain=?)"
+        ],
+        "SELECT total FROM sync_totals WHERE domain=? AND key=?": [
+          "SEARCH sync_totals USING INDEX sqlite_autoindex_sync_totals_1 (domain=? AND key=?)"
+        ],
+        "\n            SELECT *\n            FROM ledger_entries\n            WHERE book_section = 'current'\n              AND entry_kind = 'planned'\n              AND confirmed_month = ?\n            ORDER BY COALESCE(due_day, 99), sort_order, id\n            ": [
+          "SEARCH ledger_entries USING INDEX sync_input_ledger_epoch (confirmed_month=?)",
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        "SELECT hot_hash,control_hash FROM sync_observation_views WHERE identity=?": [
+          "SEARCH sync_observation_views USING INDEX sqlite_autoindex_sync_observation_views_1 (identity=?)"
+        ],
+        "SELECT tx_id,namespace,revision,raw_hash,index_hash FROM sync_current WHERE id=1": [
+          "SEARCH sync_current USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT count(*) FROM sync_observations WHERE principal_id=? AND status='available'": [
+          "SEARCH sync_observations USING COVERING INDEX sync_observation_quota (principal_id=? AND status=?)"
+        ],
+        "SELECT count(*) FROM sync_observations": [
+          "SCAN sync_observations USING COVERING INDEX sqlite_autoindex_sync_observations_1"
+        ],
+        "SELECT used_bytes FROM sync_observation_budget WHERE id=1": [
+          "SEARCH sync_observation_budget USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT * FROM sync_observations WHERE id=?": [
+          "SEARCH sync_observations USING INDEX sqlite_autoindex_sync_observations_1 (id=?)"
+        ],
+        "SELECT namespace FROM sync_current WHERE id=1": [
+          "SEARCH sync_current USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT * FROM sync_observation_pins WHERE observation_id=? AND active=1": [
+          "SEARCH sync_observation_pins USING INDEX sqlite_autoindex_sync_observation_pins_1 (observation_id=?)"
+        ]
+      }
+    },
+    {
+      "phase": "card",
+      "samples": [
+        {
+          "trial": 3,
+          "total_ns": 993283636,
+          "generation_ns": 646738418,
+          "http_ns": 346523110,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2385,
+            "PRAGMA": 909,
+            "rows_returned": 8729,
+            "SELECT": 1421,
+            "BEGIN": 3,
+            "INSERT": 15,
+            "blob_bytes_returned": 731317,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6291,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "5baa63be62197027680bbf54c2cef197e264eec9103f57fea0b4254215aca954"
+        },
+        {
+          "trial": 4,
+          "total_ns": 1005139186,
+          "generation_ns": 646348681,
+          "http_ns": 358767938,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2385,
+            "PRAGMA": 909,
+            "rows_returned": 8729,
+            "SELECT": 1421,
+            "BEGIN": 3,
+            "INSERT": 15,
+            "blob_bytes_returned": 731317,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6291,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "fdb5b657b5a4c8a2fc124a760f3f308c7a7d3257872f537334b04cd21ebe73cf"
+        },
+        {
+          "trial": 5,
+          "total_ns": 1010655092,
+          "generation_ns": 644634622,
+          "http_ns": 365998450,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2385,
+            "PRAGMA": 909,
+            "rows_returned": 8729,
+            "SELECT": 1421,
+            "BEGIN": 3,
+            "INSERT": 15,
+            "blob_bytes_returned": 731317,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6291,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "9779105cb790ca56b2b51260481b1a0050ffbe50c21d8bac57bc4880ef206aea"
+        },
+        {
+          "trial": 6,
+          "total_ns": 990027181,
+          "generation_ns": 642842150,
+          "http_ns": 347155937,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2385,
+            "PRAGMA": 909,
+            "rows_returned": 8729,
+            "SELECT": 1421,
+            "BEGIN": 3,
+            "INSERT": 15,
+            "blob_bytes_returned": 731317,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6291,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "de3af982754e3cb0bd661f2f427f83547f4cf49f04cd89299b7263aaa8548888"
+        },
+        {
+          "trial": 7,
+          "total_ns": 1105887577,
+          "generation_ns": 749445139,
+          "http_ns": 356419105,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2385,
+            "PRAGMA": 909,
+            "rows_returned": 8729,
+            "SELECT": 1421,
+            "BEGIN": 3,
+            "INSERT": 15,
+            "blob_bytes_returned": 731317,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6291,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "5dac5ba6f36136a5dc95e9c4d9523d7b6fe51eb0394e306bf4e7ce04f2d15174"
+        },
+        {
+          "trial": 8,
+          "total_ns": 1108043119,
+          "generation_ns": 750195011,
+          "http_ns": 357824584,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2385,
+            "PRAGMA": 909,
+            "rows_returned": 8729,
+            "SELECT": 1421,
+            "BEGIN": 3,
+            "INSERT": 15,
+            "blob_bytes_returned": 731317,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6291,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "5563f51fc9ef4d4899cedb14a1f0ac06d5ccf43591812d9d358d97c5dfd17380"
+        },
+        {
+          "trial": 9,
+          "total_ns": 1112414980,
+          "generation_ns": 754489046,
+          "http_ns": 357902770,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2385,
+            "PRAGMA": 909,
+            "rows_returned": 8729,
+            "SELECT": 1421,
+            "BEGIN": 3,
+            "INSERT": 15,
+            "blob_bytes_returned": 731317,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6291,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "e55508b604e5c8271fb0a708d22c5ff38257a6f142daadccb59ea21f3566f5b2"
+        },
+        {
+          "trial": 10,
+          "total_ns": 1156865994,
+          "generation_ns": 762988762,
+          "http_ns": 393850347,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2385,
+            "PRAGMA": 909,
+            "rows_returned": 8729,
+            "SELECT": 1421,
+            "BEGIN": 3,
+            "INSERT": 15,
+            "blob_bytes_returned": 731317,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6291,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "ba1111c10c6819a169df131f932eacc827f9499b90c4638f2e66d12ca6285566"
+        },
+        {
+          "trial": 11,
+          "total_ns": 1126115077,
+          "generation_ns": 767465952,
+          "http_ns": 358626264,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2385,
+            "PRAGMA": 909,
+            "rows_returned": 8729,
+            "SELECT": 1421,
+            "BEGIN": 3,
+            "INSERT": 15,
+            "blob_bytes_returned": 731317,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6291,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "30d366a72a8f56e608b23e92b2c7b8b448a4d7955530e6c6270898b7cb418d97"
+        },
+        {
+          "trial": 12,
+          "total_ns": 1112320878,
+          "generation_ns": 753830067,
+          "http_ns": 358467309,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2385,
+            "PRAGMA": 909,
+            "rows_returned": 8729,
+            "SELECT": 1421,
+            "BEGIN": 3,
+            "INSERT": 15,
+            "blob_bytes_returned": 731317,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6291,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "23f2121c4f0b6028cb92ec32dd9d6c0b5af78d392ab09f20ab2b9059a5277fc8"
+        },
+        {
+          "trial": 13,
+          "total_ns": 1030853059,
+          "generation_ns": 682900378,
+          "http_ns": 347930318,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2385,
+            "PRAGMA": 909,
+            "rows_returned": 8729,
+            "SELECT": 1421,
+            "BEGIN": 3,
+            "INSERT": 15,
+            "blob_bytes_returned": 731317,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6291,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "f527d90ddffc09aa46ca3f79e8358b1fcb9ee494f30b7f18a835f882d0e62675"
+        },
+        {
+          "trial": 14,
+          "total_ns": 993364623,
+          "generation_ns": 645115848,
+          "http_ns": 348226012,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2385,
+            "PRAGMA": 909,
+            "rows_returned": 8729,
+            "SELECT": 1421,
+            "BEGIN": 3,
+            "INSERT": 15,
+            "blob_bytes_returned": 731317,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6291,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "1de696a447aa5036776d9db589f6f8f23e9d494f01422893a1886c55b09442ea"
+        },
+        {
+          "trial": 15,
+          "total_ns": 1015724744,
+          "generation_ns": 645887373,
+          "http_ns": 369815318,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2385,
+            "PRAGMA": 909,
+            "rows_returned": 8729,
+            "SELECT": 1421,
+            "BEGIN": 3,
+            "INSERT": 15,
+            "blob_bytes_returned": 731317,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6291,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "f7b81d7fb7c1838e8bb35a5edf8f7f8ae452efe33effde8c623ce47911d6501d"
+        },
+        {
+          "trial": 16,
+          "total_ns": 997698619,
+          "generation_ns": 648554670,
+          "http_ns": 349121077,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2385,
+            "PRAGMA": 909,
+            "rows_returned": 8729,
+            "SELECT": 1421,
+            "BEGIN": 3,
+            "INSERT": 15,
+            "blob_bytes_returned": 731317,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6291,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "82c7fc43d72b3c964ae1abcd2d6c9aa7a5cf93389f387be7e3b7b56e44860aa7"
+        },
+        {
+          "trial": 17,
+          "total_ns": 993627312,
+          "generation_ns": 644621279,
+          "http_ns": 348982873,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2385,
+            "PRAGMA": 909,
+            "rows_returned": 8729,
+            "SELECT": 1421,
+            "BEGIN": 3,
+            "INSERT": 15,
+            "blob_bytes_returned": 731317,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6291,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "5e8c454b8fec36d10245d23d51e1aea6804800d53777f3f7b3966369064ccd8e"
+        },
+        {
+          "trial": 18,
+          "total_ns": 997629950,
+          "generation_ns": 648739103,
+          "http_ns": 348869658,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2385,
+            "PRAGMA": 909,
+            "rows_returned": 8729,
+            "SELECT": 1421,
+            "BEGIN": 3,
+            "INSERT": 15,
+            "blob_bytes_returned": 731317,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6291,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "abc3f62b877227a4ec9651f3a34d11c5db99a1edd359ddaa436351d7e818b1fa"
+        },
+        {
+          "trial": 19,
+          "total_ns": 992918629,
+          "generation_ns": 641219610,
+          "http_ns": 351677230,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2385,
+            "PRAGMA": 909,
+            "rows_returned": 8729,
+            "SELECT": 1421,
+            "BEGIN": 3,
+            "INSERT": 15,
+            "blob_bytes_returned": 731317,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6291,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "2318ad4f4b0ac135c33d2a122f31a589f9858997da3904f032a9bc8960487e9d"
+        },
+        {
+          "trial": 20,
+          "total_ns": 1020929082,
+          "generation_ns": 648909369,
+          "http_ns": 371997669,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2385,
+            "PRAGMA": 909,
+            "rows_returned": 8729,
+            "SELECT": 1421,
+            "BEGIN": 3,
+            "INSERT": 15,
+            "blob_bytes_returned": 731317,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6291,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "f2d60133586776e6721582ea1a14c0be3ef1f98f55bfd80d2b594cbd11252c54"
+        },
+        {
+          "trial": 21,
+          "total_ns": 997531429,
+          "generation_ns": 648730213,
+          "http_ns": 348779211,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2385,
+            "PRAGMA": 909,
+            "rows_returned": 8729,
+            "SELECT": 1421,
+            "BEGIN": 3,
+            "INSERT": 15,
+            "blob_bytes_returned": 731317,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6291,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "02c660c0f6cd8007312ee00f53ee625aa93a8d8105b677ccbee6a10f85e1282c"
+        },
+        {
+          "trial": 22,
+          "total_ns": 1002117692,
+          "generation_ns": 648744867,
+          "http_ns": 353350837,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2385,
+            "PRAGMA": 909,
+            "rows_returned": 8729,
+            "SELECT": 1421,
+            "BEGIN": 3,
+            "INSERT": 15,
+            "blob_bytes_returned": 731317,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6291,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "a9e47f3fa4abcf007831ff6fc9a1863df542f6451e71897b71cdd07b5278dfa7"
+        }
+      ],
+      "distributions": {
+        "total_ns": {
+          "n": 20,
+          "min": 990027181,
+          "median": 1007897139.0,
+          "p95": 1126115077,
+          "max": 1156865994,
+          "stdev": 56943560.794573225
+        },
+        "generation_ns": {
+          "n": 20,
+          "min": 641219610,
+          "median": 648734658.0,
+          "p95": 762988762,
+          "max": 767465952,
+          "stdev": 51382919.810268454
+        },
+        "http_ns": {
+          "n": 20,
+          "min": 346523110,
+          "median": 354884971.0,
+          "p95": 371997669,
+          "max": 393850347,
+          "stdev": 11483239.268424243
+        },
+        "http_entity_bytes": {
+          "n": 20,
+          "min": 1528,
+          "median": 1528.0,
+          "p95": 1528,
+          "max": 1528,
+          "stdev": 0.0
+        }
+      },
+      "query_plans": {
+        "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'": [
+          "SCAN sqlite_master"
+        ],
+        "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?": [
+          "SCAN sqlite_master"
+        ],
+        "SELECT rowid FROM ledger_entries LIMIT 0": [
+          "SCAN ledger_entries USING COVERING INDEX sync_input_ledger_month"
+        ],
+        "SELECT rowid FROM audit_logs LIMIT 0": [
+          "SCAN audit_logs USING COVERING INDEX idx_audit_logs_occurred"
+        ],
+        "SELECT rowid FROM cash_flows LIMIT 0": [
+          "SCAN cash_flows USING COVERING INDEX sync_input_cash_sort"
+        ],
+        "SELECT rowid FROM card_payment_batches LIMIT 0": [
+          "SCAN card_payment_batches USING COVERING INDEX idx_card_payment_batches_active"
+        ],
+        "SELECT rowid FROM share_sessions LIMIT 0": [
+          "SCAN share_sessions USING COVERING INDEX idx_share_sessions_token"
+        ],
+        "SELECT rowid FROM card_payment_batch_items LIMIT 0": [
+          "SCAN card_payment_batch_items USING COVERING INDEX sync_fk_item_entry"
+        ],
+        "SELECT rowid FROM card_payment_allocations LIMIT 0": [
+          "SCAN card_payment_allocations USING COVERING INDEX sync_fk_allocation_event"
+        ],
+        "SELECT rowid FROM auth_sessions LIMIT 0": [
+          "SCAN auth_sessions USING COVERING INDEX idx_auth_sessions_user"
+        ],
+        "SELECT rowid FROM users LIMIT 0": [
+          "SCAN users USING COVERING INDEX sqlite_autoindex_users_1"
+        ],
+        "SELECT rowid FROM card_payment_events LIMIT 0": [
+          "SCAN card_payment_events USING COVERING INDEX sync_fk_event_cash"
+        ],
+        "SELECT rowid FROM monthly_panels LIMIT 0": [
+          "SCAN monthly_panels USING COVERING INDEX sync_fk_panel_cash"
+        ],
+        "SELECT sql FROM sqlite_master WHERE type = 'index' AND name = ?": [
+          "SCAN sqlite_master"
+        ],
+        "SELECT name FROM sqlite_master WHERE type IN ('index', 'trigger')": [
+          "SCAN sqlite_master"
+        ],
+        "SELECT name, tbl_name, sql FROM sqlite_master WHERE type='trigger'": [
+          "SCAN sqlite_master"
+        ],
+        "SELECT id, revision, typeof(revision) FROM authoritative_state_revision": [
+          "SCAN authoritative_state_revision"
+        ],
+        "SELECT type,name,tbl_name,sql FROM sqlite_master WHERE tbl_name LIKE 'sync_%' OR name LIKE 'sync_%' ORDER BY type,name": [
+          "SCAN sqlite_master",
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        "SELECT sql FROM sqlite_master WHERE type='trigger'": [
+          "SCAN sqlite_master"
+        ],
+        "SELECT * FROM sync_capture_profile": [
+          "SCAN sync_capture_profile"
+        ],
+        "SELECT * FROM sync_finalization_profile": [
+          "SCAN sync_finalization_profile"
+        ],
+        "SELECT * FROM sync_retention_profile": [
+          "SCAN sync_retention_profile"
+        ],
+        "SELECT * FROM sync_observation_profile": [
+          "SCAN sync_observation_profile"
+        ],
+        "SELECT id,serial,typeof(serial) FROM sync_gc_fence": [
+          "SCAN sync_gc_fence"
+        ],
+        "SELECT id,used_bytes,typeof(used_bytes) FROM sync_observation_budget": [
+          "SCAN sync_observation_budget"
+        ],
+        "SELECT count(*) FROM sync_tx_context": [
+          "SCAN sync_tx_context USING COVERING INDEX sqlite_autoindex_sync_tx_context_1"
+        ],
+        "SELECT 1 FROM sync_capture_commits WHERE tx_id=?": [
+          "SEARCH sync_capture_commits USING COVERING INDEX sqlite_autoindex_sync_capture_commits_1 (tx_id=?)"
+        ],
+        "SELECT revision FROM authoritative_state_revision": [
+          "SCAN authoritative_state_revision"
+        ],
+        "SELECT revision FROM sync_current WHERE id=1": [
+          "SEARCH sync_current USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT * FROM sync_current WHERE id=1": [
+          "SEARCH sync_current USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT length(body) FROM sync_objects WHERE hash=?": [
+          "SEARCH sync_objects USING INDEX sqlite_autoindex_sync_objects_1 (hash=?)"
+        ],
+        "SELECT kind,body FROM sync_objects WHERE hash=?": [
+          "SEARCH sync_objects USING INDEX sqlite_autoindex_sync_objects_1 (hash=?)"
+        ],
+        "SELECT * FROM sync_commits WHERE tx_id=?": [
+          "SEARCH sync_commits USING INDEX sqlite_autoindex_sync_commits_1 (tx_id=?)"
+        ],
+        "SELECT tx_id,base_revision FROM sync_tx_context": [
+          "SCAN sync_tx_context"
+        ],
+        "SELECT input_hash FROM sync_commits WHERE tx_id=?": [
+          "SEARCH sync_commits USING INDEX sqlite_autoindex_sync_commits_1 (tx_id=?)"
+        ],
+        "SELECT tx_id FROM sync_current WHERE id=1": [
+          "SEARCH sync_current USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT key, value FROM app_settings ORDER BY key": [
+          "SCAN app_settings USING INDEX sqlite_autoindex_app_settings_1"
+        ],
+        "SELECT * FROM sync_changes WHERE tx_id=? ORDER BY revision": [
+          "SEARCH sync_changes USING INDEX sync_changes_tx (tx_id=?)"
+        ],
+        "SELECT column_name,value FROM sync_change_cells WHERE revision=? AND side=?": [
+          "SEARCH sync_change_cells USING INDEX sqlite_autoindex_sync_change_cells_1 (revision=? AND side=?)"
+        ],
+        "SELECT revision FROM authoritative_state_revision WHERE id=1": [
+          "SEARCH authoritative_state_revision USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT * FROM ledger_entries WHERE id=?": [
+          "SEARCH ledger_entries USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT src_table,src_key FROM sync_reverse WHERE dst_table=? AND dst_key=? AND field=? AND src_table=?": [
+          "SEARCH sync_reverse USING COVERING INDEX sync_input_reverse_field (dst_table=? AND dst_key=? AND field=? AND src_table=?)"
+        ],
+        "SELECT entry_kind,confirmed_month,confirmed_at FROM ledger_entries WHERE id=?": [
+          "SEARCH ledger_entries USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT value FROM app_settings WHERE key='last_closed_month'": [
+          "SEARCH app_settings USING INDEX sqlite_autoindex_app_settings_1 (key=?)"
+        ],
+        "SELECT id FROM ledger_entries WHERE source_planned_entry_id=?": [
+          "SEARCH ledger_entries USING COVERING INDEX sync_fk_entry_source (source_planned_entry_id=?)"
+        ],
+        "SELECT id FROM ledger_entries WHERE payment_key=?": [
+          "SEARCH ledger_entries USING COVERING INDEX idx_ledger_payment_key (payment_key=?)"
+        ],
+        "SELECT id FROM card_payment_batches WHERE status='active'": [
+          "SEARCH card_payment_batches USING COVERING INDEX idx_card_payment_batches_active (status=?)"
+        ],
+        "SELECT * FROM card_payment_batches WHERE id=?": [
+          "SEARCH card_payment_batches USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT * FROM card_payment_batch_items WHERE id=?": [
+          "SEARCH card_payment_batch_items USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT * FROM card_payment_events WHERE id=?": [
+          "SEARCH card_payment_events USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT * FROM card_payment_allocations WHERE id=?": [
+          "SEARCH card_payment_allocations USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT * FROM cash_flows WHERE id=?": [
+          "SEARCH cash_flows USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "\n        SELECT *\n        FROM ledger_entries\n        WHERE book_section = ? AND NOT (entry_kind = 'planned' AND COALESCE(confirmed_month, '') = ?)\n        ORDER BY\n          CASE WHEN entry_kind = 'planned' THEN COALESCE(due_day, 99) ELSE 0 END,\n          CASE WHEN entry_kind = 'planned' THEN NULL ELSE entry_date END,\n          sort_order,\n          id\n        ": [
+          "SEARCH ledger_entries USING INDEX idx_ledger_section_order (book_section=?)",
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        "\n                SELECT monthly_panels.*,\n                       CASE WHEN confirmed_cash_flow.id IS NOT NULL\n                            THEN ABS(confirmed_cash_flow.amount_value) ELSE NULL END AS confirmed_amount_value\n                FROM monthly_panels\n                LEFT JOIN cash_flows AS confirmed_cash_flow\n                  ON confirmed_cash_flow.id = monthly_panels.confirmed_cash_flow_id\n                WHERE (monthly_panels.month = ? OR monthly_panels.panel_type IN ('fixed', 'frozen', 'claim', 'family_card'))\n                ORDER BY\n                  CASE WHEN monthly_panels.panel_type = 'fixed' THEN 0 ELSE 1 END,\n                  CASE WHEN monthly_panels.spent_on IS NULL THEN 1 ELSE 0 END,\n                  monthly_panels.spent_on,\n                  monthly_panels.sort_order,\n                  monthly_panels.id\n                ": [
+          "MULTI-INDEX OR",
+          "INDEX 1",
+          "SEARCH monthly_panels USING INDEX idx_panels_month_type_order (month=?)",
+          "INDEX 2",
+          "SEARCH monthly_panels USING INDEX sync_input_panel_type (panel_type=?)",
+          "SEARCH confirmed_cash_flow USING INTEGER PRIMARY KEY (rowid=?) LEFT-JOIN",
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        "\n        SELECT amount_value\n        FROM ledger_entries\n        WHERE book_section = 'current'\n          AND entry_kind = 'planned'\n        ": [
+          "SEARCH ledger_entries USING INDEX sync_input_ledger_kind (entry_kind=?)"
+        ],
+        "\n        SELECT ledger_entries.payment_key,\n               ledger_entries.amount_value,\n               ledger_entries.entry_date,\n               ledger_entries.title,\n               ledger_entries.usage_place,\n               ledger_entries.spending_category,\n               ledger_entries.discount_override,\n               ledger_entries.aux_amount_value\n        FROM ledger_entries\n        WHERE ledger_entries.book_section = 'current'\n          AND ledger_entries.entry_kind != 'planned'\n          AND ledger_entries.payment_key IS NOT NULL\n        ": [
+          "SEARCH ledger_entries USING INDEX idx_ledger_section_order (book_section=?)"
+        ],
+        "SELECT a.amount_value FROM card_payment_allocations a\n                JOIN card_payment_events e ON e.id=a.payment_event_id\n                WHERE a.entry_payment_key=? AND e.event_type='discount'": [
+          "SEARCH a USING INDEX idx_card_payment_allocations_entry (entry_payment_key=?)",
+          "SEARCH e USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "\n        SELECT *\n        FROM card_payment_batches\n        WHERE status = 'active'\n        ORDER BY id DESC\n        LIMIT 1\n        ": [
+          "SEARCH card_payment_batches USING INDEX idx_card_payment_batches_active (status=?)"
+        ],
+        "SELECT value FROM app_settings WHERE key = ?": [
+          "SEARCH app_settings USING INDEX sqlite_autoindex_app_settings_1 (key=?)"
+        ],
+        "SELECT key, value FROM app_settings": [
+          "SCAN app_settings"
+        ],
+        "\n            SELECT ledger_entries.*,\n                   card_payment_deferrals.from_payment_month AS deferred_from_payment_month,\n                   card_payment_deferrals.target_payment_month AS deferred_target_payment_month\n            FROM card_payment_batch_items\n            JOIN ledger_entries\n              ON ledger_entries.id = card_payment_batch_items.entry_id\n            LEFT JOIN card_payment_deferrals\n              ON card_payment_deferrals.entry_payment_key = ledger_entries.payment_key\n            WHERE card_payment_batch_items.batch_id = ?\n              AND ledger_entries.entry_kind != 'planned'\n              AND COALESCE(ledger_entries.amount_value, 0) > 0\n            ORDER BY\n              CASE WHEN card_payment_deferrals.target_payment_month = ? THEN 0\n                   WHEN card_payment_deferrals.from_payment_month = ? THEN 2\n                   ELSE 1 END,\n              ledger_entries.entry_date,\n              ledger_entries.sort_order,\n              ledger_entries.id\n        ": [
+          "SEARCH card_payment_batch_items USING COVERING INDEX idx_card_payment_batch_items_batch (batch_id=?)",
+          "SEARCH ledger_entries USING INTEGER PRIMARY KEY (rowid=?)",
+          "SEARCH card_payment_deferrals USING INDEX sqlite_autoindex_card_payment_deferrals_1 (entry_payment_key=?) LEFT-JOIN",
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        "SELECT a.entry_payment_key,a.amount_value FROM card_payment_allocations a\n               JOIN card_payment_events e ON e.id=a.payment_event_id WHERE e.event_type=? AND e.batch_id=?": [
+          "SEARCH e USING COVERING INDEX sync_input_event_type_batch (event_type=? AND batch_id=?)",
+          "SEARCH a USING INDEX sync_fk_allocation_event (payment_event_id=?)"
+        ],
+        "SELECT amount_value FROM monthly_panels WHERE panel_type = ?": [
+          "SEARCH monthly_panels USING INDEX sync_input_panel_type (panel_type=?)"
+        ],
+        "\n        SELECT cash_flows.amount_value\n        FROM monthly_panels\n        JOIN cash_flows ON cash_flows.id = monthly_panels.confirmed_cash_flow_id\n        WHERE monthly_panels.panel_type = 'fixed'\n          AND monthly_panels.confirmed_at IS NOT NULL\n        ": [
+          "SEARCH monthly_panels USING INDEX sync_input_panel_type (panel_type=?)",
+          "SEARCH cash_flows USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT amount_value FROM monthly_panels WHERE panel_type = ? AND (confirmed_at IS NULL OR confirmed_cash_flow_id IS NULL)": [
+          "SEARCH monthly_panels USING INDEX sync_input_panel_type (panel_type=?)"
+        ],
+        "SELECT total FROM sync_cash_prefix WHERE ordinal=?": [
+          "SEARCH sync_cash_prefix USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT amount_value FROM monthly_panels\n           WHERE panel_type = 'fixed' AND confirmed_at IS NOT NULL\n             AND confirmed_cash_flow_id IS NOT NULL AND confirmed_month > ?": [
+          "SEARCH monthly_panels USING INDEX sync_input_panel_type (panel_type=?)"
+        ],
+        "SELECT month, title, amount_value, discount_amount, discount_override FROM monthly_panels WHERE panel_type = ?": [
+          "SEARCH monthly_panels USING INDEX sync_input_panel_type (panel_type=?)"
+        ],
+        "\n        SELECT amount_value\n        FROM cash_flows\n        WHERE occurred_on BETWEEN ? AND ?\n        ": [
+          "SEARCH cash_flows USING INDEX idx_cash_flows_order (occurred_on>? AND occurred_on<?)"
+        ],
+        "SELECT amount_value FROM cash_flows\n            WHERE substr(occurred_on,1,7)=? AND is_primary_income=1 AND amount_value>0": [
+          "SEARCH cash_flows USING INDEX sync_input_cash_month (<expr>=? AND is_primary_income=?)"
+        ],
+        "\n            SELECT ledger_entries.payment_key,\n                   ledger_entries.amount_value,\n                   ledger_entries.title,\n                   ledger_entries.usage_place,\n                   ledger_entries.spending_category,\n                   ledger_entries.discount_override,\n                   ledger_entries.aux_amount_value\n            FROM ledger_entries\n            WHERE substr(ledger_entries.entry_date,1,7) = ?\n              AND ledger_entries.payment_key IS NOT NULL\n              AND ledger_entries.entry_kind != 'planned'\n            ": [
+          "SEARCH ledger_entries USING INDEX sync_input_ledger_month (<expr>=?)"
+        ],
+        "\n            SELECT *\n            FROM card_payment_events\n            WHERE batch_id = ?\n            ORDER BY event_date DESC, id DESC\n            ": [
+          "SEARCH card_payment_events USING INDEX sync_fk_event_batch (batch_id=?)",
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        "\n            SELECT card_payment_allocations.entry_payment_key,\n                   card_payment_allocations.amount_value AS amount\n            FROM card_payment_allocations\n            JOIN card_payment_events\n              ON card_payment_events.id = card_payment_allocations.payment_event_id\n            WHERE card_payment_events.event_type = 'discount'\n              AND card_payment_allocations.entry_payment_key IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\n            ": [
+          "SEARCH card_payment_events USING COVERING INDEX sync_input_event_type_batch (event_type=?)",
+          "SEARCH card_payment_allocations USING INDEX sync_fk_allocation_event (payment_event_id=?)"
+        ],
+        "\n                SELECT monthly_panels.*,\n                       CASE WHEN confirmed_cash_flow.id IS NOT NULL\n                            THEN ABS(confirmed_cash_flow.amount_value) ELSE NULL END AS confirmed_amount_value\n                FROM monthly_panels\n                LEFT JOIN cash_flows AS confirmed_cash_flow\n                  ON confirmed_cash_flow.id = monthly_panels.confirmed_cash_flow_id\n                WHERE (monthly_panels.month = ? OR monthly_panels.panel_type IN ('fixed', 'frozen', 'claim', 'family_card')) AND NOT (monthly_panels.panel_type = 'fixed' AND monthly_panels.confirmed_at IS NOT NULL AND monthly_panels.confirmed_cash_flow_id IS NOT NULL)\n                ORDER BY\n                  CASE WHEN monthly_panels.panel_type = 'fixed' THEN 0 ELSE 1 END,\n                  CASE WHEN monthly_panels.spent_on IS NULL THEN 1 ELSE 0 END,\n                  monthly_panels.spent_on,\n                  monthly_panels.sort_order,\n                  monthly_panels.id\n                ": [
+          "MULTI-INDEX OR",
+          "INDEX 1",
+          "SEARCH monthly_panels USING INDEX idx_panels_month_type_order (month=?)",
+          "INDEX 2",
+          "SEARCH monthly_panels USING INDEX sync_input_panel_type (panel_type=?)",
+          "SEARCH confirmed_cash_flow USING INTEGER PRIMARY KEY (rowid=?) LEFT-JOIN",
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        "\n            SELECT *\n            FROM cash_flows WHERE occurred_on >= ? AND occurred_on <= ?\n            ORDER BY occurred_on DESC, sort_order DESC, id DESC\n            ": [
+          "SEARCH cash_flows USING INDEX idx_cash_flows_order (occurred_on>? AND occurred_on<?)"
+        ],
+        "SELECT key FROM sync_totals WHERE domain=? ORDER BY key DESC LIMIT ?": [
+          "SEARCH sync_totals USING COVERING INDEX sqlite_autoindex_sync_totals_1 (domain=?)"
+        ],
+        "SELECT total FROM sync_totals WHERE domain=? AND key=?": [
+          "SEARCH sync_totals USING INDEX sqlite_autoindex_sync_totals_1 (domain=? AND key=?)"
+        ],
+        "\n            SELECT *\n            FROM ledger_entries\n            WHERE book_section = 'current'\n              AND entry_kind = 'planned'\n              AND confirmed_month = ?\n            ORDER BY COALESCE(due_day, 99), sort_order, id\n            ": [
+          "SEARCH ledger_entries USING INDEX sync_input_ledger_epoch (confirmed_month=?)",
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        "SELECT value FROM app_settings WHERE key = 'last_closed_month'": [
+          "SEARCH app_settings USING INDEX sqlite_autoindex_app_settings_1 (key=?)"
+        ],
+        "\n        SELECT MIN(substr(entry_date, 1, 7)) AS month\n        FROM ledger_entries\n        WHERE book_section = 'current'\n          AND entry_kind != 'planned'\n          AND entry_date IS NOT NULL\n        ": [
+          "SEARCH ledger_entries USING INDEX idx_ledger_section_order (book_section=?)"
+        ],
+        "\n        SELECT p.id, p.title, p.amount_value\n        FROM monthly_panels AS p\n        LEFT JOIN cash_flows AS confirmed_flow\n          ON confirmed_flow.id = p.confirmed_cash_flow_id\n        WHERE p.panel_type = 'fixed'\n          AND p.month <= ?\n          AND NOT (\n            p.confirmed_month = ?\n            AND p.confirmed_at IS NOT NULL\n            AND confirmed_flow.id IS NOT NULL\n          )\n        ORDER BY p.sort_order, p.id\n        ": [
+          "SEARCH p USING INDEX sync_input_panel_type (panel_type=?)",
+          "SEARCH confirmed_flow USING INTEGER PRIMARY KEY (rowid=?) LEFT-JOIN",
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        "\n        SELECT planned.id, planned.title, planned.amount_value,\n               planned.usage_place, planned.usage_item, planned.due_day,\n               planned.created_at\n        FROM ledger_entries AS planned\n        WHERE planned.book_section = 'current'\n          AND planned.entry_kind = 'planned'\n          AND NOT (\n            planned.confirmed_month = ?\n            AND planned.confirmed_at IS NOT NULL\n            AND (\n              EXISTS (\n                SELECT 1\n                FROM ledger_entries AS generated\n                WHERE generated.source_planned_entry_id = planned.id\n                  AND generated.entry_kind = 'expense'\n                  AND generated.confirmed_month = planned.confirmed_month\n                  AND generated.confirmed_at = planned.confirmed_at\n              )\n              OR EXISTS (\n                SELECT 1\n                FROM ledger_entries AS legacy_generated\n                WHERE legacy_generated.source_planned_entry_id IS NULL\n                  AND legacy_generated.entry_kind = 'expense'\n                  AND substr(legacy_generated.entry_date,1,7) = ?\n                  AND legacy_generated.title = planned.title\n                  AND COALESCE(legacy_generated.usage_place, '') = COALESCE(planned.usage_place, '')\n                  AND COALESCE(legacy_generated.usage_item, '') = COALESCE(planned.usage_item, '')\n                  AND COALESCE(legacy_generated.amount_value, 0) = COALESCE(planned.amount_value, 0)\n              )\n            )\n          )\n        ORDER BY COALESCE(planned.due_day, 99), planned.sort_order, planned.id\n        ": [
+          "SEARCH planned USING INDEX sync_input_ledger_kind (entry_kind=?)",
+          "CORRELATED SCALAR SUBQUERY 1",
+          "SEARCH generated USING INDEX sync_input_recurring_epoch (source_planned_entry_id=? AND confirmed_month=? AND confirmed_at=?)",
+          "CORRELATED SCALAR SUBQUERY 2",
+          "SEARCH legacy_generated USING INDEX sync_input_ledger_month (<expr>=?)",
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        "SELECT body FROM sync_rows WHERE hash=?": [
+          "SEARCH sync_rows USING INDEX sqlite_autoindex_sync_rows_1 (hash=?)"
+        ],
+        "SELECT user_id FROM auth_sessions WHERE session_token_hash=?": [
+          "SEARCH auth_sessions USING INDEX sqlite_autoindex_auth_sessions_1 (session_token_hash=?)"
+        ],
+        "SELECT s.user_id,s.expires_at,u.is_active FROM auth_sessions s\n            JOIN users u ON u.id=s.user_id WHERE s.session_token_hash=?": [
+          "SEARCH s USING INDEX sqlite_autoindex_auth_sessions_1 (session_token_hash=?)",
+          "SEARCH u USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT request_hash,namespace FROM sync_observation_replays WHERE credential_hash=? AND request_id=?": [
+          "SEARCH sync_observation_replays USING INDEX sqlite_autoindex_sync_observation_replays_1 (credential_hash=? AND request_id=?)"
+        ],
+        "SELECT id,request_body FROM sync_observations WHERE credential_hash=? AND request_id=?": [
+          "SEARCH sync_observations USING INDEX sqlite_autoindex_sync_observations_2 (credential_hash=? AND request_id=?)"
+        ],
+        "SELECT 1 FROM sync_tx_context": [
+          "SCAN sync_tx_context USING COVERING INDEX sqlite_autoindex_sync_tx_context_1"
+        ],
+        "SELECT revision,typeof(revision) FROM authoritative_state_revision WHERE id=1": [
+          "SEARCH authoritative_state_revision USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT * FROM sync_capture_commits WHERE tx_id=?": [
+          "SEARCH sync_capture_commits USING INDEX sqlite_autoindex_sync_capture_commits_1 (tx_id=?)"
+        ],
+        "SELECT hot_hash,control_hash FROM sync_observation_views WHERE identity=?": [
+          "SEARCH sync_observation_views USING INDEX sqlite_autoindex_sync_observation_views_1 (identity=?)"
+        ],
+        "SELECT tx_id,namespace,revision,raw_hash,index_hash FROM sync_current WHERE id=1": [
+          "SEARCH sync_current USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT count(*) FROM sync_observations WHERE principal_id=? AND status='available'": [
+          "SEARCH sync_observations USING COVERING INDEX sync_observation_quota (principal_id=? AND status=?)"
+        ],
+        "SELECT count(*) FROM sync_observations": [
+          "SCAN sync_observations USING COVERING INDEX sqlite_autoindex_sync_observations_1"
+        ],
+        "SELECT used_bytes FROM sync_observation_budget WHERE id=1": [
+          "SEARCH sync_observation_budget USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT * FROM sync_observations WHERE id=?": [
+          "SEARCH sync_observations USING INDEX sqlite_autoindex_sync_observations_1 (id=?)"
+        ],
+        "SELECT namespace FROM sync_current WHERE id=1": [
+          "SEARCH sync_current USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT * FROM sync_observation_pins WHERE observation_id=? AND active=1": [
+          "SEARCH sync_observation_pins USING INDEX sqlite_autoindex_sync_observation_pins_1 (observation_id=?)"
+        ]
+      }
+    },
+    {
+      "phase": "cash",
+      "samples": [
+        {
+          "trial": 3,
+          "total_ns": 576206396,
+          "generation_ns": 214314944,
+          "http_ns": 361869630,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2439,
+            "PRAGMA": 909,
+            "rows_returned": 8515,
+            "SELECT": 1453,
+            "BEGIN": 3,
+            "INSERT": 37,
+            "blob_bytes_returned": 288782,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6149,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "dd0051b7cfda984d869857758200755b50f61a1e87ff48a71637f1efdd6f432a"
+        },
+        {
+          "trial": 4,
+          "total_ns": 576346088,
+          "generation_ns": 215182518,
+          "http_ns": 361140887,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2439,
+            "PRAGMA": 909,
+            "rows_returned": 8515,
+            "SELECT": 1453,
+            "BEGIN": 3,
+            "INSERT": 37,
+            "blob_bytes_returned": 288782,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6149,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "6eb1be0efbecd80c97cf3d3d5767d5b032cb975473b9548c4783f3c0cf462676"
+        },
+        {
+          "trial": 5,
+          "total_ns": 575929484,
+          "generation_ns": 214148685,
+          "http_ns": 361759616,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2439,
+            "PRAGMA": 909,
+            "rows_returned": 8515,
+            "SELECT": 1453,
+            "BEGIN": 3,
+            "INSERT": 37,
+            "blob_bytes_returned": 288782,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6149,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "0c4b8bf7d90e99de4e168e1b4661586cbf579dac9d4a2ecc57e8aaa536533e7e"
+        },
+        {
+          "trial": 6,
+          "total_ns": 595078313,
+          "generation_ns": 234301873,
+          "http_ns": 360753666,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2439,
+            "PRAGMA": 909,
+            "rows_returned": 8515,
+            "SELECT": 1453,
+            "BEGIN": 3,
+            "INSERT": 37,
+            "blob_bytes_returned": 288782,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6149,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "a2729d4bf0d7df08f9901de029ee15a2582f1629f752890b96af9f0323b50a01"
+        },
+        {
+          "trial": 7,
+          "total_ns": 589346289,
+          "generation_ns": 214290352,
+          "http_ns": 375034408,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2439,
+            "PRAGMA": 909,
+            "rows_returned": 8515,
+            "SELECT": 1453,
+            "BEGIN": 3,
+            "INSERT": 37,
+            "blob_bytes_returned": 288782,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6149,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "e2d9772ed400f5d9430ca2eb28d8a1e7d8bb5c2f77d6b448c94f24c92c912032"
+        },
+        {
+          "trial": 8,
+          "total_ns": 576578685,
+          "generation_ns": 215239166,
+          "http_ns": 361312577,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2439,
+            "PRAGMA": 909,
+            "rows_returned": 8515,
+            "SELECT": 1453,
+            "BEGIN": 3,
+            "INSERT": 37,
+            "blob_bytes_returned": 288782,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6149,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "4ac5f84fa002672f36884e171a4b7616e88b47285e6303885374318b8e7b4bd5"
+        },
+        {
+          "trial": 9,
+          "total_ns": 570683560,
+          "generation_ns": 213406412,
+          "http_ns": 357255869,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2439,
+            "PRAGMA": 909,
+            "rows_returned": 8515,
+            "SELECT": 1453,
+            "BEGIN": 3,
+            "INSERT": 37,
+            "blob_bytes_returned": 288782,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6149,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "6ba0546742a36beafee42d395a7ce9240c4496680e6b3d8afd41009ff4aaf6e7"
+        },
+        {
+          "trial": 10,
+          "total_ns": 574175537,
+          "generation_ns": 215176966,
+          "http_ns": 358967695,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2439,
+            "PRAGMA": 909,
+            "rows_returned": 8515,
+            "SELECT": 1453,
+            "BEGIN": 3,
+            "INSERT": 37,
+            "blob_bytes_returned": 288782,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6149,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "d0947ff819547cd4eb38895bb8cf6970a6fa9c4256a8149a62b3c3870f2b540d"
+        },
+        {
+          "trial": 11,
+          "total_ns": 574102841,
+          "generation_ns": 214738001,
+          "http_ns": 359342622,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2439,
+            "PRAGMA": 909,
+            "rows_returned": 8515,
+            "SELECT": 1453,
+            "BEGIN": 3,
+            "INSERT": 37,
+            "blob_bytes_returned": 288782,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6149,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "b77286511879b21ce2849eb699e5297531f320d8aef74ab35f749a05cdef0b51"
+        },
+        {
+          "trial": 12,
+          "total_ns": 574790998,
+          "generation_ns": 215052366,
+          "http_ns": 359717623,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2439,
+            "PRAGMA": 909,
+            "rows_returned": 8515,
+            "SELECT": 1453,
+            "BEGIN": 3,
+            "INSERT": 37,
+            "blob_bytes_returned": 288782,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6149,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "fecb760a5f743ddf730ee7073b74aeba4a0fa628bc95db6ecce31eb28b7a5ac7"
+        },
+        {
+          "trial": 13,
+          "total_ns": 574637715,
+          "generation_ns": 207797848,
+          "http_ns": 366809778,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2439,
+            "PRAGMA": 909,
+            "rows_returned": 8515,
+            "SELECT": 1453,
+            "BEGIN": 3,
+            "INSERT": 37,
+            "blob_bytes_returned": 288782,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6149,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "85f4c39d6ff6a16a490bd162ef5819dba1d547bf6b9cba66f14adde22e79689e"
+        },
+        {
+          "trial": 14,
+          "total_ns": 575806761,
+          "generation_ns": 215217680,
+          "http_ns": 360567122,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2439,
+            "PRAGMA": 909,
+            "rows_returned": 8515,
+            "SELECT": 1453,
+            "BEGIN": 3,
+            "INSERT": 37,
+            "blob_bytes_returned": 288782,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6149,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "bb0c0ef24542f91fe0bcc9434abc58b7fcf84db0156777a4e808cf6ddd6b3faf"
+        },
+        {
+          "trial": 15,
+          "total_ns": 574387519,
+          "generation_ns": 214748091,
+          "http_ns": 359617169,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2439,
+            "PRAGMA": 909,
+            "rows_returned": 8515,
+            "SELECT": 1453,
+            "BEGIN": 3,
+            "INSERT": 37,
+            "blob_bytes_returned": 288782,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6149,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "7458c6b5bc3652271537c38df237a15f71feb555afa8cdbc7c2dc11e7e8a5e8c"
+        },
+        {
+          "trial": 16,
+          "total_ns": 532941474,
+          "generation_ns": 179633728,
+          "http_ns": 353286282,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2439,
+            "PRAGMA": 909,
+            "rows_returned": 8515,
+            "SELECT": 1453,
+            "BEGIN": 3,
+            "INSERT": 37,
+            "blob_bytes_returned": 288782,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6149,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "7f97430ef9e102a969be72534de7b8fbc582cf46610dd9740bfafc9e87fdba37"
+        },
+        {
+          "trial": 17,
+          "total_ns": 561124557,
+          "generation_ns": 186697974,
+          "http_ns": 374404180,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2439,
+            "PRAGMA": 909,
+            "rows_returned": 8515,
+            "SELECT": 1453,
+            "BEGIN": 3,
+            "INSERT": 37,
+            "blob_bytes_returned": 288782,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6149,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "75c21475bc2b7decd01d3138588cb22f3bdf46ba5d2a61c17c9f8ef840364efe"
+        },
+        {
+          "trial": 18,
+          "total_ns": 541189551,
+          "generation_ns": 188096927,
+          "http_ns": 353067960,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2439,
+            "PRAGMA": 909,
+            "rows_returned": 8515,
+            "SELECT": 1453,
+            "BEGIN": 3,
+            "INSERT": 37,
+            "blob_bytes_returned": 288782,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6149,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "6eff87f363c787ec74a7ea5db1ec899b6edd1db5262d5271697be36557912d58"
+        },
+        {
+          "trial": 19,
+          "total_ns": 534285641,
+          "generation_ns": 183128666,
+          "http_ns": 351136242,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2439,
+            "PRAGMA": 909,
+            "rows_returned": 8515,
+            "SELECT": 1453,
+            "BEGIN": 3,
+            "INSERT": 37,
+            "blob_bytes_returned": 288782,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6149,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "a3145dfd11390e720adc33f01a200fa8316d4a4eea4373f04d27be0142b42eed"
+        },
+        {
+          "trial": 20,
+          "total_ns": 534057286,
+          "generation_ns": 181834581,
+          "http_ns": 352202047,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2439,
+            "PRAGMA": 909,
+            "rows_returned": 8515,
+            "SELECT": 1453,
+            "BEGIN": 3,
+            "INSERT": 37,
+            "blob_bytes_returned": 288782,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6149,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "febf8d5d91ffa4cda1f09e7570651331f20a1b25d0190d2b713da3ff1d56771e"
+        },
+        {
+          "trial": 21,
+          "total_ns": 527873619,
+          "generation_ns": 181175334,
+          "http_ns": 346678326,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2439,
+            "PRAGMA": 909,
+            "rows_returned": 8515,
+            "SELECT": 1453,
+            "BEGIN": 3,
+            "INSERT": 37,
+            "blob_bytes_returned": 288782,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6149,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "2db4ad596120c21b01e5de111f848d19d4daa85a6e8f4fd766567be09a516985"
+        },
+        {
+          "trial": 22,
+          "total_ns": 522430220,
+          "generation_ns": 174433960,
+          "http_ns": 347975279,
+          "status": 201,
+          "change_kind": "raw",
+          "http_entity_bytes": 1528,
+          "http_header_field_bytes": 166,
+          "h_object_sizes": {
+            "hot_ref": 87364,
+            "control_ref": 3178
+          },
+          "counters": {
+            "sql": 2439,
+            "PRAGMA": 909,
+            "rows_returned": 8515,
+            "SELECT": 1453,
+            "BEGIN": 3,
+            "INSERT": 37,
+            "blob_bytes_returned": 288782,
+            "UPDATE": 4,
+            "SAVEPOINT": 16,
+            "bound_blob_bytes": 6149,
+            "RELEASE": 14,
+            "DELETE": 3
+          },
+          "sync_root": "4e201106e359dee78d4645fd6a63b0f52f751f75d42f56aad2145c94e119af7e"
+        }
+      ],
+      "distributions": {
+        "total_ns": {
+          "n": 20,
+          "min": 522430220,
+          "median": 574281528.0,
+          "p95": 589346289,
+          "max": 595078313,
+          "stdev": 22037143.385234367
+        },
+        "generation_ns": {
+          "n": 20,
+          "min": 174433960,
+          "median": 214219518.5,
+          "p95": 215239166,
+          "max": 234301873,
+          "stdev": 17258749.304902107
+        },
+        "http_ns": {
+          "n": 20,
+          "min": 346678326,
+          "median": 359667396.0,
+          "p95": 374404180,
+          "max": 375034408,
+          "stdev": 7396966.907207702
+        },
+        "http_entity_bytes": {
+          "n": 20,
+          "min": 1528,
+          "median": 1528.0,
+          "p95": 1528,
+          "max": 1528,
+          "stdev": 0.0
+        }
+      },
+      "query_plans": {
+        "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'": [
+          "SCAN sqlite_master"
+        ],
+        "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?": [
+          "SCAN sqlite_master"
+        ],
+        "SELECT rowid FROM ledger_entries LIMIT 0": [
+          "SCAN ledger_entries USING COVERING INDEX sync_input_ledger_month"
+        ],
+        "SELECT rowid FROM audit_logs LIMIT 0": [
+          "SCAN audit_logs USING COVERING INDEX idx_audit_logs_occurred"
+        ],
+        "SELECT rowid FROM cash_flows LIMIT 0": [
+          "SCAN cash_flows USING COVERING INDEX sync_input_cash_sort"
+        ],
+        "SELECT rowid FROM card_payment_batches LIMIT 0": [
+          "SCAN card_payment_batches USING COVERING INDEX idx_card_payment_batches_active"
+        ],
+        "SELECT rowid FROM share_sessions LIMIT 0": [
+          "SCAN share_sessions USING COVERING INDEX idx_share_sessions_token"
+        ],
+        "SELECT rowid FROM card_payment_batch_items LIMIT 0": [
+          "SCAN card_payment_batch_items USING COVERING INDEX sync_fk_item_entry"
+        ],
+        "SELECT rowid FROM card_payment_allocations LIMIT 0": [
+          "SCAN card_payment_allocations USING COVERING INDEX sync_fk_allocation_event"
+        ],
+        "SELECT rowid FROM auth_sessions LIMIT 0": [
+          "SCAN auth_sessions USING COVERING INDEX idx_auth_sessions_user"
+        ],
+        "SELECT rowid FROM users LIMIT 0": [
+          "SCAN users USING COVERING INDEX sqlite_autoindex_users_1"
+        ],
+        "SELECT rowid FROM card_payment_events LIMIT 0": [
+          "SCAN card_payment_events USING COVERING INDEX sync_fk_event_cash"
+        ],
+        "SELECT rowid FROM monthly_panels LIMIT 0": [
+          "SCAN monthly_panels USING COVERING INDEX sync_fk_panel_cash"
+        ],
+        "SELECT sql FROM sqlite_master WHERE type = 'index' AND name = ?": [
+          "SCAN sqlite_master"
+        ],
+        "SELECT name FROM sqlite_master WHERE type IN ('index', 'trigger')": [
+          "SCAN sqlite_master"
+        ],
+        "SELECT name, tbl_name, sql FROM sqlite_master WHERE type='trigger'": [
+          "SCAN sqlite_master"
+        ],
+        "SELECT id, revision, typeof(revision) FROM authoritative_state_revision": [
+          "SCAN authoritative_state_revision"
+        ],
+        "SELECT type,name,tbl_name,sql FROM sqlite_master WHERE tbl_name LIKE 'sync_%' OR name LIKE 'sync_%' ORDER BY type,name": [
+          "SCAN sqlite_master",
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        "SELECT sql FROM sqlite_master WHERE type='trigger'": [
+          "SCAN sqlite_master"
+        ],
+        "SELECT * FROM sync_capture_profile": [
+          "SCAN sync_capture_profile"
+        ],
+        "SELECT * FROM sync_finalization_profile": [
+          "SCAN sync_finalization_profile"
+        ],
+        "SELECT * FROM sync_retention_profile": [
+          "SCAN sync_retention_profile"
+        ],
+        "SELECT * FROM sync_observation_profile": [
+          "SCAN sync_observation_profile"
+        ],
+        "SELECT id,serial,typeof(serial) FROM sync_gc_fence": [
+          "SCAN sync_gc_fence"
+        ],
+        "SELECT id,used_bytes,typeof(used_bytes) FROM sync_observation_budget": [
+          "SCAN sync_observation_budget"
+        ],
+        "SELECT count(*) FROM sync_tx_context": [
+          "SCAN sync_tx_context USING COVERING INDEX sqlite_autoindex_sync_tx_context_1"
+        ],
+        "SELECT 1 FROM sync_capture_commits WHERE tx_id=?": [
+          "SEARCH sync_capture_commits USING COVERING INDEX sqlite_autoindex_sync_capture_commits_1 (tx_id=?)"
+        ],
+        "SELECT revision FROM authoritative_state_revision": [
+          "SCAN authoritative_state_revision"
+        ],
+        "SELECT revision FROM sync_current WHERE id=1": [
+          "SEARCH sync_current USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT * FROM sync_current WHERE id=1": [
+          "SEARCH sync_current USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT length(body) FROM sync_objects WHERE hash=?": [
+          "SEARCH sync_objects USING INDEX sqlite_autoindex_sync_objects_1 (hash=?)"
+        ],
+        "SELECT kind,body FROM sync_objects WHERE hash=?": [
+          "SEARCH sync_objects USING INDEX sqlite_autoindex_sync_objects_1 (hash=?)"
+        ],
+        "SELECT * FROM sync_commits WHERE tx_id=?": [
+          "SEARCH sync_commits USING INDEX sqlite_autoindex_sync_commits_1 (tx_id=?)"
+        ],
+        "SELECT tx_id,base_revision FROM sync_tx_context": [
+          "SCAN sync_tx_context"
+        ],
+        "SELECT input_hash FROM sync_commits WHERE tx_id=?": [
+          "SEARCH sync_commits USING INDEX sqlite_autoindex_sync_commits_1 (tx_id=?)"
+        ],
+        "SELECT tx_id FROM sync_current WHERE id=1": [
+          "SEARCH sync_current USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT key, value FROM app_settings ORDER BY key": [
+          "SCAN app_settings USING INDEX sqlite_autoindex_app_settings_1"
+        ],
+        "SELECT * FROM sync_changes WHERE tx_id=? ORDER BY revision": [
+          "SEARCH sync_changes USING INDEX sync_changes_tx (tx_id=?)"
+        ],
+        "SELECT column_name,value FROM sync_change_cells WHERE revision=? AND side=?": [
+          "SEARCH sync_change_cells USING INDEX sqlite_autoindex_sync_change_cells_1 (revision=? AND side=?)"
+        ],
+        "SELECT revision FROM authoritative_state_revision WHERE id=1": [
+          "SEARCH authoritative_state_revision USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT * FROM cash_flows WHERE id=?": [
+          "SEARCH cash_flows USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT src_table,src_key FROM sync_reverse WHERE dst_table=? AND dst_key=? AND field=? AND src_table=?": [
+          "SEARCH sync_reverse USING COVERING INDEX sync_input_reverse_field (dst_table=? AND dst_key=? AND field=? AND src_table=?)"
+        ],
+        "SELECT value FROM app_settings WHERE key='last_closed_month'": [
+          "SEARCH app_settings USING INDEX sqlite_autoindex_app_settings_1 (key=?)"
+        ],
+        "SELECT id FROM card_payment_batches WHERE status='active'": [
+          "SEARCH card_payment_batches USING COVERING INDEX idx_card_payment_batches_active (status=?)"
+        ],
+        "SELECT * FROM card_payment_batches WHERE id=?": [
+          "SEARCH card_payment_batches USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT * FROM card_payment_batch_items WHERE id=?": [
+          "SEARCH card_payment_batch_items USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT * FROM card_payment_events WHERE id=?": [
+          "SEARCH card_payment_events USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT entry_kind,confirmed_month,confirmed_at FROM ledger_entries WHERE id=?": [
+          "SEARCH ledger_entries USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT id FROM ledger_entries WHERE source_planned_entry_id=?": [
+          "SEARCH ledger_entries USING COVERING INDEX sync_fk_entry_source (source_planned_entry_id=?)"
+        ],
+        "SELECT * FROM ledger_entries WHERE id=?": [
+          "SEARCH ledger_entries USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT id FROM ledger_entries WHERE payment_key=?": [
+          "SEARCH ledger_entries USING COVERING INDEX idx_ledger_payment_key (payment_key=?)"
+        ],
+        "SELECT * FROM card_payment_allocations WHERE id=?": [
+          "SEARCH card_payment_allocations USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "\n        SELECT *\n        FROM ledger_entries\n        WHERE book_section = ? AND NOT (entry_kind = 'planned' AND COALESCE(confirmed_month, '') = ?)\n        ORDER BY\n          CASE WHEN entry_kind = 'planned' THEN COALESCE(due_day, 99) ELSE 0 END,\n          CASE WHEN entry_kind = 'planned' THEN NULL ELSE entry_date END,\n          sort_order,\n          id\n        ": [
+          "SEARCH ledger_entries USING INDEX idx_ledger_section_order (book_section=?)",
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        "\n                SELECT monthly_panels.*,\n                       CASE WHEN confirmed_cash_flow.id IS NOT NULL\n                            THEN ABS(confirmed_cash_flow.amount_value) ELSE NULL END AS confirmed_amount_value\n                FROM monthly_panels\n                LEFT JOIN cash_flows AS confirmed_cash_flow\n                  ON confirmed_cash_flow.id = monthly_panels.confirmed_cash_flow_id\n                WHERE (monthly_panels.month = ? OR monthly_panels.panel_type IN ('fixed', 'frozen', 'claim', 'family_card'))\n                ORDER BY\n                  CASE WHEN monthly_panels.panel_type = 'fixed' THEN 0 ELSE 1 END,\n                  CASE WHEN monthly_panels.spent_on IS NULL THEN 1 ELSE 0 END,\n                  monthly_panels.spent_on,\n                  monthly_panels.sort_order,\n                  monthly_panels.id\n                ": [
+          "MULTI-INDEX OR",
+          "INDEX 1",
+          "SEARCH monthly_panels USING INDEX idx_panels_month_type_order (month=?)",
+          "INDEX 2",
+          "SEARCH monthly_panels USING INDEX sync_input_panel_type (panel_type=?)",
+          "SEARCH confirmed_cash_flow USING INTEGER PRIMARY KEY (rowid=?) LEFT-JOIN",
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        "\n        SELECT amount_value\n        FROM ledger_entries\n        WHERE book_section = 'current'\n          AND entry_kind = 'planned'\n        ": [
+          "SEARCH ledger_entries USING INDEX sync_input_ledger_kind (entry_kind=?)"
+        ],
+        "\n        SELECT ledger_entries.payment_key,\n               ledger_entries.amount_value,\n               ledger_entries.entry_date,\n               ledger_entries.title,\n               ledger_entries.usage_place,\n               ledger_entries.spending_category,\n               ledger_entries.discount_override,\n               ledger_entries.aux_amount_value\n        FROM ledger_entries\n        WHERE ledger_entries.book_section = 'current'\n          AND ledger_entries.entry_kind != 'planned'\n          AND ledger_entries.payment_key IS NOT NULL\n        ": [
+          "SEARCH ledger_entries USING INDEX idx_ledger_section_order (book_section=?)"
+        ],
+        "SELECT a.amount_value FROM card_payment_allocations a\n                JOIN card_payment_events e ON e.id=a.payment_event_id\n                WHERE a.entry_payment_key=? AND e.event_type='discount'": [
+          "SEARCH a USING INDEX idx_card_payment_allocations_entry (entry_payment_key=?)",
+          "SEARCH e USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "\n        SELECT *\n        FROM card_payment_batches\n        WHERE status = 'active'\n        ORDER BY id DESC\n        LIMIT 1\n        ": [
+          "SEARCH card_payment_batches USING INDEX idx_card_payment_batches_active (status=?)"
+        ],
+        "SELECT value FROM app_settings WHERE key = ?": [
+          "SEARCH app_settings USING INDEX sqlite_autoindex_app_settings_1 (key=?)"
+        ],
+        "SELECT key, value FROM app_settings": [
+          "SCAN app_settings"
+        ],
+        "\n            SELECT ledger_entries.*,\n                   card_payment_deferrals.from_payment_month AS deferred_from_payment_month,\n                   card_payment_deferrals.target_payment_month AS deferred_target_payment_month\n            FROM card_payment_batch_items\n            JOIN ledger_entries\n              ON ledger_entries.id = card_payment_batch_items.entry_id\n            LEFT JOIN card_payment_deferrals\n              ON card_payment_deferrals.entry_payment_key = ledger_entries.payment_key\n            WHERE card_payment_batch_items.batch_id = ?\n              AND ledger_entries.entry_kind != 'planned'\n              AND COALESCE(ledger_entries.amount_value, 0) > 0\n            ORDER BY\n              CASE WHEN card_payment_deferrals.target_payment_month = ? THEN 0\n                   WHEN card_payment_deferrals.from_payment_month = ? THEN 2\n                   ELSE 1 END,\n              ledger_entries.entry_date,\n              ledger_entries.sort_order,\n              ledger_entries.id\n        ": [
+          "SEARCH card_payment_batch_items USING COVERING INDEX idx_card_payment_batch_items_batch (batch_id=?)",
+          "SEARCH ledger_entries USING INTEGER PRIMARY KEY (rowid=?)",
+          "SEARCH card_payment_deferrals USING INDEX sqlite_autoindex_card_payment_deferrals_1 (entry_payment_key=?) LEFT-JOIN",
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        "SELECT a.entry_payment_key,a.amount_value FROM card_payment_allocations a\n               JOIN card_payment_events e ON e.id=a.payment_event_id WHERE e.event_type=? AND e.batch_id=?": [
+          "SEARCH e USING COVERING INDEX sync_input_event_type_batch (event_type=? AND batch_id=?)",
+          "SEARCH a USING INDEX sync_fk_allocation_event (payment_event_id=?)"
+        ],
+        "SELECT amount_value FROM monthly_panels WHERE panel_type = ?": [
+          "SEARCH monthly_panels USING INDEX sync_input_panel_type (panel_type=?)"
+        ],
+        "\n        SELECT cash_flows.amount_value\n        FROM monthly_panels\n        JOIN cash_flows ON cash_flows.id = monthly_panels.confirmed_cash_flow_id\n        WHERE monthly_panels.panel_type = 'fixed'\n          AND monthly_panels.confirmed_at IS NOT NULL\n        ": [
+          "SEARCH monthly_panels USING INDEX sync_input_panel_type (panel_type=?)",
+          "SEARCH cash_flows USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT amount_value FROM monthly_panels WHERE panel_type = ? AND (confirmed_at IS NULL OR confirmed_cash_flow_id IS NULL)": [
+          "SEARCH monthly_panels USING INDEX sync_input_panel_type (panel_type=?)"
+        ],
+        "SELECT total FROM sync_cash_prefix WHERE ordinal=?": [
+          "SEARCH sync_cash_prefix USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT amount_value FROM monthly_panels\n           WHERE panel_type = 'fixed' AND confirmed_at IS NOT NULL\n             AND confirmed_cash_flow_id IS NOT NULL AND confirmed_month > ?": [
+          "SEARCH monthly_panels USING INDEX sync_input_panel_type (panel_type=?)"
+        ],
+        "SELECT month, title, amount_value, discount_amount, discount_override FROM monthly_panels WHERE panel_type = ?": [
+          "SEARCH monthly_panels USING INDEX sync_input_panel_type (panel_type=?)"
+        ],
+        "\n        SELECT amount_value\n        FROM cash_flows\n        WHERE occurred_on BETWEEN ? AND ?\n        ": [
+          "SEARCH cash_flows USING INDEX idx_cash_flows_order (occurred_on>? AND occurred_on<?)"
+        ],
+        "SELECT amount_value FROM cash_flows\n            WHERE substr(occurred_on,1,7)=? AND is_primary_income=1 AND amount_value>0": [
+          "SEARCH cash_flows USING INDEX sync_input_cash_month (<expr>=? AND is_primary_income=?)"
+        ],
+        "\n            SELECT ledger_entries.payment_key,\n                   ledger_entries.amount_value,\n                   ledger_entries.title,\n                   ledger_entries.usage_place,\n                   ledger_entries.spending_category,\n                   ledger_entries.discount_override,\n                   ledger_entries.aux_amount_value\n            FROM ledger_entries\n            WHERE substr(ledger_entries.entry_date,1,7) = ?\n              AND ledger_entries.payment_key IS NOT NULL\n              AND ledger_entries.entry_kind != 'planned'\n            ": [
+          "SEARCH ledger_entries USING INDEX sync_input_ledger_month (<expr>=?)"
+        ],
+        "\n            SELECT *\n            FROM card_payment_events\n            WHERE batch_id = ?\n            ORDER BY event_date DESC, id DESC\n            ": [
+          "SEARCH card_payment_events USING INDEX sync_fk_event_batch (batch_id=?)",
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        "\n            SELECT card_payment_allocations.entry_payment_key,\n                   card_payment_allocations.amount_value AS amount\n            FROM card_payment_allocations\n            JOIN card_payment_events\n              ON card_payment_events.id = card_payment_allocations.payment_event_id\n            WHERE card_payment_events.event_type = 'discount'\n              AND card_payment_allocations.entry_payment_key IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\n            ": [
+          "SEARCH card_payment_events USING COVERING INDEX sync_input_event_type_batch (event_type=?)",
+          "SEARCH card_payment_allocations USING INDEX sync_fk_allocation_event (payment_event_id=?)"
+        ],
+        "\n                SELECT monthly_panels.*,\n                       CASE WHEN confirmed_cash_flow.id IS NOT NULL\n                            THEN ABS(confirmed_cash_flow.amount_value) ELSE NULL END AS confirmed_amount_value\n                FROM monthly_panels\n                LEFT JOIN cash_flows AS confirmed_cash_flow\n                  ON confirmed_cash_flow.id = monthly_panels.confirmed_cash_flow_id\n                WHERE (monthly_panels.month = ? OR monthly_panels.panel_type IN ('fixed', 'frozen', 'claim', 'family_card')) AND NOT (monthly_panels.panel_type = 'fixed' AND monthly_panels.confirmed_at IS NOT NULL AND monthly_panels.confirmed_cash_flow_id IS NOT NULL)\n                ORDER BY\n                  CASE WHEN monthly_panels.panel_type = 'fixed' THEN 0 ELSE 1 END,\n                  CASE WHEN monthly_panels.spent_on IS NULL THEN 1 ELSE 0 END,\n                  monthly_panels.spent_on,\n                  monthly_panels.sort_order,\n                  monthly_panels.id\n                ": [
+          "MULTI-INDEX OR",
+          "INDEX 1",
+          "SEARCH monthly_panels USING INDEX idx_panels_month_type_order (month=?)",
+          "INDEX 2",
+          "SEARCH monthly_panels USING INDEX sync_input_panel_type (panel_type=?)",
+          "SEARCH confirmed_cash_flow USING INTEGER PRIMARY KEY (rowid=?) LEFT-JOIN",
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        "\n            SELECT *\n            FROM cash_flows WHERE occurred_on >= ? AND occurred_on <= ?\n            ORDER BY occurred_on DESC, sort_order DESC, id DESC\n            ": [
+          "SEARCH cash_flows USING INDEX idx_cash_flows_order (occurred_on>? AND occurred_on<?)"
+        ],
+        "SELECT key FROM sync_totals WHERE domain=? ORDER BY key DESC LIMIT ?": [
+          "SEARCH sync_totals USING COVERING INDEX sqlite_autoindex_sync_totals_1 (domain=?)"
+        ],
+        "SELECT total FROM sync_totals WHERE domain=? AND key=?": [
+          "SEARCH sync_totals USING INDEX sqlite_autoindex_sync_totals_1 (domain=? AND key=?)"
+        ],
+        "\n            SELECT *\n            FROM ledger_entries\n            WHERE book_section = 'current'\n              AND entry_kind = 'planned'\n              AND confirmed_month = ?\n            ORDER BY COALESCE(due_day, 99), sort_order, id\n            ": [
+          "SEARCH ledger_entries USING INDEX sync_input_ledger_epoch (confirmed_month=?)",
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        "SELECT value FROM app_settings WHERE key = 'last_closed_month'": [
+          "SEARCH app_settings USING INDEX sqlite_autoindex_app_settings_1 (key=?)"
+        ],
+        "\n        SELECT MIN(substr(entry_date, 1, 7)) AS month\n        FROM ledger_entries\n        WHERE book_section = 'current'\n          AND entry_kind != 'planned'\n          AND entry_date IS NOT NULL\n        ": [
+          "SEARCH ledger_entries USING INDEX idx_ledger_section_order (book_section=?)"
+        ],
+        "\n        SELECT p.id, p.title, p.amount_value\n        FROM monthly_panels AS p\n        LEFT JOIN cash_flows AS confirmed_flow\n          ON confirmed_flow.id = p.confirmed_cash_flow_id\n        WHERE p.panel_type = 'fixed'\n          AND p.month <= ?\n          AND NOT (\n            p.confirmed_month = ?\n            AND p.confirmed_at IS NOT NULL\n            AND confirmed_flow.id IS NOT NULL\n          )\n        ORDER BY p.sort_order, p.id\n        ": [
+          "SEARCH p USING INDEX sync_input_panel_type (panel_type=?)",
+          "SEARCH confirmed_flow USING INTEGER PRIMARY KEY (rowid=?) LEFT-JOIN",
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        "\n        SELECT planned.id, planned.title, planned.amount_value,\n               planned.usage_place, planned.usage_item, planned.due_day,\n               planned.created_at\n        FROM ledger_entries AS planned\n        WHERE planned.book_section = 'current'\n          AND planned.entry_kind = 'planned'\n          AND NOT (\n            planned.confirmed_month = ?\n            AND planned.confirmed_at IS NOT NULL\n            AND (\n              EXISTS (\n                SELECT 1\n                FROM ledger_entries AS generated\n                WHERE generated.source_planned_entry_id = planned.id\n                  AND generated.entry_kind = 'expense'\n                  AND generated.confirmed_month = planned.confirmed_month\n                  AND generated.confirmed_at = planned.confirmed_at\n              )\n              OR EXISTS (\n                SELECT 1\n                FROM ledger_entries AS legacy_generated\n                WHERE legacy_generated.source_planned_entry_id IS NULL\n                  AND legacy_generated.entry_kind = 'expense'\n                  AND substr(legacy_generated.entry_date,1,7) = ?\n                  AND legacy_generated.title = planned.title\n                  AND COALESCE(legacy_generated.usage_place, '') = COALESCE(planned.usage_place, '')\n                  AND COALESCE(legacy_generated.usage_item, '') = COALESCE(planned.usage_item, '')\n                  AND COALESCE(legacy_generated.amount_value, 0) = COALESCE(planned.amount_value, 0)\n              )\n            )\n          )\n        ORDER BY COALESCE(planned.due_day, 99), planned.sort_order, planned.id\n        ": [
+          "SEARCH planned USING INDEX sync_input_ledger_kind (entry_kind=?)",
+          "CORRELATED SCALAR SUBQUERY 1",
+          "SEARCH generated USING INDEX sync_input_recurring_epoch (source_planned_entry_id=? AND confirmed_month=? AND confirmed_at=?)",
+          "CORRELATED SCALAR SUBQUERY 2",
+          "SEARCH legacy_generated USING INDEX sync_input_ledger_month (<expr>=?)",
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        "SELECT body FROM sync_rows WHERE hash=?": [
+          "SEARCH sync_rows USING INDEX sqlite_autoindex_sync_rows_1 (hash=?)"
+        ],
+        "SELECT user_id FROM auth_sessions WHERE session_token_hash=?": [
+          "SEARCH auth_sessions USING INDEX sqlite_autoindex_auth_sessions_1 (session_token_hash=?)"
+        ],
+        "SELECT s.user_id,s.expires_at,u.is_active FROM auth_sessions s\n            JOIN users u ON u.id=s.user_id WHERE s.session_token_hash=?": [
+          "SEARCH s USING INDEX sqlite_autoindex_auth_sessions_1 (session_token_hash=?)",
+          "SEARCH u USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT request_hash,namespace FROM sync_observation_replays WHERE credential_hash=? AND request_id=?": [
+          "SEARCH sync_observation_replays USING INDEX sqlite_autoindex_sync_observation_replays_1 (credential_hash=? AND request_id=?)"
+        ],
+        "SELECT id,request_body FROM sync_observations WHERE credential_hash=? AND request_id=?": [
+          "SEARCH sync_observations USING INDEX sqlite_autoindex_sync_observations_2 (credential_hash=? AND request_id=?)"
+        ],
+        "SELECT 1 FROM sync_tx_context": [
+          "SCAN sync_tx_context USING COVERING INDEX sqlite_autoindex_sync_tx_context_1"
+        ],
+        "SELECT revision,typeof(revision) FROM authoritative_state_revision WHERE id=1": [
+          "SEARCH authoritative_state_revision USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT * FROM sync_capture_commits WHERE tx_id=?": [
+          "SEARCH sync_capture_commits USING INDEX sqlite_autoindex_sync_capture_commits_1 (tx_id=?)"
+        ],
+        "SELECT hot_hash,control_hash FROM sync_observation_views WHERE identity=?": [
+          "SEARCH sync_observation_views USING INDEX sqlite_autoindex_sync_observation_views_1 (identity=?)"
+        ],
+        "SELECT tx_id,namespace,revision,raw_hash,index_hash FROM sync_current WHERE id=1": [
+          "SEARCH sync_current USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT count(*) FROM sync_observations WHERE principal_id=? AND status='available'": [
+          "SEARCH sync_observations USING COVERING INDEX sync_observation_quota (principal_id=? AND status=?)"
+        ],
+        "SELECT count(*) FROM sync_observations": [
+          "SCAN sync_observations USING COVERING INDEX sqlite_autoindex_sync_observations_1"
+        ],
+        "SELECT used_bytes FROM sync_observation_budget WHERE id=1": [
+          "SEARCH sync_observation_budget USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT * FROM sync_observations WHERE id=?": [
+          "SEARCH sync_observations USING INDEX sqlite_autoindex_sync_observations_1 (id=?)"
+        ],
+        "SELECT namespace FROM sync_current WHERE id=1": [
+          "SEARCH sync_current USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        "SELECT * FROM sync_observation_pins WHERE observation_id=? AND active=1": [
+          "SEARCH sync_observation_pins USING INDEX sqlite_autoindex_sync_observation_pins_1 (observation_id=?)"
+        ]
+      }
+    }
+  ],
+  "status": "PASS",
+  "cold_bootstrap_ns": 6479312469,
+  "db_bytes_after_bootstrap": 8654848,
+  "counts": {
+    "ledger_entries": 1000,
+    "monthly_panels": 2,
+    "cash_flows": 2,
+    "app_settings": 7,
+    "app_labels": 19,
+    "sync_objects": 4162
+  },
+  "compression": {
+    "boundary": "offline full 11 raw tables JSON; not legacy bundle nor actual wire",
+    "raw_bytes": 557794,
+    "sha256": "c0208db9b8c19c0de3a8cc1795df419a0d8348bfda18320db48030a621b2d22f",
+    "algorithms": {
+      "gzip6": {
+        "bytes": 13697,
+        "ratio": 0.024555660333384726,
+        "latency_ns": {
+          "n": 20,
+          "min": 2647795,
+          "median": 2652642.0,
+          "p95": 2671766,
+          "max": 2676327,
+          "stdev": 7590.325762893323
+        },
+        "samples_ns": [
+          2650028,
+          2654872,
+          2650963,
+          2652993,
+          2649958,
+          2654996,
+          2661402,
+          2660711,
+          2649479,
+          2649971,
+          2659309,
+          2654830,
+          2676327,
+          2647795,
+          2650116,
+          2660146,
+          2652291,
+          2650604,
+          2651010,
+          2671766
+        ]
+      },
+      "brotli4": {
+        "bytes": 6407,
+        "ratio": 0.011486319322187044,
+        "latency_ns": {
+          "n": 20,
+          "min": 1259384,
+          "median": 1302262.5,
+          "p95": 1324369,
+          "max": 1329717,
+          "stdev": 18610.8001198936
+        },
+        "samples_ns": [
+          1317126,
+          1309335,
+          1320700,
+          1323981,
+          1307204,
+          1297173,
+          1301184,
+          1295931,
+          1302510,
+          1310984,
+          1276138,
+          1259384,
+          1268261,
+          1282245,
+          1329717,
+          1324369,
+          1302015,
+          1299529,
+          1298431,
+          1303122
+        ]
+      }
+    }
+  },
+  "max_rss_kib": 105572,
+  "db_files": {
+    "main": 9850880,
+    "-wal": 0,
+    "-shm": 0
+  }
+}

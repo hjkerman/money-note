@@ -1,0 +1,581 @@
+{
+  "cases": [
+    {
+      "name": "C-P01 actual supported E2 cap cannot accommodate measured 50k graph",
+      "result": "success",
+      "skipped": false,
+      "log": "profile.log",
+      "id": "C-P01",
+      "category": "functional"
+    },
+    {
+      "name": "C-P02 exact backend/E1 authoritative money raw C1 and frozen local input separation",
+      "result": "success",
+      "skipped": false,
+      "log": "profile.log",
+      "id": "C-P02",
+      "category": "functional"
+    },
+    {
+      "name": "C-N-dataset real handler response mutation preserves installed Frozen B",
+      "result": "success",
+      "skipped": false,
+      "log": "negative-final.log",
+      "id": "C-N-dataset",
+      "category": "negative"
+    },
+    {
+      "name": "C-N-canon real handler response mutation preserves installed Frozen B",
+      "result": "success",
+      "skipped": false,
+      "log": "negative-final.log",
+      "id": "C-N-canon",
+      "category": "negative"
+    },
+    {
+      "name": "C-N-base_echo real handler response mutation preserves installed Frozen B",
+      "result": "success",
+      "skipped": false,
+      "log": "negative-final.log",
+      "id": "C-N-base_echo",
+      "category": "negative"
+    },
+    {
+      "name": "C-N-context real handler response mutation preserves installed Frozen B",
+      "result": "success",
+      "skipped": false,
+      "log": "negative-final.log",
+      "id": "C-N-context",
+      "category": "negative"
+    },
+    {
+      "name": "C-N-ref_size real handler response mutation preserves installed Frozen B",
+      "result": "success",
+      "skipped": false,
+      "log": "negative-final.log",
+      "id": "C-N-ref_size",
+      "category": "negative"
+    },
+    {
+      "name": "C-N-base64 real handler response mutation preserves installed Frozen B",
+      "result": "success",
+      "skipped": false,
+      "log": "negative-final.log",
+      "id": "C-N-base64",
+      "category": "negative"
+    },
+    {
+      "name": "C-N-chunk_length real handler response mutation preserves installed Frozen B",
+      "result": "success",
+      "skipped": false,
+      "log": "negative-final.log",
+      "id": "C-N-chunk_length",
+      "category": "negative"
+    },
+    {
+      "name": "C-N-duplicate_chunk real handler response mutation preserves installed Frozen B",
+      "result": "success",
+      "skipped": false,
+      "log": "negative-final.log",
+      "id": "C-N-duplicate_chunk",
+      "category": "negative"
+    },
+    {
+      "name": "C-N-content_type real handler response mutation preserves installed Frozen B",
+      "result": "failure",
+      "skipped": false,
+      "log": "media-diagnostic.log",
+      "id": "C-N-content_type",
+      "category": "diagnostic_outside_binding"
+    },
+    {
+      "name": "C-N-unexpected_status real handler response mutation preserves installed Frozen B",
+      "result": "success",
+      "skipped": false,
+      "log": "negative-final.log",
+      "id": "C-N-unexpected_status",
+      "category": "negative"
+    },
+    {
+      "name": "C-N-missing_descendant real handler response mutation preserves installed Frozen B",
+      "result": "success",
+      "skipped": false,
+      "log": "negative-final.log",
+      "id": "C-N-missing_descendant",
+      "category": "negative"
+    },
+    {
+      "name": "C-A-same_user_reauth after real D3a before D3b preserves original authority",
+      "result": "success",
+      "skipped": false,
+      "log": "authority-complete.log",
+      "id": "C-A-same_user_reauth",
+      "category": "authority"
+    },
+    {
+      "name": "C-A-different_user after real D3a before D3b preserves original authority",
+      "result": "success",
+      "skipped": false,
+      "log": "authority-complete.log",
+      "id": "C-A-different_user",
+      "category": "authority"
+    },
+    {
+      "name": "C-A-mutation after real D3a before D3b preserves original authority",
+      "result": "success",
+      "skipped": false,
+      "log": "authority-complete.log",
+      "id": "C-A-mutation",
+      "category": "authority"
+    },
+    {
+      "name": "C-A-newer_segmented after real D3a before D3b preserves original authority",
+      "result": "success",
+      "skipped": false,
+      "log": "supersession.log",
+      "id": "C-A-newer_segmented",
+      "category": "authority"
+    },
+    {
+      "name": "C-A-offline after real D3a before D3b preserves original authority",
+      "result": "success",
+      "skipped": false,
+      "log": "offline.log",
+      "id": "C-A-offline",
+      "category": "authority"
+    },
+    {
+      "name": "C-A-token after real D3a before D3b preserves original authority",
+      "result": "success",
+      "skipped": false,
+      "log": "authority-complete.log",
+      "id": "C-A-token",
+      "category": "authority"
+    },
+    {
+      "name": "C-A-logout after real D3a before D3b preserves original authority",
+      "result": "success",
+      "skipped": false,
+      "log": "authority-complete.log",
+      "id": "C-A-logout",
+      "category": "authority"
+    },
+    {
+      "name": "C-I-after_e3_acceptance-mutation authority changes before guarded legacy handoff",
+      "result": "success",
+      "skipped": false,
+      "log": "authority-complete.log",
+      "id": "C-I-after_e3_acceptance-mutation",
+      "category": "authority"
+    },
+    {
+      "name": "C-I-after_e3_acceptance-offline authority changes before guarded legacy handoff",
+      "result": "success",
+      "skipped": false,
+      "log": "authority-complete.log",
+      "id": "C-I-after_e3_acceptance-offline",
+      "category": "authority"
+    },
+    {
+      "name": "C-I-after_e3_acceptance-token authority changes before guarded legacy handoff",
+      "result": "success",
+      "skipped": false,
+      "log": "authority-complete.log",
+      "id": "C-I-after_e3_acceptance-token",
+      "category": "authority"
+    },
+    {
+      "name": "C-I-after_legacy_materialization-mutation authority changes before guarded legacy handoff",
+      "result": "success",
+      "skipped": false,
+      "log": "authority-complete.log",
+      "id": "C-I-after_legacy_materialization-mutation",
+      "category": "authority"
+    },
+    {
+      "name": "C-I-after_legacy_materialization-offline authority changes before guarded legacy handoff",
+      "result": "success",
+      "skipped": false,
+      "log": "authority-complete.log",
+      "id": "C-I-after_legacy_materialization-offline",
+      "category": "authority"
+    },
+    {
+      "name": "C-I-after_legacy_materialization-token authority changes before guarded legacy handoff",
+      "result": "success",
+      "skipped": false,
+      "log": "authority-complete.log",
+      "id": "C-I-after_legacy_materialization-token",
+      "category": "authority"
+    },
+    {
+      "name": "C-L01 real acquired candidate waits on original lineage lock then loses principal",
+      "result": "success",
+      "skipped": false,
+      "log": "lineage.log",
+      "id": "C-L01",
+      "category": "authority"
+    },
+    {
+      "id": "C-DB-test_C_DB_stale_transfer_release_cannot_operate_on_replacement[manifest_retry-authenticated]",
+      "name": "test_C_DB_stale_transfer_release_cannot_operate_on_replacement[manifest_retry-authenticated]",
+      "category": "backend_identity",
+      "result": "success",
+      "log": "identity-final.xml"
+    },
+    {
+      "id": "C-DB-test_C_DB_stale_transfer_release_cannot_operate_on_replacement[manifest_retry-serialized]",
+      "name": "test_C_DB_stale_transfer_release_cannot_operate_on_replacement[manifest_retry-serialized]",
+      "category": "backend_identity",
+      "result": "success",
+      "log": "identity-final.xml"
+    },
+    {
+      "id": "C-DB-test_C_DB_stale_transfer_release_cannot_operate_on_replacement[object-authenticated]",
+      "name": "test_C_DB_stale_transfer_release_cannot_operate_on_replacement[object-authenticated]",
+      "category": "backend_identity",
+      "result": "success",
+      "log": "identity-final.xml"
+    },
+    {
+      "id": "C-DB-test_C_DB_stale_transfer_release_cannot_operate_on_replacement[object-serialized]",
+      "name": "test_C_DB_stale_transfer_release_cannot_operate_on_replacement[object-serialized]",
+      "category": "backend_identity",
+      "result": "success",
+      "log": "identity-final.xml"
+    },
+    {
+      "id": "C-DB-test_C_DB_stale_transfer_release_cannot_operate_on_replacement[release-authenticated]",
+      "name": "test_C_DB_stale_transfer_release_cannot_operate_on_replacement[release-authenticated]",
+      "category": "backend_identity",
+      "result": "success",
+      "log": "identity-final.xml"
+    },
+    {
+      "id": "C-DB-test_C_DB_stale_transfer_release_cannot_operate_on_replacement[release-terminal]",
+      "name": "test_C_DB_stale_transfer_release_cannot_operate_on_replacement[release-terminal]",
+      "category": "backend_identity",
+      "result": "success",
+      "log": "identity-final.xml"
+    },
+    {
+      "id": "C-DB-test_C_DB_pinned_old_manifest_remains_exact_during_new_generation",
+      "name": "test_C_DB_pinned_old_manifest_remains_exact_during_new_generation",
+      "category": "backend_identity",
+      "result": "success",
+      "log": "identity-final.xml"
+    }
+  ],
+  "runs": {
+    "profile.log": {
+      "cases": [
+        {
+          "name": "C-P01 actual supported E2 cap cannot accommodate measured 50k graph",
+          "result": "success",
+          "skipped": false,
+          "log": "profile.log",
+          "id": "C-P01",
+          "category": "functional"
+        },
+        {
+          "name": "C-P02 exact backend/E1 authoritative money raw C1 and frozen local input separation",
+          "result": "success",
+          "skipped": false,
+          "log": "profile.log",
+          "id": "C-P02",
+          "category": "functional"
+        }
+      ],
+      "finish": {
+        "success": true,
+        "type": "done",
+        "time": 18583
+      }
+    },
+    "negative-final.log": {
+      "cases": [
+        {
+          "name": "C-N-dataset real handler response mutation preserves installed Frozen B",
+          "result": "success",
+          "skipped": false,
+          "log": "negative-final.log",
+          "id": "C-N-dataset",
+          "category": "negative"
+        },
+        {
+          "name": "C-N-canon real handler response mutation preserves installed Frozen B",
+          "result": "success",
+          "skipped": false,
+          "log": "negative-final.log",
+          "id": "C-N-canon",
+          "category": "negative"
+        },
+        {
+          "name": "C-N-base_echo real handler response mutation preserves installed Frozen B",
+          "result": "success",
+          "skipped": false,
+          "log": "negative-final.log",
+          "id": "C-N-base_echo",
+          "category": "negative"
+        },
+        {
+          "name": "C-N-context real handler response mutation preserves installed Frozen B",
+          "result": "success",
+          "skipped": false,
+          "log": "negative-final.log",
+          "id": "C-N-context",
+          "category": "negative"
+        },
+        {
+          "name": "C-N-ref_size real handler response mutation preserves installed Frozen B",
+          "result": "success",
+          "skipped": false,
+          "log": "negative-final.log",
+          "id": "C-N-ref_size",
+          "category": "negative"
+        },
+        {
+          "name": "C-N-base64 real handler response mutation preserves installed Frozen B",
+          "result": "success",
+          "skipped": false,
+          "log": "negative-final.log",
+          "id": "C-N-base64",
+          "category": "negative"
+        },
+        {
+          "name": "C-N-chunk_length real handler response mutation preserves installed Frozen B",
+          "result": "success",
+          "skipped": false,
+          "log": "negative-final.log",
+          "id": "C-N-chunk_length",
+          "category": "negative"
+        },
+        {
+          "name": "C-N-duplicate_chunk real handler response mutation preserves installed Frozen B",
+          "result": "success",
+          "skipped": false,
+          "log": "negative-final.log",
+          "id": "C-N-duplicate_chunk",
+          "category": "negative"
+        },
+        {
+          "name": "C-N-content_type real handler response mutation preserves installed Frozen B",
+          "result": "failure",
+          "skipped": false,
+          "log": "negative-final.log",
+          "id": "C-N-content_type",
+          "category": "diagnostic_outside_binding"
+        },
+        {
+          "name": "C-N-unexpected_status real handler response mutation preserves installed Frozen B",
+          "result": "success",
+          "skipped": false,
+          "log": "negative-final.log",
+          "id": "C-N-unexpected_status",
+          "category": "negative"
+        },
+        {
+          "name": "C-N-missing_descendant real handler response mutation preserves installed Frozen B",
+          "result": "success",
+          "skipped": false,
+          "log": "negative-final.log",
+          "id": "C-N-missing_descendant",
+          "category": "negative"
+        }
+      ],
+      "finish": {
+        "success": false,
+        "type": "done",
+        "time": 1012483
+      }
+    },
+    "authority-complete.log": {
+      "cases": [
+        {
+          "name": "C-A-same_user_reauth after real D3a before D3b preserves original authority",
+          "result": "success",
+          "skipped": false,
+          "log": "authority-complete.log",
+          "id": "C-A-same_user_reauth",
+          "category": "authority"
+        },
+        {
+          "name": "C-A-different_user after real D3a before D3b preserves original authority",
+          "result": "success",
+          "skipped": false,
+          "log": "authority-complete.log",
+          "id": "C-A-different_user",
+          "category": "authority"
+        },
+        {
+          "name": "C-A-mutation after real D3a before D3b preserves original authority",
+          "result": "success",
+          "skipped": false,
+          "log": "authority-complete.log",
+          "id": "C-A-mutation",
+          "category": "authority"
+        },
+        {
+          "name": "C-A-newer_segmented after real D3a before D3b preserves original authority",
+          "result": "failure",
+          "skipped": false,
+          "log": "authority-complete.log",
+          "id": "C-A-newer_segmented",
+          "category": "authority"
+        },
+        {
+          "name": "C-A-offline after real D3a before D3b preserves original authority",
+          "result": "error",
+          "skipped": false,
+          "log": "authority-complete.log",
+          "id": "C-A-offline",
+          "category": "authority"
+        },
+        {
+          "name": "C-A-token after real D3a before D3b preserves original authority",
+          "result": "success",
+          "skipped": false,
+          "log": "authority-complete.log",
+          "id": "C-A-token",
+          "category": "authority"
+        },
+        {
+          "name": "C-A-logout after real D3a before D3b preserves original authority",
+          "result": "success",
+          "skipped": false,
+          "log": "authority-complete.log",
+          "id": "C-A-logout",
+          "category": "authority"
+        },
+        {
+          "name": "C-I-after_e3_acceptance-mutation authority changes before guarded legacy handoff",
+          "result": "success",
+          "skipped": false,
+          "log": "authority-complete.log",
+          "id": "C-I-after_e3_acceptance-mutation",
+          "category": "authority"
+        },
+        {
+          "name": "C-I-after_e3_acceptance-offline authority changes before guarded legacy handoff",
+          "result": "success",
+          "skipped": false,
+          "log": "authority-complete.log",
+          "id": "C-I-after_e3_acceptance-offline",
+          "category": "authority"
+        },
+        {
+          "name": "C-I-after_e3_acceptance-token authority changes before guarded legacy handoff",
+          "result": "success",
+          "skipped": false,
+          "log": "authority-complete.log",
+          "id": "C-I-after_e3_acceptance-token",
+          "category": "authority"
+        },
+        {
+          "name": "C-I-after_legacy_materialization-mutation authority changes before guarded legacy handoff",
+          "result": "success",
+          "skipped": false,
+          "log": "authority-complete.log",
+          "id": "C-I-after_legacy_materialization-mutation",
+          "category": "authority"
+        },
+        {
+          "name": "C-I-after_legacy_materialization-offline authority changes before guarded legacy handoff",
+          "result": "success",
+          "skipped": false,
+          "log": "authority-complete.log",
+          "id": "C-I-after_legacy_materialization-offline",
+          "category": "authority"
+        },
+        {
+          "name": "C-I-after_legacy_materialization-token authority changes before guarded legacy handoff",
+          "result": "success",
+          "skipped": false,
+          "log": "authority-complete.log",
+          "id": "C-I-after_legacy_materialization-token",
+          "category": "authority"
+        }
+      ],
+      "finish": {
+        "success": false,
+        "type": "done",
+        "time": 813117
+      }
+    },
+    "supersession.log": {
+      "cases": [
+        {
+          "name": "C-A-newer_segmented after real D3a before D3b preserves original authority",
+          "result": "success",
+          "skipped": false,
+          "log": "supersession.log",
+          "id": "C-A-newer_segmented",
+          "category": "authority"
+        }
+      ],
+      "finish": {
+        "success": true,
+        "type": "done",
+        "time": 108550
+      }
+    },
+    "offline.log": {
+      "cases": [
+        {
+          "name": "C-A-offline after real D3a before D3b preserves original authority",
+          "result": "success",
+          "skipped": false,
+          "log": "offline.log",
+          "id": "C-A-offline",
+          "category": "authority"
+        }
+      ],
+      "finish": {
+        "success": true,
+        "type": "done",
+        "time": 116347
+      }
+    },
+    "lineage.log": {
+      "cases": [
+        {
+          "name": "C-L01 real acquired candidate waits on original lineage lock then loses principal",
+          "result": "success",
+          "skipped": false,
+          "log": "lineage.log",
+          "id": "C-L01",
+          "category": "authority"
+        }
+      ],
+      "finish": {
+        "success": true,
+        "type": "done",
+        "time": 92897
+      }
+    },
+    "media-diagnostic.log": {
+      "cases": [
+        {
+          "name": "C-N-content_type real handler response mutation preserves installed Frozen B",
+          "result": "failure",
+          "skipped": false,
+          "log": "media-diagnostic.log",
+          "id": "C-N-content_type",
+          "category": "diagnostic_outside_binding"
+        }
+      ],
+      "finish": {
+        "success": false,
+        "type": "done",
+        "time": 111339
+      }
+    }
+  },
+  "counts": {
+    "functional:success": 2,
+    "negative:success": 10,
+    "diagnostic_outside_binding:failure": 1,
+    "authority:success": 14,
+    "backend_identity:success": 7
+  }
+}

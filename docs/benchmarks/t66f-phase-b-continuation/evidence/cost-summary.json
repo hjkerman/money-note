@@ -1,0 +1,3740 @@
+[
+  {
+    "id": "client-1000",
+    "status": "PASS",
+    "exact_ledger_n": null,
+    "historical_history_parameter": 1000,
+    "preparation_us": null,
+    "groups": {
+      "identical": {
+        "sql": {
+          "n": 20,
+          "min": 796,
+          "median": 796.0,
+          "p95": 796,
+          "max": 796
+        },
+        "rows_returned": {
+          "n": 20,
+          "min": 4869,
+          "median": 4869.0,
+          "p95": 4869,
+          "max": 4869
+        },
+        "object_bytes": {
+          "n": 20,
+          "min": 171660,
+          "median": 171660.0,
+          "p95": 171660,
+          "max": 171660
+        },
+        "raw_nodes": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "raw_rows": {
+          "n": 20,
+          "min": 259,
+          "median": 259.0,
+          "p95": 259,
+          "max": 259
+        },
+        "index_nodes": {
+          "n": 20,
+          "min": 2,
+          "median": 2.0,
+          "p95": 2,
+          "max": 2
+        },
+        "http_requests": {
+          "n": 20,
+          "min": 3,
+          "median": 3.0,
+          "p95": 3,
+          "max": 3
+        },
+        "object_requests": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "http_response_bytes": {
+          "n": 20,
+          "min": 2938,
+          "median": 2938.0,
+          "p95": 2938,
+          "max": 2938
+        },
+        "decoded_payload_bytes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "pin_insert": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_delete": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_update": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "full_verify": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "frozen_full_recovery": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "legacy_full_read": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "lineage_hash": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "microseconds": {
+          "n": 20,
+          "min": 1429036,
+          "median": 1689211.5,
+          "p95": 2370012,
+          "max": 2497376
+        },
+        "rss_bytes": {
+          "n": 20,
+          "min": 250597376,
+          "median": 259217408.0,
+          "p95": 326856704,
+          "max": 329957376
+        }
+      },
+      "card": {
+        "sql": {
+          "n": 20,
+          "min": 1162,
+          "median": 1162.0,
+          "p95": 1162,
+          "max": 1162
+        },
+        "rows_returned": {
+          "n": 20,
+          "min": 5391,
+          "median": 5391.0,
+          "p95": 5391,
+          "max": 5391
+        },
+        "object_bytes": {
+          "n": 20,
+          "min": 342655,
+          "median": 342655.0,
+          "p95": 342655,
+          "max": 342655
+        },
+        "raw_nodes": {
+          "n": 20,
+          "min": 7,
+          "median": 7.0,
+          "p95": 7,
+          "max": 7
+        },
+        "raw_rows": {
+          "n": 20,
+          "min": 515,
+          "median": 515.0,
+          "p95": 515,
+          "max": 515
+        },
+        "index_nodes": {
+          "n": 20,
+          "min": 40,
+          "median": 40.0,
+          "p95": 40,
+          "max": 40
+        },
+        "http_requests": {
+          "n": 20,
+          "min": 3,
+          "median": 3.0,
+          "p95": 3,
+          "max": 3
+        },
+        "object_requests": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "http_response_bytes": {
+          "n": 20,
+          "min": 2938,
+          "median": 2938.0,
+          "p95": 2938,
+          "max": 2938
+        },
+        "decoded_payload_bytes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "pin_insert": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_delete": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_update": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "full_verify": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "frozen_full_recovery": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "legacy_full_read": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "lineage_hash": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "microseconds": {
+          "n": 20,
+          "min": 1666775,
+          "median": 1770881.5,
+          "p95": 1978756,
+          "max": 1981206
+        },
+        "rss_bytes": {
+          "n": 20,
+          "min": 254423040,
+          "median": 262879232.0,
+          "p95": 272351232,
+          "max": 272842752
+        }
+      },
+      "cash": {
+        "sql": {
+          "n": 20,
+          "min": 1102,
+          "median": 1102.0,
+          "p95": 1102,
+          "max": 1102
+        },
+        "rows_returned": {
+          "n": 20,
+          "min": 5311,
+          "median": 5311.0,
+          "p95": 5311,
+          "max": 5311
+        },
+        "object_bytes": {
+          "n": 20,
+          "min": 184989,
+          "median": 184989.0,
+          "p95": 184989,
+          "max": 184989
+        },
+        "raw_nodes": {
+          "n": 20,
+          "min": 5,
+          "median": 5.0,
+          "p95": 5,
+          "max": 5
+        },
+        "raw_rows": {
+          "n": 20,
+          "min": 260,
+          "median": 260.0,
+          "p95": 260,
+          "max": 260
+        },
+        "index_nodes": {
+          "n": 20,
+          "min": 22,
+          "median": 22.0,
+          "p95": 22,
+          "max": 22
+        },
+        "http_requests": {
+          "n": 20,
+          "min": 3,
+          "median": 3.0,
+          "p95": 3,
+          "max": 3
+        },
+        "object_requests": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "http_response_bytes": {
+          "n": 20,
+          "min": 2938,
+          "median": 2938.0,
+          "p95": 2938,
+          "max": 2938
+        },
+        "decoded_payload_bytes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "pin_insert": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_delete": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_update": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "full_verify": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "frozen_full_recovery": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "legacy_full_read": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "lineage_hash": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "microseconds": {
+          "n": 20,
+          "min": 1436819,
+          "median": 1931513.5,
+          "p95": 2489682,
+          "max": 2517179
+        },
+        "rss_bytes": {
+          "n": 20,
+          "min": 254332928,
+          "median": 261578752.0,
+          "p95": 271769600,
+          "max": 272834560
+        }
+      },
+      "repeated_frozen": {
+        "sql": {
+          "n": 20,
+          "min": 66,
+          "median": 66.0,
+          "p95": 66,
+          "max": 66
+        },
+        "rows_returned": {
+          "n": 20,
+          "min": 290,
+          "median": 290.0,
+          "p95": 290,
+          "max": 290
+        },
+        "object_bytes": {
+          "n": 20,
+          "min": 9529,
+          "median": 9529.0,
+          "p95": 9529,
+          "max": 9529
+        },
+        "raw_nodes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "raw_rows": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "index_nodes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "http_requests": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "object_requests": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "http_response_bytes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "decoded_payload_bytes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "pin_insert": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "pin_delete": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "pin_update": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "full_verify": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "frozen_full_recovery": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "legacy_full_read": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "lineage_hash": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "microseconds": {
+          "n": 20,
+          "min": 21893,
+          "median": 41231.0,
+          "p95": 80185,
+          "max": 80981
+        },
+        "rss_bytes": {
+          "n": 20,
+          "min": 272052224,
+          "median": 289943552.0,
+          "p95": 305602560,
+          "max": 308473856
+        }
+      }
+    },
+    "single_samples": [
+      {
+        "phase": "cold_native",
+        "backend_sql_trace_events": 1839561,
+        "graph_objects": 4136,
+        "http_requests": 4139,
+        "object_requests": 4136,
+        "http_response_bytes": 4690582,
+        "decoded_payload_bytes": 2662462,
+        "sql": 153727,
+        "rows_returned": 587754,
+        "object_bytes": 11257904,
+        "raw_nodes": 75,
+        "raw_rows": 5185,
+        "index_nodes": 16472,
+        "pin_insert": 4,
+        "pin_delete": 0,
+        "pin_update": 0,
+        "full_verify": 1,
+        "frozen_full_recovery": 0,
+        "legacy_full_read": 0,
+        "lineage_hash": 0,
+        "microseconds": 1345215912,
+        "rss_bytes": 335519744
+      },
+      {
+        "phase": "frozen_after_native_G2",
+        "backend_sql_trace_events": 0,
+        "graph_objects": 4136,
+        "http_requests": 0,
+        "object_requests": 0,
+        "http_response_bytes": 0,
+        "decoded_payload_bytes": 0,
+        "sql": 66,
+        "rows_returned": 290,
+        "object_bytes": 9529,
+        "raw_nodes": 0,
+        "raw_rows": 0,
+        "index_nodes": 0,
+        "pin_insert": 0,
+        "pin_delete": 0,
+        "pin_update": 0,
+        "full_verify": 0,
+        "frozen_full_recovery": 0,
+        "legacy_full_read": 0,
+        "lineage_hash": 0,
+        "microseconds": 37817,
+        "rss_bytes": 289959936
+      },
+      {
+        "phase": "fresh_handle_fallback",
+        "backend_sql_trace_events": 0,
+        "graph_objects": 4136,
+        "http_requests": 0,
+        "object_requests": 0,
+        "http_response_bytes": 0,
+        "decoded_payload_bytes": 0,
+        "sql": 25051,
+        "rows_returned": 29594,
+        "object_bytes": 6559054,
+        "raw_nodes": 63,
+        "raw_rows": 4148,
+        "index_nodes": 8236,
+        "pin_insert": 0,
+        "pin_delete": 0,
+        "pin_update": 0,
+        "full_verify": 1,
+        "frozen_full_recovery": 1,
+        "legacy_full_read": 1,
+        "lineage_hash": 2,
+        "microseconds": 10794222,
+        "rss_bytes": 299905024
+      }
+    ]
+  },
+  {
+    "id": "client-5000-complete",
+    "status": "PASS",
+    "exact_ledger_n": null,
+    "historical_history_parameter": 5000,
+    "preparation_us": null,
+    "groups": {
+      "identical": {
+        "sql": {
+          "n": 20,
+          "min": 796,
+          "median": 796.0,
+          "p95": 796,
+          "max": 796
+        },
+        "rows_returned": {
+          "n": 20,
+          "min": 4869,
+          "median": 4869.0,
+          "p95": 4869,
+          "max": 4869
+        },
+        "object_bytes": {
+          "n": 20,
+          "min": 171662,
+          "median": 171662.0,
+          "p95": 171662,
+          "max": 171662
+        },
+        "raw_nodes": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "raw_rows": {
+          "n": 20,
+          "min": 259,
+          "median": 259.0,
+          "p95": 259,
+          "max": 259
+        },
+        "index_nodes": {
+          "n": 20,
+          "min": 2,
+          "median": 2.0,
+          "p95": 2,
+          "max": 2
+        },
+        "http_requests": {
+          "n": 20,
+          "min": 3,
+          "median": 3.0,
+          "p95": 3,
+          "max": 3
+        },
+        "object_requests": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "http_response_bytes": {
+          "n": 20,
+          "min": 2938,
+          "median": 2938.0,
+          "p95": 2938,
+          "max": 2938
+        },
+        "decoded_payload_bytes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "pin_insert": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_delete": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_update": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "full_verify": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "frozen_full_recovery": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "legacy_full_read": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "lineage_hash": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "microseconds": {
+          "n": 20,
+          "min": 1342932,
+          "median": 2136768.5,
+          "p95": 2319791,
+          "max": 2392046
+        },
+        "rss_bytes": {
+          "n": 20,
+          "min": 522100736,
+          "median": 638849024.0,
+          "p95": 667942912,
+          "max": 672669696
+        }
+      },
+      "card": {
+        "sql": {
+          "n": 20,
+          "min": 1216,
+          "median": 1216.0,
+          "p95": 1216,
+          "max": 1216
+        },
+        "rows_returned": {
+          "n": 20,
+          "min": 5489,
+          "median": 5489.0,
+          "p95": 5489,
+          "max": 5489
+        },
+        "object_bytes": {
+          "n": 20,
+          "min": 357094,
+          "median": 357094.0,
+          "p95": 357094,
+          "max": 357094
+        },
+        "raw_nodes": {
+          "n": 20,
+          "min": 7,
+          "median": 7.0,
+          "p95": 7,
+          "max": 7
+        },
+        "raw_rows": {
+          "n": 20,
+          "min": 515,
+          "median": 515.0,
+          "p95": 515,
+          "max": 515
+        },
+        "index_nodes": {
+          "n": 20,
+          "min": 58,
+          "median": 58.0,
+          "p95": 58,
+          "max": 58
+        },
+        "http_requests": {
+          "n": 20,
+          "min": 3,
+          "median": 3.0,
+          "p95": 3,
+          "max": 3
+        },
+        "object_requests": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "http_response_bytes": {
+          "n": 20,
+          "min": 2938,
+          "median": 2938.0,
+          "p95": 2938,
+          "max": 2938
+        },
+        "decoded_payload_bytes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "pin_insert": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_delete": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_update": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "full_verify": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "frozen_full_recovery": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "legacy_full_read": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "lineage_hash": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "microseconds": {
+          "n": 20,
+          "min": 1615098,
+          "median": 2156158.0,
+          "p95": 2824302,
+          "max": 2825858
+        },
+        "rss_bytes": {
+          "n": 20,
+          "min": 382808064,
+          "median": 400457728.0,
+          "p95": 419348480,
+          "max": 426184704
+        }
+      },
+      "cash": {
+        "sql": {
+          "n": 20,
+          "min": 1114,
+          "median": 1114.0,
+          "p95": 1114,
+          "max": 1114
+        },
+        "rows_returned": {
+          "n": 20,
+          "min": 5329,
+          "median": 5329.0,
+          "p95": 5329,
+          "max": 5329
+        },
+        "object_bytes": {
+          "n": 20,
+          "min": 187088,
+          "median": 187088.0,
+          "p95": 187088,
+          "max": 187088
+        },
+        "raw_nodes": {
+          "n": 20,
+          "min": 5,
+          "median": 5.0,
+          "p95": 5,
+          "max": 5
+        },
+        "raw_rows": {
+          "n": 20,
+          "min": 260,
+          "median": 260.0,
+          "p95": 260,
+          "max": 260
+        },
+        "index_nodes": {
+          "n": 20,
+          "min": 26,
+          "median": 26.0,
+          "p95": 26,
+          "max": 26
+        },
+        "http_requests": {
+          "n": 20,
+          "min": 3,
+          "median": 3.0,
+          "p95": 3,
+          "max": 3
+        },
+        "object_requests": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "http_response_bytes": {
+          "n": 20,
+          "min": 2938,
+          "median": 2938.0,
+          "p95": 2938,
+          "max": 2938
+        },
+        "decoded_payload_bytes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "pin_insert": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_delete": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_update": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "full_verify": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "frozen_full_recovery": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "legacy_full_read": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "lineage_hash": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "microseconds": {
+          "n": 20,
+          "min": 1369104,
+          "median": 1600740.0,
+          "p95": 2381817,
+          "max": 2508429
+        },
+        "rss_bytes": {
+          "n": 20,
+          "min": 374738944,
+          "median": 391948288.0,
+          "p95": 405573632,
+          "max": 406118400
+        }
+      },
+      "repeated_frozen": {
+        "sql": {
+          "n": 20,
+          "min": 66,
+          "median": 66.0,
+          "p95": 66,
+          "max": 66
+        },
+        "rows_returned": {
+          "n": 20,
+          "min": 290,
+          "median": 290.0,
+          "p95": 290,
+          "max": 290
+        },
+        "object_bytes": {
+          "n": 20,
+          "min": 9529,
+          "median": 9529.0,
+          "p95": 9529,
+          "max": 9529
+        },
+        "raw_nodes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "raw_rows": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "index_nodes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "http_requests": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "object_requests": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "http_response_bytes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "decoded_payload_bytes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "pin_insert": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "pin_delete": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "pin_update": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "full_verify": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "frozen_full_recovery": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "legacy_full_read": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "lineage_hash": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "microseconds": {
+          "n": 20,
+          "min": 18638,
+          "median": 22280.5,
+          "p95": 41743,
+          "max": 52192
+        },
+        "rss_bytes": {
+          "n": 20,
+          "min": 471207936,
+          "median": 516388864.0,
+          "p95": 594624512,
+          "max": 600592384
+        }
+      }
+    },
+    "single_samples": [
+      {
+        "phase": "verified_cached_initial",
+        "backend_sql_trace_events": 2021,
+        "graph_objects": 20152,
+        "http_requests": 3,
+        "object_requests": 0,
+        "http_response_bytes": 2938,
+        "decoded_payload_bytes": 0,
+        "sql": 444099,
+        "rows_returned": 1596638,
+        "object_bytes": 55023203,
+        "raw_nodes": 155,
+        "raw_rows": 25185,
+        "index_nodes": 80472,
+        "pin_insert": 4,
+        "pin_delete": 0,
+        "pin_update": 0,
+        "full_verify": 1,
+        "frozen_full_recovery": 0,
+        "legacy_full_read": 0,
+        "lineage_hash": 0,
+        "microseconds": 504135218,
+        "rss_bytes": 608505856
+      },
+      {
+        "phase": "frozen_after_native_G2",
+        "backend_sql_trace_events": 0,
+        "graph_objects": 20152,
+        "http_requests": 0,
+        "object_requests": 0,
+        "http_response_bytes": 0,
+        "decoded_payload_bytes": 0,
+        "sql": 66,
+        "rows_returned": 290,
+        "object_bytes": 9529,
+        "raw_nodes": 0,
+        "raw_rows": 0,
+        "index_nodes": 0,
+        "pin_insert": 0,
+        "pin_delete": 0,
+        "pin_update": 0,
+        "full_verify": 0,
+        "frozen_full_recovery": 0,
+        "legacy_full_read": 0,
+        "lineage_hash": 0,
+        "microseconds": 22611,
+        "rss_bytes": 465371136
+      },
+      {
+        "phase": "fresh_handle_fallback",
+        "backend_sql_trace_events": 0,
+        "graph_objects": 20152,
+        "http_requests": 0,
+        "object_requests": 0,
+        "http_response_bytes": 0,
+        "decoded_payload_bytes": 0,
+        "sql": 121339,
+        "rows_returned": 142410,
+        "object_bytes": 32027079,
+        "raw_nodes": 143,
+        "raw_rows": 20148,
+        "index_nodes": 40236,
+        "pin_insert": 0,
+        "pin_delete": 0,
+        "pin_update": 0,
+        "full_verify": 1,
+        "frozen_full_recovery": 1,
+        "legacy_full_read": 1,
+        "lineage_hash": 2,
+        "microseconds": 41733295,
+        "rss_bytes": 525254656
+      }
+    ]
+  },
+  {
+    "id": "client-10000-complete",
+    "status": "PASS",
+    "exact_ledger_n": null,
+    "historical_history_parameter": 10000,
+    "preparation_us": null,
+    "groups": {
+      "identical": {
+        "sql": {
+          "n": 20,
+          "min": 796,
+          "median": 796.0,
+          "p95": 796,
+          "max": 796
+        },
+        "rows_returned": {
+          "n": 20,
+          "min": 4869,
+          "median": 4869.0,
+          "p95": 4869,
+          "max": 4869
+        },
+        "object_bytes": {
+          "n": 20,
+          "min": 171664,
+          "median": 171664.0,
+          "p95": 171664,
+          "max": 171664
+        },
+        "raw_nodes": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "raw_rows": {
+          "n": 20,
+          "min": 259,
+          "median": 259.0,
+          "p95": 259,
+          "max": 259
+        },
+        "index_nodes": {
+          "n": 20,
+          "min": 2,
+          "median": 2.0,
+          "p95": 2,
+          "max": 2
+        },
+        "http_requests": {
+          "n": 20,
+          "min": 3,
+          "median": 3.0,
+          "p95": 3,
+          "max": 3
+        },
+        "object_requests": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "http_response_bytes": {
+          "n": 20,
+          "min": 2940,
+          "median": 2940.0,
+          "p95": 2940,
+          "max": 2940
+        },
+        "decoded_payload_bytes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "pin_insert": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_delete": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_update": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "full_verify": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "frozen_full_recovery": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "legacy_full_read": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "lineage_hash": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "microseconds": {
+          "n": 20,
+          "min": 981245,
+          "median": 1080266.5,
+          "p95": 1163816,
+          "max": 1230237
+        },
+        "rss_bytes": {
+          "n": 20,
+          "min": 1004380160,
+          "median": 1030100992.0,
+          "p95": 1066520576,
+          "max": 1071255552
+        }
+      },
+      "card": {
+        "sql": {
+          "n": 20,
+          "min": 1228,
+          "median": 1228.0,
+          "p95": 1228,
+          "max": 1228
+        },
+        "rows_returned": {
+          "n": 20,
+          "min": 5509,
+          "median": 5509.0,
+          "p95": 5509,
+          "max": 5509
+        },
+        "object_bytes": {
+          "n": 20,
+          "min": 359592,
+          "median": 359592.0,
+          "p95": 359592,
+          "max": 359592
+        },
+        "raw_nodes": {
+          "n": 20,
+          "min": 9,
+          "median": 9.0,
+          "p95": 9,
+          "max": 9
+        },
+        "raw_rows": {
+          "n": 20,
+          "min": 515,
+          "median": 515.0,
+          "p95": 515,
+          "max": 515
+        },
+        "index_nodes": {
+          "n": 20,
+          "min": 60,
+          "median": 60.0,
+          "p95": 60,
+          "max": 60
+        },
+        "http_requests": {
+          "n": 20,
+          "min": 3,
+          "median": 3.0,
+          "p95": 3,
+          "max": 3
+        },
+        "object_requests": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "http_response_bytes": {
+          "n": 20,
+          "min": 2940,
+          "median": 2940.0,
+          "p95": 2940,
+          "max": 2940
+        },
+        "decoded_payload_bytes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "pin_insert": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_delete": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_update": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "full_verify": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "frozen_full_recovery": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "legacy_full_read": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "lineage_hash": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "microseconds": {
+          "n": 20,
+          "min": 1219004,
+          "median": 1318725.0,
+          "p95": 1427127,
+          "max": 1550134
+        },
+        "rss_bytes": {
+          "n": 20,
+          "min": 591196160,
+          "median": 643926016.0,
+          "p95": 892186624,
+          "max": 1122189312
+        }
+      },
+      "cash": {
+        "sql": {
+          "n": 20,
+          "min": 1126,
+          "median": 1126.0,
+          "p95": 1126,
+          "max": 1126
+        },
+        "rows_returned": {
+          "n": 20,
+          "min": 5343,
+          "median": 5343.0,
+          "p95": 5343,
+          "max": 5343
+        },
+        "object_bytes": {
+          "n": 20,
+          "min": 189127,
+          "median": 189127.0,
+          "p95": 189127,
+          "max": 189127
+        },
+        "raw_nodes": {
+          "n": 20,
+          "min": 5,
+          "median": 5.0,
+          "p95": 5,
+          "max": 5
+        },
+        "raw_rows": {
+          "n": 20,
+          "min": 260,
+          "median": 260.0,
+          "p95": 260,
+          "max": 260
+        },
+        "index_nodes": {
+          "n": 20,
+          "min": 30,
+          "median": 30.0,
+          "p95": 30,
+          "max": 30
+        },
+        "http_requests": {
+          "n": 20,
+          "min": 3,
+          "median": 3.0,
+          "p95": 3,
+          "max": 3
+        },
+        "object_requests": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "http_response_bytes": {
+          "n": 20,
+          "min": 2940,
+          "median": 2940.0,
+          "p95": 2940,
+          "max": 2940
+        },
+        "decoded_payload_bytes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "pin_insert": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_delete": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_update": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "full_verify": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "frozen_full_recovery": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "legacy_full_read": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "lineage_hash": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "microseconds": {
+          "n": 20,
+          "min": 1111325,
+          "median": 1187351.0,
+          "p95": 1267631,
+          "max": 1285985
+        },
+        "rss_bytes": {
+          "n": 20,
+          "min": 548593664,
+          "median": 582832128.0,
+          "p95": 607494144,
+          "max": 613945344
+        }
+      },
+      "repeated_frozen": {
+        "sql": {
+          "n": 20,
+          "min": 66,
+          "median": 66.0,
+          "p95": 66,
+          "max": 66
+        },
+        "rows_returned": {
+          "n": 20,
+          "min": 290,
+          "median": 290.0,
+          "p95": 290,
+          "max": 290
+        },
+        "object_bytes": {
+          "n": 20,
+          "min": 9529,
+          "median": 9529.0,
+          "p95": 9529,
+          "max": 9529
+        },
+        "raw_nodes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "raw_rows": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "index_nodes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "http_requests": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "object_requests": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "http_response_bytes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "decoded_payload_bytes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "pin_insert": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "pin_delete": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "pin_update": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "full_verify": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "frozen_full_recovery": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "legacy_full_read": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "lineage_hash": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "microseconds": {
+          "n": 20,
+          "min": 16171,
+          "median": 21791.5,
+          "p95": 35345,
+          "max": 39682
+        },
+        "rss_bytes": {
+          "n": 20,
+          "min": 793366528,
+          "median": 930525184.0,
+          "p95": 976949248,
+          "max": 981438464
+        }
+      }
+    },
+    "single_samples": [
+      {
+        "phase": "verified_cached_initial",
+        "backend_sql_trace_events": 2021,
+        "graph_objects": 40174,
+        "http_requests": 3,
+        "object_requests": 0,
+        "http_response_bytes": 2940,
+        "decoded_payload_bytes": 0,
+        "sql": 884649,
+        "rows_returned": 3178442,
+        "object_bytes": 109808631,
+        "raw_nodes": 265,
+        "raw_rows": 50185,
+        "index_nodes": 160472,
+        "pin_insert": 4,
+        "pin_delete": 0,
+        "pin_update": 0,
+        "full_verify": 1,
+        "frozen_full_recovery": 0,
+        "legacy_full_read": 0,
+        "lineage_hash": 0,
+        "microseconds": 950991488,
+        "rss_bytes": 1002053632
+      },
+      {
+        "phase": "frozen_after_native_G2",
+        "backend_sql_trace_events": 0,
+        "graph_objects": 40174,
+        "http_requests": 0,
+        "object_requests": 0,
+        "http_response_bytes": 0,
+        "decoded_payload_bytes": 0,
+        "sql": 66,
+        "rows_returned": 290,
+        "object_bytes": 9529,
+        "raw_nodes": 0,
+        "raw_rows": 0,
+        "index_nodes": 0,
+        "pin_insert": 0,
+        "pin_delete": 0,
+        "pin_update": 0,
+        "full_verify": 0,
+        "frozen_full_recovery": 0,
+        "legacy_full_read": 0,
+        "lineage_hash": 0,
+        "microseconds": 17338,
+        "rss_bytes": 805924864
+      },
+      {
+        "phase": "fresh_handle_fallback",
+        "backend_sql_trace_events": 0,
+        "graph_objects": 40174,
+        "http_requests": 0,
+        "object_requests": 0,
+        "http_response_bytes": 0,
+        "decoded_payload_bytes": 0,
+        "sql": 241837,
+        "rows_returned": 283530,
+        "object_bytes": 63920283,
+        "raw_nodes": 289,
+        "raw_rows": 40148,
+        "index_nodes": 80236,
+        "pin_insert": 0,
+        "pin_delete": 0,
+        "pin_update": 0,
+        "full_verify": 1,
+        "frozen_full_recovery": 1,
+        "legacy_full_read": 1,
+        "lineage_hash": 2,
+        "microseconds": 73160062,
+        "rss_bytes": 890011648
+      }
+    ]
+  },
+  {
+    "id": "unique-1000",
+    "status": "PASS",
+    "exact_ledger_n": 1000,
+    "historical_history_parameter": null,
+    "preparation_us": 1162186,
+    "groups": {
+      "identical": {
+        "sql": {
+          "n": 20,
+          "min": 796,
+          "median": 796.0,
+          "p95": 796,
+          "max": 796
+        },
+        "rows_returned": {
+          "n": 20,
+          "min": 4869,
+          "median": 4869.0,
+          "p95": 4869,
+          "max": 4869
+        },
+        "object_bytes": {
+          "n": 20,
+          "min": 172123,
+          "median": 172123.0,
+          "p95": 172123,
+          "max": 172123
+        },
+        "raw_nodes": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "raw_rows": {
+          "n": 20,
+          "min": 260,
+          "median": 260.0,
+          "p95": 260,
+          "max": 260
+        },
+        "index_nodes": {
+          "n": 20,
+          "min": 2,
+          "median": 2.0,
+          "p95": 2,
+          "max": 2
+        },
+        "http_requests": {
+          "n": 20,
+          "min": 3,
+          "median": 3.0,
+          "p95": 3,
+          "max": 3
+        },
+        "object_requests": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "http_response_bytes": {
+          "n": 20,
+          "min": 2938,
+          "median": 2938.0,
+          "p95": 2938,
+          "max": 2938
+        },
+        "decoded_payload_bytes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "pin_insert": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_delete": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_update": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "full_verify": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "frozen_full_recovery": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "legacy_full_read": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "lineage_hash": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "microseconds": {
+          "n": 20,
+          "min": 660931,
+          "median": 687193.5,
+          "p95": 774607,
+          "max": 811805
+        },
+        "rss_bytes": {
+          "n": 20,
+          "min": 248107008,
+          "median": 262684672.0,
+          "p95": 309096448,
+          "max": 311832576
+        }
+      },
+      "card": {
+        "sql": {
+          "n": 20,
+          "min": 1727,
+          "median": 1727.0,
+          "p95": 1727,
+          "max": 1727
+        },
+        "rows_returned": {
+          "n": 20,
+          "min": 7617,
+          "median": 7617.0,
+          "p95": 7617,
+          "max": 7617
+        },
+        "object_bytes": {
+          "n": 20,
+          "min": 671229,
+          "median": 671229.0,
+          "p95": 671229,
+          "max": 671229
+        },
+        "raw_nodes": {
+          "n": 20,
+          "min": 14,
+          "median": 14.0,
+          "p95": 14,
+          "max": 14
+        },
+        "raw_rows": {
+          "n": 20,
+          "min": 1031,
+          "median": 1031.0,
+          "p95": 1031,
+          "max": 1031
+        },
+        "index_nodes": {
+          "n": 20,
+          "min": 64,
+          "median": 64.0,
+          "p95": 64,
+          "max": 64
+        },
+        "http_requests": {
+          "n": 20,
+          "min": 19,
+          "median": 19.0,
+          "p95": 19,
+          "max": 19
+        },
+        "object_requests": {
+          "n": 20,
+          "min": 16,
+          "median": 16.0,
+          "p95": 16,
+          "max": 16
+        },
+        "http_response_bytes": {
+          "n": 20,
+          "min": 224982,
+          "median": 224982.0,
+          "p95": 224982,
+          "max": 224982
+        },
+        "decoded_payload_bytes": {
+          "n": 20,
+          "min": 163219,
+          "median": 163219.0,
+          "p95": 163219,
+          "max": 163219
+        },
+        "pin_insert": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_delete": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_update": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "full_verify": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "frozen_full_recovery": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "legacy_full_read": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "lineage_hash": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "microseconds": {
+          "n": 20,
+          "min": 3479422,
+          "median": 3894036.0,
+          "p95": 4018777,
+          "max": 4081004
+        },
+        "rss_bytes": {
+          "n": 20,
+          "min": 253480960,
+          "median": 264022016.0,
+          "p95": 270794752,
+          "max": 272728064
+        }
+      },
+      "cash": {
+        "sql": {
+          "n": 20,
+          "min": 1658,
+          "median": 1658.0,
+          "p95": 1658,
+          "max": 1658
+        },
+        "rows_returned": {
+          "n": 20,
+          "min": 7535,
+          "median": 7535.0,
+          "p95": 7535,
+          "max": 7535
+        },
+        "object_bytes": {
+          "n": 20,
+          "min": 219756,
+          "median": 219756.0,
+          "p95": 219756,
+          "max": 219756
+        },
+        "raw_nodes": {
+          "n": 20,
+          "min": 7,
+          "median": 7.0,
+          "p95": 7,
+          "max": 7
+        },
+        "raw_rows": {
+          "n": 20,
+          "min": 266,
+          "median": 266.0,
+          "p95": 266,
+          "max": 266
+        },
+        "index_nodes": {
+          "n": 20,
+          "min": 50,
+          "median": 50.0,
+          "p95": 50,
+          "max": 50
+        },
+        "http_requests": {
+          "n": 20,
+          "min": 19,
+          "median": 19.0,
+          "p95": 19,
+          "max": 19
+        },
+        "object_requests": {
+          "n": 20,
+          "min": 16,
+          "median": 16.0,
+          "p95": 16,
+          "max": 16
+        },
+        "http_response_bytes": {
+          "n": 20,
+          "min": 29282,
+          "median": 29282.0,
+          "p95": 29282,
+          "max": 29282
+        },
+        "decoded_payload_bytes": {
+          "n": 20,
+          "min": 16452,
+          "median": 16452.0,
+          "p95": 16452,
+          "max": 16452
+        },
+        "pin_insert": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_delete": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_update": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "full_verify": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "frozen_full_recovery": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "legacy_full_read": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "lineage_hash": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "microseconds": {
+          "n": 20,
+          "min": 3434898,
+          "median": 4013450.0,
+          "p95": 6346824,
+          "max": 6468390
+        },
+        "rss_bytes": {
+          "n": 20,
+          "min": 257855488,
+          "median": 266579968.0,
+          "p95": 275144704,
+          "max": 278695936
+        }
+      },
+      "repeated_frozen": {
+        "sql": {
+          "n": 20,
+          "min": 66,
+          "median": 66.0,
+          "p95": 66,
+          "max": 66
+        },
+        "rows_returned": {
+          "n": 20,
+          "min": 290,
+          "median": 290.0,
+          "p95": 290,
+          "max": 290
+        },
+        "object_bytes": {
+          "n": 20,
+          "min": 9703,
+          "median": 9703.0,
+          "p95": 9703,
+          "max": 9703
+        },
+        "raw_nodes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "raw_rows": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "index_nodes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "http_requests": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "object_requests": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "http_response_bytes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "decoded_payload_bytes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "pin_insert": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "pin_delete": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "pin_update": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "full_verify": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "frozen_full_recovery": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "legacy_full_read": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "lineage_hash": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "microseconds": {
+          "n": 20,
+          "min": 14899,
+          "median": 29244.5,
+          "p95": 39694,
+          "max": 63806
+        },
+        "rss_bytes": {
+          "n": 20,
+          "min": 281997312,
+          "median": 290844672.0,
+          "p95": 298737664,
+          "max": 300163072
+        }
+      }
+    },
+    "single_samples": [
+      {
+        "phase": "verified_cached_initial",
+        "backend_sql_trace_events": 2021,
+        "graph_objects": 4134,
+        "http_requests": 3,
+        "object_requests": 0,
+        "http_response_bytes": 2938,
+        "decoded_payload_bytes": 0,
+        "sql": 91655,
+        "rows_returned": 331168,
+        "object_bytes": 11252898,
+        "raw_nodes": 75,
+        "raw_rows": 5185,
+        "index_nodes": 16464,
+        "pin_insert": 4,
+        "pin_delete": 0,
+        "pin_update": 0,
+        "full_verify": 1,
+        "frozen_full_recovery": 0,
+        "legacy_full_read": 0,
+        "lineage_hash": 0,
+        "microseconds": 58056090,
+        "rss_bytes": 297234432
+      },
+      {
+        "phase": "frozen_after_native_G2",
+        "backend_sql_trace_events": 0,
+        "graph_objects": 4134,
+        "http_requests": 0,
+        "object_requests": 0,
+        "http_response_bytes": 0,
+        "decoded_payload_bytes": 0,
+        "sql": 66,
+        "rows_returned": 290,
+        "object_bytes": 9703,
+        "raw_nodes": 0,
+        "raw_rows": 0,
+        "index_nodes": 0,
+        "pin_insert": 0,
+        "pin_delete": 0,
+        "pin_update": 0,
+        "full_verify": 0,
+        "frozen_full_recovery": 0,
+        "legacy_full_read": 0,
+        "lineage_hash": 0,
+        "microseconds": 13862,
+        "rss_bytes": 287936512
+      },
+      {
+        "phase": "fresh_handle_fallback",
+        "backend_sql_trace_events": 0,
+        "graph_objects": 4134,
+        "http_requests": 0,
+        "object_requests": 0,
+        "http_response_bytes": 0,
+        "decoded_payload_bytes": 0,
+        "sql": 25039,
+        "rows_returned": 29580,
+        "object_bytes": 6556396,
+        "raw_nodes": 63,
+        "raw_rows": 4148,
+        "index_nodes": 8232,
+        "pin_insert": 0,
+        "pin_delete": 0,
+        "pin_update": 0,
+        "full_verify": 1,
+        "frozen_full_recovery": 1,
+        "legacy_full_read": 1,
+        "lineage_hash": 2,
+        "microseconds": 6128490,
+        "rss_bytes": 299253760
+      }
+    ]
+  },
+  {
+    "id": "unique-5000",
+    "status": "PASS",
+    "exact_ledger_n": 5000,
+    "historical_history_parameter": null,
+    "preparation_us": 11181967,
+    "groups": {
+      "identical": {
+        "sql": {
+          "n": 20,
+          "min": 796,
+          "median": 796.0,
+          "p95": 796,
+          "max": 796
+        },
+        "rows_returned": {
+          "n": 20,
+          "min": 4869,
+          "median": 4869.0,
+          "p95": 4869,
+          "max": 4869
+        },
+        "object_bytes": {
+          "n": 20,
+          "min": 172125,
+          "median": 172125.0,
+          "p95": 172125,
+          "max": 172125
+        },
+        "raw_nodes": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "raw_rows": {
+          "n": 20,
+          "min": 260,
+          "median": 260.0,
+          "p95": 260,
+          "max": 260
+        },
+        "index_nodes": {
+          "n": 20,
+          "min": 2,
+          "median": 2.0,
+          "p95": 2,
+          "max": 2
+        },
+        "http_requests": {
+          "n": 20,
+          "min": 3,
+          "median": 3.0,
+          "p95": 3,
+          "max": 3
+        },
+        "object_requests": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "http_response_bytes": {
+          "n": 20,
+          "min": 2938,
+          "median": 2938.0,
+          "p95": 2938,
+          "max": 2938
+        },
+        "decoded_payload_bytes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "pin_insert": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_delete": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_update": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "full_verify": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "frozen_full_recovery": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "legacy_full_read": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "lineage_hash": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "microseconds": {
+          "n": 20,
+          "min": 878490,
+          "median": 900665.5,
+          "p95": 941855,
+          "max": 957582
+        },
+        "rss_bytes": {
+          "n": 20,
+          "min": 395116544,
+          "median": 557389824.0,
+          "p95": 578428928,
+          "max": 656375808
+        }
+      },
+      "card": {
+        "sql": {
+          "n": 20,
+          "min": 1999,
+          "median": 1999.0,
+          "p95": 1999,
+          "max": 1999
+        },
+        "rows_returned": {
+          "n": 20,
+          "min": 8453,
+          "median": 8453.0,
+          "p95": 8453,
+          "max": 8453
+        },
+        "object_bytes": {
+          "n": 20,
+          "min": 696089,
+          "median": 696089.0,
+          "p95": 696089,
+          "max": 696089
+        },
+        "raw_nodes": {
+          "n": 20,
+          "min": 14,
+          "median": 14.0,
+          "p95": 14,
+          "max": 14
+        },
+        "raw_rows": {
+          "n": 20,
+          "min": 1031,
+          "median": 1031.0,
+          "p95": 1031,
+          "max": 1031
+        },
+        "index_nodes": {
+          "n": 20,
+          "min": 92,
+          "median": 92.0,
+          "p95": 92,
+          "max": 92
+        },
+        "http_requests": {
+          "n": 20,
+          "min": 24,
+          "median": 24.0,
+          "p95": 24,
+          "max": 24
+        },
+        "object_requests": {
+          "n": 20,
+          "min": 21,
+          "median": 21.0,
+          "p95": 21,
+          "max": 21
+        },
+        "http_response_bytes": {
+          "n": 20,
+          "min": 233304,
+          "median": 233304.0,
+          "p95": 233304,
+          "max": 233304
+        },
+        "decoded_payload_bytes": {
+          "n": 20,
+          "min": 168429,
+          "median": 168429.0,
+          "p95": 168429,
+          "max": 168429
+        },
+        "pin_insert": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_delete": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_update": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "full_verify": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "frozen_full_recovery": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "legacy_full_read": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "lineage_hash": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "microseconds": {
+          "n": 20,
+          "min": 5204707,
+          "median": 6358281.0,
+          "p95": 6706998,
+          "max": 6754946
+        },
+        "rss_bytes": {
+          "n": 20,
+          "min": 373555200,
+          "median": 389097472.0,
+          "p95": 405483520,
+          "max": 407654400
+        }
+      },
+      "cash": {
+        "sql": {
+          "n": 20,
+          "min": 1858,
+          "median": 1858.0,
+          "p95": 1858,
+          "max": 1858
+        },
+        "rows_returned": {
+          "n": 20,
+          "min": 8257,
+          "median": 8257.0,
+          "p95": 8257,
+          "max": 8257
+        },
+        "object_bytes": {
+          "n": 20,
+          "min": 229983,
+          "median": 229983.0,
+          "p95": 229983,
+          "max": 229983
+        },
+        "raw_nodes": {
+          "n": 20,
+          "min": 7,
+          "median": 7.0,
+          "p95": 7,
+          "max": 7
+        },
+        "raw_rows": {
+          "n": 20,
+          "min": 266,
+          "median": 266.0,
+          "p95": 266,
+          "max": 266
+        },
+        "index_nodes": {
+          "n": 20,
+          "min": 70,
+          "median": 70.0,
+          "p95": 70,
+          "max": 70
+        },
+        "http_requests": {
+          "n": 20,
+          "min": 24,
+          "median": 24.0,
+          "p95": 24,
+          "max": 24
+        },
+        "object_requests": {
+          "n": 20,
+          "min": 21,
+          "median": 21.0,
+          "p95": 21,
+          "max": 21
+        },
+        "http_response_bytes": {
+          "n": 20,
+          "min": 34112,
+          "median": 34112.0,
+          "p95": 34112,
+          "max": 34112
+        },
+        "decoded_payload_bytes": {
+          "n": 20,
+          "min": 19041,
+          "median": 19041.0,
+          "p95": 19041,
+          "max": 19041
+        },
+        "pin_insert": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_delete": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_update": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "full_verify": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "frozen_full_recovery": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "legacy_full_read": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "lineage_hash": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "microseconds": {
+          "n": 20,
+          "min": 4745732,
+          "median": 5574496.5,
+          "p95": 6011945,
+          "max": 6032889
+        },
+        "rss_bytes": {
+          "n": 20,
+          "min": 379273216,
+          "median": 394985472.0,
+          "p95": 407928832,
+          "max": 409980928
+        }
+      },
+      "repeated_frozen": {
+        "sql": {
+          "n": 20,
+          "min": 66,
+          "median": 66.0,
+          "p95": 66,
+          "max": 66
+        },
+        "rows_returned": {
+          "n": 20,
+          "min": 290,
+          "median": 290.0,
+          "p95": 290,
+          "max": 290
+        },
+        "object_bytes": {
+          "n": 20,
+          "min": 9703,
+          "median": 9703.0,
+          "p95": 9703,
+          "max": 9703
+        },
+        "raw_nodes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "raw_rows": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "index_nodes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "http_requests": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "object_requests": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "http_response_bytes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "decoded_payload_bytes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "pin_insert": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "pin_delete": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "pin_update": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "full_verify": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "frozen_full_recovery": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "legacy_full_read": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "lineage_hash": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "microseconds": {
+          "n": 20,
+          "min": 10992,
+          "median": 15053.0,
+          "p95": 65278,
+          "max": 68324
+        },
+        "rss_bytes": {
+          "n": 20,
+          "min": 478797824,
+          "median": 505153536.0,
+          "p95": 541564928,
+          "max": 547368960
+        }
+      }
+    },
+    "single_samples": [
+      {
+        "phase": "verified_cached_initial",
+        "backend_sql_trace_events": 2021,
+        "graph_objects": 20150,
+        "http_requests": 3,
+        "object_requests": 0,
+        "http_response_bytes": 2938,
+        "decoded_payload_bytes": 0,
+        "sql": 444055,
+        "rows_returned": 1596480,
+        "object_bytes": 55018138,
+        "raw_nodes": 155,
+        "raw_rows": 25185,
+        "index_nodes": 80464,
+        "pin_insert": 4,
+        "pin_delete": 0,
+        "pin_update": 0,
+        "full_verify": 1,
+        "frozen_full_recovery": 0,
+        "legacy_full_read": 0,
+        "lineage_hash": 0,
+        "microseconds": 496546462,
+        "rss_bytes": 645185536
+      },
+      {
+        "phase": "frozen_after_native_G2",
+        "backend_sql_trace_events": 0,
+        "graph_objects": 20150,
+        "http_requests": 0,
+        "object_requests": 0,
+        "http_response_bytes": 0,
+        "decoded_payload_bytes": 0,
+        "sql": 66,
+        "rows_returned": 290,
+        "object_bytes": 9703,
+        "raw_nodes": 0,
+        "raw_rows": 0,
+        "index_nodes": 0,
+        "pin_insert": 0,
+        "pin_delete": 0,
+        "pin_update": 0,
+        "full_verify": 0,
+        "frozen_full_recovery": 0,
+        "legacy_full_read": 0,
+        "lineage_hash": 0,
+        "microseconds": 13843,
+        "rss_bytes": 484823040
+      },
+      {
+        "phase": "fresh_handle_fallback",
+        "backend_sql_trace_events": 0,
+        "graph_objects": 20150,
+        "http_requests": 0,
+        "object_requests": 0,
+        "http_response_bytes": 0,
+        "decoded_payload_bytes": 0,
+        "sql": 121327,
+        "rows_returned": 142396,
+        "object_bytes": 32024375,
+        "raw_nodes": 143,
+        "raw_rows": 20148,
+        "index_nodes": 40232,
+        "pin_insert": 0,
+        "pin_delete": 0,
+        "pin_update": 0,
+        "full_verify": 1,
+        "frozen_full_recovery": 1,
+        "legacy_full_read": 1,
+        "lineage_hash": 2,
+        "microseconds": 27987491,
+        "rss_bytes": 564412416
+      }
+    ]
+  },
+  {
+    "id": "unique-10000",
+    "status": "PASS",
+    "exact_ledger_n": 10000,
+    "historical_history_parameter": null,
+    "preparation_us": 13118800,
+    "groups": {
+      "identical": {
+        "sql": {
+          "n": 20,
+          "min": 796,
+          "median": 796.0,
+          "p95": 796,
+          "max": 796
+        },
+        "rows_returned": {
+          "n": 20,
+          "min": 4869,
+          "median": 4869.0,
+          "p95": 4869,
+          "max": 4869
+        },
+        "object_bytes": {
+          "n": 20,
+          "min": 172127,
+          "median": 172127.0,
+          "p95": 172127,
+          "max": 172127
+        },
+        "raw_nodes": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "raw_rows": {
+          "n": 20,
+          "min": 260,
+          "median": 260.0,
+          "p95": 260,
+          "max": 260
+        },
+        "index_nodes": {
+          "n": 20,
+          "min": 2,
+          "median": 2.0,
+          "p95": 2,
+          "max": 2
+        },
+        "http_requests": {
+          "n": 20,
+          "min": 3,
+          "median": 3.0,
+          "p95": 3,
+          "max": 3
+        },
+        "object_requests": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "http_response_bytes": {
+          "n": 20,
+          "min": 2940,
+          "median": 2940.0,
+          "p95": 2940,
+          "max": 2940
+        },
+        "decoded_payload_bytes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "pin_insert": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_delete": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_update": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "full_verify": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "frozen_full_recovery": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "legacy_full_read": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "lineage_hash": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "microseconds": {
+          "n": 20,
+          "min": 714576,
+          "median": 729014.0,
+          "p95": 808373,
+          "max": 811005
+        },
+        "rss_bytes": {
+          "n": 20,
+          "min": 814579712,
+          "median": 836259840.0,
+          "p95": 907382784,
+          "max": 1091121152
+        }
+      },
+      "card": {
+        "sql": {
+          "n": 20,
+          "min": 2079,
+          "median": 2079.0,
+          "p95": 2079,
+          "max": 2079
+        },
+        "rows_returned": {
+          "n": 20,
+          "min": 8749,
+          "median": 8749.0,
+          "p95": 8749,
+          "max": 8749
+        },
+        "object_bytes": {
+          "n": 20,
+          "min": 701031,
+          "median": 701031.0,
+          "p95": 701031,
+          "max": 701031
+        },
+        "raw_nodes": {
+          "n": 20,
+          "min": 18,
+          "median": 18.0,
+          "p95": 18,
+          "max": 18
+        },
+        "raw_rows": {
+          "n": 20,
+          "min": 1031,
+          "median": 1031.0,
+          "p95": 1031,
+          "max": 1031
+        },
+        "index_nodes": {
+          "n": 20,
+          "min": 96,
+          "median": 96.0,
+          "p95": 96,
+          "max": 96
+        },
+        "http_requests": {
+          "n": 20,
+          "min": 26,
+          "median": 26.0,
+          "p95": 26,
+          "max": 26
+        },
+        "object_requests": {
+          "n": 20,
+          "min": 23,
+          "median": 23.0,
+          "p95": 23,
+          "max": 23
+        },
+        "http_response_bytes": {
+          "n": 20,
+          "min": 235486,
+          "median": 235486.0,
+          "p95": 235486,
+          "max": 235486
+        },
+        "decoded_payload_bytes": {
+          "n": 20,
+          "min": 169651,
+          "median": 169651.0,
+          "p95": 169651,
+          "max": 169651
+        },
+        "pin_insert": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_delete": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_update": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "full_verify": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "frozen_full_recovery": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "legacy_full_read": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "lineage_hash": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "microseconds": {
+          "n": 20,
+          "min": 4826764,
+          "median": 5329985.0,
+          "p95": 5575656,
+          "max": 5617568
+        },
+        "rss_bytes": {
+          "n": 20,
+          "min": 534159360,
+          "median": 569538560.0,
+          "p95": 607862784,
+          "max": 625930240
+        }
+      },
+      "cash": {
+        "sql": {
+          "n": 20,
+          "min": 1898,
+          "median": 1898.0,
+          "p95": 1898,
+          "max": 1898
+        },
+        "rows_returned": {
+          "n": 20,
+          "min": 8405,
+          "median": 8405.0,
+          "p95": 8405,
+          "max": 8405
+        },
+        "object_bytes": {
+          "n": 20,
+          "min": 232071,
+          "median": 232071.0,
+          "p95": 232071,
+          "max": 232071
+        },
+        "raw_nodes": {
+          "n": 20,
+          "min": 7,
+          "median": 7.0,
+          "p95": 7,
+          "max": 7
+        },
+        "raw_rows": {
+          "n": 20,
+          "min": 266,
+          "median": 266.0,
+          "p95": 266,
+          "max": 266
+        },
+        "index_nodes": {
+          "n": 20,
+          "min": 74,
+          "median": 74.0,
+          "p95": 74,
+          "max": 74
+        },
+        "http_requests": {
+          "n": 20,
+          "min": 25,
+          "median": 25.0,
+          "p95": 25,
+          "max": 25
+        },
+        "object_requests": {
+          "n": 20,
+          "min": 22,
+          "median": 22.0,
+          "p95": 22,
+          "max": 22
+        },
+        "http_response_bytes": {
+          "n": 20,
+          "min": 35084,
+          "median": 35084.0,
+          "p95": 35084,
+          "max": 35084
+        },
+        "decoded_payload_bytes": {
+          "n": 20,
+          "min": 19559,
+          "median": 19559.0,
+          "p95": 19559,
+          "max": 19559
+        },
+        "pin_insert": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_delete": {
+          "n": 20,
+          "min": 4,
+          "median": 4.0,
+          "p95": 4,
+          "max": 4
+        },
+        "pin_update": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "full_verify": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "frozen_full_recovery": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "legacy_full_read": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "lineage_hash": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "microseconds": {
+          "n": 20,
+          "min": 3893195,
+          "median": 4672583.5,
+          "p95": 4779077,
+          "max": 4792287
+        },
+        "rss_bytes": {
+          "n": 20,
+          "min": 530894848,
+          "median": 551831552.0,
+          "p95": 574980096,
+          "max": 575291392
+        }
+      },
+      "repeated_frozen": {
+        "sql": {
+          "n": 20,
+          "min": 66,
+          "median": 66.0,
+          "p95": 66,
+          "max": 66
+        },
+        "rows_returned": {
+          "n": 20,
+          "min": 290,
+          "median": 290.0,
+          "p95": 290,
+          "max": 290
+        },
+        "object_bytes": {
+          "n": 20,
+          "min": 9703,
+          "median": 9703.0,
+          "p95": 9703,
+          "max": 9703
+        },
+        "raw_nodes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "raw_rows": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "index_nodes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "http_requests": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "object_requests": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "http_response_bytes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "decoded_payload_bytes": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "pin_insert": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "pin_delete": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "pin_update": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "full_verify": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "frozen_full_recovery": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "legacy_full_read": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "lineage_hash": {
+          "n": 20,
+          "min": 0,
+          "median": 0.0,
+          "p95": 0,
+          "max": 0
+        },
+        "microseconds": {
+          "n": 20,
+          "min": 13228,
+          "median": 17106.5,
+          "p95": 22050,
+          "max": 38327
+        },
+        "rss_bytes": {
+          "n": 20,
+          "min": 751263744,
+          "median": 816316416.0,
+          "p95": 862785536,
+          "max": 867053568
+        }
+      }
+    },
+    "single_samples": [
+      {
+        "phase": "verified_cached_initial",
+        "backend_sql_trace_events": 2021,
+        "graph_objects": 40172,
+        "http_requests": 3,
+        "object_requests": 0,
+        "http_response_bytes": 2940,
+        "decoded_payload_bytes": 0,
+        "sql": 884605,
+        "rows_returned": 3178284,
+        "object_bytes": 109803575,
+        "raw_nodes": 265,
+        "raw_rows": 50185,
+        "index_nodes": 160464,
+        "pin_insert": 4,
+        "pin_delete": 0,
+        "pin_update": 0,
+        "full_verify": 1,
+        "frozen_full_recovery": 0,
+        "legacy_full_read": 0,
+        "lineage_hash": 0,
+        "microseconds": 876087237,
+        "rss_bytes": 1078542336
+      },
+      {
+        "phase": "frozen_after_native_G2",
+        "backend_sql_trace_events": 0,
+        "graph_objects": 40172,
+        "http_requests": 0,
+        "object_requests": 0,
+        "http_response_bytes": 0,
+        "decoded_payload_bytes": 0,
+        "sql": 66,
+        "rows_returned": 290,
+        "object_bytes": 9703,
+        "raw_nodes": 0,
+        "raw_rows": 0,
+        "index_nodes": 0,
+        "pin_insert": 0,
+        "pin_delete": 0,
+        "pin_update": 0,
+        "full_verify": 0,
+        "frozen_full_recovery": 0,
+        "legacy_full_read": 0,
+        "lineage_hash": 0,
+        "microseconds": 13273,
+        "rss_bytes": 723615744
+      },
+      {
+        "phase": "fresh_handle_fallback",
+        "backend_sql_trace_events": 0,
+        "graph_objects": 40172,
+        "http_requests": 0,
+        "object_requests": 0,
+        "http_response_bytes": 0,
+        "decoded_payload_bytes": 0,
+        "sql": 241825,
+        "rows_returned": 283516,
+        "object_bytes": 63917572,
+        "raw_nodes": 289,
+        "raw_rows": 40148,
+        "index_nodes": 80232,
+        "pin_insert": 0,
+        "pin_delete": 0,
+        "pin_update": 0,
+        "full_verify": 1,
+        "frozen_full_recovery": 1,
+        "legacy_full_read": 1,
+        "lineage_hash": 2,
+        "microseconds": 53596885,
+        "rss_bytes": 895377408
+      }
+    ]
+  }
+]

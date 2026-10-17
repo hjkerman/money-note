@@ -1,0 +1,83 @@
+{
+  "order": [
+    1000,
+    5000
+  ],
+  "phases": [
+    {
+      "wait": 1000,
+      "pragmas": [
+        "PRAGMA busy_timeout=1000",
+        "PRAGMA busy_timeout=1000"
+      ],
+      "handles": 3,
+      "state": {
+        "sync_observations": {
+          "count": 1,
+          "sha256": "cd999946e8a3af6e663957159d5d532d23972e7e457df0185cb6ff8f707daa00"
+        },
+        "sync_observation_pins": {
+          "count": 5,
+          "sha256": "5c7e944403660d615e31260faa4ab417e5a298b5e69a103b0e89c143977a4c54"
+        },
+        "sync_objects": {
+          "count": 1200,
+          "sha256": "6376ee9d03a2773c25efe212b22c382d1c6c8bfee2147832af0fc861dcf04959"
+        },
+        "sync_current": {
+          "count": 1,
+          "sha256": "474b41a46490175308b8428ab7e8b2f6640ff59a9ee027a353342c032e5d81c3"
+        },
+        "sync_observation_budget": {
+          "count": 1,
+          "sha256": "4ad5b35347dc06cb586692edf213774b09fcd2725761bfb817db973cb50eae7b"
+        },
+        "financial_sha256": "a37255630d6568149ec49a4e86887d1dab22651037e3e13e1663274d8bbd70c0",
+        "journal": "delete",
+        "integrity": "ok",
+        "foreign_keys": {
+          "count": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      }
+    },
+    {
+      "wait": 5000,
+      "pragmas": [
+        "PRAGMA busy_timeout=5000",
+        "PRAGMA busy_timeout=5000"
+      ],
+      "handles": 3,
+      "state": {
+        "sync_observations": {
+          "count": 1,
+          "sha256": "e147fdf4bd160cb29207cab9c6ff9ce35c4b8f42f704a3f5ce3bc5eba6a9311b"
+        },
+        "sync_observation_pins": {
+          "count": 5,
+          "sha256": "42d448995bcc06706e76800f74eb41141f1a106d5782a1bdcdadf783d155c70d"
+        },
+        "sync_objects": {
+          "count": 1200,
+          "sha256": "e69f42cbe5c1d924aa79359cae7c0fcb7b3b4a49213704afcf6c64381721f3f4"
+        },
+        "sync_current": {
+          "count": 1,
+          "sha256": "474b41a46490175308b8428ab7e8b2f6640ff59a9ee027a353342c032e5d81c3"
+        },
+        "sync_observation_budget": {
+          "count": 1,
+          "sha256": "3768ea03f699ad7966ee781c97131853672c5078bd88d48fae82bee646f1e0ba"
+        },
+        "financial_sha256": "a37255630d6568149ec49a4e86887d1dab22651037e3e13e1663274d8bbd70c0",
+        "journal": "delete",
+        "integrity": "ok",
+        "foreign_keys": {
+          "count": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      }
+    }
+  ],
+  "global_default": 1000
+}

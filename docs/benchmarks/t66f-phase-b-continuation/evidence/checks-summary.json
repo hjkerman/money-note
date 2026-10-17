@@ -1,0 +1,224 @@
+{
+  "backend-full-process": {
+    "command": [
+      "/home/hjkerman/codex/money-note/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "--junitxml=/tmp/mn-f-continuation/checks/backend-full.xml"
+    ],
+    "cwd": "/home/hjkerman/codex/money-note/backend",
+    "start_unix": 1792220276.5823672,
+    "status": "PASS",
+    "end_unix": 1792223073.7541878,
+    "seconds": 2797.171821117401,
+    "exit": 0
+  },
+  "frontend-process": {
+    "command": [
+      "npm",
+      "--prefix",
+      "frontend",
+      "run",
+      "build"
+    ],
+    "cwd": "/home/hjkerman/codex/money-note",
+    "start_unix": 1792220732.6936402,
+    "status": "PASS",
+    "end_unix": 1792220747.376934,
+    "seconds": 14.683294773101807,
+    "exit": 0
+  },
+  "compileall-process": {
+    "command": [
+      "/home/hjkerman/codex/money-note/.venv/bin/python",
+      "-m",
+      "compileall",
+      "-q",
+      "backend/app",
+      "backend/isolated_sync",
+      "backend/tests",
+      "scripts",
+      "docs/benchmarks/t66f-phase-b-continuation"
+    ],
+    "cwd": "/home/hjkerman/codex/money-note",
+    "start_unix": 1792238370.2151914,
+    "status": "PASS",
+    "end_unix": 1792238370.2592096,
+    "seconds": 0.04401850700378418,
+    "exit": 0
+  },
+  "analyze-process": {
+    "command": [
+      "/home/hjkerman/.flutter/bin/flutter",
+      "analyze",
+      "--no-pub"
+    ],
+    "cwd": "/home/hjkerman/codex/money-note/mobile",
+    "start_unix": 1792236418.9630592,
+    "status": "PASS",
+    "end_unix": 1792236424.2957306,
+    "seconds": 5.332672119140625,
+    "exit": 0
+  },
+  "format-dart-process": {
+    "command": [
+      "/home/hjkerman/.flutter/bin/dart",
+      "format",
+      "--output=none",
+      "--set-exit-if-changed",
+      "docs/benchmarks/t66f-phase-b-continuation"
+    ],
+    "cwd": "/home/hjkerman/codex/money-note",
+    "start_unix": 1792238372.285534,
+    "status": "PASS",
+    "end_unix": 1792238372.3892207,
+    "seconds": 0.10368728637695312,
+    "exit": 0
+  },
+  "format-python-process": {
+    "command": [
+      "/home/hjkerman/codex/money-note/.venv/bin/ruff",
+      "format",
+      "--check",
+      "docs/benchmarks/t66f-phase-b-continuation"
+    ],
+    "cwd": "/home/hjkerman/codex/money-note",
+    "start_unix": 1792238371.639061,
+    "status": "PASS",
+    "end_unix": 1792238371.6487525,
+    "seconds": 0.009691953659057617,
+    "exit": 0
+  },
+  "flutter-full-process": {
+    "command": [
+      "/home/hjkerman/.flutter/bin/flutter",
+      "test",
+      "--no-pub",
+      "--machine",
+      "--concurrency=2"
+    ],
+    "cwd": "/home/hjkerman/codex/money-note/mobile",
+    "start_unix": 1792220280.8389924,
+    "status": "PASS",
+    "end_unix": 1792225610.1509259,
+    "seconds": 5329.311935186386,
+    "exit": 0
+  },
+  "build-process": {
+    "command": [
+      "/home/hjkerman/.flutter/bin/flutter",
+      "build",
+      "apk",
+      "--debug",
+      "--no-pub",
+      "--dart-define=MONEY_NOTE_API_BASE_URL=https://continuation.invalid"
+    ],
+    "cwd": "/home/hjkerman/codex/money-note/mobile",
+    "start_unix": 1792236476.2860856,
+    "status": "PASS",
+    "end_unix": 1792236533.8415918,
+    "seconds": 57.55550670623779,
+    "exit": 0
+  },
+  "ruff-process": {
+    "command": [
+      "/home/hjkerman/codex/money-note/.venv/bin/ruff",
+      "check",
+      "backend/app",
+      "backend/isolated_sync",
+      "backend/tests",
+      "scripts",
+      "docs/benchmarks/t66f-phase-b-continuation"
+    ],
+    "cwd": "/home/hjkerman/codex/money-note",
+    "start_unix": 1792238372.4878285,
+    "status": "PASS",
+    "end_unix": 1792238372.499895,
+    "seconds": 0.012067079544067383,
+    "exit": 0
+  },
+  "backend-crash-regression": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "1",
+    "time": "1.802",
+    "timestamp": "2026-10-17T20:53:13.266487+09:00",
+    "hostname": "hjkerman"
+  },
+  "crash-regression": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "1",
+    "time": "53.701",
+    "timestamp": "2026-10-17T20:52:58.544263+09:00",
+    "hostname": "hjkerman"
+  },
+  "prior_http_smoke": {
+    "cases": [
+      {
+        "name": "I10 real TLS quota rejection and same-client E2 recovery",
+        "result": "success",
+        "skipped": false,
+        "log": "prior-http.log"
+      },
+      {
+        "name": "FB01 real TLS cold → identical → localized → split → delete → later delta",
+        "result": "success",
+        "skipped": false,
+        "log": "prior-http.log"
+      },
+      {
+        "name": "FB13 real capability response keeps R1 support unavailable",
+        "result": "success",
+        "skipped": false,
+        "log": "prior-http.log"
+      },
+      {
+        "name": "FB14 actual authenticated other principal cannot enter principal-one cache or installation",
+        "result": "success",
+        "skipped": false,
+        "log": "prior-http.log"
+      }
+    ],
+    "finish": {
+      "success": true,
+      "type": "done",
+      "time": 441587
+    }
+  },
+  "b01_independent_python_junit": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "14",
+    "time": "16.988",
+    "timestamp": "2026-10-17T20:32:57.512131+09:00",
+    "hostname": "hjkerman"
+  },
+  "flutter_counts": {
+    "passed": 1503,
+    "failed": 0,
+    "skipped": 2,
+    "finish": {
+      "success": true,
+      "type": "done",
+      "time": 5326338
+    }
+  },
+  "backend_junit": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "2855",
+    "time": "2796.274",
+    "timestamp": "2026-10-17T15:57:56.996757+09:00",
+    "hostname": "hjkerman"
+  }
+}

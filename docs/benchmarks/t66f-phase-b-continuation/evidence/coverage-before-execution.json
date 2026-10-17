@@ -1,0 +1,404 @@
+{
+  "starting_commit": "a08b91d9625ad685cea9ab8d0e977849a097f0ab",
+  "product_diff_since_phase_b": [],
+  "sections": [
+    {
+      "section": "## 1. 상태·범위·규범 용어",
+      "status": "A",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "원 감사 source identity와 독립 증거의 적용 범위를 보존한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 2. CURRENT 계약·소스와 binding 제약",
+      "status": "A",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "원 감사 source identity와 독립 증거의 적용 범위를 보존한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 3. 참여자와 책임",
+      "status": "A",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "원 감사 source identity와 독립 증거의 적용 범위를 보존한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 4. Version과 공통 타입",
+      "status": "A",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "원 감사 source identity와 독립 증거의 적용 범위를 보존한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 5. Dataset epoch·principal과 rollback fence",
+      "status": "B",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "이전 실제 HTTP/SQL 증거를 이월하고 남은 authority·negative·DB identity 조합을 보완한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 6. Revision·context·관측 identity",
+      "status": "A",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "원 감사 source identity와 독립 증거의 적용 범위를 보존한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 7. Canonical object bytes와 hash",
+      "status": "A",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "원 감사 source identity와 독립 증거의 적용 범위를 보존한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 8. Partitioning·Snapshot B+tree",
+      "status": "A",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "원 감사 source identity와 독립 증거의 적용 범위를 보존한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 9. Raw root·control·hot·sync root",
+      "status": "A",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "원 감사 source identity와 독립 증거의 적용 범위를 보존한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 10. 전역 구조 facts catalog",
+      "status": "A",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "원 감사 source identity와 독립 증거의 적용 범위를 보존한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 11. Global index의 canonical identity·갱신",
+      "status": "A",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "원 감사 source identity와 독립 증거의 적용 범위를 보존한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 12. Transactional capture·기존 trigger 통합",
+      "status": "A",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "원 감사 source identity와 독립 증거의 적용 범위를 보존한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 13. 실제 writer coverage와 root finalizer",
+      "status": "A",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "원 감사 source identity와 독립 증거의 적용 범위를 보존한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 14. Hot 평가·maintained aggregates",
+      "status": "A",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "원 감사 source identity와 독립 증거의 적용 범위를 보존한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 15. 새 API와 메시지 schema",
+      "status": "B",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "이전 실제 HTTP/SQL 증거를 이월하고 남은 authority·negative·DB identity 조합을 보완한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 16. Coherent observation 수명·인가",
+      "status": "B",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "이전 실제 HTTP/SQL 증거를 이월하고 남은 authority·negative·DB identity 조합을 보완한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 17. 오류·retry와 full-resync 분류",
+      "status": "B",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "이전 실제 HTTP/SQL 증거를 이월하고 남은 authority·negative·DB identity 조합을 보완한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 18. Initial·full synchronization",
+      "status": "A",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "원 감사 source identity와 독립 증거의 적용 범위를 보존한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 19. Base→target tree diff와 삭제 완전성",
+      "status": "C",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "고정 H/D 전체 N grid와 독립 HTTP/SQL/object/pin·median/p95·압축 비교를 완료해야 한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 20. No-change·historical edit/delete·month close",
+      "status": "C",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "고정 H/D 전체 N grid와 독립 HTTP/SQL/object/pin·median/p95·압축 비교를 완료해야 한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 21. 구체 JSON 예제와 해석 규칙",
+      "status": "A",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "원 감사 source identity와 독립 증거의 적용 범위를 보존한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 22. Legacy Snapshot v7의 정확한 materialization",
+      "status": "A",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "원 감사 source identity와 독립 증거의 적용 범위를 보존한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 23. Client validation의 정확한 수명",
+      "status": "A",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "원 감사 source identity와 독립 증거의 적용 범위를 보존한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 24. Mobile physical store와 publication 전제",
+      "status": "A",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "원 감사 source identity와 독립 증거의 적용 범위를 보존한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 25. Atomic publication·installation eligibility",
+      "status": "B",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "이전 실제 HTTP/SQL 증거를 이월하고 남은 authority·negative·DB identity 조합을 보완한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 26. Android durability와 safe fallback",
+      "status": "E",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "HOST process-death 증거는 보존한다. Android VFS/I/O·전원 손실은 기기 증거가 없으며 rollout을 차단한다.",
+      "owner": "device/rollout 담당",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 27. Client/server state machines·crash matrix",
+      "status": "B",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "이전 실제 HTTP/SQL 증거를 이월하고 남은 authority·negative·DB identity 조합을 보완한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 28. Pending receipt matrix",
+      "status": "A",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "원 감사 source identity와 독립 증거의 적용 범위를 보존한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 29. Frozen B/J와 reconciliation",
+      "status": "A",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "원 감사 source identity와 독립 증거의 적용 범위를 보존한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 30. Full resync·retry·blocked의 구분",
+      "status": "B",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "이전 실제 HTTP/SQL 증거를 이월하고 남은 authority·negative·DB identity 조합을 보완한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 31. 큰 Snapshot restore/Mobile Wins — 별도 contract",
+      "status": "D",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "R1 Large Restore/MW 및 전환 migration/rollback 소유다. 현재 isolated v7/v4/B/J parity만 이월하며 전체 F 의존성을 면제하지 않는다.",
+      "owner": "R1/전환 담당",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 32. Backup·pin·GC와 storage pressure",
+      "status": "A",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "원 감사 source identity와 독립 증거의 적용 범위를 보존한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 33. Legacy migration·old clients·rollback",
+      "status": "D",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "R1 Large Restore/MW 및 전환 migration/rollback 소유다. 현재 isolated v7/v4/B/J parity만 이월하며 전체 F 의존성을 면제하지 않는다.",
+      "owner": "R1/전환 담당",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 34. 미래 rollout과 구현 의존성",
+      "status": "C",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "§26/31/33/35 proof를 합쳐 전체 F exit를 판정한다. R1 및 device 증거 부재를 PASS로 처리하지 않는다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 35. Complexity·압축 비교와 measurable gate",
+      "status": "C",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "고정 H/D 전체 N grid와 독립 HTTP/SQL/object/pin·median/p95·압축 비교를 완료해야 한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 36. Normative invariant catalog",
+      "status": "A",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "원 감사 source identity와 독립 증거의 적용 범위를 보존한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 37. Negative matrix·결정적 기대값",
+      "status": "A",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "원 감사 source identity와 독립 증거의 적용 범위를 보존한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 38. 내부 정합성·미해결 구현 proof",
+      "status": "C",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "§26/31/33/35 proof를 합쳐 전체 F exit를 판정한다. R1 및 device 증거 부재를 PASS로 처리하지 않는다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    },
+    {
+      "section": "## 39. 이번 변경 검증·안전성",
+      "status": "A",
+      "prior": "docs/benchmarks/t66f-phase-b/coverage.md 및 원 감사 해당 절",
+      "implementation": "af9525e20e6df1dd7dfc152d3db79c1eb07925d2",
+      "applicable": true,
+      "remaining": "원 감사 source identity와 독립 증거의 적용 범위를 보존한다.",
+      "owner": "Phase B continuation 감사",
+      "acceptance": "실제 규범의 해당 MUST/검증 gate에 대한 독립 증거"
+    }
+  ],
+  "status_legend": {
+    "A": "INDEPENDENTLY VERIFIED — VALID EVIDENCE",
+    "B": "INDEPENDENTLY VERIFIED — REGRESSION REQUIRED",
+    "C": "UNVERIFIED — MANDATORY FOR CURRENT F",
+    "D": "EXPLICITLY DEFERRED TO R1",
+    "E": "ENVIRONMENT/DEVICE-DEPENDENT",
+    "F": "CONTRACT AMBIGUITY OR CONFLICT"
+  }
+}

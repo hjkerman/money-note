@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/home/hjkerman/codex/money-note/.venv/bin/python",
+    "-m",
+    "compileall",
+    "-q",
+    "backend/app",
+    "backend/isolated_sync",
+    "backend/tests",
+    "scripts",
+    "docs/benchmarks/t66f-phase-b-continuation"
+  ],
+  "cwd": "/home/hjkerman/codex/money-note",
+  "start_unix": 1792238370.2151914,
+  "status": "PASS",
+  "end_unix": 1792238370.2592096,
+  "seconds": 0.04401850700378418,
+  "exit": 0
+}

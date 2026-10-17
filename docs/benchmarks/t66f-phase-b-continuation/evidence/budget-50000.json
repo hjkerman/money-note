@@ -1,0 +1,43 @@
+{
+  "pid": 359705,
+  "n": 50000,
+  "raw_index_objects": 200329,
+  "complete_generation_minimum_objects": 200331,
+  "kinds": {
+    "index-root": 1,
+    "index-node": 100056,
+    "index-leaf": 100057,
+    "raw-root": 1,
+    "snapshot-leaf": 206,
+    "snapshot-node": 8
+  },
+  "table_rows": {
+    "app_labels": 19,
+    "app_settings": 7,
+    "notification_candidate_registrations": 1,
+    "card_payment_deferrals": 0,
+    "card_payment_allocations": 1,
+    "card_payment_events": 1,
+    "card_payment_batch_items": 1,
+    "card_payment_batches": 1,
+    "cash_flows": 2,
+    "monthly_panels": 2,
+    "ledger_entries": 50000
+  },
+  "raw_index_body_bytes": 130620050,
+  "sql_reachability_count": 200329,
+  "roots": {
+    "raw_hash": "6705da3a88eea569142e080e80e4629ea1e778804ae9d8e2eb4f7303cababe90",
+    "index_hash": "7b747e8b770cdbfce4868562f217d21a123577c8faae9107f1ab476f6e6b764c"
+  },
+  "namespace": {
+    "dataset_id": "22e6dc51-3b24-48b0-a299-a2f535f75ef9",
+    "epoch": "9000cef8-1032-4196-8e1b-8c1619f123b9",
+    "server_id": "329e22af-180f-4844-a056-8a6a0bc2986d"
+  },
+  "hash_set_sha256": "5d628595acae7428acaf92daf5ede21380b10be68bab37333caffc59cff3b33e",
+  "supported_fetch_maximum": 100000,
+  "supported_profile_can_fit": false,
+  "fetch_source_sha256": "a1e6b4b549dcb5a11d5e0cabcb7806ff42eb831f4192c40b353a103698721253",
+  "seconds": 25.850534512021113
+}

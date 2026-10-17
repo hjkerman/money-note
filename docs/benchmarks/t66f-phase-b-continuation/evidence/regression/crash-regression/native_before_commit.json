@@ -1,0 +1,1575 @@
+{
+  "barrier": {
+    "pid": 376041,
+    "root": "/tmp/mn-phase-b-ELRAHQ",
+    "db": "/tmp/mn-phase-b-ELRAHQ/segmented-store-v1/0b442a9f99c9ece36de85bcc85956d2c254b265e59e7cd4a63ccbda3ee9d2df5.sqlite",
+    "origin": "https://127.0.0.1:54825",
+    "target": {
+      "context": {
+        "evaluation_date": "2026-10-05",
+        "financial_engine": "f34aef259c801ada33ccb88cfb103ee6654fb4467c49a66ce509f2239ffe449d",
+        "timezone_offset_minutes": 540
+      },
+      "control_ref": {
+        "bytes": "3178",
+        "hash": "e5d8281808b75b1e9ba248d370495a27889ac5c519b43a0a3bfeb6546de22e64"
+      },
+      "hot_ref": {
+        "bytes": "6379",
+        "hash": "4703441a41b3c78343a01c1c05d1fa665163ec70447066c21fc6504a12ff7bb7"
+      },
+      "index_ref": {
+        "bytes": "394",
+        "hash": "86d6b3a5af0fddbf3afb8a1772d80b82436f3339b7beaae367a5c47c0bd5923a"
+      },
+      "ns": {
+        "dataset_id": "39809a9f-1f19-4437-9008-3bc5a677f982",
+        "epoch": "5c5856af-f8d3-4bb6-b818-b9f5b0c73f4a",
+        "server_id": "91c65099-ac8d-418d-b579-df291e55bdcb"
+      },
+      "principal_id": 1,
+      "raw_ref": {
+        "bytes": "2613",
+        "hash": "9309bd4b3dbfe8d13ab32ecd6354a6424beb10ebe73f90b7b3e3e87fe5dc6545"
+      },
+      "revision": "29",
+      "sync_root": "129e256cad9610240ef02b5513880578425ea8dfdee0a7d21f90bb707c89d53e",
+      "versions": {
+        "canon": 1,
+        "policy_registry": "18be2d36483467e9250d568bcbfed6458c15a364fa99896eb1b8daad05db043d",
+        "projection_schema": "89e2bd7bf3f1683ddff95a0b33b1e9ff08ff19d5a001f4007c40ed4c6c5b3437",
+        "raw_schema": "b948a0e33fc0abb6957af76beac643ac7131d2fcac3ab53265c02d16783f953e",
+        "recurring_ownership": 1,
+        "snapshot": 7,
+        "structural": 1,
+        "sync": 1
+      }
+    },
+    "boundary": "native_before_commit",
+    "initial": {
+      "frozen": "dacb84e5-c9a9-4176-8906-8fe8ab83ee4c",
+      "fingerprint": "b46a92ee68d2a5aa3ec320432a02e64c38cd549cb9c415ece7e812ffa614338f",
+      "baseline_sha256": "9baa3785692067186ddcad4d3a4e9c4c3bf1829071ec047edcc9425be19995f7",
+      "pending_sha256": "0c408e7b4547319aaf9233b99e02f476bcc3a9acdb9fc2098cf57f51193059c9",
+      "installed": [
+        {
+          "id": 1,
+          "generation_id": "23ba5b72-1265-4113-90bb-3f6d13c4876d",
+          "previous_id": null,
+          "sequence": 1,
+          "checksum": "448268a9eacc69121e10f88a2b61c6bf264e2b11c8f266144dfc96357192879f"
+        }
+      ]
+    }
+  },
+  "actual_signal": "SIGKILL",
+  "fresh": {
+    "accepted": "781719ef-f1db-4468-9276-40b8b6cfcc77",
+    "sequence": 2,
+    "frozen_fingerprint": "b46a92ee68d2a5aa3ec320432a02e64c38cd549cb9c415ece7e812ffa614338f",
+    "source": {
+      "storage": "segmented-store/1",
+      "namespace": "0b442a9f99c9ece36de85bcc85956d2c254b265e59e7cd4a63ccbda3ee9d2df5",
+      "frozen": "dacb84e5-c9a9-4176-8906-8fe8ab83ee4c",
+      "binding": "9f73c8087e0da744b2080413d3a0a5206ea4b1858a64df0143a783ef46c29d46",
+      "previous_file": null,
+      "previous_source": null
+    }
+  },
+  "durable": {
+    "pointers": {
+      "accepted": {
+        "id": 1,
+        "current_id": "781719ef-f1db-4468-9276-40b8b6cfcc77",
+        "previous_id": "23ba5b72-1265-4113-90bb-3f6d13c4876d",
+        "sequence": 2,
+        "checksum": "9a6a1542e43213a99a9a9ab76043b45010fc10f1a81b0d424c1d0ae8825a282b"
+      },
+      "installed": {
+        "id": 1,
+        "generation_id": "23ba5b72-1265-4113-90bb-3f6d13c4876d",
+        "previous_id": null,
+        "sequence": 1,
+        "checksum": "448268a9eacc69121e10f88a2b61c6bf264e2b11c8f266144dfc96357192879f"
+      }
+    },
+    "frozen": [
+      {
+        "id": "dacb84e5-c9a9-4176-8906-8fe8ab83ee4c",
+        "generation": "23ba5b72-1265-4113-90bb-3f6d13c4876d",
+        "state": "installed",
+        "binding": {
+          "baseline_sha256": "4cb806103fa4576120eaa62b7f22dd59903ecc54a17055edd4315d0031482bbc",
+          "generation": "23ba5b72-1265-4113-90bb-3f6d13c4876d",
+          "legacy_fingerprint": "b46a92ee68d2a5aa3ec320432a02e64c38cd549cb9c415ece7e812ffa614338f",
+          "legacy_lineage": "bfd8eb8ff5246568159dfced4eefcd9a684f1c849fa4841da3823d3dcde86803",
+          "namespace": "0b442a9f99c9ece36de85bcc85956d2c254b265e59e7cd4a63ccbda3ee9d2df5",
+          "resolved_id": null,
+          "sequence": 1,
+          "snapshot_id": "b9d8b10c92c0d0aa1a735aa406d2ef485009b9244f81bea6d1b5e60460e02e55",
+          "synced_at": "2026-10-17T11:53:37.582610Z",
+          "user": {
+            "display_name": "Owner",
+            "id": 1,
+            "share_pin_needs_change": false,
+            "username": "owner"
+          },
+          "version": 1
+        }
+      }
+    ],
+    "generations": {
+      "23ba5b72-1265-4113-90bb-3f6d13c4876d": {
+        "sync_root": "5a8fe680503967f6a7bb3aff607215433749d6617c343a5a966376893bbe0c3d",
+        "objects": 144,
+        "closure": [
+          "00312a99caaf70cfb00fd242c040f186b64162c79d0dd1c9e1193215de9b27df",
+          "00ed9b64ca09c3e19cf8cb6075a92eea43dfe03103d2bdfe916c7bb04977957b",
+          "01737c996eea1c07866bf4825dee7586de9f9b0959f7d4113fbbb334daff75b9",
+          "03aa4e39c8e1de4ca451a1840790540af11bf8b4274a993b86dd893d084ef0b5",
+          "07d8a7a0fcd58c8875ad4475330c29422d0d110d5d546e8a44c06d96f45526a8",
+          "0934d8dc0a067b1b039687a2f18233d8ba8c4f2733231d89ba105187f602e90e",
+          "0b4688652b7eb0cac6c030bb6d05db12a2c0249f934e43745fbebcb87de57782",
+          "11a06c738225abd6bf11bd8dcd6f193e398b5fbbfef0a6c06918ed2cc378f2df",
+          "134f6458cee03b52e9f269ad5dc6b002acd100e64ee23c4f206eefb1739e6242",
+          "14052b37154356bbd39dfee2e52ec06c3fa8e6911601d921f7b79b9762884e2c",
+          "1485addfb3fdd0a81832fda93d1a3341a56a7c2366faf71758695961e85092e5",
+          "15ddd86a87983c234de96a49386f7b8e06d42ab05099522f2f91cacefe9ff016",
+          "1649164713d94c44b340452be81333234f089b6b665e24689d78b0c878cb3fc7",
+          "17809d1373802ddb5d7afb659bec8185c704effff534b9dafaa3d0e9665ef3ba",
+          "19142d1d89f3f18df1ba8a9f2cc68342bdd637ce12f2c5424226d807ec49f3fe",
+          "1a22f8f05f906fcba84594f1721694e80610b926541031c2926b10569ab15bd3",
+          "1a9ec578d5ff2ec35a6db2985dd7fed1090feeddf1d07ed95a658b7604de8271",
+          "1be8b721ce2878678933c67f045d4d117bea3aadd3904150be86abbd386fcaa1",
+          "1c52deda8cdf9e140d75ab06679b45d84c9cbd4858dedf4a79d3c913ca9648e9",
+          "22cbfec485657cce4c2ccf1b4f7e51d40e5f25098e2af84f0612c6105a984a18",
+          "2479a2dd4c2b1c535e068a5a59c17911c8b3b2870e9fe2236bc839b1351b6ffd",
+          "26a81bf181c6ceb1d78b8902c2ef0c307b41a1454a917dd22f78540bcb08e558",
+          "2a3a54520e95a054646a73b57b824145be419068623fa5a74073bd0a2363f509",
+          "2ad885bd14203b3cf9d5758b69887bfa6833e2d1067b29c0715e57afe6d55679",
+          "2b2b0d9861f9e068de8bd4b1843e439019bc87761290a169c60f18096b749d10",
+          "33cdd80885385206972afd91818c890415d2c0548b4016bba51a2d0ec70ba316",
+          "3438d48d69aa49f25b535ae1b387a29df5873213c496acec31924adfe21ccd9d",
+          "348c74a9a545e241ba30280d4b0fad4612c7f78166bb53a66a730c5671340c48",
+          "35521283139c7991782b16e3fac7cce35ecd446e79791bbc04df44c6c25fbb85",
+          "384560d845052b6d6492b5621e4dd2e6a108f2e0425ae1b1fb092086a120b300",
+          "38b299e0cc304b4a84548d00463cde644cdd31190ab0199fefa040ad60a80249",
+          "39e89ad8feb457a6a276ce534586b31f7367f0be64230a828e13d36cabde1359",
+          "3b78da9d533d75e7254f19df8bdec2909a8c285802d9efa51f4df08a07254f69",
+          "3f7f46b5edf0bd9d13d6e8588b3e0062f6fbabd9abf29db51d3c6bda8323b4e5",
+          "40288b5e228ecf3b3d800ed67320dfd6bcbedab90f2bfeb70281a1aef11698c0",
+          "4035c520096dda0276e610c3d124d7b756b4a372f468fb9b60150b62d2ebb34c",
+          "40e4dd12c3a66ec7f167a1a3254485c4d3da477008c24dd6281e2a4488c4c8e8",
+          "41f85ad932bc9b239e437b5d5f2695190093a1de8f389b4a095f9c12447bce75",
+          "468b9bcb368c1ba950700ffca0548b9f52db6c91d45dbaee549e95bbf3ec4fce",
+          "4863e8cc7a17056f66f7f4e35d2fa9477bb28459c700ff7e52b983bfff855465",
+          "4ce8fac18140c60d0a206e107882ca9b06521494f873c5e9f5704da3f75070d9",
+          "4e223e0ccdbba5a23c4684fe5389ee85c8a6b4a1a7c89ad3c117298b01fd463e",
+          "4f081755af50b4171c1c5b40a55d333cbf84396196c341cb14c51a75e2799a16",
+          "505fe7c42bd361d6e2c6f9c77c40fb5cb1702f941fb1137f56cb3d78e2e4b223",
+          "5071fb24ad6e29a6d1660688cbaf41d1a639307c015db836fd98fbfb667748e2",
+          "50acb8e996554b3dda04e53da914a180d867def19342f79934fe78afc2343228",
+          "50ff9f8940444907be0115ab6263ecd4d14995b8620e00a015ac67b4a8369466",
+          "5749bc6474b4b37ab33530474835bc9924a093abbe801a408380fc60efbcdc6f",
+          "59fc0ab3d02d4a417de918112d08255fc25e71321915b04e5891b855efd53fcc",
+          "5b275043e9b07a50efbdfee5d6e8bcb41a887b1e78623d388537fa907a6700ac",
+          "5e35c200614a4927df7272ff3070749de7021cc6bcde35d3d91bcc33cfdfc52f",
+          "61a1bcfe2ef373957bf781f79540ce494cdfc4d53923a319c8f55f1f10782f0a",
+          "63b000722dcb14e8f014adc2607daf89108fda3e0102ad32484579367d0c649d",
+          "653e82fe57bc1a46e6d759c3caec077947dcc4c31b6363d52886abfb07bf38f3",
+          "669b6d5b97bddb10918fb203f9a781805fec6be359195b0a122dddd769db4a58",
+          "68846bb5bddcd29388a50af5da038f3c734e72b887d8bb97962c2946db3eb023",
+          "6ba96b658b45d8f6d3e7a5d14afe1a14a5cdd97e068e5cd5162546152730d684",
+          "6e7739f9494f53003bfd0fa043e5576bc9210ba4667095091ff47212ecdb49a3",
+          "6ff8c9f534568f1852bb44e5e7a237e930c9d916924c2ba47045775c6b0d9226",
+          "707b296413da9e7018df2d29f4209e9842764ee597e8d17e53a2165511df6549",
+          "724818dcdcad150414bd1670b036ea5d11eadd4aeee5ee971168970ecd01e19c",
+          "74aed348d05a6a12214af92f20774c78a943139c208c34632ff48dbc17511e39",
+          "78ae0c14638a163e71a7c17f0346451cf08b005ad7e70a47e674ac00fd7fc716",
+          "79743197f9fb6c60c407d0075b3b5d490005c3a1b108f6c823b972f8e5d6ab44",
+          "7d7f9d6dbe101f9b7a034bb54a46ec9d9c323b1f410829cba3d726a51995c019",
+          "7e99bfc98eb015cb8ea6bc98a9995b00dcbe0e8bd317982ec31ffd5421716ae3",
+          "7f160ce50c042f9894b9e2dc620b5a8a772d51f0ecfc615f703c488ca96c9e31",
+          "8008e0f20998fd0c3cbf2374aa572cab5e397be18c0454c2b5865476a7de2040",
+          "8073727c0da51c20f111dd0b8e218fe20d0beabd17b353621793ab1fd5924e25",
+          "81d8e0e9e67efe276be10cfe1e0ae5b258bad3fa9ed264ba816f4d4e357c375f",
+          "8669091bb02268e0e119adef7c43269a55930009baae03e19c2fe5f38ba04ede",
+          "879bc556f4254acaea083df065d28c2fa5150810189301f0d62297a15bc6c278",
+          "889172f7a0056b61daeef143012a52b38b350651619d134361cdfb9a3910564b",
+          "896335e458f50e7766c106e9d0c168fb60647b416ba352badb1254c1527c44a0",
+          "89fb1d4f0df51ad2190c8c5cb78be84c7631d8df1f2663162e47a506e5173654",
+          "8cee5ee7bfc01114d6e6b0dd8e8273b3afbc7ef27ca97151af5ec313ebc6b333",
+          "8f3d1ed6dfd4a3ad07bfbbed6b68e8ec6cc9d6a89a763abe541a8858748ca47d",
+          "9071cb769cf9cd130d6470e6bde489933f580829ad5605c2e2a16bc8b04ddab0",
+          "91a26a744a498557ae28ae132f6e685ce14f733fd2597e4476fccb7bf39c67bb",
+          "91a8246319b1d6ac0998c79e027a4dfb38151469f6816c9d42ab262e2264fbe5",
+          "94ff973ed60529cc67abf225c445b95d1f763c26f123de14774b7dba8f1526fd",
+          "962b7dcee205df6781c37e1c60e23cc73c65bc32db159b11262989f75920d8dc",
+          "989eee05e08e6b33807311586799fa251636f9384efc546c3d3be67e1fcd3d73",
+          "98c3d62296a25dcaa1ed3827d4f116f68c3f83b26161ba7d8fd396014793fe21",
+          "9b6ff4619c51063bf8b93719d1992d082f603cfa788806c1fbfd862d3e92c8ff",
+          "9b76e5298a80f14ea4a95a7e3cfd55329f14ca3c6fee62553e3c6fe99b9182b9",
+          "9de9e433ec0a1398d4ece8adc5d701b384695d5fb54b9dda39d1c0e8932a56ce",
+          "9e8af40f6ea3a69234d6b6243d745b7c8959818562a72c4fef2994036ca1affa",
+          "9ed4a725dae7779fb8bf3fc7251cf2537e59773e85a474cebfe0c47561ec48ba",
+          "9eea99d0bb20a727a47e711c9f6f6b1434e09fd7cfc2d4e4df9fbb947ad86989",
+          "9eed902c3ed6f074fddf31ad9a3df1d56858e7f81fdeab1a6ff40ef83a577660",
+          "a1915bfe49fe8ab3f6fff2fe3a24a5a2506d454804ccc18633499bfcd2f9058b",
+          "a230048d4306ba304d93bd5fae806b105e38ea71a9cf00ed80136b59569323e2",
+          "a689c6971b20a896fc6987c2f06cafb60999ae0adeeb3ac3a122d3122fa85213",
+          "a6f8543553d3df613b56c73811794988df762f881f10daf17283424d6be02ed1",
+          "ab994bb90c41befd4cb69cc24fb4deb05dd7912d74ffa096acf367d637498943",
+          "b1d8cbfcc73ea50b7d2d00fa4f3102097837bcd0e929ee70aa67589338fd32a0",
+          "b26325b029b0669f99b3ee02763bdd8b221a1aa34eed412361c0044967f6b6a2",
+          "b4ca809fb39f3aac706de0a132dab26734e5cefca062fbcbdff81e9369d504a4",
+          "b610f18d39ef0116fa8b3efef29ad53dc546210adcfc5bf5ac2d5b935db5743f",
+          "b672fb30151cc73d5e7664308a61ef6c46c2c5d5a9a930846c480d299adeb796",
+          "b90865ddd6a26f6faa3376d27f53daafc9fb0b8551831fbe26d7e6898aa0de31",
+          "baefe07e37094b43c0dade4b290ebddc6dc35c9c2e70fd1f6974452a4c61e99e",
+          "bb9af01d5d6a036d849a68461da4088fc4f7bee4e4a5873ebaf77868a31f2833",
+          "bbccd2226642931b90b13f495f87f9f120ca69ff06a7968bc281dadf5ea217f9",
+          "bbdc57ff52ed6be1f5578581963196e9635a9b07e08203779dad9023eea1f912",
+          "be28a5408c9165eeed5f43e161cd9ed088a134963e2bb6ba88450b71e476d82f",
+          "c0cb4690eb578a991107fb1e35a07cb274c404818c82cc2da75f3013c25f6a6a",
+          "c3d5f6ce5f0adbd6981997ff244535159f2f89f1e972d5a3dc62aed62327f824",
+          "c51577649ec42a97f480495f7a02f6ce86d35a1ea4dc4dd5a5829132267aef81",
+          "c531ad4bee61e6613864e59eaa2e8f7e9873274964cb810f7e04578e3a9777c2",
+          "c5b1586bd36ffe988b32a425f8b3a1a4b547f9c7889b02471b481e8e04c0a8b1",
+          "c63cbdc55f11cc309413537dda5d414345b92f2fd68759ada780d8dac6e7d3ac",
+          "c983bea115828f5f90c902eecb6a4025ae3d23e810ccd97a65ea019af10797d2",
+          "ca0e89a810671478086a151a71a73e60fcc4ad79af7f7ea9caae557de2309b6b",
+          "ca53d3d8150051bd09108728678fa10d0387be0e6ad32e06df96614329c87ef2",
+          "cdb74653dac4f434631aaf31387f1a7ce1a6b49405bf3f8cdb78c31e2cfa73c4",
+          "cf25dfd0601db905468736572bb7da90d8eed2c000a8bbe8943882b5a366db30",
+          "d4a4f062cadfe59601bab4ee3fab60aaf0b64fa0b974c7145cb1806fb9aeaaca",
+          "d59c660116bb1fd1f4826b9fb78c249d9eb232aa4e7350aa8ec8a225769cc1ed",
+          "d8bc8021784f8bf065d234843943b3e082ec435ce7dfe92da278e8fe32c2b9a7",
+          "db3c8f6d48eb8071f6dc57d646970bcde40a6663a90db70245ff5cf515a9611c",
+          "e0ceff15fb0b582001a099c16221f4f0a78ea23b300a3caf420b942b47c1be53",
+          "e1b5a7640a66413004266166d89df617f5863061d94e339b0f6c212e7b0cf11c",
+          "e44d1e42e6dfcaef4e0acc6490fc39ef60def8a3b9821f21c73b934f82470051",
+          "e50e1f34c9726e49d49c6ed77738f1de85286bc834885770999e29dd80f87ce7",
+          "e5d2c23dbede7951ce4a0c0c3716ab3e5f587182e208fe0d889fffc1814efb9d",
+          "e5d8281808b75b1e9ba248d370495a27889ac5c519b43a0a3bfeb6546de22e64",
+          "e8d898fb806ec5dac1d59de9ffc349d0435deb905ff42c03e62d81ea4016d943",
+          "e958488e72d5532fc6bf1bebe9c57c3fde37de971621dac374c7730c59d1a3c6",
+          "eea5008cf9cc6b5296cf022e82d2cc214991bc7bb120878d861ac8bb084b6296",
+          "f0ebad8de00d57495124f145ef45e04b53314aa325961ab360cac075a39db2e2",
+          "f37a5ab2357c4c44ec26a2371745031482d01121902c6464748f893608e6817d",
+          "f46fe7428651ceaa7f7c9b175cc5e2e88e2f792d0a98ab784afc9d037ce58e95",
+          "f495bf336dc0b3d1a2f95af0d50f13219309bd26ad74159453d6579c8027e0dd",
+          "f5c294a5f4d8d5396e7d00909293531efd35eaa77e2550e8ae19f9914747bda7",
+          "f91c85a9ad69c9714b099b641d8eca7b8b869e7d4b4a0441bc26b0a39fe1d2df",
+          "f92e848678bca946a61a61ee9cad4f8b7374bbd619d0057c913e2bf73c149c0d",
+          "f983720a372ff422edb5c93d0d7effef7304a5dcfc2089ad5de297c40575badc",
+          "fb2b1d10bfc719bf8adb44f80e2a8fceab605b8e3cf6aab99448f5a4e9b81da7",
+          "fb6c5fdfe78ef66a95f3595b3e6c4d930632d409309ca84bf74407df7e54b779",
+          "fbf8a6bcbc3bb204ea3d9bdc1cc4d71a6f4f3de107ab962489c071cde56336c1",
+          "fc06bc0c06ab05e7bc1a5850a274d21fd4d083fa7d6e2290583f85a37dc4d268",
+          "fe255e6e3471fbb460c6cecd5be5cd34486ca8b3ce48ce5db5f7ac106b0728f8"
+        ],
+        "source": {
+          "ledger_entries": [
+            {
+              "amount_expr": null,
+              "amount_value": 1200,
+              "aux_amount_expr": null,
+              "aux_amount_value": null,
+              "book_section": "current",
+              "confirmed_at": null,
+              "confirmed_month": null,
+              "created_at": "2026-10-17 11:52:59",
+              "date_label": null,
+              "discount_override": 0,
+              "due_day": null,
+              "entry_date": "2026-10-05",
+              "entry_kind": "expense",
+              "extra_value": null,
+              "group_label": null,
+              "id": 100,
+              "payment_key": "card-100",
+              "sort_order": 1,
+              "source_planned_entry_id": null,
+              "spending_category": "general",
+              "title": "card 한글 😀 é",
+              "updated_at": "2026-10-17 11:52:59",
+              "usage_item": null,
+              "usage_place": null
+            },
+            {
+              "amount_expr": null,
+              "amount_value": 1000,
+              "aux_amount_expr": null,
+              "aux_amount_value": null,
+              "book_section": "archive",
+              "confirmed_at": null,
+              "confirmed_month": null,
+              "created_at": "2026-10-17 11:52:59",
+              "date_label": null,
+              "discount_override": 0,
+              "due_day": null,
+              "entry_date": null,
+              "entry_kind": "expense",
+              "extra_value": null,
+              "group_label": null,
+              "id": 1000,
+              "payment_key": "f-history-0",
+              "sort_order": 0,
+              "source_planned_entry_id": null,
+              "spending_category": null,
+              "title": "역사 😀 é 0",
+              "updated_at": "2026-10-17 11:52:59",
+              "usage_item": null,
+              "usage_place": null
+            },
+            {
+              "amount_expr": null,
+              "amount_value": 1000,
+              "aux_amount_expr": null,
+              "aux_amount_value": null,
+              "book_section": "archive",
+              "confirmed_at": null,
+              "confirmed_month": null,
+              "created_at": "2026-10-17 11:52:59",
+              "date_label": null,
+              "discount_override": 0,
+              "due_day": null,
+              "entry_date": "2026-07-03",
+              "entry_kind": "expense",
+              "extra_value": null,
+              "group_label": null,
+              "id": 1001,
+              "payment_key": "f-history-1",
+              "sort_order": 1,
+              "source_planned_entry_id": null,
+              "spending_category": null,
+              "title": "역사 😀 é 1",
+              "updated_at": "2026-10-17 11:52:59",
+              "usage_item": null,
+              "usage_place": null
+            },
+            {
+              "amount_expr": null,
+              "amount_value": 1000,
+              "aux_amount_expr": null,
+              "aux_amount_value": null,
+              "book_section": "archive",
+              "confirmed_at": null,
+              "confirmed_month": null,
+              "created_at": "2026-10-17 11:52:59",
+              "date_label": null,
+              "discount_override": 0,
+              "due_day": null,
+              "entry_date": "2026-07-03",
+              "entry_kind": "expense",
+              "extra_value": null,
+              "group_label": null,
+              "id": 1002,
+              "payment_key": "f-history-2",
+              "sort_order": 2,
+              "source_planned_entry_id": null,
+              "spending_category": null,
+              "title": "역사 😀 é 2",
+              "updated_at": "2026-10-17 11:52:59",
+              "usage_item": null,
+              "usage_place": null
+            }
+          ],
+          "monthly_panels": [
+            {
+              "amount_expr": null,
+              "amount_value": 300,
+              "confirmed_at": null,
+              "confirmed_cash_flow_id": null,
+              "confirmed_month": null,
+              "created_at": "2026-10-17 11:52:59",
+              "discount_amount": 0,
+              "discount_override": 0,
+              "due_day": null,
+              "id": 100,
+              "month": "2026-10",
+              "panel_type": "claim",
+              "sort_order": 1,
+              "spent_on": null,
+              "title": "claim 한글 😀 é",
+              "updated_at": "2026-10-17 11:52:59"
+            }
+          ],
+          "cash_flows": [
+            {
+              "amount_value": -50,
+              "created_at": "2026-10-17 11:52:59",
+              "id": 100,
+              "is_primary_income": 0,
+              "occurred_on": "2026-10-05",
+              "sort_order": 1,
+              "title": "cash 한글 😀 é",
+              "updated_at": "2026-10-17 11:52:59"
+            }
+          ],
+          "card_payment_batches": [
+            {
+              "created_at": "2026-10-17 11:52:59",
+              "id": 100,
+              "source": "month_close",
+              "status": "active",
+              "usage_month": "2026-09"
+            }
+          ],
+          "card_payment_batch_items": [
+            {
+              "batch_id": 100,
+              "created_at": "2026-10-17 11:52:59",
+              "entry_id": 100,
+              "entry_payment_key": "card-100",
+              "id": 100
+            }
+          ],
+          "card_payment_events": [
+            {
+              "batch_id": 100,
+              "cash_flow_id": 100,
+              "created_at": "2026-10-17 11:52:59",
+              "event_date": "2026-10-05",
+              "event_type": "immediate",
+              "id": 100,
+              "idempotency_key": null,
+              "note": "",
+              "request_fingerprint": null,
+              "total_amount": 50
+            }
+          ],
+          "card_payment_allocations": [
+            {
+              "amount_value": 50,
+              "created_at": "2026-10-17 11:52:59",
+              "entry_payment_key": "card-100",
+              "id": 100,
+              "payment_event_id": 100
+            }
+          ],
+          "card_payment_deferrals": [
+            {
+              "created_at": "2026-10-17 11:52:59",
+              "entry_payment_key": "card-100",
+              "from_payment_month": "2026-10",
+              "original_book_section": null,
+              "original_date_label": null,
+              "original_entry_date": null,
+              "original_group_label": null,
+              "original_sort_order": null,
+              "original_title": null,
+              "target_payment_month": "2026-11"
+            }
+          ],
+          "notification_candidate_registrations": [
+            {
+              "created_at": "2026-10-17 11:52:59",
+              "registration_key": "reg-100",
+              "request_fingerprint": "request",
+              "target": "ledger",
+              "target_id": 100
+            }
+          ],
+          "app_settings": [
+            {
+              "key": "card_limit",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "0"
+            },
+            {
+              "key": "cash_flow_balance",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "\u001c+0001000.00\u001f"
+            },
+            {
+              "key": "d1-setting",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "setting"
+            },
+            {
+              "key": "family_card_last4",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": ""
+            },
+            {
+              "key": "owner_card_last4",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": ""
+            },
+            {
+              "key": "scheduled_income",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "0"
+            }
+          ],
+          "app_labels": [
+            {
+              "key": "archive_header_amount",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "금액"
+            },
+            {
+              "key": "archive_header_date",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "날짜"
+            },
+            {
+              "key": "archive_header_title",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "세부내역"
+            },
+            {
+              "key": "current_header_amount",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "금액"
+            },
+            {
+              "key": "current_header_date",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "날짜"
+            },
+            {
+              "key": "current_header_title",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "세부내역"
+            },
+            {
+              "key": "d1-label",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "label"
+            },
+            {
+              "key": "é",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "원문 é"
+            },
+            {
+              "key": "panel_claim_title",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "청구"
+            },
+            {
+              "key": "panel_family_card_title",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "가족카드"
+            },
+            {
+              "key": "panel_fixed_title",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "현금성 고정지출"
+            },
+            {
+              "key": "panel_frozen_title",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "동결"
+            },
+            {
+              "key": "panel_header_amount",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "금액"
+            },
+            {
+              "key": "panel_header_title",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "세부내역"
+            },
+            {
+              "key": "summary_card_total_label",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "카드대금"
+            },
+            {
+              "key": "summary_cash_flow_balance_label",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "현금흐름 반영액"
+            },
+            {
+              "key": "summary_frozen_asset_label",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "동결자산"
+            },
+            {
+              "key": "summary_remaining_liquidity_label",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "잔여 유동성"
+            },
+            {
+              "key": "summary_title",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "요약"
+            },
+            {
+              "key": "summary_transfer_or_deposit_label",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "고정지출"
+            },
+            {
+              "key": "",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "원문 "
+            },
+            {
+              "key": "😀",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "원문 😀"
+            }
+          ]
+        },
+        "control": {
+          "canon": 1,
+          "card_charge_policy": {
+            "cards": {
+              "family": [
+                {
+                  "effective_from": "0001-01",
+                  "parameters": {
+                    "rate": "0.012"
+                  },
+                  "policy_id": "family-flat-statement-1.2",
+                  "type": "flat_statement"
+                }
+              ],
+              "owner": [
+                {
+                  "effective_from": "0001-01",
+                  "parameters": {
+                    "rate": "0.012"
+                  },
+                  "policy_id": "owner-flat-statement-1.2",
+                  "type": "flat_statement"
+                }
+              ],
+              "toll": [
+                {
+                  "effective_from": "0001-01",
+                  "parameters": {},
+                  "policy_id": "toll-no-automatic-discount",
+                  "type": "no_automatic_discount"
+                }
+              ],
+              "transit": [
+                {
+                  "effective_from": "0001-01",
+                  "parameters": {},
+                  "policy_id": "transit-no-automatic-discount",
+                  "type": "no_automatic_discount"
+                }
+              ]
+            },
+            "classifier": {
+              "matching": "case_insensitive_substring",
+              "precedence": [
+                "toll",
+                "transit",
+                "default_card"
+              ],
+              "schema_version": 1,
+              "toll_words": [
+                "통행",
+                "통행료",
+                "하이패스"
+              ],
+              "transit_words": [
+                "교통",
+                "대중교통",
+                "버스",
+                "지하철"
+              ]
+            },
+            "covered_through": "2026-10",
+            "profile_selectors": {
+              "transit": {
+                "card": "transit",
+                "default": "none",
+                "modes": [
+                  "none",
+                  "owner"
+                ],
+                "none_mode": {
+                  "policy": {
+                    "parameters": {},
+                    "policy_id": "transit-no-automatic-discount",
+                    "type": "no_automatic_discount"
+                  }
+                },
+                "owner_mode": {
+                  "month_policy_source": "owner",
+                  "policy_source": "owner"
+                },
+                "schema_version": 1,
+                "selection": "latest_effective_month",
+                "setting_prefix": "card_charge_profile:transit:"
+              }
+            },
+            "schema_version": 2
+          },
+          "columns": {
+            "app_labels": [
+              "key",
+              "updated_at",
+              "value"
+            ],
+            "app_settings": [
+              "key",
+              "updated_at",
+              "value"
+            ],
+            "card_payment_allocations": [
+              "amount_value",
+              "created_at",
+              "entry_payment_key",
+              "id",
+              "payment_event_id"
+            ],
+            "card_payment_batch_items": [
+              "batch_id",
+              "created_at",
+              "entry_id",
+              "entry_payment_key",
+              "id"
+            ],
+            "card_payment_batches": [
+              "created_at",
+              "id",
+              "source",
+              "status",
+              "usage_month"
+            ],
+            "card_payment_deferrals": [
+              "created_at",
+              "entry_payment_key",
+              "from_payment_month",
+              "original_book_section",
+              "original_date_label",
+              "original_entry_date",
+              "original_group_label",
+              "original_sort_order",
+              "original_title",
+              "target_payment_month"
+            ],
+            "card_payment_events": [
+              "batch_id",
+              "cash_flow_id",
+              "created_at",
+              "event_date",
+              "event_type",
+              "id",
+              "idempotency_key",
+              "note",
+              "request_fingerprint",
+              "total_amount"
+            ],
+            "cash_flows": [
+              "amount_value",
+              "created_at",
+              "id",
+              "is_primary_income",
+              "occurred_on",
+              "sort_order",
+              "title",
+              "updated_at"
+            ],
+            "ledger_entries": [
+              "amount_expr",
+              "amount_value",
+              "aux_amount_expr",
+              "aux_amount_value",
+              "book_section",
+              "confirmed_at",
+              "confirmed_month",
+              "created_at",
+              "date_label",
+              "discount_override",
+              "due_day",
+              "entry_date",
+              "entry_kind",
+              "extra_value",
+              "group_label",
+              "id",
+              "payment_key",
+              "sort_order",
+              "source_planned_entry_id",
+              "spending_category",
+              "title",
+              "updated_at",
+              "usage_item",
+              "usage_place"
+            ],
+            "monthly_panels": [
+              "amount_expr",
+              "amount_value",
+              "confirmed_at",
+              "confirmed_cash_flow_id",
+              "confirmed_month",
+              "created_at",
+              "discount_amount",
+              "discount_override",
+              "due_day",
+              "id",
+              "month",
+              "panel_type",
+              "sort_order",
+              "spent_on",
+              "title",
+              "updated_at"
+            ],
+            "notification_candidate_registrations": [
+              "created_at",
+              "registration_key",
+              "request_fingerprint",
+              "target",
+              "target_id"
+            ]
+          },
+          "discount_policy_defaults": {
+            "family": "disabled",
+            "owner": "enabled"
+          },
+          "exported_at": "2026-10-05T00:00:00Z",
+          "kind": "control",
+          "ns": {
+            "dataset_id": "39809a9f-1f19-4437-9008-3bc5a677f982",
+            "epoch": "5c5856af-f8d3-4bb6-b818-b9f5b0c73f4a",
+            "server_id": "91c65099-ac8d-418d-b579-df291e55bdcb"
+          },
+          "range": {
+            "scope": "all"
+          },
+          "recurring_ownership_version": 1,
+          "snapshot_schema": 7
+        },
+        "receipt": "c1d00f61aaf955fbc687e77839f371570f0762c78cfd0a6310eec7f11bd5d216"
+      },
+      "781719ef-f1db-4468-9276-40b8b6cfcc77": {
+        "sync_root": "129e256cad9610240ef02b5513880578425ea8dfdee0a7d21f90bb707c89d53e",
+        "objects": 144,
+        "closure": [
+          "00312a99caaf70cfb00fd242c040f186b64162c79d0dd1c9e1193215de9b27df",
+          "00ed9b64ca09c3e19cf8cb6075a92eea43dfe03103d2bdfe916c7bb04977957b",
+          "01737c996eea1c07866bf4825dee7586de9f9b0959f7d4113fbbb334daff75b9",
+          "03aa4e39c8e1de4ca451a1840790540af11bf8b4274a993b86dd893d084ef0b5",
+          "07d8a7a0fcd58c8875ad4475330c29422d0d110d5d546e8a44c06d96f45526a8",
+          "0934d8dc0a067b1b039687a2f18233d8ba8c4f2733231d89ba105187f602e90e",
+          "0b4688652b7eb0cac6c030bb6d05db12a2c0249f934e43745fbebcb87de57782",
+          "11a06c738225abd6bf11bd8dcd6f193e398b5fbbfef0a6c06918ed2cc378f2df",
+          "134f6458cee03b52e9f269ad5dc6b002acd100e64ee23c4f206eefb1739e6242",
+          "14052b37154356bbd39dfee2e52ec06c3fa8e6911601d921f7b79b9762884e2c",
+          "1485addfb3fdd0a81832fda93d1a3341a56a7c2366faf71758695961e85092e5",
+          "1649164713d94c44b340452be81333234f089b6b665e24689d78b0c878cb3fc7",
+          "17809d1373802ddb5d7afb659bec8185c704effff534b9dafaa3d0e9665ef3ba",
+          "19142d1d89f3f18df1ba8a9f2cc68342bdd637ce12f2c5424226d807ec49f3fe",
+          "1a22f8f05f906fcba84594f1721694e80610b926541031c2926b10569ab15bd3",
+          "1a9ec578d5ff2ec35a6db2985dd7fed1090feeddf1d07ed95a658b7604de8271",
+          "1b84c886d12baa468d4f36320ad86c0f2ca330a9b3508c54ba0516161529ceaf",
+          "1be8b721ce2878678933c67f045d4d117bea3aadd3904150be86abbd386fcaa1",
+          "1c52deda8cdf9e140d75ab06679b45d84c9cbd4858dedf4a79d3c913ca9648e9",
+          "22cbfec485657cce4c2ccf1b4f7e51d40e5f25098e2af84f0612c6105a984a18",
+          "2479a2dd4c2b1c535e068a5a59c17911c8b3b2870e9fe2236bc839b1351b6ffd",
+          "26a81bf181c6ceb1d78b8902c2ef0c307b41a1454a917dd22f78540bcb08e558",
+          "2a3a54520e95a054646a73b57b824145be419068623fa5a74073bd0a2363f509",
+          "2ad885bd14203b3cf9d5758b69887bfa6833e2d1067b29c0715e57afe6d55679",
+          "2b2b0d9861f9e068de8bd4b1843e439019bc87761290a169c60f18096b749d10",
+          "2f6ce47042c97c1af1440b2ec564be6251fbd6a3d5ce0b962d35c45ec56981b0",
+          "333d060cf319bcd4d7dd56bc4cfaa9ffcb5d3c26196bf5beb0d9f0277db6c434",
+          "33cdd80885385206972afd91818c890415d2c0548b4016bba51a2d0ec70ba316",
+          "348c74a9a545e241ba30280d4b0fad4612c7f78166bb53a66a730c5671340c48",
+          "35521283139c7991782b16e3fac7cce35ecd446e79791bbc04df44c6c25fbb85",
+          "36f39ed7f2ef4d018c2780d4d7735e8e5106526307eb984a024a8480c5019b69",
+          "384560d845052b6d6492b5621e4dd2e6a108f2e0425ae1b1fb092086a120b300",
+          "38b299e0cc304b4a84548d00463cde644cdd31190ab0199fefa040ad60a80249",
+          "39e89ad8feb457a6a276ce534586b31f7367f0be64230a828e13d36cabde1359",
+          "3b78da9d533d75e7254f19df8bdec2909a8c285802d9efa51f4df08a07254f69",
+          "3f7f46b5edf0bd9d13d6e8588b3e0062f6fbabd9abf29db51d3c6bda8323b4e5",
+          "40288b5e228ecf3b3d800ed67320dfd6bcbedab90f2bfeb70281a1aef11698c0",
+          "4035c520096dda0276e610c3d124d7b756b4a372f468fb9b60150b62d2ebb34c",
+          "41f85ad932bc9b239e437b5d5f2695190093a1de8f389b4a095f9c12447bce75",
+          "468b9bcb368c1ba950700ffca0548b9f52db6c91d45dbaee549e95bbf3ec4fce",
+          "4703441a41b3c78343a01c1c05d1fa665163ec70447066c21fc6504a12ff7bb7",
+          "4863e8cc7a17056f66f7f4e35d2fa9477bb28459c700ff7e52b983bfff855465",
+          "4ce8fac18140c60d0a206e107882ca9b06521494f873c5e9f5704da3f75070d9",
+          "4f081755af50b4171c1c5b40a55d333cbf84396196c341cb14c51a75e2799a16",
+          "505fe7c42bd361d6e2c6f9c77c40fb5cb1702f941fb1137f56cb3d78e2e4b223",
+          "5071fb24ad6e29a6d1660688cbaf41d1a639307c015db836fd98fbfb667748e2",
+          "50acb8e996554b3dda04e53da914a180d867def19342f79934fe78afc2343228",
+          "50ff9f8940444907be0115ab6263ecd4d14995b8620e00a015ac67b4a8369466",
+          "5749bc6474b4b37ab33530474835bc9924a093abbe801a408380fc60efbcdc6f",
+          "61a1bcfe2ef373957bf781f79540ce494cdfc4d53923a319c8f55f1f10782f0a",
+          "63b000722dcb14e8f014adc2607daf89108fda3e0102ad32484579367d0c649d",
+          "653e82fe57bc1a46e6d759c3caec077947dcc4c31b6363d52886abfb07bf38f3",
+          "669b6d5b97bddb10918fb203f9a781805fec6be359195b0a122dddd769db4a58",
+          "68846bb5bddcd29388a50af5da038f3c734e72b887d8bb97962c2946db3eb023",
+          "6a2607bc2c4c204ee563c2feae730b03871aedc69996f43730745613924dec00",
+          "6ba96b658b45d8f6d3e7a5d14afe1a14a5cdd97e068e5cd5162546152730d684",
+          "6e7739f9494f53003bfd0fa043e5576bc9210ba4667095091ff47212ecdb49a3",
+          "6ff8c9f534568f1852bb44e5e7a237e930c9d916924c2ba47045775c6b0d9226",
+          "707b296413da9e7018df2d29f4209e9842764ee597e8d17e53a2165511df6549",
+          "724818dcdcad150414bd1670b036ea5d11eadd4aeee5ee971168970ecd01e19c",
+          "74aed348d05a6a12214af92f20774c78a943139c208c34632ff48dbc17511e39",
+          "78ae0c14638a163e71a7c17f0346451cf08b005ad7e70a47e674ac00fd7fc716",
+          "79743197f9fb6c60c407d0075b3b5d490005c3a1b108f6c823b972f8e5d6ab44",
+          "7d7f9d6dbe101f9b7a034bb54a46ec9d9c323b1f410829cba3d726a51995c019",
+          "7e99bfc98eb015cb8ea6bc98a9995b00dcbe0e8bd317982ec31ffd5421716ae3",
+          "7f160ce50c042f9894b9e2dc620b5a8a772d51f0ecfc615f703c488ca96c9e31",
+          "8008e0f20998fd0c3cbf2374aa572cab5e397be18c0454c2b5865476a7de2040",
+          "8073727c0da51c20f111dd0b8e218fe20d0beabd17b353621793ab1fd5924e25",
+          "81d8e0e9e67efe276be10cfe1e0ae5b258bad3fa9ed264ba816f4d4e357c375f",
+          "8669091bb02268e0e119adef7c43269a55930009baae03e19c2fe5f38ba04ede",
+          "86d6b3a5af0fddbf3afb8a1772d80b82436f3339b7beaae367a5c47c0bd5923a",
+          "879bc556f4254acaea083df065d28c2fa5150810189301f0d62297a15bc6c278",
+          "889172f7a0056b61daeef143012a52b38b350651619d134361cdfb9a3910564b",
+          "896335e458f50e7766c106e9d0c168fb60647b416ba352badb1254c1527c44a0",
+          "8cee5ee7bfc01114d6e6b0dd8e8273b3afbc7ef27ca97151af5ec313ebc6b333",
+          "8e58df7e6119b84e2c326993c1a0bee94c978bf8674747e7461de2aa07f2ec49",
+          "8f3d1ed6dfd4a3ad07bfbbed6b68e8ec6cc9d6a89a763abe541a8858748ca47d",
+          "9071cb769cf9cd130d6470e6bde489933f580829ad5605c2e2a16bc8b04ddab0",
+          "91a26a744a498557ae28ae132f6e685ce14f733fd2597e4476fccb7bf39c67bb",
+          "91a8246319b1d6ac0998c79e027a4dfb38151469f6816c9d42ab262e2264fbe5",
+          "9309bd4b3dbfe8d13ab32ecd6354a6424beb10ebe73f90b7b3e3e87fe5dc6545",
+          "962b7dcee205df6781c37e1c60e23cc73c65bc32db159b11262989f75920d8dc",
+          "989eee05e08e6b33807311586799fa251636f9384efc546c3d3be67e1fcd3d73",
+          "98c3d62296a25dcaa1ed3827d4f116f68c3f83b26161ba7d8fd396014793fe21",
+          "9b6ff4619c51063bf8b93719d1992d082f603cfa788806c1fbfd862d3e92c8ff",
+          "9b76e5298a80f14ea4a95a7e3cfd55329f14ca3c6fee62553e3c6fe99b9182b9",
+          "9de9e433ec0a1398d4ece8adc5d701b384695d5fb54b9dda39d1c0e8932a56ce",
+          "9e8af40f6ea3a69234d6b6243d745b7c8959818562a72c4fef2994036ca1affa",
+          "9ed4a725dae7779fb8bf3fc7251cf2537e59773e85a474cebfe0c47561ec48ba",
+          "9eea99d0bb20a727a47e711c9f6f6b1434e09fd7cfc2d4e4df9fbb947ad86989",
+          "9eed902c3ed6f074fddf31ad9a3df1d56858e7f81fdeab1a6ff40ef83a577660",
+          "a1915bfe49fe8ab3f6fff2fe3a24a5a2506d454804ccc18633499bfcd2f9058b",
+          "a230048d4306ba304d93bd5fae806b105e38ea71a9cf00ed80136b59569323e2",
+          "a689c6971b20a896fc6987c2f06cafb60999ae0adeeb3ac3a122d3122fa85213",
+          "a6f8543553d3df613b56c73811794988df762f881f10daf17283424d6be02ed1",
+          "ab994bb90c41befd4cb69cc24fb4deb05dd7912d74ffa096acf367d637498943",
+          "b1d8cbfcc73ea50b7d2d00fa4f3102097837bcd0e929ee70aa67589338fd32a0",
+          "b26325b029b0669f99b3ee02763bdd8b221a1aa34eed412361c0044967f6b6a2",
+          "b4ca809fb39f3aac706de0a132dab26734e5cefca062fbcbdff81e9369d504a4",
+          "b610f18d39ef0116fa8b3efef29ad53dc546210adcfc5bf5ac2d5b935db5743f",
+          "b672fb30151cc73d5e7664308a61ef6c46c2c5d5a9a930846c480d299adeb796",
+          "b90865ddd6a26f6faa3376d27f53daafc9fb0b8551831fbe26d7e6898aa0de31",
+          "baefe07e37094b43c0dade4b290ebddc6dc35c9c2e70fd1f6974452a4c61e99e",
+          "bb9af01d5d6a036d849a68461da4088fc4f7bee4e4a5873ebaf77868a31f2833",
+          "bbccd2226642931b90b13f495f87f9f120ca69ff06a7968bc281dadf5ea217f9",
+          "bbdc57ff52ed6be1f5578581963196e9635a9b07e08203779dad9023eea1f912",
+          "be28a5408c9165eeed5f43e161cd9ed088a134963e2bb6ba88450b71e476d82f",
+          "c0cb4690eb578a991107fb1e35a07cb274c404818c82cc2da75f3013c25f6a6a",
+          "c3d5f6ce5f0adbd6981997ff244535159f2f89f1e972d5a3dc62aed62327f824",
+          "c51577649ec42a97f480495f7a02f6ce86d35a1ea4dc4dd5a5829132267aef81",
+          "c531ad4bee61e6613864e59eaa2e8f7e9873274964cb810f7e04578e3a9777c2",
+          "c5b1586bd36ffe988b32a425f8b3a1a4b547f9c7889b02471b481e8e04c0a8b1",
+          "c63cbdc55f11cc309413537dda5d414345b92f2fd68759ada780d8dac6e7d3ac",
+          "c983bea115828f5f90c902eecb6a4025ae3d23e810ccd97a65ea019af10797d2",
+          "ca0e89a810671478086a151a71a73e60fcc4ad79af7f7ea9caae557de2309b6b",
+          "ca53d3d8150051bd09108728678fa10d0387be0e6ad32e06df96614329c87ef2",
+          "cdb74653dac4f434631aaf31387f1a7ce1a6b49405bf3f8cdb78c31e2cfa73c4",
+          "cf25dfd0601db905468736572bb7da90d8eed2c000a8bbe8943882b5a366db30",
+          "cf92811c375f4001b4211e172ce0082223aba5502277cdd35983b28d33cdd3c8",
+          "d4a4f062cadfe59601bab4ee3fab60aaf0b64fa0b974c7145cb1806fb9aeaaca",
+          "d59c660116bb1fd1f4826b9fb78c249d9eb232aa4e7350aa8ec8a225769cc1ed",
+          "d8bc8021784f8bf065d234843943b3e082ec435ce7dfe92da278e8fe32c2b9a7",
+          "db3c8f6d48eb8071f6dc57d646970bcde40a6663a90db70245ff5cf515a9611c",
+          "e0ceff15fb0b582001a099c16221f4f0a78ea23b300a3caf420b942b47c1be53",
+          "e1b5a7640a66413004266166d89df617f5863061d94e339b0f6c212e7b0cf11c",
+          "e44d1e42e6dfcaef4e0acc6490fc39ef60def8a3b9821f21c73b934f82470051",
+          "e50e1f34c9726e49d49c6ed77738f1de85286bc834885770999e29dd80f87ce7",
+          "e5d2c23dbede7951ce4a0c0c3716ab3e5f587182e208fe0d889fffc1814efb9d",
+          "e5d8281808b75b1e9ba248d370495a27889ac5c519b43a0a3bfeb6546de22e64",
+          "e958488e72d5532fc6bf1bebe9c57c3fde37de971621dac374c7730c59d1a3c6",
+          "eea5008cf9cc6b5296cf022e82d2cc214991bc7bb120878d861ac8bb084b6296",
+          "f0ebad8de00d57495124f145ef45e04b53314aa325961ab360cac075a39db2e2",
+          "f37a5ab2357c4c44ec26a2371745031482d01121902c6464748f893608e6817d",
+          "f46fe7428651ceaa7f7c9b175cc5e2e88e2f792d0a98ab784afc9d037ce58e95",
+          "f495bf336dc0b3d1a2f95af0d50f13219309bd26ad74159453d6579c8027e0dd",
+          "f5c294a5f4d8d5396e7d00909293531efd35eaa77e2550e8ae19f9914747bda7",
+          "f91c85a9ad69c9714b099b641d8eca7b8b869e7d4b4a0441bc26b0a39fe1d2df",
+          "f92e848678bca946a61a61ee9cad4f8b7374bbd619d0057c913e2bf73c149c0d",
+          "f983720a372ff422edb5c93d0d7effef7304a5dcfc2089ad5de297c40575badc",
+          "fb2b1d10bfc719bf8adb44f80e2a8fceab605b8e3cf6aab99448f5a4e9b81da7",
+          "fb6c5fdfe78ef66a95f3595b3e6c4d930632d409309ca84bf74407df7e54b779",
+          "fbf8a6bcbc3bb204ea3d9bdc1cc4d71a6f4f3de107ab962489c071cde56336c1",
+          "fc06bc0c06ab05e7bc1a5850a274d21fd4d083fa7d6e2290583f85a37dc4d268",
+          "fe255e6e3471fbb460c6cecd5be5cd34486ca8b3ce48ce5db5f7ac106b0728f8"
+        ],
+        "source": {
+          "ledger_entries": [
+            {
+              "amount_expr": null,
+              "amount_value": 1200,
+              "aux_amount_expr": null,
+              "aux_amount_value": null,
+              "book_section": "current",
+              "confirmed_at": null,
+              "confirmed_month": null,
+              "created_at": "2026-10-17 11:52:59",
+              "date_label": null,
+              "discount_override": 0,
+              "due_day": null,
+              "entry_date": "2026-10-05",
+              "entry_kind": "expense",
+              "extra_value": null,
+              "group_label": null,
+              "id": 100,
+              "payment_key": "card-100",
+              "sort_order": 1,
+              "source_planned_entry_id": null,
+              "spending_category": "general",
+              "title": "SIGKILL G2 native_before_commit",
+              "updated_at": "2026-10-17 11:52:59",
+              "usage_item": null,
+              "usage_place": null
+            },
+            {
+              "amount_expr": null,
+              "amount_value": 1000,
+              "aux_amount_expr": null,
+              "aux_amount_value": null,
+              "book_section": "archive",
+              "confirmed_at": null,
+              "confirmed_month": null,
+              "created_at": "2026-10-17 11:52:59",
+              "date_label": null,
+              "discount_override": 0,
+              "due_day": null,
+              "entry_date": null,
+              "entry_kind": "expense",
+              "extra_value": null,
+              "group_label": null,
+              "id": 1000,
+              "payment_key": "f-history-0",
+              "sort_order": 0,
+              "source_planned_entry_id": null,
+              "spending_category": null,
+              "title": "역사 😀 é 0",
+              "updated_at": "2026-10-17 11:52:59",
+              "usage_item": null,
+              "usage_place": null
+            },
+            {
+              "amount_expr": null,
+              "amount_value": 1000,
+              "aux_amount_expr": null,
+              "aux_amount_value": null,
+              "book_section": "archive",
+              "confirmed_at": null,
+              "confirmed_month": null,
+              "created_at": "2026-10-17 11:52:59",
+              "date_label": null,
+              "discount_override": 0,
+              "due_day": null,
+              "entry_date": "2026-07-03",
+              "entry_kind": "expense",
+              "extra_value": null,
+              "group_label": null,
+              "id": 1001,
+              "payment_key": "f-history-1",
+              "sort_order": 1,
+              "source_planned_entry_id": null,
+              "spending_category": null,
+              "title": "역사 😀 é 1",
+              "updated_at": "2026-10-17 11:52:59",
+              "usage_item": null,
+              "usage_place": null
+            },
+            {
+              "amount_expr": null,
+              "amount_value": 1000,
+              "aux_amount_expr": null,
+              "aux_amount_value": null,
+              "book_section": "archive",
+              "confirmed_at": null,
+              "confirmed_month": null,
+              "created_at": "2026-10-17 11:52:59",
+              "date_label": null,
+              "discount_override": 0,
+              "due_day": null,
+              "entry_date": "2026-07-03",
+              "entry_kind": "expense",
+              "extra_value": null,
+              "group_label": null,
+              "id": 1002,
+              "payment_key": "f-history-2",
+              "sort_order": 2,
+              "source_planned_entry_id": null,
+              "spending_category": null,
+              "title": "역사 😀 é 2",
+              "updated_at": "2026-10-17 11:52:59",
+              "usage_item": null,
+              "usage_place": null
+            }
+          ],
+          "monthly_panels": [
+            {
+              "amount_expr": null,
+              "amount_value": 300,
+              "confirmed_at": null,
+              "confirmed_cash_flow_id": null,
+              "confirmed_month": null,
+              "created_at": "2026-10-17 11:52:59",
+              "discount_amount": 0,
+              "discount_override": 0,
+              "due_day": null,
+              "id": 100,
+              "month": "2026-10",
+              "panel_type": "claim",
+              "sort_order": 1,
+              "spent_on": null,
+              "title": "claim 한글 😀 é",
+              "updated_at": "2026-10-17 11:52:59"
+            }
+          ],
+          "cash_flows": [
+            {
+              "amount_value": -50,
+              "created_at": "2026-10-17 11:52:59",
+              "id": 100,
+              "is_primary_income": 0,
+              "occurred_on": "2026-10-05",
+              "sort_order": 1,
+              "title": "cash 한글 😀 é",
+              "updated_at": "2026-10-17 11:52:59"
+            }
+          ],
+          "card_payment_batches": [
+            {
+              "created_at": "2026-10-17 11:52:59",
+              "id": 100,
+              "source": "month_close",
+              "status": "active",
+              "usage_month": "2026-09"
+            }
+          ],
+          "card_payment_batch_items": [
+            {
+              "batch_id": 100,
+              "created_at": "2026-10-17 11:52:59",
+              "entry_id": 100,
+              "entry_payment_key": "card-100",
+              "id": 100
+            }
+          ],
+          "card_payment_events": [
+            {
+              "batch_id": 100,
+              "cash_flow_id": 100,
+              "created_at": "2026-10-17 11:52:59",
+              "event_date": "2026-10-05",
+              "event_type": "immediate",
+              "id": 100,
+              "idempotency_key": null,
+              "note": "",
+              "request_fingerprint": null,
+              "total_amount": 50
+            }
+          ],
+          "card_payment_allocations": [
+            {
+              "amount_value": 50,
+              "created_at": "2026-10-17 11:52:59",
+              "entry_payment_key": "card-100",
+              "id": 100,
+              "payment_event_id": 100
+            }
+          ],
+          "card_payment_deferrals": [
+            {
+              "created_at": "2026-10-17 11:52:59",
+              "entry_payment_key": "card-100",
+              "from_payment_month": "2026-10",
+              "original_book_section": null,
+              "original_date_label": null,
+              "original_entry_date": null,
+              "original_group_label": null,
+              "original_sort_order": null,
+              "original_title": null,
+              "target_payment_month": "2026-11"
+            }
+          ],
+          "notification_candidate_registrations": [
+            {
+              "created_at": "2026-10-17 11:52:59",
+              "registration_key": "reg-100",
+              "request_fingerprint": "request",
+              "target": "ledger",
+              "target_id": 100
+            }
+          ],
+          "app_settings": [
+            {
+              "key": "card_limit",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "0"
+            },
+            {
+              "key": "cash_flow_balance",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "\u001c+0001000.00\u001f"
+            },
+            {
+              "key": "d1-setting",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "setting"
+            },
+            {
+              "key": "family_card_last4",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": ""
+            },
+            {
+              "key": "owner_card_last4",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": ""
+            },
+            {
+              "key": "scheduled_income",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "0"
+            }
+          ],
+          "app_labels": [
+            {
+              "key": "archive_header_amount",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "금액"
+            },
+            {
+              "key": "archive_header_date",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "날짜"
+            },
+            {
+              "key": "archive_header_title",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "세부내역"
+            },
+            {
+              "key": "current_header_amount",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "금액"
+            },
+            {
+              "key": "current_header_date",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "날짜"
+            },
+            {
+              "key": "current_header_title",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "세부내역"
+            },
+            {
+              "key": "d1-label",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "label"
+            },
+            {
+              "key": "é",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "원문 é"
+            },
+            {
+              "key": "panel_claim_title",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "청구"
+            },
+            {
+              "key": "panel_family_card_title",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "가족카드"
+            },
+            {
+              "key": "panel_fixed_title",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "현금성 고정지출"
+            },
+            {
+              "key": "panel_frozen_title",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "동결"
+            },
+            {
+              "key": "panel_header_amount",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "금액"
+            },
+            {
+              "key": "panel_header_title",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "세부내역"
+            },
+            {
+              "key": "summary_card_total_label",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "카드대금"
+            },
+            {
+              "key": "summary_cash_flow_balance_label",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "현금흐름 반영액"
+            },
+            {
+              "key": "summary_frozen_asset_label",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "동결자산"
+            },
+            {
+              "key": "summary_remaining_liquidity_label",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "잔여 유동성"
+            },
+            {
+              "key": "summary_title",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "요약"
+            },
+            {
+              "key": "summary_transfer_or_deposit_label",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "고정지출"
+            },
+            {
+              "key": "",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "원문 "
+            },
+            {
+              "key": "😀",
+              "updated_at": "2026-10-17 11:52:59",
+              "value": "원문 😀"
+            }
+          ]
+        },
+        "control": {
+          "canon": 1,
+          "card_charge_policy": {
+            "cards": {
+              "family": [
+                {
+                  "effective_from": "0001-01",
+                  "parameters": {
+                    "rate": "0.012"
+                  },
+                  "policy_id": "family-flat-statement-1.2",
+                  "type": "flat_statement"
+                }
+              ],
+              "owner": [
+                {
+                  "effective_from": "0001-01",
+                  "parameters": {
+                    "rate": "0.012"
+                  },
+                  "policy_id": "owner-flat-statement-1.2",
+                  "type": "flat_statement"
+                }
+              ],
+              "toll": [
+                {
+                  "effective_from": "0001-01",
+                  "parameters": {},
+                  "policy_id": "toll-no-automatic-discount",
+                  "type": "no_automatic_discount"
+                }
+              ],
+              "transit": [
+                {
+                  "effective_from": "0001-01",
+                  "parameters": {},
+                  "policy_id": "transit-no-automatic-discount",
+                  "type": "no_automatic_discount"
+                }
+              ]
+            },
+            "classifier": {
+              "matching": "case_insensitive_substring",
+              "precedence": [
+                "toll",
+                "transit",
+                "default_card"
+              ],
+              "schema_version": 1,
+              "toll_words": [
+                "통행",
+                "통행료",
+                "하이패스"
+              ],
+              "transit_words": [
+                "교통",
+                "대중교통",
+                "버스",
+                "지하철"
+              ]
+            },
+            "covered_through": "2026-10",
+            "profile_selectors": {
+              "transit": {
+                "card": "transit",
+                "default": "none",
+                "modes": [
+                  "none",
+                  "owner"
+                ],
+                "none_mode": {
+                  "policy": {
+                    "parameters": {},
+                    "policy_id": "transit-no-automatic-discount",
+                    "type": "no_automatic_discount"
+                  }
+                },
+                "owner_mode": {
+                  "month_policy_source": "owner",
+                  "policy_source": "owner"
+                },
+                "schema_version": 1,
+                "selection": "latest_effective_month",
+                "setting_prefix": "card_charge_profile:transit:"
+              }
+            },
+            "schema_version": 2
+          },
+          "columns": {
+            "app_labels": [
+              "key",
+              "updated_at",
+              "value"
+            ],
+            "app_settings": [
+              "key",
+              "updated_at",
+              "value"
+            ],
+            "card_payment_allocations": [
+              "amount_value",
+              "created_at",
+              "entry_payment_key",
+              "id",
+              "payment_event_id"
+            ],
+            "card_payment_batch_items": [
+              "batch_id",
+              "created_at",
+              "entry_id",
+              "entry_payment_key",
+              "id"
+            ],
+            "card_payment_batches": [
+              "created_at",
+              "id",
+              "source",
+              "status",
+              "usage_month"
+            ],
+            "card_payment_deferrals": [
+              "created_at",
+              "entry_payment_key",
+              "from_payment_month",
+              "original_book_section",
+              "original_date_label",
+              "original_entry_date",
+              "original_group_label",
+              "original_sort_order",
+              "original_title",
+              "target_payment_month"
+            ],
+            "card_payment_events": [
+              "batch_id",
+              "cash_flow_id",
+              "created_at",
+              "event_date",
+              "event_type",
+              "id",
+              "idempotency_key",
+              "note",
+              "request_fingerprint",
+              "total_amount"
+            ],
+            "cash_flows": [
+              "amount_value",
+              "created_at",
+              "id",
+              "is_primary_income",
+              "occurred_on",
+              "sort_order",
+              "title",
+              "updated_at"
+            ],
+            "ledger_entries": [
+              "amount_expr",
+              "amount_value",
+              "aux_amount_expr",
+              "aux_amount_value",
+              "book_section",
+              "confirmed_at",
+              "confirmed_month",
+              "created_at",
+              "date_label",
+              "discount_override",
+              "due_day",
+              "entry_date",
+              "entry_kind",
+              "extra_value",
+              "group_label",
+              "id",
+              "payment_key",
+              "sort_order",
+              "source_planned_entry_id",
+              "spending_category",
+              "title",
+              "updated_at",
+              "usage_item",
+              "usage_place"
+            ],
+            "monthly_panels": [
+              "amount_expr",
+              "amount_value",
+              "confirmed_at",
+              "confirmed_cash_flow_id",
+              "confirmed_month",
+              "created_at",
+              "discount_amount",
+              "discount_override",
+              "due_day",
+              "id",
+              "month",
+              "panel_type",
+              "sort_order",
+              "spent_on",
+              "title",
+              "updated_at"
+            ],
+            "notification_candidate_registrations": [
+              "created_at",
+              "registration_key",
+              "request_fingerprint",
+              "target",
+              "target_id"
+            ]
+          },
+          "discount_policy_defaults": {
+            "family": "disabled",
+            "owner": "enabled"
+          },
+          "exported_at": "2026-10-05T00:00:00Z",
+          "kind": "control",
+          "ns": {
+            "dataset_id": "39809a9f-1f19-4437-9008-3bc5a677f982",
+            "epoch": "5c5856af-f8d3-4bb6-b818-b9f5b0c73f4a",
+            "server_id": "91c65099-ac8d-418d-b579-df291e55bdcb"
+          },
+          "range": {
+            "scope": "all"
+          },
+          "recurring_ownership_version": 1,
+          "snapshot_schema": 7
+        },
+        "receipt": "d7bb23dcfe988ac0786c8e7a4327689057cd2b56bd21f7bc0052cbd9a75a4464"
+      }
+    },
+    "objects": 154,
+    "pins": 8,
+    "legacy": {
+      "fingerprint": "b46a92ee68d2a5aa3ec320432a02e64c38cd549cb9c415ece7e812ffa614338f",
+      "lineage": "bfd8eb8ff5246568159dfced4eefcd9a684f1c849fa4841da3823d3dcde86803",
+      "sha256": "9baa3785692067186ddcad4d3a4e9c4c3bf1829071ec047edcc9425be19995f7"
+    }
+  }
+}

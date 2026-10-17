@@ -1,0 +1,16 @@
+{
+  "command": [
+    "/home/hjkerman/.flutter/bin/flutter",
+    "build",
+    "apk",
+    "--debug",
+    "--no-pub",
+    "--dart-define=MONEY_NOTE_API_BASE_URL=https://continuation.invalid"
+  ],
+  "cwd": "/home/hjkerman/codex/money-note/mobile",
+  "start_unix": 1792236476.2860856,
+  "status": "PASS",
+  "end_unix": 1792236533.8415918,
+  "seconds": 57.55550670623779,
+  "exit": 0
+}

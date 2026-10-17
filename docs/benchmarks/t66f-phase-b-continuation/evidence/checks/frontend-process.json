@@ -1,0 +1,15 @@
+{
+  "command": [
+    "npm",
+    "--prefix",
+    "frontend",
+    "run",
+    "build"
+  ],
+  "cwd": "/home/hjkerman/codex/money-note",
+  "start_unix": 1792220732.6936402,
+  "status": "PASS",
+  "end_unix": 1792220747.376934,
+  "seconds": 14.683294773101807,
+  "exit": 0
+}
