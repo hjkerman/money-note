@@ -1,0 +1,53 @@
+{
+  "backend_targeted": {
+    "command": ".venv/bin/python -m pytest backend/tests/test_isolated_sync_canonical.py backend/tests/test_isolated_sync_facts.py backend/tests/test_isolated_sync_patricia.py -q --junitxml=/tmp/mn-b02-backend-targeted.xml",
+    "actual_exit": 0,
+    "junit": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "95",
+      "time": "140.978",
+      "timestamp": "2026-10-17T22:34:33.586545+09:00",
+      "hostname": "hjkerman"
+    }
+  },
+  "flutter_targeted": {
+    "actual_exit": 0,
+    "command": "flutter test --no-pub --machine --concurrency=1 test/segmented_fetch_test.dart test/segmented_store_test.dart test/segmented_protocol_test.dart",
+    "passed": 161,
+    "failed": 0,
+    "skipped": 0,
+    "terminal": [
+      {
+        "success": true,
+        "type": "done",
+        "time": 172413
+      }
+    ]
+  },
+  "prior_profile_regression": {
+    "actual_exit": 0,
+    "command": "/home/hjkerman/.flutter/bin/flutter test --no-pub --machine --dart-define=C_BUDGET_WITNESS=/home/hjkerman/codex/money-note/docs/benchmarks/t66f-phase-b-continuation/evidence/budget-50000.json --dart-define=C_MONEY_GOLDEN=/home/hjkerman/codex/money-note/docs/benchmarks/t66f-phase-b-continuation/evidence/money-golden.json /home/hjkerman/codex/money-note/docs/benchmarks/t66f-phase-b-continuation/profile_test.dart",
+    "passed": 2,
+    "failed": 0,
+    "skipped": 0,
+    "terminal": [
+      {
+        "success": true,
+        "type": "done",
+        "time": 9455
+      }
+    ],
+    "cwd": "mobile"
+  },
+  "npm_build": {
+    "actual_exit": 0,
+    "command": "npm run build",
+    "cwd": "frontend"
+  },
+  "full_backend": "NOT RERUN IN B02",
+  "full_flutter": "NOT RERUN IN B02",
+  "apk_install": false
+}

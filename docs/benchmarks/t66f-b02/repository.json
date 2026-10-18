@@ -1,0 +1,12 @@
+{
+  "refs": {
+    "HEAD": "c591a7a0d10b208ed0c0e7efd239576f91052c66",
+    "main": "c591a7a0d10b208ed0c0e7efd239576f91052c66",
+    "origin/main": "c591a7a0d10b208ed0c0e7efd239576f91052c66",
+    "actual_remote_main": "c591a7a0d10b208ed0c0e7efd239576f91052c66"
+  },
+  "branch": "main",
+  "tree": "4cbf8d23efe03636ec01456c2c9fa26791dbf6c4",
+  "initial_clean_verified_before_artifact_creation": true,
+  "status_after_own_script": "?? docs/benchmarks/t66f-b02/"
+}

@@ -1,0 +1,155 @@
+{
+  "n": 25000,
+  "seed": 662602,
+  "current_ledger_rows": 105,
+  "d": 1,
+  "status": "PASS",
+  "producer": "actual RetentionSandbox/bootstrap/finalizer/ObservationRepository",
+  "offline_export_not_client_store": true,
+  "bootstrap": {
+    "wall_ns": 212076280002,
+    "cpu_ns": 210661199091,
+    "max_rss_kib": 286116,
+    "db_bytes": 197349376
+  },
+  "table_rows": {
+    "ledger_entries": 25000,
+    "monthly_panels": 2,
+    "cash_flows": 2,
+    "card_payment_batches": 1,
+    "card_payment_batch_items": 1,
+    "card_payment_events": 1,
+    "card_payment_allocations": 1,
+    "card_payment_deferrals": 0,
+    "notification_candidate_registrations": 1,
+    "app_settings": 7,
+    "app_labels": 19
+  },
+  "g1": {
+    "objects": 100230,
+    "canonical_bytes": 65345545,
+    "kinds": {
+      "control": 1,
+      "hot": 1,
+      "index-root": 1,
+      "index-node": 50056,
+      "index-leaf": 50057,
+      "raw-root": 1,
+      "snapshot-leaf": 108,
+      "snapshot-node": 5
+    },
+    "kind_bytes": {
+      "control": 3178,
+      "hot": 87364,
+      "index-root": 397,
+      "index-node": 25862607,
+      "index-leaf": 24599831,
+      "raw-root": 2628,
+      "snapshot-leaf": 14770819,
+      "snapshot-node": 18721
+    },
+    "edges": 100226,
+    "max_depth": 21,
+    "max_fanout": 32,
+    "largest_object": 151684,
+    "largest_ref": {
+      "bytes": "151684",
+      "hash": "23705999b01d39cc2ef13ca59cef56918577ae23fa5b80e30a10320d2c5ffe80"
+    },
+    "raw_rows": {
+      "app_labels": 19,
+      "app_settings": 7,
+      "notification_candidate_registrations": 1,
+      "card_payment_deferrals": 0,
+      "card_payment_allocations": 1,
+      "card_payment_events": 1,
+      "card_payment_batch_items": 1,
+      "card_payment_batches": 1,
+      "cash_flows": 2,
+      "monthly_panels": 2,
+      "ledger_entries": 25000
+    },
+    "fact_domains": {
+      "pk": 25035,
+      "unique": 25004,
+      "reverse": 6,
+      "ref": 6,
+      "allocation": 1,
+      "aggregate": 2,
+      "context": 1,
+      "context_reverse": 2
+    }
+  },
+  "catalog_objects_g1": 100262,
+  "catalog_unreachable_g1": 32,
+  "delta_generation": {
+    "wall_ns": 1036472435,
+    "cpu_ns": 1007066273
+  },
+  "g2": {
+    "objects": 100230,
+    "canonical_bytes": 65345558,
+    "kinds": {
+      "control": 1,
+      "hot": 1,
+      "index-root": 1,
+      "index-node": 50056,
+      "index-leaf": 50057,
+      "raw-root": 1,
+      "snapshot-leaf": 108,
+      "snapshot-node": 5
+    },
+    "kind_bytes": {
+      "control": 3178,
+      "hot": 87375,
+      "index-root": 397,
+      "index-node": 25862607,
+      "index-leaf": 24599831,
+      "raw-root": 2628,
+      "snapshot-leaf": 14770821,
+      "snapshot-node": 18721
+    },
+    "edges": 100226,
+    "max_depth": 21,
+    "max_fanout": 32,
+    "largest_object": 151684,
+    "largest_ref": {
+      "bytes": "151684",
+      "hash": "23705999b01d39cc2ef13ca59cef56918577ae23fa5b80e30a10320d2c5ffe80"
+    },
+    "raw_rows": {
+      "app_labels": 19,
+      "app_settings": 7,
+      "notification_candidate_registrations": 1,
+      "card_payment_deferrals": 0,
+      "card_payment_allocations": 1,
+      "card_payment_events": 1,
+      "card_payment_batch_items": 1,
+      "card_payment_batches": 1,
+      "cash_flows": 2,
+      "monthly_panels": 2,
+      "ledger_entries": 25000
+    },
+    "fact_domains": {
+      "pk": 25035,
+      "unique": 25004,
+      "reverse": 6,
+      "ref": 6,
+      "allocation": 1,
+      "aggregate": 2,
+      "context": 1,
+      "context_reverse": 2
+    }
+  },
+  "delta_new_reachable_objects": 24,
+  "delta_new_reachable_bytes": 255505,
+  "reused_reachable_objects": 100206,
+  "g1_g2_union_objects": 100254,
+  "catalog_new_objects": 24,
+  "catalog_objects_g2": 100286,
+  "offline_export_bytes": 91549696,
+  "max_rss_kib": 324008,
+  "e2_actual_downloads": null,
+  "e2_cache_hits": null,
+  "actual_wire_bytes": null
+}

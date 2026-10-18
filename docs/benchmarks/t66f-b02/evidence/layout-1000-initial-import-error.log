@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02/layout.py", line 17, in <module>
+    from t66e2_server import children  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 't66e2_server'

@@ -1,0 +1,35 @@
+{
+  "mode": "store",
+  "input": "/tmp/mn-b02/15000",
+  "http_executed": false,
+  "accepted_publication": false,
+  "limits_modified": false,
+  "rss_start": 258314240,
+  "store_directory": "/tmp/mn-b02/actual-client-store",
+  "status": "LOCAL_METADATA_BUDGET",
+  "inserted": 47656,
+  "durable_usage": [
+    {
+      "id": 1,
+      "objects": 47656,
+      "payload": 24084281,
+      "stages": 1,
+      "metadata": 33554367
+    }
+  ],
+  "objects_sql": [
+    {
+      "n": 47656,
+      "bytes": 24084281
+    }
+  ],
+  "database_bytes": 65454080,
+  "page_count": 15980,
+  "page_size": 4096,
+  "wall_us": 1615364537,
+  "actual_loader_reads": 47656,
+  "actual_loader_body_bytes": 24084281,
+  "rss_end": 262066176,
+  "peak_rss": 315363328,
+  "sqlite_version": "Version(libVersion: 3.53.4, sourceId: 2026-07-24 19:02:57 bf7c7f30031888f4e796e429ab3978879485813aaca6f641c7b33e4e09459bcc, number: 3053004)"
+}

@@ -1,0 +1,108 @@
+{
+  "grid": [
+    {
+      "n": 1000,
+      "objects": 4132,
+      "amplification": 4.132,
+      "delta": 17,
+      "payload": 2749721,
+      "edges": 4128,
+      "objects_sqlite_sha256": "7ff56135c656606ecd2ad10b680fb1758b3c56b87b6e1292847a448ed16704bc",
+      "offline_input_bytes": 4067328
+    },
+    {
+      "n": 5000,
+      "objects": 20148,
+      "amplification": 4.0296,
+      "delta": 21,
+      "payload": 13146158,
+      "edges": 20144,
+      "objects_sqlite_sha256": "a799d692417a56fbb5ccc1def05d059c42a738ae9e3a69cafb4690dc09681ea2",
+      "offline_input_bytes": 18493440
+    },
+    {
+      "n": 10000,
+      "objects": 40170,
+      "amplification": 4.017,
+      "delta": 23,
+      "payload": 26160538,
+      "edges": 40166,
+      "objects_sqlite_sha256": "a93ee16e944362184e1de0d36799dccda1ffccd3b833243a0fa0e7042dd5f389",
+      "offline_input_bytes": 36732928
+    },
+    {
+      "n": 12000,
+      "objects": 48177,
+      "amplification": 4.01475,
+      "delta": 23,
+      "payload": 31382047,
+      "edges": 48173,
+      "objects_sqlite_sha256": "e9739235ce99787dfe628ec7eb2cc176b44913f8bf72f319c93f62c8a3bde989",
+      "offline_input_bytes": 44060672
+    },
+    {
+      "n": 15000,
+      "objects": 60189,
+      "amplification": 4.0126,
+      "delta": 23,
+      "payload": 39217312,
+      "edges": 60185,
+      "objects_sqlite_sha256": "a675ba261afc90c4d4f0f44209d272ec121e848b80f2fe808e2d99cdc36e1dba",
+      "offline_input_bytes": 54984704
+    },
+    {
+      "n": 20000,
+      "objects": 80210,
+      "amplification": 4.0105,
+      "delta": 23,
+      "payload": 52279816,
+      "edges": 80206,
+      "objects_sqlite_sha256": "a05df4a0c9a26b24ca645968c80dbd50eb6e5fb5fec4352d389219fbdff48707",
+      "offline_input_bytes": 73256960
+    },
+    {
+      "n": 24900,
+      "objects": 99830,
+      "amplification": 4.009236947791164,
+      "delta": 24,
+      "payload": 65084463,
+      "edges": 99826,
+      "objects_sqlite_sha256": "eea10a3d926c3430366b230341cd373745990cfc416581df25526f66419cb1c2",
+      "offline_input_bytes": 91176960
+    },
+    {
+      "n": 25000,
+      "objects": 100230,
+      "amplification": 4.0092,
+      "delta": 24,
+      "payload": 65345545,
+      "edges": 100226,
+      "objects_sqlite_sha256": "0222d54d97cd1720cc547228e8eba1083a52793122489e080190cc6645b02c74",
+      "offline_input_bytes": 91549696
+    },
+    {
+      "n": 50000,
+      "objects": 200331,
+      "amplification": 4.00662,
+      "delta": 25,
+      "payload": 130710592,
+      "edges": 200327,
+      "objects_sqlite_sha256": "877d45884bc073f2be37a17ea2d30dc4935c9c9c78d1f7ced572d6c398595032",
+      "offline_input_bytes": 182980608
+    },
+    {
+      "n": 100000,
+      "objects": 400532,
+      "amplification": 4.00532,
+      "delta": 26,
+      "payload": 261543083,
+      "edges": 400528,
+      "objects_sqlite_sha256": "323326b2741c71339db7196ef594ea89af1ecc4ce415435a3692de1185e0196f",
+      "offline_input_bytes": 365887488
+    }
+  ],
+  "product_limit_raised": false,
+  "large_full_http_acquisition_executed": false,
+  "android_memory_proven": false,
+  "logical_byte_campaign_complete": false
+}

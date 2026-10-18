@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/tmp/mn-b02/jit-simulation-50000-time.txt",
+    "/home/hjkerman/.flutter/bin/dart",
+    "--packages=mobile/.dart_tool/package_config.json",
+    "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02/probe.dart",
+    "simulation",
+    "/tmp/mn-b02/50000",
+    "/tmp/mn-b02/jit-simulation-50000.json"
+  ],
+  "actual_exit": 0,
+  "seconds": 118.9588565826416,
+  "memory_guard_bytes": 8589934592
+}

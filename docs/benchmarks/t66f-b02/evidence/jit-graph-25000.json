@@ -1,0 +1,15 @@
+{
+  "mode": "graph",
+  "input": "/tmp/mn-b02/25000",
+  "http_executed": false,
+  "accepted_publication": false,
+  "limits_modified": false,
+  "rss_start": 259420160,
+  "status": "GRAPH_OBJECT_BUDGET",
+  "wall_us": 36154770,
+  "actual_loader_reads": 100000,
+  "actual_loader_body_bytes": 65140035,
+  "rss_end": 366759936,
+  "peak_rss": 365576192,
+  "sqlite_version": "Version(libVersion: 3.53.4, sourceId: 2026-07-24 19:02:57 bf7c7f30031888f4e796e429ab3978879485813aaca6f641c7b33e4e09459bcc, number: 3053004)"
+}

@@ -1,0 +1,16 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/tmp/mn-b02/aot-graph-1000-time.txt",
+    "/tmp/mn-b02-probe",
+    "graph",
+    "/tmp/mn-b02/1000",
+    "/tmp/mn-b02/aot-graph-1000.json"
+  ],
+  "actual_exit": 255,
+  "timeout": false,
+  "start_unix": 1792243902.2442331,
+  "seconds": 0.009086847305297852
+}

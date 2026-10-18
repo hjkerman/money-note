@@ -1,0 +1,15 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/tmp/mn-b02/layout-1000-time.txt",
+    "/home/hjkerman/codex/money-note/.venv/bin/python",
+    "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02/layout.py",
+    "/tmp/mn-b02/1000"
+  ],
+  "actual_exit": 0,
+  "timeout": false,
+  "start_unix": 1792244032.8768456,
+  "seconds": 1.4670770168304443
+}

@@ -1,0 +1,21 @@
+{
+  "mode": "facts",
+  "input": "/tmp/mn-b02/50000",
+  "http_executed": false,
+  "accepted_publication": false,
+  "limits_modified": false,
+  "rss_start": 246231040,
+  "rows": 50035,
+  "rss_raw": 380923904,
+  "facts": 100057,
+  "rss_facts": 439558144,
+  "rss_after_root": 470200320,
+  "retained_summary_objects_after_facts": 0,
+  "status": "PASS",
+  "wall_us": 45197084,
+  "actual_loader_reads": 215,
+  "actual_loader_body_bytes": 29623078,
+  "rss_end": 470200320,
+  "peak_rss": 470016000,
+  "sqlite_version": "Version(libVersion: 3.53.4, sourceId: 2026-07-24 19:02:57 bf7c7f30031888f4e796e429ab3978879485813aaca6f641c7b33e4e09459bcc, number: 3053004)"
+}

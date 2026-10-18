@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "boundary": "독립 footprint 모델; E1/E2 성공 아님",
+  "objects": 200331,
+  "edges": 200327,
+  "duplicate_references": 0,
+  "payload_bytes": 130710592,
+  "model_metadata_charge": 141034239,
+  "default_metadata_budget": 33554432,
+  "core_database_bytes": 303841280,
+  "page_size": 4096,
+  "page_count": 74180,
+  "journal_mode": "delete",
+  "wall_ns": 32821830169,
+  "cpu_ns": 32075292626,
+  "max_rss_kib": 94008,
+  "integrity": "ok",
+  "schema_shared_dependency": "E1 core table/index DDL; trigger/guard 포함 안 함",
+  "write_bytes_not_measured": true,
+  "physical_io_not_measured": true
+}

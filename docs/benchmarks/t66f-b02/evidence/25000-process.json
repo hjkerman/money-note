@@ -1,0 +1,13 @@
+{
+  "n": 25000,
+  "command": [
+    "/home/hjkerman/codex/money-note/.venv/bin/python",
+    "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02/generate.py",
+    "25000",
+    "/tmp/mn-b02/25000"
+  ],
+  "start_unix": 1792244045.783628,
+  "seconds": 225.4228479862213,
+  "actual_exit": 0,
+  "timeout": false
+}

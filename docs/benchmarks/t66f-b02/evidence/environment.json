@@ -1,0 +1,16 @@
+{
+  "platform": "Linux-6.8.0-146-generic-x86_64-with-glibc2.39",
+  "python": "3.12.3",
+  "python_sqlite": "3.45.1",
+  "cpu": "Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz",
+  "meminfo": [
+    "MemTotal:       24458560 kB",
+    "MemFree:         4754084 kB",
+    "MemAvailable:   21003024 kB"
+  ],
+  "filesystem": "ext4   rw,relatime",
+  "sample_policy": "warmup 없는 단회 기술 표본; median/p95 아님",
+  "android_device_test": false,
+  "jit_compiler_included_in_rss": true,
+  "concurrent_experiments": true
+}

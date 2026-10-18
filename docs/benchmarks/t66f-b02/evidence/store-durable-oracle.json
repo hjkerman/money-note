@@ -1,0 +1,27 @@
+{
+  "status": "PASS",
+  "counts": {
+    "objects": 47656,
+    "refs": 47665,
+    "edges": 47661,
+    "staging": 1,
+    "staging_roots": 4,
+    "staging_objects": 47655
+  },
+  "usage": [
+    1,
+    47656,
+    24084281,
+    1,
+    33554367
+  ],
+  "metadata_independent": 33554367,
+  "independent_hash_checked": 47656,
+  "preserved_control_ref": {
+    "hash": "849319eaa70f79674507a44a22937d6c189806f6398822afc7e4e10dea875624",
+    "bytes": "3178"
+  },
+  "accepted_table_exists": false,
+  "complete_graph": false,
+  "database_sha256": "019f4419d203bc609819b9627670b305f1872f393aacd7d3abaa614e18e42703"
+}

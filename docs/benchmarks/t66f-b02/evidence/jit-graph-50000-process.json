@@ -1,0 +1,18 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/tmp/mn-b02/jit-graph-50000-time.txt",
+    "/home/hjkerman/.flutter/bin/dart",
+    "--packages=mobile/.dart_tool/package_config.json",
+    "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02/probe.dart",
+    "graph",
+    "/tmp/mn-b02/50000",
+    "/tmp/mn-b02/jit-graph-50000.json"
+  ],
+  "actual_exit": 0,
+  "timeout": false,
+  "start_unix": 1792244677.9611921,
+  "seconds": 43.90376162528992
+}

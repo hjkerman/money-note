@@ -1,0 +1,23 @@
+	Command being timed: "/home/hjkerman/.flutter/bin/dart --packages=mobile/.dart_tool/package_config.json docs/benchmarks/t66f-b02/probe.dart sample /tmp/mn-b02/1000 /tmp/mn-b02/sample-store /tmp/mn-b02/sample.json"
+	User time (seconds): 11.49
+	System time (seconds): 2.01
+	Percent of CPU this job got: 17%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:15.23
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 305928
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 282915
+	Voluntary context switches: 36602
+	Involuntary context switches: 67
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 304808
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

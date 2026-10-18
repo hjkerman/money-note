@@ -1,0 +1,13 @@
+Unhandled exception:
+Invalid argument(s): Couldn't resolve native function 'sqlite3_initialize' in 'package:sqlite3/src/ffi/libsqlite3.g.dart' : No asset with id 'package:sqlite3/src/ffi/libsqlite3.g.dart' found. No available native assets. Attempted to fallback to process lookup. /tmp/mn-b02-probe: undefined symbol: sqlite3_initialize.
+
+#0      Native._ffi_resolver.#ffiClosure0 (dart:ffi-patch/ffi_patch.dart)
+#1      Native._ffi_resolver_function (dart:ffi-patch/ffi_patch.dart:1959)
+#2      sqlite3_initialize (package:sqlite3/src/ffi/libsqlite3.g.dart)
+#3      FfiBindings.sqlite3_initialize (package:sqlite3/src/ffi/bindings.dart:202)
+#4      Sqlite3Implementation.initialize (package:sqlite3/src/implementation/sqlite3.dart:32)
+#5      Sqlite3Implementation.open (package:sqlite3/src/implementation/sqlite3.dart:49)
+#6      FfiSqlite3.open (package:sqlite3/src/ffi/implementation.dart:29)
+#7      main (file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02/probe.dart:19)
+#8      _delayEntrypointInvocation.<anonymous closure> (dart:isolate-patch/isolate_patch.dart:311)
+#9      _RawReceivePort._handleMessage (dart:isolate-patch/isolate_patch.dart:192)

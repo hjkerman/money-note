@@ -1,0 +1,32 @@
+{
+  "original_tracked_count": 1068,
+  "changed_original_files": [],
+  "product_diff_from_af9525e": "",
+  "checks": {
+    "ruff": {
+      "actual_exit": 0,
+      "evidence": "docs/benchmarks/t66f-b02/evidence/ruff-verified.log.gz"
+    },
+    "python_format": {
+      "actual_exit": 0,
+      "evidence": "docs/benchmarks/t66f-b02/evidence/python-format-check.log.gz"
+    },
+    "dart_format": {
+      "actual_exit": 0,
+      "evidence": "docs/benchmarks/t66f-b02/evidence/dart-format-check.log.gz"
+    },
+    "compileall": {
+      "actual_exit": 0,
+      "evidence": "docs/benchmarks/t66f-b02/evidence/compileall-verified.log.gz"
+    }
+  },
+  "historical_reports_preserved": true,
+  "binding_protocol_preserved": true,
+  "b01_assertion_preserved": true,
+  "precommit_refs": {
+    "HEAD": "c591a7a0d10b208ed0c0e7efd239576f91052c66",
+    "main": "c591a7a0d10b208ed0c0e7efd239576f91052c66",
+    "origin/main": "c591a7a0d10b208ed0c0e7efd239576f91052c66",
+    "actual_remote_main": "c591a7a0d10b208ed0c0e7efd239576f91052c66"
+  }
+}

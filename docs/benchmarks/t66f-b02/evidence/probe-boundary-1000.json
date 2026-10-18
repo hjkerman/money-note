@@ -1,0 +1,50 @@
+{
+  "mode": "boundary",
+  "input": "/tmp/mn-b02/1000",
+  "http_executed": false,
+  "accepted_publication": false,
+  "limits_modified": false,
+  "rss_start": 246931456,
+  "status": "PASS",
+  "objects": 4132,
+  "edges": 4128,
+  "cold_us": 1758943,
+  "rss_after_cold": 290918400,
+  "cold_reads": 4132,
+  "cold_body_bytes": 2749721,
+  "repeat_reads": 0,
+  "repeat_us": 559,
+  "repeat_objects": 4132,
+  "boundary": {
+    "4131/false": {
+      "status": "GRAPH_OBJECT_BUDGET",
+      "reads": 4131
+    },
+    "4131/true": {
+      "status": "GRAPH_OBJECT_BUDGET",
+      "reads": 0
+    },
+    "4132/false": {
+      "status": "PASS",
+      "reads": 4132
+    },
+    "4132/true": {
+      "status": "PASS",
+      "reads": 0
+    },
+    "4133/false": {
+      "status": "PASS",
+      "reads": 4132
+    },
+    "4133/true": {
+      "status": "PASS",
+      "reads": 0
+    }
+  },
+  "wall_us": 5935068,
+  "actual_loader_reads": 16527,
+  "actual_loader_body_bytes": 10995706,
+  "rss_end": 285425664,
+  "peak_rss": 336896000,
+  "sqlite_version": "Version(libVersion: 3.53.4, sourceId: 2026-07-24 19:02:57 bf7c7f30031888f4e796e429ab3978879485813aaca6f641c7b33e4e09459bcc, number: 3053004)"
+}
