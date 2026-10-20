@@ -1,0 +1,20 @@
+{
+  "executed_cases": [
+    "test_hash_actual_preimage_and_repetition",
+    "test_hash_chunked_update_counts_each_actual_input",
+    "test_object_ref_reuse_skips_hash_but_body_decodes_again",
+    "test_validation_full_buffer_success_and_duplicates",
+    "test_failed_canonical_equality_still_completed_json_boundary",
+    "test_failed_utf8_has_submitted_bytes_but_no_completed_bytes",
+    "test_hash_and_validation_are_distinct_not_summed",
+    "test_concurrent_actual_calls_do_not_lose_counts",
+    "test_counter_above_signed64_does_not_saturate",
+    "test_cleanup_after_failure_restores_exact_functions",
+    "test_insert_utf8_blob_committed_and_independent_length",
+    "test_insert_or_ignore_attempted_vs_effective",
+    "test_rollback_and_retry_are_distinct",
+    "test_metadata_and_pin_text_not_object_content",
+    "test_unobserved_update_is_explicit_not_zero_cost",
+    "test_actual_production_store_cache_and_write_boundary"
+  ]
+}

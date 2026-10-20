@@ -1,0 +1,30 @@
+{
+  "mode": "compileall",
+  "command": [
+    "/home/hjkerman/codex/money-note/.venv/bin/python",
+    "-m",
+    "compileall",
+    "-q",
+    "backend/app",
+    "backend/isolated_sync",
+    "backend/tests",
+    "scripts",
+    "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-phase-b-final"
+  ],
+  "cwd": "/home/hjkerman/codex/money-note",
+  "start_unix": 1792486138.2318344,
+  "status": "PASS",
+  "timeout_seconds": 7200,
+  "rss_guard_bytes": 8589934592,
+  "pid": 536781,
+  "exit": 0,
+  "end_unix": 1792486148.2698462,
+  "elapsed_seconds": 10.037831249064766,
+  "external_termination": null,
+  "rss_samples": [
+    [
+      0.038,
+      10354688
+    ]
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "boundary": "실제 Object/Store의 단일 index-empty 생성·중복 put·cached get; 전층 grid 아님",
+  "canonical_bytes": 296,
+  "observed": {
+    "validation_calls": 5,
+    "validation_submitted_bytes": 1480,
+    "validation_completed_input_bytes": 1480,
+    "hash_calls": 1,
+    "hash_input_bytes": 327,
+    "insert_attempts": 1,
+    "attempted_text_utf8_bytes": 75,
+    "attempted_blob_bytes": 296,
+    "effective_insert_rows": 1,
+    "committed_text_utf8_bytes": 75,
+    "committed_blob_bytes": 296
+  }
+}

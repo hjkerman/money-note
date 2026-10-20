@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-phase-b-final/reconcile.py", line 182, in <module>
+    main()
+  File "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-phase-b-final/reconcile.py", line 164, in main
+    large = {str(n): reconcile_large(n) for n in [50000, 100000]}
+                     ^^^^^^^^^^^^^^^^^^
+  File "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-phase-b-final/reconcile.py", line 69, in reconcile_large
+    assert oracle["current_pins"] == 4
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

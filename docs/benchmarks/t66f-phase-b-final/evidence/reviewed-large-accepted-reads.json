@@ -1,0 +1,72 @@
+{
+  "50000": {
+    "raw": {
+      "accepted": "321e0257-1481-4552-ae19-74a5e0fd29ba",
+      "sequence": 4,
+      "hot_control_hashes_match_backend_roots": true,
+      "reads": 20,
+      "work": {
+        "full_recoveries": 0,
+        "accepted_reads": 0,
+        "accepted_metadata_reads": 40,
+        "full_verifications": 0,
+        "object_reads": 80,
+        "verified_bytes": 3180540,
+        "raw_object_reads": 60,
+        "index_object_reads": 0,
+        "full_raw_rows": 0,
+        "full_fact_rows": 0,
+        "canonical_full_builds": 0,
+        "recovery_objects": 0,
+        "transactions": 0,
+        "pin_deletes": 0,
+        "read_snapshots": 20,
+        "adapter_object_reads": 80
+      },
+      "elapsed_us": 1903293,
+      "pin_rows_unchanged": true,
+      "legacy_pending_bytes_unchanged": true,
+      "rss_peak_bytes": 1645662208,
+      "scope": "accepted logical read; NOT legacy Frozen-B installation or R1 proof"
+    },
+    "source": "docs/benchmarks/t66f-b02-a02-correction/http-50000-post-reads.json.gz",
+    "producing_commit": "1cabf319f0ac2c2069e804b47cb527b55e3374db",
+    "boundary": "구현자 원시 측정의 현재 독립 검토; work는 구현 counter. B02 독립 실행과 합치지 않음",
+    "independent_hash_or_validation_bytes": null
+  },
+  "100000": {
+    "raw": {
+      "accepted": "2846d4c7-fce2-4a95-93a2-d7550e6b4776",
+      "sequence": 4,
+      "hot_control_hashes_match_backend_roots": true,
+      "reads": 20,
+      "work": {
+        "full_recoveries": 0,
+        "accepted_reads": 0,
+        "accepted_metadata_reads": 40,
+        "full_verifications": 0,
+        "object_reads": 80,
+        "verified_bytes": 3200460,
+        "raw_object_reads": 60,
+        "index_object_reads": 0,
+        "full_raw_rows": 0,
+        "full_fact_rows": 0,
+        "canonical_full_builds": 0,
+        "recovery_objects": 0,
+        "transactions": 0,
+        "pin_deletes": 0,
+        "read_snapshots": 20,
+        "adapter_object_reads": 80
+      },
+      "elapsed_us": 1978388,
+      "pin_rows_unchanged": true,
+      "legacy_pending_bytes_unchanged": true,
+      "rss_peak_bytes": 3428577280,
+      "scope": "accepted logical read; NOT legacy Frozen-B installation or R1 proof"
+    },
+    "source": "docs/benchmarks/t66f-b02-a02-correction/http-100000-post-reads.json.gz",
+    "producing_commit": "1cabf319f0ac2c2069e804b47cb527b55e3374db",
+    "boundary": "구현자 원시 측정의 현재 독립 검토; work는 구현 counter. B02 독립 실행과 합치지 않음",
+    "independent_hash_or_validation_bytes": null
+  }
+}

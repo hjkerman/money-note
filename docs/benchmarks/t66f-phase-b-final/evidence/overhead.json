@@ -1,0 +1,93 @@
+{
+  "boundary": "실제 Python Object constructor × 1000; 관측기 2개의 합산 overhead, SQL·Dart·disk·HTTP 비용 아님",
+  "timebase": "perf_counter_ns",
+  "warmups": 3,
+  "samples": [
+    {
+      "off_ns": 27734814,
+      "on_ns": 39726193
+    },
+    {
+      "on_ns": 38390332,
+      "off_ns": 46819867
+    },
+    {
+      "off_ns": 28871314,
+      "on_ns": 36226249
+    },
+    {
+      "on_ns": 35963675,
+      "off_ns": 22958553
+    },
+    {
+      "off_ns": 23837231,
+      "on_ns": 38056200
+    },
+    {
+      "on_ns": 37263005,
+      "off_ns": 30077630
+    },
+    {
+      "off_ns": 25285627,
+      "on_ns": 38417679
+    },
+    {
+      "on_ns": 37754444,
+      "off_ns": 23816394
+    },
+    {
+      "off_ns": 25417515,
+      "on_ns": 34458869
+    },
+    {
+      "on_ns": 46756154,
+      "off_ns": 31509668
+    },
+    {
+      "off_ns": 23908106,
+      "on_ns": 35829947
+    },
+    {
+      "on_ns": 35136452,
+      "off_ns": 21856330
+    },
+    {
+      "off_ns": 23618006,
+      "on_ns": 42122633
+    },
+    {
+      "on_ns": 38189573,
+      "off_ns": 26984592
+    },
+    {
+      "off_ns": 28112271,
+      "on_ns": 37610381
+    },
+    {
+      "on_ns": 41249089,
+      "off_ns": 24800988
+    },
+    {
+      "off_ns": 25758289,
+      "on_ns": 39931208
+    },
+    {
+      "on_ns": 39032431,
+      "off_ns": 26553045
+    },
+    {
+      "off_ns": 21279806,
+      "on_ns": 34755906
+    },
+    {
+      "on_ns": 36412463,
+      "off_ns": 23906029
+    }
+  ],
+  "median_off_ns": 25351571.0,
+  "median_on_ns": 37905322.0,
+  "aggregate_only": true,
+  "per_object_logging": false,
+  "counter_fields": 5,
+  "future_dart_overhead": "NOT MEASURED"
+}

@@ -1,0 +1,807 @@
+[
+  {
+    "n": 1000,
+    "historical_ledger_rows": 895,
+    "ledger_current_rows": 105,
+    "other_reference_rows": 35,
+    "hot_bytes": 87364,
+    "control_bytes": 3178,
+    "d_unchanged": 0,
+    "d_card_cash": 1,
+    "objects": 4132,
+    "canonical_bytes": 2749721,
+    "backend_historical_phases": {
+      "unchanged": {
+        "total_ns": {
+          "n": 20,
+          "median": 1089406725.0,
+          "p95": 1170339487
+        },
+        "sql": {
+          "n": 20,
+          "median": 1120.0,
+          "p95": 1120
+        },
+        "returned_rows": {
+          "n": 20,
+          "median": 4528.0,
+          "p95": 4528
+        },
+        "http_entity_bytes": {
+          "n": 20,
+          "median": 1534.0,
+          "p95": 1534
+        }
+      },
+      "card": {
+        "total_ns": {
+          "n": 20,
+          "median": 3166252591.0,
+          "p95": 3606208100
+        },
+        "sql": {
+          "n": 20,
+          "median": 2385.0,
+          "p95": 2385
+        },
+        "returned_rows": {
+          "n": 20,
+          "median": 8729.0,
+          "p95": 8729
+        },
+        "http_entity_bytes": {
+          "n": 20,
+          "median": 1528.0,
+          "p95": 1528
+        }
+      },
+      "cash": {
+        "total_ns": {
+          "n": 20,
+          "median": 1363418638.0,
+          "p95": 1786801237
+        },
+        "sql": {
+          "n": 20,
+          "median": 2439.0,
+          "p95": 2439
+        },
+        "returned_rows": {
+          "n": 20,
+          "median": 8515.0,
+          "p95": 8515
+        },
+        "http_entity_bytes": {
+          "n": 20,
+          "median": 1528.0,
+          "p95": 1528
+        }
+      }
+    },
+    "compression_historical": {
+      "boundary": "offline actual backend full authoritative bundle bytes; no wire Content-Encoding",
+      "raw_bytes": 649444,
+      "sha256": "60d577eaa5912cf74ae10347abb132af0d0dcfb3a6a879298c5eb34bd14c98f6",
+      "algorithms": {
+        "gzip6": {
+          "bytes": 20761,
+          "ratio": 0.031967344374572715,
+          "latency_ns": {
+            "n": 20,
+            "min": 6923755,
+            "median": 8374231.5,
+            "p95": 10606487,
+            "max": 10789780,
+            "stdev": 1404562.832410377
+          },
+          "samples_ns": [
+            8620608,
+            7848585,
+            7468349,
+            7217780,
+            8127855,
+            7014027,
+            7619975,
+            7459430,
+            8123325,
+            6923755,
+            7849988,
+            10789780,
+            9962585,
+            9827217,
+            10385679,
+            10365292,
+            10606487,
+            9988744,
+            10181310,
+            10435716
+          ]
+        },
+        "brotli4": {
+          "bytes": 11012,
+          "ratio": 0.01695604239934467,
+          "latency_ns": {
+            "n": 20,
+            "min": 3261761,
+            "median": 5452199.0,
+            "p95": 5670525,
+            "max": 5720639,
+            "stdev": 806900.0003537515
+          },
+          "samples_ns": [
+            5598601,
+            3674621,
+            3261761,
+            3577906,
+            3653839,
+            5441942,
+            5371960,
+            5529934,
+            5294180,
+            5291173,
+            5330110,
+            5524961,
+            5497119,
+            5462456,
+            5570564,
+            5670525,
+            5720639,
+            5558654,
+            5499676,
+            5273687
+          ]
+        }
+      }
+    },
+    "current_full_cost_status": "INCONCLUSIVE",
+    "logical_hash_bytes": null,
+    "logical_validation_bytes": null,
+    "logical_write_bytes": null,
+    "backend_samples_are_fresh": false,
+    "small_client_profile": "current ledger 1행 별도 fixture; current 105행 profile과 비용 곡선을 합치지 않음. H 전체를 1/105로 정의하지 않음"
+  },
+  {
+    "n": 5000,
+    "historical_ledger_rows": 4895,
+    "ledger_current_rows": 105,
+    "other_reference_rows": 35,
+    "hot_bytes": 87364,
+    "control_bytes": 3178,
+    "d_unchanged": 0,
+    "d_card_cash": 1,
+    "objects": 20148,
+    "canonical_bytes": 13146158,
+    "backend_historical_phases": {
+      "unchanged": {
+        "total_ns": {
+          "n": 20,
+          "median": 867389870.5,
+          "p95": 1069652852
+        },
+        "sql": {
+          "n": 20,
+          "median": 1120.0,
+          "p95": 1120
+        },
+        "returned_rows": {
+          "n": 20,
+          "median": 4528.0,
+          "p95": 4528
+        },
+        "http_entity_bytes": {
+          "n": 20,
+          "median": 1534.0,
+          "p95": 1534
+        }
+      },
+      "card": {
+        "total_ns": {
+          "n": 20,
+          "median": 3296513320.5,
+          "p95": 3622392547
+        },
+        "sql": {
+          "n": 20,
+          "median": 2401.0,
+          "p95": 2401
+        },
+        "returned_rows": {
+          "n": 20,
+          "median": 8745.0,
+          "p95": 8745
+        },
+        "http_entity_bytes": {
+          "n": 20,
+          "median": 1528.0,
+          "p95": 1528
+        }
+      },
+      "cash": {
+        "total_ns": {
+          "n": 20,
+          "median": 1297151893.0,
+          "p95": 1743937268
+        },
+        "sql": {
+          "n": 20,
+          "median": 2446.0,
+          "p95": 2446
+        },
+        "returned_rows": {
+          "n": 20,
+          "median": 8522.0,
+          "p95": 8522
+        },
+        "http_entity_bytes": {
+          "n": 20,
+          "median": 1528.0,
+          "p95": 1528
+        }
+      }
+    },
+    "compression_historical": {
+      "boundary": "offline actual backend full authoritative bundle bytes; no wire Content-Encoding",
+      "raw_bytes": 2877441,
+      "sha256": "d89498c2f108deb3d71e7a3c9a95484a5d2fbd08fe2895b642f9f8e734dfe5b5",
+      "algorithms": {
+        "gzip6": {
+          "bytes": 71847,
+          "ratio": 0.024969061051121465,
+          "latency_ns": {
+            "n": 20,
+            "min": 27914235,
+            "median": 29348756.5,
+            "p95": 32390478,
+            "max": 32953954,
+            "stdev": 1505329.6422658605
+          },
+          "samples_ns": [
+            32390478,
+            32024028,
+            30359830,
+            28147660,
+            27914235,
+            28575456,
+            28810722,
+            29210791,
+            28900689,
+            29337675,
+            29175901,
+            29359838,
+            29467085,
+            28596312,
+            28956011,
+            31474613,
+            32953954,
+            31309101,
+            31104504,
+            31174687
+          ]
+        },
+        "brotli4": {
+          "bytes": 29821,
+          "ratio": 0.010363722488141373,
+          "latency_ns": {
+            "n": 20,
+            "min": 21749838,
+            "median": 24428554.0,
+            "p95": 27358936,
+            "max": 27741995,
+            "stdev": 1542498.163357139
+          },
+          "samples_ns": [
+            24542976,
+            24788844,
+            24592234,
+            23511785,
+            22850654,
+            23131268,
+            24809939,
+            22639645,
+            22744644,
+            23856622,
+            21749838,
+            23257047,
+            23422970,
+            24976472,
+            25155018,
+            24721376,
+            24314132,
+            27358936,
+            27741995,
+            26345717
+          ]
+        }
+      }
+    },
+    "current_full_cost_status": "INCONCLUSIVE",
+    "logical_hash_bytes": null,
+    "logical_validation_bytes": null,
+    "logical_write_bytes": null,
+    "backend_samples_are_fresh": false,
+    "small_client_profile": "current ledger 1행 별도 fixture; current 105행 profile과 비용 곡선을 합치지 않음. H 전체를 1/105로 정의하지 않음"
+  },
+  {
+    "n": 10000,
+    "historical_ledger_rows": 9895,
+    "ledger_current_rows": 105,
+    "other_reference_rows": 35,
+    "hot_bytes": 87364,
+    "control_bytes": 3178,
+    "d_unchanged": 0,
+    "d_card_cash": 1,
+    "objects": 40170,
+    "canonical_bytes": 26160538,
+    "backend_historical_phases": {
+      "unchanged": {
+        "total_ns": {
+          "n": 20,
+          "median": 683266813.5,
+          "p95": 1143145394
+        },
+        "sql": {
+          "n": 20,
+          "median": 1120.0,
+          "p95": 1120
+        },
+        "returned_rows": {
+          "n": 20,
+          "median": 4528.0,
+          "p95": 4528
+        },
+        "http_entity_bytes": {
+          "n": 20,
+          "median": 1535.0,
+          "p95": 1535
+        }
+      },
+      "card": {
+        "total_ns": {
+          "n": 20,
+          "median": 2160857461.0,
+          "p95": 3032231566
+        },
+        "sql": {
+          "n": 20,
+          "median": 2410.0,
+          "p95": 2410
+        },
+        "returned_rows": {
+          "n": 20,
+          "median": 8754.0,
+          "p95": 8754
+        },
+        "http_entity_bytes": {
+          "n": 20,
+          "median": 1529.0,
+          "p95": 1529
+        }
+      },
+      "cash": {
+        "total_ns": {
+          "n": 20,
+          "median": 1126420422.0,
+          "p95": 1818341449
+        },
+        "sql": {
+          "n": 20,
+          "median": 2449.0,
+          "p95": 2449
+        },
+        "returned_rows": {
+          "n": 20,
+          "median": 8525.0,
+          "p95": 8525
+        },
+        "http_entity_bytes": {
+          "n": 20,
+          "median": 1529.0,
+          "p95": 1529
+        }
+      }
+    },
+    "compression_historical": {
+      "boundary": "offline actual backend full authoritative bundle bytes; no wire Content-Encoding",
+      "raw_bytes": 5663442,
+      "sha256": "ed9353a98b3dd4cd83ffb5132c5ceff398a5d6822173153eabb568b1775077fb",
+      "algorithms": {
+        "gzip6": {
+          "bytes": 134823,
+          "ratio": 0.023805841041543287,
+          "latency_ns": {
+            "n": 20,
+            "min": 53077301,
+            "median": 57501405.0,
+            "p95": 59802794,
+            "max": 61855171,
+            "stdev": 2506593.1318169455
+          },
+          "samples_ns": [
+            58186749,
+            54192593,
+            55118207,
+            56889579,
+            58035518,
+            59802794,
+            53077301,
+            54398226,
+            58206727,
+            57431939,
+            59002348,
+            54660718,
+            55547771,
+            57570871,
+            59111396,
+            59243544,
+            53272920,
+            54283558,
+            59749932,
+            61855171
+          ]
+        },
+        "brotli4": {
+          "bytes": 52450,
+          "ratio": 0.009261152493483644,
+          "latency_ns": {
+            "n": 20,
+            "min": 37496876,
+            "median": 40203678.5,
+            "p95": 42644257,
+            "max": 42873985,
+            "stdev": 1589363.538787242
+          },
+          "samples_ns": [
+            40315810,
+            40081136,
+            40523745,
+            41037066,
+            41673887,
+            38863340,
+            37496876,
+            39967186,
+            39405660,
+            41127790,
+            42431814,
+            42019555,
+            38269073,
+            38206066,
+            39060366,
+            42873985,
+            42644257,
+            40091547,
+            41398944,
+            38559399
+          ]
+        }
+      }
+    },
+    "current_full_cost_status": "INCONCLUSIVE",
+    "logical_hash_bytes": null,
+    "logical_validation_bytes": null,
+    "logical_write_bytes": null,
+    "backend_samples_are_fresh": false,
+    "small_client_profile": "current ledger 1행 별도 fixture; current 105행 profile과 비용 곡선을 합치지 않음. H 전체를 1/105로 정의하지 않음"
+  },
+  {
+    "n": 50000,
+    "historical_ledger_rows": 49895,
+    "ledger_current_rows": 105,
+    "other_reference_rows": 35,
+    "hot_bytes": 87364,
+    "control_bytes": 3178,
+    "d_unchanged": 0,
+    "d_card_cash": 1,
+    "objects": 200331,
+    "canonical_bytes": 130710592,
+    "backend_historical_phases": {
+      "unchanged": {
+        "total_ns": {
+          "n": 20,
+          "median": 732721492.0,
+          "p95": 841940225
+        },
+        "sql": {
+          "n": 20,
+          "median": 1120.0,
+          "p95": 1120
+        },
+        "returned_rows": {
+          "n": 20,
+          "median": 4528.0,
+          "p95": 4528
+        },
+        "http_entity_bytes": {
+          "n": 20,
+          "median": 1535.0,
+          "p95": 1535
+        }
+      },
+      "card": {
+        "total_ns": {
+          "n": 20,
+          "median": 2207214382.0,
+          "p95": 2300419101
+        },
+        "sql": {
+          "n": 20,
+          "median": 2432.0,
+          "p95": 2432
+        },
+        "returned_rows": {
+          "n": 20,
+          "median": 8776.0,
+          "p95": 8776
+        },
+        "http_entity_bytes": {
+          "n": 20,
+          "median": 1529.0,
+          "p95": 1529
+        }
+      },
+      "cash": {
+        "total_ns": {
+          "n": 20,
+          "median": 1094334977.0,
+          "p95": 1150713039
+        },
+        "sql": {
+          "n": 20,
+          "median": 2459.0,
+          "p95": 2459
+        },
+        "returned_rows": {
+          "n": 20,
+          "median": 8535.0,
+          "p95": 8535
+        },
+        "http_entity_bytes": {
+          "n": 20,
+          "median": 1529.0,
+          "p95": 1529
+        }
+      }
+    },
+    "compression_historical": {
+      "boundary": "offline actual backend full authoritative bundle bytes; no wire Content-Encoding",
+      "raw_bytes": 28103439,
+      "sha256": "1c33d7bf4f36db94efe03eea1b1e42dba128e529af297b2f5bc731b1e0e16bea",
+      "algorithms": {
+        "gzip6": {
+          "bytes": 648149,
+          "ratio": 0.023062978164344942,
+          "latency_ns": {
+            "n": 20,
+            "min": 167781323,
+            "median": 202184612.0,
+            "p95": 218085989,
+            "max": 237006651,
+            "stdev": 18526551.151027817
+          },
+          "samples_ns": [
+            218085989,
+            237006651,
+            202767779,
+            212233241,
+            212703290,
+            209988948,
+            198397547,
+            194693827,
+            197090337,
+            201601445,
+            210741047,
+            217501836,
+            211491269,
+            209336664,
+            200109838,
+            174039816,
+            167781323,
+            169424119,
+            173910080,
+            180095167
+          ]
+        },
+        "brotli4": {
+          "bytes": 230120,
+          "ratio": 0.008188321721053427,
+          "latency_ns": {
+            "n": 20,
+            "min": 130815609,
+            "median": 138594444.0,
+            "p95": 204427108,
+            "max": 215479348,
+            "stdev": 24362170.499278918
+          },
+          "samples_ns": [
+            138775275,
+            137345523,
+            138429623,
+            142766764,
+            141820952,
+            139077456,
+            135222668,
+            135238323,
+            137755074,
+            138759265,
+            136241494,
+            135297991,
+            134278872,
+            130815609,
+            137726829,
+            154196270,
+            162338212,
+            186470684,
+            215479348,
+            204427108
+          ]
+        }
+      }
+    },
+    "current_full_cost_status": "INCONCLUSIVE",
+    "logical_hash_bytes": null,
+    "logical_validation_bytes": null,
+    "logical_write_bytes": null,
+    "backend_samples_are_fresh": false,
+    "small_client_profile": null
+  },
+  {
+    "n": 100000,
+    "historical_ledger_rows": 99895,
+    "ledger_current_rows": 105,
+    "other_reference_rows": 35,
+    "hot_bytes": 87364,
+    "control_bytes": 3178,
+    "d_unchanged": 0,
+    "d_card_cash": 1,
+    "objects": 400532,
+    "canonical_bytes": 261543083,
+    "backend_historical_phases": {
+      "unchanged": {
+        "total_ns": {
+          "n": 20,
+          "median": 582968077.0,
+          "p95": 612452445
+        },
+        "sql": {
+          "n": 20,
+          "median": 1120.0,
+          "p95": 1120
+        },
+        "returned_rows": {
+          "n": 20,
+          "median": 4528.0,
+          "p95": 4528
+        },
+        "http_entity_bytes": {
+          "n": 20,
+          "median": 1536.0,
+          "p95": 1536
+        }
+      },
+      "card": {
+        "total_ns": {
+          "n": 20,
+          "median": 1836275292.0,
+          "p95": 1957351355
+        },
+        "sql": {
+          "n": 20,
+          "median": 2435.0,
+          "p95": 2435
+        },
+        "returned_rows": {
+          "n": 20,
+          "median": 8779.0,
+          "p95": 8779
+        },
+        "http_entity_bytes": {
+          "n": 20,
+          "median": 1530.0,
+          "p95": 1530
+        }
+      },
+      "cash": {
+        "total_ns": {
+          "n": 20,
+          "median": 906255351.0,
+          "p95": 995318714
+        },
+        "sql": {
+          "n": 20,
+          "median": 2465.0,
+          "p95": 2465
+        },
+        "returned_rows": {
+          "n": 20,
+          "median": 8541.0,
+          "p95": 8541
+        },
+        "http_entity_bytes": {
+          "n": 20,
+          "median": 1530.0,
+          "p95": 1530
+        }
+      }
+    },
+    "compression_historical": {
+      "boundary": "offline actual backend full authoritative bundle bytes; no wire Content-Encoding",
+      "raw_bytes": 56154440,
+      "sha256": "aef20f2dcbc89c967caa862920167cd011edb8a8e23523791adcaf1ae22d7565",
+      "algorithms": {
+        "gzip6": {
+          "bytes": 1288409,
+          "ratio": 0.022944027222068283,
+          "latency_ns": {
+            "n": 20,
+            "min": 400340900,
+            "median": 401684276.5,
+            "p95": 404549109,
+            "max": 404681178,
+            "stdev": 1254778.312714288
+          },
+          "samples_ns": [
+            401231534,
+            400472718,
+            402917149,
+            403226595,
+            401807798,
+            401930390,
+            402208855,
+            401560755,
+            403284289,
+            401191925,
+            401498836,
+            400483596,
+            401543003,
+            402314164,
+            404549109,
+            404681178,
+            400447863,
+            401375151,
+            400340900,
+            402073258
+          ]
+        },
+        "brotli4": {
+          "bytes": 454351,
+          "ratio": 0.008091096625663083,
+          "latency_ns": {
+            "n": 20,
+            "min": 316950546,
+            "median": 319992898.0,
+            "p95": 321307419,
+            "max": 322002241,
+            "stdev": 1437610.0688653556
+          },
+          "samples_ns": [
+            318614296,
+            320029853,
+            322002241,
+            321241200,
+            321307419,
+            318136169,
+            317348902,
+            316950546,
+            318590442,
+            320232781,
+            320022933,
+            319064924,
+            321286135,
+            319288847,
+            321117279,
+            320952128,
+            320720772,
+            319798742,
+            319962863,
+            318024508
+          ]
+        }
+      }
+    },
+    "current_full_cost_status": "INCONCLUSIVE",
+    "logical_hash_bytes": null,
+    "logical_validation_bytes": null,
+    "logical_write_bytes": null,
+    "backend_samples_are_fresh": false,
+    "small_client_profile": null
+  }
+]

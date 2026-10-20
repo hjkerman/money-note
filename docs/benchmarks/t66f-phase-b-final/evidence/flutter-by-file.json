@@ -1,0 +1,347 @@
+{
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart": {
+    "passed": 23,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/coherent_get_dag_test.dart": {
+    "passed": 91,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/authoritative_acquisition_test.dart": {
+    "passed": 57,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_large_profile_authority_test.dart": {
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_publication_crash_test.dart": {
+    "passed": 16,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/diagnostics/t66a_payload_test.dart": {
+    "passed": 0,
+    "failed": 0,
+    "skipped": 2
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_e4_provenance_test.dart": {
+    "passed": 11,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_e4_handoff_test.dart": {
+    "passed": 35,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/offline_persistence_test.dart": {
+    "passed": 9,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/local_snapshot_repository_test.dart": {
+    "passed": 7,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/notification_models_test.dart": {
+    "passed": 2,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/offline_notification_identity_test.dart": {
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/notification_registration_test.dart": {
+    "passed": 11,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/utility_discount_default_test.dart": {
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_e4_ra01_test.dart": {
+    "passed": 42,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_i25_baseline_test.dart": {
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/offline_state_projection_test.dart": {
+    "passed": 18,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_acquisition_store_test.dart": {
+    "passed": 14,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/authoritative_money_compatibility_test.dart": {
+    "passed": 183,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/authoritative_bundle_boundary_matrix_test.dart": {
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/app_state_test.dart": {
+    "passed": 3,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_incremental_verification_test.dart": {
+    "passed": 6,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_authority_test.dart": {
+    "passed": 19,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_adapter_crash_test.dart": {
+    "passed": 4,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_transport_test.dart": {
+    "passed": 30,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/authoritative_bundle_test.dart": {
+    "passed": 27,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_protocol_test.dart": {
+    "passed": 58,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_large_profile_test.dart": {
+    "passed": 39,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_cold_packet_test.dart": {
+    "passed": 14,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/offline_lineage_recovery_test.dart": {
+    "passed": 8,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/formatters_test.dart": {
+    "passed": 2,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/authoritative_bundle_trust_boundary_test.dart": {
+    "passed": 47,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_crash_test.dart": {
+    "passed": 7,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_root_pin_model_test.dart": {
+    "passed": 2,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/notification_discount_policy_test.dart": {
+    "passed": 17,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_e4_frozen_test.dart": {
+    "passed": 19,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_e4_handoff_crash_test.dart": {
+    "passed": 13,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_cold_continuation_test.dart": {
+    "passed": 17,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_e4_a01_test.dart": {
+    "passed": 21,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_publication_test.dart": {
+    "passed": 36,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_fetch_crash_test.dart": {
+    "passed": 3,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_adapter_authority_test.dart": {
+    "passed": 16,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/authoritative_bundle_canonical_test.dart": {
+    "passed": 90,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_large_batch_test.dart": {
+    "passed": 13,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/authoritative_bundle_admission_test.dart": {
+    "passed": 26,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/offline_refresh_test.dart": {
+    "passed": 27,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/apk_download_controller_test.dart": {
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_money_correction_test.dart": {
+    "passed": 166,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/offline_reconciliation_test.dart": {
+    "passed": 14,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_store_test.dart": {
+    "passed": 31,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_adapters_test.dart": {
+    "passed": 42,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/offline_widget_submit_test.dart": {
+    "passed": 13,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/authoritative_bundle_unicode_test.dart": {
+    "passed": 11,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/exact_money_domain_test.dart": {
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/freeze_reaudit_outcome_test.dart": {
+    "passed": 11,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_i25_publication_test.dart": {
+    "passed": 30,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_http_integration_test.dart": {
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/submit_latency_diagnostic_test.dart": {
+    "passed": 3,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/family_screen_test.dart": {
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_diff_integration_test.dart": {
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_response_cleanup_test.dart": {
+    "passed": 13,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/date_picker_row_test.dart": {
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/recurring_series_widget_test.dart": {
+    "passed": 6,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_fetch_test.dart": {
+    "passed": 72,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_large_profile_crash_test.dart": {
+    "passed": 4,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/authoritative_rebuild_pending_test.dart": {
+    "passed": 11,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_cold_continuation_crash_test.dart": {
+    "passed": 4,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/segmented_schema_correction_test.dart": {
+    "passed": 45,
+    "failed": 0,
+    "skipped": 0
+  },
+  "/home/hjkerman/codex/money-note/mobile/test/ai_audit_report_test.dart": {
+    "passed": 9,
+    "failed": 0,
+    "skipped": 0
+  }
+}

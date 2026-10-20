@@ -1,0 +1,30 @@
+{
+  "inventory.py": {
+    "sha256": "53f604c389fdd80eff2530b7b5ed1776c806689d4d034f0b8f95351dd8c4fcad",
+    "ast_equal": true
+  },
+  "reconcile.py": {
+    "sha256": "362021ee67af0d3410372c3468184eef4bdedb7b59e5cc7c2c8080904dc8090a",
+    "ast_equal": true
+  },
+  "finish.py": {
+    "sha256": "281d1b619d64c12d3f6cd52dfb9f9922badbf156ca6a930030cf9b29975f35b5",
+    "ast_equal": true
+  },
+  "test_counters.py": {
+    "sha256": "986ab34a6b0646b6e4d50eb34fa5704288c94167c4e7d983528206d4598306df",
+    "ast_equal": true
+  },
+  "counters.py": {
+    "sha256": "37ee30dfe002e9e663fa8813c51812b2fcbd5085c09c3fb7aa0d223525d94460",
+    "ast_equal": true
+  },
+  "run_checks.py": {
+    "sha256": "868bc7b7efa30700cdf129251d981486cc83cc6af23f09c80215a406d78b4225",
+    "ast_equal": true
+  },
+  "overhead.py": {
+    "sha256": "b3e83fe03edba85b9cf66abe9643b94ea7ecb3afe573608602cec9380d4a2527",
+    "ast_equal": true
+  }
+}

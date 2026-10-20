@@ -1,0 +1,926 @@
+{
+  "50000": {
+    "lineage": {
+      "producing_product": "1cabf319f0ac2c2069e804b47cb527b55e3374db",
+      "independent_audit": "ae0f37250c8f54893cb2ac5eab1d3c9844a7d983",
+      "raw_folder": "docs/benchmarks/t66f-b02-independent/evidence/50000",
+      "newly_executed": false,
+      "source_changed_after": false
+    },
+    "fixture": {
+      "objects": 200331,
+      "canonical_bytes": 130710592,
+      "kinds": {
+        "control": 1,
+        "hot": 1,
+        "index-root": 1,
+        "index-node": 100056,
+        "index-leaf": 100057,
+        "raw-root": 1,
+        "snapshot-leaf": 206,
+        "snapshot-node": 8
+      },
+      "kind_bytes": {
+        "control": 3178,
+        "hot": 87364,
+        "index-root": 398,
+        "index-node": 51796743,
+        "index-leaf": 49199831,
+        "raw-root": 2628,
+        "snapshot-leaf": 29583842,
+        "snapshot-node": 36608
+      },
+      "edges": 200327,
+      "max_depth": 22,
+      "max_fanout": 32,
+      "largest_object": 151684,
+      "raw_rows": {
+        "app_labels": 19,
+        "app_settings": 7,
+        "notification_candidate_registrations": 1,
+        "card_payment_deferrals": 0,
+        "card_payment_allocations": 1,
+        "card_payment_events": 1,
+        "card_payment_batch_items": 1,
+        "card_payment_batches": 1,
+        "cash_flows": 2,
+        "monthly_panels": 2,
+        "ledger_entries": 50000
+      },
+      "fact_domains": {
+        "pk": 50035,
+        "unique": 50004,
+        "reverse": 6,
+        "ref": 6,
+        "allocation": 1,
+        "aggregate": 2,
+        "context": 1,
+        "context_reverse": 2
+      },
+      "raw_value_sha256": {
+        "ledger_entries": {
+          "count": 50000,
+          "sha256": "75ea3fbe412c65f12ec5025efe17afe93b95826a9b9afe478a36fa650567f41b"
+        },
+        "monthly_panels": {
+          "count": 2,
+          "sha256": "08d5182b40e71b2765bf928251af257206e55c88fd08ffd9da1d79285ad8c558"
+        },
+        "cash_flows": {
+          "count": 2,
+          "sha256": "9b2e1d5372569494b2549fcdcea33d7c16d475f00bdde8a4ba5f59c7c52ff9b8"
+        },
+        "card_payment_batches": {
+          "count": 1,
+          "sha256": "a5dd92672dfafa9118e2d3610118f57c130c5252031c240b31d99343b894490f"
+        },
+        "card_payment_batch_items": {
+          "count": 1,
+          "sha256": "991ddd4e24f32d60b16d9c4ea20561b3622661f86e5ed8bc9f99e984fbd7597d"
+        },
+        "card_payment_events": {
+          "count": 1,
+          "sha256": "7528c0491f11efb26ffce4bda176c931defdcf93ebe38167bf8d90ca233c19c6"
+        },
+        "card_payment_allocations": {
+          "count": 1,
+          "sha256": "c62e3e8cd9ecc310ac9c4b80bc8fccbfd40a0bd784e05e8d7e08ee064e91a476"
+        },
+        "card_payment_deferrals": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "notification_candidate_registrations": {
+          "count": 1,
+          "sha256": "43acb4d3883f8641d8ae7f372ed2f98db7cae01f652ae35ea1d9e1f2d9adb1d5"
+        },
+        "app_settings": {
+          "count": 7,
+          "sha256": "e19601cea6bf5a1a650b4d279f422bdfe607069d070128417c100db506ed6ec7"
+        },
+        "app_labels": {
+          "count": 19,
+          "sha256": "af352ecee95ce90c30748cd7891cd4cc28f145925b95fbdea980a4180515c956"
+        }
+      },
+      "audit_reachable_hash_set_sha256": "0fee892203a1d6a7eef7be379c8a8673e3adaf140b790c708815b1aec613fa3d",
+      "audit_sql_rows_compared": 50035,
+      "audit_new_hashes": null
+    },
+    "all_http": {
+      "requests": 3271,
+      "request_entity_bytes": 248392912,
+      "response_entity_bytes": 204337025
+    },
+    "all_http_statuses": {
+      "201": 6,
+      "200": 3258,
+      "410": 1,
+      "204": 6
+    },
+    "cold": {
+      "observations": 2,
+      "success_object_requests": 3175,
+      "all_requests": 3180,
+      "all_request_entity_bytes": 248326841,
+      "all_response_entity_bytes": 203251707,
+      "successful_object_request_bytes": 248256308,
+      "successful_object_response_bytes": 203247122,
+      "canonical_payload_bytes": 130710592,
+      "root": "1ab11345ad23f584133178cdfbf7ef861bc0f832197aa6ff2a667c35784adebd",
+      "independently_inspected_db_bytes": 309501952,
+      "store_work_observed_from_product": {
+        "accepted_reads": 3,
+        "accepted_metadata_reads": 7,
+        "full_recoveries": 1,
+        "transactions": 3859,
+        "object_reads": 887841,
+        "verified_bytes": 596114908,
+        "cold_prefetch_cursors_enqueued": 121639,
+        "cold_cached_parent_peak_sum": 20,
+        "graph_nodes_examined": 200331,
+        "raw_object_reads": 1070,
+        "index_object_reads": 886756,
+        "cold_same_target_continuations": 1,
+        "full_verifications": 1,
+        "full_raw_rows": 50035,
+        "full_fact_rows": 100057,
+        "canonical_full_builds": 1,
+        "pin_inserts": 4,
+        "accepted_writes": 1
+      }
+    },
+    "phases": [
+      {
+        "phase": "identical",
+        "elapsed_us": 2964594,
+        "publication_transaction_us": 4779,
+        "transferred_objects": 0,
+        "store_work": {
+          "accepted_reads": 0,
+          "accepted_metadata_reads": 7,
+          "full_recoveries": 0,
+          "transactions": 6,
+          "object_reads": 9,
+          "verified_bytes": 245859,
+          "cold_prefetch_cursors_enqueued": 0,
+          "cold_cached_parent_peak_sum": 0,
+          "graph_nodes_examined": 0,
+          "raw_object_reads": 4,
+          "index_object_reads": 2,
+          "cold_same_target_continuations": 0,
+          "full_verifications": 0,
+          "full_raw_rows": 0,
+          "full_fact_rows": 0,
+          "canonical_full_builds": 0,
+          "pin_inserts": 4,
+          "accepted_writes": 0,
+          "read_snapshots": 0,
+          "adapter_object_reads": 0,
+          "recovery_reuses": 1,
+          "graph_reused_subtrees": 8,
+          "provenance_reuses": 1,
+          "tree_nodes_examined": 2,
+          "incremental_rows": 0,
+          "index_fact_lookups": 3,
+          "index_nodes_examined": 2,
+          "index_nodes_built": 1,
+          "incremental_fact_changes": 0,
+          "raw_entries_read": 110,
+          "hot_raw_rows": 110,
+          "pin_deletes": 4
+        },
+        "http_delta": {
+          "requests": 3,
+          "request_entity_bytes": 190,
+          "response_entity_bytes": 2942,
+          "status_201": 1,
+          "observation_requests": 2,
+          "status_200": 1,
+          "object_requests": 0,
+          "chunks": 0,
+          "decoded_object_bytes": 0,
+          "independent_wire_hash_checks": 0,
+          "status_410": 0,
+          "status_204": 1,
+          "release_requests": 1
+        },
+        "expected_new_objects": null,
+        "expected_reused_objects": null,
+        "generation": "917a5e9d-2792-42d3-b6f0-f66f69c0d0fc",
+        "sequence": 1
+      },
+      {
+        "phase": "one_row_delta",
+        "elapsed_us": 9024925,
+        "publication_transaction_us": 7389,
+        "transferred_objects": 26,
+        "store_work": {
+          "accepted_reads": 0,
+          "accepted_metadata_reads": 7,
+          "full_recoveries": 0,
+          "transactions": 32,
+          "object_reads": 198,
+          "verified_bytes": 5673341,
+          "cold_prefetch_cursors_enqueued": 0,
+          "cold_cached_parent_peak_sum": 0,
+          "graph_nodes_examined": 26,
+          "raw_object_reads": 62,
+          "index_object_reads": 126,
+          "cold_same_target_continuations": 0,
+          "full_verifications": 0,
+          "full_raw_rows": 0,
+          "full_fact_rows": 0,
+          "canonical_full_builds": 0,
+          "pin_inserts": 4,
+          "accepted_writes": 1,
+          "read_snapshots": 0,
+          "adapter_object_reads": 0,
+          "recovery_reuses": 1,
+          "graph_reused_subtrees": 69,
+          "provenance_reuses": 1,
+          "tree_nodes_examined": 8,
+          "incremental_rows": 1,
+          "index_fact_lookups": 8,
+          "index_nodes_examined": 68,
+          "index_nodes_built": 73,
+          "incremental_fact_changes": 4,
+          "raw_entries_read": 111,
+          "hot_raw_rows": 110,
+          "pin_deletes": 0,
+          "relation_rows": 1
+        },
+        "http_delta": {
+          "requests": 29,
+          "request_entity_bytes": 18011,
+          "response_entity_bytes": 356384,
+          "status_201": 1,
+          "observation_requests": 2,
+          "status_200": 27,
+          "object_requests": 26,
+          "chunks": 26,
+          "decoded_object_bytes": 259703,
+          "independent_wire_hash_checks": 26,
+          "status_410": 0,
+          "status_204": 1,
+          "release_requests": 1
+        },
+        "expected_new_objects": 26,
+        "expected_reused_objects": 200305,
+        "generation": "44be4e05-72e5-4446-877e-12324d522bd7",
+        "sequence": 2
+      },
+      {
+        "phase": "multiple_localized",
+        "elapsed_us": 9176520,
+        "publication_transaction_us": 19603,
+        "transferred_objects": 42,
+        "store_work": {
+          "accepted_reads": 0,
+          "accepted_metadata_reads": 7,
+          "full_recoveries": 0,
+          "transactions": 32,
+          "object_reads": 288,
+          "verified_bytes": 5719440,
+          "cold_prefetch_cursors_enqueued": 0,
+          "cold_cached_parent_peak_sum": 0,
+          "graph_nodes_examined": 42,
+          "raw_object_reads": 62,
+          "index_object_reads": 216,
+          "cold_same_target_continuations": 0,
+          "full_verifications": 0,
+          "full_raw_rows": 0,
+          "full_fact_rows": 0,
+          "canonical_full_builds": 0,
+          "pin_inserts": 4,
+          "accepted_writes": 1,
+          "read_snapshots": 0,
+          "adapter_object_reads": 0,
+          "recovery_reuses": 1,
+          "graph_reused_subtrees": 83,
+          "provenance_reuses": 1,
+          "tree_nodes_examined": 8,
+          "incremental_rows": 2,
+          "index_fact_lookups": 13,
+          "index_nodes_examined": 112,
+          "index_nodes_built": 137,
+          "incremental_fact_changes": 8,
+          "raw_entries_read": 112,
+          "hot_raw_rows": 110,
+          "pin_deletes": 0,
+          "relation_rows": 2
+        },
+        "http_delta": {
+          "requests": 29,
+          "request_entity_bytes": 29859,
+          "response_entity_bytes": 369588,
+          "status_201": 1,
+          "observation_requests": 2,
+          "status_200": 27,
+          "object_requests": 26,
+          "chunks": 42,
+          "decoded_object_bytes": 267898,
+          "independent_wire_hash_checks": 42,
+          "status_410": 0,
+          "status_204": 1,
+          "release_requests": 1
+        },
+        "expected_new_objects": 42,
+        "expected_reused_objects": 200289,
+        "generation": "942c272a-3cea-4934-88c2-429ee51818d2",
+        "sequence": 3
+      },
+      {
+        "phase": "restart_delta",
+        "elapsed_us": 408116154,
+        "publication_transaction_us": 10135,
+        "transferred_objects": 26,
+        "store_work": {
+          "accepted_reads": 2,
+          "accepted_metadata_reads": 7,
+          "full_recoveries": 1,
+          "full_verifications": 2,
+          "object_reads": 801956,
+          "verified_bytes": 587943109,
+          "raw_object_reads": 1346,
+          "index_object_reads": 800582,
+          "full_raw_rows": 100070,
+          "full_fact_rows": 200114,
+          "canonical_full_builds": 2,
+          "recovery_objects": 400662,
+          "transactions": 32,
+          "graph_nodes_examined": 26,
+          "graph_reused_subtrees": 69,
+          "provenance_reuses": 1,
+          "tree_nodes_examined": 8,
+          "incremental_rows": 1,
+          "index_fact_lookups": 8,
+          "index_nodes_examined": 68,
+          "index_nodes_built": 73,
+          "incremental_fact_changes": 4,
+          "raw_entries_read": 111,
+          "relation_rows": 1,
+          "hot_raw_rows": 110,
+          "pin_inserts": 4,
+          "accepted_writes": 1
+        },
+        "http_delta": {
+          "requests": 29,
+          "request_entity_bytes": 18011,
+          "response_entity_bytes": 356404,
+          "status_201": 1,
+          "observation_requests": 2,
+          "status_200": 27,
+          "object_requests": 26,
+          "chunks": 26,
+          "decoded_object_bytes": 259716,
+          "independent_wire_hash_checks": 26,
+          "status_410": 0,
+          "status_204": 1,
+          "release_requests": 1
+        },
+        "expected_new_objects": 26,
+        "expected_reused_objects": 200305,
+        "generation": "46f7a84c-1bde-4da5-b400-3a94d439e8a2",
+        "sequence": 4
+      }
+    ],
+    "fresh_process": {
+      "status": "PASS",
+      "healthy": true,
+      "objects_checked": 200399,
+      "stages_checked": 5,
+      "accepted": "942c272a-3cea-4934-88c2-429ee51818d2",
+      "complete_e4_digests": {
+        "ledger_entries": {
+          "count": 50000,
+          "sha256": "fbf10972634f071f8997a5163ccd5403c52550687e31367fde114aa313d5f2ff"
+        },
+        "monthly_panels": {
+          "count": 2,
+          "sha256": "08d5182b40e71b2765bf928251af257206e55c88fd08ffd9da1d79285ad8c558"
+        },
+        "cash_flows": {
+          "count": 2,
+          "sha256": "9b2e1d5372569494b2549fcdcea33d7c16d475f00bdde8a4ba5f59c7c52ff9b8"
+        },
+        "card_payment_batches": {
+          "count": 1,
+          "sha256": "a5dd92672dfafa9118e2d3610118f57c130c5252031c240b31d99343b894490f"
+        },
+        "card_payment_batch_items": {
+          "count": 1,
+          "sha256": "991ddd4e24f32d60b16d9c4ea20561b3622661f86e5ed8bc9f99e984fbd7597d"
+        },
+        "card_payment_events": {
+          "count": 1,
+          "sha256": "7528c0491f11efb26ffce4bda176c931defdcf93ebe38167bf8d90ca233c19c6"
+        },
+        "card_payment_allocations": {
+          "count": 1,
+          "sha256": "c62e3e8cd9ecc310ac9c4b80bc8fccbfd40a0bd784e05e8d7e08ee064e91a476"
+        },
+        "card_payment_deferrals": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "notification_candidate_registrations": {
+          "count": 1,
+          "sha256": "43acb4d3883f8641d8ae7f372ed2f98db7cae01f652ae35ea1d9e1f2d9adb1d5"
+        },
+        "app_settings": {
+          "count": 7,
+          "sha256": "e19601cea6bf5a1a650b4d279f422bdfe607069d070128417c100db506ed6ec7"
+        },
+        "app_labels": {
+          "count": 19,
+          "sha256": "af352ecee95ce90c30748cd7891cd4cc28f145925b95fbdea980a4180515c956"
+        }
+      },
+      "old_authority_reused": false,
+      "r1": "CLOSED"
+    },
+    "storage_final": {
+      "database_bytes": 310509568,
+      "usage": {
+        "id": 1,
+        "objects": 200425,
+        "payload": 131497909,
+        "stages": 6,
+        "metadata": 146703759
+      },
+      "wal_bytes": 0,
+      "boundary": "cold·delta·restart 후; WAL은 별도 B02 final-state 검사의 관찰값"
+    },
+    "resource": {
+      "process_peak_rss": 1771294720,
+      "tree_sample_peak": 3535691776,
+      "seconds": 2858.6862549820216
+    },
+    "independent_logical_hash_bytes": null,
+    "independent_logical_validation_bytes": null,
+    "independent_logical_write_bytes": null
+  },
+  "100000": {
+    "lineage": {
+      "producing_product": "1cabf319f0ac2c2069e804b47cb527b55e3374db",
+      "independent_audit": "ae0f37250c8f54893cb2ac5eab1d3c9844a7d983",
+      "raw_folder": "docs/benchmarks/t66f-b02-independent/evidence/100000",
+      "newly_executed": false,
+      "source_changed_after": false
+    },
+    "fixture": {
+      "objects": 400532,
+      "canonical_bytes": 261543083,
+      "kinds": {
+        "control": 1,
+        "hot": 1,
+        "index-root": 1,
+        "index-node": 200056,
+        "index-leaf": 200057,
+        "raw-root": 1,
+        "snapshot-leaf": 401,
+        "snapshot-node": 14
+      },
+      "kind_bytes": {
+        "control": 3178,
+        "hot": 87364,
+        "index-root": 398,
+        "index-node": 103763941,
+        "index-leaf": 98401829,
+        "raw-root": 2631,
+        "snapshot-leaf": 59211510,
+        "snapshot-node": 72232
+      },
+      "edges": 400528,
+      "max_depth": 23,
+      "max_fanout": 32,
+      "largest_object": 152198,
+      "raw_rows": {
+        "app_labels": 19,
+        "app_settings": 7,
+        "notification_candidate_registrations": 1,
+        "card_payment_deferrals": 0,
+        "card_payment_allocations": 1,
+        "card_payment_events": 1,
+        "card_payment_batch_items": 1,
+        "card_payment_batches": 1,
+        "cash_flows": 2,
+        "monthly_panels": 2,
+        "ledger_entries": 100000
+      },
+      "fact_domains": {
+        "pk": 100035,
+        "unique": 100004,
+        "reverse": 6,
+        "ref": 6,
+        "allocation": 1,
+        "aggregate": 2,
+        "context": 1,
+        "context_reverse": 2
+      },
+      "raw_value_sha256": {
+        "ledger_entries": {
+          "count": 100000,
+          "sha256": "a258c05fc61aa7f2298abc441fb64f6605f2ae09b6b1f7e1ff82aa5f621f4179"
+        },
+        "monthly_panels": {
+          "count": 2,
+          "sha256": "2f3e2843c02a81eab2a54ce93efb7ddcb00698bbad7344add759c7686fe71e85"
+        },
+        "cash_flows": {
+          "count": 2,
+          "sha256": "a0d9c538c52f31d96f5277ed47054e13428fd4f5c8a731b4e0e62c5119c61722"
+        },
+        "card_payment_batches": {
+          "count": 1,
+          "sha256": "39584353ec3c0ea95aa17006ea0b707a24f128e718bab2b0638b23132bcd7150"
+        },
+        "card_payment_batch_items": {
+          "count": 1,
+          "sha256": "ac5a443e2c71868fb8bf09c24d0c10c5b6edb19a52c618fd1449a4e336087e7b"
+        },
+        "card_payment_events": {
+          "count": 1,
+          "sha256": "735bd6bd8629fc073ec79272a93ea587e5d164be4c423b9541af2da25c89b3aa"
+        },
+        "card_payment_allocations": {
+          "count": 1,
+          "sha256": "d7a2b3b2f923ac241f9fb33051ec0e2c5846ae09a3ae2f88b1c89a3d7a9b9d43"
+        },
+        "card_payment_deferrals": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "notification_candidate_registrations": {
+          "count": 1,
+          "sha256": "e9466b3537da1fe36837f8f5dfcd2f5946286a2fde556c300af873576f4d14a5"
+        },
+        "app_settings": {
+          "count": 7,
+          "sha256": "24b2ce968d226c574488b228890c48c8718e6aeb0746e5bfcdba3fc3e368af85"
+        },
+        "app_labels": {
+          "count": 19,
+          "sha256": "1e9e3003e3a986c6275601ab399c4d624d8e714a06da49737f7a2e00daad0f72"
+        }
+      },
+      "audit_reachable_hash_set_sha256": "9400cabdf082707b68b9f4247ba277ef6117ba9c64f75ec7813d40259bab3a89",
+      "audit_sql_rows_compared": 100035,
+      "audit_new_hashes": null
+    },
+    "all_http": {
+      "requests": 6434,
+      "request_entity_bytes": 523510869,
+      "response_entity_bytes": 407792835
+    },
+    "all_http_statuses": {
+      "201": 7,
+      "200": 6418,
+      "410": 2,
+      "204": 7
+    },
+    "cold": {
+      "observations": 3,
+      "success_object_requests": 6332,
+      "all_requests": 6340,
+      "all_request_entity_bytes": 523438928,
+      "all_response_entity_bytes": 406699750,
+      "successful_object_request_bytes": 523273798,
+      "successful_object_response_bytes": 406693518,
+      "canonical_payload_bytes": 261543083,
+      "root": "ba5cd469a0be95b686da44477192fd4f636dfe6f45c28d8cb57264985007e379",
+      "independently_inspected_db_bytes": 620519424,
+      "store_work_observed_from_product": {
+        "accepted_reads": 3,
+        "accepted_metadata_reads": 7,
+        "full_recoveries": 1,
+        "transactions": 7930,
+        "object_reads": 1805249,
+        "verified_bytes": 1207978946,
+        "cold_prefetch_cursors_enqueued": 250683,
+        "cold_cached_parent_peak_sum": 21,
+        "graph_nodes_examined": 400532,
+        "raw_object_reads": 2075,
+        "index_object_reads": 1803159,
+        "cold_same_target_continuations": 2,
+        "full_verifications": 1,
+        "full_raw_rows": 100035,
+        "full_fact_rows": 200057,
+        "canonical_full_builds": 1,
+        "pin_inserts": 4,
+        "accepted_writes": 1
+      }
+    },
+    "phases": [
+      {
+        "phase": "identical",
+        "elapsed_us": 2840967,
+        "publication_transaction_us": 4526,
+        "transferred_objects": 0,
+        "store_work": {
+          "accepted_reads": 0,
+          "accepted_metadata_reads": 7,
+          "full_recoveries": 0,
+          "transactions": 6,
+          "object_reads": 9,
+          "verified_bytes": 245862,
+          "cold_prefetch_cursors_enqueued": 0,
+          "cold_cached_parent_peak_sum": 0,
+          "graph_nodes_examined": 0,
+          "raw_object_reads": 4,
+          "index_object_reads": 2,
+          "cold_same_target_continuations": 0,
+          "full_verifications": 0,
+          "full_raw_rows": 0,
+          "full_fact_rows": 0,
+          "canonical_full_builds": 0,
+          "pin_inserts": 4,
+          "accepted_writes": 0,
+          "read_snapshots": 0,
+          "adapter_object_reads": 0,
+          "recovery_reuses": 1,
+          "graph_reused_subtrees": 8,
+          "provenance_reuses": 1,
+          "tree_nodes_examined": 2,
+          "incremental_rows": 0,
+          "index_fact_lookups": 3,
+          "index_nodes_examined": 2,
+          "index_nodes_built": 1,
+          "incremental_fact_changes": 0,
+          "raw_entries_read": 110,
+          "hot_raw_rows": 110,
+          "pin_deletes": 4
+        },
+        "http_delta": {
+          "requests": 3,
+          "request_entity_bytes": 190,
+          "response_entity_bytes": 2944,
+          "status_201": 1,
+          "observation_requests": 2,
+          "status_200": 1,
+          "object_requests": 0,
+          "chunks": 0,
+          "decoded_object_bytes": 0,
+          "independent_wire_hash_checks": 0,
+          "status_410": 0,
+          "status_204": 1,
+          "release_requests": 1
+        },
+        "expected_new_objects": null,
+        "expected_reused_objects": null,
+        "generation": "bacb167d-1927-4d1d-859d-c1cf0e27302e",
+        "sequence": 1
+      },
+      {
+        "phase": "one_row_delta",
+        "elapsed_us": 9337871,
+        "publication_transaction_us": 8496,
+        "transferred_objects": 27,
+        "store_work": {
+          "accepted_reads": 0,
+          "accepted_metadata_reads": 7,
+          "full_recoveries": 0,
+          "transactions": 33,
+          "object_reads": 209,
+          "verified_bytes": 5714607,
+          "cold_prefetch_cursors_enqueued": 0,
+          "cold_cached_parent_peak_sum": 0,
+          "graph_nodes_examined": 27,
+          "raw_object_reads": 68,
+          "index_object_reads": 131,
+          "cold_same_target_continuations": 0,
+          "full_verifications": 0,
+          "full_raw_rows": 0,
+          "full_fact_rows": 0,
+          "canonical_full_builds": 0,
+          "pin_inserts": 4,
+          "accepted_writes": 1,
+          "read_snapshots": 0,
+          "adapter_object_reads": 0,
+          "recovery_reuses": 1,
+          "graph_reused_subtrees": 76,
+          "provenance_reuses": 1,
+          "tree_nodes_examined": 8,
+          "incremental_rows": 1,
+          "index_fact_lookups": 8,
+          "index_nodes_examined": 70,
+          "index_nodes_built": 75,
+          "incremental_fact_changes": 4,
+          "raw_entries_read": 111,
+          "hot_raw_rows": 110,
+          "pin_deletes": 0,
+          "relation_rows": 1
+        },
+        "http_delta": {
+          "requests": 30,
+          "request_entity_bytes": 19531,
+          "response_entity_bytes": 358692,
+          "status_201": 1,
+          "observation_requests": 2,
+          "status_200": 28,
+          "object_requests": 27,
+          "chunks": 27,
+          "decoded_object_bytes": 261225,
+          "independent_wire_hash_checks": 27,
+          "status_410": 0,
+          "status_204": 1,
+          "release_requests": 1
+        },
+        "expected_new_objects": 27,
+        "expected_reused_objects": 400505,
+        "generation": "2909e6c9-ee8e-47c1-92f8-f384890980da",
+        "sequence": 2
+      },
+      {
+        "phase": "multiple_localized",
+        "elapsed_us": 9287153,
+        "publication_transaction_us": 11163,
+        "transferred_objects": 44,
+        "store_work": {
+          "accepted_reads": 0,
+          "accepted_metadata_reads": 7,
+          "full_recoveries": 0,
+          "transactions": 33,
+          "object_reads": 306,
+          "verified_bytes": 5764365,
+          "cold_prefetch_cursors_enqueued": 0,
+          "cold_cached_parent_peak_sum": 0,
+          "graph_nodes_examined": 44,
+          "raw_object_reads": 68,
+          "index_object_reads": 228,
+          "cold_same_target_continuations": 0,
+          "full_verifications": 0,
+          "full_raw_rows": 0,
+          "full_fact_rows": 0,
+          "canonical_full_builds": 0,
+          "pin_inserts": 4,
+          "accepted_writes": 1,
+          "read_snapshots": 0,
+          "adapter_object_reads": 0,
+          "recovery_reuses": 1,
+          "graph_reused_subtrees": 91,
+          "provenance_reuses": 1,
+          "tree_nodes_examined": 8,
+          "incremental_rows": 2,
+          "index_fact_lookups": 13,
+          "index_nodes_examined": 118,
+          "index_nodes_built": 143,
+          "incremental_fact_changes": 8,
+          "raw_entries_read": 112,
+          "hot_raw_rows": 110,
+          "pin_deletes": 0,
+          "relation_rows": 2
+        },
+        "http_delta": {
+          "requests": 30,
+          "request_entity_bytes": 32689,
+          "response_entity_bytes": 372737,
+          "status_201": 1,
+          "observation_requests": 2,
+          "status_200": 28,
+          "object_requests": 27,
+          "chunks": 44,
+          "decoded_object_bytes": 269943,
+          "independent_wire_hash_checks": 44,
+          "status_410": 0,
+          "status_204": 1,
+          "release_requests": 1
+        },
+        "expected_new_objects": 44,
+        "expected_reused_objects": 400488,
+        "generation": "825c4db2-6613-4e28-8cef-499270266a47",
+        "sequence": 3
+      },
+      {
+        "phase": "restart_delta",
+        "elapsed_us": 785857704,
+        "publication_transaction_us": 9944,
+        "transferred_objects": 27,
+        "store_work": {
+          "accepted_reads": 2,
+          "accepted_metadata_reads": 7,
+          "full_recoveries": 1,
+          "full_verifications": 2,
+          "object_reads": 1603173,
+          "verified_bytes": 1170640929,
+          "raw_object_reads": 2558,
+          "index_object_reads": 1600587,
+          "full_raw_rows": 200070,
+          "full_fact_rows": 400114,
+          "canonical_full_builds": 2,
+          "recovery_objects": 801064,
+          "transactions": 33,
+          "graph_nodes_examined": 27,
+          "graph_reused_subtrees": 76,
+          "provenance_reuses": 1,
+          "tree_nodes_examined": 8,
+          "incremental_rows": 1,
+          "index_fact_lookups": 8,
+          "index_nodes_examined": 70,
+          "index_nodes_built": 75,
+          "incremental_fact_changes": 4,
+          "raw_entries_read": 111,
+          "relation_rows": 1,
+          "hot_raw_rows": 110,
+          "pin_inserts": 4,
+          "accepted_writes": 1
+        },
+        "http_delta": {
+          "requests": 30,
+          "request_entity_bytes": 19531,
+          "response_entity_bytes": 358712,
+          "status_201": 1,
+          "observation_requests": 2,
+          "status_200": 28,
+          "object_requests": 27,
+          "chunks": 27,
+          "decoded_object_bytes": 261238,
+          "independent_wire_hash_checks": 27,
+          "status_410": 0,
+          "status_204": 1,
+          "release_requests": 1
+        },
+        "expected_new_objects": 27,
+        "expected_reused_objects": 400505,
+        "generation": "fd41c2e8-266c-4fdd-8098-9019e8c599de",
+        "sequence": 4
+      }
+    ],
+    "fresh_process": {
+      "status": "PASS",
+      "healthy": true,
+      "objects_checked": 400603,
+      "stages_checked": 6,
+      "accepted": "825c4db2-6613-4e28-8cef-499270266a47",
+      "complete_e4_digests": {
+        "ledger_entries": {
+          "count": 100000,
+          "sha256": "d527569e8355d171210d4341d268a07a03401d79c581070cd6ff4700bd67be58"
+        },
+        "monthly_panels": {
+          "count": 2,
+          "sha256": "2f3e2843c02a81eab2a54ce93efb7ddcb00698bbad7344add759c7686fe71e85"
+        },
+        "cash_flows": {
+          "count": 2,
+          "sha256": "a0d9c538c52f31d96f5277ed47054e13428fd4f5c8a731b4e0e62c5119c61722"
+        },
+        "card_payment_batches": {
+          "count": 1,
+          "sha256": "39584353ec3c0ea95aa17006ea0b707a24f128e718bab2b0638b23132bcd7150"
+        },
+        "card_payment_batch_items": {
+          "count": 1,
+          "sha256": "ac5a443e2c71868fb8bf09c24d0c10c5b6edb19a52c618fd1449a4e336087e7b"
+        },
+        "card_payment_events": {
+          "count": 1,
+          "sha256": "735bd6bd8629fc073ec79272a93ea587e5d164be4c423b9541af2da25c89b3aa"
+        },
+        "card_payment_allocations": {
+          "count": 1,
+          "sha256": "d7a2b3b2f923ac241f9fb33051ec0e2c5846ae09a3ae2f88b1c89a3d7a9b9d43"
+        },
+        "card_payment_deferrals": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "notification_candidate_registrations": {
+          "count": 1,
+          "sha256": "e9466b3537da1fe36837f8f5dfcd2f5946286a2fde556c300af873576f4d14a5"
+        },
+        "app_settings": {
+          "count": 7,
+          "sha256": "24b2ce968d226c574488b228890c48c8718e6aeb0746e5bfcdba3fc3e368af85"
+        },
+        "app_labels": {
+          "count": 19,
+          "sha256": "1e9e3003e3a986c6275601ab399c4d624d8e714a06da49737f7a2e00daad0f72"
+        }
+      },
+      "old_authority_reused": false,
+      "r1": "CLOSED"
+    },
+    "storage_final": {
+      "database_bytes": 621580288,
+      "usage": {
+        "id": 1,
+        "objects": 400630,
+        "payload": 262335489,
+        "stages": 7,
+        "metadata": 295120923
+      },
+      "wal_bytes": 0,
+      "boundary": "cold·delta·restart 후; WAL은 별도 B02 final-state 검사의 관찰값"
+    },
+    "resource": {
+      "process_peak_rss": 3147444224,
+      "tree_sample_peak": 5772578816,
+      "seconds": 5408.551163774915
+    },
+    "independent_logical_hash_bytes": null,
+    "independent_logical_validation_bytes": null,
+    "independent_logical_write_bytes": null
+  }
+}
