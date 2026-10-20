@@ -1,0 +1,17 @@
+{
+  "policy": "과거 protected-source.json 및 A01 exact review는 원본 유지. 새 reviewed cold branch/helper를 제거한 default byte hash는 과거 값 그대로다. 이번 extension revision만 exact hash로 새 잠금하며 독립 감사 PASS로 표현하지 않는다.",
+  "fetch_sha256": "5bd0fcb5997791256359d4c1f176d8cd74cb21205d7633f00575a284d5502551",
+  "protocol_sha256": "84616e8254d6959c04ca5eb50b818de66dc7cb041ca14c4def1bb89590e9be8e",
+  "unchanged_audited_default_fetch_sha256": "a1e6b4b549dcb5a11d5e0cabcb7806ff42eb831f4192c40b353a103698721253",
+  "review_scope": [
+    "A02 동일 exact Target의 active cold verifier 위치 재사용. publication-enabled 새 호출만, resume/default/warm algorithm 불변",
+    "fresh observation/manifest/stage, 단일 최대3 budget, data_version/profile/validator/cancel/session guard, 부분 buffer unwind, changed Target restart",
+    "사용자 승인: 새 current exact engine와 기존 두 hash만 유지, 나머지 hash 거부. schema/policy/금융 의미/이전 golden 불변",
+    "신규 continuation 15개 PASS 및 동일 fixture renewal 작업 감소 확인. 최종 전체 회귀와 독립 targeted 감사는 별도"
+  ],
+  "approved_exact_engines": [
+    "7ad114bc3ca9c06f56ffca2c5efdc9a026a665feada99ece7c90cdf0d0208d6c",
+    "afe26b70856b5a3fa06477641d91e8e1784e9184906281843f0a39a9c99cbdf5",
+    "f34aef259c801ada33ccb88cfb103ee6654fb4467c49a66ce509f2239ffe449d"
+  ]
+}

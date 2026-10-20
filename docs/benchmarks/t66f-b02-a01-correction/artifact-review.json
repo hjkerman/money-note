@@ -1,0 +1,19 @@
+{
+  "approval": "사용자: 두 exact hash의 최소 호환 갱신 승인",
+  "old_engine": "f34aef259c801ada33ccb88cfb103ee6654fb4467c49a66ce509f2239ffe449d",
+  "new_engine": "afe26b70856b5a3fa06477641d91e8e1784e9184906281843f0a39a9c99cbdf5",
+  "changed_sources": {
+    "isolated_sync/transfer.py": {
+      "old": "00bb23e6a0eff6a87542d5fddeb3bf560a0106e0eed381906413181499fb775a",
+      "new": "b6d4dd33c4614f45988164c5efb644ebb113e0d6ae12bd51659ae98f36aef948"
+    }
+  },
+  "unchanged": [
+    "versions",
+    "raw_schema",
+    "projection_schema",
+    "policy_registry"
+  ],
+  "historical_goldens": "원본 유지",
+  "old_artifact_sha256": "d088e9fefe8f94a3833215d53f5dfacfaacd06c20df7150d049ce5a535259a72"
+}

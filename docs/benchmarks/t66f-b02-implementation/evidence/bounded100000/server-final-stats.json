@@ -1,0 +1,78 @@
+{
+  "wire": {
+    "handler_ns": 2262458027456,
+    "requests": 3721,
+    "request_entity_bytes": 29712806,
+    "response_entity_bytes": 98047934,
+    "status_201": 3,
+    "observation_requests": 3,
+    "status_200": 3712,
+    "object_requests": 3712,
+    "chunks": 23002,
+    "decoded_object_bytes": 70699641,
+    "status_410": 3,
+    "status_204": 3,
+    "release_requests": 3
+  },
+  "failures": [
+    {
+      "status": 410,
+      "method": "POST",
+      "path": "/api/sync/v1/observations/c170f4a0-197d-472b-b87b-9c08a077e4b6/objects",
+      "body": {
+        "error": {
+          "action": "new_observation",
+          "code": "OBSERVATION_EXPIRED",
+          "current_ns": null,
+          "retry_after_ms": null
+        },
+        "protocol": 1,
+        "request_id": "9371c7ad-8304-4e67-9eb2-fd97d0dde8d1"
+      },
+      "wall_time": 1792300836.0407152
+    },
+    {
+      "status": 410,
+      "method": "POST",
+      "path": "/api/sync/v1/observations/09cfd2e4-500a-48e4-a923-bba3b2641cf7/objects",
+      "body": {
+        "error": {
+          "action": "new_observation",
+          "code": "OBSERVATION_EXPIRED",
+          "current_ns": null,
+          "retry_after_ms": null
+        },
+        "protocol": 1,
+        "request_id": "e110d9d0-9111-42ad-b03a-ba082dffd1a4"
+      },
+      "wall_time": 1792301736.1624036
+    },
+    {
+      "status": 410,
+      "method": "POST",
+      "path": "/api/sync/v1/observations/8f8a5bec-7165-4b9b-86e1-3391c76ead84/objects",
+      "body": {
+        "error": {
+          "action": "new_observation",
+          "code": "OBSERVATION_EXPIRED",
+          "current_ns": null,
+          "retry_after_ms": null
+        },
+        "protocol": 1,
+        "request_id": "5f75ce0e-6745-440a-9168-b909d77fd6fa"
+      },
+      "wall_time": 1792302636.0259407
+    }
+  ],
+  "backend_measurements": {
+    "operations": 3716,
+    "admission_ms": 770068.0584395886,
+    "resolution_ms": 545845.7256667898,
+    "terminal_serialization_ms": 3272.8827868122607,
+    "prepared_ms": 1492926.0358236497,
+    "object_reads": 426469,
+    "object_bytes_read": 278500706,
+    "path_edges": 403459,
+    "decoded_bytes": 70703668
+  }
+}

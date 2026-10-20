@@ -1,0 +1,15 @@
+{
+  "handler_ns": 2370428176361,
+  "requests": 3497,
+  "request_entity_bytes": 27665236,
+  "response_entity_bytes": 58082536,
+  "status_201": 3,
+  "observation_requests": 3,
+  "status_200": 3489,
+  "object_requests": 3489,
+  "chunks": 22392,
+  "decoded_object_bytes": 40816368,
+  "status_410": 3,
+  "status_204": 2,
+  "release_requests": 2
+}

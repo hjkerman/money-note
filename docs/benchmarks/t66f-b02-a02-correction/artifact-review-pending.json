@@ -1,0 +1,19 @@
+{
+  "status": "APPROVAL PENDING \u2014 artifacts/allow-list NOT modified",
+  "previous_engine": "afe26b70856b5a3fa06477641d91e8e1784e9184906281843f0a39a9c99cbdf5",
+  "proposed_engine": "7ad114bc3ca9c06f56ffca2c5efdc9a026a665feada99ece7c90cdf0d0208d6c",
+  "historical_engine": "f34aef259c801ada33ccb88cfb103ee6654fb4467c49a66ce509f2239ffe449d",
+  "changed_sources": {
+    "isolated_sync/canonical.py": {
+      "before": "3202c48ec6d38158e7e4eca43177285bf5068aa1c6f31af70796e2d97dc8565f",
+      "after": "dbce387d431a973547650c1beb122a76c8fcc785f7c8847a79484553c096476f"
+    }
+  },
+  "unchanged": [
+    "versions",
+    "raw_schema",
+    "projection_schema",
+    "policy_registry",
+    "engine profile"
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "n": 100000,
+  "graph": {
+    "objects": 400532,
+    "canonical_bytes": 261543083,
+    "kinds": {
+      "control": 1,
+      "hot": 1,
+      "index-root": 1,
+      "index-node": 200056,
+      "index-leaf": 200057,
+      "raw-root": 1,
+      "snapshot-leaf": 401,
+      "snapshot-node": 14
+    },
+    "kind_bytes": {
+      "control": 3178,
+      "hot": 87364,
+      "index-root": 398,
+      "index-node": 103763941,
+      "index-leaf": 98401829,
+      "raw-root": 2631,
+      "snapshot-leaf": 59211510,
+      "snapshot-node": 72232
+    },
+    "edges": 400528,
+    "max_depth": 23,
+    "max_fanout": 32,
+    "largest_object": 152198,
+    "largest_ref": {
+      "bytes": "152198",
+      "hash": "e16c2313a59ca4676432d3ff43d015757d27544fa378a56e6b2adfaf276c6c1b"
+    },
+    "raw_rows": {
+      "app_labels": 19,
+      "app_settings": 7,
+      "notification_candidate_registrations": 1,
+      "card_payment_deferrals": 0,
+      "card_payment_allocations": 1,
+      "card_payment_events": 1,
+      "card_payment_batch_items": 1,
+      "card_payment_batches": 1,
+      "cash_flows": 2,
+      "monthly_panels": 2,
+      "ledger_entries": 100000
+    },
+    "fact_domains": {
+      "pk": 100035,
+      "unique": 100004,
+      "reverse": 6,
+      "ref": 6,
+      "allocation": 1,
+      "aggregate": 2,
+      "context": 1,
+      "context_reverse": 2
+    }
+  },
+  "bootstrap_seconds": 1349.3276864429936,
+  "manifest": {
+    "protocol": 1,
+    "request_id": "be66e745-10da-45df-96f3-b6e3c16d2b6b",
+    "status": "available",
+    "observation_id": "a08f91ff-c239-4f60-bfbb-81c3ee83b6f8",
+    "validated_at": "2026-10-18T05:05:09Z",
+    "expires_at": "2026-10-18T05:20:09Z",
+    "base_sync_root": null,
+    "change_kind": "initial",
+    "target": {
+      "ns": {
+        "server_id": "65f1e035-147d-4d3a-91df-afc320706bcb",
+        "dataset_id": "01aef5cb-f51f-4c1f-a12a-6ee7057218e1",
+        "epoch": "dca69801-03c3-44a2-b2cf-a118db0d86a7"
+      },
+      "principal_id": 1,
+      "versions": {
+        "sync": 1,
+        "canon": 1,
+        "structural": 1,
+        "raw_schema": "b948a0e33fc0abb6957af76beac643ac7131d2fcac3ab53265c02d16783f953e",
+        "snapshot": 7,
+        "recurring_ownership": 1,
+        "projection_schema": "89e2bd7bf3f1683ddff95a0b33b1e9ff08ff19d5a001f4007c40ed4c6c5b3437",
+        "policy_registry": "18be2d36483467e9250d568bcbfed6458c15a364fa99896eb1b8daad05db043d"
+      },
+      "revision": "100025",
+      "context": {
+        "evaluation_date": "2026-10-05",
+        "timezone_offset_minutes": 540,
+        "financial_engine": "f34aef259c801ada33ccb88cfb103ee6654fb4467c49a66ce509f2239ffe449d"
+      },
+      "raw_ref": {
+        "hash": "e64e64d79e90e32136f9bf56c05227dbe59f568e819ce6a0f12a7dab00d6ab1b",
+        "bytes": "2631"
+      },
+      "index_ref": {
+        "hash": "7aaaf73b03caec694b4765fbdc0eb85a04f802642778e1822b2f46f2d419fa14",
+        "bytes": "398"
+      },
+      "hot_ref": {
+        "hash": "a27cf1b94f581a8fcf35d25a920077d3a394f8e5874b018b6a58aa1a54421e11",
+        "bytes": "87364"
+      },
+      "control_ref": {
+        "hash": "455a8f370bdc33aeb815b1e3e3b5058b99b58d14431c98f5dcd87d509fd0c56e",
+        "bytes": "3178"
+      },
+      "sync_root": "bc14b63273db09676595d4e8fef49166c3d91366ed6c27f47d94ab2225410377"
+    },
+    "inline_objects": []
+  },
+  "max_rss_kib": 958332,
+  "backend_db_bytes": 790274048
+}

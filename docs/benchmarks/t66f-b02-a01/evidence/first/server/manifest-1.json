@@ -1,0 +1,52 @@
+{
+  "base_sync_root": null,
+  "change_kind": "initial",
+  "expires_at": "2026-10-18T13:26:56Z",
+  "inline_objects": [],
+  "observation_id": "3ee331d2-de5c-42ed-b4d7-9a0529d52df1",
+  "protocol": 1,
+  "request_id": "a9d86843-580a-4155-8ab1-82aadaa5dd2c",
+  "status": "available",
+  "target": {
+    "context": {
+      "evaluation_date": "2026-10-05",
+      "financial_engine": "f34aef259c801ada33ccb88cfb103ee6654fb4467c49a66ce509f2239ffe449d",
+      "timezone_offset_minutes": 540
+    },
+    "control_ref": {
+      "bytes": "3178",
+      "hash": "99abf3ad710aa44b2f4864e8ca2bff430ecde463208094f75c3387ec3d72de18"
+    },
+    "hot_ref": {
+      "bytes": "87364",
+      "hash": "0076ffa9a9b6809a7610b5957efda47d1cbb723808ffa09e582a7cd93caa1584"
+    },
+    "index_ref": {
+      "bytes": "398",
+      "hash": "d86e6b7f1c52d2105618eb15f1d1aa613c9a29a786a3c3cc17d8fcb093265a4a"
+    },
+    "ns": {
+      "dataset_id": "21fcb05f-24f7-4f18-91cc-9e5388373d05",
+      "epoch": "45a35114-5989-427c-9b48-22073462bd7e",
+      "server_id": "27a74cfa-230b-4233-95ee-4dafc9be0cce"
+    },
+    "principal_id": 1,
+    "raw_ref": {
+      "bytes": "2628",
+      "hash": "c6968b3d21aa38b2d6ca9d5d96ecc59932999c031f74ecffb2a2f4dbe313d0c4"
+    },
+    "revision": "50025",
+    "sync_root": "301da7ad6ae5689a19d8bc7c3edeea59427dc5f669bd449ae1cc4dad5931a3c0",
+    "versions": {
+      "canon": 1,
+      "policy_registry": "18be2d36483467e9250d568bcbfed6458c15a364fa99896eb1b8daad05db043d",
+      "projection_schema": "89e2bd7bf3f1683ddff95a0b33b1e9ff08ff19d5a001f4007c40ed4c6c5b3437",
+      "raw_schema": "b948a0e33fc0abb6957af76beac643ac7131d2fcac3ab53265c02d16783f953e",
+      "recurring_ownership": 1,
+      "snapshot": 7,
+      "structural": 1,
+      "sync": 1
+    }
+  },
+  "validated_at": "2026-10-18T13:11:56Z"
+}

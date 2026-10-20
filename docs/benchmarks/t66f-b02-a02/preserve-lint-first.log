@@ -1,0 +1,17 @@
+E731 Do not assign a `lambda` expression, use a `def`
+  --> docs/benchmarks/t66f-b02-a02/preserve.py:33:1
+   |
+31 |   ]
+32 |   new = sorted(set(files) - set(initial["files"]))
+33 | / allowed = lambda p: (
+34 | |     p.startswith("docs/benchmarks/t66f-b02-a02/")
+35 | |     or p == "docs/t66f-b02-a02-100k-acquisition-investigation.md"
+36 | | )
+   | |_^
+37 |   result = {
+38 |       "head": git("rev-parse", "HEAD").decode().strip(),
+   |
+help: Rewrite `allowed` as a `def`
+
+Found 2 errors (1 fixed, 1 remaining).
+No fixes available (1 hidden fix can be enabled with the `--unsafe-fixes` option).

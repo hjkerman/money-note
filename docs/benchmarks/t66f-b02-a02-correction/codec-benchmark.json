@@ -1,0 +1,125 @@
+{
+  "scope": "same request/observation ASGI auth+SQLite; TCP/TLS excluded; counters are test instrumentation",
+  "rows": [
+    {
+      "mode": "before",
+      "shape": "shared",
+      "seconds": 0.27618496597278863,
+      "handler_ns": 275001998,
+      "response_sha256": "17569144270059909ffce46911ec30831b1c08d9ceb02ce95caa330d6e569de9",
+      "encode_calls": 1165,
+      "encoded_output_bytes": 1957162,
+      "sql": 566
+    },
+    {
+      "mode": "after",
+      "shape": "shared",
+      "seconds": 0.24044155003502965,
+      "handler_ns": 239054808,
+      "response_sha256": "17569144270059909ffce46911ec30831b1c08d9ceb02ce95caa330d6e569de9",
+      "encode_calls": 583,
+      "encoded_output_bytes": 1008948,
+      "sql": 566
+    },
+    {
+      "mode": "before",
+      "shape": "shared",
+      "seconds": 0.3069684290094301,
+      "handler_ns": 305564394,
+      "response_sha256": "17569144270059909ffce46911ec30831b1c08d9ceb02ce95caa330d6e569de9",
+      "encode_calls": 1165,
+      "encoded_output_bytes": 1957162,
+      "sql": 566
+    },
+    {
+      "mode": "after",
+      "shape": "shared",
+      "seconds": 0.20803650107700378,
+      "handler_ns": 206684751,
+      "response_sha256": "17569144270059909ffce46911ec30831b1c08d9ceb02ce95caa330d6e569de9",
+      "encode_calls": 583,
+      "encoded_output_bytes": 1008948,
+      "sql": 566
+    },
+    {
+      "mode": "before",
+      "shape": "shared",
+      "seconds": 0.27723253890872,
+      "handler_ns": 276001574,
+      "response_sha256": "17569144270059909ffce46911ec30831b1c08d9ceb02ce95caa330d6e569de9",
+      "encode_calls": 1165,
+      "encoded_output_bytes": 1957162,
+      "sql": 566
+    },
+    {
+      "mode": "after",
+      "shape": "shared",
+      "seconds": 0.2078082780353725,
+      "handler_ns": 206574084,
+      "response_sha256": "17569144270059909ffce46911ec30831b1c08d9ceb02ce95caa330d6e569de9",
+      "encode_calls": 583,
+      "encoded_output_bytes": 1008948,
+      "sql": 566
+    },
+    {
+      "mode": "before",
+      "shape": "spread",
+      "seconds": 0.40300961094908416,
+      "handler_ns": 401633257,
+      "response_sha256": "ddc51429b393663c3bfd5296f314d0f67933bbc29ac0b497c04dc2866468c7b7",
+      "encode_calls": 3067,
+      "encoded_output_bytes": 2924011,
+      "sql": 883
+    },
+    {
+      "mode": "after",
+      "shape": "spread",
+      "seconds": 0.293997542001307,
+      "handler_ns": 292635018,
+      "response_sha256": "ddc51429b393663c3bfd5296f314d0f67933bbc29ac0b497c04dc2866468c7b7",
+      "encode_calls": 1534,
+      "encoded_output_bytes": 1491468,
+      "sql": 883
+    },
+    {
+      "mode": "before",
+      "shape": "spread",
+      "seconds": 0.40264254808425903,
+      "handler_ns": 401310973,
+      "response_sha256": "ddc51429b393663c3bfd5296f314d0f67933bbc29ac0b497c04dc2866468c7b7",
+      "encode_calls": 3067,
+      "encoded_output_bytes": 2924011,
+      "sql": 883
+    },
+    {
+      "mode": "after",
+      "shape": "spread",
+      "seconds": 0.29369399894494563,
+      "handler_ns": 292371659,
+      "response_sha256": "ddc51429b393663c3bfd5296f314d0f67933bbc29ac0b497c04dc2866468c7b7",
+      "encode_calls": 1534,
+      "encoded_output_bytes": 1491468,
+      "sql": 883
+    },
+    {
+      "mode": "before",
+      "shape": "spread",
+      "seconds": 0.4007214850280434,
+      "handler_ns": 399411746,
+      "response_sha256": "ddc51429b393663c3bfd5296f314d0f67933bbc29ac0b497c04dc2866468c7b7",
+      "encode_calls": 3067,
+      "encoded_output_bytes": 2924011,
+      "sql": 883
+    },
+    {
+      "mode": "after",
+      "shape": "spread",
+      "seconds": 0.29527298198081553,
+      "handler_ns": 293810685,
+      "response_sha256": "ddc51429b393663c3bfd5296f314d0f67933bbc29ac0b497c04dc2866468c7b7",
+      "encode_calls": 1534,
+      "encoded_output_bytes": 1491468,
+      "sql": 883
+    }
+  ]
+}

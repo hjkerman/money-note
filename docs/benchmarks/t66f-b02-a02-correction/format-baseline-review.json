@@ -1,0 +1,33 @@
+{
+  "scope": "기존 스타일 차이는 before/current 모두 존재. 불필요한 전체 재format/새 engine hash 생성 없이 보존. 신규 Python·변경 Dart 별도 검사",
+  "rows": [
+    {
+      "name": "canonical.py",
+      "revision": "before",
+      "format_check_exit": 1,
+      "source_sha256": "3202c48ec6d38158e7e4eca43177285bf5068aa1c6f31af70796e2d97dc8565f",
+      "formatter_only_ast_equal": true
+    },
+    {
+      "name": "canonical.py",
+      "revision": "current",
+      "format_check_exit": 1,
+      "source_sha256": "dbce387d431a973547650c1beb122a76c8fcc785f7c8847a79484553c096476f",
+      "formatter_only_ast_equal": true
+    },
+    {
+      "name": "transfer.py",
+      "revision": "before",
+      "format_check_exit": 1,
+      "source_sha256": "00bb23e6a0eff6a87542d5fddeb3bf560a0106e0eed381906413181499fb775a",
+      "formatter_only_ast_equal": true
+    },
+    {
+      "name": "transfer.py",
+      "revision": "current",
+      "format_check_exit": 1,
+      "source_sha256": "b6d4dd33c4614f45988164c5efb644ebb113e0d6ae12bd51659ae98f36aef948",
+      "formatter_only_ast_equal": true
+    }
+  ]
+}

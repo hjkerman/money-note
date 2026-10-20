@@ -1,0 +1,16 @@
+{
+  "policy": "과거 protected-source.json은 수정하지 않는다. 검토된 profile seam만 제거하면 과거 default SHA가 정확히 일치한다. 새 extension revision도 exact SHA로 별도 고정한다. 독립 감사 PASS를 의미하지 않는다.",
+  "review_scope": [
+    "원래 B02 FetchLimits/AppState optional explicit limits/E1 bounded batch",
+    "A01 cold-only cursor + cooperative yields",
+    "사용자 승인: 두 exact engine hash만 허용; frozen goldens 원본 유지",
+    "실제50k GRAPH_DEPTH_BUDGET 재현: cached 부모는 pathDepth 크기의 DFS ancestor stack으로 분리; 기존 prefetch cap/모든 profile 상한 유지"
+  ],
+  "fetch_sha256": "90439d1d712947dee466769d56d75797b0779c23c90a528a167aff1e484ef8c6",
+  "protocol_sha256": "78f1bec87d2db04c731b05619b4677afedbef666754089240f02f1e8f19e03ee",
+  "original_dirty_fetch_sha256": "94a99947e4bdf408124e74aca43f7f4c6c3c2738ab9a76c0ffd77aaeb9285b37",
+  "previous_protocol_sha256": "58f70712efd73899817e97d686ea7c326f77414a89da86cd7e07ac05816c606d",
+  "unchanged_audited_default_fetch_sha256": "a1e6b4b549dcb5a11d5e0cabcb7806ff42eb831f4192c40b353a103698721253",
+  "unchanged_restored_appstate_sha256": "5b3f22d80f25f87d3df6b694285e288097eedc1d758322a249d2d3ad13b13156",
+  "invariant": "원 default E2 알고리즘과 원 AppState authority seam 제거 후 기대 SHA 유지. 새 cold helper·명시적 profile·승인된 두 exact engine hash만 별도 revision으로 잠금. 독립 감사 승인으로 표현하지 않음."
+}

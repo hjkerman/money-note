@@ -1,0 +1,28 @@
+{
+  "wire": {
+    "handler_ns": 757241371077,
+    "requests": 1174,
+    "request_entity_bytes": 3674610,
+    "response_entity_bytes": 5441199,
+    "status_201": 5,
+    "observation_requests": 10,
+    "status_200": 1164,
+    "object_requests": 1159,
+    "chunks": 4200,
+    "decoded_object_bytes": 3506720,
+    "status_204": 5,
+    "release_requests": 5
+  },
+  "failures": [],
+  "backend_measurements": {
+    "operations": 1169,
+    "admission_ms": 310779.50358600356,
+    "resolution_ms": 61860.01012707129,
+    "terminal_serialization_ms": 677.550301363226,
+    "prepared_ms": 447292.39844484255,
+    "object_reads": 51196,
+    "object_bytes_read": 26977439,
+    "path_edges": 46996,
+    "decoded_bytes": 3506720
+  }
+}

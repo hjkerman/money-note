@@ -1,0 +1,5 @@
+{
+  "initial_run": "/tmp/mn-b02-a01-20261018-220659",
+  "initial_limitation": "first expiry directly observed; subsequent TRANSPORT_FAILED, concurrent logger flush can independently throw; exact original exception not captured",
+  "confirmation_reason": "investigation-only logger correction; product unchanged"
+}

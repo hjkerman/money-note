@@ -1,0 +1,10 @@
+{
+  "policy": "과거 protected-source.json은 수정하지 않는다. 검토된 profile seam만 제거하면 과거 default SHA가 정확히 일치한다. 새 extension revision도 exact SHA로 별도 고정한다. 독립 감사 PASS를 의미하지 않는다.",
+  "review_scope": [
+    "원래 B02 FetchLimits/AppState optional explicit limits/E1 bounded batch",
+    "A01 cold-only cursor + cooperative yields",
+    "사용자 승인: 두 exact engine hash만 허용; frozen goldens 원본 유지"
+  ],
+  "fetch_sha256": "895869f6a9443bcc4fc112f1694d2b762bbb087c31b0cf25bd75b714dc3ee208",
+  "protocol_sha256": "78f1bec87d2db04c731b05619b4677afedbef666754089240f02f1e8f19e03ee"
+}

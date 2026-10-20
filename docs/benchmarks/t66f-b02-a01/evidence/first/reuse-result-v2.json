@@ -1,0 +1,17 @@
+{
+  "label": "NARROW DIAGNOSTIC, MOCK MANIFEST/422 OVER REAL IOCLIENT; NOT BACKEND D-E",
+  "error": "AcquisitionFailure(INVALID_REQUEST,blocked)",
+  "stack": "#0      IncrementalFetcher.acquire (package:money_note_mobile/src/segmented/fetch.dart:434:7)\n<asynchronous suspension>\n#1      main.<anonymous closure>.<anonymous closure> (file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a01/reuse_diagnostic_test.dart:147:11)\n<asynchronous suspension>\n#2      main.<anonymous closure> (file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a01/reuse_diagnostic_test.dart:140:7)\n<asynchronous suspension>\n#3      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)\n<asynchronous suspension>\n#4      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)\n<asynchronous suspension>\n#5      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)\n<asynchronous suspension>\n",
+  "elapsed_us": 37264679,
+  "observations": 1,
+  "object_requests_reached_server": 1,
+  "work": {
+    "transactions": 278,
+    "object_reads": 47139,
+    "verified_bytes": 112331505,
+    "raw_object_reads": 642,
+    "graph_nodes_examined": 15721,
+    "index_object_reads": 46495
+  },
+  "accepted_id": null
+}

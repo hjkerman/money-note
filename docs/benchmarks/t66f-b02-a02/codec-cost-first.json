@@ -1,0 +1,739 @@
+{
+  "scope": "실제 ASGI/auth/typed 경로; encode caller별 aggregate. 알고리즘 수정 없음. 프로파일 시간은 직접 latency 추정에서 제외",
+  "results": [
+    {
+      "n": 1000,
+      "graph_objects": 4132,
+      "db_bytes": 8757248,
+      "rows": [
+        {
+          "n": 1000,
+          "graph_objects": 4132,
+          "shape": "shared",
+          "count": 64,
+          "path_edges": 806,
+          "canonical_bytes": 31515,
+          "instrumented": true,
+          "wall_s": 0.28924804693087935,
+          "metrics": {
+            "admission_ms": 99.31246808264405,
+            "resolution_ms": 63.334402977488935,
+            "terminal_serialization_ms": 1.4023019466549158,
+            "total_ms": 164.8501540767029,
+            "object_reads": 136,
+            "object_bytes_read": 68237,
+            "response_bytes": 51229,
+            "prefix_cache_hits": 734,
+            "prefix_validations": 72,
+            "prefix_cache_peak": 72,
+            "prefix_cache_peak_bytes": 36722,
+            "decoded_bytes": 31515,
+            "path_edges": 806,
+            "auth_ms": 20.901364972814918,
+            "prepared_ms": 186.83055404108018,
+            "operation": "objects",
+            "http_ms": 283.71430200058967,
+            "terminal_http_ms": 96.79970797151327
+          },
+          "trace": {
+            "ns": {
+              "encode_from.decode_json": 74928357,
+              "RetentionSandbox.connect": 60222263,
+              "Adapter.credential": 20896667,
+              "encode_from.decode_c1": 70272730,
+              "isolated_sync.observation.versions": 33518446,
+              "ObservationRepository._view_object": 58317666,
+              "ObservationRepository._lookup": 154956710,
+              "PathResolver.resolve": 62620232,
+              "Adapter.prepare": 186667571,
+              "Adapter.terminal": 96533548
+            },
+            "cpu_ns": {
+              "RetentionSandbox.connect": 60220615,
+              "Adapter.credential": 20896228,
+              "isolated_sync.observation.versions": 33512487,
+              "ObservationRepository._view_object": 58314388,
+              "ObservationRepository._lookup": 154937822,
+              "PathResolver.resolve": 62655158,
+              "Adapter.prepare": 186644571,
+              "Adapter.terminal": 96524409
+            },
+            "calls": {
+              "encode_from.decode_json": 583,
+              "RetentionSandbox.connect": 3,
+              "Adapter.credential": 1,
+              "encode_from.decode_c1": 582,
+              "isolated_sync.observation.versions": 2,
+              "ObservationRepository._view_object": 4,
+              "ObservationRepository._lookup": 2,
+              "PathResolver.resolve": 64,
+              "Adapter.prepare": 1,
+              "Adapter.terminal": 1
+            },
+            "wall_ns": 287030155
+          }
+        },
+        {
+          "n": 1000,
+          "graph_objects": 4132,
+          "shape": "shared",
+          "count": 64,
+          "path_edges": 806,
+          "canonical_bytes": 31515,
+          "instrumented": true,
+          "wall_s": 0.3365496100159362,
+          "metrics": {
+            "admission_ms": 113.11650497373194,
+            "resolution_ms": 74.69859509728849,
+            "terminal_serialization_ms": 1.6562009695917368,
+            "total_ms": 190.4107490554452,
+            "object_reads": 136,
+            "object_bytes_read": 68237,
+            "response_bytes": 51229,
+            "prefix_cache_hits": 734,
+            "prefix_validations": 72,
+            "prefix_cache_peak": 72,
+            "prefix_cache_peak_bytes": 36722,
+            "decoded_bytes": 31515,
+            "path_edges": 806,
+            "auth_ms": 20.726325921714306,
+            "prepared_ms": 212.15491800103337,
+            "operation": "objects",
+            "http_ms": 330.8438250096515,
+            "terminal_http_ms": 118.60227608121932
+          },
+          "trace": {
+            "ns": {
+              "encode_from.decode_json": 89724163,
+              "RetentionSandbox.connect": 65453751,
+              "Adapter.credential": 20721767,
+              "encode_from.decode_c1": 86882313,
+              "isolated_sync.observation.versions": 37041827,
+              "ObservationRepository._view_object": 71016940,
+              "ObservationRepository._lookup": 185057694,
+              "PathResolver.resolve": 73854787,
+              "Adapter.prepare": 211991354,
+              "Adapter.terminal": 118316472
+            },
+            "cpu_ns": {
+              "RetentionSandbox.connect": 65465135,
+              "Adapter.credential": 20721223,
+              "isolated_sync.observation.versions": 37041279,
+              "ObservationRepository._view_object": 71012514,
+              "ObservationRepository._lookup": 185041678,
+              "PathResolver.resolve": 73884800,
+              "Adapter.prepare": 211971335,
+              "Adapter.terminal": 118305573
+            },
+            "calls": {
+              "encode_from.decode_json": 583,
+              "RetentionSandbox.connect": 3,
+              "Adapter.credential": 1,
+              "encode_from.decode_c1": 582,
+              "isolated_sync.observation.versions": 2,
+              "ObservationRepository._view_object": 4,
+              "ObservationRepository._lookup": 2,
+              "PathResolver.resolve": 64,
+              "Adapter.prepare": 1,
+              "Adapter.terminal": 1
+            },
+            "wall_ns": 334607807
+          }
+        },
+        {
+          "n": 1000,
+          "graph_objects": 4132,
+          "shape": "spread",
+          "count": 64,
+          "path_edges": 788,
+          "canonical_bytes": 31475,
+          "instrumented": true,
+          "wall_s": 0.4283102919580415,
+          "metrics": {
+            "admission_ms": 98.679582006298,
+            "resolution_ms": 199.63331206236035,
+            "terminal_serialization_ms": 1.3755150139331818,
+            "total_ms": 300.562177086249,
+            "object_reads": 462,
+            "object_bytes_read": 234510,
+            "response_bytes": 51173,
+            "prefix_cache_hits": 390,
+            "prefix_validations": 398,
+            "prefix_cache_peak": 398,
+            "prefix_cache_peak_bytes": 203035,
+            "decoded_bytes": 31475,
+            "path_edges": 788,
+            "auth_ms": 21.0834190947935,
+            "prepared_ms": 322.6714550983161,
+            "operation": "objects",
+            "http_ms": 422.13276703841984,
+            "terminal_http_ms": 99.34046899434179
+          },
+          "trace": {
+            "ns": {
+              "encode_from.decode_json": 121660360,
+              "RetentionSandbox.connect": 60579474,
+              "Adapter.credential": 21079015,
+              "encode_from.decode_c1": 110303328,
+              "isolated_sync.observation.versions": 31832149,
+              "ObservationRepository._view_object": 61125419,
+              "ObservationRepository._lookup": 156537106,
+              "PathResolver.resolve": 198699716,
+              "Adapter.prepare": 322523166,
+              "Adapter.terminal": 99070630
+            },
+            "cpu_ns": {
+              "RetentionSandbox.connect": 60569998,
+              "Adapter.credential": 21069632,
+              "isolated_sync.observation.versions": 31831520,
+              "ObservationRepository._view_object": 61122443,
+              "ObservationRepository._lookup": 156523730,
+              "PathResolver.resolve": 198713542,
+              "Adapter.prepare": 322479592,
+              "Adapter.terminal": 99061517
+            },
+            "calls": {
+              "encode_from.decode_json": 1561,
+              "RetentionSandbox.connect": 3,
+              "Adapter.credential": 1,
+              "encode_from.decode_c1": 1560,
+              "isolated_sync.observation.versions": 2,
+              "ObservationRepository._view_object": 4,
+              "ObservationRepository._lookup": 2,
+              "PathResolver.resolve": 64,
+              "Adapter.prepare": 1,
+              "Adapter.terminal": 1
+            },
+            "wall_ns": 425968600
+          }
+        },
+        {
+          "n": 1000,
+          "graph_objects": 4132,
+          "shape": "spread",
+          "count": 64,
+          "path_edges": 788,
+          "canonical_bytes": 31475,
+          "instrumented": true,
+          "wall_s": 0.5005928829777986,
+          "metrics": {
+            "admission_ms": 113.5096859652549,
+            "resolution_ms": 235.91883899644017,
+            "terminal_serialization_ms": 1.6996989725157619,
+            "total_ms": 352.21079899929464,
+            "object_reads": 462,
+            "object_bytes_read": 234510,
+            "response_bytes": 51173,
+            "prefix_cache_hits": 390,
+            "prefix_validations": 398,
+            "prefix_cache_peak": 398,
+            "prefix_cache_peak_bytes": 203035,
+            "decoded_bytes": 31475,
+            "path_edges": 788,
+            "auth_ms": 21.34744101203978,
+            "prepared_ms": 374.64188993908465,
+            "operation": "objects",
+            "http_ms": 494.964646990411,
+            "terminal_http_ms": 120.2300590230152
+          },
+          "trace": {
+            "ns": {
+              "encode_from.decode_json": 140744398,
+              "RetentionSandbox.connect": 65916714,
+              "Adapter.credential": 21342766,
+              "encode_from.decode_c1": 133558430,
+              "isolated_sync.observation.versions": 37337827,
+              "ObservationRepository._view_object": 71661348,
+              "ObservationRepository._lookup": 186828323,
+              "PathResolver.resolve": 234803294,
+              "Adapter.prepare": 374477021,
+              "Adapter.terminal": 119919520
+            },
+            "cpu_ns": {
+              "RetentionSandbox.connect": 65916289,
+              "Adapter.credential": 21342103,
+              "isolated_sync.observation.versions": 37337185,
+              "ObservationRepository._view_object": 71646113,
+              "ObservationRepository._lookup": 186801425,
+              "PathResolver.resolve": 234831510,
+              "Adapter.prepare": 374437640,
+              "Adapter.terminal": 119897344
+            },
+            "calls": {
+              "encode_from.decode_json": 1561,
+              "RetentionSandbox.connect": 3,
+              "Adapter.credential": 1,
+              "encode_from.decode_c1": 1560,
+              "isolated_sync.observation.versions": 2,
+              "ObservationRepository._view_object": 4,
+              "ObservationRepository._lookup": 2,
+              "PathResolver.resolve": 64,
+              "Adapter.prepare": 1,
+              "Adapter.terminal": 1
+            },
+            "wall_ns": 498364081
+          }
+        }
+      ],
+      "profile_top": [
+        {
+          "function": "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a02/request_cost.py:34:wrap",
+          "primitive": 2,
+          "calls": 78,
+          "self_s": 0.00020435400000000002,
+          "cumulative_s": 1.153913518
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/backend/isolated_sync/canonical.py:57:encode",
+          "primitive": 4200,
+          "calls": 4200,
+          "self_s": 0.005038855,
+          "cumulative_s": 0.876011533
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/backend/isolated_sync/http.py:134:prepare",
+          "primitive": 1,
+          "calls": 1,
+          "self_s": 0.000203135,
+          "cumulative_s": 0.8640795870000001
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/backend/isolated_sync/canonical.py:61:emit",
+          "primitive": 4200,
+          "calls": 235327,
+          "self_s": 0.36709992900000005,
+          "cumulative_s": 0.862552042
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/backend/isolated_sync/canonical.py:146:decode_c1",
+          "primitive": 1560,
+          "calls": 1560,
+          "self_s": 0.0015630260000000001,
+          "cumulative_s": 0.853726548
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/backend/isolated_sync/transfer.py:341:acquire",
+          "primitive": 1,
+          "calls": 1,
+          "self_s": 0.00034376700000000003,
+          "cumulative_s": 0.840664465
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a02/codec_cost.py:12:encode",
+          "primitive": 3120,
+          "calls": 3120,
+          "self_s": 0.0026074730000000003,
+          "cumulative_s": 0.801621428
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/backend/isolated_sync/canonical.py:214:body",
+          "primitive": 950,
+          "calls": 950,
+          "self_s": 0.00043133300000000005,
+          "cumulative_s": 0.5893472590000001
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/backend/isolated_sync/transfer.py:170:resolve",
+          "primitive": 64,
+          "calls": 64,
+          "self_s": 0.004895040000000001,
+          "cumulative_s": 0.5466257520000001
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/backend/isolated_sync/observation.py:515:_lookup",
+          "primitive": 2,
+          "calls": 2,
+          "self_s": 0.000297293,
+          "cumulative_s": 0.528215683
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/backend/isolated_sync/canonical.py:131:decode_json",
+          "primitive": 1560,
+          "calls": 1560,
+          "self_s": 0.0030147290000000003,
+          "cumulative_s": 0.45624384100000004
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/backend/isolated_sync/store.py:70:get",
+          "primitive": 472,
+          "calls": 472,
+          "self_s": 0.004740637000000001,
+          "cumulative_s": 0.383400422
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/backend/isolated_sync/http.py:170:terminal",
+          "primitive": 1,
+          "calls": 1,
+          "self_s": 1.5188000000000001e-05,
+          "cumulative_s": 0.289822077
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/backend/isolated_sync/observation.py:562:lookup",
+          "primitive": 1,
+          "calls": 1,
+          "self_s": 7.653000000000001e-06,
+          "cumulative_s": 0.289722586
+        },
+        {
+          "function": "/usr/lib/python3.12/json/__init__.py:183:dumps",
+          "primitive": 164986,
+          "calls": 164986,
+          "self_s": 0.15834800100000002,
+          "cumulative_s": 0.285065403
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/backend/isolated_sync/canonical.py:201:__post_init__",
+          "primitive": 476,
+          "calls": 476,
+          "self_s": 0.001055535,
+          "cumulative_s": 0.25997969600000004
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/backend/isolated_sync/observation.py:353:_view_object",
+          "primitive": 4,
+          "calls": 4,
+          "self_s": 0.0001329,
+          "cumulative_s": 0.206754075
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/backend/isolated_sync/transfer.py:227:validate",
+          "primitive": 462,
+          "calls": 462,
+          "self_s": 0.005720323,
+          "cumulative_s": 0.169463885
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/backend/isolated_sync/canonical.py:32:text_bytes",
+          "primitive": 276486,
+          "calls": 276486,
+          "self_s": 0.083388609,
+          "cumulative_s": 0.13214568100000001
+        },
+        {
+          "function": "/usr/lib/python3.12/json/encoder.py:183:encode",
+          "primitive": 164986,
+          "calls": 164986,
+          "self_s": 0.054331736000000005,
+          "cumulative_s": 0.104572303
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/backend/isolated_sync/observation.py:89:versions",
+          "primitive": 2,
+          "calls": 2,
+          "self_s": 6.3791e-05,
+          "cumulative_s": 0.102411704
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/.venv/lib/python3.12/site-packages/pydantic/main.py:561:model_json_schema",
+          "primitive": 2,
+          "calls": 2,
+          "self_s": 4.5110000000000005e-06,
+          "cumulative_s": 0.084713893
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/.venv/lib/python3.12/site-packages/pydantic/json_schema.py:2518:model_json_schema",
+          "primitive": 2,
+          "calls": 2,
+          "self_s": 3.4014e-05,
+          "cumulative_s": 0.084709382
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/.venv/lib/python3.12/site-packages/pydantic/json_schema.py:401:generate",
+          "primitive": 2,
+          "calls": 2,
+          "self_s": 2.5141000000000002e-05,
+          "cumulative_s": 0.084337063
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/backend/isolated_sync/retention_schema.py:217:connect",
+          "primitive": 3,
+          "calls": 3,
+          "self_s": 5.5350000000000004e-05,
+          "cumulative_s": 0.06944654
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/backend/isolated_sync/retention_schema.py:132:validate_schema",
+          "primitive": 3,
+          "calls": 3,
+          "self_s": 8.3626e-05,
+          "cumulative_s": 0.067450366
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/backend/isolated_sync/finalization.py:79:validate_schema",
+          "primitive": 3,
+          "calls": 3,
+          "self_s": 0.00117931,
+          "cumulative_s": 0.06719810100000001
+        },
+        {
+          "function": "~:0:<method 'append' of 'list' objects>",
+          "primitive": 470806,
+          "calls": 470806,
+          "self_s": 0.064741799,
+          "cumulative_s": 0.064741799
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/backend/app/db_migrations.py:283:_validate_current_schema",
+          "primitive": 3,
+          "calls": 3,
+          "self_s": 0.001576593,
+          "cumulative_s": 0.063400305
+        },
+        {
+          "function": "~:0:<method 'encode' of 'str' objects>",
+          "primitive": 281328,
+          "calls": 281328,
+          "self_s": 0.050829085,
+          "cumulative_s": 0.050829085
+        },
+        {
+          "function": "~:0:<built-in method builtins.next>",
+          "primitive": 146,
+          "calls": 154,
+          "self_s": 8.139200000000001e-05,
+          "cumulative_s": 0.049181568
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/backend/isolated_sync/observation.py:260:_connection",
+          "primitive": 4,
+          "calls": 4,
+          "self_s": 2.6638e-05,
+          "cumulative_s": 0.048947683000000006
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/backend/app/db_migrations.py:323:_validate_revision_triggers",
+          "primitive": 3,
+          "calls": 3,
+          "self_s": 0.0008681,
+          "cumulative_s": 0.047656888
+        },
+        {
+          "function": "/usr/lib/python3.12/contextlib.py:132:__enter__",
+          "primitive": 39,
+          "calls": 43,
+          "self_s": 2.9297e-05,
+          "cumulative_s": 0.047264287
+        },
+        {
+          "function": "/usr/lib/python3.12/json/__init__.py:299:loads",
+          "primitive": 1560,
+          "calls": 1560,
+          "self_s": 0.005024512,
+          "cumulative_s": 0.046614101000000005
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/.venv/lib/python3.12/site-packages/pydantic/json_schema.py:2486:_build_definitions_remapping",
+          "primitive": 2,
+          "calls": 2,
+          "self_s": 0.00012165200000000001,
+          "cumulative_s": 0.045189998
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/.venv/lib/python3.12/site-packages/pydantic/json_schema.py:144:from_prioritized_choices",
+          "primitive": 2,
+          "calls": 2,
+          "self_s": 0.00041154600000000005,
+          "cumulative_s": 0.044995584000000005
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/backend/app/db_migrations.py:308:_revision_trigger_contract",
+          "primitive": 345,
+          "calls": 345,
+          "self_s": 0.0033198430000000003,
+          "cumulative_s": 0.041269689000000005
+        },
+        {
+          "function": "~:0:<built-in method builtins.sorted>",
+          "primitive": 17932,
+          "calls": 26188,
+          "self_s": 0.014770936,
+          "cumulative_s": 0.040932528
+        },
+        {
+          "function": "/usr/lib/python3.12/json/decoder.py:332:decode",
+          "primitive": 1560,
+          "calls": 1560,
+          "self_s": 0.0030408510000000002,
+          "cumulative_s": 0.036832925
+        },
+        {
+          "function": "~:0:<built-in method _json.encode_basestring>",
+          "primitive": 164986,
+          "calls": 164986,
+          "self_s": 0.035569718,
+          "cumulative_s": 0.035569718
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/.venv/lib/python3.12/site-packages/pydantic/json_schema.py:2631:_deduplicate_schemas",
+          "primitive": 532,
+          "calls": 532,
+          "self_s": 0.0014490940000000002,
+          "cumulative_s": 0.033617729
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/.venv/lib/python3.12/site-packages/pydantic/json_schema.py:2635:_make_json_hashable",
+          "primitive": 660,
+          "calls": 28066,
+          "self_s": 0.013523209000000001,
+          "cumulative_s": 0.03208556
+        },
+        {
+          "function": "/usr/lib/python3.12/json/decoder.py:343:raw_decode",
+          "primitive": 1560,
+          "calls": 1560,
+          "self_s": 0.016632579,
+          "cumulative_s": 0.030838389
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/.venv/lib/python3.12/site-packages/pydantic/json_schema.py:450:generate_inner",
+          "primitive": 2,
+          "calls": 1200,
+          "self_s": 0.0034146600000000004,
+          "cumulative_s": 0.030675053
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/.venv/lib/python3.12/site-packages/pydantic/json_schema.py:2637:<genexpr>",
+          "primitive": 2866,
+          "calls": 29890,
+          "self_s": 0.00595571,
+          "cumulative_s": 0.030658205
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/.venv/lib/python3.12/site-packages/pydantic/_internal/_schema_generation_shared.py:36:__call__",
+          "primitive": 2,
+          "calls": 1236,
+          "self_s": 0.000425412,
+          "cumulative_s": 0.030649754
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/.venv/lib/python3.12/site-packages/pydantic/json_schema.py:486:handler_func",
+          "primitive": 2,
+          "calls": 1200,
+          "self_s": 0.00127194,
+          "cumulative_s": 0.03064777
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/.venv/lib/python3.12/site-packages/pydantic/json_schema.py:2087:definitions_schema",
+          "primitive": 2,
+          "calls": 2,
+          "self_s": 1.0865e-05,
+          "cumulative_s": 0.030639023
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/.venv/lib/python3.12/site-packages/pydantic/json_schema.py:558:new_handler_func",
+          "primitive": 8,
+          "calls": 36,
+          "self_s": 6.7099e-05,
+          "cumulative_s": 0.030496193
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/.venv/lib/python3.12/site-packages/pydantic/main.py:844:__get_pydantic_json_schema__",
+          "primitive": 8,
+          "calls": 36,
+          "self_s": 1.9838000000000002e-05,
+          "cumulative_s": 0.030196506
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/.venv/lib/python3.12/site-packages/pydantic/json_schema.py:1604:model_schema",
+          "primitive": 8,
+          "calls": 36,
+          "self_s": 0.000153017,
+          "cumulative_s": 0.030169027
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/.venv/lib/python3.12/site-packages/pydantic/json_schema.py:1726:model_fields_schema",
+          "primitive": 8,
+          "calls": 36,
+          "self_s": 0.00027184,
+          "cumulative_s": 0.029854434000000003
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/.venv/lib/python3.12/site-packages/pydantic/json_schema.py:1514:_named_required_fields_schema",
+          "primitive": 8,
+          "calls": 36,
+          "self_s": 0.001034746,
+          "cumulative_s": 0.029416649000000003
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/.venv/lib/python3.12/site-packages/pydantic/json_schema.py:1582:model_field_schema",
+          "primitive": 108,
+          "calls": 414,
+          "self_s": 0.000292659,
+          "cumulative_s": 0.027260493
+        },
+        {
+          "function": "~:0:<method 'execute' of 'sqlite3.Connection' objects>",
+          "primitive": 892,
+          "calls": 892,
+          "self_s": 0.023252988000000002,
+          "cumulative_s": 0.026635446
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/backend/isolated_sync/http.py:116:credential",
+          "primitive": 1,
+          "calls": 1,
+          "self_s": 1.4264000000000001e-05,
+          "cumulative_s": 0.023199256
+        },
+        {
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "primitive": 247463,
+          "calls": 247463,
+          "self_s": 0.023027785000000002,
+          "cumulative_s": 0.02312606
+        },
+        {
+          "function": "/usr/lib/python3.12/json/encoder.py:105:__init__",
+          "primitive": 164986,
+          "calls": 164986,
+          "self_s": 0.022145099,
+          "cumulative_s": 0.022145099
+        },
+        {
+          "function": "/usr/lib/python3.12/re/__init__.py:169:fullmatch",
+          "primitive": 2222,
+          "calls": 2222,
+          "self_s": 0.001406396,
+          "cumulative_s": 0.018918385000000003
+        },
+        {
+          "function": "/usr/lib/python3.12/re/__init__.py:209:findall",
+          "primitive": 339,
+          "calls": 339,
+          "self_s": 0.00018191800000000002,
+          "cumulative_s": 0.017870898
+        },
+        {
+          "function": "~:0:<method 'findall' of 're.Pattern' objects>",
+          "primitive": 339,
+          "calls": 339,
+          "self_s": 0.017468509,
+          "cumulative_s": 0.017468509
+        },
+        {
+          "function": "~:0:<method 'fullmatch' of 're.Pattern' objects>",
+          "primitive": 4430,
+          "calls": 4430,
+          "self_s": 0.016838029,
+          "cumulative_s": 0.016838029
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/.venv/lib/python3.12/site-packages/pydantic/json_schema.py:957:list_schema",
+          "primitive": 16,
+          "calls": 22,
+          "self_s": 3.6134e-05,
+          "cumulative_s": 0.013683292000000001
+        },
+        {
+          "function": "/home/hjkerman/codex/money-note/.venv/lib/python3.12/site-packages/pydantic/json_schema.py:1173:default_schema",
+          "primitive": 98,
+          "calls": 98,
+          "self_s": 0.000234705,
+          "cumulative_s": 0.011982152000000001
+        }
+      ],
+      "profile_total_s": 1.1506043060000004,
+      "failure_then_valid": "PASS"
+    }
+  ]
+}

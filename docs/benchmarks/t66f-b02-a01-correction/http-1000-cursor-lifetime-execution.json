@@ -1,0 +1,29 @@
+{
+  "n": 1000,
+  "campaign": "cursor-lifetime",
+  "out": "/tmp/mn-a01-corrected-1000-cursor-lifetime-te6uce2w",
+  "args": [
+    "/home/hjkerman/.flutter/bin/flutter",
+    "test",
+    "--no-pub",
+    "--machine",
+    "--dart-define=B02_N=1000",
+    "--dart-define=B02_OUT=/tmp/mn-a01-corrected-1000-cursor-lifetime-te6uce2w",
+    "--dart-define=B02_COMPLETE_PLAN=true",
+    "../docs/benchmarks/t66f-b02-a01-correction/full_http_test.dart"
+  ],
+  "started_utc": 1792374174.7796638,
+  "external_guard_seconds": 7200,
+  "lease_seconds": 900,
+  "observations": 3,
+  "process_tree_rss_guard_bytes": 8589934592,
+  "concurrent_synthetic_regression_pids": [
+    449931
+  ],
+  "pid": 449996,
+  "exit_code": 0,
+  "externally_terminated": false,
+  "guard_reason": null,
+  "sampled_process_tree_rss_peak": 1570508800,
+  "elapsed_seconds": 125.631436442025
+}

@@ -1,0 +1,191 @@
+F841 Local variable `lastcold` is assigned to but never used
+   --> docs/benchmarks/t66f-b02-a02/analyze_traces.py:146:5
+    |
+144 |         attempts.append(a)
+145 |     # Conservative critical path bound: ASGI handler intervals disjoint (actual max1).
+146 |     lastcold = next(
+    |     ^^^^^^^^
+147 |         r
+148 |         for r in rows
+    |
+help: Remove assignment to unused variable `lastcold`
+
+E402 Module level import not at top of file
+  --> docs/benchmarks/t66f-b02-a02/request_cost.py:24:1
+   |
+22 | HERE = Path(__file__).resolve().parent
+23 | sys.path[:0] = [str(ROOT / "backend"), str(ROOT / "scripts/benchmarks")]
+24 | from fastapi.testclient import TestClient
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+25 | from app import auth
+26 | from isolated_sync import observation, retention_schema, transfer, http
+   |
+help: Move module level imports to top of file
+
+E402 Module level import not at top of file
+  --> docs/benchmarks/t66f-b02-a02/request_cost.py:25:1
+   |
+23 | sys.path[:0] = [str(ROOT / "backend"), str(ROOT / "scripts/benchmarks")]
+24 | from fastapi.testclient import TestClient
+25 | from app import auth
+   | ^^^^^^^^^^^^^^^^^^^^
+26 | from isolated_sync import observation, retention_schema, transfer, http
+27 | from isolated_sync.retention import RetentionRepository
+   |
+help: Move module level imports to top of file
+
+E402 Module level import not at top of file
+  --> docs/benchmarks/t66f-b02-a02/request_cost.py:26:1
+   |
+24 | from fastapi.testclient import TestClient
+25 | from app import auth
+26 | from isolated_sync import observation, retention_schema, transfer, http
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+27 | from isolated_sync.retention import RetentionRepository
+28 | from isolated_sync.retention_schema import RetentionSandbox
+   |
+help: Move module level imports to top of file
+
+E402 Module level import not at top of file
+  --> docs/benchmarks/t66f-b02-a02/request_cost.py:27:1
+   |
+25 | from app import auth
+26 | from isolated_sync import observation, retention_schema, transfer, http
+27 | from isolated_sync.retention import RetentionRepository
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+28 | from isolated_sync.retention_schema import RetentionSandbox
+29 | from tests.test_isolated_sync_transfer import graph, headers, observe, URL, TOKEN_A
+   |
+help: Move module level imports to top of file
+
+E402 Module level import not at top of file
+  --> docs/benchmarks/t66f-b02-a02/request_cost.py:28:1
+   |
+26 | from isolated_sync import observation, retention_schema, transfer, http
+27 | from isolated_sync.retention import RetentionRepository
+28 | from isolated_sync.retention_schema import RetentionSandbox
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+29 | from tests.test_isolated_sync_transfer import graph, headers, observe, URL, TOKEN_A
+30 | from t66d2b_writers import seed
+   |
+help: Move module level imports to top of file
+
+E402 Module level import not at top of file
+  --> docs/benchmarks/t66f-b02-a02/request_cost.py:29:1
+   |
+27 | from isolated_sync.retention import RetentionRepository
+28 | from isolated_sync.retention_schema import RetentionSandbox
+29 | from tests.test_isolated_sync_transfer import graph, headers, observe, URL, TOKEN_A
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+30 | from t66d2b_writers import seed
+   |
+help: Move module level imports to top of file
+
+E402 Module level import not at top of file
+  --> docs/benchmarks/t66f-b02-a02/request_cost.py:30:1
+   |
+28 | from isolated_sync.retention_schema import RetentionSandbox
+29 | from tests.test_isolated_sync_transfer import graph, headers, observe, URL, TOKEN_A
+30 | from t66d2b_writers import seed
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+31 |
+32 | CURRENT = ContextVar("a02_record", default=None)
+   |
+help: Move module level imports to top of file
+
+E402 Module level import not at top of file
+  --> docs/benchmarks/t66f-b02-a02/request_cost_initial.py:24:1
+   |
+22 | HERE = Path(__file__).resolve().parent
+23 | sys.path[:0] = [str(ROOT / "backend"), str(ROOT / "scripts/benchmarks")]
+24 | from fastapi.testclient import TestClient
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+25 | from app import auth
+26 | from isolated_sync import observation, retention_schema, transfer, http
+   |
+help: Move module level imports to top of file
+
+E402 Module level import not at top of file
+  --> docs/benchmarks/t66f-b02-a02/request_cost_initial.py:25:1
+   |
+23 | sys.path[:0] = [str(ROOT / "backend"), str(ROOT / "scripts/benchmarks")]
+24 | from fastapi.testclient import TestClient
+25 | from app import auth
+   | ^^^^^^^^^^^^^^^^^^^^
+26 | from isolated_sync import observation, retention_schema, transfer, http
+27 | from isolated_sync.retention import RetentionRepository
+   |
+help: Move module level imports to top of file
+
+E402 Module level import not at top of file
+  --> docs/benchmarks/t66f-b02-a02/request_cost_initial.py:26:1
+   |
+24 | from fastapi.testclient import TestClient
+25 | from app import auth
+26 | from isolated_sync import observation, retention_schema, transfer, http
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+27 | from isolated_sync.retention import RetentionRepository
+28 | from isolated_sync.retention_schema import RetentionSandbox
+   |
+help: Move module level imports to top of file
+
+E402 Module level import not at top of file
+  --> docs/benchmarks/t66f-b02-a02/request_cost_initial.py:27:1
+   |
+25 | from app import auth
+26 | from isolated_sync import observation, retention_schema, transfer, http
+27 | from isolated_sync.retention import RetentionRepository
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+28 | from isolated_sync.retention_schema import RetentionSandbox
+29 | from tests.test_isolated_sync_transfer import graph, headers, observe, URL, TOKEN_A
+   |
+help: Move module level imports to top of file
+
+E402 Module level import not at top of file
+  --> docs/benchmarks/t66f-b02-a02/request_cost_initial.py:28:1
+   |
+26 | from isolated_sync import observation, retention_schema, transfer, http
+27 | from isolated_sync.retention import RetentionRepository
+28 | from isolated_sync.retention_schema import RetentionSandbox
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+29 | from tests.test_isolated_sync_transfer import graph, headers, observe, URL, TOKEN_A
+30 | from t66d2b_writers import seed
+   |
+help: Move module level imports to top of file
+
+E402 Module level import not at top of file
+  --> docs/benchmarks/t66f-b02-a02/request_cost_initial.py:29:1
+   |
+27 | from isolated_sync.retention import RetentionRepository
+28 | from isolated_sync.retention_schema import RetentionSandbox
+29 | from tests.test_isolated_sync_transfer import graph, headers, observe, URL, TOKEN_A
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+30 | from t66d2b_writers import seed
+   |
+help: Move module level imports to top of file
+
+E402 Module level import not at top of file
+  --> docs/benchmarks/t66f-b02-a02/request_cost_initial.py:30:1
+   |
+28 | from isolated_sync.retention_schema import RetentionSandbox
+29 | from tests.test_isolated_sync_transfer import graph, headers, observe, URL, TOKEN_A
+30 | from t66d2b_writers import seed
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+31 |
+32 | CURRENT = ContextVar("a02_record", default=None)
+   |
+help: Move module level imports to top of file
+
+E731 Do not assign a `lambda` expression, use a `def`
+  --> docs/benchmarks/t66f-b02-a02/summarize.py:13:1
+   |
+12 | HERE = Path(__file__).resolve().parent
+13 | load = lambda name: json.loads((HERE / name).read_text())
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+14 | tr = load("trace-analysis.json")
+15 | req = load("request-cost.json")
+   |
+help: Rewrite `load` as a `def`
+
+Found 28 errors (12 fixed, 16 remaining).
+No fixes available (2 hidden fixes can be enabled with the `--unsafe-fixes` option).

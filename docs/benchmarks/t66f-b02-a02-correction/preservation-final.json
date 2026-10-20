@@ -1,0 +1,31 @@
+{
+  "changed": {
+    "backend/isolated_sync/canonical.py": {
+      "old": "3202c48ec6d38158e7e4eca43177285bf5068aa1c6f31af70796e2d97dc8565f",
+      "new": "dbce387d431a973547650c1beb122a76c8fcc785f7c8847a79484553c096476f"
+    },
+    "docs/specimens/t66d3b-release-artifacts.json": {
+      "old": "e46ea0c59ec8f3fb78d2ad8ac2b836da948d50bd2246508b219d8ee9d9c39ad8",
+      "new": "9a946c087a41e99f49e11cc48b581a69fca9d91da7980fe373479704aa26a54e"
+    },
+    "mobile/assets/segmented/isolated-release-artifacts.json": {
+      "old": "e46ea0c59ec8f3fb78d2ad8ac2b836da948d50bd2246508b219d8ee9d9c39ad8",
+      "new": "9a946c087a41e99f49e11cc48b581a69fca9d91da7980fe373479704aa26a54e"
+    },
+    "mobile/lib/src/segmented/fetch.dart": {
+      "old": "90439d1d712947dee466769d56d75797b0779c23c90a528a167aff1e484ef8c6",
+      "new": "5bd0fcb5997791256359d4c1f176d8cd74cb21205d7633f00575a284d5502551"
+    },
+    "mobile/lib/src/segmented/protocol.dart": {
+      "old": "78f1bec87d2db04c731b05619b4677afedbef666754089240f02f1e8f19e03ee",
+      "new": "84616e8254d6959c04ca5eb50b818de66dc7cb041ca14c4def1bb89590e9be8e"
+    },
+    "mobile/test/segmented_adapter_isolation_test.dart": {
+      "old": "0d074c4300819a4f45a2593406bf5bbbc175e3e618bf9aeb95f2bc009b3d6d90",
+      "new": "71d6eb7b6b62cbb615df88ea2a8d6dfdfb1b17378bb1ffd344488f69bc02a66b"
+    }
+  },
+  "index_preserved": true,
+  "staged_preserved": true,
+  "status": " M backend/isolated_sync/canonical.py\n M backend/isolated_sync/transfer.py\n M docs/specimens/t66d3b-release-artifacts.json\n M mobile/assets/segmented/isolated-release-artifacts.json\n M mobile/lib/src/app_state.dart\n M mobile/lib/src/segmented/fetch.dart\n M mobile/lib/src/segmented/protocol.dart\n M mobile/lib/src/segmented/store.dart\n M mobile/test/segmented_adapter_isolation_test.dart\n?? backend/tests/test_isolated_sync_c1_single_encode.py\n?? backend/tests/test_isolated_sync_prefix_reuse.py\n?? docs/benchmarks/t66f-b02-a01-correction/\n?? docs/benchmarks/t66f-b02-a01/\n?? docs/benchmarks/t66f-b02-a02-correction/\n?? docs/benchmarks/t66f-b02-a02/\n?? docs/benchmarks/t66f-b02-implementation/\n?? docs/t66f-b02-a01-cold-acquisition-investigation.md\n?? docs/t66f-b02-a01-targeted-correction.md\n?? docs/t66f-b02-a02-100k-acquisition-investigation.md\n?? docs/t66f-b02-a02-targeted-correction.md\n?? docs/t66f-b02-large-profile-implementation.md\n?? mobile/test/segmented_cold_continuation_crash_test.dart\n?? mobile/test/segmented_cold_continuation_test.dart\n?? mobile/test/segmented_cold_packet_test.dart\n?? mobile/test/segmented_large_batch_test.dart\n?? mobile/test/segmented_large_profile_authority_test.dart\n?? mobile/test/segmented_large_profile_crash_test.dart\n?? mobile/test/segmented_large_profile_test.dart\n?? mobile/test/support/segmented_large_transport.dart\n"
+}

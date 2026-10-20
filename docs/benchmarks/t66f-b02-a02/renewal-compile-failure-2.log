@@ -1,0 +1,3 @@
+../docs/benchmarks/t66f-b02-a02/renewal_cost.dart:30:44: Error: A value of type 'num' can't be returned from a function with return type 'int'.
+   if(flag==2)profileNs.update(label,(n)=>n+x.cast<Uint64>().value,ifAbsent:()=>x.cast<Uint64>().value);
+                                           ^

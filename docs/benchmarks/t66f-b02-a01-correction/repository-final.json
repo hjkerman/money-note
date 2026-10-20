@@ -1,0 +1,15 @@
+{
+  "head": "6282c1c3577c42bba9382d786745d583a5d88236",
+  "main": "6282c1c3577c42bba9382d786745d583a5d88236",
+  "origin_main": "6282c1c3577c42bba9382d786745d583a5d88236",
+  "actual_remote_main": "6282c1c3577c42bba9382d786745d583a5d88236",
+  "remote_check": "git ls-remote origin refs/heads/main; exit0, same hash",
+  "new_commit": null,
+  "push_performed": false,
+  "index_modified": false,
+  "worktree": "DIRTY — original B02, investigation and scoped correction preserved",
+  "verdict": "INCOMPLETE — 100k cold exhausted three fixed observations; 100k delta not run",
+  "production_activation": false,
+  "deployment": false,
+  "r1_gate": "CLOSED"
+}

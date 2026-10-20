@@ -1,0 +1,18 @@
+{
+  "check_context": "최종 보고 세션에서 git rev-parse HEAD main origin/main과 git ls-remote origin refs/heads/main으로 확인했다.",
+  "head": "6282c1c3577c42bba9382d786745d583a5d88236",
+  "main": "6282c1c3577c42bba9382d786745d583a5d88236",
+  "origin_main": "6282c1c3577c42bba9382d786745d583a5d88236",
+  "actual_remote_main": "6282c1c3577c42bba9382d786745d583a5d88236",
+  "staged_files": [],
+  "new_implementation_commit": null,
+  "push_performed": false,
+  "clean": false,
+  "work_preserved": true,
+  "intentional_modified_product_files": [
+    "mobile/lib/src/app_state.dart",
+    "mobile/lib/src/segmented/fetch.dart",
+    "mobile/lib/src/segmented/store.dart"
+  ],
+  "other_changes": "새 B02 tests, synthetic harness, evidence 및 report만 추가했다. 기존 tracked 파일 1118개 보존 SHA는 preservation.json을 참조한다."
+}

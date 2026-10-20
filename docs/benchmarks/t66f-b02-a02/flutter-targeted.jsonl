@@ -1,0 +1,125 @@
+{"protocolVersion":"0.1.1","runnerVersion":null,"pid":464645,"type":"start","time":0}
+{"suite":{"id":0,"platform":"vm","path":"/home/hjkerman/codex/money-note/mobile/test/segmented_cold_packet_test.dart"},"type":"suite","time":0}
+{"test":{"id":1,"name":"loading /home/hjkerman/codex/money-note/mobile/test/segmented_cold_packet_test.dart","suiteID":0,"groupIDs":[],"metadata":{"skip":false,"skipReason":null},"line":null,"column":null,"url":null},"type":"testStart","time":1}
+{"suite":{"id":2,"platform":"vm","path":"/home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"},"type":"suite","time":6}
+{"test":{"id":3,"name":"loading /home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart","suiteID":2,"groupIDs":[],"metadata":{"skip":false,"skipReason":null},"line":null,"column":null,"url":null},"type":"testStart","time":6}
+{"suite":{"id":4,"platform":"vm","path":"/home/hjkerman/codex/money-note/mobile/test/segmented_response_cleanup_test.dart"},"type":"suite","time":7}
+{"test":{"id":5,"name":"loading /home/hjkerman/codex/money-note/mobile/test/segmented_response_cleanup_test.dart","suiteID":4,"groupIDs":[],"metadata":{"skip":false,"skipReason":null},"line":null,"column":null,"url":null},"type":"testStart","time":7}
+{"count":3,"time":7,"type":"allSuites"}
+
+[{"event":"test.startedProcess","params":{"vmServiceUri":null}}]
+
+[{"event":"test.startedProcess","params":{"vmServiceUri":null}}]
+
+[{"event":"test.startedProcess","params":{"vmServiceUri":null}}]
+{"testID":1,"result":"success","skipped":false,"hidden":true,"type":"testDone","time":2164}
+{"group":{"id":6,"suiteID":0,"parentID":null,"name":"","metadata":{"skip":false,"skipReason":null},"testCount":14,"line":null,"column":null,"url":null},"type":"group","time":2166}
+{"test":{"id":7,"name":"(setUpAll)","suiteID":0,"groupIDs":[6],"metadata":{"skip":false,"skipReason":null},"line":35,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_cold_packet_test.dart"},"type":"testStart","time":2167}
+{"testID":3,"result":"success","skipped":false,"hidden":true,"type":"testDone","time":2291}
+{"group":{"id":8,"suiteID":2,"parentID":null,"name":"","metadata":{"skip":false,"skipReason":null},"testCount":23,"line":null,"column":null,"url":null},"type":"group","time":2292}
+{"test":{"id":9,"name":"audited P0 source remains byte-identical: mobile/lib/src/api_client.dart","suiteID":2,"groupIDs":[8],"metadata":{"skip":false,"skipReason":null},"line":20,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"},"type":"testStart","time":2292}
+{"testID":9,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2331}
+{"test":{"id":10,"name":"audited P0 source remains byte-identical: mobile/lib/src/authoritative_bundle.dart","suiteID":2,"groupIDs":[8],"metadata":{"skip":false,"skipReason":null},"line":20,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"},"type":"testStart","time":2331}
+{"testID":10,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2334}
+{"test":{"id":11,"name":"audited P0 source remains byte-identical: mobile/lib/src/models.dart","suiteID":2,"groupIDs":[8],"metadata":{"skip":false,"skipReason":null},"line":20,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"},"type":"testStart","time":2335}
+{"testID":11,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2338}
+{"test":{"id":12,"name":"audited P0 source remains byte-identical: mobile/lib/src/money.dart","suiteID":2,"groupIDs":[8],"metadata":{"skip":false,"skipReason":null},"line":20,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"},"type":"testStart","time":2338}
+{"testID":12,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2341}
+{"test":{"id":13,"name":"audited P0 source remains byte-identical: mobile/lib/src/offline/offline_data.dart","suiteID":2,"groupIDs":[8],"metadata":{"skip":false,"skipReason":null},"line":20,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"},"type":"testStart","time":2341}
+{"testID":13,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2344}
+{"test":{"id":14,"name":"audited P0 source remains byte-identical: mobile/lib/src/offline/offline_store.dart","suiteID":2,"groupIDs":[8],"metadata":{"skip":false,"skipReason":null},"line":20,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"},"type":"testStart","time":2345}
+{"testID":14,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2348}
+{"test":{"id":15,"name":"audited P0 source remains byte-identical: mobile/lib/src/segmented/object.dart","suiteID":2,"groupIDs":[8],"metadata":{"skip":false,"skipReason":null},"line":20,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"},"type":"testStart","time":2348}
+{"testID":15,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2351}
+{"test":{"id":16,"name":"original five historical diagnostic files remain byte-identical","suiteID":2,"groupIDs":[8],"metadata":{"skip":false,"skipReason":null},"line":24,"column":3,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"},"type":"testStart","time":2352}
+{"testID":16,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2357}
+{"test":{"id":17,"name":"default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/main.dart","suiteID":2,"groupIDs":[8],"metadata":{"skip":false,"skipReason":null},"line":46,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"},"type":"testStart","time":2358}
+{"testID":17,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2360}
+{"test":{"id":18,"name":"default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/src/offline/offline_projection.dart","suiteID":2,"groupIDs":[8],"metadata":{"skip":false,"skipReason":null},"line":46,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"},"type":"testStart","time":2361}
+{"testID":18,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2363}
+{"test":{"id":19,"name":"default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/src/offline/offline_lineage_validator.dart","suiteID":2,"groupIDs":[8],"metadata":{"skip":false,"skipReason":null},"line":46,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"},"type":"testStart","time":2364}
+{"testID":19,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2366}
+{"test":{"id":20,"name":"default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/src/offline/online_write_state.dart","suiteID":2,"groupIDs":[8],"metadata":{"skip":false,"skipReason":null},"line":46,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"},"type":"testStart","time":2367}
+{"testID":20,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2369}
+{"test":{"id":21,"name":"default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/src/coherent_refresh_coordinator.dart","suiteID":2,"groupIDs":[8],"metadata":{"skip":false,"skipReason":null},"line":46,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"},"type":"testStart","time":2369}
+{"testID":21,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2372}
+{"test":{"id":22,"name":"default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/src/local_snapshot_repository.dart","suiteID":2,"groupIDs":[8],"metadata":{"skip":false,"skipReason":null},"line":46,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"},"type":"testStart","time":2372}
+{"testID":22,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2375}
+{"test":{"id":23,"name":"default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/src/segmented/c1.dart","suiteID":2,"groupIDs":[8],"metadata":{"skip":false,"skipReason":null},"line":46,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"},"type":"testStart","time":2375}
+{"testID":23,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2378}
+{"test":{"id":24,"name":"default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/src/segmented/transport.dart","suiteID":2,"groupIDs":[8],"metadata":{"skip":false,"skipReason":null},"line":46,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"},"type":"testStart","time":2378}
+{"testID":24,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2381}
+{"test":{"id":25,"name":"default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/src/segmented/verification.dart","suiteID":2,"groupIDs":[8],"metadata":{"skip":false,"skipReason":null},"line":46,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"},"type":"testStart","time":2381}
+{"testID":25,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2384}
+{"test":{"id":26,"name":"default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/src/segmented/graph.dart","suiteID":2,"groupIDs":[8],"metadata":{"skip":false,"skipReason":null},"line":46,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"},"type":"testStart","time":2385}
+{"testID":26,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2387}
+{"test":{"id":27,"name":"default/legacy/E1/E2/E3 protected source unchanged: backend/app/db.py","suiteID":2,"groupIDs":[8],"metadata":{"skip":false,"skipReason":null},"line":46,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"},"type":"testStart","time":2388}
+{"testID":27,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2391}
+{"test":{"id":28,"name":"default/legacy/E1/E2/E3 protected source unchanged: backend/app/db_migrations.py","suiteID":2,"groupIDs":[8],"metadata":{"skip":false,"skipReason":null},"line":46,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"},"type":"testStart","time":2391}
+{"testID":28,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2394}
+{"test":{"id":29,"name":"B02/A01 reviewed E2 extension preserves the exact default algorithm","suiteID":2,"groupIDs":[8],"metadata":{"skip":false,"skipReason":null},"line":50,"column":3,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"},"type":"testStart","time":2395}
+{"testID":29,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2404}
+{"test":{"id":30,"name":"E3 publisher extension is only pre-BEGIN read-scope rejection, guard/COMMIT unchanged","suiteID":2,"groupIDs":[8],"metadata":{"skip":false,"skipReason":null},"line":82,"column":3,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"},"type":"testStart","time":2404}
+{"testID":30,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2410}
+{"test":{"id":31,"name":"AppState E4 entry has no automatic callers or legacy publication/acknowledgment","suiteID":2,"groupIDs":[8],"metadata":{"skip":false,"skipReason":null},"line":102,"column":3,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"},"type":"testStart","time":2411}
+{"testID":5,"result":"success","skipped":false,"hidden":true,"type":"testDone","time":2419}
+{"group":{"id":32,"suiteID":4,"parentID":null,"name":"","metadata":{"skip":false,"skipReason":null},"testCount":13,"line":null,"column":null,"url":null},"type":"group","time":2419}
+{"test":{"id":33,"name":"header auth releases owned body once and keeps shared client usable","suiteID":4,"groupIDs":[32],"metadata":{"skip":false,"skipReason":null},"line":93,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_response_cleanup_test.dart"},"type":"testStart","time":2419}
+{"testID":31,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2430}
+{"testID":33,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2466}
+{"test":{"id":34,"name":"header redirect releases owned body once and keeps shared client usable","suiteID":4,"groupIDs":[32],"metadata":{"skip":false,"skipReason":null},"line":93,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_response_cleanup_test.dart"},"type":"testStart","time":2466}
+{"testID":34,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2470}
+{"test":{"id":35,"name":"header oversized releases owned body once and keeps shared client usable","suiteID":4,"groupIDs":[32],"metadata":{"skip":false,"skipReason":null},"line":93,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_response_cleanup_test.dart"},"type":"testStart","time":2470}
+{"testID":35,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2473}
+{"test":{"id":36,"name":"header negative releases owned body once and keeps shared client usable","suiteID":4,"groupIDs":[32],"metadata":{"skip":false,"skipReason":null},"line":93,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_response_cleanup_test.dart"},"type":"testStart","time":2474}
+{"testID":36,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2477}
+{"test":{"id":37,"name":"header header releases owned body once and keeps shared client usable","suiteID":4,"groupIDs":[32],"metadata":{"skip":false,"skipReason":null},"line":93,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_response_cleanup_test.dart"},"type":"testStart","time":2477}
+{"testID":37,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2481}
+{"test":{"id":38,"name":"header rejection awaits cleanup; later timeout cannot mask the error","suiteID":4,"groupIDs":[32],"metadata":{"skip":false,"skipReason":null},"line":132,"column":3,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_response_cleanup_test.dart"},"type":"testStart","time":2481}
+{"testID":38,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2527}
+{"test":{"id":39,"name":"cleanup failure preserves original header error and observes late errors","suiteID":4,"groupIDs":[32],"metadata":{"skip":false,"skipReason":null},"line":158,"column":3,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_response_cleanup_test.dart"},"type":"testStart","time":2527}
+{"testID":39,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2531}
+{"test":{"id":40,"name":"IO response destroys only its detached socket before reporting rejection","suiteID":4,"groupIDs":[32],"metadata":{"skip":false,"skipReason":null},"line":175,"column":3,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_response_cleanup_test.dart"},"type":"testStart","time":2532}
+{"testID":40,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2536}
+{"test":{"id":41,"name":"IO response without socket falls back to awaited stream cancellation","suiteID":4,"groupIDs":[32],"metadata":{"skip":false,"skipReason":null},"line":190,"column":3,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_response_cleanup_test.dart"},"type":"testStart","time":2537}
+{"testID":41,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2540}
+{"test":{"id":42,"name":"bounded cleanup keeps original error and destroys a late detached socket","suiteID":4,"groupIDs":[32],"metadata":{"skip":false,"skipReason":null},"line":205,"column":3,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_response_cleanup_test.dart"},"type":"testStart","time":2540}
+{"testID":42,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":4546}
+{"test":{"id":43,"name":"cancel before late response still releases its response ownership","suiteID":4,"groupIDs":[32],"metadata":{"skip":false,"skipReason":null},"line":226,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_response_cleanup_test.dart"},"type":"testStart","time":4546}
+{"testID":43,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":4550}
+{"test":{"id":44,"name":"timeout before late response still releases its response ownership","suiteID":4,"groupIDs":[32],"metadata":{"skip":false,"skipReason":null},"line":226,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_response_cleanup_test.dart"},"type":"testStart","time":4551}
+{"testID":44,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":4574}
+{"test":{"id":45,"name":"valid byte stream still matches independent server C1/hash golden","suiteID":4,"groupIDs":[32],"metadata":{"skip":false,"skipReason":null},"line":262,"column":3,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_response_cleanup_test.dart"},"type":"testStart","time":4575}
+{"testID":45,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":4639}
+{"testID":7,"result":"success","skipped":false,"hidden":true,"type":"testDone","time":16935}
+{"test":{"id":46,"name":"A01 same backend graph 0 exact before/after cold packet oracle","suiteID":0,"groupIDs":[6],"metadata":{"skip":false,"skipReason":null},"line":183,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_cold_packet_test.dart"},"type":"testStart","time":16935}
+{"testID":46,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":17922}
+{"test":{"id":47,"name":"A01 cached same graph 0 yields with no object transfer","suiteID":0,"groupIDs":[6],"metadata":{"skip":false,"skipReason":null},"line":193,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_cold_packet_test.dart"},"type":"testStart","time":17922}
+{"testID":47,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":18524}
+{"test":{"id":48,"name":"A01 same backend graph 200 exact before/after cold packet oracle","suiteID":0,"groupIDs":[6],"metadata":{"skip":false,"skipReason":null},"line":183,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_cold_packet_test.dart"},"type":"testStart","time":18524}
+{"testID":48,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":23671}
+{"test":{"id":49,"name":"A01 cached same graph 200 yields with no object transfer","suiteID":0,"groupIDs":[6],"metadata":{"skip":false,"skipReason":null},"line":193,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_cold_packet_test.dart"},"type":"testStart","time":23671}
+{"testID":49,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":26936}
+{"test":{"id":50,"name":"A01 same backend graph 1000 exact before/after cold packet oracle","suiteID":0,"groupIDs":[6],"metadata":{"skip":false,"skipReason":null},"line":183,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_cold_packet_test.dart"},"type":"testStart","time":26937}
+{"testID":50,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":46979}
+{"test":{"id":51,"name":"A01 cached same graph 1000 yields with no object transfer","suiteID":0,"groupIDs":[6],"metadata":{"skip":false,"skipReason":null},"line":193,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_cold_packet_test.dart"},"type":"testStart","time":46980}
+{"testID":51,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":62346}
+{"test":{"id":52,"name":"A01 compact count injection reproduces failed large cached cursor revision","suiteID":0,"groupIDs":[6],"metadata":{"skip":false,"skipReason":null},"line":203,"column":7,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_cold_packet_test.dart"},"type":"testStart","time":62346}
+{"testID":52,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":65369}
+{"test":{"id":53,"name":"A01 cached internal parents still fill bounded leaf packets","suiteID":0,"groupIDs":[6],"metadata":{"skip":false,"skipReason":null},"line":209,"column":7,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_cold_packet_test.dart"},"type":"testStart","time":65369}
+{"testID":53,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":86260}
+{"test":{"id":54,"name":"A01 cold yield/renewal cancel keeps staged graph unpublished","suiteID":0,"groupIDs":[6],"metadata":{"skip":false,"skipReason":null},"line":222,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_cold_packet_test.dart"},"type":"testStart","time":86260}
+{"testID":54,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":89825}
+{"test":{"id":55,"name":"A01 cold yield/renewal session keeps staged graph unpublished","suiteID":0,"groupIDs":[6],"metadata":{"skip":false,"skipReason":null},"line":222,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_cold_packet_test.dart"},"type":"testStart","time":89826}
+{"testID":55,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":93398}
+{"test":{"id":56,"name":"A01 cold yield/renewal expiry keeps staged graph unpublished","suiteID":0,"groupIDs":[6],"metadata":{"skip":false,"skipReason":null},"line":222,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_cold_packet_test.dart"},"type":"testStart","time":93399}
+{"testID":56,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":96695}
+{"test":{"id":57,"name":"A01 cold yield/renewal renew_different keeps staged graph unpublished","suiteID":0,"groupIDs":[6],"metadata":{"skip":false,"skipReason":null},"line":222,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_cold_packet_test.dart"},"type":"testStart","time":96696}
+{"testID":57,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":100702}
+{"test":{"id":58,"name":"A01 exact artifact allow-list rejects every unapproved engine (true)","suiteID":0,"groupIDs":[6],"metadata":{"skip":false,"skipReason":null},"line":292,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_cold_packet_test.dart"},"type":"testStart","time":100702}
+{"testID":58,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":100704}
+{"test":{"id":59,"name":"A01 exact artifact allow-list rejects every unapproved engine (false)","suiteID":0,"groupIDs":[6],"metadata":{"skip":false,"skipReason":null},"line":292,"column":5,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_cold_packet_test.dart"},"type":"testStart","time":100706}
+{"testID":59,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":100708}
+{"test":{"id":60,"name":"(tearDownAll)","suiteID":0,"groupIDs":[6],"metadata":{"skip":false,"skipReason":null},"line":26,"column":3,"url":"file:///home/hjkerman/codex/money-note/mobile/test/segmented_cold_packet_test.dart"},"type":"testStart","time":100709}
+{"testID":60,"result":"success","skipped":false,"hidden":true,"type":"testDone","time":100710}
+{"success":true,"type":"done","time":100732}

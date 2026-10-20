@@ -336,35 +336,96 @@ class SegmentedClientStore {
   VerifiedObject putVerifiedObject(ObjectRef ref, List<int> bytes) {
     final verified =
         VerifiedObject.verify(bytes, ref, cache, maxBytes: limits.objectBytes);
-    return _transaction(() {
-      final old =
-          _db.select('SELECT body FROM objects WHERE hash=?', [ref.hash]);
-      if (old.isNotEmpty) {
-        if (!sameBytes(old.single['body'] as Uint8List, verified.bytes)) {
-          rejectSegment('IMMUTABLE_OBJECT_CONFLICT');
-        }
-        // Verify old persisted data/edges too; no silent repair or stale flag trust.
-        return _read(ref)!;
+    return _transaction(() => _putVerified(verified));
+  }
+
+  // Same immutable insertion/readback as the original single-object API. A
+  // bounded acquisition batch owns the transaction; no nested BEGIN/COMMIT.
+  VerifiedObject _putVerified(VerifiedObject verified) {
+    final ref = verified.ref;
+    final old = _db.select('SELECT body FROM objects WHERE hash=?', [ref.hash]);
+    if (old.isNotEmpty) {
+      if (!sameBytes(old.single['body'] as Uint8List, verified.bytes)) {
+        rejectSegment('IMMUTABLE_OBJECT_CONFLICT');
       }
-      _reference(ref);
-      _fault?.call('before_object_insert');
-      _db.execute('INSERT INTO objects VALUES(?,?,?,?)', [
-        ref.hash,
-        verified.kind,
-        verified.bytes,
-        VerifiedObject.validatorBuild
-      ]);
-      _fault?.call('after_object_insert');
-      for (var i = 0; i < verified.children.length; i++) {
-        final child = verified.children[i];
-        _reference(
-            child.ref); // Missing placeholder, never advertised as verified.
-        _db.execute('INSERT INTO edges VALUES(?,?,?,?)',
-            [ref.hash, i, child.ref.hash, child.kinds.toList().join(',')]);
-      }
-      _fault?.call('after_edges_insert');
+      // Verify old persisted data/edges too; no silent repair or stale flag trust.
       return _read(ref)!;
+    }
+    _reference(ref);
+    _fault?.call('before_object_insert');
+    _db.execute('INSERT INTO objects VALUES(?,?,?,?)', [
+      ref.hash,
+      verified.kind,
+      verified.bytes,
+      VerifiedObject.validatorBuild
+    ]);
+    _fault?.call('after_object_insert');
+    for (var i = 0; i < verified.children.length; i++) {
+      final child = verified.children[i];
+      _reference(
+          child.ref); // Missing placeholder, never advertised as verified.
+      _db.execute('INSERT INTO edges VALUES(?,?,?,?)',
+          [ref.hash, i, child.ref.hash, child.kinds.toList().join(',')]);
+    }
+    _fault?.call('after_edges_insert');
+    return _read(ref)!;
+  }
+
+  // Explicit E2 verification envelope only. Objects AND their progress links
+  // commit together. At most 64 entries / 1 MiB object bytes (cached included);
+  // an oversized object
+  // may be a singleton only, still subject to the existing object/payload caps.
+  // Null bytes denote a cached object, reverified under the same SQL lock.
+  void putVerifiedStagedBatch(
+      String localId, List<({ObjectRef ref, List<int>? bytes})> entries) {
+    if (!acquisitionEnabled) rejectSegment('ACQUISITION_METADATA_REQUIRED');
+    if (entries.isEmpty || entries.length > 64) {
+      rejectSegment('LOCAL_BATCH_BUDGET');
+    }
+    final chargedBytes = entries.fold<int>(
+        0,
+        (n, e) =>
+            n +
+            ((e.bytes?.length ?? 0) > e.ref.byteLength
+                ? e.bytes!.length
+                : e.ref.byteLength));
+    if (chargedBytes > 1048576 && entries.length != 1) {
+      rejectSegment('LOCAL_BATCH_BUDGET');
+    }
+    final refs = List<ObjectRef>.unmodifiable(entries.map((e) => e.ref));
+    // Own/verify all new bytes before BEGIN. No partly verified buffer can be
+    // persisted; the original verifier and all transaction quota/schema checks
+    // remain mandatory. Memory is bounded by the above envelope.
+    final verified = [
+      for (final e in entries)
+        e.bytes == null
+            ? null
+            : VerifiedObject.verify(e.bytes!, e.ref, cache,
+                maxBytes: limits.objectBytes)
+    ];
+    _transaction(() {
+      if (_loadStage(localId, includeCount: false) == null) {
+        rejectSegment('STAGING_MISSING');
+      }
+      for (var i = 0; i < refs.length; i++) {
+        final object = verified[i];
+        if (object != null) {
+          _putVerified(object);
+        } else if (_read(refs[i]) == null) {
+          rejectSegment('OBJECT_MISSING');
+        }
+        _db.execute('INSERT OR IGNORE INTO staging_objects VALUES(?,?)',
+            [localId, refs[i].hash]);
+        _fault?.call('after_progress_insert');
+      }
     });
+  }
+
+  bool isStagedObject(String localId, ObjectRef ref) {
+    if (_closed) rejectSegment('STORE_CLOSED');
+    return _db.select(
+        'SELECT 1 FROM staging_objects WHERE staging_id=? AND hash=?',
+        [localId, ref.hash]).isNotEmpty;
   }
 
   VerifiedObject? _read(ObjectRef ref) {

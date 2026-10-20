@@ -1,0 +1,10 @@
+{
+  "label": "NARROW DIAGNOSTIC, MOCK MANIFEST/422 OVER REAL IOCLIENT; NOT BACKEND D-E",
+  "error": "AcquisitionFailure(TRANSPORT_TIMEOUT,retry_same)",
+  "stack": "#0      IncrementalFetcher.acquire (package:money_note_mobile/src/segmented/fetch.dart:434:7)\n<asynchronous suspension>\n#1      main.<anonymous closure>.<anonymous closure> (file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a01/reuse_diagnostic_test.dart:141:11)\n<asynchronous suspension>\n#2      main.<anonymous closure> (file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a01/reuse_diagnostic_test.dart:134:7)\n<asynchronous suspension>\n#3      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)\n<asynchronous suspension>\n#4      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)\n<asynchronous suspension>\n#5      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)\n<asynchronous suspension>\n",
+  "elapsed_us": 45403307,
+  "observations": 3,
+  "object_requests_reached_server": 0,
+  "work": {},
+  "accepted_id": null
+}

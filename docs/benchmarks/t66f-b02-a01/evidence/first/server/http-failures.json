@@ -1,0 +1,18 @@
+[
+  {
+    "status": 410,
+    "method": "POST",
+    "path": "/api/sync/v1/observations/3ee331d2-de5c-42ed-b4d7-9a0529d52df1/objects",
+    "body": {
+      "error": {
+        "action": "new_observation",
+        "code": "OBSERVATION_EXPIRED",
+        "current_ns": null,
+        "retry_after_ms": null
+      },
+      "protocol": 1,
+      "request_id": "4099e7ac-50d1-42cb-bfdb-6fe058fd5095"
+    },
+    "wall_time": 1792330016.37672
+  }
+]

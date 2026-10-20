@@ -1,0 +1,6 @@
+{
+  "sha256": "895869f6a9443bcc4fc112f1694d2b762bbb087c31b0cf25bd75b714dc3ee208",
+  "failure": "GRAPH_DEPTH_BUDGET after cache-only renewal traversal; backend actual depth22",
+  "run": "/tmp/mn-a01-corrected-50000-sngzexq3",
+  "preserved_utc": 1792373722.306317
+}

@@ -425,7 +425,8 @@ class AppState extends ChangeNotifier {
   Future<SegmentedPublication> publishSegmentedForIsolatedUse(
       SegmentedClientStore store,
       {String? resumeId,
-      SyncCancellation? cancellation}) async {
+      SyncCancellation? cancellation,
+      FetchLimits verificationLimits = const FetchLimits()}) async {
     if (_isDisposed || !isOnline || _onlineWriteInFlight || user == null) {
       rejectSegment('PUBLICATION_MODE_INELIGIBLE');
     }
@@ -454,7 +455,9 @@ class AppState extends ChangeNotifier {
       requireAuthority();
       final expected = await store.recoverAcceptedGeneration();
       requireAuthority();
-      final acquired = await IncrementalFetcher(store, transport).acquire(
+      final fetcher =
+          IncrementalFetcher(store, transport, limits: verificationLimits);
+      final acquired = await fetcher.acquire(
           resumeId: resumeId, cancellation: cancel, verifiedBase: expected);
       requireAuthority();
       final verifiedDataVersion = store.publicationDataVersion;

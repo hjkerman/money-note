@@ -1,0 +1,136 @@
+{
+  "n": 50000,
+  "fixture": {
+    "objects": 200331,
+    "canonical_bytes": 130710592,
+    "kinds": {
+      "control": 1,
+      "hot": 1,
+      "index-root": 1,
+      "index-node": 100056,
+      "index-leaf": 100057,
+      "raw-root": 1,
+      "snapshot-leaf": 206,
+      "snapshot-node": 8
+    },
+    "kind_bytes": {
+      "control": 3178,
+      "hot": 87364,
+      "index-root": 398,
+      "index-node": 51796743,
+      "index-leaf": 49199831,
+      "raw-root": 2628,
+      "snapshot-leaf": 29583842,
+      "snapshot-node": 36608
+    },
+    "edges": 200327,
+    "max_depth": 22,
+    "max_fanout": 32,
+    "largest_object": 151684,
+    "largest_ref": {
+      "bytes": "151684",
+      "hash": "f2fd7b23f50f9b5e200fd0992375a5810f4831ae9d1ca9a3b4fed025fa76d285"
+    },
+    "raw_rows": {
+      "app_labels": 19,
+      "app_settings": 7,
+      "notification_candidate_registrations": 1,
+      "card_payment_deferrals": 0,
+      "card_payment_allocations": 1,
+      "card_payment_events": 1,
+      "card_payment_batch_items": 1,
+      "card_payment_batches": 1,
+      "cash_flows": 2,
+      "monthly_panels": 2,
+      "ledger_entries": 50000
+    },
+    "fact_domains": {
+      "pk": 50035,
+      "unique": 50004,
+      "reverse": 6,
+      "ref": 6,
+      "allocation": 1,
+      "aggregate": 2,
+      "context": 1,
+      "context_reverse": 2
+    }
+  },
+  "store_path": "/tmp/mn-b02-implementation.e6YtOc/bounded50000/client/segmented-store-v1/c9f2b26687887771f68420f67569bcdde3429d92562f33c1643affe5df5788b9.sqlite",
+  "origin": "https://127.0.0.1:37355",
+  "real_clock": true,
+  "lease_seconds": 900,
+  "selection": "explicit isolated publication parameter",
+  "status": "FAIL_COLD",
+  "profile_object_limit": 500000,
+  "profile_metadata_limit": 402653184,
+  "accepted_before": null,
+  "protected_legacy_before": {
+    "/tmp/mn-b02-implementation.e6YtOc/bounded50000/client/offline-mode/baseline.json": "82bd15cb46da558b6bac3aa6e8fd962c4276b3a38c6ce77209f75104ae1820f2",
+    "/tmp/mn-b02-implementation.e6YtOc/bounded50000/client/offline-mode/online-write-1.json": "3e2e8a7e743d409c5c3b237177e42a88b34482c797b99c145308bdad0e24a6f1"
+  },
+  "error": "AcquisitionFailure(OBSERVATION_EXPIRED,new_observation)",
+  "accepted_after": null,
+  "elapsed_us": 2699793901,
+  "sampled_client_rss_peak_bytes": 248102912,
+  "client_process_rss_peak_bytes": 249905152,
+  "store_work": {
+    "accepted_reads": 4,
+    "accepted_metadata_reads": 7,
+    "full_recoveries": 1,
+    "transactions": 3795,
+    "object_reads": 101206,
+    "verified_bytes": 287192244,
+    "raw_object_reads": 1712,
+    "graph_nodes_examined": 40903,
+    "index_object_reads": 99488
+  },
+  "fault_boundary_counts": {
+    "after_staging_insert": 3,
+    "before_commit": 3795,
+    "after_commit": 3795,
+    "after_acquisition_insert": 7,
+    "before_object_insert": 22392,
+    "after_object_insert": 22392,
+    "after_edges_insert": 22392,
+    "after_progress_insert": 41336
+  },
+  "protected_legacy_after": {
+    "/tmp/mn-b02-implementation.e6YtOc/bounded50000/client/offline-mode/baseline.json": "82bd15cb46da558b6bac3aa6e8fd962c4276b3a38c6ce77209f75104ae1820f2",
+    "/tmp/mn-b02-implementation.e6YtOc/bounded50000/client/offline-mode/online-write-1.json": "3e2e8a7e743d409c5c3b237177e42a88b34482c797b99c145308bdad0e24a6f1"
+  },
+  "usage": {
+    "id": 1,
+    "objects": 22392,
+    "payload": 40816368,
+    "stages": 3,
+    "metadata": 18280381
+  },
+  "acquisition": [
+    {
+      "state": "interrupted",
+      "error_code": "OBSERVATION_EXPIRED"
+    },
+    {
+      "state": "interrupted",
+      "error_code": "OBSERVATION_EXPIRED"
+    },
+    {
+      "state": "interrupted",
+      "error_code": "OBSERVATION_EXPIRED"
+    }
+  ],
+  "accepted_sql": [
+    {
+      "id": 1,
+      "current_id": null,
+      "previous_id": null,
+      "sequence": 0,
+      "checksum": "c9e8b4f3fa1881a1460203c7944b0edee9bf09f3897448ec806fef2d834fbc1b"
+    }
+  ],
+  "generation_count": 0,
+  "pin_rows": 0,
+  "foreign_key_errors": 0,
+  "e1_database_bytes": 62914560,
+  "r1_activation": "CLOSED"
+}

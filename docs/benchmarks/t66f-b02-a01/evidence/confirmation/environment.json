@@ -1,0 +1,52 @@
+{
+  "os": "Linux-6.8.0-146-generic-x86_64-with-glibc2.39",
+  "cpu": {
+    "command": [
+      "lscpu"
+    ],
+    "exit": 0,
+    "stdout": "Architecture:                            x86_64\nCPU op-mode(s):                          32-bit, 64-bit\nAddress sizes:                           39 bits physical, 48 bits virtual\nByte Order:                              Little Endian\nCPU(s):                                  12\nOn-line CPU(s) list:                     0-11\nVendor ID:                               GenuineIntel\nModel name:                              Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz\nCPU family:                              6\nModel:                                   158\nThread(s) per core:                      2\nCore(s) per socket:                      6\nSocket(s):                               1\nStepping:                                10\nCPU(s) scaling MHz:                      87%\nCPU max MHz:                             4100.0000\nCPU min MHz:                             800.0000\nBogoMIPS:                                4399.99\nFlags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb pti ssbd ibrs ibpb stibp tpr_shadow flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid mpx rdseed adx smap clflushopt intel_pt xsaveopt xsavec xgetbv1 xsaves dtherm ida arat pln pts hwp hwp_notify hwp_act_window hwp_epp vnmi md_clear flush_l1d arch_capabilities ibpb_exit_to_user\nVirtualization:                          VT-x\nL1d cache:                               192 KiB (6 instances)\nL1i cache:                               192 KiB (6 instances)\nL2 cache:                                1.5 MiB (6 instances)\nL3 cache:                                9 MiB (1 instance)\nNUMA node(s):                            1\nNUMA node0 CPU(s):                       0-11\nVulnerability Gather data sampling:      Mitigation; Microcode\nVulnerability Indirect target selection: Not affected\nVulnerability Itlb multihit:             KVM: Mitigation: VMX disabled\nVulnerability L1tf:                      Mitigation; PTE Inversion; VMX conditional cache flushes, SMT vulnerable\nVulnerability Mds:                       Mitigation; Clear CPU buffers; SMT vulnerable\nVulnerability Meltdown:                  Mitigation; PTI\nVulnerability Mmio stale data:           Mitigation; Clear CPU buffers; SMT vulnerable\nVulnerability Reg file data sampling:    Not affected\nVulnerability Retbleed:                  Mitigation; IBRS\nVulnerability Spec rstack overflow:      Not affected\nVulnerability Spec store bypass:         Mitigation; Speculative Store Bypass disabled via prctl\nVulnerability Spectre v1:                Mitigation; usercopy/swapgs barriers and __user pointer sanitization\nVulnerability Spectre v2:                Mitigation; IBRS; IBPB conditional; STIBP conditional; RSB filling; PBRSB-eIBRS Not affected; BHI Not affected\nVulnerability Srbds:                     Mitigation; Microcode\nVulnerability Tsa:                       Not affected\nVulnerability Tsx async abort:           Not affected\nVulnerability Vmscape:                   Mitigation; IBPB before exit to userspace\n",
+    "stderr": ""
+  },
+  "memory": {
+    "command": [
+      "free",
+      "-b"
+    ],
+    "exit": 0,
+    "stdout": "               total        used        free      shared  buff/cache   available\nMem:     25045565440  2290974720 10885042176    55615488 12410515456 22754590720\nSwap:     8589930496    13369344  8576561152\n",
+    "stderr": ""
+  },
+  "disk": {
+    "command": [
+      "df",
+      "-B1",
+      "/tmp",
+      "/home/hjkerman/codex/money-note"
+    ],
+    "exit": 0,
+    "stdout": "Filesystem                           1B-blocks         Used   Available Use% Mounted on\n/dev/mapper/ubuntu--vg-ubuntu--lv 210779168768 157838086144 43239260160  79% /\n/dev/mapper/ubuntu--vg-ubuntu--lv 210779168768 157838086144 43239260160  79% /\n",
+    "stderr": ""
+  },
+  "python": "3.12.3",
+  "cgroup": "0::/user.slice/user-1000.slice/session-321.scope\n",
+  "rlimits": {
+    "9": [
+      -1,
+      -1
+    ],
+    "7": [
+      4096,
+      1048576
+    ],
+    "0": [
+      -1,
+      -1
+    ]
+  },
+  "cgroup_limits": {
+    "cpu.max": "max 100000\n",
+    "memory.max": "max\n",
+    "memory.high": "max\n"
+  }
+}

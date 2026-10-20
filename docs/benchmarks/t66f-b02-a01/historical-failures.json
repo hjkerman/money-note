@@ -1,0 +1,624 @@
+{
+  "bounded-final-targeted.jsonl.gz": {
+    "file_sha256": "9b3cc04aa52fc316384ca24bc6c65af5c8228594a4c3a7587099f72e3e6d01a5",
+    "terminal": {
+      "success": false,
+      "type": "done",
+      "time": 81051
+    },
+    "errors": [
+      {
+        "test": {
+          "id": 14,
+          "name": "B02 isolated profile keeps original final authority and prior state: valid",
+          "suiteID": 4,
+          "groupIDs": [
+            13
+          ],
+          "metadata": {
+            "skip": false,
+            "skipReason": null
+          },
+          "line": 25,
+          "column": 5,
+          "url": "file:///home/hjkerman/codex/money-note/mobile/test/segmented_large_profile_authority_test.dart"
+        },
+        "error": {
+          "testID": 14,
+          "error": "Expected: <0>\n  Actual: <4>\npin_inserts\n",
+          "stackTrace": "package:matcher                                         expect\npackage:flutter_test/src/widget_tester.dart 473:18      expect\ntest/segmented_large_profile_authority_test.dart 85:13  main.<fn>\n",
+          "isFailure": true,
+          "type": "error",
+          "time": 25342
+        }
+      }
+    ],
+    "failed": [
+      {
+        "test": {
+          "id": 14,
+          "name": "B02 isolated profile keeps original final authority and prior state: valid",
+          "suiteID": 4,
+          "groupIDs": [
+            13
+          ],
+          "metadata": {
+            "skip": false,
+            "skipReason": null
+          },
+          "line": 25,
+          "column": 5,
+          "url": "file:///home/hjkerman/codex/money-note/mobile/test/segmented_large_profile_authority_test.dart"
+        },
+        "result": {
+          "testID": 14,
+          "result": "failure",
+          "skipped": false,
+          "hidden": false,
+          "type": "testDone",
+          "time": 25343
+        }
+      }
+    ]
+  },
+  "final-targeted.jsonl.gz": {
+    "file_sha256": "a12daf453f4b372ed3899726f027e37185d6117c0ce751be3dc1abe300cbe8bf",
+    "terminal": {
+      "success": false,
+      "type": "done",
+      "time": 84391
+    },
+    "errors": [
+      {
+        "test": {
+          "id": 72,
+          "name": "B02 selected profile real SIGKILL at batch_middle preserves prior legacy/pending",
+          "suiteID": 6,
+          "groupIDs": [
+            17
+          ],
+          "metadata": {
+            "skip": false,
+            "skipReason": null
+          },
+          "line": 32,
+          "column": 5,
+          "url": "file:///home/hjkerman/codex/money-note/mobile/test/segmented_large_profile_crash_test.dart"
+        },
+        "error": {
+          "testID": 72,
+          "error": "Bad state: child -6: \n===== CRASH =====\nsi_signo=Bus error(7), si_code=BUS_ADRERR(2), si_addr=0x7764b197ebd0\nversion=3.13.3 (stable) (Tue Sep 1 01:07:17 2026 -0700) on \"linux_x64\"\npid=409274, thread=409362, isolate_group=main(0x555cd1de7880), isolate=(nil)((nil))\nos=linux, arch=x64, comp=no, sim=no\nisolate_instructions=555cb67bf080, vm_instructions=0\nfp=7764b16fc300, sp=7764b16fbfa8, pc=7764de4c3b4a\n  pc 0x00007764de4c3b4a fp 0x00007764b16fc300 /lib64/ld-linux-x86-64.so.2+0x26b4a\n  pc 0x00007764de4a6529 fp 0x00007764b16fc720 /lib64/ld-linux-x86-64.so.2+0x9529\n  pc 0x00007764de4aa8dc fp 0x00007764b16fc7a0 /lib64/ld-linux-x86-64.so.2+0xd8dc\n  pc 0x00007764de49e51c fp 0x00007764b16fc8d0 _dl_catch_exception+0x9c\n  pc 0x00007764de4a9d20 fp 0x00007764b16fc920 /lib64/ld-linux-x86-64.so.2+0xcd20\n  pc 0x00007764de49e51c fp 0x00007764b16fca50 _dl_catch_exception+0x9c\n  pc 0x00007764de4aa164 fp 0x00007764b16fcb10 /lib64/ld-linux-x86-64.so.2+0xd164\n  pc 0x00007764de098284 fp 0x00007764b16fcb40 /lib/x86_64-linux-gnu/libc.so.6+0x98284\n  pc 0x00007764de49e51c fp 0x00007764b16fcc70 _dl_catch_exception+0x9c\n  pc 0x00007764de49e669 fp 0x00007764b16fccc0 /lib64/ld-linux-x86-64.so.2+0x1669\n  pc 0x00007764de097d63 fp 0x00007764b16fcd30 /lib/x86_64-linux-gnu/libc.so.6+0x97d63\n  pc 0x00007764de09833f fp 0x00007764b16fcd80 dlopen+0x6f\n  pc 0x0000555cb67c1d64 fp 0x00007764b16fcda0 dart::Utils::LoadDynamicLibrary+0x14\n  pc 0x0000555cb67c20c8 fp 0x00007764b16fcdf0 dart::bin::LoadDynamicLibrary+0x28\n  pc 0x0000555cb67c2031 fp 0x00007764b16fce30 dart::bin::NativeAssets::DlopenAbsolute+0x21\n  pc 0x0000555cb696aa84 fp 0x00007764b16fceb0 dart::LoadAssetLibrary+0x514\n  pc 0x0000555cb6969f7c fp 0x00007764b16fcf60 dart::FfiResolveInternal+0xbc\n  pc 0x0000555cb696afe5 fp 0x00007764b16fcfe0 dart::FfiResolve+0x135\n  pc 0x00007764dd70713b fp 0x00007764b16fd008 Unknown symbol\n  pc 0x00007764b1a123e5 fp 0x00007764b16fd098 Unknown symbol\n  pc 0x00007764b1a11cf7 fp 0x00007764b16fd0e8 Unknown symbol\n  pc 0x00007764b1a11bc6 fp 0x00007764b16fd128 Unknown symbol\n  pc 0x00007764b1a11b48 fp 0x00007764b16fd158 Unknown symbol\n  pc 0x00007764b1a1193c fp 0x00007764b16fd198 Unknown symbol\n  pc 0x00007764b1a1118a fp 0x00007764b16fd240 Unknown symbol\n  pc 0x00007764b1a0fb1e fp 0x00007764b16fd2e0 Unknown symbol\n  pc 0x00007764b1a0a816 fp 0x00007764b16fd3c0 Unknown symbol\n  pc 0x00007764dd72ebf3 fp 0x00007764b16fd438 Unknown symbol\n  pc 0x00007764dd72e7b9 fp 0x00007764b16fd468 Unknown symbol\n  pc 0x00007764dd72d5de fp 0x00007764b16fd4e8 Unknown symbol\n  pc 0x00007764dd72d8c0 fp 0x00007764b16fd530 Unknown symbol\n  pc 0x00007764dd72d5de fp 0x00007764b16fd5b0 Unknown symbol\n  pc 0x00007764dd72c35e fp 0x00007764b16fd608 Unknown symbol\n  pc 0x00007764dd703407 fp 0x00007764b16fd680 Unknown symbol\n  pc 0x0000555cb69b2854 fp 0x00007764b16fd6f0 dart::DartEntry::InvokeFunction+0xd4\n  pc 0x0000555cb69b4432 fp 0x00007764b16fd730 dart::DartLibraryCalls::HandleMessage+0x122\n  pc 0x0000555cb69d3992 fp 0x00007764b16fdca0 dart::IsolateMessageHandler::HandleMessage+0x322\n  pc 0x0000555cb69f7c70 fp 0x00007764b16fdd20 dart::MessageHandler::HandleMessages+0x130\n  pc 0x0000555cb69f7922 fp 0x00007764b16fdd70 dart::MessageHandler::TaskCallback+0x192\n  pc 0x0000555cb6adf827 fp 0x00007764b16fddd0 dart::ThreadPool::WorkerLoop+0x117\n  pc 0x0000555cb6adfa92 fp 0x00007764b16fde00 dart::ThreadPool::Worker::Main+0x82\n  pc 0x0000555cb6a893a9 fp 0x00007764b16fdec0 dart::ThreadStart+0xd9\n  pc 0x00007764de09cb84 fp 0x00007764b16fdf70 /lib/x86_64-linux-gnu/libc.so.6+0x9cb84\n-- End of DumpStackTrace\n  pc 0x0000000000000000 fp 0x00007764b16fd008 sp 0x0000000000000000 [Stub] Exit frame\n  pc 0x00007764b1a123e5 fp 0x00007764b16fd098 sp 0x00007764b16fd018 [Optimized] Native.init:_ffi_resolver@9050071.#ffiClosure0+0x105\n  pc 0x00007764b1a11cf7 fp 0x00007764b16fd0e8 sp 0x00007764b16fd0a8 [Unoptimized] Native._ffi_resolver_function@9050071+0xb7\n  pc 0x00007764b1a11bc6 fp 0x00007764b16fd128 sp 0x00007764b16fd0f8 [Optimized] sqlite3_initialize+0x46\n  pc 0x00007764b1a11b48 fp 0x00007764b16fd158 sp 0x00007764b16fd138 [Unoptimized] FfiBindings.sqlite3_initialize+0x98\n  pc 0x00007764b1a1193c fp 0x00007764b16fd198 sp 0x00007764b16fd168 [Unoptimized] Sqlite3Implementation.initialize+0xcc\n  pc 0x00007764b1a1118a fp 0x00007764b16fd240 sp 0x00007764b16fd1a8 [Unoptimized] Sqlite3Implementation.open+0x35a\n  pc 0x00007764b1a0fb1e fp 0x00007764b16fd2e0 sp 0x00007764b16fd250 [Unoptimized] FfiSqlite3.open+0x30e\n  pc 0x00007764b1a0a816 fp 0x00007764b16fd3c0 sp 0x00007764b16fd2f0 [Unoptimized] SegmentedClientStore.open+0x796\n  pc 0x00007764dd72ebf3 fp 0x00007764b16fd438 sp 0x00007764b16fd3d0 [Unoptimized] main+0x3a3\n  pc 0x00007764dd72e7b9 fp 0x00007764b16fd468 sp 0x00007764b16fd448 [Unoptimized] main+0x79\n  pc 0x00007764dd72d5de fp 0x00007764b16fd4e8 sp 0x00007764b16fd478 [Unoptimized] _Closure@0150898.dyn:call+0x82e\n  pc 0x00007764dd72d8c0 fp 0x00007764b16fd530 sp 0x00007764b16fd4f8 [Unoptimized] _delayEntrypointInvocation@1026248.<anonymous closure>+0x280\n  pc 0x00007764dd72d5de fp 0x00007764b16fd5b0 sp 0x00007764b16fd540 [Unoptimized] _Closure@0150898.dyn:call+0x82e\n  pc 0x00007764dd72c35e fp 0x00007764b16fd608 sp 0x00007764b16fd5c0 [Unoptimized] _RawReceivePort@1026248._handleMessage@1026248+0x19e\n  pc 0x00007764dd703407 fp 0x00007764b16fd680 sp 0x00007764b16fd618 [Stub] Entry frame\n",
+          "stackTrace": "dart:async                                          _Completer.completeError\ntest/segmented_large_profile_crash_test.dart 65:17  main.<fn>.<fn>\n===== asynchronous gap ===========================\ndart:async                                          _CustomZone.registerUnaryCallback\ntest/segmented_large_profile_crash_test.dart 65:58  main.<fn>.<fn>\n===== asynchronous gap ===========================\ndart:async                                          Future.then\ntest/segmented_large_profile_crash_test.dart 63:37  main.<fn>\n===== asynchronous gap ===========================\ndart:async                                          _CustomZone.registerUnaryCallback\ntest/segmented_large_profile_crash_test.dart 40:7   main.<fn>\n",
+          "isFailure": false,
+          "type": "error",
+          "time": 43434
+        }
+      }
+    ],
+    "failed": [
+      {
+        "test": {
+          "id": 72,
+          "name": "B02 selected profile real SIGKILL at batch_middle preserves prior legacy/pending",
+          "suiteID": 6,
+          "groupIDs": [
+            17
+          ],
+          "metadata": {
+            "skip": false,
+            "skipReason": null
+          },
+          "line": 32,
+          "column": 5,
+          "url": "file:///home/hjkerman/codex/money-note/mobile/test/segmented_large_profile_crash_test.dart"
+        },
+        "result": {
+          "testID": 72,
+          "result": "error",
+          "skipped": false,
+          "hidden": false,
+          "type": "testDone",
+          "time": 43435
+        }
+      }
+    ]
+  },
+  "flutter-bounded-full.jsonl.gz": {
+    "file_sha256": "26136d244a8e11ac926426c4413330dcafd61a2783c4c520e50533481c9611a0",
+    "terminal": {
+      "success": false,
+      "type": "done",
+      "time": 5337075
+    },
+    "errors": [
+      {
+        "test": {
+          "id": 5,
+          "name": "B02 isolated profile keeps original final authority and prior state: valid",
+          "suiteID": 0,
+          "groupIDs": [
+            4
+          ],
+          "metadata": {
+            "skip": false,
+            "skipReason": null
+          },
+          "line": 25,
+          "column": 5,
+          "url": "file:///home/hjkerman/codex/money-note/mobile/test/segmented_large_profile_authority_test.dart"
+        },
+        "error": {
+          "testID": 5,
+          "error": "Expected: <0>\n  Actual: <4>\npin_inserts\n",
+          "stackTrace": "package:matcher                                         expect\npackage:flutter_test/src/widget_tester.dart 473:18      expect\ntest/segmented_large_profile_authority_test.dart 85:13  main.<fn>\n",
+          "isFailure": true,
+          "type": "error",
+          "time": 25696
+        }
+      },
+      {
+        "test": {
+          "id": 126,
+          "name": "default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/src/segmented/fetch.dart",
+          "suiteID": 108,
+          "groupIDs": [
+            110
+          ],
+          "metadata": {
+            "skip": false,
+            "skipReason": null
+          },
+          "line": 47,
+          "column": 5,
+          "url": "file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"
+        },
+        "error": {
+          "testID": 126,
+          "error": "Expected: 'a1e6b4b549dcb5a11d5e0cabcb7806ff42eb831f4192c40b353a103698721253'\n  Actual: '3b85d9060f37a40b2c6a32443f9624421952c616a078730771ac1a00882c8ef8'\n   Which: is different.\n          Expected: a1e6b4b549 ...\n            Actual: 3b85d9060f ...\n                    ^\n           Differ at offset 0\n",
+          "stackTrace": "package:matcher                                     expect\npackage:flutter_test/src/widget_tester.dart 473:18  expect\ntest/segmented_adapter_isolation_test.dart 48:7     main.<fn>\n",
+          "isFailure": true,
+          "type": "error",
+          "time": 81280
+        }
+      },
+      {
+        "test": {
+          "id": 133,
+          "name": "AppState E4 entry has no automatic callers or legacy publication/acknowledgment",
+          "suiteID": 108,
+          "groupIDs": [
+            110
+          ],
+          "metadata": {
+            "skip": false,
+            "skipReason": null
+          },
+          "line": 71,
+          "column": 3,
+          "url": "file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"
+        },
+        "error": {
+          "testID": 133,
+          "error": "Expected: '5b3f22d80f25f87d3df6b694285e288097eedc1d758322a249d2d3ad13b13156'\n  Actual: '5f34523eb50d11ffa96df2c345c7a7f97e9cfde0b5d621630265b89b84033e41'\n   Which: is different.\n          Expected: 5b3f22d80f2 ...\n            Actual: 5f34523eb50 ...\n                     ^\n           Differ at offset 1\n",
+          "stackTrace": "package:matcher                                     expect\npackage:flutter_test/src/widget_tester.dart 473:18  expect\ntest/segmented_adapter_isolation_test.dart 104:5    main.<fn>\n",
+          "isFailure": true,
+          "type": "error",
+          "time": 81368
+        }
+      },
+      {
+        "test": {
+          "id": 1168,
+          "name": "B02 cached object bytes are included in batch envelope: 3",
+          "suiteID": 1158,
+          "groupIDs": [
+            1160
+          ],
+          "metadata": {
+            "skip": false,
+            "skipReason": null
+          },
+          "line": 109,
+          "column": 5,
+          "url": "file:///home/hjkerman/codex/money-note/mobile/test/segmented_large_batch_test.dart"
+        },
+        "error": {
+          "testID": 1168,
+          "error": "Expected: throws <Instance of 'SegmentedException'> with `code`: 'LOCAL_BATCH_BUDGET'\n  Actual: <Closure: () => void>\n   Which: returned <null>\n",
+          "stackTrace": "package:matcher                                     expect\npackage:flutter_test/src/widget_tester.dart 473:18  expect\ntest/segmented_large_batch_test.dart 118:9          main.<fn>\n",
+          "isFailure": true,
+          "type": "error",
+          "time": 4420481
+        }
+      }
+    ],
+    "failed": [
+      {
+        "test": {
+          "id": 5,
+          "name": "B02 isolated profile keeps original final authority and prior state: valid",
+          "suiteID": 0,
+          "groupIDs": [
+            4
+          ],
+          "metadata": {
+            "skip": false,
+            "skipReason": null
+          },
+          "line": 25,
+          "column": 5,
+          "url": "file:///home/hjkerman/codex/money-note/mobile/test/segmented_large_profile_authority_test.dart"
+        },
+        "result": {
+          "testID": 5,
+          "result": "failure",
+          "skipped": false,
+          "hidden": false,
+          "type": "testDone",
+          "time": 25697
+        }
+      },
+      {
+        "test": {
+          "id": 126,
+          "name": "default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/src/segmented/fetch.dart",
+          "suiteID": 108,
+          "groupIDs": [
+            110
+          ],
+          "metadata": {
+            "skip": false,
+            "skipReason": null
+          },
+          "line": 47,
+          "column": 5,
+          "url": "file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"
+        },
+        "result": {
+          "testID": 126,
+          "result": "failure",
+          "skipped": false,
+          "hidden": false,
+          "type": "testDone",
+          "time": 81281
+        }
+      },
+      {
+        "test": {
+          "id": 133,
+          "name": "AppState E4 entry has no automatic callers or legacy publication/acknowledgment",
+          "suiteID": 108,
+          "groupIDs": [
+            110
+          ],
+          "metadata": {
+            "skip": false,
+            "skipReason": null
+          },
+          "line": 71,
+          "column": 3,
+          "url": "file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"
+        },
+        "result": {
+          "testID": 133,
+          "result": "failure",
+          "skipped": false,
+          "hidden": false,
+          "type": "testDone",
+          "time": 81369
+        }
+      },
+      {
+        "test": {
+          "id": 1168,
+          "name": "B02 cached object bytes are included in batch envelope: 3",
+          "suiteID": 1158,
+          "groupIDs": [
+            1160
+          ],
+          "metadata": {
+            "skip": false,
+            "skipReason": null
+          },
+          "line": 109,
+          "column": 5,
+          "url": "file:///home/hjkerman/codex/money-note/mobile/test/segmented_large_batch_test.dart"
+        },
+        "result": {
+          "testID": 1168,
+          "result": "failure",
+          "skipped": false,
+          "hidden": false,
+          "type": "testDone",
+          "time": 4420481
+        }
+      }
+    ]
+  },
+  "flutter-full.jsonl.gz": {
+    "file_sha256": "f9bdf93fe825e559d89736069fa46905a179eec2cdea5235d7fd2134ccdea6b7",
+    "terminal": {
+      "success": false,
+      "type": "done",
+      "time": 5673089
+    },
+    "errors": [
+      {
+        "test": {
+          "id": 117,
+          "name": "default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/src/segmented/fetch.dart",
+          "suiteID": 99,
+          "groupIDs": [
+            101
+          ],
+          "metadata": {
+            "skip": false,
+            "skipReason": null
+          },
+          "line": 47,
+          "column": 5,
+          "url": "file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"
+        },
+        "error": {
+          "testID": 117,
+          "error": "Expected: 'a1e6b4b549dcb5a11d5e0cabcb7806ff42eb831f4192c40b353a103698721253'\n  Actual: '4c540e690613ff6f903e2b66d2cfe53572be495d38e5e1e1395a1018d66970b8'\n   Which: is different.\n          Expected: a1e6b4b549 ...\n            Actual: 4c540e6906 ...\n                    ^\n           Differ at offset 0\n",
+          "stackTrace": "package:matcher                                     expect\npackage:flutter_test/src/widget_tester.dart 473:18  expect\ntest/segmented_adapter_isolation_test.dart 48:7     main.<fn>\n",
+          "isFailure": true,
+          "type": "error",
+          "time": 12130
+        }
+      },
+      {
+        "test": {
+          "id": 124,
+          "name": "AppState E4 entry has no automatic callers or legacy publication/acknowledgment",
+          "suiteID": 99,
+          "groupIDs": [
+            101
+          ],
+          "metadata": {
+            "skip": false,
+            "skipReason": null
+          },
+          "line": 71,
+          "column": 3,
+          "url": "file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"
+        },
+        "error": {
+          "testID": 124,
+          "error": "Expected: '5b3f22d80f25f87d3df6b694285e288097eedc1d758322a249d2d3ad13b13156'\n  Actual: '4db0ccf9872d8d1fa5a19f5575e8d0b34c7aa77dc779aa17863e79de543f9f15'\n   Which: is different.\n          Expected: 5b3f22d80f ...\n            Actual: 4db0ccf987 ...\n                    ^\n           Differ at offset 0\n",
+          "stackTrace": "package:matcher                                     expect\npackage:flutter_test/src/widget_tester.dart 473:18  expect\ntest/segmented_adapter_isolation_test.dart 104:5    main.<fn>\n",
+          "isFailure": true,
+          "type": "error",
+          "time": 12200
+        }
+      },
+      {
+        "test": {
+          "id": 783,
+          "name": "B02 selected large profile preserves valid admission and recovery",
+          "suiteID": 756,
+          "groupIDs": [
+            758
+          ],
+          "metadata": {
+            "skip": false,
+            "skipReason": null
+          },
+          "line": 230,
+          "column": 5,
+          "url": "file:///home/hjkerman/codex/money-note/mobile/test/segmented_large_profile_test.dart"
+        },
+        "error": {
+          "testID": 783,
+          "error": "Expected: a value less than <126>\n  Actual: <126>\n   Which: is not a value less than <126>\n",
+          "stackTrace": "package:matcher                                     expect\npackage:flutter_test/src/widget_tester.dart 473:18  expect\ntest/segmented_large_profile_test.dart 304:11       main.<fn>\n",
+          "isFailure": true,
+          "type": "error",
+          "time": 2280764
+        }
+      }
+    ],
+    "failed": [
+      {
+        "test": {
+          "id": 117,
+          "name": "default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/src/segmented/fetch.dart",
+          "suiteID": 99,
+          "groupIDs": [
+            101
+          ],
+          "metadata": {
+            "skip": false,
+            "skipReason": null
+          },
+          "line": 47,
+          "column": 5,
+          "url": "file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"
+        },
+        "result": {
+          "testID": 117,
+          "result": "failure",
+          "skipped": false,
+          "hidden": false,
+          "type": "testDone",
+          "time": 12131
+        }
+      },
+      {
+        "test": {
+          "id": 124,
+          "name": "AppState E4 entry has no automatic callers or legacy publication/acknowledgment",
+          "suiteID": 99,
+          "groupIDs": [
+            101
+          ],
+          "metadata": {
+            "skip": false,
+            "skipReason": null
+          },
+          "line": 71,
+          "column": 3,
+          "url": "file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"
+        },
+        "result": {
+          "testID": 124,
+          "result": "failure",
+          "skipped": false,
+          "hidden": false,
+          "type": "testDone",
+          "time": 12201
+        }
+      },
+      {
+        "test": {
+          "id": 783,
+          "name": "B02 selected large profile preserves valid admission and recovery",
+          "suiteID": 756,
+          "groupIDs": [
+            758
+          ],
+          "metadata": {
+            "skip": false,
+            "skipReason": null
+          },
+          "line": 230,
+          "column": 5,
+          "url": "file:///home/hjkerman/codex/money-note/mobile/test/segmented_large_profile_test.dart"
+        },
+        "result": {
+          "testID": 783,
+          "result": "failure",
+          "skipped": false,
+          "hidden": false,
+          "type": "testDone",
+          "time": 2280765
+        }
+      }
+    ]
+  },
+  "profile-corrected.jsonl.gz": {
+    "file_sha256": "05eb9140f1ea750e4256186d86a330b51612a8cec9cedbf61bfdbc52a66230de",
+    "terminal": {
+      "success": false,
+      "type": "done",
+      "time": 228268
+    },
+    "errors": [
+      {
+        "test": {
+          "id": 7,
+          "name": "B02 isolated profile keeps original final authority and prior state: valid",
+          "suiteID": 2,
+          "groupIDs": [
+            6
+          ],
+          "metadata": {
+            "skip": false,
+            "skipReason": null
+          },
+          "line": 25,
+          "column": 5,
+          "url": "file:///home/hjkerman/codex/money-note/mobile/test/segmented_large_profile_authority_test.dart"
+        },
+        "error": {
+          "testID": 7,
+          "error": "Expected: <2>\n  Actual: <1>\n",
+          "stackTrace": "package:matcher                                         expect\npackage:flutter_test/src/widget_tester.dart 473:18      expect\ntest/segmented_large_profile_authority_test.dart 71:11  main.<fn>\n",
+          "isFailure": true,
+          "type": "error",
+          "time": 52911
+        }
+      }
+    ],
+    "failed": [
+      {
+        "test": {
+          "id": 7,
+          "name": "B02 isolated profile keeps original final authority and prior state: valid",
+          "suiteID": 2,
+          "groupIDs": [
+            6
+          ],
+          "metadata": {
+            "skip": false,
+            "skipReason": null
+          },
+          "line": 25,
+          "column": 5,
+          "url": "file:///home/hjkerman/codex/money-note/mobile/test/segmented_large_profile_authority_test.dart"
+        },
+        "result": {
+          "testID": 7,
+          "result": "failure",
+          "skipped": false,
+          "hidden": false,
+          "type": "testDone",
+          "time": 52912
+        }
+      }
+    ]
+  },
+  "profile-final.jsonl.gz": {
+    "file_sha256": "2d0df081cba6666929a36dfcddb66460cb2cc4ae17afa57ee0b2be1019c05e87",
+    "terminal": {
+      "success": false,
+      "type": "done",
+      "time": 226855
+    },
+    "errors": [
+      {
+        "test": {
+          "id": 7,
+          "name": "B02 isolated profile keeps original final authority and prior state: valid",
+          "suiteID": 2,
+          "groupIDs": [
+            6
+          ],
+          "metadata": {
+            "skip": false,
+            "skipReason": null
+          },
+          "line": 25,
+          "column": 5,
+          "url": "file:///home/hjkerman/codex/money-note/mobile/test/segmented_large_profile_authority_test.dart"
+        },
+        "error": {
+          "testID": 7,
+          "error": "Expected: <2>\n  Actual: <1>\n",
+          "stackTrace": "package:matcher                                         expect\npackage:flutter_test/src/widget_tester.dart 473:18      expect\ntest/segmented_large_profile_authority_test.dart 63:11  main.<fn>\n",
+          "isFailure": true,
+          "type": "error",
+          "time": 45600
+        }
+      }
+    ],
+    "failed": [
+      {
+        "test": {
+          "id": 7,
+          "name": "B02 isolated profile keeps original final authority and prior state: valid",
+          "suiteID": 2,
+          "groupIDs": [
+            6
+          ],
+          "metadata": {
+            "skip": false,
+            "skipReason": null
+          },
+          "line": 25,
+          "column": 5,
+          "url": "file:///home/hjkerman/codex/money-note/mobile/test/segmented_large_profile_authority_test.dart"
+        },
+        "result": {
+          "testID": 7,
+          "result": "failure",
+          "skipped": false,
+          "hidden": false,
+          "type": "testDone",
+          "time": 45600
+        }
+      }
+    ]
+  }
+}

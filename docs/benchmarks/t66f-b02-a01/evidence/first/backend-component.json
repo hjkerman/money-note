@@ -1,0 +1,68 @@
+{
+  "label": "ACTUAL UNCHANGED PATHRESOLVER COMPONENT, NOT HTTP OR FULL D-E",
+  "paths": 64,
+  "unique_objects": 141,
+  "baseline": [
+    {
+      "ns": 470656302,
+      "reads": 1206,
+      "bytes_read": 608976
+    },
+    {
+      "ns": 463291094,
+      "reads": 1206,
+      "bytes_read": 608976
+    },
+    {
+      "ns": 462209503,
+      "reads": 1206,
+      "bytes_read": 608976
+    }
+  ],
+  "instrumented_ns": 491181332,
+  "counter_instrumentation_ratio": 1.0602002463703737,
+  "calls": {
+    "canonical_validate": 3746,
+    "canonical_validate_input_bytes": 1832792,
+    "hash": 1270,
+    "hash_input_bytes": 649786,
+    "local_shape_validate": 1206
+  },
+  "inclusive_ns": {
+    "canonical_validate": 364593704,
+    "hash": 7842295,
+    "local_shape_validate": 163955634
+  },
+  "hash_input_bytes_by_kind": {
+    "index-root": 27392,
+    "index-node": 584444,
+    "index-leaf": 33320,
+    "fact-key": 4630
+  },
+  "actual_object_reads": 1206,
+  "actual_object_bytes_read": 608976,
+  "unique_validation_contexts": 141,
+  "repeated_validation_contexts": 1065,
+  "validated_context_frequency": {
+    "64": 12,
+    "49": 1,
+    "24": 1,
+    "14": 1,
+    "10": 2,
+    "4": 7,
+    "1": 64,
+    "3": 13,
+    "2": 25,
+    "6": 4,
+    "25": 1,
+    "13": 2,
+    "7": 2,
+    "12": 1,
+    "9": 1,
+    "5": 2,
+    "15": 2
+  },
+  "selected_terminal_bytes": 31400,
+  "unchanged": true,
+  "read_only_sqlite": true
+}

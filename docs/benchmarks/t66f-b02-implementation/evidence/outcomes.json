@@ -1,0 +1,44 @@
+{
+  "starting_commit": "6282c1c3577c42bba9382d786745d583a5d88236",
+  "implementation_verdict": "INCOMPLETE",
+  "correction_commit": null,
+  "pushed": false,
+  "full_flutter_final_source_rerun": false,
+  "machine_event_results": {
+    "final-sequential-targeted": {"pass": 61, "fail": 0, "skip": 0, "observed_exit": 0},
+    "independent-profile": {"pass": 2, "fail": 0, "skip": 0, "observed_exit": 0},
+    "flutter-full": {"pass": 1533, "fail": 3, "skip": 2},
+    "flutter-bounded-full": {"pass": 1560, "fail": 4, "skip": 2},
+    "complete1000": {"pass": 1, "fail": 0, "observed_exit": 0},
+    "bounded50000": {"pass": 0, "fail": 1, "observed_exit": 1},
+    "bounded100000": {"pass": 0, "fail": 1, "observed_exit": null}
+  },
+  "scope_notes": {
+    "large_cold_failure": "각각 원래의 900초 observation 3회를 소진해 OBSERVATION_EXPIRED로 실패했다.",
+    "large_deltas": "두 cold가 실패하여 NOT RUN이다. Backend-only 신규 객체 수를 client 성공으로 대체하지 않는다.",
+    "initial_profile_only_runs": "첫 실제 lease 만료 뒤 의도적 SIGKILL(exit79). 정상 재시도 소진으로 세지 않는다.",
+    "full_flutter": "두 full 실행은 최종 수정 이전 compiled source와 일부 초기 새 test oracle를 사용했다. 원 source-SHA guard 둘은 현재 source에도 FAIL이며 원 assertion은 그대로다.",
+    "cached_bytes": "초기 batch의 cached byte charge 누락을 새 boundary test가 검출했다. 최종 source에서 수정하고 최종 targeted 재검증했으나 이후 full suite는 미실행이다.",
+    "native_initialization_error": "final-targeted는 SIGKILL 대기점 전 SQLite dlopen BUS_ADRERR로 60 PASS/1 ERROR. 원인을 확정하지 않으며 raw stack을 보존한다. 뒤 동일 최종 tests는 61 PASS였다.",
+    "rss": "HOST process RSS이며 Android/device memory safety나 pure heap을 증명하지 않는다.",
+    "sql": "실제 usage/pins/FK와 기존 store.work/fault counters. 전체 독립 SQL statement/row-scan 계수는 아니다.",
+    "logical_bytes": "hash/validate/write 최종 byte accounting은 DEFERRED이다.",
+    "historical_evidence": "원 조사·독립 감사·원 tests/fixtures의 내용을 수정하지 않았다. preservation.json을 참조한다."
+  },
+  "backend_full": {"tests_passed": 1315, "subtests_passed": 1540, "failed": 0, "warnings": 1, "seconds": 2196.88, "observed_exit": 0},
+  "final_checks_observed_exit": {
+    "flutter_analyze": 0,
+    "flutter_debug_build": 0,
+    "frontend_build": 0,
+    "dart_format": 0,
+    "app_state_format": 0,
+    "ruff": 0,
+    "python_format": 0,
+    "compileall": 0
+  },
+  "fresh_process_observed_exit": {"n50000": 0, "n100000": 0, "bounded50000": 0, "bounded100000": 0},
+  "r1_gate": "CLOSED",
+  "production_activation": false,
+  "deployment": false,
+  "apk_installation": false
+}

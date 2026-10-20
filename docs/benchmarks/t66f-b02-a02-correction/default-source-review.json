@@ -1,0 +1,7 @@
+{
+  "actual_default_sha256": "a1e6b4b549dcb5a11d5e0cabcb7806ff42eb831f4192c40b353a103698721253",
+  "expected_default_sha256": "a1e6b4b549dcb5a11d5e0cabcb7806ff42eb831f4192c40b353a103698721253",
+  "exact_default_restored": true,
+  "extension_sha256": "5bd0fcb5997791256359d4c1f176d8cd74cb21205d7633f00575a284d5502551",
+  "note": "\uad50\uc815 \ubc94\uc704 \uac80\ud1a0\uc6a9; \uae30\uc874 historical source-lock artifact\ub294 \ubcc0\uacbd\ud558\uc9c0 \uc54a\uc74c; \uc2e0\uaddc behavior/guard gate\ub294 \ubbf8\uc644\ub8cc"
+}

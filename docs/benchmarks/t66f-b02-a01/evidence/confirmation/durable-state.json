@@ -1,0 +1,63 @@
+{
+  "label": "INDEPENDENT READ-ONLY SQLITE AFTER FAILURE",
+  "object_count": 35496,
+  "logical_object_blob_bytes": 47431669,
+  "per_stage": [
+    {
+      "staging_id": "5dc16882-7b14-4e6e-ba59-c7fdd16218be",
+      "observation_id": "3f03731f-93d7-46d3-a2df-b567e2767019",
+      "unique_progress_objects": 15178
+    },
+    {
+      "staging_id": "669b12ad-55c3-48bf-9eac-e14ce7663c25",
+      "observation_id": "224fa000-9291-489c-836e-5ada90885b8e",
+      "unique_progress_objects": 35325
+    },
+    {
+      "staging_id": "8031f652-ac2a-4668-a40a-f012cd0ca583",
+      "observation_id": "aa4411cd-3140-48c4-a2c3-e95ec023dddc",
+      "unique_progress_objects": 26931
+    }
+  ],
+  "counts": {
+    "accepted": 1,
+    "acquisition": 3,
+    "edges": 35759,
+    "frozen": 0,
+    "generation_objects": 0,
+    "generation_roots": 0,
+    "generations": 0,
+    "installed": 0,
+    "objects": 35496,
+    "profile": 1,
+    "refs": 35763,
+    "staging": 3,
+    "staging_objects": 77434,
+    "staging_roots": 12,
+    "usage": 1
+  },
+  "accepted": [
+    {
+      "id": 1,
+      "current_id": null,
+      "previous_id": null,
+      "sequence": 0,
+      "checksum": "c4f9f7cd4a9af1c367d204663e8f51a3a24185cce9697ed7eb2bfe2ca3ed6870"
+    }
+  ],
+  "usage": [
+    {
+      "id": 1,
+      "objects": 35496,
+      "payload": 47431669,
+      "stages": 3,
+      "metadata": 30466493
+    }
+  ],
+  "foreign_key_errors": [],
+  "persistent_journal_mode": "delete",
+  "legacy_file_sha256": {
+    "/tmp/mn-b02-a01-20261018-223750/client/offline-mode/baseline.json": "82bd15cb46da558b6bac3aa6e8fd962c4276b3a38c6ce77209f75104ae1820f2",
+    "/tmp/mn-b02-a01-20261018-223750/client/offline-mode/online-write-1.json": "d7be8bbb174278e60aff3784ae5f97ef787694bc1295c3780dff3b9446ebd9df"
+  }
+}

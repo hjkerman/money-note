@@ -1,0 +1,121 @@
+[
+  {
+    "name": "fresh-reopen",
+    "args": [
+      "/home/hjkerman/.flutter/bin/dart",
+      "--packages=/home/hjkerman/codex/money-note/mobile/.dart_tool/package_config.json",
+      "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-implementation/reopen.dart",
+      "/tmp/mn-b02-a01-20261018-223750"
+    ],
+    "cwd": "/home/hjkerman/codex/money-note",
+    "started_utc": 1792333690.6523175,
+    "elapsed_seconds": 53.736929059028625,
+    "exit_code": 0,
+    "timeout": false
+  },
+  {
+    "name": "targeted-flutter",
+    "args": [
+      "/home/hjkerman/.flutter/bin/flutter",
+      "test",
+      "--no-pub",
+      "--machine",
+      "--concurrency=1",
+      "test/segmented_large_profile_test.dart",
+      "test/segmented_large_batch_test.dart",
+      "test/segmented_large_profile_authority_test.dart",
+      "test/segmented_large_profile_crash_test.dart",
+      "test/segmented_adapter_isolation_test.dart",
+      "test/segmented_fetch_test.dart",
+      "test/segmented_response_cleanup_test.dart"
+    ],
+    "cwd": "/home/hjkerman/codex/money-note/mobile",
+    "started_utc": 1792333744.389741,
+    "elapsed_seconds": 164.87383803003468,
+    "exit_code": 1,
+    "timeout": false
+  },
+  {
+    "name": "targeted-backend",
+    "args": [
+      "/home/hjkerman/codex/money-note/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_isolated_sync_observation.py::test_repository_connections_close_on_success_and_failure",
+      "tests/test_isolated_sync_observation.py::test_expiration_and_epoch_rotation",
+      "tests/test_isolated_sync_observation.py::test_expired_observation_does_not_resurrect_on_clock_rollback",
+      "tests/test_isolated_sync_observation.py::test_terminal_lease_expiry_is_sticky",
+      "tests/test_isolated_sync_observation.py::test_terminal_before_expiry_remains_valid",
+      "tests/test_isolated_sync_transfer.py::test_exact_expiry_and_rollback_persistence",
+      "tests/test_isolated_sync_transfer.py::test_terminal_auth_expiry_cancellation_after_buffering",
+      "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+      "tests/test_isolated_sync_transfer.py::test_transfer_concurrency_budget_and_busy_retry",
+      "--junitxml=/tmp/mn-b02-a01-20261018-223750/targeted-backend.xml"
+    ],
+    "cwd": "/home/hjkerman/codex/money-note/backend",
+    "started_utc": 1792333909.2645366,
+    "elapsed_seconds": 22.013251350959763,
+    "exit_code": 0,
+    "timeout": false
+  },
+  {
+    "name": "frontend-build",
+    "args": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "cwd": "/home/hjkerman/codex/money-note/frontend",
+    "started_utc": 1792333931.278036,
+    "elapsed_seconds": 4.32382949301973,
+    "exit_code": 0,
+    "timeout": false
+  },
+  {
+    "name": "ruff-backend",
+    "args": [
+      "/home/hjkerman/codex/money-note/.venv/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "app",
+      "tests"
+    ],
+    "cwd": "/home/hjkerman/codex/money-note/backend",
+    "started_utc": 1792333935.6021214,
+    "elapsed_seconds": 0.032072532980237156,
+    "exit_code": 0,
+    "timeout": false
+  },
+  {
+    "name": "compileall",
+    "args": [
+      "/home/hjkerman/codex/money-note/.venv/bin/python",
+      "-m",
+      "compileall",
+      "-q",
+      "backend/app",
+      "backend/isolated_sync",
+      "docs/benchmarks/t66f-b02-a01"
+    ],
+    "cwd": "/home/hjkerman/codex/money-note",
+    "started_utc": 1792333935.6345322,
+    "elapsed_seconds": 0.06417554098879918,
+    "exit_code": 0,
+    "timeout": false
+  },
+  {
+    "name": "diff-check",
+    "args": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "cwd": "/home/hjkerman/codex/money-note",
+    "started_utc": 1792333935.698962,
+    "elapsed_seconds": 0.007910348998848349,
+    "exit_code": 0,
+    "timeout": false
+  }
+]

@@ -1,0 +1,38 @@
+{
+  "out": "/tmp/mn-a02-compatibility-3ytmi361",
+  "commands": [
+    {
+      "name": "p0-compatible-replay",
+      "args": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "docs/benchmarks/t66e4-audit/test_p0_replay.py",
+        "--junitxml=/tmp/mn-a02-compatibility-3ytmi361/p0-compatible.xml"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note",
+      "synthetic_outputs": {
+        "E4_P0_AUDIT_OUTPUT": "/tmp/mn-a02-compatibility-3ytmi361/p0-compatible"
+      },
+      "log": "/tmp/mn-a02-p0-compatible-replay.log",
+      "exit": 0,
+      "elapsed_seconds": 7.042103374027647
+    },
+    {
+      "name": "historical-p0-probe",
+      "args": [
+        "/home/hjkerman/.flutter/bin/flutter",
+        "test",
+        "--no-pub",
+        "--machine",
+        "../docs/benchmarks/t66e4-contract/probe_test.dart"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/mobile",
+      "synthetic_outputs": {},
+      "log": "/tmp/mn-a02-historical-p0-probe.log",
+      "exit": 1,
+      "elapsed_seconds": 13.548778961994685
+    }
+  ]
+}

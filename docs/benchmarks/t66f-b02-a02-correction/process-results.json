@@ -1,0 +1,54 @@
+{
+  "scope": "기존 실행의 실제 tool wait 결과. 실행 중인 항목의 exit를 추측하지 않는다.",
+  "full_backend": {
+    "session_id": 27077,
+    "exit": 0,
+    "tests": 1368,
+    "subtests": 1540,
+    "elapsed_seconds": 1782.86,
+    "log": "/tmp/mn-a02-backend-full.log",
+    "junit": "/tmp/mn-a02-backend-full.xml"
+  },
+  "accepted_post_reads_50000": {
+    "session_id": 60615,
+    "exit": 0,
+    "reads": 20,
+    "object_reads": 80,
+    "verified_bytes": 3180540,
+    "repeated_full_verifications": 0,
+    "repeated_recoveries": 0,
+    "pin_changes": 0
+  },
+  "accepted_post_reads_100000": {
+    "session_id": 49949,
+    "exit": 0,
+    "reads": 20,
+    "object_reads": 80,
+    "verified_bytes": 3200460,
+    "repeated_full_verifications": 0,
+    "repeated_recoveries": 0,
+    "pin_changes": 0
+  },
+  "full_flutter": {
+    "session_id": 72257,
+    "exit": 0,
+    "pass": 1599,
+    "fail": 0,
+    "skip": 2,
+    "elapsed_milliseconds": 4290411,
+    "log": "/tmp/mn-a02-flutter-full.jsonl"
+  },
+  "external_flutter": {
+    "session_id": 39444,
+    "exit": 1,
+    "wire_pass": 34,
+    "p0_integration_pass": 18,
+    "continuation_binding_pass": 23,
+    "continuation_nonbinding_mime_diagnostic_fail": 1,
+    "original_lineage_output_argument_error": 1,
+    "classification": "F-BC02 비규범 원 diagnostic 유지. lineage는 출력 인자 오류이며 원 assertion 그대로 재실행.",
+    "lineage_corrected_command_session_id": 62784,
+    "lineage_corrected_command_exit": 0,
+    "lineage_corrected_command_pass": 1
+  }
+}

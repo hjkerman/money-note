@@ -1,0 +1,274 @@
+{
+  "observations": [
+    {
+      "attempt": 1,
+      "id": "3ee331d2-de5c-42ed-b4d7-9a0529d52df1",
+      "validated_at": "2026-10-18T13:11:56Z",
+      "expires_at": "2026-10-18T13:26:56Z",
+      "root": "301da7ad6ae5689a19d8bc7c3edeea59427dc5f669bd449ae1cc4dad5931a3c0",
+      "namespace": {
+        "dataset_id": "21fcb05f-24f7-4f18-91cc-9e5388373d05",
+        "epoch": "45a35114-5989-427c-9b48-22073462bd7e",
+        "server_id": "27a74cfa-230b-4233-95ee-4dafc9be0cce"
+      },
+      "principal": 1,
+      "new_durable_objects": 16070,
+      "progress_links_attempted": 16070,
+      "commits": 2355,
+      "new_object_commits": 2352,
+      "cache_only_commits": 0,
+      "decoded_bytes": 37626743,
+      "response_entity_bytes": 52772940,
+      "request_entity_bytes": 19779412,
+      "object_requests": 2353,
+      "success_responses": 2352,
+      "http_statuses": {
+        "200": 2352,
+        "410": 1
+      },
+      "client_headers_to_terminal_error_seconds": 899.312019,
+      "first_object_scheduling_after_manifest_seconds": 0.072115,
+      "first_64_cached_progress_commit_after_manifest_seconds": null,
+      "insert_to_commit_seconds": 39.464833,
+      "cache_progress_lower_bound_seconds": 0.0,
+      "redownload_prior_observation": 0,
+      "repeated_same_observation": 0
+    },
+    {
+      "attempt": 2,
+      "id": "b0e7d363-501d-4ad3-ad26-44ac43732427",
+      "validated_at": "2026-10-18T13:26:56Z",
+      "expires_at": "2026-10-18T13:41:56Z",
+      "root": "301da7ad6ae5689a19d8bc7c3edeea59427dc5f669bd449ae1cc4dad5931a3c0",
+      "namespace": {
+        "dataset_id": "21fcb05f-24f7-4f18-91cc-9e5388373d05",
+        "epoch": "45a35114-5989-427c-9b48-22073462bd7e",
+        "server_id": "27a74cfa-230b-4233-95ee-4dafc9be0cce"
+      },
+      "principal": 1,
+      "new_durable_objects": 0,
+      "progress_links_attempted": 15689,
+      "commits": 276,
+      "new_object_commits": 0,
+      "cache_only_commits": 274,
+      "decoded_bytes": 0,
+      "response_entity_bytes": 0,
+      "request_entity_bytes": 0,
+      "object_requests": 0,
+      "success_responses": 0,
+      "http_statuses": {},
+      "client_headers_to_terminal_error_seconds": null,
+      "first_object_scheduling_after_manifest_seconds": null,
+      "first_64_cached_progress_commit_after_manifest_seconds": 21.047246,
+      "insert_to_commit_seconds": 0.0,
+      "cache_progress_lower_bound_seconds": 10.164486,
+      "redownload_prior_observation": 0,
+      "repeated_same_observation": 0
+    }
+  ],
+  "successful_object_handler_seconds": 813.985956867,
+  "disjoint_server_work_seconds": {
+    "ObservationRepository._lookup": 444.759816954,
+    "RetentionSandbox.connect": 172.180034371,
+    "PathResolver.resolve": 184.174386047
+  },
+  "disjoint_server_cpu_seconds": {
+    "ObservationRepository._lookup": 444.474897194,
+    "RetentionSandbox.connect": 172.074322447,
+    "PathResolver.resolve": 184.079354524
+  },
+  "disjoint_server_work_share": {
+    "ObservationRepository._lookup": 0.546397407967409,
+    "RetentionSandbox.connect": 0.2115270330138301,
+    "PathResolver.resolve": 0.22626236299687527
+  },
+  "packet_distribution": {
+    "1": {
+      "count": 578,
+      "handler_median_ms": 297.64295200000004,
+      "decoded_bytes": 28876733
+    },
+    "2": {
+      "count": 566,
+      "handler_median_ms": 304.505993,
+      "decoded_bytes": 572524
+    },
+    "4": {
+      "count": 399,
+      "handler_median_ms": 321.211879,
+      "decoded_bytes": 809281
+    },
+    "6": {
+      "count": 108,
+      "handler_median_ms": 345.810389,
+      "decoded_bytes": 1219707
+    },
+    "7": {
+      "count": 1,
+      "handler_median_ms": 345.364071,
+      "decoded_bytes": 35083
+    },
+    "8": {
+      "count": 231,
+      "handler_median_ms": 355.956271,
+      "decoded_bytes": 940077
+    },
+    "10": {
+      "count": 47,
+      "handler_median_ms": 311.253645,
+      "decoded_bytes": 234351
+    },
+    "11": {
+      "count": 1,
+      "handler_median_ms": 276.63669,
+      "decoded_bytes": 10782
+    },
+    "12": {
+      "count": 49,
+      "handler_median_ms": 335.381758,
+      "decoded_bytes": 293278
+    },
+    "14": {
+      "count": 60,
+      "handler_median_ms": 398.53745749999996,
+      "decoded_bytes": 421206
+    },
+    "16": {
+      "count": 104,
+      "handler_median_ms": 424.6641185,
+      "decoded_bytes": 848298
+    },
+    "18": {
+      "count": 8,
+      "handler_median_ms": 375.161991,
+      "decoded_bytes": 71398
+    },
+    "20": {
+      "count": 10,
+      "handler_median_ms": 460.259637,
+      "decoded_bytes": 100016
+    },
+    "22": {
+      "count": 16,
+      "handler_median_ms": 438.8710225,
+      "decoded_bytes": 175756
+    },
+    "24": {
+      "count": 26,
+      "handler_median_ms": 478.384471,
+      "decoded_bytes": 312008
+    },
+    "26": {
+      "count": 30,
+      "handler_median_ms": 540.411728,
+      "decoded_bytes": 392664
+    },
+    "28": {
+      "count": 29,
+      "handler_median_ms": 566.202367,
+      "decoded_bytes": 408155
+    },
+    "30": {
+      "count": 11,
+      "handler_median_ms": 552.925343,
+      "decoded_bytes": 166248
+    },
+    "32": {
+      "count": 25,
+      "handler_median_ms": 573.216372,
+      "decoded_bytes": 405299
+    },
+    "34": {
+      "count": 5,
+      "handler_median_ms": 634.823927,
+      "decoded_bytes": 84401
+    },
+    "36": {
+      "count": 1,
+      "handler_median_ms": 659.360062,
+      "decoded_bytes": 17917
+    },
+    "38": {
+      "count": 5,
+      "handler_median_ms": 668.938133,
+      "decoded_bytes": 94644
+    },
+    "40": {
+      "count": 3,
+      "handler_median_ms": 686.6622,
+      "decoded_bytes": 59943
+    },
+    "42": {
+      "count": 2,
+      "handler_median_ms": 710.6328265,
+      "decoded_bytes": 41823
+    },
+    "44": {
+      "count": 1,
+      "handler_median_ms": 703.465607,
+      "decoded_bytes": 22246
+    },
+    "46": {
+      "count": 3,
+      "handler_median_ms": 722.660106,
+      "decoded_bytes": 69602
+    },
+    "48": {
+      "count": 3,
+      "handler_median_ms": 759.901169,
+      "decoded_bytes": 71975
+    },
+    "50": {
+      "count": 6,
+      "handler_median_ms": 760.4328949999999,
+      "decoded_bytes": 151753
+    },
+    "52": {
+      "count": 5,
+      "handler_median_ms": 807.115914,
+      "decoded_bytes": 130047
+    },
+    "54": {
+      "count": 2,
+      "handler_median_ms": 805.1096465,
+      "decoded_bytes": 54356
+    },
+    "56": {
+      "count": 3,
+      "handler_median_ms": 817.483064,
+      "decoded_bytes": 84501
+    },
+    "60": {
+      "count": 3,
+      "handler_median_ms": 879.155937,
+      "decoded_bytes": 89832
+    },
+    "64": {
+      "count": 11,
+      "handler_median_ms": 710.846223,
+      "decoded_bytes": 360839
+    }
+  },
+  "mean_objects_per_packet": 6.832482993197279,
+  "successful_decoded_bytes": 37626743,
+  "sampled_resources": {
+    "backend": {
+      "sampled_peak_rss_kib": 496372,
+      "sampled_peak_fds": 21,
+      "max_user_cpu": 1081.13,
+      "max_system_cpu": 19.7
+    },
+    "client": {
+      "sampled_peak_rss_kib": 234272,
+      "sampled_peak_fds": 21,
+      "max_user_cpu": 87.42,
+      "max_system_cpu": 10.81
+    }
+  },
+  "request_header_field_bytes_partial": 471571,
+  "response_header_field_bytes_partial": 264245,
+  "critical_path_disclaimer": "No TLS/TCP/late-response-body isolation; nested work is not summed. Snapshot/trace overhead included.",
+  "all_targets_equal": true,
+  "no_accepted_publication": true,
+  "commit_new_count_matches_usage": true
+}

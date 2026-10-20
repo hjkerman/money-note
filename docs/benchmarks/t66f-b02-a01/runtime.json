@@ -1,0 +1,7 @@
+{
+  "dart": "3.13.3 (stable) (Tue Sep 1 01:07:17 2026 -0700) on \"linux_x64\"",
+  "client_sqlite": "3.53.4",
+  "client_sqlite_source": "2026-07-24 19:02:57 bf7c7f30031888f4e796e429ab3978879485813aaca6f641c7b33e4e09459bcc",
+  "backend_python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+  "backend_sqlite": "3.45.1"
+}

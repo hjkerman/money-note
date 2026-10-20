@@ -1,0 +1,107 @@
+{
+  "label": "SMALL ACTUAL E1 COMPONENT; NOT COLD D-E SUCCESS",
+  "objects_per_sample": 141,
+  "bytes_per_sample": 71048,
+  "hash_calls": 1410,
+  "logical_hash_input_bytes": 752780,
+  "validation_calls": 1410,
+  "logical_validation_input_bytes": 710480,
+  "hash_us": [
+    5404,
+    4568,
+    3231,
+    3811,
+    2811,
+    2662,
+    2172,
+    2031,
+    2155,
+    2218
+  ],
+  "validation_including_hash_and_shape_us": [
+    69256,
+    40651,
+    30200,
+    27277,
+    28496,
+    26158,
+    34516,
+    21855,
+    21665,
+    21377
+  ],
+  "cold_stage_writes": [
+    {
+      "objects": 141,
+      "logical_new_object_blob_bytes": 71048,
+      "us": 156559,
+      "batch_commits": 3,
+      "objects_per_second": 900.6189359921818,
+      "database_bytes": 299008,
+      "journal": "delete",
+      "usage": {
+        "id": 1,
+        "objects": 141,
+        "payload": 71048,
+        "stages": 1,
+        "metadata": 106879
+      },
+      "cached_hash_on_read_us": 55670,
+      "cached_read_work": {
+        "transactions": 0,
+        "object_reads": 141,
+        "verified_bytes": 71048,
+        "index_object_reads": 141
+      }
+    },
+    {
+      "objects": 141,
+      "logical_new_object_blob_bytes": 71048,
+      "us": 113726,
+      "batch_commits": 3,
+      "objects_per_second": 1239.8220283840108,
+      "database_bytes": 299008,
+      "journal": "delete",
+      "usage": {
+        "id": 1,
+        "objects": 141,
+        "payload": 71048,
+        "stages": 1,
+        "metadata": 106879
+      },
+      "cached_hash_on_read_us": 55067,
+      "cached_read_work": {
+        "transactions": 0,
+        "object_reads": 141,
+        "verified_bytes": 71048,
+        "index_object_reads": 141
+      }
+    },
+    {
+      "objects": 141,
+      "logical_new_object_blob_bytes": 71048,
+      "us": 102690,
+      "batch_commits": 3,
+      "objects_per_second": 1373.0645632486123,
+      "database_bytes": 299008,
+      "journal": "delete",
+      "usage": {
+        "id": 1,
+        "objects": 141,
+        "payload": 71048,
+        "stages": 1,
+        "metadata": 106879
+      },
+      "cached_hash_on_read_us": 43935,
+      "cached_read_work": {
+        "transactions": 0,
+        "object_reads": 141,
+        "verified_bytes": 71048,
+        "index_object_reads": 141
+      }
+    }
+  ],
+  "profile": "unchanged explicit large verification",
+  "accepted_publication": "NOT ATTEMPTED",
+  "r1": "CLOSED"
+}

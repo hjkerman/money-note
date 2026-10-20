@@ -1,0 +1,33 @@
+{
+  "n": 100000,
+  "campaign": "",
+  "source_sha256": {
+    "mobile/lib/src/segmented/fetch.dart": "5bd0fcb5997791256359d4c1f176d8cd74cb21205d7633f00575a284d5502551",
+    "backend/isolated_sync/transfer.py": "b6d4dd33c4614f45988164c5efb644ebb113e0d6ae12bd51659ae98f36aef948",
+    "backend/isolated_sync/canonical.py": "dbce387d431a973547650c1beb122a76c8fcc785f7c8847a79484553c096476f",
+    "mobile/lib/src/segmented/protocol.dart": "84616e8254d6959c04ca5eb50b818de66dc7cb041ca14c4def1bb89590e9be8e"
+  },
+  "out": "/tmp/mn-a02-corrected-100000-9k9mr_4l",
+  "args": [
+    "/home/hjkerman/.flutter/bin/flutter",
+    "test",
+    "--no-pub",
+    "--machine",
+    "--dart-define=B02_N=100000",
+    "--dart-define=B02_OUT=/tmp/mn-a02-corrected-100000-9k9mr_4l",
+    "--dart-define=B02_COMPLETE_PLAN=true",
+    "../docs/benchmarks/t66f-b02-a02-correction/full_http_test.dart"
+  ],
+  "started_utc": 1792414143.1153457,
+  "external_guard_seconds": 7200,
+  "lease_seconds": 900,
+  "observations": 3,
+  "process_tree_rss_guard_bytes": 8589934592,
+  "concurrent_synthetic_regression_pids": [],
+  "pid": 474001,
+  "exit_code": 0,
+  "externally_terminated": false,
+  "guard_reason": null,
+  "sampled_process_tree_rss_peak": 5746802688,
+  "elapsed_seconds": 5421.439706148929
+}

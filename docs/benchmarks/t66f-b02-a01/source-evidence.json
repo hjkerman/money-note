@@ -1,0 +1,198 @@
+{
+  "product_sha256": {
+    "mobile/lib/src/app_state.dart": "c1d65f36dbd09a5f33b4a5d8d0e8b7a67ea429b0811592fce32aaeb65f9c46c1",
+    "mobile/lib/src/segmented/fetch.dart": "94a99947e4bdf408124e74aca43f7f4c6c3c2738ab9a76c0ffd77aaeb9285b37",
+    "mobile/lib/src/segmented/store.dart": "f2b451238b868b865beda40cfb39054d9c4a3ff36b5e27c7796b2759ee07811a"
+  },
+  "products_match_initial": true,
+  "sha_guards": {
+    "fetch_expected": "a1e6b4b549dcb5a11d5e0cabcb7806ff42eb831f4192c40b353a103698721253",
+    "fetch_actual": "94a99947e4bdf408124e74aca43f7f4c6c3c2738ab9a76c0ffd77aaeb9285b37",
+    "appstate_restored_expected": "5b3f22d80f25f87d3df6b694285e288097eedc1d758322a249d2d3ad13b13156",
+    "appstate_restored_actual": "5f34523eb50d11ffa96df2c345c7a7f97e9cfde0b5d621630265b89b84033e41"
+  },
+  "source_locations": {
+    "backend/isolated_sync/observation.py": {
+      "class Limits": [
+        114
+      ],
+      "def _connection": [
+        261
+      ],
+      "def _guard": [
+        289
+      ],
+      "def _check_lease": [
+        323
+      ],
+      "validated_at": [
+        464,
+        483,
+        530,
+        532
+      ],
+      "expires_at": [
+        294,
+        299,
+        314,
+        326,
+        464,
+        483,
+        494,
+        530,
+        532
+      ],
+      "def _lookup": [
+        515
+      ],
+      "def versions": [
+        89
+      ]
+    },
+    "backend/isolated_sync/http.py": {
+      "def credential": [
+        116
+      ],
+      "def prepare": [
+        134,
+        230
+      ],
+      "def terminal": [
+        170,
+        237
+      ],
+      "async def dispatch": [
+        178,
+        245
+      ]
+    },
+    "backend/isolated_sync/transfer.py": {
+      "class PathResolver": [
+        120
+      ],
+      "capacity=0": [
+        131
+      ],
+      "def resolve": [
+        134
+      ],
+      "def validate": [
+        169
+      ],
+      "def acquire": [
+        283
+      ]
+    },
+    "backend/isolated_sync/retention_schema.py": {
+      "def connect": [
+        217
+      ],
+      "def _open": [
+        240
+      ]
+    },
+    "backend/isolated_sync/workers.py": {
+      "class WorkerBudget": [
+        19
+      ],
+      "def acquire": [
+        27
+      ],
+      "async def run": [
+        89
+      ],
+      "def _release_if_finished": [
+        59
+      ]
+    },
+    "mobile/lib/src/segmented/fetch.dart": {
+      "class FetchLimits": [
+        23
+      ],
+      "class IncrementalFetcher": [
+        132
+      ],
+      "for (var observation": [
+        273
+      ],
+      "class _VerificationFrontier": [
+        460
+      ],
+      "Future<void> _fetch": [
+        535
+      ],
+      "Future<void> _wave": [
+        573
+      ],
+      "Future<VerifiedObject> load": [
+        606
+      ],
+      "final terminal =": [
+        392
+      ]
+    },
+    "mobile/lib/src/segmented/store.dart": {
+      "T _transaction": [
+        270
+      ],
+      "void putVerifiedStagedBatch": [
+        379
+      ],
+      "VerifiedObject? _read": [
+        431
+      ],
+      "VerifiedObject? getVerifiedObject": [
+        471
+      ]
+    },
+    "mobile/test/segmented_adapter_isolation_test.dart": {
+      "default/legacy/E1/E2/E3": [
+        47
+      ],
+      "AppState E4 entry": [
+        72
+      ],
+      "protected[": [
+        48,
+        67,
+        105
+      ]
+    },
+    "docs/t66/c/t66c-delta-sync-protocol.md": {
+      "## 16.": [
+        321
+      ],
+      "TTL은": [
+        323
+      ],
+      "Lease 만료 전": [
+        329
+      ],
+      "Active flow": [
+        403
+      ],
+      "## 24.": [
+        500
+      ],
+      "## 25.": [
+        517
+      ],
+      "## 26.": [
+        533
+      ],
+      "## 29.": [
+        585
+      ],
+      "## 31.": [
+        612
+      ],
+      "## 34.": [
+        661
+      ],
+      "## 35.": [
+        683
+      ]
+    }
+  },
+  "backend_product_diff": ""
+}

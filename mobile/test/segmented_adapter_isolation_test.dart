@@ -37,7 +37,6 @@ void main() {
     'mobile/lib/src/coherent_refresh_coordinator.dart',
     'mobile/lib/src/local_snapshot_repository.dart',
     'mobile/lib/src/segmented/c1.dart',
-    'mobile/lib/src/segmented/fetch.dart',
     'mobile/lib/src/segmented/transport.dart',
     'mobile/lib/src/segmented/verification.dart',
     'mobile/lib/src/segmented/graph.dart',
@@ -48,6 +47,48 @@ void main() {
       expect(hash(path), protected[path]['sha256']);
     });
   }
+  test(
+      'B02/A01/A02 reviewed E2 extension preserves the exact default algorithm',
+      () {
+    final source = read('mobile/lib/src/segmented/fetch.dart');
+    // Preserve the original audit hash, never rewrite historical evidence.
+    // Remove only the reviewed explicit-profile seams and bounded helper.
+    final restored = source
+        .replaceFirst(
+            RegExp(
+                r'\n    // A02 cold continuation: begin\.[\s\S]*?    // A02 cold continuation: end\.\n'),
+            '\n')
+        .replaceFirst(
+            RegExp(
+                r'\n  // A02 active-call helper: begin\.[\s\S]*?  // A02 active-call helper: end\.\n'),
+            '')
+        .replaceFirst(RegExp(r'\nclass _ColdTargetChanged[\s\S]*?\n}\n'), '')
+        .split('\ntypedef _FrontierPath')
+        .first
+        .replaceFirst(
+            RegExp(
+                r'\n      : _largeGraphVerification = false;[\s\S]*?  final bool _largeGraphVerification;'),
+            ';')
+        .replaceFirst('(_largeGraphVerification ? 500000 : 100000)', '100000')
+        .replaceFirst('(_largeGraphVerification ? 1000000 : 200000)', '200000')
+        .replaceFirst(
+            RegExp(
+                r'          final frontier = limits\._largeGraphVerification[\s\S]*?              : null;\n'),
+            '')
+        .replaceFirst(
+            '            if (frontier != null) return frontier.load(edge, path);\n',
+            '')
+        .replaceFirst('          frontier?.finish();\n', '');
+    expect(sha256.convert(utf8.encode(restored)).toString(),
+        protected['mobile/lib/src/segmented/fetch.dart']['sha256']);
+    final reviewed = jsonDecode(read(
+            'docs/benchmarks/t66f-b02-a02-correction/source-lock-review.json'))
+        as Map;
+    expect(
+        hash('mobile/lib/src/segmented/fetch.dart'), reviewed['fetch_sha256']);
+    expect(hash('mobile/lib/src/segmented/protocol.dart'),
+        reviewed['protocol_sha256']);
+  });
   test(
       'E3 publisher extension is only pre-BEGIN read-scope rejection, guard/COMMIT unchanged',
       () {
@@ -99,6 +140,12 @@ void main() {
             .length,
         1);
     final original = (source.substring(0, installBegin) + source.substring(end))
+        .replaceFirst(
+            '      SyncCancellation? cancellation,\n      FetchLimits verificationLimits = const FetchLimits()}) async {',
+            '      SyncCancellation? cancellation}) async {')
+        .replaceFirst(
+            '      final fetcher =\n          IncrementalFetcher(store, transport, limits: verificationLimits);\n      final acquired = await fetcher.acquire(',
+            '      final acquired = await IncrementalFetcher(store, transport).acquire(')
         .replaceFirst("import 'segmented/adapters.dart';\n", '')
         .replaceFirst("import 'segmented/verification.dart';\n", '');
     expect(sha256.convert(utf8.encode(original)).toString(),

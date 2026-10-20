@@ -1,0 +1,473 @@
+{
+  "scope": "실제 E1/E2, backend fixture + controlled mock410; realTTL불변",
+  "results": [
+    {
+      "n": 200,
+      "reachable_objects": 926,
+      "renew": false,
+      "sql_trace": false,
+      "elapsed_us": 1660008,
+      "attempts": {
+        "7d2ff74e-8e8f-4e66-8796-a55e227c4089": {
+          "created_at_us": 6960,
+          "inserted_at_birth": 0,
+          "first_request_us": 33944,
+          "before_first_new_request_us": 27071,
+          "work_before_first_request": {
+            "transactions": 2
+          },
+          "sql_before_first_request": {},
+          "inserted_at_last_request": 925,
+          "last_request_us": 1642096
+        }
+      },
+      "store_work": {
+        "transactions": 30,
+        "object_reads": 1852,
+        "verified_bytes": 1190872,
+        "cold_prefetch_cursors_enqueued": 457,
+        "cold_cached_parent_peak_sum": 11,
+        "graph_nodes_examined": 926,
+        "raw_object_reads": 22,
+        "index_object_reads": 1824
+      },
+      "metric_verification_us": 980831,
+      "downloaded": 926,
+      "actual_unique_response_objects": 926,
+      "response_entity_bytes": 928973,
+      "actual_packets": 27,
+      "insert_fault_count": 926,
+      "commits": 30,
+      "commit_boundary_ns": 138221000,
+      "sql": null,
+      "sql_profile_ns": null,
+      "previous_accepted_preserved": true,
+      "process_rss_bytes": 304263168
+    },
+    {
+      "n": 200,
+      "reachable_objects": 926,
+      "renew": false,
+      "sql_trace": false,
+      "elapsed_us": 1327477,
+      "attempts": {
+        "0f5b6078-c937-4967-9463-a82764da563a": {
+          "created_at_us": 252,
+          "inserted_at_birth": 0,
+          "first_request_us": 10345,
+          "before_first_new_request_us": 10097,
+          "work_before_first_request": {
+            "transactions": 2
+          },
+          "sql_before_first_request": {},
+          "inserted_at_last_request": 925,
+          "last_request_us": 1312799
+        }
+      },
+      "store_work": {
+        "transactions": 30,
+        "object_reads": 1852,
+        "verified_bytes": 1190872,
+        "cold_prefetch_cursors_enqueued": 457,
+        "cold_cached_parent_peak_sum": 11,
+        "graph_nodes_examined": 926,
+        "raw_object_reads": 22,
+        "index_object_reads": 1824
+      },
+      "metric_verification_us": 762081,
+      "downloaded": 926,
+      "actual_unique_response_objects": 926,
+      "response_entity_bytes": 928973,
+      "actual_packets": 27,
+      "insert_fault_count": 926,
+      "commits": 30,
+      "commit_boundary_ns": 138451000,
+      "sql": null,
+      "sql_profile_ns": null,
+      "previous_accepted_preserved": true,
+      "process_rss_bytes": 292016128
+    },
+    {
+      "n": 200,
+      "reachable_objects": 926,
+      "renew": true,
+      "sql_trace": false,
+      "elapsed_us": 1636792,
+      "attempts": {
+        "65840d54-e721-4d06-9b90-d7ccf935b87b": {
+          "created_at_us": 235,
+          "inserted_at_birth": 0,
+          "first_request_us": 10759,
+          "before_first_new_request_us": 10528,
+          "work_before_first_request": {
+            "transactions": 2
+          },
+          "sql_before_first_request": {},
+          "inserted_at_last_request": 524,
+          "last_request_us": 689723,
+          "forced_410_us": 689730,
+          "at_expiry_work": {
+            "transactions": 18,
+            "object_reads": 786,
+            "verified_bytes": 640720,
+            "cold_prefetch_cursors_enqueued": 311,
+            "cold_cached_parent_peak_sum": 10,
+            "graph_nodes_examined": 262,
+            "raw_object_reads": 22,
+            "index_object_reads": 762
+          },
+          "inserted_at_expiry": 524
+        },
+        "1f2a6501-caf1-4c7c-8710-1100a8ffd844": {
+          "created_at_us": 696162,
+          "inserted_at_birth": 524,
+          "first_request_us": 1031511,
+          "before_first_new_request_us": 335354,
+          "work_before_first_request": {
+            "transactions": 9,
+            "object_reads": 931,
+            "verified_bytes": 713298,
+            "cold_prefetch_cursors_enqueued": 139,
+            "cold_cached_parent_peak_sum": 13,
+            "graph_nodes_examined": 262,
+            "raw_object_reads": 22,
+            "index_object_reads": 907
+          },
+          "sql_before_first_request": {},
+          "inserted_at_last_request": 925,
+          "last_request_us": 1614840
+        }
+      },
+      "store_work": {
+        "transactions": 42,
+        "object_reads": 2900,
+        "verified_bytes": 1963596,
+        "cold_prefetch_cursors_enqueued": 637,
+        "cold_cached_parent_peak_sum": 23,
+        "graph_nodes_examined": 1188,
+        "raw_object_reads": 44,
+        "index_object_reads": 2848
+      },
+      "metric_verification_us": 715406,
+      "downloaded": 926,
+      "actual_unique_response_objects": 926,
+      "response_entity_bytes": 928973,
+      "actual_packets": 27,
+      "insert_fault_count": 926,
+      "commits": 42,
+      "commit_boundary_ns": 176758000,
+      "sql": null,
+      "sql_profile_ns": null,
+      "previous_accepted_preserved": true,
+      "process_rss_bytes": 295641088
+    },
+    {
+      "n": 200,
+      "reachable_objects": 926,
+      "renew": true,
+      "sql_trace": false,
+      "elapsed_us": 1598807,
+      "attempts": {
+        "cad95710-cdc7-45b8-84f3-1c1fab74771b": {
+          "created_at_us": 264,
+          "inserted_at_birth": 0,
+          "first_request_us": 10349,
+          "before_first_new_request_us": 10088,
+          "work_before_first_request": {
+            "transactions": 2
+          },
+          "sql_before_first_request": {},
+          "inserted_at_last_request": 524,
+          "last_request_us": 671948,
+          "forced_410_us": 671949,
+          "at_expiry_work": {
+            "transactions": 18,
+            "object_reads": 786,
+            "verified_bytes": 640720,
+            "cold_prefetch_cursors_enqueued": 311,
+            "cold_cached_parent_peak_sum": 10,
+            "graph_nodes_examined": 262,
+            "raw_object_reads": 22,
+            "index_object_reads": 762
+          },
+          "inserted_at_expiry": 524
+        },
+        "13029ac2-714c-4f4c-8cf3-361eef12d8e8": {
+          "created_at_us": 676478,
+          "inserted_at_birth": 524,
+          "first_request_us": 1009276,
+          "before_first_new_request_us": 332804,
+          "work_before_first_request": {
+            "transactions": 9,
+            "object_reads": 931,
+            "verified_bytes": 713298,
+            "cold_prefetch_cursors_enqueued": 139,
+            "cold_cached_parent_peak_sum": 13,
+            "graph_nodes_examined": 262,
+            "raw_object_reads": 22,
+            "index_object_reads": 907
+          },
+          "sql_before_first_request": {},
+          "inserted_at_last_request": 925,
+          "last_request_us": 1577859
+        }
+      },
+      "store_work": {
+        "transactions": 42,
+        "object_reads": 2900,
+        "verified_bytes": 1963596,
+        "cold_prefetch_cursors_enqueued": 637,
+        "cold_cached_parent_peak_sum": 23,
+        "graph_nodes_examined": 1188,
+        "raw_object_reads": 44,
+        "index_object_reads": 2848
+      },
+      "metric_verification_us": 707441,
+      "downloaded": 926,
+      "actual_unique_response_objects": 926,
+      "response_entity_bytes": 928973,
+      "actual_packets": 27,
+      "insert_fault_count": 926,
+      "commits": 42,
+      "commit_boundary_ns": 174981000,
+      "sql": null,
+      "sql_profile_ns": null,
+      "previous_accepted_preserved": true,
+      "process_rss_bytes": 294879232
+    },
+    {
+      "n": 1000,
+      "reachable_objects": 4130,
+      "renew": false,
+      "sql_trace": false,
+      "elapsed_us": 5639389,
+      "attempts": {
+        "155533a5-0600-4a70-9afc-9b73eec8a017": {
+          "created_at_us": 245,
+          "inserted_at_birth": 0,
+          "first_request_us": 10016,
+          "before_first_new_request_us": 9774,
+          "work_before_first_request": {
+            "transactions": 2
+          },
+          "sql_before_first_request": {},
+          "inserted_at_last_request": 4129,
+          "last_request_us": 5625570
+        }
+      },
+      "store_work": {
+        "transactions": 81,
+        "object_reads": 8260,
+        "verified_bytes": 5341466,
+        "cold_prefetch_cursors_enqueued": 2058,
+        "cold_cached_parent_peak_sum": 13,
+        "graph_nodes_examined": 4130,
+        "raw_object_reads": 30,
+        "index_object_reads": 8224
+      },
+      "metric_verification_us": 3227968,
+      "downloaded": 4130,
+      "actual_unique_response_objects": 4130,
+      "response_entity_bytes": 4156760,
+      "actual_packets": 78,
+      "insert_fault_count": 4130,
+      "commits": 81,
+      "commit_boundary_ns": 492739000,
+      "sql": null,
+      "sql_profile_ns": null,
+      "previous_accepted_preserved": true,
+      "process_rss_bytes": 322322432
+    },
+    {
+      "n": 1000,
+      "reachable_objects": 4130,
+      "renew": false,
+      "sql_trace": false,
+      "elapsed_us": 5535759,
+      "attempts": {
+        "7330646c-196e-4f19-8469-7d5a2fde0972": {
+          "created_at_us": 276,
+          "inserted_at_birth": 0,
+          "first_request_us": 10497,
+          "before_first_new_request_us": 10224,
+          "work_before_first_request": {
+            "transactions": 2
+          },
+          "sql_before_first_request": {},
+          "inserted_at_last_request": 4129,
+          "last_request_us": 5521334
+        }
+      },
+      "store_work": {
+        "transactions": 81,
+        "object_reads": 8260,
+        "verified_bytes": 5341466,
+        "cold_prefetch_cursors_enqueued": 2058,
+        "cold_cached_parent_peak_sum": 13,
+        "graph_nodes_examined": 4130,
+        "raw_object_reads": 30,
+        "index_object_reads": 8224
+      },
+      "metric_verification_us": 3160866,
+      "downloaded": 4130,
+      "actual_unique_response_objects": 4130,
+      "response_entity_bytes": 4156760,
+      "actual_packets": 78,
+      "insert_fault_count": 4130,
+      "commits": 81,
+      "commit_boundary_ns": 458501000,
+      "sql": null,
+      "sql_profile_ns": null,
+      "previous_accepted_preserved": true,
+      "process_rss_bytes": 321982464
+    },
+    {
+      "n": 1000,
+      "reachable_objects": 4130,
+      "renew": true,
+      "sql_trace": false,
+      "elapsed_us": 7037393,
+      "attempts": {
+        "d3fdf0df-968a-498e-bf01-66ea0c7265f7": {
+          "created_at_us": 230,
+          "inserted_at_birth": 0,
+          "first_request_us": 10601,
+          "before_first_new_request_us": 10374,
+          "work_before_first_request": {
+            "transactions": 2
+          },
+          "sql_before_first_request": {},
+          "inserted_at_last_request": 2128,
+          "last_request_us": 2963041,
+          "forced_410_us": 2963043,
+          "at_expiry_work": {
+            "transactions": 44,
+            "object_reads": 3948,
+            "verified_bytes": 3163084,
+            "cold_prefetch_cursors_enqueued": 1120,
+            "cold_cached_parent_peak_sum": 12,
+            "graph_nodes_examined": 1820,
+            "raw_object_reads": 30,
+            "index_object_reads": 3916
+          },
+          "inserted_at_expiry": 2128
+        },
+        "b50a8dbd-772a-4462-861d-4756a5154ab9": {
+          "created_at_us": 2968390,
+          "inserted_at_birth": 2128,
+          "first_request_us": 4415017,
+          "before_first_new_request_us": 1446633,
+          "work_before_first_request": {
+            "transactions": 34,
+            "object_reads": 4119,
+            "verified_bytes": 3248848,
+            "cold_prefetch_cursors_enqueued": 155,
+            "cold_cached_parent_peak_sum": 15,
+            "graph_nodes_examined": 1820,
+            "raw_object_reads": 30,
+            "index_object_reads": 4087
+          },
+          "sql_before_first_request": {},
+          "inserted_at_last_request": 4129,
+          "last_request_us": 7014770
+        }
+      },
+      "store_work": {
+        "transactions": 118,
+        "object_reads": 12516,
+        "verified_bytes": 8660000,
+        "cold_prefetch_cursors_enqueued": 2270,
+        "cold_cached_parent_peak_sum": 27,
+        "graph_nodes_examined": 5950,
+        "raw_object_reads": 60,
+        "index_object_reads": 12448
+      },
+      "metric_verification_us": 3156005,
+      "downloaded": 4130,
+      "actual_unique_response_objects": 4130,
+      "response_entity_bytes": 4156760,
+      "actual_packets": 78,
+      "insert_fault_count": 4130,
+      "commits": 118,
+      "commit_boundary_ns": 602049000,
+      "sql": null,
+      "sql_profile_ns": null,
+      "previous_accepted_preserved": true,
+      "process_rss_bytes": 321769472
+    },
+    {
+      "n": 1000,
+      "reachable_objects": 4130,
+      "renew": true,
+      "sql_trace": false,
+      "elapsed_us": 8255659,
+      "attempts": {
+        "2bd36c80-b221-4b23-94aa-68d57062eb71": {
+          "created_at_us": 294,
+          "inserted_at_birth": 0,
+          "first_request_us": 10981,
+          "before_first_new_request_us": 10691,
+          "work_before_first_request": {
+            "transactions": 2
+          },
+          "sql_before_first_request": {},
+          "inserted_at_last_request": 2128,
+          "last_request_us": 3516852,
+          "forced_410_us": 3516854,
+          "at_expiry_work": {
+            "transactions": 44,
+            "object_reads": 3948,
+            "verified_bytes": 3163084,
+            "cold_prefetch_cursors_enqueued": 1120,
+            "cold_cached_parent_peak_sum": 12,
+            "graph_nodes_examined": 1820,
+            "raw_object_reads": 30,
+            "index_object_reads": 3916
+          },
+          "inserted_at_expiry": 2128
+        },
+        "0ba8906f-6cf3-4c3e-9848-50273f6e9951": {
+          "created_at_us": 3522145,
+          "inserted_at_birth": 2128,
+          "first_request_us": 5217812,
+          "before_first_new_request_us": 1695672,
+          "work_before_first_request": {
+            "transactions": 34,
+            "object_reads": 4119,
+            "verified_bytes": 3248848,
+            "cold_prefetch_cursors_enqueued": 155,
+            "cold_cached_parent_peak_sum": 15,
+            "graph_nodes_examined": 1820,
+            "raw_object_reads": 30,
+            "index_object_reads": 4087
+          },
+          "sql_before_first_request": {},
+          "inserted_at_last_request": 4129,
+          "last_request_us": 8231111
+        }
+      },
+      "store_work": {
+        "transactions": 118,
+        "object_reads": 12516,
+        "verified_bytes": 8660000,
+        "cold_prefetch_cursors_enqueued": 2270,
+        "cold_cached_parent_peak_sum": 27,
+        "graph_nodes_examined": 5950,
+        "raw_object_reads": 60,
+        "index_object_reads": 12448
+      },
+      "metric_verification_us": 3746461,
+      "downloaded": 4130,
+      "actual_unique_response_objects": 4130,
+      "response_entity_bytes": 4156760,
+      "actual_packets": 78,
+      "insert_fault_count": 4130,
+      "commits": 118,
+      "commit_boundary_ns": 596818000,
+      "sql": null,
+      "sql_profile_ns": null,
+      "previous_accepted_preserved": true,
+      "process_rss_bytes": 320598016
+    }
+  ]
+}

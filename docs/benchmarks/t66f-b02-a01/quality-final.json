@@ -1,0 +1,76 @@
+[
+  {
+    "name": "ruff-own",
+    "command": [
+      "/home/hjkerman/codex/money-note/.venv/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a01"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 0.0264463730272837,
+    "stdout": "All checks passed!\n",
+    "stderr": ""
+  },
+  {
+    "name": "python-format",
+    "command": [
+      "/home/hjkerman/codex/money-note/.venv/bin/python",
+      "-m",
+      "ruff",
+      "format",
+      "--check",
+      "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a01"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 0.02601501200115308,
+    "stdout": "17 files already formatted\n",
+    "stderr": ""
+  },
+  {
+    "name": "dart-format",
+    "command": [
+      "/home/hjkerman/.flutter/bin/dart",
+      "format",
+      "--output=none",
+      "--set-exit-if-changed",
+      "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a01/cold_test.dart",
+      "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a01/e1_component.dart",
+      "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a01/reuse_diagnostic_test.dart",
+      "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a01/runtime.dart",
+      "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a01/sink_probe.dart",
+      "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a01/sink_transport_probe.dart"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 0.113969117985107,
+    "stdout": "Formatted 6 files (0 changed) in 0.04 seconds.\n",
+    "stderr": ""
+  },
+  {
+    "name": "compileall-own",
+    "command": [
+      "/home/hjkerman/codex/money-note/.venv/bin/python",
+      "-m",
+      "compileall",
+      "-q",
+      "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a01"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 0.03398140997160226,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "name": "git-diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 0.005662776005920023,
+    "stdout": "",
+    "stderr": ""
+  }
+]

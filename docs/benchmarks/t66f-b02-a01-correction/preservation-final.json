@@ -1,0 +1,28 @@
+{
+  "changed": [
+    "backend/isolated_sync/transfer.py",
+    "docs/specimens/t66d3b-release-artifacts.json",
+    "mobile/assets/segmented/isolated-release-artifacts.json",
+    "mobile/lib/src/segmented/fetch.dart",
+    "mobile/lib/src/segmented/protocol.dart",
+    "mobile/test/segmented_adapter_isolation_test.dart"
+  ],
+  "current_refs": {
+    "HEAD": "6282c1c3577c42bba9382d786745d583a5d88236",
+    "main": "6282c1c3577c42bba9382d786745d583a5d88236",
+    "origin/main": "6282c1c3577c42bba9382d786745d583a5d88236"
+  },
+  "current_status": " M backend/isolated_sync/transfer.py\n M docs/specimens/t66d3b-release-artifacts.json\n M mobile/assets/segmented/isolated-release-artifacts.json\n M mobile/lib/src/app_state.dart\n M mobile/lib/src/segmented/fetch.dart\n M mobile/lib/src/segmented/protocol.dart\n M mobile/lib/src/segmented/store.dart\n M mobile/test/segmented_adapter_isolation_test.dart\n?? backend/tests/test_isolated_sync_prefix_reuse.py\n?? docs/benchmarks/t66f-b02-a01-correction/\n?? docs/benchmarks/t66f-b02-a01/\n?? docs/benchmarks/t66f-b02-implementation/\n?? docs/t66f-b02-a01-cold-acquisition-investigation.md\n?? docs/t66f-b02-a01-targeted-correction.md\n?? docs/t66f-b02-large-profile-implementation.md\n?? mobile/test/segmented_cold_packet_test.dart\n?? mobile/test/segmented_large_batch_test.dart\n?? mobile/test/segmented_large_profile_authority_test.dart\n?? mobile/test/segmented_large_profile_crash_test.dart\n?? mobile/test/segmented_large_profile_test.dart\n?? mobile/test/support/segmented_large_transport.dart\n",
+  "current_source_sha256": {
+    "backend/isolated_sync/transfer.py": "b6d4dd33c4614f45988164c5efb644ebb113e0d6ae12bd51659ae98f36aef948",
+    "docs/specimens/t66d3b-release-artifacts.json": "e46ea0c59ec8f3fb78d2ad8ac2b836da948d50bd2246508b219d8ee9d9c39ad8",
+    "mobile/assets/segmented/isolated-release-artifacts.json": "e46ea0c59ec8f3fb78d2ad8ac2b836da948d50bd2246508b219d8ee9d9c39ad8",
+    "mobile/lib/src/app_state.dart": "c1d65f36dbd09a5f33b4a5d8d0e8b7a67ea429b0811592fce32aaeb65f9c46c1",
+    "mobile/lib/src/segmented/fetch.dart": "90439d1d712947dee466769d56d75797b0779c23c90a528a167aff1e484ef8c6",
+    "mobile/lib/src/segmented/protocol.dart": "78f1bec87d2db04c731b05619b4677afedbef666754089240f02f1e8f19e03ee",
+    "mobile/lib/src/segmented/store.dart": "f2b451238b868b865beda40cfb39054d9c4a3ff36b5e27c7796b2759ee07811a",
+    "mobile/test/segmented_adapter_isolation_test.dart": "0d074c4300819a4f45a2593406bf5bbbc175e3e618bf9aeb95f2bc009b3d6d90"
+  },
+  "index_preserved": true,
+  "staged_preserved": true
+}

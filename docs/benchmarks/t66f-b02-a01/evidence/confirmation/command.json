@@ -1,0 +1,14 @@
+{
+  "args": [
+    "/home/hjkerman/.flutter/bin/flutter",
+    "test",
+    "--no-pub",
+    "--machine",
+    "--dart-define=B02_N=50000",
+    "--dart-define=B02_OUT=/tmp/mn-b02-a01-20261018-223750",
+    "../docs/benchmarks/t66f-b02-a01/cold_test.dart"
+  ],
+  "pid": 425375,
+  "started_utc": 1792330670.2659538,
+  "guard_seconds": 4800
+}

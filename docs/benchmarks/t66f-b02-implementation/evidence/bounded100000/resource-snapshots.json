@@ -1,0 +1,34 @@
+[
+  {
+    "wall_time": 1792301617.6473494,
+    "processes": {
+      "client": {
+        "VmHWM": "246092 kB",
+        "VmRSS": "234780 kB",
+        "Threads": "10"
+      },
+      "backend": {
+        "VmHWM": "958332 kB",
+        "VmRSS": "627428 kB",
+        "Threads": "4"
+      }
+    },
+    "files": {
+      "0e130f7f7a486ca443b6755832cbaea29f4e8158bb421ca35293d11edfaff7b8.sqlite": 79052800,
+      "0e130f7f7a486ca443b6755832cbaea29f4e8158bb421ca35293d11edfaff7b8.sqlite-wal": 0,
+      "0e130f7f7a486ca443b6755832cbaea29f4e8158bb421ca35293d11edfaff7b8.sqlite-shm": 0,
+      "0e130f7f7a486ca443b6755832cbaea29f4e8158bb421ca35293d11edfaff7b8.sqlite-journal": 0
+    },
+    "usage": {
+      "id": 1,
+      "objects": 14040,
+      "payload": 66172012,
+      "stages": 2,
+      "metadata": 10366848
+    },
+    "generation_count": 0,
+    "pin_rows": 0,
+    "page_count": 19300,
+    "page_size": 4096
+  }
+]

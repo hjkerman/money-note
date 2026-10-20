@@ -1,0 +1,68 @@
+{
+  "out": "/tmp/mn-a02-external-backend-67mu7qd3",
+  "commands": [
+    {
+      "name": "backend-related",
+      "args": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_isolated_sync_observation.py",
+        "tests/test_isolated_sync_transfer.py",
+        "tests/test_isolated_sync_transfer_failures.py",
+        "tests/test_isolated_sync_transfer_cancellation.py",
+        "tests/test_isolated_sync_retention_ownership.py",
+        "-k",
+        "concurrent or busy or identity or cancel or ownership or quota"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/backend",
+      "synthetic_outputs": {},
+      "log": "/tmp/mn-a02-backend-related.log",
+      "exit": 0,
+      "elapsed_seconds": 220.95292793796398
+    },
+    {
+      "name": "independent-backend",
+      "args": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "docs/benchmarks/t66f-b01/test_b01.py",
+        "docs/benchmarks/t66f-b01-independent/test_independent.py",
+        "docs/benchmarks/t66f-phase-b/test_backend.py",
+        "docs/benchmarks/t66f-phase-b/test_http_concurrency.py",
+        "--junitxml=/tmp/mn-a02-external-backend-67mu7qd3/backend.xml"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note",
+      "synthetic_outputs": {
+        "B01_OUTPUT": "/tmp/mn-a02-external-backend-67mu7qd3/b01",
+        "B01_INDEPENDENT_OUTPUT": "/tmp/mn-a02-external-backend-67mu7qd3/b01-independent",
+        "F_BACKEND_OUTPUT": "/tmp/mn-a02-external-backend-67mu7qd3/phase-b-backend",
+        "F_HTTP_OUTPUT": "/tmp/mn-a02-external-backend-67mu7qd3/phase-b-http"
+      },
+      "log": "/tmp/mn-a02-independent-backend.log",
+      "exit": 0,
+      "elapsed_seconds": 56.76941348507535
+    },
+    {
+      "name": "p0-independent-backend",
+      "args": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "docs/benchmarks/t66e4-p0-audit/test_audit.py",
+        "--junitxml=/tmp/mn-a02-external-backend-67mu7qd3/p0.xml"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note",
+      "synthetic_outputs": {
+        "E4_P0_AUDIT_OUTPUT": "/tmp/mn-a02-external-backend-67mu7qd3/p0"
+      },
+      "log": "/tmp/mn-a02-p0-independent-backend.log",
+      "exit": 1,
+      "elapsed_seconds": 31.23302003601566
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "offset": 25361036,
+  "requests": 6404,
+  "objects": 400603,
+  "http_bytes": 407434123,
+  "observations": {
+    "b144a2ec-3ed8-4682-b486-24f7fc14fb87": {
+      "validated_at": "2026-10-19T12:58:57Z",
+      "expires_at": "2026-10-19T13:13:57Z"
+    },
+    "a43149de-9164-4c60-86d1-f1da2632a2aa": {
+      "validated_at": "2026-10-19T13:13:57Z",
+      "expires_at": "2026-10-19T13:28:57Z"
+    },
+    "ce117eac-4ac2-45d6-b4dd-43f175dc8b2b": {
+      "validated_at": "2026-10-19T13:28:57Z",
+      "expires_at": "2026-10-19T13:43:57Z"
+    },
+    "1d5e7b74-ed0b-4282-864e-5d1ee4715ab5": {
+      "validated_at": "2026-10-19T13:49:06Z",
+      "expires_at": "2026-10-19T14:04:06Z"
+    },
+    "a3b6473e-9738-4550-83d6-1b93b45cd730": {
+      "validated_at": "2026-10-19T13:49:26Z",
+      "expires_at": "2026-10-19T14:04:26Z"
+    },
+    "acf48cd8-249e-4c56-9125-1378d63821a1": {
+      "validated_at": "2026-10-19T13:49:53Z",
+      "expires_at": "2026-10-19T14:04:53Z"
+    }
+  },
+  "statuses": {
+    "201": 6,
+    "200": 6390,
+    "410": 2,
+    "204": 6
+  },
+  "elapsed_seconds": 4966.7,
+  "phase": "PASS_COLD",
+  "n": 100000,
+  "phases": [
+    "identical",
+    "one_row_delta",
+    "multiple_localized"
+  ],
+  "fresh_process_healthy": true,
+  "fresh_objects_checked": 400603
+}

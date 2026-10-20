@@ -1,0 +1,73 @@
+{
+  "out": "/tmp/mn-a02-lint-vzvhplc4",
+  "commands": [
+    {
+      "name": "last-ruff",
+      "args": [
+        "/home/hjkerman/codex/money-note/.venv/bin/ruff",
+        "check",
+        "backend",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a02-correction"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note",
+      "synthetic_outputs": {},
+      "log": "/tmp/mn-a02-last-ruff.log",
+      "exit": 0,
+      "elapsed_seconds": 0.00951480504591018
+    },
+    {
+      "name": "last-compileall",
+      "args": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "compileall",
+        "-q",
+        "backend",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a02-correction"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note",
+      "synthetic_outputs": {},
+      "log": "/tmp/mn-a02-last-compileall.log",
+      "exit": 0,
+      "elapsed_seconds": 0.039892429020255804
+    },
+    {
+      "name": "last-python-format",
+      "args": [
+        "/home/hjkerman/codex/money-note/.venv/bin/ruff",
+        "format",
+        "--check",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a02-correction/artifact_review.py",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a02-correction/run_http.py",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a02-correction/capture.py",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a02-correction/final_evidence.py",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a02-correction/format_review.py",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a02-correction/preserve.py",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a02-correction/large_review.py",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a02-correction/progress.py",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a02-correction/validate.py",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a02-correction/codec_benchmark.py",
+        "backend/tests/test_isolated_sync_c1_single_encode.py",
+        "backend/tests/test_isolated_sync_prefix_reuse.py"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note",
+      "synthetic_outputs": {},
+      "log": "/tmp/mn-a02-last-python-format.log",
+      "exit": 0,
+      "elapsed_seconds": 0.0077980030328035355
+    },
+    {
+      "name": "last-diff-check",
+      "args": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note",
+      "synthetic_outputs": {},
+      "log": "/tmp/mn-a02-last-diff-check.log",
+      "exit": 0,
+      "elapsed_seconds": 0.007530931965447962
+    }
+  ]
+}

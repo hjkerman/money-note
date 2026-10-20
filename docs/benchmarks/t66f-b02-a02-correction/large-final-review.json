@@ -1,0 +1,108 @@
+{
+  "50000": {
+    "status": "PASS_COLD_IDENTICAL_DELTAS_RESTART",
+    "cold_observations": 2,
+    "first_observe_start_utc": 1792411585.2543738,
+    "terminal_response_end_utc": 1792412860.6304195,
+    "first_observe_to_terminal_end_seconds": 1275.376045799,
+    "terminal_expires_utc": "2026-10-19T12:36:25Z",
+    "cold_backend_statement_calls": {
+      "SQL.PRAGMA": 911129,
+      "SQL.SELECT": 954346,
+      "SQL.BEGIN_IMMEDIATE": 6349,
+      "SQL.SAVEPOINT": 6349,
+      "SQL.UPDATE": 1,
+      "SQL.ROLLBACK": 1,
+      "SQL.RELEASE": 1
+    },
+    "cold_backend_resolver_work": {
+      "object_reads": 513085,
+      "object_bytes_read": 291936034,
+      "prefix_cache_hits": 3077992,
+      "prefix_validations": 312754
+    },
+    "interpretation": "Statement calls != scanned rows/physical I/O; terminal transfer != later local E3/E4 time",
+    "post_reads": {
+      "accepted": "321e0257-1481-4552-ae19-74a5e0fd29ba",
+      "sequence": 4,
+      "hot_control_hashes_match_backend_roots": true,
+      "reads": 20,
+      "work": {
+        "full_recoveries": 0,
+        "accepted_reads": 0,
+        "accepted_metadata_reads": 40,
+        "full_verifications": 0,
+        "object_reads": 80,
+        "verified_bytes": 3180540,
+        "raw_object_reads": 60,
+        "index_object_reads": 0,
+        "full_raw_rows": 0,
+        "full_fact_rows": 0,
+        "canonical_full_builds": 0,
+        "recovery_objects": 0,
+        "transactions": 0,
+        "pin_deletes": 0,
+        "read_snapshots": 20,
+        "adapter_object_reads": 80
+      },
+      "elapsed_us": 1903293,
+      "pin_rows_unchanged": true,
+      "legacy_pending_bytes_unchanged": true,
+      "rss_peak_bytes": 1645662208,
+      "scope": "accepted logical read; NOT legacy Frozen-B installation or R1 proof"
+    }
+  },
+  "100000": {
+    "status": "PASS_COLD_IDENTICAL_DELTAS_RESTART",
+    "cold_observations": 3,
+    "first_observe_start_utc": 1792414737.1065261,
+    "terminal_response_end_utc": 1792417327.1551566,
+    "first_observe_to_terminal_end_seconds": 2590.048630638,
+    "terminal_expires_utc": "2026-10-19T13:43:57Z",
+    "cold_backend_statement_calls": {
+      "SQL.PRAGMA": 1817666,
+      "SQL.SELECT": 1911033,
+      "SQL.BEGIN_IMMEDIATE": 12666,
+      "SQL.SAVEPOINT": 12666,
+      "SQL.UPDATE": 2,
+      "SQL.ROLLBACK": 2,
+      "SQL.RELEASE": 2
+    },
+    "cold_backend_resolver_work": {
+      "object_reads": 1030566,
+      "object_bytes_read": 586965276,
+      "prefix_cache_hits": 6551101,
+      "prefix_validations": 630034
+    },
+    "interpretation": "Statement calls != scanned rows/physical I/O; terminal transfer != later local E3/E4 time",
+    "post_reads": {
+      "accepted": "2846d4c7-fce2-4a95-93a2-d7550e6b4776",
+      "sequence": 4,
+      "hot_control_hashes_match_backend_roots": true,
+      "reads": 20,
+      "work": {
+        "full_recoveries": 0,
+        "accepted_reads": 0,
+        "accepted_metadata_reads": 40,
+        "full_verifications": 0,
+        "object_reads": 80,
+        "verified_bytes": 3200460,
+        "raw_object_reads": 60,
+        "index_object_reads": 0,
+        "full_raw_rows": 0,
+        "full_fact_rows": 0,
+        "canonical_full_builds": 0,
+        "recovery_objects": 0,
+        "transactions": 0,
+        "pin_deletes": 0,
+        "read_snapshots": 20,
+        "adapter_object_reads": 80
+      },
+      "elapsed_us": 1978388,
+      "pin_rows_unchanged": true,
+      "legacy_pending_bytes_unchanged": true,
+      "rss_peak_bytes": 3428577280,
+      "scope": "accepted logical read; NOT legacy Frozen-B installation or R1 proof"
+    }
+  }
+}

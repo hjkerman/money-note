@@ -146,7 +146,8 @@ class FinancialContext {
       };
 }
 
-// Exact isolated D3b release artifacts, reviewed at the E1 starting commit.
+// Exact isolated D3b artifacts. B02-A01 source-only transfer optimization:
+// current build plus the original reviewed artifact, explicitly approved.
 // Not a production capability advertisement or a downloaded compatibility rule.
 class ReleaseContract {
   const ReleaseContract();
@@ -157,13 +158,19 @@ class ReleaseContract {
   static const policyRegistry =
       '18be2d36483467e9250d568bcbfed6458c15a364fa99896eb1b8daad05db043d';
   static const financialEngine =
+      '7ad114bc3ca9c06f56ffca2c5efdc9a026a665feada99ece7c90cdf0d0208d6c';
+  static const previousFinancialEngine =
+      'afe26b70856b5a3fa06477641d91e8e1784e9184906281843f0a39a9c99cbdf5';
+  static const historicalFinancialEngine =
       'f34aef259c801ada33ccb88cfb103ee6654fb4467c49a66ce509f2239ffe449d';
   void verify(SyncVersions versions, FinancialContext context) {
     final v = versions.toJson();
     if (v['raw_schema'] != rawSchema ||
         v['projection_schema'] != projectionSchema ||
         v['policy_registry'] != policyRegistry ||
-        context.engine != financialEngine) {
+        (context.engine != financialEngine &&
+            context.engine != previousFinancialEngine &&
+            context.engine != historicalFinancialEngine)) {
       rejectSegment('UNSUPPORTED_CONTRACT');
     }
   }

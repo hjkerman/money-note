@@ -1,0 +1,26 @@
+{
+  "n": 50000,
+  "out": "/tmp/mn-a01-corrected-50000-sngzexq3",
+  "args": [
+    "/home/hjkerman/.flutter/bin/flutter",
+    "test",
+    "--no-pub",
+    "--machine",
+    "--dart-define=B02_N=50000",
+    "--dart-define=B02_OUT=/tmp/mn-a01-corrected-50000-sngzexq3",
+    "--dart-define=B02_COMPLETE_PLAN=true",
+    "../docs/benchmarks/t66f-b02-a01-correction/full_http_test.dart"
+  ],
+  "started_utc": 1792371875.7090933,
+  "external_guard_seconds": 7200,
+  "lease_seconds": 900,
+  "observations": 3,
+  "process_tree_rss_guard_bytes": 8589934592,
+  "concurrent_synthetic_regressions": true,
+  "pid": 443711,
+  "exit_code": 1,
+  "externally_terminated": false,
+  "guard_reason": null,
+  "sampled_process_tree_rss_peak": 1633472512,
+  "elapsed_seconds": 1562.7488488480449
+}

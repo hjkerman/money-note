@@ -1,0 +1,343 @@
+{
+  "preheader_transport_errors": [
+    {
+      "type": "http_error",
+      "serial": 2314,
+      "start_us": 936174413,
+      "end_us": 936181831,
+      "path": "/api/sync/v1/observations/aa4411cd-3140-48c4-a2c3-e95ec023dddc/objects",
+      "error": "ClientException: Broken pipe, uri=https://127.0.0.1:34251/api/sync/v1/observations/aa4411cd-3140-48c4-a2c3-e95ec023dddc/objects"
+    },
+    {
+      "type": "http_error",
+      "serial": 4879,
+      "start_us": 1845045328,
+      "end_us": 1845046982,
+      "path": "/api/sync/v1/observations/224fa000-9291-489c-836e-5ada90885b8e/objects",
+      "error": "ClientException: Broken pipe, uri=https://127.0.0.1:34251/api/sync/v1/observations/224fa000-9291-489c-836e-5ada90885b8e/objects"
+    }
+  ],
+  "observed_retry_gaps_us": [
+    101839,
+    101420
+  ],
+  "observations": [
+    {
+      "attempt": 1,
+      "id": "3f03731f-93d7-46d3-a2df-b567e2767019",
+      "validated_at": "2026-10-18T13:43:07Z",
+      "expires_at": "2026-10-18T13:58:07Z",
+      "root": "eb3418efb2737eb248c9eff1b9cf6c14cbb2208fe6c3bbcbade5bb5e474a6846",
+      "namespace": {
+        "dataset_id": "fc538308-0a6a-4aeb-8726-9511632709b5",
+        "epoch": "fe653a34-8744-41ec-a251-dc67c9f2d487",
+        "server_id": "ba974cf5-c0ac-4260-a669-d69a2b47378b"
+      },
+      "principal": 1,
+      "new_durable_objects": 15178,
+      "progress_links_attempted": 15178,
+      "commits": 2312,
+      "new_object_commits": 2309,
+      "cache_only_commits": 0,
+      "decoded_bytes": 37175954,
+      "response_entity_bytes": 52039021,
+      "request_entity_bytes": 18622312,
+      "object_requests": 2310,
+      "success_responses": 2309,
+      "http_statuses": {
+        "200": 2309,
+        "410": 1
+      },
+      "client_headers_to_terminal_error_seconds": 899.726783,
+      "first_object_scheduling_after_manifest_seconds": 0.062485,
+      "first_64_cached_progress_commit_after_manifest_seconds": null,
+      "insert_to_commit_seconds": 38.597618,
+      "cache_progress_lower_bound_seconds": 0.0,
+      "redownload_prior_observation": 0,
+      "repeated_same_observation": 0
+    },
+    {
+      "attempt": 2,
+      "id": "aa4411cd-3140-48c4-a2c3-e95ec023dddc",
+      "validated_at": "2026-10-18T13:58:07Z",
+      "expires_at": "2026-10-18T14:13:07Z",
+      "root": "eb3418efb2737eb248c9eff1b9cf6c14cbb2208fe6c3bbcbade5bb5e474a6846",
+      "namespace": {
+        "dataset_id": "fc538308-0a6a-4aeb-8726-9511632709b5",
+        "epoch": "fe653a34-8744-41ec-a251-dc67c9f2d487",
+        "server_id": "ba974cf5-c0ac-4260-a669-d69a2b47378b"
+      },
+      "principal": 1,
+      "new_durable_objects": 11946,
+      "progress_links_attempted": 26931,
+      "commits": 2827,
+      "new_object_commits": 2561,
+      "cache_only_commits": 263,
+      "decoded_bytes": 6029447,
+      "response_entity_bytes": 10082235,
+      "request_entity_bytes": 15021688,
+      "object_requests": 2562,
+      "success_responses": 2561,
+      "http_statuses": {
+        "200": 2561,
+        "410": 1
+      },
+      "client_headers_to_terminal_error_seconds": 899.532512,
+      "first_object_scheduling_after_manifest_seconds": 35.669482,
+      "first_64_cached_progress_commit_after_manifest_seconds": 20.129584,
+      "insert_to_commit_seconds": 33.24055,
+      "cache_progress_lower_bound_seconds": 9.693263,
+      "redownload_prior_observation": 0,
+      "repeated_same_observation": 0
+    },
+    {
+      "attempt": 3,
+      "id": "224fa000-9291-489c-836e-5ada90885b8e",
+      "validated_at": "2026-10-18T14:13:07Z",
+      "expires_at": "2026-10-18T14:28:07Z",
+      "root": "eb3418efb2737eb248c9eff1b9cf6c14cbb2208fe6c3bbcbade5bb5e474a6846",
+      "namespace": {
+        "dataset_id": "fc538308-0a6a-4aeb-8726-9511632709b5",
+        "epoch": "fe653a34-8744-41ec-a251-dc67c9f2d487",
+        "server_id": "ba974cf5-c0ac-4260-a669-d69a2b47378b"
+      },
+      "principal": 1,
+      "new_durable_objects": 8372,
+      "progress_links_attempted": 35325,
+      "commits": 3103,
+      "new_object_commits": 2649,
+      "cache_only_commits": 450,
+      "decoded_bytes": 4226268,
+      "response_entity_bytes": 7180421,
+      "request_entity_bytes": 10577147,
+      "object_requests": 2650,
+      "success_responses": 2649,
+      "http_statuses": {
+        "200": 2649,
+        "410": 1
+      },
+      "client_headers_to_terminal_error_seconds": 899.54064,
+      "first_object_scheduling_after_manifest_seconds": 44.545411,
+      "first_64_cached_progress_commit_after_manifest_seconds": 18.8459,
+      "insert_to_commit_seconds": 31.36519,
+      "cache_progress_lower_bound_seconds": 12.852585,
+      "redownload_prior_observation": 0,
+      "repeated_same_observation": 0
+    }
+  ],
+  "successful_object_handler_seconds": 2429.598061655,
+  "disjoint_server_work_seconds": {
+    "ObservationRepository._lookup": 1467.744372085,
+    "RetentionSandbox.connect": 554.223805981,
+    "PathResolver.resolve": 368.8348942
+  },
+  "disjoint_server_cpu_seconds": {
+    "ObservationRepository._lookup": 1466.951863852,
+    "RetentionSandbox.connect": 553.935710441,
+    "PathResolver.resolve": 368.711018713
+  },
+  "disjoint_server_work_share": {
+    "ObservationRepository._lookup": 0.6041099535143677,
+    "RetentionSandbox.connect": 0.22811337180746366,
+    "PathResolver.resolve": 0.15180901731077118
+  },
+  "packet_distribution": {
+    "1": {
+      "count": 2816,
+      "handler_median_ms": 293.595148,
+      "decoded_bytes": 30011637
+    },
+    "2": {
+      "count": 2822,
+      "handler_median_ms": 303.8346345,
+      "decoded_bytes": 2826618
+    },
+    "4": {
+      "count": 748,
+      "handler_median_ms": 322.4303255,
+      "decoded_bytes": 1507409
+    },
+    "6": {
+      "count": 140,
+      "handler_median_ms": 344.485985,
+      "decoded_bytes": 1314941
+    },
+    "7": {
+      "count": 1,
+      "handler_median_ms": 310.078933,
+      "decoded_bytes": 35083
+    },
+    "8": {
+      "count": 283,
+      "handler_median_ms": 352.657331,
+      "decoded_bytes": 1152162
+    },
+    "10": {
+      "count": 52,
+      "handler_median_ms": 386.009206,
+      "decoded_bytes": 259304
+    },
+    "11": {
+      "count": 1,
+      "handler_median_ms": 293.712405,
+      "decoded_bytes": 10782
+    },
+    "12": {
+      "count": 52,
+      "handler_median_ms": 404.8227285,
+      "decoded_bytes": 310962
+    },
+    "14": {
+      "count": 61,
+      "handler_median_ms": 414.509365,
+      "decoded_bytes": 428139
+    },
+    "16": {
+      "count": 138,
+      "handler_median_ms": 423.0706665,
+      "decoded_bytes": 1128717
+    },
+    "18": {
+      "count": 11,
+      "handler_median_ms": 461.515738,
+      "decoded_bytes": 98464
+    },
+    "20": {
+      "count": 13,
+      "handler_median_ms": 480.494936,
+      "decoded_bytes": 129659
+    },
+    "22": {
+      "count": 20,
+      "handler_median_ms": 497.989317,
+      "decoded_bytes": 219413
+    },
+    "24": {
+      "count": 30,
+      "handler_median_ms": 519.3642645,
+      "decoded_bytes": 359632
+    },
+    "26": {
+      "count": 34,
+      "handler_median_ms": 527.1045575,
+      "decoded_bytes": 443957
+    },
+    "28": {
+      "count": 31,
+      "handler_median_ms": 549.430381,
+      "decoded_bytes": 435429
+    },
+    "30": {
+      "count": 17,
+      "handler_median_ms": 561.523455,
+      "decoded_bytes": 255291
+    },
+    "32": {
+      "count": 64,
+      "handler_median_ms": 547.354613,
+      "decoded_bytes": 1047514
+    },
+    "34": {
+      "count": 9,
+      "handler_median_ms": 627.268924,
+      "decoded_bytes": 151706
+    },
+    "36": {
+      "count": 1,
+      "handler_median_ms": 639.295469,
+      "decoded_bytes": 17917
+    },
+    "38": {
+      "count": 6,
+      "handler_median_ms": 671.385632,
+      "decoded_bytes": 113186
+    },
+    "40": {
+      "count": 5,
+      "handler_median_ms": 614.554557,
+      "decoded_bytes": 99751
+    },
+    "42": {
+      "count": 2,
+      "handler_median_ms": 695.0880405,
+      "decoded_bytes": 41823
+    },
+    "44": {
+      "count": 1,
+      "handler_median_ms": 690.881896,
+      "decoded_bytes": 22246
+    },
+    "46": {
+      "count": 3,
+      "handler_median_ms": 708.809106,
+      "decoded_bytes": 69351
+    },
+    "48": {
+      "count": 3,
+      "handler_median_ms": 654.159592,
+      "decoded_bytes": 71845
+    },
+    "50": {
+      "count": 6,
+      "handler_median_ms": 748.4707989999999,
+      "decoded_bytes": 151269
+    },
+    "52": {
+      "count": 7,
+      "handler_median_ms": 772.828376,
+      "decoded_bytes": 182556
+    },
+    "54": {
+      "count": 2,
+      "handler_median_ms": 771.1638925,
+      "decoded_bytes": 54185
+    },
+    "56": {
+      "count": 6,
+      "handler_median_ms": 811.2993465,
+      "decoded_bytes": 167909
+    },
+    "58": {
+      "count": 3,
+      "handler_median_ms": 846.229938,
+      "decoded_bytes": 86615
+    },
+    "60": {
+      "count": 10,
+      "handler_median_ms": 861.5921045,
+      "decoded_bytes": 302328
+    },
+    "62": {
+      "count": 9,
+      "handler_median_ms": 811.903399,
+      "decoded_bytes": 283508
+    },
+    "64": {
+      "count": 112,
+      "handler_median_ms": 840.62354,
+      "decoded_bytes": 3640361
+    }
+  },
+  "mean_objects_per_packet": 4.7208405373054925,
+  "successful_decoded_bytes": 47431669,
+  "sampled_resources": {
+    "backend": {
+      "sampled_peak_rss_kib": 511600,
+      "sampled_peak_fds": 21,
+      "max_user_cpu": 2695.64,
+      "max_system_cpu": 31.04
+    },
+    "client": {
+      "sampled_peak_rss_kib": 254472,
+      "sampled_peak_fds": 20,
+      "max_user_cpu": 165.87,
+      "max_system_cpu": 21.21
+    }
+  },
+  "request_header_field_bytes_partial": 1505974,
+  "response_header_field_bytes_partial": 841335,
+  "critical_path_disclaimer": "No TLS/TCP/late-response-body isolation; nested work is not summed. Snapshot/trace overhead included.",
+  "all_targets_equal": true,
+  "no_accepted_publication": true,
+  "commit_new_count_matches_usage": true
+}

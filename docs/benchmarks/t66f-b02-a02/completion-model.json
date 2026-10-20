@@ -1,0 +1,229 @@
+{
+  "scope": "MODEL-BASED ESTIMATE; 새 product/full100k 성공 증거가 아님",
+  "fixed_ttl_s": 900,
+  "max_observations": 3,
+  "target_objects": 400532,
+  "calibration_tail_wall_s_per_new_object": 0.007634236102554214,
+  "calibration_first_attempt_extra_s": 125.25886265361873,
+  "renewal_gap_intercept_s": 22.121311760250933,
+  "renewal_gap_s_per_cached_object": 0.0009077092168652344,
+  "tail_handler_s_per_new_object": 0.005736036135016309,
+  "assumptions": [
+    "같은 Target와 작은 Patricia object tail 처리량 유지",
+    "첫 raw-heavy overhead를 codec 개선 후에도 그대로 남기는 보수적 단순화",
+    "codec 감소율은 microbenchmark의 실제 중복 encode 시간 share와 같다고 가정; 실제 수정 효과는 미검증",
+    "same-target private traversal continuation이 재순회 gap을 제거한다고 가정; auth/manifest 검사는 제거하지 않음",
+    "추가 stage/terminal guard 몇 초 및 host variance는 별도 불확실성",
+    "E3/E4는 E2 terminal 후 수행되므로 observation-transfer 모델 밖"
+  ],
+  "scenarios": {
+    "codec_fraction_0_same_target_continuation_False": {
+      "completed_objects_estimate": 295096.76815770066,
+      "missing_objects_estimate": 105435.23184229934,
+      "within_three_estimate": false,
+      "wall_seconds_estimate": 2700.0,
+      "steps": [
+        {
+          "attempt": 1,
+          "renewal_gap_s": 0,
+          "new_objects_estimate": 101482.47014356463,
+          "elapsed_s": 900.0
+        },
+        {
+          "attempt": 2,
+          "renewal_gap_s": 114.23788525981551,
+          "new_objects_estimate": 102926.09557586112,
+          "elapsed_s": 900.0
+        },
+        {
+          "attempt": 3,
+          "renewal_gap_s": 207.66485086997665,
+          "new_objects_estimate": 90688.20243827491,
+          "elapsed_s": 900.0
+        }
+      ]
+    },
+    "codec_fraction_0_same_target_continuation_True": {
+      "completed_objects_estimate": 337262.4454835685,
+      "missing_objects_estimate": 63269.554516431526,
+      "within_three_estimate": false,
+      "wall_seconds_estimate": 2700.0,
+      "steps": [
+        {
+          "attempt": 1,
+          "renewal_gap_s": 0,
+          "new_objects_estimate": 101482.47014356463,
+          "elapsed_s": 900.0
+        },
+        {
+          "attempt": 2,
+          "renewal_gap_s": 0,
+          "new_objects_estimate": 117889.98767000194,
+          "elapsed_s": 900.0
+        },
+        {
+          "attempt": 3,
+          "renewal_gap_s": 0,
+          "new_objects_estimate": 117889.98767000194,
+          "elapsed_s": 900.0
+        }
+      ]
+    },
+    "codec_fraction_0.2_same_target_continuation_False": {
+      "completed_objects_estimate": 340065.4979430441,
+      "missing_objects_estimate": 60466.502056955884,
+      "within_three_estimate": false,
+      "wall_seconds_estimate": 2700.0,
+      "steps": [
+        {
+          "attempt": 1,
+          "renewal_gap_s": 0,
+          "new_objects_estimate": 119429.27219983762,
+          "elapsed_s": 900.0
+        },
+        {
+          "attempt": 2,
+          "renewal_gap_s": 130.52836289955044,
+          "new_objects_estimate": 118616.95883619714,
+          "elapsed_s": 900.0
+        },
+        {
+          "attempt": 3,
+          "renewal_gap_s": 238.1980697116907,
+          "new_objects_estimate": 102019.26690700934,
+          "elapsed_s": 900.0
+        }
+      ]
+    },
+    "codec_fraction_0.2_same_target_continuation_True": {
+      "completed_objects_estimate": 396906.0700577975,
+      "missing_objects_estimate": 3625.9299422025215,
+      "within_three_estimate": false,
+      "wall_seconds_estimate": 2700.0,
+      "steps": [
+        {
+          "attempt": 1,
+          "renewal_gap_s": 0,
+          "new_objects_estimate": 119429.27219983762,
+          "elapsed_s": 900.0
+        },
+        {
+          "attempt": 2,
+          "renewal_gap_s": 0,
+          "new_objects_estimate": 138738.3989289799,
+          "elapsed_s": 900.0
+        },
+        {
+          "attempt": 3,
+          "renewal_gap_s": 0,
+          "new_objects_estimate": 138738.3989289799,
+          "elapsed_s": 900.0
+        }
+      ]
+    },
+    "codec_fraction_0.25_same_target_continuation_False": {
+      "completed_objects_estimate": 353493.3913235738,
+      "missing_objects_estimate": 47038.60867642623,
+      "within_three_estimate": false,
+      "wall_seconds_estimate": 2700.0,
+      "steps": [
+        {
+          "attempt": 1,
+          "renewal_gap_s": 0,
+          "new_objects_estimate": 124953.67165582028,
+          "elapsed_s": 900.0
+        },
+        {
+          "attempt": 2,
+          "renewal_gap_s": 135.54291120339118,
+          "new_objects_estimate": 123295.01489443773,
+          "elapsed_s": 900.0
+        },
+        {
+          "attempt": 3,
+          "renewal_gap_s": 247.45893261660868,
+          "new_objects_estimate": 105244.70477331577,
+          "elapsed_s": 900.0
+        }
+      ]
+    },
+    "codec_fraction_0.25_same_target_continuation_True": {
+      "completed_objects_estimate": 400532.0,
+      "missing_objects_estimate": 0.0,
+      "within_three_estimate": true,
+      "wall_seconds_estimate": 2608.648210974275,
+      "steps": [
+        {
+          "attempt": 1,
+          "renewal_gap_s": 0,
+          "new_objects_estimate": 124953.67165582028,
+          "elapsed_s": 900.0
+        },
+        {
+          "attempt": 2,
+          "renewal_gap_s": 0,
+          "new_objects_estimate": 145155.9741301809,
+          "elapsed_s": 900.0
+        },
+        {
+          "attempt": 3,
+          "renewal_gap_s": 0,
+          "new_objects_estimate": 130422.35421399883,
+          "elapsed_s": 808.6482109742751
+        }
+      ]
+    },
+    "codec_fraction_0.28_same_target_continuation_False": {
+      "completed_objects_estimate": 362060.99262095004,
+      "missing_objects_estimate": 38471.00737904996,
+      "within_three_estimate": false,
+      "wall_seconds_estimate": 2700.0,
+      "steps": [
+        {
+          "attempt": 1,
+          "renewal_gap_s": 0,
+          "new_objects_estimate": 128520.63292865935,
+          "elapsed_s": 900.0
+        },
+        {
+          "attempt": 2,
+          "renewal_gap_s": 138.78067482694857,
+          "new_objects_estimate": 126277.52000346841,
+          "elapsed_s": 900.0
+        },
+        {
+          "attempt": 3,
+          "renewal_gap_s": 253.40394361698085,
+          "new_objects_estimate": 107262.83968882228,
+          "elapsed_s": 900.0
+        }
+      ]
+    },
+    "codec_fraction_0.28_same_target_continuation_True": {
+      "completed_objects_estimate": 400532.0,
+      "missing_objects_estimate": 0.0,
+      "within_three_estimate": true,
+      "wall_seconds_estimate": 2539.7242302173645,
+      "steps": [
+        {
+          "attempt": 1,
+          "renewal_gap_s": 0,
+          "new_objects_estimate": 128520.63292865935,
+          "elapsed_s": 900.0
+        },
+        {
+          "attempt": 2,
+          "renewal_gap_s": 0,
+          "new_objects_estimate": 149299.6357879972,
+          "elapsed_s": 900.0000000000001
+        },
+        {
+          "attempt": 3,
+          "renewal_gap_s": 0,
+          "new_objects_estimate": 122711.73128334346,
+          "elapsed_s": 739.7242302173646
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,172 @@
+{
+  "out": "/tmp/mn-a02-checks-23f4216q",
+  "commands": [
+    {
+      "name": "flutter-analyze-final",
+      "args": [
+        "/home/hjkerman/.flutter/bin/flutter",
+        "analyze",
+        "--no-pub"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/mobile",
+      "synthetic_outputs": {},
+      "log": "/tmp/mn-a02-flutter-analyze-final.log",
+      "exit": 0,
+      "elapsed_seconds": 4.436565476004034
+    },
+    {
+      "name": "flutter-build-final",
+      "args": [
+        "/home/hjkerman/.flutter/bin/flutter",
+        "build",
+        "apk",
+        "--debug",
+        "--no-pub"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/mobile",
+      "synthetic_outputs": {},
+      "log": "/tmp/mn-a02-flutter-build-final.log",
+      "exit": 0,
+      "elapsed_seconds": 52.4985072130803
+    },
+    {
+      "name": "npm-build-final",
+      "args": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/frontend",
+      "synthetic_outputs": {},
+      "log": "/tmp/mn-a02-npm-build-final.log",
+      "exit": 0,
+      "elapsed_seconds": 8.497152889030986
+    },
+    {
+      "name": "ruff-final-check",
+      "args": [
+        "/home/hjkerman/codex/money-note/.venv/bin/ruff",
+        "check",
+        "backend",
+        "docs/benchmarks/t66f-b02-a02-correction"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note",
+      "synthetic_outputs": {},
+      "log": "/tmp/mn-a02-ruff-final-check.log",
+      "exit": 0,
+      "elapsed_seconds": 0.01400410896167159
+    },
+    {
+      "name": "compileall-final-check",
+      "args": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "compileall",
+        "-q",
+        "backend",
+        "docs/benchmarks/t66f-b02-a02-correction"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note",
+      "synthetic_outputs": {},
+      "log": "/tmp/mn-a02-compileall-final-check.log",
+      "exit": 0,
+      "elapsed_seconds": 0.11241400998551399
+    },
+    {
+      "name": "dart-format-final",
+      "args": [
+        "/home/hjkerman/.flutter/bin/cache/dart-sdk/bin/dart",
+        "format",
+        "--output=none",
+        "--set-exit-if-changed",
+        "docs/benchmarks/t66f-b02-a01-correction/before_fetch.dart",
+        "docs/benchmarks/t66f-b02-a01-correction/failed_cursor_fetch.dart",
+        "docs/benchmarks/t66f-b02-a01-correction/full_http_test.dart",
+        "docs/benchmarks/t66f-b02-a01-correction/verify_reads.dart",
+        "docs/benchmarks/t66f-b02-a01/cold_test.dart",
+        "docs/benchmarks/t66f-b02-a01/e1_component.dart",
+        "docs/benchmarks/t66f-b02-a01/reuse_diagnostic_test.dart",
+        "docs/benchmarks/t66f-b02-a01/runtime.dart",
+        "docs/benchmarks/t66f-b02-a01/sink_probe.dart",
+        "docs/benchmarks/t66f-b02-a01/sink_transport_probe.dart",
+        "docs/benchmarks/t66f-b02-a02-correction/before_fetch.dart",
+        "docs/benchmarks/t66f-b02-a02-correction/continuation_crash_worker.dart",
+        "docs/benchmarks/t66f-b02-a02-correction/full_http_test.dart",
+        "docs/benchmarks/t66f-b02-a02-correction/renewal_benchmark.dart",
+        "docs/benchmarks/t66f-b02-a02/renewal_cost.dart",
+        "docs/benchmarks/t66f-b02-a02/renewal_trace_attempt.dart",
+        "docs/benchmarks/t66f-b02-implementation/large_crash_worker.dart",
+        "docs/benchmarks/t66f-b02-implementation/large_http_test.dart",
+        "docs/benchmarks/t66f-b02-implementation/reopen.dart",
+        "docs/benchmarks/t66f-b02-implementation/verification_profile.dart",
+        "mobile/lib/src/app_state.dart",
+        "mobile/lib/src/segmented/fetch.dart",
+        "mobile/lib/src/segmented/protocol.dart",
+        "mobile/lib/src/segmented/store.dart",
+        "mobile/test/segmented_adapter_isolation_test.dart",
+        "mobile/test/segmented_cold_continuation_crash_test.dart",
+        "mobile/test/segmented_cold_continuation_test.dart",
+        "mobile/test/segmented_cold_packet_test.dart",
+        "mobile/test/segmented_large_batch_test.dart",
+        "mobile/test/segmented_large_profile_authority_test.dart",
+        "mobile/test/segmented_large_profile_crash_test.dart",
+        "mobile/test/segmented_large_profile_test.dart",
+        "mobile/test/support/segmented_large_transport.dart"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note",
+      "synthetic_outputs": {},
+      "log": "/tmp/mn-a02-dart-format-final.log",
+      "exit": 1,
+      "elapsed_seconds": 0.42804589204024523
+    },
+    {
+      "name": "new-python-format-final",
+      "args": [
+        "/home/hjkerman/codex/money-note/.venv/bin/ruff",
+        "format",
+        "--check",
+        "docs/benchmarks/t66f-b02-a02-correction/artifact_review.py",
+        "docs/benchmarks/t66f-b02-a02-correction/run_http.py",
+        "docs/benchmarks/t66f-b02-a02-correction/capture.py",
+        "docs/benchmarks/t66f-b02-a02-correction/final_evidence.py",
+        "docs/benchmarks/t66f-b02-a02-correction/format_review.py",
+        "docs/benchmarks/t66f-b02-a02-correction/preserve.py",
+        "docs/benchmarks/t66f-b02-a02-correction/progress.py",
+        "docs/benchmarks/t66f-b02-a02-correction/validate.py",
+        "docs/benchmarks/t66f-b02-a02-correction/codec_benchmark.py",
+        "backend/tests/test_isolated_sync_c1_single_encode.py",
+        "backend/tests/test_isolated_sync_prefix_reuse.py"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note",
+      "synthetic_outputs": {},
+      "log": "/tmp/mn-a02-new-python-format-final.log",
+      "exit": 0,
+      "elapsed_seconds": 0.015804030001163483
+    },
+    {
+      "name": "original-format-deviations",
+      "args": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a02-correction/format_review.py"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note",
+      "synthetic_outputs": {},
+      "log": "/tmp/mn-a02-original-format-deviations.log",
+      "exit": 0,
+      "elapsed_seconds": 0.24941552395466715
+    },
+    {
+      "name": "git-diff-check-final",
+      "args": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note",
+      "synthetic_outputs": {},
+      "log": "/tmp/mn-a02-git-diff-check-final.log",
+      "exit": 0,
+      "elapsed_seconds": 0.014844376011751592
+    }
+  ]
+}

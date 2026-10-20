@@ -1,0 +1,46 @@
+{
+  "wire": {
+    "requests": 2357,
+    "status_201": 2,
+    "request_entity_bytes": 19779602,
+    "response_entity_bytes": 52775882,
+    "handler_ns": 815544759308,
+    "observation_requests": 2,
+    "status_200": 2352,
+    "object_requests": 2352,
+    "chunks": 16070,
+    "decoded_object_bytes": 37626743,
+    "status_410": 1,
+    "status_204": 2,
+    "release_requests": 2
+  },
+  "failures": [
+    {
+      "status": 410,
+      "method": "POST",
+      "path": "/api/sync/v1/observations/3ee331d2-de5c-42ed-b4d7-9a0529d52df1/objects",
+      "body": {
+        "error": {
+          "action": "new_observation",
+          "code": "OBSERVATION_EXPIRED",
+          "current_ns": null,
+          "retry_after_ms": null
+        },
+        "protocol": 1,
+        "request_id": "4099e7ac-50d1-42cb-bfdb-6fe058fd5095"
+      },
+      "wall_time": 1792330016.37672
+    }
+  ],
+  "backend_measurements": {
+    "operations": 2354,
+    "admission_ms": 282364.51774276793,
+    "resolution_ms": 184506.06232671998,
+    "terminal_serialization_ms": 1215.1874963310547,
+    "prepared_ms": 529224.4574105716,
+    "object_reads": 282685,
+    "object_bytes_read": 173878071,
+    "path_edges": 266615,
+    "decoded_bytes": 37626743
+  }
+}

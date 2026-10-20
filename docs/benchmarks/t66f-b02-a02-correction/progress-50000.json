@@ -1,0 +1,47 @@
+{
+  "offset": 12944045,
+  "requests": 3270,
+  "objects": 200425,
+  "http_bytes": 204336892,
+  "observations": {
+    "4a62f639-bcee-4a07-af4b-7450ab4e3981": {
+      "validated_at": "2026-10-19T12:06:25Z",
+      "expires_at": "2026-10-19T12:21:25Z"
+    },
+    "a523414e-c547-4d9a-a741-604981059716": {
+      "validated_at": "2026-10-19T12:21:25Z",
+      "expires_at": "2026-10-19T12:36:25Z"
+    },
+    "ec5e081a-2647-4a17-8d8d-4b7c55b3123d": {
+      "validated_at": "2026-10-19T12:30:42Z",
+      "expires_at": "2026-10-19T12:45:42Z"
+    },
+    "4fdc145b-4c84-4ec6-bf47-79f6ef8ad6db": {
+      "validated_at": "2026-10-19T12:31:10Z",
+      "expires_at": "2026-10-19T12:46:10Z"
+    },
+    "f76af1bd-8b49-4a26-a986-b9cce61c3c00": {
+      "validated_at": "2026-10-19T12:31:45Z",
+      "expires_at": "2026-10-19T12:46:45Z"
+    },
+    "d0935be4-88e8-481f-8304-b7cb432c0ca1": {
+      "validated_at": "2026-10-19T12:45:52Z",
+      "expires_at": "2026-10-19T13:00:52Z"
+    }
+  },
+  "statuses": {
+    "201": 6,
+    "200": 3257,
+    "410": 1,
+    "204": 6
+  },
+  "phases": [
+    "identical",
+    "one_row_delta",
+    "multiple_localized",
+    "restart_delta"
+  ],
+  "elapsed_seconds": 2623.1,
+  "phase": "PASS_COLD_IDENTICAL_DELTAS_RESTART",
+  "n": 50000
+}

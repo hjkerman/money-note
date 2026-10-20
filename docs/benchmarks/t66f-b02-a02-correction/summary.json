@@ -1,0 +1,63 @@
+{
+  "classification": "INCOMPLETE \u2014 exact artifact approval/Flutter runtime gates pending",
+  "backend_new_c1_tests": 25,
+  "nested_differential_cases": 10000,
+  "backend_new_plus_prefix": 53,
+  "existing_canonical": 34,
+  "strict_b01": 1,
+  "targeted_backend_unique_tests": 88,
+  "flutter_control": {
+    "passed": 0,
+    "failed": 1,
+    "reason": "UNSUPPORTED_CONTRACT \u2014 new exact engine not approved, before E2 acquisition"
+  },
+  "cost": {
+    "shared": {
+      "before": {
+        "median_seconds": 0.27723253890872,
+        "encode_calls": 1165,
+        "encoded_output_bytes": 1957162,
+        "sql": 566,
+        "exact_response_sha256": "17569144270059909ffce46911ec30831b1c08d9ceb02ce95caa330d6e569de9"
+      },
+      "after": {
+        "median_seconds": 0.20803650107700378,
+        "encode_calls": 583,
+        "encoded_output_bytes": 1008948,
+        "sql": 566,
+        "exact_response_sha256": "17569144270059909ffce46911ec30831b1c08d9ceb02ce95caa330d6e569de9"
+      }
+    },
+    "spread": {
+      "before": {
+        "median_seconds": 0.40264254808425903,
+        "encode_calls": 3067,
+        "encoded_output_bytes": 2924011,
+        "sql": 883,
+        "exact_response_sha256": "ddc51429b393663c3bfd5296f314d0f67933bbc29ac0b497c04dc2866468c7b7"
+      },
+      "after": {
+        "median_seconds": 0.293997542001307,
+        "encode_calls": 1534,
+        "encoded_output_bytes": 1491468,
+        "sql": 883,
+        "exact_response_sha256": "ddc51429b393663c3bfd5296f314d0f67933bbc29ac0b497c04dc2866468c7b7"
+      }
+    }
+  },
+  "full_suites_rerun": false,
+  "real_50k_rerun": false,
+  "real_100k_rerun": false,
+  "source_lock_modified": false,
+  "artifact_modified": false,
+  "static_checks": {
+    "changed_dart_analyze": "PASS",
+    "ruff": "PASS",
+    "compileall": "PASS",
+    "npm_build": "PASS",
+    "changed_file_format": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "commit": null,
+  "push": false
+}

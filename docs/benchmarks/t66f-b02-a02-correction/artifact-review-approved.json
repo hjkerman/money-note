@@ -1,0 +1,20 @@
+{
+  "approval": "사용자: 승인합니다. — 새 exact engine와 기존 두 exact engine만 유지",
+  "new_engine": "7ad114bc3ca9c06f56ffca2c5efdc9a026a665feada99ece7c90cdf0d0208d6c",
+  "previous_engine": "afe26b70856b5a3fa06477641d91e8e1784e9184906281843f0a39a9c99cbdf5",
+  "historical_engine": "f34aef259c801ada33ccb88cfb103ee6654fb4467c49a66ce509f2239ffe449d",
+  "changed_sources": {
+    "isolated_sync/canonical.py": {
+      "old": "3202c48ec6d38158e7e4eca43177285bf5068aa1c6f31af70796e2d97dc8565f",
+      "new": "dbce387d431a973547650c1beb122a76c8fcc785f7c8847a79484553c096476f"
+    }
+  },
+  "unchanged": [
+    "versions",
+    "raw_schema",
+    "projection_schema",
+    "policy_registry",
+    "engine profile"
+  ],
+  "previous_artifact_sha256": "e46ea0c59ec8f3fb78d2ad8ac2b836da948d50bd2246508b219d8ee9d9c39ad8"
+}

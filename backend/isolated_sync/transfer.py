@@ -7,6 +7,7 @@ of each requested immutable object (including an oversized singleton).
 """
 
 import base64
+from collections import OrderedDict
 from dataclasses import dataclass
 import sqlite3
 from time import perf_counter
@@ -120,16 +121,51 @@ class Edge:
 class PathResolver:
     """No client-supplied parent is trusted; each edge comes from verified bytes.
 
-    Zero object cache bounds retention to the object currently being validated.
+    Zero object cache bounds payload retention to the current object. Optional
+    verified PREFIX metadata is private to one acquire/transaction, never a
+    terminal-object, authorization, or cross-request cache.
     Empty/row/fact hash strings are never interpreted as graph edges.
     """
 
-    def __init__(self, conn, repo, target, check_cancelled=None):
+    def __init__(self, conn, repo, target, check_cancelled=None, *, prefix_capacity=0, prefix_bytes=0):
         self.conn, self.repo, self.target = conn, repo, target
         self.check_cancelled = check_cancelled
         self.context = Context(Namespace(**target["ns"]), target["versions"]["raw_schema"])
         self.store = Store(conn, self.context, capacity=0)
         self.reads = self.bytes_read = 0
+        if not 0 <= prefix_capacity <= 64*512 or not 0 <= prefix_bytes <= MIB:
+            reject("INVALID_LIMITS")
+        self._prefix_capacity, self._prefix_budget = prefix_capacity, prefix_bytes
+        self._prefixes = OrderedDict()
+        self._prefix_size = 0
+        self._transaction_changes = conn.total_changes
+        self.prefix_hits = self.prefix_misses = self.prefix_peak = self.prefix_byte_peak = 0
+
+    def clear_prefixes(self):
+        self._prefixes.clear()
+        self._prefix_size = 0
+
+    def _prefix_key(self, path, position, edge):
+        # Component identity, never textual startswith or hash-only reuse. The
+        # request owns a fixed Target/NS/Versions and a private locked connection.
+        d = edge.desc
+        desc = None if d is None else (d["height"], d["count"],
+                None if d["min"] is None else tuple(d["min"]),
+                None if d["max"] is None else tuple(d["max"]))
+        return (tuple(path[:position+1]), edge.ref["hash"], edge.ref["bytes"],
+                edge.kinds, edge.table, desc, edge.root, edge.prefix, edge.count, edge.parent_count)
+
+    def _remember_prefix(self, key, children, size):
+        if not self._prefix_capacity or size > self._prefix_budget:
+            return  # Oversized metadata follows the original strict path.
+        while self._prefixes and (len(self._prefixes) >= self._prefix_capacity or
+                                  self._prefix_size+size > self._prefix_budget):
+            _, (_, charge) = self._prefixes.popitem(last=False)
+            self._prefix_size -= charge
+        self._prefixes[key] = (children, size)
+        self._prefix_size += size
+        self.prefix_peak = max(self.prefix_peak, len(self._prefixes))
+        self.prefix_byte_peak = max(self.prefix_byte_peak, self._prefix_size)
 
     def resolve(self, path):
         roots = {self.target[role+"_ref"]["hash"]: Edge(self.target[role+"_ref"], frozenset({kind}), root=True)
@@ -142,6 +178,26 @@ class PathResolver:
                 self.check_cancelled()
             if digest != edge.ref["hash"]:
                 reject("INVALID_REQUEST")
+            terminal = position == len(path)-1
+            key = None
+            if self._prefix_capacity:
+                # acquire is synchronous under the original BEGIN IMMEDIATE;
+                # no await or foreign writer can intervene. Do not reuse after
+                # an unexpected transaction loss or local write either.
+                if not self.conn.in_transaction or self.conn.total_changes != self._transaction_changes:
+                    self.clear_prefixes()
+                    reject("REQUIRED_METADATA_INVALID")
+                if not terminal:
+                    key = self._prefix_key(path, position, edge)
+                    cached = self._prefixes.get(key)
+                    if cached is not None:
+                        self._prefixes.move_to_end(key)
+                        self.prefix_hits += 1
+                        edge = cached[0].get(path[position+1])
+                        if edge is None:
+                            reject("INVALID_REQUEST")
+                        continue
+                    self.prefix_misses += 1
             self.reads += 1
             try:
                 if edge.kinds <= {"hot", "control"}:
@@ -159,8 +215,10 @@ class PathResolver:
                 if error.code == "INVALID_REQUEST":
                     reject("REQUIRED_METADATA_INVALID")
                 raise
-            if position == len(path)-1:
+            if terminal:
                 return obj
+            if key is not None:
+                self._remember_prefix(key, children, len(obj.raw))
             edge = children.get(path[position+1])
             if edge is None:
                 reject("INVALID_REQUEST")  # No lookup of the forged child.
@@ -295,16 +353,21 @@ class TransferRepository:
             with repo._connection() as (conn, retired):
                 manifest = repo._lookup(conn, retired, observation_id, credential, guard)
                 admitted = perf_counter()
-                resolver = PathResolver(conn, repo, manifest["target"], check_cancelled)
+                resolver = PathResolver(conn, repo, manifest["target"], check_cancelled,
+                                        prefix_capacity=self.limits.batch_items*self.limits.path_depth,
+                                        prefix_bytes=self.limits.batch_decoded_bytes)
                 chunks = []
-                for item in request["items"]:
-                    obj = resolver.resolve(item["path"])
-                    offset, length = natural(item["offset"]), item["length"]
-                    if offset+length > len(obj.raw):
-                        reject("INVALID_REQUEST")
-                    chunks.append(dict(ref=obj.ref(), offset=item["offset"], length=length,
-                                       data_base64=base64.b64encode(obj.raw[offset:offset+length]).decode("ascii")))
-                    del obj
+                try:
+                    for item in request["items"]:
+                        obj = resolver.resolve(item["path"])
+                        offset, length = natural(item["offset"]), item["length"]
+                        if offset+length > len(obj.raw):
+                            reject("INVALID_REQUEST")
+                        chunks.append(dict(ref=obj.ref(), offset=item["offset"], length=length,
+                                           data_base64=base64.b64encode(obj.raw[offset:offset+length]).decode("ascii")))
+                        del obj
+                finally:
+                    resolver.clear_prefixes()  # Before terminal guard/DB close, including errors/cancellation.
                 resolved = perf_counter()
                 if check_cancelled:
                     check_cancelled()
@@ -321,6 +384,8 @@ class TransferRepository:
             return payload, dict(admission_ms=(admitted-started)*1000, resolution_ms=(resolved-admitted)*1000,
                                  terminal_serialization_ms=(finished-resolved)*1000, total_ms=(perf_counter()-started)*1000,
                                  object_reads=resolver.reads, object_bytes_read=resolver.bytes_read, response_bytes=len(payload),
+                                 prefix_cache_hits=resolver.prefix_hits, prefix_validations=resolver.prefix_misses,
+                                 prefix_cache_peak=resolver.prefix_peak, prefix_cache_peak_bytes=resolver.prefix_byte_peak,
                                  decoded_bytes=sum(i["length"] for i in request["items"]), path_edges=sum(len(i["path"])-1 for i in request["items"]))
         except CanonicalError as error:
             if str(error) == "REJECT_OBJECT_MISSING":

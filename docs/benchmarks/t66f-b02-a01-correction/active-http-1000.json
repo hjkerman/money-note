@@ -1,0 +1,18 @@
+{
+  "n": 1000,
+  "out": "/tmp/mn-a01-corrected-1000-8ik1ddbj",
+  "args": [
+    "/home/hjkerman/.flutter/bin/flutter",
+    "test",
+    "--no-pub",
+    "--machine",
+    "--dart-define=B02_N=1000",
+    "--dart-define=B02_OUT=/tmp/mn-a01-corrected-1000-8ik1ddbj",
+    "--dart-define=B02_COMPLETE_PLAN=true",
+    "../docs/benchmarks/t66f-b02-a01-correction/full_http_test.dart"
+  ],
+  "started_utc": 1792370747.9413521,
+  "external_guard_seconds": 7200,
+  "lease_seconds": 900,
+  "observations": 3
+}

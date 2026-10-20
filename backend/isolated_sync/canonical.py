@@ -128,8 +128,8 @@ def _int_token(token):
     return integer(int(token))
 
 
-def decode_json(raw):
-    """Strict admission (noncanonical JSON is allowed only for vector/input use)."""
+def _parse_json(raw):
+    """Strict token parsing; callers MUST also encode to admit nested values."""
     if type(raw) is not bytes:
         fail("REJECT_TYPE")
     try:
@@ -139,12 +139,20 @@ def decode_json(raw):
                            parse_constant=lambda _: fail("REJECT_NUMBER"))
     except (UnicodeDecodeError, json.JSONDecodeError, RecursionError):
         fail("REJECT_JSON")
+    return value
+
+
+def decode_json(raw):
+    """Strict admission (noncanonical JSON is allowed only for vector/input use)."""
+    value = _parse_json(raw)
     encode(value)  # includes ALL nested strings and map keys, not just row fields
     return value
 
 
 def decode_c1(raw):
-    value = decode_json(raw)
+    value = _parse_json(raw)
+    # One identical encode establishes BOTH nested admission and exact C1.
+    # Do not bypass encode: JSON parsing alone admits e.g. escaped surrogates.
     if encode(value) != raw:
         fail("REJECT_CANONICAL")
     return value

@@ -1,0 +1,35 @@
+{
+  "flutter_current": {
+    "counts": {
+      "success": 50,
+      "skip": 0,
+      "failure": 0
+    },
+    "done": {
+      "success": true,
+      "type": "done",
+      "time": 100732
+    },
+    "failures": [],
+    "exit": 0,
+    "hidden_success_events": 5
+  },
+  "backend_current": {
+    "tests": 29,
+    "exit": 0
+  },
+  "flutter_prior_full": {
+    "counts": {
+      "success": 1578,
+      "skip": 2,
+      "failure": 0
+    },
+    "done": {
+      "success": true,
+      "type": "done",
+      "time": 4162366
+    },
+    "classification": "이전 구현자 실행; 이번 전체 재실행 아님",
+    "hidden_success_events": 107
+  }
+}

@@ -1,0 +1,573 @@
+{
+  "first_out": "/tmp/mn-b02-a01-20261018-220659",
+  "confirmation_out": "/tmp/mn-b02-a01-20261018-223750",
+  "starting_head": "6282c1c3577c42bba9382d786745d583a5d88236",
+  "full_flutter": "NOT RERUN",
+  "full_backend": "NOT RERUN",
+  "r1": "CLOSED",
+  "new_commit": null,
+  "push": false,
+  "first": {
+    "execution": {
+      "exit_code": 1,
+      "externally_terminated": false,
+      "elapsed_seconds": 1235.6292819830123
+    },
+    "result": {
+      "n": 50000,
+      "fixture": {
+        "objects": 200331,
+        "canonical_bytes": 130710592,
+        "kinds": {
+          "control": 1,
+          "hot": 1,
+          "index-root": 1,
+          "index-node": 100056,
+          "index-leaf": 100057,
+          "raw-root": 1,
+          "snapshot-leaf": 206,
+          "snapshot-node": 8
+        },
+        "kind_bytes": {
+          "control": 3178,
+          "hot": 87364,
+          "index-root": 398,
+          "index-node": 51796743,
+          "index-leaf": 49199831,
+          "raw-root": 2628,
+          "snapshot-leaf": 29583842,
+          "snapshot-node": 36608
+        },
+        "edges": 200327,
+        "max_depth": 22,
+        "max_fanout": 32,
+        "largest_object": 151684,
+        "largest_ref": {
+          "bytes": "151684",
+          "hash": "2a51420ffa873a0e2acf713e91b51b06c174b30dec9e050077bc2a1969ff5909"
+        },
+        "raw_rows": {
+          "app_labels": 19,
+          "app_settings": 7,
+          "notification_candidate_registrations": 1,
+          "card_payment_deferrals": 0,
+          "card_payment_allocations": 1,
+          "card_payment_events": 1,
+          "card_payment_batch_items": 1,
+          "card_payment_batches": 1,
+          "cash_flows": 2,
+          "monthly_panels": 2,
+          "ledger_entries": 50000
+        },
+        "fact_domains": {
+          "pk": 50035,
+          "unique": 50004,
+          "reverse": 6,
+          "ref": 6,
+          "allocation": 1,
+          "aggregate": 2,
+          "context": 1,
+          "context_reverse": 2
+        }
+      },
+      "store_path": "/tmp/mn-b02-a01-20261018-220659/client/segmented-store-v1/01db865fb26c0f4463e5e3807f676b290f5f992ef8bf7606d8e3cd22d7a9a7a5.sqlite",
+      "origin": "https://127.0.0.1:50335",
+      "real_clock": true,
+      "lease_seconds": 900,
+      "selection": "explicit isolated publication parameter",
+      "status": "FAIL_COLD",
+      "profile_object_limit": 500000,
+      "profile_metadata_limit": 402653184,
+      "accepted_before": null,
+      "protected_legacy_before": {
+        "/tmp/mn-b02-a01-20261018-220659/client/offline-mode/baseline.json": "82bd15cb46da558b6bac3aa6e8fd962c4276b3a38c6ce77209f75104ae1820f2",
+        "/tmp/mn-b02-a01-20261018-220659/client/offline-mode/online-write-1.json": "0c9247b4bbf34283a84226fa775b2167c2ee60820ce06b526c91f8e29a2cb50b"
+      },
+      "error": "AcquisitionFailure(TRANSPORT_FAILED,blocked)",
+      "accepted_after": null,
+      "elapsed_us": 937449922,
+      "sampled_client_rss_peak_bytes": 241651712,
+      "client_process_rss_peak_bytes": 249905152,
+      "store_work": {
+        "accepted_reads": 4,
+        "accepted_metadata_reads": 6,
+        "full_recoveries": 1,
+        "transactions": 2632,
+        "object_reads": 78938,
+        "verified_bytes": 187410902,
+        "raw_object_reads": 1070,
+        "graph_nodes_examined": 31449,
+        "index_object_reads": 77864
+      },
+      "fault_boundary_counts": {
+        "after_staging_insert": 2,
+        "before_commit": 2632,
+        "after_commit": 2632,
+        "after_acquisition_insert": 4,
+        "before_object_insert": 16070,
+        "after_object_insert": 16070,
+        "after_edges_insert": 16070,
+        "after_progress_insert": 31759
+      },
+      "protected_legacy_after": {
+        "/tmp/mn-b02-a01-20261018-220659/client/offline-mode/baseline.json": "82bd15cb46da558b6bac3aa6e8fd962c4276b3a38c6ce77209f75104ae1820f2",
+        "/tmp/mn-b02-a01-20261018-220659/client/offline-mode/online-write-1.json": "0c9247b4bbf34283a84226fa775b2167c2ee60820ce06b526c91f8e29a2cb50b"
+      },
+      "usage": {
+        "id": 1,
+        "objects": 16070,
+        "payload": 37626743,
+        "stages": 2,
+        "metadata": 13437438
+      },
+      "acquisition": [
+        {
+          "state": "interrupted",
+          "error_code": "TRANSPORT_FAILED"
+        },
+        {
+          "state": "interrupted",
+          "error_code": "OBSERVATION_EXPIRED"
+        }
+      ],
+      "accepted_sql": [
+        {
+          "id": 1,
+          "current_id": null,
+          "previous_id": null,
+          "sequence": 0,
+          "checksum": "bea580bed62cc7075e2bcc757e592309a294f6128e2b65855e50d502b294e0bd"
+        }
+      ],
+      "generation_count": 0,
+      "pin_rows": 0,
+      "foreign_key_errors": 0,
+      "e1_database_bytes": 53846016,
+      "r1_activation": "CLOSED"
+    },
+    "test": {
+      "counts": {
+        "error": 1
+      },
+      "terminal": {
+        "success": false,
+        "type": "done",
+        "time": 1234197
+      },
+      "errors": [
+        {
+          "test": {
+            "id": 3,
+            "name": "B02-A01 controlled real N50k cold investigation; limits unchanged",
+            "suiteID": 0,
+            "groupIDs": [
+              2
+            ],
+            "metadata": {
+              "skip": false,
+              "skipReason": null
+            },
+            "line": 75,
+            "column": 3,
+            "url": "file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a01/cold_test.dart"
+          },
+          "error": {
+            "testID": 3,
+            "error": "AcquisitionFailure(TRANSPORT_FAILED,blocked)",
+            "stackTrace": "../docs/benchmarks/t66f-b02-a01/cold_test.dart 415:27  main.<fn>\n",
+            "isFailure": false,
+            "type": "error",
+            "time": 1234165
+          }
+        }
+      ]
+    }
+  },
+  "confirmation": {
+    "execution": {
+      "exit_code": 1,
+      "externally_terminated": false,
+      "elapsed_seconds": 3017.959221342986
+    },
+    "result": {
+      "n": 50000,
+      "fixture": {
+        "objects": 200331,
+        "canonical_bytes": 130710592,
+        "kinds": {
+          "control": 1,
+          "hot": 1,
+          "index-root": 1,
+          "index-node": 100056,
+          "index-leaf": 100057,
+          "raw-root": 1,
+          "snapshot-leaf": 206,
+          "snapshot-node": 8
+        },
+        "kind_bytes": {
+          "control": 3178,
+          "hot": 87364,
+          "index-root": 398,
+          "index-node": 51796743,
+          "index-leaf": 49199831,
+          "raw-root": 2628,
+          "snapshot-leaf": 29583842,
+          "snapshot-node": 36608
+        },
+        "edges": 200327,
+        "max_depth": 22,
+        "max_fanout": 32,
+        "largest_object": 151684,
+        "largest_ref": {
+          "bytes": "151684",
+          "hash": "bf4ccc39aec12e076b504989e615f70da8b3160d4dd3774f7efeaec866fb4f3b"
+        },
+        "raw_rows": {
+          "app_labels": 19,
+          "app_settings": 7,
+          "notification_candidate_registrations": 1,
+          "card_payment_deferrals": 0,
+          "card_payment_allocations": 1,
+          "card_payment_events": 1,
+          "card_payment_batch_items": 1,
+          "card_payment_batches": 1,
+          "cash_flows": 2,
+          "monthly_panels": 2,
+          "ledger_entries": 50000
+        },
+        "fact_domains": {
+          "pk": 50035,
+          "unique": 50004,
+          "reverse": 6,
+          "ref": 6,
+          "allocation": 1,
+          "aggregate": 2,
+          "context": 1,
+          "context_reverse": 2
+        }
+      },
+      "store_path": "/tmp/mn-b02-a01-20261018-223750/client/segmented-store-v1/88b34cf53852c9eb346dc77757a760d204862fc1d46bc317575f117cec43849f.sqlite",
+      "origin": "https://127.0.0.1:34251",
+      "real_clock": true,
+      "lease_seconds": 900,
+      "selection": "explicit isolated publication parameter",
+      "status": "FAIL_COLD",
+      "profile_object_limit": 500000,
+      "profile_metadata_limit": 402653184,
+      "accepted_before": null,
+      "protected_legacy_before": {
+        "/tmp/mn-b02-a01-20261018-223750/client/offline-mode/baseline.json": "82bd15cb46da558b6bac3aa6e8fd962c4276b3a38c6ce77209f75104ae1820f2",
+        "/tmp/mn-b02-a01-20261018-223750/client/offline-mode/online-write-1.json": "d7be8bbb174278e60aff3784ae5f97ef787694bc1295c3780dff3b9446ebd9df"
+      },
+      "error": "AcquisitionFailure(OBSERVATION_EXPIRED,new_observation)",
+      "accepted_after": null,
+      "elapsed_us": 2700148186,
+      "sampled_client_rss_peak_bytes": 261636096,
+      "client_process_rss_peak_bytes": 260792320,
+      "store_work": {
+        "accepted_reads": 4,
+        "accepted_metadata_reads": 7,
+        "full_recoveries": 1,
+        "transactions": 8242,
+        "object_reads": 196435,
+        "verified_bytes": 335255291,
+        "raw_object_reads": 1712,
+        "graph_nodes_examined": 77031,
+        "index_object_reads": 194717
+      },
+      "fault_boundary_counts": {
+        "after_staging_insert": 3,
+        "before_commit": 8242,
+        "after_commit": 8242,
+        "after_acquisition_insert": 7,
+        "before_object_insert": 35496,
+        "after_object_insert": 35496,
+        "after_edges_insert": 35496,
+        "after_progress_insert": 77434
+      },
+      "protected_legacy_after": {
+        "/tmp/mn-b02-a01-20261018-223750/client/offline-mode/baseline.json": "82bd15cb46da558b6bac3aa6e8fd962c4276b3a38c6ce77209f75104ae1820f2",
+        "/tmp/mn-b02-a01-20261018-223750/client/offline-mode/online-write-1.json": "d7be8bbb174278e60aff3784ae5f97ef787694bc1295c3780dff3b9446ebd9df"
+      },
+      "usage": {
+        "id": 1,
+        "objects": 35496,
+        "payload": 47431669,
+        "stages": 3,
+        "metadata": 30466493
+      },
+      "acquisition": [
+        {
+          "state": "interrupted",
+          "error_code": "OBSERVATION_EXPIRED"
+        },
+        {
+          "state": "interrupted",
+          "error_code": "OBSERVATION_EXPIRED"
+        },
+        {
+          "state": "interrupted",
+          "error_code": "OBSERVATION_EXPIRED"
+        }
+      ],
+      "accepted_sql": [
+        {
+          "id": 1,
+          "current_id": null,
+          "previous_id": null,
+          "sequence": 0,
+          "checksum": "c4f9f7cd4a9af1c367d204663e8f51a3a24185cce9697ed7eb2bfe2ca3ed6870"
+        }
+      ],
+      "generation_count": 0,
+      "pin_rows": 0,
+      "foreign_key_errors": 0,
+      "e1_database_bytes": 83578880,
+      "r1_activation": "CLOSED"
+    },
+    "test": {
+      "counts": {
+        "error": 1
+      },
+      "terminal": {
+        "success": false,
+        "type": "done",
+        "time": 3016526
+      },
+      "errors": [
+        {
+          "test": {
+            "id": 3,
+            "name": "B02-A01 controlled real N50k cold investigation; limits unchanged",
+            "suiteID": 0,
+            "groupIDs": [
+              2
+            ],
+            "metadata": {
+              "skip": false,
+              "skipReason": null
+            },
+            "line": 86,
+            "column": 3,
+            "url": "file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a01/cold_test.dart"
+          },
+          "error": {
+            "testID": 3,
+            "error": "AcquisitionFailure(OBSERVATION_EXPIRED,new_observation)",
+            "stackTrace": "../docs/benchmarks/t66f-b02-a01/cold_test.dart 426:27  main.<fn>\n",
+            "isFailure": false,
+            "type": "error",
+            "time": 3016495
+          }
+        }
+      ]
+    }
+  },
+  "targeted_flutter": {
+    "counts": {
+      "success": 167,
+      "failure": 2
+    },
+    "terminal": {
+      "success": false,
+      "type": "done",
+      "time": 163681
+    },
+    "errors": [
+      {
+        "test": {
+          "id": 95,
+          "name": "default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/src/segmented/fetch.dart",
+          "suiteID": 77,
+          "groupIDs": [
+            79
+          ],
+          "metadata": {
+            "skip": false,
+            "skipReason": null
+          },
+          "line": 47,
+          "column": 5,
+          "url": "file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"
+        },
+        "error": {
+          "testID": 95,
+          "error": "Expected: 'a1e6b4b549dcb5a11d5e0cabcb7806ff42eb831f4192c40b353a103698721253'\n  Actual: '94a99947e4bdf408124e74aca43f7f4c6c3c2738ab9a76c0ffd77aaeb9285b37'\n   Which: is different.\n          Expected: a1e6b4b549 ...\n            Actual: 94a99947e4 ...\n                    ^\n           Differ at offset 0\n",
+          "stackTrace": "package:matcher                                     expect\npackage:flutter_test/src/widget_tester.dart 473:18  expect\ntest/segmented_adapter_isolation_test.dart 48:7     main.<fn>\n",
+          "isFailure": true,
+          "type": "error",
+          "time": 54283
+        }
+      },
+      {
+        "test": {
+          "id": 102,
+          "name": "AppState E4 entry has no automatic callers or legacy publication/acknowledgment",
+          "suiteID": 77,
+          "groupIDs": [
+            79
+          ],
+          "metadata": {
+            "skip": false,
+            "skipReason": null
+          },
+          "line": 71,
+          "column": 3,
+          "url": "file:///home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart"
+        },
+        "error": {
+          "testID": 102,
+          "error": "Expected: '5b3f22d80f25f87d3df6b694285e288097eedc1d758322a249d2d3ad13b13156'\n  Actual: '5f34523eb50d11ffa96df2c345c7a7f97e9cfde0b5d621630265b89b84033e41'\n   Which: is different.\n          Expected: 5b3f22d80f2 ...\n            Actual: 5f34523eb50 ...\n                     ^\n           Differ at offset 1\n",
+          "stackTrace": "package:matcher                                     expect\npackage:flutter_test/src/widget_tester.dart 473:18  expect\ntest/segmented_adapter_isolation_test.dart 104:5    main.<fn>\n",
+          "isFailure": true,
+          "type": "error",
+          "time": 54326
+        }
+      }
+    ]
+  },
+  "diagnostic_mock_v2": {
+    "counts": {
+      "success": 1
+    },
+    "terminal": {
+      "success": true,
+      "type": "done",
+      "time": 39449
+    },
+    "errors": []
+  },
+  "targeted_backend_suites": [
+    {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "29",
+      "time": "21.632",
+      "timestamp": "2026-10-18T23:31:49.515968+09:00",
+      "hostname": "hjkerman"
+    }
+  ],
+  "postchecks": [
+    {
+      "name": "fresh-reopen",
+      "args": [
+        "/home/hjkerman/.flutter/bin/dart",
+        "--packages=/home/hjkerman/codex/money-note/mobile/.dart_tool/package_config.json",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-implementation/reopen.dart",
+        "/tmp/mn-b02-a01-20261018-223750"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note",
+      "started_utc": 1792333690.6523175,
+      "elapsed_seconds": 53.736929059028625,
+      "exit_code": 0,
+      "timeout": false
+    },
+    {
+      "name": "targeted-flutter",
+      "args": [
+        "/home/hjkerman/.flutter/bin/flutter",
+        "test",
+        "--no-pub",
+        "--machine",
+        "--concurrency=1",
+        "test/segmented_large_profile_test.dart",
+        "test/segmented_large_batch_test.dart",
+        "test/segmented_large_profile_authority_test.dart",
+        "test/segmented_large_profile_crash_test.dart",
+        "test/segmented_adapter_isolation_test.dart",
+        "test/segmented_fetch_test.dart",
+        "test/segmented_response_cleanup_test.dart"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/mobile",
+      "started_utc": 1792333744.389741,
+      "elapsed_seconds": 164.87383803003468,
+      "exit_code": 1,
+      "timeout": false
+    },
+    {
+      "name": "targeted-backend",
+      "args": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_isolated_sync_observation.py::test_repository_connections_close_on_success_and_failure",
+        "tests/test_isolated_sync_observation.py::test_expiration_and_epoch_rotation",
+        "tests/test_isolated_sync_observation.py::test_expired_observation_does_not_resurrect_on_clock_rollback",
+        "tests/test_isolated_sync_observation.py::test_terminal_lease_expiry_is_sticky",
+        "tests/test_isolated_sync_observation.py::test_terminal_before_expiry_remains_valid",
+        "tests/test_isolated_sync_transfer.py::test_exact_expiry_and_rollback_persistence",
+        "tests/test_isolated_sync_transfer.py::test_terminal_auth_expiry_cancellation_after_buffering",
+        "tests/test_isolated_sync_transfer.py::test_bounded_concurrent_quota_and_same_request_status",
+        "tests/test_isolated_sync_transfer.py::test_transfer_concurrency_budget_and_busy_retry",
+        "--junitxml=/tmp/mn-b02-a01-20261018-223750/targeted-backend.xml"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/backend",
+      "started_utc": 1792333909.2645366,
+      "elapsed_seconds": 22.013251350959763,
+      "exit_code": 0,
+      "timeout": false
+    },
+    {
+      "name": "frontend-build",
+      "args": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/frontend",
+      "started_utc": 1792333931.278036,
+      "elapsed_seconds": 4.32382949301973,
+      "exit_code": 0,
+      "timeout": false
+    },
+    {
+      "name": "ruff-backend",
+      "args": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "app",
+        "tests"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/backend",
+      "started_utc": 1792333935.6021214,
+      "elapsed_seconds": 0.032072532980237156,
+      "exit_code": 0,
+      "timeout": false
+    },
+    {
+      "name": "compileall",
+      "args": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "compileall",
+        "-q",
+        "backend/app",
+        "backend/isolated_sync",
+        "docs/benchmarks/t66f-b02-a01"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note",
+      "started_utc": 1792333935.6345322,
+      "elapsed_seconds": 0.06417554098879918,
+      "exit_code": 0,
+      "timeout": false
+    },
+    {
+      "name": "diff-check",
+      "args": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note",
+      "started_utc": 1792333935.698962,
+      "elapsed_seconds": 0.007910348998848349,
+      "exit_code": 0,
+      "timeout": false
+    }
+  ]
+}

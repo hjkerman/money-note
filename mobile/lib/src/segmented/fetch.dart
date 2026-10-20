@@ -28,7 +28,21 @@ class FetchLimits {
       this.graphObjects = 100000,
       this.graphEdges = 200000,
       this.pathDepth = 512,
-      this.retryDelayMilliseconds = 5000});
+      this.retryDelayMilliseconds = 5000})
+      : _largeGraphVerification = false;
+  // Explicit disposable HOST verification only. Never selected by a manifest,
+  // capability, startup, or ordinary refresh. E1 must independently admit the
+  // same envelope (500k stored objects / 384 MiB logical metadata); its other
+  // byte/page/staging guards and every graph/integrity check remain unchanged.
+  const FetchLimits.largeGraphVerification(
+      {this.graphObjects = 500000, this.graphEdges = 1000000})
+      : chunkBytes = 1048576,
+        attempts = 3,
+        observations = 3,
+        pathDepth = 512,
+        retryDelayMilliseconds = 5000,
+        _largeGraphVerification = true;
+  final bool _largeGraphVerification;
   final int chunkBytes,
       attempts,
       observations,
@@ -44,9 +58,9 @@ class FetchLimits {
         observations < 1 ||
         observations > 3 ||
         graphObjects < 1 ||
-        graphObjects > 100000 ||
+        graphObjects > (_largeGraphVerification ? 500000 : 100000) ||
         graphEdges < 1 ||
-        graphEdges > 200000 ||
+        graphEdges > (_largeGraphVerification ? 1000000 : 200000) ||
         pathDepth < 1 ||
         pathDepth > 512 ||
         retryDelayMilliseconds < 0 ||
@@ -247,6 +261,18 @@ class IncrementalFetcher {
     final metrics = AcquisitionMetrics(), elapsed = Stopwatch()..start();
     String? stageId;
     ObservationManifest? current;
+    // A02 cold continuation: begin. No persistent cursor or default-path change.
+    if (limits._largeGraphVerification &&
+        verifiedBase?.id == null &&
+        resumeId == null &&
+        store.publicationEnabled) {
+      try {
+        return await _acquireContinuousCold(cancel, metrics, elapsed);
+      } finally {
+        _activeStores.remove(_storeKey);
+      }
+    }
+    // A02 cold continuation: end.
     try {
       cancel.check();
       transport.checkSession();
@@ -269,8 +295,28 @@ class IncrementalFetcher {
           store.createStaging(stageId, current, DateTime.now().toUtc());
           store.recordAcquisition(stageId, 'acquiring');
           final observed = current;
+          final frontier = limits._largeGraphVerification
+              ? _VerificationFrontier(
+                  store,
+                  stageId,
+                  observed,
+                  cancel,
+                  metrics,
+                  limits,
+                  transport.checkSession,
+                  (nonce, body, responseLimit) => _request(
+                      'POST',
+                      '/api/sync/v1/observations/${observed.id}/objects',
+                      body,
+                      nonce,
+                      cancel,
+                      metrics,
+                      responseLimit),
+                  cold: verifiedBase?.id == null)
+              : null;
           final graph = await verifyAcquisitionGraph(observed.target,
               (edge, path) async {
+            if (frontier != null) return frontier.load(edge, path);
             cancel.check();
             transport.checkSession();
             final timing = Stopwatch()..start();
@@ -353,6 +399,7 @@ class IncrementalFetcher {
                   ? null
                   : store.acquisitionProvenance(verifiedBase),
               work: store.work);
+          frontier?.finish();
           // The same nonce/body returns the SAME persisted bytes, not regenerated
           // Judgment. Server terminal auth/TTL is authoritative, not phone time.
           final terminal = await _observe(nonce, cancel, metrics);
@@ -414,5 +461,527 @@ class IncrementalFetcher {
     } finally {
       _activeStores.remove(_storeKey);
     }
+  }
+
+  // A02 active-call helper: begin.
+  Future<VerifiedStagedGeneration> _acquireContinuousCold(
+      SyncCancellation cancel,
+      AcquisitionMetrics metrics,
+      Stopwatch elapsed) async {
+    // The opened, schema-validated connection is the integrity lifetime. Own
+    // E1 transactions do not change data_version; ANY external commit, close,
+    // profile/validator change invalidates this suspended proof. No receipt is
+    // persisted or reused on restart. E3 still verifies complete F(raw)/hot/raw
+    // and its ORIGINAL AppState authority, independently of this graph proof.
+    final dataVersion = store.publicationDataVersion;
+    ObservationManifest? current;
+    String? stage;
+    var observations = 0;
+    void guard() {
+      cancel.check();
+      transport.checkSession();
+      if (store.publicationDataVersion != dataVersion) {
+        rejectSegment('VERIFICATION_STALE');
+      }
+    }
+
+    Future<void> observe([SyncRemoteException? error]) async {
+      guard();
+      if (stage != null && error != null) {
+        store.recordAcquisition(stage!, 'interrupted', errorCode: error.code);
+      }
+      if (current != null) await release(current!.id, metrics: metrics);
+      current = null;
+      guard();
+      while (true) {
+        if (observations == limits.observations) {
+          if (error != null) throw error;
+          rejectSegment('OBSERVATION_ATTEMPTS_EXHAUSTED');
+        }
+        observations++;
+        try {
+          final fresh = await _observe(syncUuid(), cancel, metrics);
+          guard();
+          current = fresh;
+          stage = syncUuid();
+          store.createStaging(stage!, fresh, DateTime.now().toUtc());
+          store.recordAcquisition(stage!, 'acquiring');
+          guard();
+          return;
+        } on SyncRemoteException catch (failure) {
+          if (failure.action != 'new_observation') rethrow;
+          error = failure;
+        }
+      }
+    }
+
+    try {
+      await observe();
+      while (true) {
+        final target = current!.target;
+        final frontier = _VerificationFrontier(
+            store,
+            stage!,
+            current!,
+            cancel,
+            metrics,
+            limits,
+            transport.checkSession,
+            (nonce, body, responseLimit) => _request(
+                'POST',
+                '/api/sync/v1/observations/${current!.id}/objects',
+                body,
+                nonce,
+                cancel,
+                metrics,
+                responseLimit),
+            cold: true);
+        Future<void> renew(SyncRemoteException error) async {
+          if (error.action != 'new_observation') throw error;
+          await observe(error);
+          // Exact full Target, not just root, revision or content equivalence.
+          if (!sameBytes(
+              encodeC1(target.toJson()), encodeC1(current!.target.toJson()))) {
+            throw const _ColdTargetChanged();
+          }
+          // Progress links are NOT copied into the fresh observation's stage.
+          // Old stages/roots retain durable bytes; completed graph summaries
+          // belong only to this still-active verifier, not to server authority.
+          frontier.rebind(stage!, current!);
+          store.work.add('cold_same_target_continuations');
+        }
+
+        try {
+          final graph = await verifyAcquisitionGraph(target,
+              (edge, path) async {
+            while (true) {
+              try {
+                return await frontier.load(edge, path);
+              } on SyncRemoteException catch (error) {
+                await renew(error);
+                // Retry the WHOLE load. A partially received oversized object
+                // buffer unwinds before renewal; chunks never cross leases.
+              }
+            }
+          },
+              maxObjects: min(limits.graphObjects, store.limits.objectCount),
+              maxEdges: limits.graphEdges,
+              maxPath: limits.pathDepth,
+              work: store.work);
+          frontier.finish();
+          while (true) {
+            try {
+              final terminal =
+                  await _observe(current!.requestId, cancel, metrics);
+              if (!sameBytes(current!.bytes, terminal.bytes)) {
+                rejectSegment('IMMUTABLE_MANIFEST_CHANGED');
+              }
+              break;
+            } on SyncRemoteException catch (error) {
+              await renew(error);
+            }
+          }
+          guard();
+          store.recordAcquisition(stage!, 'graph_verified');
+          final result = current!;
+          await release(result.id, metrics: metrics);
+          current = null;
+          guard();
+          metrics.elapsedMicroseconds = elapsed.elapsedMicroseconds;
+          return VerifiedStagedGeneration(stage!, result, graph, metrics);
+        } on _ColdTargetChanged {
+          store.work.add('cold_changed_target_restarts');
+          // Fresh manifest/stage already acquired within the SAME 3-attempt
+          // budget. Discard the old DFS/seen/frontier and verify new roots.
+        }
+      }
+    } on Object catch (error) {
+      final code = error is SegmentedException
+          ? error.code
+          : error is SyncRemoteException
+              ? error.code
+              : 'ACQUISITION_FAILED';
+      if (stage != null) {
+        try {
+          store.recordAcquisition(stage!, 'interrupted', errorCode: code);
+        } on Object {/* original failure wins; never report partial success */}
+      }
+      if (current != null) await release(current!.id, metrics: metrics);
+      throw AcquisitionFailure(
+          code,
+          error is SyncRemoteException
+              ? error.action
+              : [
+                  'TRANSPORT_TIMEOUT',
+                  'TRANSPORT_UNAVAILABLE',
+                  'RESPONSE_TRUNCATED',
+                  'STORE_BUSY',
+                  'ACQUISITION_CANCELLED'
+                ].contains(code)
+                  ? 'retry_same'
+                  : 'blocked',
+          stage);
+    }
+  }
+  // A02 active-call helper: end.
+}
+
+class _ColdTargetChanged implements Exception {
+  const _ColdTargetChanged();
+}
+
+typedef _FrontierPath = ({TypedObjectReference edge, List<String> path});
+
+// A cursor retains child REFERENCES, not parent payload/decoded financial data.
+// Batched depth-first discovery needs at most one 64-parent wave per path level.
+class _ColdCursor {
+  _ColdCursor(this.path, this.children);
+  final List<String> path;
+  final List<TypedObjectReference> children;
+  int next = 0;
+}
+
+bool _strictAncestor(List<String> parent, List<String> path) {
+  if (parent.length >= path.length) return false;
+  for (var i = 0; i < parent.length; i++) {
+    if (parent[i] != path[i]) return false;
+  }
+  return true;
+}
+
+// A bounded list of already authenticated parent-derived paths, NOT a cache or
+// another graph verifier. All bytes live in the existing E1 store. Dropped paths
+// are rediscovered by the unchanged complete DFS, so lookahead is optional.
+// Enabled ONLY by the explicit disposable verification profile.
+class _VerificationFrontier {
+  _VerificationFrontier(this.store, this.stage, this.manifest, this.cancel,
+      this.metrics, this.limits, this.sessionGuard, this.exchange,
+      {required this.cold});
+  final SegmentedClientStore store;
+  String stage;
+  ObservationManifest manifest;
+  final SyncCancellation cancel;
+  final AcquisitionMetrics metrics;
+  final FetchLimits limits;
+  final bool cold;
+  final void Function() sessionGuard;
+  final Future<SyncReply> Function(String, Uint8List, int) exchange;
+  final _pending = <String, _FrontierPath>{}; // at most 64 paths
+  final _progress = <ObjectRef>[]; // at most 64 cached progress links
+  int _progressBytes = 0;
+  final _cursors = <_ColdCursor>[];
+  // Actual DFS ancestors have a different lifetime from prefetched parents.
+  // A cache-only walk must retain a path, never all previously visited nodes.
+  final _parents = <_ColdCursor>[]; // at most pathDepth
+  int _parentPeak = 0;
+  int _coldSteps = 0, _coldBytes = 0;
+
+  void rebind(String freshStage, ObservationManifest freshManifest) {
+    check();
+    stage = freshStage;
+    manifest = freshManifest;
+    _progress.clear();
+    _progressBytes = 0;
+  }
+
+  Future<void> _cooperate([int bytes = 0]) async {
+    check();
+    _coldBytes += bytes;
+    if (++_coldSteps >= 64 || _coldBytes >= limits.chunkBytes) {
+      _coldSteps = _coldBytes = 0;
+      await Future<void>.delayed(Duration.zero);
+      // Auth/cancel may change during the yield. AppState still checks the
+      // ORIGINAL request ticket after acquisition and at synchronous COMMIT.
+      check();
+    }
+  }
+
+  void check() {
+    cancel.check();
+    sessionGuard();
+  }
+
+  void _enqueue(VerifiedObject object, List<String> path) {
+    if (cold) {
+      if (object.children.isEmpty) return;
+      if (_cursors.length >= limits.pathDepth * 64) {
+        rejectSegment('GRAPH_DEPTH_BUDGET');
+      }
+      _cursors.add(_ColdCursor(path, object.children));
+      store.work.add('cold_prefetch_cursors_enqueued');
+      return;
+    }
+    for (final child in object.children) {
+      if (_pending.length == 64) break;
+      if (path.contains(child.ref.hash)) rejectSegment('GRAPH_CYCLE');
+      if (path.length >= limits.pathDepth) rejectSegment('GRAPH_DEPTH_BUDGET');
+      _pending.putIfAbsent(
+          child.ref.hash, () => (edge: child, path: [...path, child.ref.hash]));
+    }
+  }
+
+  Future<List<ObjectChunk>> _packet(
+      List<_FrontierPath> paths, List<int> offsets, List<int> lengths) async {
+    check();
+    final nonce = syncUuid(), total = lengths.fold<int>(0, (n, l) => n + l);
+    final reply = await exchange(
+        nonce,
+        encodeC1({
+          'protocol': 1,
+          'request_id': nonce,
+          'items': [
+            for (var i = 0; i < paths.length; i++)
+              {
+                'path': paths[i].path,
+                'offset': '${offsets[i]}',
+                'length': lengths[i]
+              }
+          ]
+        }),
+        4 * ((total + 2) ~/ 3) + paths.length * 256 + 1024);
+    if (reply.status != 200) rejectSegment('TRANSFER_STATUS_INVALID');
+    final packet = record(decodeC1(reply.bytes, requireCanonical: false),
+        ['protocol', 'request_id', 'observation_id', 'chunks']);
+    if (packet['protocol'] != 1 ||
+        packet['protocol'] is! int ||
+        packet['request_id'] != nonce ||
+        packet['observation_id'] != manifest.id ||
+        packet['chunks'] is! List ||
+        (packet['chunks'] as List).length != paths.length) {
+      rejectSegment('TRANSFER_BINDING_INVALID');
+    }
+    final chunks = <ObjectChunk>[];
+    for (var i = 0; i < paths.length; i++) {
+      final chunk = ObjectChunk.parse((packet['chunks'] as List)[i]);
+      if (!chunk.ref.matches(paths[i].edge.ref) ||
+          chunk.offset != '${offsets[i]}' ||
+          chunk.bytes.length != lengths[i]) {
+        rejectSegment('CHUNK_BINDING_INVALID');
+      }
+      chunks.add(chunk);
+      metrics.payloadBytes += chunk.bytes.length;
+    }
+    check();
+    return chunks;
+  }
+
+  Future<void> _fetch(List<_FrontierPath> paths) async {
+    if (paths.isEmpty) return;
+    final bytes = <Uint8List>[];
+    if (paths.length == 1 &&
+        paths.single.edge.ref.byteLength > limits.chunkBytes) {
+      final p = paths.single, buffer = Uint8List(p.edge.ref.byteLength);
+      for (var offset = 0; offset < buffer.length;) {
+        final length = min(limits.chunkBytes, buffer.length - offset);
+        final chunks = await _packet(paths, [offset], [length]);
+        buffer.setRange(offset, offset + length, chunks.single.bytes);
+        offset += length;
+      }
+      bytes.add(buffer);
+    } else {
+      final chunks = await _packet(paths, List.filled(paths.length, 0),
+          paths.map((p) => p.edge.ref.byteLength).toList());
+      bytes.addAll(chunks.map((c) => c.bytes));
+    }
+    final watch = Stopwatch()..start();
+    final objects = [
+      for (var i = 0; i < paths.length; i++)
+        VerifiedObject.verify(bytes[i], paths[i].edge.ref, store.cache,
+            kinds: paths[i].edge.kinds, maxBytes: store.limits.objectBytes)
+    ];
+    check();
+    store.putVerifiedStagedBatch(stage, [
+      for (var i = 0; i < paths.length; i++)
+        (ref: paths[i].edge.ref, bytes: bytes[i])
+    ]);
+    check();
+    metrics.downloadedObjects += objects.length;
+    metrics.cacheMisses += objects.length;
+    metrics.verificationMicroseconds += watch.elapsedMicroseconds;
+    for (var n = 0; n < objects.length; n++) {
+      final i = cold ? objects.length - n - 1 : n;
+      _enqueue(objects[i], paths[i].path);
+    }
+  }
+
+  bool _coldProgress(VerifiedObject object) {
+    final ref = object.ref;
+    if (store.isStagedObject(stage, ref) ||
+        _progress.any((p) => p.hash == ref.hash)) {
+      return false;
+    }
+    if (_progress.length == 64 ||
+        _progressBytes + ref.byteLength > limits.chunkBytes) {
+      _flushProgress();
+    }
+    _progress.add(ref);
+    _progressBytes += ref.byteLength;
+    return true;
+  }
+
+  Future<void> _coldWave(_FrontierPath required) async {
+    final paths = <_FrontierPath>[required];
+    var bytes = required.edge.ref.byteLength;
+    if (bytes < 1 || bytes > store.limits.objectBytes) {
+      rejectSegment('LOCAL_OBJECT_BUDGET');
+    }
+    while ((_cursors.isNotEmpty || _parents.isNotEmpty) &&
+        paths.length < 64 &&
+        bytes < limits.chunkBytes) {
+      await _cooperate();
+      final queue = _cursors.isNotEmpty ? _cursors : _parents;
+      final cursor = queue.last;
+      if (cursor.next == cursor.children.length) {
+        queue.removeLast();
+        continue;
+      }
+      final edge = cursor.children[cursor.next++];
+      if (cursor.path.contains(edge.ref.hash)) rejectSegment('GRAPH_CYCLE');
+      if (cursor.path.length >= limits.pathDepth) {
+        rejectSegment('GRAPH_DEPTH_BUDGET');
+      }
+      if (paths.any((p) => p.edge.ref.hash == edge.ref.hash) ||
+          store.isStagedObject(stage, edge.ref) ||
+          _progress.any((p) => p.hash == edge.ref.hash)) {
+        continue;
+      }
+      final size = edge.ref.byteLength;
+      if (size < 1 || size > store.limits.objectBytes) {
+        rejectSegment('LOCAL_OBJECT_BUDGET');
+      }
+      final path = [...cursor.path, edge.ref.hash];
+      final cached = store.getVerifiedObject(edge.ref);
+      if (cached != null) {
+        if (!edge.kinds.contains(cached.kind)) {
+          rejectSegment('GRAPH_EDGE_INVALID');
+        }
+        if (_coldProgress(cached)) _enqueue(cached, path);
+        await _cooperate(size);
+        continue;
+      }
+      if (bytes + size > limits.chunkBytes) {
+        cursor
+            .next--; // Keep the verified parent cursor; no lost sibling paths.
+        break;
+      }
+      paths.add((edge: edge, path: path));
+      bytes += size;
+    }
+    await _fetch(paths);
+  }
+
+  Future<VerifiedObject> _loadCold(
+      TypedObjectReference edge, List<String> path) async {
+    await _cooperate();
+    while (_parents.isNotEmpty) {
+      final parent = _parents.last.path;
+      if (_strictAncestor(parent, path)) {
+        break;
+      }
+      _parents.removeLast(); // The authoritative DFS has left this subtree.
+    }
+    var object = store.getVerifiedObject(edge.ref);
+    if (object == null) {
+      await _coldWave((edge: edge, path: path));
+      object = store.getVerifiedObject(edge.ref) ??
+          (rejectSegment('OBJECT_MISSING'));
+    } else {
+      metrics.cacheHits++;
+    }
+    if (!edge.kinds.contains(object.kind)) rejectSegment('GRAPH_EDGE_INVALID');
+    _coldProgress(object);
+    if (object.children.isNotEmpty) {
+      if (_parents.length >= limits.pathDepth) {
+        rejectSegment('GRAPH_DEPTH_BUDGET');
+      }
+      _parents.add(_ColdCursor(path, object.children));
+      if (_parents.length > _parentPeak) {
+        store.work
+            .add('cold_cached_parent_peak_sum', _parents.length - _parentPeak);
+        _parentPeak = _parents.length;
+      }
+    }
+    await _cooperate(object.bytes.length);
+    return object;
+  }
+
+  Future<void> _wave([_FrontierPath? required]) async {
+    final paths = <_FrontierPath>[];
+    var bytes = 0;
+    if (required != null) {
+      final size = required.edge.ref.byteLength;
+      if (size < 1 || size > store.limits.objectBytes) {
+        rejectSegment('LOCAL_OBJECT_BUDGET');
+      }
+      paths.add(required);
+      bytes = size;
+      _pending.remove(required.edge.ref.hash);
+    }
+    for (final key in _pending.keys.toList()) {
+      if (paths.length == 64 || bytes >= limits.chunkBytes) break;
+      final p = _pending.remove(key)!;
+      // An existing object is not recursively expanded by lookahead. The
+      // owning graph provenance/DFS alone decides whether it may be reused.
+      if (store.getVerifiedObject(p.edge.ref) != null) continue;
+      final size = p.edge.ref.byteLength;
+      if (size < 1 || size > store.limits.objectBytes) {
+        rejectSegment('LOCAL_OBJECT_BUDGET');
+      }
+      // Oversized children are fetched as singletons only when the DFS needs
+      // them. A full pending queue never causes an unbounded allocation.
+      if (size > limits.chunkBytes || bytes + size > limits.chunkBytes) {
+        continue;
+      }
+      paths.add(p);
+      bytes += size;
+    }
+    await _fetch(paths);
+  }
+
+  Future<VerifiedObject> load(
+      TypedObjectReference edge, List<String> path) async {
+    if (cold) return _loadCold(edge, path);
+    check();
+    var object = store.getVerifiedObject(edge.ref);
+    if (object == null) {
+      await _wave((edge: edge, path: path));
+      object = store.getVerifiedObject(edge.ref) ??
+          (rejectSegment('OBJECT_MISSING'));
+    } else {
+      metrics.cacheHits++;
+    }
+    if (!edge.kinds.contains(object.kind)) rejectSegment('GRAPH_EDGE_INVALID');
+    if (!store.isStagedObject(stage, edge.ref)) {
+      if (_progress.length == 64 ||
+          _progressBytes + edge.ref.byteLength > limits.chunkBytes) {
+        _flushProgress();
+      }
+      _progress.add(edge.ref);
+      _progressBytes += edge.ref.byteLength;
+      _enqueue(object, path);
+    }
+    // One bounded wave per logical callback. Complete graph membership/count/
+    // F(raw)/hot/raw/authority are still checked by the original pipeline.
+    await _wave();
+    check();
+    return object;
+  }
+
+  void _flushProgress() {
+    if (_progress.isEmpty) return;
+    check();
+    store.putVerifiedStagedBatch(
+        stage, [for (final ref in _progress) (ref: ref, bytes: null)]);
+    _progress.clear();
+    _progressBytes = 0;
+    check();
+  }
+
+  void finish() {
+    _flushProgress();
+    _pending.clear();
+    _cursors.clear();
+    _parents.clear();
+    check();
   }
 }

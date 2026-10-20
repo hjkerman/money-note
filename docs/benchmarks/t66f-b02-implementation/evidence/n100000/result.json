@@ -1,0 +1,71 @@
+{
+  "n": 100000,
+  "fixture": {
+    "objects": 400532,
+    "canonical_bytes": 261543083,
+    "kinds": {
+      "control": 1,
+      "hot": 1,
+      "index-root": 1,
+      "index-node": 200056,
+      "index-leaf": 200057,
+      "raw-root": 1,
+      "snapshot-leaf": 401,
+      "snapshot-node": 14
+    },
+    "kind_bytes": {
+      "control": 3178,
+      "hot": 87364,
+      "index-root": 398,
+      "index-node": 103763941,
+      "index-leaf": 98401829,
+      "raw-root": 2631,
+      "snapshot-leaf": 59211510,
+      "snapshot-node": 72232
+    },
+    "edges": 400528,
+    "max_depth": 23,
+    "max_fanout": 32,
+    "largest_object": 152198,
+    "largest_ref": {
+      "bytes": "152198",
+      "hash": "3f9903b8be63325ae18184e505b588dc1d073abbb7df85e0242af58ff72e1be1"
+    },
+    "raw_rows": {
+      "app_labels": 19,
+      "app_settings": 7,
+      "notification_candidate_registrations": 1,
+      "card_payment_deferrals": 0,
+      "card_payment_allocations": 1,
+      "card_payment_events": 1,
+      "card_payment_batch_items": 1,
+      "card_payment_batches": 1,
+      "cash_flows": 2,
+      "monthly_panels": 2,
+      "ledger_entries": 100000
+    },
+    "fact_domains": {
+      "pk": 100035,
+      "unique": 100004,
+      "reverse": 6,
+      "ref": 6,
+      "allocation": 1,
+      "aggregate": 2,
+      "context": 1,
+      "context_reverse": 2
+    }
+  },
+  "store_path": "/tmp/mn-b02-implementation.e6YtOc/n100000/client/segmented-store-v1/9f299e881e2dabe2cd274f5b2454076a36368972f728d9a7836ef580d42dac4a.sqlite",
+  "origin": "https://127.0.0.1:39209",
+  "real_clock": true,
+  "lease_seconds": 900,
+  "selection": "explicit isolated publication parameter",
+  "status": "RUNNING",
+  "profile_object_limit": 500000,
+  "profile_metadata_limit": 402653184,
+  "accepted_before": null,
+  "protected_legacy_before": {
+    "/tmp/mn-b02-implementation.e6YtOc/n100000/client/offline-mode/baseline.json": "82bd15cb46da558b6bac3aa6e8fd962c4276b3a38c6ce77209f75104ae1820f2",
+    "/tmp/mn-b02-implementation.e6YtOc/n100000/client/offline-mode/online-write-1.json": "165487cc518d7caf134163ed29644fec2fdf610c1118b4cd956b5b44ff87361e"
+  }
+}

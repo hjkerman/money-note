@@ -1,0 +1,21 @@
+{
+  "out": "/tmp/mn-a02-lineage-fixed-zve7kwot",
+  "commands": [
+    {
+      "name": "continuation-lineage-fixed",
+      "args": [
+        "/home/hjkerman/.flutter/bin/flutter",
+        "test",
+        "--no-pub",
+        "--machine",
+        "--dart-define=C_LINEAGE_OUTPUT=/tmp/mn-a02-lineage-fixed-zve7kwot/lineage.json",
+        "../docs/benchmarks/t66f-phase-b-continuation/lineage_test.dart"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/mobile",
+      "synthetic_outputs": {},
+      "log": "/tmp/mn-a02-continuation-lineage-fixed.log",
+      "exit": 0,
+      "elapsed_seconds": 48.8463992010802
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "requests": 1616,
+  "request_entity_bytes": 1924117,
+  "response_entity_bytes": 40885885,
+  "status_201": 1,
+  "observation_requests": 1,
+  "status_200": 1614,
+  "object_requests": 1614,
+  "chunks": 1614,
+  "decoded_object_bytes": 30328715,
+  "status_410": 1
+}

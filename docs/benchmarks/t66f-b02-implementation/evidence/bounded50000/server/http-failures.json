@@ -1,0 +1,50 @@
+[
+  {
+    "status": 410,
+    "method": "POST",
+    "path": "/api/sync/v1/observations/95a0c82e-cb25-480c-8609-d2ca4de91c6f/objects",
+    "body": {
+      "error": {
+        "action": "new_observation",
+        "code": "OBSERVATION_EXPIRED",
+        "current_ns": null,
+        "retry_after_ms": null
+      },
+      "protocol": 1,
+      "request_id": "92684656-18c8-4d52-bad6-2e8d688a38cc"
+    },
+    "wall_time": 1792300074.1753004
+  },
+  {
+    "status": 410,
+    "method": "POST",
+    "path": "/api/sync/v1/observations/07392b31-04c5-445e-93c7-972efc3b7e34/objects",
+    "body": {
+      "error": {
+        "action": "new_observation",
+        "code": "OBSERVATION_EXPIRED",
+        "current_ns": null,
+        "retry_after_ms": null
+      },
+      "protocol": 1,
+      "request_id": "e536cade-2174-4454-aeae-ec312524310f"
+    },
+    "wall_time": 1792300974.0645478
+  },
+  {
+    "status": 410,
+    "method": "POST",
+    "path": "/api/sync/v1/observations/e52109a6-554d-4798-a5f0-3b8628e51011/objects",
+    "body": {
+      "error": {
+        "action": "new_observation",
+        "code": "OBSERVATION_EXPIRED",
+        "current_ns": null,
+        "retry_after_ms": null
+      },
+      "protocol": 1,
+      "request_id": "26c64d9d-45b4-464c-9c38-38f8723c6062"
+    },
+    "wall_time": 1792301874.1290324
+  }
+]

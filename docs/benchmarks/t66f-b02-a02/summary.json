@@ -1,0 +1,134 @@
+{
+  "classification": "독립 조사; 제품 교정/대형 성공 증거 아님",
+  "new_request_cost_measured_responses": 64,
+  "new_codec_measured_responses": 8,
+  "new_renewal_runs": 12,
+  "actual_protocol_ttl_changed": false,
+  "full_50k_rerun": false,
+  "full_100k_rerun": false,
+  "request_timer_overhead_ratios": [
+    1.028729115781018,
+    0.9350885332973602,
+    0.9478615905403541,
+    1.06123335495555,
+    0.8738119795123053,
+    0.992534232372827,
+    1.084395684031782,
+    1.003907589613124,
+    1.0339394572250942,
+    1.0345856257071118,
+    1.19233374729752,
+    1.0698104917086124,
+    0.9917436358706697,
+    0.89736322330885,
+    0.9958116298688499,
+    1.2387315009206763
+  ],
+  "request_timer_overhead_median_ratio": 1.0163183526970712,
+  "codec_duplicate_encode_share_of_handler": [
+    0.25490850345402105,
+    0.24429656707026787,
+    0.27628165368093527,
+    0.2758919700306417
+  ],
+  "codec_duplicate_encode_share_median": 0.2654002367423314,
+  "renewal": [
+    {
+      "n": 0,
+      "V": 126,
+      "control_median_s": 0.350099,
+      "renew_median_s": 0.3318365,
+      "control_work": {
+        "transactions": 17,
+        "object_reads": 252,
+        "verified_bytes": 157092,
+        "cold_prefetch_cursors_enqueued": 57,
+        "cold_cached_parent_peak_sum": 7,
+        "graph_nodes_examined": 126,
+        "raw_object_reads": 22,
+        "index_object_reads": 224
+      },
+      "renew_work": {
+        "transactions": 22,
+        "object_reads": 388,
+        "verified_bytes": 238630,
+        "cold_prefetch_cursors_enqueued": 94,
+        "cold_cached_parent_peak_sum": 8,
+        "graph_nodes_examined": 145,
+        "raw_object_reads": 44,
+        "index_object_reads": 336
+      },
+      "durable_at_renew": 68,
+      "first_new_request_gap_median_s": 0.062135,
+      "control_commit_boundary_s": 0.047174999999999995,
+      "renew_commit_boundary_s": 0.07521
+    },
+    {
+      "n": 200,
+      "V": 926,
+      "control_median_s": 1.3179475,
+      "renew_median_s": 1.6040505,
+      "control_work": {
+        "transactions": 30,
+        "object_reads": 1852,
+        "verified_bytes": 1190872,
+        "cold_prefetch_cursors_enqueued": 457,
+        "cold_cached_parent_peak_sum": 11,
+        "graph_nodes_examined": 926,
+        "raw_object_reads": 22,
+        "index_object_reads": 1824
+      },
+      "renew_work": {
+        "transactions": 42,
+        "object_reads": 2900,
+        "verified_bytes": 1963596,
+        "cold_prefetch_cursors_enqueued": 637,
+        "cold_cached_parent_peak_sum": 23,
+        "graph_nodes_examined": 1188,
+        "raw_object_reads": 44,
+        "index_object_reads": 2848
+      },
+      "durable_at_renew": 524,
+      "first_new_request_gap_median_s": 0.3282115,
+      "control_commit_boundary_s": 0.1325445,
+      "renew_commit_boundary_s": 0.17903550000000001
+    },
+    {
+      "n": 1000,
+      "V": 4130,
+      "control_median_s": 5.6730979999999995,
+      "renew_median_s": 7.1480295,
+      "control_work": {
+        "transactions": 81,
+        "object_reads": 8260,
+        "verified_bytes": 5341466,
+        "cold_prefetch_cursors_enqueued": 2058,
+        "cold_cached_parent_peak_sum": 13,
+        "graph_nodes_examined": 4130,
+        "raw_object_reads": 30,
+        "index_object_reads": 8224
+      },
+      "renew_work": {
+        "transactions": 118,
+        "object_reads": 12516,
+        "verified_bytes": 8660000,
+        "cold_prefetch_cursors_enqueued": 2270,
+        "cold_cached_parent_peak_sum": 27,
+        "graph_nodes_examined": 5950,
+        "raw_object_reads": 60,
+        "index_object_reads": 12448
+      },
+      "durable_at_renew": 2128,
+      "first_new_request_gap_median_s": 1.4567685,
+      "control_commit_boundary_s": 0.4607685,
+      "renew_commit_boundary_s": 0.5639465
+    }
+  ],
+  "limitations": [
+    "client native sqlite3_sql/trace symbols 미노출; per-SQL client profile 미측정. OMIT_TRACE라고 추정하지 않음",
+    "store.work는 구현 counter다; durable closure/새 insert fault/외부 clock으로 교차확인했지만 independent client SQL trace로 바꾸어 부르지 않음",
+    "cProfile은 native CPU 순위용이며 absolute latency 모델에 쓰지 않음",
+    "microbenchmark n0/200/1000은 backend bridge fixture, fixed-H large grid와 다른 shape다",
+    "반복2회/조건; micro p95 일반화 없음"
+  ]
+}

@@ -1,0 +1,8 @@
+PASS n=200 renew=false trace=false
+Unhandled exception:
+Invalid argument(s): Failed to lookup symbol 'sqlite3_sql': /home/hjkerman/codex/money-note/mobile/.dart_tool/lib/libsqlite3.so: undefined symbol: sqlite3_sql
+#0      DynamicLibrary.lookup (dart:ffi-patch/ffi_dynamic_library_patch.dart:40:70)
+#1      new SqlTrace (file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a02/renewal_cost.dart)
+#2      run (file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a02/renewal_cost.dart:48:20)
+#3      main (file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-a02/renewal_cost.dart:92:22)
+<asynchronous suspension>
