@@ -1,0 +1,15 @@
+{
+  "status": 410,
+  "body": {
+    "error": {
+      "action": "new_observation",
+      "code": "OBSERVATION_INCOMPLETE",
+      "current_ns": null,
+      "retry_after_ms": null
+    },
+    "protocol": 1,
+    "request_id": "05bcda36-2f5e-41f9-a7a1-96ab4419d2e7"
+  },
+  "original_strict_equal": true,
+  "missing_storage_read_injection": false
+}

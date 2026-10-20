@@ -1,0 +1,3 @@
+../docs/benchmarks/t66f-b02-independent/cross_layer_test.dart:61:181: Error: 'SegmentedException' isn't a type.
+   await expectLater(state.publishSegmentedForIsolatedUse(store,cancellation:cancel,verificationLimits:largeVerificationFetchLimits),throwsA(anyOf(isA<MoneyNoteApiException>(),isA<SegmentedException>(),isA<AcquisitionFailure>())));
+                                                                                          ^^^^^^^^^^^^^^^^^^

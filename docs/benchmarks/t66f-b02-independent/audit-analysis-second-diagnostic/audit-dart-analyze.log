@@ -1,0 +1,13 @@
+Analyzing t66f-b02-independent...
+
+warning - budget_test.dart:4:8 - Unused import: 'dart:convert'. Try removing the import directive. - unused_import
+warning - cross_layer_test.dart:19:8 - Unused import: 'package:money_note_mobile/src/segmented/protocol.dart'. Try removing the import directive. - unused_import
+warning - cross_layer_test.dart:52:30 - The member 'setMockInitialValues' can only be used within 'package:flutter_secure_storage/flutter_secure_storage.dart' or a test. - invalid_use_of_visible_for_testing_member
+warning - e2_audit_test.dart:4:8 - Unused import: 'dart:async'. Try removing the import directive. - unused_import
+warning - e2_audit_test.dart:13:8 - Unused import: 'package:money_note_mobile/src/segmented/object.dart'. Try removing the import directive. - unused_import
+warning - large_test.dart:18:8 - Unused import: 'package:money_note_mobile/src/segmented/fetch.dart'. Try removing the import directive. - unused_import
+warning - large_test.dart:74:28 - The member 'setMockInitialValues' can only be used within 'package:flutter_secure_storage/flutter_secure_storage.dart' or a test. - invalid_use_of_visible_for_testing_member
+warning - values.dart:6:8 - Unused import: 'package:money_note_mobile/src/segmented/protocol.dart'. Try removing the import directive. - unused_import
+   info - cross_layer_test.dart:4:8 - The import of 'dart:async' is unnecessary because all of the used elements are also provided by the import of 'package:flutter_test/flutter_test.dart'. Try removing the import directive. - unnecessary_import
+
+9 issues found.

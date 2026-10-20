@@ -1,0 +1,4 @@
+{
+  "exit": 2,
+  "classification": "raw Flutter 출력의 trailing whitespace; 제품·assertion 결함 아님"
+}

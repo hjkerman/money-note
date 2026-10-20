@@ -1,0 +1,48 @@
+{
+  "audited_commit": "1cabf319f0ac2c2069e804b47cb527b55e3374db",
+  "all_original_tracked_files_unchanged": 2041,
+  "original_index_unchanged_before_audit_stage": true,
+  "all_current_exit_files": {
+    "flutter-full.exit": 0,
+    "backend-full.exit": 0,
+    "audit-ruff.exit": 0,
+    "flutter-build.exit": 0,
+    "audit-dart-analyze.exit": 0,
+    "new-e2.exit": 0,
+    "npm-build.exit": 0,
+    "dart-format-check.exit": 0,
+    "dart-format.exit": 0,
+    "compileall.exit": 0,
+    "new-cross-layer.exit": 0,
+    "new-budget.exit": 0,
+    "backend-ruff.exit": 0,
+    "flutter-analyze.exit": 0,
+    "python-format-check.exit": 0,
+    "large-campaign.exit": 0,
+    "git-diff-check.exit": 0,
+    "smoke.exit": 0,
+    "new-backend.exit": 0
+  },
+  "source_sha_guards_in_fresh_full_suite": 23,
+  "b01_initial_concurrent_status_multiset": [
+    201,
+    201,
+    201,
+    201,
+    429
+  ],
+  "product_source_modified_by_auditor": false,
+  "historical_reports_modified": false,
+  "new_product_findings": {
+    "CRITICAL": 0,
+    "HIGH": 0,
+    "MEDIUM": 0,
+    "LOW": 0
+  },
+  "verdict": "PASS — T6.6F-B02 INDEPENDENT TARGETED AUDIT COMPLETE",
+  "phase_b": "INCOMPLETE — FINAL VERIFICATION REQUIRED",
+  "r1": "CLOSED",
+  "deployment": "NOT PERFORMED",
+  "original_index_entries_preserved_during_audit_stage": true,
+  "staged_scope": "새 독립 감사 디렉터리와 보고서의 ADD만 허용"
+}

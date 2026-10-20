@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "checked": [
+    "evidence/50000/server-mutation-123458.json.gz",
+    "evidence/50000/server-mutation-123456.json.gz",
+    "evidence/50000/server-backend-fixture.json.gz",
+    "evidence/50000/server-last-http-manifest.json.gz",
+    "evidence/50000/server-mutation-123457.json.gz",
+    "evidence/100000/server-mutation-123458.json.gz",
+    "evidence/100000/server-mutation-123456.json.gz",
+    "evidence/100000/server-backend-fixture.json.gz",
+    "evidence/100000/server-last-http-manifest.json.gz",
+    "evidence/100000/server-mutation-123457.json.gz"
+  ],
+  "definition": "§9 view domain framing + stdlib canonical encoding; product helper 미사용"
+}

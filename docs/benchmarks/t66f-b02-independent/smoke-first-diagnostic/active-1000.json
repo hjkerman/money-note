@@ -1,0 +1,23 @@
+{
+  "n": 1000,
+  "out": "/tmp/mn-b02-independent-1000-ayubwynm",
+  "started_utc": 1792461553.5176141,
+  "available_memory_before": 20194627584,
+  "disk_free_before": 33682513920,
+  "ttl": 900,
+  "max_observations": 3,
+  "rss_tree_limit": 8589934592,
+  "external_wall_guard_s": 600,
+  "args": [
+    "/home/hjkerman/.flutter/bin/flutter",
+    "test",
+    "--no-pub",
+    "--machine",
+    "--concurrency=1",
+    "--dart-define=B02_N=1000",
+    "--dart-define=B02_OUT=/tmp/mn-b02-independent-1000-ayubwynm",
+    "--dart-define=B02_COMPLETE_PLAN=true",
+    "../docs/benchmarks/t66f-b02-independent/large_test.dart"
+  ],
+  "pid": 519281
+}

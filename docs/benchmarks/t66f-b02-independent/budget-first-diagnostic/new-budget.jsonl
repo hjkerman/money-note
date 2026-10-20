@@ -1,0 +1,7 @@
+{"protocolVersion":"0.1.1","runnerVersion":null,"pid":530203,"type":"start","time":0}
+{"suite":{"id":0,"platform":"vm","path":"/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/budget_test.dart"},"type":"suite","time":0}
+{"test":{"id":1,"name":"loading /home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/budget_test.dart","suiteID":0,"groupIDs":[],"metadata":{"skip":false,"skipReason":null},"line":null,"column":null,"url":null},"type":"testStart","time":1}
+{"count":1,"time":6,"type":"allSuites"}
+{"testID":1,"error":"Failed to load \"/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/budget_test.dart\":\nCompilation failed for testPath=/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/budget_test.dart: ../docs/benchmarks/t66f-b02-independent/budget_test.dart:42:19: Error: Method not found: 'HttpSegmentedTransport'.\n  final transport=HttpSegmentedTransport(client:client,origin:syntheticOrigin,credential:()=> 'synthetic-token');\n                  ^^^^^^^^^^^^^^^^^^^^^^\n.","stackTrace":"","isFailure":false,"type":"error","time":1495}
+{"testID":1,"result":"error","skipped":false,"hidden":false,"type":"testDone","time":1498}
+{"success":false,"type":"done","time":1505}

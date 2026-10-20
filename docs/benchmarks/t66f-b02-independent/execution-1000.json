@@ -1,0 +1,109 @@
+{
+  "n": 1000,
+  "out": "/tmp/mn-b02-independent-1000-8qdrc80c",
+  "started_utc": 1792461905.3132014,
+  "available_memory_before": 19930730496,
+  "disk_free_before": 33400307712,
+  "ttl": 900,
+  "max_observations": 3,
+  "rss_tree_limit": 8589934592,
+  "external_wall_guard_s": 600,
+  "args": [
+    "/home/hjkerman/.flutter/bin/flutter",
+    "test",
+    "--no-pub",
+    "--machine",
+    "--concurrency=1",
+    "--dart-define=B02_N=1000",
+    "--dart-define=B02_OUT=/tmp/mn-b02-independent-1000-8qdrc80c",
+    "--dart-define=B02_COMPLETE_PLAN=true",
+    "../docs/benchmarks/t66f-b02-independent/large_test.dart"
+  ],
+  "pid": 520476,
+  "exit_code": 0,
+  "elapsed_s": 231.76597794005647,
+  "peak_sampled_process_tree_rss": 1523732480,
+  "external_termination": null,
+  "resource_samples": [
+    {
+      "elapsed_s": 0.08358568407129496,
+      "rss_tree": 35045376,
+      "memory_available": 19909529600
+    },
+    {
+      "elapsed_s": 15.167259745998308,
+      "rss_tree": 946921472,
+      "memory_available": 19119603712
+    },
+    {
+      "elapsed_s": 30.252935862052254,
+      "rss_tree": 1286184960,
+      "memory_available": 18936676352
+    },
+    {
+      "elapsed_s": 45.334110743016936,
+      "rss_tree": 1335189504,
+      "memory_available": 18958618624
+    },
+    {
+      "elapsed_s": 60.412908632075414,
+      "rss_tree": 1335197696,
+      "memory_available": 18966388736
+    },
+    {
+      "elapsed_s": 75.49159145005979,
+      "rss_tree": 1338118144,
+      "memory_available": 18971521024
+    },
+    {
+      "elapsed_s": 90.56686190399341,
+      "rss_tree": 1202008064,
+      "memory_available": 19064127488
+    },
+    {
+      "elapsed_s": 105.61551621602848,
+      "rss_tree": 1208565760,
+      "memory_available": 19040899072
+    },
+    {
+      "elapsed_s": 120.66836348897777,
+      "rss_tree": 1210454016,
+      "memory_available": 19073421312
+    },
+    {
+      "elapsed_s": 135.7530484580202,
+      "rss_tree": 1207091200,
+      "memory_available": 19073622016
+    },
+    {
+      "elapsed_s": 150.80060856905766,
+      "rss_tree": 1213751296,
+      "memory_available": 19073716224
+    },
+    {
+      "elapsed_s": 165.88321440306026,
+      "rss_tree": 1209757696,
+      "memory_available": 19070488576
+    },
+    {
+      "elapsed_s": 180.9690840219846,
+      "rss_tree": 1507270656,
+      "memory_available": 18752483328
+    },
+    {
+      "elapsed_s": 196.052503340994,
+      "rss_tree": 1523732480,
+      "memory_available": 18788483072
+    },
+    {
+      "elapsed_s": 211.15083226701245,
+      "rss_tree": 1224425472,
+      "memory_available": 18194345984
+    },
+    {
+      "elapsed_s": 226.2414287860738,
+      "rss_tree": 1240662016,
+      "memory_available": 18144104448
+    }
+  ]
+}

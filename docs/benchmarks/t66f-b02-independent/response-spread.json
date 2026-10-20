@@ -1,0 +1,42 @@
+{
+  "old": {
+    "admission_ms": 81.36922202538699,
+    "resolution_ms": 96.62769897840917,
+    "terminal_serialization_ms": 0.9214560268446803,
+    "total_ms": 180.21140398923308,
+    "object_reads": 177,
+    "object_bytes_read": 87840,
+    "response_bytes": 13041,
+    "prefix_cache_hits": 0,
+    "prefix_validations": 0,
+    "prefix_cache_peak": 0,
+    "prefix_cache_peak_bytes": 0,
+    "decoded_bytes": 7977,
+    "path_edges": 161,
+    "auth_ms": 40.31877301167697,
+    "prepared_ms": 221.83558996766806,
+    "operation": "objects",
+    "http_ms": 306.06603098567575,
+    "terminal_http_ms": 84.09256406594068
+  },
+  "new": {
+    "admission_ms": 85.8665939886123,
+    "resolution_ms": 39.56347506027669,
+    "terminal_serialization_ms": 0.9354009525850415,
+    "total_ms": 127.59696401190013,
+    "object_reads": 64,
+    "object_bytes_read": 32303,
+    "response_bytes": 13041,
+    "prefix_cache_hits": 113,
+    "prefix_validations": 48,
+    "prefix_cache_peak": 48,
+    "prefix_cache_peak_bytes": 24326,
+    "decoded_bytes": 7977,
+    "path_edges": 161,
+    "auth_ms": 43.25136507395655,
+    "prepared_ms": 171.9096030574292,
+    "operation": "objects",
+    "http_ms": 259.68533707782626,
+    "terminal_http_ms": 87.58308796677738
+  }
+}

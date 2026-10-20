@@ -1,0 +1,7 @@
+{"protocolVersion":"0.1.1","runnerVersion":null,"pid":529629,"type":"start","time":0}
+{"suite":{"id":0,"platform":"vm","path":"/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/cross_layer_test.dart"},"type":"suite","time":0}
+{"test":{"id":1,"name":"loading /home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/cross_layer_test.dart","suiteID":0,"groupIDs":[],"metadata":{"skip":false,"skipReason":null},"line":null,"column":null,"url":null},"type":"testStart","time":1}
+{"count":1,"time":5,"type":"allSuites"}
+{"testID":1,"error":"Failed to load \"/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/cross_layer_test.dart\":\nCompilation failed for testPath=/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/cross_layer_test.dart: ../docs/benchmarks/t66f-b02-independent/cross_layer_test.dart:61:181: Error: 'SegmentedException' isn't a type.\n   await expectLater(state.publishSegmentedForIsolatedUse(store,cancellation:cancel,verificationLimits:largeVerificationFetchLimits),throwsA(anyOf(isA<MoneyNoteApiException>(),isA<SegmentedException>(),isA<AcquisitionFailure>())));\n                                                                                                                                                                                    ^^^^^^^^^^^^^^^^^^\n.","stackTrace":"","isFailure":false,"type":"error","time":1551}
+{"testID":1,"result":"error","skipped":false,"hidden":false,"type":"testDone","time":1554}
+{"success":false,"type":"done","time":1556}

@@ -1,0 +1,347 @@
+{
+  "segmented_adapter_isolation_test.dart": {
+    "pass": 23,
+    "fail": 0,
+    "skip": 0
+  },
+  "coherent_get_dag_test.dart": {
+    "pass": 91,
+    "fail": 0,
+    "skip": 0
+  },
+  "authoritative_acquisition_test.dart": {
+    "pass": 57,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_large_profile_authority_test.dart": {
+    "pass": 5,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_publication_crash_test.dart": {
+    "pass": 16,
+    "fail": 0,
+    "skip": 0
+  },
+  "t66a_payload_test.dart": {
+    "pass": 0,
+    "fail": 0,
+    "skip": 2
+  },
+  "segmented_e4_provenance_test.dart": {
+    "pass": 11,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_e4_handoff_test.dart": {
+    "pass": 35,
+    "fail": 0,
+    "skip": 0
+  },
+  "offline_persistence_test.dart": {
+    "pass": 9,
+    "fail": 0,
+    "skip": 0
+  },
+  "local_snapshot_repository_test.dart": {
+    "pass": 7,
+    "fail": 0,
+    "skip": 0
+  },
+  "notification_models_test.dart": {
+    "pass": 2,
+    "fail": 0,
+    "skip": 0
+  },
+  "offline_notification_identity_test.dart": {
+    "pass": 5,
+    "fail": 0,
+    "skip": 0
+  },
+  "notification_registration_test.dart": {
+    "pass": 11,
+    "fail": 0,
+    "skip": 0
+  },
+  "utility_discount_default_test.dart": {
+    "pass": 1,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_e4_ra01_test.dart": {
+    "pass": 42,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_i25_baseline_test.dart": {
+    "pass": 1,
+    "fail": 0,
+    "skip": 0
+  },
+  "offline_state_projection_test.dart": {
+    "pass": 18,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_acquisition_store_test.dart": {
+    "pass": 14,
+    "fail": 0,
+    "skip": 0
+  },
+  "authoritative_money_compatibility_test.dart": {
+    "pass": 183,
+    "fail": 0,
+    "skip": 0
+  },
+  "authoritative_bundle_boundary_matrix_test.dart": {
+    "pass": 1,
+    "fail": 0,
+    "skip": 0
+  },
+  "app_state_test.dart": {
+    "pass": 3,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_incremental_verification_test.dart": {
+    "pass": 6,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_authority_test.dart": {
+    "pass": 19,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_adapter_crash_test.dart": {
+    "pass": 4,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_transport_test.dart": {
+    "pass": 30,
+    "fail": 0,
+    "skip": 0
+  },
+  "authoritative_bundle_test.dart": {
+    "pass": 27,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_protocol_test.dart": {
+    "pass": 58,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_large_profile_test.dart": {
+    "pass": 39,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_cold_packet_test.dart": {
+    "pass": 14,
+    "fail": 0,
+    "skip": 0
+  },
+  "offline_lineage_recovery_test.dart": {
+    "pass": 8,
+    "fail": 0,
+    "skip": 0
+  },
+  "formatters_test.dart": {
+    "pass": 2,
+    "fail": 0,
+    "skip": 0
+  },
+  "authoritative_bundle_trust_boundary_test.dart": {
+    "pass": 47,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_crash_test.dart": {
+    "pass": 7,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_root_pin_model_test.dart": {
+    "pass": 2,
+    "fail": 0,
+    "skip": 0
+  },
+  "notification_discount_policy_test.dart": {
+    "pass": 17,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_e4_frozen_test.dart": {
+    "pass": 19,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_e4_handoff_crash_test.dart": {
+    "pass": 13,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_cold_continuation_test.dart": {
+    "pass": 17,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_e4_a01_test.dart": {
+    "pass": 21,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_publication_test.dart": {
+    "pass": 36,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_fetch_crash_test.dart": {
+    "pass": 3,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_adapter_authority_test.dart": {
+    "pass": 16,
+    "fail": 0,
+    "skip": 0
+  },
+  "authoritative_bundle_canonical_test.dart": {
+    "pass": 90,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_large_batch_test.dart": {
+    "pass": 13,
+    "fail": 0,
+    "skip": 0
+  },
+  "authoritative_bundle_admission_test.dart": {
+    "pass": 26,
+    "fail": 0,
+    "skip": 0
+  },
+  "offline_refresh_test.dart": {
+    "pass": 27,
+    "fail": 0,
+    "skip": 0
+  },
+  "apk_download_controller_test.dart": {
+    "pass": 1,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_money_correction_test.dart": {
+    "pass": 166,
+    "fail": 0,
+    "skip": 0
+  },
+  "offline_reconciliation_test.dart": {
+    "pass": 14,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_store_test.dart": {
+    "pass": 31,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_adapters_test.dart": {
+    "pass": 42,
+    "fail": 0,
+    "skip": 0
+  },
+  "offline_widget_submit_test.dart": {
+    "pass": 13,
+    "fail": 0,
+    "skip": 0
+  },
+  "authoritative_bundle_unicode_test.dart": {
+    "pass": 11,
+    "fail": 0,
+    "skip": 0
+  },
+  "exact_money_domain_test.dart": {
+    "pass": 5,
+    "fail": 0,
+    "skip": 0
+  },
+  "freeze_reaudit_outcome_test.dart": {
+    "pass": 11,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_i25_publication_test.dart": {
+    "pass": 30,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_diff_integration_test.dart": {
+    "pass": 1,
+    "fail": 0,
+    "skip": 0
+  },
+  "submit_latency_diagnostic_test.dart": {
+    "pass": 3,
+    "fail": 0,
+    "skip": 0
+  },
+  "family_screen_test.dart": {
+    "pass": 5,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_fetch_test.dart": {
+    "pass": 72,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_http_integration_test.dart": {
+    "pass": 5,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_response_cleanup_test.dart": {
+    "pass": 13,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_large_profile_crash_test.dart": {
+    "pass": 4,
+    "fail": 0,
+    "skip": 0
+  },
+  "date_picker_row_test.dart": {
+    "pass": 1,
+    "fail": 0,
+    "skip": 0
+  },
+  "recurring_series_widget_test.dart": {
+    "pass": 6,
+    "fail": 0,
+    "skip": 0
+  },
+  "authoritative_rebuild_pending_test.dart": {
+    "pass": 11,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_schema_correction_test.dart": {
+    "pass": 45,
+    "fail": 0,
+    "skip": 0
+  },
+  "segmented_cold_continuation_crash_test.dart": {
+    "pass": 4,
+    "fail": 0,
+    "skip": 0
+  },
+  "ai_audit_report_test.dart": {
+    "pass": 9,
+    "fail": 0,
+    "skip": 0
+  }
+}

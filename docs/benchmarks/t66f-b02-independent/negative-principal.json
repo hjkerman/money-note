@@ -1,0 +1,15 @@
+{
+  "status": 403,
+  "body": {
+    "error": {
+      "action": "reauthenticate",
+      "code": "PRINCIPAL_OR_SESSION_CHANGED",
+      "current_ns": null,
+      "retry_after_ms": null
+    },
+    "protocol": 1,
+    "request_id": "102c8963-4980-42e2-9e82-a9a7276ab25b"
+  },
+  "original_strict_equal": true,
+  "missing_storage_read_injection": false
+}

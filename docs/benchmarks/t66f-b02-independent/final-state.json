@@ -1,0 +1,42 @@
+{
+  "50000": {
+    "status": "PASS",
+    "pointer_checksum": "99f4551d9ef0e124a824e9b52abae2a9e697a8705279cd77003583ec11e5db9a",
+    "receipt_target_matches": true,
+    "sync_root_independently_verified": true,
+    "user_version": 5,
+    "journal_mode": "delete",
+    "page_count": 75808,
+    "page_size": 4096,
+    "usage": {
+      "id": 1,
+      "objects": 200425,
+      "payload": 131497909,
+      "stages": 6,
+      "metadata": 146703759
+    },
+    "wal_file_bytes": 0,
+    "frozen_rows": 0,
+    "native_frozen_exercised": false
+  },
+  "100000": {
+    "status": "PASS",
+    "pointer_checksum": "c45224290bf11ea0b1260e4a9fc58d3edc7e504432ba725451b348935bafdef8",
+    "receipt_target_matches": true,
+    "sync_root_independently_verified": true,
+    "user_version": 5,
+    "journal_mode": "delete",
+    "page_count": 151753,
+    "page_size": 4096,
+    "usage": {
+      "id": 1,
+      "objects": 400630,
+      "payload": 262335489,
+      "stages": 7,
+      "metadata": 295120923
+    },
+    "wal_file_bytes": 0,
+    "frozen_rows": 0,
+    "native_frozen_exercised": false
+  }
+}

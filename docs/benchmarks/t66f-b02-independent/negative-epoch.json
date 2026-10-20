@@ -1,0 +1,15 @@
+{
+  "status": 409,
+  "body": {
+    "error": {
+      "action": "full_resync",
+      "code": "EPOCH_CHANGED",
+      "current_ns": null,
+      "retry_after_ms": null
+    },
+    "protocol": 1,
+    "request_id": "ba3c5fce-8fce-4e76-b90b-fc314431354b"
+  },
+  "original_strict_equal": true,
+  "missing_storage_read_injection": false
+}

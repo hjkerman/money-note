@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="6" skipped="0" tests="26" time="44.990" timestamp="2026-10-20T11:02:32.904311+09:00" hostname="hjkerman"><testcase classname="docs.benchmarks.t66f-b02-independent.test_backend" name="test_response_exact_bytes_and_validation_counts[siblings]" time="6.166" /><testcase classname="docs.benchmarks.t66f-b02-independent.test_backend" name="test_response_exact_bytes_and_validation_counts[repeat]" time="2.575" /><testcase classname="docs.benchmarks.t66f-b02-independent.test_backend" name="test_response_exact_bytes_and_validation_counts[reverse]" time="2.257" /><testcase classname="docs.benchmarks.t66f-b02-independent.test_backend" name="test_response_exact_bytes_and_validation_counts[spread]" time="1.879" /><testcase classname="docs.benchmarks.t66f-b02-independent.test_backend" name="test_cached_prefix_negative_http_and_state[child-expected0]" time="1.845"><failure message="AssertionError: assert 422 == 200&#10; +  where 422 = &lt;Response [422 Unprocessable Entity]&gt;.status_code&#10; +    where &lt;Response [422 Unprocessable Entity]&gt; = send(&lt;starlette.testclient.TestClient object at 0x76541ce4e6c0&gt;, {'base_sync_root': None, 'change_kind': 'initial', 'expires_at': '2026-10-05T00:15:00Z', 'inline_objects': [], ...}, {'protocol': 1, 'request_id': '4a1d9412-5e62-4759-8885-7671559f69f7', 'items': [{'path': ['b526367ca41b780b3cc3af2f553...e084f61f3c8', '594e1687df8c111aba11f7ed95053a25237931f775974a76f9f668f6a5ae5c4b', ...], 'offset': '0', 'length': 501}]})&#10; +      where {'protocol': 1, 'request_id': '4a1d9412-5e62-4759-8885-7671559f69f7', 'items': [{'path': ['b526367ca41b780b3cc3af2f553...e084f61f3c8', '594e1687df8c111aba11f7ed95053a25237931f775974a76f9f668f6a5ae5c4b', ...], 'offset': '0', 'length': 501}]} = packet([({'bytes': '481', 'hash': '547141c3c8471f9ba0b4a2632459e9269616a2259d8cfd6de6e20dfd4e3fe4fd'}, ['b526367ca41b780b3cc3... ['pk', 'ledger_entries', [...]], 'value': '5421b33d958873d57455bd44c95513c6634a22f92fef0f9cbf0ccad5a25bb074'}], ...})])">owned = &lt;isolated_sync.retention_schema.RetentionSandbox object at 0x76541d252c00&gt;
+fault = 'child', expected = (422, 'INVALID_REQUEST')
+
+    @pytest.mark.parametrize('fault,expected',[
+     ('child',(422,'INVALID_REQUEST')),('cycle',(422,'INVALID_REQUEST')),('offset',(422,'INVALID_REQUEST')),
+     ('corrupt_parent',(500,'STORAGE_FAILED')),('corrupt_leaf',(500,'STORAGE_FAILED')),('wrong_type',(500,'STORAGE_FAILED')),
+     ('missing',(410,'OBSERVATION_INCOMPLETE')),('wrong_hash',(422,'INVALID_REQUEST')),
+     ('principal',(403,'PRINCIPAL_OR_SESSION_CHANGED')),('credential',(403,'PRINCIPAL_OR_SESSION_CHANGED')),
+     ('epoch',(409,'EPOCH_CHANGED')),('dataset',(409,'EPOCH_CHANGED')),('expiry',(410,'OBSERVATION_EXPIRED')),
+     ('observation',(410,'OBSERVATION_INCOMPLETE'))])
+    def test_cached_prefix_negative_http_and_state(owned,fault,expected):
+        clock=[NOW];c=app_client(owned,clock=lambda:clock[0]);m=observe(c).json();v=leaves(owned,m)[:2];p=packet(v)
+        assert send(c,m,p).status_code==200
+        backup=None
+        if fault in {'child','wrong_hash'}:p['items'][1]['path'][-1]='0'*64
+        elif fault=='cycle':p['items'][1]['path'].append(p['items'][1]['path'][0])
+        elif fault=='offset':p['items'][1]['offset']='99999999'
+        elif fault in {'corrupt_parent','corrupt_leaf','wrong_type','missing'}:
+            digest=v[1][1][-2]if fault=='corrupt_parent'else v[1][0]['hash']
+            with sqlite3.connect(owned.path)as db:
+                backup=db.execute('SELECT * FROM sync_objects WHERE hash=?',(digest,)).fetchone()
+                if fault=='missing':db.execute('DELETE FROM sync_objects WHERE hash=?',(digest,))
+                elif fault=='wrong_type':db.execute("UPDATE sync_objects SET kind='hot' WHERE hash=?",(digest,))
+                else:db.execute('UPDATE sync_objects SET body=body||? WHERE hash=?',(b' ',digest))
+        elif fault in {'epoch','dataset'}:
+            with sqlite3.connect(owned.path)as db:
+                value=json.loads(db.execute('SELECT namespace FROM sync_current').fetchone()[0]);value['epoch'if fault=='epoch'else'dataset_id']=str(uuid4());db.execute('UPDATE sync_current SET namespace=?',(json.dumps(value),))
+        elif fault=='expiry':clock[0]+=timedelta(seconds=901)
+        elif fault=='observation':m=dict(m,observation_id=str(uuid4()))
+        auth=TOKEN_B if fault=='principal'else TOKEN_NEW if fault=='credential'else TOKEN_A
+        old=None
+        with patch.object(transfer,'PathResolver',STRICT):old=send(c,m,p,auth)
+        new=send(c,m,p,auth)
+        assert (new.status_code,new.json()['error']['code'])==expected
+        assert (old.status_code,old.json())==(new.status_code,new.json())
+        assert new.headers['cache-control']=='no-store' and 'chunks'not in new.json()
+        with sqlite3.connect(owned.path)as db:
+            assert db.execute('PRAGMA foreign_key_check').fetchall()==[]
+            assert db.execute('SELECT count(*)FROM sync_commits WHERE status!="complete"').fetchone()[0]==0
+        # Packet defects do not poison later correct requests.
+&gt;       if fault in {'child','cycle','offset','wrong_hash'}:assert send(c,m,packet(v)).status_code==200
+                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: assert 422 == 200
+E        +  where 422 = &lt;Response [422 Unprocessable Entity]&gt;.status_code
+E        +    where &lt;Response [422 Unprocessable Entity]&gt; = send(&lt;starlette.testclient.TestClient object at 0x76541ce4e6c0&gt;, {'base_sync_root': None, 'change_kind': 'initial', 'expires_at': '2026-10-05T00:15:00Z', 'inline_objects': [], ...}, {'protocol': 1, 'request_id': '4a1d9412-5e62-4759-8885-7671559f69f7', 'items': [{'path': ['b526367ca41b780b3cc3af2f553...e084f61f3c8', '594e1687df8c111aba11f7ed95053a25237931f775974a76f9f668f6a5ae5c4b', ...], 'offset': '0', 'length': 501}]})
+E        +      where {'protocol': 1, 'request_id': '4a1d9412-5e62-4759-8885-7671559f69f7', 'items': [{'path': ['b526367ca41b780b3cc3af2f553...e084f61f3c8', '594e1687df8c111aba11f7ed95053a25237931f775974a76f9f668f6a5ae5c4b', ...], 'offset': '0', 'length': 501}]} = packet([({'bytes': '481', 'hash': '547141c3c8471f9ba0b4a2632459e9269616a2259d8cfd6de6e20dfd4e3fe4fd'}, ['b526367ca41b780b3cc3... ['pk', 'ledger_entries', [...]], 'value': '5421b33d958873d57455bd44c95513c6634a22f92fef0f9cbf0ccad5a25bb074'}], ...})])
+
+docs/benchmarks/t66f-b02-independent/test_backend.py:101: AssertionError</failure></testcase><testcase classname="docs.benchmarks.t66f-b02-independent.test_backend" name="test_cached_prefix_negative_http_and_state[cycle-expected1]" time="1.177"><failure message="AssertionError: assert 422 == 200&#10; +  where 422 = &lt;Response [422 Unprocessable Entity]&gt;.status_code&#10; +    where &lt;Response [422 Unprocessable Entity]&gt; = send(&lt;starlette.testclient.TestClient object at 0x76541cc8eed0&gt;, {'base_sync_root': None, 'change_kind': 'initial', 'expires_at': '2026-10-05T00:15:00Z', 'inline_objects': [], ...}, {'protocol': 1, 'request_id': '202389e8-0895-432b-aa3e-a2bf05d0258e', 'items': [{'path': ['b526367ca41b780b3cc3af2f553...e084f61f3c8', '594e1687df8c111aba11f7ed95053a25237931f775974a76f9f668f6a5ae5c4b', ...], 'offset': '0', 'length': 501}]})&#10; +      where {'protocol': 1, 'request_id': '202389e8-0895-432b-aa3e-a2bf05d0258e', 'items': [{'path': ['b526367ca41b780b3cc3af2f553...e084f61f3c8', '594e1687df8c111aba11f7ed95053a25237931f775974a76f9f668f6a5ae5c4b', ...], 'offset': '0', 'length': 501}]} = packet([({'bytes': '481', 'hash': '547141c3c8471f9ba0b4a2632459e9269616a2259d8cfd6de6e20dfd4e3fe4fd'}, ['b526367ca41b780b3cc3... ['pk', 'ledger_entries', [...]], 'value': '5421b33d958873d57455bd44c95513c6634a22f92fef0f9cbf0ccad5a25bb074'}], ...})])">owned = &lt;isolated_sync.retention_schema.RetentionSandbox object at 0x76541cc58440&gt;
+fault = 'cycle', expected = (422, 'INVALID_REQUEST')
+
+    @pytest.mark.parametrize('fault,expected',[
+     ('child',(422,'INVALID_REQUEST')),('cycle',(422,'INVALID_REQUEST')),('offset',(422,'INVALID_REQUEST')),
+     ('corrupt_parent',(500,'STORAGE_FAILED')),('corrupt_leaf',(500,'STORAGE_FAILED')),('wrong_type',(500,'STORAGE_FAILED')),
+     ('missing',(410,'OBSERVATION_INCOMPLETE')),('wrong_hash',(422,'INVALID_REQUEST')),
+     ('principal',(403,'PRINCIPAL_OR_SESSION_CHANGED')),('credential',(403,'PRINCIPAL_OR_SESSION_CHANGED')),
+     ('epoch',(409,'EPOCH_CHANGED')),('dataset',(409,'EPOCH_CHANGED')),('expiry',(410,'OBSERVATION_EXPIRED')),
+     ('observation',(410,'OBSERVATION_INCOMPLETE'))])
+    def test_cached_prefix_negative_http_and_state(owned,fault,expected):
+        clock=[NOW];c=app_client(owned,clock=lambda:clock[0]);m=observe(c).json();v=leaves(owned,m)[:2];p=packet(v)
+        assert send(c,m,p).status_code==200
+        backup=None
+        if fault in {'child','wrong_hash'}:p['items'][1]['path'][-1]='0'*64
+        elif fault=='cycle':p['items'][1]['path'].append(p['items'][1]['path'][0])
+        elif fault=='offset':p['items'][1]['offset']='99999999'
+        elif fault in {'corrupt_parent','corrupt_leaf','wrong_type','missing'}:
+            digest=v[1][1][-2]if fault=='corrupt_parent'else v[1][0]['hash']
+            with sqlite3.connect(owned.path)as db:
+                backup=db.execute('SELECT * FROM sync_objects WHERE hash=?',(digest,)).fetchone()
+                if fault=='missing':db.execute('DELETE FROM sync_objects WHERE hash=?',(digest,))
+                elif fault=='wrong_type':db.execute("UPDATE sync_objects SET kind='hot' WHERE hash=?",(digest,))
+                else:db.execute('UPDATE sync_objects SET body=body||? WHERE hash=?',(b' ',digest))
+        elif fault in {'epoch','dataset'}:
+            with sqlite3.connect(owned.path)as db:
+                value=json.loads(db.execute('SELECT namespace FROM sync_current').fetchone()[0]);value['epoch'if fault=='epoch'else'dataset_id']=str(uuid4());db.execute('UPDATE sync_current SET namespace=?',(json.dumps(value),))
+        elif fault=='expiry':clock[0]+=timedelta(seconds=901)
+        elif fault=='observation':m=dict(m,observation_id=str(uuid4()))
+        auth=TOKEN_B if fault=='principal'else TOKEN_NEW if fault=='credential'else TOKEN_A
+        old=None
+        with patch.object(transfer,'PathResolver',STRICT):old=send(c,m,p,auth)
+        new=send(c,m,p,auth)
+        assert (new.status_code,new.json()['error']['code'])==expected
+        assert (old.status_code,old.json())==(new.status_code,new.json())
+        assert new.headers['cache-control']=='no-store' and 'chunks'not in new.json()
+        with sqlite3.connect(owned.path)as db:
+            assert db.execute('PRAGMA foreign_key_check').fetchall()==[]
+            assert db.execute('SELECT count(*)FROM sync_commits WHERE status!="complete"').fetchone()[0]==0
+        # Packet defects do not poison later correct requests.
+&gt;       if fault in {'child','cycle','offset','wrong_hash'}:assert send(c,m,packet(v)).status_code==200
+                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: assert 422 == 200
+E        +  where 422 = &lt;Response [422 Unprocessable Entity]&gt;.status_code
+E        +    where &lt;Response [422 Unprocessable Entity]&gt; = send(&lt;starlette.testclient.TestClient object at 0x76541cc8eed0&gt;, {'base_sync_root': None, 'change_kind': 'initial', 'expires_at': '2026-10-05T00:15:00Z', 'inline_objects': [], ...}, {'protocol': 1, 'request_id': '202389e8-0895-432b-aa3e-a2bf05d0258e', 'items': [{'path': ['b526367ca41b780b3cc3af2f553...e084f61f3c8', '594e1687df8c111aba11f7ed95053a25237931f775974a76f9f668f6a5ae5c4b', ...], 'offset': '0', 'length': 501}]})
+E        +      where {'protocol': 1, 'request_id': '202389e8-0895-432b-aa3e-a2bf05d0258e', 'items': [{'path': ['b526367ca41b780b3cc3af2f553...e084f61f3c8', '594e1687df8c111aba11f7ed95053a25237931f775974a76f9f668f6a5ae5c4b', ...], 'offset': '0', 'length': 501}]} = packet([({'bytes': '481', 'hash': '547141c3c8471f9ba0b4a2632459e9269616a2259d8cfd6de6e20dfd4e3fe4fd'}, ['b526367ca41b780b3cc3... ['pk', 'ledger_entries', [...]], 'value': '5421b33d958873d57455bd44c95513c6634a22f92fef0f9cbf0ccad5a25bb074'}], ...})])
+
+docs/benchmarks/t66f-b02-independent/test_backend.py:101: AssertionError</failure></testcase><testcase classname="docs.benchmarks.t66f-b02-independent.test_backend" name="test_cached_prefix_negative_http_and_state[offset-expected2]" time="1.691" /><testcase classname="docs.benchmarks.t66f-b02-independent.test_backend" name="test_cached_prefix_negative_http_and_state[corrupt_parent-expected3]" time="1.119"><failure message="sqlite3.IntegrityError: CHECK constraint failed: typeof(body)='blob'">owned = &lt;isolated_sync.retention_schema.RetentionSandbox object at 0x76541faeb710&gt;
+fault = 'corrupt_parent', expected = (500, 'STORAGE_FAILED')
+
+    @pytest.mark.parametrize('fault,expected',[
+     ('child',(422,'INVALID_REQUEST')),('cycle',(422,'INVALID_REQUEST')),('offset',(422,'INVALID_REQUEST')),
+     ('corrupt_parent',(500,'STORAGE_FAILED')),('corrupt_leaf',(500,'STORAGE_FAILED')),('wrong_type',(500,'STORAGE_FAILED')),
+     ('missing',(410,'OBSERVATION_INCOMPLETE')),('wrong_hash',(422,'INVALID_REQUEST')),
+     ('principal',(403,'PRINCIPAL_OR_SESSION_CHANGED')),('credential',(403,'PRINCIPAL_OR_SESSION_CHANGED')),
+     ('epoch',(409,'EPOCH_CHANGED')),('dataset',(409,'EPOCH_CHANGED')),('expiry',(410,'OBSERVATION_EXPIRED')),
+     ('observation',(410,'OBSERVATION_INCOMPLETE'))])
+    def test_cached_prefix_negative_http_and_state(owned,fault,expected):
+        clock=[NOW];c=app_client(owned,clock=lambda:clock[0]);m=observe(c).json();v=leaves(owned,m)[:2];p=packet(v)
+        assert send(c,m,p).status_code==200
+        backup=None
+        if fault in {'child','wrong_hash'}:p['items'][1]['path'][-1]='0'*64
+        elif fault=='cycle':p['items'][1]['path'].append(p['items'][1]['path'][0])
+        elif fault=='offset':p['items'][1]['offset']='99999999'
+        elif fault in {'corrupt_parent','corrupt_leaf','wrong_type','missing'}:
+            digest=v[1][1][-2]if fault=='corrupt_parent'else v[1][0]['hash']
+            with sqlite3.connect(owned.path)as db:
+                backup=db.execute('SELECT * FROM sync_objects WHERE hash=?',(digest,)).fetchone()
+                if fault=='missing':db.execute('DELETE FROM sync_objects WHERE hash=?',(digest,))
+                elif fault=='wrong_type':db.execute("UPDATE sync_objects SET kind='hot' WHERE hash=?",(digest,))
+&gt;               else:db.execute('UPDATE sync_objects SET body=body||? WHERE hash=?',(b' ',digest))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               sqlite3.IntegrityError: CHECK constraint failed: typeof(body)='blob'
+
+docs/benchmarks/t66f-b02-independent/test_backend.py:84: IntegrityError</failure></testcase><testcase classname="docs.benchmarks.t66f-b02-independent.test_backend" name="test_cached_prefix_negative_http_and_state[corrupt_leaf-expected4]" time="1.046"><failure message="sqlite3.IntegrityError: CHECK constraint failed: typeof(body)='blob'">owned = &lt;isolated_sync.retention_schema.RetentionSandbox object at 0x76541e374140&gt;
+fault = 'corrupt_leaf', expected = (500, 'STORAGE_FAILED')
+
+    @pytest.mark.parametrize('fault,expected',[
+     ('child',(422,'INVALID_REQUEST')),('cycle',(422,'INVALID_REQUEST')),('offset',(422,'INVALID_REQUEST')),
+     ('corrupt_parent',(500,'STORAGE_FAILED')),('corrupt_leaf',(500,'STORAGE_FAILED')),('wrong_type',(500,'STORAGE_FAILED')),
+     ('missing',(410,'OBSERVATION_INCOMPLETE')),('wrong_hash',(422,'INVALID_REQUEST')),
+     ('principal',(403,'PRINCIPAL_OR_SESSION_CHANGED')),('credential',(403,'PRINCIPAL_OR_SESSION_CHANGED')),
+     ('epoch',(409,'EPOCH_CHANGED')),('dataset',(409,'EPOCH_CHANGED')),('expiry',(410,'OBSERVATION_EXPIRED')),
+     ('observation',(410,'OBSERVATION_INCOMPLETE'))])
+    def test_cached_prefix_negative_http_and_state(owned,fault,expected):
+        clock=[NOW];c=app_client(owned,clock=lambda:clock[0]);m=observe(c).json();v=leaves(owned,m)[:2];p=packet(v)
+        assert send(c,m,p).status_code==200
+        backup=None
+        if fault in {'child','wrong_hash'}:p['items'][1]['path'][-1]='0'*64
+        elif fault=='cycle':p['items'][1]['path'].append(p['items'][1]['path'][0])
+        elif fault=='offset':p['items'][1]['offset']='99999999'
+        elif fault in {'corrupt_parent','corrupt_leaf','wrong_type','missing'}:
+            digest=v[1][1][-2]if fault=='corrupt_parent'else v[1][0]['hash']
+            with sqlite3.connect(owned.path)as db:
+                backup=db.execute('SELECT * FROM sync_objects WHERE hash=?',(digest,)).fetchone()
+                if fault=='missing':db.execute('DELETE FROM sync_objects WHERE hash=?',(digest,))
+                elif fault=='wrong_type':db.execute("UPDATE sync_objects SET kind='hot' WHERE hash=?",(digest,))
+&gt;               else:db.execute('UPDATE sync_objects SET body=body||? WHERE hash=?',(b' ',digest))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               sqlite3.IntegrityError: CHECK constraint failed: typeof(body)='blob'
+
+docs/benchmarks/t66f-b02-independent/test_backend.py:84: IntegrityError</failure></testcase><testcase classname="docs.benchmarks.t66f-b02-independent.test_backend" name="test_cached_prefix_negative_http_and_state[wrong_type-expected5]" time="1.387" /><testcase classname="docs.benchmarks.t66f-b02-independent.test_backend" name="test_cached_prefix_negative_http_and_state[missing-expected6]" time="1.146"><failure message="sqlite3.IntegrityError: protected immutable object">owned = &lt;isolated_sync.retention_schema.RetentionSandbox object at 0x76541e53faa0&gt;
+fault = 'missing', expected = (410, 'OBSERVATION_INCOMPLETE')
+
+    @pytest.mark.parametrize('fault,expected',[
+     ('child',(422,'INVALID_REQUEST')),('cycle',(422,'INVALID_REQUEST')),('offset',(422,'INVALID_REQUEST')),
+     ('corrupt_parent',(500,'STORAGE_FAILED')),('corrupt_leaf',(500,'STORAGE_FAILED')),('wrong_type',(500,'STORAGE_FAILED')),
+     ('missing',(410,'OBSERVATION_INCOMPLETE')),('wrong_hash',(422,'INVALID_REQUEST')),
+     ('principal',(403,'PRINCIPAL_OR_SESSION_CHANGED')),('credential',(403,'PRINCIPAL_OR_SESSION_CHANGED')),
+     ('epoch',(409,'EPOCH_CHANGED')),('dataset',(409,'EPOCH_CHANGED')),('expiry',(410,'OBSERVATION_EXPIRED')),
+     ('observation',(410,'OBSERVATION_INCOMPLETE'))])
+    def test_cached_prefix_negative_http_and_state(owned,fault,expected):
+        clock=[NOW];c=app_client(owned,clock=lambda:clock[0]);m=observe(c).json();v=leaves(owned,m)[:2];p=packet(v)
+        assert send(c,m,p).status_code==200
+        backup=None
+        if fault in {'child','wrong_hash'}:p['items'][1]['path'][-1]='0'*64
+        elif fault=='cycle':p['items'][1]['path'].append(p['items'][1]['path'][0])
+        elif fault=='offset':p['items'][1]['offset']='99999999'
+        elif fault in {'corrupt_parent','corrupt_leaf','wrong_type','missing'}:
+            digest=v[1][1][-2]if fault=='corrupt_parent'else v[1][0]['hash']
+            with sqlite3.connect(owned.path)as db:
+                backup=db.execute('SELECT * FROM sync_objects WHERE hash=?',(digest,)).fetchone()
+&gt;               if fault=='missing':db.execute('DELETE FROM sync_objects WHERE hash=?',(digest,))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               sqlite3.IntegrityError: protected immutable object
+
+docs/benchmarks/t66f-b02-independent/test_backend.py:82: IntegrityError</failure></testcase><testcase classname="docs.benchmarks.t66f-b02-independent.test_backend" name="test_cached_prefix_negative_http_and_state[wrong_hash-expected7]" time="1.575"><failure message="AssertionError: assert 422 == 200&#10; +  where 422 = &lt;Response [422 Unprocessable Entity]&gt;.status_code&#10; +    where &lt;Response [422 Unprocessable Entity]&gt; = send(&lt;starlette.testclient.TestClient object at 0x76541e74ca40&gt;, {'base_sync_root': None, 'change_kind': 'initial', 'expires_at': '2026-10-05T00:15:00Z', 'inline_objects': [], ...}, {'protocol': 1, 'request_id': 'aa62ec32-09bf-4b37-abb5-aa81fa5d0e43', 'items': [{'path': ['b526367ca41b780b3cc3af2f553...e084f61f3c8', '594e1687df8c111aba11f7ed95053a25237931f775974a76f9f668f6a5ae5c4b', ...], 'offset': '0', 'length': 501}]})&#10; +      where {'protocol': 1, 'request_id': 'aa62ec32-09bf-4b37-abb5-aa81fa5d0e43', 'items': [{'path': ['b526367ca41b780b3cc3af2f553...e084f61f3c8', '594e1687df8c111aba11f7ed95053a25237931f775974a76f9f668f6a5ae5c4b', ...], 'offset': '0', 'length': 501}]} = packet([({'bytes': '481', 'hash': '547141c3c8471f9ba0b4a2632459e9269616a2259d8cfd6de6e20dfd4e3fe4fd'}, ['b526367ca41b780b3cc3... ['pk', 'ledger_entries', [...]], 'value': '5421b33d958873d57455bd44c95513c6634a22f92fef0f9cbf0ccad5a25bb074'}], ...})])">owned = &lt;isolated_sync.retention_schema.RetentionSandbox object at 0x76541e347680&gt;
+fault = 'wrong_hash', expected = (422, 'INVALID_REQUEST')
+
+    @pytest.mark.parametrize('fault,expected',[
+     ('child',(422,'INVALID_REQUEST')),('cycle',(422,'INVALID_REQUEST')),('offset',(422,'INVALID_REQUEST')),
+     ('corrupt_parent',(500,'STORAGE_FAILED')),('corrupt_leaf',(500,'STORAGE_FAILED')),('wrong_type',(500,'STORAGE_FAILED')),
+     ('missing',(410,'OBSERVATION_INCOMPLETE')),('wrong_hash',(422,'INVALID_REQUEST')),
+     ('principal',(403,'PRINCIPAL_OR_SESSION_CHANGED')),('credential',(403,'PRINCIPAL_OR_SESSION_CHANGED')),
+     ('epoch',(409,'EPOCH_CHANGED')),('dataset',(409,'EPOCH_CHANGED')),('expiry',(410,'OBSERVATION_EXPIRED')),
+     ('observation',(410,'OBSERVATION_INCOMPLETE'))])
+    def test_cached_prefix_negative_http_and_state(owned,fault,expected):
+        clock=[NOW];c=app_client(owned,clock=lambda:clock[0]);m=observe(c).json();v=leaves(owned,m)[:2];p=packet(v)
+        assert send(c,m,p).status_code==200
+        backup=None
+        if fault in {'child','wrong_hash'}:p['items'][1]['path'][-1]='0'*64
+        elif fault=='cycle':p['items'][1]['path'].append(p['items'][1]['path'][0])
+        elif fault=='offset':p['items'][1]['offset']='99999999'
+        elif fault in {'corrupt_parent','corrupt_leaf','wrong_type','missing'}:
+            digest=v[1][1][-2]if fault=='corrupt_parent'else v[1][0]['hash']
+            with sqlite3.connect(owned.path)as db:
+                backup=db.execute('SELECT * FROM sync_objects WHERE hash=?',(digest,)).fetchone()
+                if fault=='missing':db.execute('DELETE FROM sync_objects WHERE hash=?',(digest,))
+                elif fault=='wrong_type':db.execute("UPDATE sync_objects SET kind='hot' WHERE hash=?",(digest,))
+                else:db.execute('UPDATE sync_objects SET body=body||? WHERE hash=?',(b' ',digest))
+        elif fault in {'epoch','dataset'}:
+            with sqlite3.connect(owned.path)as db:
+                value=json.loads(db.execute('SELECT namespace FROM sync_current').fetchone()[0]);value['epoch'if fault=='epoch'else'dataset_id']=str(uuid4());db.execute('UPDATE sync_current SET namespace=?',(json.dumps(value),))
+        elif fault=='expiry':clock[0]+=timedelta(seconds=901)
+        elif fault=='observation':m=dict(m,observation_id=str(uuid4()))
+        auth=TOKEN_B if fault=='principal'else TOKEN_NEW if fault=='credential'else TOKEN_A
+        old=None
+        with patch.object(transfer,'PathResolver',STRICT):old=send(c,m,p,auth)
+        new=send(c,m,p,auth)
+        assert (new.status_code,new.json()['error']['code'])==expected
+        assert (old.status_code,old.json())==(new.status_code,new.json())
+        assert new.headers['cache-control']=='no-store' and 'chunks'not in new.json()
+        with sqlite3.connect(owned.path)as db:
+            assert db.execute('PRAGMA foreign_key_check').fetchall()==[]
+            assert db.execute('SELECT count(*)FROM sync_commits WHERE status!="complete"').fetchone()[0]==0
+        # Packet defects do not poison later correct requests.
+&gt;       if fault in {'child','cycle','offset','wrong_hash'}:assert send(c,m,packet(v)).status_code==200
+                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: assert 422 == 200
+E        +  where 422 = &lt;Response [422 Unprocessable Entity]&gt;.status_code
+E        +    where &lt;Response [422 Unprocessable Entity]&gt; = send(&lt;starlette.testclient.TestClient object at 0x76541e74ca40&gt;, {'base_sync_root': None, 'change_kind': 'initial', 'expires_at': '2026-10-05T00:15:00Z', 'inline_objects': [], ...}, {'protocol': 1, 'request_id': 'aa62ec32-09bf-4b37-abb5-aa81fa5d0e43', 'items': [{'path': ['b526367ca41b780b3cc3af2f553...e084f61f3c8', '594e1687df8c111aba11f7ed95053a25237931f775974a76f9f668f6a5ae5c4b', ...], 'offset': '0', 'length': 501}]})
+E        +      where {'protocol': 1, 'request_id': 'aa62ec32-09bf-4b37-abb5-aa81fa5d0e43', 'items': [{'path': ['b526367ca41b780b3cc3af2f553...e084f61f3c8', '594e1687df8c111aba11f7ed95053a25237931f775974a76f9f668f6a5ae5c4b', ...], 'offset': '0', 'length': 501}]} = packet([({'bytes': '481', 'hash': '547141c3c8471f9ba0b4a2632459e9269616a2259d8cfd6de6e20dfd4e3fe4fd'}, ['b526367ca41b780b3cc3... ['pk', 'ledger_entries', [...]], 'value': '5421b33d958873d57455bd44c95513c6634a22f92fef0f9cbf0ccad5a25bb074'}], ...})])
+
+docs/benchmarks/t66f-b02-independent/test_backend.py:101: AssertionError</failure></testcase><testcase classname="docs.benchmarks.t66f-b02-independent.test_backend" name="test_cached_prefix_negative_http_and_state[principal-expected8]" time="1.278" /><testcase classname="docs.benchmarks.t66f-b02-independent.test_backend" name="test_cached_prefix_negative_http_and_state[credential-expected9]" time="1.409" /><testcase classname="docs.benchmarks.t66f-b02-independent.test_backend" name="test_cached_prefix_negative_http_and_state[epoch-expected10]" time="1.301" /><testcase classname="docs.benchmarks.t66f-b02-independent.test_backend" name="test_cached_prefix_negative_http_and_state[dataset-expected11]" time="1.319" /><testcase classname="docs.benchmarks.t66f-b02-independent.test_backend" name="test_cached_prefix_negative_http_and_state[expiry-expected12]" time="1.340" /><testcase classname="docs.benchmarks.t66f-b02-independent.test_backend" name="test_cached_prefix_negative_http_and_state[observation-expected13]" time="2.017" /><testcase classname="docs.benchmarks.t66f-b02-independent.test_backend" name="test_capacity_fallback_remains_strict[0-0]" time="1.212" /><testcase classname="docs.benchmarks.t66f-b02-independent.test_backend" name="test_capacity_fallback_remains_strict[1-1048576]" time="1.228" /><testcase classname="docs.benchmarks.t66f-b02-independent.test_backend" name="test_capacity_fallback_remains_strict[2-1024]" time="1.399" /><testcase classname="docs.benchmarks.t66f-b02-independent.test_backend" name="test_capacity_fallback_remains_strict[16-1048576]" time="1.053" /><testcase classname="docs.benchmarks.t66f-b02-independent.test_backend" name="test_capacity_fallback_remains_strict[32768-1048576]" time="1.324" /><testcase classname="docs.benchmarks.t66f-b02-independent.test_backend" name="test_quota_release_and_request_cancel" time="3.072" /><testcase classname="docs.benchmarks.t66f-b02-independent.test_backend" name="test_database_replacement_after_cache_prepare_is_fenced" time="1.472" /><testcase classname="docs.benchmarks.t66f-b02-independent.test_backend" name="test_c1_old_new_full_admission_differential" time="0.260" /></testsuite></testsuites>

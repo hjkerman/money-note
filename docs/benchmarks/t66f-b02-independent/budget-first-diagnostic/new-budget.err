@@ -1,0 +1,3 @@
+../docs/benchmarks/t66f-b02-independent/budget_test.dart:42:19: Error: Method not found: 'HttpSegmentedTransport'.
+  final transport=HttpSegmentedTransport(client:client,origin:syntheticOrigin,credential:()=> 'synthetic-token');
+                  ^^^^^^^^^^^^^^^^^^^^^^

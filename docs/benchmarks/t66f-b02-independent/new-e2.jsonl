@@ -1,0 +1,63 @@
+{"protocolVersion":"0.1.1","runnerVersion":null,"pid":521074,"type":"start","time":0}
+{"suite":{"id":0,"platform":"vm","path":"/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/e2_audit_test.dart"},"type":"suite","time":0}
+{"test":{"id":1,"name":"loading /home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/e2_audit_test.dart","suiteID":0,"groupIDs":[],"metadata":{"skip":false,"skipReason":null},"line":null,"column":null,"url":null},"type":"testStart","time":2}
+{"count":1,"time":12,"type":"allSuites"}
+
+[{"event":"test.startedProcess","params":{"vmServiceUri":null}}]
+{"testID":1,"result":"success","skipped":false,"hidden":true,"type":"testDone","time":5196}
+{"group":{"id":2,"suiteID":0,"parentID":null,"name":"","metadata":{"skip":false,"skipReason":null},"testCount":25,"line":null,"column":null,"url":null},"type":"group","time":5201}
+{"test":{"id":3,"name":"(setUpAll)","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":47,"column":2,"url":"file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/e2_audit_test.dart"},"type":"testStart","time":5202}
+{"testID":3,"result":"success","skipped":false,"hidden":true,"type":"testDone","time":16263}
+{"test":{"id":4,"name":"independent actual E2 graph bound objects_at","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":49,"column":2,"url":"file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/e2_audit_test.dart"},"type":"testStart","time":16264}
+{"testID":4,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":21321}
+{"test":{"id":5,"name":"independent actual E2 graph bound objects_over","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":49,"column":2,"url":"file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/e2_audit_test.dart"},"type":"testStart","time":21322}
+{"testID":5,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":25648}
+{"test":{"id":6,"name":"independent actual E2 graph bound edges_at","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":49,"column":2,"url":"file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/e2_audit_test.dart"},"type":"testStart","time":25648}
+{"testID":6,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":28897}
+{"test":{"id":7,"name":"independent actual E2 graph bound edges_over","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":49,"column":2,"url":"file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/e2_audit_test.dart"},"type":"testStart","time":28898}
+{"testID":7,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":31827}
+{"test":{"id":8,"name":"independent actual E2 graph bound default_hard_cap","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":49,"column":2,"url":"file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/e2_audit_test.dart"},"type":"testStart","time":31828}
+{"testID":8,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":31866}
+{"test":{"id":9,"name":"independent actual E2 graph bound large_hard_cap","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":49,"column":2,"url":"file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/e2_audit_test.dart"},"type":"testStart","time":31867}
+{"testID":9,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":31905}
+{"test":{"id":10,"name":"independent E1 metadata 319 and rollback","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":64,"column":2,"url":"file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/e2_audit_test.dart"},"type":"testStart","time":31905}
+{"testID":10,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":31929}
+{"test":{"id":11,"name":"independent E1 metadata 320 and rollback","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":64,"column":2,"url":"file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/e2_audit_test.dart"},"type":"testStart","time":31929}
+{"testID":11,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":31951}
+{"test":{"id":12,"name":"independent E1 metadata 321 and rollback","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":64,"column":2,"url":"file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/e2_audit_test.dart"},"type":"testStart","time":31952}
+{"testID":12,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":31974}
+{"test":{"id":13,"name":"independent E1 object byte boundary 0","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":73,"column":2,"url":"file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/e2_audit_test.dart"},"type":"testStart","time":31975}
+{"testID":13,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":32002}
+{"test":{"id":14,"name":"independent E1 object byte boundary -1","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":73,"column":2,"url":"file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/e2_audit_test.dart"},"type":"testStart","time":32002}
+{"testID":14,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":32017}
+{"test":{"id":15,"name":"independent E1 staged batch entry boundary 64","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":80,"column":2,"url":"file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/e2_audit_test.dart"},"type":"testStart","time":32018}
+{"testID":15,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":32297}
+{"test":{"id":16,"name":"independent E1 staged batch entry boundary 65","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":80,"column":2,"url":"file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/e2_audit_test.dart"},"type":"testStart","time":32298}
+{"testID":16,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":32327}
+{"test":{"id":17,"name":"independent staging quota exact and beyond","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":90,"column":2,"url":"file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/e2_audit_test.dart"},"type":"testStart","time":32328}
+{"testID":17,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":32360}
+{"test":{"id":18,"name":"independent packet comparison same 926-object backend graph","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":96,"column":2,"url":"file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/e2_audit_test.dart"},"type":"testStart","time":32361}
+{"testID":18,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":42201}
+{"test":{"id":19,"name":"independent renewal/fault same with durable state oracle","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":115,"column":2,"url":"file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/e2_audit_test.dart"},"type":"testStart","time":42201}
+{"testID":19,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":46210}
+{"test":{"id":20,"name":"independent renewal/fault changed_raw with durable state oracle","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":115,"column":2,"url":"file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/e2_audit_test.dart"},"type":"testStart","time":46211}
+{"testID":20,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":50537}
+{"test":{"id":21,"name":"independent renewal/fault expiry_exhausted with durable state oracle","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":115,"column":2,"url":"file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/e2_audit_test.dart"},"type":"testStart","time":50538}
+{"testID":21,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":51358}
+{"test":{"id":22,"name":"independent renewal/fault cancel with durable state oracle","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":115,"column":2,"url":"file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/e2_audit_test.dart"},"type":"testStart","time":51359}
+{"testID":22,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":51947}
+{"test":{"id":23,"name":"independent renewal/fault logout with durable state oracle","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":115,"column":2,"url":"file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/e2_audit_test.dart"},"type":"testStart","time":51948}
+{"testID":23,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":52507}
+{"test":{"id":24,"name":"independent renewal/fault external_commit with durable state oracle","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":115,"column":2,"url":"file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/e2_audit_test.dart"},"type":"testStart","time":52508}
+{"testID":24,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":56252}
+{"test":{"id":25,"name":"independent renewal/fault bad_manifest with durable state oracle","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":115,"column":2,"url":"file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/e2_audit_test.dart"},"type":"testStart","time":56252}
+{"testID":25,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":56275}
+{"test":{"id":26,"name":"independent renewal/fault bad_ref with durable state oracle","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":115,"column":2,"url":"file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/e2_audit_test.dart"},"type":"testStart","time":56276}
+{"testID":26,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":56372}
+{"test":{"id":27,"name":"independent renewal/fault bad_data with durable state oracle","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":115,"column":2,"url":"file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/e2_audit_test.dart"},"type":"testStart","time":56372}
+{"testID":27,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":56467}
+{"test":{"id":28,"name":"independent request retries remain three and bounded","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":152,"column":2,"url":"file:///home/hjkerman/codex/money-note/docs/benchmarks/t66f-b02-independent/e2_audit_test.dart"},"type":"testStart","time":56467}
+{"testID":28,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":56494}
+{"test":{"id":29,"name":"(tearDownAll)","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":null,"column":null,"url":null},"type":"testStart","time":56494}
+{"testID":29,"result":"success","skipped":false,"hidden":true,"type":"testDone","time":56497}
+{"success":true,"type":"done","time":56555}

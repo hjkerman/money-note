@@ -1,0 +1,89 @@
+{
+  "n": 1000,
+  "out": "/tmp/mn-b02-independent-1000-0pxa9qde",
+  "started_utc": 1792461676.0927465,
+  "available_memory_before": 20206866432,
+  "disk_free_before": 33560088576,
+  "ttl": 900,
+  "max_observations": 3,
+  "rss_tree_limit": 8589934592,
+  "external_wall_guard_s": 600,
+  "args": [
+    "/home/hjkerman/.flutter/bin/flutter",
+    "test",
+    "--no-pub",
+    "--machine",
+    "--concurrency=1",
+    "--dart-define=B02_N=1000",
+    "--dart-define=B02_OUT=/tmp/mn-b02-independent-1000-0pxa9qde",
+    "--dart-define=B02_COMPLETE_PLAN=true",
+    "../docs/benchmarks/t66f-b02-independent/large_test.dart"
+  ],
+  "pid": 519650,
+  "exit_code": 1,
+  "elapsed_s": 180.9111059610732,
+  "peak_sampled_process_tree_rss": 1257758720,
+  "external_termination": null,
+  "resource_samples": [
+    {
+      "elapsed_s": 0.06839965900871903,
+      "rss_tree": 8925184,
+      "memory_available": 20202471424
+    },
+    {
+      "elapsed_s": 15.145980329019949,
+      "rss_tree": 928219136,
+      "memory_available": 19254546432
+    },
+    {
+      "elapsed_s": 30.231697687064297,
+      "rss_tree": 1203359744,
+      "memory_available": 19088183296
+    },
+    {
+      "elapsed_s": 45.31791041500401,
+      "rss_tree": 1252593664,
+      "memory_available": 19031904256
+    },
+    {
+      "elapsed_s": 60.40045723202638,
+      "rss_tree": 1254412288,
+      "memory_available": 19017170944
+    },
+    {
+      "elapsed_s": 75.47739238408394,
+      "rss_tree": 1257758720,
+      "memory_available": 19110776832
+    },
+    {
+      "elapsed_s": 90.56033556500915,
+      "rss_tree": 1232367616,
+      "memory_available": 19025674240
+    },
+    {
+      "elapsed_s": 105.6441767240176,
+      "rss_tree": 1240272896,
+      "memory_available": 18983043072
+    },
+    {
+      "elapsed_s": 120.69871692801826,
+      "rss_tree": 1240449024,
+      "memory_available": 18975080448
+    },
+    {
+      "elapsed_s": 135.78506712603848,
+      "rss_tree": 1236525056,
+      "memory_available": 19004669952
+    },
+    {
+      "elapsed_s": 150.84139782597777,
+      "rss_tree": 1245552640,
+      "memory_available": 18961649664
+    },
+    {
+      "elapsed_s": 165.91901258507278,
+      "rss_tree": 1242357760,
+      "memory_available": 18990305280
+    }
+  ]
+}

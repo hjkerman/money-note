@@ -1,0 +1,35 @@
+{
+  "os": "Linux-6.8.0-146-generic-x86_64-with-glibc2.39",
+  "cpu": "Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz",
+  "visible_cpu_count": 12,
+  "affinity_cpu_count": 12,
+  "python": "3.12.3",
+  "python_sqlite": "3.45.1",
+  "cgroup": {},
+  "flutter": {
+    "frameworkVersion": "3.47.4",
+    "channel": "stable",
+    "repositoryUrl": "https://github.com/flutter/flutter.git",
+    "frameworkRevision": "9584c6713b324636289d067944a46fd6b49df14b",
+    "frameworkCommitDate": "2026-09-10 15:25:10 -0700",
+    "engineRevision": "06a2e2a110089dff50fe635cffd2a61e1b24fbcd",
+    "engineCommitDate": "2026-09-03 16:07:13.000Z",
+    "engineContentHash": "0e228ec8c8d2abc9fcf1d053e8a40665bb859ec7",
+    "engineBuildDate": "2026-09-03 09:39:13.722",
+    "dartSdkVersion": "3.13.3",
+    "devToolsVersion": "2.60.0",
+    "flutterVersion": "3.47.4",
+    "flutterRoot": "/home/hjkerman/.flutter"
+  },
+  "filesystem": "ext2/ext3",
+  "claim": "SYNTHETIC HOST MEASUREMENT; Android 기기 검증 아님",
+  "isolation": "large 두 실행은 순차, full 회귀 및 1k oracle 검증 종료 뒤 실행; localhost TLS/합성 DB 전용",
+  "measurement": "15초 process-tree RSS 표본; client ProcessInfo.currentRss/current-process peak 별도; sum RSS는 PSS가 아니며 shared pages 중복 가능",
+  "cgroup_membership": "0::/user.slice/user-1000.slice/session-321.scope",
+  "proc_limits": [
+    "Max data size             unlimited            unlimited            bytes     ",
+    "Max resident set          unlimited            unlimited            bytes     ",
+    "Max address space         unlimited            unlimited            bytes     "
+  ],
+  "cgroup_limit_note": "현재 namespace의 cgroup limit 파일이 보이지 않아 별도 상한은 확인하지 못함. available RAM preflight와 외부 8GiB guard는 실행 기록에 보존."
+}

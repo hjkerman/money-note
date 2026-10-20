@@ -1,0 +1,15 @@
+{
+  "status": 422,
+  "body": {
+    "error": {
+      "action": "blocked",
+      "code": "INVALID_REQUEST",
+      "current_ns": null,
+      "retry_after_ms": null
+    },
+    "protocol": 1,
+    "request_id": "d936fc34-219f-4962-b855-0dafb8b72c6d"
+  },
+  "original_strict_equal": true,
+  "missing_storage_read_injection": false
+}

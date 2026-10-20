@@ -1,0 +1,15 @@
+{
+  "status": 500,
+  "body": {
+    "error": {
+      "action": "blocked",
+      "code": "STORAGE_FAILED",
+      "current_ns": null,
+      "retry_after_ms": null
+    },
+    "protocol": 1,
+    "request_id": "c18f11eb-b06a-4a85-acab-6b0c64a22be7"
+  },
+  "original_strict_equal": true,
+  "missing_storage_read_injection": false
+}
