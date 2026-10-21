@@ -1078,12 +1078,12 @@ backend 제품·protocol·engine artifacts·이전 audit/FAIL·원 diagnostic은
 합성 wrapper/tests·calibration/evidence·본 보고서는 B03 범위다. index는 완료 gate까지 비워 두었다.
 완료 구현 commit과 push 후 실제 ref/clean 검증은 아래 receipt 및 최종 응답에 기록한다.
 
-### 최종 필수 footer — 구현 검증 완료, commit 직전
+### 최종 필수 footer — 구현 검증 및 구현 commit 완료
 
 ```text
 T6.6F-B03 MINIMAL COST INSTRUMENTATION: COMPLETE
 STARTING PHASE B AUDIT COMMIT: da818648031e013e83dd6a680b1b1bde0fb6e0a1
-FINAL B03 IMPLEMENTATION COMMIT: NONE — 완료 검증 후 생성
+FINAL B03 IMPLEMENTATION COMMIT: a96e130682023522ec56ab6e2fc9f53ec8d77df6
 REPOSITORY STATE: VERIFIED
 PRODUCT SOURCE MODIFIED: YES — 기존 5개 한정 seam + 새 진단 library
 BINDING PROTOCOL: UNCHANGED
@@ -1178,3 +1178,17 @@ SAFE TO DEPLOY: NO
 FINAL VERDICT: T6.6F-B03 IMPLEMENTATION COMPLETE — READY FOR INDEPENDENT INSTRUMENTATION AUDIT
 NEXT ACTION: 완료 구현을 정상 이력으로 보존하고 별도 독립 B03 계측 감사를 요청하세요.
 ```
+
+### 완료 commit/push receipt
+
+구현 commit은 **`a96e130682023522ec56ab6e2fc9f53ec8d77df6`**다.
+`test(sync): add bounded logical cost instrumentation for T6.6F`로 승인된 B03 파일만
+명시적으로 stage한 뒤 commit했고, 정상 `git push origin main`이 exit 0으로 완료됐다.
+그 직후 HEAD/main/origin/main/실제 remote main이 모두 이 SHA였고 `git status --short`는
+빈 출력, `git diff --check`는 exit 0이었다. 기계 receipt는
+[`implementation-commit-receipt.json`](benchmarks/t66f-b03/evidence/implementation-commit-receipt.json)이다.
+
+이 receipt를 보존하는 후속 commit은 **B03 문서·receipt만** 포함하며 제품·tests·source-lock은
+변경하지 않는다. 최종 전달 시 그 후속 HEAD와 remote refs/clean 상태를 다시 확인한다.
+구현 SHA와 문서 receipt SHA를 혼동하지 않는다. commit/push는 독립 B03 감사 PASS나 Phase B
+완료·배포·R1 구현·APK 설치·segmented activation을 뜻하지 않는다.
