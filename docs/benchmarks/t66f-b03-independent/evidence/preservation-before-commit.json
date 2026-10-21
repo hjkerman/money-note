@@ -1,0 +1,17 @@
+{
+  "original_tracked_files": 2595,
+  "mismatches": [],
+  "refs": [
+    "ea2c32ce75a5f6894f52dc1b8fb4e2b1ae6df478",
+    "ea2c32ce75a5f6894f52dc1b8fb4e2b1ae6df478",
+    "ea2c32ce75a5f6894f52dc1b8fb4e2b1ae6df478"
+  ],
+  "actual_remote_main": "ea2c32ce75a5f6894f52dc1b8fb4e2b1ae6df478",
+  "product_protocol_source_locks_history": "UNCHANGED",
+  "auditor_allowed_paths": [
+    "backend/tests/test_logical_cost_independent_audit.py",
+    "mobile/test/segmented_logical_cost_independent_audit_test.dart",
+    "docs/benchmarks/t66f-b03-independent/",
+    "docs/t66f-b03-independent-instrumentation-audit.md"
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "oracle_rows": [
+    [
+      "a",
+      1
+    ]
+  ],
+  "expected_committed": 1,
+  "actual_committed": 0,
+  "expected_rollback": 2,
+  "counters": {
+    "calibration/payload/INSERT/attempted/blob_bytes": "3",
+    "calibration/payload/INSERT/attempted/columns": "4",
+    "calibration/payload/INSERT/attempted/null_values": "0",
+    "calibration/payload/INSERT/attempted/rows": "2",
+    "calibration/payload/INSERT/attempted/scalar_values": "0",
+    "calibration/payload/INSERT/attempted/text_bytes": "2",
+    "calibration/payload/INSERT/effective/blob_bytes": "3",
+    "calibration/payload/INSERT/effective/columns": "4",
+    "calibration/payload/INSERT/effective/null_values": "0",
+    "calibration/payload/INSERT/effective/rows": "2",
+    "calibration/payload/INSERT/effective/scalar_values": "0",
+    "calibration/payload/INSERT/effective/text_bytes": "2",
+    "calibration/payload/INSERT/rolled_back/blob_bytes": "3",
+    "calibration/payload/INSERT/rolled_back/columns": "4",
+    "calibration/payload/INSERT/rolled_back/text_bytes": "2",
+    "calibration/sql/statements": "9"
+  }
+}

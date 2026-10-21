@@ -1,0 +1,20 @@
+[
+  {
+    "closed_scopes": 10,
+    "pending_keys": 50,
+    "retained_before_rollback": 10,
+    "retained_after_rollback": 0
+  },
+  {
+    "closed_scopes": 100,
+    "pending_keys": 500,
+    "retained_before_rollback": 100,
+    "retained_after_rollback": 0
+  },
+  {
+    "closed_scopes": 1000,
+    "pending_keys": 5000,
+    "retained_before_rollback": 1000,
+    "retained_after_rollback": 0
+  }
+]

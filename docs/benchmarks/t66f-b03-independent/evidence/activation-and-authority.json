@@ -1,0 +1,49 @@
+{
+  "normal_product_call_sites": [
+    {
+      "path": "mobile/lib/src/app_state.dart",
+      "line": 457,
+      "source": "final expected = await LogicalCost.at("
+    },
+    {
+      "path": "mobile/lib/src/app_state.dart",
+      "line": 462,
+      "source": "final acquired = await LogicalCost.at("
+    },
+    {
+      "path": "mobile/lib/src/app_state.dart",
+      "line": 470,
+      "source": "final proof = await LogicalCost.at("
+    },
+    {
+      "path": "mobile/lib/src/app_state.dart",
+      "line": 490,
+      "source": "return LogicalCost.at("
+    },
+    {
+      "path": "mobile/lib/src/app_state.dart",
+      "line": 508,
+      "source": "LogicalCost.at(LogicalCostStage.e3Prepare,"
+    },
+    {
+      "path": "mobile/lib/src/segmented/store.dart",
+      "line": 118,
+      "source": "Database Function(String path)? diagnosticDatabaseFactory}) {"
+    },
+    {
+      "path": "mobile/lib/src/segmented/store.dart",
+      "line": 127,
+      "source": "db = diagnosticDatabaseFactory == null"
+    },
+    {
+      "path": "mobile/lib/src/segmented/store.dart",
+      "line": 129,
+      "source": ": diagnosticDatabaseFactory(path);"
+    }
+  ],
+  "diagnostic_constructor_in_product": [],
+  "product_persistent_diagnostics": false,
+  "e3_guard_commit_source_unchanged": true,
+  "backend-full_sampled_max_tree_rss_bytes": 346550272,
+  "flutter-full_sampled_max_tree_rss_bytes": 4325527552
+}

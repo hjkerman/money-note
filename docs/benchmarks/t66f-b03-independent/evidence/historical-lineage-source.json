@@ -1,0 +1,6 @@
+{
+  "commit": "da818648031e013e83dd6a680b1b1bde0fb6e0a1",
+  "sha256": "a8d767e509881a1a8e9d3196d1fd955b1b4cf793a36f3ffd593b869b686bf8c2",
+  "function": "  String recoveryLineageFingerprint(OfflineBaseline baseline) {\n    return sha256\n        .convert(utf8.encode(_canonicalJson({\n          'schema_version': 1,\n          'origin': 'mobile-baseline-lineage',\n          'baseline': baseline.toJson(),\n        })))\n        .toString();\n  }\n\n",
+  "helper": "String _canonicalJson(Object? value) => jsonEncode(_canonicalValue(value));\n\nObject? _canonicalValue(Object? value) {\n  if (value is Map) {\n    final keys = value.keys.map((key) => key.toString()).toList()..sort();\n    return <String, Object?>{\n      for (final key in keys) key: _canonicalValue(value[key]),\n    };\n  }\n  if (value is List) return value.map(_canonicalValue).toList();\n  return value;\n}\n\n"
+}

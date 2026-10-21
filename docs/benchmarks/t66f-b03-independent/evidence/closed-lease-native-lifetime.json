@@ -1,0 +1,12 @@
+{
+  "error": "closed worker lease",
+  "pending": 1,
+  "collector_closed": false,
+  "completion_count": 0,
+  "native_budget": {
+    "leases": 0,
+    "jobs": 0,
+    "running": 0,
+    "tasks": 0
+  }
+}

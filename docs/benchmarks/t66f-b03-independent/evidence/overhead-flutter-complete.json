@@ -1,0 +1,34 @@
+{
+  "mode": "overhead-flutter-complete",
+  "command": [
+    "/home/hjkerman/.flutter/bin/flutter",
+    "test",
+    "--no-pub",
+    "--machine",
+    "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03-independent/overhead_test.dart"
+  ],
+  "cwd": "/home/hjkerman/codex/money-note/mobile",
+  "start_unix": 1792566068.171161,
+  "status": "PASS",
+  "timeout_seconds": 7200,
+  "rss_guard_bytes": 8589934592,
+  "pid": 613911,
+  "exit": 0,
+  "end_unix": 1792566098.2136817,
+  "elapsed_seconds": 30.042415429023094,
+  "external_termination": null,
+  "rss_samples": [
+    [
+      0.012,
+      3670016
+    ],
+    [
+      10.027,
+      886878208
+    ],
+    [
+      20.042,
+      893022208
+    ]
+  ]
+}

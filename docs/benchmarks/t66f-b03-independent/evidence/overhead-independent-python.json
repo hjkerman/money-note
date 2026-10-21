@@ -1,0 +1,969 @@
+{
+  "environment": "HOST Linux same process, 3 warmup + 20 alternating pairs",
+  "results": {
+    "small": {
+      "iterations": 200,
+      "payload_bytes": 88,
+      "rows": 20,
+      "samples": {
+        "off": [
+          {
+            "primitive_wall_ns": 2885320,
+            "primitive_cpu_ns": 2885557,
+            "sql_wall_ns": 64558,
+            "sql_cpu_ns": 64628,
+            "init_ns": 204,
+            "teardown_ns": 233,
+            "rss_delta_bytes": 8192,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 2895974,
+            "primitive_cpu_ns": 2896018,
+            "sql_wall_ns": 60318,
+            "sql_cpu_ns": 60266,
+            "init_ns": 227,
+            "teardown_ns": 176,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 2920168,
+            "primitive_cpu_ns": 2920250,
+            "sql_wall_ns": 62236,
+            "sql_cpu_ns": 62213,
+            "init_ns": 234,
+            "teardown_ns": 230,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 2874068,
+            "primitive_cpu_ns": 2874149,
+            "sql_wall_ns": 76179,
+            "sql_cpu_ns": 76246,
+            "init_ns": 211,
+            "teardown_ns": 234,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 2926385,
+            "primitive_cpu_ns": 2926501,
+            "sql_wall_ns": 62845,
+            "sql_cpu_ns": 62864,
+            "init_ns": 266,
+            "teardown_ns": 267,
+            "rss_delta_bytes": 4096,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 2910991,
+            "primitive_cpu_ns": 2911034,
+            "sql_wall_ns": 61212,
+            "sql_cpu_ns": 61219,
+            "init_ns": 221,
+            "teardown_ns": 245,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 3101079,
+            "primitive_cpu_ns": 3100969,
+            "sql_wall_ns": 61486,
+            "sql_cpu_ns": 61509,
+            "init_ns": 288,
+            "teardown_ns": 224,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 2860417,
+            "primitive_cpu_ns": 2860561,
+            "sql_wall_ns": 62682,
+            "sql_cpu_ns": 62683,
+            "init_ns": 228,
+            "teardown_ns": 220,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 3005641,
+            "primitive_cpu_ns": 3005744,
+            "sql_wall_ns": 65142,
+            "sql_cpu_ns": 65145,
+            "init_ns": 230,
+            "teardown_ns": 185,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 2986516,
+            "primitive_cpu_ns": 2986560,
+            "sql_wall_ns": 61587,
+            "sql_cpu_ns": 61616,
+            "init_ns": 210,
+            "teardown_ns": 187,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 3009171,
+            "primitive_cpu_ns": 3009229,
+            "sql_wall_ns": 62072,
+            "sql_cpu_ns": 62020,
+            "init_ns": 226,
+            "teardown_ns": 200,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 2971072,
+            "primitive_cpu_ns": 2971105,
+            "sql_wall_ns": 63494,
+            "sql_cpu_ns": 63442,
+            "init_ns": 209,
+            "teardown_ns": 210,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 2995353,
+            "primitive_cpu_ns": 2995481,
+            "sql_wall_ns": 70495,
+            "sql_cpu_ns": 70504,
+            "init_ns": 229,
+            "teardown_ns": 192,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 3067975,
+            "primitive_cpu_ns": 3068077,
+            "sql_wall_ns": 63733,
+            "sql_cpu_ns": 63755,
+            "init_ns": 196,
+            "teardown_ns": 203,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 3038144,
+            "primitive_cpu_ns": 3038295,
+            "sql_wall_ns": 63825,
+            "sql_cpu_ns": 63802,
+            "init_ns": 239,
+            "teardown_ns": 195,
+            "rss_delta_bytes": 4096,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 2983379,
+            "primitive_cpu_ns": 2983458,
+            "sql_wall_ns": 62609,
+            "sql_cpu_ns": 62680,
+            "init_ns": 243,
+            "teardown_ns": 206,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 3025478,
+            "primitive_cpu_ns": 3019750,
+            "sql_wall_ns": 64012,
+            "sql_cpu_ns": 63979,
+            "init_ns": 218,
+            "teardown_ns": 205,
+            "rss_delta_bytes": 4096,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 3005699,
+            "primitive_cpu_ns": 3005904,
+            "sql_wall_ns": 62731,
+            "sql_cpu_ns": 62735,
+            "init_ns": 213,
+            "teardown_ns": 202,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 3029251,
+            "primitive_cpu_ns": 3029357,
+            "sql_wall_ns": 64047,
+            "sql_cpu_ns": 64001,
+            "init_ns": 252,
+            "teardown_ns": 195,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 3002259,
+            "primitive_cpu_ns": 3002406,
+            "sql_wall_ns": 64343,
+            "sql_cpu_ns": 64210,
+            "init_ns": 243,
+            "teardown_ns": 177,
+            "rss_delta_bytes": 4096,
+            "aggregate_keys": 0
+          }
+        ],
+        "on": [
+          {
+            "primitive_wall_ns": 4474557,
+            "primitive_cpu_ns": 4474763,
+            "sql_wall_ns": 981158,
+            "sql_cpu_ns": 981438,
+            "init_ns": 55365,
+            "teardown_ns": 42524,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 4516540,
+            "primitive_cpu_ns": 4516691,
+            "sql_wall_ns": 1011404,
+            "sql_cpu_ns": 1011623,
+            "init_ns": 55051,
+            "teardown_ns": 43210,
+            "rss_delta_bytes": 8192,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 4610879,
+            "primitive_cpu_ns": 4610957,
+            "sql_wall_ns": 1012321,
+            "sql_cpu_ns": 1012504,
+            "init_ns": 56879,
+            "teardown_ns": 43625,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 4674455,
+            "primitive_cpu_ns": 4674532,
+            "sql_wall_ns": 1004983,
+            "sql_cpu_ns": 1005225,
+            "init_ns": 68893,
+            "teardown_ns": 45822,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 4603387,
+            "primitive_cpu_ns": 4603417,
+            "sql_wall_ns": 1013201,
+            "sql_cpu_ns": 1013230,
+            "init_ns": 59295,
+            "teardown_ns": 43198,
+            "rss_delta_bytes": 4096,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 4610815,
+            "primitive_cpu_ns": 4610899,
+            "sql_wall_ns": 1013383,
+            "sql_cpu_ns": 1013666,
+            "init_ns": 57973,
+            "teardown_ns": 44362,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 5196016,
+            "primitive_cpu_ns": 5196152,
+            "sql_wall_ns": 1074063,
+            "sql_cpu_ns": 1074573,
+            "init_ns": 63709,
+            "teardown_ns": 57121,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 4643943,
+            "primitive_cpu_ns": 4643967,
+            "sql_wall_ns": 1055758,
+            "sql_cpu_ns": 1055922,
+            "init_ns": 67829,
+            "teardown_ns": 49300,
+            "rss_delta_bytes": 4096,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 4696973,
+            "primitive_cpu_ns": 4697076,
+            "sql_wall_ns": 1043927,
+            "sql_cpu_ns": 1044140,
+            "init_ns": 59244,
+            "teardown_ns": 44764,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 4671548,
+            "primitive_cpu_ns": 4671579,
+            "sql_wall_ns": 1039800,
+            "sql_cpu_ns": 1039923,
+            "init_ns": 57430,
+            "teardown_ns": 43333,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 4774633,
+            "primitive_cpu_ns": 4774790,
+            "sql_wall_ns": 1041623,
+            "sql_cpu_ns": 1041761,
+            "init_ns": 58401,
+            "teardown_ns": 45256,
+            "rss_delta_bytes": 4096,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 4733903,
+            "primitive_cpu_ns": 4733942,
+            "sql_wall_ns": 1040120,
+            "sql_cpu_ns": 1040304,
+            "init_ns": 59922,
+            "teardown_ns": 45133,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 4727754,
+            "primitive_cpu_ns": 4727859,
+            "sql_wall_ns": 1040663,
+            "sql_cpu_ns": 1040848,
+            "init_ns": 59451,
+            "teardown_ns": 44996,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 4711981,
+            "primitive_cpu_ns": 4712057,
+            "sql_wall_ns": 1037804,
+            "sql_cpu_ns": 1038005,
+            "init_ns": 58419,
+            "teardown_ns": 45234,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 4727971,
+            "primitive_cpu_ns": 4728130,
+            "sql_wall_ns": 1032379,
+            "sql_cpu_ns": 1032576,
+            "init_ns": 59099,
+            "teardown_ns": 44427,
+            "rss_delta_bytes": 4096,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 4704687,
+            "primitive_cpu_ns": 4704789,
+            "sql_wall_ns": 1032704,
+            "sql_cpu_ns": 1032906,
+            "init_ns": 59010,
+            "teardown_ns": 44951,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 4717000,
+            "primitive_cpu_ns": 4717080,
+            "sql_wall_ns": 1039792,
+            "sql_cpu_ns": 1040009,
+            "init_ns": 58956,
+            "teardown_ns": 44225,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 4787980,
+            "primitive_cpu_ns": 4788054,
+            "sql_wall_ns": 1039470,
+            "sql_cpu_ns": 1039685,
+            "init_ns": 59927,
+            "teardown_ns": 44667,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 4711582,
+            "primitive_cpu_ns": 4711687,
+            "sql_wall_ns": 1039823,
+            "sql_cpu_ns": 1040018,
+            "init_ns": 59284,
+            "teardown_ns": 47691,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 4790915,
+            "primitive_cpu_ns": 4791027,
+            "sql_wall_ns": 1039650,
+            "sql_cpu_ns": 1039814,
+            "init_ns": 61683,
+            "teardown_ns": 44730,
+            "rss_delta_bytes": 4096,
+            "aggregate_keys": 27
+          }
+        ]
+      },
+      "summary": {
+        "off": {
+          "primitive_wall_ns": {
+            "median": 2990934.5,
+            "p95": 3067975
+          },
+          "primitive_cpu_ns": {
+            "median": 2991020.5,
+            "p95": 3068077
+          },
+          "sql_wall_ns": {
+            "median": 63169.5,
+            "p95": 70495
+          },
+          "sql_cpu_ns": {
+            "median": 63153.0,
+            "p95": 70504
+          },
+          "init_ns": {
+            "median": 227.5,
+            "p95": 266
+          },
+          "teardown_ns": {
+            "median": 204.0,
+            "p95": 245
+          },
+          "rss_delta_bytes": {
+            "median": 0.0,
+            "p95": 4096
+          },
+          "aggregate_keys": {
+            "median": 0.0,
+            "p95": 0
+          }
+        },
+        "on": {
+          "primitive_wall_ns": {
+            "median": 4708134.5,
+            "p95": 4790915
+          },
+          "primitive_cpu_ns": {
+            "median": 4708238.0,
+            "p95": 4791027
+          },
+          "sql_wall_ns": {
+            "median": 1039560.0,
+            "p95": 1055758
+          },
+          "sql_cpu_ns": {
+            "median": 1039749.5,
+            "p95": 1055922
+          },
+          "init_ns": {
+            "median": 59171.5,
+            "p95": 67829
+          },
+          "teardown_ns": {
+            "median": 44747.0,
+            "p95": 49300
+          },
+          "rss_delta_bytes": {
+            "median": 0.0,
+            "p95": 4096
+          },
+          "aggregate_keys": {
+            "median": 27.0,
+            "p95": 27
+          }
+        }
+      }
+    },
+    "medium": {
+      "iterations": 2000,
+      "payload_bytes": 4120,
+      "rows": 200,
+      "samples": {
+        "off": [
+          {
+            "primitive_wall_ns": 91688478,
+            "primitive_cpu_ns": 91688691,
+            "sql_wall_ns": 1048599,
+            "sql_cpu_ns": 1048588,
+            "init_ns": 248,
+            "teardown_ns": 275,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 91067775,
+            "primitive_cpu_ns": 91067506,
+            "sql_wall_ns": 876480,
+            "sql_cpu_ns": 876504,
+            "init_ns": 274,
+            "teardown_ns": 272,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 90601475,
+            "primitive_cpu_ns": 90600850,
+            "sql_wall_ns": 847585,
+            "sql_cpu_ns": 847699,
+            "init_ns": 244,
+            "teardown_ns": 191,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 90380385,
+            "primitive_cpu_ns": 90379653,
+            "sql_wall_ns": 994373,
+            "sql_cpu_ns": 994530,
+            "init_ns": 244,
+            "teardown_ns": 202,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 90262743,
+            "primitive_cpu_ns": 90261923,
+            "sql_wall_ns": 980333,
+            "sql_cpu_ns": 980508,
+            "init_ns": 272,
+            "teardown_ns": 181,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 90079391,
+            "primitive_cpu_ns": 90071614,
+            "sql_wall_ns": 865033,
+            "sql_cpu_ns": 865154,
+            "init_ns": 245,
+            "teardown_ns": 184,
+            "rss_delta_bytes": 180224,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 90593552,
+            "primitive_cpu_ns": 90592693,
+            "sql_wall_ns": 818365,
+            "sql_cpu_ns": 818537,
+            "init_ns": 244,
+            "teardown_ns": 181,
+            "rss_delta_bytes": 110592,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 89909599,
+            "primitive_cpu_ns": 89908802,
+            "sql_wall_ns": 831608,
+            "sql_cpu_ns": 831806,
+            "init_ns": 240,
+            "teardown_ns": 174,
+            "rss_delta_bytes": -110592,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 90604989,
+            "primitive_cpu_ns": 90604217,
+            "sql_wall_ns": 855109,
+            "sql_cpu_ns": 855254,
+            "init_ns": 291,
+            "teardown_ns": 188,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 90146085,
+            "primitive_cpu_ns": 90145026,
+            "sql_wall_ns": 963072,
+            "sql_cpu_ns": 963245,
+            "init_ns": 249,
+            "teardown_ns": 155,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 90488071,
+            "primitive_cpu_ns": 90479931,
+            "sql_wall_ns": 1016973,
+            "sql_cpu_ns": 1017074,
+            "init_ns": 258,
+            "teardown_ns": 196,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 90162006,
+            "primitive_cpu_ns": 90161326,
+            "sql_wall_ns": 865240,
+            "sql_cpu_ns": 865345,
+            "init_ns": 278,
+            "teardown_ns": 218,
+            "rss_delta_bytes": 176128,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 90656762,
+            "primitive_cpu_ns": 90651890,
+            "sql_wall_ns": 817901,
+            "sql_cpu_ns": 818149,
+            "init_ns": 253,
+            "teardown_ns": 195,
+            "rss_delta_bytes": 147456,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 90398489,
+            "primitive_cpu_ns": 90397824,
+            "sql_wall_ns": 787544,
+            "sql_cpu_ns": 787741,
+            "init_ns": 235,
+            "teardown_ns": 221,
+            "rss_delta_bytes": -147456,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 90550058,
+            "primitive_cpu_ns": 90543453,
+            "sql_wall_ns": 724902,
+            "sql_cpu_ns": 724943,
+            "init_ns": 238,
+            "teardown_ns": 214,
+            "rss_delta_bytes": 151552,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 90160029,
+            "primitive_cpu_ns": 90159206,
+            "sql_wall_ns": 744709,
+            "sql_cpu_ns": 744880,
+            "init_ns": 206,
+            "teardown_ns": 190,
+            "rss_delta_bytes": -176128,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 90729027,
+            "primitive_cpu_ns": 90728316,
+            "sql_wall_ns": 998438,
+            "sql_cpu_ns": 998548,
+            "init_ns": 243,
+            "teardown_ns": 192,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 90087236,
+            "primitive_cpu_ns": 90086735,
+            "sql_wall_ns": 916811,
+            "sql_cpu_ns": 916865,
+            "init_ns": 245,
+            "teardown_ns": 212,
+            "rss_delta_bytes": 225280,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 90649966,
+            "primitive_cpu_ns": 90649311,
+            "sql_wall_ns": 864012,
+            "sql_cpu_ns": 864170,
+            "init_ns": 251,
+            "teardown_ns": 187,
+            "rss_delta_bytes": 188416,
+            "aggregate_keys": 0
+          },
+          {
+            "primitive_wall_ns": 90595592,
+            "primitive_cpu_ns": 90594809,
+            "sql_wall_ns": 784635,
+            "sql_cpu_ns": 784751,
+            "init_ns": 226,
+            "teardown_ns": 190,
+            "rss_delta_bytes": -184320,
+            "aggregate_keys": 0
+          }
+        ],
+        "on": [
+          {
+            "primitive_wall_ns": 108144229,
+            "primitive_cpu_ns": 108137476,
+            "sql_wall_ns": 6924896,
+            "sql_cpu_ns": 6925193,
+            "init_ns": 67864,
+            "teardown_ns": 55144,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 109063141,
+            "primitive_cpu_ns": 109062677,
+            "sql_wall_ns": 6892753,
+            "sql_cpu_ns": 6893282,
+            "init_ns": 76007,
+            "teardown_ns": 57310,
+            "rss_delta_bytes": 8192,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 109023865,
+            "primitive_cpu_ns": 109023089,
+            "sql_wall_ns": 6371317,
+            "sql_cpu_ns": 6371180,
+            "init_ns": 68157,
+            "teardown_ns": 194830,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 109349616,
+            "primitive_cpu_ns": 109348385,
+            "sql_wall_ns": 6394635,
+            "sql_cpu_ns": 6394966,
+            "init_ns": 77079,
+            "teardown_ns": 188668,
+            "rss_delta_bytes": 4096,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 109283863,
+            "primitive_cpu_ns": 109282715,
+            "sql_wall_ns": 6810349,
+            "sql_cpu_ns": 6810517,
+            "init_ns": 65649,
+            "teardown_ns": 54763,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 109352061,
+            "primitive_cpu_ns": 109350908,
+            "sql_wall_ns": 6672351,
+            "sql_cpu_ns": 6672586,
+            "init_ns": 86841,
+            "teardown_ns": 58228,
+            "rss_delta_bytes": -180224,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 109368052,
+            "primitive_cpu_ns": 109352415,
+            "sql_wall_ns": 6948643,
+            "sql_cpu_ns": 6948796,
+            "init_ns": 69501,
+            "teardown_ns": 54456,
+            "rss_delta_bytes": 73728,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 108833575,
+            "primitive_cpu_ns": 108832454,
+            "sql_wall_ns": 6868056,
+            "sql_cpu_ns": 6868292,
+            "init_ns": 76600,
+            "teardown_ns": 54537,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 109289602,
+            "primitive_cpu_ns": 109289015,
+            "sql_wall_ns": 6347955,
+            "sql_cpu_ns": 6347962,
+            "init_ns": 67078,
+            "teardown_ns": 176330,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 109195994,
+            "primitive_cpu_ns": 109194663,
+            "sql_wall_ns": 6505700,
+            "sql_cpu_ns": 6505905,
+            "init_ns": 77294,
+            "teardown_ns": 56345,
+            "rss_delta_bytes": 262144,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 109513735,
+            "primitive_cpu_ns": 109498806,
+            "sql_wall_ns": 6372897,
+            "sql_cpu_ns": 6373095,
+            "init_ns": 65631,
+            "teardown_ns": 53817,
+            "rss_delta_bytes": -262144,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 109269433,
+            "primitive_cpu_ns": 109268581,
+            "sql_wall_ns": 6918462,
+            "sql_cpu_ns": 6918501,
+            "init_ns": 73583,
+            "teardown_ns": 61139,
+            "rss_delta_bytes": -172032,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 110032410,
+            "primitive_cpu_ns": 110024269,
+            "sql_wall_ns": 6980696,
+            "sql_cpu_ns": 6980868,
+            "init_ns": 74871,
+            "teardown_ns": 57972,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 109094024,
+            "primitive_cpu_ns": 109092850,
+            "sql_wall_ns": 6990762,
+            "sql_cpu_ns": 6991038,
+            "init_ns": 76922,
+            "teardown_ns": 71038,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 109985090,
+            "primitive_cpu_ns": 109983977,
+            "sql_wall_ns": 6469116,
+            "sql_cpu_ns": 6469240,
+            "init_ns": 72964,
+            "teardown_ns": 58882,
+            "rss_delta_bytes": 274432,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 109342559,
+            "primitive_cpu_ns": 109325511,
+            "sql_wall_ns": 6514854,
+            "sql_cpu_ns": 6515223,
+            "init_ns": 76278,
+            "teardown_ns": 57191,
+            "rss_delta_bytes": -196608,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 109513288,
+            "primitive_cpu_ns": 109512056,
+            "sql_wall_ns": 6737389,
+            "sql_cpu_ns": 6733160,
+            "init_ns": 69231,
+            "teardown_ns": 55004,
+            "rss_delta_bytes": -45056,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 109246967,
+            "primitive_cpu_ns": 109239280,
+            "sql_wall_ns": 6519736,
+            "sql_cpu_ns": 6519878,
+            "init_ns": 72721,
+            "teardown_ns": 54637,
+            "rss_delta_bytes": -217088,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 109944801,
+            "primitive_cpu_ns": 109943626,
+            "sql_wall_ns": 7059851,
+            "sql_cpu_ns": 7060036,
+            "init_ns": 66595,
+            "teardown_ns": 56301,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 27
+          },
+          {
+            "primitive_wall_ns": 109125688,
+            "primitive_cpu_ns": 109118293,
+            "sql_wall_ns": 6945227,
+            "sql_cpu_ns": 6945318,
+            "init_ns": 74824,
+            "teardown_ns": 56569,
+            "rss_delta_bytes": 0,
+            "aggregate_keys": 27
+          }
+        ]
+      },
+      "summary": {
+        "off": {
+          "primitive_wall_ns": {
+            "median": 90519064.5,
+            "p95": 91067775
+          },
+          "primitive_cpu_ns": {
+            "median": 90511692.0,
+            "p95": 91067506
+          },
+          "sql_wall_ns": {
+            "median": 864522.5,
+            "p95": 1016973
+          },
+          "sql_cpu_ns": {
+            "median": 864662.0,
+            "p95": 1017074
+          },
+          "init_ns": {
+            "median": 245.0,
+            "p95": 278
+          },
+          "teardown_ns": {
+            "median": 191.5,
+            "p95": 272
+          },
+          "rss_delta_bytes": {
+            "median": 0.0,
+            "p95": 188416
+          },
+          "aggregate_keys": {
+            "median": 0.0,
+            "p95": 0
+          }
+        },
+        "on": {
+          "primitive_wall_ns": {
+            "median": 109286732.5,
+            "p95": 109985090
+          },
+          "primitive_cpu_ns": {
+            "median": 109285865.0,
+            "p95": 109983977
+          },
+          "sql_wall_ns": {
+            "median": 6773869.0,
+            "p95": 6990762
+          },
+          "sql_cpu_ns": {
+            "median": 6771838.5,
+            "p95": 6991038
+          },
+          "init_ns": {
+            "median": 73273.5,
+            "p95": 77294
+          },
+          "teardown_ns": {
+            "median": 56880.0,
+            "p95": 188668
+          },
+          "rss_delta_bytes": {
+            "median": 0.0,
+            "p95": 262144
+          },
+          "aggregate_keys": {
+            "median": 27.0,
+            "p95": 27
+          }
+        }
+      }
+    }
+  },
+  "maxrss_bytes": 28872704,
+  "limits": "RSS 차분은 heap allocation이 아니다. 계측 설치/SQL TEMP 비용 포함 경계를 분리. 100k lease 및 Android는 미검증"
+}

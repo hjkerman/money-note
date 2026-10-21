@@ -1,0 +1,26 @@
+{
+  "mode": "python-format",
+  "command": [
+    "/home/hjkerman/codex/money-note/.venv/bin/ruff",
+    "format",
+    "--check",
+    "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03-independent",
+    "backend/tests/test_logical_cost_independent_audit.py"
+  ],
+  "cwd": "/home/hjkerman/codex/money-note",
+  "start_unix": 1792566274.779344,
+  "status": "PASS",
+  "timeout_seconds": 7200,
+  "rss_guard_bytes": 8589934592,
+  "pid": 614056,
+  "exit": 0,
+  "end_unix": 1792566284.7925053,
+  "elapsed_seconds": 10.013049268047325,
+  "external_termination": null,
+  "rss_samples": [
+    [
+      0.013,
+      0
+    ]
+  ]
+}

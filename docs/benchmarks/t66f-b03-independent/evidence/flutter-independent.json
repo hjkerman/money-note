@@ -1,0 +1,26 @@
+{
+  "mode": "flutter-independent",
+  "command": [
+    "/home/hjkerman/.flutter/bin/flutter",
+    "test",
+    "--no-pub",
+    "--machine",
+    "test/segmented_logical_cost_independent_audit_test.dart"
+  ],
+  "cwd": "/home/hjkerman/codex/money-note/mobile",
+  "start_unix": 1792554334.5968957,
+  "status": "PASS",
+  "timeout_seconds": 7200,
+  "rss_guard_bytes": 8589934592,
+  "pid": 599689,
+  "exit": 0,
+  "end_unix": 1792554344.6093466,
+  "elapsed_seconds": 10.012346790987067,
+  "external_termination": null,
+  "rss_samples": [
+    [
+      0.012,
+      3538944
+    ]
+  ]
+}

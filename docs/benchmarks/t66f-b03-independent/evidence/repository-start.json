@@ -1,0 +1,12 @@
+{
+  "provenance": "최초 변경 전 읽기 전용 exec의 실제 출력을 후속 파일화; 당시 시각은 추정하지 않음",
+  "cwd": "/home/hjkerman/codex/money-note",
+  "branch": "main",
+  "HEAD": "ea2c32ce75a5f6894f52dc1b8fb4e2b1ae6df478",
+  "main": "ea2c32ce75a5f6894f52dc1b8fb4e2b1ae6df478",
+  "origin_main": "ea2c32ce75a5f6894f52dc1b8fb4e2b1ae6df478",
+  "actual_remote_main": "ea2c32ce75a5f6894f52dc1b8fb4e2b1ae6df478",
+  "status_short": "",
+  "remote": "git@github.com:hjkerman/money-note.git",
+  "git_tree": "34e1c518c2c7d3e3a910835a453724fc63cf6234"
+}

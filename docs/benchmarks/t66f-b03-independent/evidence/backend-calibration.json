@@ -1,0 +1,29 @@
+{
+  "mode": "backend-calibration",
+  "command": [
+    "/home/hjkerman/codex/money-note/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/test_logical_cost_instrumentation.py",
+    "tests/test_logical_cost_independent_audit.py",
+    "../docs/benchmarks/t66f-phase-b-final/test_counters.py",
+    "--junitxml=/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03-independent/evidence/backend-calibration.xml"
+  ],
+  "cwd": "/home/hjkerman/codex/money-note/backend",
+  "start_unix": 1792554334.1399138,
+  "status": "PASS",
+  "timeout_seconds": 7200,
+  "rss_guard_bytes": 8589934592,
+  "pid": 599680,
+  "exit": 0,
+  "end_unix": 1792554344.152095,
+  "elapsed_seconds": 10.012082791072316,
+  "external_termination": null,
+  "rss_samples": [
+    [
+      0.012,
+      9830400
+    ]
+  ]
+}

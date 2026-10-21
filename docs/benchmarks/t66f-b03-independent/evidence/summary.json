@@ -1,0 +1,3173 @@
+{
+  "verdict": "FAIL — T6.6F-B03 INSTRUMENTATION CORRECTION REQUIRED",
+  "original_b03": {
+    "backend": 24,
+    "flutter": 49,
+    "authority": 2,
+    "total": 75
+  },
+  "new_independent": {
+    "backend": 18,
+    "flutter": 14,
+    "http": 2,
+    "overhead": 1,
+    "total": 35,
+    "note": "결함 재현 시험의 PASS는 counter correctness PASS가 아니다. 직접 실험3종은 pytest 수에 더하지 않음"
+  },
+  "backend": {
+    "classes": {
+      "tests.test_admin.AdminApiTest": 7,
+      "tests.test_audit.AuditLogTest": 1,
+      "tests.test_audit_request_lookup.AuditRequestLookupTest": 13,
+      "tests.test_auth.AuthSessionTest": 6,
+      "tests.test_authoritative_state.AuthoritativeStateTest": 30,
+      "tests.test_bundle_idempotency_constraint.BundleIdempotencyConstraintTest": 1,
+      "tests.test_bundle_policy_artifact": 2,
+      "tests.test_bundle_unicode.BundleUnicodeTest": 2,
+      "tests.test_card_charge.CardChargePolicyTest": 10,
+      "tests.test_card_ownership_read_view.CardOwnershipReadViewTest": 23,
+      "tests.test_card_payments.CardPaymentDeferralTest": 20,
+      "tests.test_cash_fixed_early_execution.EarlyCashFixedTest": 12,
+      "tests.test_cash_flows.CashFlowQueryTest": 5,
+      "tests.test_entry_constraints.EntryConstraintTest": 13,
+      "tests.test_exact_money_domain.ExactMoneyDomainTest": 19,
+      "tests.test_financial_canonicalization.FinancialCanonicalizationTest": 22,
+      "tests.test_financial_state_gaps.FinancialStateGapTest": 36,
+      "tests.test_freeze_blocker_closure.FreezeBlockerClosureTest": 19,
+      "tests.test_freeze_reaudit_closure.FreezeReauditClosureTest": 17,
+      "tests.test_isolated_sync_c1_single_encode": 25,
+      "tests.test_isolated_sync_canonical": 34,
+      "tests.test_isolated_sync_capture": 113,
+      "tests.test_isolated_sync_differential": 5,
+      "tests.test_isolated_sync_facts": 50,
+      "tests.test_isolated_sync_finalization": 73,
+      "tests.test_isolated_sync_inputs": 30,
+      "tests.test_isolated_sync_observation": 129,
+      "tests.test_isolated_sync_patricia": 11,
+      "tests.test_isolated_sync_prefix_reuse": 28,
+      "tests.test_isolated_sync_retention": 57,
+      "tests.test_isolated_sync_retention_ownership": 31,
+      "tests.test_isolated_sync_roots": 10,
+      "tests.test_isolated_sync_segments": 21,
+      "tests.test_isolated_sync_transfer": 94,
+      "tests.test_isolated_sync_transfer_cancellation": 25,
+      "tests.test_isolated_sync_transfer_failures": 26,
+      "tests.test_judgment.JudgmentTest": 16,
+      "tests.test_legacy_recurring_checkpoint.LegacyRecurringCheckpointTest": 19,
+      "tests.test_logical_cost_independent_audit": 18,
+      "tests.test_logical_cost_instrumentation": 24,
+      "tests.test_migration_characterization.MigrationCharacterizationTest": 2,
+      "tests.test_month.MonthCloseTest": 33,
+      "tests.test_offline_reconciliation.OfflineReconciliationTest": 19,
+      "tests.test_offline_refresh_revision.RefreshRevisionTest": 9,
+      "tests.test_operation_stats.OperationStatsTest": 1,
+      "tests.test_owner_recurring_canonicalization.OwnerCanonicalizationTests": 17,
+      "tests.test_panels.PanelCompletionTest": 19,
+      "tests.test_persistent_financial_relationships.PersistentFinancialRelationshipsTest": 16,
+      "tests.test_presentation.ServerPresentationTest": 3,
+      "tests.test_recurring_ownership_proof.RecurringOwnershipProofTest": 11,
+      "tests.test_recurring_snapshot_ownership.RecurringSnapshotOwnershipTest": 14,
+      "tests.test_recurring_witness_completeness.RecurringWitnessCompletenessTest": 10,
+      "tests.test_reset.ResetTest": 2,
+      "tests.test_security.SecurityPolicyTest": 8,
+      "tests.test_security.StartupMaintenanceTest": 1,
+      "tests.test_settings.SettingsVisibilityTest": 7,
+      "tests.test_share.SharePanelTest": 7,
+      "tests.test_snapshot.SnapshotTest": 70,
+      "tests.test_snapshot_export_metadata.SnapshotExportMetadataTest": 9,
+      "tests.test_summary.SummaryCalculationTest": 16,
+      "tests.test_toll_freeze_audit": 11,
+      "tests.test_utility_discount.UtilityDiscountDefaultTest": 6,
+      "tests.test_versioned_migrations._FixtureBuilder": 2,
+      "tests.test_versioned_migrations.VersionedMigrationTest": 20
+    },
+    "testcase": 1410,
+    "failure": 0,
+    "error": 0,
+    "skipped": 0
+  },
+  "backend_calibration": {
+    "classes": {
+      "tests.test_logical_cost_instrumentation": 24,
+      "tests.test_logical_cost_independent_audit": 18,
+      "": 16
+    },
+    "testcase": 58,
+    "failure": 0,
+    "error": 0,
+    "skipped": 0
+  },
+  "flutter_runs": {
+    "flutter-independent": {
+      "counts": {
+        "PASS": 14
+      },
+      "done": true,
+      "errors": [],
+      "files": {
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_logical_cost_independent_audit_test.dart": {
+          "PASS": 14
+        }
+      },
+      "skipped": []
+    },
+    "flutter-full": {
+      "counts": {
+        "PASS": 1662,
+        "SKIP": 2
+      },
+      "done": true,
+      "errors": [],
+      "files": {
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart": {
+          "PASS": 23
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/coherent_get_dag_test.dart": {
+          "PASS": 91
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/authoritative_acquisition_test.dart": {
+          "PASS": 57
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_logical_cost_independent_audit_test.dart": {
+          "PASS": 14
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_logical_cost_source_lock_test.dart": {
+          "PASS": 6
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_large_profile_authority_test.dart": {
+          "PASS": 5
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_publication_crash_test.dart": {
+          "PASS": 16
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/diagnostics/t66a_payload_test.dart": {
+          "SKIP": 2
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_e4_provenance_test.dart": {
+          "PASS": 11
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_e4_handoff_test.dart": {
+          "PASS": 35
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/offline_persistence_test.dart": {
+          "PASS": 9
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/local_snapshot_repository_test.dart": {
+          "PASS": 7
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/notification_models_test.dart": {
+          "PASS": 2
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/offline_notification_identity_test.dart": {
+          "PASS": 5
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/notification_registration_test.dart": {
+          "PASS": 11
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/utility_discount_default_test.dart": {
+          "PASS": 1
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_e4_ra01_test.dart": {
+          "PASS": 42
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_i25_baseline_test.dart": {
+          "PASS": 1
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/offline_state_projection_test.dart": {
+          "PASS": 18
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_acquisition_store_test.dart": {
+          "PASS": 14
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/authoritative_money_compatibility_test.dart": {
+          "PASS": 183
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/authoritative_bundle_boundary_matrix_test.dart": {
+          "PASS": 1
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/app_state_test.dart": {
+          "PASS": 3
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_incremental_verification_test.dart": {
+          "PASS": 6
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_authority_test.dart": {
+          "PASS": 19
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_adapter_crash_test.dart": {
+          "PASS": 4
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_transport_test.dart": {
+          "PASS": 30
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_logical_cost_lineage_test.dart": {
+          "PASS": 4
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/authoritative_bundle_test.dart": {
+          "PASS": 27
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_protocol_test.dart": {
+          "PASS": 58
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_large_profile_test.dart": {
+          "PASS": 39
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_cold_packet_test.dart": {
+          "PASS": 14
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/offline_lineage_recovery_test.dart": {
+          "PASS": 8
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/formatters_test.dart": {
+          "PASS": 2
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/authoritative_bundle_trust_boundary_test.dart": {
+          "PASS": 47
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_crash_test.dart": {
+          "PASS": 7
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_root_pin_model_test.dart": {
+          "PASS": 2
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/notification_discount_policy_test.dart": {
+          "PASS": 17
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_e4_frozen_test.dart": {
+          "PASS": 19
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_e4_handoff_crash_test.dart": {
+          "PASS": 13
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_cold_continuation_test.dart": {
+          "PASS": 17
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_e4_a01_test.dart": {
+          "PASS": 21
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_logical_cost_test.dart": {
+          "PASS": 25
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_publication_test.dart": {
+          "PASS": 36
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_fetch_crash_test.dart": {
+          "PASS": 3
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_adapter_authority_test.dart": {
+          "PASS": 16
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/authoritative_bundle_canonical_test.dart": {
+          "PASS": 90
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_large_batch_test.dart": {
+          "PASS": 13
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/authoritative_bundle_admission_test.dart": {
+          "PASS": 26
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/offline_refresh_test.dart": {
+          "PASS": 27
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/apk_download_controller_test.dart": {
+          "PASS": 1
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_money_correction_test.dart": {
+          "PASS": 166
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/offline_reconciliation_test.dart": {
+          "PASS": 14
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_store_test.dart": {
+          "PASS": 31
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_adapters_test.dart": {
+          "PASS": 42
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_logical_cost_overhead_test.dart": {
+          "PASS": 1
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/offline_widget_submit_test.dart": {
+          "PASS": 13
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/authoritative_bundle_unicode_test.dart": {
+          "PASS": 11
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_logical_cost_boundaries_test.dart": {
+          "PASS": 10
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/exact_money_domain_test.dart": {
+          "PASS": 5
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/freeze_reaudit_outcome_test.dart": {
+          "PASS": 11
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_i25_publication_test.dart": {
+          "PASS": 30
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_http_integration_test.dart": {
+          "PASS": 5
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/submit_latency_diagnostic_test.dart": {
+          "PASS": 3
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/family_screen_test.dart": {
+          "PASS": 5
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_diff_integration_test.dart": {
+          "PASS": 1
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_response_cleanup_test.dart": {
+          "PASS": 13
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_fetch_test.dart": {
+          "PASS": 72
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/date_picker_row_test.dart": {
+          "PASS": 1
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/recurring_series_widget_test.dart": {
+          "PASS": 6
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_large_profile_crash_test.dart": {
+          "PASS": 4
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/authoritative_rebuild_pending_test.dart": {
+          "PASS": 11
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_cold_continuation_crash_test.dart": {
+          "PASS": 4
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_schema_correction_test.dart": {
+          "PASS": 45
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/ai_audit_report_test.dart": {
+          "PASS": 9
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_logical_cost_http_test.dart": {
+          "PASS": 3
+        }
+      },
+      "skipped": [
+        "T6.6A frozen bytes admission and actual durable HOST pipeline",
+        "T6.6A actual IOClient content encoding and byte-exact admission"
+      ]
+    },
+    "flutter-calibration": {
+      "counts": {
+        "PASS": 71
+      },
+      "done": true,
+      "errors": [],
+      "files": {
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_logical_cost_test.dart": {
+          "PASS": 25
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_logical_cost_lineage_test.dart": {
+          "PASS": 4
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_logical_cost_boundaries_test.dart": {
+          "PASS": 10
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_logical_cost_http_test.dart": {
+          "PASS": 3
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_logical_cost_source_lock_test.dart": {
+          "PASS": 6
+        },
+        "/home/hjkerman/codex/money-note/mobile/test/segmented_adapter_isolation_test.dart": {
+          "PASS": 23
+        }
+      },
+      "skipped": []
+    },
+    "independent-http-serial": {
+      "counts": {
+        "PASS": 2
+      },
+      "done": true,
+      "errors": [],
+      "files": {
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03-independent/http_test.dart": {
+          "PASS": 2
+        }
+      },
+      "skipped": []
+    },
+    "authority": {
+      "counts": {
+        "PASS": 2
+      },
+      "done": true,
+      "errors": [],
+      "files": {
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03/authority_test.dart": {
+          "PASS": 2
+        }
+      },
+      "skipped": []
+    },
+    "overhead-flutter-complete": {
+      "counts": {
+        "PASS": 1
+      },
+      "done": true,
+      "errors": [],
+      "files": {
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03-independent/overhead_test.dart": {
+          "PASS": 1
+        }
+      },
+      "skipped": []
+    }
+  },
+  "checks": {
+    "backend-calibration": {
+      "mode": "backend-calibration",
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_logical_cost_instrumentation.py",
+        "tests/test_logical_cost_independent_audit.py",
+        "../docs/benchmarks/t66f-phase-b-final/test_counters.py",
+        "--junitxml=/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03-independent/evidence/backend-calibration.xml"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/backend",
+      "start_unix": 1792554334.1399138,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "exit": 0,
+      "end_unix": 1792554344.152095,
+      "elapsed_seconds": 10.012082791072316,
+      "external_termination": null
+    },
+    "flutter-independent": {
+      "mode": "flutter-independent",
+      "command": [
+        "/home/hjkerman/.flutter/bin/flutter",
+        "test",
+        "--no-pub",
+        "--machine",
+        "test/segmented_logical_cost_independent_audit_test.dart"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/mobile",
+      "start_unix": 1792554334.5968957,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "exit": 0,
+      "end_unix": 1792554344.6093466,
+      "elapsed_seconds": 10.012346790987067,
+      "external_termination": null
+    },
+    "backend-full": {
+      "mode": "backend-full",
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--junitxml=/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03-independent/evidence/backend-full.xml"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/backend",
+      "start_unix": 1792554501.1183348,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "exit": 0,
+      "end_unix": 1792556315.2775,
+      "elapsed_seconds": 1814.1590632679872,
+      "external_termination": null
+    },
+    "flutter-full": {
+      "mode": "flutter-full",
+      "command": [
+        "/home/hjkerman/.flutter/bin/flutter",
+        "test",
+        "--no-pub",
+        "--machine",
+        "--concurrency=4"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/mobile",
+      "start_unix": 1792554502.1319828,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "exit": 0,
+      "end_unix": 1792557057.67254,
+      "elapsed_seconds": 2555.540421069949,
+      "external_termination": null
+    },
+    "flutter-calibration": {
+      "mode": "flutter-calibration",
+      "command": [
+        "/home/hjkerman/.flutter/bin/flutter",
+        "test",
+        "--no-pub",
+        "--machine",
+        "--concurrency=2",
+        "--dart-define=B03_OUTPUT=/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03-independent/evidence/fresh",
+        "test/segmented_logical_cost_test.dart",
+        "test/segmented_logical_cost_lineage_test.dart",
+        "test/segmented_logical_cost_boundaries_test.dart",
+        "test/segmented_logical_cost_http_test.dart",
+        "test/segmented_logical_cost_source_lock_test.dart",
+        "test/segmented_adapter_isolation_test.dart"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/mobile",
+      "start_unix": 1792564828.2612953,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "exit": 0,
+      "end_unix": 1792565068.5589533,
+      "elapsed_seconds": 240.29755453497637,
+      "external_termination": null
+    },
+    "independent-http-serial": {
+      "mode": "independent-http-serial",
+      "command": [
+        "/home/hjkerman/.flutter/bin/flutter",
+        "test",
+        "--no-pub",
+        "--machine",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03-independent/http_test.dart"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/mobile",
+      "start_unix": 1792565321.4185677,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "exit": 0,
+      "end_unix": 1792565381.4990408,
+      "elapsed_seconds": 60.08036647900008,
+      "external_termination": null
+    },
+    "authority": {
+      "mode": "authority",
+      "command": [
+        "/home/hjkerman/.flutter/bin/flutter",
+        "test",
+        "--no-pub",
+        "--machine",
+        "--dart-define=B03_STALE_OUTPUT=/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03-independent/evidence/authority",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03/authority_test.dart"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/mobile",
+      "start_unix": 1792565411.9284801,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "exit": 0,
+      "end_unix": 1792565472.003048,
+      "elapsed_seconds": 60.0744636640884,
+      "external_termination": null
+    },
+    "analyze": {
+      "mode": "analyze",
+      "command": [
+        "/home/hjkerman/.flutter/bin/flutter",
+        "analyze",
+        "--no-pub"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/mobile",
+      "start_unix": 1792565565.3994505,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "exit": 0,
+      "end_unix": 1792565575.4120061,
+      "elapsed_seconds": 10.012440811027773,
+      "external_termination": null
+    },
+    "build": {
+      "mode": "build",
+      "command": [
+        "/home/hjkerman/.flutter/bin/flutter",
+        "build",
+        "apk",
+        "--debug",
+        "--no-pub",
+        "--dart-define=MONEY_NOTE_API_BASE_URL=https://audit.invalid"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/mobile",
+      "start_unix": 1792565624.569126,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "exit": 0,
+      "end_unix": 1792565654.60637,
+      "elapsed_seconds": 30.037124781985767,
+      "external_termination": null
+    },
+    "frontend": {
+      "mode": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/frontend",
+      "start_unix": 1792554613.3811,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "exit": 0,
+      "end_unix": 1792554623.4011629,
+      "elapsed_seconds": 10.019925908069126,
+      "external_termination": null
+    },
+    "overhead-python-complete": {
+      "mode": "overhead-python-complete",
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03-independent/overhead.py"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note",
+      "start_unix": 1792566011.5598319,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "exit": 0,
+      "end_unix": 1792566021.5723186,
+      "elapsed_seconds": 10.012378599960357,
+      "external_termination": null
+    },
+    "overhead-flutter-complete": {
+      "mode": "overhead-flutter-complete",
+      "command": [
+        "/home/hjkerman/.flutter/bin/flutter",
+        "test",
+        "--no-pub",
+        "--machine",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03-independent/overhead_test.dart"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/mobile",
+      "start_unix": 1792566068.171161,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "exit": 0,
+      "end_unix": 1792566098.2136817,
+      "elapsed_seconds": 30.042415429023094,
+      "external_termination": null
+    },
+    "ruff-final": {
+      "mode": "ruff-final",
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/ruff",
+        "check",
+        "backend/app",
+        "backend/isolated_sync",
+        "backend/tests",
+        "scripts",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03-independent",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note",
+      "start_unix": 1792566276.1985188,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "exit": 0,
+      "end_unix": 1792566286.216747,
+      "elapsed_seconds": 10.018072381964885,
+      "external_termination": null
+    },
+    "compileall-final": {
+      "mode": "compileall-final",
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "compileall",
+        "-q",
+        "backend/app",
+        "backend/isolated_sync",
+        "backend/tests",
+        "scripts",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03-independent",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note",
+      "start_unix": 1792566275.8107555,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "exit": 0,
+      "end_unix": 1792566285.8244252,
+      "elapsed_seconds": 10.013547769980505,
+      "external_termination": null
+    },
+    "python-format": {
+      "mode": "python-format",
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/ruff",
+        "format",
+        "--check",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03-independent",
+        "backend/tests/test_logical_cost_independent_audit.py"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note",
+      "start_unix": 1792566274.779344,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "exit": 0,
+      "end_unix": 1792566284.7925053,
+      "elapsed_seconds": 10.013049268047325,
+      "external_termination": null
+    },
+    "dart-format": {
+      "mode": "dart-format",
+      "command": [
+        "/home/hjkerman/.flutter/bin/dart",
+        "format",
+        "--output=none",
+        "--set-exit-if-changed",
+        "mobile/test/segmented_logical_cost_independent_audit_test.dart",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03-independent/http_test.dart",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03-independent/overhead_test.dart"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note",
+      "start_unix": 1792566280.5298905,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "exit": 0,
+      "end_unix": 1792566290.543059,
+      "elapsed_seconds": 10.013062374899164,
+      "external_termination": null
+    },
+    "probe-analyze": {
+      "mode": "probe-analyze",
+      "command": [
+        "/home/hjkerman/.flutter/bin/dart",
+        "--packages=mobile/.dart_tool/package_config.json",
+        "analyze",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03-independent/http_test.dart",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03-independent/overhead_test.dart"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note",
+      "start_unix": 1792566275.1964421,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "exit": 0,
+      "end_unix": 1792566285.210891,
+      "elapsed_seconds": 10.01433336501941,
+      "external_termination": null
+    },
+    "diff-check": {
+      "mode": "diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note",
+      "start_unix": 1792566275.2084422,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "exit": 0,
+      "end_unix": 1792566285.222341,
+      "elapsed_seconds": 10.013771686004475,
+      "external_termination": null
+    }
+  },
+  "python_overhead": {
+    "environment": "HOST Linux same process, 3 warmup + 20 alternating pairs",
+    "results": {
+      "small": {
+        "iterations": 200,
+        "payload_bytes": 88,
+        "rows": 20,
+        "samples": {
+          "off": [
+            {
+              "primitive_wall_ns": 2689435,
+              "primitive_cpu_ns": 2689512,
+              "sql_wall_ns": 56773,
+              "sql_cpu_ns": 56668,
+              "init_ns": 157,
+              "teardown_ns": 212,
+              "database_init_ns": 27460,
+              "database_close_ns": 10598,
+              "rss_delta_bytes": 4096,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 3227891,
+              "primitive_cpu_ns": 3228520,
+              "sql_wall_ns": 72219,
+              "sql_cpu_ns": 72190,
+              "init_ns": 145,
+              "teardown_ns": 233,
+              "database_init_ns": 42108,
+              "database_close_ns": 12087,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 2991442,
+              "primitive_cpu_ns": 2991639,
+              "sql_wall_ns": 65693,
+              "sql_cpu_ns": 65635,
+              "init_ns": 192,
+              "teardown_ns": 236,
+              "database_init_ns": 28921,
+              "database_close_ns": 10798,
+              "rss_delta_bytes": 4096,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 2683232,
+              "primitive_cpu_ns": 2683354,
+              "sql_wall_ns": 61637,
+              "sql_cpu_ns": 61600,
+              "init_ns": 185,
+              "teardown_ns": 169,
+              "database_init_ns": 27205,
+              "database_close_ns": 10472,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 2774278,
+              "primitive_cpu_ns": 2774312,
+              "sql_wall_ns": 58490,
+              "sql_cpu_ns": 58410,
+              "init_ns": 209,
+              "teardown_ns": 222,
+              "database_init_ns": 27676,
+              "database_close_ns": 10767,
+              "rss_delta_bytes": 4096,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 2647833,
+              "primitive_cpu_ns": 2647883,
+              "sql_wall_ns": 56331,
+              "sql_cpu_ns": 56284,
+              "init_ns": 170,
+              "teardown_ns": 221,
+              "database_init_ns": 26660,
+              "database_close_ns": 10569,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 2683560,
+              "primitive_cpu_ns": 2683582,
+              "sql_wall_ns": 56752,
+              "sql_cpu_ns": 56681,
+              "init_ns": 196,
+              "teardown_ns": 177,
+              "database_init_ns": 26599,
+              "database_close_ns": 10456,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 2662667,
+              "primitive_cpu_ns": 2662717,
+              "sql_wall_ns": 55443,
+              "sql_cpu_ns": 55408,
+              "init_ns": 191,
+              "teardown_ns": 148,
+              "database_init_ns": 29906,
+              "database_close_ns": 10187,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 2727870,
+              "primitive_cpu_ns": 2728017,
+              "sql_wall_ns": 57305,
+              "sql_cpu_ns": 57288,
+              "init_ns": 177,
+              "teardown_ns": 199,
+              "database_init_ns": 27174,
+              "database_close_ns": 10744,
+              "rss_delta_bytes": 4096,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 2653737,
+              "primitive_cpu_ns": 2653751,
+              "sql_wall_ns": 56957,
+              "sql_cpu_ns": 56925,
+              "init_ns": 184,
+              "teardown_ns": 170,
+              "database_init_ns": 26494,
+              "database_close_ns": 10726,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 2654079,
+              "primitive_cpu_ns": 2654126,
+              "sql_wall_ns": 55060,
+              "sql_cpu_ns": 54975,
+              "init_ns": 199,
+              "teardown_ns": 177,
+              "database_init_ns": 26651,
+              "database_close_ns": 10445,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 2610655,
+              "primitive_cpu_ns": 2610725,
+              "sql_wall_ns": 55124,
+              "sql_cpu_ns": 54972,
+              "init_ns": 195,
+              "teardown_ns": 178,
+              "database_init_ns": 29900,
+              "database_close_ns": 10507,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 2710135,
+              "primitive_cpu_ns": 2710207,
+              "sql_wall_ns": 55930,
+              "sql_cpu_ns": 55798,
+              "init_ns": 166,
+              "teardown_ns": 180,
+              "database_init_ns": 27661,
+              "database_close_ns": 10559,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 2750615,
+              "primitive_cpu_ns": 2750692,
+              "sql_wall_ns": 55969,
+              "sql_cpu_ns": 55908,
+              "init_ns": 186,
+              "teardown_ns": 208,
+              "database_init_ns": 26967,
+              "database_close_ns": 10395,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 2633642,
+              "primitive_cpu_ns": 2633646,
+              "sql_wall_ns": 54991,
+              "sql_cpu_ns": 54887,
+              "init_ns": 172,
+              "teardown_ns": 169,
+              "database_init_ns": 25864,
+              "database_close_ns": 10236,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 2620494,
+              "primitive_cpu_ns": 2620487,
+              "sql_wall_ns": 53490,
+              "sql_cpu_ns": 53395,
+              "init_ns": 215,
+              "teardown_ns": 198,
+              "database_init_ns": 26280,
+              "database_close_ns": 10120,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 2649247,
+              "primitive_cpu_ns": 2649321,
+              "sql_wall_ns": 55026,
+              "sql_cpu_ns": 54948,
+              "init_ns": 176,
+              "teardown_ns": 171,
+              "database_init_ns": 62788,
+              "database_close_ns": 10423,
+              "rss_delta_bytes": 4096,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 2617836,
+              "primitive_cpu_ns": 2617864,
+              "sql_wall_ns": 54532,
+              "sql_cpu_ns": 54468,
+              "init_ns": 161,
+              "teardown_ns": 197,
+              "database_init_ns": 26110,
+              "database_close_ns": 10278,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 2611184,
+              "primitive_cpu_ns": 2611200,
+              "sql_wall_ns": 58463,
+              "sql_cpu_ns": 58428,
+              "init_ns": 158,
+              "teardown_ns": 174,
+              "database_init_ns": 26683,
+              "database_close_ns": 10111,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 2652062,
+              "primitive_cpu_ns": 2652312,
+              "sql_wall_ns": 53706,
+              "sql_cpu_ns": 53667,
+              "init_ns": 191,
+              "teardown_ns": 162,
+              "database_init_ns": 26425,
+              "database_close_ns": 10255,
+              "rss_delta_bytes": 4096,
+              "aggregate_keys": 0
+            }
+          ],
+          "on": [
+            {
+              "primitive_wall_ns": 4175684,
+              "primitive_cpu_ns": 4175803,
+              "sql_wall_ns": 953473,
+              "sql_cpu_ns": 953845,
+              "init_ns": 52471,
+              "teardown_ns": 39105,
+              "database_init_ns": 33207,
+              "database_close_ns": 41305,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 4780524,
+              "primitive_cpu_ns": 4780948,
+              "sql_wall_ns": 1072776,
+              "sql_cpu_ns": 1072729,
+              "init_ns": 63311,
+              "teardown_ns": 50745,
+              "database_init_ns": 49511,
+              "database_close_ns": 41217,
+              "rss_delta_bytes": 8192,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 4515762,
+              "primitive_cpu_ns": 4515910,
+              "sql_wall_ns": 912989,
+              "sql_cpu_ns": 913057,
+              "init_ns": 64443,
+              "teardown_ns": 40715,
+              "database_init_ns": 35079,
+              "database_close_ns": 38202,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 4171187,
+              "primitive_cpu_ns": 4171183,
+              "sql_wall_ns": 915192,
+              "sql_cpu_ns": 915370,
+              "init_ns": 54857,
+              "teardown_ns": 39783,
+              "database_init_ns": 32839,
+              "database_close_ns": 38886,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 4331649,
+              "primitive_cpu_ns": 4331691,
+              "sql_wall_ns": 931402,
+              "sql_cpu_ns": 931591,
+              "init_ns": 52334,
+              "teardown_ns": 40858,
+              "database_init_ns": 35347,
+              "database_close_ns": 39831,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 4171096,
+              "primitive_cpu_ns": 4171155,
+              "sql_wall_ns": 931676,
+              "sql_cpu_ns": 931967,
+              "init_ns": 52979,
+              "teardown_ns": 39433,
+              "database_init_ns": 32880,
+              "database_close_ns": 38034,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 4186139,
+              "primitive_cpu_ns": 4186203,
+              "sql_wall_ns": 909466,
+              "sql_cpu_ns": 909615,
+              "init_ns": 52120,
+              "teardown_ns": 39406,
+              "database_init_ns": 32951,
+              "database_close_ns": 38522,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 4169448,
+              "primitive_cpu_ns": 4169455,
+              "sql_wall_ns": 908114,
+              "sql_cpu_ns": 908283,
+              "init_ns": 51412,
+              "teardown_ns": 39955,
+              "database_init_ns": 33098,
+              "database_close_ns": 38354,
+              "rss_delta_bytes": 4096,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 4284377,
+              "primitive_cpu_ns": 4284423,
+              "sql_wall_ns": 907905,
+              "sql_cpu_ns": 908073,
+              "init_ns": 51949,
+              "teardown_ns": 39323,
+              "database_init_ns": 33797,
+              "database_close_ns": 38968,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 4277839,
+              "primitive_cpu_ns": 4278043,
+              "sql_wall_ns": 908573,
+              "sql_cpu_ns": 908772,
+              "init_ns": 51503,
+              "teardown_ns": 39936,
+              "database_init_ns": 33320,
+              "database_close_ns": 38092,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 4194519,
+              "primitive_cpu_ns": 4194475,
+              "sql_wall_ns": 920043,
+              "sql_cpu_ns": 920131,
+              "init_ns": 51547,
+              "teardown_ns": 39448,
+              "database_init_ns": 33179,
+              "database_close_ns": 38412,
+              "rss_delta_bytes": 4096,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 4137226,
+              "primitive_cpu_ns": 4137287,
+              "sql_wall_ns": 911101,
+              "sql_cpu_ns": 911298,
+              "init_ns": 52056,
+              "teardown_ns": 39375,
+              "database_init_ns": 32388,
+              "database_close_ns": 38579,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 4262653,
+              "primitive_cpu_ns": 4262719,
+              "sql_wall_ns": 910817,
+              "sql_cpu_ns": 910893,
+              "init_ns": 51567,
+              "teardown_ns": 40345,
+              "database_init_ns": 33209,
+              "database_close_ns": 37627,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 4377870,
+              "primitive_cpu_ns": 4378214,
+              "sql_wall_ns": 936626,
+              "sql_cpu_ns": 936798,
+              "init_ns": 52340,
+              "teardown_ns": 41552,
+              "database_init_ns": 34180,
+              "database_close_ns": 37200,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 4259016,
+              "primitive_cpu_ns": 4259087,
+              "sql_wall_ns": 930466,
+              "sql_cpu_ns": 930678,
+              "init_ns": 51669,
+              "teardown_ns": 38603,
+              "database_init_ns": 32438,
+              "database_close_ns": 37063,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 4067520,
+              "primitive_cpu_ns": 4067577,
+              "sql_wall_ns": 884547,
+              "sql_cpu_ns": 884749,
+              "init_ns": 50818,
+              "teardown_ns": 37875,
+              "database_init_ns": 32273,
+              "database_close_ns": 36894,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 4433489,
+              "primitive_cpu_ns": 4433584,
+              "sql_wall_ns": 888060,
+              "sql_cpu_ns": 888223,
+              "init_ns": 51513,
+              "teardown_ns": 38663,
+              "database_init_ns": 33015,
+              "database_close_ns": 36809,
+              "rss_delta_bytes": 4096,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 4063921,
+              "primitive_cpu_ns": 4064038,
+              "sql_wall_ns": 886220,
+              "sql_cpu_ns": 886310,
+              "init_ns": 51050,
+              "teardown_ns": 38536,
+              "database_init_ns": 32517,
+              "database_close_ns": 37461,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 4162005,
+              "primitive_cpu_ns": 4162009,
+              "sql_wall_ns": 892119,
+              "sql_cpu_ns": 892262,
+              "init_ns": 50618,
+              "teardown_ns": 73143,
+              "database_init_ns": 31873,
+              "database_close_ns": 37267,
+              "rss_delta_bytes": 4096,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 4091954,
+              "primitive_cpu_ns": 4092037,
+              "sql_wall_ns": 882675,
+              "sql_cpu_ns": 882828,
+              "init_ns": 51256,
+              "teardown_ns": 38845,
+              "database_init_ns": 31947,
+              "database_close_ns": 37249,
+              "rss_delta_bytes": 4096,
+              "aggregate_keys": 27
+            }
+          ]
+        },
+        "summary": {
+          "off": {
+            "primitive_wall_ns": {
+              "median": 2658373.0,
+              "p95": 2991442
+            },
+            "primitive_cpu_ns": {
+              "median": 2658421.5,
+              "p95": 2991639
+            },
+            "sql_wall_ns": {
+              "median": 56150.0,
+              "p95": 65693
+            },
+            "sql_cpu_ns": {
+              "median": 56096.0,
+              "p95": 65635
+            },
+            "init_ns": {
+              "median": 184.5,
+              "p95": 209
+            },
+            "teardown_ns": {
+              "median": 179.0,
+              "p95": 233
+            },
+            "database_init_ns": {
+              "median": 27070.5,
+              "p95": 42108
+            },
+            "database_close_ns": {
+              "median": 10464.0,
+              "p95": 10798
+            },
+            "rss_delta_bytes": {
+              "median": 0.0,
+              "p95": 4096
+            },
+            "aggregate_keys": {
+              "median": 0.0,
+              "p95": 0
+            }
+          },
+          "on": {
+            "primitive_wall_ns": {
+              "median": 4190329.0,
+              "p95": 4515762
+            },
+            "primitive_cpu_ns": {
+              "median": 4190339.0,
+              "p95": 4515910
+            },
+            "sql_wall_ns": {
+              "median": 910959.0,
+              "p95": 953473
+            },
+            "sql_cpu_ns": {
+              "median": 911095.5,
+              "p95": 953845
+            },
+            "init_ns": {
+              "median": 51809.0,
+              "p95": 63311
+            },
+            "teardown_ns": {
+              "median": 39440.5,
+              "p95": 50745
+            },
+            "database_init_ns": {
+              "median": 33056.5,
+              "p95": 35347
+            },
+            "database_close_ns": {
+              "median": 38147.0,
+              "p95": 41217
+            },
+            "rss_delta_bytes": {
+              "median": 0.0,
+              "p95": 4096
+            },
+            "aggregate_keys": {
+              "median": 27.0,
+              "p95": 27
+            }
+          }
+        }
+      },
+      "medium": {
+        "iterations": 2000,
+        "payload_bytes": 4120,
+        "rows": 200,
+        "samples": {
+          "off": [
+            {
+              "primitive_wall_ns": 78152006,
+              "primitive_cpu_ns": 78151352,
+              "sql_wall_ns": 765340,
+              "sql_cpu_ns": 765688,
+              "init_ns": 153,
+              "teardown_ns": 205,
+              "database_init_ns": 37961,
+              "database_close_ns": 56086,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 83050611,
+              "primitive_cpu_ns": 83050784,
+              "sql_wall_ns": 689059,
+              "sql_cpu_ns": 689107,
+              "init_ns": 191,
+              "teardown_ns": 166,
+              "database_init_ns": 49979,
+              "database_close_ns": 58693,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 77851549,
+              "primitive_cpu_ns": 77851055,
+              "sql_wall_ns": 703739,
+              "sql_cpu_ns": 703762,
+              "init_ns": 194,
+              "teardown_ns": 185,
+              "database_init_ns": 42691,
+              "database_close_ns": 56603,
+              "rss_delta_bytes": 4096,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 78690098,
+              "primitive_cpu_ns": 78690316,
+              "sql_wall_ns": 844961,
+              "sql_cpu_ns": 844947,
+              "init_ns": 173,
+              "teardown_ns": 125,
+              "database_init_ns": 44777,
+              "database_close_ns": 73252,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 79181785,
+              "primitive_cpu_ns": 79181202,
+              "sql_wall_ns": 847262,
+              "sql_cpu_ns": 847260,
+              "init_ns": 189,
+              "teardown_ns": 154,
+              "database_init_ns": 44004,
+              "database_close_ns": 73189,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 79167386,
+              "primitive_cpu_ns": 79167061,
+              "sql_wall_ns": 698578,
+              "sql_cpu_ns": 698567,
+              "init_ns": 171,
+              "teardown_ns": 168,
+              "database_init_ns": 38911,
+              "database_close_ns": 26895,
+              "rss_delta_bytes": 176128,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 77498822,
+              "primitive_cpu_ns": 77498060,
+              "sql_wall_ns": 661523,
+              "sql_cpu_ns": 661550,
+              "init_ns": 193,
+              "teardown_ns": 194,
+              "database_init_ns": 36653,
+              "database_close_ns": 26727,
+              "rss_delta_bytes": 114688,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 79573192,
+              "primitive_cpu_ns": 79573295,
+              "sql_wall_ns": 640543,
+              "sql_cpu_ns": 640503,
+              "init_ns": 174,
+              "teardown_ns": 165,
+              "database_init_ns": 49596,
+              "database_close_ns": 60587,
+              "rss_delta_bytes": -114688,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 78240741,
+              "primitive_cpu_ns": 78240249,
+              "sql_wall_ns": 692039,
+              "sql_cpu_ns": 692036,
+              "init_ns": 178,
+              "teardown_ns": 150,
+              "database_init_ns": 39174,
+              "database_close_ns": 59133,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 77830778,
+              "primitive_cpu_ns": 77825152,
+              "sql_wall_ns": 808452,
+              "sql_cpu_ns": 808475,
+              "init_ns": 193,
+              "teardown_ns": 163,
+              "database_init_ns": 36229,
+              "database_close_ns": 70710,
+              "rss_delta_bytes": -61440,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 77572581,
+              "primitive_cpu_ns": 77571916,
+              "sql_wall_ns": 811541,
+              "sql_cpu_ns": 811565,
+              "init_ns": 171,
+              "teardown_ns": 151,
+              "database_init_ns": 38046,
+              "database_close_ns": 67794,
+              "rss_delta_bytes": 4096,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 77848254,
+              "primitive_cpu_ns": 77847553,
+              "sql_wall_ns": 709187,
+              "sql_cpu_ns": 709311,
+              "init_ns": 156,
+              "teardown_ns": 156,
+              "database_init_ns": 36534,
+              "database_close_ns": 25812,
+              "rss_delta_bytes": 237568,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 77634130,
+              "primitive_cpu_ns": 77633319,
+              "sql_wall_ns": 677213,
+              "sql_cpu_ns": 677221,
+              "init_ns": 208,
+              "teardown_ns": 159,
+              "database_init_ns": 37235,
+              "database_close_ns": 26294,
+              "rss_delta_bytes": 147456,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 77691565,
+              "primitive_cpu_ns": 77687094,
+              "sql_wall_ns": 632686,
+              "sql_cpu_ns": 632664,
+              "init_ns": 177,
+              "teardown_ns": 153,
+              "database_init_ns": 34560,
+              "database_close_ns": 59700,
+              "rss_delta_bytes": -147456,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 77925909,
+              "primitive_cpu_ns": 77925312,
+              "sql_wall_ns": 580595,
+              "sql_cpu_ns": 580545,
+              "init_ns": 163,
+              "teardown_ns": 185,
+              "database_init_ns": 35766,
+              "database_close_ns": 27136,
+              "rss_delta_bytes": 151552,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 77642340,
+              "primitive_cpu_ns": 77636593,
+              "sql_wall_ns": 617229,
+              "sql_cpu_ns": 617183,
+              "init_ns": 169,
+              "teardown_ns": 139,
+              "database_init_ns": 34790,
+              "database_close_ns": 60160,
+              "rss_delta_bytes": -167936,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 77526197,
+              "primitive_cpu_ns": 77519058,
+              "sql_wall_ns": 851306,
+              "sql_cpu_ns": 851341,
+              "init_ns": 210,
+              "teardown_ns": 198,
+              "database_init_ns": 34385,
+              "database_close_ns": 70110,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 78421880,
+              "primitive_cpu_ns": 78417558,
+              "sql_wall_ns": 711685,
+              "sql_cpu_ns": 711798,
+              "init_ns": 177,
+              "teardown_ns": 198,
+              "database_init_ns": 37102,
+              "database_close_ns": 51153,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 77675698,
+              "primitive_cpu_ns": 77674905,
+              "sql_wall_ns": 666400,
+              "sql_cpu_ns": 666361,
+              "init_ns": 163,
+              "teardown_ns": 179,
+              "database_init_ns": 36717,
+              "database_close_ns": 54221,
+              "rss_delta_bytes": -86016,
+              "aggregate_keys": 0
+            },
+            {
+              "primitive_wall_ns": 77810376,
+              "primitive_cpu_ns": 77809539,
+              "sql_wall_ns": 871732,
+              "sql_cpu_ns": 871791,
+              "init_ns": 143,
+              "teardown_ns": 158,
+              "database_init_ns": 39493,
+              "database_close_ns": 71098,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 0
+            }
+          ],
+          "on": [
+            {
+              "primitive_wall_ns": 94214922,
+              "primitive_cpu_ns": 94214468,
+              "sql_wall_ns": 5774274,
+              "sql_cpu_ns": 5774365,
+              "init_ns": 65906,
+              "teardown_ns": 47539,
+              "database_init_ns": 44146,
+              "database_close_ns": 112608,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 95211699,
+              "primitive_cpu_ns": 95210626,
+              "sql_wall_ns": 6185071,
+              "sql_cpu_ns": 6185226,
+              "init_ns": 68897,
+              "teardown_ns": 49800,
+              "database_init_ns": 45638,
+              "database_close_ns": 117527,
+              "rss_delta_bytes": 4096,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 94573634,
+              "primitive_cpu_ns": 94572492,
+              "sql_wall_ns": 5519296,
+              "sql_cpu_ns": 5519355,
+              "init_ns": 60503,
+              "teardown_ns": 153103,
+              "database_init_ns": 44369,
+              "database_close_ns": 84099,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 94043799,
+              "primitive_cpu_ns": 94042804,
+              "sql_wall_ns": 5858904,
+              "sql_cpu_ns": 5858893,
+              "init_ns": 67843,
+              "teardown_ns": 156301,
+              "database_init_ns": 45908,
+              "database_close_ns": 86879,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 96426579,
+              "primitive_cpu_ns": 96420752,
+              "sql_wall_ns": 5814920,
+              "sql_cpu_ns": 5814792,
+              "init_ns": 67348,
+              "teardown_ns": 52230,
+              "database_init_ns": 51872,
+              "database_close_ns": 111726,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 93970829,
+              "primitive_cpu_ns": 93969848,
+              "sql_wall_ns": 5895087,
+              "sql_cpu_ns": 5895124,
+              "init_ns": 66519,
+              "teardown_ns": 47495,
+              "database_init_ns": 42562,
+              "database_close_ns": 110526,
+              "rss_delta_bytes": -172032,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 93797460,
+              "primitive_cpu_ns": 93796425,
+              "sql_wall_ns": 6198637,
+              "sql_cpu_ns": 6198831,
+              "init_ns": 59301,
+              "teardown_ns": 46195,
+              "database_init_ns": 43946,
+              "database_close_ns": 115787,
+              "rss_delta_bytes": 73728,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 95138002,
+              "primitive_cpu_ns": 95137091,
+              "sql_wall_ns": 5989396,
+              "sql_cpu_ns": 5989397,
+              "init_ns": 68980,
+              "teardown_ns": 51176,
+              "database_init_ns": 47536,
+              "database_close_ns": 107459,
+              "rss_delta_bytes": -8192,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 94390085,
+              "primitive_cpu_ns": 94389206,
+              "sql_wall_ns": 5407677,
+              "sql_cpu_ns": 5407754,
+              "init_ns": 60917,
+              "teardown_ns": 143764,
+              "database_init_ns": 46817,
+              "database_close_ns": 80604,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 94070379,
+              "primitive_cpu_ns": 94069773,
+              "sql_wall_ns": 5559947,
+              "sql_cpu_ns": 5560035,
+              "init_ns": 64165,
+              "teardown_ns": 48283,
+              "database_init_ns": 50049,
+              "database_close_ns": 63195,
+              "rss_delta_bytes": 331776,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 94769133,
+              "primitive_cpu_ns": 94768489,
+              "sql_wall_ns": 5489138,
+              "sql_cpu_ns": 5489158,
+              "init_ns": 57053,
+              "teardown_ns": 48650,
+              "database_init_ns": 45903,
+              "database_close_ns": 112523,
+              "rss_delta_bytes": -327680,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 94035886,
+              "primitive_cpu_ns": 94034792,
+              "sql_wall_ns": 5583602,
+              "sql_cpu_ns": 5583597,
+              "init_ns": 64615,
+              "teardown_ns": 47077,
+              "database_init_ns": 41387,
+              "database_close_ns": 107549,
+              "rss_delta_bytes": -233472,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 93755773,
+              "primitive_cpu_ns": 93754916,
+              "sql_wall_ns": 5969875,
+              "sql_cpu_ns": 5969863,
+              "init_ns": 57388,
+              "teardown_ns": 48605,
+              "database_init_ns": 44523,
+              "database_close_ns": 115376,
+              "rss_delta_bytes": 65536,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 94303532,
+              "primitive_cpu_ns": 94302596,
+              "sql_wall_ns": 5850451,
+              "sql_cpu_ns": 5850496,
+              "init_ns": 63870,
+              "teardown_ns": 47559,
+              "database_init_ns": 44093,
+              "database_close_ns": 114940,
+              "rss_delta_bytes": -4096,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 94741916,
+              "primitive_cpu_ns": 94741138,
+              "sql_wall_ns": 5604801,
+              "sql_cpu_ns": 5604765,
+              "init_ns": 60210,
+              "teardown_ns": 53114,
+              "database_init_ns": 48906,
+              "database_close_ns": 62479,
+              "rss_delta_bytes": 282624,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 94514883,
+              "primitive_cpu_ns": 94507311,
+              "sql_wall_ns": 5528511,
+              "sql_cpu_ns": 5528579,
+              "init_ns": 64350,
+              "teardown_ns": 49237,
+              "database_init_ns": 46682,
+              "database_close_ns": 65870,
+              "rss_delta_bytes": 94208,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 95077072,
+              "primitive_cpu_ns": 95076077,
+              "sql_wall_ns": 5497623,
+              "sql_cpu_ns": 5497745,
+              "init_ns": 60399,
+              "teardown_ns": 48358,
+              "database_init_ns": 44528,
+              "database_close_ns": 112195,
+              "rss_delta_bytes": -409600,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 94195038,
+              "primitive_cpu_ns": 94194155,
+              "sql_wall_ns": 5923707,
+              "sql_cpu_ns": 5923732,
+              "init_ns": 63846,
+              "teardown_ns": 52505,
+              "database_init_ns": 49002,
+              "database_close_ns": 101060,
+              "rss_delta_bytes": 0,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 94374524,
+              "primitive_cpu_ns": 94373745,
+              "sql_wall_ns": 5985732,
+              "sql_cpu_ns": 5985808,
+              "init_ns": 60658,
+              "teardown_ns": 48219,
+              "database_init_ns": 45473,
+              "database_close_ns": 115175,
+              "rss_delta_bytes": 90112,
+              "aggregate_keys": 27
+            },
+            {
+              "primitive_wall_ns": 93818022,
+              "primitive_cpu_ns": 93816954,
+              "sql_wall_ns": 6171288,
+              "sql_cpu_ns": 6171409,
+              "init_ns": 72581,
+              "teardown_ns": 46933,
+              "database_init_ns": 43150,
+              "database_close_ns": 117865,
+              "rss_delta_bytes": 86016,
+              "aggregate_keys": 27
+            }
+          ]
+        },
+        "summary": {
+          "off": {
+            "primitive_wall_ns": {
+              "median": 77849901.5,
+              "p95": 79573192
+            },
+            "primitive_cpu_ns": {
+              "median": 77849304.0,
+              "p95": 79573295
+            },
+            "sql_wall_ns": {
+              "median": 701158.5,
+              "p95": 851306
+            },
+            "sql_cpu_ns": {
+              "median": 701164.5,
+              "p95": 851341
+            },
+            "init_ns": {
+              "median": 175.5,
+              "p95": 208
+            },
+            "teardown_ns": {
+              "median": 164.0,
+              "p95": 198
+            },
+            "database_init_ns": {
+              "median": 37598.0,
+              "p95": 49596
+            },
+            "database_close_ns": {
+              "median": 58913.0,
+              "p95": 73189
+            },
+            "rss_delta_bytes": {
+              "median": 0.0,
+              "p95": 176128
+            },
+            "aggregate_keys": {
+              "median": 0.0,
+              "p95": 0
+            }
+          },
+          "on": {
+            "primitive_wall_ns": {
+              "median": 94339028.0,
+              "p95": 95211699
+            },
+            "primitive_cpu_ns": {
+              "median": 94338170.5,
+              "p95": 95210626
+            },
+            "sql_wall_ns": {
+              "median": 5832685.5,
+              "p95": 6185071
+            },
+            "sql_cpu_ns": {
+              "median": 5832644.0,
+              "p95": 6185226
+            },
+            "init_ns": {
+              "median": 64017.5,
+              "p95": 68980
+            },
+            "teardown_ns": {
+              "median": 48627.5,
+              "p95": 153103
+            },
+            "database_init_ns": {
+              "median": 45555.5,
+              "p95": 50049
+            },
+            "database_close_ns": {
+              "median": 111126.0,
+              "p95": 117527
+            },
+            "rss_delta_bytes": {
+              "median": 0.0,
+              "p95": 282624
+            },
+            "aggregate_keys": {
+              "median": 27.0,
+              "p95": 27
+            }
+          }
+        }
+      }
+    },
+    "maxrss_bytes": 29032448,
+    "limits": "RSS 차분은 heap allocation이 아니다. 계측 설치/SQL TEMP 비용 포함 경계를 분리. 100k lease 및 Android는 미검증"
+  },
+  "flutter_overhead": {
+    "environment": "HOST 3 warmup + 20 alternating pairs",
+    "results": {
+      "small": {
+        "iterations": 200,
+        "payload_bytes": 88,
+        "rows": 20,
+        "samples": {
+          "on": [
+            {
+              "primitive_us": 4609,
+              "primitive_cpu_ticks": 2,
+              "sql_us": 3850,
+              "sql_cpu_ticks": 1,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 20,
+              "database_close_us": 39,
+              "rss_delta_bytes": -253952,
+              "keys": 6
+            },
+            {
+              "primitive_us": 9242,
+              "primitive_cpu_ticks": 3,
+              "sql_us": 4499,
+              "sql_cpu_ticks": 2,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 24,
+              "database_close_us": 48,
+              "rss_delta_bytes": -2080768,
+              "keys": 6
+            },
+            {
+              "primitive_us": 5226,
+              "primitive_cpu_ticks": 1,
+              "sql_us": 3704,
+              "sql_cpu_ticks": 1,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 27,
+              "database_close_us": 36,
+              "rss_delta_bytes": -970752,
+              "keys": 6
+            },
+            {
+              "primitive_us": 3402,
+              "primitive_cpu_ticks": 0,
+              "sql_us": 3235,
+              "sql_cpu_ticks": 1,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 18,
+              "database_close_us": 32,
+              "rss_delta_bytes": 499712,
+              "keys": 6
+            },
+            {
+              "primitive_us": 2981,
+              "primitive_cpu_ticks": 0,
+              "sql_us": 2981,
+              "sql_cpu_ticks": 1,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 17,
+              "database_close_us": 33,
+              "rss_delta_bytes": 12288,
+              "keys": 6
+            },
+            {
+              "primitive_us": 2695,
+              "primitive_cpu_ticks": 0,
+              "sql_us": 3425,
+              "sql_cpu_ticks": 1,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 16,
+              "database_close_us": 34,
+              "rss_delta_bytes": 49152,
+              "keys": 6
+            },
+            {
+              "primitive_us": 2328,
+              "primitive_cpu_ticks": 0,
+              "sql_us": 2791,
+              "sql_cpu_ticks": 1,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 17,
+              "database_close_us": 29,
+              "rss_delta_bytes": 4096,
+              "keys": 6
+            },
+            {
+              "primitive_us": 2399,
+              "primitive_cpu_ticks": 0,
+              "sql_us": 3196,
+              "sql_cpu_ticks": 1,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 17,
+              "database_close_us": 32,
+              "rss_delta_bytes": 4096,
+              "keys": 6
+            },
+            {
+              "primitive_us": 3207,
+              "primitive_cpu_ticks": 2,
+              "sql_us": 3887,
+              "sql_cpu_ticks": 0,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 29,
+              "database_close_us": 51,
+              "rss_delta_bytes": -2551808,
+              "keys": 6
+            },
+            {
+              "primitive_us": 1915,
+              "primitive_cpu_ticks": 1,
+              "sql_us": 2797,
+              "sql_cpu_ticks": 0,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 15,
+              "database_close_us": 29,
+              "rss_delta_bytes": 0,
+              "keys": 6
+            },
+            {
+              "primitive_us": 2141,
+              "primitive_cpu_ticks": 0,
+              "sql_us": 3055,
+              "sql_cpu_ticks": 1,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 18,
+              "database_close_us": 39,
+              "rss_delta_bytes": 3334144,
+              "keys": 6
+            },
+            {
+              "primitive_us": 2377,
+              "primitive_cpu_ticks": 0,
+              "sql_us": 2896,
+              "sql_cpu_ticks": 1,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 23,
+              "database_close_us": 43,
+              "rss_delta_bytes": 393216,
+              "keys": 6
+            },
+            {
+              "primitive_us": 2051,
+              "primitive_cpu_ticks": 0,
+              "sql_us": 2965,
+              "sql_cpu_ticks": 1,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 19,
+              "database_close_us": 49,
+              "rss_delta_bytes": 139264,
+              "keys": 6
+            },
+            {
+              "primitive_us": 2264,
+              "primitive_cpu_ticks": 0,
+              "sql_us": 2238,
+              "sql_cpu_ticks": 0,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 16,
+              "database_close_us": 29,
+              "rss_delta_bytes": -188416,
+              "keys": 6
+            },
+            {
+              "primitive_us": 1812,
+              "primitive_cpu_ticks": 0,
+              "sql_us": 2310,
+              "sql_cpu_ticks": 0,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 14,
+              "database_close_us": 28,
+              "rss_delta_bytes": 0,
+              "keys": 6
+            },
+            {
+              "primitive_us": 1813,
+              "primitive_cpu_ticks": 1,
+              "sql_us": 2285,
+              "sql_cpu_ticks": 0,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 11,
+              "database_close_us": 28,
+              "rss_delta_bytes": 4096,
+              "keys": 6
+            },
+            {
+              "primitive_us": 1980,
+              "primitive_cpu_ticks": 1,
+              "sql_us": 2219,
+              "sql_cpu_ticks": 0,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 15,
+              "database_close_us": 29,
+              "rss_delta_bytes": 4096,
+              "keys": 6
+            },
+            {
+              "primitive_us": 1873,
+              "primitive_cpu_ticks": 0,
+              "sql_us": 2128,
+              "sql_cpu_ticks": 0,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 11,
+              "database_close_us": 26,
+              "rss_delta_bytes": 0,
+              "keys": 6
+            },
+            {
+              "primitive_us": 1939,
+              "primitive_cpu_ticks": 0,
+              "sql_us": 2145,
+              "sql_cpu_ticks": 0,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 12,
+              "database_close_us": 28,
+              "rss_delta_bytes": 0,
+              "keys": 6
+            },
+            {
+              "primitive_us": 1802,
+              "primitive_cpu_ticks": 1,
+              "sql_us": 2145,
+              "sql_cpu_ticks": 0,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 11,
+              "database_close_us": 26,
+              "rss_delta_bytes": 4096,
+              "keys": 6
+            }
+          ],
+          "off": [
+            {
+              "primitive_us": 4210,
+              "primitive_cpu_ticks": 1,
+              "sql_us": 538,
+              "sql_cpu_ticks": 0,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 14,
+              "rss_delta_bytes": 2170880,
+              "keys": 0
+            },
+            {
+              "primitive_us": 4882,
+              "primitive_cpu_ticks": 1,
+              "sql_us": 545,
+              "sql_cpu_ticks": 0,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 16,
+              "rss_delta_bytes": 3158016,
+              "keys": 0
+            },
+            {
+              "primitive_us": 4491,
+              "primitive_cpu_ticks": 1,
+              "sql_us": 646,
+              "sql_cpu_ticks": 0,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 17,
+              "rss_delta_bytes": -1552384,
+              "keys": 0
+            },
+            {
+              "primitive_us": 2953,
+              "primitive_cpu_ticks": 0,
+              "sql_us": 446,
+              "sql_cpu_ticks": 0,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 11,
+              "rss_delta_bytes": 0,
+              "keys": 0
+            },
+            {
+              "primitive_us": 2677,
+              "primitive_cpu_ticks": 1,
+              "sql_us": 495,
+              "sql_cpu_ticks": 0,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 24,
+              "rss_delta_bytes": 4096,
+              "keys": 0
+            },
+            {
+              "primitive_us": 2512,
+              "primitive_cpu_ticks": 0,
+              "sql_us": 422,
+              "sql_cpu_ticks": 0,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 17,
+              "rss_delta_bytes": 16384,
+              "keys": 0
+            },
+            {
+              "primitive_us": 2173,
+              "primitive_cpu_ticks": 0,
+              "sql_us": 419,
+              "sql_cpu_ticks": 0,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 10,
+              "rss_delta_bytes": 0,
+              "keys": 0
+            },
+            {
+              "primitive_us": 2824,
+              "primitive_cpu_ticks": 0,
+              "sql_us": 454,
+              "sql_cpu_ticks": 0,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 12,
+              "rss_delta_bytes": 122880,
+              "keys": 0
+            },
+            {
+              "primitive_us": 2248,
+              "primitive_cpu_ticks": 1,
+              "sql_us": 573,
+              "sql_cpu_ticks": 0,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 13,
+              "rss_delta_bytes": 1409024,
+              "keys": 0
+            },
+            {
+              "primitive_us": 1945,
+              "primitive_cpu_ticks": 0,
+              "sql_us": 420,
+              "sql_cpu_ticks": 0,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 10,
+              "rss_delta_bytes": 0,
+              "keys": 0
+            },
+            {
+              "primitive_us": 1696,
+              "primitive_cpu_ticks": 1,
+              "sql_us": 417,
+              "sql_cpu_ticks": 0,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 10,
+              "rss_delta_bytes": 548864,
+              "keys": 0
+            },
+            {
+              "primitive_us": 2397,
+              "primitive_cpu_ticks": 0,
+              "sql_us": 506,
+              "sql_cpu_ticks": 0,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 13,
+              "rss_delta_bytes": -4190208,
+              "keys": 0
+            },
+            {
+              "primitive_us": 2152,
+              "primitive_cpu_ticks": 1,
+              "sql_us": 423,
+              "sql_cpu_ticks": 0,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 12,
+              "rss_delta_bytes": 4096,
+              "keys": 0
+            },
+            {
+              "primitive_us": 2015,
+              "primitive_cpu_ticks": 1,
+              "sql_us": 320,
+              "sql_cpu_ticks": 0,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 10,
+              "rss_delta_bytes": 8192,
+              "keys": 0
+            },
+            {
+              "primitive_us": 1636,
+              "primitive_cpu_ticks": 0,
+              "sql_us": 309,
+              "sql_cpu_ticks": 0,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 9,
+              "rss_delta_bytes": 4096,
+              "keys": 0
+            },
+            {
+              "primitive_us": 1869,
+              "primitive_cpu_ticks": 0,
+              "sql_us": 311,
+              "sql_cpu_ticks": 0,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 10,
+              "rss_delta_bytes": 0,
+              "keys": 0
+            },
+            {
+              "primitive_us": 1618,
+              "primitive_cpu_ticks": 0,
+              "sql_us": 321,
+              "sql_cpu_ticks": 0,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 9,
+              "rss_delta_bytes": 0,
+              "keys": 0
+            },
+            {
+              "primitive_us": 1891,
+              "primitive_cpu_ticks": 0,
+              "sql_us": 325,
+              "sql_cpu_ticks": 0,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 10,
+              "rss_delta_bytes": 4096,
+              "keys": 0
+            },
+            {
+              "primitive_us": 1664,
+              "primitive_cpu_ticks": 0,
+              "sql_us": 300,
+              "sql_cpu_ticks": 0,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 9,
+              "rss_delta_bytes": 0,
+              "keys": 0
+            },
+            {
+              "primitive_us": 1621,
+              "primitive_cpu_ticks": 0,
+              "sql_us": 567,
+              "sql_cpu_ticks": 0,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 10,
+              "rss_delta_bytes": 4096,
+              "keys": 0
+            }
+          ]
+        },
+        "summary": {
+          "on": {
+            "primitive_us": {
+              "median": 2296.0,
+              "p95": 5226
+            },
+            "primitive_cpu_ticks": {
+              "median": 0.0,
+              "p95": 2
+            },
+            "sql_us": {
+              "median": 2930.5,
+              "p95": 3887
+            },
+            "sql_cpu_ticks": {
+              "median": 1.0,
+              "p95": 1
+            },
+            "init_us": {
+              "median": 0.0,
+              "p95": 1
+            },
+            "close_us": {
+              "median": 0.0,
+              "p95": 0
+            },
+            "database_observer_init_us": {
+              "median": 17.0,
+              "p95": 27
+            },
+            "database_close_us": {
+              "median": 32.0,
+              "p95": 49
+            },
+            "rss_delta_bytes": {
+              "median": 4096.0,
+              "p95": 499712
+            },
+            "keys": {
+              "median": 6.0,
+              "p95": 6
+            }
+          },
+          "off": {
+            "primitive_us": {
+              "median": 2162.5,
+              "p95": 4491
+            },
+            "primitive_cpu_ticks": {
+              "median": 0.0,
+              "p95": 1
+            },
+            "sql_us": {
+              "median": 422.5,
+              "p95": 573
+            },
+            "sql_cpu_ticks": {
+              "median": 0.0,
+              "p95": 0
+            },
+            "init_us": {
+              "median": 0.0,
+              "p95": 1
+            },
+            "close_us": {
+              "median": 0.0,
+              "p95": 0
+            },
+            "database_observer_init_us": {
+              "median": 0.0,
+              "p95": 0
+            },
+            "database_close_us": {
+              "median": 10.5,
+              "p95": 17
+            },
+            "rss_delta_bytes": {
+              "median": 4096.0,
+              "p95": 2170880
+            },
+            "keys": {
+              "median": 0.0,
+              "p95": 0
+            }
+          }
+        }
+      },
+      "medium": {
+        "iterations": 2000,
+        "payload_bytes": 4120,
+        "rows": 200,
+        "samples": {
+          "on": [
+            {
+              "primitive_us": 470978,
+              "primitive_cpu_ticks": 48,
+              "sql_us": 17348,
+              "sql_cpu_ticks": 3,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 17,
+              "database_close_us": 65,
+              "rss_delta_bytes": 929792,
+              "keys": 6
+            },
+            {
+              "primitive_us": 471349,
+              "primitive_cpu_ticks": 48,
+              "sql_us": 13484,
+              "sql_cpu_ticks": 1,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 17,
+              "database_close_us": 51,
+              "rss_delta_bytes": 12288,
+              "keys": 6
+            },
+            {
+              "primitive_us": 472450,
+              "primitive_cpu_ticks": 49,
+              "sql_us": 12699,
+              "sql_cpu_ticks": 1,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 17,
+              "database_close_us": 48,
+              "rss_delta_bytes": 425984,
+              "keys": 6
+            },
+            {
+              "primitive_us": 468061,
+              "primitive_cpu_ticks": 47,
+              "sql_us": 12404,
+              "sql_cpu_ticks": 2,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 17,
+              "database_close_us": 47,
+              "rss_delta_bytes": 483328,
+              "keys": 6
+            },
+            {
+              "primitive_us": 469317,
+              "primitive_cpu_ticks": 48,
+              "sql_us": 12127,
+              "sql_cpu_ticks": 2,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 17,
+              "database_close_us": 50,
+              "rss_delta_bytes": 475136,
+              "keys": 6
+            },
+            {
+              "primitive_us": 469096,
+              "primitive_cpu_ticks": 46,
+              "sql_us": 11804,
+              "sql_cpu_ticks": 1,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 17,
+              "database_close_us": 46,
+              "rss_delta_bytes": 475136,
+              "keys": 6
+            },
+            {
+              "primitive_us": 469887,
+              "primitive_cpu_ticks": 48,
+              "sql_us": 11844,
+              "sql_cpu_ticks": 1,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 17,
+              "database_close_us": 70,
+              "rss_delta_bytes": 1630208,
+              "keys": 6
+            },
+            {
+              "primitive_us": 469742,
+              "primitive_cpu_ticks": 48,
+              "sql_us": 10888,
+              "sql_cpu_ticks": 2,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 19,
+              "database_close_us": 59,
+              "rss_delta_bytes": -782336,
+              "keys": 6
+            },
+            {
+              "primitive_us": 471896,
+              "primitive_cpu_ticks": 48,
+              "sql_us": 9990,
+              "sql_cpu_ticks": 1,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 17,
+              "database_close_us": 45,
+              "rss_delta_bytes": 274432,
+              "keys": 6
+            },
+            {
+              "primitive_us": 468874,
+              "primitive_cpu_ticks": 47,
+              "sql_us": 10405,
+              "sql_cpu_ticks": 1,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 17,
+              "database_close_us": 56,
+              "rss_delta_bytes": 266240,
+              "keys": 6
+            },
+            {
+              "primitive_us": 471957,
+              "primitive_cpu_ticks": 48,
+              "sql_us": 10338,
+              "sql_cpu_ticks": 1,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 16,
+              "database_close_us": 49,
+              "rss_delta_bytes": 270336,
+              "keys": 6
+            },
+            {
+              "primitive_us": 469202,
+              "primitive_cpu_ticks": 47,
+              "sql_us": 10442,
+              "sql_cpu_ticks": 1,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 17,
+              "database_close_us": 54,
+              "rss_delta_bytes": 266240,
+              "keys": 6
+            },
+            {
+              "primitive_us": 471256,
+              "primitive_cpu_ticks": 47,
+              "sql_us": 10754,
+              "sql_cpu_ticks": 1,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 16,
+              "database_close_us": 60,
+              "rss_delta_bytes": -167936,
+              "keys": 6
+            },
+            {
+              "primitive_us": 470077,
+              "primitive_cpu_ticks": 48,
+              "sql_us": 10002,
+              "sql_cpu_ticks": 1,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 17,
+              "database_close_us": 50,
+              "rss_delta_bytes": 266240,
+              "keys": 6
+            },
+            {
+              "primitive_us": 478491,
+              "primitive_cpu_ticks": 49,
+              "sql_us": 9443,
+              "sql_cpu_ticks": 1,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 17,
+              "database_close_us": 44,
+              "rss_delta_bytes": 274432,
+              "keys": 6
+            },
+            {
+              "primitive_us": 474392,
+              "primitive_cpu_ticks": 48,
+              "sql_us": 9961,
+              "sql_cpu_ticks": 1,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 17,
+              "database_close_us": 57,
+              "rss_delta_bytes": 266240,
+              "keys": 6
+            },
+            {
+              "primitive_us": 468537,
+              "primitive_cpu_ticks": 48,
+              "sql_us": 9710,
+              "sql_cpu_ticks": 1,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 16,
+              "database_close_us": 49,
+              "rss_delta_bytes": 270336,
+              "keys": 6
+            },
+            {
+              "primitive_us": 470581,
+              "primitive_cpu_ticks": 47,
+              "sql_us": 9630,
+              "sql_cpu_ticks": 1,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 16,
+              "database_close_us": 47,
+              "rss_delta_bytes": 270336,
+              "keys": 6
+            },
+            {
+              "primitive_us": 468505,
+              "primitive_cpu_ticks": 47,
+              "sql_us": 9321,
+              "sql_cpu_ticks": 1,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 16,
+              "database_close_us": 43,
+              "rss_delta_bytes": 266240,
+              "keys": 6
+            },
+            {
+              "primitive_us": 471549,
+              "primitive_cpu_ticks": 48,
+              "sql_us": 9293,
+              "sql_cpu_ticks": 1,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 17,
+              "database_close_us": 44,
+              "rss_delta_bytes": 266240,
+              "keys": 6
+            }
+          ],
+          "off": [
+            {
+              "primitive_us": 468168,
+              "primitive_cpu_ticks": 47,
+              "sql_us": 3178,
+              "sql_cpu_ticks": 0,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 66,
+              "rss_delta_bytes": 491520,
+              "keys": 0
+            },
+            {
+              "primitive_us": 466437,
+              "primitive_cpu_ticks": 48,
+              "sql_us": 1772,
+              "sql_cpu_ticks": 0,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 29,
+              "rss_delta_bytes": 462848,
+              "keys": 0
+            },
+            {
+              "primitive_us": 471287,
+              "primitive_cpu_ticks": 47,
+              "sql_us": 1885,
+              "sql_cpu_ticks": 0,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 34,
+              "rss_delta_bytes": 532480,
+              "keys": 0
+            },
+            {
+              "primitive_us": 469143,
+              "primitive_cpu_ticks": 48,
+              "sql_us": 1332,
+              "sql_cpu_ticks": 0,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 27,
+              "rss_delta_bytes": 462848,
+              "keys": 0
+            },
+            {
+              "primitive_us": 475751,
+              "primitive_cpu_ticks": 48,
+              "sql_us": 1398,
+              "sql_cpu_ticks": 0,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 35,
+              "rss_delta_bytes": 466944,
+              "keys": 0
+            },
+            {
+              "primitive_us": 471321,
+              "primitive_cpu_ticks": 48,
+              "sql_us": 1481,
+              "sql_cpu_ticks": 0,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 26,
+              "rss_delta_bytes": 360448,
+              "keys": 0
+            },
+            {
+              "primitive_us": 466738,
+              "primitive_cpu_ticks": 47,
+              "sql_us": 1203,
+              "sql_cpu_ticks": 0,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 27,
+              "rss_delta_bytes": 262144,
+              "keys": 0
+            },
+            {
+              "primitive_us": 468539,
+              "primitive_cpu_ticks": 47,
+              "sql_us": 1052,
+              "sql_cpu_ticks": 0,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 28,
+              "rss_delta_bytes": 266240,
+              "keys": 0
+            },
+            {
+              "primitive_us": 466927,
+              "primitive_cpu_ticks": 48,
+              "sql_us": 1033,
+              "sql_cpu_ticks": 0,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 36,
+              "rss_delta_bytes": 262144,
+              "keys": 0
+            },
+            {
+              "primitive_us": 471668,
+              "primitive_cpu_ticks": 47,
+              "sql_us": 1039,
+              "sql_cpu_ticks": 0,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 27,
+              "rss_delta_bytes": 270336,
+              "keys": 0
+            },
+            {
+              "primitive_us": 468576,
+              "primitive_cpu_ticks": 48,
+              "sql_us": 1029,
+              "sql_cpu_ticks": 0,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 30,
+              "rss_delta_bytes": 266240,
+              "keys": 0
+            },
+            {
+              "primitive_us": 468638,
+              "primitive_cpu_ticks": 48,
+              "sql_us": 1068,
+              "sql_cpu_ticks": 0,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 28,
+              "rss_delta_bytes": 266240,
+              "keys": 0
+            },
+            {
+              "primitive_us": 469295,
+              "primitive_cpu_ticks": 48,
+              "sql_us": 1000,
+              "sql_cpu_ticks": 0,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 26,
+              "rss_delta_bytes": 262144,
+              "keys": 0
+            },
+            {
+              "primitive_us": 470634,
+              "primitive_cpu_ticks": 48,
+              "sql_us": 1126,
+              "sql_cpu_ticks": 0,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 46,
+              "rss_delta_bytes": 266240,
+              "keys": 0
+            },
+            {
+              "primitive_us": 472124,
+              "primitive_cpu_ticks": 48,
+              "sql_us": 1067,
+              "sql_cpu_ticks": 0,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 29,
+              "rss_delta_bytes": 266240,
+              "keys": 0
+            },
+            {
+              "primitive_us": 468190,
+              "primitive_cpu_ticks": 47,
+              "sql_us": 849,
+              "sql_cpu_ticks": 0,
+              "init_us": 0,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 34,
+              "rss_delta_bytes": 266240,
+              "keys": 0
+            },
+            {
+              "primitive_us": 469737,
+              "primitive_cpu_ticks": 48,
+              "sql_us": 833,
+              "sql_cpu_ticks": 0,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 32,
+              "rss_delta_bytes": 266240,
+              "keys": 0
+            },
+            {
+              "primitive_us": 467317,
+              "primitive_cpu_ticks": 48,
+              "sql_us": 862,
+              "sql_cpu_ticks": 0,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 35,
+              "rss_delta_bytes": 270336,
+              "keys": 0
+            },
+            {
+              "primitive_us": 468152,
+              "primitive_cpu_ticks": 47,
+              "sql_us": 802,
+              "sql_cpu_ticks": 0,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 34,
+              "rss_delta_bytes": 262144,
+              "keys": 0
+            },
+            {
+              "primitive_us": 468733,
+              "primitive_cpu_ticks": 48,
+              "sql_us": 857,
+              "sql_cpu_ticks": 0,
+              "init_us": 1,
+              "close_us": 0,
+              "database_observer_init_us": 0,
+              "database_close_us": 30,
+              "rss_delta_bytes": 266240,
+              "keys": 0
+            }
+          ]
+        },
+        "summary": {
+          "on": {
+            "primitive_us": {
+              "median": 470329.0,
+              "p95": 474392
+            },
+            "primitive_cpu_ticks": {
+              "median": 48.0,
+              "p95": 49
+            },
+            "sql_us": {
+              "median": 10423.5,
+              "p95": 13484
+            },
+            "sql_cpu_ticks": {
+              "median": 1.0,
+              "p95": 2
+            },
+            "init_us": {
+              "median": 0.5,
+              "p95": 1
+            },
+            "close_us": {
+              "median": 0.0,
+              "p95": 0
+            },
+            "database_observer_init_us": {
+              "median": 17.0,
+              "p95": 17
+            },
+            "database_close_us": {
+              "median": 49.5,
+              "p95": 65
+            },
+            "rss_delta_bytes": {
+              "median": 270336.0,
+              "p95": 929792
+            },
+            "keys": {
+              "median": 6.0,
+              "p95": 6
+            }
+          },
+          "off": {
+            "primitive_us": {
+              "median": 468685.5,
+              "p95": 472124
+            },
+            "primitive_cpu_ticks": {
+              "median": 48.0,
+              "p95": 48
+            },
+            "sql_us": {
+              "median": 1059.5,
+              "p95": 1885
+            },
+            "sql_cpu_ticks": {
+              "median": 0.0,
+              "p95": 0
+            },
+            "init_us": {
+              "median": 1.0,
+              "p95": 1
+            },
+            "close_us": {
+              "median": 0.0,
+              "p95": 0
+            },
+            "database_observer_init_us": {
+              "median": 0.0,
+              "p95": 0
+            },
+            "database_close_us": {
+              "median": 30.0,
+              "p95": 46
+            },
+            "rss_delta_bytes": {
+              "median": 266240.0,
+              "p95": 491520
+            },
+            "keys": {
+              "median": 0.0,
+              "p95": 0
+            }
+          }
+        }
+      }
+    },
+    "maxrss_bytes": 193687552,
+    "cpu_ticks_per_second": 100,
+    "limits": "CPU는 process 전체의 clock tick 분해능이다. heap allocation 미측정. RSS는 GC/공유 page 영향 포함. 100k나 device 결과가 아니다."
+  },
+  "real_http": {
+    "independent_bounds": {
+      "canonical_bytes": 89644,
+      "minimum_hash_preimage_bytes": 93985,
+      "unique_objects": 144
+    },
+    "modes": {
+      "disabled": {
+        "cold_wall_us": 25339963,
+        "root": "2e67d2ba90841054861a300ede00a2958a728f80c4fb4e0ed31cd08b53efc2a0",
+        "http_requests": 150,
+        "request_entity_bytes": 83390,
+        "response_entity_bytes": 165060
+      },
+      "enabled": {
+        "cold_wall_us": 21887509,
+        "root": "2e67d2ba90841054861a300ede00a2958a728f80c4fb4e0ed31cd08b53efc2a0",
+        "http_requests": 150,
+        "request_entity_bytes": 83390,
+        "response_entity_bytes": 165060
+      }
+    }
+  },
+  "frozen": {
+    "healthy_work": {
+      "full_recoveries": 0,
+      "accepted_reads": 0,
+      "accepted_metadata_reads": 0,
+      "transactions": 0,
+      "object_reads": 8,
+      "verified_bytes": 37804,
+      "graph_nodes_examined": 0,
+      "raw_object_reads": 0,
+      "index_object_reads": 0,
+      "full_verifications": 0,
+      "full_raw_rows": 0,
+      "full_fact_rows": 0,
+      "canonical_full_builds": 0,
+      "pin_inserts": 0,
+      "accepted_writes": 0,
+      "read_snapshots": 0,
+      "adapter_object_reads": 8,
+      "frozen_full_recoveries": 0,
+      "frozen_provenance_reuses": 8
+    },
+    "lineage": {
+      "e4Legacy/lineageHash/calls": "3",
+      "e4Legacy/lineageHash/hashInputBytes": "44112",
+      "recovery/lineageHash/calls": "2",
+      "recovery/lineageHash/hashInputBytes": "29408"
+    }
+  },
+  "findings_by_severity": {
+    "MEDIUM": 5,
+    "LOW": 2
+  },
+  "blockers": 7,
+  "preserved_original_files": 2595,
+  "limits": [
+    "N grid 미실행",
+    "100k enabled lease perturbation 미검증",
+    "Flutter CPU는 coarse process ticks, VM allocations 미측정",
+    "HOST RSS는 Android memory/VFS/power proof가 아님",
+    "R1/activation/deployment 미수행"
+  ],
+  "preserved_failed_attempts": [
+    "independent-http: 동시 Flutter native-assets 충돌",
+    "overhead-python: 독립 fixture의 kind 누락; benchmark fixture만 교정"
+  ]
+}

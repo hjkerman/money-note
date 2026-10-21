@@ -1,0 +1,28 @@
+{
+  "mode": "dart-format",
+  "command": [
+    "/home/hjkerman/.flutter/bin/dart",
+    "format",
+    "--output=none",
+    "--set-exit-if-changed",
+    "mobile/test/segmented_logical_cost_independent_audit_test.dart",
+    "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03-independent/http_test.dart",
+    "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03-independent/overhead_test.dart"
+  ],
+  "cwd": "/home/hjkerman/codex/money-note",
+  "start_unix": 1792566280.5298905,
+  "status": "PASS",
+  "timeout_seconds": 7200,
+  "rss_guard_bytes": 8589934592,
+  "pid": 614154,
+  "exit": 0,
+  "end_unix": 1792566290.543059,
+  "elapsed_seconds": 10.013062374899164,
+  "external_termination": null,
+  "rss_samples": [
+    [
+      0.013,
+      3670016
+    ]
+  ]
+}

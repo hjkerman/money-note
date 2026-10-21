@@ -1,0 +1,12 @@
+{
+  "expected_calls": 3,
+  "expected_bytes": 6,
+  "actual_calls": 4,
+  "counters": {
+    "transfer/encoding/calls": "4",
+    "transfer/encoding/output_bytes": "8",
+    "transfer/json/calls": "4",
+    "transfer/json/completed_bytes": "8",
+    "transfer/json/submitted_bytes": "8"
+  }
+}

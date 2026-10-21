@@ -1,0 +1,125 @@
+{
+  "mode": "flutter-calibration",
+  "command": [
+    "/home/hjkerman/.flutter/bin/flutter",
+    "test",
+    "--no-pub",
+    "--machine",
+    "--concurrency=2",
+    "--dart-define=B03_OUTPUT=/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03-independent/evidence/fresh",
+    "test/segmented_logical_cost_test.dart",
+    "test/segmented_logical_cost_lineage_test.dart",
+    "test/segmented_logical_cost_boundaries_test.dart",
+    "test/segmented_logical_cost_http_test.dart",
+    "test/segmented_logical_cost_source_lock_test.dart",
+    "test/segmented_adapter_isolation_test.dart"
+  ],
+  "cwd": "/home/hjkerman/codex/money-note/mobile",
+  "start_unix": 1792564828.2612953,
+  "status": "PASS",
+  "timeout_seconds": 7200,
+  "rss_guard_bytes": 8589934592,
+  "pid": 612348,
+  "exit": 0,
+  "end_unix": 1792565068.5589533,
+  "elapsed_seconds": 240.29755453497637,
+  "external_termination": null,
+  "rss_samples": [
+    [
+      0.012,
+      3670016
+    ],
+    [
+      10.026,
+      809754624
+    ],
+    [
+      20.04,
+      1532338176
+    ],
+    [
+      30.053,
+      1544237056
+    ],
+    [
+      40.067,
+      1547984896
+    ],
+    [
+      50.08,
+      2136244224
+    ],
+    [
+      60.092,
+      1156337664
+    ],
+    [
+      70.103,
+      1129394176
+    ],
+    [
+      80.115,
+      1130414080
+    ],
+    [
+      90.127,
+      1130860544
+    ],
+    [
+      100.138,
+      1131438080
+    ],
+    [
+      110.15,
+      1132093440
+    ],
+    [
+      120.162,
+      1136156672
+    ],
+    [
+      130.174,
+      1133826048
+    ],
+    [
+      140.186,
+      1136369664
+    ],
+    [
+      150.198,
+      1135288320
+    ],
+    [
+      160.21,
+      1136267264
+    ],
+    [
+      170.222,
+      1136922624
+    ],
+    [
+      180.235,
+      1138233344
+    ],
+    [
+      190.248,
+      1138757632
+    ],
+    [
+      200.26,
+      1142243328
+    ],
+    [
+      210.272,
+      1139421184
+    ],
+    [
+      220.285,
+      1151807488
+    ],
+    [
+      230.297,
+      1106153472
+    ]
+  ]
+}

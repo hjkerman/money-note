@@ -1,0 +1,24 @@
+{
+  "mode": "diff-check",
+  "command": [
+    "git",
+    "diff",
+    "--check"
+  ],
+  "cwd": "/home/hjkerman/codex/money-note",
+  "start_unix": 1792566275.2084422,
+  "status": "PASS",
+  "timeout_seconds": 7200,
+  "rss_guard_bytes": 8589934592,
+  "pid": 614093,
+  "exit": 0,
+  "end_unix": 1792566285.222341,
+  "elapsed_seconds": 10.013771686004475,
+  "external_termination": null,
+  "rss_samples": [
+    [
+      0.014,
+      0
+    ]
+  ]
+}

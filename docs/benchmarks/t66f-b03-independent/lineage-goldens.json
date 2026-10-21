@@ -1,0 +1,74 @@
+[
+  {
+    "baseline": {},
+    "preimage_utf8": "{\"baseline\":{},\"origin\":\"mobile-baseline-lineage\",\"schema_version\":1}",
+    "bytes": 69,
+    "sha256": "cdfdca01d318d708718498523e0861646128045838efb86cc72eaa7d6323bd52"
+  },
+  {
+    "baseline": {
+      "schema_version": 4,
+      "user": {
+        "id": 1
+      },
+      "journal": []
+    },
+    "preimage_utf8": "{\"baseline\":{\"journal\":[],\"schema_version\":4,\"user\":{\"id\":1}},\"origin\":\"mobile-baseline-lineage\",\"schema_version\":1}",
+    "bytes": 116,
+    "sha256": "13cc02759155dbd23b3b89bc3efb2736000b00f8b206e413ea3536f337c8f494"
+  },
+  {
+    "baseline": {
+      "a": "한😀é\u0000\n",
+      "z": null
+    },
+    "preimage_utf8": "{\"baseline\":{\"a\":\"한😀é\\u0000\\n\",\"z\":null},\"origin\":\"mobile-baseline-lineage\",\"schema_version\":1}",
+    "bytes": 102,
+    "sha256": "6a4a145904fcdc01ff0888a4dba0f8f2235a95f45ce75852185d03a31f37fe10"
+  },
+  {
+    "baseline": {
+      "z": {
+        "": 1,
+        "😀": 2
+      },
+      "metadata": {
+        "revision": "9223372036854775807",
+        "raw": "\u001c+0001000.00\u001f"
+      }
+    },
+    "preimage_utf8": "{\"baseline\":{\"metadata\":{\"raw\":\"\\u001c+0001000.00\\u001f\",\"revision\":\"9223372036854775807\"},\"z\":{\"😀\":2,\"\":1}},\"origin\":\"mobile-baseline-lineage\",\"schema_version\":1}",
+    "bytes": 169,
+    "sha256": "87da7910f2521981236e13dd692e6370bd3effec8b9a54c0687a321199425521"
+  },
+  {
+    "baseline": {
+      "ordered": [
+        {
+          "b": 2,
+          "a": 1
+        },
+        3,
+        4
+      ]
+    },
+    "preimage_utf8": "{\"baseline\":{\"ordered\":[{\"a\":1,\"b\":2},3,4]},\"origin\":\"mobile-baseline-lineage\",\"schema_version\":1}",
+    "bytes": 98,
+    "sha256": "4c7143fc81ee3acc8e4b01cc87dc7e6d01f7d963fe7f7d23bf3117ad2c557890"
+  },
+  {
+    "baseline": {
+      "ordered": [
+        {
+          "a": 1,
+          "b": 2
+        },
+        4,
+        3
+      ]
+    },
+    "preimage_utf8": "{\"baseline\":{\"ordered\":[{\"a\":1,\"b\":2},4,3]},\"origin\":\"mobile-baseline-lineage\",\"schema_version\":1}",
+    "bytes": 98,
+    "sha256": "c16e18d21f85eaf5171a119d30b853250ec8f5d5c684e4a17217d2028117b49b"
+  }
+]

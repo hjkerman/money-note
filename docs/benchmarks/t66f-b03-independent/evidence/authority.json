@@ -1,0 +1,47 @@
+{
+  "mode": "authority",
+  "command": [
+    "/home/hjkerman/.flutter/bin/flutter",
+    "test",
+    "--no-pub",
+    "--machine",
+    "--dart-define=B03_STALE_OUTPUT=/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03-independent/evidence/authority",
+    "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03/authority_test.dart"
+  ],
+  "cwd": "/home/hjkerman/codex/money-note/mobile",
+  "start_unix": 1792565411.9284801,
+  "status": "PASS",
+  "timeout_seconds": 7200,
+  "rss_guard_bytes": 8589934592,
+  "pid": 613080,
+  "exit": 0,
+  "end_unix": 1792565472.003048,
+  "elapsed_seconds": 60.0744636640884,
+  "external_termination": null,
+  "rss_samples": [
+    [
+      0.012,
+      3670016
+    ],
+    [
+      10.025,
+      1001807872
+    ],
+    [
+      20.037,
+      1297534976
+    ],
+    [
+      30.049,
+      1300774912
+    ],
+    [
+      40.061,
+      1302597632
+    ],
+    [
+      50.074,
+      1305440256
+    ]
+  ]
+}

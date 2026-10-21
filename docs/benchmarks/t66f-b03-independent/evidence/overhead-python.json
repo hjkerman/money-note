@@ -1,0 +1,23 @@
+{
+  "mode": "overhead-python",
+  "command": [
+    "/home/hjkerman/codex/money-note/.venv/bin/python",
+    "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03-independent/overhead.py"
+  ],
+  "cwd": "/home/hjkerman/codex/money-note",
+  "start_unix": 1792565711.0731227,
+  "status": "FAIL",
+  "timeout_seconds": 7200,
+  "rss_guard_bytes": 8589934592,
+  "pid": 613667,
+  "exit": 1,
+  "end_unix": 1792565721.084693,
+  "elapsed_seconds": 10.01144957903307,
+  "external_termination": null,
+  "rss_samples": [
+    [
+      0.011,
+      9961472
+    ]
+  ]
+}

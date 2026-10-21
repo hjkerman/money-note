@@ -1,0 +1,38 @@
+{
+  "oracle_rows": [
+    [
+      "a",
+      2
+    ],
+    [
+      "prior",
+      1
+    ]
+  ],
+  "expected_committed": 3,
+  "actual_committed": 1,
+  "counters": {
+    "generation/payload/INSERT/attempted/blob_bytes": "6",
+    "generation/payload/INSERT/attempted/columns": "6",
+    "generation/payload/INSERT/attempted/null_values": "0",
+    "generation/payload/INSERT/attempted/rows": "3",
+    "generation/payload/INSERT/attempted/scalar_values": "0",
+    "generation/payload/INSERT/attempted/text_bytes": "11",
+    "generation/payload/INSERT/committed/blob_bytes": "1",
+    "generation/payload/INSERT/committed/columns": "2",
+    "generation/payload/INSERT/committed/null_values": "0",
+    "generation/payload/INSERT/committed/scalar_values": "0",
+    "generation/payload/INSERT/committed/text_bytes": "5",
+    "generation/payload/INSERT/effective/blob_bytes": "3",
+    "generation/payload/INSERT/effective/columns": "4",
+    "generation/payload/INSERT/effective/null_values": "0",
+    "generation/payload/INSERT/effective/rows": "2",
+    "generation/payload/INSERT/effective/scalar_values": "0",
+    "generation/payload/INSERT/effective/text_bytes": "6",
+    "generation/payload/INSERT/statement_rolled_back/blob_bytes": "2",
+    "generation/payload/INSERT/statement_rolled_back/columns": "2",
+    "generation/payload/INSERT/statement_rolled_back/text_bytes": "1",
+    "generation/sql/failed_statements": "1",
+    "generation/sql/statements": "5"
+  }
+}

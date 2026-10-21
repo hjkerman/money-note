@@ -1,0 +1,29 @@
+{
+  "mode": "ruff",
+  "command": [
+    "/home/hjkerman/codex/money-note/.venv/bin/ruff",
+    "check",
+    "backend/app",
+    "backend/isolated_sync",
+    "backend/tests",
+    "scripts",
+    "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03-independent",
+    "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03"
+  ],
+  "cwd": "/home/hjkerman/codex/money-note",
+  "start_unix": 1792554611.3760712,
+  "status": "PASS",
+  "timeout_seconds": 7200,
+  "rss_guard_bytes": 8589934592,
+  "pid": 601246,
+  "exit": 0,
+  "end_unix": 1792554621.4022522,
+  "elapsed_seconds": 10.025984586915001,
+  "external_termination": null,
+  "rss_samples": [
+    [
+      0.026,
+      0
+    ]
+  ]
+}

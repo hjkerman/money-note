@@ -1,0 +1,24 @@
+{
+  "mode": "frontend",
+  "command": [
+    "npm",
+    "run",
+    "build"
+  ],
+  "cwd": "/home/hjkerman/codex/money-note/frontend",
+  "start_unix": 1792554613.3811,
+  "status": "PASS",
+  "timeout_seconds": 7200,
+  "rss_guard_bytes": 8589934592,
+  "pid": 601308,
+  "exit": 0,
+  "end_unix": 1792554623.4011629,
+  "elapsed_seconds": 10.019925908069126,
+  "external_termination": null,
+  "rss_samples": [
+    [
+      0.02,
+      29229056
+    ]
+  ]
+}

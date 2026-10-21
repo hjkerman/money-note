@@ -1,0 +1,26 @@
+{
+  "history_rows": 3,
+  "actual_ledger_rows": 4,
+  "all_authoritative_rows": 40,
+  "H": null,
+  "D_identical": 0,
+  "profile": "기존 small fixture; 규범 fixed-H grid 아님",
+  "objects": {
+    "canonical_bytes": 89644,
+    "minimum_hash_preimage_bytes": 93985,
+    "unique_objects": 144
+  },
+  "tables": {
+    "ledger_entries": 4,
+    "monthly_panels": 1,
+    "cash_flows": 1,
+    "card_payment_batches": 1,
+    "card_payment_batch_items": 1,
+    "card_payment_events": 1,
+    "card_payment_allocations": 1,
+    "card_payment_deferrals": 1,
+    "notification_candidate_registrations": 1,
+    "app_settings": 6,
+    "app_labels": 22
+  }
+}

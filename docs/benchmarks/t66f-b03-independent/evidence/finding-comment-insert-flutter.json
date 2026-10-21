@@ -1,0 +1,1 @@
+{"oracle_rows":[["a",2]],"expected_committed":2,"actual_committed":"0","counters":{"e1/sql/statements":"1","setup/sql/statements":"1"}}

@@ -1,0 +1,13 @@
+{
+  "first": {
+    "transfer/sha256/calls": "2",
+    "transfer/sha256/hash_input_bytes": "56"
+  },
+  "second": {
+    "observation/sha256/calls": "1",
+    "observation/sha256/hash_input_bytes": "32"
+  },
+  "closed": true,
+  "pending": 0,
+  "completion_count": 1
+}

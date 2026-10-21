@@ -1,0 +1,211 @@
+[
+  {
+    "b01_b02": "영향 없음; 두 finding CLOSED 유지",
+    "product_defect": false,
+    "id": "B03-IA01",
+    "severity": "MEDIUM",
+    "classification": "INSTRUMENTATION DEFECT",
+    "source": [
+      "docs/benchmarks/t66f-b03/counters.py:324",
+      "mobile/test/support/logical_cost_sqlite.dart:149"
+    ],
+    "binding_requirement": "사용자 §9/§10/§31(13), T6.6C §24/25/35 I25의 정확한 rollback/commit 비용",
+    "reproduction": "BEGIN; SAVEPOINT s; INSERT a=1B; SAVEPOINT s; INSERT b=2B; ROLLBACK TO s; RELEASE s; COMMIT",
+    "expected": {
+      "committed_blob_bytes": 1,
+      "rolled_back_blob_bytes": 2
+    },
+    "actual": {
+      "committed_blob_bytes": 0,
+      "rolled_back_blob_bytes": 3
+    },
+    "independent_oracle": "원 native SQLite SELECT에서 a=1B만 남음; wrapper counter를 expected로 사용하지 않음",
+    "phase_b_impact": "rollback 작업을 과대 분류하고 실제 committed payload를 누락해 E1/E3 비용 정산을 신뢰할 수 없음",
+    "smallest_proposed_correction": "SQLite의 가장 가까운 동일 이름 savepoint 규칙 적용 또는 중복 이름을 작업 전에 명시 unsupported로 거부",
+    "blocks_b03": true,
+    "evidence": [
+      "evidence/finding-savepoint-backend.json",
+      "evidence/finding-duplicate-savepoint-flutter.json"
+    ]
+  },
+  {
+    "b01_b02": "영향 없음; 두 finding CLOSED 유지",
+    "product_defect": false,
+    "id": "B03-IA02",
+    "severity": "MEDIUM",
+    "classification": "INSTRUMENTATION DEFECT",
+    "source": [
+      "docs/benchmarks/t66f-b03/counters.py:347",
+      "mobile/test/support/logical_cost_sqlite.dart:175"
+    ],
+    "binding_requirement": "사용자 §9 실패 SQL/committed, §31(12/13); T6.6C §24/25/35",
+    "reproduction": "BEGIN; INSERT prior=1B; INSERT OR FAIL (a=2B),(prior=3B) -> constraint error; COMMIT",
+    "expected": {
+      "committed_blob_bytes": 3,
+      "statement_rolled_back_blob_bytes": 0
+    },
+    "actual": {
+      "committed_blob_bytes": 1,
+      "statement_rolled_back_blob_bytes": 2
+    },
+    "independent_oracle": "SQLite FAIL conflict는 해당 statement의 앞선 a=2B를 보존; native SELECT에 a와 prior 존재",
+    "phase_b_impact": "error가 곧 statement 전체 rollback이라는 잘못된 가정으로 committed bytes가 누락됨",
+    "smallest_proposed_correction": "원 native outcome을 보존해 정산하거나 지원하지 않는 conflict mode/복합 statement를 실행 전 명시 거부",
+    "blocks_b03": true,
+    "evidence": [
+      "evidence/finding-fail-sql-backend.json",
+      "evidence/finding-or-fail-flutter.json"
+    ]
+  },
+  {
+    "b01_b02": "영향 없음; 두 finding CLOSED 유지",
+    "product_defect": false,
+    "id": "B03-IA03",
+    "severity": "MEDIUM",
+    "classification": "MISSING MEASUREMENT COVERAGE",
+    "source": [
+      "docs/benchmarks/t66f-b03/counters.py:295",
+      "mobile/test/support/logical_cost_sqlite.dart:134"
+    ],
+    "binding_requirement": "사용자 §9/§17/§21/§31(23): 미지원 복잡성을 완결 수치로 조용히 보고하지 않음",
+    "reproduction": "CREATE TABLE payload(k TEXT,b BLOB); 첫 DML을 /* audit */ INSERT a=2B로 실행",
+    "expected": {
+      "committed_blob_bytes": 2,
+      "coverage_error": false
+    },
+    "actual": {
+      "committed_blob_bytes": 0,
+      "coverage_error": false
+    },
+    "independent_oracle": "native SQLite에는 2B row 존재, instrumentation TEMP observer가 설치되지 않음",
+    "phase_b_impact": "정상 SQL을 실행했지만 첫 token 분류가 DML을 놓쳐 logical write 0이라는 잘못된 증거를 생성",
+    "smallest_proposed_correction": "필요한 SQL 형태를 식별하거나 지원 외 첫 DML을 실행 전에 coverage error로 거부; 범용 parser 확장 불필요",
+    "blocks_b03": true,
+    "evidence": [
+      "evidence/finding-comment-sql-backend.json",
+      "evidence/finding-comment-insert-flutter.json"
+    ]
+  },
+  {
+    "b01_b02": "영향 없음; 두 finding CLOSED 유지",
+    "product_defect": false,
+    "id": "B03-IA04",
+    "severity": "LOW",
+    "classification": "INSTRUMENTATION DEFECT",
+    "source": [
+      "docs/benchmarks/t66f-b03/counters.py:161"
+    ],
+    "binding_requirement": "사용자 §14 반복 초기화, §10 중복 금지, §31(24)",
+    "reproduction": "outer instrument에서 {} decode; inner instrument에서 {} decode; inner 종료 후 {} decode",
+    "expected": {
+      "calls": 3,
+      "submitted_bytes": 6
+    },
+    "actual": {
+      "calls": 4,
+      "submitted_bytes": 8
+    },
+    "independent_oracle": "명시한 실제 decode 세 호출과 literal 각각2B; parser 재실행이 아니라 observer 중첩",
+    "phase_b_impact": "재진입을 허용하는 API가 validation 작업량을 중복 계수",
+    "smallest_proposed_correction": "중첩 설치를 명시 거부하거나 기존 session observer를 한 번만 설치/복원",
+    "blocks_b03": true,
+    "evidence": [
+      "evidence/finding-nested-install.json"
+    ]
+  },
+  {
+    "b01_b02": "영향 없음; 두 finding CLOSED 유지",
+    "product_defect": false,
+    "id": "B03-IA05",
+    "severity": "MEDIUM",
+    "classification": "INSTRUMENTATION DEFECT",
+    "source": [
+      "docs/benchmarks/t66f-b03/counters.py:133",
+      "backend/isolated_sync/workers.py:92"
+    ],
+    "binding_requirement": "사용자 §11/§13/§21: 거부/취소/teardown 후 native diagnostic 수명 정산",
+    "reproduction": "lease=budget.acquire(); lease.close(); collector scope 안 await lease.run(...); 원 RuntimeError 후 finish_when_idle",
+    "expected": {
+      "pending": 0,
+      "completion_count": 1
+    },
+    "actual": {
+      "pending": 1,
+      "completion_count": 0
+    },
+    "independent_oracle": "native budget leases/jobs/running/tasks 모두0; 실제 worker는 등록되지 않음",
+    "phase_b_impact": "job 생성 때 hold했지만 등록 거부는 _finish를 호출하지 않아 measurement cohort가 완결되지 않음",
+    "smallest_proposed_correction": "hold를 실제 job 등록 성공에 묶거나 모든 등록 실패 경로에서 exact-once release",
+    "blocks_b03": true,
+    "evidence": [
+      "evidence/closed-lease-native-lifetime.json"
+    ]
+  },
+  {
+    "b01_b02": "영향 없음; 두 finding CLOSED 유지",
+    "product_defect": false,
+    "id": "B03-IA06",
+    "severity": "LOW",
+    "classification": "INSTRUMENTATION DEFECT",
+    "source": [
+      "docs/benchmarks/t66f-b03/counters.py:242",
+      "mobile/test/support/logical_cost_sqlite.dart:57"
+    ],
+    "binding_requirement": "사용자 §21/§31(27): closed collector 정리 및 bounded aggregate",
+    "reproduction": "한 BEGIN 안에서 새 collector마다1행 INSERT 후 close를10/100/1000회; weakref 및 pending map 크기 조회",
+    "expected": {
+      "per_transaction_owners": "명시 상한 또는 닫힌 owner 제거/명시 오류"
+    },
+    "actual": {
+      "retained_owners": [
+        10,
+        100,
+        1000
+      ],
+      "pending_keys": [
+        50,
+        500,
+        5000
+      ],
+      "after_rollback": 0
+    },
+    "independent_oracle": "Python에서 weakref와 _cost_pending을 직접 관찰; Dart는 같은 pending owner strong-reference 구조를 source로 확인",
+    "phase_b_impact": "single-run 고정 category 주장을 임의 동시/반복 scope의 전체 고정 메모리로 확대할 수 없음; 정상 단일-run leak로 오인하지 않음",
+    "smallest_proposed_correction": "harness의 transaction owner 수를 명시 제한/검사하거나 closed owner의 diagnostic 정산을 폐기하며 정리",
+    "blocks_b03": true,
+    "evidence": [
+      "evidence/pending-owner-retention.json"
+    ]
+  },
+  {
+    "b01_b02": "영향 없음; 두 finding CLOSED 유지",
+    "product_defect": false,
+    "id": "B03-IA07",
+    "severity": "MEDIUM",
+    "classification": "INSTRUMENTATION DEFECT",
+    "source": [
+      "docs/benchmarks/t66f-b03/server.py:150",
+      "docs/benchmarks/t66f-phase-b/server.py:419",
+      "docs/benchmarks/t66f-phase-b/server.py:468"
+    ],
+    "binding_requirement": "사용자 mission 측정 격리, §10/§17/§20/§31(22/32), T6.6C §35 I25",
+    "reproduction": "실제 B03 server의 mutate update 명령에서 SELECT hash FROM sync_objects cursor를 단일 위임 observer로 관찰",
+    "expected": {
+      "oracle_statements_in_product_generation": 0
+    },
+    "actual": {
+      "oracle_statements_in_product_generation": 2,
+      "returned_rows": [
+        176,
+        185
+      ]
+    },
+    "independent_oracle": "기존 harness source의 before_objects/after_objects 비교만 수행하는 두 query와 실제 cursor 반환 row count",
+    "phase_b_impact": "전체 catalog를 읽는 감사 oracle SQL이 generation 제품 SQL 계수에 섞임; hash/write byte의 추가 오염을 주장하지 않음",
+    "smallest_proposed_correction": "harness oracle 비교를 제품 측정 scope/관련 timing 밖으로 분리하고 전후 oracle-only delta=0을 보정",
+    "blocks_b03": true,
+    "evidence": [
+      "evidence/generation-oracle-scope-contamination.json"
+    ]
+  }
+]

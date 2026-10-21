@@ -1,0 +1,7 @@
+{
+  "expected_committed": 2,
+  "actual_committed": 0,
+  "counters": {
+    "generation/sql/statements": "2"
+  }
+}
