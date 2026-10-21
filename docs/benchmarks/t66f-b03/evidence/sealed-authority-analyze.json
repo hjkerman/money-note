@@ -1,0 +1,26 @@
+{
+  "mode": "sealed-authority-analyze",
+  "command": [
+    "/home/hjkerman/.flutter/bin/dart",
+    "--packages=mobile/.dart_tool/package_config.json",
+    "analyze",
+    "docs/benchmarks/t66f-b03/authority_test.dart",
+    "docs/benchmarks/t66f-b03/fresh_frozen_test.dart"
+  ],
+  "cwd": "/home/hjkerman/codex/money-note",
+  "start_unix": 1792544335.7219155,
+  "status": "PASS",
+  "timeout_seconds": 7200,
+  "rss_guard_bytes": 8589934592,
+  "pid": 590315,
+  "exit": 0,
+  "end_unix": 1792544345.7494318,
+  "elapsed_seconds": 10.027306907926686,
+  "external_termination": null,
+  "rss_samples": [
+    [
+      0.027,
+      3538944
+    ]
+  ]
+}

@@ -4,6 +4,7 @@ import 'package:crypto/crypto.dart';
 
 import 'authoritative_bundle_contract.dart';
 import 'money.dart';
+import 'diagnostics/logical_cost.dart';
 
 Never invalidBundle(String path) =>
     throw FormatException('invalid authoritative bundle: $path');
@@ -148,8 +149,15 @@ Object? _canonical(Object? value) {
   return value;
 }
 
-String bundleHash(Object? value) =>
-    sha256.convert(utf8.encode(bundleCanonicalJson(value))).toString();
+String bundleHash(Object? value) {
+  final bytes = utf8.encode(bundleCanonicalJson(value));
+  final result = sha256.convert(bytes).toString();
+  LogicalCost.observe(
+      LogicalCostOperation.legacyHash, LogicalCostMetric.calls, 1);
+  LogicalCost.observe(LogicalCostOperation.legacyHash,
+      LogicalCostMetric.hashInputBytes, bytes.length);
+  return result;
+}
 
 class _JsonFrame {
   _JsonFrame(this.object, this.moneyMap);

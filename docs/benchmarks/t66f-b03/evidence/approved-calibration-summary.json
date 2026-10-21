@@ -1,0 +1,330 @@
+{
+  "schema_version": 1,
+  "runs": {
+    "approved-source-lock": {
+      "counts": {
+        "PASS": 28
+      },
+      "done_success": true,
+      "failed": []
+    },
+    "approved-source-lock-final": {
+      "counts": {
+        "PASS": 28
+      },
+      "done_success": true,
+      "failed": []
+    },
+    "backend-approval": {
+      "tests": 23,
+      "fail": 0,
+      "errors": 0
+    },
+    "backend-approval-final": {
+      "tests": 23,
+      "fail": 0,
+      "errors": 0
+    },
+    "approved-backend-final-2": {
+      "tests": 39,
+      "fail": 0,
+      "errors": 0
+    },
+    "approved-backend-final-3": {
+      "tests": 40,
+      "fail": 0,
+      "errors": 0
+    },
+    "approved-boundary": {
+      "counts": {
+        "PASS": 31,
+        "FAIL": 4
+      },
+      "done_success": false,
+      "failed": [
+        "file write span is encoded once, flushed and atomically renamed",
+        "file failures count actual attempts but never report completion",
+        "closed SQL and file owner cannot contaminate a new run",
+        "real Frozen handoff, healthy reads and reopen fallback account without pin rewrites"
+      ]
+    },
+    "approved-boundary-2": {
+      "counts": {
+        "PASS": 34,
+        "FAIL": 1
+      },
+      "done_success": false,
+      "failed": [
+        "real Frozen handoff, healthy reads and reopen fallback account without pin rewrites"
+      ]
+    },
+    "approved-boundary-3": {
+      "counts": {
+        "PASS": 35
+      },
+      "done_success": true,
+      "failed": []
+    },
+    "approved-calibration-final-2": {
+      "counts": {
+        "PASS": 64
+      },
+      "done_success": true,
+      "failed": []
+    },
+    "approved-http": {
+      "counts": {
+        "FAIL": 1
+      },
+      "done_success": false,
+      "failed": [
+        "loading /home/hjkerman/codex/money-note/mobile/test/segmented_logical_cost_http_test.dart"
+      ]
+    },
+    "approved-http-2": {
+      "counts": {
+        "FAIL": 1
+      },
+      "done_success": false,
+      "failed": [
+        "loading /home/hjkerman/codex/money-note/mobile/test/segmented_logical_cost_http_test.dart"
+      ]
+    },
+    "approved-http-3": {
+      "counts": {
+        "PASS": 3
+      },
+      "done_success": true,
+      "failed": []
+    },
+    "approved-http-final": {
+      "counts": {
+        "PASS": 1
+      },
+      "done_success": true,
+      "failed": []
+    },
+    "approved-frozen-final": {
+      "counts": {
+        "PASS": 1
+      },
+      "done_success": true,
+      "failed": []
+    },
+    "approved-file-delegate-final": {
+      "counts": {
+        "PASS": 3
+      },
+      "done_success": true,
+      "failed": []
+    }
+  },
+  "source_lock_approval": "현재 검토 B03 5개 소스 exact revision과 기존 C1/AppState 검사 갱신만 승인",
+  "source_lock_manifest": "../source-lock-review.json",
+  "pending_approval": "P0 OfflineStore.recoveryLineageFingerprint 한정 hash hook 및 exact source-lock 확장",
+  "coverage": "PARTIAL — 실제 Frozen lineage SHA 입력 미관측",
+  "checks": {
+    "approved-backend-full": {
+      "mode": "approved-backend-full",
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--junitxml=/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03/evidence/approved-backend-full.xml"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/backend",
+      "start_unix": 1792511345.203075,
+      "status": "RUNNING",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592
+    },
+    "approved-flutter-full": {
+      "mode": "approved-flutter-full",
+      "command": [
+        "/home/hjkerman/.flutter/bin/flutter",
+        "test",
+        "--no-pub",
+        "--machine",
+        "--concurrency=4"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/mobile",
+      "start_unix": 1792511407.086634,
+      "status": "RUNNING",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592
+    },
+    "approved-analyze": {
+      "mode": "approved-analyze",
+      "command": [
+        "/home/hjkerman/.flutter/bin/flutter",
+        "analyze",
+        "--no-pub"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/mobile",
+      "start_unix": 1792512628.614306,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "pid": 561085,
+      "exit": 0,
+      "end_unix": 1792512638.6486275,
+      "elapsed_seconds": 10.03404453897383,
+      "external_termination": null,
+      "rss_samples": [
+        [
+          0.034,
+          3670016
+        ]
+      ]
+    },
+    "approved-build": {
+      "mode": "approved-build",
+      "command": [
+        "/home/hjkerman/.flutter/bin/flutter",
+        "build",
+        "apk",
+        "--debug",
+        "--no-pub",
+        "--dart-define=MONEY_NOTE_API_BASE_URL=https://audit.invalid"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/mobile",
+      "start_unix": 1792512629.448825,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "pid": 561114,
+      "exit": 0,
+      "end_unix": 1792512659.553922,
+      "elapsed_seconds": 30.104806091985665,
+      "external_termination": null,
+      "rss_samples": [
+        [
+          0.035,
+          3538944
+        ],
+        [
+          10.071,
+          207556608
+        ],
+        [
+          20.105,
+          207048704
+        ]
+      ]
+    },
+    "approved-frontend": {
+      "mode": "approved-frontend",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/frontend",
+      "start_unix": 1792512627.1503756,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "pid": 561009,
+      "exit": 0,
+      "end_unix": 1792512647.208078,
+      "elapsed_seconds": 20.057529362966307,
+      "external_termination": null,
+      "rss_samples": [
+        [
+          0.021,
+          29097984
+        ],
+        [
+          10.057,
+          319004672
+        ]
+      ]
+    },
+    "approved-ruff": {
+      "mode": "approved-ruff",
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/ruff",
+        "check",
+        "backend/app",
+        "backend/isolated_sync",
+        "backend/tests",
+        "scripts",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note",
+      "start_unix": 1792512627.486523,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "pid": 561031,
+      "exit": 0,
+      "end_unix": 1792512637.5242348,
+      "elapsed_seconds": 10.037486177054234,
+      "external_termination": null,
+      "rss_samples": [
+        [
+          0.037,
+          0
+        ]
+      ]
+    },
+    "approved-format": {
+      "mode": "approved-format",
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/ruff",
+        "format",
+        "--check",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03",
+        "backend/tests/test_logical_cost_instrumentation.py"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note",
+      "start_unix": 1792512627.6174743,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "pid": 561057,
+      "exit": 0,
+      "end_unix": 1792512637.6510491,
+      "elapsed_seconds": 10.033347357064486,
+      "external_termination": null,
+      "rss_samples": [
+        [
+          0.033,
+          0
+        ]
+      ]
+    },
+    "approved-compileall": {
+      "mode": "approved-compileall",
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "compileall",
+        "-q",
+        "backend/app",
+        "backend/isolated_sync",
+        "backend/tests",
+        "scripts",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note",
+      "start_unix": 1792512628.6083207,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "pid": 561084,
+      "exit": 0,
+      "end_unix": 1792512638.6422224,
+      "elapsed_seconds": 10.03369870397728,
+      "external_termination": null,
+      "rss_samples": [
+        [
+          0.033,
+          9830400
+        ]
+      ]
+    }
+  },
+  "verdict": "BLOCKED — 별도 P0 source-lock 승인 필요"
+}

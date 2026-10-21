@@ -1,0 +1,26 @@
+{
+  "mode": "final-format",
+  "command": [
+    "/home/hjkerman/codex/money-note/.venv/bin/ruff",
+    "format",
+    "--check",
+    "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03",
+    "backend/tests/test_logical_cost_instrumentation.py"
+  ],
+  "cwd": "/home/hjkerman/codex/money-note",
+  "start_unix": 1792509253.6529272,
+  "status": "PASS",
+  "timeout_seconds": 7200,
+  "rss_guard_bytes": 8589934592,
+  "pid": 553371,
+  "exit": 0,
+  "end_unix": 1792509263.6727073,
+  "elapsed_seconds": 10.019657135941088,
+  "external_termination": null,
+  "rss_samples": [
+    [
+      0.019,
+      0
+    ]
+  ]
+}

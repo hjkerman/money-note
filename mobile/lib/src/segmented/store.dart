@@ -113,7 +113,9 @@ class SegmentedClientStore {
       StoreFault? fault,
       bool acquisition = false,
       bool publication = false,
-      bool adapters = false}) {
+      bool adapters = false,
+      // B03 test-only connection seam; absent in normal execution.
+      Database Function(String path)? diagnosticDatabaseFactory}) {
     publication = publication || adapters;
     acquisition = acquisition || publication;
     limits.validate();
@@ -122,7 +124,9 @@ class SegmentedClientStore {
     final path = '${directory.path}/${cache.key}.sqlite';
     Database? db;
     try {
-      db = sqlite3.open(path);
+      db = diagnosticDatabaseFactory == null
+          ? sqlite3.open(path)
+          : diagnosticDatabaseFactory(path);
       db.execute('PRAGMA busy_timeout=${limits.busyMilliseconds}');
       final version = db.select('PRAGMA user_version').single.values.first;
       final tables = db.select(

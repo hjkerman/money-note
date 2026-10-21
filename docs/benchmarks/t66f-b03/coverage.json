@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "scope": "합성 D→E operation bytes. Phase B cost grid 완료가 아님",
+  "attribution": "명시 run/stage, 공유 primitive의 exclusive 호출 귀속. inclusive 합계를 중복 합산하지 않음",
+  "hash": {
+    "measured": ["backend 실제 SHA constructor/update/domain bytes", "backend authentication SHA 분리", "Dart C1 object framing/NUL/payload", "Dart checksum", "Dart legacy bundleHash"],
+    "missing_mandatory": "mobile/lib/src/offline/offline_store.dart:475 recoveryLineageFingerprint의 실제 SHA 입력",
+    "status": "PARTIAL",
+    "reason": "P0 보호 source에 대한 새 한정 hook/source-lock 승인 필요. 재인코딩 또는 file 길이 추론으로 대신하지 않음"
+  },
+  "validation": {
+    "measured": ["backend 실제 strict UTF-8/JSON admission span", "Dart C1 submitted/completed/failed span", "file UTF-8 decode span", "기존 typed/prefix/raw/fact/edge operation counts"],
+    "exclusions": ["실패 parser의 정확한 소비 prefix 미관측", "byte 입력 없는 구조 검사는 임의 byte 길이로 환산하지 않음"],
+    "status": "부분 보정 완료, 전층 최종 gate 미완료"
+  },
+  "persistence": {
+    "measured": ["SQL BLOB bind", "SQLite NEW row의 실제 TEXT/BLOB payload", "INSERT/UPDATE/DELETE 및 trigger", "attempted/effective/committed/rollback", "실제 file writeFrom 입력·완료·실패와 flush/rename count"],
+    "exclusions": ["SQL TEXT bind는 문자/code-unit count만, 재인코딩 없음", "숫자/NULL은 값 count", "물리 DB/WAL/fsync write amplification 아님", "file 완료·flush·rename을 하드웨어 durability로 부르지 않음"],
+    "status": "지원 실제 경계 calibration PASS, 최종 gate 미완료"
+  },
+  "source_locks": {
+    "current_reviewed": "source-lock-review.json",
+    "historical_artifacts": "UNCHANGED",
+    "suite": "기존 23 + 새 exact 5 = 28 PASS",
+    "new_approval_pending": "P0 offline_store.dart 한정 hook 및 exact 역사 복원/현재 SHA 검사"
+  },
+  "memory": "고정 stage/operation·SQL tables128·savepoints32·HTTP samples16. 객체 원문을 새 collector에 보관하지 않음",
+  "async_lifetime": "ASGI 종료와 native worker 종료를 구분, 실제 native 종료 뒤 request 측정 확정",
+  "unverified": ["고정 H/D 5-point N grid", "최종 I25 cost proof", "100k 계측 활성화 시 lease perturbation", "Android VFS/I/O", "하드웨어 power loss", "R1"],
+  "verdict": "BLOCKED — 별도 P0 한정 source-lock 승인 필요"
+}

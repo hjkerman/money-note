@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "instrumentation_version": "t66f-b03/1",
+  "scope": "실제 합성 D→E, generation·transfer·E1/E2/E3/E4 및 Frozen reopen. 최종 5-point 비용 검증 아님",
+  "supersedes_for_current_coverage": "coverage.json — 과거 P0 승인 전 PARTIAL 기록은 보존",
+  "hash_input_bytes": {
+    "backend": "실제 SHA256 constructor/update의 buffer nbytes. authentication SHA는 별도 exclusive operation",
+    "flutter": ["C1 object domain framing + NUL + payload", "localChecksum", "bundleHash", "OfflineStore.recoveryLineageFingerprint"],
+    "repeats": "실제 호출마다 누적, provenance reuse로 호출하지 않으면 0",
+    "lineage": "기존 UTF-8 buffer를 한 번 SHA에 전달한 바로 그 길이. 재직렬화/복사/재해싱 없음",
+    "exclusions": ["TLS 및 운영체제 crypto", "실제 segmented D→E에서 호출되지 않는 수동 retry/registration/artifact 생성 도구"],
+    "status": "실제 경계 observable, 최종 grid 수치 검증은 별도"
+  },
+  "validation_input_bytes": {
+    "primary": ["backend C1 strict UTF-8/JSON admission submitted/completed span", "Dart decodeC1 actual input span", "실제 Frozen/file UTF-8 decode input span"],
+    "failed": "failedSubmitted는 제출 span이며 실패 parser가 실제 소비한 prefix라고 하지 않음",
+    "structural": "typed/raw/fact/reference/edge/prefix 검사는 기존 operation count 재사용; byte 입력이 없는 map을 재인코딩하지 않음",
+    "encoding": "원 canonical encoder의 outputBytes는 별도 계수이며 validation input과 합산하지 않음",
+    "status": "binding primary byte metric 및 별도 구조 count observable"
+  },
+  "persistence_logical_write_bytes": {
+    "submitted": "실제 SQL BLOB bind 및 native file writeFrom buffer span",
+    "row_payload": "SQLite BEFORE/AFTER의 실제 NEW TEXT UTF-8/BLOB 길이. object·metadata·receipt·pin을 table/operation으로 구분",
+    "outcomes": ["attempted", "effective", "committed", "statement rollback", "transaction rollback", "close rollback"],
+    "file": "submitted/completed/failed; flush/rename은 count. completed는 물리 durability 보증 아님",
+    "non_bytes": "SQL TEXT bind는 문자/code-unit, INTEGER/REAL/NULL은 값 count. 임의 직렬화 가중치 없음",
+    "not_measured": ["SQLite file growth를 logical write로 환산", "WAL/physical filesystem amplification", "하드웨어 durable bytes"],
+    "status": "명시 실제 payload 경계 observable; file committed bytes는 주장하지 않음"
+  },
+  "stage_attribution": {
+    "backend": ["setup", "generation", "observation", "transfer", "calibration"],
+    "flutter": ["setup", "e1", "e2", "e3Verify", "e3Prepare", "e3Commit", "e3Readback", "e4Read", "recovery", "e4Legacy", "calibration"],
+    "ownership": "ContextVar/Zone exclusive caller stage. E3 commit 내 readback은 e3Commit에 포함, e3Readback 별도 측정을 주장하지 않음",
+    "worker_lifetime": "취소된 ASGI 종료가 아닌 실제 native worker 종료까지 원 collector 소유",
+    "process": "child/isolate에는 자동 전파하지 않음. 새 collector와 별도 snapshot 필요"
+  },
+  "overlap": "hash/validate/write는 서로 겹치는 연산 비용이며 unique bytes로 합산하지 않음. bind와 row payload도 별도 관점",
+  "bounds": {"dart_primitive_categories_max": 462, "sql_tables": 128, "savepoints": 32, "request_samples": 16, "arithmetic": "Python int / Dart BigInt"},
+  "source_locks": {"current": "source-lock-review.json", "previous": "source-lock-review-before-lineage.json", "historical_audits": "UNCHANGED", "approval": "사용자의 기존 B03 및 recoveryLineageFingerprint 한정 승인"},
+  "remaining_independent_evidence": ["B03 독립 감사", "동일 H/D의 N=1000,5000,10000,50000,100000 비용 grid", "최종 E3 I25 proof", "계측 활성 대형 lease perturbation", "Android VFS/I/O", "물리 power loss", "R1"]
+}

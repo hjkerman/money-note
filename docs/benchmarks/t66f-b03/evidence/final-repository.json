@@ -1,0 +1,30 @@
+{
+  "head": "da818648031e013e83dd6a680b1b1bde0fb6e0a1",
+  "main": "da818648031e013e83dd6a680b1b1bde0fb6e0a1",
+  "origin_main": "da818648031e013e83dd6a680b1b1bde0fb6e0a1",
+  "remote_main": "da818648031e013e83dd6a680b1b1bde0fb6e0a1\trefs/heads/main",
+  "status": "M mobile/lib/src/app_state.dart\n M mobile/lib/src/authoritative_bundle_validation.dart\n M mobile/lib/src/segmented/c1.dart\n M mobile/lib/src/segmented/store.dart\n?? backend/tests/test_logical_cost_instrumentation.py\n?? docs/benchmarks/t66f-b03/\n?? docs/t66f-b03-logical-cost-instrumentation.md\n?? mobile/lib/src/segmented/logical_cost.dart\n?? mobile/test/segmented_logical_cost_http_test.dart\n?? mobile/test/segmented_logical_cost_overhead_test.dart\n?? mobile/test/segmented_logical_cost_test.dart\n?? mobile/test/support/logical_cost_reopen.dart\n?? mobile/test/support/logical_cost_sqlite.dart",
+  "staged": "",
+  "initial_tracked_count": 2317,
+  "changed_tracked_files": {
+    "mobile/lib/src/app_state.dart": {
+      "old": "c1d65f36dbd09a5f33b4a5d8d0e8b7a67ea429b0811592fce32aaeb65f9c46c1",
+      "new": "ca5004d5a1a7dba511b453cf8e417936899317f3059533724b091a81c55a3437"
+    },
+    "mobile/lib/src/authoritative_bundle_validation.dart": {
+      "old": "9c525d7f3b76a6b2358902c4078a465ab53fcee0b1f892f8f531ea49206df44d",
+      "new": "81969bce52d0e67f16e8be7000200cbd9c1e80ce0b74f0408b9b39496f77b47c"
+    },
+    "mobile/lib/src/segmented/c1.dart": {
+      "old": "388c675265a2d0c6579b9a3819eb6a590d059c7667eec98e22641d6664551c46",
+      "new": "62a52a4efe70fdcfeec2f20a6b38db07fb9eaccaa73e6301f4f4d1e9115f9815"
+    },
+    "mobile/lib/src/segmented/store.dart": {
+      "old": "f2b451238b868b865beda40cfb39054d9c4a3ff36b5e27c7796b2759ee07811a",
+      "new": "495fd7342687eb942641f5648e43c9bd7e48b60d71dd8a6aee45b1fe8d37fc27"
+    }
+  },
+  "missing_tracked_files": [],
+  "commit": "NOT PERFORMED",
+  "push": "NOT PERFORMED"
+}

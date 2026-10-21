@@ -1,0 +1,319 @@
+{
+  "schema_version": 1,
+  "instrumentation_version": "t66f-b03/1",
+  "source_lock_review": "../source-lock-review.json",
+  "runs": {
+    "lineage-targeted": {
+      "counts": {
+        "PASS": 36
+      },
+      "done_success": true,
+      "failed": []
+    },
+    "lineage-source-lock": {
+      "counts": {
+        "PASS": 29
+      },
+      "done_success": true,
+      "failed": []
+    },
+    "lineage-boundaries-final": {
+      "counts": {
+        "PASS": 68
+      },
+      "done_success": true,
+      "failed": []
+    },
+    "lineage-boundaries-approved": {
+      "counts": {
+        "PASS": 10
+      },
+      "done_success": true,
+      "failed": []
+    },
+    "lineage-http": {
+      "counts": {
+        "PASS": 3
+      },
+      "done_success": true,
+      "failed": []
+    },
+    "lineage-stale": {
+      "counts": {
+        "PASS": 2
+      },
+      "done_success": true,
+      "failed": []
+    },
+    "lineage-overhead-final": {
+      "counts": {
+        "PASS": 1
+      },
+      "done_success": true,
+      "failed": []
+    },
+    "sealed-concurrent": {
+      "counts": {
+        "PASS": 1
+      },
+      "done_success": true,
+      "failed": []
+    },
+    "sealed-http": {
+      "counts": {
+        "PASS": 3
+      },
+      "done_success": true,
+      "failed": []
+    },
+    "sealed-stale": {
+      "counts": {
+        "PASS": 2
+      },
+      "done_success": true,
+      "failed": []
+    }
+  },
+  "full_backend": {
+    "tests": 1392,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "backend_calibration": {
+    "tests": 40,
+    "failures": 0,
+    "errors": 0,
+    "scope": "신규 backend 24 + 역사 calibration 16, 원 assertion 보존"
+  },
+  "full_flutter": {
+    "counts": {
+      "PASS": 1648,
+      "SKIP": 2
+    },
+    "done_success": true,
+    "failed": []
+  },
+  "checks": {
+    "backend-full": {
+      "mode": "lineage-backend-full",
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--junitxml=/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03/evidence/lineage-backend-full.xml"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/backend",
+      "start_unix": 1792542360.799565,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "exit": 0,
+      "end_unix": 1792544165.2391343,
+      "elapsed_seconds": 1804.4394464190118,
+      "external_termination": null
+    },
+    "flutter-full": {
+      "mode": "sealed-flutter-full",
+      "command": [
+        "/home/hjkerman/.flutter/bin/flutter",
+        "test",
+        "--no-pub",
+        "--machine",
+        "--concurrency=4"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/mobile",
+      "start_unix": 1792544236.3455095,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "exit": 0,
+      "end_unix": 1792546781.758372,
+      "elapsed_seconds": 2545.412763016997,
+      "external_termination": null
+    },
+    "analyze": {
+      "mode": "sealed-analyze",
+      "command": [
+        "/home/hjkerman/.flutter/bin/flutter",
+        "analyze",
+        "--no-pub"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/mobile",
+      "start_unix": 1792544315.3338413,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "exit": 0,
+      "end_unix": 1792544325.3521025,
+      "elapsed_seconds": 10.01812855398748,
+      "external_termination": null
+    },
+    "build": {
+      "mode": "sealed-build",
+      "command": [
+        "/home/hjkerman/.flutter/bin/flutter",
+        "build",
+        "apk",
+        "--debug",
+        "--no-pub",
+        "--dart-define=MONEY_NOTE_API_BASE_URL=https://audit.invalid"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/mobile",
+      "start_unix": 1792544318.5902362,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "exit": 0,
+      "end_unix": 1792544348.6786401,
+      "elapsed_seconds": 30.088190659997053,
+      "external_termination": null
+    },
+    "frontend": {
+      "mode": "sealed-frontend",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/frontend",
+      "start_unix": 1792544339.3260171,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "exit": 0,
+      "end_unix": 1792544349.3487432,
+      "elapsed_seconds": 10.022552651003934,
+      "external_termination": null
+    },
+    "ruff": {
+      "mode": "sealed-ruff",
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/ruff",
+        "check",
+        "backend/app",
+        "backend/isolated_sync",
+        "backend/tests",
+        "scripts",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note",
+      "start_unix": 1792544322.0367346,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "exit": 0,
+      "end_unix": 1792544332.0713654,
+      "elapsed_seconds": 10.034404515987262,
+      "external_termination": null
+    },
+    "format": {
+      "mode": "sealed-format",
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/ruff",
+        "format",
+        "--check",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03",
+        "backend/tests/test_logical_cost_instrumentation.py"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note",
+      "start_unix": 1792544325.3847024,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "exit": 0,
+      "end_unix": 1792544335.4200602,
+      "elapsed_seconds": 10.035081336973235,
+      "external_termination": null
+    },
+    "compileall": {
+      "mode": "sealed-compileall",
+      "command": [
+        "/home/hjkerman/codex/money-note/.venv/bin/python",
+        "-m",
+        "compileall",
+        "-q",
+        "backend/app",
+        "backend/isolated_sync",
+        "backend/tests",
+        "scripts",
+        "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note",
+      "start_unix": 1792544328.4088404,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "exit": 0,
+      "end_unix": 1792544338.4347892,
+      "elapsed_seconds": 10.025750715052709,
+      "external_termination": null
+    },
+    "dart-format": {
+      "mode": "sealed-dart-format",
+      "command": [
+        "/home/hjkerman/.flutter/bin/dart",
+        "format",
+        "--output=none",
+        "--set-exit-if-changed",
+        "lib/src/app_state.dart",
+        "lib/src/authoritative_bundle_validation.dart",
+        "lib/src/segmented/c1.dart",
+        "lib/src/segmented/store.dart",
+        "lib/src/diagnostics/logical_cost.dart",
+        "lib/src/offline/offline_store.dart",
+        "test/segmented_logical_cost_test.dart",
+        "test/segmented_logical_cost_http_test.dart",
+        "test/segmented_logical_cost_overhead_test.dart",
+        "test/segmented_logical_cost_lineage_test.dart",
+        "test/segmented_logical_cost_boundaries_test.dart",
+        "test/segmented_logical_cost_source_lock_test.dart",
+        "test/segmented_adapter_isolation_test.dart",
+        "test/support/logical_cost_reopen.dart",
+        "test/support/logical_cost_sqlite.dart",
+        "test/support/logical_cost_files.dart",
+        "test/support/logical_cost_source_lock.dart",
+        "../docs/benchmarks/t66f-b03/fresh_frozen_test.dart",
+        "../docs/benchmarks/t66f-b03/authority_test.dart"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note/mobile",
+      "start_unix": 1792544332.522326,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "exit": 0,
+      "end_unix": 1792544342.5460136,
+      "elapsed_seconds": 10.023519341018982,
+      "external_termination": null
+    },
+    "authority-analyze": {
+      "mode": "sealed-authority-analyze",
+      "command": [
+        "/home/hjkerman/.flutter/bin/dart",
+        "--packages=mobile/.dart_tool/package_config.json",
+        "analyze",
+        "docs/benchmarks/t66f-b03/authority_test.dart",
+        "docs/benchmarks/t66f-b03/fresh_frozen_test.dart"
+      ],
+      "cwd": "/home/hjkerman/codex/money-note",
+      "start_unix": 1792544335.7219155,
+      "status": "PASS",
+      "timeout_seconds": 7200,
+      "rss_guard_bytes": 8589934592,
+      "exit": 0,
+      "end_unix": 1792544345.7494318,
+      "elapsed_seconds": 10.027306907926686,
+      "external_termination": null
+    }
+  },
+  "implementation_regression_gate": "PASS",
+  "distinct_new_cases": {
+    "backend": 24,
+    "flutter": 49,
+    "supplemental_real_authority_probe": 2,
+    "total": 75,
+    "note": "원 16 calibration·원 source guards·재실행·child probe는 신규 합계 제외. docs authority 2건은 기본 Flutter suite 밖에서 별도 실행"
+  },
+  "gate": "구현 결과만 집계. 독립 감사·5-point 비용 grid·Android/power/R1 판정 아님"
+}

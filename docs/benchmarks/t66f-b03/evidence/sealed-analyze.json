@@ -1,0 +1,24 @@
+{
+  "mode": "sealed-analyze",
+  "command": [
+    "/home/hjkerman/.flutter/bin/flutter",
+    "analyze",
+    "--no-pub"
+  ],
+  "cwd": "/home/hjkerman/codex/money-note/mobile",
+  "start_unix": 1792544315.3338413,
+  "status": "PASS",
+  "timeout_seconds": 7200,
+  "rss_guard_bytes": 8589934592,
+  "pid": 589782,
+  "exit": 0,
+  "end_unix": 1792544325.3521025,
+  "elapsed_seconds": 10.01812855398748,
+  "external_termination": null,
+  "rss_samples": [
+    [
+      0.018,
+      3538944
+    ]
+  ]
+}

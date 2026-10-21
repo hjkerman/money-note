@@ -1,0 +1,47 @@
+{
+  "mode": "lineage-build",
+  "command": [
+    "/home/hjkerman/.flutter/bin/flutter",
+    "build",
+    "apk",
+    "--debug",
+    "--no-pub",
+    "--dart-define=MONEY_NOTE_API_BASE_URL=https://audit.invalid"
+  ],
+  "cwd": "/home/hjkerman/codex/money-note/mobile",
+  "start_unix": 1792542447.8298683,
+  "status": "PASS",
+  "timeout_seconds": 7200,
+  "rss_guard_bytes": 8589934592,
+  "pid": 581410,
+  "exit": 0,
+  "end_unix": 1792542507.9976277,
+  "elapsed_seconds": 60.167598590953276,
+  "external_termination": null,
+  "rss_samples": [
+    [
+      0.019,
+      3670016
+    ],
+    [
+      10.07,
+      601063424
+    ],
+    [
+      20.098,
+      816394240
+    ],
+    [
+      30.127,
+      1131847680
+    ],
+    [
+      40.148,
+      1138987008
+    ],
+    [
+      50.167,
+      104984576
+    ]
+  ]
+}

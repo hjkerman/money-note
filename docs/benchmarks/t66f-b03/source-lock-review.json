@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "baseline": "da818648031e013e83dd6a680b1b1bde0fb6e0a1",
+  "approval": "사용자의 최소 B03 source-lock 승인 및 P0 recoveryLineageFingerprint 한정 hook 추가 승인. 독립 감사 승인이 아님.",
+  "invariant": "현재 전체 exact SHA와 역사 exact 복원을 모두 검사. P0 변경은 import와 함수 한 곳뿐.",
+  "prior_review": "source-lock-review-before-lineage.json",
+  "relocation": "저장소 import 경계 보존을 위해 새 진단 library만 segmented/에서 중립 diagnostics/로 이동. 알고리즘 변경 없음.",
+  "files": {
+    "mobile/lib/src/segmented/c1.dart": {
+      "historical_sha256": "388c675265a2d0c6579b9a3819eb6a590d059c7667eec98e22641d6664551c46",
+      "reviewed_sha256": "b1bd77c38c251f2763533a841f8d075835c7716477885aa89bba5013cfb9dc02",
+      "exact_replacements": [
+        {
+          "historical": "import 'dart:typed_data';\n\nimport 'package:crypto/crypto.dart';\n\nclass SegmentedException implements Exception {\n  const SegmentedException(this.code, {this.storageCode});\n",
+          "reviewed": "import 'dart:typed_data';\n\nimport 'package:crypto/crypto.dart';\n// B03 diagnostics: begin.\nimport '../diagnostics/logical_cost.dart';\n// B03 diagnostics: end.\n\nclass SegmentedException implements Exception {\n  const SegmentedException(this.code, {this.storageCode});\n"
+        },
+        {
+          "historical": "  }\n\n  emit(value, 0);\n  return Uint8List.fromList(utf8.encode(out.toString()));\n}\n\nObject? decodeC1(List<int> bytes,\n    {bool requireCanonical = true, int maxDepth = 128}) {\n  try {\n    final parser = _Parser(utf8.decode(bytes, allowMalformed: false), maxDepth);\n    final value = parser.read(0);\n",
+          "reviewed": "  }\n\n  emit(value, 0);\n  // B03 encoding observation: begin.\n  final bytes = Uint8List.fromList(utf8.encode(out.toString()));\n  LogicalCost.observe(LogicalCostOperation.encoding,\n      LogicalCostMetric.outputBytes, bytes.length);\n  return bytes;\n  // B03 encoding observation: end.\n}\n\nObject? decodeC1(List<int> bytes,\n    {bool requireCanonical = true, int maxDepth = 128}) {\n  // B03 decode observation: begin.\n  LogicalCost.observe(LogicalCostOperation.c1, LogicalCostMetric.calls, 1);\n  LogicalCost.observe(\n      LogicalCostOperation.c1, LogicalCostMetric.submittedBytes, bytes.length);\n  var completed = false;\n  // B03 decode observation: end.\n  try {\n    final parser = _Parser(utf8.decode(bytes, allowMalformed: false), maxDepth);\n    final value = parser.read(0);\n"
+        },
+        {
+          "historical": "        !sameBytes(bytes, encodeC1(value, maxDepth: maxDepth))) {\n      rejectSegment('CANONICAL_INVALID');\n    }\n    return value;\n  } on FormatException {\n    rejectSegment('REPRESENTATION_INVALID');\n  }\n}\n\n",
+          "reviewed": "        !sameBytes(bytes, encodeC1(value, maxDepth: maxDepth))) {\n      rejectSegment('CANONICAL_INVALID');\n    }\n    // B03 decode completion: begin.\n    completed = true;\n    LogicalCost.observe(LogicalCostOperation.c1,\n        LogicalCostMetric.completedBytes, bytes.length);\n    // B03 decode completion: end.\n    return value;\n  } on FormatException {\n    rejectSegment('REPRESENTATION_INVALID');\n    // B03 decode failure: begin.\n  } finally {\n    if (!completed) {\n      LogicalCost.observe(\n          LogicalCostOperation.c1, LogicalCostMetric.failedCalls, 1);\n      LogicalCost.observe(LogicalCostOperation.c1,\n          LogicalCostMetric.failedSubmittedBytes, bytes.length);\n    }\n    // B03 decode failure: end.\n  }\n}\n\n"
+        },
+        {
+          "historical": "  }\n  final result = _DigestSink();\n  final sink = sha256.startChunkedConversion(result);\n  sink.add(ascii.encode('money-note.sync.v1/$kind'));\n  sink.add(const [0]);\n  sink.add(bytes);\n  sink.close();\n  return result.digest!.toString();\n}\n",
+          "reviewed": "  }\n  final result = _DigestSink();\n  final sink = sha256.startChunkedConversion(result);\n  // B03 hash observation: begin.\n  final framing = ascii.encode('money-note.sync.v1/$kind');\n  sink.add(framing);\n  LogicalCost.observe(\n      LogicalCostOperation.objectHash, LogicalCostMetric.calls, 1);\n  LogicalCost.observe(LogicalCostOperation.objectHash,\n      LogicalCostMetric.hashInputBytes, framing.length);\n  // B03 hash observation: end.\n  sink.add(const [0]);\n  // B03 NUL observation: begin.\n  LogicalCost.observe(\n      LogicalCostOperation.objectHash, LogicalCostMetric.hashInputBytes, 1);\n  // B03 NUL observation: end.\n  sink.add(bytes);\n  // B03 payload observation: begin.\n  LogicalCost.observe(LogicalCostOperation.objectHash,\n      LogicalCostMetric.hashInputBytes, bytes.length);\n  // B03 payload observation: end.\n  sink.close();\n  return result.digest!.toString();\n}\n"
+        },
+        {
+          "historical": "}\n\n// Local bookkeeping checksum, deliberately not a protocol object identity.\nString localChecksum(List<int> bytes) => sha256.convert(bytes).toString();\n\nclass _Parser {\n  _Parser(this.text, this.maxDepth);\n",
+          "reviewed": "}\n\n// Local bookkeeping checksum, deliberately not a protocol object identity.\n// B03 checksum observation: begin.\nString localChecksum(List<int> bytes) {\n  final result = sha256.convert(bytes).toString();\n  LogicalCost.observe(\n      LogicalCostOperation.checksum, LogicalCostMetric.calls, 1);\n  LogicalCost.observe(LogicalCostOperation.checksum,\n      LogicalCostMetric.hashInputBytes, bytes.length);\n  return result;\n}\n// B03 checksum observation: end.\n\nclass _Parser {\n  _Parser(this.text, this.maxDepth);\n"
+        }
+      ]
+    },
+    "mobile/lib/src/app_state.dart": {
+      "historical_sha256": "c1d65f36dbd09a5f33b4a5d8d0e8b7a67ea429b0811592fce32aaeb65f9c46c1",
+      "reviewed_sha256": "c46a87a8b68507214a85966c3cc2c4f46df0d040de75b74e18c7954dea9d14bc",
+      "exact_replacements": [
+        {
+          "historical": "import 'segmented/adapters.dart';\nimport 'segmented/c1.dart';\nimport 'segmented/fetch.dart';\nimport 'segmented/store.dart';\nimport 'segmented/transport.dart';\nimport 'segmented/verification.dart';\n",
+          "reviewed": "import 'segmented/adapters.dart';\nimport 'segmented/c1.dart';\nimport 'segmented/fetch.dart';\nimport 'diagnostics/logical_cost.dart';\nimport 'segmented/store.dart';\nimport 'segmented/transport.dart';\nimport 'segmented/verification.dart';\n"
+        },
+        {
+          "historical": "    PreparedGeneration? prepared;\n    try {\n      requireAuthority();\n      final expected = await store.recoverAcceptedGeneration();\n      requireAuthority();\n      final fetcher =\n          IncrementalFetcher(store, transport, limits: verificationLimits);\n      final acquired = await fetcher.acquire(\n          resumeId: resumeId, cancellation: cancel, verifiedBase: expected);\n      requireAuthority();\n      final verifiedDataVersion = store.publicationDataVersion;\n      final proof = await store.verifyPublicationCandidate(\n          acquired.manifest, expected,\n          verifiedDataVersion: verifiedDataVersion);\n      requireAuthority();\n      prepared = store.prepareGeneration(\n          syncUuid(), acquired.stagingId, proof, expected,\n          verifiedDataVersion: verifiedDataVersion,\n          authorityHistory: {\n            'lineage': ticket.lineageGeneration,\n            'authentication': ticket.authenticationGeneration,\n            'request': ticket.requestGeneration,\n          });\n      final operation = prepared;\n      final result = await _withLineageLock(() async {\n        requireAuthority();\n        // No await in this body. The native SQLite COMMIT and readback finish\n        // before _withLineageLock awaits the completed action's result.\n        return store.commitPreparedGeneration(operation,\n            finalAuthorityFence: requireAuthority);\n      });\n      try {\n        requireAuthority();\n",
+          "reviewed": "    PreparedGeneration? prepared;\n    try {\n      requireAuthority();\n      final expected = await LogicalCost.at(\n          LogicalCostStage.recovery, store.recoverAcceptedGeneration);\n      requireAuthority();\n      final fetcher =\n          IncrementalFetcher(store, transport, limits: verificationLimits);\n      final acquired = await LogicalCost.at(\n          LogicalCostStage.e2,\n          () => fetcher.acquire(\n              resumeId: resumeId,\n              cancellation: cancel,\n              verifiedBase: expected));\n      requireAuthority();\n      final verifiedDataVersion = store.publicationDataVersion;\n      final proof = await LogicalCost.at(\n          LogicalCostStage.e3Verify,\n          () => store.verifyPublicationCandidate(acquired.manifest, expected,\n              verifiedDataVersion: verifiedDataVersion));\n      requireAuthority();\n      prepared = LogicalCost.at<PreparedGeneration>(\n          LogicalCostStage.e3Prepare,\n          () => store.prepareGeneration(\n                  syncUuid(), acquired.stagingId, proof, expected,\n                  verifiedDataVersion: verifiedDataVersion,\n                  authorityHistory: {\n                    'lineage': ticket.lineageGeneration,\n                    'authentication': ticket.authenticationGeneration,\n                    'request': ticket.requestGeneration,\n                  }));\n      final operation = prepared;\n      final result = await _withLineageLock(() async {\n        requireAuthority();\n        // No await in this body. The native SQLite COMMIT and readback finish\n        // before _withLineageLock awaits the completed action's result.\n        return LogicalCost.at(\n            LogicalCostStage.e3Commit,\n            () => store.commitPreparedGeneration(operation,\n                finalAuthorityFence: requireAuthority));\n      });\n      try {\n        requireAuthority();\n"
+        },
+        {
+          "historical": "      }\n      return result; // Segmented-internal publication ONLY, never Offline-ready.\n    } finally {\n      if (prepared != null) {\n        try {\n          store.discardUnacceptedGeneration(prepared.id);\n        } on Object {/* primary outcome wins */}\n      }\n    }\n",
+          "reviewed": "      }\n      return result; // Segmented-internal publication ONLY, never Offline-ready.\n    } finally {\n      final discarded = prepared;\n      if (discarded != null) {\n        try {\n          LogicalCost.at(LogicalCostStage.e3Prepare,\n              () => store.discardUnacceptedGeneration(discarded.id));\n        } on Object {/* primary outcome wins */}\n      }\n    }\n"
+        }
+      ]
+    },
+    "mobile/lib/src/authoritative_bundle_validation.dart": {
+      "historical_sha256": "9c525d7f3b76a6b2358902c4078a465ab53fcee0b1f892f8f531ea49206df44d",
+      "reviewed_sha256": "5032e02d0a94967d6d81fec6661a562fcbd6fed33a8b0adbead90a21f85e6078",
+      "exact_replacements": [
+        {
+          "historical": "\nimport 'authoritative_bundle_contract.dart';\nimport 'money.dart';\n\nNever invalidBundle(String path) =>\n    throw FormatException('invalid authoritative bundle: $path');\n",
+          "reviewed": "\nimport 'authoritative_bundle_contract.dart';\nimport 'money.dart';\nimport 'diagnostics/logical_cost.dart';\n\nNever invalidBundle(String path) =>\n    throw FormatException('invalid authoritative bundle: $path');\n"
+        },
+        {
+          "historical": "  return value;\n}\n\nString bundleHash(Object? value) =>\n    sha256.convert(utf8.encode(bundleCanonicalJson(value))).toString();\n\nclass _JsonFrame {\n  _JsonFrame(this.object, this.moneyMap);\n",
+          "reviewed": "  return value;\n}\n\nString bundleHash(Object? value) {\n  final bytes = utf8.encode(bundleCanonicalJson(value));\n  final result = sha256.convert(bytes).toString();\n  LogicalCost.observe(\n      LogicalCostOperation.legacyHash, LogicalCostMetric.calls, 1);\n  LogicalCost.observe(LogicalCostOperation.legacyHash,\n      LogicalCostMetric.hashInputBytes, bytes.length);\n  return result;\n}\n\nclass _JsonFrame {\n  _JsonFrame(this.object, this.moneyMap);\n"
+        }
+      ]
+    },
+    "mobile/lib/src/segmented/store.dart": {
+      "historical_sha256": "f2b451238b868b865beda40cfb39054d9c4a3ff36b5e27c7796b2759ee07811a",
+      "reviewed_sha256": "495fd7342687eb942641f5648e43c9bd7e48b60d71dd8a6aee45b1fe8d37fc27",
+      "exact_replacements": [
+        {
+          "historical": "      StoreFault? fault,\n      bool acquisition = false,\n      bool publication = false,\n      bool adapters = false}) {\n    publication = publication || adapters;\n    acquisition = acquisition || publication;\n    limits.validate();\n",
+          "reviewed": "      StoreFault? fault,\n      bool acquisition = false,\n      bool publication = false,\n      bool adapters = false,\n      // B03 test-only connection seam; absent in normal execution.\n      Database Function(String path)? diagnosticDatabaseFactory}) {\n    publication = publication || adapters;\n    acquisition = acquisition || publication;\n    limits.validate();\n"
+        },
+        {
+          "historical": "    final path = '${directory.path}/${cache.key}.sqlite';\n    Database? db;\n    try {\n      db = sqlite3.open(path);\n      db.execute('PRAGMA busy_timeout=${limits.busyMilliseconds}');\n      final version = db.select('PRAGMA user_version').single.values.first;\n      final tables = db.select(\n",
+          "reviewed": "    final path = '${directory.path}/${cache.key}.sqlite';\n    Database? db;\n    try {\n      db = diagnosticDatabaseFactory == null\n          ? sqlite3.open(path)\n          : diagnosticDatabaseFactory(path);\n      db.execute('PRAGMA busy_timeout=${limits.busyMilliseconds}');\n      final version = db.select('PRAGMA user_version').single.values.first;\n      final tables = db.select(\n"
+        }
+      ]
+    },
+    "mobile/lib/src/offline/offline_store.dart": {
+      "historical_sha256": "a8d767e509881a1a8e9d3196d1fd955b1b4cf793a36f3ffd593b869b686bf8c2",
+      "reviewed_sha256": "907aa044b8205233b06e4ea081122e72d9b5803523a998a410850558c17e903f",
+      "exact_replacements": [
+        {
+          "historical": "\nimport 'offline_data.dart';\nimport '../money.dart';\nimport 'offline_projection.dart';\nimport 'online_write_state.dart';\n\n",
+          "reviewed": "\nimport 'offline_data.dart';\nimport '../money.dart';\nimport '../diagnostics/logical_cost.dart';\nimport 'offline_projection.dart';\nimport 'online_write_state.dart';\n\n"
+        },
+        {
+          "historical": "  }\n\n  String recoveryLineageFingerprint(OfflineBaseline baseline) {\n    return sha256\n        .convert(utf8.encode(_canonicalJson({\n          'schema_version': 1,\n          'origin': 'mobile-baseline-lineage',\n          'baseline': baseline.toJson(),\n        })))\n        .toString();\n  }\n\n  String newReconciliationId() {\n",
+          "reviewed": "  }\n\n  String recoveryLineageFingerprint(OfflineBaseline baseline) {\n    final bytes = utf8.encode(_canonicalJson({\n      'schema_version': 1,\n      'origin': 'mobile-baseline-lineage',\n      'baseline': baseline.toJson(),\n    }));\n    final fingerprint = sha256.convert(bytes).toString();\n    LogicalCost.observe(\n        LogicalCostOperation.lineageHash, LogicalCostMetric.calls, 1);\n    LogicalCost.observe(LogicalCostOperation.lineageHash,\n        LogicalCostMetric.hashInputBytes, bytes.length);\n    return fingerprint;\n  }\n\n  String newReconciliationId() {\n"
+        }
+      ]
+    },
+    "mobile/lib/src/diagnostics/logical_cost.dart": {
+      "historical_sha256": null,
+      "reviewed_sha256": "0e6b38f339c8dd57797a338be0c6076f5b3275b25306fec4ca3695ab09d878bb",
+      "exact_replacements": []
+    }
+  }
+}

@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'support/logical_cost_source_lock.dart';
+
 void main() {
   final root = Directory.current.parent;
   String read(String path) => File('${root.path}/$path').readAsStringSync();
@@ -15,10 +17,19 @@ void main() {
   final protected =
       jsonDecode(read('docs/benchmarks/t66e4-p0-audit/protected-source.json'))
           as Map;
+  final b03Review =
+      jsonDecode(read('docs/benchmarks/t66f-b03/source-lock-review.json'))
+          as Map;
   for (final path
       in targets.keys.where((p) => (p as String).startsWith('mobile/lib/'))) {
     test('audited P0 source remains byte-identical: $path', () {
-      expect(hash(path), targets[path]['sha256']);
+      final actual = path == 'mobile/lib/src/offline/offline_store.dart'
+          ? sha256
+              .convert(utf8.encode(
+                  restoreReviewedB03Source(path, read(path), b03Review)))
+              .toString()
+          : hash(path);
+      expect(actual, targets[path]['sha256']);
     });
   }
   test('original five historical diagnostic files remain byte-identical', () {
@@ -44,7 +55,13 @@ void main() {
     'backend/app/db_migrations.py'
   ]) {
     test('default/legacy/E1/E2/E3 protected source unchanged: $path', () {
-      expect(hash(path), protected[path]['sha256']);
+      final actual = path == 'mobile/lib/src/segmented/c1.dart'
+          ? sha256
+              .convert(utf8.encode(
+                  restoreReviewedB03Source(path, read(path), b03Review)))
+              .toString()
+          : hash(path);
+      expect(actual, protected[path]['sha256']);
     });
   }
   test(
@@ -139,7 +156,15 @@ void main() {
             .allMatches(source)
             .length,
         1);
-    final original = (source.substring(0, installBegin) + source.substring(end))
+    final reviewedOriginal = restoreReviewedB03Source(
+        'mobile/lib/src/app_state.dart', source, b03Review);
+    final originalBegin =
+        reviewedOriginal.indexOf('  // Explicit E4 legacy boundary only.');
+    final originalEnd = reviewedOriginal.indexOf(
+        '  Future<void> _refreshAuthoritativeState(', originalBegin);
+    final original = (reviewedOriginal.substring(
+                0, originalBegin) +
+            reviewedOriginal.substring(originalEnd))
         .replaceFirst(
             '      SyncCancellation? cancellation,\n      FetchLimits verificationLimits = const FetchLimits()}) async {',
             '      SyncCancellation? cancellation}) async {')

@@ -1,0 +1,30 @@
+{
+  "mode": "lineage-compileall",
+  "command": [
+    "/home/hjkerman/codex/money-note/.venv/bin/python",
+    "-m",
+    "compileall",
+    "-q",
+    "backend/app",
+    "backend/isolated_sync",
+    "backend/tests",
+    "scripts",
+    "/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b03"
+  ],
+  "cwd": "/home/hjkerman/codex/money-note",
+  "start_unix": 1792542628.6564543,
+  "status": "PASS",
+  "timeout_seconds": 7200,
+  "rss_guard_bytes": 8589934592,
+  "pid": 583108,
+  "exit": 0,
+  "end_unix": 1792542638.6771047,
+  "elapsed_seconds": 10.020491810981184,
+  "external_termination": null,
+  "rss_samples": [
+    [
+      0.02,
+      9961472
+    ]
+  ]
+}

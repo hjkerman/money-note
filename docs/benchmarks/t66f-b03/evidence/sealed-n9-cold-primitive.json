@@ -1,0 +1,342 @@
+{
+  "schema_version": 1,
+  "instrumentation_version": "t66f-b03/1",
+  "run_id": "b03-small-real-tls-9:97e14097-2ddc-4fc1-9be3-fba91b6b07ad",
+  "fixture": {
+    "history_rows": 9,
+    "H": null,
+    "D": 1,
+    "N": 10,
+    "profile": "original-phase-b-small-not-fixed-H-grid"
+  },
+  "workload": "cold-cumulative",
+  "layer": "primitive",
+  "environment": "HOST synthetic TLS/SQLite",
+  "coverage": {
+    "scope": "SHA256/C1 and SQL row TEXT/BLOB; scalar counts separate; exclusive caller stages",
+    "exclusions": [
+      "physical I/O",
+      "TLS crypto",
+      "R1",
+      "five-point cost proof"
+    ]
+  },
+  "counters": [
+    {
+      "stage": "e2",
+      "operation": "c1",
+      "counter": "calls",
+      "value": "2377",
+      "unit": "count",
+      "status": "performed",
+      "source_key": "e2/c1/calls"
+    },
+    {
+      "stage": "e2",
+      "operation": "c1",
+      "counter": "completedBytes",
+      "value": "1361092",
+      "unit": "bytes",
+      "status": "performed",
+      "source_key": "e2/c1/completedBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "c1",
+      "counter": "submittedBytes",
+      "value": "1361092",
+      "unit": "bytes",
+      "status": "performed",
+      "source_key": "e2/c1/submittedBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "checksum",
+      "counter": "calls",
+      "value": "173",
+      "unit": "count",
+      "status": "performed",
+      "source_key": "e2/checksum/calls"
+    },
+    {
+      "stage": "e2",
+      "operation": "checksum",
+      "counter": "hashInputBytes",
+      "value": "252450",
+      "unit": "bytes",
+      "status": "performed",
+      "source_key": "e2/checksum/hashInputBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "encoding",
+      "counter": "outputBytes",
+      "value": "2119229",
+      "unit": "bytes",
+      "status": "performed",
+      "source_key": "e2/encoding/outputBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "objectHash",
+      "counter": "calls",
+      "value": "1153",
+      "unit": "count",
+      "status": "performed",
+      "source_key": "e2/objectHash/calls"
+    },
+    {
+      "stage": "e2",
+      "operation": "objectHash",
+      "counter": "hashInputBytes",
+      "value": "657563",
+      "unit": "bytes",
+      "status": "performed",
+      "source_key": "e2/objectHash/hashInputBytes"
+    },
+    {
+      "stage": "e3Commit",
+      "operation": "c1",
+      "counter": "calls",
+      "value": "13",
+      "unit": "count",
+      "status": "performed",
+      "source_key": "e3Commit/c1/calls"
+    },
+    {
+      "stage": "e3Commit",
+      "operation": "c1",
+      "counter": "completedBytes",
+      "value": "11630",
+      "unit": "bytes",
+      "status": "performed",
+      "source_key": "e3Commit/c1/completedBytes"
+    },
+    {
+      "stage": "e3Commit",
+      "operation": "c1",
+      "counter": "submittedBytes",
+      "value": "11630",
+      "unit": "bytes",
+      "status": "performed",
+      "source_key": "e3Commit/c1/submittedBytes"
+    },
+    {
+      "stage": "e3Commit",
+      "operation": "checksum",
+      "counter": "calls",
+      "value": "10",
+      "unit": "count",
+      "status": "performed",
+      "source_key": "e3Commit/checksum/calls"
+    },
+    {
+      "stage": "e3Commit",
+      "operation": "checksum",
+      "counter": "hashInputBytes",
+      "value": "7302",
+      "unit": "bytes",
+      "status": "performed",
+      "source_key": "e3Commit/checksum/hashInputBytes"
+    },
+    {
+      "stage": "e3Commit",
+      "operation": "encoding",
+      "counter": "outputBytes",
+      "value": "24844",
+      "unit": "bytes",
+      "status": "performed",
+      "source_key": "e3Commit/encoding/outputBytes"
+    },
+    {
+      "stage": "e3Commit",
+      "operation": "objectHash",
+      "counter": "calls",
+      "value": "2",
+      "unit": "count",
+      "status": "performed",
+      "source_key": "e3Commit/objectHash/calls"
+    },
+    {
+      "stage": "e3Commit",
+      "operation": "objectHash",
+      "counter": "hashInputBytes",
+      "value": "2238",
+      "unit": "bytes",
+      "status": "performed",
+      "source_key": "e3Commit/objectHash/hashInputBytes"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "c1",
+      "counter": "calls",
+      "value": "15",
+      "unit": "count",
+      "status": "performed",
+      "source_key": "e3Prepare/c1/calls"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "c1",
+      "counter": "completedBytes",
+      "value": "11352",
+      "unit": "bytes",
+      "status": "performed",
+      "source_key": "e3Prepare/c1/completedBytes"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "c1",
+      "counter": "submittedBytes",
+      "value": "11352",
+      "unit": "bytes",
+      "status": "performed",
+      "source_key": "e3Prepare/c1/submittedBytes"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "checksum",
+      "counter": "calls",
+      "value": "7",
+      "unit": "count",
+      "status": "performed",
+      "source_key": "e3Prepare/checksum/calls"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "checksum",
+      "counter": "hashInputBytes",
+      "value": "9234",
+      "unit": "bytes",
+      "status": "performed",
+      "source_key": "e3Prepare/checksum/hashInputBytes"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "encoding",
+      "counter": "outputBytes",
+      "value": "26227",
+      "unit": "bytes",
+      "status": "performed",
+      "source_key": "e3Prepare/encoding/outputBytes"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "objectHash",
+      "counter": "calls",
+      "value": "3",
+      "unit": "count",
+      "status": "performed",
+      "source_key": "e3Prepare/objectHash/calls"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "objectHash",
+      "counter": "hashInputBytes",
+      "value": "3357",
+      "unit": "bytes",
+      "status": "performed",
+      "source_key": "e3Prepare/objectHash/hashInputBytes"
+    },
+    {
+      "stage": "e3Verify",
+      "operation": "c1",
+      "counter": "calls",
+      "value": "945",
+      "unit": "count",
+      "status": "performed",
+      "source_key": "e3Verify/c1/calls"
+    },
+    {
+      "stage": "e3Verify",
+      "operation": "c1",
+      "counter": "completedBytes",
+      "value": "523496",
+      "unit": "bytes",
+      "status": "performed",
+      "source_key": "e3Verify/c1/completedBytes"
+    },
+    {
+      "stage": "e3Verify",
+      "operation": "c1",
+      "counter": "submittedBytes",
+      "value": "523496",
+      "unit": "bytes",
+      "status": "performed",
+      "source_key": "e3Verify/c1/submittedBytes"
+    },
+    {
+      "stage": "e3Verify",
+      "operation": "checksum",
+      "counter": "calls",
+      "value": "3",
+      "unit": "count",
+      "status": "performed",
+      "source_key": "e3Verify/checksum/calls"
+    },
+    {
+      "stage": "e3Verify",
+      "operation": "checksum",
+      "counter": "hashInputBytes",
+      "value": "15683",
+      "unit": "bytes",
+      "status": "performed",
+      "source_key": "e3Verify/checksum/hashInputBytes"
+    },
+    {
+      "stage": "e3Verify",
+      "operation": "encoding",
+      "counter": "outputBytes",
+      "value": "790632",
+      "unit": "bytes",
+      "status": "performed",
+      "source_key": "e3Verify/encoding/outputBytes"
+    },
+    {
+      "stage": "e3Verify",
+      "operation": "objectHash",
+      "counter": "calls",
+      "value": "781",
+      "unit": "count",
+      "status": "performed",
+      "source_key": "e3Verify/objectHash/calls"
+    },
+    {
+      "stage": "e3Verify",
+      "operation": "objectHash",
+      "counter": "hashInputBytes",
+      "value": "371988",
+      "unit": "bytes",
+      "status": "performed",
+      "source_key": "e3Verify/objectHash/hashInputBytes"
+    },
+    {
+      "stage": "recovery",
+      "operation": "checksum",
+      "counter": "calls",
+      "value": "2",
+      "unit": "count",
+      "status": "performed",
+      "source_key": "recovery/checksum/calls"
+    },
+    {
+      "stage": "recovery",
+      "operation": "checksum",
+      "counter": "hashInputBytes",
+      "value": "252",
+      "unit": "bytes",
+      "status": "performed",
+      "source_key": "recovery/checksum/hashInputBytes"
+    },
+    {
+      "stage": "recovery",
+      "operation": "encoding",
+      "counter": "outputBytes",
+      "value": "252",
+      "unit": "bytes",
+      "status": "performed",
+      "source_key": "recovery/encoding/outputBytes"
+    }
+  ],
+  "overlap": "hash/validation/write는 별도 비용이며 합쳐 unique bytes로 쓰지 않는다"
+}

@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 
 import 'offline_data.dart';
 import '../money.dart';
+import '../diagnostics/logical_cost.dart';
 import 'offline_projection.dart';
 import 'online_write_state.dart';
 
@@ -473,13 +474,17 @@ class OfflineStore {
   }
 
   String recoveryLineageFingerprint(OfflineBaseline baseline) {
-    return sha256
-        .convert(utf8.encode(_canonicalJson({
-          'schema_version': 1,
-          'origin': 'mobile-baseline-lineage',
-          'baseline': baseline.toJson(),
-        })))
-        .toString();
+    final bytes = utf8.encode(_canonicalJson({
+      'schema_version': 1,
+      'origin': 'mobile-baseline-lineage',
+      'baseline': baseline.toJson(),
+    }));
+    final fingerprint = sha256.convert(bytes).toString();
+    LogicalCost.observe(
+        LogicalCostOperation.lineageHash, LogicalCostMetric.calls, 1);
+    LogicalCost.observe(LogicalCostOperation.lineageHash,
+        LogicalCostMetric.hashInputBytes, bytes.length);
+    return fingerprint;
   }
 
   String newReconciliationId() {

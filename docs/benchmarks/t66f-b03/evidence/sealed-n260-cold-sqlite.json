@@ -1,0 +1,2187 @@
+{
+  "schema_version": 1,
+  "instrumentation_version": "t66f-b03/1",
+  "run_id": "b03-small-real-tls-260:2a4f5133-ccb9-45cd-b90e-e70a3243a005",
+  "fixture": {
+    "history_rows": 260,
+    "H": null,
+    "D": 1,
+    "N": 261,
+    "profile": "original-phase-b-small-not-fixed-H-grid"
+  },
+  "workload": "cold-cumulative",
+  "layer": "sqlite",
+  "environment": "HOST synthetic TLS/SQLite",
+  "coverage": {
+    "scope": "SHA256/C1 and SQL row TEXT/BLOB; scalar counts separate; exclusive caller stages",
+    "exclusions": [
+      "physical I/O",
+      "TLS crypto",
+      "R1",
+      "five-point cost proof"
+    ]
+  },
+  "counters": [
+    {
+      "stage": "e2",
+      "operation": "acquisition/INSERT",
+      "counter": "blobBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "attempted",
+      "source_key": "e2/acquisition/INSERT/attempted/blobBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/INSERT",
+      "counter": "columns",
+      "value": "6",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/acquisition/INSERT/attempted/columns"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/INSERT",
+      "counter": "nullValues",
+      "value": "2",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/acquisition/INSERT/attempted/nullValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/INSERT",
+      "counter": "rows",
+      "value": "2",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/acquisition/INSERT/attempted/rows"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/INSERT",
+      "counter": "scalarValues",
+      "value": "0",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/acquisition/INSERT/attempted/scalarValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/INSERT",
+      "counter": "textBytes",
+      "value": "95",
+      "unit": "bytes",
+      "status": "attempted",
+      "source_key": "e2/acquisition/INSERT/attempted/textBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/INSERT",
+      "counter": "blobBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "committed",
+      "source_key": "e2/acquisition/INSERT/blobBytes/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/INSERT",
+      "counter": "columns",
+      "value": "3",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e2/acquisition/INSERT/columns/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/INSERT",
+      "counter": "blobBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "effective",
+      "source_key": "e2/acquisition/INSERT/effective/blobBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/INSERT",
+      "counter": "columns",
+      "value": "3",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/acquisition/INSERT/effective/columns"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/INSERT",
+      "counter": "nullValues",
+      "value": "1",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/acquisition/INSERT/effective/nullValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/INSERT",
+      "counter": "rows",
+      "value": "1",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/acquisition/INSERT/effective/rows"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/INSERT",
+      "counter": "scalarValues",
+      "value": "0",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/acquisition/INSERT/effective/scalarValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/INSERT",
+      "counter": "textBytes",
+      "value": "45",
+      "unit": "bytes",
+      "status": "effective",
+      "source_key": "e2/acquisition/INSERT/effective/textBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/INSERT",
+      "counter": "nullValues",
+      "value": "1",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e2/acquisition/INSERT/nullValues/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/INSERT",
+      "counter": "scalarValues",
+      "value": "0",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e2/acquisition/INSERT/scalarValues/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/INSERT",
+      "counter": "textBytes",
+      "value": "45",
+      "unit": "bytes",
+      "status": "committed",
+      "source_key": "e2/acquisition/INSERT/textBytes/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/UPDATE",
+      "counter": "blobBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "attempted",
+      "source_key": "e2/acquisition/UPDATE/attempted/blobBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/UPDATE",
+      "counter": "columns",
+      "value": "3",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/acquisition/UPDATE/attempted/columns"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/UPDATE",
+      "counter": "nullValues",
+      "value": "1",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/acquisition/UPDATE/attempted/nullValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/UPDATE",
+      "counter": "rows",
+      "value": "1",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/acquisition/UPDATE/attempted/rows"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/UPDATE",
+      "counter": "scalarValues",
+      "value": "0",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/acquisition/UPDATE/attempted/scalarValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/UPDATE",
+      "counter": "textBytes",
+      "value": "50",
+      "unit": "bytes",
+      "status": "attempted",
+      "source_key": "e2/acquisition/UPDATE/attempted/textBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/UPDATE",
+      "counter": "blobBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "committed",
+      "source_key": "e2/acquisition/UPDATE/blobBytes/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/UPDATE",
+      "counter": "columns",
+      "value": "3",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e2/acquisition/UPDATE/columns/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/UPDATE",
+      "counter": "blobBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "effective",
+      "source_key": "e2/acquisition/UPDATE/effective/blobBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/UPDATE",
+      "counter": "columns",
+      "value": "3",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/acquisition/UPDATE/effective/columns"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/UPDATE",
+      "counter": "nullValues",
+      "value": "1",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/acquisition/UPDATE/effective/nullValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/UPDATE",
+      "counter": "rows",
+      "value": "1",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/acquisition/UPDATE/effective/rows"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/UPDATE",
+      "counter": "scalarValues",
+      "value": "0",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/acquisition/UPDATE/effective/scalarValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/UPDATE",
+      "counter": "textBytes",
+      "value": "50",
+      "unit": "bytes",
+      "status": "effective",
+      "source_key": "e2/acquisition/UPDATE/effective/textBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/UPDATE",
+      "counter": "nullValues",
+      "value": "1",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e2/acquisition/UPDATE/nullValues/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/UPDATE",
+      "counter": "scalarValues",
+      "value": "0",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e2/acquisition/UPDATE/scalarValues/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "acquisition/UPDATE",
+      "counter": "textBytes",
+      "value": "50",
+      "unit": "bytes",
+      "status": "committed",
+      "source_key": "e2/acquisition/UPDATE/textBytes/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "edges/INSERT",
+      "counter": "blobBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "attempted",
+      "source_key": "e2/edges/INSERT/attempted/blobBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "edges/INSERT",
+      "counter": "columns",
+      "value": "4680",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/edges/INSERT/attempted/columns"
+    },
+    {
+      "stage": "e2",
+      "operation": "edges/INSERT",
+      "counter": "nullValues",
+      "value": "0",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/edges/INSERT/attempted/nullValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "edges/INSERT",
+      "counter": "rows",
+      "value": "1170",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/edges/INSERT/attempted/rows"
+    },
+    {
+      "stage": "e2",
+      "operation": "edges/INSERT",
+      "counter": "scalarValues",
+      "value": "1170",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/edges/INSERT/attempted/scalarValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "edges/INSERT",
+      "counter": "textBytes",
+      "value": "174226",
+      "unit": "bytes",
+      "status": "attempted",
+      "source_key": "e2/edges/INSERT/attempted/textBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "edges/INSERT",
+      "counter": "blobBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "committed",
+      "source_key": "e2/edges/INSERT/blobBytes/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "edges/INSERT",
+      "counter": "columns",
+      "value": "4680",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e2/edges/INSERT/columns/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "edges/INSERT",
+      "counter": "blobBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "effective",
+      "source_key": "e2/edges/INSERT/effective/blobBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "edges/INSERT",
+      "counter": "columns",
+      "value": "4680",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/edges/INSERT/effective/columns"
+    },
+    {
+      "stage": "e2",
+      "operation": "edges/INSERT",
+      "counter": "nullValues",
+      "value": "0",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/edges/INSERT/effective/nullValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "edges/INSERT",
+      "counter": "rows",
+      "value": "1170",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/edges/INSERT/effective/rows"
+    },
+    {
+      "stage": "e2",
+      "operation": "edges/INSERT",
+      "counter": "scalarValues",
+      "value": "1170",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/edges/INSERT/effective/scalarValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "edges/INSERT",
+      "counter": "textBytes",
+      "value": "174226",
+      "unit": "bytes",
+      "status": "effective",
+      "source_key": "e2/edges/INSERT/effective/textBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "edges/INSERT",
+      "counter": "nullValues",
+      "value": "0",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e2/edges/INSERT/nullValues/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "edges/INSERT",
+      "counter": "scalarValues",
+      "value": "1170",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e2/edges/INSERT/scalarValues/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "edges/INSERT",
+      "counter": "textBytes",
+      "value": "174226",
+      "unit": "bytes",
+      "status": "committed",
+      "source_key": "e2/edges/INSERT/textBytes/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "objects/INSERT",
+      "counter": "blobBytes",
+      "value": "752272",
+      "unit": "bytes",
+      "status": "attempted",
+      "source_key": "e2/objects/INSERT/attempted/blobBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "objects/INSERT",
+      "counter": "columns",
+      "value": "4696",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/objects/INSERT/attempted/columns"
+    },
+    {
+      "stage": "e2",
+      "operation": "objects/INSERT",
+      "counter": "nullValues",
+      "value": "0",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/objects/INSERT/attempted/nullValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "objects/INSERT",
+      "counter": "rows",
+      "value": "1174",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/objects/INSERT/attempted/rows"
+    },
+    {
+      "stage": "e2",
+      "operation": "objects/INSERT",
+      "counter": "scalarValues",
+      "value": "0",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/objects/INSERT/attempted/scalarValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "objects/INSERT",
+      "counter": "textBytes",
+      "value": "103339",
+      "unit": "bytes",
+      "status": "attempted",
+      "source_key": "e2/objects/INSERT/attempted/textBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "objects/INSERT",
+      "counter": "blobBytes",
+      "value": "752272",
+      "unit": "bytes",
+      "status": "committed",
+      "source_key": "e2/objects/INSERT/blobBytes/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "objects/INSERT",
+      "counter": "columns",
+      "value": "4696",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e2/objects/INSERT/columns/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "objects/INSERT",
+      "counter": "blobBytes",
+      "value": "752272",
+      "unit": "bytes",
+      "status": "effective",
+      "source_key": "e2/objects/INSERT/effective/blobBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "objects/INSERT",
+      "counter": "columns",
+      "value": "4696",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/objects/INSERT/effective/columns"
+    },
+    {
+      "stage": "e2",
+      "operation": "objects/INSERT",
+      "counter": "nullValues",
+      "value": "0",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/objects/INSERT/effective/nullValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "objects/INSERT",
+      "counter": "rows",
+      "value": "1174",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/objects/INSERT/effective/rows"
+    },
+    {
+      "stage": "e2",
+      "operation": "objects/INSERT",
+      "counter": "scalarValues",
+      "value": "0",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/objects/INSERT/effective/scalarValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "objects/INSERT",
+      "counter": "textBytes",
+      "value": "103339",
+      "unit": "bytes",
+      "status": "effective",
+      "source_key": "e2/objects/INSERT/effective/textBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "objects/INSERT",
+      "counter": "nullValues",
+      "value": "0",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e2/objects/INSERT/nullValues/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "objects/INSERT",
+      "counter": "scalarValues",
+      "value": "0",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e2/objects/INSERT/scalarValues/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "objects/INSERT",
+      "counter": "textBytes",
+      "value": "103339",
+      "unit": "bytes",
+      "status": "committed",
+      "source_key": "e2/objects/INSERT/textBytes/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "refs/INSERT",
+      "counter": "blobBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "attempted",
+      "source_key": "e2/refs/INSERT/attempted/blobBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "refs/INSERT",
+      "counter": "columns",
+      "value": "4696",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/refs/INSERT/attempted/columns"
+    },
+    {
+      "stage": "e2",
+      "operation": "refs/INSERT",
+      "counter": "nullValues",
+      "value": "0",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/refs/INSERT/attempted/nullValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "refs/INSERT",
+      "counter": "rows",
+      "value": "2348",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/refs/INSERT/attempted/rows"
+    },
+    {
+      "stage": "e2",
+      "operation": "refs/INSERT",
+      "counter": "scalarValues",
+      "value": "0",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/refs/INSERT/attempted/scalarValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "refs/INSERT",
+      "counter": "textBytes",
+      "value": "157334",
+      "unit": "bytes",
+      "status": "attempted",
+      "source_key": "e2/refs/INSERT/attempted/textBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "refs/INSERT",
+      "counter": "blobBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "committed",
+      "source_key": "e2/refs/INSERT/blobBytes/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "refs/INSERT",
+      "counter": "columns",
+      "value": "2348",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e2/refs/INSERT/columns/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "refs/INSERT",
+      "counter": "blobBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "effective",
+      "source_key": "e2/refs/INSERT/effective/blobBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "refs/INSERT",
+      "counter": "columns",
+      "value": "2348",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/refs/INSERT/effective/columns"
+    },
+    {
+      "stage": "e2",
+      "operation": "refs/INSERT",
+      "counter": "nullValues",
+      "value": "0",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/refs/INSERT/effective/nullValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "refs/INSERT",
+      "counter": "rows",
+      "value": "1174",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/refs/INSERT/effective/rows"
+    },
+    {
+      "stage": "e2",
+      "operation": "refs/INSERT",
+      "counter": "scalarValues",
+      "value": "0",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/refs/INSERT/effective/scalarValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "refs/INSERT",
+      "counter": "textBytes",
+      "value": "78667",
+      "unit": "bytes",
+      "status": "effective",
+      "source_key": "e2/refs/INSERT/effective/textBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "refs/INSERT",
+      "counter": "nullValues",
+      "value": "0",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e2/refs/INSERT/nullValues/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "refs/INSERT",
+      "counter": "scalarValues",
+      "value": "0",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e2/refs/INSERT/scalarValues/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "refs/INSERT",
+      "counter": "textBytes",
+      "value": "78667",
+      "unit": "bytes",
+      "status": "committed",
+      "source_key": "e2/refs/INSERT/textBytes/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "sql",
+      "counter": "bindBlobBytes",
+      "value": "753740",
+      "unit": "bytes",
+      "status": "performed",
+      "source_key": "e2/sql/bindBlobBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "sql",
+      "counter": "bindTextCodeUnits",
+      "value": "1506623",
+      "unit": "count",
+      "status": "performed",
+      "source_key": "e2/sql/bindTextCodeUnits"
+    },
+    {
+      "stage": "e2",
+      "operation": "sql",
+      "counter": "scalarOrNullBinds",
+      "value": "3525",
+      "unit": "count",
+      "status": "performed",
+      "source_key": "e2/sql/scalarOrNullBinds"
+    },
+    {
+      "stage": "e2",
+      "operation": "sql",
+      "counter": "statements",
+      "value": "36441",
+      "unit": "count",
+      "status": "performed",
+      "source_key": "e2/sql/statements"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging/INSERT",
+      "counter": "blobBytes",
+      "value": "1468",
+      "unit": "bytes",
+      "status": "attempted",
+      "source_key": "e2/staging/INSERT/attempted/blobBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging/INSERT",
+      "counter": "columns",
+      "value": "4",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/staging/INSERT/attempted/columns"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging/INSERT",
+      "counter": "nullValues",
+      "value": "0",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/staging/INSERT/attempted/nullValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging/INSERT",
+      "counter": "rows",
+      "value": "1",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/staging/INSERT/attempted/rows"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging/INSERT",
+      "counter": "scalarValues",
+      "value": "0",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/staging/INSERT/attempted/scalarValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging/INSERT",
+      "counter": "textBytes",
+      "value": "127",
+      "unit": "bytes",
+      "status": "attempted",
+      "source_key": "e2/staging/INSERT/attempted/textBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging/INSERT",
+      "counter": "blobBytes",
+      "value": "1468",
+      "unit": "bytes",
+      "status": "committed",
+      "source_key": "e2/staging/INSERT/blobBytes/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging/INSERT",
+      "counter": "columns",
+      "value": "4",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e2/staging/INSERT/columns/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging/INSERT",
+      "counter": "blobBytes",
+      "value": "1468",
+      "unit": "bytes",
+      "status": "effective",
+      "source_key": "e2/staging/INSERT/effective/blobBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging/INSERT",
+      "counter": "columns",
+      "value": "4",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/staging/INSERT/effective/columns"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging/INSERT",
+      "counter": "nullValues",
+      "value": "0",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/staging/INSERT/effective/nullValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging/INSERT",
+      "counter": "rows",
+      "value": "1",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/staging/INSERT/effective/rows"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging/INSERT",
+      "counter": "scalarValues",
+      "value": "0",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/staging/INSERT/effective/scalarValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging/INSERT",
+      "counter": "textBytes",
+      "value": "127",
+      "unit": "bytes",
+      "status": "effective",
+      "source_key": "e2/staging/INSERT/effective/textBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging/INSERT",
+      "counter": "nullValues",
+      "value": "0",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e2/staging/INSERT/nullValues/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging/INSERT",
+      "counter": "scalarValues",
+      "value": "0",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e2/staging/INSERT/scalarValues/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging/INSERT",
+      "counter": "textBytes",
+      "value": "127",
+      "unit": "bytes",
+      "status": "committed",
+      "source_key": "e2/staging/INSERT/textBytes/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_objects/INSERT",
+      "counter": "blobBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "attempted",
+      "source_key": "e2/staging_objects/INSERT/attempted/blobBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_objects/INSERT",
+      "counter": "columns",
+      "value": "2348",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/staging_objects/INSERT/attempted/columns"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_objects/INSERT",
+      "counter": "nullValues",
+      "value": "0",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/staging_objects/INSERT/attempted/nullValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_objects/INSERT",
+      "counter": "rows",
+      "value": "1174",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/staging_objects/INSERT/attempted/rows"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_objects/INSERT",
+      "counter": "scalarValues",
+      "value": "0",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/staging_objects/INSERT/attempted/scalarValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_objects/INSERT",
+      "counter": "textBytes",
+      "value": "117400",
+      "unit": "bytes",
+      "status": "attempted",
+      "source_key": "e2/staging_objects/INSERT/attempted/textBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_objects/INSERT",
+      "counter": "blobBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "committed",
+      "source_key": "e2/staging_objects/INSERT/blobBytes/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_objects/INSERT",
+      "counter": "columns",
+      "value": "2348",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e2/staging_objects/INSERT/columns/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_objects/INSERT",
+      "counter": "blobBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "effective",
+      "source_key": "e2/staging_objects/INSERT/effective/blobBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_objects/INSERT",
+      "counter": "columns",
+      "value": "2348",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/staging_objects/INSERT/effective/columns"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_objects/INSERT",
+      "counter": "nullValues",
+      "value": "0",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/staging_objects/INSERT/effective/nullValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_objects/INSERT",
+      "counter": "rows",
+      "value": "1174",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/staging_objects/INSERT/effective/rows"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_objects/INSERT",
+      "counter": "scalarValues",
+      "value": "0",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/staging_objects/INSERT/effective/scalarValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_objects/INSERT",
+      "counter": "textBytes",
+      "value": "117400",
+      "unit": "bytes",
+      "status": "effective",
+      "source_key": "e2/staging_objects/INSERT/effective/textBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_objects/INSERT",
+      "counter": "nullValues",
+      "value": "0",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e2/staging_objects/INSERT/nullValues/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_objects/INSERT",
+      "counter": "scalarValues",
+      "value": "0",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e2/staging_objects/INSERT/scalarValues/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_objects/INSERT",
+      "counter": "textBytes",
+      "value": "117400",
+      "unit": "bytes",
+      "status": "committed",
+      "source_key": "e2/staging_objects/INSERT/textBytes/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_roots/INSERT",
+      "counter": "blobBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "attempted",
+      "source_key": "e2/staging_roots/INSERT/attempted/blobBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_roots/INSERT",
+      "counter": "columns",
+      "value": "12",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/staging_roots/INSERT/attempted/columns"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_roots/INSERT",
+      "counter": "nullValues",
+      "value": "0",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/staging_roots/INSERT/attempted/nullValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_roots/INSERT",
+      "counter": "rows",
+      "value": "4",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/staging_roots/INSERT/attempted/rows"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_roots/INSERT",
+      "counter": "scalarValues",
+      "value": "0",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/staging_roots/INSERT/attempted/scalarValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_roots/INSERT",
+      "counter": "textBytes",
+      "value": "418",
+      "unit": "bytes",
+      "status": "attempted",
+      "source_key": "e2/staging_roots/INSERT/attempted/textBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_roots/INSERT",
+      "counter": "blobBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "committed",
+      "source_key": "e2/staging_roots/INSERT/blobBytes/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_roots/INSERT",
+      "counter": "columns",
+      "value": "12",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e2/staging_roots/INSERT/columns/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_roots/INSERT",
+      "counter": "blobBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "effective",
+      "source_key": "e2/staging_roots/INSERT/effective/blobBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_roots/INSERT",
+      "counter": "columns",
+      "value": "12",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/staging_roots/INSERT/effective/columns"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_roots/INSERT",
+      "counter": "nullValues",
+      "value": "0",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/staging_roots/INSERT/effective/nullValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_roots/INSERT",
+      "counter": "rows",
+      "value": "4",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/staging_roots/INSERT/effective/rows"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_roots/INSERT",
+      "counter": "scalarValues",
+      "value": "0",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/staging_roots/INSERT/effective/scalarValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_roots/INSERT",
+      "counter": "textBytes",
+      "value": "418",
+      "unit": "bytes",
+      "status": "effective",
+      "source_key": "e2/staging_roots/INSERT/effective/textBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_roots/INSERT",
+      "counter": "nullValues",
+      "value": "0",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e2/staging_roots/INSERT/nullValues/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_roots/INSERT",
+      "counter": "scalarValues",
+      "value": "0",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e2/staging_roots/INSERT/scalarValues/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "staging_roots/INSERT",
+      "counter": "textBytes",
+      "value": "418",
+      "unit": "bytes",
+      "status": "committed",
+      "source_key": "e2/staging_roots/INSERT/textBytes/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "usage/UPDATE",
+      "counter": "blobBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "attempted",
+      "source_key": "e2/usage/UPDATE/attempted/blobBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "usage/UPDATE",
+      "counter": "columns",
+      "value": "23490",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/usage/UPDATE/attempted/columns"
+    },
+    {
+      "stage": "e2",
+      "operation": "usage/UPDATE",
+      "counter": "nullValues",
+      "value": "0",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/usage/UPDATE/attempted/nullValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "usage/UPDATE",
+      "counter": "rows",
+      "value": "4698",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/usage/UPDATE/attempted/rows"
+    },
+    {
+      "stage": "e2",
+      "operation": "usage/UPDATE",
+      "counter": "scalarValues",
+      "value": "23490",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e2/usage/UPDATE/attempted/scalarValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "usage/UPDATE",
+      "counter": "textBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "attempted",
+      "source_key": "e2/usage/UPDATE/attempted/textBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "usage/UPDATE",
+      "counter": "blobBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "committed",
+      "source_key": "e2/usage/UPDATE/blobBytes/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "usage/UPDATE",
+      "counter": "columns",
+      "value": "23490",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e2/usage/UPDATE/columns/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "usage/UPDATE",
+      "counter": "blobBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "effective",
+      "source_key": "e2/usage/UPDATE/effective/blobBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "usage/UPDATE",
+      "counter": "columns",
+      "value": "23490",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/usage/UPDATE/effective/columns"
+    },
+    {
+      "stage": "e2",
+      "operation": "usage/UPDATE",
+      "counter": "nullValues",
+      "value": "0",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/usage/UPDATE/effective/nullValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "usage/UPDATE",
+      "counter": "rows",
+      "value": "4698",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/usage/UPDATE/effective/rows"
+    },
+    {
+      "stage": "e2",
+      "operation": "usage/UPDATE",
+      "counter": "scalarValues",
+      "value": "23490",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e2/usage/UPDATE/effective/scalarValues"
+    },
+    {
+      "stage": "e2",
+      "operation": "usage/UPDATE",
+      "counter": "textBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "effective",
+      "source_key": "e2/usage/UPDATE/effective/textBytes"
+    },
+    {
+      "stage": "e2",
+      "operation": "usage/UPDATE",
+      "counter": "nullValues",
+      "value": "0",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e2/usage/UPDATE/nullValues/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "usage/UPDATE",
+      "counter": "scalarValues",
+      "value": "23490",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e2/usage/UPDATE/scalarValues/committed"
+    },
+    {
+      "stage": "e2",
+      "operation": "usage/UPDATE",
+      "counter": "textBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "committed",
+      "source_key": "e2/usage/UPDATE/textBytes/committed"
+    },
+    {
+      "stage": "e3Commit",
+      "operation": "accepted/UPDATE",
+      "counter": "blobBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "attempted",
+      "source_key": "e3Commit/accepted/UPDATE/attempted/blobBytes"
+    },
+    {
+      "stage": "e3Commit",
+      "operation": "accepted/UPDATE",
+      "counter": "columns",
+      "value": "5",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e3Commit/accepted/UPDATE/attempted/columns"
+    },
+    {
+      "stage": "e3Commit",
+      "operation": "accepted/UPDATE",
+      "counter": "nullValues",
+      "value": "1",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e3Commit/accepted/UPDATE/attempted/nullValues"
+    },
+    {
+      "stage": "e3Commit",
+      "operation": "accepted/UPDATE",
+      "counter": "rows",
+      "value": "1",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e3Commit/accepted/UPDATE/attempted/rows"
+    },
+    {
+      "stage": "e3Commit",
+      "operation": "accepted/UPDATE",
+      "counter": "scalarValues",
+      "value": "2",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e3Commit/accepted/UPDATE/attempted/scalarValues"
+    },
+    {
+      "stage": "e3Commit",
+      "operation": "accepted/UPDATE",
+      "counter": "textBytes",
+      "value": "100",
+      "unit": "bytes",
+      "status": "attempted",
+      "source_key": "e3Commit/accepted/UPDATE/attempted/textBytes"
+    },
+    {
+      "stage": "e3Commit",
+      "operation": "accepted/UPDATE",
+      "counter": "blobBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "committed",
+      "source_key": "e3Commit/accepted/UPDATE/blobBytes/committed"
+    },
+    {
+      "stage": "e3Commit",
+      "operation": "accepted/UPDATE",
+      "counter": "columns",
+      "value": "5",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e3Commit/accepted/UPDATE/columns/committed"
+    },
+    {
+      "stage": "e3Commit",
+      "operation": "accepted/UPDATE",
+      "counter": "blobBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "effective",
+      "source_key": "e3Commit/accepted/UPDATE/effective/blobBytes"
+    },
+    {
+      "stage": "e3Commit",
+      "operation": "accepted/UPDATE",
+      "counter": "columns",
+      "value": "5",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e3Commit/accepted/UPDATE/effective/columns"
+    },
+    {
+      "stage": "e3Commit",
+      "operation": "accepted/UPDATE",
+      "counter": "nullValues",
+      "value": "1",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e3Commit/accepted/UPDATE/effective/nullValues"
+    },
+    {
+      "stage": "e3Commit",
+      "operation": "accepted/UPDATE",
+      "counter": "rows",
+      "value": "1",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e3Commit/accepted/UPDATE/effective/rows"
+    },
+    {
+      "stage": "e3Commit",
+      "operation": "accepted/UPDATE",
+      "counter": "scalarValues",
+      "value": "2",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e3Commit/accepted/UPDATE/effective/scalarValues"
+    },
+    {
+      "stage": "e3Commit",
+      "operation": "accepted/UPDATE",
+      "counter": "textBytes",
+      "value": "100",
+      "unit": "bytes",
+      "status": "effective",
+      "source_key": "e3Commit/accepted/UPDATE/effective/textBytes"
+    },
+    {
+      "stage": "e3Commit",
+      "operation": "accepted/UPDATE",
+      "counter": "nullValues",
+      "value": "1",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e3Commit/accepted/UPDATE/nullValues/committed"
+    },
+    {
+      "stage": "e3Commit",
+      "operation": "accepted/UPDATE",
+      "counter": "scalarValues",
+      "value": "2",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e3Commit/accepted/UPDATE/scalarValues/committed"
+    },
+    {
+      "stage": "e3Commit",
+      "operation": "accepted/UPDATE",
+      "counter": "textBytes",
+      "value": "100",
+      "unit": "bytes",
+      "status": "committed",
+      "source_key": "e3Commit/accepted/UPDATE/textBytes/committed"
+    },
+    {
+      "stage": "e3Commit",
+      "operation": "sql",
+      "counter": "bindTextCodeUnits",
+      "value": "1080",
+      "unit": "count",
+      "status": "performed",
+      "source_key": "e3Commit/sql/bindTextCodeUnits"
+    },
+    {
+      "stage": "e3Commit",
+      "operation": "sql",
+      "counter": "scalarOrNullBinds",
+      "value": "7",
+      "unit": "count",
+      "status": "performed",
+      "source_key": "e3Commit/sql/scalarOrNullBinds"
+    },
+    {
+      "stage": "e3Commit",
+      "operation": "sql",
+      "counter": "statements",
+      "value": "48",
+      "unit": "count",
+      "status": "performed",
+      "source_key": "e3Commit/sql/statements"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generation_roots/INSERT",
+      "counter": "blobBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "attempted",
+      "source_key": "e3Prepare/generation_roots/INSERT/attempted/blobBytes"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generation_roots/INSERT",
+      "counter": "columns",
+      "value": "8",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e3Prepare/generation_roots/INSERT/attempted/columns"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generation_roots/INSERT",
+      "counter": "nullValues",
+      "value": "0",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e3Prepare/generation_roots/INSERT/attempted/nullValues"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generation_roots/INSERT",
+      "counter": "rows",
+      "value": "4",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e3Prepare/generation_roots/INSERT/attempted/rows"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generation_roots/INSERT",
+      "counter": "scalarValues",
+      "value": "0",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e3Prepare/generation_roots/INSERT/attempted/scalarValues"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generation_roots/INSERT",
+      "counter": "textBytes",
+      "value": "400",
+      "unit": "bytes",
+      "status": "attempted",
+      "source_key": "e3Prepare/generation_roots/INSERT/attempted/textBytes"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generation_roots/INSERT",
+      "counter": "blobBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "committed",
+      "source_key": "e3Prepare/generation_roots/INSERT/blobBytes/committed"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generation_roots/INSERT",
+      "counter": "columns",
+      "value": "8",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e3Prepare/generation_roots/INSERT/columns/committed"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generation_roots/INSERT",
+      "counter": "blobBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "effective",
+      "source_key": "e3Prepare/generation_roots/INSERT/effective/blobBytes"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generation_roots/INSERT",
+      "counter": "columns",
+      "value": "8",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e3Prepare/generation_roots/INSERT/effective/columns"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generation_roots/INSERT",
+      "counter": "nullValues",
+      "value": "0",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e3Prepare/generation_roots/INSERT/effective/nullValues"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generation_roots/INSERT",
+      "counter": "rows",
+      "value": "4",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e3Prepare/generation_roots/INSERT/effective/rows"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generation_roots/INSERT",
+      "counter": "scalarValues",
+      "value": "0",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e3Prepare/generation_roots/INSERT/effective/scalarValues"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generation_roots/INSERT",
+      "counter": "textBytes",
+      "value": "400",
+      "unit": "bytes",
+      "status": "effective",
+      "source_key": "e3Prepare/generation_roots/INSERT/effective/textBytes"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generation_roots/INSERT",
+      "counter": "nullValues",
+      "value": "0",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e3Prepare/generation_roots/INSERT/nullValues/committed"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generation_roots/INSERT",
+      "counter": "scalarValues",
+      "value": "0",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e3Prepare/generation_roots/INSERT/scalarValues/committed"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generation_roots/INSERT",
+      "counter": "textBytes",
+      "value": "400",
+      "unit": "bytes",
+      "status": "committed",
+      "source_key": "e3Prepare/generation_roots/INSERT/textBytes/committed"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generations/INSERT",
+      "counter": "blobBytes",
+      "value": "2941",
+      "unit": "bytes",
+      "status": "attempted",
+      "source_key": "e3Prepare/generations/INSERT/attempted/blobBytes"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generations/INSERT",
+      "counter": "columns",
+      "value": "7",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e3Prepare/generations/INSERT/attempted/columns"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generations/INSERT",
+      "counter": "nullValues",
+      "value": "0",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e3Prepare/generations/INSERT/attempted/nullValues"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generations/INSERT",
+      "counter": "rows",
+      "value": "1",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e3Prepare/generations/INSERT/attempted/rows"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generations/INSERT",
+      "counter": "scalarValues",
+      "value": "1",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e3Prepare/generations/INSERT/attempted/scalarValues"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generations/INSERT",
+      "counter": "textBytes",
+      "value": "191",
+      "unit": "bytes",
+      "status": "attempted",
+      "source_key": "e3Prepare/generations/INSERT/attempted/textBytes"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generations/INSERT",
+      "counter": "blobBytes",
+      "value": "2941",
+      "unit": "bytes",
+      "status": "committed",
+      "source_key": "e3Prepare/generations/INSERT/blobBytes/committed"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generations/INSERT",
+      "counter": "columns",
+      "value": "7",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e3Prepare/generations/INSERT/columns/committed"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generations/INSERT",
+      "counter": "blobBytes",
+      "value": "2941",
+      "unit": "bytes",
+      "status": "effective",
+      "source_key": "e3Prepare/generations/INSERT/effective/blobBytes"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generations/INSERT",
+      "counter": "columns",
+      "value": "7",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e3Prepare/generations/INSERT/effective/columns"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generations/INSERT",
+      "counter": "nullValues",
+      "value": "0",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e3Prepare/generations/INSERT/effective/nullValues"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generations/INSERT",
+      "counter": "rows",
+      "value": "1",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e3Prepare/generations/INSERT/effective/rows"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generations/INSERT",
+      "counter": "scalarValues",
+      "value": "1",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e3Prepare/generations/INSERT/effective/scalarValues"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generations/INSERT",
+      "counter": "textBytes",
+      "value": "191",
+      "unit": "bytes",
+      "status": "effective",
+      "source_key": "e3Prepare/generations/INSERT/effective/textBytes"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generations/INSERT",
+      "counter": "nullValues",
+      "value": "0",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e3Prepare/generations/INSERT/nullValues/committed"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generations/INSERT",
+      "counter": "scalarValues",
+      "value": "1",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e3Prepare/generations/INSERT/scalarValues/committed"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "generations/INSERT",
+      "counter": "textBytes",
+      "value": "191",
+      "unit": "bytes",
+      "status": "committed",
+      "source_key": "e3Prepare/generations/INSERT/textBytes/committed"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "sql",
+      "counter": "bindBlobBytes",
+      "value": "2941",
+      "unit": "bytes",
+      "status": "performed",
+      "source_key": "e3Prepare/sql/bindBlobBytes"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "sql",
+      "counter": "bindTextCodeUnits",
+      "value": "1823",
+      "unit": "count",
+      "status": "performed",
+      "source_key": "e3Prepare/sql/bindTextCodeUnits"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "sql",
+      "counter": "scalarOrNullBinds",
+      "value": "3",
+      "unit": "count",
+      "status": "performed",
+      "source_key": "e3Prepare/sql/scalarOrNullBinds"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "sql",
+      "counter": "statements",
+      "value": "45",
+      "unit": "count",
+      "status": "performed",
+      "source_key": "e3Prepare/sql/statements"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "usage/UPDATE",
+      "counter": "blobBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "attempted",
+      "source_key": "e3Prepare/usage/UPDATE/attempted/blobBytes"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "usage/UPDATE",
+      "counter": "columns",
+      "value": "25",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e3Prepare/usage/UPDATE/attempted/columns"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "usage/UPDATE",
+      "counter": "nullValues",
+      "value": "0",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e3Prepare/usage/UPDATE/attempted/nullValues"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "usage/UPDATE",
+      "counter": "rows",
+      "value": "5",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e3Prepare/usage/UPDATE/attempted/rows"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "usage/UPDATE",
+      "counter": "scalarValues",
+      "value": "25",
+      "unit": "count",
+      "status": "attempted",
+      "source_key": "e3Prepare/usage/UPDATE/attempted/scalarValues"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "usage/UPDATE",
+      "counter": "textBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "attempted",
+      "source_key": "e3Prepare/usage/UPDATE/attempted/textBytes"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "usage/UPDATE",
+      "counter": "blobBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "committed",
+      "source_key": "e3Prepare/usage/UPDATE/blobBytes/committed"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "usage/UPDATE",
+      "counter": "columns",
+      "value": "25",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e3Prepare/usage/UPDATE/columns/committed"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "usage/UPDATE",
+      "counter": "blobBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "effective",
+      "source_key": "e3Prepare/usage/UPDATE/effective/blobBytes"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "usage/UPDATE",
+      "counter": "columns",
+      "value": "25",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e3Prepare/usage/UPDATE/effective/columns"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "usage/UPDATE",
+      "counter": "nullValues",
+      "value": "0",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e3Prepare/usage/UPDATE/effective/nullValues"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "usage/UPDATE",
+      "counter": "rows",
+      "value": "5",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e3Prepare/usage/UPDATE/effective/rows"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "usage/UPDATE",
+      "counter": "scalarValues",
+      "value": "25",
+      "unit": "count",
+      "status": "effective",
+      "source_key": "e3Prepare/usage/UPDATE/effective/scalarValues"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "usage/UPDATE",
+      "counter": "textBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "effective",
+      "source_key": "e3Prepare/usage/UPDATE/effective/textBytes"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "usage/UPDATE",
+      "counter": "nullValues",
+      "value": "0",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e3Prepare/usage/UPDATE/nullValues/committed"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "usage/UPDATE",
+      "counter": "scalarValues",
+      "value": "25",
+      "unit": "count",
+      "status": "committed",
+      "source_key": "e3Prepare/usage/UPDATE/scalarValues/committed"
+    },
+    {
+      "stage": "e3Prepare",
+      "operation": "usage/UPDATE",
+      "counter": "textBytes",
+      "value": "0",
+      "unit": "bytes",
+      "status": "committed",
+      "source_key": "e3Prepare/usage/UPDATE/textBytes/committed"
+    },
+    {
+      "stage": "e3Verify",
+      "operation": "sql",
+      "counter": "bindTextCodeUnits",
+      "value": "453888",
+      "unit": "count",
+      "status": "performed",
+      "source_key": "e3Verify/sql/bindTextCodeUnits"
+    },
+    {
+      "stage": "e3Verify",
+      "operation": "sql",
+      "counter": "scalarOrNullBinds",
+      "value": "2",
+      "unit": "count",
+      "status": "performed",
+      "source_key": "e3Verify/sql/scalarOrNullBinds"
+    },
+    {
+      "stage": "e3Verify",
+      "operation": "sql",
+      "counter": "statements",
+      "value": "7109",
+      "unit": "count",
+      "status": "performed",
+      "source_key": "e3Verify/sql/statements"
+    },
+    {
+      "stage": "observer",
+      "operation": "",
+      "counter": "setupStatements",
+      "value": "90",
+      "unit": "count",
+      "status": "performed",
+      "source_key": "observer/setupStatements"
+    },
+    {
+      "stage": "recovery",
+      "operation": "sql",
+      "counter": "scalarOrNullBinds",
+      "value": "7",
+      "unit": "count",
+      "status": "performed",
+      "source_key": "recovery/sql/scalarOrNullBinds"
+    },
+    {
+      "stage": "recovery",
+      "operation": "sql",
+      "counter": "statements",
+      "value": "30",
+      "unit": "count",
+      "status": "performed",
+      "source_key": "recovery/sql/statements"
+    },
+    {
+      "stage": "setup",
+      "operation": "sql",
+      "counter": "scalarOrNullBinds",
+      "value": "1",
+      "unit": "count",
+      "status": "performed",
+      "source_key": "setup/sql/scalarOrNullBinds"
+    },
+    {
+      "stage": "setup",
+      "operation": "sql",
+      "counter": "statements",
+      "value": "28",
+      "unit": "count",
+      "status": "performed",
+      "source_key": "setup/sql/statements"
+    }
+  ],
+  "overlap": "hash/validation/write는 별도 비용이며 합쳐 unique bytes로 쓰지 않는다"
+}

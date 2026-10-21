@@ -1,0 +1,35 @@
+{
+  "mode": "final-dart-format",
+  "command": [
+    "/home/hjkerman/.flutter/bin/dart",
+    "format",
+    "--output=none",
+    "--set-exit-if-changed",
+    "lib/src/app_state.dart",
+    "lib/src/authoritative_bundle_validation.dart",
+    "lib/src/segmented/c1.dart",
+    "lib/src/segmented/store.dart",
+    "lib/src/segmented/logical_cost.dart",
+    "test/segmented_logical_cost_test.dart",
+    "test/segmented_logical_cost_http_test.dart",
+    "test/segmented_logical_cost_overhead_test.dart",
+    "test/support/logical_cost_reopen.dart",
+    "test/support/logical_cost_sqlite.dart"
+  ],
+  "cwd": "/home/hjkerman/codex/money-note/mobile",
+  "start_unix": 1792509253.3145213,
+  "status": "PASS",
+  "timeout_seconds": 7200,
+  "rss_guard_bytes": 8589934592,
+  "pid": 553319,
+  "exit": 0,
+  "end_unix": 1792509263.3286498,
+  "elapsed_seconds": 10.014015090069734,
+  "external_termination": null,
+  "rss_samples": [
+    [
+      0.014,
+      3538944
+    ]
+  ]
+}

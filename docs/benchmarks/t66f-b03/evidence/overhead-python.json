@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "environment": "HOST paired alternating, 3 warmup + 10 measured",
+  "samples_ns": {
+    "primitive_off": [
+      12807079,
+      12577679,
+      13850547,
+      12620061,
+      12609574,
+      15259451,
+      12932397,
+      12918923,
+      12451826,
+      12831672
+    ],
+    "primitive_on": [
+      19138489,
+      19477211,
+      20280731,
+      19466938,
+      20335791,
+      19359727,
+      19082931,
+      20009346,
+      19632959,
+      19726735
+    ],
+    "sql_off": [
+      312723,
+      397484,
+      361522,
+      321797,
+      403348,
+      397700,
+      317907,
+      408822,
+      315954,
+      320817
+    ],
+    "sql_on": [
+      4403609,
+      4383444,
+      4513005,
+      4592326,
+      4565704,
+      4453207,
+      4425508,
+      4798987,
+      4431259,
+      4435585
+    ]
+  },
+  "median_ns": {
+    "primitive_off": 12819375.5,
+    "primitive_on": 19555085.0,
+    "sql_off": 341659.5,
+    "sql_on": 4444396.0
+  },
+  "last_counter": {
+    "calibration/encoding/calls": "1000",
+    "calibration/encoding/output_bytes": "34000",
+    "calibration/json/calls": "1000",
+    "calibration/json/completed_bytes": "34000",
+    "calibration/json/submitted_bytes": "34000",
+    "calibration/objects/INSERT/attempted/blob_bytes": "6800",
+    "calibration/objects/INSERT/attempted/columns": "400",
+    "calibration/objects/INSERT/attempted/null_values": "0",
+    "calibration/objects/INSERT/attempted/rows": "200",
+    "calibration/objects/INSERT/attempted/scalar_values": "0",
+    "calibration/objects/INSERT/attempted/text_bytes": "490",
+    "calibration/objects/INSERT/committed/blob_bytes": "6800",
+    "calibration/objects/INSERT/committed/columns": "400",
+    "calibration/objects/INSERT/committed/null_values": "0",
+    "calibration/objects/INSERT/committed/scalar_values": "0",
+    "calibration/objects/INSERT/committed/text_bytes": "490",
+    "calibration/objects/INSERT/effective/blob_bytes": "6800",
+    "calibration/objects/INSERT/effective/columns": "400",
+    "calibration/objects/INSERT/effective/null_values": "0",
+    "calibration/objects/INSERT/effective/rows": "200",
+    "calibration/objects/INSERT/effective/scalar_values": "0",
+    "calibration/objects/INSERT/effective/text_bytes": "490",
+    "calibration/sha256/calls": "1000",
+    "calibration/sha256/hash_input_bytes": "57000",
+    "calibration/sql/bind_blob_bytes": "6800",
+    "calibration/sql/bind_text_bytes": "490",
+    "calibration/sql/statements": "204"
+  },
+  "claims": "소형 instrumentation overhead이며 100k lease 적합성·physical I/O proof가 아님"
+}

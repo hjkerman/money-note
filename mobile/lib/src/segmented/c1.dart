@@ -3,6 +3,9 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
+// B03 diagnostics: begin.
+import '../diagnostics/logical_cost.dart';
+// B03 diagnostics: end.
 
 class SegmentedException implements Exception {
   const SegmentedException(this.code, {this.storageCode});
@@ -109,11 +112,22 @@ Uint8List encodeC1(Object? value, {int maxDepth = 128}) {
   }
 
   emit(value, 0);
-  return Uint8List.fromList(utf8.encode(out.toString()));
+  // B03 encoding observation: begin.
+  final bytes = Uint8List.fromList(utf8.encode(out.toString()));
+  LogicalCost.observe(LogicalCostOperation.encoding,
+      LogicalCostMetric.outputBytes, bytes.length);
+  return bytes;
+  // B03 encoding observation: end.
 }
 
 Object? decodeC1(List<int> bytes,
     {bool requireCanonical = true, int maxDepth = 128}) {
+  // B03 decode observation: begin.
+  LogicalCost.observe(LogicalCostOperation.c1, LogicalCostMetric.calls, 1);
+  LogicalCost.observe(
+      LogicalCostOperation.c1, LogicalCostMetric.submittedBytes, bytes.length);
+  var completed = false;
+  // B03 decode observation: end.
   try {
     final parser = _Parser(utf8.decode(bytes, allowMalformed: false), maxDepth);
     final value = parser.read(0);
@@ -125,9 +139,23 @@ Object? decodeC1(List<int> bytes,
         !sameBytes(bytes, encodeC1(value, maxDepth: maxDepth))) {
       rejectSegment('CANONICAL_INVALID');
     }
+    // B03 decode completion: begin.
+    completed = true;
+    LogicalCost.observe(LogicalCostOperation.c1,
+        LogicalCostMetric.completedBytes, bytes.length);
+    // B03 decode completion: end.
     return value;
   } on FormatException {
     rejectSegment('REPRESENTATION_INVALID');
+    // B03 decode failure: begin.
+  } finally {
+    if (!completed) {
+      LogicalCost.observe(
+          LogicalCostOperation.c1, LogicalCostMetric.failedCalls, 1);
+      LogicalCost.observe(LogicalCostOperation.c1,
+          LogicalCostMetric.failedSubmittedBytes, bytes.length);
+    }
+    // B03 decode failure: end.
   }
 }
 
@@ -150,9 +178,24 @@ String objectHash(String kind, List<int> bytes) {
   }
   final result = _DigestSink();
   final sink = sha256.startChunkedConversion(result);
-  sink.add(ascii.encode('money-note.sync.v1/$kind'));
+  // B03 hash observation: begin.
+  final framing = ascii.encode('money-note.sync.v1/$kind');
+  sink.add(framing);
+  LogicalCost.observe(
+      LogicalCostOperation.objectHash, LogicalCostMetric.calls, 1);
+  LogicalCost.observe(LogicalCostOperation.objectHash,
+      LogicalCostMetric.hashInputBytes, framing.length);
+  // B03 hash observation: end.
   sink.add(const [0]);
+  // B03 NUL observation: begin.
+  LogicalCost.observe(
+      LogicalCostOperation.objectHash, LogicalCostMetric.hashInputBytes, 1);
+  // B03 NUL observation: end.
   sink.add(bytes);
+  // B03 payload observation: begin.
+  LogicalCost.observe(LogicalCostOperation.objectHash,
+      LogicalCostMetric.hashInputBytes, bytes.length);
+  // B03 payload observation: end.
   sink.close();
   return result.digest!.toString();
 }
@@ -169,7 +212,16 @@ class _DigestSink implements Sink<Digest> {
 }
 
 // Local bookkeeping checksum, deliberately not a protocol object identity.
-String localChecksum(List<int> bytes) => sha256.convert(bytes).toString();
+// B03 checksum observation: begin.
+String localChecksum(List<int> bytes) {
+  final result = sha256.convert(bytes).toString();
+  LogicalCost.observe(
+      LogicalCostOperation.checksum, LogicalCostMetric.calls, 1);
+  LogicalCost.observe(LogicalCostOperation.checksum,
+      LogicalCostMetric.hashInputBytes, bytes.length);
+  return result;
+}
+// B03 checksum observation: end.
 
 class _Parser {
   _Parser(this.text, this.maxDepth);

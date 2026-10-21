@@ -18,6 +18,7 @@ import 'segmented/api_transport.dart';
 import 'segmented/adapters.dart';
 import 'segmented/c1.dart';
 import 'segmented/fetch.dart';
+import 'diagnostics/logical_cost.dart';
 import 'segmented/store.dart';
 import 'segmented/transport.dart';
 import 'segmented/verification.dart';
@@ -453,33 +454,43 @@ class AppState extends ChangeNotifier {
     PreparedGeneration? prepared;
     try {
       requireAuthority();
-      final expected = await store.recoverAcceptedGeneration();
+      final expected = await LogicalCost.at(
+          LogicalCostStage.recovery, store.recoverAcceptedGeneration);
       requireAuthority();
       final fetcher =
           IncrementalFetcher(store, transport, limits: verificationLimits);
-      final acquired = await fetcher.acquire(
-          resumeId: resumeId, cancellation: cancel, verifiedBase: expected);
+      final acquired = await LogicalCost.at(
+          LogicalCostStage.e2,
+          () => fetcher.acquire(
+              resumeId: resumeId,
+              cancellation: cancel,
+              verifiedBase: expected));
       requireAuthority();
       final verifiedDataVersion = store.publicationDataVersion;
-      final proof = await store.verifyPublicationCandidate(
-          acquired.manifest, expected,
-          verifiedDataVersion: verifiedDataVersion);
+      final proof = await LogicalCost.at(
+          LogicalCostStage.e3Verify,
+          () => store.verifyPublicationCandidate(acquired.manifest, expected,
+              verifiedDataVersion: verifiedDataVersion));
       requireAuthority();
-      prepared = store.prepareGeneration(
-          syncUuid(), acquired.stagingId, proof, expected,
-          verifiedDataVersion: verifiedDataVersion,
-          authorityHistory: {
-            'lineage': ticket.lineageGeneration,
-            'authentication': ticket.authenticationGeneration,
-            'request': ticket.requestGeneration,
-          });
+      prepared = LogicalCost.at<PreparedGeneration>(
+          LogicalCostStage.e3Prepare,
+          () => store.prepareGeneration(
+                  syncUuid(), acquired.stagingId, proof, expected,
+                  verifiedDataVersion: verifiedDataVersion,
+                  authorityHistory: {
+                    'lineage': ticket.lineageGeneration,
+                    'authentication': ticket.authenticationGeneration,
+                    'request': ticket.requestGeneration,
+                  }));
       final operation = prepared;
       final result = await _withLineageLock(() async {
         requireAuthority();
         // No await in this body. The native SQLite COMMIT and readback finish
         // before _withLineageLock awaits the completed action's result.
-        return store.commitPreparedGeneration(operation,
-            finalAuthorityFence: requireAuthority);
+        return LogicalCost.at(
+            LogicalCostStage.e3Commit,
+            () => store.commitPreparedGeneration(operation,
+                finalAuthorityFence: requireAuthority));
       });
       try {
         requireAuthority();
@@ -491,9 +502,11 @@ class AppState extends ChangeNotifier {
       }
       return result; // Segmented-internal publication ONLY, never Offline-ready.
     } finally {
-      if (prepared != null) {
+      final discarded = prepared;
+      if (discarded != null) {
         try {
-          store.discardUnacceptedGeneration(prepared.id);
+          LogicalCost.at(LogicalCostStage.e3Prepare,
+              () => store.discardUnacceptedGeneration(discarded.id));
         } on Object {/* primary outcome wins */}
       }
     }

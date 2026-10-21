@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "environment": "HOST 3 warmup + 10 paired/alternating samples",
+  "primitive_iterations": 1000,
+  "sql_inserts": 200,
+  "counter_keys_after_1000_objects": 6,
+  "samples": {
+    "primitive_off_us": [
+      11355,
+      11573,
+      11021,
+      11255,
+      10912,
+      9825,
+      10165,
+      10071,
+      9933,
+      9903
+    ],
+    "primitive_on_us": [
+      12886,
+      13598,
+      13132,
+      13522,
+      13011,
+      11715,
+      11485,
+      11807,
+      11596,
+      12472
+    ],
+    "sql_off_us": [
+      3315,
+      2975,
+      3412,
+      1760,
+      1748,
+      1366,
+      1926,
+      1626,
+      1552,
+      1166
+    ],
+    "sql_on_us": [
+      21051,
+      20392,
+      18951,
+      19645,
+      16264,
+      15708,
+      15830,
+      14482,
+      13961,
+      12976
+    ]
+  },
+  "max_process_rss_bytes": 149192704,
+  "limits": "소형 in-memory 오버헤드. 100k lease 적합성·Dart heap·Android·physical I/O proof 아님"
+}

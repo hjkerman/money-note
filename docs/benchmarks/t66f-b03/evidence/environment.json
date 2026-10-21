@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "environment": "HOST — synthetic verification only",
+  "os": "Linux",
+  "kernel": "6.8.0-146-generic",
+  "architecture": "x86_64",
+  "python": "3.12.3",
+  "python_sqlite": "3.45.1",
+  "openssl": "OpenSSL 3.0.13 30 Jan 2024",
+  "flutter": "3.47.4",
+  "flutter_revision": "9584c6713b324636289d067944a46fd6b49df14b",
+  "flutter_engine": "06a2e2a110089dff50fe635cffd2a61e1b24fbcd",
+  "dart": "3.13.3",
+  "node": "22.22.3",
+  "npm": "12.0.1",
+  "measurement": "직접 로컬 runtime version 조회. 환경변수/credential/production DB를 읽지 않음",
+  "limits": "host RSS/SQLite 결과를 Android memory·VFS/I-O·physical power loss로 전용하지 않음"
+}
