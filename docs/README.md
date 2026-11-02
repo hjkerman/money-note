@@ -1,0 +1,21 @@
+# 문서 안내
+
+장기 유지 문서와 단계별 작업 기록을 구분한다.
+
+## 현재 최적화·개선·감사 작업
+
+[작업 기록 통합 목차](development-reports/README.md)에서 로드맵과 P1 결과, 이전 최적화·개선·감사 기록을 찾는다. 코드·동결 근거의 경로 의존성이 있는 원본은 기존 위치를 유지한다.
+
+## 장기 유지 문서
+
+- [현재 프로젝트 상태](project-state.md)
+- [금융 도메인 기준](domain-model.md)
+- [구조·서버 authority·신뢰 경계](architecture.md)
+- [API](api.md)
+- [DB](database.md)
+- [Offline 계약](offline-mode.md)
+- [운영·배포·복구](runbook.md)
+- [보안](security.md)
+- [알려진 이슈](known-issues.md)
+- [검증 안내](test-plan.md)
+- [개발 산출물 위생](development-artifact-hygiene.md)

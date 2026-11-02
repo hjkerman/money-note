@@ -1,0 +1,3936 @@
+{
+  "schema_version": 1,
+  "task": "Money Note 최종 로드맵·1단계 병목 발견",
+  "date": "2026-11-02",
+  "head": "ebcbd54d90eeee194a04b9eea6367f446ee2fd28",
+  "scope": {
+    "ui_paths": 15,
+    "processing_paths": 12,
+    "historical_optimization_families": 3,
+    "historical_measured_cost_groups": 3,
+    "new_current_performance_measurements": 0,
+    "current_unmeasured_candidates": 8,
+    "implemented_optimizations": 0,
+    "deleted_code": 0,
+    "final_audit_started": false
+  },
+  "preservation": {
+    "head": "ebcbd54d90eeee194a04b9eea6367f446ee2fd28",
+    "index_sha256": "33779f92417c7e6f7ab927847236336e5ce84e89260a66777e44295b782c943b",
+    "existing_file_count": 7927,
+    "aggregate_sha256": "e589159b641554228aef59bfb19ef14dfe09c3856901ab0c27921ab1d702b64f",
+    "existing_content_or_mode_changes": [],
+    "index_after_sha256": "33779f92417c7e6f7ab927847236336e5ce84e89260a66777e44295b782c943b",
+    "staged_entries_identical": true,
+    "staged_changes": 0,
+    "aggregate_method": "git ls-files -z --cached --others --exclude-standard의 기존 파일별 sha256/mode 또는 symlink target을 path별 정렬한 compact JSON의 SHA-256; 새 roadmap/evidence 두 파일 제외; ignored 파일은 범위 밖",
+    "final_recheck": "기존 7927개 내용/mode 및 index/staged entries 재확인 통과"
+  },
+  "selected_slice": {
+    "id": "P1-01",
+    "path": "mobile/lib/src/screens/month_entries_screen.dart",
+    "function": "MonthEntriesScreen.build",
+    "sha256": "f876b19c0872f533e226ab366ff45a8ce61fb0af568672aad9bdcd130cac5e81",
+    "target": "전체 지출 행 위젯 선생성을 지연 생성으로 전환",
+    "explicit_protection_maps_checked": [
+      "docs/benchmarks/t66f-b03/source-lock-review.json",
+      "docs/benchmarks/t66e4-p0-audit/protected-source.json",
+      "docs/benchmarks/t66e4-p0-audit/worktree-targets.json"
+    ],
+    "not_in_checked_maps": true,
+    "adapter_isolation_test_inspected": true,
+    "implementation_authorized_this_turn": false
+  },
+  "historical_checks": {
+    "B03": {
+      "archive_sha256": "fc53b16635610574ab32042b5c76e01369aba5e858fb43b51040f34b94eb59e5",
+      "selected_source_comparisons": {
+        "backend/isolated_sync/observation.py": {
+          "archived_sha256": "635e17038f4cc11d7db59dd6208aa1d1fbfd5a5750b04b20c40cc7714c399a3e",
+          "current_sha256": "cb69ddaaa2fc9ab7a7336937248b3748829043dce45a07cdf216e35db11ca408",
+          "same": false
+        },
+        "backend/app/db_migrations.py": {
+          "archived_sha256": "24c1445294cddc08ddbdf69cc1a399d8c29276db9dc2842e00eeac06319390ea",
+          "current_sha256": "24c1445294cddc08ddbdf69cc1a399d8c29276db9dc2842e00eeac06319390ea",
+          "same": true
+        },
+        "mobile/lib/src/screens/month_entries_screen.dart": {
+          "archived_sha256": "f876b19c0872f533e226ab366ff45a8ce61fb0af568672aad9bdcd130cac5e81",
+          "current_sha256": "f876b19c0872f533e226ab366ff45a8ce61fb0af568672aad9bdcd130cac5e81",
+          "same": true
+        }
+      }
+    },
+    "B05": {
+      "archive_sha256": "745246e7d4bf6f945987e8043fe097e47056554d39a6e2f24d419d77f9aafe1e",
+      "selected_source_comparisons": {
+        "backend/isolated_sync/observation.py": {
+          "archived_sha256": "cb69ddaaa2fc9ab7a7336937248b3748829043dce45a07cdf216e35db11ca408",
+          "current_sha256": "cb69ddaaa2fc9ab7a7336937248b3748829043dce45a07cdf216e35db11ca408",
+          "same": true
+        },
+        "backend/app/db_migrations.py": {
+          "archived_sha256": "24c1445294cddc08ddbdf69cc1a399d8c29276db9dc2842e00eeac06319390ea",
+          "current_sha256": "24c1445294cddc08ddbdf69cc1a399d8c29276db9dc2842e00eeac06319390ea",
+          "same": true
+        },
+        "mobile/lib/src/screens/month_entries_screen.dart": {
+          "archived_sha256": "f876b19c0872f533e226ab366ff45a8ce61fb0af568672aad9bdcd130cac5e81",
+          "current_sha256": "f876b19c0872f533e226ab366ff45a8ce61fb0af568672aad9bdcd130cac5e81",
+          "same": true
+        }
+      }
+    },
+    "B08": {
+      "archive_sha256": "cb89861bedaa998ce3c53789f76ba92a412c4eeff9a05f34a1f49d8b25067e22",
+      "selected_source_comparisons": {
+        "backend/isolated_sync/observation.py": {
+          "archived_sha256": "635e17038f4cc11d7db59dd6208aa1d1fbfd5a5750b04b20c40cc7714c399a3e",
+          "current_sha256": "cb69ddaaa2fc9ab7a7336937248b3748829043dce45a07cdf216e35db11ca408",
+          "same": false
+        },
+        "backend/app/db_migrations.py": {
+          "archived_sha256": "0ff321c938b87ac09e08b586d842d46d06aa0ce16ef08726c7d56009be62baad",
+          "current_sha256": "24c1445294cddc08ddbdf69cc1a399d8c29276db9dc2842e00eeac06319390ea",
+          "same": false
+        },
+        "mobile/lib/src/screens/month_entries_screen.dart": {
+          "archived_sha256": "f876b19c0872f533e226ab366ff45a8ce61fb0af568672aad9bdcd130cac5e81",
+          "current_sha256": "f876b19c0872f533e226ab366ff45a8ce61fb0af568672aad9bdcd130cac5e81",
+          "same": true
+        }
+      }
+    },
+    "B09_raw_pairs_verified": 2,
+    "B07_raw_recalculation": {
+      "object_probe_count": 14,
+      "connect_s": 1.193978169,
+      "expected_contract_s": 0.278446196
+    },
+    "B08_raw_recalculation": {
+      "A": {
+        "object_count": 13,
+        "object_handler_s": 3.180023143,
+        "actual_inspections": 46,
+        "expected_parser_calls": 1518
+      },
+      "B": {
+        "object_count": 13,
+        "object_handler_s": 2.841368689,
+        "actual_inspections": 46,
+        "expected_parser_calls": 33
+      }
+    },
+    "validation": {
+      "npm_build": {
+        "exit_code": 0,
+        "source": "현재 frontend 소스의 작업 소유 임시 사본",
+        "node": "22.22.3",
+        "npm": "12.0.1"
+      },
+      "backend_smoke": {
+        "exit_code": 0,
+        "python": "3.12.3",
+        "scope": "기존 authoritative-state 합성 기능 검사 3건",
+        "junit_testsuites": [
+          {
+            "name": "pytest",
+            "errors": "0",
+            "failures": "0",
+            "skipped": "0",
+            "tests": "3",
+            "time": "1.976",
+            "timestamp": "2026-11-02T18:05:06.900954+09:00",
+            "hostname": "hjkerman"
+          }
+        ]
+      }
+    },
+    "T66A_csv_recalculation": {
+      "parser_typed_ms": {
+        "samples": 20,
+        "median_ms": 1970.0819999999999
+      },
+      "raw_money": {
+        "samples": 20,
+        "median_ms": 538.2255
+      },
+      "snapshot_authority_relationships": {
+        "samples": 20,
+        "median_ms": 985.407
+      },
+      "baseline_publish_ms": {
+        "samples": 20,
+        "median_ms": 269.73299999999995
+      },
+      "total_diagnostic_pipeline_ms": {
+        "samples": 20,
+        "median_ms": 2514.715
+      }
+    },
+    "B05A_summary_arithmetic_verified_cells": 4,
+    "B05B_raw_verified": [
+      {
+        "id": "n5000-0-A-on",
+        "elapsed_s": 149.743978
+      },
+      {
+        "id": "n5000-1-B-on",
+        "elapsed_s": 155.002541
+      }
+    ]
+  },
+  "T66A_source_comparison": {
+    "commit": "597a936d8fc53f35c693705c320223686a657f0e",
+    "files": [
+      {
+        "path": "mobile/lib/src/authoritative_bundle.dart",
+        "historical_sha256": "79016faf7dbd3c9a1b6e0dd124705461816f9d8bbd05d8e7482207dbd74353da",
+        "current_sha256": "d94e9733fa39fcaefe8fd99d1df7524460d1a55f08545d86d2e33c8d668088df",
+        "identical": false
+      },
+      {
+        "path": "mobile/lib/src/authoritative_bundle_validation.dart",
+        "historical_sha256": "9c525d7f3b76a6b2358902c4078a465ab53fcee0b1f892f8f531ea49206df44d",
+        "current_sha256": "5032e02d0a94967d6d81fec6661a562fcbd6fed33a8b0adbead90a21f85e6078",
+        "identical": false
+      },
+      {
+        "path": "mobile/lib/src/authoritative_snapshot_validation.dart",
+        "historical_sha256": "1950e8b9838e45d7300c236718e410697957954721a929b18d32856692402243",
+        "current_sha256": "70a5a94bbce914df1fcc46871f5531cbd156d3e45cda289415fc078132543ac3",
+        "identical": false
+      },
+      {
+        "path": "mobile/lib/src/offline/offline_store.dart",
+        "historical_sha256": "b1b7d12686b669f30f018695a34eb29dc9aeefae34bb14d2cf1d07e0230a89ac",
+        "current_sha256": "907aa044b8205233b06e4ea081122e72d9b5803523a998a410850558c17e903f",
+        "identical": false
+      },
+      {
+        "path": "mobile/lib/src/local_snapshot_repository.dart",
+        "historical_sha256": "316c491e512873b500e5417a4b5dff4ebf8885d6a398d5a57cf63b2c28d25432",
+        "current_sha256": "316c491e512873b500e5417a4b5dff4ebf8885d6a398d5a57cf63b2c28d25432",
+        "identical": true
+      },
+      {
+        "path": "backend/app/services/authoritative_state.py",
+        "historical_sha256": "e953aa895de993472f5d04159b9951cf901ca4cf0defc3af8672e2cc6c39daab",
+        "current_sha256": "e953aa895de993472f5d04159b9951cf901ca4cf0defc3af8672e2cc6c39daab",
+        "identical": true
+      }
+    ]
+  },
+  "validation_details": {
+    "npm_command": [
+      "npm",
+      "--prefix",
+      "/tmp/money-note-final-roadmap-yk6n90jl/qa/frontend",
+      "run",
+      "build"
+    ],
+    "backend_command": [
+      ".venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "--basetemp=/tmp/money-note-final-roadmap-yk6n90jl/backend-temp/pytest",
+      "--junitxml=/tmp/money-note-final-roadmap-yk6n90jl/backend-smoke.xml",
+      "tests/test_authoritative_state.py::AuthoritativeStateTest::test_empty_state_matches_all_fourteen_legacy_responses",
+      "tests/test_authoritative_state.py::AuthoritativeStateTest::test_rich_financial_state_raw_typed_and_baseline_equivalence",
+      "tests/test_authoritative_state.py::AuthoritativeStateTest::test_one_snapshot_summary_payment_and_three_live_connections"
+    ],
+    "backend_cwd": "backend",
+    "environment": "MONEY_NOTE_* 상속 제거, 합성 임시 DB, task TMPDIR, PYTHONDONTWRITEBYTECODE=1",
+    "log_sha256": {
+      "npm-build.log": "428803348e199c79e12c0e2e9fa7ec7244f5ec0ee9d5a63db579e5c62c95f12d",
+      "backend-smoke.log": "d991d8e0fd6a35dca29328890e96de353c11b29d0dc42df23abfc26b3bc3586b",
+      "backend-smoke.xml": "00e07132f2ccf942cb2a7a3d92d5cb7b8d22d70ca76a12edec175116c2a43835"
+    },
+    "success_logs": "검증 결과와 hash만 보존. 임시 성공 로그·build/test 산출물은 작업 종료 시 정리. 성능 원시 표본은 새로 생성하지 않음"
+  },
+  "limitations": [
+    "정적 소스 분석은 runtime profiling이 아님",
+    "과거 archive 선택 파일과 원시 timing 재집계 범위만 확인; 전체 과거 감사 재현 아님",
+    "현재 전체 backend/Flutter 회귀 미실행; 기존 기능 smoke 3건만 수행",
+    "실기기·emulator·ADB·production 접근 없음",
+    "G2·T6.9·formal T6.6F·R1·배포 보류와 기존 source lock 유지"
+  ],
+  "cleanup": {
+    "scratch": "/tmp/money-note-final-roadmap-yk6n90jl",
+    "state": "작업 소유 임시 사본·합성 DB·build/test 중간물 정리 완료",
+    "removed_files_and_symlinks": 72,
+    "logical_bytes": 2576418,
+    "observed_allocated_bytes": 2756608,
+    "preexisting_artifacts_removed": 0,
+    "symlink_targets_preserved": true,
+    "verification_evidence": "이 JSON의 결과/해시 및 불변 기존 원본에서 재구성 가능한 전후 집계 보존; 신규 성능 원시 표본 없음"
+  },
+  "phase_sequence": [
+    "1 UI·앱 처리 성능",
+    "2 모바일 네트워크 데이터 사용량",
+    "3 dead code·중복 구현 정리",
+    "4 통합 최종 감사·한정 수정"
+  ],
+  "next_after_phases": "Snapshot 크기가 과도해질 때 확장성 대응",
+  "p1_01": {
+    "verdict": "NOT ADOPTED — PERFORMANCE CRITERIA NOT MET",
+    "adopted": false,
+    "reverted": true,
+    "baseline_sha256": "f876b19c0872f533e226ab366ff45a8ce61fb0af568672aad9bdcd130cac5e81",
+    "candidate_sha256": "7ec9a9d3c3ff59d2f312a094674b7b39c409768be5214ad1a3ec7c207a713d87",
+    "final_sha256": "f876b19c0872f533e226ab366ff45a8ce61fb0af568672aad9bdcd130cac5e81",
+    "baseline_measured_before_change": {
+      "start_epoch": 1793611506.141593,
+      "end_epoch": 1793611524.5947106,
+      "source_sha256": "f876b19c0872f533e226ab366ff45a8ce61fb0af568672aad9bdcd130cac5e81",
+      "harness_sha256": "9f38ebaf3fff5fd3e7dd9bc9d30c93ea74005132e7b90cd550790553ed22e29d",
+      "exit": 0
+    },
+    "plan": {
+      "order": [
+        [
+          1,
+          "baseline"
+        ],
+        [
+          1,
+          "candidate"
+        ],
+        [
+          2,
+          "candidate"
+        ],
+        [
+          2,
+          "baseline"
+        ],
+        [
+          3,
+          "baseline"
+        ],
+        [
+          3,
+          "candidate"
+        ]
+      ],
+      "warmups": 5,
+      "samples": 20,
+      "sizes": [
+        0,
+        50,
+        500,
+        1000,
+        5000
+      ],
+      "scroll_offsets": [
+        240,
+        480,
+        720,
+        960,
+        1200,
+        960,
+        720,
+        480,
+        240,
+        0
+      ],
+      "p95": "nearest-rank ceil(0.95*n)",
+      "baseline_block1_before_change": true,
+      "harness_format_only_after_baseline": true,
+      "candidate_sha256": "7ec9a9d3c3ff59d2f312a094674b7b39c409768be5214ad1a3ec7c207a713d87",
+      "harness_sha256": "ba1fcd464b7385aa193b99c3963820e8ba8b63d9940b9cf0c98e3f7272947624"
+    },
+    "environment": {
+      "os": [
+        "Linux",
+        "hjkerman",
+        "6.8.0-147-generic",
+        "#147-Ubuntu SMP PREEMPT_DYNAMIC Thu Sep 24 11:33:16 UTC 2026",
+        "x86_64"
+      ],
+      "cpu": "Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz",
+      "flutter": {
+        "frameworkVersion": "3.47.4",
+        "channel": "stable",
+        "repositoryUrl": "https://github.com/flutter/flutter.git",
+        "frameworkRevision": "9584c6713b324636289d067944a46fd6b49df14b",
+        "frameworkCommitDate": "2026-09-10 15:25:10 -0700",
+        "engineRevision": "06a2e2a110089dff50fe635cffd2a61e1b24fbcd",
+        "engineCommitDate": "2026-09-03 16:07:13.000Z",
+        "engineContentHash": "0e228ec8c8d2abc9fcf1d053e8a40665bb859ec7",
+        "engineBuildDate": "2026-09-03 09:39:13.722",
+        "dartSdkVersion": "3.13.3",
+        "devToolsVersion": "2.60.0",
+        "flutterVersion": "3.47.4"
+      },
+      "pubspec_lock_sha256": "669da919f8110efd863187877d1990ead6d92dea6199ea77e3199edfce740988",
+      "viewport": [
+        400,
+        800
+      ],
+      "text_scale": 1.0,
+      "execution": "flutter test debug JIT, 단일 worker, 실제 Stopwatch wall clock; 장치·GPU 측정 아님"
+    },
+    "raw_samples": {
+      "path": "docs/benchmarks/p1-01-monthly-expense-lazy-widget-raw.json.gz",
+      "sha256": "2bb7ab469f7e43c9ebb7ddac7692f72e85c28fe49ca73e2f85d182e2b0dfbd50",
+      "measured_samples": 600,
+      "warmups": 150,
+      "location": "samples 배열: block/variant/rows/sample로 선택; µs wall clock 원문"
+    },
+    "summary": [
+      {
+        "block": 1,
+        "variant": "baseline",
+        "rows": 0,
+        "eager": [
+          0
+        ],
+        "mounted_initial": [
+          0
+        ],
+        "max_scroll_mounted": 0,
+        "samples": 20,
+        "build_us": {
+          "median": 64.0,
+          "p95": 89
+        },
+        "pump_us": {
+          "median": 38350.0,
+          "p95": 58102
+        },
+        "scroll_us": {
+          "median": 13522.5,
+          "p95": 15895
+        },
+        "rebuild_build_us": {
+          "median": 68.0,
+          "p95": 75
+        },
+        "rebuild_pump_us": {
+          "median": 12633.5,
+          "p95": 18930
+        }
+      },
+      {
+        "block": 1,
+        "variant": "baseline",
+        "rows": 50,
+        "eager": [
+          50
+        ],
+        "mounted_initial": [
+          0
+        ],
+        "max_scroll_mounted": 4,
+        "samples": 20,
+        "build_us": {
+          "median": 96.0,
+          "p95": 128
+        },
+        "pump_us": {
+          "median": 32933.0,
+          "p95": 38173
+        },
+        "scroll_us": {
+          "median": 89768.5,
+          "p95": 124155
+        },
+        "rebuild_build_us": {
+          "median": 102.0,
+          "p95": 127
+        },
+        "rebuild_pump_us": {
+          "median": 11983.5,
+          "p95": 13496
+        }
+      },
+      {
+        "block": 1,
+        "variant": "baseline",
+        "rows": 500,
+        "eager": [
+          500
+        ],
+        "mounted_initial": [
+          0
+        ],
+        "max_scroll_mounted": 4,
+        "samples": 20,
+        "build_us": {
+          "median": 173.0,
+          "p95": 187
+        },
+        "pump_us": {
+          "median": 28297.5,
+          "p95": 31045
+        },
+        "scroll_us": {
+          "median": 76113.0,
+          "p95": 135926
+        },
+        "rebuild_build_us": {
+          "median": 179.0,
+          "p95": 212
+        },
+        "rebuild_pump_us": {
+          "median": 9874.5,
+          "p95": 12225
+        }
+      },
+      {
+        "block": 1,
+        "variant": "baseline",
+        "rows": 1000,
+        "eager": [
+          1000
+        ],
+        "mounted_initial": [
+          0
+        ],
+        "max_scroll_mounted": 4,
+        "samples": 20,
+        "build_us": {
+          "median": 380.0,
+          "p95": 432
+        },
+        "pump_us": {
+          "median": 27686.5,
+          "p95": 32155
+        },
+        "scroll_us": {
+          "median": 70650.5,
+          "p95": 77028
+        },
+        "rebuild_build_us": {
+          "median": 390.0,
+          "p95": 407
+        },
+        "rebuild_pump_us": {
+          "median": 9457.0,
+          "p95": 14284
+        }
+      },
+      {
+        "block": 1,
+        "variant": "baseline",
+        "rows": 5000,
+        "eager": [
+          5000
+        ],
+        "mounted_initial": [
+          0
+        ],
+        "max_scroll_mounted": 4,
+        "samples": 20,
+        "build_us": {
+          "median": 1520.5,
+          "p95": 1879
+        },
+        "pump_us": {
+          "median": 29271.0,
+          "p95": 31030
+        },
+        "scroll_us": {
+          "median": 68203.5,
+          "p95": 76196
+        },
+        "rebuild_build_us": {
+          "median": 1530.5,
+          "p95": 1707
+        },
+        "rebuild_pump_us": {
+          "median": 11006.0,
+          "p95": 13792
+        }
+      },
+      {
+        "block": 1,
+        "variant": "candidate",
+        "rows": 0,
+        "eager": [
+          0
+        ],
+        "mounted_initial": [
+          0
+        ],
+        "max_scroll_mounted": 0,
+        "samples": 20,
+        "build_us": {
+          "median": 62.5,
+          "p95": 73
+        },
+        "pump_us": {
+          "median": 38439.0,
+          "p95": 57693
+        },
+        "scroll_us": {
+          "median": 13514.0,
+          "p95": 15738
+        },
+        "rebuild_build_us": {
+          "median": 65.0,
+          "p95": 76
+        },
+        "rebuild_pump_us": {
+          "median": 11572.0,
+          "p95": 17371
+        }
+      },
+      {
+        "block": 1,
+        "variant": "candidate",
+        "rows": 50,
+        "eager": [
+          0
+        ],
+        "mounted_initial": [
+          0
+        ],
+        "max_scroll_mounted": 4,
+        "samples": 20,
+        "build_us": {
+          "median": 86.0,
+          "p95": 100
+        },
+        "pump_us": {
+          "median": 33296.5,
+          "p95": 38305
+        },
+        "scroll_us": {
+          "median": 90815.0,
+          "p95": 127077
+        },
+        "rebuild_build_us": {
+          "median": 94.0,
+          "p95": 114
+        },
+        "rebuild_pump_us": {
+          "median": 11927.5,
+          "p95": 13772
+        }
+      },
+      {
+        "block": 1,
+        "variant": "candidate",
+        "rows": 500,
+        "eager": [
+          0
+        ],
+        "mounted_initial": [
+          0
+        ],
+        "max_scroll_mounted": 4,
+        "samples": 20,
+        "build_us": {
+          "median": 183.5,
+          "p95": 228
+        },
+        "pump_us": {
+          "median": 28746.0,
+          "p95": 32161
+        },
+        "scroll_us": {
+          "median": 78432.5,
+          "p95": 139631
+        },
+        "rebuild_build_us": {
+          "median": 191.0,
+          "p95": 204
+        },
+        "rebuild_pump_us": {
+          "median": 10084.0,
+          "p95": 12667
+        }
+      },
+      {
+        "block": 1,
+        "variant": "candidate",
+        "rows": 1000,
+        "eager": [
+          0
+        ],
+        "mounted_initial": [
+          0
+        ],
+        "max_scroll_mounted": 4,
+        "samples": 20,
+        "build_us": {
+          "median": 399.5,
+          "p95": 475
+        },
+        "pump_us": {
+          "median": 27842.0,
+          "p95": 30434
+        },
+        "scroll_us": {
+          "median": 72896.5,
+          "p95": 80961
+        },
+        "rebuild_build_us": {
+          "median": 411.5,
+          "p95": 500
+        },
+        "rebuild_pump_us": {
+          "median": 9937.5,
+          "p95": 12623
+        }
+      },
+      {
+        "block": 1,
+        "variant": "candidate",
+        "rows": 5000,
+        "eager": [
+          0
+        ],
+        "mounted_initial": [
+          0
+        ],
+        "max_scroll_mounted": 4,
+        "samples": 20,
+        "build_us": {
+          "median": 1735.0,
+          "p95": 2260
+        },
+        "pump_us": {
+          "median": 29866.5,
+          "p95": 32747
+        },
+        "scroll_us": {
+          "median": 71088.5,
+          "p95": 83113
+        },
+        "rebuild_build_us": {
+          "median": 1818.5,
+          "p95": 2282
+        },
+        "rebuild_pump_us": {
+          "median": 10454.5,
+          "p95": 15437
+        }
+      },
+      {
+        "block": 2,
+        "variant": "baseline",
+        "rows": 0,
+        "eager": [
+          0
+        ],
+        "mounted_initial": [
+          0
+        ],
+        "max_scroll_mounted": 0,
+        "samples": 20,
+        "build_us": {
+          "median": 67.5,
+          "p95": 82
+        },
+        "pump_us": {
+          "median": 39208.0,
+          "p95": 59893
+        },
+        "scroll_us": {
+          "median": 14016.0,
+          "p95": 16497
+        },
+        "rebuild_build_us": {
+          "median": 69.0,
+          "p95": 86
+        },
+        "rebuild_pump_us": {
+          "median": 11919.5,
+          "p95": 18205
+        }
+      },
+      {
+        "block": 2,
+        "variant": "baseline",
+        "rows": 50,
+        "eager": [
+          50
+        ],
+        "mounted_initial": [
+          0
+        ],
+        "max_scroll_mounted": 4,
+        "samples": 20,
+        "build_us": {
+          "median": 96.5,
+          "p95": 141
+        },
+        "pump_us": {
+          "median": 33582.0,
+          "p95": 38599
+        },
+        "scroll_us": {
+          "median": 90720.5,
+          "p95": 129099
+        },
+        "rebuild_build_us": {
+          "median": 102.5,
+          "p95": 116
+        },
+        "rebuild_pump_us": {
+          "median": 12074.0,
+          "p95": 13274
+        }
+      },
+      {
+        "block": 2,
+        "variant": "baseline",
+        "rows": 500,
+        "eager": [
+          500
+        ],
+        "mounted_initial": [
+          0
+        ],
+        "max_scroll_mounted": 4,
+        "samples": 20,
+        "build_us": {
+          "median": 176.5,
+          "p95": 199
+        },
+        "pump_us": {
+          "median": 28100.5,
+          "p95": 30948
+        },
+        "scroll_us": {
+          "median": 75451.5,
+          "p95": 136525
+        },
+        "rebuild_build_us": {
+          "median": 185.0,
+          "p95": 204
+        },
+        "rebuild_pump_us": {
+          "median": 9735.5,
+          "p95": 12519
+        }
+      },
+      {
+        "block": 2,
+        "variant": "baseline",
+        "rows": 1000,
+        "eager": [
+          1000
+        ],
+        "mounted_initial": [
+          0
+        ],
+        "max_scroll_mounted": 4,
+        "samples": 20,
+        "build_us": {
+          "median": 385.5,
+          "p95": 449
+        },
+        "pump_us": {
+          "median": 28301.5,
+          "p95": 32788
+        },
+        "scroll_us": {
+          "median": 72573.5,
+          "p95": 78807
+        },
+        "rebuild_build_us": {
+          "median": 412.0,
+          "p95": 426
+        },
+        "rebuild_pump_us": {
+          "median": 10091.0,
+          "p95": 14328
+        }
+      },
+      {
+        "block": 2,
+        "variant": "baseline",
+        "rows": 5000,
+        "eager": [
+          5000
+        ],
+        "mounted_initial": [
+          0
+        ],
+        "max_scroll_mounted": 4,
+        "samples": 20,
+        "build_us": {
+          "median": 1665.5,
+          "p95": 4031
+        },
+        "pump_us": {
+          "median": 29673.5,
+          "p95": 31790
+        },
+        "scroll_us": {
+          "median": 69286.0,
+          "p95": 74112
+        },
+        "rebuild_build_us": {
+          "median": 1559.5,
+          "p95": 1630
+        },
+        "rebuild_pump_us": {
+          "median": 11226.5,
+          "p95": 11708
+        }
+      },
+      {
+        "block": 2,
+        "variant": "candidate",
+        "rows": 0,
+        "eager": [
+          0
+        ],
+        "mounted_initial": [
+          0
+        ],
+        "max_scroll_mounted": 0,
+        "samples": 20,
+        "build_us": {
+          "median": 65.0,
+          "p95": 75
+        },
+        "pump_us": {
+          "median": 38465.0,
+          "p95": 58590
+        },
+        "scroll_us": {
+          "median": 13712.0,
+          "p95": 15828
+        },
+        "rebuild_build_us": {
+          "median": 68.0,
+          "p95": 83
+        },
+        "rebuild_pump_us": {
+          "median": 11392.0,
+          "p95": 18032
+        }
+      },
+      {
+        "block": 2,
+        "variant": "candidate",
+        "rows": 50,
+        "eager": [
+          0
+        ],
+        "mounted_initial": [
+          0
+        ],
+        "max_scroll_mounted": 4,
+        "samples": 20,
+        "build_us": {
+          "median": 85.0,
+          "p95": 102
+        },
+        "pump_us": {
+          "median": 32990.0,
+          "p95": 37526
+        },
+        "scroll_us": {
+          "median": 88799.5,
+          "p95": 126523
+        },
+        "rebuild_build_us": {
+          "median": 95.5,
+          "p95": 117
+        },
+        "rebuild_pump_us": {
+          "median": 12024.5,
+          "p95": 13194
+        }
+      },
+      {
+        "block": 2,
+        "variant": "candidate",
+        "rows": 500,
+        "eager": [
+          0
+        ],
+        "mounted_initial": [
+          0
+        ],
+        "max_scroll_mounted": 4,
+        "samples": 20,
+        "build_us": {
+          "median": 164.0,
+          "p95": 177
+        },
+        "pump_us": {
+          "median": 27771.5,
+          "p95": 30163
+        },
+        "scroll_us": {
+          "median": 76092.0,
+          "p95": 135435
+        },
+        "rebuild_build_us": {
+          "median": 172.0,
+          "p95": 224
+        },
+        "rebuild_pump_us": {
+          "median": 9714.0,
+          "p95": 12141
+        }
+      },
+      {
+        "block": 2,
+        "variant": "candidate",
+        "rows": 1000,
+        "eager": [
+          0
+        ],
+        "mounted_initial": [
+          0
+        ],
+        "max_scroll_mounted": 4,
+        "samples": 20,
+        "build_us": {
+          "median": 357.0,
+          "p95": 380
+        },
+        "pump_us": {
+          "median": 26724.5,
+          "p95": 28112
+        },
+        "scroll_us": {
+          "median": 69951.0,
+          "p95": 75886
+        },
+        "rebuild_build_us": {
+          "median": 353.5,
+          "p95": 415
+        },
+        "rebuild_pump_us": {
+          "median": 9310.5,
+          "p95": 12754
+        }
+      },
+      {
+        "block": 2,
+        "variant": "candidate",
+        "rows": 5000,
+        "eager": [
+          0
+        ],
+        "mounted_initial": [
+          0
+        ],
+        "max_scroll_mounted": 4,
+        "samples": 20,
+        "build_us": {
+          "median": 1453.0,
+          "p95": 1728
+        },
+        "pump_us": {
+          "median": 27578.0,
+          "p95": 30237
+        },
+        "scroll_us": {
+          "median": 67541.0,
+          "p95": 77224
+        },
+        "rebuild_build_us": {
+          "median": 1350.5,
+          "p95": 1806
+        },
+        "rebuild_pump_us": {
+          "median": 9416.5,
+          "p95": 12606
+        }
+      },
+      {
+        "block": 3,
+        "variant": "baseline",
+        "rows": 0,
+        "eager": [
+          0
+        ],
+        "mounted_initial": [
+          0
+        ],
+        "max_scroll_mounted": 0,
+        "samples": 20,
+        "build_us": {
+          "median": 70.0,
+          "p95": 81
+        },
+        "pump_us": {
+          "median": 40158.5,
+          "p95": 60508
+        },
+        "scroll_us": {
+          "median": 14277.5,
+          "p95": 16181
+        },
+        "rebuild_build_us": {
+          "median": 68.5,
+          "p95": 77
+        },
+        "rebuild_pump_us": {
+          "median": 13034.0,
+          "p95": 20723
+        }
+      },
+      {
+        "block": 3,
+        "variant": "baseline",
+        "rows": 50,
+        "eager": [
+          50
+        ],
+        "mounted_initial": [
+          0
+        ],
+        "max_scroll_mounted": 4,
+        "samples": 20,
+        "build_us": {
+          "median": 92.0,
+          "p95": 108
+        },
+        "pump_us": {
+          "median": 34021.5,
+          "p95": 41962
+        },
+        "scroll_us": {
+          "median": 92083.0,
+          "p95": 121994
+        },
+        "rebuild_build_us": {
+          "median": 102.0,
+          "p95": 111
+        },
+        "rebuild_pump_us": {
+          "median": 12094.0,
+          "p95": 15459
+        }
+      },
+      {
+        "block": 3,
+        "variant": "baseline",
+        "rows": 500,
+        "eager": [
+          500
+        ],
+        "mounted_initial": [
+          0
+        ],
+        "max_scroll_mounted": 4,
+        "samples": 20,
+        "build_us": {
+          "median": 183.0,
+          "p95": 210
+        },
+        "pump_us": {
+          "median": 29845.0,
+          "p95": 32767
+        },
+        "scroll_us": {
+          "median": 79058.5,
+          "p95": 85845
+        },
+        "rebuild_build_us": {
+          "median": 184.0,
+          "p95": 222
+        },
+        "rebuild_pump_us": {
+          "median": 10335.0,
+          "p95": 14208
+        }
+      },
+      {
+        "block": 3,
+        "variant": "baseline",
+        "rows": 1000,
+        "eager": [
+          1000
+        ],
+        "mounted_initial": [
+          0
+        ],
+        "max_scroll_mounted": 4,
+        "samples": 20,
+        "build_us": {
+          "median": 326.5,
+          "p95": 351
+        },
+        "pump_us": {
+          "median": 28866.0,
+          "p95": 30992
+        },
+        "scroll_us": {
+          "median": 73616.0,
+          "p95": 80149
+        },
+        "rebuild_build_us": {
+          "median": 346.5,
+          "p95": 485
+        },
+        "rebuild_pump_us": {
+          "median": 9784.0,
+          "p95": 13589
+        }
+      },
+      {
+        "block": 3,
+        "variant": "baseline",
+        "rows": 5000,
+        "eager": [
+          5000
+        ],
+        "mounted_initial": [
+          0
+        ],
+        "max_scroll_mounted": 4,
+        "samples": 20,
+        "build_us": {
+          "median": 1553.0,
+          "p95": 2009
+        },
+        "pump_us": {
+          "median": 29671.5,
+          "p95": 34775
+        },
+        "scroll_us": {
+          "median": 70596.5,
+          "p95": 73730
+        },
+        "rebuild_build_us": {
+          "median": 1558.5,
+          "p95": 1626
+        },
+        "rebuild_pump_us": {
+          "median": 11388.0,
+          "p95": 15117
+        }
+      },
+      {
+        "block": 3,
+        "variant": "candidate",
+        "rows": 0,
+        "eager": [
+          0
+        ],
+        "mounted_initial": [
+          0
+        ],
+        "max_scroll_mounted": 0,
+        "samples": 20,
+        "build_us": {
+          "median": 64.5,
+          "p95": 105
+        },
+        "pump_us": {
+          "median": 40061.0,
+          "p95": 58824
+        },
+        "scroll_us": {
+          "median": 14403.5,
+          "p95": 16138
+        },
+        "rebuild_build_us": {
+          "median": 67.5,
+          "p95": 80
+        },
+        "rebuild_pump_us": {
+          "median": 12337.0,
+          "p95": 17840
+        }
+      },
+      {
+        "block": 3,
+        "variant": "candidate",
+        "rows": 50,
+        "eager": [
+          0
+        ],
+        "mounted_initial": [
+          0
+        ],
+        "max_scroll_mounted": 4,
+        "samples": 20,
+        "build_us": {
+          "median": 89.0,
+          "p95": 117
+        },
+        "pump_us": {
+          "median": 34497.0,
+          "p95": 39899
+        },
+        "scroll_us": {
+          "median": 93010.5,
+          "p95": 130134
+        },
+        "rebuild_build_us": {
+          "median": 94.0,
+          "p95": 107
+        },
+        "rebuild_pump_us": {
+          "median": 12595.0,
+          "p95": 14002
+        }
+      },
+      {
+        "block": 3,
+        "variant": "candidate",
+        "rows": 500,
+        "eager": [
+          0
+        ],
+        "mounted_initial": [
+          0
+        ],
+        "max_scroll_mounted": 4,
+        "samples": 20,
+        "build_us": {
+          "median": 159.0,
+          "p95": 178
+        },
+        "pump_us": {
+          "median": 29340.0,
+          "p95": 31254
+        },
+        "scroll_us": {
+          "median": 77972.0,
+          "p95": 138301
+        },
+        "rebuild_build_us": {
+          "median": 169.0,
+          "p95": 188
+        },
+        "rebuild_pump_us": {
+          "median": 10106.0,
+          "p95": 13076
+        }
+      },
+      {
+        "block": 3,
+        "variant": "candidate",
+        "rows": 1000,
+        "eager": [
+          0
+        ],
+        "mounted_initial": [
+          0
+        ],
+        "max_scroll_mounted": 4,
+        "samples": 20,
+        "build_us": {
+          "median": 366.0,
+          "p95": 386
+        },
+        "pump_us": {
+          "median": 28190.5,
+          "p95": 29728
+        },
+        "scroll_us": {
+          "median": 73316.0,
+          "p95": 79628
+        },
+        "rebuild_build_us": {
+          "median": 372.0,
+          "p95": 409
+        },
+        "rebuild_pump_us": {
+          "median": 10006.0,
+          "p95": 12528
+        }
+      },
+      {
+        "block": 3,
+        "variant": "candidate",
+        "rows": 5000,
+        "eager": [
+          0
+        ],
+        "mounted_initial": [
+          0
+        ],
+        "max_scroll_mounted": 4,
+        "samples": 20,
+        "build_us": {
+          "median": 1414.0,
+          "p95": 1631
+        },
+        "pump_us": {
+          "median": 28923.5,
+          "p95": 30846
+        },
+        "scroll_us": {
+          "median": 70118.0,
+          "p95": 78840
+        },
+        "rebuild_build_us": {
+          "median": 1458.5,
+          "p95": 1611
+        },
+        "rebuild_pump_us": {
+          "median": 10016.5,
+          "p95": 12843
+        }
+      }
+    ],
+    "criteria_checks": [
+      {
+        "block": 1,
+        "rows": 0,
+        "build_median_before_after": [
+          64.0,
+          62.5
+        ],
+        "pump_us_p95_ratio": 0.9929606553991257,
+        "pump_us_pass": true,
+        "scroll_us_p95_ratio": 0.990122680088078,
+        "scroll_us_pass": true
+      },
+      {
+        "block": 1,
+        "rows": 50,
+        "build_median_before_after": [
+          96.0,
+          86.0
+        ],
+        "pump_us_p95_ratio": 1.0034579414769602,
+        "pump_us_pass": true,
+        "scroll_us_p95_ratio": 1.0235350972574604,
+        "scroll_us_pass": true
+      },
+      {
+        "block": 1,
+        "rows": 500,
+        "build_median_before_after": [
+          173.0,
+          183.5
+        ]
+      },
+      {
+        "block": 1,
+        "rows": 1000,
+        "build_median_before_after": [
+          380.0,
+          399.5
+        ],
+        "large_build_pass": false
+      },
+      {
+        "block": 1,
+        "rows": 5000,
+        "build_median_before_after": [
+          1520.5,
+          1735.0
+        ],
+        "large_build_pass": false
+      },
+      {
+        "block": 2,
+        "rows": 0,
+        "build_median_before_after": [
+          67.5,
+          65.0
+        ],
+        "pump_us_p95_ratio": 0.9782445360893594,
+        "pump_us_pass": true,
+        "scroll_us_p95_ratio": 0.9594471722131297,
+        "scroll_us_pass": true
+      },
+      {
+        "block": 2,
+        "rows": 50,
+        "build_median_before_after": [
+          96.5,
+          85.0
+        ],
+        "pump_us_p95_ratio": 0.9722013523666416,
+        "pump_us_pass": true,
+        "scroll_us_p95_ratio": 0.9800463210404419,
+        "scroll_us_pass": true
+      },
+      {
+        "block": 2,
+        "rows": 500,
+        "build_median_before_after": [
+          176.5,
+          164.0
+        ]
+      },
+      {
+        "block": 2,
+        "rows": 1000,
+        "build_median_before_after": [
+          385.5,
+          357.0
+        ],
+        "large_build_pass": true
+      },
+      {
+        "block": 2,
+        "rows": 5000,
+        "build_median_before_after": [
+          1665.5,
+          1453.0
+        ],
+        "large_build_pass": true
+      },
+      {
+        "block": 3,
+        "rows": 0,
+        "build_median_before_after": [
+          70.0,
+          64.5
+        ],
+        "pump_us_p95_ratio": 0.972168969392477,
+        "pump_us_pass": true,
+        "scroll_us_p95_ratio": 0.9973425622643841,
+        "scroll_us_pass": true
+      },
+      {
+        "block": 3,
+        "rows": 50,
+        "build_median_before_after": [
+          92.0,
+          89.0
+        ],
+        "pump_us_p95_ratio": 0.9508364710928936,
+        "pump_us_pass": true,
+        "scroll_us_p95_ratio": 1.0667245930127711,
+        "scroll_us_pass": true
+      },
+      {
+        "block": 3,
+        "rows": 500,
+        "build_median_before_after": [
+          183.0,
+          159.0
+        ]
+      },
+      {
+        "block": 3,
+        "rows": 1000,
+        "build_median_before_after": [
+          326.5,
+          366.0
+        ],
+        "large_build_pass": false
+      },
+      {
+        "block": 3,
+        "rows": 5000,
+        "build_median_before_after": [
+          1553.0,
+          1414.0
+        ],
+        "large_build_pass": true
+      }
+    ],
+    "functional": {
+      "functional-initial": {
+        "passed": 11,
+        "failed": 2,
+        "names": [
+          "P1-01 empty state and server values",
+          "P1-01 equal dates, first/last, scroll away and reopen",
+          "P1-01 long Korean and emoji do not overflow",
+          "P1-01 category and discount target stable after reordering",
+          "P1-01 discount apply, net edit and delete target",
+          "P1-01 pull refresh",
+          "P1-01 draft, focus, single-flight and newer draft survive",
+          "P1-01 offline controls disabled and values estimated",
+          "expense input omits net amount override and keeps discount choice",
+          "existing expense card still edits the net amount",
+          "expense keyboard and button re-entry produces one submit",
+          "utility expense checkbox defaults off and explicit apply wins",
+          "expense failure and stale completion preserve the current draft"
+        ]
+      },
+      "functional-candidate": {
+        "passed": 13,
+        "failed": 0,
+        "names": [
+          "P1-01 empty state and server values",
+          "P1-01 equal dates, first/last, scroll away and reopen",
+          "P1-01 long Korean and emoji do not overflow",
+          "P1-01 category and discount target stable after reordering",
+          "P1-01 discount apply, net edit and delete target",
+          "P1-01 pull refresh",
+          "P1-01 draft, focus, single-flight and newer draft survive",
+          "P1-01 offline controls disabled and values estimated",
+          "expense input omits net amount override and keeps discount choice",
+          "existing expense card still edits the net amount",
+          "expense keyboard and button re-entry produces one submit",
+          "utility expense checkbox defaults off and explicit apply wins",
+          "expense failure and stale completion preserve the current draft"
+        ]
+      },
+      "functional-final-baseline": {
+        "passed": 42,
+        "failed": 0,
+        "names": [
+          "P1-01 empty state and server values",
+          "P1-01 equal dates, first/last, scroll away and reopen",
+          "P1-01 long Korean and emoji do not overflow",
+          "P1-01 category and discount target stable after reordering",
+          "P1-01 discount apply, net edit and delete target",
+          "P1-01 pull refresh",
+          "P1-01 draft, focus, single-flight and newer draft survive",
+          "P1-01 offline controls disabled and values estimated",
+          "expense input omits net amount override and keeps discount choice",
+          "existing expense card still edits the net amount",
+          "expense keyboard and button re-entry produces one submit",
+          "utility expense checkbox defaults off and explicit apply wins",
+          "expense failure and stale completion preserve the current draft",
+          "B03 current exact source and preserved historical revision: mobile/lib/src/segmented/c1.dart",
+          "B03 current exact source and preserved historical revision: mobile/lib/src/app_state.dart",
+          "B03 current exact source and preserved historical revision: mobile/lib/src/authoritative_bundle_validation.dart",
+          "B03 current exact source and preserved historical revision: mobile/lib/src/segmented/store.dart",
+          "B03 current exact source and preserved historical revision: mobile/lib/src/offline/offline_store.dart",
+          "B03 current exact source and preserved historical revision: mobile/lib/src/diagnostics/logical_cost.dart",
+          "audited P0 source remains byte-identical: mobile/lib/src/api_client.dart",
+          "audited P0 source remains byte-identical: mobile/lib/src/authoritative_bundle.dart",
+          "audited P0 source remains byte-identical: mobile/lib/src/models.dart",
+          "audited P0 source remains byte-identical: mobile/lib/src/money.dart",
+          "audited P0 source remains byte-identical: mobile/lib/src/offline/offline_data.dart",
+          "audited P0 source remains byte-identical: mobile/lib/src/offline/offline_store.dart",
+          "audited P0 source remains byte-identical: mobile/lib/src/segmented/object.dart",
+          "original five historical diagnostic files remain byte-identical",
+          "default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/main.dart",
+          "default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/src/offline/offline_projection.dart",
+          "default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/src/offline/offline_lineage_validator.dart",
+          "default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/src/offline/online_write_state.dart",
+          "default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/src/coherent_refresh_coordinator.dart",
+          "default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/src/local_snapshot_repository.dart",
+          "default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/src/segmented/c1.dart",
+          "default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/src/segmented/transport.dart",
+          "default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/src/segmented/verification.dart",
+          "default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/src/segmented/graph.dart",
+          "default/legacy/E1/E2/E3 protected source unchanged: backend/app/db.py",
+          "default/legacy/E1/E2/E3 protected source unchanged: backend/app/db_migrations.py",
+          "B02/A01/A02 reviewed E2 extension preserves the exact default algorithm",
+          "E3 publisher extension is only pre-BEGIN read-scope rejection, guard/COMMIT unchanged",
+          "AppState E4 entry has no automatic callers or legacy publication/acknowledgment"
+        ]
+      }
+    },
+    "validation": {
+      "candidate_functional": "13/13 PASS",
+      "final_functional": "13/13 PASS",
+      "source_guards": "29/29 PASS",
+      "targeted_analyze_exit": 0,
+      "npm_build_exit": 0,
+      "backend_smoke": "3/3 PASS"
+    },
+    "harness_notes": [
+      "계측은 Stopwatch 실제 wall clock. 가상 frame 시간을 결과로 사용하지 않음",
+      "최초 smoke package_graph 누락을 임시 사본에서 보완; 실제 baseline 완료 뒤에만 화면 수정",
+      "최초 기능 검사 2건은 모호한 Scrollable과 미확립 focus의 준비 오류. 준비 수정 뒤 같은 후보 통과",
+      "재정렬의 element retention 추가 조건은 P101_VARIANT=candidate에서 검사. 복구된 baseline에서는 기존 동작과 mutation targeting을 검사",
+      "기능 검사 보완은 benchmark 함수·조건·수용 기준을 변경하지 않음"
+    ],
+    "candidate_patch": "--- baseline/month_entries_screen.dart\n+++ candidate/month_entries_screen.dart\n@@ -15,33 +15,45 @@\n   @override\n   Widget build(BuildContext context) {\n     final rows = state.expenseEntries;\n-    return ListView(\n+    final header = <Widget>[\n+      Text('${state.currentMonth.replaceFirst('-', '년 ')}월 내역',\n+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),\n+      const SizedBox(height: 14),\n+      AmountTile(\n+          label: state.financialValuesAreEstimated ? '월 지출(예상)' : '월 지출',\n+          amount: won(state.summary?.currentSpendingTotal)),\n+      const SectionTitle('카드 지출 입력'),\n+      ExpenseInputCard(state: state),\n+      SectionTitle('전체 지출',\n+          trailing: Text('${rows.length}건',\n+              style: const TextStyle(color: moneyMuted))),\n+      if (rows.isEmpty) const MoneyCard(child: Text('이번 달 지출 내역이 없습니다.')),\n+    ];\n+    return ListView.builder(\n       physics: const AlwaysScrollableScrollPhysics(),\n       padding: const EdgeInsets.fromLTRB(20, 54, 20, 96),\n-      children: [\n-        Text('${state.currentMonth.replaceFirst('-', '년 ')}월 내역',\n-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),\n-        const SizedBox(height: 14),\n-        AmountTile(\n-            label: state.financialValuesAreEstimated ? '월 지출(예상)' : '월 지출',\n-            amount: won(state.summary?.currentSpendingTotal)),\n-        const SectionTitle('카드 지출 입력'),\n-        ExpenseInputCard(state: state),\n-        SectionTitle('전체 지출',\n-            trailing: Text('${rows.length}건',\n-                style: const TextStyle(color: moneyMuted))),\n-        if (rows.isEmpty) const MoneyCard(child: Text('이번 달 지출 내역이 없습니다.')),\n-        ...rows.map((entry) => _MonthEntryCard(\n-              entry: entry,\n-              state: state,\n-            )),\n-      ],\n+      itemCount: header.length + rows.length,\n+      findChildIndexCallback: (key) {\n+        if (key is! ValueKey<int>) return null;\n+        final index = rows.indexWhere((entry) => entry.id == key.value);\n+        return index < 0 ? null : header.length + index;\n+      },\n+      itemBuilder: (context, index) {\n+        if (index < header.length) return header[index];\n+        final entry = rows[index - header.length];\n+        return _MonthEntryCard(\n+          key: ValueKey<int>(entry.id),\n+          entry: entry,\n+          state: state,\n+        );\n+      },\n     );\n   }\n }\n \n class _MonthEntryCard extends StatelessWidget {\n   const _MonthEntryCard({\n+    super.key,\n     required this.entry,\n     required this.state,\n   });\n",
+    "preservation": {
+      "head": "ebcbd54d90eeee194a04b9eea6367f446ee2fd28",
+      "index_sha256": "33779f92417c7e6f7ab927847236336e5ce84e89260a66777e44295b782c943b",
+      "staged_entries_identical": true,
+      "preexisting_files_checked": 7929,
+      "authorized_preexisting_changes": [
+        "docs/benchmarks/final-optimization-and-closure-evidence.json",
+        "docs/money-note-final-optimization-and-closure-roadmap.md"
+      ],
+      "other_preexisting_content_or_mode_changes": 0,
+      "original_evidence_fields_reconstructed_sha256": "f3cb75045d9bb7e17b53058066095b7f83791280c3b2db3ea71b0a24cc4084e3",
+      "new_files": [
+        "docs/benchmarks/p1-01-monthly-expense-lazy-widget-raw.json.gz",
+        "docs/p1-01-monthly-expense-lazy-widget-results.md",
+        "mobile/test/p1_01_month_entries_test.dart"
+      ],
+      "target_before_image_restored_exactly": true
+    },
+    "cleanup": {
+      "scratch": "/tmp/money-note-p101-6m7ltn9w",
+      "state": "COMPLETE",
+      "removed_files_and_symlinks": 545,
+      "logical_bytes": 206723931,
+      "observed_allocated_bytes": 207974400,
+      "preexisting_artifacts_removed": 0,
+      "raw_samples_and_candidate_source_retained": "docs/benchmarks/p1-01-monthly-expense-lazy-widget-raw.json.gz",
+      "all_task_processes_exited": true
+    }
+  },
+  "record_context": "기존 top-level scope/selected_slice/historical_checks/validation은 최초 계획 세션의 불변 기록이다. 이번 실험은 p1_01에 추가했다.",
+  "p1_02": {
+    "verdict": "DEFERRED — PROTECTED OR HIGH-RISK PATH",
+    "decision_gate": "C",
+    "measurement_completed": "PARTIAL — 정의된 host 구성은 완료; 겹친 빠른 탭 요청과 실제 OS 복귀는 미측정",
+    "production_code_modified": false,
+    "optimization": "DEFERRED",
+    "implementation_candidates": 0,
+    "remaining_phase1_candidate_budget": 1,
+    "head": "ebcbd54d90eeee194a04b9eea6367f446ee2fd28",
+    "sources_sha256": {
+      "mobile/lib/src/app.dart": "5874a68ccc37ca4a12d3d267a84a5e6283864eb6a71f6899e6d64e5ed367b87e",
+      "mobile/lib/src/app_state.dart": "c46a87a8b68507214a85966c3cc2c4f46df0d040de75b74e18c7954dea9d14bc",
+      "mobile/lib/src/screens/home_shell.dart": "e2e4b53496b9950f27666377c6fae7543021cbf770ad412f31d6196b8aa4b5d4",
+      "mobile/lib/src/screens/input_screen.dart": "0c7830d69dd1a439891b9174bdf287bbc88dbe3fe91626b2cee2b03e5dfeb17a",
+      "mobile/lib/src/screens/month_entries_screen.dart": "f876b19c0872f533e226ab366ff45a8ce61fb0af568672aad9bdcd130cac5e81",
+      "mobile/test/support/offline_mode_fixtures.dart": "6eb421fb66780588530beddb0237890932205ed85dbf27772a0b8330bca408fa",
+      "mobile/test/support/bundle_fake_response.dart": "3ac83637b5d880ca5f191ae1c4e1c56211e16a1925669b3682e4f9a48d92383f",
+      "mobile/pubspec.lock": "669da919f8110efd863187877d1990ead6d92dea6199ea77e3199edfce740988"
+    },
+    "measurement_harness_sha256": "4b742dabfddba05116a988797558c364e5a7ac3b9b3f7d526631cd76b6eadb9f",
+    "final_test_sha256": "345a350652d747e7a4eca607b41019c12d9b72fe84aac687cead0091dfa7cab4",
+    "plan": {
+      "phase": "P1-02 baseline only before any production edits",
+      "sizes": [
+        50,
+        500,
+        1000,
+        5000
+      ],
+      "scenarios": [
+        "busy_home",
+        "status_home",
+        "busy_entries",
+        "status_entries",
+        "refresh",
+        "mutation",
+        "navigation",
+        "resume"
+      ],
+      "warmup": 5,
+      "samples": 20,
+      "before_after_blocks": "후보를 구현할 때만 3 교대 블록; baseline-only에서는 해당 없음",
+      "timing": "Stopwatch wall µs + FlutterTimeline direct native monotonic timings, inclusive element scopes; no virtual frame latency",
+      "profiling_enabled": true,
+      "decision": "원래 getter에 위임한 계수·귀속 후 A/B/C 중 하나. build 내부 중복 없는 단일 평가를 무조건 병목으로 선언하지 않음. protected getter/상태 publication 변경·cross-generation cache 금지",
+      "harness_sha256": "4b742dabfddba05116a988797558c364e5a7ac3b9b3f7d526631cd76b6eadb9f"
+    },
+    "environment": {
+      "os": [
+        "Linux",
+        "hjkerman",
+        "6.8.0-147-generic",
+        "#147-Ubuntu SMP PREEMPT_DYNAMIC Thu Sep 24 11:33:16 UTC 2026",
+        "x86_64"
+      ],
+      "cpu": "Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz",
+      "flutter": {
+        "frameworkVersion": "3.47.4",
+        "channel": "stable",
+        "repositoryUrl": "https://github.com/flutter/flutter.git",
+        "frameworkRevision": "9584c6713b324636289d067944a46fd6b49df14b",
+        "frameworkCommitDate": "2026-09-10 15:25:10 -0700",
+        "engineRevision": "06a2e2a110089dff50fe635cffd2a61e1b24fbcd",
+        "engineCommitDate": "2026-09-03 16:07:13.000Z",
+        "engineContentHash": "0e228ec8c8d2abc9fcf1d053e8a40665bb859ec7",
+        "engineBuildDate": "2026-09-03 09:39:13.722",
+        "dartSdkVersion": "3.13.3",
+        "devToolsVersion": "2.60.0",
+        "flutterVersion": "3.47.4"
+      },
+      "viewport": [
+        400,
+        800
+      ],
+      "device_pixel_ratio": 1,
+      "mode": "Flutter host test debug JIT; profiling ON; 단일 worker",
+      "clock": "Stopwatch 및 FlutterTimeline의 실제 monotonic wall clock; 독립 on-CPU 시간은 미측정"
+    },
+    "measured_samples": 640,
+    "warmup_iterations": 160,
+    "baseline_wall_s": 823.7778875827789,
+    "raw_samples": {
+      "path": "docs/benchmarks/p1-02-flutter-rebuild-raw.json.gz",
+      "sha256": "66a5b2389f32d862e79da5ee794b22bdd5048dfacd21fb858c52f6d344e79222",
+      "selection": "samples 배열의 rows/scenario/sample; µs 원문"
+    },
+    "summary": [
+      {
+        "rows": 50,
+        "scenario": "busy_home",
+        "counts": {
+          "expense_filter_sort": [
+            1
+          ],
+          "notify": [
+            1
+          ],
+          "current_month": [
+            1
+          ],
+          "element:HomeScreen": [
+            1
+          ],
+          "element:HomeShell": [
+            1
+          ],
+          "root_animated_builder": [
+            1
+          ]
+        },
+        "operation_us": {
+          "median": 15303.0,
+          "p95": 19462
+        },
+        "pump_us": {
+          "median": 14990.5,
+          "p95": 19144
+        },
+        "derived_us": {
+          "median": 40.5,
+          "p95": 58
+        },
+        "timeline": {
+          "HomeShell": {
+            "median": 6565.0,
+            "p95": 8560
+          },
+          "HomeScreen": {
+            "median": 4945.5,
+            "p95": 6790
+          },
+          "MonthEntriesScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "FamilyScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "LAYOUT": {
+            "median": 2.0,
+            "p95": 3
+          },
+          "PAINT": {
+            "median": 2.0,
+            "p95": 2
+          }
+        },
+        "derived_share_of_pump_pct_median": 0.28675123058973295
+      },
+      {
+        "rows": 50,
+        "scenario": "status_home",
+        "counts": {
+          "expense_filter_sort": [
+            1
+          ],
+          "notify": [
+            1
+          ],
+          "current_month": [
+            1
+          ],
+          "element:HomeScreen": [
+            1
+          ],
+          "element:HomeShell": [
+            1
+          ],
+          "root_animated_builder": [
+            1
+          ]
+        },
+        "operation_us": {
+          "median": 11008.5,
+          "p95": 13055
+        },
+        "pump_us": {
+          "median": 10928.5,
+          "p95": 12964
+        },
+        "derived_us": {
+          "median": 30.0,
+          "p95": 36
+        },
+        "timeline": {
+          "HomeShell": {
+            "median": 4628.0,
+            "p95": 5467
+          },
+          "HomeScreen": {
+            "median": 3488.0,
+            "p95": 4146
+          },
+          "MonthEntriesScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "FamilyScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "LAYOUT": {
+            "median": 2.0,
+            "p95": 2
+          },
+          "PAINT": {
+            "median": 2.0,
+            "p95": 2
+          }
+        },
+        "derived_share_of_pump_pct_median": 0.26884011298117316
+      },
+      {
+        "rows": 50,
+        "scenario": "busy_entries",
+        "counts": {
+          "expense_filter_sort": [
+            1
+          ],
+          "notify": [
+            1
+          ],
+          "element:ExpenseInputCard": [
+            1
+          ],
+          "current_month": [
+            1
+          ],
+          "element:MonthEntriesScreen": [
+            1
+          ],
+          "element:HomeShell": [
+            1
+          ],
+          "root_animated_builder": [
+            1
+          ]
+        },
+        "operation_us": {
+          "median": 20847.0,
+          "p95": 23948
+        },
+        "pump_us": {
+          "median": 20581.5,
+          "p95": 23595
+        },
+        "derived_us": {
+          "median": 21.0,
+          "p95": 34
+        },
+        "timeline": {
+          "HomeShell": {
+            "median": 11153.0,
+            "p95": 12476
+          },
+          "HomeScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "MonthEntriesScreen": {
+            "median": 10003.0,
+            "p95": 11149
+          },
+          "FamilyScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "LAYOUT": {
+            "median": 1288.5,
+            "p95": 1615
+          },
+          "PAINT": {
+            "median": 846.5,
+            "p95": 1212
+          }
+        },
+        "derived_share_of_pump_pct_median": 0.10317587072634168
+      },
+      {
+        "rows": 50,
+        "scenario": "status_entries",
+        "counts": {
+          "expense_filter_sort": [
+            1
+          ],
+          "notify": [
+            1
+          ],
+          "element:ExpenseInputCard": [
+            1
+          ],
+          "current_month": [
+            1
+          ],
+          "element:MonthEntriesScreen": [
+            1
+          ],
+          "element:HomeShell": [
+            1
+          ],
+          "root_animated_builder": [
+            1
+          ]
+        },
+        "operation_us": {
+          "median": 16344.0,
+          "p95": 19253
+        },
+        "pump_us": {
+          "median": 16294.5,
+          "p95": 19199
+        },
+        "derived_us": {
+          "median": 20.0,
+          "p95": 38
+        },
+        "timeline": {
+          "HomeShell": {
+            "median": 8775.0,
+            "p95": 10929
+          },
+          "HomeScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "MonthEntriesScreen": {
+            "median": 7697.5,
+            "p95": 9867
+          },
+          "FamilyScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "LAYOUT": {
+            "median": 954.5,
+            "p95": 1245
+          },
+          "PAINT": {
+            "median": 654.0,
+            "p95": 791
+          }
+        },
+        "derived_share_of_pump_pct_median": 0.11914494139817836
+      },
+      {
+        "rows": 50,
+        "scenario": "refresh",
+        "counts": {
+          "expense_filter_sort": [
+            1
+          ],
+          "notify": [
+            1
+          ],
+          "current_month": [
+            1
+          ],
+          "element:HomeScreen": [
+            1
+          ],
+          "element:HomeShell": [
+            1
+          ],
+          "root_animated_builder": [
+            1
+          ]
+        },
+        "operation_us": {
+          "median": 37324.5,
+          "p95": 40337
+        },
+        "pump_us": {
+          "median": 9558.5,
+          "p95": 11335
+        },
+        "derived_us": {
+          "median": 22.0,
+          "p95": 25
+        },
+        "timeline": {
+          "HomeShell": {
+            "median": 3753.0,
+            "p95": 3965
+          },
+          "HomeScreen": {
+            "median": 2724.0,
+            "p95": 2841
+          },
+          "MonthEntriesScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "FamilyScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "LAYOUT": {
+            "median": 378.5,
+            "p95": 469
+          },
+          "PAINT": {
+            "median": 197.5,
+            "p95": 238
+          }
+        },
+        "derived_share_of_pump_pct_median": 0.2220659394849581
+      },
+      {
+        "rows": 50,
+        "scenario": "mutation",
+        "counts": {
+          "expense_filter_sort": [
+            2
+          ],
+          "notify": [
+            2
+          ],
+          "current_month": [
+            2
+          ],
+          "element:HomeScreen": [
+            2
+          ],
+          "element:HomeShell": [
+            2
+          ],
+          "root_animated_builder": [
+            2
+          ]
+        },
+        "operation_us": {
+          "median": 54402.0,
+          "p95": 66197
+        },
+        "pump_us": {
+          "median": 18299.0,
+          "p95": 21042
+        },
+        "derived_us": {
+          "median": 48.5,
+          "p95": 58
+        },
+        "timeline": {
+          "HomeShell": {
+            "median": 7153.5,
+            "p95": 8470
+          },
+          "HomeScreen": {
+            "median": 5193.5,
+            "p95": 5696
+          },
+          "MonthEntriesScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "FamilyScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "LAYOUT": {
+            "median": 387.0,
+            "p95": 456
+          },
+          "PAINT": {
+            "median": 200.0,
+            "p95": 248
+          }
+        },
+        "derived_share_of_pump_pct_median": 0.26450114751050313
+      },
+      {
+        "rows": 50,
+        "scenario": "navigation",
+        "counts": {
+          "expense_filter_sort": [
+            6
+          ],
+          "notify": [
+            3
+          ],
+          "element:FamilyScreen": [
+            3
+          ],
+          "element:ExpenseInputCard": [
+            3
+          ],
+          "current_month": [
+            6
+          ],
+          "element:MonthEntriesScreen": [
+            3
+          ],
+          "element:HomeShell": [
+            6
+          ],
+          "root_animated_builder": [
+            3
+          ],
+          "panel_filter_sort": [
+            3
+          ],
+          "element:HomeScreen": [
+            3
+          ]
+        },
+        "operation_us": {
+          "median": 199080.0,
+          "p95": 214858
+        },
+        "pump_us": {
+          "median": 118714.5,
+          "p95": 134869
+        },
+        "derived_us": {
+          "median": 147.5,
+          "p95": 163
+        },
+        "timeline": {
+          "HomeShell": {
+            "median": 36846.0,
+            "p95": 41662
+          },
+          "HomeScreen": {
+            "median": 5524.0,
+            "p95": 7550
+          },
+          "MonthEntriesScreen": {
+            "median": 14421.5,
+            "p95": 17671
+          },
+          "FamilyScreen": {
+            "median": 10366.5,
+            "p95": 13941
+          },
+          "LAYOUT": {
+            "median": 45828.5,
+            "p95": 56503
+          },
+          "PAINT": {
+            "median": 3964.0,
+            "p95": 6101
+          }
+        },
+        "derived_share_of_pump_pct_median": 0.12176217349042748
+      },
+      {
+        "rows": 50,
+        "scenario": "resume",
+        "counts": {
+          "expense_filter_sort": [
+            1
+          ],
+          "notify": [
+            1
+          ],
+          "current_month": [
+            1
+          ],
+          "element:HomeScreen": [
+            1
+          ],
+          "element:HomeShell": [
+            1
+          ],
+          "root_animated_builder": [
+            1
+          ]
+        },
+        "operation_us": {
+          "median": 61490.5,
+          "p95": 66362
+        },
+        "pump_us": {
+          "median": 18010.0,
+          "p95": 22061
+        },
+        "derived_us": {
+          "median": 29.0,
+          "p95": 36
+        },
+        "timeline": {
+          "HomeShell": {
+            "median": 4806.0,
+            "p95": 13672
+          },
+          "HomeScreen": {
+            "median": 3633.0,
+            "p95": 12222
+          },
+          "MonthEntriesScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "FamilyScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "LAYOUT": {
+            "median": 459.5,
+            "p95": 660
+          },
+          "PAINT": {
+            "median": 225.0,
+            "p95": 349
+          }
+        },
+        "derived_share_of_pump_pct_median": 0.18166890718127707
+      },
+      {
+        "rows": 500,
+        "scenario": "busy_home",
+        "counts": {
+          "expense_filter_sort": [
+            1
+          ],
+          "notify": [
+            1
+          ],
+          "current_month": [
+            1
+          ],
+          "element:HomeScreen": [
+            1
+          ],
+          "element:HomeShell": [
+            1
+          ],
+          "root_animated_builder": [
+            1
+          ]
+        },
+        "operation_us": {
+          "median": 7907.5,
+          "p95": 10429
+        },
+        "pump_us": {
+          "median": 7724.5,
+          "p95": 10226
+        },
+        "derived_us": {
+          "median": 223.0,
+          "p95": 260
+        },
+        "timeline": {
+          "HomeShell": {
+            "median": 3301.5,
+            "p95": 4374
+          },
+          "HomeScreen": {
+            "median": 2441.0,
+            "p95": 2804
+          },
+          "MonthEntriesScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "FamilyScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "LAYOUT": {
+            "median": 2.0,
+            "p95": 3
+          },
+          "PAINT": {
+            "median": 0.0,
+            "p95": 1
+          }
+        },
+        "derived_share_of_pump_pct_median": 2.8779841355033833
+      },
+      {
+        "rows": 500,
+        "scenario": "status_home",
+        "counts": {
+          "expense_filter_sort": [
+            1
+          ],
+          "notify": [
+            1
+          ],
+          "current_month": [
+            1
+          ],
+          "element:HomeScreen": [
+            1
+          ],
+          "element:HomeShell": [
+            1
+          ],
+          "root_animated_builder": [
+            1
+          ]
+        },
+        "operation_us": {
+          "median": 7744.0,
+          "p95": 9849
+        },
+        "pump_us": {
+          "median": 7692.5,
+          "p95": 9793
+        },
+        "derived_us": {
+          "median": 215.5,
+          "p95": 236
+        },
+        "timeline": {
+          "HomeShell": {
+            "median": 3199.5,
+            "p95": 3488
+          },
+          "HomeScreen": {
+            "median": 2389.5,
+            "p95": 2588
+          },
+          "MonthEntriesScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "FamilyScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "LAYOUT": {
+            "median": 2.0,
+            "p95": 15
+          },
+          "PAINT": {
+            "median": 1.0,
+            "p95": 1
+          }
+        },
+        "derived_share_of_pump_pct_median": 2.7947524539417805
+      },
+      {
+        "rows": 500,
+        "scenario": "busy_entries",
+        "counts": {
+          "expense_filter_sort": [
+            1
+          ],
+          "notify": [
+            1
+          ],
+          "element:ExpenseInputCard": [
+            1
+          ],
+          "current_month": [
+            1
+          ],
+          "element:MonthEntriesScreen": [
+            1
+          ],
+          "element:HomeShell": [
+            1
+          ],
+          "root_animated_builder": [
+            1
+          ]
+        },
+        "operation_us": {
+          "median": 17443.5,
+          "p95": 20713
+        },
+        "pump_us": {
+          "median": 17233.0,
+          "p95": 20512
+        },
+        "derived_us": {
+          "median": 186.5,
+          "p95": 203
+        },
+        "timeline": {
+          "HomeShell": {
+            "median": 9406.0,
+            "p95": 12873
+          },
+          "HomeScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "MonthEntriesScreen": {
+            "median": 8360.0,
+            "p95": 11909
+          },
+          "FamilyScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "LAYOUT": {
+            "median": 830.0,
+            "p95": 1025
+          },
+          "PAINT": {
+            "median": 596.5,
+            "p95": 730
+          }
+        },
+        "derived_share_of_pump_pct_median": 1.1081113535305906
+      },
+      {
+        "rows": 500,
+        "scenario": "status_entries",
+        "counts": {
+          "expense_filter_sort": [
+            1
+          ],
+          "notify": [
+            1
+          ],
+          "element:ExpenseInputCard": [
+            1
+          ],
+          "current_month": [
+            1
+          ],
+          "element:MonthEntriesScreen": [
+            1
+          ],
+          "element:HomeShell": [
+            1
+          ],
+          "root_animated_builder": [
+            1
+          ]
+        },
+        "operation_us": {
+          "median": 13803.0,
+          "p95": 17738
+        },
+        "pump_us": {
+          "median": 13758.5,
+          "p95": 17694
+        },
+        "derived_us": {
+          "median": 176.5,
+          "p95": 205
+        },
+        "timeline": {
+          "HomeShell": {
+            "median": 7480.0,
+            "p95": 11041
+          },
+          "HomeScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "MonthEntriesScreen": {
+            "median": 6573.0,
+            "p95": 10133
+          },
+          "FamilyScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "LAYOUT": {
+            "median": 734.5,
+            "p95": 801
+          },
+          "PAINT": {
+            "median": 579.5,
+            "p95": 656
+          }
+        },
+        "derived_share_of_pump_pct_median": 1.2304708365333417
+      },
+      {
+        "rows": 500,
+        "scenario": "refresh",
+        "counts": {
+          "expense_filter_sort": [
+            1
+          ],
+          "notify": [
+            1
+          ],
+          "current_month": [
+            1
+          ],
+          "element:HomeScreen": [
+            1
+          ],
+          "element:HomeShell": [
+            1
+          ],
+          "root_animated_builder": [
+            1
+          ]
+        },
+        "operation_us": {
+          "median": 210586.5,
+          "p95": 213800
+        },
+        "pump_us": {
+          "median": 10083.0,
+          "p95": 11068
+        },
+        "derived_us": {
+          "median": 195.5,
+          "p95": 244
+        },
+        "timeline": {
+          "HomeShell": {
+            "median": 3918.0,
+            "p95": 4134
+          },
+          "HomeScreen": {
+            "median": 2952.5,
+            "p95": 3155
+          },
+          "MonthEntriesScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "FamilyScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "LAYOUT": {
+            "median": 307.5,
+            "p95": 348
+          },
+          "PAINT": {
+            "median": 196.0,
+            "p95": 225
+          }
+        },
+        "derived_share_of_pump_pct_median": 1.9575251487242846
+      },
+      {
+        "rows": 500,
+        "scenario": "mutation",
+        "counts": {
+          "expense_filter_sort": [
+            2
+          ],
+          "notify": [
+            2
+          ],
+          "current_month": [
+            2
+          ],
+          "element:HomeScreen": [
+            2
+          ],
+          "element:HomeShell": [
+            2
+          ],
+          "root_animated_builder": [
+            2
+          ]
+        },
+        "operation_us": {
+          "median": 228719.0,
+          "p95": 232172
+        },
+        "pump_us": {
+          "median": 17552.5,
+          "p95": 20429
+        },
+        "derived_us": {
+          "median": 426.0,
+          "p95": 482
+        },
+        "timeline": {
+          "HomeShell": {
+            "median": 7082.0,
+            "p95": 9673
+          },
+          "HomeScreen": {
+            "median": 5279.0,
+            "p95": 7869
+          },
+          "MonthEntriesScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "FamilyScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "LAYOUT": {
+            "median": 348.5,
+            "p95": 397
+          },
+          "PAINT": {
+            "median": 195.0,
+            "p95": 247
+          }
+        },
+        "derived_share_of_pump_pct_median": 2.386215752696058
+      },
+      {
+        "rows": 500,
+        "scenario": "navigation",
+        "counts": {
+          "expense_filter_sort": [
+            6
+          ],
+          "notify": [
+            3
+          ],
+          "element:FamilyScreen": [
+            3
+          ],
+          "element:ExpenseInputCard": [
+            3
+          ],
+          "current_month": [
+            6
+          ],
+          "element:MonthEntriesScreen": [
+            3
+          ],
+          "element:HomeShell": [
+            6
+          ],
+          "root_animated_builder": [
+            3
+          ],
+          "panel_filter_sort": [
+            3
+          ],
+          "element:HomeScreen": [
+            3
+          ]
+        },
+        "operation_us": {
+          "median": 676832.5,
+          "p95": 695639
+        },
+        "pump_us": {
+          "median": 103503.5,
+          "p95": 107461
+        },
+        "derived_us": {
+          "median": 1149.5,
+          "p95": 1215
+        },
+        "timeline": {
+          "HomeShell": {
+            "median": 33882.0,
+            "p95": 36640
+          },
+          "HomeScreen": {
+            "median": 5320.0,
+            "p95": 5627
+          },
+          "MonthEntriesScreen": {
+            "median": 13467.0,
+            "p95": 14235
+          },
+          "FamilyScreen": {
+            "median": 11369.0,
+            "p95": 13051
+          },
+          "LAYOUT": {
+            "median": 37660.5,
+            "p95": 41018
+          },
+          "PAINT": {
+            "median": 3317.0,
+            "p95": 3441
+          }
+        },
+        "derived_share_of_pump_pct_median": 1.1004201150826873
+      },
+      {
+        "rows": 500,
+        "scenario": "resume",
+        "counts": {
+          "expense_filter_sort": [
+            1
+          ],
+          "notify": [
+            1
+          ],
+          "current_month": [
+            1
+          ],
+          "element:HomeScreen": [
+            1
+          ],
+          "element:HomeShell": [
+            1
+          ],
+          "root_animated_builder": [
+            1
+          ]
+        },
+        "operation_us": {
+          "median": 250487.0,
+          "p95": 257803
+        },
+        "pump_us": {
+          "median": 8650.0,
+          "p95": 9917
+        },
+        "derived_us": {
+          "median": 184.0,
+          "p95": 204
+        },
+        "timeline": {
+          "HomeShell": {
+            "median": 3402.5,
+            "p95": 4226
+          },
+          "HomeScreen": {
+            "median": 2502.0,
+            "p95": 2803
+          },
+          "MonthEntriesScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "FamilyScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "LAYOUT": {
+            "median": 291.0,
+            "p95": 355
+          },
+          "PAINT": {
+            "median": 154.5,
+            "p95": 192
+          }
+        },
+        "derived_share_of_pump_pct_median": 2.1113384209646497
+      },
+      {
+        "rows": 1000,
+        "scenario": "busy_home",
+        "counts": {
+          "expense_filter_sort": [
+            1
+          ],
+          "notify": [
+            1
+          ],
+          "current_month": [
+            1
+          ],
+          "element:HomeScreen": [
+            1
+          ],
+          "element:HomeShell": [
+            1
+          ],
+          "root_animated_builder": [
+            1
+          ]
+        },
+        "operation_us": {
+          "median": 7668.0,
+          "p95": 9485
+        },
+        "pump_us": {
+          "median": 7447.0,
+          "p95": 9305
+        },
+        "derived_us": {
+          "median": 415.0,
+          "p95": 488
+        },
+        "timeline": {
+          "HomeShell": {
+            "median": 3244.0,
+            "p95": 4932
+          },
+          "HomeScreen": {
+            "median": 2485.0,
+            "p95": 2625
+          },
+          "MonthEntriesScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "FamilyScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "LAYOUT": {
+            "median": 1.0,
+            "p95": 1
+          },
+          "PAINT": {
+            "median": 1.0,
+            "p95": 1
+          }
+        },
+        "derived_share_of_pump_pct_median": 5.62682838466297
+      },
+      {
+        "rows": 1000,
+        "scenario": "status_home",
+        "counts": {
+          "expense_filter_sort": [
+            1
+          ],
+          "notify": [
+            1
+          ],
+          "current_month": [
+            1
+          ],
+          "element:HomeScreen": [
+            1
+          ],
+          "element:HomeShell": [
+            1
+          ],
+          "root_animated_builder": [
+            1
+          ]
+        },
+        "operation_us": {
+          "median": 7085.0,
+          "p95": 9618
+        },
+        "pump_us": {
+          "median": 7032.5,
+          "p95": 8864
+        },
+        "derived_us": {
+          "median": 420.5,
+          "p95": 460
+        },
+        "timeline": {
+          "HomeShell": {
+            "median": 3138.5,
+            "p95": 3356
+          },
+          "HomeScreen": {
+            "median": 2403.5,
+            "p95": 2600
+          },
+          "MonthEntriesScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "FamilyScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "LAYOUT": {
+            "median": 1.0,
+            "p95": 1
+          },
+          "PAINT": {
+            "median": 1.0,
+            "p95": 1
+          }
+        },
+        "derived_share_of_pump_pct_median": 5.878549368369951
+      },
+      {
+        "rows": 1000,
+        "scenario": "busy_entries",
+        "counts": {
+          "expense_filter_sort": [
+            1
+          ],
+          "notify": [
+            1
+          ],
+          "element:ExpenseInputCard": [
+            1
+          ],
+          "current_month": [
+            1
+          ],
+          "element:MonthEntriesScreen": [
+            1
+          ],
+          "element:HomeShell": [
+            1
+          ],
+          "root_animated_builder": [
+            1
+          ]
+        },
+        "operation_us": {
+          "median": 15597.0,
+          "p95": 16498
+        },
+        "pump_us": {
+          "median": 15403.0,
+          "p95": 16255
+        },
+        "derived_us": {
+          "median": 384.5,
+          "p95": 524
+        },
+        "timeline": {
+          "HomeShell": {
+            "median": 7856.5,
+            "p95": 10088
+          },
+          "HomeScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "MonthEntriesScreen": {
+            "median": 7055.0,
+            "p95": 9205
+          },
+          "FamilyScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "LAYOUT": {
+            "median": 695.5,
+            "p95": 833
+          },
+          "PAINT": {
+            "median": 499.0,
+            "p95": 578
+          }
+        },
+        "derived_share_of_pump_pct_median": 2.77350037026524
+      },
+      {
+        "rows": 1000,
+        "scenario": "status_entries",
+        "counts": {
+          "expense_filter_sort": [
+            1
+          ],
+          "notify": [
+            1
+          ],
+          "element:ExpenseInputCard": [
+            1
+          ],
+          "current_month": [
+            1
+          ],
+          "element:MonthEntriesScreen": [
+            1
+          ],
+          "element:HomeShell": [
+            1
+          ],
+          "root_animated_builder": [
+            1
+          ]
+        },
+        "operation_us": {
+          "median": 13203.5,
+          "p95": 15459
+        },
+        "pump_us": {
+          "median": 13159.5,
+          "p95": 15415
+        },
+        "derived_us": {
+          "median": 410.0,
+          "p95": 505
+        },
+        "timeline": {
+          "HomeShell": {
+            "median": 7043.5,
+            "p95": 8693
+          },
+          "HomeScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "MonthEntriesScreen": {
+            "median": 6246.0,
+            "p95": 7927
+          },
+          "FamilyScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "LAYOUT": {
+            "median": 680.5,
+            "p95": 811
+          },
+          "PAINT": {
+            "median": 518.0,
+            "p95": 607
+          }
+        },
+        "derived_share_of_pump_pct_median": 3.0720517710772826
+      },
+      {
+        "rows": 1000,
+        "scenario": "refresh",
+        "counts": {
+          "expense_filter_sort": [
+            1
+          ],
+          "notify": [
+            1
+          ],
+          "current_month": [
+            1
+          ],
+          "element:HomeScreen": [
+            1
+          ],
+          "element:HomeShell": [
+            1
+          ],
+          "root_animated_builder": [
+            1
+          ]
+        },
+        "operation_us": {
+          "median": 370691.5,
+          "p95": 400425
+        },
+        "pump_us": {
+          "median": 8358.5,
+          "p95": 10768
+        },
+        "derived_us": {
+          "median": 391.0,
+          "p95": 427
+        },
+        "timeline": {
+          "HomeShell": {
+            "median": 3507.5,
+            "p95": 5016
+          },
+          "HomeScreen": {
+            "median": 2698.5,
+            "p95": 4047
+          },
+          "MonthEntriesScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "FamilyScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "LAYOUT": {
+            "median": 242.0,
+            "p95": 272
+          },
+          "PAINT": {
+            "median": 133.5,
+            "p95": 139
+          }
+        },
+        "derived_share_of_pump_pct_median": 4.541176015157648
+      },
+      {
+        "rows": 1000,
+        "scenario": "mutation",
+        "counts": {
+          "expense_filter_sort": [
+            2
+          ],
+          "notify": [
+            2
+          ],
+          "current_month": [
+            2
+          ],
+          "element:HomeScreen": [
+            2
+          ],
+          "element:HomeShell": [
+            2
+          ],
+          "root_animated_builder": [
+            2
+          ]
+        },
+        "operation_us": {
+          "median": 413646.0,
+          "p95": 425289
+        },
+        "pump_us": {
+          "median": 15812.5,
+          "p95": 17867
+        },
+        "derived_us": {
+          "median": 848.0,
+          "p95": 894
+        },
+        "timeline": {
+          "HomeShell": {
+            "median": 6723.0,
+            "p95": 7253
+          },
+          "HomeScreen": {
+            "median": 5162.5,
+            "p95": 5573
+          },
+          "MonthEntriesScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "FamilyScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "LAYOUT": {
+            "median": 283.5,
+            "p95": 339
+          },
+          "PAINT": {
+            "median": 142.5,
+            "p95": 171
+          }
+        },
+        "derived_share_of_pump_pct_median": 5.266045702035755
+      },
+      {
+        "rows": 1000,
+        "scenario": "navigation",
+        "counts": {
+          "expense_filter_sort": [
+            6
+          ],
+          "notify": [
+            3
+          ],
+          "element:FamilyScreen": [
+            3
+          ],
+          "element:ExpenseInputCard": [
+            3
+          ],
+          "current_month": [
+            6
+          ],
+          "element:MonthEntriesScreen": [
+            3
+          ],
+          "element:HomeShell": [
+            6
+          ],
+          "root_animated_builder": [
+            3
+          ],
+          "panel_filter_sort": [
+            3
+          ],
+          "element:HomeScreen": [
+            3
+          ]
+        },
+        "operation_us": {
+          "median": 1301538.5,
+          "p95": 1309189
+        },
+        "pump_us": {
+          "median": 130886.0,
+          "p95": 136109
+        },
+        "derived_us": {
+          "median": 2768.5,
+          "p95": 7459
+        },
+        "timeline": {
+          "HomeShell": {
+            "median": 45408.5,
+            "p95": 51061
+          },
+          "HomeScreen": {
+            "median": 6765.0,
+            "p95": 11060
+          },
+          "MonthEntriesScreen": {
+            "median": 20197.0,
+            "p95": 26940
+          },
+          "FamilyScreen": {
+            "median": 8646.0,
+            "p95": 10261
+          },
+          "LAYOUT": {
+            "median": 40603.0,
+            "p95": 41265
+          },
+          "PAINT": {
+            "median": 3449.5,
+            "p95": 3770
+          }
+        },
+        "derived_share_of_pump_pct_median": 2.157390802433785
+      },
+      {
+        "rows": 1000,
+        "scenario": "resume",
+        "counts": {
+          "expense_filter_sort": [
+            1
+          ],
+          "notify": [
+            1
+          ],
+          "current_month": [
+            1
+          ],
+          "element:HomeScreen": [
+            1
+          ],
+          "element:HomeShell": [
+            1
+          ],
+          "root_animated_builder": [
+            1
+          ]
+        },
+        "operation_us": {
+          "median": 493226.0,
+          "p95": 499961
+        },
+        "pump_us": {
+          "median": 8722.5,
+          "p95": 9257
+        },
+        "derived_us": {
+          "median": 466.5,
+          "p95": 481
+        },
+        "timeline": {
+          "HomeShell": {
+            "median": 3589.5,
+            "p95": 3670
+          },
+          "HomeScreen": {
+            "median": 2762.5,
+            "p95": 2849
+          },
+          "MonthEntriesScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "FamilyScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "LAYOUT": {
+            "median": 274.5,
+            "p95": 302
+          },
+          "PAINT": {
+            "median": 136.0,
+            "p95": 146
+          }
+        },
+        "derived_share_of_pump_pct_median": 5.273401951770703
+      },
+      {
+        "rows": 5000,
+        "scenario": "busy_home",
+        "counts": {
+          "expense_filter_sort": [
+            1
+          ],
+          "notify": [
+            1
+          ],
+          "current_month": [
+            1
+          ],
+          "element:HomeScreen": [
+            1
+          ],
+          "element:HomeShell": [
+            1
+          ],
+          "root_animated_builder": [
+            1
+          ]
+        },
+        "operation_us": {
+          "median": 9489.5,
+          "p95": 9911
+        },
+        "pump_us": {
+          "median": 9306.0,
+          "p95": 9737
+        },
+        "derived_us": {
+          "median": 2341.5,
+          "p95": 2453
+        },
+        "timeline": {
+          "HomeShell": {
+            "median": 5199.0,
+            "p95": 5503
+          },
+          "HomeScreen": {
+            "median": 4453.0,
+            "p95": 4703
+          },
+          "MonthEntriesScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "FamilyScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "LAYOUT": {
+            "median": 1.0,
+            "p95": 1
+          },
+          "PAINT": {
+            "median": 1.0,
+            "p95": 1
+          }
+        },
+        "derived_share_of_pump_pct_median": 25.055396153067832
+      },
+      {
+        "rows": 5000,
+        "scenario": "status_home",
+        "counts": {
+          "expense_filter_sort": [
+            1
+          ],
+          "notify": [
+            1
+          ],
+          "current_month": [
+            1
+          ],
+          "element:HomeScreen": [
+            1
+          ],
+          "element:HomeShell": [
+            1
+          ],
+          "root_animated_builder": [
+            1
+          ]
+        },
+        "operation_us": {
+          "median": 9792.5,
+          "p95": 12416
+        },
+        "pump_us": {
+          "median": 9735.0,
+          "p95": 12363
+        },
+        "derived_us": {
+          "median": 2490.0,
+          "p95": 2554
+        },
+        "timeline": {
+          "HomeShell": {
+            "median": 5445.5,
+            "p95": 5740
+          },
+          "HomeScreen": {
+            "median": 4697.0,
+            "p95": 4835
+          },
+          "MonthEntriesScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "FamilyScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "LAYOUT": {
+            "median": 1.0,
+            "p95": 1
+          },
+          "PAINT": {
+            "median": 1.0,
+            "p95": 1
+          }
+        },
+        "derived_share_of_pump_pct_median": 25.53248082437215
+      },
+      {
+        "rows": 5000,
+        "scenario": "busy_entries",
+        "counts": {
+          "expense_filter_sort": [
+            1
+          ],
+          "notify": [
+            1
+          ],
+          "element:ExpenseInputCard": [
+            1
+          ],
+          "current_month": [
+            1
+          ],
+          "element:MonthEntriesScreen": [
+            1
+          ],
+          "element:HomeShell": [
+            1
+          ],
+          "root_animated_builder": [
+            1
+          ]
+        },
+        "operation_us": {
+          "median": 15585.0,
+          "p95": 22200
+        },
+        "pump_us": {
+          "median": 15400.0,
+          "p95": 21951
+        },
+        "derived_us": {
+          "median": 2265.5,
+          "p95": 2524
+        },
+        "timeline": {
+          "HomeShell": {
+            "median": 9517.5,
+            "p95": 14537
+          },
+          "HomeScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "MonthEntriesScreen": {
+            "median": 8745.0,
+            "p95": 13758
+          },
+          "FamilyScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "LAYOUT": {
+            "median": 659.5,
+            "p95": 739
+          },
+          "PAINT": {
+            "median": 456.5,
+            "p95": 502
+          }
+        },
+        "derived_share_of_pump_pct_median": 14.38750521910625
+      },
+      {
+        "rows": 5000,
+        "scenario": "status_entries",
+        "counts": {
+          "expense_filter_sort": [
+            1
+          ],
+          "notify": [
+            1
+          ],
+          "element:ExpenseInputCard": [
+            1
+          ],
+          "current_month": [
+            1
+          ],
+          "element:MonthEntriesScreen": [
+            1
+          ],
+          "element:HomeShell": [
+            1
+          ],
+          "root_animated_builder": [
+            1
+          ]
+        },
+        "operation_us": {
+          "median": 16992.5,
+          "p95": 19567
+        },
+        "pump_us": {
+          "median": 16947.5,
+          "p95": 19526
+        },
+        "derived_us": {
+          "median": 2350.0,
+          "p95": 2503
+        },
+        "timeline": {
+          "HomeShell": {
+            "median": 11024.5,
+            "p95": 13389
+          },
+          "HomeScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "MonthEntriesScreen": {
+            "median": 10245.0,
+            "p95": 12616
+          },
+          "FamilyScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "LAYOUT": {
+            "median": 655.0,
+            "p95": 747
+          },
+          "PAINT": {
+            "median": 444.5,
+            "p95": 543
+          }
+        },
+        "derived_share_of_pump_pct_median": 14.205042998210203
+      },
+      {
+        "rows": 5000,
+        "scenario": "refresh",
+        "counts": {
+          "expense_filter_sort": [
+            1
+          ],
+          "notify": [
+            1
+          ],
+          "current_month": [
+            1
+          ],
+          "element:HomeScreen": [
+            1
+          ],
+          "element:HomeShell": [
+            1
+          ],
+          "root_animated_builder": [
+            1
+          ]
+        },
+        "operation_us": {
+          "median": 1912822.0,
+          "p95": 1966264
+        },
+        "pump_us": {
+          "median": 10633.5,
+          "p95": 10887
+        },
+        "derived_us": {
+          "median": 2399.0,
+          "p95": 2524
+        },
+        "timeline": {
+          "HomeShell": {
+            "median": 5588.0,
+            "p95": 5734
+          },
+          "HomeScreen": {
+            "median": 4778.0,
+            "p95": 4920
+          },
+          "MonthEntriesScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "FamilyScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "LAYOUT": {
+            "median": 261.5,
+            "p95": 312
+          },
+          "PAINT": {
+            "median": 135.0,
+            "p95": 146
+          }
+        },
+        "derived_share_of_pump_pct_median": 22.381140552432445
+      },
+      {
+        "rows": 5000,
+        "scenario": "mutation",
+        "counts": {
+          "expense_filter_sort": [
+            2
+          ],
+          "notify": [
+            2
+          ],
+          "current_month": [
+            2
+          ],
+          "element:HomeScreen": [
+            2
+          ],
+          "element:HomeShell": [
+            2
+          ],
+          "root_animated_builder": [
+            2
+          ]
+        },
+        "operation_us": {
+          "median": 1685037.0,
+          "p95": 1816616
+        },
+        "pump_us": {
+          "median": 18689.0,
+          "p95": 19069
+        },
+        "derived_us": {
+          "median": 4610.5,
+          "p95": 4846
+        },
+        "timeline": {
+          "HomeShell": {
+            "median": 10225.0,
+            "p95": 10576
+          },
+          "HomeScreen": {
+            "median": 8754.5,
+            "p95": 9016
+          },
+          "MonthEntriesScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "FamilyScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "LAYOUT": {
+            "median": 245.5,
+            "p95": 289
+          },
+          "PAINT": {
+            "median": 127.0,
+            "p95": 168
+          }
+        },
+        "derived_share_of_pump_pct_median": 24.799591799649633
+      },
+      {
+        "rows": 5000,
+        "scenario": "navigation",
+        "counts": {
+          "expense_filter_sort": [
+            6
+          ],
+          "notify": [
+            3
+          ],
+          "element:FamilyScreen": [
+            3
+          ],
+          "element:ExpenseInputCard": [
+            3
+          ],
+          "current_month": [
+            6
+          ],
+          "element:MonthEntriesScreen": [
+            3
+          ],
+          "element:HomeShell": [
+            6
+          ],
+          "root_animated_builder": [
+            3
+          ],
+          "panel_filter_sort": [
+            3
+          ],
+          "element:HomeScreen": [
+            3
+          ]
+        },
+        "operation_us": {
+          "median": 5551804.0,
+          "p95": 6028073
+        },
+        "pump_us": {
+          "median": 118501.0,
+          "p95": 126717
+        },
+        "derived_us": {
+          "median": 14223.5,
+          "p95": 15333
+        },
+        "timeline": {
+          "HomeShell": {
+            "median": 36848.5,
+            "p95": 39507
+          },
+          "HomeScreen": {
+            "median": 11717.0,
+            "p95": 12649
+          },
+          "MonthEntriesScreen": {
+            "median": 18272.0,
+            "p95": 19862
+          },
+          "FamilyScreen": {
+            "median": 7810.5,
+            "p95": 8639
+          },
+          "LAYOUT": {
+            "median": 45563.5,
+            "p95": 49238
+          },
+          "PAINT": {
+            "median": 2826.0,
+            "p95": 6740
+          }
+        },
+        "derived_share_of_pump_pct_median": 12.184367560405537
+      },
+      {
+        "rows": 5000,
+        "scenario": "resume",
+        "counts": {
+          "expense_filter_sort": [
+            1
+          ],
+          "notify": [
+            1
+          ],
+          "current_month": [
+            1
+          ],
+          "element:HomeScreen": [
+            1
+          ],
+          "element:HomeShell": [
+            1
+          ],
+          "root_animated_builder": [
+            1
+          ]
+        },
+        "operation_us": {
+          "median": 2400701.5,
+          "p95": 2432591
+        },
+        "pump_us": {
+          "median": 11370.5,
+          "p95": 11598
+        },
+        "derived_us": {
+          "median": 2435.0,
+          "p95": 2550
+        },
+        "timeline": {
+          "HomeShell": {
+            "median": 6210.0,
+            "p95": 6514
+          },
+          "HomeScreen": {
+            "median": 5371.0,
+            "p95": 5674
+          },
+          "MonthEntriesScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "FamilyScreen": {
+            "median": 0.0,
+            "p95": 0
+          },
+          "LAYOUT": {
+            "median": 263.0,
+            "p95": 279
+          },
+          "PAINT": {
+            "median": 131.0,
+            "p95": 148
+          }
+        },
+        "derived_share_of_pump_pct_median": 21.52073731075956
+      }
+    ],
+    "baseline_decision": "5k unchanged 알림에서 1회 filter/toList/sort 2.2655~2.4900ms, profiled pump의 약14~26%. 동일 build 안 중복은 없음. 알림 사이 재사용은 protected AppState publication/invalidation 또는 금지된 cross-generation cache가 필요. UI로 알고리즘을 복제하지 않음.",
+    "before_after": "NOT APPLICABLE — 구현 없음",
+    "validation": {
+      "baseline": {
+        "passed": 1,
+        "failed": 0,
+        "names": [
+          "P1-02 actual app propagation and attribution"
+        ]
+      },
+      "focused-regression": {
+        "passed": 35,
+        "failed": 0,
+        "names": [
+          "home liquidity slot uses the server current-month amount",
+          "server failure prompt offers offline mode and app exit",
+          "offline shell keeps banner and estimated financial labels visible",
+          "existing expense card still edits the net amount",
+          "expense keyboard and button re-entry produces one submit",
+          "expense failure and stale completion preserve the current draft",
+          "B03 current exact source and preserved historical revision: mobile/lib/src/segmented/c1.dart",
+          "B03 current exact source and preserved historical revision: mobile/lib/src/app_state.dart",
+          "B03 current exact source and preserved historical revision: mobile/lib/src/authoritative_bundle_validation.dart",
+          "B03 current exact source and preserved historical revision: mobile/lib/src/segmented/store.dart",
+          "B03 current exact source and preserved historical revision: mobile/lib/src/offline/offline_store.dart",
+          "B03 current exact source and preserved historical revision: mobile/lib/src/diagnostics/logical_cost.dart",
+          "audited P0 source remains byte-identical: mobile/lib/src/api_client.dart",
+          "audited P0 source remains byte-identical: mobile/lib/src/authoritative_bundle.dart",
+          "audited P0 source remains byte-identical: mobile/lib/src/models.dart",
+          "audited P0 source remains byte-identical: mobile/lib/src/money.dart",
+          "audited P0 source remains byte-identical: mobile/lib/src/offline/offline_data.dart",
+          "audited P0 source remains byte-identical: mobile/lib/src/offline/offline_store.dart",
+          "audited P0 source remains byte-identical: mobile/lib/src/segmented/object.dart",
+          "original five historical diagnostic files remain byte-identical",
+          "default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/main.dart",
+          "default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/src/offline/offline_projection.dart",
+          "default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/src/offline/offline_lineage_validator.dart",
+          "default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/src/offline/online_write_state.dart",
+          "default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/src/coherent_refresh_coordinator.dart",
+          "default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/src/local_snapshot_repository.dart",
+          "default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/src/segmented/c1.dart",
+          "default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/src/segmented/transport.dart",
+          "default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/src/segmented/verification.dart",
+          "default/legacy/E1/E2/E3 protected source unchanged: mobile/lib/src/segmented/graph.dart",
+          "default/legacy/E1/E2/E3 protected source unchanged: backend/app/db.py",
+          "default/legacy/E1/E2/E3 protected source unchanged: backend/app/db_migrations.py",
+          "B02/A01/A02 reviewed E2 extension preserves the exact default algorithm",
+          "E3 publisher extension is only pre-BEGIN read-scope rejection, guard/COMMIT unchanged",
+          "AppState E4 entry has no automatic callers or legacy publication/acknowledgment"
+        ]
+      },
+      "existing_ui_tests": 6,
+      "source_guard_tests": 29,
+      "backend_smoke": "3/3 PASS",
+      "npm_build_exit": 0,
+      "targeted_analyze_exit": 0
+    },
+    "limitations": [
+      "getter 계수는 원 구현을 호출한 실제 횟수. filter/sort 횟수는 각 getter 원문의 1:1 실행 경계에서 귀속한 값이며 비교기 호출 수는 미측정",
+      "FlutterTimeline widget 시간은 자식 build를 포함하는 element 구간. root builder closure의 순수 시간과 개별 RenderObject 작업 수는 미분리",
+      "Stopwatch는 synchronous CPU 작업의 wall-time 귀속이며 독립 exclusive on-CPU 시간이 아님",
+      "빠른 navigation은 각 합성 refresh 완료 후 연속1→2→0. 중첩 요청·실제 gesture frame pacing은 미측정",
+      "foreground는 binding paused/resumed observer 경로. Android lifecycle/channel/단말 filesystem 성능은 미측정",
+      "profiling·getter 타이머 overhead와 host JIT/CPU 주파수·thermal·GC, 고정 크기별 순서 효과는 독립 분리하지 않음",
+      "Summary는 고정 합성 서버 projection. backend 금융 알고리즘 감사나 단말 성능 보증이 아님"
+    ],
+    "preservation": {
+      "state": "PASS",
+      "preexisting_files_checked": 7932,
+      "authorized_preexisting_changes": [
+        "docs/benchmarks/final-optimization-and-closure-evidence.json",
+        "docs/money-note-final-optimization-and-closure-roadmap.md"
+      ],
+      "other_preexisting_content_or_mode_changes": 0,
+      "head": "ebcbd54d90eeee194a04b9eea6367f446ee2fd28",
+      "index_sha256": "56aba5ca9506287cbe6a81dd5caebc246e3519c6e84b9680f4108358d50f5595",
+      "staged_entries_identical": true,
+      "all_prior_compact_evidence_values_preserved": true,
+      "prior_evidence_reconstructed_sha256": "1e44426eb67a2f9a6be274d7ae29044544548834bab04a1df04a87250937c1ed",
+      "roadmap_inventory_historical_evidence_rank_table_identical": true,
+      "new_files": [
+        "docs/benchmarks/p1-02-flutter-rebuild-raw.json.gz",
+        "docs/p1-02-flutter-rebuild-derived-state-results.md",
+        "mobile/test/p1_02_rebuild_test.dart"
+      ]
+    },
+    "cleanup": {
+      "state": "COMPLETE",
+      "scratch": "/tmp/money-note-p102-6eeah_cd",
+      "removed_files_and_symlinks": 319,
+      "logical_bytes": 105075227,
+      "observed_allocated_bytes": 105816064,
+      "preexisting_artifacts_removed": 0,
+      "task_processes_live_before_cleanup": [],
+      "retained": "docs/benchmarks/p1-02-flutter-rebuild-raw.json.gz"
+    }
+  }
+}
