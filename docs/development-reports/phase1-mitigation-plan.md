@@ -237,3 +237,17 @@ P0(유실·보안·돌이킬 수 없는 손상)/P1(중대한 기능·영속 오�
 - 구현 시작7,944개 파일 전수 SHA/mode 대조에서 허용된 계획·roadmap·목차3개 외 **7,941개 동일**, 삭제0개다. 새 파일은 R 테스트·S CPU gate·단일 evidence3개뿐이다. HomeShell·Snapshot repository·AppState·기존 dirty 보호 테스트와 과거 근거는 시작 bytes를 그대로 유지했다.
 - 원래 staged0개를 보존했고 명시 owner 승인 경로만 stage/commit했다. 초기 HEAD의 모든 무관한 index blob/mode가 그대로임을 확인했다. index 파일 자체의 SHA는 승인된 commit 때문에 바뀌며 과거 “index byte 불변”을 주장하지 않는다. main/production은 변경하지 않는다.
 - 상대 링크169개와 roadmap §3~5의 기존 성능 지도·역사 근거·순위 byte 동일성이 통과했다. task-owned 임시782여개 파일/링크·약2.09GiB는 보존할 근거를 원격 게시한 뒤 활성 사용을 확인하여 정리한다. 실제 정리 결과는 다음 인계 기록에 남긴다.
+
+### 게시·정리 완료 / 독립 감사 인계
+
+| milestone | commit SHA | origin/phase1/mitigations |
+| --- | --- | --- |
+| f46a6ff | `f46a6ffb7ffdc01e55a12a79fa1bed27c55ea137` | push SUCCESS |
+| 7ad6c88 | `7ad6c88f6e018acf1b985e71fc6e347043271172` | push SUCCESS |
+| b2cbeb1 | `b2cbeb1b324457a530758f8022af2e4a1c23404c` | push SUCCESS |
+| 08877ba | `08877bafed468084d80cdb8240cc03de8599cdae` | push SUCCESS |
+
+- M0 계획 승인·M1 구현 전 baseline·M2 R 미채택/원복·M3 S 비용 보류/검증을 위 순서로 게시했다. 이 마지막 문서 갱신은 앞선 게시 결과와 정리 내역의 인계 기록이며 실제 tip은 branch Git log에서 확인한다. force-push·merge·tag·배포는 하지 않았다.
+- 고유 raw/계측 원문·정확한 R A/B harness/화면·S kernel 내장 원문·합성 payload·SDK SHA·실행 명령·검증 결과를 단일 근거에 보존한 뒤 활성 task runner0개를 확인했다. 임시 785개 파일/링크(논리 2,244,377,032B·관찰 할당 2,246,414,336B, 약 2.09GiB)를 정리했고 외부 dependency symlink 138개는 대상에 접근하지 않고 링크만 제거했다. 기존 DB/WAL/cache와 source lock은 삭제하지 않았다.
+- 감사 재현에는 근거의 정확한 `r_measured_harness`, `r_variant_A/B_home_shell`, `s-measured-harness.dart`와 actual invocation을 새 작업 사본에 설치한다. 현재 파일의 포맷 차이나 rollback 후 화면을 측정 당시 후보로 오인하지 않는다. 전체 캠페인 자동 재실행 승인이 아니며 owner 감사에서 필요한 범위만 재현한다.
+- 두 조건부 과제의 실행/거부 workflow는 완료했다. **생산 최적화 채택0개, 생산 source 유지 변경0개. 다음은 독립 Phase 1 Mitigation Audit이며 Phase1 전체 종료를 선언하지 않는다.**
