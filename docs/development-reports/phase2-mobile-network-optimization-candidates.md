@@ -1,6 +1,6 @@
 # Phase 2 모바일 네트워크 전송량 조사·후보
 
-**N01-A01 CORRECTED — 독립 재감사 대기. 기존 PARTIAL·REWORK 보존.** Phase 1은 owner가 전달한 최종 독립 감사 **PASS — MITIGATION ACCEPTED**로 종료했다. R-01 채택·활성132 PASS·GET4→1·원110.37% 실패와1회 예외·거부/원복 기록을 보존한다. S/U는 DEFERRED이며 재개하지 않는다. 전체 개발 종료·배포 준비 판정이 아니다.
+**N01-A01-R1 CORRECTED — 독립 targeted 재감사 대기. 기존 PARTIAL·REWORK 이력 보존.** Phase 1은 owner가 전달한 최종 독립 감사 **PASS — MITIGATION ACCEPTED**로 종료했다. R-01 채택·활성132 PASS·GET4→1·원110.37% 실패와1회 예외·거부/원복 기록을 보존한다. S/U는 DEFERRED이며 재개하지 않는다. 전체 개발 종료·배포 준비 판정이 아니다.
 
 §1~7은 원 discovery 기록이며, §8은 당시 차단된 preflight, §9는 최초 구현, **§10은 승인된 A01 수정의 최신 상태**다.
 
@@ -282,3 +282,31 @@ owner가 독립 감사 **REWORK / N01-A01 MAJOR**의 모바일 transport 수정�
 **현재 처분:** N01-A01 구현·focused 검증 완료, 독립 correction re-audit 대기. 원래 PARTIAL/REWORK를 과거 PASS로 바꾸지 않는다. 다음 행동은 **독립 N01-A01 correction re-audit** 하나다. 다른 후보·Phase3/4·배포는 시작하지 않는다.
 
 A01 증거 보존 후 task runner0개를 확인하고 이번 scratch의 파일/링크304개(논리865,187,473B)를 정리했다. 기존 cache·dependency symlink 대상은 삭제하지 않았다. correction 관련10개 경로만 개발 브랜치에 게시하고 원래 dirty13개와 역사 source lock을 보존한다.
+
+
+## 11. N01-A01-R1 — 두 번째 correction / 독립 targeted 재감사 대기
+
+기준 `phase2/mobile-network / 2d3351847b569efadbb330543b7dd92b418444bd`. owner는 targeted audit **REWORK — CORRECTION INCOMPLETE / N01-A01-R1 MAJOR**를 받아 남은 DEFLATE 완전성 수정만 승인했다. §9 원 PARTIAL → 첫 REWORK → §10 첫 correction COMPLETE·감사 대기 → targeted REWORK → 본 두 번째 correction 순서를 보존한다. 과거 판정을 성공으로 바꾸지 않는다.
+
+- **원인 재현:** archive3.6.1의 reserved BTYPE3 처리에서 false 반환이 정상 종료처럼 해석됐다. 정확한 JSON을 non-final stored blocks로 보내고 `0x07`로 끝내 CRC/ISIZE를 붙인 입력을 archive/구 transport가 수용했다. 수정 전 두 실제 API GET도 SHA가 같은 bytes를 성공 반환했다. 사용자 지정 감사 디렉터리가 실제 존재해 합성 witness를 읽기 전용 복사했으며, 테스트 generator로 재구성한 Bundle 반례 SHA `4f94389bcc067b4e756cc0e94f65ef8be9f2f8e04116add5fb83da93d0574e5e`가 감사자의 bad.gz와 정확히 일치한다. Python과 SDK는 이를 거부했다.
+- **선택 B:** 가용 cached decoder는 archive3.6.1뿐이다. dependency/lockfile을 바꾸지 않고 기존 archive verify:true·완전한 trailer·CRC/ISIZE·전체 입력 소비 검사 뒤에 SDK의 독립 zlib validation pass를 추가했다. SDK가 BTYPE3/잘못된 final block 구조를 거부하고, SDK만으로 부족했던 trailer 보장은 archive가 담당한다. **둘 다 성공해야** bytes를 반환한다. SDK output을 chunk별로 archive output과 길이·바이트 대조하고 close 완료를 확인한다. 같은 결함 parser의 자기 검증이 아니며 자체 DEFLATE parser·SDK fork·서버 출력 변경은 없다.
+- 단일 member·flags0 정책, trailing/concat 거부, identity·인증·status·timeout/abort·헤더 정합성·자동 재시도 없음은 그대로다. 비교 Sink는 출력 비교만 하며 압축 문법을 해석하지 않는다. SDK 출력의 두 번째 전체 body를 저장하지 않지만 native chunk/buffer는 추가된다. 기존 archive decoded body·압축 input·HTTP decoded representation의 일시 중복과 동시 요청에 따른 메모리 증가는 남으며 새 cache·작은 크기 상한·concurrency 정책은 추가하지 않았다.
+- **회귀:** 수정 전 reserved witness의 두 endpoint 수용을 별도 로그/JSON으로 보존하고, 같은 assertion이 수정 후 통과했다. 실제 loopback → ResponseCodingClient → MoneyNoteApiClient에서 valid-final은 수용, reserved/missing-final/non-final-empty는 두 endpoint 모두 거부(GET 각1회). 기존 matrix의 trailer·CRC·ISIZE·본문절단·header/encoding·길이·조기종료·garbage/concat 거부와 정상 identity/gzip·SHA를 유지했다. 기존 테스트 삭제·skip·기대 완화는 없다.
+- 모바일 **103 PASS**(coding6·transport4·신규 witness/resource2·기존 취득57/backup7/admission27), backend coding smoke7 PASS, 격리 npm build PASS. 실제 mutation 후 transport 실패에서 durable baseline·기존 summary·pending 보존, POST 재전송 없음 및 실패 Snapshot 게시 없음도 기존 focused tests로 확인했다. AppState/OfflineStore·금융·schema·auth·backend·웹 생산 코드는 변경하지 않았다.
+
+추가 SDK pass의 bounded 관찰(각5 warmup+20표본, archive decode·fixture read는 측정 밖, SDK+동일 역할 streaming 비교 probe):
+
+| ledger N | 응답 | 추가 wall median ms | CPU batch/20 ms |
+| --- | --- | --- | --- |
+| 376 | bundle | 1.329 | 1.000 |
+| 376 | snapshot | 1.019 | 1.000 |
+| 1000 | bundle | 2.555 | 2.500 |
+| 1000 | snapshot | 2.200 | 2.500 |
+| 10000 | bundle | 22.036 | 21.500 |
+| 10000 | snapshot | 21.742 | 22.000 |
+
+CPU는 Linux process utime+stime tick batch 차분이며 개별 median이 아니다. wall raw20개와 RSS는 구현 evidence의 `a01_r1_correction`에 있다. 전체 host VM/선행 witness의 RSS·GC를 포함하므로 RSS 차이를 독립 allocation 비용으로 보지 않는다. streaming probe는 production 비교와 같은 역할의 benchmark helper로, 서버·HTTP·archive 전체 latency 측정이 아니다. 실기기/운영 성능 개선은 주장하지 않는다. 두 번의 독립 decode로 CPU가 추가되는 trade-off이며 SDK 단독으로 trailer가 검증된다고 주장하지 않는다.
+
+**현재 처분: R1 수정·focused 검증 완료 / 독립 targeted 재감사 대기.** 남은 지원 제한은 optional gzip header·연결 members 미지원과 buffered main-isolate 비용이다. 새 관찰 실패는 없지만 P2-N01 최종 수용·배포·Phase2 종료는 선언하지 않는다. 다음 행동은 **Independent N01-A01-R1 targeted re-audit** 하나다.
+
+R1 raw evidence 보존 뒤 task runner0개 확인, 이번 scratch 파일/링크296개(논리610,466,660B)를 정리했다. 원 감사 디렉터리와 기존 dependency 링크 대상·dirty13개·historical source lock은 보존했다. 관련6개 경로만 개발 브랜치에 게시한다.

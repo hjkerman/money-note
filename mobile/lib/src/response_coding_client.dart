@@ -58,6 +58,19 @@ class ResponseCodingClient extends http.BaseClient {
       if (input.position != bytes.length) {
         throw const FormatException('Trailing gzip data or multiple members');
       }
+      // archive verifies the complete trailer but can accept reserved DEFLATE
+      // blocks. The independent SDK/zlib parser rejects invalid DEFLATE but can
+      // accept missing trailers. Require BOTH, with byte-identical output.
+      final comparison = _VerifiedOutput(decoded);
+      final validation = gzip.decoder.startChunkedConversion(comparison);
+      try {
+        validation.add(bytes);
+      } finally {
+        validation.close();
+      }
+      if (!comparison.complete) {
+        throw const FormatException('Incomplete DEFLATE validation');
+      }
       final headers = Map<String, String>.from(response.headers)
         ..remove('content-encoding')
         ..remove('transfer-encoding')
@@ -79,5 +92,33 @@ class ResponseCodingClient extends http.BaseClient {
   void close() {
     _ordinary.close();
     if (!identical(_ordinary, _raw)) _raw.close();
+  }
+}
+
+/// Streaming output comparison only; no gzip or DEFLATE parsing here.
+class _VerifiedOutput implements Sink<List<int>> {
+  _VerifiedOutput(this.expected);
+  final List<int> expected;
+  int offset = 0;
+  bool complete = false;
+
+  @override
+  void add(List<int> chunk) {
+    if (complete || offset + chunk.length > expected.length) {
+      throw const FormatException('Inconsistent gzip output length');
+    }
+    for (final byte in chunk) {
+      if (expected[offset++] != byte) {
+        throw const FormatException('Inconsistent gzip output');
+      }
+    }
+  }
+
+  @override
+  void close() {
+    if (offset != expected.length) {
+      throw const FormatException('Incomplete gzip output');
+    }
+    complete = true;
   }
 }

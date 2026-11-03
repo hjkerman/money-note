@@ -5,7 +5,7 @@
 ## 현재 로드맵·P1 결과
 
 - [money-note-final-optimization-and-closure-roadmap.md](money-note-final-optimization-and-closure-roadmap.md)
-- [phase2-mobile-network-optimization-candidates.md](phase2-mobile-network-optimization-candidates.md) — 현재 작업, N01-A01 수정·focused 검증 완료·독립 재감사 대기
+- [phase2-mobile-network-optimization-candidates.md](phase2-mobile-network-optimization-candidates.md) — 현재 작업, N01-A01-R1 수정·103 host PASS·독립 targeted 재감사 대기
 - [phase1-mitigation-plan.md](phase1-mitigation-plan.md) — 현재 공유 계획·구현/감사 장부, Phase 1 CLOSED·최종 감사 PASS / R 채택·S/U 보류
 - [p1-r-mobile-refresh-performance-results.md](p1-r-mobile-refresh-performance-results.md)
 - [p1-04-backend-sql-presenter-performance-results.md](p1-04-backend-sql-presenter-performance-results.md)
@@ -152,3 +152,5 @@ Phase 2 전송량 기준선과 N01 gzip 우선·N02 조건부 shortlist는 위 �
 P2-N01 한정 backend gzip 구현과 자원 측정은 후보 문서 §9에 기록했다. trailer 거부 신규 회귀1건은 미충족이며 채택·배포 승인이 아니다. 다른 후보는 구현하지 않았다.
 
 N01-A01 모바일 raw gzip 검증 수정과 101 host PASS는 후보 문서 §10에 기록했다. 과거 PARTIAL·REWORK를 보존하며 최종 채택은 독립 재감사 뒤 별도다.
+
+두 번째 correction N01-A01-R1의 정확한 reserved-block witness·이중 decoder·추가 pass 비용은 후보 문서 §11에 있다. 첫 correction 뒤 targeted REWORK를 보존한다.
