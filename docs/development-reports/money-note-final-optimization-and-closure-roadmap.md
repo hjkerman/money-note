@@ -29,7 +29,7 @@
 | 단계 | 실행 범위 | 자동 확대 방지 |
 | --- | --- | --- |
 | 1단계 | 이 성능 지도와 과거 근거·공유 완화 계획으로 승인된 국소 과제만 측정·구현 | 아래 P1 작업표로 범위 한정. R-01/S는 계획 감사·owner 승인과 각 조건 이후 구현, U 보류·P1-05 제외. 모든 병목 제거를 종료 조건으로 삼지 않음 |
-| 2단계 | 1단계 종료 승인 뒤 모바일 다운로드·업로드 전송량 조사·최적화 | N01만 owner 승인 구현. 검증 PARTIAL·독립 변경 감사 대기. 다른 후보는 미구현 |
+| 2단계 | 1단계 종료 승인 뒤 모바일 다운로드·업로드 전송량 조사·최적화 | N01 ACCEPTED·N02 DEFER. 전체 Phase2 CLOSED 선언은 기록에 없으며 다른 후보는 미구현 |
 | 3단계 | 2단계 종료 확인 뒤 §7의 좁은 정리 목록 검증·삭제 | 파일 수·크기만으로 분할/삭제하지 않음. 호환 경로와 역사 증거는 정리 대상에서 제외 |
 | 4단계 | 3단계 종료 확인 뒤 §8의 단일 감사표를 한 번 수행하고 필요한 수정 | 수정별 집중 회귀, 관련 영향만 재검토. 사소한 수정마다 전면 감사를 반복하지 않음 |
 
@@ -240,8 +240,8 @@ B05/B08의 추가 확대 실험은 첫 후보에서 제외한다. 이미 전체 
 | --- | --- | --- |
 | 1단계 | UI15/처리12 지도, 근거별 우선순위, §2.1 조사와 공유 계획 G의 승인된 완화 작업·감사 지적 처분 완료. 모든 병목 제거는 불필요하며 권한/위험상 보류 가능. 채택 변경의 기능·성능 회귀 통과·미해결 신규 P0/P1 없음·잔여 불확실성 §8 이월 | P1-01 미채택·원복, P1-02 보호 경로 보류, P1-03 B/전체 PARTIAL·미구현, P1-04 C 완료. R-01 최초 실패 보존·owner1회 예외 재채택·활성132 PASS, S/U 보류, P1-05 소유자 제외. **CLOSED — 최종 독립 감사 PASS·owner 종료 승인, S/U 보류 유지** |
 | 2단계 | 별도 승인된 모바일 전송량 분석·최적화와 전후 측정·채택/미채택 처분 완료, 안전 계약과 기능 회귀 유지, 남은 불확실성 §8 이월 | **IN PROGRESS — N01 ACCEPTED(PASS, A01/R1 CLOSED), N02 조사 DEFER·독립 GET 유지 권고. 최초 PARTIAL/REWORK 보존. N02~N05 미구현** |
-| 3단계 | 좁은 inventory의 고신뢰 dead/redundant 항목만 정리, 동적/호환 consumer 보존, 관련 Flutter/backend/web 회귀·build 통과, 미확정 비중요 항목 처분 | 계획 준비, **진입 전** |
-| 4단계 | 단일 감사표 완료, P0/P1 해결 또는 명시 차단, P2/P3 처분, 집중 회귀와 최종 통합 suite 통과, source locks·역사 증거 보존, 기기/배포 제약 명시 | 계획 준비, **진입 전** |
+| 3단계 | 좁은 inventory의 고신뢰 dead/redundant 항목만 정리, 동적/호환 consumer 보존, 관련 Flutter/backend/web 회귀·build 통과, 미확정 비중요 항목 처분 | **CANDIDATE DISCOVERY COMPLETE — owner 승인 조사만, 구현/삭제 미승인** |
+| 4단계 | 단일 감사표 완료, P0/P1 해결 또는 명시 차단, P2/P3 처분, 집중 회귀와 최종 통합 suite 통과, source locks·역사 증거 보존, 기기/배포 제약 명시 | **CANDIDATE DISCOVERY COMPLETE — owner 승인 조사만, 구현/삭제 미승인** |
 
 각 종료 시 수행자가 결과를 기록하고 이전 단계의 exit 충족을 확인해야 다음 단계에 진입한다. 새 범위의 구현은 해당 작업 요청으로만 시작한다. 단순 보고서 작성이나 표의 READY로 다음 단계가 자동 시작되지 않는다.
 
@@ -282,3 +282,5 @@ B05/B08의 추가 확대 실험은 첫 후보에서 제외한다. 이미 전체 
 **N01-A01-R1:** targeted REWORK 후 독립 SDK DEFLATE pass를 추가했다. exact witness 포함 모바일103·backend7 PASS, 추가 CPU/wall 한계는 후보 문서 §11에 있다. 의존성/서버/금융 변경 없음. 다음은 독립 targeted 재감사이며 최종 채택·배포는 미승인이다.
 
 **Phase2 현재 처분:** owner 최종 PASS·N01 ACCEPTED, A01/R1 CLOSED·blocking findings 없음. 채택 commit13ef6e9, 과거 이력 보존. [N02 조사](phase2-n02-snapshot-reuse-investigation.md)는 T3→T1 복구점 변경을 일반적으로 배제할 수 없어 **DEFER/C 유지 권고**다. 10k 추가 이득의 잠재 상한은 gzip104,537B/자동event1GET이며 확정 제거 event는0이다. N01 배포·main merge·N02 구현·Phase2 전체 종료는 승인/수행하지 않는다.
+
+**Phase3 후보 조사:** owner 승인으로 [inventory](phase3-cleanup-candidate-inventory.md)를 작성했다(A3/B3/C6). Phase2 전체 종료 미기록·기존 현재 표의 stale PARTIAL은 inventory §1에 명시했고 현재 표만 개별 처분으로 맞췄다. N01 이력·N02 DEFER는 보존하며 Phase2 종료를 소급 선언하지 않는다. 다음은 독립 후보 감사이며 코드 삭제·Phase4·운영은 미착수다.

@@ -1,6 +1,6 @@
 # 최적화·개선·감사 작업 기록
 
-현재 작업은 아래 로드맵을 기준으로 진행한다. 장기 유지 문서는 [상위 문서 안내](../README.md)에 있다.
+현재 작업은 Phase3 후보 조사이며 아래 로드맵을 기준으로 진행한다. 장기 유지 문서는 [상위 문서 안내](../README.md)에 있다.
 
 ## 현재 로드맵·P1 결과
 
@@ -156,3 +156,5 @@ N01-A01 모바일 raw gzip 검증 수정과 101 host PASS는 후보 문서 §10�
 두 번째 correction N01-A01-R1의 정확한 reserved-block witness·이중 decoder·추가 pass 비용은 후보 문서 §11에 있다. 첫 correction 뒤 targeted REWORK를 보존한다.
 
 - [phase2-n02-snapshot-reuse-investigation.md](phase2-n02-snapshot-reuse-investigation.md) — N01 최종 수용, N02 복구 시점·구조 동등성·gzip 이후 이득·DEFER 처분.
+
+- [phase3-cleanup-candidate-inventory.md](phase3-cleanup-candidate-inventory.md) — 후보 조사 COMPLETE, A3/B3/C6·독립 감사 대기·삭제 미승인.
