@@ -1,6 +1,6 @@
 # Phase 1 성능 완화 공유 계획·작업 장부
 
-작성: 2026-11-03. **IMPLEMENTATION AUTHORIZED — Planning Audit PASS, owner 승인 완료. R-01 미채택·원복 완료, S 사전 조건 확인이 다음이다.** 이 문서는 계획 검토, 이후 승인된 구현, 감사 지적과 수정 결과를 계속 기록하는 단일 장부다. 현재 세션이 Implementation Session을 유지한다. 조건부 채택은 구현 승인이나 성능 개선 입증이 아니다.
+작성: 2026-11-03. **BATCH COMPLETE — R-01 NOT ADOPTED·원복, S DEFERRED·생산 미구현. 다음은 owner의 독립 Mitigation Audit다.** 이 문서는 계획 검토, 이후 승인된 구현, 감사 지적과 수정 결과를 계속 기록하는 단일 장부다. 현재 세션이 Implementation Session을 유지한다. 조건부 채택은 구현 승인이나 성능 개선 입증이 아니다.
 
 ## A. 범위와 기준선
 
@@ -45,12 +45,12 @@ F01 BINDING—UNRESOLVED, 유효 G1, G2 미채택, operational ADB 차단, 실�
 
 ## B. 완화 backlog
 
-검토한 현재 구현 후보는 **3개**다. 무조건 채택은 없으며 조건부 2개, 보류 1개다.
+검토 후보는 **3개**다. 계획 당시 조건부 R/S·보류 U였으며, 실행 후 R은 미채택·원복, S는 비용 조건 실패로 보류, U는 기존 보류를 유지했다. 생산 채택0개다.
 
 | ID | 결정 | 우선순위 | 대상 | 상태 | 감사 |
 | --- | --- | --- | --- | --- | --- |
 | P1-R-01 | NOT ADOPTED | 완료 | 비인접 하단 탭 선택만 직접 이동 | 3블록 p95 기준 미달·UI 원복 | Planning Audit PASS, batch 감사 대기 |
-| P1-S | CONDITIONAL ADOPT | 2 | 한 save 안에서 내용 일치를 확인한 검증 결과만 재사용 | 보호 소스·관련 SHA 검사 변경 승인, 비용 조건 대기 | Planning Audit PASS |
+| P1-S | DEFER | 완료 | 한 save 안의 SHA content receipt | digest 비용 조건 실패·생산 미구현 | Planning Audit PASS, batch 감사 대기 |
 | P1-U | DEFER | 후속 구현 없음 | expenseEntries invalidation/파생 view | 위험·이득 대비 보류 | owner 유지 |
 
 순서는 **Planning Audit → 소유자 범위 승인 → P1-R-01 측정/처분 → P1-S 조건 확인·측정/처분 → 변경분 Mitigation Audit**다. R 미채택은 S의 착수를 막지 않으며, S에는 독립적인 보호 소스 승인이 필요하다. U를 대신할 새 후보는 찾지 않는다.
@@ -134,7 +134,7 @@ F01 BINDING—UNRESOLVED, 유효 G1, G2 미채택, operational ADB 차단, 실�
 | ID | 상태 | 실제 변경 파일·구현 요약 | baseline / 변경 후 | 실행 테스트·결과 | 한계·commit/source |
 | --- | --- | --- | --- | --- | --- |
 | P1-R-01 | COMPLETE — NOT ADOPTED | UI 4행 trial을 정확히 원복, R 테스트/근거 보존 | 모든 블록 GET4→1·durable1, 대조p95 한 구성110.37% | 후보 탐색1건·원복 후 focused132건 PASS | 최종 HomeShell SHA=A 표, M2 게시 준비 |
-| P1-S | PLANNED — AUDIT PENDING | 없음 | 과거 P1-03만 있음 / 해당 없음 | 미실행 | receipt 비용/보호 소스 승인 미확보, 현재 source는 A 표 |
+| P1-S | COMPLETE — DEFERRED | 새 CPU gate 테스트·근거만, repository/보호 검사 변경0 | CPU240표본에서61H/30V가1.51~1.85 / 후보 없음 | calibration1건·기존 Snapshot7건 PASS | scoped 승인은 있었으나 비용 gate 실패 |
 | P1-U | DEFERRED | 없음 | 과거 P1-02 재사용 | 새 실행 없음 | D의 이득·위험 처분 |
 
 **승인 뒤 Implementation Session:** 이 문서와 owner의 승인 범위를 읽고 다음 승인 과제 하나를 선택한다. 현재 소스/불변식·before-image를 확인한 뒤 필요한 baseline을 먼저 측정한다. 조건을 통과하면 최소 변경·집중 회귀·성능 비교를 수행한다. 위 행에 실제 파일, 전후 source SHA, raw sample 위치, count/median/p95, 테스트 이름·결과, 한계·rollback 유무를 기록하고 `IMPLEMENTED` 또는 `NOT ADOPTED`로 표시한다. 과제별 commit은 승인될 때만 하며 없으면 working-source SHA로 식별한다. 이후 다음 **이미 승인된** 과제로 진행한다. 미승인 과제를 자동 시작하지 않는다.
@@ -164,10 +164,10 @@ P0(유실·보안·돌이킬 수 없는 손상)/P1(중대한 기능·영속 오�
 - [x] 완료된 조사 결과를 보존하고 현재 3개 후보·추가 미선정/제외 항목을 명시했다.
 - [x] 조건부 후보의 파일·불변식·baseline·수용/거부·복구·순서를 정의했다.
 - [x] 독립 Planning Audit PASS — READY FOR OWNER APPROVAL, BLOCKER/MAJOR 없음이라는 owner 전달을 수령했다. owner가 R-01과 S repository·직접 SHA/무결성 검사의 scoped 구현을 승인했다.
-- [ ] 승인된 R/S 각각을 구현·측정·채택 또는 미채택/권한상 보류로 최종 처분했다. 모든 후보 성공은 요구하지 않는다.
-- [ ] 채택한 변경의 직접 기능/성능 회귀·보호 검사와 관련 backend 검증·웹 build가 통과하고, 테스트 이름·환경·원 표본을 E에 기록했다. 미채택 rollback도 관련 확인을 마쳤다.
+- [x] 승인된 R/S 각각을 구현·측정·채택 또는 미채택/보류로 최종 처분했다. R 미채택·원복, S 비용 조건 보류이며 모든 후보 성공은 요구하지 않는다.
+- [x] 채택 생산 변경은 없다. R rollback 후 focused132건·Snapshot7건·backend3건·웹 build·새 테스트2파일 정적 분석이 통과했다. 원 표본·환경·계측은 단일 근거에 보존했다.
 - [ ] 변경분 Mitigation Audit의 P0/P1을 해결하거나 명시 차단했고 P2/P3를 처분했다. 미해결 P0/P1이 있으면 해당 작업·단계 종료를 선언하지 않는다.
-- [ ] 역사 근거·잠금·이전 dirty/index 보존, 남은 불확실성과 기기/배포 제한을 기록했다.
+- [x] 기존7,944개 파일을 대조해 허용 문서3개 외7,941개·역사 근거·잠금·무관한 index 엔트리를 보존했고 기기/배포 제한과 한계를 기록했다.
 - [ ] U 보류·P1-05 제외 등 남은 처분을 roadmap에 반영하고 owner가 1단계 exit 충족을 확인했다. 그 뒤에만 별도 승인된 2단계로 진행한다.
 
 **2026-11-03 owner 승인으로 R-01부터 순차 실행한다. S는 R 처분 뒤에만 착수하며 다음 독립 감사는 구현 batch 뒤 Mitigation Audit다.** 1단계 전체 종료·개발 종료·production readiness를 선언하지 않는다.
@@ -207,3 +207,33 @@ P0(유실·보안·돌이킬 수 없는 손상)/P1(중대한 기능·영속 오�
 - 초기 A/B는 직접 메뉴 callback과 host test fonts로 실행했고(명시 assets 경로 없음), 기존 버튼 회귀는 shader/font assets 경로를 연결해 별도로 검증했다. invocation마다 정확한 flags를 raw 근거에 보존하며 조건이 다른 회귀를 A/B 시간으로 합치지 않는다. 실기기 발생률·RTT·GPU 효과는 미검증이다.
 - 새 R 테스트는 환경변수 없는 일반 실행에서 기능 회귀만 수행하며, 긴 benchmark는 명시적인 P1R_OUTPUT 설정 때만 실행한다. 이전 untracked P1-02 파일이나 다른 dirty 소스는 커밋하지 않았다.
 - M2 commit/push 결과는 다음 갱신에서 실제 SHA로 기록한다. R 처분이 완료됐으므로 이후 S 사전 조건을 확인할 수 있다.
+
+### M3 — P1-S 사전 조건: DEFER / 생산 미구현
+
+- M2 `b2cbeb1b324457a530758f8022af2e4a1c23404c`가 origin/phase1/mitigations에 push 성공한 뒤 S에 착수했다. repository SHA는 A 표와 동일했고, P1-03의 유효 서버 v7 fixture5k/10k(2,969,474/5,934,477B·동일 SHA)를 재사용했다.
+- 생산 변경 전에 원 `_validateSnapshotFile`의 UTF-8/JSON/envelope 본문을 그대로 추출한 CPU gate와 같은 bytes의 SHA-256을 비교했다. warmup5+측정20·3교대 블록, 측정240개/준비60개,26.056초로60초 한도 안에 종료했다. I/O·경로 lookup·receipt 관리 비용을 제외한 SHA의 낙관적 하한 비교다.
+
+| 블록 | 5k decode / SHA median ms | 5k 추가61H / 제거30V | 10k decode / SHA median ms | 10k 추가61H / 제거30V |
+| --- | --- | --- | --- | --- |
+| 1 | 56.171 / 51.024 | 1.847배 | 129.986 / 102.736 | 1.607배 |
+| 2 | 56.945 / 51.406 | 1.836배 | 130.854 / 102.998 | 1.600배 |
+| 3 | 57.063 / 51.737 | 1.844배 | 139.986 / 103.851 | 1.508배 |
+
+- 모든 블록·규모에서 `61H < 30V`가 실패했다. 현재 host JIT에서는 decode30회를 아껴도 SHA 추가61회가 더 비싸다. 이것은 전체 save의 실측 악화율이나 실기기 결과가 아닌 비용 조건 실패다. latest owner 지시에 따라 **DEFER — DIGEST COST PRECONDITION FAILED**로 처분한다.
+- repository·보호된 SHA/무결성 검사·retention/readback/변경 감지·독립 공개 list/safeFile은 수정하지 않았다. 승인된 범위라도 불리한 조건에서 강제로 구현하지 않았다. full matrix/save 전후 비교와 새로운 동시성·fault 테스트는 후보 미구현으로 실행하지 않았다. 15% save 개선을 달성했다는 주장은 없다. 기존 Snapshot7건으로 현 동작을 확인하며 persistent cache·다른 무효화 설계로 전환하지 않는다.
+- 새 S 테스트는 명시 P1S_OUTPUT 설정 때만 CPU gate를 실행한다. fixture·raw 표본·timing 경계·source 본문과 실제 invocation을 동일 compact evidence에 보존한다. M3 최종 검증·commit/push는 다음 기록에 갱신한다.
+
+### M3 최종 검증·인계
+
+- 기존 Snapshot7건 PASS, 최종 포맷 후 탐색1건 PASS, 새 두 테스트의 `dart analyze --fatal-infos`는 **No issues found**다. 초기 brace lint3개만 해당 테스트에서 수정했다. 생산 코드는 어느 파일도 유지 변경하지 않았다. S의 새 동시 변경/SHA miss·fault 비교는 구현이 없어 미실행이며 기존7건보다 넓은 검증을 주장하지 않는다.
+- 필수 `npm run build`는 작업 소유 frontend 사본에서 PASS했다. 첫 사본에서 backend 합성 fixture 상대경로가 누락돼 실패했고 동일 기존 fixture만 연결해 재확인했다. dependency symlink 대상은 편집하지 않고 build/cache는 작업 사본에 썼다. Backend는 기존 authoritative empty/rich/equivalence·Snapshot/Summary/payment 경계3건이 새 임시 DB에서 PASS(기존 warning1)했다. 운영 DB/API는 사용하지 않았다.
+- CPU gate의 exact 측정 원문은 compiled kernel의 embedded source에서 복구해 SHA `d5dff6d0de797ceb8bed5711a80e27754b96ee8ab74a245e4a00d320ed54d79f`로 보존했다. 이후 source identity assert·포맷은 측정 밖의 변경이다. micro p95·원 표본과 두 합성 payload 원문도 같은 근거에 있다.
+- 원격 게시 대상은 승인된 계획/roadmap/목차·R/S 테스트·단일 evidence뿐이다. 기존 dirty/untracked 구현은 일괄 커밋하지 않았다. 기록된 working-source·캐시된 SDK/의존성 조건의 재현이며 clean clone·단말/정식 Flutter CLI 전체 suite 재현을 보장하지 않는다.
+- [단일 원시/재현 근거](../benchmarks/phase1-mitigation-evidence.json.gz)의 `r`/`comparison`, `s`/`s-decision`, `reproduction`, `invocations`, `validation`을 사용한다. 각 실제 실행 flags가 authoritative하며 baseline용 무자산 runner와 회귀용 assets runner를 구분했다. 감사 재현 시 새 작업 소유 scratch에 원문/fixture를 복원하고 ROOT/RUN·package config를 현재 경로로 맞춘다. Flutter CLI/Android/ADB는 실행하지 않는다.
+- M3 게시·보존 대조/임시 정리는 마지막 기록에 남긴다. 독립 Mitigation Audit는 아직 수행하지 않았으며 owner가 이 장부와 실제 diff/근거를 같은 Audit Session에 전달한다. 2~4단계·대형 Snapshot 작업은 미착수다.
+
+### 최종 보존 확인
+
+- 구현 시작7,944개 파일 전수 SHA/mode 대조에서 허용된 계획·roadmap·목차3개 외 **7,941개 동일**, 삭제0개다. 새 파일은 R 테스트·S CPU gate·단일 evidence3개뿐이다. HomeShell·Snapshot repository·AppState·기존 dirty 보호 테스트와 과거 근거는 시작 bytes를 그대로 유지했다.
+- 원래 staged0개를 보존했고 명시 owner 승인 경로만 stage/commit했다. 초기 HEAD의 모든 무관한 index blob/mode가 그대로임을 확인했다. index 파일 자체의 SHA는 승인된 commit 때문에 바뀌며 과거 “index byte 불변”을 주장하지 않는다. main/production은 변경하지 않는다.
+- 상대 링크169개와 roadmap §3~5의 기존 성능 지도·역사 근거·순위 byte 동일성이 통과했다. task-owned 임시782여개 파일/링크·약2.09GiB는 보존할 근거를 원격 게시한 뒤 활성 사용을 확인하여 정리한다. 실제 정리 결과는 다음 인계 기록에 남긴다.

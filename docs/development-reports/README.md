@@ -5,7 +5,7 @@
 ## 현재 로드맵·P1 결과
 
 - [money-note-final-optimization-and-closure-roadmap.md](money-note-final-optimization-and-closure-roadmap.md)
-- [phase1-mitigation-plan.md](phase1-mitigation-plan.md) — 현재 공유 계획·구현/감사 장부, Planning Audit PASS·owner 구현 승인
+- [phase1-mitigation-plan.md](phase1-mitigation-plan.md) — 현재 공유 계획·구현/감사 장부, R 미채택·원복 / S 비용 보류, 독립 Mitigation Audit 대기
 - [p1-r-mobile-refresh-performance-results.md](p1-r-mobile-refresh-performance-results.md)
 - [p1-04-backend-sql-presenter-performance-results.md](p1-04-backend-sql-presenter-performance-results.md)
 
@@ -15,7 +15,7 @@
 - [p1-02-flutter-rebuild-derived-state-results.md](../p1-02-flutter-rebuild-derived-state-results.md) — 원래 경로 보존
 - [p1-03-snapshot-save-validation-performance-results.md](../p1-03-snapshot-save-validation-performance-results.md) — 원래 경로 보존
 
-P1-R-01과 P1-S는 계획 감사 PASS·owner scoped 구현 승인을 수령했으며 baseline 조건에 따라 순차 실행한다. P1-U는 보류, P1-05는 소유자 결정으로 제외했다. 실제 구현·감사 지적은 위 공유 장부를 갱신하며 Phase1 종료나 다음 단계 진입은 자동이 아니다.
+계획 감사 PASS·owner 승인 뒤 P1-R-01은 p95 기준 미달로 미채택·원복, P1-S는 digest 비용 조건 실패로 미구현·보류했다. P1-U는 보류, P1-05는 소유자 결정으로 제외했다. 실제 구현·감사 지적은 위 공유 장부를 갱신하며 Phase1 종료나 다음 단계 진입은 자동이 아니다.
 
 ## 기존 단계별 설계·구현 기록
 
