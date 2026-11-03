@@ -178,4 +178,13 @@ P0(유실·보안·돌이킬 수 없는 손상)/P1(중대한 기능·영속 오�
 - 구현 시작 HEAD `2b4e168ebf1d8ba8ce5c9a48d7257a24bbd0c8a7`, `main`에서 같은 HEAD의 `phase1/mitigations`를 생성했다. 생성 직후 index/staged가 동일함을 확인했다. 이전 tracked dirty15개(계획 roadmap/목차 포함)·untracked 자료를 보존했다.
 - owner가 explicit-path stage·중간 commit·개발 브랜치 push를 승인했다. unrelated 변경은 포함하지 않는다. production 접근·배포·merge/tag는 미승인이다.
 - Flutter CLI는 호출하지 않으며 설치된 compiler/host engine을 직접 사용하는 runner만 검증한다. CI가 Android 작업을 자동 시작하지 않도록 이번 milestone 메시지에 `[skip ci]`를 사용하고 실제 host 검증을 장부에 기록한다.
-- M0: 승인된 공유 계획·roadmap·목차 게시 준비. commit/push 결과는 다음 갱신에 기록한다.
+- M0: `f46a6ffb7ffdc01e55a12a79fa1bed27c55ea137` — 승인된 공유 계획·roadmap·목차를 `origin/phase1/mitigations`에 push 성공. main/production은 변경하지 않았다.
+- host runner smoke: 직접 frontend compiler + flutter_tester + 기존 test_api lifecycle로 widget1건 PASS. Flutter CLI/Android 도구 호출0회. 최초 R pilot의 root-zone stale 예외 계측 오류는 handler를 같은 zone에 붙여 수정했으며 pilot은 판정 표본에서 제외한다.
+
+### M1 — P1-R-01 구현 전 baseline
+
+- 생산 HomeShell SHA는 A 표와 동일하다. warmup5+표본20 ×50/1k행 ×양 방향, 측정80개/준비20개, 실행90.017초를 수집했다. 모든 측정에서 callback에 따른 index 전환4·refresh 진입4·실제 authoritative GET4, 최종 durable replacement1·notify1이었다. 각 요청의 trigger_page는 `[1,2,3,4]` / `[3,2,1,0]`이며 dispatch 당시 화면과 별도로 기록했다. 따라서 목적지 외 GET3개가 반복되는 baseline 조건을 통과했다.
+- 50행 0→4/4→0 median261.2055/255.321ms, 1k행1466.7165/1472.654ms. 실제 host wall이고 가상16ms frame 간격을 시간에 더하지 않았다. 첫 pilot은 warmup 이전 관측이며 통계에서 제외했다.
+- callback 수는 HomeShell onPageChanged가 동기 설치한 index의 ScrollUpdateNotification 관측이다. 실제 GET은 `BaseClient.send`에서 세었다. strict admission 자체 counter와 coordinator 내부 counter는 별도 분리하지 않았으며 성공한 durable 게시와 동일하다고 부르지 않는다. 중간 stale exception은 test-only handler에서 기록하고 원래 authority 검사를 그대로 실행했다.
+- fixture50/1k payload75,553/1,317,671B, SHA는 compact evidence에 보존했다. 미추적 P1-02 테스트 의존성을 없애기 위해 같은 fixture class를 새 R 테스트 안에 포함했으며 두 payload SHA 동일성을 재확인했다. 측정 구간·계측은 동일하다.
+- 직접 host runner smoke1건·R pilot/본 측정 각각1건 PASS. 다음은 UI 최소 변경과 교대 비교다. M1 commit/push는 다음 갱신에 기록한다.
