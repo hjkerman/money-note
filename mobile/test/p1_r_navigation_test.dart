@@ -157,6 +157,10 @@ class NavigationState extends AppState {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  if (!Platform.environment.containsKey('P1R_OUTPUT')) {
+    navigationRegression();
+    return;
+  }
   testWidgets('P1-R-01 actual navigation and authoritative HTTP trace',
       (tester) async {
     tester.view.devicePixelRatio = 1;
@@ -270,4 +274,125 @@ void main() {
           'callback_observation': 'onPageChanged synchronous index changes',
           'get_observation': 'BaseClient.send, synthetic host only'})));
   }, timeout: const Timeout(Duration(minutes: 11)));
+}
+
+void navigationRegression() {
+  testWidgets('P1-R-01 navigation freshness, interaction and form lifecycle',
+      (tester) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(400, 800);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.view.resetPhysicalSize);
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      const MethodChannel('money_note/notifications'), (call) async =>
+      switch (call.method) {
+        'permissionStatus' => <String, bool>{'listener_enabled': true,
+          'app_notifications_enabled': true, 'battery_unrestricted': true},
+        'candidateCounts' => <String, int>{'owner': 0, 'family': 0},
+        'manualReviewCount' => 0, 'configureCards' => true, _ => null,
+      });
+    addTearDown(() => tester.binding.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+            const MethodChannel('money_note/notifications'), null));
+    final fixture = NavigationFixture(50);
+    await tester.runAsync(fixture.prepare);
+    final directory = (await tester.runAsync(() =>
+        Directory.systemTemp.createTemp('p1r-functional-')))!;
+    final transport = NavigationTransport(fixture.beforeBytes);
+    final store = NavigationStore(directory);
+    final state = NavigationState(MoneyNoteApiClient(client: transport,
+      baseUrl: 'https://p1r.invalid'), offlineStore: store,
+      snapshotRepository: LocalSnapshotRepository(
+          directoryProvider: () async => directory));
+    final b = fixture.initial;
+    state..isBootstrapping = false..user = b.user..summary = b.summary
+      ..cardPaymentStatus = b.cardPaymentStatus..judgment = b.judgment
+      ..monthCloseStatus = b.monthCloseStatus..settings = b.settings
+      ..ownerDiscountMonth = b.ownerDiscountMonth
+      ..familyDiscountMonth = b.familyDiscountMonth
+      ..transitDiscountProfile = b.transitDiscountProfile..entries = b.entries
+      ..confirmedPlannedEntries = b.confirmedPlannedEntries
+      ..panels = b.panels..cashFlows = b.cashFlows;
+    final expectJump = Platform.environment['P1R_EXPECT_JUMP'] == '1';
+    final checks = <String>[];
+    var disposed = false;
+    void select(int index) => tester.widget<NavigationBar>(
+        find.byType(NavigationBar)).onDestinationSelected!(index);
+    void clear() {
+      state.pending.clear();state.calls.clear();state.errors.clear();
+      transport.requests.clear();
+    }
+    Future<void> settle(int index) async {
+      for (var i = 0; i < 18; i++) {
+        await tester.pump(const Duration(milliseconds: 16));
+        await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+      }
+      await tester.runAsync(() => Future.wait(state.pending));
+      await tester.pumpAndSettle();
+      expect(tester.widget<NavigationBar>(find.byType(NavigationBar))
+          .selectedIndex, index);
+      final dynamic shell = tester.state(find.byType(HomeShell));
+      expect(shell.index, index);
+    }
+    try {
+      await tester.pumpWidget(MoneyNoteApp(
+          stateOverride: state, bootstrapOnStart: false));
+      await tester.pumpAndSettle();
+      expect(MediaQuery.textScalerOf(tester.element(find.byType(HomeShell)))
+          .scale(1), 1);
+      clear();select(4);await settle(4);
+      expect(transport.requests.where((r) => r['trigger_page'] == 4).length, 1);
+      if (expectJump) expect(transport.requests.length, 1);
+      checks.add('distant destination refresh');
+      clear();select(4);await settle(4);
+      expect(transport.requests, isEmpty);checks.add('same-tab no-op');
+      clear();select(3);await settle(3);
+      expect(state.calls, [3]);expect(transport.requests.length, 1);
+      checks.add('adjacent animation and refresh');
+      clear();await tester.drag(find.byType(PageView), const Offset(300, 0));
+      await settle(2);expect(state.calls, [2]);
+      checks.add('manual swipe and refresh');
+      clear();select(0);await settle(0);
+      expect(transport.requests.where((r) => r['trigger_page'] == 0).length, 1);
+      if (expectJump) expect(transport.requests.length, 1);
+      checks.add('reverse distant destination refresh');
+      clear();select(4);
+      for (var i = 0; i < 3; i++) {
+        await tester.pump(const Duration(milliseconds: 16));
+        await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+      }
+      select(0);await settle(0);checks.add('rapid reversal');
+      clear();select(1);await tester.pump(const Duration(milliseconds: 32));
+      select(4);await settle(4);checks.add('selection during adjacent animation');
+      clear();select(2);await settle(2);
+      final input = find.byType(TextField).first;
+      await tester.enterText(input, 'P1-R 입력 보존');
+      final focus = FocusManager.instance.primaryFocus;
+      state.notifyListeners();await tester.pump();
+      expect(find.text('P1-R 입력 보존'), findsOneWidget);
+      expect(FocusManager.instance.primaryFocus, same(focus));
+      checks.add('draft/focus on parent notification');
+      clear();await tester.runAsync(state.refreshEntriesArea);
+      await tester.pumpAndSettle();
+      expect(find.text('P1-R 입력 보존'), findsOneWidget);
+      expect(FocusManager.instance.primaryFocus, same(focus));
+      checks.add('draft/focus on authoritative refresh');
+      FocusManager.instance.primaryFocus?.unfocus();await tester.pumpAndSettle();
+      clear();select(1);await tester.pump(const Duration(milliseconds: 16));
+      await tester.pumpWidget(const SizedBox.shrink());
+      state.dispose();
+      disposed = true;
+      await tester.runAsync(() => Future.wait(state.pending));
+      await tester.pumpAndSettle();checks.add('dispose during navigation');
+      final output = Platform.environment['P1R_FUNCTIONAL_OUTPUT'];
+      if (output != null) await tester.runAsync(() => File(output)
+          .writeAsString(jsonEncode({'checks': checks})));
+    } finally {
+      await tester.pumpWidget(const SizedBox.shrink());
+      if (!disposed) state.dispose();
+      await tester.runAsync(() => Future.wait(state.pending));
+      transport.close();
+      await tester.runAsync(() => directory.delete(recursive: true));
+    }
+  });
 }

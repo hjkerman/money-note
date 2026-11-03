@@ -46,7 +46,7 @@
 | P1-03 | Snapshot save/list/validation 비용 귀속 | 분석 완료 B / 전체 PARTIAL — 자동 ADB 기동 위반·종료 기록 보존 |
 | P1-04 | backend SQL/query/presenter 비용 귀속 | COMPLETE — C, 구현0개 |
 | P1-05 | 웹 Refresh·archive 취득 비용 귀속 | SKIPPED BY OWNER DECISION |
-| P1-R | 불필요한 모바일 Refresh·반복 authoritative bundle 취득 | 조사 COMPLETE — B / P1-R-01 CONDITIONAL ADOPT, 계획 감사·baseline·구현 승인 대기 |
+| P1-R | 불필요한 모바일 Refresh·반복 authoritative bundle 취득 | 조사 B 보존 / R-01 실제 GET4→1 확인했으나 대조p95 110.37%로 NOT ADOPTED·원복 |
 | P1-S | Snapshot save/list 내부 반복 검증 최적화 | CONDITIONAL ADOPT, 계획 감사·보호 소스 승인·digest 비용 조건 대기 |
 | P1-U | P1-02 UI 파생값·rebuild 구현 후보 | DEFER — 현재 이득 대비 protected invalidation 변경 위험으로 구현 제외 |
 
@@ -264,3 +264,5 @@ B05/B08의 추가 확대 실험은 첫 후보에서 제외한다. 이미 전체 
 **P1-02 후속 기록:** 생산 수정0개, baseline32구성 수집 완료, 기존 UI6건·보호 검사29건·웹 build·backend 기능3건 통과. 원문과 [원시 근거](../benchmarks/p1-02-flutter-rebuild-raw.json.gz)는 기존 compact JSON의 `p1_02`에 연결한다. **다음 행동은 후보를 자동 시작하지 않고 현재 기준으로 1단계 종료 여부를 한 번 검토하는 것이다.** 2~4단계와 Snapshot 확장성은 시작하지 않았다.
 
 **완화 구현 승인(2026-11-03):** owner가 P1-R-01, P1-S repository와 직접 SHA/무결성 검사 변경을 승인했다. R 처분 뒤 S를 실행하고 P1-U는 보류한다. dirty worktree를 보존하며 `phase1/mitigations`에 한정된 중간 결과를 commit/push한다. 다음 독립 감사는 구현 batch의 Mitigation Audit이며 배포·다음 단계는 미승인이다. 실제 결과·commit/push는 [공유 장부](phase1-mitigation-plan.md)에 누적한다.
+
+**R-01 구현 처분:** 승인된 3블록 측정840개에서 중간 GET3개 감소·주 latency 감소를 확인했지만 작은 인접 대조p95가110% 기준을 넘었다. NOT ADOPTED로 HomeShell을 원래 SHA로 복구했고 직접 host focused132건이 통과했다. raw·한계·다음 S 조건 확인은 공유 장부/단일 mitigation 근거에 보존한다. 1단계는 진행 중이다.

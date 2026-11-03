@@ -1,6 +1,6 @@
 # Phase 1 성능 완화 공유 계획·작업 장부
 
-작성: 2026-11-03. **IMPLEMENTATION AUTHORIZED — Planning Audit PASS, owner 승인 완료. R-01 baseline 대기, S는 R 처분 뒤 진행.** 이 문서는 계획 검토, 이후 승인된 구현, 감사 지적과 수정 결과를 계속 기록하는 단일 장부다. 현재 세션이 Implementation Session을 유지한다. 조건부 채택은 구현 승인이나 성능 개선 입증이 아니다.
+작성: 2026-11-03. **IMPLEMENTATION AUTHORIZED — Planning Audit PASS, owner 승인 완료. R-01 미채택·원복 완료, S 사전 조건 확인이 다음이다.** 이 문서는 계획 검토, 이후 승인된 구현, 감사 지적과 수정 결과를 계속 기록하는 단일 장부다. 현재 세션이 Implementation Session을 유지한다. 조건부 채택은 구현 승인이나 성능 개선 입증이 아니다.
 
 ## A. 범위와 기준선
 
@@ -29,7 +29,7 @@
 
 ### 범위와 불변식
 
-순서는 **1단계 UI·앱 처리 성능 → 2단계 모바일 전송량 → 3단계 dead code·중복 정리 → 4단계 최종 감사**, 다음은 별도 대형 Snapshot 확장성이다. 이번에는 계획·문서와 정적 확인만 수행했다. 운영 DB/API 접근, 새 성능 실험, npm/backend/Flutter 테스트·빌드는 실행하지 않았다. 실행 코드가 바뀌는 후속 작업에서 관련 검증을 수행한다.
+순서는 **1단계 UI·앱 처리 성능 → 2단계 모바일 전송량 → 3단계 dead code·중복 정리 → 4단계 최종 감사**, 다음은 별도 대형 Snapshot 확장성이다. 계획 작성 차수에는 문서·정적 확인만 수행했다. owner 구현 승인 뒤 실행 결과는 E와 milestone 기록에 누적한다. 운영 DB/API·배포는 계속 미승인이다.
 
 금융 의미의 원본은 [domain-model](../domain-model.md), 신뢰·게시 경계는 [architecture](../architecture.md), pending/reconciliation은 [offline-mode](../offline-mode.md)다. 서버 금융 authority·exact money·strict admission·revision/generation/auth·durable pending·Offline reconciliation·원자적 baseline 교체·Snapshot 복구·UI 게시 순서·mutation 완료 의미를 유지한다. 정상 모바일 baseline은 **JSON 파일**이며 SQLite로 바꾸지 않는다. 모바일 독립 금융 재계산을 추가하지 않는다. Snapshot 작업은 [security](../security.md)·[runbook](../runbook.md)의 백업/복원 경계도 유지한다.
 
@@ -39,7 +39,7 @@ F01 BINDING—UNRESOLVED, 유효 G1, G2 미채택, operational ADB 차단, 실�
 
 ### 공통 측정·처분 원칙
 
-동일 fixture/도구/host와 동일 관측 코드를 양쪽에 적용한다. 초기화·fixture 생성·warmup은 측정 밖이다. 실제 Stopwatch wall time과 작업 수를 기록하며 중첩 타이머를 합산하지 않는다. debug JIT·가상 frame 간격을 release/단말 frame 성능으로 표현하지 않는다. 원 표본·fixture/source/toolchain SHA·실행 순서는 후속 단일 `docs/benchmarks/phase1-mitigation-evidence.json.gz`의 R/S 항목에 누적하고 여기서 연결한다. 이번에는 생성하지 않으며 결과 보고서를 과제마다 만들지 않는다. 기존 원시 근거는 수정하지 않는다.
+동일 fixture/도구/host와 동일 관측 코드를 양쪽에 적용한다. 초기화·fixture 생성·warmup은 측정 밖이다. 실제 Stopwatch wall time과 작업 수를 기록하며 중첩 타이머를 합산하지 않는다. debug JIT·가상 frame 간격을 release/단말 frame 성능으로 표현하지 않는다. 원 표본·fixture/source/toolchain SHA·실행 순서는 후속 단일 `docs/benchmarks/phase1-mitigation-evidence.json.gz`의 R/S 항목에 누적하고 여기서 연결한다. M1부터 생성하며 결과 보고서를 과제마다 만들지 않는다. 기존 원시 근거는 수정하지 않는다.
 
 원칙은 warmup5·표본20·교대3블록이다. 고비용 P1-S는 아래 사전 축소 설계를 사용한다. 이 차이는 결과를 본 뒤 기준을 낮추는 것이 아니다. 중앙값은 각 블록에서 비교하고 p95는 nearest-rank로 계산한다. 소표본 p95는 최댓값임을 표시한다. 시간 예산·표본을 충족하지 못하거나 결과가 혼재하면 미채택/보류로 끝낸다. 성공 기준을 사후 완화하거나 다음 후보를 새로 찾지 않는다.
 
@@ -49,7 +49,7 @@ F01 BINDING—UNRESOLVED, 유효 G1, G2 미채택, operational ADB 차단, 실�
 
 | ID | 결정 | 우선순위 | 대상 | 상태 | 감사 |
 | --- | --- | --- | --- | --- | --- |
-| P1-R-01 | CONDITIONAL ADOPT | 1 | 비인접 하단 탭 선택만 직접 이동 | 구현 승인·HTTP baseline 조건 대기 | Planning Audit PASS |
+| P1-R-01 | NOT ADOPTED | 완료 | 비인접 하단 탭 선택만 직접 이동 | 3블록 p95 기준 미달·UI 원복 | Planning Audit PASS, batch 감사 대기 |
 | P1-S | CONDITIONAL ADOPT | 2 | 한 save 안에서 내용 일치를 확인한 검증 결과만 재사용 | 보호 소스·관련 SHA 검사 변경 승인, 비용 조건 대기 | Planning Audit PASS |
 | P1-U | DEFER | 후속 구현 없음 | expenseEntries invalidation/파생 view | 위험·이득 대비 보류 | owner 유지 |
 
@@ -72,7 +72,7 @@ F01 BINDING—UNRESOLVED, 유효 G1, G2 미채택, operational ADB 차단, 실�
    첫 A 블록은 **생산 코드 변경 전에** warmup5+측정20이다. 두 규모의 양 방향에서 각20표본 모두 목적지 외 실제 GET이 적어도1회 있어야 구현 조건을 통과한다. 충족하지 못하면 **NOT ADOPTED**로 기록하고 변경하지 않는다. 실제 앱 입력·비용과 다른 전이를 만들어 조건을 맞추지 않는다.
 8. **성능·기능 수용:** 동일 runner로 A/B, B/A, A/B 3블록, 각 variant warmup5+측정20. 비교 사본은 검증한 before-image에서 만들며 git checkout/reset을 쓰지 않는다. 전체 측정 상한 **600초**다. 측정하는 정상 온라인·pending 없는 fixture에서는 매 표본 중간 GET0·최종 목적지 GET1, 관련 admission/게시가 목적지 상태에 연결되어야 한다. 양 방향·두 규모의 전체 leg wall 중앙값이 **모든 블록에서 감소**해야 한다. 0→1/1→0 인접 이동·동일 탭 대조도 같은 표본 수로 측정하고 wall p95는 각 baseline의110% 이하여야 한다. 요청 감소와 latency 감소는 따로 보고하고 실제 RTT·단말 성능 개선으로 확대하지 않는다.
 9. **회귀:** 정방향/역방향 비인접 이동, 인접 이동, 수동 swipe, 동일 탭, 이동 중 재선택·0→4→0 연타와 animation 도중 탭 선택, dispose, 부모 notify 후 selectedIndex/실제 화면 일치를 확인한다. 명시 새로고침/실패 후 retry·로딩/오류 표시, 입력 draft·focus/편집 상태, 행 category/net/delete 대상, Offline disabled·예상값을 기존 focused 테스트로 확인한다. mutation/auth/generation/durable 경계의 기존 직접 관련 회귀도 통과해야 한다. 비인접에서 새로 중간 화면/요청이 끼거나 기존 인접·swipe 의미가 바뀌면 실패다.
-10. **거부·복구:** HTTP 조건 미충족, 목적지 freshness/identity 회귀, 혼재/불확실한 시간 결과, p95 초과, 보호 소스 변경 필요 시 미채택 또는 권한상 보류다. 이미 구현했다면 현재 파일과 task diff를 대조해 **해당 UI 변경만** verified before-image로 복구하고 관련 기능 회귀를 재확인한다. 다른 변경을 덮어쓰거나 Git index를 조작하지 않는다.
+10. **거부·복구:** HTTP 조건 미충족, 목적지 freshness/identity 회귀, 혼재/불확실한 시간 결과, p95 초과, 보호 소스 변경 필요 시 미채택 또는 권한상 보류다. 이미 구현했다면 현재 파일과 task diff를 대조해 **해당 UI 변경만** verified before-image로 복구하고 관련 기능 회귀를 재확인한다. 다른 변경을 덮어쓰거나 무관한 staged 항목을 조작하지 않는다. owner가 승인한 명시 경로 stage·commit·push만 수행한다.
 11. **의존·순서:** 계획 감사·소유자 UI 실험 승인 이후 첫 과제다. 검증된 host runner/유효 fixture가 없으면 BLOCKED로 처분한다. 네트워크 설계나 S/U 구현을 선행 조건으로 추가하지 않는다.
 
 ### P1-S — 한 save 안의 내용 기반 검증 결과 재사용
@@ -129,11 +129,11 @@ F01 BINDING—UNRESOLVED, 유효 G1, G2 미채택, operational ADB 차단, 실�
 
 ## E. 공유 구현 로그와 운영 순서
 
-아직 실행한 baseline·후속 성능 비교·생산 수정은 없다. 아래 행을 갱신하며 별도 mitigation 보고서를 만들지 않는다.
+승인된 baseline·구현·비교를 아래 행과 milestone 기록에 누적하며 별도 mitigation 보고서를 만들지 않는다.
 
 | ID | 상태 | 실제 변경 파일·구현 요약 | baseline / 변경 후 | 실행 테스트·결과 | 한계·commit/source |
 | --- | --- | --- | --- | --- | --- |
-| P1-R-01 | PLANNED — AUDIT PENDING | 없음 | 미실행 / 해당 없음 | 미실행 | 중간 실제 GET 미측정, 현재 source는 A 표 |
+| P1-R-01 | COMPLETE — NOT ADOPTED | UI 4행 trial을 정확히 원복, R 테스트/근거 보존 | 모든 블록 GET4→1·durable1, 대조p95 한 구성110.37% | 후보 탐색1건·원복 후 focused132건 PASS | 최종 HomeShell SHA=A 표, M2 게시 준비 |
 | P1-S | PLANNED — AUDIT PENDING | 없음 | 과거 P1-03만 있음 / 해당 없음 | 미실행 | receipt 비용/보호 소스 승인 미확보, 현재 source는 A 표 |
 | P1-U | DEFERRED | 없음 | 과거 P1-02 재사용 | 새 실행 없음 | D의 이득·위험 처분 |
 
@@ -155,7 +155,7 @@ F01 BINDING—UNRESOLVED, 유효 G1, G2 미채택, operational ADB 차단, 실�
 
 | Finding ID | 대상 | 심각도 | 재현/소스 근거 | 필요한 수정 | 구현 응답 | 재검사 | 최종 처분 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 아직 없음 | 계획·구현 감사 미실시 | — | — | — | — | — | 결함 부재 판정이 아님 |
+| 계획 감사 결과 수령 | 계획 전체 | BLOCKER/MAJOR 없음(owner 전달) | PASS — READY FOR OWNER APPROVAL | owner scoped 구현 승인 완료 | R부터 순차 실행 | 독립 Mitigation Audit는 batch 뒤 | 구현 감사 미실시 |
 
 P0(유실·보안·돌이킬 수 없는 손상)/P1(중대한 기능·영속 오류)은 해당 작업 종료 전에 수정·집중 회귀하거나 명시 차단한다. P2는 변경에 material하면 수정하고 아니면 근거 있는 보류를 기록한다. P3는 기록/기회성 수정으로 처분하며 반복 수정 루프의 근거로 삼지 않는다. 성능 이득을 이유로 계약을 약화하지 않는다. 근거 없는 가상 blocker·모든 동시성 순열 증명·과거 gate 재개를 요구하지 않는다. 사소한 수정마다 전면 재감사하지 않고 관련 변경만 재검사한다.
 
@@ -188,3 +188,22 @@ P0(유실·보안·돌이킬 수 없는 손상)/P1(중대한 기능·영속 오�
 - callback 수는 HomeShell onPageChanged가 동기 설치한 index의 ScrollUpdateNotification 관측이다. 실제 GET은 `BaseClient.send`에서 세었다. strict admission 자체 counter와 coordinator 내부 counter는 별도 분리하지 않았으며 성공한 durable 게시와 동일하다고 부르지 않는다. 중간 stale exception은 test-only handler에서 기록하고 원래 authority 검사를 그대로 실행했다.
 - fixture50/1k payload75,553/1,317,671B, SHA는 compact evidence에 보존했다. 미추적 P1-02 테스트 의존성을 없애기 위해 같은 fixture class를 새 R 테스트 안에 포함했으며 두 payload SHA 동일성을 재확인했다. 측정 구간·계측은 동일하다.
 - 직접 host runner smoke1건·R pilot/본 측정 각각1건 PASS. 다음은 UI 최소 변경과 교대 비교다. M1 commit/push는 다음 갱신에 기록한다.
+
+- M1 게시: `7ad6c88f6e018acf1b985e71fc6e347043271172` — `origin/phase1/mitigations` push 성공. 현재 R 교대 비교 진행 중이며 S는 미착수다.
+
+### M2 — P1-R-01 최종 처분: NOT ADOPTED / UI 원복
+
+- 3교대 블록, warmup5+표본20, 측정840개/준비210개, 전체404.343초로600초 한도 안에 종료했다. 비인접50/1k 양 방향에서 baseline4 GET→후보1 GET, callback/index 전환4→1·refresh 진입4→1·최종 durable 게시1/notify1을 모든 표본에서 확인했다.
+
+| 블록 | 50행 0→4 A/B ms | 50행 4→0 A/B ms | 1k행 0→4 A/B ms | 1k행 4→0 A/B ms | 작은 대조 최대 p95 B/A |
+| --- | --- | --- | --- | --- | --- |
+| 1 | 261.206 / 88.088 | 255.321 / 82.722 | 1466.717 / 420.875 | 1472.654 / 411.391 | 103.76% |
+| 2 | 266.250 / 84.617 | 261.192 / 76.635 | 1462.671 / 416.409 | 1467.733 / 417.441 | 106.07% |
+| 3 | 277.607 / 83.086 | 273.240 / 77.016 | 1572.298 / 432.370 | 1571.833 / 423.493 | **110.37% — FAIL** |
+
+- 블록3의 50행 인접0→1 p95는 A139.158ms/B153.590ms, 허용 상한153.0738ms를0.5162ms 넘었다. 잡음 가능성을 이유로 재시험/기준 변경하지 않았다. count·주 latency 개선은 확인했지만 **최종 NOT ADOPTED**다. 프로덕션 HomeShell은 검증한 before-image와 byte 동일한 `e2e4b53496b9950f27666377c6fae7543021cbf770ad412f31d6196b8aa4b5d4`로 복구했다. 실제 앱에 요청 감소를 남겼다고 주장하지 않는다.
+- 후보 탐색 회귀1건의10개 체크(양 방향·동일탭·인접·swipe·빠른 반전·animation 중 재선택·notify/authoritative refresh의 draft/focus·dispose)가 통과했다. 원복 후 새 탐색1 + 기존 widget13 + offline refresh27 + authoritative acquisition57 + rebuild pending11 + 보호23 = **132 PASS, 실패/skip0**이다. 초기 두 실패는 각각 입력 카드가 없는 홈을 찾은 새 테스트 finder 오류와 직접 runner의 shader assets 누락이었다. 실제 당월 입력 탭·기존 host assets 경로로 수정한 검증만 최종 합계에 넣었다. 성공 로그 전문은 출력하지 않았다.
+- 계측은 host debug JIT·합성 HTTP/파일이다. 가상16ms pump 간격을 wall에 가산하지 않았다. GET의 목적은 zone trigger와 dispatch 당시 페이지를 따로 기록했다. admissions/내부 coordinator 수는 분리 미측정이다. 실제 150ms 지연 진단은 최종 수용 기준 실패로 실행하지 않았다. 기존 device/Android 제한은 그대로다.
+- 초기 A/B는 직접 메뉴 callback과 host test fonts로 실행했고(명시 assets 경로 없음), 기존 버튼 회귀는 shader/font assets 경로를 연결해 별도로 검증했다. invocation마다 정확한 flags를 raw 근거에 보존하며 조건이 다른 회귀를 A/B 시간으로 합치지 않는다. 실기기 발생률·RTT·GPU 효과는 미검증이다.
+- 새 R 테스트는 환경변수 없는 일반 실행에서 기능 회귀만 수행하며, 긴 benchmark는 명시적인 P1R_OUTPUT 설정 때만 실행한다. 이전 untracked P1-02 파일이나 다른 dirty 소스는 커밋하지 않았다.
+- M2 commit/push 결과는 다음 갱신에서 실제 SHA로 기록한다. R 처분이 완료됐으므로 이후 S 사전 조건을 확인할 수 있다.
