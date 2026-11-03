@@ -239,7 +239,7 @@ B05/B08의 추가 확대 실험은 첫 후보에서 제외한다. 이미 전체 
 | 단계 | 종료에 필요한 유한 조건 | 현재 상태 |
 | --- | --- | --- |
 | 1단계 | UI15/처리12 지도, 근거별 우선순위, §2.1 조사와 공유 계획 G의 승인된 완화 작업·감사 지적 처분 완료. 모든 병목 제거는 불필요하며 권한/위험상 보류 가능. 채택 변경의 기능·성능 회귀 통과·미해결 신규 P0/P1 없음·잔여 불확실성 §8 이월 | P1-01 미채택·원복, P1-02 보호 경로 보류, P1-03 B/전체 PARTIAL·미구현, P1-04 C 완료. R-01 최초 실패 보존·owner1회 예외 재채택·활성132 PASS, S/U 보류, P1-05 소유자 제외. **CLOSED — 최종 독립 감사 PASS·owner 종료 승인, S/U 보류 유지** |
-| 2단계 | 별도 승인된 모바일 전송량 분석·최적화와 전후 측정·채택/미채택 처분 완료, 안전 계약과 기능 회귀 유지, 남은 불확실성 §8 이월 | **IN PROGRESS — N01 구현·검증 PARTIAL(trailer 거부1 FAIL), 독립 변경 감사 대기. N02~N05 미구현** |
+| 2단계 | 별도 승인된 모바일 전송량 분석·최적화와 전후 측정·채택/미채택 처분 완료, 안전 계약과 기능 회귀 유지, 남은 불확실성 §8 이월 | **IN PROGRESS — N01-A01 수정·focused 검증 완료, 독립 재감사 대기. 최초 PARTIAL/REWORK 보존. N02~N05 미구현** |
 | 3단계 | 좁은 inventory의 고신뢰 dead/redundant 항목만 정리, 동적/호환 consumer 보존, 관련 Flutter/backend/web 회귀·build 통과, 미확정 비중요 항목 처분 | 계획 준비, **진입 전** |
 | 4단계 | 단일 감사표 완료, P0/P1 해결 또는 명시 차단, P2/P3 처분, 집중 회귀와 최종 통합 suite 통과, source locks·역사 증거 보존, 기기/배포 제약 명시 | 계획 준비, **진입 전** |
 
@@ -276,3 +276,5 @@ B05/B08의 추가 확대 실험은 첫 후보에서 제외한다. 이미 전체 
 **Phase 2 조사 완료:** [모바일 네트워크 후보 문서](phase2-mobile-network-optimization-candidates.md)와 단일 압축 근거에 현재 source·합성3규모·실제 IOClient84개 전송/6개 byte-exact 대조를 보존한다. 우선 N01 Bundle/Snapshot 응답 gzip, N02 자동 백업 Snapshot 재사용은 계약 확인 조건부다. 304·request gzip은 보류, 필드/history 삭제·segmented 활성화는 제외다. Phase1은 CLOSED이며 재개하지 않는다. 다음은 독립 Phase2 Candidate Audit이고 구현·Phase3/4·확장성·배포는 미착수다.
 
 **P2-N01 scoped 구현:** owner 승인으로 두 GET route의 완성 JSON gzip helper를 구현했다. backend139·기존 모바일91 PASS, 신규 모바일5 PASS/1 FAIL(trailer 거부 미충족), 자원·bytes 근거와 조건부 상태는 [후보 문서 §9](phase2-mobile-network-optimization-candidates.md#9-p2-n01-한정-구현--implemented--verification-partial)에 둔다. 검증 PARTIAL이며 다음은 독립 변경 감사다. 다른 Phase2 후보·Phase3/4·배포는 미착수다.
+
+**N01-A01 correction:** owner 승인 후 모바일 raw gzip transport와 archive3.6.1을 연결했다. 기존 trailer 거부 포함 신규10·기존91 host PASS, backend7 PASS. [후보 문서 §10](phase2-mobile-network-optimization-candidates.md)에 자원 한계·단일 member 정책·검증·재감사 인계를 기록했다. 최종 수용·Phase2 종료·운영 배포는 선언하지 않는다.

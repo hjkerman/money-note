@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'models.dart';
 import 'money.dart';
+import 'response_coding_client.dart';
 
 // Grammar source only. This does not authorize a command or change J admission.
 enum _WriteMoneySource { input, mobileWinsBaseline }
@@ -22,7 +23,7 @@ class MoneyNoteApiClient {
   MoneyNoteApiClient({
     http.Client? client,
     String? baseUrl,
-  })  : _client = client ?? http.Client(),
+  })  : _client = ResponseCodingClient(client: client),
         baseUrl = baseUrl ??
             const String.fromEnvironment('MONEY_NOTE_API_BASE_URL',
                 defaultValue: 'http://10.0.2.2:18080');

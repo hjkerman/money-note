@@ -1,8 +1,8 @@
 # Phase 2 모바일 네트워크 전송량 조사·후보
 
-**DISCOVERY COMPLETE / N01 IMPLEMENTED — VERIFICATION PARTIAL, 독립 변경 감사 대기.** Phase 1은 owner가 전달한 최종 독립 감사 **PASS — MITIGATION ACCEPTED**로 종료했다. R-01 채택·활성132 PASS·GET4→1·원110.37% 실패와1회 예외·거부/원복 기록을 보존한다. S/U는 DEFERRED이며 재개하지 않는다. 전체 개발 종료·배포 준비 판정이 아니다.
+**N01-A01 CORRECTED — 독립 재감사 대기. 기존 PARTIAL·REWORK 보존.** Phase 1은 owner가 전달한 최종 독립 감사 **PASS — MITIGATION ACCEPTED**로 종료했다. R-01 채택·활성132 PASS·GET4→1·원110.37% 실패와1회 예외·거부/원복 기록을 보존한다. S/U는 DEFERRED이며 재개하지 않는다. 전체 개발 종료·배포 준비 판정이 아니다.
 
-§1~7은 원 discovery 기록이며, §8은 당시 차단된 preflight, **§9는 이후 승인된 N01 구현의 최신 상태**다.
+§1~7은 원 discovery 기록이며, §8은 당시 차단된 preflight, §9는 최초 구현, **§10은 승인된 A01 수정의 최신 상태**다.
 
 ## 1. 기준선·범위
 
@@ -263,3 +263,22 @@ T6.6A의 긴 random hex/한글 다양성10k control은 gzip 감소90.80%였다. 
 **다음 행동 하나:** 독립 change-scoped implementation audit에서 변경과 미충족 trailer 거부 조건을 검토하고, client 수정이 필요하면 그 한정 범위를 owner가 별도 승인한다.
 
 검증 종료 후 task runner0개를 확인하고 이번 작업 소유 scratch의 파일/링크304개(논리523,574,977B, symlink139개)를 정리했다. raw 측정·로그·host runner는 단일 구현 근거에 보존하고 기존 dependency 링크 대상을 따라가 삭제하지 않았다. 관련10개 경로만 개발 브랜치에 게시하며, 기존 dirty13개·미추적 작업·역사 근거와 source lock은 보존했다.
+
+
+## 10. N01-A01 scoped correction — 구현 완료 / 독립 재감사 대기
+
+owner가 독립 감사 **REWORK / N01-A01 MAJOR**의 모바일 transport 수정을 승인했다. 기준은 `phase2/mobile-network / a5adff9f3e7c04ba0c2ab348d6dc4fff054ad309`다. §9의 PARTIAL·5/6 PASS·trailer 수용과 원 audit 이력은 그대로 보존한다. 이번 수정은 구현 완료이며 P2-N01 최종 수용·배포 판정이 아니다.
+
+- **원인:** dart:io autoUncompress는 incomplete member를 해제된 bytes로 반환할 수 있다. 완전한 JSON이면 후속 SHA/admission이 gzip framing 누락을 판별할 수 없다.
+- **수정:** 새 `mobile/lib/src/response_coding_client.dart`를 API client에 연결했다. 두 GET만 `IOClient(HttpClient()..autoUncompress=false)`를 사용해 raw body를 끝까지 읽고 Content-Length를 검사한다. 원래 package:http/IOClient stack·인증 header·status·request·redirect·connection metadata·timeout/abort·retry 정책을 유지하고, 다른 endpoint는 기존 자동 해제 client로 보낸다. injected client도 raw coding 선언을 지켜야 하며 이미 해제된 본문에 gzip을 선언하면 이중 해제 대신 거부한다.
+- **decoder:** cached `archive 3.6.1`, SDK ^3.0.0은 프로젝트 >=3.3.0 <4.0.0과 호환된다. SDK `dart pub get --offline` 결과 **archive 하나 추가**, 기존 crypto/path를 재사용하고 다른 upgrade는 없다. library `GZipDecoder.decodeBuffer(InputStream, verify:true)`가 framing/종료/trailer CRC32·ISIZE를 검사하고 최종 input.position이 원문 길이와 같은지 확인한다. 자체 inflate/parser·SDK fork는 없다.
+- **명시 정책:** 단일 표준 member만 허용. library3.x가 검증하지 않는 FHCRC 등을 피하도록 optional/reserved flags가 있는 header는 거부한다. trailing garbage·concatenated members·unsupported/빈/복수 Content-Encoding도 거부한다. gzip body에 identity/누락 metadata가 있는 명백한 magic 조합은 거부하고 인코딩을 추측해 해제하지 않는다. identity는 그대로 호환된다. 해제 후 Content-Encoding/Transfer-Encoding을 제거하고 decoded Content-Length를 설정한다. 실패 시 성공 bytes·identity fallback·자동 재요청은 없다.
+- **자원:** 압축 입력과 decoded 출력이 검증 완료까지 메모리에 존재하며 library 출력 capacity와 HTTP Response의 decoded bytes 사본이 일시적으로 겹칠 수 있다. 이전 전체 JSON admission의 문자열·모델 메모리는 그대로이며 cross-request cache가 없다. 임의의 작은 크기 상한을 추가하지 않았다. decoder는 main isolate에서 동작하므로 CPU/GC 비용이 있다. 기존 AppState에는 전역 동시 취득 상한이 없어 실제 in-flight 수는 겹친 호출에 따라 달라지고, 메모리도 응답 크기·동시 수에 비례한다. 두 connection pool은 endpoint별 기존 IOClient 동작을 유지하며 새 concurrency gate는 추가하지 않았다.
+- **bounded 관찰:** 기존 376/1k/10k 두 응답6개를 실제 loopback으로 각1회 수신했다. 10k Bundle/Snapshot의 request+검증 wall 관찰은 약56.5/48.1ms, 전체 host VM/누적 테스트의 최고 RSS는 약255.4MiB였다. cold376은93.4ms였다. 반복통계·decoder 단독 CPU·isolated allocation·Android 메모리 수치가 아니며 이전 backend gzip CPU와 비교/합산하지 않는다. 상세 원시 수치는 구현 evidence의 `a01_correction.resources`에 있다. 최적화 캠페인을 새로 열지 않았다.
+- **결과:** 기존 trailer 거부 테스트를 포함한6건 **6/6 PASS**. 추가4건 PASS: 두 endpoint×15 wire 시나리오(정상gzip/identity·누락 metadata·unsupported·ISIZE·trailer·CRC·magic·중간절단·garbage·다중member·flags·잘못된길이·조기종료·401), decoded header·cancel·15초 API timeout, 실제 AppState mutation 후 failure 보존. 정상6개는 원문 길이/SHA 동일. 잘못된 gzip은 transport 완료 전에 거부했고 Snapshot 임시/성공 backup도 게시하지 않았다.
+- **application safety:** 실제 HTTP에서 정상 baseline 게시 후 POST1회→불완전 gzip GET1회 실패를 주입해 durable baseline 파일 bytes·기존 UI summary identity·pending 보존을 확인했다. POST 재전송 없음. 기존 authoritative acquisition57·Snapshot7·Bundle admission27도 **91 PASS**이며 owner/auth/generation·pending·publication·strict rejection corpus를 포함한다. 총 모바일 **101 PASS**, backend coding smoke7 PASS, 격리 npm build PASS다. Flutter CLI·Android·ADB·운영 접근은 없다.
+- **한계:** optional gzip header/다중member는 의도적으로 미지원이며 서버의 현 gzip level6 단일member 응답과 호환된다. 현재 최신 archive version이나 전면 dependency 보안 감사를 수행한 것은 아니다. 실기기·실제 proxy·실제 대용량 동시 사용과 decoder CPU의 정량 수용은 미검증이다. 금융/admission·AppState·OfflineStore·backend·웹·인증 계약은 수정하지 않았다.
+
+**현재 처분:** N01-A01 구현·focused 검증 완료, 독립 correction re-audit 대기. 원래 PARTIAL/REWORK를 과거 PASS로 바꾸지 않는다. 다음 행동은 **독립 N01-A01 correction re-audit** 하나다. 다른 후보·Phase3/4·배포는 시작하지 않는다.
+
+A01 증거 보존 후 task runner0개를 확인하고 이번 scratch의 파일/링크304개(논리865,187,473B)를 정리했다. 기존 cache·dependency symlink 대상은 삭제하지 않았다. correction 관련10개 경로만 개발 브랜치에 게시하고 원래 dirty13개와 역사 source lock을 보존한다.
