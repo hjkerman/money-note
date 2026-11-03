@@ -202,3 +202,19 @@ T6.6A의 긴 random hex/한글 다양성10k control은 gzip 감소90.80%였다. 
 - 합성 DB3개·current raw response blob·harness/실제 invocation·84개 wire/6개 control·초기 준비 실패와 최종 검증·source hash를 단일 근거에 보존했다. task runner0개 확인 뒤 이번 작업 소유 임시303개 파일/링크(논리207,126,536B·관찰할당208,044,032B, 약198.4MiB)를 정리했다. dependency symlink138개는 대상을 따라가지 않고 제거했으며 기존 DB/WAL/cache·dirty source·역사 증거는 건드리지 않았다.
 - 재현은 새 작업 소유 scratch에 `reproduction` 원문을 복원하고 ROOT/RUN을 맞춘다. backend fixture는 포함된 `synthetic_consistent_baseline_databases`를 입력으로 쓰거나, `backend_capture` SHA를 `response_body_blobs`에 연결해 payloads-N/name.json을 복원한다. 과거 P1-04 근거를 덮어쓰지 않는다. 내장 host_runner를 사용하며 run_network의과거 근거 읽기 부분은 task 사본에서 내장 runner로 연결할 수 있다. 정확한 실제 실행은 invocation에 있다. Flutter CLI/Android/운영 도구는 사용하지 않는다.
 - **Phase1 CLOSED / Phase2 DISCOVERY COMPLETE / Phase2 IMPLEMENTATION NOT AUTHORIZED.** 다음은 독립 Phase2 Candidate Audit다. 생산 최적화0개, schema 변경0개다.
+
+## 8. P2-N01 운영 압축 사전 점검 — 인증 문맥 부재로 차단
+
+- **2026-11-03 / BLOCKED — AUTHENTICATION REQUIRED.** 독립 후보 감사의 `B — CONDITIONAL IMPLEMENTATION READINESS` 후 owner가 승인한 것은 두 endpoint의 identity/gzip GET 최대4회와 헤더 확인뿐이며, 구현·설정 변경·배포 승인이 아니다. 기준선은 `phase2/mobile-network / 70c84f5f07c8da78ec262b08fa76f2fdaf48e600`이다.
+- 요청 전 [runbook](../runbook.md), [보안 운영](../security.md), 두 router와 인증 처리 소스를 확인했다. 문서상 HTTPS origin은 `https://money.hjkerman.re.kr`이다. 두 GET은 authoritative 조회와 Snapshot export이며 restore·reconciliation·mutation endpoint를 호출하지 않는 경로다. 다만 정상 인증 처리의 `last_seen_at` 갱신·서버 로그 등 통상 처리가 가능하므로, 실제 GET에 서버 측 효과가 전혀 없다고 주장하지 않는다. 배포된 동작은 이번에 관찰하지 못했다.
+- 이 세션에 전달된 Money Note 세션/token/cookie 환경은 없으며, runbook이 지정한 기존 cookie jar도 존재하지 않았다. 연결 도구에도 기존 인증 브라우저 문맥이 제공되지 않았다. 임의의 credential 저장소·운영 DB·운영 `.env`를 탐색하지 않았고 로그인·새 자격 증명 취득·인증 우회도 하지 않았다.
+- **실제 HTTP 요청0/4회.** 인증 없는401/403·HEAD·별도 health 요청으로 대체하지 않았다. 응답 본문·credential·PII는 수신·출력·저장하지 않았으며, 관찰한 응답 헤더도 없다.
+
+| Endpoint | identity GET | gzip GET | 분류 |
+| --- | --- | --- | --- |
+| `/api/authoritative-state` | 미실행 | 미실행 | **INCONCLUSIVE** |
+| `/api/admin/snapshot` | 미실행 | 미실행 | **INCONCLUSIVE** |
+
+두 endpoint 모두 status·Content-Encoding·Vary·Content-Length·Transfer-Encoding·Cache-Control·본문 전송 여부·intermediary 변환 여부는 **미관찰**이다. 현재 N01 구현 적격성은 **INCONCLUSIVE**이며, 기존 합성 gzip 절감치로 운영의 미압축을 추정하지 않는다. Production·인증·backend/mobile 소스 변경0개다. 이 차단 기록만 문서에 추가하며 Phase1·다른 후보 조사는 재개하지 않는다.
+
+**다음 행동 하나:** 소유자가 승인한 기존 인증 세션을 비밀값 노출 없이 사용할 경로를 지정한 뒤, 같은 두 endpoint·최대4회 한도에서 헤더 점검을 재개한다. N01 구현에는 이후 별도 owner 승인이 필요하다.
