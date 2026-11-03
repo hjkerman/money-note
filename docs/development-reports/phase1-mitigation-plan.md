@@ -267,3 +267,10 @@ P0(유실·보안·돌이킬 수 없는 손상)/P1(중대한 기능·영속 오�
 - **현재 결정: ADOPTED — ONE-TIME OWNER EXCEPTION.** 활성 correctness 범위에서 material regression은 관측하지 않았다. 독립 최종 감사나 Phase1 전체 종료 판정은 아직 아니다. P1-S/P1-U는 DEFERRED를 유지하고 다른 최적화·Phase2는 시작하지 않는다. 신규 실행/원문/로그는 기존 단일 근거의 `r01_reinstatement`에만 추가했고 종전 JSON 필드 전체의 동일성을 대조한다. 게시 SHA와 정리 결과는 다음 기록에 남긴다.
 
 - RS1 보존 확인: 시작7,947개 파일 중 명시 승인6개만 변경했고 나머지7,941개·모든 기존 dirty 파일을 보존했다. 신규/누락 파일0개, 원래 staged0개 유지 후 관련 경로만 commit한다. 종전 evidence JSON 전체 필드와 M2 이후 거부·rollback·S 보류 이력, roadmap 성능 지도/역사/순위는 동일하다.
+
+### RS1 게시·인계 완료
+
+- 채택 구현 commit **`c3b2cb8b16b615b67b26115bfd7b03a76fb1d24a`**, remote **`origin/phase1/mitigations` push SUCCESS**. 원격 tip이 해당 SHA와 일치함을 확인했다. source는 여전히 보존 B 전체와 byte 동일하며 원래110.37% 실패·거부·rollback은 보존됐다. 이 마지막 문서 commit은 성공한 게시 결과를 남기는 기록이다.
+- 활성132건의 source SHA·suite별 계수·GET/JSON 게시 readback 체크·정확한 새 테스트·직접 runner/invocation·로그·SDK/과거 근거 동일성을 단일 evidence `r01_reinstatement`에 보존했다. 새 benchmark/실기기 성능 주장은 없다.
+- task runner0개를 확인한 뒤 이번 임시263개 파일/링크(논리450,591,398B·관찰할당451,403,776B, 약430.5MiB)를 정리했다. dependency symlink138개는 대상에 들어가지 않고 링크만 제거했다. 기존 dirty source·DB/WAL/cache·역사 증거·잠금과 무관한 index 항목은 보존했다.
+- **다음은 owner의 독립 최종 P1-R-01 Mitigation Audit**다. P1-S/P1-U는 DEFERRED이며 Phase1 전체 종료·Phase2 진입·merge/tag·Production 배포를 수행하거나 선언하지 않았다.
