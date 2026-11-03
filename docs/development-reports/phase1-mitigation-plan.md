@@ -158,7 +158,7 @@ F01 BINDING—UNRESOLVED, 유효 G1, G2 미채택, operational ADB 차단, 실�
 | Finding ID | 대상 | 심각도 | 재현/소스 근거 | 필요한 수정 | 구현 응답 | 재검사 | 최종 처분 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 계획 감사 결과 수령 | 계획 전체 | BLOCKER/MAJOR 없음(owner 전달) | PASS — READY FOR OWNER APPROVAL | owner scoped 구현 승인 완료 | R부터 순차 실행 | 독립 Mitigation Audit는 batch 뒤 | 구현 감사 미실시 |
-| R-REJECTION-REVIEW-A | P1-R-01 거부 판단 | owner 예외 결정 | owner 전달 VERDICT A — RECOMMEND REINSTATEMENT | 원래 실패 보존·정확 B 복원·활성 correctness | B 동일 소스·활성132 PASS | 독립 최종 P1-R-01 감사 대기 | owner 한정 예외로 채택 |
+| R-REJECTION-REVIEW-A | P1-R-01 거부 판단 | owner 예외 결정 | owner 전달 VERDICT A — RECOMMEND REINSTATEMENT | 원래 실패 보존·정확 B 복원·활성 correctness | B 동일 소스·활성132 PASS | 최종 독립 감사 PASS — MITIGATION ACCEPTED | owner 예외 채택·Phase1 CLOSED |
 
 P0(유실·보안·돌이킬 수 없는 손상)/P1(중대한 기능·영속 오류)은 해당 작업 종료 전에 수정·집중 회귀하거나 명시 차단한다. P2는 변경에 material하면 수정하고 아니면 근거 있는 보류를 기록한다. P3는 기록/기회성 수정으로 처분하며 반복 수정 루프의 근거로 삼지 않는다. 성능 이득을 이유로 계약을 약화하지 않는다. 근거 없는 가상 blocker·모든 동시성 순열 증명·과거 gate 재개를 요구하지 않는다. 사소한 수정마다 전면 재감사하지 않고 관련 변경만 재검사한다.
 
@@ -280,4 +280,6 @@ P0(유실·보안·돌이킬 수 없는 손상)/P1(중대한 기능·영속 오�
 - owner 전달 최종 독립 감사: **PASS — MITIGATION ACCEPTED**, P1-R-01 material correctness finding 없음. 이 전달을 종료 근거로 사용하며 감사나132건을 다시 수행하지 않는다. 채택 구현 `c3b2cb8b16b615b67b26115bfd7b03a76fb1d24a`, 게시/인계 tip `cd3f385c20c02897f484e9f77c1260b7859bdaf0`의 기록을 보존한다.
 - **Phase 1 mitigation work CLOSED.** R은 owner의 한정1회 예외로 채택됐으며 원래110.37% 실패·NOT ADOPTED·rollback은 그대로다. S/U는 DEFERRED이며 이번 종료에서 재개하지 않는다. 전체 병목 제거는 종료 조건이 아니다.
 - 개발 전체 종료·formal T6.6F/T6.9·F01/G1/G2·실기기/ADB·R1·Production 준비/배포는 별도이며 현 보류·차단을 유지한다. main merge·Production 접근/배포는 승인되지 않았다.
-- 다음 허용 범위는 Phase 2 **모바일 다운로드·업로드 전송량 조사와 후보 선정만**이다. 후보는 별도 독립 감사 후 owner가 구현을 결정한다. 별도 조사 문서는 `phase2-mobile-network-optimization-candidates.md`에 작성할 예정이며 승인 전 구현하지 않는다.
+- 다음 허용 범위는 Phase 2 **모바일 다운로드·업로드 전송량 조사와 후보 선정만**이다. 후보는 별도 독립 감사 후 owner가 구현을 결정한다. 별도 [Phase2 후보 문서](phase2-mobile-network-optimization-candidates.md)에 조사·shortlist를 정리했으며 독립 후보 감사/owner 승인 전 구현하지 않는다.
+
+- Phase1 종료 commit `e5726b6def26af3d2f8c46984b718ca51ee49a80`를 `origin/phase1/mitigations`에 push 성공했다. 같은 HEAD·인덱스에서 `phase2/mobile-network`를 생성해 조사만 진행했다. 이 Phase1 장부는 종료/인계 상태를 유지하며 Phase2 상세는 별도 단일 후보 문서에서 관리한다.

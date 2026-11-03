@@ -1,6 +1,6 @@
 # Money Note 최종 최적화·종료 로드맵
 
-작성일: 2026-11-02. 완화 계획 갱신: 2026-11-03. **P1-01/P1-02 실험과 P1-03/P1-04/P1-R 조사를 완료했다. P1-01은 미채택·원복, P1-02는 보호 경로 보류, P1-03은 비용 귀속 B/전체 PARTIAL, P1-04는 C다. 1단계는 최종 독립 감사 PASS와 owner 승인으로 CLOSED이며 P1-R-01은 최초 미채택·원복 후 owner 한정 예외 승인과 활성132건 통과로 재채택, P1-S는 digest 비용 조건 실패로 보류, P1-U는 기존 보류, P1-05는 소유자 결정으로 제외했다. [공유 완화 장부](phase1-mitigation-plan.md)에 Planning Audit PASS·owner scoped 승인 뒤의 순차 실행을 기록했다. 최종 독립 Mitigation Audit는 PASS — MITIGATION ACCEPTED다. 다음은 승인된 2단계 모바일 전송량 조사·후보 선정이며 구현은 미승인이다. 삭제·최종 감사는 미착수다.** 이 문서의 READY는 실행 가능한 계획이 준비됐다는 뜻이다. 단계 종료, formal T6.6F 완료 또는 운영 준비 판정이 아니다.
+작성일: 2026-11-02. 완화 계획 갱신: 2026-11-03. **P1-01/P1-02 실험과 P1-03/P1-04/P1-R 조사를 완료했다. P1-01은 미채택·원복, P1-02는 보호 경로 보류, P1-03은 비용 귀속 B/전체 PARTIAL, P1-04는 C다. 1단계는 최종 독립 감사 PASS와 owner 승인으로 CLOSED이며 P1-R-01은 최초 미채택·원복 후 owner 한정 예외 승인과 활성132건 통과로 재채택, P1-S는 digest 비용 조건 실패로 보류, P1-U는 기존 보류, P1-05는 소유자 결정으로 제외했다. [공유 완화 장부](phase1-mitigation-plan.md)에 Planning Audit PASS·owner scoped 승인 뒤의 순차 실행을 기록했다. 최종 독립 Mitigation Audit는 PASS — MITIGATION ACCEPTED다. 승인된 2단계 모바일 전송량 조사·후보 선정을 완료했고 독립 후보 감사가 다음이다. 구현은 미승인이다. 삭제·최종 감사는 미착수다.** 이 문서의 READY는 실행 가능한 계획이 준비됐다는 뜻이다. 단계 종료, formal T6.6F 완료 또는 운영 준비 판정이 아니다.
 
 ## 1. 현재 기준선과 보류 경계
 
@@ -58,7 +58,7 @@
 
 일반 탭 refresh 전면 생략과 일반 in-flight 공유는 freshness·auth/generation·mutation 완료 의미를 바꾸므로 이 후보와 구분한다. 명시 refresh·post-mutation·reconciliation/recovery·JSON durable publication·server authority와 날짜/인증 전환은 그대로 유지한다. P1-02의5k jump1→2→0 약5.55초 전체를 낭비로 계산하지 않는다. Phase2 전송량·압축·프로토콜 조사는 미착수다.
 
-현재 주요 조사는 P1-R로 마무리했다. 후속 P1-R-01은 실제 중간 callback/HTTP baseline을 먼저 확인하는 조건부 계획이며, [공유 계획 C](phase1-mitigation-plan.md#c-구현-명세)에 승인 범위·측정·회귀·거부 기준을 둔다. R-01 최초 실험은 미채택·원복됐고, 이후 독립 거부 검토 A·owner 한정 예외로 동일 B를 재복원해 활성132건 통과 후 채택했다. 다음은 독립 최종 P1-R-01 Mitigation Audit다. P1-05는 소유자 결정으로 제외했으며 필수 선행 조사로 추가하지 않는다. 1단계 종료는 별도 exit 확인이며 자동 선언하지 않는다.
+현재 주요 조사는 P1-R로 마무리했다. 후속 P1-R-01은 실제 중간 callback/HTTP baseline을 먼저 확인하는 조건부 계획이며, [공유 계획 C](phase1-mitigation-plan.md#c-구현-명세)에 승인 범위·측정·회귀·거부 기준을 둔다. R-01 최초 실험은 미채택·원복됐고, 이후 독립 거부 검토 A·owner 한정 예외로 동일 B를 재복원해 활성132건 통과 후 채택했다. 해당 최종 독립 감사는 PASS — MITIGATION ACCEPTED로 수용됐고 Phase1은 CLOSED다. 현재 다음은 Phase2 Candidate Audit다. P1-05는 소유자 결정으로 제외했으며 필수 선행 조사로 추가하지 않는다. 1단계 종료는 별도 exit 확인이며 자동 선언하지 않는다.
 
 ### 2.3 P1-S — Snapshot 반복 검증 최적화 목표 보존
 
@@ -239,7 +239,7 @@ B05/B08의 추가 확대 실험은 첫 후보에서 제외한다. 이미 전체 
 | 단계 | 종료에 필요한 유한 조건 | 현재 상태 |
 | --- | --- | --- |
 | 1단계 | UI15/처리12 지도, 근거별 우선순위, §2.1 조사와 공유 계획 G의 승인된 완화 작업·감사 지적 처분 완료. 모든 병목 제거는 불필요하며 권한/위험상 보류 가능. 채택 변경의 기능·성능 회귀 통과·미해결 신규 P0/P1 없음·잔여 불확실성 §8 이월 | P1-01 미채택·원복, P1-02 보호 경로 보류, P1-03 B/전체 PARTIAL·미구현, P1-04 C 완료. R-01 최초 실패 보존·owner1회 예외 재채택·활성132 PASS, S/U 보류, P1-05 소유자 제외. **CLOSED — 최종 독립 감사 PASS·owner 종료 승인, S/U 보류 유지** |
-| 2단계 | 별도 승인된 모바일 전송량 분석·최적화와 전후 측정·채택/미채택 처분 완료, 안전 계약과 기능 회귀 유지, 남은 불확실성 §8 이월 | **DISCOVERY AUTHORIZED — 조사·후보 선정 착수, 구현 미승인** |
+| 2단계 | 별도 승인된 모바일 전송량 분석·최적화와 전후 측정·채택/미채택 처분 완료, 안전 계약과 기능 회귀 유지, 남은 불확실성 §8 이월 | **DISCOVERY COMPLETE — N01 우선·N02 조건부 shortlist, 독립 후보 감사 대기·구현 미승인** |
 | 3단계 | 좁은 inventory의 고신뢰 dead/redundant 항목만 정리, 동적/호환 consumer 보존, 관련 Flutter/backend/web 회귀·build 통과, 미확정 비중요 항목 처분 | 계획 준비, **진입 전** |
 | 4단계 | 단일 감사표 완료, P0/P1 해결 또는 명시 차단, P2/P3 처분, 집중 회귀와 최종 통합 suite 통과, source locks·역사 증거 보존, 기기/배포 제약 명시 | 계획 준비, **진입 전** |
 
@@ -272,3 +272,5 @@ B05/B08의 추가 확대 실험은 첫 후보에서 제외한다. 이미 전체 
 **P1-R-01 재채택:** 독립 거부 검토 A와 owner의 P1-R-01 한정1회 p95 예외 승인으로 보존된 B 화면 전체와 byte 동일한4행을 복원했다. 활성 소스 SHA `b48dc5975cd1018b6f705aaffcbe2028b2856fbe023ebb4ebdb7437324fb93c7`에서 focused132건이 새로 통과했다. 원래110.37% 초과·NOT ADOPTED/rollback과 모든 음성 측정은 보존하며 원 실험PASS로 바꾸지 않는다. 신규 성능 campaign 없이 이전 GET4→1·median 근거를 재사용했다. S/U 보류·다른 수용 기준 불변, 1단계 종료는 선언하지 않는다. 현재 결정과 게시/재현은 공유 장부 RS1과 단일 근거 `r01_reinstatement`에 있다.
 
 **Phase 1 종료 승인:** 최종 독립 P1-R-01 감사 **PASS — MITIGATION ACCEPTED**, 활성132/132 PASS·GET4→1·기존 host median 근거·원110.37% 실패와 한정 예외·거부/원복을 보존하고 1단계 mitigation work를 CLOSED로 기록한다. S/U는 DEFERRED다. 기존 formal/기기/배포 gate는 그대로이며 개발 전체 종료가 아니다. 다음은 별도 승인된 Phase 2 모바일 네트워크 조사·후보 감사이고 구현은 하지 않는다.
+
+**Phase 2 조사 완료:** [모바일 네트워크 후보 문서](phase2-mobile-network-optimization-candidates.md)와 단일 압축 근거에 현재 source·합성3규모·실제 IOClient84개 전송/6개 byte-exact 대조를 보존한다. 우선 N01 Bundle/Snapshot 응답 gzip, N02 자동 백업 Snapshot 재사용은 계약 확인 조건부다. 304·request gzip은 보류, 필드/history 삭제·segmented 활성화는 제외다. Phase1은 CLOSED이며 재개하지 않는다. 다음은 독립 Phase2 Candidate Audit이고 구현·Phase3/4·확장성·배포는 미착수다.
