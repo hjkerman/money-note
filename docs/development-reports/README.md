@@ -5,7 +5,7 @@
 ## 현재 로드맵·P1 결과
 
 - [money-note-final-optimization-and-closure-roadmap.md](money-note-final-optimization-and-closure-roadmap.md)
-- [phase1-mitigation-plan.md](phase1-mitigation-plan.md) — 현재 공유 계획·구현/감사 장부, R owner 예외 재채택·활성132 PASS / S·U 보류, 독립 최종 감사 대기
+- [phase1-mitigation-plan.md](phase1-mitigation-plan.md) — 현재 공유 계획·구현/감사 장부, Phase 1 CLOSED·최종 감사 PASS / R 채택·S/U 보류
 - [p1-r-mobile-refresh-performance-results.md](p1-r-mobile-refresh-performance-results.md)
 - [p1-04-backend-sql-presenter-performance-results.md](p1-04-backend-sql-presenter-performance-results.md)
 
@@ -143,3 +143,5 @@ P1-R-01 최초 p95 기준 미달·원복은 보존한다. 독립 거부 검토 A
 - [t69-pre03-100k-baseline-recovery-feasibility.md](../t69-pre03-100k-baseline-recovery-feasibility.md)
 - [t69-pre04-execution-readiness-plan-revision.md](../t69-pre04-execution-readiness-plan-revision.md)
 - [t69-pre05-independent-e3-bookkeeping-seam-review.md](../t69-pre05-independent-e3-bookkeeping-seam-review.md)
+
+Phase 1은 owner 전달 최종 독립 감사 **PASS — MITIGATION ACCEPTED**로 종료했다. 다음 Phase 2 모바일 전송량은 조사·후보 선정만 승인됐으며 독립 후보 감사 전 구현하지 않는다.

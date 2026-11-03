@@ -1,6 +1,6 @@
 # Phase 1 성능 완화 공유 계획·작업 장부
 
-작성: 2026-11-03. **P1-R-01 ADOPTED — owner의 1회 p95 예외 승인으로 B 소스를 재복원했고 활성 focused132건이 통과했다. 최초 미채택·원복 이력은 유지한다. S/U는 DEFERRED, 다음은 독립 최종 P1-R-01 Mitigation Audit다.** 이 문서는 계획 검토, 이후 승인된 구현, 감사 지적과 수정 결과를 계속 기록하는 단일 장부다. 현재 세션이 Implementation Session을 유지한다. 조건부 채택은 구현 승인이나 성능 개선 입증이 아니다.
+작성: 2026-11-03. **PHASE 1 CLOSED — 최종 독립 감사 PASS — MITIGATION ACCEPTED와 owner 종료 승인 수령. R-01 채택·활성132 PASS, 최초 p95 실패/예외·거부/원복 보존. S/U는 DEFERRED다.** 이 문서는 계획 검토, 이후 승인된 구현, 감사 지적과 수정 결과를 계속 기록하는 단일 장부다. 현재 세션이 Implementation Session을 유지한다. 조건부 채택은 구현 승인이나 성능 개선 입증이 아니다.
 
 ## A. 범위와 기준선
 
@@ -169,9 +169,9 @@ P0(유실·보안·돌이킬 수 없는 손상)/P1(중대한 기능·영속 오�
 - [x] 독립 Planning Audit PASS — READY FOR OWNER APPROVAL, BLOCKER/MAJOR 없음이라는 owner 전달을 수령했다. owner가 R-01과 S repository·직접 SHA/무결성 검사의 scoped 구현을 승인했다.
 - [x] 승인된 R/S 각각을 구현·측정·채택 또는 미채택/보류로 최종 처분했다. R 미채택·원복, S 비용 조건 보류이며 모든 후보 성공은 요구하지 않는다.
 - [x] 채택 생산 변경은 없다. R rollback 후 focused132건·Snapshot7건·backend3건·웹 build·새 테스트2파일 정적 분석이 통과했다. 원 표본·환경·계측은 단일 근거에 보존했다.
-- [ ] 변경분 Mitigation Audit의 P0/P1을 해결하거나 명시 차단했고 P2/P3를 처분했다. 미해결 P0/P1이 있으면 해당 작업·단계 종료를 선언하지 않는다.
+- [x] owner가 전달한 최종 독립 Mitigation Audit **PASS — MITIGATION ACCEPTED**, material correctness finding 없음. 승인된 변경 범위의 미해결 P0/P1은 보고되지 않았다. 앱 전체 기존 이슈/4단계 감사를 종결한 뜻은 아니다.
 - [x] 기존7,944개 파일을 대조해 허용 문서3개 외7,941개·역사 근거·잠금·무관한 index 엔트리를 보존했고 기기/배포 제한과 한계를 기록했다.
-- [ ] U 보류·P1-05 제외 등 남은 처분을 roadmap에 반영하고 owner가 1단계 exit 충족을 확인했다. 그 뒤에만 별도 승인된 2단계로 진행한다.
+- [x] S/U 보류·P1-05 제외 등 처분을 반영했고 owner가 1단계 종료와 2단계 모바일 전송량 조사만 승인했다. 2단계 구현은 별도 후보 감사·owner 승인이 필요하다.
 
 **2026-11-03 owner 승인으로 R-01부터 순차 실행한다. S는 R 처분 뒤에만 착수하며 다음 독립 감사는 구현 batch 뒤 Mitigation Audit다.** 1단계 전체 종료·개발 종료·production readiness를 선언하지 않는다.
 
@@ -274,3 +274,10 @@ P0(유실·보안·돌이킬 수 없는 손상)/P1(중대한 기능·영속 오�
 - 활성132건의 source SHA·suite별 계수·GET/JSON 게시 readback 체크·정확한 새 테스트·직접 runner/invocation·로그·SDK/과거 근거 동일성을 단일 evidence `r01_reinstatement`에 보존했다. 새 benchmark/실기기 성능 주장은 없다.
 - task runner0개를 확인한 뒤 이번 임시263개 파일/링크(논리450,591,398B·관찰할당451,403,776B, 약430.5MiB)를 정리했다. dependency symlink138개는 대상에 들어가지 않고 링크만 제거했다. 기존 dirty source·DB/WAL/cache·역사 증거·잠금과 무관한 index 항목은 보존했다.
 - **다음은 owner의 독립 최종 P1-R-01 Mitigation Audit**다. P1-S/P1-U는 DEFERRED이며 Phase1 전체 종료·Phase2 진입·merge/tag·Production 배포를 수행하거나 선언하지 않았다.
+
+### C1 — Phase 1 공식 종료 / Phase 2 조사 인계
+
+- owner 전달 최종 독립 감사: **PASS — MITIGATION ACCEPTED**, P1-R-01 material correctness finding 없음. 이 전달을 종료 근거로 사용하며 감사나132건을 다시 수행하지 않는다. 채택 구현 `c3b2cb8b16b615b67b26115bfd7b03a76fb1d24a`, 게시/인계 tip `cd3f385c20c02897f484e9f77c1260b7859bdaf0`의 기록을 보존한다.
+- **Phase 1 mitigation work CLOSED.** R은 owner의 한정1회 예외로 채택됐으며 원래110.37% 실패·NOT ADOPTED·rollback은 그대로다. S/U는 DEFERRED이며 이번 종료에서 재개하지 않는다. 전체 병목 제거는 종료 조건이 아니다.
+- 개발 전체 종료·formal T6.6F/T6.9·F01/G1/G2·실기기/ADB·R1·Production 준비/배포는 별도이며 현 보류·차단을 유지한다. main merge·Production 접근/배포는 승인되지 않았다.
+- 다음 허용 범위는 Phase 2 **모바일 다운로드·업로드 전송량 조사와 후보 선정만**이다. 후보는 별도 독립 감사 후 owner가 구현을 결정한다. 별도 조사 문서는 `phase2-mobile-network-optimization-candidates.md`에 작성할 예정이며 승인 전 구현하지 않는다.
