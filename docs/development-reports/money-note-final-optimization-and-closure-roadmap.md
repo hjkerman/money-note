@@ -1,6 +1,6 @@
 # Money Note 최종 최적화·종료 로드맵
 
-작성일: 2026-11-02. 완화 계획 갱신: 2026-11-03. **P1-01/P1-02 실험과 P1-03/P1-04/P1-R 조사를 완료했다. P1-01은 미채택·원복, P1-02는 보호 경로 보류, P1-03은 비용 귀속 B/전체 PARTIAL, P1-04는 C다. 1단계는 최종 독립 감사 PASS와 owner 승인으로 CLOSED이며 P1-R-01은 최초 미채택·원복 후 owner 한정 예외 승인과 활성132건 통과로 재채택, P1-S는 digest 비용 조건 실패로 보류, P1-U는 기존 보류, P1-05는 소유자 결정으로 제외했다. [공유 완화 장부](phase1-mitigation-plan.md)에 Planning Audit PASS·owner scoped 승인 뒤의 순차 실행을 기록했다. 최종 독립 Mitigation Audit는 PASS — MITIGATION ACCEPTED다. 2단계 조사·후보 감사 뒤 owner 승인으로 N01 한정 구현을 수행했다. 검증 PARTIAL이며 다음은 독립 변경 감사다. 삭제·최종 감사는 미착수다.** 이 문서의 READY는 실행 가능한 계획이 준비됐다는 뜻이다. 단계 종료, formal T6.6F 완료 또는 운영 준비 판정이 아니다.
+작성일: 2026-11-02. 완화 계획 갱신: 2026-11-03. **P1-01/P1-02 실험과 P1-03/P1-04/P1-R 조사를 완료했다. P1-01은 미채택·원복, P1-02는 보호 경로 보류, P1-03은 비용 귀속 B/전체 PARTIAL, P1-04는 C다. 1단계는 최종 독립 감사 PASS와 owner 승인으로 CLOSED이며 P1-R-01은 최초 미채택·원복 후 owner 한정 예외 승인과 활성132건 통과로 재채택, P1-S는 digest 비용 조건 실패로 보류, P1-U는 기존 보류, P1-05는 소유자 결정으로 제외했다. [공유 완화 장부](phase1-mitigation-plan.md)에 Planning Audit PASS·owner scoped 승인 뒤의 순차 실행을 기록했다. 최종 독립 Mitigation Audit는 PASS — MITIGATION ACCEPTED다. 2단계 조사·후보 감사 뒤 owner 승인으로 N01 한정 구현을 수행했다. 최종 독립 PASS와 owner 승인으로 N01 ACCEPTED(A01/R1 CLOSED)다. N02 조사는 DEFER·독립 Snapshot GET 유지 권고로 완료했다. 삭제·최종 감사는 미착수다.** 이 문서의 READY는 실행 가능한 계획이 준비됐다는 뜻이다. 단계 종료, formal T6.6F 완료 또는 운영 준비 판정이 아니다.
 
 ## 1. 현재 기준선과 보류 경계
 
@@ -239,7 +239,7 @@ B05/B08의 추가 확대 실험은 첫 후보에서 제외한다. 이미 전체 
 | 단계 | 종료에 필요한 유한 조건 | 현재 상태 |
 | --- | --- | --- |
 | 1단계 | UI15/처리12 지도, 근거별 우선순위, §2.1 조사와 공유 계획 G의 승인된 완화 작업·감사 지적 처분 완료. 모든 병목 제거는 불필요하며 권한/위험상 보류 가능. 채택 변경의 기능·성능 회귀 통과·미해결 신규 P0/P1 없음·잔여 불확실성 §8 이월 | P1-01 미채택·원복, P1-02 보호 경로 보류, P1-03 B/전체 PARTIAL·미구현, P1-04 C 완료. R-01 최초 실패 보존·owner1회 예외 재채택·활성132 PASS, S/U 보류, P1-05 소유자 제외. **CLOSED — 최종 독립 감사 PASS·owner 종료 승인, S/U 보류 유지** |
-| 2단계 | 별도 승인된 모바일 전송량 분석·최적화와 전후 측정·채택/미채택 처분 완료, 안전 계약과 기능 회귀 유지, 남은 불확실성 §8 이월 | **IN PROGRESS — N01-A01-R1 수정·focused 검증 완료, 독립 targeted 재감사 대기. 최초 PARTIAL/REWORK 보존. N02~N05 미구현** |
+| 2단계 | 별도 승인된 모바일 전송량 분석·최적화와 전후 측정·채택/미채택 처분 완료, 안전 계약과 기능 회귀 유지, 남은 불확실성 §8 이월 | **IN PROGRESS — N01 ACCEPTED(PASS, A01/R1 CLOSED), N02 조사 DEFER·독립 GET 유지 권고. 최초 PARTIAL/REWORK 보존. N02~N05 미구현** |
 | 3단계 | 좁은 inventory의 고신뢰 dead/redundant 항목만 정리, 동적/호환 consumer 보존, 관련 Flutter/backend/web 회귀·build 통과, 미확정 비중요 항목 처분 | 계획 준비, **진입 전** |
 | 4단계 | 단일 감사표 완료, P0/P1 해결 또는 명시 차단, P2/P3 처분, 집중 회귀와 최종 통합 suite 통과, source locks·역사 증거 보존, 기기/배포 제약 명시 | 계획 준비, **진입 전** |
 
@@ -280,3 +280,5 @@ B05/B08의 추가 확대 실험은 첫 후보에서 제외한다. 이미 전체 
 **N01-A01 correction:** owner 승인 후 모바일 raw gzip transport와 archive3.6.1을 연결했다. 기존 trailer 거부 포함 신규10·기존91 host PASS, backend7 PASS. [후보 문서 §10](phase2-mobile-network-optimization-candidates.md)에 자원 한계·단일 member 정책·검증·재감사 인계를 기록했다. 최종 수용·Phase2 종료·운영 배포는 선언하지 않는다.
 
 **N01-A01-R1:** targeted REWORK 후 독립 SDK DEFLATE pass를 추가했다. exact witness 포함 모바일103·backend7 PASS, 추가 CPU/wall 한계는 후보 문서 §11에 있다. 의존성/서버/금융 변경 없음. 다음은 독립 targeted 재감사이며 최종 채택·배포는 미승인이다.
+
+**Phase2 현재 처분:** owner 최종 PASS·N01 ACCEPTED, A01/R1 CLOSED·blocking findings 없음. 채택 commit13ef6e9, 과거 이력 보존. [N02 조사](phase2-n02-snapshot-reuse-investigation.md)는 T3→T1 복구점 변경을 일반적으로 배제할 수 없어 **DEFER/C 유지 권고**다. 10k 추가 이득의 잠재 상한은 gzip104,537B/자동event1GET이며 확정 제거 event는0이다. N01 배포·main merge·N02 구현·Phase2 전체 종료는 승인/수행하지 않는다.

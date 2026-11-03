@@ -1,6 +1,6 @@
 # Phase 2 모바일 네트워크 전송량 조사·후보
 
-**N01-A01-R1 CORRECTED — 독립 targeted 재감사 대기. 기존 PARTIAL·REWORK 이력 보존.** Phase 1은 owner가 전달한 최종 독립 감사 **PASS — MITIGATION ACCEPTED**로 종료했다. R-01 채택·활성132 PASS·GET4→1·원110.37% 실패와1회 예외·거부/원복 기록을 보존한다. S/U는 DEFERRED이며 재개하지 않는다. 전체 개발 종료·배포 준비 판정이 아니다.
+**P2-N01 ACCEPTED — 최종 독립 감사 PASS, A01/R1 CLOSED. 과거 이력 보존.** Phase 1은 owner가 전달한 최종 독립 감사 **PASS — MITIGATION ACCEPTED**로 종료했다. R-01 채택·활성132 PASS·GET4→1·원110.37% 실패와1회 예외·거부/원복 기록을 보존한다. S/U는 DEFERRED이며 재개하지 않는다. 전체 개발 종료·배포 준비 판정이 아니다.
 
 §1~7은 원 discovery 기록이며, §8은 당시 차단된 preflight, §9는 최초 구현, **§10은 승인된 A01 수정의 최신 상태**다.
 
@@ -310,3 +310,12 @@ CPU는 Linux process utime+stime tick batch 차분이며 개별 median이 아니
 **현재 처분: R1 수정·focused 검증 완료 / 독립 targeted 재감사 대기.** 남은 지원 제한은 optional gzip header·연결 members 미지원과 buffered main-isolate 비용이다. 새 관찰 실패는 없지만 P2-N01 최종 수용·배포·Phase2 종료는 선언하지 않는다. 다음 행동은 **Independent N01-A01-R1 targeted re-audit** 하나다.
 
 R1 raw evidence 보존 뒤 task runner0개 확인, 이번 scratch 파일/링크296개(논리610,466,660B)를 정리했다. 원 감사 디렉터리와 기존 dependency 링크 대상·dirty13개·historical source lock은 보존했다. 관련6개 경로만 개발 브랜치에 게시한다.
+
+
+## 12. P2-N01 최종 수용 — ACCEPTED
+
+owner가 최종 독립 감사 **PASS — N01-A01-R1 RESOLVED**를 수령하고 N01을 명시적으로 수용했다. N01-A01과 N01-A01-R1은 CLOSED·blocking findings 없음이다. 최초 구현 `a5adff9f3e7c04ba0c2ab348d6dc4fff054ad309`, 첫 correction `2d3351847b569efadbb330543b7dd92b418444bd`, 최종 수용 correction `13ef6e97590d27f32939409a2cc23d0d967263e2`를 기록한다. 추가 구현 감사 없이 수용하며 과거 PARTIAL→REWORK→첫 correction→targeted REWORK→두 번째 correction 이력은 §9~11과 immutable/raw evidence에 보존한다.
+
+bytes·CPU·메모리 근거는 host-only 합성 관찰이며 운영 latency나 실기기 보장은 아니다. 운영 Snapshot의 미압축 관찰과 구 배포 revision의 Bundle 부재도 유지한다. **Production deployment NOT AUTHORIZED / NOT PERFORMED, main merge 없음.** 본 수용에서 N01 소스·benchmark evidence는 변경하지 않는다. N02는 별도 조사만 승인됐고 구현하지 않는다.
+
+**N02 조사 완료 — DEFER, C 독립 Snapshot GET 유지 권고.** 실제 순서·T1/T3 복구 의미·post-gzip entity 절감(10k104,537B)과 대안 비교는 [N02 조사](phase2-n02-snapshot-reuse-investigation.md)에 둔다. 구현0개, N01 코드·benchmark evidence 변경0개다.
