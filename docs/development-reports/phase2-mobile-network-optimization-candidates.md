@@ -1,6 +1,8 @@
 # Phase 2 모바일 네트워크 전송량 조사·후보
 
-**DISCOVERY COMPLETE — 후보 감사 대기, 구현0개.** Phase 1은 owner가 전달한 최종 독립 감사 **PASS — MITIGATION ACCEPTED**로 종료했다. R-01 채택·활성132 PASS·GET4→1·원110.37% 실패와1회 예외·거부/원복 기록을 보존한다. S/U는 DEFERRED이며 재개하지 않는다. 전체 개발 종료·배포 준비 판정이 아니다.
+**DISCOVERY COMPLETE / N01 IMPLEMENTED — VERIFICATION PARTIAL, 독립 변경 감사 대기.** Phase 1은 owner가 전달한 최종 독립 감사 **PASS — MITIGATION ACCEPTED**로 종료했다. R-01 채택·활성132 PASS·GET4→1·원110.37% 실패와1회 예외·거부/원복 기록을 보존한다. S/U는 DEFERRED이며 재개하지 않는다. 전체 개발 종료·배포 준비 판정이 아니다.
+
+§1~7은 원 discovery 기록이며, §8은 당시 차단된 preflight, **§9는 이후 승인된 N01 구현의 최신 상태**다.
 
 ## 1. 기준선·범위
 
@@ -98,7 +100,7 @@ Snapshot restore는 JSON 문자열의 따옴표 escaping 때문에 원 Snapshot�
 
 | ID | 분류 | 절감 근거/상한 | 위험·복잡도 | 현재 권고 |
 | --- | --- | --- | --- | --- |
-| **P2-N01** | **HIGH PRIORITY** | B/S entity96.25~98.13% 감소(합성기본). 10k startup HTTP11,282,664→215,535B 대조 | byte-preserving HTTP coding, 작음~중간. 운영이 이미 압축하면 추가 절감0일 수 있음 | 첫 구현 후보 감사 |
+| **P2-N01** | **HIGH PRIORITY** | B/S entity96.25~98.13% 감소(합성기본). 10k startup HTTP11,282,664→215,535B 대조 | byte-preserving HTTP coding, 작음~중간. 운영이 이미 압축하면 추가 절감0일 수 있음 | backend 구현·검증 PARTIAL, §9 |
 | **P2-N02** | **CONDITIONAL** | 자동 S GET당218,421~5,596,362B 또는 N01 후7,369~104,537B entity | 백업 시점·auth/generation·복구 호환/보호 AppState, 중간~높음 | 의미 확인 후에만2순위 |
 | P2-N03 | DEFER | 이상적304이면 B 대부분. 현재 bytes는 clock만 바뀌어도 달라져 달성률 미입증 | raw cache·freshness·304·generation 계약 변경, 높음 | 현재 구현 순서 제외 |
 | P2-N04 | DEFER | 큰 upload의 오프라인 gzip 추정96.4~98.3%. 실제 upload 지원없음 | decoded size limit·인증 입력·money parsing·POST outcome, 높음 | 실제 빈도/필요 확인 후 별도 설계 |
@@ -184,7 +186,7 @@ T6.6A의 긴 random hex/한글 다양성10k control은 gzip 감소90.80%였다. 
 
 **추천 shortlist는 N01 → N02(조건 통과 시에만)**다. N01로 압축을 먼저 검토한 뒤 N02의 추가 byte 이득을 그 baseline에서 평가한다. N03/N04는 DEFER, N05는 제외한다. 후보를 모두 구현해야 Phase2가 끝나는 것으로 정하지 않는다.
 
-현재 단계는 **조사·후보 선정 COMPLETE / 구현 NOT AUTHORIZED**다. 다음은 owner가 별도 시작하는 **Independent Phase 2 Candidate Audit**이며 감사 후 owner가 범위·수용 기준을 승인할 때만 구현한다. Phase3/4·확장성·Production 작업은 시작하지 않는다. 게시·보존·임시 정리 결과는 이 문서 마지막에 갱신한다.
+조사 완료 당시 단계는 **조사·후보 선정 COMPLETE / 구현 NOT AUTHORIZED**였다. 다음은 owner가 별도 시작하는 **Independent Phase 2 Candidate Audit**이며 감사 후 owner가 범위·수용 기준을 승인할 때만 구현한다. Phase3/4·확장성·Production 작업은 시작하지 않는다. 게시·보존·임시 정리 결과는 이 문서 마지막에 갱신한다.
 
 ### 조사 검증 기록
 
@@ -218,3 +220,46 @@ T6.6A의 긴 random hex/한글 다양성10k control은 gzip 감소90.80%였다. 
 두 endpoint 모두 status·Content-Encoding·Vary·Content-Length·Transfer-Encoding·Cache-Control·본문 전송 여부·intermediary 변환 여부는 **미관찰**이다. 현재 N01 구현 적격성은 **INCONCLUSIVE**이며, 기존 합성 gzip 절감치로 운영의 미압축을 추정하지 않는다. Production·인증·backend/mobile 소스 변경0개다. 이 차단 기록만 문서에 추가하며 Phase1·다른 후보 조사는 재개하지 않는다.
 
 **다음 행동 하나:** 소유자가 승인한 기존 인증 세션을 비밀값 노출 없이 사용할 경로를 지정한 뒤, 같은 두 endpoint·최대4회 한도에서 헤더 점검을 재개한다. N01 구현에는 이후 별도 owner 승인이 필요하다.
+
+
+## 9. P2-N01 한정 구현 — IMPLEMENTED / VERIFICATION PARTIAL
+
+2026-11-03. owner가 협상형 gzip의 개발 구현·host 검증·게시만 승인했다. 시작은 `phase2/mobile-network / 741e053c49bbbd3b6eaf9ff268e525af0b2f8a35`다. 이전 §8의 인증 부재 기록은 당시 사실로 보존한다. 이후 owner가 Snapshot의 인증200·Accept-Encoding:gzip·응답 Content-Encoding 부재를 확인했다. 별도 승인된 읽기 전용 대조에서 운영 image와 기록의 immutable ID가 일치했고, 기록된 `5d44ce318876927515047d4490fa2c186426ae4f`에는 Bundle router가 없었다. **이번 구현에서는 운영 접근0회**이며 Bundle의 운영 압축은 계속 미검증이다. 두 endpoint를 압축하는 개발 변경을 운영에 배포했다는 뜻이 아니다.
+
+### 변경과 협상 계약
+
+- `backend/app/routers/response_coding.py`를 추가하고 `admin.py:get_snapshot`, `authoritative_state.py:get_authoritative_state`의 완성된 응답에만 연결했다. 전역 middleware·Apache·모바일/웹 생산 코드 변경은 없다.
+- 정확한 두 path의 GET·200·완성된 JSON bytes만 대상이다. 1,024B 이상을 gzip level6/mtime0으로 압축한다. 기존 serialization·금융 계산·Snapshot/manifest/SHA·admission·transaction·요청 수는 바꾸지 않는다. streaming·기존 Content-Encoding·오류·인증 실패·mutation·APK·다른 path는 제외한다.
+- q-value의 높은 가중치를 선택하며 동률이면 gzip을 선택한다. gzip 명시 거부는 wildcard보다 우선한다. 미지정 identity는 wildcard의 명시적0 제외가 없으면 허용한다. header 없음/빈 값은 identity다. 중복 항목은 최저 가중치, 잘못된 q/parameter는 해당 항목0으로 보수 처리한다. 작은 응답을 포함해 허용 표현이 없으면 **빈406**이며 금지된 identity 본문을 강제하지 않는다.
+- Vary에 기존 값과 Accept-Encoding을 병합한다(`*`는 이미 전체를 포함). Content-Disposition/no-store를 보존하고 압축 Content-Length를 설정한다. 원문 재직렬화·cross-request cache·추가 stream buffering은 없다. 압축이 끝나기 전 응답을 전송하지 않는다. 압축 실패 시 identity 허용이면 원문, 금지면 **빈503**이다.
+
+### 전송량과 자원 비용
+
+[독립 구현 근거](../benchmarks/p2-n01-implementation-evidence.json.gz), [재현 benchmark](../benchmarks/p2-n01-response-coding.py). 이전 discovery 근거는 덮어쓰지 않았다. N은 ledger row 수이며 all-current N이나 운영 분포가 아니다. 이전의 정확한6개 합성 원문 SHA·gzip 크기를 재사용/대조했다.
+
+| N | 응답 | identity → gzip entity B | 단일 wall median / p95 ms | 단일 CPU median ms | 동시2개 batch wall / CPU median ms |
+| --- | --- | --- | --- | --- | --- |
+| 376 | Bundle | 306,370 → 11,474 | 1.842 / 1.877 | 1.843 | 2.195 / 4.146 |
+| 376 | Snapshot | 218,421 → 7,369 | 1.097 / 1.100 | 1.099 | 1.441 / 2.783 |
+| 1k | Bundle | 653,317 → 18,173 | 3.335 / 3.411 | 3.336 | 3.840 / 7.356 |
+| 1k | Snapshot | 565,368 → 13,859 | 2.875 / 2.906 | 2.876 | 3.030 / 5.814 |
+| 10k | Bundle | 5,684,312 → 108,916 | 27.157 / 27.330 | 27.159 | 28.176 / 55.814 |
+| 10k | Snapshot | 5,596,362 → 104,537 | 23.741 / 24.445 | 23.742 | 28.364 / 55.887 |
+
+- Python3.12.3/Linux,각24 configuration에5 warmup+20측정, 총480 batch·최종측정6.05초. fixture 생성·원문 read는 시간 밖이고 helper와 Response 준비만 잰다. identity 단일 median 약0.009~0.010ms다. CPU는 process time, 동시2개는 두 thread의 합산 CPU와 batch wall이다. 서로 더해 endpoint latency로 제시하지 않는다.
+- worker 자체 `/proc` VmHWM은 gzip 단일27,484~32,924KiB, 동시27,940~33,664KiB였다. 측정 전 VmRSS 대비 최고 증가 단일196~396KiB, 동시572~1,080KiB다. 입력 bytes·Python runtime을 포함한 worker RSS이며 production 전체 메모리나 정확한 allocator 증분이 아니다. `ru_maxrss`가 부모의 이전 최고치를 물려받는 초기 관찰은 비용 근거에서 제외하고 raw에 별도 남겼다. 동시 응답은 메모리상 같은 합성 원문을 공유하는 두 요청의 coding 비용이며 실제 server 부하 시험이 아니다.
+- entity 감소96.25~98.13%이며 TCP/TLS·운영 latency 개선은 주장하지 않는다. 다양한 실제 데이터의 압축률·운영 CPU는 미측정이다.
+
+### 검증 결과와 미충족 조건
+
+- backend **139 PASS**: 신규7건(협상20 subcase 포함), 기존 Bundle·Snapshot·export metadata·auth·freeze 완료 경계. 실제 두 endpoint의 raw wire gzip 해제 바이트 동일, 압축 길이·헤더·Snapshot `_validate_snapshot` 통과,401/422·관계없는 GET 보존, helper의 streaming/중복 압축 제외·406·압축 실패 fallback을 검증했다. 기존 deprecation warning1개다.
+- 기존 모바일 **91 PASS**: authoritative acquisition57, Snapshot repository7, Bundle admission27. 직접 host runner 사용, Flutter CLI/Android/ADB는 실행하지 않았다. 격리 frontend 사본의 npm build도 PASS다.
+- 신규 모바일 **6개 중5 PASS / 1 FAIL**: 실제 IOClient의6개 원문/SHA 동일·Bundle admission·Snapshot durable readback, 손상 magic·본문 중간 절단·CRC 오류 거부, 정상 gzip 안의 잘못된 Bundle digest/잘못된 Snapshot envelope 거부가 통과했다. 초기 raw-byte API 자체가 항상 throw해야 한다는 테스트는 실제 역할과 달라, 반환된 bytes의 **실제 admission까지 포함**해 판정했다. 로컬 Snapshot 저장소는 envelope/저장 바이트를 검사하고 full manifest 검증은 서버 restore의 책임이므로 독립 금융 검증 의무를 추가하지 않았다.
+- **미충족: gzip 마지막8B trailer만 제거하면 현 Dart IOClient가 원문 bytes를 그대로 반환하고 Bundle/Snapshot 경계가 수용한다.** trailer 거부 테스트는 실패 상태 그대로 보존한다. 해제 내용은 원문 SHA와 동일하며, 금융 내용 손상·잘못된 mutation 게시가 관찰된 것은 아니다. transport framing의 엄격한 거부 조건을 충족했다고 주장하지 않는다. SDK/client 수정은 별도 승인 범위이므로 하지 않았다. 이 제한을 기존 SHA/admission 검사 완화로 해결하지 않는다.
+- malformed/truncated gzip의 초기 실패·최종 matrix·runner·측정 raw와 source SHA는 구현 근거에 보존한다. 실패를 skip/성공으로 바꾸거나 역사 측정치를 재해석하지 않는다. 실제 HTTP 수 감소를 주장하지 않으며 정상 새 gzip control은 API당 GET1회다.
+
+**판정: backend 구현 완료 / 검증 PARTIAL / 채택 확정 아님 / 운영 배포 금지.** 미충족 trailer 거부 조건과 byte-exact 정상 호환을 함께 독립 변경 감사에 전달한다. P2-N02~N05·Phase3/4·확장성·Phase1은 시작/재개하지 않는다.
+
+**다음 행동 하나:** 독립 change-scoped implementation audit에서 변경과 미충족 trailer 거부 조건을 검토하고, client 수정이 필요하면 그 한정 범위를 owner가 별도 승인한다.
+
+검증 종료 후 task runner0개를 확인하고 이번 작업 소유 scratch의 파일/링크304개(논리523,574,977B, symlink139개)를 정리했다. raw 측정·로그·host runner는 단일 구현 근거에 보존하고 기존 dependency 링크 대상을 따라가 삭제하지 않았다. 관련10개 경로만 개발 브랜치에 게시하며, 기존 dirty13개·미추적 작업·역사 근거와 source lock은 보존했다.

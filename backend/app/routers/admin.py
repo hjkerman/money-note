@@ -1,12 +1,13 @@
 import json
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from fastapi.responses import FileResponse
 
 from app.auth import require_user, verify_user_password
 from app.config import get_settings
 from app.db import session
 from app.routers.responses import financial_response
+from app.routers.response_coding import code_json_response
 from app.routers.money_input import read_request_body
 from app.schemas import PasswordConfirmIn, PreRestoreRestoreIn, SnapshotRestoreIn
 from app.services.operation_stats import operation_data_stats
@@ -34,9 +35,9 @@ def post_reset_ledger_data(payload: PasswordConfirmIn, user: dict = Depends(requ
 
 
 @router.get("/snapshot")
-def get_snapshot(_: dict = Depends(require_user)) -> Response:
+def get_snapshot(request: Request, _: dict = Depends(require_user)) -> Response:
     filename, snapshot = export_snapshot()
-    return Response(
+    return code_json_response(request, Response(
         content=json.dumps(snapshot, ensure_ascii=False, separators=(",", ":")),
         media_type="application/json",
         headers={
@@ -44,7 +45,7 @@ def get_snapshot(_: dict = Depends(require_user)) -> Response:
             "Cache-Control": "no-store, max-age=0",
             "Pragma": "no-cache",
         },
-    )
+    ))
 
 
 @router.get("/apk")

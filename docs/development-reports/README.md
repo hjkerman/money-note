@@ -5,7 +5,7 @@
 ## 현재 로드맵·P1 결과
 
 - [money-note-final-optimization-and-closure-roadmap.md](money-note-final-optimization-and-closure-roadmap.md)
-- [phase2-mobile-network-optimization-candidates.md](phase2-mobile-network-optimization-candidates.md) — 현재 작업, 조사 완료·독립 후보 감사 대기·구현 미승인
+- [phase2-mobile-network-optimization-candidates.md](phase2-mobile-network-optimization-candidates.md) — 현재 작업, N01 backend 구현·검증 PARTIAL·독립 변경 감사 대기
 - [phase1-mitigation-plan.md](phase1-mitigation-plan.md) — 현재 공유 계획·구현/감사 장부, Phase 1 CLOSED·최종 감사 PASS / R 채택·S/U 보류
 - [p1-r-mobile-refresh-performance-results.md](p1-r-mobile-refresh-performance-results.md)
 - [p1-04-backend-sql-presenter-performance-results.md](p1-04-backend-sql-presenter-performance-results.md)
@@ -145,6 +145,8 @@ P1-R-01 최초 p95 기준 미달·원복은 보존한다. 독립 거부 검토 A
 - [t69-pre04-execution-readiness-plan-revision.md](../t69-pre04-execution-readiness-plan-revision.md)
 - [t69-pre05-independent-e3-bookkeeping-seam-review.md](../t69-pre05-independent-e3-bookkeeping-seam-review.md)
 
-Phase 1은 owner 전달 최종 독립 감사 **PASS — MITIGATION ACCEPTED**로 종료했다. 다음 Phase 2 모바일 전송량은 조사·후보 선정만 승인됐으며 독립 후보 감사 전 구현하지 않는다.
+Phase 1은 owner 전달 최종 독립 감사 **PASS — MITIGATION ACCEPTED**로 종료했다. Phase 2는 후보 감사와 owner 승인 후 N01만 구현했고, 현재 검증 PARTIAL·독립 변경 감사 대기다.
 
-Phase 2 전송량 기준선과 N01 gzip 우선·N02 조건부 shortlist는 위 단일 후보 문서에 있다. 생산 최적화는 아직 구현하지 않았다.
+Phase 2 전송량 기준선과 N01 gzip 우선·N02 조건부 shortlist는 위 단일 후보 문서에 있다. 이 원 조사 뒤 N01 한정 backend 구현을 수행했으며 최신 상태는 후보 문서 §9에 있다.
+
+P2-N01 한정 backend gzip 구현과 자원 측정은 후보 문서 §9에 기록했다. trailer 거부 신규 회귀1건은 미충족이며 채택·배포 승인이 아니다. 다른 후보는 구현하지 않았다.
