@@ -195,3 +195,10 @@ T6.6A의 긴 random hex/한글 다양성10k control은 gzip 감소90.80%였다. 
 
 - 시작7,947개 기존 파일 중 허용 문서3개 외7,944개는 SHA/mode 동일, 삭제0개다. 신규는 후보 문서와 단일 근거2개뿐이며 생산 코드·schema·잠금·P1 원시 근거·기존 dirty13개는 보존했다. staging은 비어 있었고 관련 경로만 게시한다. roadmap의 기존 성능 지도·역사·순위도 byte 동일하다.
 - 후보5개×각10항목, Phase1 종료 체크리스트, 상대 문서 링크를 정적으로 확인했다. 실제 게시 commit과 push, 작업 소유 임시 정리 결과는 다음 기록에 갱신한다.
+
+### 게시·정리·감사 인계
+
+- Phase1 종료 `e5726b6def26af3d2f8c46984b718ca51ee49a80`는 origin/phase1/mitigations, Phase2 조사 **`41c608ff030a40ee27d7e70663664b2da695e680`**는 **origin/phase2/mobile-network push SUCCESS**이며 두 원격 tip을 확인했다. 이 후속 문서 commit은 게시/정리 내역만 기록한다. force-push·main merge·배포는 하지 않았다.
+- 합성 DB3개·current raw response blob·harness/실제 invocation·84개 wire/6개 control·초기 준비 실패와 최종 검증·source hash를 단일 근거에 보존했다. task runner0개 확인 뒤 이번 작업 소유 임시303개 파일/링크(논리207,126,536B·관찰할당208,044,032B, 약198.4MiB)를 정리했다. dependency symlink138개는 대상을 따라가지 않고 제거했으며 기존 DB/WAL/cache·dirty source·역사 증거는 건드리지 않았다.
+- 재현은 새 작업 소유 scratch에 `reproduction` 원문을 복원하고 ROOT/RUN을 맞춘다. backend fixture는 포함된 `synthetic_consistent_baseline_databases`를 입력으로 쓰거나, `backend_capture` SHA를 `response_body_blobs`에 연결해 payloads-N/name.json을 복원한다. 과거 P1-04 근거를 덮어쓰지 않는다. 내장 host_runner를 사용하며 run_network의과거 근거 읽기 부분은 task 사본에서 내장 runner로 연결할 수 있다. 정확한 실제 실행은 invocation에 있다. Flutter CLI/Android/운영 도구는 사용하지 않는다.
+- **Phase1 CLOSED / Phase2 DISCOVERY COMPLETE / Phase2 IMPLEMENTATION NOT AUTHORIZED.** 다음은 독립 Phase2 Candidate Audit다. 생산 최적화0개, schema 변경0개다.
