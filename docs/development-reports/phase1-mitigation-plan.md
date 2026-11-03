@@ -1,6 +1,6 @@
 # Phase 1 성능 완화 공유 계획·작업 장부
 
-작성: 2026-11-03. **BATCH COMPLETE — R-01 NOT ADOPTED·원복, S DEFERRED·생산 미구현. 다음은 owner의 독립 Mitigation Audit다.** 이 문서는 계획 검토, 이후 승인된 구현, 감사 지적과 수정 결과를 계속 기록하는 단일 장부다. 현재 세션이 Implementation Session을 유지한다. 조건부 채택은 구현 승인이나 성능 개선 입증이 아니다.
+작성: 2026-11-03. **P1-R-01 ADOPTED — owner의 1회 p95 예외 승인으로 B 소스를 재복원했고 활성 focused132건이 통과했다. 최초 미채택·원복 이력은 유지한다. S/U는 DEFERRED, 다음은 독립 최종 P1-R-01 Mitigation Audit다.** 이 문서는 계획 검토, 이후 승인된 구현, 감사 지적과 수정 결과를 계속 기록하는 단일 장부다. 현재 세션이 Implementation Session을 유지한다. 조건부 채택은 구현 승인이나 성능 개선 입증이 아니다.
 
 ## A. 범위와 기준선
 
@@ -9,7 +9,7 @@
 - 실제 HEAD: `2b4e168ebf1d8ba8ce5c9a48d7257a24bbd0c8a7`. 작업 시작 tracked 변경 13개, staged 변경 0개, 기존 untracked 자료가 있다. HEAD 대신 아래 working-source를 설계 기준으로 삼았다.
 - 시작 index SHA-256: `8f97ab0d1f8935e32fa23c6b3fb4827aaf830f1536da3e847f7915fc20879a9c`. 기존 7,943개 파일·symlink의 내용·mode·link를 보존 기준으로 기록했다. 기존 dirty `mobile/test/segmented_adapter_isolation_test.dart`도 작업 소유 파일로 간주하지 않는다.
 
-| 현재 파일 | SHA-256 |
+| 최초 계획·원복 시점 파일 | SHA-256 |
 | --- | --- |
 | `mobile/lib/src/screens/home_shell.dart` | `e2e4b53496b9950f27666377c6fae7543021cbf770ad412f31d6196b8aa4b5d4` |
 | `mobile/lib/src/local_snapshot_repository.dart` | `316c491e512873b500e5417a4b5dff4ebf8885d6a398d5a57cf63b2c28d25432` |
@@ -17,7 +17,7 @@
 | `mobile/test/local_snapshot_repository_test.dart` | `a9e9d41875fd7c075dae85cfb8c422eba1895740bff9fc2fa7d16e3437791652` |
 | `mobile/pubspec.lock` | `669da919f8110efd863187877d1990ead6d92dea6199ea77e3199edfce740988` |
 
-현재 세 대상 생산 파일은 해당 P1 조사에 기록된 SHA와 일치한다. 조사 전체를 재실행하지 않았다.
+위 값은 최초 계획·원복 기준선이다. 재채택한 HomeShell의 현재 SHA는 아래 RS1에 기록하며 나머지 대상은 동일하다. 조사 전체는 재실행하지 않았다.
 
 | 근거 | 이번에 재사용하는 결론 |
 | --- | --- |
@@ -45,17 +45,19 @@ F01 BINDING—UNRESOLVED, 유효 G1, G2 미채택, operational ADB 차단, 실�
 
 ## B. 완화 backlog
 
-검토 후보는 **3개**다. 계획 당시 조건부 R/S·보류 U였으며, 실행 후 R은 미채택·원복, S는 비용 조건 실패로 보류, U는 기존 보류를 유지했다. 생산 채택0개다.
+검토 후보는 **3개**다. 최초 batch는 R 미채택·원복, S/U 보류로 마쳤다. 이후 독립 거부 검토 A와 owner의 한정 예외 승인에 따라 R만 재복원·활성 검증 후 채택했다. 원래 실패 판정은 바꾸지 않는다.
 
 | ID | 결정 | 우선순위 | 대상 | 상태 | 감사 |
 | --- | --- | --- | --- | --- | --- |
-| P1-R-01 | NOT ADOPTED | 완료 | 비인접 하단 탭 선택만 직접 이동 | 3블록 p95 기준 미달·UI 원복 | Planning Audit PASS, batch 감사 대기 |
+| P1-R-01 | ADOPTED — OWNER EXCEPTION | 완료 | 비인접 하단 탭 선택만 직접 이동 | B 소스 정확 복원·활성132 PASS | 거부 검토 A 수령, 독립 최종 감사 대기 |
 | P1-S | DEFER | 완료 | 한 save 안의 SHA content receipt | digest 비용 조건 실패·생산 미구현 | Planning Audit PASS, batch 감사 대기 |
 | P1-U | DEFER | 후속 구현 없음 | expenseEntries invalidation/파생 view | 위험·이득 대비 보류 | owner 유지 |
 
 순서는 **Planning Audit → 소유자 범위 승인 → P1-R-01 측정/처분 → P1-S 조건 확인·측정/처분 → 변경분 Mitigation Audit**다. R 미채택은 S의 착수를 막지 않으며, S에는 독립적인 보호 소스 승인이 필요하다. U를 대신할 새 후보는 찾지 않는다.
 
 ## C. 구현 명세
+
+초기 승인 명세와 원래 수용 기준을 보존한다. R-01의 재채택에만 적용한 owner의 1회 p95 예외와 새 활성 검증은 RS1에 별도로 기록하며, 이 명세의 과거 실패를 소급해 PASS로 바꾸지 않는다.
 
 ### P1-R-01 — 비인접 하단 탭의 중간 refresh 방지
 
@@ -133,7 +135,7 @@ F01 BINDING—UNRESOLVED, 유효 G1, G2 미채택, operational ADB 차단, 실�
 
 | ID | 상태 | 실제 변경 파일·구현 요약 | baseline / 변경 후 | 실행 테스트·결과 | 한계·commit/source |
 | --- | --- | --- | --- | --- | --- |
-| P1-R-01 | COMPLETE — NOT ADOPTED | UI 4행 trial을 정확히 원복, R 테스트/근거 보존 | 모든 블록 GET4→1·durable1, 대조p95 한 구성110.37% | 후보 탐색1건·원복 후 focused132건 PASS | 최종 HomeShell SHA=A 표, M2 게시 준비 |
+| P1-R-01 | COMPLETE — ADOPTED WITH OWNER EXCEPTION | B의 UI4행 재복원·R 테스트 강화 | 기존 GET4→1·durable1과110.37% 실패 보존, 신규 성능 측정 없음 | 재복원 활성 focused132건 PASS | 현재 SHA·게시 기록은 RS1/후속 기록 |
 | P1-S | COMPLETE — DEFERRED | 새 CPU gate 테스트·근거만, repository/보호 검사 변경0 | CPU240표본에서61H/30V가1.51~1.85 / 후보 없음 | calibration1건·기존 Snapshot7건 PASS | scoped 승인은 있었으나 비용 gate 실패 |
 | P1-U | DEFERRED | 없음 | 과거 P1-02 재사용 | 새 실행 없음 | D의 이득·위험 처분 |
 
@@ -156,6 +158,7 @@ F01 BINDING—UNRESOLVED, 유효 G1, G2 미채택, operational ADB 차단, 실�
 | Finding ID | 대상 | 심각도 | 재현/소스 근거 | 필요한 수정 | 구현 응답 | 재검사 | 최종 처분 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 계획 감사 결과 수령 | 계획 전체 | BLOCKER/MAJOR 없음(owner 전달) | PASS — READY FOR OWNER APPROVAL | owner scoped 구현 승인 완료 | R부터 순차 실행 | 독립 Mitigation Audit는 batch 뒤 | 구현 감사 미실시 |
+| R-REJECTION-REVIEW-A | P1-R-01 거부 판단 | owner 예외 결정 | owner 전달 VERDICT A — RECOMMEND REINSTATEMENT | 원래 실패 보존·정확 B 복원·활성 correctness | B 동일 소스·활성132 PASS | 독립 최종 P1-R-01 감사 대기 | owner 한정 예외로 채택 |
 
 P0(유실·보안·돌이킬 수 없는 손상)/P1(중대한 기능·영속 오류)은 해당 작업 종료 전에 수정·집중 회귀하거나 명시 차단한다. P2는 변경에 material하면 수정하고 아니면 근거 있는 보류를 기록한다. P3는 기록/기회성 수정으로 처분하며 반복 수정 루프의 근거로 삼지 않는다. 성능 이득을 이유로 계약을 약화하지 않는다. 근거 없는 가상 blocker·모든 동시성 순열 증명·과거 gate 재개를 요구하지 않는다. 사소한 수정마다 전면 재감사하지 않고 관련 변경만 재검사한다.
 
@@ -251,3 +254,16 @@ P0(유실·보안·돌이킬 수 없는 손상)/P1(중대한 기능·영속 오�
 - 고유 raw/계측 원문·정확한 R A/B harness/화면·S kernel 내장 원문·합성 payload·SDK SHA·실행 명령·검증 결과를 단일 근거에 보존한 뒤 활성 task runner0개를 확인했다. 임시 785개 파일/링크(논리 2,244,377,032B·관찰 할당 2,246,414,336B, 약 2.09GiB)를 정리했고 외부 dependency symlink 138개는 대상에 접근하지 않고 링크만 제거했다. 기존 DB/WAL/cache와 source lock은 삭제하지 않았다.
 - 감사 재현에는 근거의 정확한 `r_measured_harness`, `r_variant_A/B_home_shell`, `s-measured-harness.dart`와 actual invocation을 새 작업 사본에 설치한다. 현재 파일의 포맷 차이나 rollback 후 화면을 측정 당시 후보로 오인하지 않는다. 전체 캠페인 자동 재실행 승인이 아니며 owner 감사에서 필요한 범위만 재현한다.
 - 두 조건부 과제의 실행/거부 workflow는 완료했다. **생산 최적화 채택0개, 생산 source 유지 변경0개. 다음은 독립 Phase 1 Mitigation Audit이며 Phase1 전체 종료를 선언하지 않는다.**
+
+### RS1 — P1-R-01 거부 검토 후 재복원·채택
+
+- 시작 branch `phase1/mitigations`, HEAD `e9102eef0f41f6dac080d65050490a7d96d879ee`를 확인했다. owner가 전달한 독립 거부 검토 판정은 **VERDICT A — RECOMMEND REINSTATEMENT**다. owner는 원래 인접 p95 110% 상한에 대한 **P1-R-01 한정 1회 예외**, 동일 B 구현 재복원·활성 correctness 통과 시 채택·commit/push를 명시 승인했다. 다른 과제의 수용 기준은 변경하지 않는다.
+- 원래 블록3 대조 p95 A139.158ms/B153.590ms =110.370945%, 허용 상한153.0738ms보다0.5162ms 초과한 **원 실험 NOT ADOPTED와 rollback은 그대로 유효한 역사 기록**이다. 예외 판단의 근거는 기존3블록의 실제 GET4→1·일관된 비인접 median 개선과 위 한정된 초과량을 함께 검토한 owner의 명시적 위험 수용이다. 원 실험을 PASS로 재분류하거나 음성 증거를 삭제하지 않았다.
+- 보존 근거의 `reproduction.r_variant_B_home_shell`과 현재 전체 파일이 byte 동일하다. SHA-256은 **`b48dc5975cd1018b6f705aaffcbe2028b2856fbe023ebb4ebdb7437324fb93c7`**이다. `_selectTab`에 `(value - index).abs() > 1`이면 `jumpToPage(value); return;`인4행만 복원했다. 인접 `animateToPage`240ms·수동 swipe·목적지 `_handlePageChanged` refresh는 변경하지 않았다. AppState/coordinator/OfflineStore·금융/인증/세대/pending/Snapshot·잠금은 수정하지 않았다.
+- **활성 코드에서 실제 재실행:** 새 탐색1 + 기존 widget13 + offline refresh27 + authoritative acquisition57 + rebuild pending11 + 보호23 = **132 PASS /0 FAIL /0 SKIP**. 각 suite 실행 직전 source SHA=B를 확인했다. 이전 원복 상태132건을 이번 활성 결과로 재사용하지 않았다.
+- 탐색 테스트는 기존 검사를 유지하고 더 강화했다. 비인접 양 방향·인접·수동 swipe의 목적지 GET1/실제 JSON baseline 게시1/notify1과 디스크 readback의 owner·행 identity를 확인했다. 인접 animation의 중간 page 값, 같은 탭 no-op, 즉시0→4→0과 진행 중 반전, animation 중 재선택, notify/취득 후 draft·focus, dispose를 포함한11개 체크가 통과했다. GET1 검사를 환경변수로 우회하지 않고 기본 회귀에서도 요구한다. 상태/인증/generation·late publication·pending/Offline은 위 기존 suite를 그대로 실행했다.
+- 직접 compiler + flutter_tester + test_api runner와 기존 host assets를 사용했다. Flutter CLI·Android·ADB·emulator·운영 도구는 실행하지 않았다. 추가 정적 분석2파일 **No issues**, 격리 frontend `npm run build` PASS, 기존 backend 합성 smoke3건 PASS(기존 warning1)다. 실기기/GPU·정식 Flutter CLI 전체 suite 결과로 확대하지 않는다.
+- B 전체 source·나머지 생산/fixture source·SDK 파일 SHA가 이전 측정과 같음을 확인해 기존 성능 근거를 재사용했다. 50행 host median 약255~278→77~88ms, 1k 약1463~1572→411~432ms이며 원 표본/통계/실행 flags는 변경하지 않았다. 새 대규모 성능 campaign은 수행하지 않았다.
+- **현재 결정: ADOPTED — ONE-TIME OWNER EXCEPTION.** 활성 correctness 범위에서 material regression은 관측하지 않았다. 독립 최종 감사나 Phase1 전체 종료 판정은 아직 아니다. P1-S/P1-U는 DEFERRED를 유지하고 다른 최적화·Phase2는 시작하지 않는다. 신규 실행/원문/로그는 기존 단일 근거의 `r01_reinstatement`에만 추가했고 종전 JSON 필드 전체의 동일성을 대조한다. 게시 SHA와 정리 결과는 다음 기록에 남긴다.
+
+- RS1 보존 확인: 시작7,947개 파일 중 명시 승인6개만 변경했고 나머지7,941개·모든 기존 dirty 파일을 보존했다. 신규/누락 파일0개, 원래 staged0개 유지 후 관련 경로만 commit한다. 종전 evidence JSON 전체 필드와 M2 이후 거부·rollback·S 보류 이력, roadmap 성능 지도/역사/순위는 동일하다.

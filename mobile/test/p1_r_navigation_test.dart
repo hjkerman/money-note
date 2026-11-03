@@ -381,8 +381,10 @@ void navigationRegression() {
       ..confirmedPlannedEntries = b.confirmedPlannedEntries
       ..panels = b.panels
       ..cashFlows = b.cashFlows;
-    final expectJump = Platform.environment['P1R_EXPECT_JUMP'] == '1';
     final checks = <String>[];
+    final publications = <Map<String, Object?>>[];
+    var previousReplacements = store.replacements;
+    var previousNotifications = state.notifications;
     var disposed = false;
     void select(int index) => tester
         .widget<NavigationBar>(find.byType(NavigationBar))
@@ -392,6 +394,8 @@ void navigationRegression() {
       state.calls.clear();
       state.errors.clear();
       transport.requests.clear();
+      previousReplacements = store.replacements;
+      previousNotifications = state.notifications;
     }
 
     Future<void> settle(int index) async {
@@ -410,6 +414,26 @@ void navigationRegression() {
       expect(shell.index, index);
     }
 
+    Future<void> expectSingleFreshPublication(int destination) async {
+      expect(state.calls, [destination]);
+      expect(transport.requests.length, 1);
+      expect(transport.requests.single['trigger_page'], destination);
+      expect(state.errors, isEmpty);
+      expect(store.replacements - previousReplacements, 1);
+      expect(state.notifications - previousNotifications, 1);
+      final persisted = (await tester.runAsync(store.loadBaseline))!;
+      expect(persisted.user.id, state.user!.id);
+      expect(persisted.entries.map((entry) => entry.id).toList(),
+          state.entries.map((entry) => entry.id).toList());
+      publications.add({
+        'destination': destination,
+        'authoritative_gets': transport.requests.length,
+        'durable_replacements': store.replacements - previousReplacements,
+        'notifications': state.notifications - previousNotifications,
+        'persisted_entries': persisted.entries.length,
+      });
+    }
+
     try {
       await tester.pumpWidget(
           MoneyNoteApp(stateOverride: state, bootstrapOnStart: false));
@@ -421,31 +445,44 @@ void navigationRegression() {
       clear();
       select(4);
       await settle(4);
-      expect(transport.requests.where((r) => r['trigger_page'] == 4).length, 1);
-      if (expectJump) expect(transport.requests.length, 1);
+      await expectSingleFreshPublication(4);
       checks.add('distant destination refresh');
       clear();
       select(4);
       await settle(4);
       expect(transport.requests, isEmpty);
+      expect(store.replacements, previousReplacements);
       checks.add('same-tab no-op');
       clear();
+      final controller =
+          tester.widget<PageView>(find.byType(PageView)).controller!;
       select(3);
+      expect(controller.page, 4);
+      await tester.pump(const Duration(milliseconds: 16));
+      await tester.pump(const Duration(milliseconds: 16));
+      expect(controller.page, greaterThan(3));
+      expect(controller.page, lessThan(4));
       await settle(3);
-      expect(state.calls, [3]);
-      expect(transport.requests.length, 1);
+      await expectSingleFreshPublication(3);
       checks.add('adjacent animation and refresh');
       clear();
       await tester.drag(find.byType(PageView), const Offset(300, 0));
       await settle(2);
-      expect(state.calls, [2]);
+      await expectSingleFreshPublication(2);
       checks.add('manual swipe and refresh');
       clear();
       select(0);
       await settle(0);
-      expect(transport.requests.where((r) => r['trigger_page'] == 0).length, 1);
-      if (expectJump) expect(transport.requests.length, 1);
+      await expectSingleFreshPublication(0);
       checks.add('reverse distant destination refresh');
+      clear();
+      select(4);
+      select(0);
+      await settle(0);
+      expect(state.calls.last, 0);
+      expect(transport.requests.where((r) => r['trigger_page'] == 0).length, 1);
+      expect(store.replacements, greaterThan(previousReplacements));
+      checks.add('immediate distant selection and reversal');
       clear();
       select(4);
       for (var i = 0; i < 3; i++) {
@@ -491,8 +528,10 @@ void navigationRegression() {
       checks.add('dispose during navigation');
       final output = Platform.environment['P1R_FUNCTIONAL_OUTPUT'];
       if (output != null) {
-        await tester.runAsync(
-            () => File(output).writeAsString(jsonEncode({'checks': checks})));
+        await tester.runAsync(() => File(output).writeAsString(jsonEncode({
+              'checks': checks,
+              'fresh_publications': publications,
+            })));
       }
     } finally {
       await tester.pumpWidget(const SizedBox.shrink());

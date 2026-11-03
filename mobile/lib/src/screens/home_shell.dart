@@ -149,6 +149,10 @@ class _HomeShellState extends State<HomeShell> {
 
   Future<void> _selectTab(int value) async {
     if (value == index) return;
+    if ((value - index).abs() > 1) {
+      _pageController.jumpToPage(value);
+      return;
+    }
     await _pageController.animateToPage(
       value,
       duration: const Duration(milliseconds: 240),

@@ -1,6 +1,6 @@
 # Money Note 최종 최적화·종료 로드맵
 
-작성일: 2026-11-02. 완화 계획 갱신: 2026-11-03. **P1-01/P1-02 실험과 P1-03/P1-04/P1-R 조사를 완료했다. P1-01은 미채택·원복, P1-02는 보호 경로 보류, P1-03은 비용 귀속 B/전체 PARTIAL, P1-04는 C다. 1단계는 진행 중이며 P1-R-01은 구현 실험 뒤 미채택·원복, P1-S는 digest 비용 조건 실패로 보류, P1-U는 기존 보류, P1-05는 소유자 결정으로 제외했다. [공유 완화 장부](phase1-mitigation-plan.md)에 Planning Audit PASS·owner scoped 승인 뒤의 순차 실행을 기록했다. batch 처분은 완료했고 독립 Mitigation Audit가 다음이다. 삭제·최종 감사는 미착수다.** 이 문서의 READY는 실행 가능한 계획이 준비됐다는 뜻이다. 단계 종료, formal T6.6F 완료 또는 운영 준비 판정이 아니다.
+작성일: 2026-11-02. 완화 계획 갱신: 2026-11-03. **P1-01/P1-02 실험과 P1-03/P1-04/P1-R 조사를 완료했다. P1-01은 미채택·원복, P1-02는 보호 경로 보류, P1-03은 비용 귀속 B/전체 PARTIAL, P1-04는 C다. 1단계는 진행 중이며 P1-R-01은 최초 미채택·원복 후 owner 한정 예외 승인과 활성132건 통과로 재채택, P1-S는 digest 비용 조건 실패로 보류, P1-U는 기존 보류, P1-05는 소유자 결정으로 제외했다. [공유 완화 장부](phase1-mitigation-plan.md)에 Planning Audit PASS·owner scoped 승인 뒤의 순차 실행을 기록했다. batch 처분은 완료했고 독립 Mitigation Audit가 다음이다. 삭제·최종 감사는 미착수다.** 이 문서의 READY는 실행 가능한 계획이 준비됐다는 뜻이다. 단계 종료, formal T6.6F 완료 또는 운영 준비 판정이 아니다.
 
 ## 1. 현재 기준선과 보류 경계
 
@@ -46,11 +46,11 @@
 | P1-03 | Snapshot save/list/validation 비용 귀속 | 분석 완료 B / 전체 PARTIAL — 자동 ADB 기동 위반·종료 기록 보존 |
 | P1-04 | backend SQL/query/presenter 비용 귀속 | COMPLETE — C, 구현0개 |
 | P1-05 | 웹 Refresh·archive 취득 비용 귀속 | SKIPPED BY OWNER DECISION |
-| P1-R | 불필요한 모바일 Refresh·반복 authoritative bundle 취득 | 조사 B 보존 / R-01 실제 GET4→1 확인했으나 대조p95 110.37%로 NOT ADOPTED·원복 |
+| P1-R | 불필요한 모바일 Refresh·반복 authoritative bundle 취득 | 원래110.37% 실패·미채택 보존 / 거부 검토 A·owner1회 예외 후 동일 B 재복원·활성132 PASS·ADOPTED |
 | P1-S | Snapshot save/list 내부 반복 검증 최적화 | DEFER — 240 CPU표본에서 추가SHA 비용 조건 실패, 생산 미구현 |
 | P1-U | P1-02 UI 파생값·rebuild 구현 후보 | DEFER — 현재 이득 대비 protected invalidation 변경 위험으로 구현 제외 |
 
-### 2.2 P1-R — 조사 B 완료, 첫 UI 후보 미구현
+### 2.2 P1-R — 조사 B 보존, R-01 owner 예외 재채택
 
 [결과 보고서](p1-r-mobile-refresh-performance-results.md)의 판정은 **B — SOURCE-SUPPORTED REDUNDANCY, MEASUREMENT LIMITED**다. 정상 경로의14→1 HTTP·strict admission·JSON baseline/pending 경계는 유지되며, 일반 coordinator는 in-flight Future를 공유하지 않는다. foreground·connectivity·mutation single-flight의 기존 가드는 따로 보존한다.
 
@@ -58,7 +58,7 @@
 
 일반 탭 refresh 전면 생략과 일반 in-flight 공유는 freshness·auth/generation·mutation 완료 의미를 바꾸므로 이 후보와 구분한다. 명시 refresh·post-mutation·reconciliation/recovery·JSON durable publication·server authority와 날짜/인증 전환은 그대로 유지한다. P1-02의5k jump1→2→0 약5.55초 전체를 낭비로 계산하지 않는다. Phase2 전송량·압축·프로토콜 조사는 미착수다.
 
-현재 주요 조사는 P1-R로 마무리했다. 후속 P1-R-01은 실제 중간 callback/HTTP baseline을 먼저 확인하는 조건부 계획이며, [공유 계획 C](phase1-mitigation-plan.md#c-구현-명세)에 승인 범위·측정·회귀·거부 기준을 둔다. Planning Audit PASS·owner 승인 뒤 R-01 실험은 미채택·원복됐으며, 다음은 batch 독립 Mitigation Audit다. P1-05는 소유자 결정으로 제외했으며 필수 선행 조사로 추가하지 않는다. 1단계 종료는 별도 exit 확인이며 자동 선언하지 않는다.
+현재 주요 조사는 P1-R로 마무리했다. 후속 P1-R-01은 실제 중간 callback/HTTP baseline을 먼저 확인하는 조건부 계획이며, [공유 계획 C](phase1-mitigation-plan.md#c-구현-명세)에 승인 범위·측정·회귀·거부 기준을 둔다. R-01 최초 실험은 미채택·원복됐고, 이후 독립 거부 검토 A·owner 한정 예외로 동일 B를 재복원해 활성132건 통과 후 채택했다. 다음은 독립 최종 P1-R-01 Mitigation Audit다. P1-05는 소유자 결정으로 제외했으며 필수 선행 조사로 추가하지 않는다. 1단계 종료는 별도 exit 확인이며 자동 선언하지 않는다.
 
 ### 2.3 P1-S — Snapshot 반복 검증 최적화 목표 보존
 
@@ -238,7 +238,7 @@ B05/B08의 추가 확대 실험은 첫 후보에서 제외한다. 이미 전체 
 
 | 단계 | 종료에 필요한 유한 조건 | 현재 상태 |
 | --- | --- | --- |
-| 1단계 | UI15/처리12 지도, 근거별 우선순위, §2.1 조사와 공유 계획 G의 승인된 완화 작업·감사 지적 처분 완료. 모든 병목 제거는 불필요하며 권한/위험상 보류 가능. 채택 변경의 기능·성능 회귀 통과·미해결 신규 P0/P1 없음·잔여 불확실성 §8 이월 | P1-01 미채택·원복, P1-02 보호 경로 보류, P1-03 B/전체 PARTIAL·미구현, P1-04 C 완료. R-01 미채택·원복, S 비용 조건 실패·미구현 보류, U 보류, P1-05 소유자 제외. **구현 batch 처분 완료·독립 Mitigation Audit 대기·1단계 진행 중** |
+| 1단계 | UI15/처리12 지도, 근거별 우선순위, §2.1 조사와 공유 계획 G의 승인된 완화 작업·감사 지적 처분 완료. 모든 병목 제거는 불필요하며 권한/위험상 보류 가능. 채택 변경의 기능·성능 회귀 통과·미해결 신규 P0/P1 없음·잔여 불확실성 §8 이월 | P1-01 미채택·원복, P1-02 보호 경로 보류, P1-03 B/전체 PARTIAL·미구현, P1-04 C 완료. R-01 최초 실패 보존·owner1회 예외 재채택·활성132 PASS, S/U 보류, P1-05 소유자 제외. **독립 최종 P1-R-01 Mitigation Audit 대기·1단계 진행 중** |
 | 2단계 | 별도 승인된 모바일 전송량 분석·최적화와 전후 측정·채택/미채택 처분 완료, 안전 계약과 기능 회귀 유지, 남은 불확실성 §8 이월 | 독립 단계 확립, 상세 계획·분석·구현은 **진입 전** |
 | 3단계 | 좁은 inventory의 고신뢰 dead/redundant 항목만 정리, 동적/호환 consumer 보존, 관련 Flutter/backend/web 회귀·build 통과, 미확정 비중요 항목 처분 | 계획 준비, **진입 전** |
 | 4단계 | 단일 감사표 완료, P0/P1 해결 또는 명시 차단, P2/P3 처분, 집중 회귀와 최종 통합 suite 통과, source locks·역사 증거 보존, 기기/배포 제약 명시 | 계획 준비, **진입 전** |
@@ -268,3 +268,5 @@ B05/B08의 추가 확대 실험은 첫 후보에서 제외한다. 이미 전체 
 **R-01 구현 처분:** 승인된 3블록 측정840개에서 중간 GET3개 감소·주 latency 감소를 확인했지만 작은 인접 대조p95가110% 기준을 넘었다. NOT ADOPTED로 HomeShell을 원래 SHA로 복구했고 직접 host focused132건이 통과했다. raw·한계·다음 S 조건 확인은 공유 장부/단일 mitigation 근거에 보존한다. 1단계는 진행 중이다.
 
 **S 구현 처분:** R 처분·push 뒤 동일 P1-03 payload로 측정한 추가SHA61회 비용은 제거decode30회의1.51~1.85배였다. 비용 조건 실패로 DEFER·repository/보호 검사 변경0개다. 원래 P1-03의 PARTIAL/B와 반복 검증 기회는 보존하지만 이 receipt 안의 이득을 주장하지 않는다. 다음은 owner의 독립 Mitigation Audit이며 1단계 종료·다음 단계 착수는 선언하지 않는다.
+
+**P1-R-01 재채택:** 독립 거부 검토 A와 owner의 P1-R-01 한정1회 p95 예외 승인으로 보존된 B 화면 전체와 byte 동일한4행을 복원했다. 활성 소스 SHA `b48dc5975cd1018b6f705aaffcbe2028b2856fbe023ebb4ebdb7437324fb93c7`에서 focused132건이 새로 통과했다. 원래110.37% 초과·NOT ADOPTED/rollback과 모든 음성 측정은 보존하며 원 실험PASS로 바꾸지 않는다. 신규 성능 campaign 없이 이전 GET4→1·median 근거를 재사용했다. S/U 보류·다른 수용 기준 불변, 1단계 종료는 선언하지 않는다. 현재 결정과 게시/재현은 공유 장부 RS1과 단일 근거 `r01_reinstatement`에 있다.
