@@ -45,7 +45,7 @@ logical index 전체 및 staged/unstaged binary diff digest를 종료 시 다시
 명시적인 host 검증 profile만 500,000/1,000,000 objects/edges와 metadata384MiB다.
 64 objects/1MiB packet, object64MiB/payload512MiB/path512/stages128,
 request3회/observation3회/TTL900초를 바꾸지 않았다.
-기존 [교정 보고서](t66f-b02-a01-targeted-correction.md)는 구현자 기록이며 독립 완료 판정이 아니다.
+기존 [교정 보고서](archive/legacy-performance/t66f-b02-a01-targeted-correction.md)는 구현자 기록이며 독립 완료 판정이 아니다.
 
 ## 05. 성공한 50k 기준선
 

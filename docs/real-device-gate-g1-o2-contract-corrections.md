@@ -6,7 +6,7 @@
 
 이번 작업은 원 G1 제안 작성 세션의 O2 문서 수정이며 G1-R01 독립 검토 세션이 아니다. 소유자는 G1-R01-F01/F02/F03만의 문서 수정을 승인했다. [O2 권한](benchmarks/real-device-gate-g1-o2/owner-o2-authorization.json). R01의 실제 finding 원문·최소 수정·수용 기준을 확인했으며 기록에 없는 reviewer 요구를 새 finding으로 만들지 않았다.
 
-검토한 원안은 [기존 제안서](real-device-gate-g1-safety-contract-proposal.md), R01은 [독립 보고서](real-device-gate-g1-r01-independent-contract-review.md)와 [원 finding JSON](benchmarks/real-device-gate-g1-r01/independent-findings.json)이다. R01 JSON 13개는 전체 파싱·해시로 확인했고 큰 보존 목록도 원문을 변경하지 않았다. [입력 목록](benchmarks/real-device-gate-g1-o2/r01-input-inventory.json).
+검토한 원안은 [기존 제안서](real-device-gate-g1-safety-contract-proposal.md), R01은 [독립 보고서](archive/device-gate/history/real-device-gate-g1-r01-independent-contract-review.md)와 [원 finding JSON](benchmarks/real-device-gate-g1-r01/independent-findings.json)이다. R01 JSON 13개는 전체 파싱·해시로 확인했고 큰 보존 목록도 원문을 변경하지 않았다. [입력 목록](benchmarks/real-device-gate-g1-o2/r01-input-inventory.json).
 
 기존 파일을 덮어쓰지 않는 방식을 택했다. 새 [corrected candidate](real-device-gate-g1-o2-corrected-proposal.md)는 `G1-O2-CANDIDATE-01` revision이며 원 package/contract ID와 G1-01–12, PR01–12, RJ01–14를 유지한다. 원안·기존 unsigned template·R01은 그대로 두고 관련 원문 8개를 새 증거의 `original/`에도 보존했다. 원/수정 markdown 및 JSON diff는 [redline과 해시](benchmarks/real-device-gate-g1-o2/proposal-redline-and-hashes.json), 정확 원문/수정문·사유·proof/RJ·승인 단계·강도는 [변경 matrix](benchmarks/real-device-gate-g1-o2/finding-correction-matrix.json)에 있다.
 

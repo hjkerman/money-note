@@ -12,9 +12,9 @@
 
 `679a16e030b7c0044bc834e7ce8557298da5ad6fd1f3e9d8453a1fef5f8920d0`
 
-G1의 제목과 과거 미적용 문구만으로 현행 효력을 부정하지 않았다. N3/N4/N5 [완료 기록](benchmarks/real-device-gate-g1-n3-application/completion-record.json)의 직접 의존성 다섯 개와 [상태 주석 독립 검토](real-device-gate-g1-status-annotation-independent-review.md)를 대조했다. 주석 한 행을 제거하면 과거 승인본 `967e6b07a66cdc88aaa037d1965fc0aac63d0a7069a4f39af005043ad64b201e`가 복구된다. S1–S7의 실질 요구는 계속 구속된다.
+G1의 제목과 과거 미적용 문구만으로 현행 효력을 부정하지 않았다. N3/N4/N5 [완료 기록](benchmarks/real-device-gate-g1-n3-application/completion-record.json)의 직접 의존성 다섯 개와 [상태 주석 독립 검토](archive/device-gate/history/real-device-gate-g1-status-annotation-independent-review.md)를 대조했다. 주석 한 행을 제거하면 과거 승인본 `967e6b07a66cdc88aaa037d1965fc0aac63d0a7069a4f39af005043ad64b201e`가 복구된다. S1–S7의 실질 요구는 계속 구속된다.
 
-AGENTS.md, 산출물 위생 규칙, project-state/domain-model/known-issues와 architecture의 서버 authority 경계를 읽었다. 원 [PREP01 계약](benchmarks/real-device-gate-prep01/physical-device-safety-contract.json), [PREP03 원 F01](benchmarks/real-device-gate-prep03/finding-register.json), [PREP09 독립 감사](real-device-gate-prep09-independent-dispatch-audit.md)와 F01 결정, PREP10·상위 B §27/29·C §26/34/34-B11/35/35-T69/38.8–12를 대조했다. G1이 해시로 편입한 proof·phase·admission·거부 의무도 적용한다. 원 F01의 정확한 요구는 다음과 같다.
+AGENTS.md, 산출물 위생 규칙, project-state/domain-model/known-issues와 architecture의 서버 authority 경계를 읽었다. 원 [PREP01 계약](benchmarks/real-device-gate-prep01/physical-device-safety-contract.json), [PREP03 원 F01](benchmarks/real-device-gate-prep03/finding-register.json), [PREP09 독립 감사](archive/device-gate/history/real-device-gate-prep09-independent-dispatch-audit.md)와 F01 결정, PREP10·상위 B §27/29·C §26/34/34-B11/35/35-T69/38.8–12를 대조했다. G1이 해시로 편입한 proof·phase·admission·거부 의무도 적용한다. 원 F01의 정확한 요구는 다음과 같다.
 
 > 검증한 Android 대상의 신원과 실제 mutation 수신자를 원자적으로 결합하고 연결·server 세대 변경 시 이전 권한을 넘기지 않아야 한다.
 

@@ -6,6 +6,8 @@
 
 ## 현재 기준선
 
+- Repository Hygiene CLOSED(2026-11-04): owner가 Batch1 독립 감사 완료·수용을 확인한 뒤 Batch2를 승인했다. [종결 기록](archive/repository-hygiene/batch2-closure.md)에 안전한 보관·staging dependency 정리와 고정 경로/복구/R5 예외를 기록한다. 남은 예외는 명시 보류이며 Phase4는 미착수·별도 승인 필요다. 이번 세션의 작업은 구현·검증이며 독립 최종 위생 감사는 다음 단계다.
+
 - Phase3 한정 정리 종료(2026-11-04): D01–D03·Claim 무기한 유지 정책을 owner가 수용했고 독립 scoped 감사 BLOCKER/MAJOR는 없다. MINOR P3-A01을 고쳐 승인 작업을 개발 branch에 게시했다. [장부 §12](archive/phase3/phase3-cleanup-candidate-inventory.md#12-phase-3-수용안전-게시)에 포함/제외·검증·커밋을 기록한다. D04–D06은 보류, Phase4는 **미착수·별도 승인 필요**다. main 병합·운영 배포나 기존 formal gate 종결을 뜻하지 않는다.
 
 - T6.6D3c 격리 개발: 소유자 승인 server retention을 T6.6C §16-S에 명확화했다.

@@ -168,7 +168,7 @@ WAL/SHM/journal이 없음을 먼저 확인하고 `mode=ro&immutable=1` 연결로
 원본 파일의 크기와 mtime도 검사 전후 같았다. 레코드 전체를 RAM에 올리거나 DB를 재작성하지 않았다.
 
 P04의 [prepare.py](../../benchmarks/t66f-b03-ic01-p04/prepare.py), [clone-plan.json](../../benchmarks/t66f-b03-ic01-p04/evidence/clone-plan.json),
-[보고서](../../t66f-b03-ic01-p04-late-stage-differential-diagnosis.md)는 smoke A/B 및 A/B/C/D clone의 각 비교 역할을 명시한다.
+[보고서](../legacy-performance/t66f-b03-ic01-p04-late-stage-differential-diagnosis.md)는 smoke A/B 및 A/B/C/D clone의 각 비교 역할을 명시한다.
 여섯 파일은 모두 유지한다. 원 P03와 P04 결과는 stage 변경이 있어 같은 증거로 대체하지 않는다.
 동일 Target backend catalog 부재라는 기존 P04 한계는 그대로이며, 이번 저장공간 감사가 그 실험을 복구하거나 검증 완료한 것은 아니다.
 

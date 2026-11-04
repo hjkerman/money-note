@@ -24,7 +24,7 @@ AGENTS와 산출물 관리 규칙을 다시 읽었다. R01에서 전체 읽은 p
 | Git index SHA-256 | 33779f92417c7e6f7ab927847236336e5ce84e89260a66777e44295b782c943b |
 | staged path/mode/blob SHA-256 | 9edd6a43e183de8f084f6fff420204a5222ac4684b11b6592fca9675d4760e4f |
 
-두 supplied hash는 실제 파일 bytes와 일치해 후보 동일성 중단 조건은 발생하지 않았다. [수정 후보](real-device-gate-g1-o2-corrected-proposal.md), [수정 보고서](real-device-gate-g1-o2-contract-corrections.md), [원안](real-device-gate-g1-safety-contract-proposal.md), [R01](real-device-gate-g1-r01-independent-contract-review.md)을 서로 다른 역사 버전으로 유지했다.
+두 supplied hash는 실제 파일 bytes와 일치해 후보 동일성 중단 조건은 발생하지 않았다. [수정 후보](real-device-gate-g1-o2-corrected-proposal.md), [수정 보고서](real-device-gate-g1-o2-contract-corrections.md), [원안](real-device-gate-g1-safety-contract-proposal.md), [R01](archive/device-gate/history/real-device-gate-g1-r01-independent-contract-review.md)을 서로 다른 역사 버전으로 유지했다.
 
 원안/R01/O2/PREP09/PREP10 manifest 5개의 참조 178개, 두 승인 양식의 pin/target 대조 30건, O2 카탈로그 66개, R01/O2 JSON 47개를 확인했다. redline 6개를 actual 전후 bytes에서 재생성해 일치했고 원문 사본 8개와 보호 source 9개도 일치했다. 이는 안전 보장 분모가 아니라 파일/참조 검사 수다. [신원 평가](benchmarks/real-device-gate-g1-r02/candidate-integrity-review.json), [정적 검증](benchmarks/real-device-gate-g1-r02/static-integrity-and-reference-validation.json).
 

@@ -14,7 +14,7 @@
 
 S7의 해시 고정 참조 12건, 승인 dependency lock의 직접 참조 16건, 효력·주석 연결 10건을 실제 bytes에서 대조했다. [해시·권한 검증](benchmarks/real-device-gate-g1-p01/contract-and-authority-verification.json)에 결과를 남겼다. S4/S7가 정확히 편입한 O2 required-proof/phase/gate/finite-plan의 의무·필수 증거만 현재 계약 아래 읽는다. 과거 O2의 대체 제안이나 `NOT_APPLIED` metadata를 현행 규범으로 삼지 않는다. 원 F01 AND 상위 적용 의무 AND 모든 유효 G1 의무가 누적된다.
 
-[N3 완료 사건](benchmarks/real-device-gate-g1-n3-application/completion-record.json)의 ID는 `G1-N3-N4-N5-DOCUMENT-APPLICATION-COMPLETE-01`이다. N3 exact 승인·N4 적용·[N5 독립 정합성](real-device-gate-g1-n5-independent-application-consistency.md) 뒤의 효력 사건을 확인했다. N3/N5 당시 계약 hash `967e6b07…`는 [주석 전 보존 원본](benchmarks/real-device-gate-g1-status-annotation/original-before.md)에 대응한다. [상태 주석 정정](real-device-gate-g1-status-annotation-correction.md)과 [독립 검토](real-device-gate-g1-status-annotation-independent-review.md)가 현행 `679a16e0…` 신원으로 연결한다. 과거 해시·미결 사건을 재작성하지 않았다. 문서 적용·정정 PASS는 기술 수용이 아니다.
+[N3 완료 사건](benchmarks/real-device-gate-g1-n3-application/completion-record.json)의 ID는 `G1-N3-N4-N5-DOCUMENT-APPLICATION-COMPLETE-01`이다. N3 exact 승인·N4 적용·[N5 독립 정합성](real-device-gate-g1-n5-independent-application-consistency.md) 뒤의 효력 사건을 확인했다. N3/N5 당시 계약 hash `967e6b07…`는 [주석 전 보존 원본](benchmarks/real-device-gate-g1-status-annotation/original-before.md)에 대응한다. [상태 주석 정정](archive/device-gate/history/real-device-gate-g1-status-annotation-correction.md)과 [독립 검토](archive/device-gate/history/real-device-gate-g1-status-annotation-independent-review.md)가 현행 `679a16e0…` 신원으로 연결한다. 과거 해시·미결 사건을 재작성하지 않았다. 문서 적용·정정 PASS는 기술 수용이 아니다.
 
 원 [PREP01 물리 기기 안전 요구](benchmarks/real-device-gate-prep01/physical-device-safety-contract.json)와 [기기 gate의 필수 공란 거부](real-device-gate-prep01-headless-emulator-foundation.md:172)도 읽고 고정 manifest 필드 29개·명시 owner 승인·고정 한 세션·개인 데이터 금지·단절 뒤 자동 정리 금지를 보존한다. 과거 `allowed_argv_templates`는 G1의 실제 literal argv/input 동결보다 약한 허용으로 쓰지 않는다.
 
@@ -32,7 +32,7 @@ AGENTS.md, 개발 산출물 위생, 프로젝트 상태·도메인 모델·알�
 
 > 검증한 Android 대상의 신원과 실제 mutation 수신자를 원자적으로 결합하고 연결·server 세대 변경 시 이전 권한을 넘기지 않아야 한다.
 
-[원 PREP03 finding](benchmarks/real-device-gate-prep03/finding-register.json), [PREP09 원 F01 결정](benchmarks/real-device-gate-prep09/f01-architectural-blocker.json), [독립 잔존 반례](benchmarks/real-device-gate-prep09/regression/prior/f01-unclosed-interface-counterexample.json)를 직접 읽었다. 마지막 probe 뒤 `changed-after-last-probe`에서 모의 mutation이 남는 반례다. 실제 phone 치환·침해를 관측한 것으로 확대하지 않는다. 그 진단의 PASS는 결함 존속을 확인한 meta-test다. [PREP09 감사](real-device-gate-prep09-independent-dispatch-audit.md)의 N01/F02/F03/FC01 독립 종결을 인계하며 원 F01 해결로 전환하지 않는다. [PREP10](real-device-gate-prep10-f01-architecture-decision.md)의 B+C 조건부 후보는 역사 설계 비교다. 유효 보충 계약 아래 원 F01을 대체하는 선택지로 쓰지 않는다.
+[원 PREP03 finding](benchmarks/real-device-gate-prep03/finding-register.json), [PREP09 원 F01 결정](benchmarks/real-device-gate-prep09/f01-architectural-blocker.json), [독립 잔존 반례](benchmarks/real-device-gate-prep09/regression/prior/f01-unclosed-interface-counterexample.json)를 직접 읽었다. 마지막 probe 뒤 `changed-after-last-probe`에서 모의 mutation이 남는 반례다. 실제 phone 치환·침해를 관측한 것으로 확대하지 않는다. 그 진단의 PASS는 결함 존속을 확인한 meta-test다. [PREP09 감사](archive/device-gate/history/real-device-gate-prep09-independent-dispatch-audit.md)의 N01/F02/F03/FC01 독립 종결을 인계하며 원 F01 해결로 전환하지 않는다. [PREP10](real-device-gate-prep10-f01-architecture-decision.md)의 B+C 조건부 후보는 역사 설계 비교다. 유효 보충 계약 아래 원 F01을 대체하는 선택지로 쓰지 않는다.
 
 ## 2. 현재 코드에서 확인한 지원과 한계
 
@@ -412,7 +412,7 @@ M4에는 현재 앱의 test-only durable claim-before-effect gate만 필요하�
 
 3. **위협/실패:** 신뢰 wrapper 밖 process, 같은 UID ptrace/FD 유출, 상속 socket, 새 device node, 다른 server/TCP 경로.
 
-4. **현재 지원:** FC01 중앙 Python 거부는 지원 네 모듈 경로에서 독립 종결; 호스트 전체 OS sandbox는 아님. 근거: [scripts/devicegate/dispatch.py:1](../scripts/devicegate/dispatch.py:1), [scripts/devicegate/smoke.py:80](../scripts/devicegate/smoke.py:80), [scripts/devicegate/test_prep08.py:70](../scripts/devicegate/test_prep08.py:70), [docs/real-device-gate-prep09-independent-dispatch-audit.md](real-device-gate-prep09-independent-dispatch-audit.md).
+4. **현재 지원:** FC01 중앙 Python 거부는 지원 네 모듈 경로에서 독립 종결; 호스트 전체 OS sandbox는 아님. 근거: [scripts/devicegate/dispatch.py:1](../scripts/devicegate/dispatch.py:1), [scripts/devicegate/smoke.py:80](../scripts/devicegate/smoke.py:80), [scripts/devicegate/test_prep08.py:70](../scripts/devicegate/test_prep08.py:70), [docs/real-device-gate-prep09-independent-dispatch-audit.md](archive/device-gate/history/real-device-gate-prep09-independent-dispatch-audit.md).
 
 5. **누락 집행:** 전용 principal과 실제 적용된 device/network/mount/process 정책 및 탈출 불가 recipe 없음.
 

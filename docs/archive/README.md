@@ -8,5 +8,6 @@
 - [Phase 3 수용·검증·게시](phase3/phase3-cleanup-candidate-inventory.md), [폐기된 Claim 제거 계획](phase3/claim-removal-plan-superseded.md). Claim은 [현행 정책](../domain-model.md#claim-유지-정책)에 따라 무기한 유지한다.
 - [과거 디스크 조사](repository-hygiene/money-note-disk-cleanup-audit.md): 당시 용량이며 현재 측정으로 사용하지 않는다.
 - [Batch 1 실행 기록](batch1-cleanup-record.md).
+- [Batch 2 및 Repository Hygiene 종결](repository-hygiene/batch2-closure.md): 과거 T6.6F 보고서31개·gate 보고서11개·benchmark 자료11개 보관. [Legacy performance](legacy-performance/) 및 [gate history](device-gate/history/)에서 찾으며 고정 경로 예외는 원위치다. staging3개 dependency만 정리했고 불완전 staging1개는 보존했다.
 
 역사 JSON·압축 근거 안의 당시 명령/원경로 문자열은 수정하지 않았다. 재현 시 [이동 대응표](../benchmarks/repository-hygiene-batch1.json)의 old/new 경로를 적용한다. B03 source lock·G1 고정 문서/proof·현재 회귀 fixture는 이동하지 않았다. archive 이동은 Git blob 용량을 줄이지 않으며 현재 branch 게시가 운영 배포 승인은 아니다.
