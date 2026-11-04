@@ -240,7 +240,7 @@ B05/B08의 추가 확대 실험은 첫 후보에서 제외한다. 이미 전체 
 | --- | --- | --- |
 | 1단계 | UI15/처리12 지도, 근거별 우선순위, §2.1 조사와 공유 계획 G의 승인된 완화 작업·감사 지적 처분 완료. 모든 병목 제거는 불필요하며 권한/위험상 보류 가능. 채택 변경의 기능·성능 회귀 통과·미해결 신규 P0/P1 없음·잔여 불확실성 §8 이월 | P1-01 미채택·원복, P1-02 보호 경로 보류, P1-03 B/전체 PARTIAL·미구현, P1-04 C 완료. R-01 최초 실패 보존·owner1회 예외 재채택·활성132 PASS, S/U 보류, P1-05 소유자 제외. **CLOSED — 최종 독립 감사 PASS·owner 종료 승인, S/U 보류 유지** |
 | 2단계 | 별도 승인된 모바일 전송량 분석·최적화와 전후 측정·채택/미채택 처분 완료, 안전 계약과 기능 회귀 유지, 남은 불확실성 §8 이월 | **IN PROGRESS — N01 ACCEPTED(PASS, A01/R1 CLOSED), N02 조사 DEFER·독립 GET 유지 권고. 최초 PARTIAL/REWORK 보존. N02~N05 미구현** |
-| 3단계 | 좁은 inventory의 고신뢰 dead/redundant 항목만 정리, 동적/호환 consumer 보존, 관련 Flutter/backend/web 회귀·build 통과, 미확정 비중요 항목 처분 | **D01–D03·Claim 유지 정책 ACCEPTED, 독립 감사 BLOCKER/MAJOR 없음. P3-A01 수정 완료. 안전 게시 진행, D04–D06 보류** |
+| 3단계 | 좁은 inventory의 고신뢰 dead/redundant 항목만 정리, 동적/호환 consumer 보존, 관련 Flutter/backend/web 회귀·build 통과, 미확정 비중요 항목 처분 | **CLOSED — D01–D03·Claim 정책 ACCEPTED, 독립 감사 BLOCKER/MAJOR 없음·P3-A01 수정, 승인 작업 게시 성공. D04–D06 보류** |
 | 4단계 | 단일 감사표 완료, P0/P1 해결 또는 명시 차단, P2/P3 처분, 집중 회귀와 최종 통합 suite 통과, source locks·역사 증거 보존, 기기/배포 제약 명시 | **NOT STARTED — 별도 owner 승인 필요** |
 
 각 종료 시 수행자가 결과를 기록하고 이전 단계의 exit 충족을 확인해야 다음 단계에 진입한다. 새 범위의 구현은 해당 작업 요청으로만 시작한다. 단순 보고서 작성이나 표의 READY로 다음 단계가 자동 시작되지 않는다.
@@ -288,3 +288,5 @@ B05/B08의 추가 확대 실험은 첫 후보에서 제외한다. 이미 전체 
 **D01–D03 scoped cleanup 승인:** owner가 독립 후보 감사 뒤 세 항목만 승인했다. Claim은 [무기한 유지](../domain-model.md#claim-유지-정책)하며 과거 제거 계획은 폐기된 역사 자료로 보존한다. D04–D06 구현은 보류이며 특히 D04는 변경된 Claim 정책 아래에서 다시 평가하기 전 구현하지 않는다. 진행·검증은 inventory §11에 기록하고 staging/commit은 하지 않는다.
 
 **Phase 3 수용·게시 결정(2026-11-04):** 위 구현 당시의 미게시 기록은 보존한다. 후속 독립 scoped 감사에서 BLOCKER/MAJOR 없음, owner는 D01–D03·Claim 유지 정책과 감사 결과를 수용했다. MINOR P3-A01의 잘못된 4단계 상태를 **미착수·별도 승인 필요**로 수정했다. 이번에는 검토된 경로만 commit/push하며 devicegate 보안 설정·연관 소스는 owner 결정에 따라 제외한다. 미확인 과거 실험·DB·키·원시 로그도 원위치 보존한다. 상세 게시 범위와 최종 종결은 [inventory §12](phase3-cleanup-candidate-inventory.md#12-phase-3-수용안전-게시)에 기록한다. Phase4·운영 배포·main 병합은 승인하지 않는다.
+
+**Phase 3 CLOSED:** 수용 작업 `b8d07d096b5d70def4b1e59e75e2039e0d999c4b`와 별도 검토한 기존 자료 `eb25f6b482e16b72afac209e573ea8904ab369d3`의 push 성공 및 원격 tip 일치를 확인했다. Claim 무기한 유지·D04–D06 보류·역사 증거 보존으로 한정 정리의 종료 조건을 충족했다. 4단계는 **NOT STARTED**이며 다음 포괄 감사는 별도 owner 승인 후 착수한다. 남겨 둔 기존 작업은 이번 Phase3 수용 범위 밖이고 자동 공개·삭제하지 않는다.

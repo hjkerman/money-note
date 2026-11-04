@@ -6,6 +6,8 @@
 
 ## 현재 기준선
 
+- Phase3 한정 정리 종료(2026-11-04): D01–D03·Claim 무기한 유지 정책을 owner가 수용했고 독립 scoped 감사 BLOCKER/MAJOR는 없다. MINOR P3-A01을 고쳐 승인 작업을 개발 branch에 게시했다. [장부 §12](development-reports/phase3-cleanup-candidate-inventory.md#12-phase-3-수용안전-게시)에 포함/제외·검증·커밋을 기록한다. D04–D06은 보류, Phase4는 **미착수·별도 승인 필요**다. main 병합·운영 배포나 기존 formal gate 종결을 뜻하지 않는다.
+
 - T6.6D3c 격리 개발: 소유자 승인 server retention을 T6.6C §16-S에 명확화했다.
   현재 complete/live pin/실제 worker 의존성은 보호하고, 과거 certificate의 digest·fence
   증거와 obsolete object 보관을 분리한다. 추가 previous generation 자동 장기 보관은

@@ -1,6 +1,6 @@
 # 최적화·개선·감사 작업 기록
 
-현재 작업은 owner가 수용한 Phase3 D01–D03·Claim 유지 정책의 안전 게시다. Phase4는 미착수이며 별도 승인이 필요하다. 아래 로드맵을 기준으로 진행하고 장기 유지 문서는 [상위 문서 안내](../README.md)에 둔다.
+Phase3 D01–D03·Claim 유지 정책은 owner 수용과 안전 게시를 마쳐 **CLOSED**다. Phase4는 미착수이며 별도 승인이 필요하다. 아래 로드맵을 기준으로 진행하고 장기 유지 문서는 [상위 문서 안내](../README.md)에 둔다.
 
 ## 현재 로드맵·P1 결과
 
@@ -157,7 +157,7 @@ N01-A01 모바일 raw gzip 검증 수정과 101 host PASS는 후보 문서 §10�
 
 - [phase2-n02-snapshot-reuse-investigation.md](phase2-n02-snapshot-reuse-investigation.md) — N01 최종 수용, N02 복구 시점·구조 동등성·gzip 이후 이득·DEFER 처분.
 
-- [phase3-cleanup-candidate-inventory.md](phase3-cleanup-candidate-inventory.md) — 후보 조사·승인 D01–D03 구현·독립 감사 완료, owner ACCEPTED, D04–D06 보류.
+- [phase3-cleanup-candidate-inventory.md](phase3-cleanup-candidate-inventory.md) — Phase3 CLOSED, D01–D03·Claim 정책 ACCEPTED·push 성공, D04–D06 보류.
 
 - [Phase3 수용·게시 §12](phase3-cleanup-candidate-inventory.md#12-phase-3-수용안전-게시) — 현재 게시 장부. §11의 감사 전 실행·미게시 이력 보존, Phase4 별도 승인 필요.
 - [폐기된 Claim 제거 계획](claim-removal-plan-superseded.md) — 역사 원문 보존용, 현행 유지 정책·실행 지침이 아님.

@@ -282,3 +282,20 @@ console.log('TS_DIAGNOSTIC_COUNTS',ts.getPreEmitDiagnostics(program).reduce((a,d
 ### 게시 진행
 
 안전 검토 후 Phase3 수용 작업과 기존 위생 지침을 논리적으로 나누어 commit/push한다. 원격 성공·SHA를 아래에 후속 기록한 뒤 Phase3를 CLOSED로 갱신한다. 현재는 **ACCEPTED / PUBLICATION PENDING**이며 Phase4는 미착수다.
+
+### 최종 수용·종결 기록
+
+위 문단은 게시 전 상태다. 두 게시 milestone의 실제 push 성공을 확인한 뒤 **Phase3 CLOSED**로 갱신한다.
+
+| commit | 목적 | 원격 게시 |
+| --- | --- | --- |
+| `b8d07d096b5d70def4b1e59e75e2039e0d999c4b` | D01–D03·badge 시험·Claim 유지 정책/역사 archive·P3-A01·게시 검토 근거 | `origin/phase2/mobile-network` push SUCCESS, 당시 tip 일치 |
+| `eb25f6b482e16b72afac209e573ea8904ab369d3` | 검토된 기존 위생 지침과 합성 측정 요약5개 | 같은 branch push SUCCESS, 당시 tip 일치 |
+
+원래 D01–D03 source와 badge 시험의 SHA 일치를 확인해 독립 감사의 기존 PASS 근거를 재사용했다. 이번 실제 추가 검증은 **문서 상대 경로230개 정상·게시 제외 자료를 가리키는 신규 링크0·원 가이드 body 보존·P3-A01 수정·비밀 패턴 검출0·5,168개 제외 파일 bytes/mode 보존·전체 staged 내용/허용 경로 대조·diff check PASS**다. 링크 검사에서 source 링크의 `:줄번호`를 filename으로 취급한 첫 검사 오류를 수정했고, 미게시였던 역사 요약5개는 별도 내용 검토 후 두 번째 commit에 포함했다. source/test를 고쳐 검사를 통과시킨 것이 아니다. 초기 index 항목0개였고, 검토한 경로만 명시 staging/commit하여 unrelated 항목을 섞지 않았다.
+
+종결 기록 반영 뒤에는 상대 경로 **231개**, 범위 밖 기존 파일 **7,941개**의 bytes/mode/링크 보존을 추가 확인했다. 게시 제외5,168개가 이 보존 집합에 포함된다. 게시 대상 전체22개 경로는 허용 목록과 일치하고 기존 staged 항목은 없었다. 같은 compact 게시 근거에 후속 검증 결과·검증 스크립트·두 push SHA를 덧붙여 scratch 정리 뒤에도 확인할 수 있게 했다.
+
+Claim 정책은 무기한 유지, D04–D06은 보류이며 수용 작업의 검증·문서·게시가 완료되어 Phase3 한정 종료 조건을 충족했다. 모든 과거 조사·음성 근거·감사 판정은 유지한다. 남은 dirty/untracked 작업은 삭제하지 않았고 이번 종결의 수용 대상으로 주장하지 않는다. 이 후속 종결 문서도 같은 branch에 별도로 게시한다. 최종 원격 SHA는 게시 완료 보고와 Git commit 기록으로 확인한다.
+
+**다음 행동은 별도 owner 승인에 따른 독립 Phase4 포괄 감사다. Phase4·main 병합·운영 배포는 미착수다.** 실기기/ADB·T6.9·formal T6.6F·G2/R1 등 기존 제한을 해제하지 않는다. 이번 작업은 대용량 시험 DB/build 산출물을 만들지 않았다. task-owned 소규모 검토 scratch만 필요한 경로/해시·검증 결과를 보존한 뒤 정리하며 기존 파일은 정리하지 않는다.
