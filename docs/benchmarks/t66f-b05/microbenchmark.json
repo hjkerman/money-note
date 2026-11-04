@@ -1,0 +1,442 @@
+{
+  "role": "DIAGNOSTIC_ONLY; 동일 current 엔진을 쓰는 알고리즘 격리; 실제 client cold 아님",
+  "N": 1000,
+  "hot_bytes": "87364",
+  "context": {
+    "evaluation_date": "2026-10-05",
+    "timezone_offset_minutes": 540,
+    "financial_engine": "f84dacdf5da288611f32876a60766a398a830818d28fe438ccd41c4a2f8294b3"
+  },
+  "fixture_target": {
+    "ns": {
+      "server_id": "0605d7ef-ec5a-4a83-9acc-faf2d3c8659e",
+      "dataset_id": "d1e7284d-d56e-41e3-892e-42f633c14ea2",
+      "epoch": "22d712af-3f62-46fb-9170-e0405a4e2b24"
+    },
+    "principal_id": 1,
+    "versions": {
+      "sync": 1,
+      "canon": 1,
+      "structural": 1,
+      "raw_schema": "b948a0e33fc0abb6957af76beac643ac7131d2fcac3ab53265c02d16783f953e",
+      "snapshot": 7,
+      "recurring_ownership": 1,
+      "projection_schema": "89e2bd7bf3f1683ddff95a0b33b1e9ff08ff19d5a001f4007c40ed4c6c5b3437",
+      "policy_registry": "18be2d36483467e9250d568bcbfed6458c15a364fa99896eb1b8daad05db043d"
+    },
+    "revision": "1025",
+    "context": {
+      "evaluation_date": "2026-10-05",
+      "timezone_offset_minutes": 540,
+      "financial_engine": "f84dacdf5da288611f32876a60766a398a830818d28fe438ccd41c4a2f8294b3"
+    },
+    "raw_ref": {
+      "hash": "2e6a90516d05c0c612c1133b29cf3551bc7c1bd8160dc07330b095695ecdfa79",
+      "bytes": "2625"
+    },
+    "index_ref": {
+      "hash": "7d4c94ecae9f419687a540d332bb7851aa00c548e65ac0f22d4a9fd5f9238bcb",
+      "bytes": "396"
+    },
+    "hot_ref": {
+      "hash": "d4e889eee0892745db69d4c3e92c7a2ea663153172e1d358d068d23e53bf42f9",
+      "bytes": "87364"
+    },
+    "control_ref": {
+      "hash": "50be5f080a4daf23451b7f73be1aeded50be2e08d15720be3ea0e652718016c5",
+      "bytes": "3178"
+    },
+    "sync_root": "d551451f11083ff34f00443808b3ee605d9e9fee83df7185a684c4a64be11c02"
+  },
+  "fixture_digest": "ec5fb626405da85012b87e34844f92c6849c7d72e986bcf2322760668cb9c26d",
+  "rows": [
+    {
+      "ordinal": 0,
+      "variant": "A",
+      "on": false,
+      "start_unix": 1792995318.487875,
+      "end_unix": 1792995319.196929,
+      "status": "COMPLETED",
+      "calls": 10,
+      "lookup_ns": [
+        49686454,
+        49636938,
+        49595323,
+        50070696,
+        50013989,
+        51664851,
+        49937059,
+        51047134,
+        50431508,
+        50946645
+      ],
+      "public_ns": [
+        70718617,
+        70209531,
+        70249814,
+        71193933,
+        70959710,
+        72318064,
+        70792416,
+        71237234,
+        70239116,
+        71110641
+      ],
+      "lookup_median_ns": 50042342.5,
+      "public_median_ns": 70876063.0,
+      "counters": null,
+      "collector_closed": true
+    },
+    {
+      "ordinal": 1,
+      "variant": "B",
+      "on": false,
+      "start_unix": 1792995319.1969616,
+      "end_unix": 1792995319.8303123,
+      "status": "COMPLETED",
+      "calls": 10,
+      "lookup_ns": [
+        43175548,
+        43246932,
+        42470415,
+        42021411,
+        42353479,
+        43838160,
+        42421691,
+        41831939,
+        43579617,
+        42595444
+      ],
+      "public_ns": [
+        63998391,
+        63221479,
+        62482726,
+        62714302,
+        63276637,
+        65269570,
+        63375014,
+        62412886,
+        63722154,
+        62854251
+      ],
+      "lookup_median_ns": 42532929.5,
+      "public_median_ns": 63249058.0,
+      "counters": null,
+      "collector_closed": true
+    },
+    {
+      "ordinal": 2,
+      "variant": "B",
+      "on": true,
+      "start_unix": 1792995319.831434,
+      "end_unix": 1792995320.4951167,
+      "status": "COMPLETED",
+      "calls": 10,
+      "lookup_ns": [
+        43848768,
+        42966155,
+        43086682,
+        42947832,
+        42716854,
+        43885790,
+        42257126,
+        42481236,
+        43801460,
+        42495744
+      ],
+      "public_ns": [
+        66209491,
+        66406129,
+        65818462,
+        65922236,
+        66302842,
+        67405490,
+        65384160,
+        65841657,
+        67533361,
+        66012355
+      ],
+      "lookup_median_ns": 42956993.5,
+      "public_median_ns": 66110923.0,
+      "counters": {
+        "transfer/encoding/calls": "350",
+        "transfer/encoding/output_bytes": "3065430",
+        "transfer/json/calls": "220",
+        "transfer/json/completed_bytes": "2818900",
+        "transfer/json/submitted_bytes": "2818900",
+        "transfer/sha256/calls": "110",
+        "transfer/sha256/hash_input_bytes": "1269470",
+        "transfer/sql/bind_text_characters": "9860",
+        "transfer/sql/statements": "1480"
+      },
+      "collector_closed": true
+    },
+    {
+      "ordinal": 3,
+      "variant": "A",
+      "on": true,
+      "start_unix": 1792995320.4957724,
+      "end_unix": 1792995321.2562513,
+      "status": "COMPLETED",
+      "calls": 10,
+      "lookup_ns": [
+        50067917,
+        50463934,
+        51678385,
+        51184498,
+        50484624,
+        70232925,
+        50324524,
+        50261344,
+        51210063,
+        50908100
+      ],
+      "public_ns": [
+        73427348,
+        74021578,
+        74358468,
+        73924130,
+        73836573,
+        94981948,
+        73373732,
+        73424572,
+        74168220,
+        74199115
+      ],
+      "lookup_median_ns": 50696362.0,
+      "public_median_ns": 73972854.0,
+      "counters": {
+        "transfer/encoding/calls": "360",
+        "transfer/encoding/output_bytes": "3939070",
+        "transfer/json/calls": "230",
+        "transfer/json/completed_bytes": "3692540",
+        "transfer/json/submitted_bytes": "3692540",
+        "transfer/sha256/calls": "110",
+        "transfer/sha256/hash_input_bytes": "1269470",
+        "transfer/sql/bind_text_characters": "9860",
+        "transfer/sql/statements": "1480"
+      },
+      "collector_closed": true
+    },
+    {
+      "ordinal": 4,
+      "variant": "A",
+      "on": true,
+      "start_unix": 1792995321.2568934,
+      "end_unix": 1792995321.9989722,
+      "status": "COMPLETED",
+      "calls": 10,
+      "lookup_ns": [
+        52101939,
+        50975556,
+        50322968,
+        51055459,
+        50928771,
+        50813167,
+        51848304,
+        50801369,
+        51562145,
+        50654982
+      ],
+      "public_ns": [
+        74368042,
+        74110368,
+        73459474,
+        74111307,
+        73423335,
+        73623825,
+        74623153,
+        74823148,
+        74320333,
+        74457284
+      ],
+      "lookup_median_ns": 50952163.5,
+      "public_median_ns": 74215820.0,
+      "counters": {
+        "transfer/encoding/calls": "360",
+        "transfer/encoding/output_bytes": "3939070",
+        "transfer/json/calls": "230",
+        "transfer/json/completed_bytes": "3692540",
+        "transfer/json/submitted_bytes": "3692540",
+        "transfer/sha256/calls": "110",
+        "transfer/sha256/hash_input_bytes": "1269470",
+        "transfer/sql/bind_text_characters": "9860",
+        "transfer/sql/statements": "1480"
+      },
+      "collector_closed": true
+    },
+    {
+      "ordinal": 5,
+      "variant": "B",
+      "on": true,
+      "start_unix": 1792995321.999612,
+      "end_unix": 1792995322.6646829,
+      "status": "COMPLETED",
+      "calls": 10,
+      "lookup_ns": [
+        44031448,
+        43738337,
+        43413215,
+        42996714,
+        42907530,
+        42507124,
+        44231413,
+        43007483,
+        43510562,
+        42681686
+      ],
+      "public_ns": [
+        66769311,
+        66524876,
+        67040874,
+        65689910,
+        66838272,
+        65644499,
+        67440492,
+        66016575,
+        66185112,
+        66215553
+      ],
+      "lookup_median_ns": 43210349.0,
+      "public_median_ns": 66370214.5,
+      "counters": {
+        "transfer/encoding/calls": "350",
+        "transfer/encoding/output_bytes": "3065430",
+        "transfer/json/calls": "220",
+        "transfer/json/completed_bytes": "2818900",
+        "transfer/json/submitted_bytes": "2818900",
+        "transfer/sha256/calls": "110",
+        "transfer/sha256/hash_input_bytes": "1269470",
+        "transfer/sql/bind_text_characters": "9860",
+        "transfer/sql/statements": "1480"
+      },
+      "collector_closed": true
+    },
+    {
+      "ordinal": 6,
+      "variant": "B",
+      "on": false,
+      "start_unix": 1792995322.6647124,
+      "end_unix": 1792995323.3020484,
+      "status": "COMPLETED",
+      "calls": 10,
+      "lookup_ns": [
+        42746208,
+        43782977,
+        42482526,
+        43428385,
+        42058981,
+        42016294,
+        42134281,
+        42322667,
+        42908740,
+        42728424
+      ],
+      "public_ns": [
+        63287120,
+        64299670,
+        62516596,
+        63561265,
+        62795674,
+        62634601,
+        63053249,
+        63027490,
+        68751550,
+        63378252
+      ],
+      "lookup_median_ns": 42605475.0,
+      "public_median_ns": 63170184.5,
+      "counters": null,
+      "collector_closed": true
+    },
+    {
+      "ordinal": 7,
+      "variant": "A",
+      "on": false,
+      "start_unix": 1792995323.3020754,
+      "end_unix": 1792995324.0159047,
+      "status": "COMPLETED",
+      "calls": 10,
+      "lookup_ns": [
+        50360133,
+        50112920,
+        50165834,
+        49497713,
+        49305043,
+        49688756,
+        49876095,
+        50487844,
+        52312059,
+        50594074
+      ],
+      "public_ns": [
+        70418473,
+        70290088,
+        70352948,
+        69804212,
+        69913897,
+        70207181,
+        70259346,
+        77678191,
+        74029168,
+        70853599
+      ],
+      "lookup_median_ns": 50139377.0,
+      "public_median_ns": 70321518.0,
+      "counters": null,
+      "collector_closed": true
+    }
+  ],
+  "summary": [
+    {
+      "on": false,
+      "A_lookup_median_ns": 50091808.0,
+      "B_lookup_median_ns": 42538985.0,
+      "B_over_A": 0.8492203954786379,
+      "A_range_ns": [
+        49305043,
+        52312059
+      ],
+      "B_range_ns": [
+        41831939,
+        43838160
+      ],
+      "samples_per_variant": 20
+    },
+    {
+      "on": true,
+      "A_lookup_median_ns": 50918435.5,
+      "B_lookup_median_ns": 43002098.5,
+      "B_over_A": 0.8445290605992795,
+      "A_range_ns": [
+        50067917,
+        70232925
+      ],
+      "B_range_ns": [
+        42257126,
+        44231413
+      ],
+      "samples_per_variant": 20
+    }
+  ],
+  "memory": [
+    {
+      "variant": "A",
+      "tracemalloc_current": 2121991,
+      "tracemalloc_peak": 2736466,
+      "timing_used": false
+    },
+    {
+      "variant": "B",
+      "tracemalloc_current": 1708112,
+      "tracemalloc_peak": 2322846,
+      "timing_used": false
+    }
+  ],
+  "limitations": [
+    "동일 DB/OS warm cache",
+    "2개 순서 블록/조건; 독립 시행 20개로 해석하지 않음",
+    "한 호스트/CPython 3.12.3",
+    "tracemalloc 별도 실행; Android 메모리 아님"
+  ]
+}
