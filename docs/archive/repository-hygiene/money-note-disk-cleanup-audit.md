@@ -20,7 +20,7 @@ HEAD는 `ebcbd54d90eeee194a04b9eea6367f446ee2fd28`, branch는 `main`, origin은 
 - `mobile/test/support/logical_cost_sqlite.dart`
 
 IC01 및 P01–P04 구현·테스트·보고서·증거 디렉터리는 의도된 미커밋 작업으로 보호했다.
-시작 porcelain 전체, ignored 경로 목록과 Git refs는 [후보 JSON](money-note-disk-cleanup-candidates.json)에 저장했다.
+시작 porcelain 전체, ignored 경로 목록과 Git refs는 [후보 JSON](../../money-note-disk-cleanup-candidates.json)에 저장했다.
 Git index SHA-256은 `d798903ba98422ba4904868943ca974b4ce71b264321bce4b1f362bd98ba3ff2`다.
 기존 tracked/untracked regular 파일 집합의 내용 지문은 `3d9bed15162fa5a39a185decd7fba87ee2e01f2847b66f457ec070735676b236`다.
 인덱스를 변경하는 명령, Git 객체 정리, commit/push는 실행하지 않았다.
@@ -167,8 +167,8 @@ WAL/SHM/journal이 없음을 먼저 확인하고 `mode=ro&immutable=1` 연결로
 `9adbc6bb6f4df2d756dedb4825450a540ee490e64f48e9f5d803e08094729ce6`와 정확히 같았다.
 원본 파일의 크기와 mtime도 검사 전후 같았다. 레코드 전체를 RAM에 올리거나 DB를 재작성하지 않았다.
 
-P04의 [prepare.py](benchmarks/t66f-b03-ic01-p04/prepare.py), [clone-plan.json](benchmarks/t66f-b03-ic01-p04/evidence/clone-plan.json),
-[보고서](t66f-b03-ic01-p04-late-stage-differential-diagnosis.md)는 smoke A/B 및 A/B/C/D clone의 각 비교 역할을 명시한다.
+P04의 [prepare.py](../../benchmarks/t66f-b03-ic01-p04/prepare.py), [clone-plan.json](../../benchmarks/t66f-b03-ic01-p04/evidence/clone-plan.json),
+[보고서](../../t66f-b03-ic01-p04-late-stage-differential-diagnosis.md)는 smoke A/B 및 A/B/C/D clone의 각 비교 역할을 명시한다.
 여섯 파일은 모두 유지한다. 원 P03와 P04 결과는 stage 변경이 있어 같은 증거로 대체하지 않는다.
 동일 Target backend catalog 부재라는 기존 P04 한계는 그대로이며, 이번 저장공간 감사가 그 실험을 복구하거나 검증 완료한 것은 아니다.
 

@@ -21,21 +21,21 @@
 
 | 근거 | 이번에 재사용하는 결론 |
 | --- | --- |
-| [로드맵](money-note-final-optimization-and-closure-roadmap.md), [P1-R](p1-r-mobile-refresh-performance-results.md) | 정상 14→1 GET 최적화 유지. 비인접 animation의 중간 refresh는 source-supported이며 실제 callback/HTTP 빈도는 미측정 |
-| [P1-03](../p1-03-snapshot-save-validation-performance-results.md), [원시 근거](../benchmarks/p1-03-snapshot-performance.json.gz) | 합성 10k행·30개에서 save 7,866.068ms, 62회 read/decode/검증. 비용 귀속 B, 전체 **PARTIAL** 유지 |
-| [P1-02](../p1-02-flutter-rebuild-derived-state-results.md), [원시 근거](../benchmarks/p1-02-flutter-rebuild-raw.json.gz) | 5k 변경 없는 알림의 필터·정렬 중앙값 2.2655~2.4900ms. 같은 build 안 중복은 없고 보호된 invalidation 경계와 연결됨 |
-| [P1-01](../p1-01-monthly-expense-lazy-widget-results.md), [P1-04](p1-04-backend-sql-presenter-performance-results.md) | 각각 미채택·원복 / C·새 backend 구현 후보 0개. 다시 조사하지 않음 |
-| [통합 근거](../benchmarks/final-optimization-and-closure-evidence.json) | 최초 경로 지도·역사 최적화·한계를 보존. C1 비용을 안전한 제거 후보로 자동 승격하지 않음 |
+| [로드맵](../../development-reports/money-note-final-optimization-and-closure-roadmap.md), [P1-R](p1-r-mobile-refresh-performance-results.md) | 정상 14→1 GET 최적화 유지. 비인접 animation의 중간 refresh는 source-supported이며 실제 callback/HTTP 빈도는 미측정 |
+| [P1-03](p1-03-snapshot-save-validation-performance-results.md), [원시 근거](evidence/p1-03-snapshot-performance.json.gz) | 합성 10k행·30개에서 save 7,866.068ms, 62회 read/decode/검증. 비용 귀속 B, 전체 **PARTIAL** 유지 |
+| [P1-02](p1-02-flutter-rebuild-derived-state-results.md), [원시 근거](evidence/p1-02-flutter-rebuild-raw.json.gz) | 5k 변경 없는 알림의 필터·정렬 중앙값 2.2655~2.4900ms. 같은 build 안 중복은 없고 보호된 invalidation 경계와 연결됨 |
+| [P1-01](p1-01-monthly-expense-lazy-widget-results.md), [P1-04](p1-04-backend-sql-presenter-performance-results.md) | 각각 미채택·원복 / C·새 backend 구현 후보 0개. 다시 조사하지 않음 |
+| [통합 근거](../../benchmarks/final-optimization-and-closure-evidence.json) | 최초 경로 지도·역사 최적화·한계를 보존. C1 비용을 안전한 제거 후보로 자동 승격하지 않음 |
 
 ### 범위와 불변식
 
 순서는 **1단계 UI·앱 처리 성능 → 2단계 모바일 전송량 → 3단계 dead code·중복 정리 → 4단계 최종 감사**, 다음은 별도 대형 Snapshot 확장성이다. 계획 작성 차수에는 문서·정적 확인만 수행했다. owner 구현 승인 뒤 실행 결과는 E와 milestone 기록에 누적한다. 운영 DB/API·배포는 계속 미승인이다.
 
-금융 의미의 원본은 [domain-model](../domain-model.md), 신뢰·게시 경계는 [architecture](../architecture.md), pending/reconciliation은 [offline-mode](../offline-mode.md)다. 서버 금융 authority·exact money·strict admission·revision/generation/auth·durable pending·Offline reconciliation·원자적 baseline 교체·Snapshot 복구·UI 게시 순서·mutation 완료 의미를 유지한다. 정상 모바일 baseline은 **JSON 파일**이며 SQLite로 바꾸지 않는다. 모바일 독립 금융 재계산을 추가하지 않는다. Snapshot 작업은 [security](../security.md)·[runbook](../runbook.md)의 백업/복원 경계도 유지한다.
+금융 의미의 원본은 [domain-model](../../domain-model.md), 신뢰·게시 경계는 [architecture](../../architecture.md), pending/reconciliation은 [offline-mode](../../offline-mode.md)다. 서버 금융 authority·exact money·strict admission·revision/generation/auth·durable pending·Offline reconciliation·원자적 baseline 교체·Snapshot 복구·UI 게시 순서·mutation 완료 의미를 유지한다. 정상 모바일 baseline은 **JSON 파일**이며 SQLite로 바꾸지 않는다. 모바일 독립 금융 재계산을 추가하지 않는다. Snapshot 작업은 [security](../../security.md)·[runbook](../../runbook.md)의 백업/복원 경계도 유지한다.
 
 F01 BINDING—UNRESOLVED, 유효 G1, G2 미채택, operational ADB 차단, 실기기·에뮬레이터/T6.9 보류, formal T6.6F 미종결, R1 CLOSED·배포 미승인은 그대로다. Android/ADB/기기 탐색을 유발하는 CLI는 실행하지 않는다. P1-03의 Flutter 자동 진단에 의한 ADB 기동·작업 소유 PID 종료 사건은 원 보고서에 보존하며 새 gate 작업을 열지 않는다.
 
-후속 구현 전 현재 SHA·diff·보호 규칙을 다시 확인한다. 이 문서와 다른 소스이면 해당 차이만 확인해 가정을 재판단하며, 기존 변경을 덮어쓰지 않는다. 검증된 host 전용 runner를 사용하고 Android 탐색을 피할 수 없으면 그 측정은 차단으로 기록한다. 임시 fixture는 작업 소유 디렉터리만 사용하고 [산출물 위생](../development-artifact-hygiene.md)을 따른다.
+후속 구현 전 현재 SHA·diff·보호 규칙을 다시 확인한다. 이 문서와 다른 소스이면 해당 차이만 확인해 가정을 재판단하며, 기존 변경을 덮어쓰지 않는다. 검증된 host 전용 runner를 사용하고 Android 탐색을 피할 수 없으면 그 측정은 차단으로 기록한다. 임시 fixture는 작업 소유 디렉터리만 사용하고 [산출물 위생](../../development-artifact-hygiene.md)을 따른다.
 
 ### 공통 측정·처분 원칙
 
@@ -232,7 +232,7 @@ P0(유실·보안·돌이킬 수 없는 손상)/P1(중대한 기능·영속 오�
 - 필수 `npm run build`는 작업 소유 frontend 사본에서 PASS했다. 첫 사본에서 backend 합성 fixture 상대경로가 누락돼 실패했고 동일 기존 fixture만 연결해 재확인했다. dependency symlink 대상은 편집하지 않고 build/cache는 작업 사본에 썼다. Backend는 기존 authoritative empty/rich/equivalence·Snapshot/Summary/payment 경계3건이 새 임시 DB에서 PASS(기존 warning1)했다. 운영 DB/API는 사용하지 않았다.
 - CPU gate의 exact 측정 원문은 compiled kernel의 embedded source에서 복구해 SHA `d5dff6d0de797ceb8bed5711a80e27754b96ee8ab74a245e4a00d320ed54d79f`로 보존했다. 이후 source identity assert·포맷은 측정 밖의 변경이다. micro p95·원 표본과 두 합성 payload 원문도 같은 근거에 있다.
 - 원격 게시 대상은 승인된 계획/roadmap/목차·R/S 테스트·단일 evidence뿐이다. 기존 dirty/untracked 구현은 일괄 커밋하지 않았다. 기록된 working-source·캐시된 SDK/의존성 조건의 재현이며 clean clone·단말/정식 Flutter CLI 전체 suite 재현을 보장하지 않는다.
-- [단일 원시/재현 근거](../benchmarks/phase1-mitigation-evidence.json.gz)의 `r`/`comparison`, `s`/`s-decision`, `reproduction`, `invocations`, `validation`을 사용한다. 각 실제 실행 flags가 authoritative하며 baseline용 무자산 runner와 회귀용 assets runner를 구분했다. 감사 재현 시 새 작업 소유 scratch에 원문/fixture를 복원하고 ROOT/RUN·package config를 현재 경로로 맞춘다. Flutter CLI/Android/ADB는 실행하지 않는다.
+- [단일 원시/재현 근거](../../benchmarks/phase1-mitigation-evidence.json.gz)의 `r`/`comparison`, `s`/`s-decision`, `reproduction`, `invocations`, `validation`을 사용한다. 각 실제 실행 flags가 authoritative하며 baseline용 무자산 runner와 회귀용 assets runner를 구분했다. 감사 재현 시 새 작업 소유 scratch에 원문/fixture를 복원하고 ROOT/RUN·package config를 현재 경로로 맞춘다. Flutter CLI/Android/ADB는 실행하지 않는다.
 - M3 게시·보존 대조/임시 정리는 마지막 기록에 남긴다. 독립 Mitigation Audit는 아직 수행하지 않았으며 owner가 이 장부와 실제 diff/근거를 같은 Audit Session에 전달한다. 2~4단계·대형 Snapshot 작업은 미착수다.
 
 ### 최종 보존 확인
@@ -280,6 +280,6 @@ P0(유실·보안·돌이킬 수 없는 손상)/P1(중대한 기능·영속 오�
 - owner 전달 최종 독립 감사: **PASS — MITIGATION ACCEPTED**, P1-R-01 material correctness finding 없음. 이 전달을 종료 근거로 사용하며 감사나132건을 다시 수행하지 않는다. 채택 구현 `c3b2cb8b16b615b67b26115bfd7b03a76fb1d24a`, 게시/인계 tip `cd3f385c20c02897f484e9f77c1260b7859bdaf0`의 기록을 보존한다.
 - **Phase 1 mitigation work CLOSED.** R은 owner의 한정1회 예외로 채택됐으며 원래110.37% 실패·NOT ADOPTED·rollback은 그대로다. S/U는 DEFERRED이며 이번 종료에서 재개하지 않는다. 전체 병목 제거는 종료 조건이 아니다.
 - 개발 전체 종료·formal T6.6F/T6.9·F01/G1/G2·실기기/ADB·R1·Production 준비/배포는 별도이며 현 보류·차단을 유지한다. main merge·Production 접근/배포는 승인되지 않았다.
-- 다음 허용 범위는 Phase 2 **모바일 다운로드·업로드 전송량 조사와 후보 선정만**이다. 후보는 별도 독립 감사 후 owner가 구현을 결정한다. 별도 [Phase2 후보 문서](phase2-mobile-network-optimization-candidates.md)에 조사·shortlist를 정리했으며 독립 후보 감사/owner 승인 전 구현하지 않는다.
+- 다음 허용 범위는 Phase 2 **모바일 다운로드·업로드 전송량 조사와 후보 선정만**이다. 후보는 별도 독립 감사 후 owner가 구현을 결정한다. 별도 [Phase2 후보 문서](../../development-reports/phase2-mobile-network-optimization-candidates.md)에 조사·shortlist를 정리했으며 독립 후보 감사/owner 승인 전 구현하지 않는다.
 
 - Phase1 종료 commit `e5726b6def26af3d2f8c46984b718ca51ee49a80`를 `origin/phase1/mitigations`에 push 성공했다. 같은 HEAD·인덱스에서 `phase2/mobile-network`를 생성해 조사만 진행했다. 이 Phase1 장부는 종료/인계 상태를 유지하며 Phase2 상세는 별도 단일 후보 문서에서 관리한다.

@@ -6,7 +6,7 @@
 
 ## 현재 기준선
 
-- Phase3 한정 정리 종료(2026-11-04): D01–D03·Claim 무기한 유지 정책을 owner가 수용했고 독립 scoped 감사 BLOCKER/MAJOR는 없다. MINOR P3-A01을 고쳐 승인 작업을 개발 branch에 게시했다. [장부 §12](development-reports/phase3-cleanup-candidate-inventory.md#12-phase-3-수용안전-게시)에 포함/제외·검증·커밋을 기록한다. D04–D06은 보류, Phase4는 **미착수·별도 승인 필요**다. main 병합·운영 배포나 기존 formal gate 종결을 뜻하지 않는다.
+- Phase3 한정 정리 종료(2026-11-04): D01–D03·Claim 무기한 유지 정책을 owner가 수용했고 독립 scoped 감사 BLOCKER/MAJOR는 없다. MINOR P3-A01을 고쳐 승인 작업을 개발 branch에 게시했다. [장부 §12](archive/phase3/phase3-cleanup-candidate-inventory.md#12-phase-3-수용안전-게시)에 포함/제외·검증·커밋을 기록한다. D04–D06은 보류, Phase4는 **미착수·별도 승인 필요**다. main 병합·운영 배포나 기존 formal gate 종결을 뜻하지 않는다.
 
 - T6.6D3c 격리 개발: 소유자 승인 server retention을 T6.6C §16-S에 명확화했다.
   현재 complete/live pin/실제 worker 의존성은 보호하고, 과거 certificate의 digest·fence
@@ -106,7 +106,7 @@
 - **결제 이력 보호**: 즉시결제가 만든 현금흐름은 일반 현금흐름 삭제로 지울 수 없고 결제 이벤트 취소만 허용한다. 일부라도 즉시결제된 원장 행도 일반 원장 삭제를 거부해 실제 은행 출금 이력을 사후 재작성하지 않는다.
 - **Summary 읽기 일관성**: Summary의 예정 수입, 실제 잔액, 카드 의무, 고정 의무, 동결과 잔여 유동성은 하나의 SQLite read transaction에서 계산한다.
 - **빈 예산 주기 월마감**: 원장 지출이 0건이어도 `last_closed_month`에서 이어지는 다음 예산 주기를 정상 마감한다. 급여, 반복 템플릿 reset, 결제 batch와 idempotency 의미는 지출이 있는 달과 같다.
-- **Claim 유지 결정 기록(2026-11-04)**: [규범 정책](domain-model.md#claim-유지-정책)에 따라 무기한 유지하며 제거 예정·deprecated가 아니다. 과거 [제거 계획](development-reports/claim-removal-plan-superseded.md)은 폐기된 역사 자료다. 이 문서 결정은 Claim 코드 개발·활성화·복원이나 P3-D04 정리를 승인하지 않는다. [Family Card 제거 정책](guides/family-card-removal.md)은 별도다.
+- **Claim 유지 결정 기록(2026-11-04)**: [규범 정책](domain-model.md#claim-유지-정책)에 따라 무기한 유지하며 제거 예정·deprecated가 아니다. 과거 [제거 계획](archive/phase3/claim-removal-plan-superseded.md)은 폐기된 역사 자료다. 이 문서 결정은 Claim 코드 개발·활성화·복원이나 P3-D04 정리를 승인하지 않는다. [Family Card 제거 정책](guides/family-card-removal.md)은 별도다.
 
 카드 교체 절차는 [카드 정책 변경](guides/card-policy-change.md), 가족카드 경계는 [가족카드 제거](guides/family-card-removal.md), 백업 안전성은 [실행 방법](runbook.md)과 [보안 운영](security.md)에 상세히 적혀 있다.
 예산 주기는 현재도 매월 1일~말일이다. 미래 재무 건전화 시에는 실제 급여 현금흐름을 유지하면서 다음 급여 예정액의 직접 선반영만 제거한다. 결제 압박 Judgment 기준은 아직 보류하며 [미래 재무 건전화 전환](guides/future-financial-health-transition.md)에 둔다.

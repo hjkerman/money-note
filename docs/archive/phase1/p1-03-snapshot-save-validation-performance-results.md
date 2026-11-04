@@ -134,7 +134,7 @@ list는 C회, save는 `1+(C+1)+K`회, save 뒤 공개 list는 여기에 K회를 
 
 ## 근거와 재현
 
-[단일 압축 근거](benchmarks/p1-03-snapshot-performance.json.gz)에152개 원시 표본,48구성 요약과4개 무계측 대조, 실제 fixture bytes·hash, 가역 계측 patch·원문·실행 harness·fixture 생성기·도구 버전·검사 로그를 함께 보존한다. `main.samples`의 rows/retained/op/traced/sample로 선택하며 summary의 raw_sample_indices로 대응한다. 각 표본에는 before/after/pruned와 read/open/decode/validation/byte/metadata 계수가 있다.
+[단일 압축 근거](evidence/p1-03-snapshot-performance.json.gz)에152개 원시 표본,48구성 요약과4개 무계측 대조, 실제 fixture bytes·hash, 가역 계측 patch·원문·실행 harness·fixture 생성기·도구 버전·검사 로그를 함께 보존한다. `main.samples`의 rows/retained/op/traced/sample로 선택하며 summary의 raw_sample_indices로 대응한다. 각 표본에는 before/after/pruned와 read/open/decode/validation/byte/metadata 계수가 있다.
 
 재현 시 압축 근거에서 합성 payload와 test용 소스·plan을 새 task-owned 임시 mobile 사본에 복원하고, 기존 dependency 설정을 해당 사본으로 맞춘다. `P103_SCRATCH=<새 임시 경로> P103_PHASE=main TMPDIR=<같은 경로> flutter --no-version-check --suppress-analytics test --no-pub --concurrency=1 --reporter=json test/p103_benchmark_test.dart`를 실행한다. 필요 경로·명령·SHA는 근거의 reproduction에 남긴다. 이 명령만으로 ADB 비실행이 보장되지는 않는다. 초기 오류의 자동 doctor 기동 이력 때문에 기기 탐색이 차단된 별도 허용 환경 없이 재실행하지 않는다. 이번에 새 device-gate 구현이나 예외를 만들지는 않았다.
 

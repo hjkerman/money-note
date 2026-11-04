@@ -76,9 +76,9 @@
 
 ## 재현과 원시 근거
 
-- 전용 파일: [p1_01_month_entries_test.dart](../mobile/test/p1_01_month_entries_test.dart). 임시 mobile 패키지에 동일 lib/test/assets·pubspec/lock과 기존 package_config/package_graph를 준비한다. 운영 파일은 사용하지 않는다. 원시 근거의 source_snapshots에서 A/B 화면을 각각 넣는다. Git checkout이나 원본 트리 교체는 필요 없다.
+- 전용 파일: [p1_01_month_entries_test.dart](../../../mobile/test/p1_01_month_entries_test.dart). 임시 mobile 패키지에 동일 lib/test/assets·pubspec/lock과 기존 package_config/package_graph를 준비한다. 운영 파일은 사용하지 않는다. 원시 근거의 source_snapshots에서 A/B 화면을 각각 넣는다. Git checkout이나 원본 트리 교체는 필요 없다.
 - `P101_MODE=benchmark P101_VARIANT=baseline P101_BLOCK=1 P101_OUTPUT=<새 출력 경로> flutter --no-version-check test --no-pub --concurrency=1 --reporter=json test/p1_01_month_entries_test.dart`를 고정 순서로 실행한다. candidate는 variant와 패키지만 바꾼다. 기능 검사는 P101_MODE를 해제하고 candidate에서는 P101_VARIANT=candidate로 실행한다.
-- [원시 표본·A/B 소스·계획·실행 로그](benchmarks/p1-01-monthly-expense-lazy-widget-raw.json.gz)의 `samples` 배열을 block/variant/rows/sample로 선택한다. [단일 compact 근거](benchmarks/final-optimization-and-closure-evidence.json)의 `p1_01`에 전후 요약과 각 기준 판정을 기록했다.
+- [원시 표본·A/B 소스·계획·실행 로그](evidence/p1-01-monthly-expense-lazy-widget-raw.json.gz)의 `samples` 배열을 block/variant/rows/sample로 선택한다. [단일 compact 근거](../../benchmarks/final-optimization-and-closure-evidence.json)의 `p1_01`에 전후 요약과 각 기준 판정을 기록했다.
 
 ## 한계와 다음 행동
 

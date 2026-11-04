@@ -1,6 +1,6 @@
 # Money Note 최종 최적화·종료 로드맵
 
-작성일: 2026-11-02. 완화 계획 갱신: 2026-11-03. **P1-01/P1-02 실험과 P1-03/P1-04/P1-R 조사를 완료했다. P1-01은 미채택·원복, P1-02는 보호 경로 보류, P1-03은 비용 귀속 B/전체 PARTIAL, P1-04는 C다. 1단계는 최종 독립 감사 PASS와 owner 승인으로 CLOSED이며 P1-R-01은 최초 미채택·원복 후 owner 한정 예외 승인과 활성132건 통과로 재채택, P1-S는 digest 비용 조건 실패로 보류, P1-U는 기존 보류, P1-05는 소유자 결정으로 제외했다. [공유 완화 장부](phase1-mitigation-plan.md)에 Planning Audit PASS·owner scoped 승인 뒤의 순차 실행을 기록했다. 최종 독립 Mitigation Audit는 PASS — MITIGATION ACCEPTED다. 2단계 조사·후보 감사 뒤 owner 승인으로 N01 한정 구현을 수행했다. 최종 독립 PASS와 owner 승인으로 N01 ACCEPTED(A01/R1 CLOSED)다. N02 조사는 DEFER·독립 Snapshot GET 유지 권고로 완료했다. 삭제·최종 감사는 미착수다.** 이 문서의 READY는 실행 가능한 계획이 준비됐다는 뜻이다. 단계 종료, formal T6.6F 완료 또는 운영 준비 판정이 아니다.
+작성일: 2026-11-02. 완화 계획 갱신: 2026-11-03. **P1-01/P1-02 실험과 P1-03/P1-04/P1-R 조사를 완료했다. P1-01은 미채택·원복, P1-02는 보호 경로 보류, P1-03은 비용 귀속 B/전체 PARTIAL, P1-04는 C다. 1단계는 최종 독립 감사 PASS와 owner 승인으로 CLOSED이며 P1-R-01은 최초 미채택·원복 후 owner 한정 예외 승인과 활성132건 통과로 재채택, P1-S는 digest 비용 조건 실패로 보류, P1-U는 기존 보류, P1-05는 소유자 결정으로 제외했다. [공유 완화 장부](../archive/phase1/phase1-mitigation-plan.md)에 Planning Audit PASS·owner scoped 승인 뒤의 순차 실행을 기록했다. 최종 독립 Mitigation Audit는 PASS — MITIGATION ACCEPTED다. 2단계 조사·후보 감사 뒤 owner 승인으로 N01 한정 구현을 수행했다. 최종 독립 PASS와 owner 승인으로 N01 ACCEPTED(A01/R1 CLOSED)다. N02 조사는 DEFER·독립 Snapshot GET 유지 권고로 완료했다. 삭제·최종 감사는 미착수다.** 이 문서의 READY는 실행 가능한 계획이 준비됐다는 뜻이다. 단계 종료, formal T6.6F 완료 또는 운영 준비 판정이 아니다.
 
 ## 1. 현재 기준선과 보류 경계
 
@@ -37,7 +37,7 @@
 
 ### 2.1 소유자 갱신 한정 실험 계획
 
-기존 “추가 후보 최대1회” 제한은 다음 표로 대체한다. 무제한 최적화 캠페인 승인이 아니다. P1-03/P1-04 비용 조사와 P1-R 조사를 재개하지 않으며 후속 구현의 단일 장부는 [공유 완화 계획](phase1-mitigation-plan.md)이다. P1-05는 웹 성능이 만족스럽다는 소유자 결정으로 제외했다.
+기존 “추가 후보 최대1회” 제한은 다음 표로 대체한다. 무제한 최적화 캠페인 승인이 아니다. P1-03/P1-04 비용 조사와 P1-R 조사를 재개하지 않으며 후속 구현의 단일 장부는 [공유 완화 계획](../archive/phase1/phase1-mitigation-plan.md)이다. P1-05는 웹 성능이 만족스럽다는 소유자 결정으로 제외했다.
 
 | 작업 | 범위 | 상태 |
 | --- | --- | --- |
@@ -52,17 +52,17 @@
 
 ### 2.2 P1-R — 조사 B 보존, R-01 owner 예외 재채택
 
-[결과 보고서](p1-r-mobile-refresh-performance-results.md)의 판정은 **B — SOURCE-SUPPORTED REDUNDANCY, MEASUREMENT LIMITED**다. 정상 경로의14→1 HTTP·strict admission·JSON baseline/pending 경계는 유지되며, 일반 coordinator는 in-flight Future를 공유하지 않는다. foreground·connectivity·mutation single-flight의 기존 가드는 따로 보존한다.
+[결과 보고서](../archive/phase1/p1-r-mobile-refresh-performance-results.md)의 판정은 **B — SOURCE-SUPPORTED REDUNDANCY, MEASUREMENT LIMITED**다. 정상 경로의14→1 HTTP·strict admission·JSON baseline/pending 경계는 유지되며, 일반 coordinator는 in-flight Future를 공유하지 않는다. foreground·connectivity·mutation single-flight의 기존 가드는 따로 보존한다.
 
 유일한 첫 후보 **P1-R-01**은 하단 메뉴의 비인접 탭 선택을 직접 jump로 처리해 animateToPage의 중간 onPageChanged refresh를 없애는 UI 실험이다. 최종 목적지 refresh·인접 animation·수동 swipe는 유지한다. 0→4에서 source상 최대3개 중간 진입/조건부 GET 기회가 있으나 실제 발생률·절감 시간은 미측정이다. 새 Flutter/Android/ADB 실행은 하지 않았고 AppState/coordinator/OfflineStore 변경·TTL·세대 간 cache·검증 생략을 제안하지 않는다. HomeShell 한 곳의 animation UX 변경을 포함한 별도 승인 뒤 기존 widget fixture의 실제 중복 baseline부터 확인한다. 중복이 없으면 구현을 보류한다.
 
 일반 탭 refresh 전면 생략과 일반 in-flight 공유는 freshness·auth/generation·mutation 완료 의미를 바꾸므로 이 후보와 구분한다. 명시 refresh·post-mutation·reconciliation/recovery·JSON durable publication·server authority와 날짜/인증 전환은 그대로 유지한다. P1-02의5k jump1→2→0 약5.55초 전체를 낭비로 계산하지 않는다. Phase2 전송량·압축·프로토콜 조사는 미착수다.
 
-현재 주요 조사는 P1-R로 마무리했다. 후속 P1-R-01은 실제 중간 callback/HTTP baseline을 먼저 확인하는 조건부 계획이며, [공유 계획 C](phase1-mitigation-plan.md#c-구현-명세)에 승인 범위·측정·회귀·거부 기준을 둔다. R-01 최초 실험은 미채택·원복됐고, 이후 독립 거부 검토 A·owner 한정 예외로 동일 B를 재복원해 활성132건 통과 후 채택했다. 해당 최종 독립 감사는 PASS — MITIGATION ACCEPTED로 수용됐고 Phase1은 CLOSED다. 현재 다음은 N01 독립 변경 감사다. P1-05는 소유자 결정으로 제외했으며 필수 선행 조사로 추가하지 않는다. 1단계 종료는 별도 exit 확인이며 자동 선언하지 않는다.
+현재 주요 조사는 P1-R로 마무리했다. 후속 P1-R-01은 실제 중간 callback/HTTP baseline을 먼저 확인하는 조건부 계획이며, [공유 계획 C](../archive/phase1/phase1-mitigation-plan.md#c-구현-명세)에 승인 범위·측정·회귀·거부 기준을 둔다. R-01 최초 실험은 미채택·원복됐고, 이후 독립 거부 검토 A·owner 한정 예외로 동일 B를 재복원해 활성132건 통과 후 채택했다. 해당 최종 독립 감사는 PASS — MITIGATION ACCEPTED로 수용됐고 Phase1은 CLOSED다. 현재 다음은 N01 독립 변경 감사다. P1-05는 소유자 결정으로 제외했으며 필수 선행 조사로 추가하지 않는다. 1단계 종료는 별도 exit 확인이며 자동 선언하지 않는다.
 
 ### 2.3 P1-S — Snapshot 반복 검증 최적화 목표 보존
 
-[P1-03 결과](../p1-03-snapshot-save-validation-performance-results.md)의 비용 귀속은 B지만 전체 판정은 **PARTIAL — 자동 ADB 기동 경계 위반 후 종료**다. 이를 PASS로 바꾸지 않는다. 현재 보호된 LocalSnapshotRepository에서 보관 파일을 save의 prune용 list와 반환용 list가 각각 읽고 decode·검증한다. v7 합성10k행·파일5,934,477B·기존30개에서 save는62회 read/decode/검증·367,937,574B 읽기·중앙값7.866초였고, 뒤의 공개 list까지는92회·중앙값11.566초였다. host JIT·구성별 n3(p95=최댓값), 계측 overhead·실기기 미측정 한계를 유지한다.
+[P1-03 결과](../archive/phase1/p1-03-snapshot-save-validation-performance-results.md)의 비용 귀속은 B지만 전체 판정은 **PARTIAL — 자동 ADB 기동 경계 위반 후 종료**다. 이를 PASS로 바꾸지 않는다. 현재 보호된 LocalSnapshotRepository에서 보관 파일을 save의 prune용 list와 반환용 list가 각각 읽고 decode·검증한다. v7 합성10k행·파일5,934,477B·기존30개에서 save는62회 read/decode/검증·367,937,574B 읽기·중앙값7.866초였고, 뒤의 공개 list까지는92회·중앙값11.566초였다. host JIT·구성별 n3(p95=최댓값), 계측 overhead·실기기 미측정 한계를 유지한다.
 
 유일한 당시 후보는 같은 save 안에서 검증 완료한 prune 생존 결과를 반환에 재사용하는 것이다. 완화 계획은 이를 더 좁혀 **마지막 열거·전체 read·fresh stat을 유지하고, 작업 로컬 content receipt와 내용이 같은 파일의 decode/envelope 결과만 재사용**하는 조건부 안으로 구체화했다. 새 pending readback·byte 동일성·flush/rename·retention30, 공개 list/safeFile과 동시 변경 관측은 보존한다. 정확한 수명·miss fallback·최대31개 receipt·비용/채택 기준은 공유 계획 C에 있다. digest 비용이 이득을 지우거나 안전성/보호 소스·검사 변경 승인이 충족되지 않으면 미채택/보류한다. 생산 최적화는0개다. P1-S는 현 저장 동작의 반복 비용이며 **개발 종료 후 대형 Snapshot 확장성 architecture 과제와 별개**다. 후속 CPU 조건 측정에서 digest 비용이 더 커 보류했으며 구현0개다. 전체 save 전후 비교는 수행하지 않았다.
 
@@ -70,7 +70,7 @@ P1-03 자동 진단의 ADB 서버 기동과 작업 소유 PID 종료 사실은 �
 
 ### 2.4 완화 구현·감사 단일 장부
 
-[phase1-mitigation-plan.md](phase1-mitigation-plan.md)에 후보3개의 결정, 두 조건부 명세, 구현 로그와 감사 지적/수정란을 통합했다. P1-U는 같은 build 안 중복이 없고 5k 약2.27~2.49ms 재평가를 없애려면 public mutable entries·authoritative/Offline/세대 게시의 invalidation을 정비해야 하므로 현재 구현에서 보류한다. C1은 알려진 비용만으로 안전한 국소 변경이 입증되지 않아 추가 mitigation으로 선정하지 않았다. P1-01·P1-04는 재개하지 않는다.
+[phase1-mitigation-plan.md](../archive/phase1/phase1-mitigation-plan.md)에 후보3개의 결정, 두 조건부 명세, 구현 로그와 감사 지적/수정란을 통합했다. P1-U는 같은 build 안 중복이 없고 5k 약2.27~2.49ms 재평가를 없애려면 public mutable entries·authoritative/Offline/세대 게시의 invalidation을 정비해야 하므로 현재 구현에서 보류한다. C1은 알려진 비용만으로 안전한 국소 변경이 입증되지 않아 추가 mitigation으로 선정하지 않았다. P1-01·P1-04는 재개하지 않는다.
 
 순서는 **독립 Planning Audit → owner의 task·보호 소스 scoped 승인 → R-01 baseline/처분 → S 비용 조건·전후 검증/처분 → 실제 변경분 Mitigation Audit**다. 같은 Implementation/Audit Session을 번갈아 사용하고 owner가 장부를 전달한다. 자동 구현이나 4단계 전면 감사의 선행 착수는 없다. 보류/미채택도 완료된 처분이며 모든 비용 제거를 요구하지 않는다.
 
@@ -152,7 +152,7 @@ B05/B08의 추가 확대 실험은 첫 후보에서 제외한다. 이미 전체 
 
 ## 6. 정확히 하나의 첫 최적화 과제
 
-**P1-01: `mobile/lib/src/screens/month_entries_screen.dart:MonthEntriesScreen.build`의 `...rows.map(_MonthEntryCard)` 선생성을 지출 행의 지연 생성으로 전환하는 실험을 완료했다.** [실측 결과](../p1-01-monthly-expense-lazy-widget-results.md)는 **NOT ADOPTED — PERFORMANCE CRITERIA NOT MET**다. 선생성 N→0을 확인했지만 1k build 중앙값이 1·3블록, 5k가 1블록에서 개선되지 않아 원복했다. 최종 화면 SHA는 아래 기준과 같다. 다음 후보는 자동 착수하지 않는다.
+**P1-01: `mobile/lib/src/screens/month_entries_screen.dart:MonthEntriesScreen.build`의 `...rows.map(_MonthEntryCard)` 선생성을 지출 행의 지연 생성으로 전환하는 실험을 완료했다.** [실측 결과](../archive/phase1/p1-01-monthly-expense-lazy-widget-results.md)는 **NOT ADOPTED — PERFORMANCE CRITERIA NOT MET**다. 선생성 N→0을 확인했지만 1k build 중앙값이 1·3블록, 5k가 1블록에서 개선되지 않아 원복했다. 최종 화면 SHA는 아래 기준과 같다. 다음 후보는 자동 착수하지 않는다.
 
 기준 source SHA-256은 `f876b19c0872f533e226ab366ff45a8ce61fb0af568672aad9bdcd130cac5e81`이다. B03 archive의 같은 파일과도 동일하다. B03 source-lock-review, P0 protected-source/worktree-targets와 adapter isolation의 명시 보호 목록을 확인했으며 이 화면은 포함되지 않는다. 이것이 frozen archive를 수정할 권한은 아니다. 착수 시 현재 SHA·보호 목록을 다시 확인하고 변화가 있으면 재판단한다.
 
@@ -168,19 +168,19 @@ B05/B08의 추가 확대 실험은 첫 후보에서 제외한다. 이미 전체 
 
 ### P1-02 — 두 번째 실험 완료, C5 보호 경로 보류
 
-[결과 보고서](../p1-02-flutter-rebuild-derived-state-results.md)의 판정은 **DEFERRED — PROTECTED OR HIGH-RISK PATH**, baseline gate는 C다. 50/500/1k/5k행과 8개 host 구성에서 warmup5회·표본20회(측정640개)를 수집했다. busy/status의 정착 화면은 notify/root builder/HomeShell/활성 화면 build/getter가 각각1회였으며, 모든 탭이 함께 build되지는 않았다. 5k의 변경 없는 알림에서 필터·정렬 중앙값2.27~2.49ms가 측정돼 비용을 무시하지 않는다. 다만 같은 build 안의 중복은 없고 알림 사이 재평가 제거는 protected AppState의 invalidation/publication 또는 금지된 cross-generation cache와 연결된다. UI 파일로 같은 정렬을 옮기지 않았으며 생산 코드는 수정하지 않았다.
+[결과 보고서](../archive/phase1/p1-02-flutter-rebuild-derived-state-results.md)의 판정은 **DEFERRED — PROTECTED OR HIGH-RISK PATH**, baseline gate는 C다. 50/500/1k/5k행과 8개 host 구성에서 warmup5회·표본20회(측정640개)를 수집했다. busy/status의 정착 화면은 notify/root builder/HomeShell/활성 화면 build/getter가 각각1회였으며, 모든 탭이 함께 build되지는 않았다. 5k의 변경 없는 알림에서 필터·정렬 중앙값2.27~2.49ms가 측정돼 비용을 무시하지 않는다. 다만 같은 build 안의 중복은 없고 알림 사이 재평가 제거는 protected AppState의 invalidation/publication 또는 금지된 cross-generation cache와 연결된다. UI 파일로 같은 정렬을 옮기지 않았으며 생산 코드는 수정하지 않았다.
 
 빠른 navigation은 각 합성 refresh 완료 후 연속 탭 전환으로만 측정했다. 겹친 요청과 실제 OS/device 복귀는 미측정이다. 이 선택적 성능 개선을 새로운 correctness blocker나 formal release gate로 만들지 않는다. P1-02는 완료했지만 1단계 전체 완료는 아니다. **당시 남은 후보 최대1회 제한은 §2.1의 소유자 갱신 계획으로 대체됐다. P1-01/P1-02 결과는 재개·변경하지 않는다.**
 
 ### P1-03 — Snapshot 비용 귀속 완료, B 판정·미구현
 
-[결과 보고서](../p1-03-snapshot-save-validation-performance-results.md)와 [단일 압축 근거](../benchmarks/p1-03-snapshot-performance.json.gz)에 현재 보호 소스·서버 v7 합성 fixture의 비용을 보존했다. 보관0/1/10/30개×376/1k/5k/10k행의 list/save/save 뒤 list를 측정했다. 큰 비용 때문에5+20 전체 반복 대신 구성별 warmup1+표본3, 원 소스 대조4구성은1+2를 사용했다. 최종152표본은265.18초에 수집했으며 p95는 소표본 최댓값이다.
+[결과 보고서](../archive/phase1/p1-03-snapshot-save-validation-performance-results.md)와 [단일 압축 근거](../archive/phase1/evidence/p1-03-snapshot-performance.json.gz)에 현재 보호 소스·서버 v7 합성 fixture의 비용을 보존했다. 보관0/1/10/30개×376/1k/5k/10k행의 list/save/save 뒤 list를 측정했다. 큰 비용 때문에5+20 전체 반복 대신 구성별 warmup1+표본3, 원 소스 대조4구성은1+2를 사용했다. 최종152표본은265.18초에 수집했으며 p95는 소표본 최댓값이다.
 
 10k payload는5,934,477B다. C30의 저장은 read/decode/검증62회·읽기367,937,574B·쓰기5,934,477B, 중앙값7866.068ms였다. 저장 뒤 추가 list까지는92회다. 새 파일 readback과 보관 파일 검증을 독립 안전 경계로 보존한다. 유일한 후보는 save 내부 prune의 검증 완료 생존 목록을 반환에 재사용해 마지막 전체 순회를 줄이는 것이다. 다만 동시 저장/삭제·파일 변경/손상 재관측을 보존해야 하고 대상 repository는 보호 소스이므로 별도 권한과 안전성 입증 없이 구현하지 않는다. 생산 수정0개, Snapshot 확장성 후속 과제는 미착수다. 초기 Flutter crash 자동 진단이 ADB 서버를 기동한 경계 위반을 종료 확인에서 발견해, 작업 소유·활성 TCP/USB 부재를 확인한 해당 PID만 OS 신호로 종료했다. 비용 귀속은 완료했으나 전체 작업 판정은 PARTIAL이며 상세 기록은 결과 보고서에 남긴다. 다음 작업은 소유자가 정하며 P1-04/P1-05/P1-R을 자동 시작하지 않는다.
 
 ### P1-04 — backend SQL·presenter 귀속 완료, C 판정·미구현
 
-[결과 보고서](p1-04-backend-sql-presenter-performance-results.md)와 [단일 압축 근거](../benchmarks/p1-04-backend-sql-presenter-performance.json.gz)에 과거 최적화6개 묶음·현재 source 대조와 5규모/7경로의 기준700·상세105표본을 보존했다. T6.6A의 정상 service/Snapshot/presenter/DB/migration5파일과 nonempty payload4종의 SHA가 현재와 동일해 과거 결과를 재사용했다. 본 실행170.779초, 원 SQLite 기준10k bundle 중앙값1273.714ms/p95 1462.058ms다. 별도 profiler에서는 SQL execute19.929ms/fetch272.894ms, 연결 생성0.290ms, current presenter2.847ms였고 Snapshot·관계 검증·canonical JSON/hash가 컸다. profiler 포함 시간을 기준 latency에 합산하지 않는다.
+[결과 보고서](../archive/phase1/p1-04-backend-sql-presenter-performance-results.md)와 [단일 압축 근거](../archive/phase1/evidence/p1-04-backend-sql-presenter-performance.json.gz)에 과거 최적화6개 묶음·현재 source 대조와 5규모/7경로의 기준700·상세105표본을 보존했다. T6.6A의 정상 service/Snapshot/presenter/DB/migration5파일과 nonempty payload4종의 SHA가 현재와 동일해 과거 결과를 재사용했다. 본 실행170.779초, 원 SQLite 기준10k bundle 중앙값1273.714ms/p95 1462.058ms다. 별도 profiler에서는 SQL execute19.929ms/fetch272.894ms, 연결 생성0.290ms, current presenter2.847ms였고 Snapshot·관계 검증·canonical JSON/hash가 컸다. profiler 포함 시간을 기준 latency에 합산하지 않는다.
 
 기존 transaction-local ownership PASS는 runtime 검사 요청6회에 실제 raw6테이블 검사2회(Snapshot1+view1)로 유지됐다. 기존 인덱스 사용과 필요한 full scan을 구분했으며 지배적 인덱스/connection 결함은 입증하지 못했다. 새 안전한 제거 후보0개·추천 구현0개, **C — 현재 correctness 계약에 필요한 큰 비용**으로 처분한다. 모든 비용 제거를 1단계 종료의 새 조건으로 만들지 않는다. 기존 source lock·schema/transaction·금융/인증·authoritative/Offline 계약과 P1-03 PARTIAL 사건을 보존했다. Flutter·Android·ADB는 사용하지 않았다. 조사 당시 P1-R/P1-S는 계획·미구현, P1-05는 선택·미승인이었으며 후속 결정은 §2.1에 반영했다. 다음 과제를 자동 시작하지 않는다.
 
@@ -259,11 +259,11 @@ B05/B08의 추가 확대 실험은 첫 후보에서 제외한다. 이미 전체 
 - 저장소에서 Git이 열거한 기존 tracked/untracked 일반 파일·symlink **7,927개**의 내용·mode와 인덱스·staged entry를 전후 대조해 변화 **0개**를 확인했다. frozen 외부 B03 archive도 SHA를 재확인했다. 구체적 결과·집계 hash·한계는 [보조 근거](../benchmarks/final-optimization-and-closure-evidence.json)에 남겼다. ignored cache 전체의 무변경을 인증하는 범위는 아니다.
 - task-owned `/tmp`의 frontend 사본·합성 테스트 DB·build 중간물 **72개 파일/symlink, 관찰 할당량 2,756,608B(약 2.63MiB)**를 검증 후 정리했다. 성공 로그 전문 대신 결과와 로그 hash를 보조 근거에 보존했다. 기존 증거·DB/WAL/cache와 symlink 대상은 삭제하지 않았다. 새 benchmark·ADB·운영 API 요청·production 접근·Git index 조작·commit·push는 수행하지 않았다.
 
-**P1-01 후속 기록:** baseline을 먼저 수집한 뒤 3블록·600개 측정 표본으로 비교했다. 후보 기능 13건, 원복 후 기능 13건·보호 검사 29건, npm build·backend 기능 3건이 통과했다. [원시 근거](../benchmarks/p1-01-monthly-expense-lazy-widget-raw.json.gz)와 기존 compact JSON의 `p1_01`에 판정을 보존한다. **다음 행동은 미채택 결과를 기준으로 다음 1단계 과제를 별도로 선정하는 것이다.** 2단계 모바일 데이터 사용량 분석은 이번에 시작하지 않았다.
+**P1-01 후속 기록:** baseline을 먼저 수집한 뒤 3블록·600개 측정 표본으로 비교했다. 후보 기능 13건, 원복 후 기능 13건·보호 검사 29건, npm build·backend 기능 3건이 통과했다. [원시 근거](../archive/phase1/evidence/p1-01-monthly-expense-lazy-widget-raw.json.gz)와 기존 compact JSON의 `p1_01`에 판정을 보존한다. **다음 행동은 미채택 결과를 기준으로 다음 1단계 과제를 별도로 선정하는 것이다.** 2단계 모바일 데이터 사용량 분석은 이번에 시작하지 않았다.
 
-**P1-02 후속 기록:** 생산 수정0개, baseline32구성 수집 완료, 기존 UI6건·보호 검사29건·웹 build·backend 기능3건 통과. 원문과 [원시 근거](../benchmarks/p1-02-flutter-rebuild-raw.json.gz)는 기존 compact JSON의 `p1_02`에 연결한다. **다음 행동은 후보를 자동 시작하지 않고 현재 기준으로 1단계 종료 여부를 한 번 검토하는 것이다.** 2~4단계와 Snapshot 확장성은 시작하지 않았다.
+**P1-02 후속 기록:** 생산 수정0개, baseline32구성 수집 완료, 기존 UI6건·보호 검사29건·웹 build·backend 기능3건 통과. 원문과 [원시 근거](../archive/phase1/evidence/p1-02-flutter-rebuild-raw.json.gz)는 기존 compact JSON의 `p1_02`에 연결한다. **다음 행동은 후보를 자동 시작하지 않고 현재 기준으로 1단계 종료 여부를 한 번 검토하는 것이다.** 2~4단계와 Snapshot 확장성은 시작하지 않았다.
 
-**완화 구현 승인(2026-11-03):** owner가 P1-R-01, P1-S repository와 직접 SHA/무결성 검사 변경을 승인했다. R 처분 뒤 S를 실행하고 P1-U는 보류한다. dirty worktree를 보존하며 `phase1/mitigations`에 한정된 중간 결과를 commit/push한다. 다음 독립 감사는 구현 batch의 Mitigation Audit이며 배포·다음 단계는 미승인이다. 실제 결과·commit/push는 [공유 장부](phase1-mitigation-plan.md)에 누적한다.
+**완화 구현 승인(2026-11-03):** owner가 P1-R-01, P1-S repository와 직접 SHA/무결성 검사 변경을 승인했다. R 처분 뒤 S를 실행하고 P1-U는 보류한다. dirty worktree를 보존하며 `phase1/mitigations`에 한정된 중간 결과를 commit/push한다. 다음 독립 감사는 구현 batch의 Mitigation Audit이며 배포·다음 단계는 미승인이다. 실제 결과·commit/push는 [공유 장부](../archive/phase1/phase1-mitigation-plan.md)에 누적한다.
 
 **R-01 구현 처분:** 승인된 3블록 측정840개에서 중간 GET3개 감소·주 latency 감소를 확인했지만 작은 인접 대조p95가110% 기준을 넘었다. NOT ADOPTED로 HomeShell을 원래 SHA로 복구했고 직접 host focused132건이 통과했다. raw·한계·다음 S 조건 확인은 공유 장부/단일 mitigation 근거에 보존한다. 1단계는 진행 중이다.
 
@@ -281,12 +281,12 @@ B05/B08의 추가 확대 실험은 첫 후보에서 제외한다. 이미 전체 
 
 **N01-A01-R1:** targeted REWORK 후 독립 SDK DEFLATE pass를 추가했다. exact witness 포함 모바일103·backend7 PASS, 추가 CPU/wall 한계는 후보 문서 §11에 있다. 의존성/서버/금융 변경 없음. 다음은 독립 targeted 재감사이며 최종 채택·배포는 미승인이다.
 
-**Phase2 현재 처분:** owner 최종 PASS·N01 ACCEPTED, A01/R1 CLOSED·blocking findings 없음. 채택 commit13ef6e9, 과거 이력 보존. [N02 조사](phase2-n02-snapshot-reuse-investigation.md)는 T3→T1 복구점 변경을 일반적으로 배제할 수 없어 **DEFER/C 유지 권고**다. 10k 추가 이득의 잠재 상한은 gzip104,537B/자동event1GET이며 확정 제거 event는0이다. N01 배포·main merge·N02 구현·Phase2 전체 종료는 승인/수행하지 않는다.
+**Phase2 현재 처분:** owner 최종 PASS·N01 ACCEPTED, A01/R1 CLOSED·blocking findings 없음. 채택 commit13ef6e9, 과거 이력 보존. [N02 조사](../archive/phase2/phase2-n02-snapshot-reuse-investigation.md)는 T3→T1 복구점 변경을 일반적으로 배제할 수 없어 **DEFER/C 유지 권고**다. 10k 추가 이득의 잠재 상한은 gzip104,537B/자동event1GET이며 확정 제거 event는0이다. N01 배포·main merge·N02 구현·Phase2 전체 종료는 승인/수행하지 않는다.
 
-**Phase3 후보 조사:** owner 승인으로 [inventory](phase3-cleanup-candidate-inventory.md)를 작성했다(A3/B3/C6). Phase2 전체 종료 미기록·기존 현재 표의 stale PARTIAL은 inventory §1에 명시했고 현재 표만 개별 처분으로 맞췄다. N01 이력·N02 DEFER는 보존하며 Phase2 종료를 소급 선언하지 않는다. 다음은 독립 후보 감사이며 코드 삭제·Phase4·운영은 미착수다.
+**Phase3 후보 조사:** owner 승인으로 [inventory](../archive/phase3/phase3-cleanup-candidate-inventory.md)를 작성했다(A3/B3/C6). Phase2 전체 종료 미기록·기존 현재 표의 stale PARTIAL은 inventory §1에 명시했고 현재 표만 개별 처분으로 맞췄다. N01 이력·N02 DEFER는 보존하며 Phase2 종료를 소급 선언하지 않는다. 다음은 독립 후보 감사이며 코드 삭제·Phase4·운영은 미착수다.
 
 **D01–D03 scoped cleanup 승인:** owner가 독립 후보 감사 뒤 세 항목만 승인했다. Claim은 [무기한 유지](../domain-model.md#claim-유지-정책)하며 과거 제거 계획은 폐기된 역사 자료로 보존한다. D04–D06 구현은 보류이며 특히 D04는 변경된 Claim 정책 아래에서 다시 평가하기 전 구현하지 않는다. 진행·검증은 inventory §11에 기록하고 staging/commit은 하지 않는다.
 
-**Phase 3 수용·게시 결정(2026-11-04):** 위 구현 당시의 미게시 기록은 보존한다. 후속 독립 scoped 감사에서 BLOCKER/MAJOR 없음, owner는 D01–D03·Claim 유지 정책과 감사 결과를 수용했다. MINOR P3-A01의 잘못된 4단계 상태를 **미착수·별도 승인 필요**로 수정했다. 이번에는 검토된 경로만 commit/push하며 devicegate 보안 설정·연관 소스는 owner 결정에 따라 제외한다. 미확인 과거 실험·DB·키·원시 로그도 원위치 보존한다. 상세 게시 범위와 최종 종결은 [inventory §12](phase3-cleanup-candidate-inventory.md#12-phase-3-수용안전-게시)에 기록한다. Phase4·운영 배포·main 병합은 승인하지 않는다.
+**Phase 3 수용·게시 결정(2026-11-04):** 위 구현 당시의 미게시 기록은 보존한다. 후속 독립 scoped 감사에서 BLOCKER/MAJOR 없음, owner는 D01–D03·Claim 유지 정책과 감사 결과를 수용했다. MINOR P3-A01의 잘못된 4단계 상태를 **미착수·별도 승인 필요**로 수정했다. 이번에는 검토된 경로만 commit/push하며 devicegate 보안 설정·연관 소스는 owner 결정에 따라 제외한다. 미확인 과거 실험·DB·키·원시 로그도 원위치 보존한다. 상세 게시 범위와 최종 종결은 [inventory §12](../archive/phase3/phase3-cleanup-candidate-inventory.md#12-phase-3-수용안전-게시)에 기록한다. Phase4·운영 배포·main 병합은 승인하지 않는다.
 
 **Phase 3 CLOSED:** 수용 작업 `b8d07d096b5d70def4b1e59e75e2039e0d999c4b`와 별도 검토한 기존 자료 `eb25f6b482e16b72afac209e573ea8904ab369d3`의 push 성공 및 원격 tip 일치를 확인했다. Claim 무기한 유지·D04–D06 보류·역사 증거 보존으로 한정 정리의 종료 조건을 충족했다. 4단계는 **NOT STARTED**이며 다음 포괄 감사는 별도 owner 승인 후 착수한다. 남겨 둔 기존 작업은 이번 Phase3 수용 범위 밖이고 자동 공개·삭제하지 않는다.

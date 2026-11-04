@@ -4,17 +4,19 @@ Phase3 D01–D03·Claim 유지 정책은 owner 수용과 안전 게시를 마쳐
 
 ## 현재 로드맵·P1 결과
 
+Batch 1에서 완료된 P1·N02·Phase3 기록과 과거 디스크 조사를 [archive](../archive/README.md)로 옮겼다. 링크를 갱신했으며 원 판정·owner 예외·Claim 무기한 유지 정책은 변하지 않는다.
+
 - [money-note-final-optimization-and-closure-roadmap.md](money-note-final-optimization-and-closure-roadmap.md)
 - [phase2-mobile-network-optimization-candidates.md](phase2-mobile-network-optimization-candidates.md) — 이전 단계, N01 ACCEPTED·N02 조사 DEFER, 독립 Snapshot GET 유지 권고
-- [phase1-mitigation-plan.md](phase1-mitigation-plan.md) — 현재 공유 계획·구현/감사 장부, Phase 1 CLOSED·최종 감사 PASS / R 채택·S/U 보류
-- [p1-r-mobile-refresh-performance-results.md](p1-r-mobile-refresh-performance-results.md)
-- [p1-04-backend-sql-presenter-performance-results.md](p1-04-backend-sql-presenter-performance-results.md)
+- [phase1-mitigation-plan.md](../archive/phase1/phase1-mitigation-plan.md) — 현재 공유 계획·구현/감사 장부, Phase 1 CLOSED·최종 감사 PASS / R 채택·S/U 보류
+- [p1-r-mobile-refresh-performance-results.md](../archive/phase1/p1-r-mobile-refresh-performance-results.md)
+- [p1-04-backend-sql-presenter-performance-results.md](../archive/phase1/p1-04-backend-sql-presenter-performance-results.md)
 
 ## 이전 P1 결과·보류 후보
 
-- [p1-01-monthly-expense-lazy-widget-results.md](../p1-01-monthly-expense-lazy-widget-results.md) — 원래 경로 보존
-- [p1-02-flutter-rebuild-derived-state-results.md](../p1-02-flutter-rebuild-derived-state-results.md) — 원래 경로 보존
-- [p1-03-snapshot-save-validation-performance-results.md](../p1-03-snapshot-save-validation-performance-results.md) — 원래 경로 보존
+- [p1-01-monthly-expense-lazy-widget-results.md](../archive/phase1/p1-01-monthly-expense-lazy-widget-results.md) — 원래 경로 보존
+- [p1-02-flutter-rebuild-derived-state-results.md](../archive/phase1/p1-02-flutter-rebuild-derived-state-results.md) — 원래 경로 보존
+- [p1-03-snapshot-save-validation-performance-results.md](../archive/phase1/p1-03-snapshot-save-validation-performance-results.md) — 원래 경로 보존
 
 P1-R-01 최초 p95 기준 미달·원복은 보존한다. 독립 거부 검토 A와 owner의 한정1회 예외 승인 뒤 동일 B를 재복원해 활성132건 통과로 채택했다. P1-S는 digest 비용 조건 실패로 미구현·보류했다. P1-U는 보류, P1-05는 소유자 결정으로 제외했다. 실제 구현·감사 지적은 위 공유 장부를 갱신하며 Phase1 종료나 다음 단계 진입은 자동이 아니다.
 
@@ -26,14 +28,14 @@ P1-R-01 최초 p95 기준 미달·원복은 보존한다. 독립 거부 검토 A
 
 ## 원래 경로를 유지한 기록
 
-다음102개는 기존 코드·도구·동결 근거에서 원래 경로를 직접 참조한다. 이번 정리에서는 원본 위치·내용을 보존하고 이 목차에서 한 번에 찾도록 했다. 이는 영구 이동 금지를 새로 정한 것이 아니며, 해당 경로의 이관은 별도 의존성 정리 범위다. 원시 근거는 기존 benchmarks 경로를 유지한다. 로컬에만 있는 미추적 대용량 실험 근거는 문서 커밋에 일괄 추가하지 않는다.
+아래는 기존102개 기록의 목차다. Batch 1에서 승인된 P1 보고서3개와 과거 디스크 조사는 archive로 이동하고 이 목록의 링크를 갱신했다. 나머지 경로와 동결 근거는 보존한다. 이동한 P1 compact 근거5개도 archive에서 연결하며, 로컬에만 있는 대용량 실험 근거는 일괄 게시하지 않는다.
 
 ### 이전 P1·위생 조사
 
-- [money-note-disk-cleanup-audit.md](../money-note-disk-cleanup-audit.md)
-- [p1-01-monthly-expense-lazy-widget-results.md](../p1-01-monthly-expense-lazy-widget-results.md)
-- [p1-02-flutter-rebuild-derived-state-results.md](../p1-02-flutter-rebuild-derived-state-results.md)
-- [p1-03-snapshot-save-validation-performance-results.md](../p1-03-snapshot-save-validation-performance-results.md)
+- [money-note-disk-cleanup-audit.md](../archive/repository-hygiene/money-note-disk-cleanup-audit.md)
+- [p1-01-monthly-expense-lazy-widget-results.md](../archive/phase1/p1-01-monthly-expense-lazy-widget-results.md)
+- [p1-02-flutter-rebuild-derived-state-results.md](../archive/phase1/p1-02-flutter-rebuild-derived-state-results.md)
+- [p1-03-snapshot-save-validation-performance-results.md](../archive/phase1/p1-03-snapshot-save-validation-performance-results.md)
 
 ### 실기기 Gate·플랫폼 개선·감사
 
@@ -155,9 +157,9 @@ N01-A01 모바일 raw gzip 검증 수정과 101 host PASS는 후보 문서 §10�
 
 두 번째 correction N01-A01-R1의 정확한 reserved-block witness·이중 decoder·추가 pass 비용은 후보 문서 §11에 있다. 첫 correction 뒤 targeted REWORK를 보존한다.
 
-- [phase2-n02-snapshot-reuse-investigation.md](phase2-n02-snapshot-reuse-investigation.md) — N01 최종 수용, N02 복구 시점·구조 동등성·gzip 이후 이득·DEFER 처분.
+- [phase2-n02-snapshot-reuse-investigation.md](../archive/phase2/phase2-n02-snapshot-reuse-investigation.md) — N01 최종 수용, N02 복구 시점·구조 동등성·gzip 이후 이득·DEFER 처분.
 
-- [phase3-cleanup-candidate-inventory.md](phase3-cleanup-candidate-inventory.md) — Phase3 CLOSED, D01–D03·Claim 정책 ACCEPTED·push 성공, D04–D06 보류.
+- [phase3-cleanup-candidate-inventory.md](../archive/phase3/phase3-cleanup-candidate-inventory.md) — Phase3 CLOSED, D01–D03·Claim 정책 ACCEPTED·push 성공, D04–D06 보류.
 
-- [Phase3 수용·게시 §12](phase3-cleanup-candidate-inventory.md#12-phase-3-수용안전-게시) — 현재 게시 장부. §11의 감사 전 실행·미게시 이력 보존, Phase4 별도 승인 필요.
-- [폐기된 Claim 제거 계획](claim-removal-plan-superseded.md) — 역사 원문 보존용, 현행 유지 정책·실행 지침이 아님.
+- [Phase3 수용·게시 §12](../archive/phase3/phase3-cleanup-candidate-inventory.md#12-phase-3-수용안전-게시) — 현재 게시 장부. §11의 감사 전 실행·미게시 이력 보존, Phase4 별도 승인 필요.
+- [폐기된 Claim 제거 계획](../archive/phase3/claim-removal-plan-superseded.md) — 역사 원문 보존용, 현행 유지 정책·실행 지침이 아님.

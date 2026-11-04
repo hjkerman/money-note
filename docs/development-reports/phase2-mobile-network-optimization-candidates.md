@@ -15,8 +15,8 @@
 | --- | --- |
 | [T6.5B-3/현재 상태](../project-state.md) | 정상14→1 GET, mutation+취득15→2 유지. 이번 실제 AppState replay도 저장2회였다. 과거14 GET을 새 제거 후보로 취급하지 않음 |
 | [T6.6A](../t66/a/t66a-payload-attribution.md) | 기존 gzip/IOClient·정확 byte 귀속 재사용. 새376/1k/10k Bundle SHA가 과거 attribution의 각 SHA와 **모두 동일**했다. codec campaign을 반복하지 않음 |
-| [P1-04](p1-04-backend-sql-presenter-performance-results.md) | 보존된 합성 consistent DB3개를 검증·복원해 현재 endpoint를 호출. backend CPU ms는 bytes/절감량으로 환산하지 않음 |
-| [공유 P1 장부](phase1-mitigation-plan.md) | R-01의 GET4→1은 이미 현재 baseline에 반영. 이번 Phase 2 절감에 다시 더하지 않음. 로컬 Snapshot 검증 CPU인 S도 네트워크 절감과 구분 |
+| [P1-04](../archive/phase1/p1-04-backend-sql-presenter-performance-results.md) | 보존된 합성 consistent DB3개를 검증·복원해 현재 endpoint를 호출. backend CPU ms는 bytes/절감량으로 환산하지 않음 |
+| [공유 P1 장부](../archive/phase1/phase1-mitigation-plan.md) | R-01의 GET4→1은 이미 현재 baseline에 반영. 이번 Phase 2 절감에 다시 더하지 않음. 로컬 Snapshot 검증 CPU인 S도 네트워크 절감과 구분 |
 
 ## 2. 현재 네트워크 모델
 
@@ -318,4 +318,4 @@ owner가 최종 독립 감사 **PASS — N01-A01-R1 RESOLVED**를 수령하고 N
 
 bytes·CPU·메모리 근거는 host-only 합성 관찰이며 운영 latency나 실기기 보장은 아니다. 운영 Snapshot의 미압축 관찰과 구 배포 revision의 Bundle 부재도 유지한다. **Production deployment NOT AUTHORIZED / NOT PERFORMED, main merge 없음.** 본 수용에서 N01 소스·benchmark evidence는 변경하지 않는다. N02는 별도 조사만 승인됐고 구현하지 않는다.
 
-**N02 조사 완료 — DEFER, C 독립 Snapshot GET 유지 권고.** 실제 순서·T1/T3 복구 의미·post-gzip entity 절감(10k104,537B)과 대안 비교는 [N02 조사](phase2-n02-snapshot-reuse-investigation.md)에 둔다. 구현0개, N01 코드·benchmark evidence 변경0개다.
+**N02 조사 완료 — DEFER, C 독립 Snapshot GET 유지 권고.** 실제 순서·T1/T3 복구 의미·post-gzip entity 절감(10k104,537B)과 대안 비교는 [N02 조사](../archive/phase2/phase2-n02-snapshot-reuse-investigation.md)에 둔다. 구현0개, N01 코드·benchmark evidence 변경0개다.

@@ -22,10 +22,10 @@ SDK `page_view.dart`도 파일로만 읽었고 SHA는 근거에 보존했다. Fl
 | 기존 최적화/보장 | 근거·revision | 현재 적용과 남은 점 |
 | --- | --- | --- |
 | coordinator 추출과 늦은 결과/로그아웃 경계 | `01125f4`, `7c0e601`; 현재 `offline_refresh_test.dart`의 두 응답 순서·logout 회귀 | 현재 ticket은 lineage/auth/request generation을 검사한다. 이것은 publication 보호이며 보통 HTTP single-flight가 아님 |
-| legacy DAG 병렬화 | `ec96671`, [기존 구현 기록](../t65/implementation/t65b3-implementation.md) | legacy는 명시 진단 oracle에만 남음. 정상14 GET 문제를 다시 해결할 대상으로 삼지 않음 |
+| legacy DAG 병렬화 | `ec96671`, [기존 구현 기록](../../t65/implementation/t65b3-implementation.md) | legacy는 명시 진단 oracle에만 남음. 정상14 GET 문제를 다시 해결할 대상으로 삼지 않음 |
 | strict bundle 지원·정상 채택 | `56909c9`→`597a936`, 같은 구현 기록 | 정상 refresh14→1, mutation+취득15→2 유지. 현재 coordinator는597a936과 byte 동일. AppState/API 전체는 후속 변경돼 현재 본문을 직접 확인함 |
-| strict admission·JSON durable publication·pending | [architecture](../architecture.md), [offline-mode](../offline-mode.md), `authoritative_acquisition_test.dart`·`authoritative_rebuild_pending_test.dart` | decode 전후 authority, 원자적 baseline/readback, committed marker cleanup 뒤 UI 설치 유지. outcomeUnknown은 GET 성공으로 확정하지 않음 |
-| navigation·resume의 실제 host 관측 | [P1-02](../p1-02-flutter-rebuild-derived-state-results.md), source8개가 현재와 byte 동일 | 이전640표본 중 관련 trace 재사용. navigation은 jump1→2→0이므로 이번 animate 중간 callback의 빈도 증거가 아님 |
+| strict admission·JSON durable publication·pending | [architecture](../../architecture.md), [offline-mode](../../offline-mode.md), `authoritative_acquisition_test.dart`·`authoritative_rebuild_pending_test.dart` | decode 전후 authority, 원자적 baseline/readback, committed marker cleanup 뒤 UI 설치 유지. outcomeUnknown은 GET 성공으로 확정하지 않음 |
+| navigation·resume의 실제 host 관측 | [P1-02](p1-02-flutter-rebuild-derived-state-results.md), source8개가 현재와 byte 동일 | 이전640표본 중 관련 trace 재사용. navigation은 jump1→2→0이므로 이번 animate 중간 callback의 빈도 증거가 아님 |
 | backend 비용 | [P1-04](p1-04-backend-sql-presenter-performance-results.md), 현재 source 동일성·payload 검증 근거 | backend context만 재사용. 모바일 완료 시간이나 요청 제거의 보장 절감량으로 바꾸지 않음 |
 
 P1-03의 PARTIAL·자동 ADB 기동/작업 소유 PID 종료 사건은 원문 그대로 보존했다. P1-S 재조사나 기기 gate 작업은 열지 않았다.
@@ -113,11 +113,11 @@ P1-04의 host TestClient context(중앙값/p95 ms, n20)는 다음과 같다. cli
 
 P1-01 미채택, P1-02/P1-U 보호 경로 보류, P1-03 조사/P1-S 구현 대기, P1-04 C·새 구현 없음, P1-05 선택·미승인을 보존한다. P1-R은 현재 합의된 마지막 주요 조사이며 이후 mitigation 구현 또는 보류를 선택한다. 구현 승인·1단계 종료를 자동 선언하지 않는다. 원 F01 BINDING—UNRESOLVED, 유효 G1, G2 미채택, ADB 차단·실기기/T6.9 보류·formal T6.6F 미종결·R1 CLOSED·배포 미승인도 유지한다.
 
-문서 재배치·커밋·푸시는 사용자의 별도 후속 승인 범위다. 분석 시작의 인덱스/HEAD와 구분해 문서 변경만 반영하고 기존 실행 코드·stage를 보존한다. source/역사 근거와 문서 경로 보존 내역·검사·임시 산출물 정리는 [단일 근거](../benchmarks/p1-r-mobile-refresh-trace.json.gz)에 연결한다.
+문서 재배치·커밋·푸시는 사용자의 별도 후속 승인 범위다. 분석 시작의 인덱스/HEAD와 구분해 문서 변경만 반영하고 기존 실행 코드·stage를 보존한다. source/역사 근거와 문서 경로 보존 내역·검사·임시 산출물 정리는 [단일 근거](evidence/p1-r-mobile-refresh-trace.json.gz)에 연결한다.
 
 기존 backend 합성 회귀3건과 임시 사본 npm build가 통과했다. 모바일 widget/animation 실행이나 새 성능 캠페인은 하지 않았다. 초기 웹 사본 준비의 작업 경로 오류는 사본에서 바로잡았으며 생산 변경은 없었다.
 
-문서 정리는 [통합 목차](README.md)로 모았다. 활성 문서3개를 이동하고 기존 도구/동결 근거가 참조하는102개 원본은 내용·경로를 보존했다. 이번 문서 전용 push가 Android build를 시작하지 않도록 커밋에 `[skip ci]`를 사용할 계획이며 workflow 파일은 변경하지 않는다([GitHub 규칙](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/skip-workflow-runs)). 이는 release/device gate 면제나 mitigation 구현 승인이 아니다.
+문서 정리는 [통합 목차](../../development-reports/README.md)로 모았다. 활성 문서3개를 이동하고 기존 도구/동결 근거가 참조하는102개 원본은 내용·경로를 보존했다. 이번 문서 전용 push가 Android build를 시작하지 않도록 커밋에 `[skip ci]`를 사용할 계획이며 workflow 파일은 변경하지 않는다([GitHub 규칙](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/skip-workflow-runs)). 이는 release/device gate 면제나 mitigation 구현 승인이 아니다.
 
 기존 파일7,939개와 실행 source14개를 대조했고 승인된 문서 이동·갱신 외 변경은 없었다. 기존 source·동결 원본·초기 staged 항목은 보존했다. 고유 분석/이동 before-image·검사 로그를 압축 근거에 보존하고 활성 프로세스 부재를 확인한 뒤 작업 소유 임시 파일/symlink93개(논리 크기3,529,764B, 관찰 할당량3,764,224B)를 정리한다. 기존 cache·DB/WAL·symlink 대상과 다른 host 프로세스는 정리하지 않는다.
 

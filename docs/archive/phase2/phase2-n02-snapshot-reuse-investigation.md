@@ -14,7 +14,7 @@ owner가 최종 독립 감사 **PASS — N01-A01-R1 RESOLVED**에 따라 수용�
 | targeted 재감사 | REWORK — CORRECTION INCOMPLETE, N01-A01-R1 |
 | 최종 correction | `13ef6e97590d27f32939409a2cc23d0d967263e2` — 최종 독립 PASS, owner ACCEPTED |
 
-[공유 이력 §9~12](phase2-mobile-network-optimization-candidates.md)와 [구현 raw](../benchmarks/p2-n01-implementation-evidence.json.gz)의 실패·수정·시험은 보존한다. gzip6 원문 SHA 호환, 두 독립 decoder 검사와 main-isolate/버퍼·지원 feature 한계는 기존 host 근거 그대로다. 운영 Snapshot 미압축은 owner 관찰이고 구 운영 revision의 Bundle 부재도 이미 기록했다. **Production deployment NOT AUTHORIZED / NOT PERFORMED, main merge 없음.** 수용은 실제 운영에 gzip이 배포됐다는 뜻이 아니다.
+[공유 이력 §9~12](../../development-reports/phase2-mobile-network-optimization-candidates.md)와 [구현 raw](../../benchmarks/p2-n01-implementation-evidence.json.gz)의 실패·수정·시험은 보존한다. gzip6 원문 SHA 호환, 두 독립 decoder 검사와 main-isolate/버퍼·지원 feature 한계는 기존 host 근거 그대로다. 운영 Snapshot 미압축은 owner 관찰이고 구 운영 revision의 Bundle 부재도 이미 기록했다. **Production deployment NOT AUTHORIZED / NOT PERFORMED, main merge 없음.** 수용은 실제 운영에 gzip이 배포됐다는 뜻이 아니다.
 
 ## 2. 실제 request-flow 지도
 
@@ -37,17 +37,17 @@ B = `/api/authoritative-state`, S = `/api/admin/snapshot`. 아래 수치는 성�
 | auth/session/generation 전이 | login은 위 흐름, logout은 auth generation 증가·state 정리 | 전이별 | 이전 B의 보유만으로 새 auth의 backup을 승인할 수 없음 |
 | standalone connectivity retry | 현재 auth/lineage 확인, 0/350/850ms recovery attempts, health→필요 me→B | attempt별 / 0 | 자체 S retry loop는 없음. API GET 실패 시 legacy/지난 B를 backup 성공으로 바꾸지 않음 |
 
-핵심 근거: [bootstrap/login](../../mobile/lib/src/app_state.dart:237), [refresh publication/resume](../../mobile/lib/src/app_state.dart:953), [자동·수동 공유·restore](../../mobile/lib/src/app_state.dart:2466), [recovery](../../mobile/lib/src/app_state.dart:1184), [finalization](../../mobile/lib/src/app_state.dart:1740). 사용자 수동 웹 export도 S지만 Web 최적화는 범위 밖이며 유지한다.
+핵심 근거: [bootstrap/login](../../../mobile/lib/src/app_state.dart:237), [refresh publication/resume](../../../mobile/lib/src/app_state.dart:953), [자동·수동 공유·restore](../../../mobile/lib/src/app_state.dart:2466), [recovery](../../../mobile/lib/src/app_state.dart:1184), [finalization](../../../mobile/lib/src/app_state.dart:1740). 사용자 수동 웹 export도 S지만 Web 최적화는 범위 밖이며 유지한다.
 
 ## 3. B Snapshot과 S의 관계
 
-- [공유 export](../../backend/app/services/snapshot.py:116)는 전체 장부 테이블·비민감 설정·라벨·정책·지원 schema·manifest·snapshot_id를 만든다. S는 `export_snapshot()`의 새 DEFERRED read transaction, B는 같은 exporter를 자기 read transaction에 넣어 `require_current_columns=True`와 full Snapshot/금융 metadata 검사를 추가한다. B는 typed projections와 Snapshot의 coherent view·terminal revision/auth guard까지 갖는다. S만의 금융 테이블이나 추가 비밀번호/별도 admin role은 없다. 둘 다 기존 로그인 필요, routine session last_seen 갱신·로그 등의 통상 처리는 가능하다. GET S는 restore나 서버 backup artifact 생성을 호출하지 않는다.
-- B의 `snapshot`은 축약 요약이 아닌 완전한 Snapshot dictionary다. 모바일 [admission](../../mobile/lib/src/authoritative_bundle.dart:89)은 그것을 envelope.snapshot으로 전달하고 [AppState](../../mobile/lib/src/app_state.dart:1009)가 durable baseline의 authoritativeSnapshot에 저장한다. 전체 map을 변경 없이 JSON/UTF8 직렬화하면 기존 backup 형식으로 저장할 수 있으며 금융 테이블 재구축이나 manifest 재생성은 불필요하다. SDK별 직렬화 bytes가 동일하다는 보장은 별도이고, map→JSON의 lossless 정수/문자열·구조·서버 hash 호환 검증은 향후 필요하다. B 응답 raw JSON 전체를 S 파일로 저장할 수는 없다.
+- [공유 export](../../../backend/app/services/snapshot.py:116)는 전체 장부 테이블·비민감 설정·라벨·정책·지원 schema·manifest·snapshot_id를 만든다. S는 `export_snapshot()`의 새 DEFERRED read transaction, B는 같은 exporter를 자기 read transaction에 넣어 `require_current_columns=True`와 full Snapshot/금융 metadata 검사를 추가한다. B는 typed projections와 Snapshot의 coherent view·terminal revision/auth guard까지 갖는다. S만의 금융 테이블이나 추가 비밀번호/별도 admin role은 없다. 둘 다 기존 로그인 필요, routine session last_seen 갱신·로그 등의 통상 처리는 가능하다. GET S는 restore나 서버 backup artifact 생성을 호출하지 않는다.
+- B의 `snapshot`은 축약 요약이 아닌 완전한 Snapshot dictionary다. 모바일 [admission](../../../mobile/lib/src/authoritative_bundle.dart:89)은 그것을 envelope.snapshot으로 전달하고 [AppState](../../../mobile/lib/src/app_state.dart:1009)가 durable baseline의 authoritativeSnapshot에 저장한다. 전체 map을 변경 없이 JSON/UTF8 직렬화하면 기존 backup 형식으로 저장할 수 있으며 금융 테이블 재구축이나 manifest 재생성은 불필요하다. SDK별 직렬화 bytes가 동일하다는 보장은 별도이고, map→JSON의 lossless 정수/문자열·구조·서버 hash 호환 검증은 향후 필요하다. B 응답 raw JSON 전체를 S 파일로 저장할 수는 없다.
 - `state_revision`, principal, evaluation_date는 B의 authority/주변 metadata다. S 내부에 이를 새로 주입하면 원 Snapshot format/hash를 바꾸므로 금지다. client generation은 wire Snapshot 필드가 아니라 게시 권한이다.
 - exported_at은 exporter 호출 시 초 단위 UTC이고 manifest.content_sha256·snapshot_id에 영향을 준다. `snapshot_state_fingerprint`는 exported_at을 제외한다. 그러므로 같은 financial fingerprint/revision만으로 동일한 export 시점이나 동일 bytes를 증명할 수 없다.
 - S의 Content-Disposition filename은 export 시간 기반이지만 모바일 repository는 이를 무시하고 **저장 시각+random suffix**로 이름을 붙인다. UI는 파일 mtime인 updatedAt으로 날짜·복원 확인 문구를 표시하며, newest30도 그 시각으로 선정한다. 저장 시각 T3에 오래된 T1 snapshot을 새 파일로 넣으면 목록의 최신 표시와 실제 exported_at이 더 벌어질 수 있다.
 
-기존 [discovery evidence](../benchmarks/phase2-mobile-network-evidence.json.gz)의 SHA-256 `c31ee681b598380c06a6ecb108fffe1cfa4e0220216e15e9ca3f8538ad197b52`를 읽기 전용으로 재검산했다. 새로운 API/DB benchmark는 실행하지 않았다.
+기존 [discovery evidence](../../benchmarks/phase2-mobile-network-evidence.json.gz)의 SHA-256 `c31ee681b598380c06a6ecb108fffe1cfa4e0220216e15e9ca3f8538ad197b52`를 읽기 전용으로 재검산했다. 새로운 API/DB benchmark는 실행하지 않았다.
 
 | 합성 N | frozen-clock B.snapshot == S | Python compact 재직렬화 == S bytes | clock만 변경 | mutation 후 |
 | --- | --- | --- | --- | --- |
@@ -63,7 +63,7 @@ B = `/api/authoritative-state`, S = `/api/admin/snapshot`. 아래 수치는 성�
 
 S는 **S read transaction 시점**의 recovery point이지 download 완료 시점 전체의 최신성을 보장하는 것이 아니다. 그래도 T1보다 뒤의 독립 read point이며 T2 변경을 포함할 수 있다. 이를 B 재사용으로 대체하면 T3 backup에서 T1 backup으로 바뀔 수 있다. byte 중복과 recovery 의미 중복은 다르다. 같은 초·같은 state라 실제로 같은 파일이 될 수 있으나, client가 S를 생략하기 전에 그 사실을 일반적으로 증명하는 현 계약은 없다.
 
-[domain-model](../domain-model.md:792)과 [runbook](../runbook.md:1105)은 실행/복귀 때 서버 전체 Snapshot을 새 파일로 누적하고30개를 보관하도록 한다. 엄밀한 T3 SLA를 따로 정의한 것은 아니지만 **기존 별도 export가 더 뒤의 state를 포함할 수 있다는 observable 동작**은 보존해야 한다. 시간 기준을 바꾸는 것은 문구 정리 수준의 무의미한 변경이 아니다.
+[domain-model](../../domain-model.md:792)과 [runbook](../../runbook.md:1105)은 실행/복귀 때 서버 전체 Snapshot을 새 파일로 누적하고30개를 보관하도록 한다. 엄밀한 T3 SLA를 따로 정의한 것은 아니지만 **기존 별도 export가 더 뒤의 state를 포함할 수 있다는 observable 동작**은 보존해야 한다. 시간 기준을 바꾸는 것은 문구 정리 수준의 무의미한 변경이 아니다.
 
 ## 5. Offline·pending·auth·복구 보존 조건
 

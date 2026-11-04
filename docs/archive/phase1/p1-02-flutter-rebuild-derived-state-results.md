@@ -117,7 +117,7 @@ fixture는 current expense50/500/1000/5000개, 고정 ID·2026-09-17 날짜·정
 
 ## 근거와 재현
 
-- [전용 test](../mobile/test/p1_02_rebuild_test.dart), [원시 표본·계측 원문·실행 로그](benchmarks/p1-02-flutter-rebuild-raw.json.gz), [기존 compact 근거의 p1_02](benchmarks/final-optimization-and-closure-evidence.json)를 사용한다. 원시 `samples`를 rows/scenario/sample로 선택하면 모든 계수·getter 시간·widget/flush 시간·API 호출 수를 확인할 수 있다.
+- [전용 test](evidence/p1-02-flutter-rebuild-raw.json.gz), [원시 표본·계측 원문·실행 로그](evidence/p1-02-flutter-rebuild-raw.json.gz), [기존 compact 근거의 p1_02](../../benchmarks/final-optimization-and-closure-evidence.json)를 사용한다. 원시 `samples`를 rows/scenario/sample로 선택하면 모든 계수·getter 시간·widget/flush 시간·API 호출 수를 확인할 수 있다.
 - task-owned mobile 사본에 현재 lib/test/assets·pubspec/lock·기존 package_config/package_graph를 준비하고 `P102_OUTPUT=<새 파일> TMPDIR=<task scratch> flutter --no-version-check test --no-pub --concurrency=1 --reporter=json test/p1_02_rebuild_test.dart`를 실행한다. `P102_SMOKE=1`은50행1회씩의 사전 검사만 수행하므로 본640개 표본과 구분한다. 운영 파일·기기·ADB는 사용하지 않는다.
 
 **다음 행동:** 남은 후보를 자동 시작하지 않고, 현재 로드맵 기준으로 1단계 종료 여부를 한 번 검토한다.

@@ -8,7 +8,7 @@
 
 12개 항목을 처분했다. **A3 / B3 / C6**, category D01×5·D02×1·D03×1·D04×2·D05×1·D06×2다. A만 우선 감사하고, B는 현재 삭제 대상으로 확정하지 않는다. 불필요 dependency·전체 widget·대형 subsystem 삭제를 입증한 결과는 없다. 작은 유지보수 이득을 위해 금융/복구 계약을 재설계하지 않는다.
 
-Phase1은 [장부](phase1-mitigation-plan.md)의 C1에서 CLOSED다. Phase2는 [N01 최종 수용 §12](phase2-mobile-network-optimization-candidates.md)와 [N02 DEFER](phase2-n02-snapshot-reuse-investigation.md)가 기록돼 있다. **불일치:** 조사 시작 roadmap §2의 일부 현재 표는 아직 N01 PARTIAL이고 §9는 Phase2 IN PROGRESS, Phase3 진입 전으로 남아 있었다. Phase2 전체 CLOSED 선언은 기존 기록에 없다. 이번 owner의 **Phase3 후보 조사만** 승인을 근거로 조사했으며, Phase2 종료를 소급 선언하지 않는다. roadmap의 현재 표·링크만 현 처분으로 맞추고 과거 PARTIAL·REWORK·감사 이력은 보존한다.
+Phase1은 [장부](../phase1/phase1-mitigation-plan.md)의 C1에서 CLOSED다. Phase2는 [N01 최종 수용 §12](../../development-reports/phase2-mobile-network-optimization-candidates.md)와 [N02 DEFER](../phase2/phase2-n02-snapshot-reuse-investigation.md)가 기록돼 있다. **불일치:** 조사 시작 roadmap §2의 일부 현재 표는 아직 N01 PARTIAL이고 §9는 Phase2 IN PROGRESS, Phase3 진입 전으로 남아 있었다. Phase2 전체 CLOSED 선언은 기존 기록에 없다. 이번 owner의 **Phase3 후보 조사만** 승인을 근거로 조사했으며, Phase2 종료를 소급 선언하지 않는다. roadmap의 현재 표·링크만 현 처분으로 맞추고 과거 PARTIAL·REWORK·감사 이력은 보존한다.
 
 운영 접근·DB 사용·빌드/시험·코드 삭제·dependency 변경·Android/ADB/Flutter CLI는 수행하지 않았다. 기존 tracked dirty13개(AGENTS, isolated_sync 계측, B03 counter/server, segmented protocol/build/artifact/test 등)와 미추적 test/devicegate/benchmark 상태는 task-owned manifest에 경로·내용 SHA·링크 target·Git porcelain로 기록해 변경 전후 대조했다. index는 처음부터 비어 있었고 관련 문서만 게시한다.
 
@@ -56,22 +56,22 @@ confidence는 해당 처분 근거의 강도이며, C의 HIGH는 “미사용”
 
 ### P3-D01 — fileToBase64
 
-- **이유/범위:** [client.ts:64](../../frontend/src/api/client.ts:64)의 약11줄 FileReader Promise 함수만 후보. module 자체·`getJson/postJson`·auth cleanup·API_BASE_URL은 계속 사용된다.
+- **이유/범위:** [client.ts:64](../../../frontend/src/api/client.ts:64)의 약11줄 FileReader Promise 함수만 후보. module 자체·`getJson/postJson`·auth cleanup·API_BASE_URL은 계속 사용된다.
 - **증거:** TS alias 소비0, source/시험/scripts의 해당 이름은 선언뿐이다. `index.html→main.tsx→App.tsx` 아래 static imports에서 함수 alias·namespace 호출·window 등록·문자열 registry가 없고, `api/index.ts`는 client를 re-export하지 않는다. FileReader listener 등록은 함수가 호출돼야 일어나며 top-level 등록이 아니다. 현재 snapshot restore는 `useSettingsHandlers.handleSnapshotRestore`의 text 읽기와 `api/admin.ts`의 snapshot_text POST를 쓴다.
 - **숨은 소비/의무:** 외부 개발자가 internal source module을 import하는 경우는 미관찰. package는 private Vite 앱이며 이 함수의 supported public API/직렬화/route 계약은 찾지 못했다. audit에서 기존 가이드·변경 diff와 module side effect 보존을 재확인한다.
 - **의존·검증:** File/FileReader DOM API 외 dependency 없음, wire/영속 형식 영향 없음. 기존 `frontend/src/utils.test.ts`, Settings restore handler를 읽고 `npm --prefix frontend run lint`, `npm --prefix frontend run build`, 관련 Vitest를 제안한다. dead 함수 자체를 되살리는 시험은 만들지 않으며 새 restore 동작을 도입하지 않는다.
 
 ### P3-D02 — daysBetween
 
-- **이유/범위:** [utils.ts:239](../../frontend/src/utils.ts:239)의 Date 차이 계산 함수5줄. named export이나 현재 소비0이며 다른 날짜·금융 helper를 변경하지 않는다.
+- **이유/범위:** [utils.ts:239](../../../frontend/src/utils.ts:239)의 Date 차이 계산 함수5줄. named export이나 현재 소비0이며 다른 날짜·금융 helper를 변경하지 않는다.
 - **증거:** 같은 TS graph·source/test 전체 검색에서 선언 외 참조·alias·export-star·동적 registry가 없다. `utils.ts`의 다른 exports는 App·hooks·tests가 계속 사용한다. `utils.test.ts`도 이 함수를 호출하지 않는다. app 외 arbitrary internal-module import 가능성은 D01과 같은 한계다.
 - **의존/호환:** JS Date/Math만 사용, 호출·module 초기화 부작용 없음. persisted 날짜·서버 월 계산·API contract는 영향받지 않는다. 다른 Date 계산을 이 함수로 합치는 작업은 포함하지 않는다.
 - **검증:** 기존 `utils.test.ts`, `money.test.ts` 및 TS unused/type check·Vite build. 제거 후 symbol 잔존 소비·public export 약속이 발견되면 보류. 날짜 correctness 신규 감사/대체 구현은 불필요하다.
 
 ### P3-D03 — badge field forwarding wrappers
 
-- **이유/범위:** [MonthEntryCard:247](../../mobile/lib/src/screens/month_entries_screen.dart:247)의 두 메서드는 각각 `return entry.isTransport`, `return entry.isToll`뿐이다. callsite95/97에서 같은 필드를 직접 읽는 표현으로 정리할 수 있다. dead function이 아니라 **동일 library의 순수 forwarding 중복**이다.
-- **증거:** 화면은 HomeShell의 tab2에서 실제 사용되고 helper는 badge 조건에서 각각1회 호출된다. screen 파일은 part library가 아니며 private card/helper의 외부 override·callback registration·다른 참조가 없다. [models.dart:152](../../mobile/lib/src/models.dart:152)의 final bool은 서버 wire `is_transport/is_toll`에서 온다. 문자열로 교통 여부를 새로 추론하는 변경은 금지다.
+- **이유/범위:** [MonthEntryCard:247](../../../mobile/lib/src/screens/month_entries_screen.dart:247)의 두 메서드는 각각 `return entry.isTransport`, `return entry.isToll`뿐이다. callsite95/97에서 같은 필드를 직접 읽는 표현으로 정리할 수 있다. dead function이 아니라 **동일 library의 순수 forwarding 중복**이다.
+- **증거:** 화면은 HomeShell의 tab2에서 실제 사용되고 helper는 badge 조건에서 각각1회 호출된다. screen 파일은 part library가 아니며 private card/helper의 외부 override·callback registration·다른 참조가 없다. [models.dart:152](../../../mobile/lib/src/models.dart:152)의 final bool은 서버 wire `is_transport/is_toll`에서 온다. 문자열로 교통 여부를 새로 추론하는 변경은 금지다.
 - **범위/호환:** 약6줄 helper+2개 조건 표현만, state/identity/financial/model/parser/dependency 변경 없음. P1-01 lazy-widget 실험 재개나 성능 개선 주장도 없다. frozen artifact를 고치지 않고 현 screen의 scoped 허용 여부를 구현 승인 때 확인한다.
 - **검증:** 기존 tracked `mobile/test/offline_widget_submit_test.dart`의 기존 row net edit·form 보존, model test를 직접 host runner로 수행할 수 있다. 기존 untracked `p1_01_month_entries_test.dart`는 소유자 자료로 보존하고 유일한 증거로 의존하지 않는다. 교통/통행/일반 row의 badge 유무 control이 현재 coverage에 부족하므로 승인된 작은 widget assertion이 필요하다. badge/row identity가 달라지면 reject한다.
 
@@ -79,20 +79,20 @@ confidence는 해당 처분 근거의 강도이며, C의 HIGH는 “미사용”
 
 ### P3-D04 — 호출되지 않는 금융 reset helper
 
-- **선언/증거:** [card_payments.py:798~825](../../backend/app/services/card_payments.py:798), module-level private function, decorator0. Python AST·지원 backend/scripts/tests·앱 route imports/export 전체에서 호출/alias/문자열 dispatch가 없다. `routers/card_payments.py`는 공개 services를 직접 등록하고 helper를 등록하지 않는다. 현재 `set_discount_month_policy`는 설정을 저장한 뒤 status를 반환하며 이 함수로 분기하지 않는다. `clear_entry_discount`는 별도의 `_delete_entry_discount_events`를 직접 사용하므로 그 내부 helper는 삭제 대상이 아니다. target module에 getattr/globals/importlib dispatch가 없다.
+- **선언/증거:** [card_payments.py:798~825](../../../backend/app/services/card_payments.py:798), module-level private function, decorator0. Python AST·지원 backend/scripts/tests·앱 route imports/export 전체에서 호출/alias/문자열 dispatch가 없다. `routers/card_payments.py`는 공개 services를 직접 등록하고 helper를 등록하지 않는다. 현재 `set_discount_month_policy`는 설정을 저장한 뒤 status를 반환하며 이 함수로 분기하지 않는다. `clear_entry_discount`는 별도의 `_delete_entry_discount_events`를 직접 사용하므로 그 내부 helper는 삭제 대상이 아니다. target module에 getattr/globals/importlib dispatch가 없다.
 - **숨은 소비/side effects:** 외부 private-FQN 호출은 미관찰. [폐기된 과거 Claim 제거 계획](claim-removal-plan-superseded.md)에 미래 제거 경계로 이름이 남아 있다. 호출 시 discount event 삭제·원장/claim override UPDATE를 수행하는 금융 코드이므로 단순 grep 결과로 바꾸지 않는다.
 - **범위·호환:** 독립 감사가 현재 지원 graph의 불도달과 가이드의 오래된 설명을 확인한 경우에만 함수28줄+해당 가이드 참조 정리가 가능하다. 금융 공식·active service·schema·endpoint·claim 기능 삭제는 금지다. source lock/운영 스크립트 소비 확인 전 구현 승인 아님.
 - **검증:** `backend/tests/test_card_payments.py`의 `test_discount_policy_is_separate_for_owner_and_family_cards`, `test_current_entry_manual_discount_survives_disabled_month_policy` 등 할인/월 상태·claim 보존 회귀와 Ruff/import check를 최소 제안한다. 직접 이 unused helper를 실행하는 새 시험이나 DB 변경은 이번에 하지 않았다. A 뒤의 조건부 audit 대상이며 현재 안전 삭제로 확정하지 않는다.
 
 ### P3-D05 — recentEntries
 
-- **선언/증거:** [app_state.dart:204](../../mobile/lib/src/app_state.dart:204)는 `expenseEntries.take(5).toList()`다. lib/test/scripts 직접 소비는 찾지 못했고 홈 [input_screen.dart:25](../../mobile/lib/src/screens/input_screen.dart:25)는 `expenseEntries.take(10)`을 사용한다. public getter이며 private symbol과 달리 외부 subclass/harness 소비를 닫아 증명할 수 없다.
+- **선언/증거:** [app_state.dart:204](../../../mobile/lib/src/app_state.dart:204)는 `expenseEntries.take(5).toList()`다. lib/test/scripts 직접 소비는 찾지 못했고 홈 [input_screen.dart:25](../../../mobile/lib/src/screens/input_screen.dart:25)는 `expenseEntries.take(10)`을 사용한다. public getter이며 private symbol과 달리 외부 subclass/harness 소비를 닫아 증명할 수 없다.
 - **범위/위험:** getter1줄 후보이나 protected AppState의 공개 면이며 `expenseEntries`의 filtering/sorting·invalidation·publication은 그대로 두어야 한다. P1-U나 파생 상태 성능 실험을 재개하지 않는다. 외부 harness·보호 source 허가가 먼저라 현재 DEFER다.
 - **검증:** 장래 승인 시 직접 host AppState/acquisition 테스트, 외부 harness import/API surface 확인 필요. 현재 unreachable 단정·성능 절감 주장은 없다.
 
 ### P3-D06 — unused Web API wrapper와 호환 export
 
-- **증거/호환:** [panels.ts:51](../../frontend/src/api/panels.ts:51)의 `deletePanelsByType`는 현재 Web source consumer가 없지만 `api/index.ts→api.ts`의 star export에 포함된다. roadmap §7은 facade를 MUST PRESERVE로 두고 [compatibility-inventory](../guides/compatibility-inventory.md)는 외부 import 계약을 신중히 다룬다. 개별 wrapper의 외부 consumer 범위는 미확인이다. 내부 zero-use를 public export의 안전 삭제로 확대하지 않는다.
+- **증거/호환:** [panels.ts:51](../../../frontend/src/api/panels.ts:51)의 `deletePanelsByType`는 현재 Web source consumer가 없지만 `api/index.ts→api.ts`의 star export에 포함된다. roadmap §7은 facade를 MUST PRESERVE로 두고 [compatibility-inventory](../../guides/compatibility-inventory.md)는 외부 import 계약을 신중히 다룬다. 개별 wrapper의 외부 consumer 범위는 미확인이다. 내부 zero-use를 public export의 안전 삭제로 확대하지 않는다.
 - **side effects/범위:** 호출되면 실제 destructive DELETE `/api/month/current/panels/type/{type}`를 전송한다. wrapper 약3줄만 잠재 범위이고 backend route·모바일 API·패널 기능 삭제는 해당하지 않는다. hidden consumer/지원 export 철회 결정 전 UNKNOWN·DEFER다.
 - **검증:** 장래 별도 승인 시 facade export·외부 imports 및 Web type check, `usePanelHandlers`·panels endpoint 테스트. 외부 호환을 증명 못하면 남긴다. 이번 네트워크 요청0개다.
 
@@ -225,7 +225,7 @@ console.log('TS_DIAGNOSTIC_COUNTS',ts.getPreEmitDiagnostics(program).reduce((a,d
 
 ### Claim 문서 조정
 
-2026-11-04 owner 결정 기록: Claim은 낮은 빈도의 정당한 비용 회수/가계 청구 기능으로 **새로운 명시적 결정 전까지 무기한 유지, 제거 일정·deprecation 없음**이다. 코드 활성화·UI 복원·개발·금융/할인 수정 승인이 아니다. 규범은 [domain-model의 유지 정책](../domain-model.md#claim-유지-정책), 현재 결정 기록은 [project-state](../project-state.md)다. Family Card의 별도 정책은 바꾸지 않는다.
+2026-11-04 owner 결정 기록: Claim은 낮은 빈도의 정당한 비용 회수/가계 청구 기능으로 **새로운 명시적 결정 전까지 무기한 유지, 제거 일정·deprecation 없음**이다. 코드 활성화·UI 복원·개발·금융/할인 수정 승인이 아니다. 규범은 [domain-model의 유지 정책](../../domain-model.md#claim-유지-정책), 현재 결정 기록은 [project-state](../../project-state.md)다. Family Card의 별도 정책은 바꾸지 않는다.
 
 `docs/guides/claim-removal.md`는 현재 가이드에서 제거하고, 기술 경계·당시 검토 자료를 잃지 않도록 원문 전체를 [claim-removal-plan-superseded.md](claim-removal-plan-superseded.md)에 **폐기된 역사 자료** banner 뒤에 byte-identical하게 보존했다. 과거 audit verdict를 수정하지 않았다. 현재 guides index·project/domain·Judgment 가이드·미래 재무 건전화 문서·roadmap은 Claim 제거를 승인된 미래 작업으로 제시하지 않는다. discovery 본문의 원 판단은 역사 기록으로 표시하고 이동한 가이드 참조만 연결했다. USB/device-interface의 `claim`이나 일반 사용자 청구 항목 삭제 API 설명은 제품 제거 정책과 달라 그대로다.
 
@@ -246,7 +246,7 @@ console.log('TS_DIAGNOSTIC_COUNTS',ts.getPreEmitDiagnostics(program).reduce((a,d
 
 사본의 package config와 writable build cache만 사용했다. 실제와 test source SHA를 대조했으며 original dependency/cache·기존 dirty 작업은 수정하지 않았다. 신규 badge 테스트는 row/action을 바꾸지 않고 화면에서 서버 bool을 소비하는 결과를 확인한다. Claim runtime source·backend/schema·AppState·D04/D05/D06은 무변경이다.
 
-[검증 근거와 task-only review diff](../benchmarks/p3-d01-d03-validation.json.gz)에 시작 상태·대상 before/after SHA·실제 commands/runner·logs·scoped textual diff를 보존한다. source diff는 HEAD 기준의 관련 경로만이며 새 untracked test/archive도 포함한다. 원래 dirty13개는 diff에 포함하지 않는다. **Git index byte 보존, stage/commit/push 없음**을 최종 확인하고 owner가 독립 Audit Session에 이 장부와 실제 working diff를 전달한다. 다음은 독립 scoped implementation audit이며 새 후보/Phase4는 시작하지 않는다.
+[검증 근거와 task-only review diff](../../benchmarks/p3-d01-d03-validation.json.gz)에 시작 상태·대상 before/after SHA·실제 commands/runner·logs·scoped textual diff를 보존한다. source diff는 HEAD 기준의 관련 경로만이며 새 untracked test/archive도 포함한다. 원래 dirty13개는 diff에 포함하지 않는다. **Git index byte 보존, stage/commit/push 없음**을 최종 확인하고 owner가 독립 Audit Session에 이 장부와 실제 working diff를 전달한다. 다음은 독립 scoped implementation audit이며 새 후보/Phase4는 시작하지 않는다.
 
 최종 범위 확인: 허용된 기존12개 경로 외 기존7,947개 파일/링크와 index bytes가 동일했다. 원 가이드 원문은 archive에 보존했다. raw·diff를 먼저 보존하고 task runner0개 확인 뒤 이번 scratch 파일/링크449개(논리324,990,657B, symlink139개)를 정리했다. dependency 링크 대상을 따라가 삭제하지 않았고 기존 cache/DB/미추적 작업은 삭제하지 않았다. production 코드3개 변경량은 **+2/-28**, 신규 badge 시험7건이며 그 밖의 수정은 정책·장부·목차·근거뿐이다.
 
@@ -270,7 +270,7 @@ console.log('TS_DIAGNOSTIC_COUNTS',ts.getPreEmitDiagnostics(program).reduce((a,d
 | 기존 P1 계측용 시험 | 2 | 전용 환경변수/runner와 역사 소스 조건 검토 전 일반 시험으로 게시하지 않음 |
 | **합계** | **5,168** | **원본 bytes·mode 보존 확인 후 게시** |
 
-제외는 삭제·결함 판정이 아니며, 이 파일들을 새로 검증하거나 기존 gate 작업을 재개하지 않았다. 일반적인 비밀 패턴 검색만으로 모든 과거 증거를 공개 가능하다고 간주하지 않았다. [경로별 게시/제외 목록](../benchmarks/phase3-publication-review.json.gz)은 경로·사유·초기 해시/크기/모드만 담고 본문·키·DB·금융 자료를 담지 않는다. 기존 독립 검증 근거는 그대로 보존한다.
+제외는 삭제·결함 판정이 아니며, 이 파일들을 새로 검증하거나 기존 gate 작업을 재개하지 않았다. 일반적인 비밀 패턴 검색만으로 모든 과거 증거를 공개 가능하다고 간주하지 않았다. [경로별 게시/제외 목록](../../benchmarks/phase3-publication-review.json.gz)은 경로·사유·초기 해시/크기/모드만 담고 본문·키·DB·금융 자료를 담지 않는다. 기존 독립 검증 근거는 그대로 보존한다.
 
 ### 게시 전 확인
 

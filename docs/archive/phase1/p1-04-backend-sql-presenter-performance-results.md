@@ -18,18 +18,18 @@ HEAD는 `ebcbd54d90eeee194a04b9eea6367f446ee2fd28`, 시작 index SHA-256은 `56a
 | `backend/app/routers/responses.py` | `0d6f677f3424d3f28a44daf0b2ff96f4b506444e3b7b4524141cc6dd74cc737b` |
 | `scripts/benchmarks/t66a.py` | `c5a78e5ebecddc1c9f34e3b736a7a91d5554d055a9e288c1f5a41da6447d8431` |
 
-나머지 router/auth/row 변환·fixture·보호 계약을 포함한24개 신원은 [단일 근거](../benchmarks/p1-04-backend-sql-presenter-performance.json.gz)에 있다. Python 3.12.3 / SQLite 3.45.1, Linux-6.8.0-147-generic-x86_64-with-glibc2.39, Intel Core i7-8750H다. 설치 패키지는 FastAPI 0.139.2, Starlette 1.3.1, Pydantic 2.13.4, httpx 0.28.1다. 실제 인증된 in-process TestClient를 사용했고 네트워크 socket·production API/DB는 사용하지 않았다. Flutter·Android·ADB·에뮬레이터·단말 도구는 전혀 실행하지 않았다.
+나머지 router/auth/row 변환·fixture·보호 계약을 포함한24개 신원은 [단일 근거](evidence/p1-04-backend-sql-presenter-performance.json.gz)에 있다. Python 3.12.3 / SQLite 3.45.1, Linux-6.8.0-147-generic-x86_64-with-glibc2.39, Intel Core i7-8750H다. 설치 패키지는 FastAPI 0.139.2, Starlette 1.3.1, Pydantic 2.13.4, httpx 0.28.1다. 실제 인증된 in-process TestClient를 사용했고 네트워크 socket·production API/DB는 사용하지 않았다. Flutter·Android·ADB·에뮬레이터·단말 도구는 전혀 실행하지 않았다.
 
 ## 이전 최적화·관측 재사용: 6개 근거 묶음
 
 | 최적화 또는 관측 | 기존 근거·측정 revision/범위 | 현재 소스 상태 | 다시 측정할 필요 |
 | --- | --- | --- | --- |
-| H1 동일 transaction의 ownership PASS | `ed7662d` T6.3, [도메인 계약](../domain-model.md#summary의-동일-읽기-뷰-검증-재사용), 기존 `test_card_ownership_read_view`. 동일 view에서6테이블 검증1회라는 기능 계수 근거이며 과거 latency 수치를 새로 만들지 않음 | file 전체는 후속 변경됨. AST 대조상 CardOwnershipReadView에 격리 FinancialInputScope hook이 추가됐고 일반 연결의 guard/PASS 재사용은 유지됨 | 과거 최적화 재구현 불필요. 현재 count와23개 기존 회귀로 적용 상태만 확인 |
-| H2 borrowed connection·응답 commit 경계 | 현재 DB/session·[project-state](../project-state.md)의 backend refactoring/Freeze 기록. `9c94d7e`는 repository 응답 구성 위치에 대한 변경이며 현재 JSONResponse helper의 도입 commit으로 잘못 인용하지 않음 | 명시 conn 재사용과 금융 응답 bytes의 commit 전 준비 유지. 동작 보장이지 독립 latency 개선 측정은 아님 | 현재 connection/transaction 계수만 귀속. pooling·commit 경계 변경 없음 |
-| H3 정상 bundle 취득 | [T6.5B-3](../t65/implementation/t65b3-implementation.md), 시작 `68aae70c…`, 합성376/1k/5k/10k·host warmup2/표본5. refresh14→1, mutation+취득15→2 HTTP | 정상 authoritative endpoint와 client topology 유지. 현재 서버 service는 T6.6A 기준 source와 동일 | HTTP 절감 실험·과거 Flutter campaign 재실행 불필요. mutation 이후 GET은 이번 endpoint timing에 넣지 않음 |
-| H4 Snapshot·bundle 처리와 metadata | [T6.6A](../t66/a/t66a-payload-attribution.md#16-backend--client-latency-귀속), `597a936d…`, Python3.12.3/SQLite3.45.1, 같은 rich fixture·warmup3/표본20. 10k endpoint1348.5ms, export557.6ms, prepare191.1ms(각 포함 시간) | 정상 service/Snapshot/presenter/DB/migration5파일이 byte 동일. 이번4개 nonempty 응답도 과거 bytes·SHA와4/4 동일. schema metadata는 export당 canonical memory connection1개로 이미 묶임 | payload/압축·대형 전송 실험은 재실행하지 않음. 미분리 SQL/fetch/행 변환만 이번에 추가 귀속 |
-| H5 격리 `_lookup` decode | [B05](../t66f-b05-lookup-hot-body-decode-optimization.md)의 원 B03 파생 후보. 국소 decode와 전체 취득 결과를 구분하며 qualified production 개선으로 보지 않음 | 기존 dirty observation 후보는 보존. native 일반 SQLite 연결은 FinancialInputScope가 아니므로 해당 입력 제공자를 정상 backend에 설치하지 않음 | 정상 API의 해결책으로 다시 발견하거나 격리 acquisition을 재측정하지 않음 |
-| H6 격리 connect/schema·기대 계약 재사용 | [B07](../t66f-b07-bounded-connect-schema-attribution.md), [B08](../t66f-b08-expected-revision-contract-reuse.md). 원 B03 engine 기준, B08 작은 packet handler 국소10.65%·compile46→1, 실제 DB 검사46회 유지·전체 cold 이득 미검증 | 현재 일반 `db_migrations.py`는 T6.6A byte와 같고 B08 실험을 기본 코드에 이식하지 않음. 격리 schema/engine/gate와 정상 SCHEMA 입력이 다름 | 기존 B08 후보 재구현·T6.9 자격 실험 불필요. 정상 요청의 trigger 검사 비용만 현재 귀속 |
+| H1 동일 transaction의 ownership PASS | `ed7662d` T6.3, [도메인 계약](../../domain-model.md#summary의-동일-읽기-뷰-검증-재사용), 기존 `test_card_ownership_read_view`. 동일 view에서6테이블 검증1회라는 기능 계수 근거이며 과거 latency 수치를 새로 만들지 않음 | file 전체는 후속 변경됨. AST 대조상 CardOwnershipReadView에 격리 FinancialInputScope hook이 추가됐고 일반 연결의 guard/PASS 재사용은 유지됨 | 과거 최적화 재구현 불필요. 현재 count와23개 기존 회귀로 적용 상태만 확인 |
+| H2 borrowed connection·응답 commit 경계 | 현재 DB/session·[project-state](../../project-state.md)의 backend refactoring/Freeze 기록. `9c94d7e`는 repository 응답 구성 위치에 대한 변경이며 현재 JSONResponse helper의 도입 commit으로 잘못 인용하지 않음 | 명시 conn 재사용과 금융 응답 bytes의 commit 전 준비 유지. 동작 보장이지 독립 latency 개선 측정은 아님 | 현재 connection/transaction 계수만 귀속. pooling·commit 경계 변경 없음 |
+| H3 정상 bundle 취득 | [T6.5B-3](../../t65/implementation/t65b3-implementation.md), 시작 `68aae70c…`, 합성376/1k/5k/10k·host warmup2/표본5. refresh14→1, mutation+취득15→2 HTTP | 정상 authoritative endpoint와 client topology 유지. 현재 서버 service는 T6.6A 기준 source와 동일 | HTTP 절감 실험·과거 Flutter campaign 재실행 불필요. mutation 이후 GET은 이번 endpoint timing에 넣지 않음 |
+| H4 Snapshot·bundle 처리와 metadata | [T6.6A](../../t66/a/t66a-payload-attribution.md#16-backend--client-latency-귀속), `597a936d…`, Python3.12.3/SQLite3.45.1, 같은 rich fixture·warmup3/표본20. 10k endpoint1348.5ms, export557.6ms, prepare191.1ms(각 포함 시간) | 정상 service/Snapshot/presenter/DB/migration5파일이 byte 동일. 이번4개 nonempty 응답도 과거 bytes·SHA와4/4 동일. schema metadata는 export당 canonical memory connection1개로 이미 묶임 | payload/압축·대형 전송 실험은 재실행하지 않음. 미분리 SQL/fetch/행 변환만 이번에 추가 귀속 |
+| H5 격리 `_lookup` decode | [B05](../../t66f-b05-lookup-hot-body-decode-optimization.md)의 원 B03 파생 후보. 국소 decode와 전체 취득 결과를 구분하며 qualified production 개선으로 보지 않음 | 기존 dirty observation 후보는 보존. native 일반 SQLite 연결은 FinancialInputScope가 아니므로 해당 입력 제공자를 정상 backend에 설치하지 않음 | 정상 API의 해결책으로 다시 발견하거나 격리 acquisition을 재측정하지 않음 |
+| H6 격리 connect/schema·기대 계약 재사용 | [B07](../../t66f-b07-bounded-connect-schema-attribution.md), [B08](../../t66f-b08-expected-revision-contract-reuse.md). 원 B03 engine 기준, B08 작은 packet handler 국소10.65%·compile46→1, 실제 DB 검사46회 유지·전체 cold 이득 미검증 | 현재 일반 `db_migrations.py`는 T6.6A byte와 같고 B08 실험을 기본 코드에 이식하지 않음. 격리 schema/engine/gate와 정상 SCHEMA 입력이 다름 | 기존 B08 후보 재구현·T6.9 자격 실험 불필요. 정상 요청의 trigger 검사 비용만 현재 귀속 |
 
 T6.6A10k1348.5ms와 이번1273.714ms 차이는 제품 최적화 효과가 아니다. source와 payload는 동일하지만 warmup·실행 순서·kernel·CPU/thermal 조건과 timing interval이 다르다. 이전에 끝난 문제를 재발견했다고 보고하지 않는다. 과거 deferred 항목인 full-history O(N), 격리 engine 입장·전체 cold/100k 정량·실기기 의무도 이번 결과로 해소하지 않는다.
 
@@ -162,13 +162,13 @@ runtime card 검사 요청6회지만 실제 raw6테이블 검사·canonical owne
 
 프로파일러와 cursor wrapper는 비용을 늘리므로 상세 수치를 기준 latency에 합산하지 않는다. 단일 순차 요청과 warm page cache, 고정 archive 성장 fixture이고 CPU 주파수/thermal·GC·storage sync를 독립 통제하지 않았다. process CPU는 여러 TestClient worker의 합이지 DB thread의 exclusive CPU가 아니다. query plan은 다른 production 통계/데이터 분포의 보증이 아니다. 동시성 및 release gate는 기존 의무를 그대로 남긴다.
 
-P1-03의 전체 PARTIAL 판정과 자동 ADB 기동·작업 소유 PID 종료 사건을 [원 보고서](../p1-03-snapshot-save-validation-performance-results.md)와 원 압축 근거 그대로 보존하고, 로드맵의 **P1-S**로 반복 검증 목표를 분리했다. 이를 PASS로 바꾸지 않았다. 이번에는 어떤 Flutter/Android/ADB 도구도 실행하거나 host 프로세스를 조작하지 않았다. F01/G1·G2 미채택·실기기/ADB·T6.9·formal T6.6F·R1·production 배포 제한은 유지한다.
+P1-03의 전체 PARTIAL 판정과 자동 ADB 기동·작업 소유 PID 종료 사건을 [원 보고서](p1-03-snapshot-save-validation-performance-results.md)와 원 압축 근거 그대로 보존하고, 로드맵의 **P1-S**로 반복 검증 목표를 분리했다. 이를 PASS로 바꾸지 않았다. 이번에는 어떤 Flutter/Android/ADB 도구도 실행하거나 host 프로세스를 조작하지 않았다. F01/G1·G2 미채택·실기기/ADB·T6.9·formal T6.6F·R1·production 배포 제한은 유지한다.
 
 Git이 열거한 기존 파일·symlink7,937개의 내용·mode·link를 대조해 허용된 로드맵 외 변경0개를 확인했다. HEAD·staged 항목·index SHA와 P1-03 원 보고서/근거를 보존했고, 로드맵의 기존 성능 지도·역사 근거·순위 표도 byte 동일하다. 활성 프로세스 부재와 일관 합성 DB5개의 압축 보존을 확인한 뒤 작업 소유 임시 파일/symlink109개(논리 크기14,609,345B, 관찰 할당량14,880,768B)를 정리했다. 기존 DB/WAL·cache·symlink 대상은 삭제하지 않았다. ignored dependency cache 전체의 무변경을 인증하는 범위는 아니다.
 
 ## 근거와 재현
 
-[단일 압축 근거](../benchmarks/p1-04-backend-sql-presenter-performance.json.gz)에700개 기준·105개 상세 raw 표본, query별 집계·EXPLAIN, 실제 table counts·response bytes/SHA, 동일 source/과거 payload 대조, 일관된 합성 baseline DB5개, 관측 harness·계획·검사 로그를 함께 둔다. `main.samples/details`를 rows/operation/sample로 선택한다. fixture 생성·cleanup과 측정 구간을 분리했으며 외부 watchdog은 발동하지 않았다.
+[단일 압축 근거](evidence/p1-04-backend-sql-presenter-performance.json.gz)에700개 기준·105개 상세 raw 표본, query별 집계·EXPLAIN, 실제 table counts·response bytes/SHA, 동일 source/과거 payload 대조, 일관된 합성 baseline DB5개, 관측 harness·계획·검사 로그를 함께 둔다. `main.samples/details`를 rows/operation/sample로 선택한다. fixture 생성·cleanup과 측정 구간을 분리했으며 외부 watchdog은 발동하지 않았다.
 
 새 task-owned scratch에 근거의 Python harness와 plan을 복원하고 기존 backend venv로 `PYTHONDONTWRITEBYTECODE=1 TMPDIR=<새 scratch> .venv/bin/python <scratch>/benchmark.py main`을 실행한다. harness의 고정 T 경로를 새 경로로 맞추고 같은 recognized fixture/source identity를 확인한다. 서버 process를 띄우거나 production API를 호출하지 않는다. 재현에 Flutter·Android·ADB가 필요하지 않다.
 
