@@ -82,7 +82,7 @@ backend/app/services/judgment/
 - 이 금액만 `card_limit`으로 나눈다.
 - 사용률 80% 이상 또는 50% 이상은 `danger`, 30% 이상은 `warning`, 10% 이상은 `steady`, 그 미만은 `quiet`다.
 
-Claim과 Family Card는 가족이 부담할 회수 예정 금액이므로 본인 앱의 소비·신용 압박 판단에 넣지 않는다. 두 기능을 제거해도 본인 원장·Summary·유동성·핵심 Judgment는 바뀌지 않아야 한다. 각 공유 화면의 전용 Judgment는 현재처럼 별도로 유지한다.
+Claim과 Family Card는 가족이 부담할 회수 예정 금액이므로 본인 앱의 소비·신용 압박 판단에 넣지 않는다. Claim은 [유지 정책](../domain-model.md#claim-유지-정책)에 따라 무기한 유지하며, 낮은 사용 빈도를 제거 근거로 삼지 않는다. 본인 원장·Summary·유동성·핵심 Judgment와의 독립 경계는 유지한다. 각 공유 화면의 전용 Judgment는 현재처럼 별도로 유지한다.
 
 ### `payment`: 파산심사위원회
 

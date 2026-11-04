@@ -236,12 +236,6 @@ export function sumPaymentAllocationInputs(values: Record<string, string>): numb
   return Object.values(values).reduce((total, value) => total + (parseAmount(value) ?? 0), 0);
 }
 
-export function daysBetween(from: string, to: string): number {
-  const start = new Date(`${from}T00:00:00`).getTime();
-  const end = new Date(`${to}T00:00:00`).getTime();
-  return Math.round((end - start) / 86_400_000);
-}
-
 export function parseSettingNumber(settings: Settings, key: string, fallback: number): number {
   const parsed = parseExactMoney(settings[key] ?? "");
   return parsed !== null ? parsed : fallback;

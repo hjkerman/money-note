@@ -1,6 +1,8 @@
 # Phase 3 dead code·중복 정리 후보 inventory
 
-**CANDIDATE DISCOVERY COMPLETE / 구현·삭제 승인 없음.** 기준: `phase2/mobile-network / bb718029887143c65f95eab7a4f58806f55f31fc`, 실제 working tree 포함. 이 문서의 AUDIT은 독립 후보 감사 추천이며 삭제 승인·성능 개선 판정이 아니다.
+**D01–D03 scoped 구현·검증 완료 / 독립 감사 대기. Claim 무기한 유지, D04–D06 구현 보류.** 기준: `phase2/mobile-network / bb718029887143c65f95eab7a4f58806f55f31fc`, 실제 working tree 포함. 이 문서의 AUDIT은 독립 후보 감사 추천이며 삭제 승인·성능 개선 판정이 아니다.
+
+§1~10은 감사 기준의 discovery 기록이다. 이후 승인 범위와 Claim 유지 결정·실행 결과는 §11을 따른다. 과거 AUDIT 추천은 현재 삭제 승인이 아니다.
 
 ## 1. 요약·진입 상태
 
@@ -78,7 +80,7 @@ confidence는 해당 처분 근거의 강도이며, C의 HIGH는 “미사용”
 ### P3-D04 — 호출되지 않는 금융 reset helper
 
 - **선언/증거:** [card_payments.py:798~825](../../backend/app/services/card_payments.py:798), module-level private function, decorator0. Python AST·지원 backend/scripts/tests·앱 route imports/export 전체에서 호출/alias/문자열 dispatch가 없다. `routers/card_payments.py`는 공개 services를 직접 등록하고 helper를 등록하지 않는다. 현재 `set_discount_month_policy`는 설정을 저장한 뒤 status를 반환하며 이 함수로 분기하지 않는다. `clear_entry_discount`는 별도의 `_delete_entry_discount_events`를 직접 사용하므로 그 내부 helper는 삭제 대상이 아니다. target module에 getattr/globals/importlib dispatch가 없다.
-- **숨은 소비/side effects:** 외부 private-FQN 호출은 미관찰. [claim-removal.md:16](../guides/claim-removal.md:16)에 미래 제거 경계로 이름이 남아 있다. 호출 시 discount event 삭제·원장/claim override UPDATE를 수행하는 금융 코드이므로 단순 grep 결과로 바꾸지 않는다.
+- **숨은 소비/side effects:** 외부 private-FQN 호출은 미관찰. [폐기된 과거 Claim 제거 계획](claim-removal-plan-superseded.md)에 미래 제거 경계로 이름이 남아 있다. 호출 시 discount event 삭제·원장/claim override UPDATE를 수행하는 금융 코드이므로 단순 grep 결과로 바꾸지 않는다.
 - **범위·호환:** 독립 감사가 현재 지원 graph의 불도달과 가이드의 오래된 설명을 확인한 경우에만 함수28줄+해당 가이드 참조 정리가 가능하다. 금융 공식·active service·schema·endpoint·claim 기능 삭제는 금지다. source lock/운영 스크립트 소비 확인 전 구현 승인 아님.
 - **검증:** `backend/tests/test_card_payments.py`의 `test_discount_policy_is_separate_for_owner_and_family_cards`, `test_current_entry_manual_discount_survives_disabled_month_policy` 등 할인/월 상태·claim 보존 회귀와 Ruff/import check를 최소 제안한다. 직접 이 unused helper를 실행하는 새 시험이나 DB 변경은 이번에 하지 않았다. A 뒤의 조건부 audit 대상이며 현재 안전 삭제로 확정하지 않는다.
 
@@ -120,7 +122,7 @@ confidence는 해당 처분 근거의 강도이며, C의 HIGH는 “미사용”
 ### P3-D11 — 드물게 쓰는 maintenance CLI
 
 - `backend/scripts/clean_panel_dates.py:main`은 `if __name__=='__main__'`와 argparse `--db/--year`로 실제 도달 가능하다. `_ensure_columns`는 그 main에서 호출한다. default DB 경로·UPDATE·ALTER가 있어 discovery 중 실행하지 않았다. 코드 내 import consumer가 없다는 것은 dead 증거가 아니다.
-- 실제 운영자의 과거/향후 사용·외부 cron은 **UNKNOWN**, `claim-removal.md`와 격리 maintenance 이력에도 언급된다. confidence LOW이며 안전 삭제 추천을 REJECT한다. 범위0, 향후 owner가 폐기를 별도 판단할 때 external runbook·compatibility 사용과 합성 DB 검증이 필요하다. `create_user.py`, deploy/release/dev/canonicalization scripts도 등록 CLI·운영 복구 책임 때문에 보존한다.
+- 실제 운영자의 과거/향후 사용·외부 cron은 **UNKNOWN**, 폐기된 과거 `claim-removal-plan-superseded.md`와 격리 maintenance 이력에도 언급된다. confidence LOW이며 안전 삭제 추천을 REJECT한다. 범위0, 향후 owner가 폐기를 별도 판단할 때 external runbook·compatibility 사용과 합성 DB 검증이 필요하다. `create_user.py`, deploy/release/dev/canonicalization scripts도 등록 CLI·운영 복구 책임 때문에 보존한다.
 
 ### P3-D12 — fixture·historical evidence·generated/asset 등록
 
@@ -207,3 +209,76 @@ console.log('TS_DIAGNOSTIC_COUNTS',ts.getPreEmitDiagnostics(program).reduce((a,d
 </details>
 
 최종 보존 확인: 허용된 기존 문서2개 외 기존7,956개 파일 내용/링크가 동일하고 index는 staging 전 동일했다. 새 파일은 본 inventory 하나뿐이다. 재현 코드를 위에 보존하고 task runner0개 확인 후 이번 임시3개 파일(1,084,918B)을 정리했다. 기존 DB/cache·미추적 작업은 정리하지 않았다. A의 maintenance 이득은 unused export·단순 forwarding 제거이며 bundler가 이미 tree-shake할 수 있어 runtime 속도/bytes 이득은 주장하지 않는다.
+
+
+## 11. D01–D03 scoped 구현 + Claim 유지 결정 — 독립 감사 인계
+
+**구현·focused 검증 완료 / 독립 Audit 대기 / stage·commit·push 없음.** owner가 독립 후보 감사 기준 `phase2/mobile-network / efd1486aaab55ce87a11aa3d9eecd168300f8d4d`의 D01/D02/D03만 승인했다. 실제 branch/HEAD 일치, 대상3개 모두 audited SHA·HEAD와 동일하고 선행 수정0개였다. 기존 dirty13·untracked91와 index hash를 작업 시작에 기록했다.
+
+| 항목 | 실제 변경·처분 |
+| --- | --- |
+| P3-D01 | `frontend/src/api/client.ts`에서 fileToBase64 선언만 제거. auth·다른 exports·Snapshot 동작 유지 |
+| P3-D02 | `frontend/src/utils.ts`에서 daysBetween 선언만 제거. 다른 날짜/금융 utility 무변경 |
+| P3-D03 | `month_entries_screen.dart` 두 badge callsite를 `entry.isTransport/isToll`로 직접 표현하고 pure forwarding 두 메서드만 제거. JSON/model defaults·분류 규칙 무변경 |
+| P3-D04 | **DEFER, 구현 미승인.** Claim 유지 결정 아래 근거를 다시 평가하기 전 새로운 삭제 제안/구현으로 승격하지 않음. 과거 제거 예정이라는 사유는 더 이상 유효하지 않음 |
+| P3-D05/D06 | DEFER, 구현·변경 없음 |
+
+### Claim 문서 조정
+
+2026-11-04 owner 결정 기록: Claim은 낮은 빈도의 정당한 비용 회수/가계 청구 기능으로 **새로운 명시적 결정 전까지 무기한 유지, 제거 일정·deprecation 없음**이다. 코드 활성화·UI 복원·개발·금융/할인 수정 승인이 아니다. 규범은 [domain-model의 유지 정책](../domain-model.md#claim-유지-정책), 현재 결정 기록은 [project-state](../project-state.md)다. Family Card의 별도 정책은 바꾸지 않는다.
+
+`docs/guides/claim-removal.md`는 현재 가이드에서 제거하고, 기술 경계·당시 검토 자료를 잃지 않도록 원문 전체를 [claim-removal-plan-superseded.md](claim-removal-plan-superseded.md)에 **폐기된 역사 자료** banner 뒤에 byte-identical하게 보존했다. 과거 audit verdict를 수정하지 않았다. 현재 guides index·project/domain·Judgment 가이드·미래 재무 건전화 문서·roadmap은 Claim 제거를 승인된 미래 작업으로 제시하지 않는다. discovery 본문의 원 판단은 역사 기록으로 표시하고 이동한 가이드 참조만 연결했다. USB/device-interface의 `claim`이나 일반 사용자 청구 항목 삭제 API 설명은 제품 제거 정책과 달라 그대로다.
+
+### 실행한 검증
+
+| 검증 | 실제 명령·경계 | 결과 |
+| --- | --- | --- |
+| Web lint/TypeScript | task-owned frontend 사본에서 `npm run lint` (`eslint src`+`tsc --noEmit --noUnusedLocals --noUnusedParameters`) | PASS |
+| Web focused tests | 같은 사본 `npm test -- src/utils.test.ts src/money.test.ts` | 2파일·7 PASS |
+| Web Vite production build | 같은 사본 `npm run build` | PASS, 배포 없음 |
+| Dart 분석 | SDK `dart analyze lib/src/screens/month_entries_screen.dart`, `dart analyze test/month_entry_badge_test.dart`, task-owned mobile context | 두 파일 No issues found |
+| Badge control | 기존 직접 host engine runner, `month_entry_badge_test.dart` | 7 PASS: transport/toll/ordinary, 키워드+false, 누락/null defaults, 두 flag true |
+| 기존 UI 회귀 | 같은 직접 runner `offline_widget_submit_test.dart` | 13 PASS: 기존 net edit·submit single-flight·draft·오프라인/오류 관련 기존 assertion 유지 |
+| Backend panel 회귀 | `PYTHONPATH=backend PYTHONDONTWRITEBYTECODE=1 TMPDIR=TASK_SCRATCH .venv/bin/python -m unittest tests.test_panels` | 합성 임시 DB19 PASS |
+| 문서·범위 | 이동 원문 bytes·Markdown inbound/links·Claim 정책 검색, task-only diff·SHA·index 비교 | 옛 filename의 Markdown inbound0, 현행 정책 및 archive links 정상 |
+
+준비 단계에서 SDK가 지원하지 않는 `--no-fatal-infos` 옵션으로 첫 분석 명령이 exit64였다. source 분석이 시작되지 않은 CLI 준비 오류이며 수정된 명령의 두 분석은 통과했다. 이를 source failure나 PASS로 섞지 않는다. 실행 불가/새 회귀 실패는 없다. host debug widget 시험이 Android 실기기 검증을 대신한다는 주장은 하지 않는다. Flutter CLI/Android/ADB/emulator·운영 접근·배포는0이다.
+
+사본의 package config와 writable build cache만 사용했다. 실제와 test source SHA를 대조했으며 original dependency/cache·기존 dirty 작업은 수정하지 않았다. 신규 badge 테스트는 row/action을 바꾸지 않고 화면에서 서버 bool을 소비하는 결과를 확인한다. Claim runtime source·backend/schema·AppState·D04/D05/D06은 무변경이다.
+
+[검증 근거와 task-only review diff](../benchmarks/p3-d01-d03-validation.json.gz)에 시작 상태·대상 before/after SHA·실제 commands/runner·logs·scoped textual diff를 보존한다. source diff는 HEAD 기준의 관련 경로만이며 새 untracked test/archive도 포함한다. 원래 dirty13개는 diff에 포함하지 않는다. **Git index byte 보존, stage/commit/push 없음**을 최종 확인하고 owner가 독립 Audit Session에 이 장부와 실제 working diff를 전달한다. 다음은 독립 scoped implementation audit이며 새 후보/Phase4는 시작하지 않는다.
+
+최종 범위 확인: 허용된 기존12개 경로 외 기존7,947개 파일/링크와 index bytes가 동일했다. 원 가이드 원문은 archive에 보존했다. raw·diff를 먼저 보존하고 task runner0개 확인 뒤 이번 scratch 파일/링크449개(논리324,990,657B, symlink139개)를 정리했다. dependency 링크 대상을 따라가 삭제하지 않았고 기존 cache/DB/미추적 작업은 삭제하지 않았다. production 코드3개 변경량은 **+2/-28**, 신규 badge 시험7건이며 그 밖의 수정은 정책·장부·목차·근거뿐이다.
+
+## 12. Phase 3 수용·안전 게시
+
+2026-11-04 owner는 D01–D03·Claim 무기한 유지 정책과 독립 scoped 감사 결과를 **ACCEPTED**로 승인했다. BLOCKER/MAJOR는 없고 유일한 MINOR **P3-A01**은 로드맵 §9의 4단계 상태를 **NOT STARTED — 별도 owner 승인 필요**로 고쳐 해결했다. §11의 감사 전·미게시 기록과 원 판정은 역사로 보존한다. D04–D06은 **DEFERRED**이며 D04는 Claim 유지 정책 아래 재평가하기 전 구현하지 않는다. 이 수용은 Phase4 시작·기기 gate 종결·main 병합·운영 배포 승인이 아니다.
+
+### 게시 범위와 제외
+
+시작 branch/HEAD는 `phase2/mobile-network / efd1486aaab55ce87a11aa3d9eecd168300f8d4d`, 기존 index는 비어 있었다. 현재 작업 시작 시 tracked 변경25개와 untracked 파일5,164개를 개별 경로로 목록화했다(일반 status에서는 미추적94개 파일/디렉터리 항목). 이 중 Phase3 승인15개 경로와 독립 검토된 기존 `AGENTS.md` 위생 지침1개, 로드맵이 직접 연결한 기존 합성 측정 요약5개를 포함한다. 추가 게시 검토 manifest1개를 합친 총22개 경로이며, 옛 가이드 삭제와 역사 archive 추가는 각각 센다. 다섯 요약은 B05 microbenchmark·B05A timing-comparison·B07 packet-timings·B08 packet-comparison·B09 cold-ab-results이며 원래 수치·한계·음성 결과를 수정하지 않는다. 원시 실행 자료 전체를 공개하거나 새 실험을 실행했다는 뜻은 아니다.
+
+| 제외 사유 | 파일 경로 수 | 처분 |
+| --- | ---: | --- |
+| owner가 제외를 선택한 devicegate 보안 설정·연관 소스/근거 | 1,314 | 원위치 보존, staging 안 함 |
+| segmented source·release lock·관련 시험의 결합된 기존 변경 | 20 | 부분 게시하지 않음. 보호 계약·의존 근거를 함께 확인하는 별도 게시 검토 필요 |
+| 내용·재현 의존성 검토가 끝나지 않은 역사 실험 소스/근거 | 3,271 | 안전한 공개 여부를 추정하지 않고 보존 |
+| 원시 로그·생성 산출물 | 418 | 민감정보 부재를 보장하지 않고 제외 |
+| 키·인증서 자료 | 30 | 합성 여부와 무관하게 이번 공개에서 제외 |
+| 시험 DB·압축 DB·WAL/SHM | 112 | DB에 연결·조회하거나 복사하지 않고 제외 |
+| 로컬 host 파일시스템 목록 | 1 | 운영·로컬 상세 메타데이터 공개 불필요 |
+| 기존 P1 계측용 시험 | 2 | 전용 환경변수/runner와 역사 소스 조건 검토 전 일반 시험으로 게시하지 않음 |
+| **합계** | **5,168** | **원본 bytes·mode 보존 확인 후 게시** |
+
+제외는 삭제·결함 판정이 아니며, 이 파일들을 새로 검증하거나 기존 gate 작업을 재개하지 않았다. 일반적인 비밀 패턴 검색만으로 모든 과거 증거를 공개 가능하다고 간주하지 않았다. [경로별 게시/제외 목록](../benchmarks/phase3-publication-review.json.gz)은 경로·사유·초기 해시/크기/모드만 담고 본문·키·DB·금융 자료를 담지 않는다. 기존 독립 검증 근거는 그대로 보존한다.
+
+### 게시 전 확인
+
+- D01–D03와 신규 badge 시험4개 source SHA가 §11의 실제 실행 근거 `after_sha256`와 일치한다. 해당 소스는 추가 수정하지 않았다. Web lint/TS·7 tests·Vite build, Dart 분석2개·badge7·Offline submit13·backend panel19 PASS는 **이전 실행을 재사용한 근거**이며 이번 게시 작업에서 새로 실행했다고 주장하지 않는다.
+- Claim 원 가이드 body는 역사 archive 끝부분에 byte-identical하게 남고, 현재 규범은 domain-model의 무기한 유지 정책이다. Claim runtime 코드는 변경하지 않는다.
+- 이번 추가 변경은 P3-A01·수용/게시 장부·목차 상태 및 기존 위생 지침뿐이다. 최종 stage를 경로별 허용 목록과 대조하고 전체 staged 내용(압축 근거의 내부 JSON 포함)을 검토한다. 비밀/개인정보·DB·키·예상치 못한 바이너리는 게시 대상에서 배제한다.
+- 문서 링크·P3-A01·원문 보존·초기 제외 파일 해시/모드와 기존 index 항목 보존을 집중 확인한다. source가 달라지지 않았으므로 전체 회귀나 Phase4 감사는 반복하지 않는다.
+
+### 게시 진행
+
+안전 검토 후 Phase3 수용 작업과 기존 위생 지침을 논리적으로 나누어 commit/push한다. 원격 성공·SHA를 아래에 후속 기록한 뒤 Phase3를 CLOSED로 갱신한다. 현재는 **ACCEPTED / PUBLICATION PENDING**이며 Phase4는 미착수다.

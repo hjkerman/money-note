@@ -196,7 +196,7 @@ B05/B08의 추가 확대 실험은 첫 후보에서 제외한다. 이미 전체 
 | REQUIRES DEPENDENCY VERIFICATION | 옛 실험 switch·feature flag·중복 serialization/DB adapter·test fixture | build flavor, dart-define, devicegate entrypoint, pubspec assets, generated code, fixture manifest, 환경변수 및 전용 시험 consumer를 추적. 사용이 없고 source lock·외부 계약도 없는 항목만 정리 |
 | MUST PRESERVE | `acquireLegacyForDiagnostics`, legacy full consumer/store·Snapshot v4~v7·DB migration·historical normalizer | 명시 regression oracle·복구·이관/whole-F 의무를 소유. Phase B 행정 종결은 제거 승인 아님 |
 | MUST PRESERVE | `backend/app/repository.py`, `frontend/src/api.ts`, `components/LedgerTables.tsx` 등 호환 re-export | [compatibility-inventory](../guides/compatibility-inventory.md)의 import 계약. 중복 구현과 facade를 구별 |
-| MUST PRESERVE | claim/family, judgment YAML registry, `management_*.dart` part, 등록 asset, 지원 flag, server API response 필드 | 현재 기능·동적 registry·persisted wire 계약. 제거 예정이라는 사유로 운영 중 기능을 dead로 분류하지 않음 |
+| MUST PRESERVE | claim/family, judgment YAML registry, `management_*.dart` part, 등록 asset, 지원 flag, server API response 필드 | 현재 기능·동적 registry·persisted wire 계약. Claim은 무기한 유지·제거 예정 아님. 낮은 빈도로 기능을 dead로 분류하지 않음 |
 | MUST PRESERVE | B03 계측/source locks·archive·역사 실패 로그·유일 SQLite 증거·devicegate/G1/G2 자료 | 일반 dead-code 정리 권한으로 역사 증거/계약/호환 자격을 지우지 않음 |
 
 확인 순서는 analyzer/컴파일 → import/export 및 route·DI·dynamic registry·generated/asset 확인 → 테스트/실험·migration·외부 API consumer 확인 → 작은 삭제 단위 → 관련 회귀와 build다. Python importlib/getattr·YAML name과 router 등록, Dart part·native method 이름, JS barrel export를 포함한다. 안전성이 입증되지 않는 항목은 남기고 4단계에 짧게 처분한다. 기존 캐시·실험 DB의 용량 정리는 별도 위생 정책 대상이며 dead-code 삭제와 섞지 않는다.
@@ -240,8 +240,8 @@ B05/B08의 추가 확대 실험은 첫 후보에서 제외한다. 이미 전체 
 | --- | --- | --- |
 | 1단계 | UI15/처리12 지도, 근거별 우선순위, §2.1 조사와 공유 계획 G의 승인된 완화 작업·감사 지적 처분 완료. 모든 병목 제거는 불필요하며 권한/위험상 보류 가능. 채택 변경의 기능·성능 회귀 통과·미해결 신규 P0/P1 없음·잔여 불확실성 §8 이월 | P1-01 미채택·원복, P1-02 보호 경로 보류, P1-03 B/전체 PARTIAL·미구현, P1-04 C 완료. R-01 최초 실패 보존·owner1회 예외 재채택·활성132 PASS, S/U 보류, P1-05 소유자 제외. **CLOSED — 최종 독립 감사 PASS·owner 종료 승인, S/U 보류 유지** |
 | 2단계 | 별도 승인된 모바일 전송량 분석·최적화와 전후 측정·채택/미채택 처분 완료, 안전 계약과 기능 회귀 유지, 남은 불확실성 §8 이월 | **IN PROGRESS — N01 ACCEPTED(PASS, A01/R1 CLOSED), N02 조사 DEFER·독립 GET 유지 권고. 최초 PARTIAL/REWORK 보존. N02~N05 미구현** |
-| 3단계 | 좁은 inventory의 고신뢰 dead/redundant 항목만 정리, 동적/호환 consumer 보존, 관련 Flutter/backend/web 회귀·build 통과, 미확정 비중요 항목 처분 | **CANDIDATE DISCOVERY COMPLETE — owner 승인 조사만, 구현/삭제 미승인** |
-| 4단계 | 단일 감사표 완료, P0/P1 해결 또는 명시 차단, P2/P3 처분, 집중 회귀와 최종 통합 suite 통과, source locks·역사 증거 보존, 기기/배포 제약 명시 | **CANDIDATE DISCOVERY COMPLETE — owner 승인 조사만, 구현/삭제 미승인** |
+| 3단계 | 좁은 inventory의 고신뢰 dead/redundant 항목만 정리, 동적/호환 consumer 보존, 관련 Flutter/backend/web 회귀·build 통과, 미확정 비중요 항목 처분 | **D01–D03·Claim 유지 정책 ACCEPTED, 독립 감사 BLOCKER/MAJOR 없음. P3-A01 수정 완료. 안전 게시 진행, D04–D06 보류** |
+| 4단계 | 단일 감사표 완료, P0/P1 해결 또는 명시 차단, P2/P3 처분, 집중 회귀와 최종 통합 suite 통과, source locks·역사 증거 보존, 기기/배포 제약 명시 | **NOT STARTED — 별도 owner 승인 필요** |
 
 각 종료 시 수행자가 결과를 기록하고 이전 단계의 exit 충족을 확인해야 다음 단계에 진입한다. 새 범위의 구현은 해당 작업 요청으로만 시작한다. 단순 보고서 작성이나 표의 READY로 다음 단계가 자동 시작되지 않는다.
 
@@ -284,3 +284,7 @@ B05/B08의 추가 확대 실험은 첫 후보에서 제외한다. 이미 전체 
 **Phase2 현재 처분:** owner 최종 PASS·N01 ACCEPTED, A01/R1 CLOSED·blocking findings 없음. 채택 commit13ef6e9, 과거 이력 보존. [N02 조사](phase2-n02-snapshot-reuse-investigation.md)는 T3→T1 복구점 변경을 일반적으로 배제할 수 없어 **DEFER/C 유지 권고**다. 10k 추가 이득의 잠재 상한은 gzip104,537B/자동event1GET이며 확정 제거 event는0이다. N01 배포·main merge·N02 구현·Phase2 전체 종료는 승인/수행하지 않는다.
 
 **Phase3 후보 조사:** owner 승인으로 [inventory](phase3-cleanup-candidate-inventory.md)를 작성했다(A3/B3/C6). Phase2 전체 종료 미기록·기존 현재 표의 stale PARTIAL은 inventory §1에 명시했고 현재 표만 개별 처분으로 맞췄다. N01 이력·N02 DEFER는 보존하며 Phase2 종료를 소급 선언하지 않는다. 다음은 독립 후보 감사이며 코드 삭제·Phase4·운영은 미착수다.
+
+**D01–D03 scoped cleanup 승인:** owner가 독립 후보 감사 뒤 세 항목만 승인했다. Claim은 [무기한 유지](../domain-model.md#claim-유지-정책)하며 과거 제거 계획은 폐기된 역사 자료로 보존한다. D04–D06 구현은 보류이며 특히 D04는 변경된 Claim 정책 아래에서 다시 평가하기 전 구현하지 않는다. 진행·검증은 inventory §11에 기록하고 staging/commit은 하지 않는다.
+
+**Phase 3 수용·게시 결정(2026-11-04):** 위 구현 당시의 미게시 기록은 보존한다. 후속 독립 scoped 감사에서 BLOCKER/MAJOR 없음, owner는 D01–D03·Claim 유지 정책과 감사 결과를 수용했다. MINOR P3-A01의 잘못된 4단계 상태를 **미착수·별도 승인 필요**로 수정했다. 이번에는 검토된 경로만 commit/push하며 devicegate 보안 설정·연관 소스는 owner 결정에 따라 제외한다. 미확인 과거 실험·DB·키·원시 로그도 원위치 보존한다. 상세 게시 범위와 최종 종결은 [inventory §12](phase3-cleanup-candidate-inventory.md#12-phase-3-수용안전-게시)에 기록한다. Phase4·운영 배포·main 병합은 승인하지 않는다.

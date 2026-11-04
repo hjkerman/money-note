@@ -61,18 +61,6 @@ export function readDownloadFilename(header: string | null): string | null {
   return match?.[1] ?? null;
 }
 
-export function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.addEventListener("load", () => {
-      const result = String(reader.result ?? "");
-      resolve(result.includes(",") ? result.split(",")[1] : result);
-    });
-    reader.addEventListener("error", () => reject(reader.error ?? new Error("파일을 읽지 못했습니다.")));
-    reader.readAsDataURL(file);
-  });
-}
-
 function defaultApiBaseUrl(): string {
   if (typeof window === "undefined") return "";
   const { protocol, hostname } = window.location;

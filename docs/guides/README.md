@@ -3,7 +3,7 @@
 프로젝트의 핵심 기준 문서는 `docs/` 루트에 둡니다. 분야별 절차와 보충 설명은 이 폴더에서 찾습니다.
 
 - [카드 정책 변경](card-policy-change.md)
-- [Claim 제거](claim-removal.md)
+- [Claim 유지 정책](../domain-model.md#claim-유지-정책)
 - [호환성 inventory](compatibility-inventory.md)
 - [가족카드 제거](family-card-removal.md)
 - [재무 건전화 전환](future-financial-health-transition.md)

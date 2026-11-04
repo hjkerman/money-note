@@ -92,9 +92,9 @@ class _MonthEntryCard extends StatelessWidget {
                           if ((entry.usageItem ?? '').isNotEmpty)
                             Text(entry.usageItem!,
                                 style: const TextStyle(color: moneyMuted)),
-                          if (_isTransport(entry)) const _Badge('교통'),
+                          if (entry.isTransport) const _Badge('교통'),
                           if (entry.isOfflinePending) const _Badge('오프라인 보관 중'),
-                          if (_isToll(entry)) const _Badge('통행료'),
+                          if (entry.isToll) const _Badge('통행료'),
                         ],
                       ),
                     ],
@@ -242,14 +242,6 @@ class _MonthEntryCard extends StatelessWidget {
     if (confirmed == true) {
       await state.deleteExpense(entry.id);
     }
-  }
-
-  bool _isTransport(LedgerEntry entry) {
-    return entry.isTransport;
-  }
-
-  bool _isToll(LedgerEntry entry) {
-    return entry.isToll;
   }
 }
 

@@ -65,7 +65,7 @@
 - Snapshot은 서버 장부와 비민감 운영 설정의 이동·복구 형식이다. 모바일 로컬 후보, 사용자 계정, 인증 세션, 공유 세션, 감사 로그와 비밀번호·해시는 포함하지 않는다.
 - Offline baseline과 journal은 Snapshot과 분리된 모바일 임시 작업 상태다. atomic commit 확인, fresh server sync, mobile rebuild와 fresh baseline 성공 전에는 삭제하지 않는다. retained recovery artifact와 durable server idempotency history는 성공 cleanup 대상이 아니다.
 - `claim`과 `family_card`는 소비 원장이 아니라 회수 예정 큐다. 소비 통계와 유동성에 직접 넣지 않으며, 월 경계와 무관하게 처리 또는 삭제 전까지 남는다.
-- `claim`과 `family_card`는 정상 운영 중인 비핵심 기능이며 제거 자체는 확정되어 있다. 특정 날짜가 아니라 사용자가 생활비와 예외적인 큰 지출까지 가족 지원 없이 감당할 수 있는 현실적 경제적 독립 상태가 제거 조건이다.
+- `claim`은 간헐적인 비용 회수·가계 청구를 위해 소유자의 새로운 명시적 결정 전까지 무기한 유지한다. 사용 빈도·장기 비활성은 삭제 근거가 아니며 제거 일정도 없다. `family_card`의 별도 제거 정책은 변경하지 않는다.
 - 월마감은 자동 실행하지 않는다. 사용자의 명시적 실행이 결제 batch와 원장 이동의 기준이다.
 - 화면의 `잔여 유동성`은 서버 Summary의 `current_month_spendable`을 표시한다. 기존 `remaining_liquidity`는 다음 급여 선반영과 미확인 고정지출 reserve까지만 담는 계산 단계이며, 새 표시값은 확인된 현금성 고정지출의 다음 발생분 예정액을 추가로 reserve한다. 두 클라이언트는 이를 재계산하지 않는다.
 - 유동성 도메인과 일반 런타임 API·DB의 표준 이름은 `scheduled_income`, `cash_flow_balance`, `remaining_liquidity`다. 과거 key는 DB/Snapshot migration과 그 전용 테스트에만 남긴다.
@@ -104,7 +104,7 @@
 - **결제 이력 보호**: 즉시결제가 만든 현금흐름은 일반 현금흐름 삭제로 지울 수 없고 결제 이벤트 취소만 허용한다. 일부라도 즉시결제된 원장 행도 일반 원장 삭제를 거부해 실제 은행 출금 이력을 사후 재작성하지 않는다.
 - **Summary 읽기 일관성**: Summary의 예정 수입, 실제 잔액, 카드 의무, 고정 의무, 동결과 잔여 유동성은 하나의 SQLite read transaction에서 계산한다.
 - **빈 예산 주기 월마감**: 원장 지출이 0건이어도 `last_closed_month`에서 이어지는 다음 예산 주기를 정상 마감한다. 급여, 반복 템플릿 reset, 결제 batch와 idempotency 의미는 지출이 있는 달과 같다.
-- **제거가 확정된 정산 기능**: Claim과 Family Card는 제거 시점만 미정이다. 날짜 경과가 아니라 현실적 경제적 독립 여부로 결정하며, 현재 경계와 전환 순서는 각각 [청구 기능 제거 가이드](guides/claim-removal.md)와 [가족카드 제거 가이드](guides/family-card-removal.md)에 고정한다.
+- **Claim 유지 결정 기록(2026-11-04)**: [규범 정책](domain-model.md#claim-유지-정책)에 따라 무기한 유지하며 제거 예정·deprecated가 아니다. 과거 [제거 계획](development-reports/claim-removal-plan-superseded.md)은 폐기된 역사 자료다. 이 문서 결정은 Claim 코드 개발·활성화·복원이나 P3-D04 정리를 승인하지 않는다. [Family Card 제거 정책](guides/family-card-removal.md)은 별도다.
 
 카드 교체 절차는 [카드 정책 변경](guides/card-policy-change.md), 가족카드 경계는 [가족카드 제거](guides/family-card-removal.md), 백업 안전성은 [실행 방법](runbook.md)과 [보안 운영](security.md)에 상세히 적혀 있다.
 예산 주기는 현재도 매월 1일~말일이다. 미래 재무 건전화 시에는 실제 급여 현금흐름을 유지하면서 다음 급여 예정액의 직접 선반영만 제거한다. 결제 압박 Judgment 기준은 아직 보류하며 [미래 재무 건전화 전환](guides/future-financial-health-transition.md)에 둔다.
