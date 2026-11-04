@@ -4,7 +4,7 @@
 
 ## 1. 현재 기준선과 보류 경계
 
-Repository Hygiene는 [Batch2 종결](../archive/repository-hygiene/batch2-closure.md) 기준 CLOSED다. 승인된 안전 작업과 고정 경로/복구/R5 예외를 처분했으며 독립 최종 위생 감사는 별도다. Phase3 CLOSED·Claim 무기한 유지·Phase4 미착수와 기존 운영 gate는 변하지 않는다.
+Repository Hygiene는 [Batch2 기록](../archive/repository-hygiene/batch2-closure.md) 기준 안전 작업 완료·SSH 인증에 의한 원격 게시 차단 상태다. 인증 복구·게시 확인 뒤 최종 종결하고 독립 최종 위생 감사에 인계한다. Phase3 CLOSED·Claim 무기한 유지·Phase4 미착수와 기존 운영 gate는 변하지 않는다.
 
 개발 경로는 `/home/hjkerman/codex/money-note`다. 최초 계획의 HEAD는 `ebcbd54d90eeee194a04b9eea6367f446ee2fd28`, 시작 인덱스 SHA-256은 `33779f92417c7e6f7ab927847236336e5ce84e89260a66777e44295b782c943b`였다. 2026-11-03 완화 계획의 실제 HEAD는 문서 정리 commit `2b4e168ebf1d8ba8ce5c9a48d7257a24bbd0c8a7`, 인덱스 SHA-256은 `8f97ab0d1f8935e32fa23c6b3fb4827aaf830f1536da3e847f7915fc20879a9c`다. HEAD와 working source는 동일하다고 가정하지 않는다. 기존 tracked 변경13개·untracked 자료와 staged0개를 보존하며 대상 source SHA는 공유 계획 A에 기록한다. 이번 계획에서는 commit·push하지 않는다.
 

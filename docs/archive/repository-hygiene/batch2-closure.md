@@ -1,4 +1,4 @@
-# Repository Hygiene Batch 2 — CLOSED
+# Repository Hygiene Batch 2 — 구현 완료 / 게시 차단
 
 기준선은 `phase2/mobile-network / 1ccef3149fa2c23dda7cb5a315da4584a0492b2e`다. owner가 별도 Batch1 독립 감사 완료·수용을 명시 확인한 뒤 Batch2를 진행했다. 이 세션은 구현 세션이며 독립 최종 위생 감사는 후속 단계다.
 
@@ -38,4 +38,4 @@ H06/H07 목적지는 각각 `docs/archive/legacy-performance/`, `docs/archive/de
 
 현재 규범·운영·호환성 문서와 고정 경로 자료는 기존 위치를 유지한다. 완료 기록은 `archive/phase1`, `phase2`, `phase3`, `legacy-performance`, `device-gate/history`, `repository-hygiene`에서 찾는다. current indexes와 roadmap의 실제 탐색 링크를 갱신했다. 역사 JSON 안의 당시 경로·SHA 문자열은 보존하고 실행 근거의 대응표를 제공한다.
 
-**Repository Hygiene CLOSED:** 승인된 안전 작업을 완료하고 모든 조건부 예외·R5/H11을 보류/보호로 명시 처분했다. 검토된 task-only diff와 근거만 같은 개발 branch에 commit/push한다. 다음은 owner의 독립 최종 위생 감사다. Phase4·main 병합·운영 배포는 미착수이며 새 작업은 시작하지 않는다.
+**구현 종료 조건 충족 / 최종 종결은 게시 대기:** 승인된 안전 작업을 완료하고 모든 조건부 예외·R5/H11을 보류/보호로 명시 처분했다. 구현 commit은 `75d09a75b2f9c83f026333b083edb78e15ee7128`이다. 원격 push와 이후 조회는 `Permission denied (publickey)`로 실패했고 SSH 인증 에이전트 연결도 없었다. 새 자격 증명을 취득하거나 인증 설정을 변경하지 않았다. 현재 원격 tip은 재검증하지 못했고 마지막 성공 조회는 기준선 `1ccef3149fa2c23dda7cb5a315da4584a0492b2e`였다. 기존 인증 복구 후 같은 개발 branch에 게시하고 원격 일치를 확인해야 최종 CLOSED로 기록한다. 다음은 독립 최종 위생 감사이며 Phase4·main 병합·운영 배포는 미착수다.
