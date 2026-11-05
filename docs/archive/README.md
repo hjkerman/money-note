@@ -1,6 +1,6 @@
 # 역사 기록
 
-이 디렉터리는 owner가 승인한 Repository Hygiene Batch 1의 보관 위치다. 과거 판정·실패·예외를 현재 정책으로 덮어쓰지 않는다. 현행 규범은 [문서 안내](../README.md), 진행 상태는 [로드맵](../development-reports/money-note-final-optimization-and-closure-roadmap.md)을 따른다.
+이 디렉터리는 owner가 승인한 Repository Hygiene Batch 1·2의 보관 위치다. 두 Batch는 수용되었고 Repository Hygiene는 CLOSED다. 과거 판정·실패·예외를 현재 정책으로 덮어쓰지 않는다. 현행 규범은 [문서 안내](../README.md), 진행 상태는 [로드맵](../development-reports/money-note-final-optimization-and-closure-roadmap.md)을 따른다.
 
 - [Phase 1 완화·종결 장부](phase1/phase1-mitigation-plan.md): 최초 p95 실패·거부/원복·owner 한정 예외·재채택 이력 보존.
 - Phase 1 조사: [P1-01](phase1/p1-01-monthly-expense-lazy-widget-results.md), [P1-02](phase1/p1-02-flutter-rebuild-derived-state-results.md), [P1-03](phase1/p1-03-snapshot-save-validation-performance-results.md), [P1-04](phase1/p1-04-backend-sql-presenter-performance-results.md), [Refresh](phase1/p1-r-mobile-refresh-performance-results.md). 조사 compact 근거5개는 `phase1/evidence/`에 원본 bytes로 보존한다.

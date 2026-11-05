@@ -8,7 +8,7 @@
 
 완료된 단계의 승인된 보관 자료는 [역사 기록 목차](archive/README.md)에 있다. 원문 판정과 음성 근거를 보존하며 현재 정책은 아래 규범 문서를 따른다.
 
-Repository Hygiene는 [Batch 2 기록](archive/repository-hygiene/batch2-closure.md) 기준 안전 작업 완료·원격 게시 차단 상태다. 인증 복구·게시 확인 후 최종 종결한다. 고정 경로·복구 의존성·R5 자료는 보존하며 Phase4는 별도 승인 전까지 미착수다.
+Repository Hygiene는 **CLOSED**다. Batch 1·Batch 2 독립 감사 결과를 owner가 수용했고, 수동 push 성공과 원격 HEAD `25e9f5c74a1c7ed05082378391c673ee4679858c`를 확인했다. [종결 기록](archive/repository-hygiene/batch2-closure.md)에 최초 SSH 실패와 B2-M01/B2-I01 해결을 보존한다. 모든 제외 후보는 보존하며 Phase4는 미착수·별도 승인 필요다.
 
 ## 장기 유지 문서
 

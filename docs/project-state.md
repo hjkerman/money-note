@@ -6,7 +6,7 @@
 
 ## 현재 기준선
 
-- Repository Hygiene 구현 완료·게시 차단(2026-11-04): owner가 Batch1 독립 감사 완료·수용을 확인한 뒤 Batch2를 승인했다. [기록](archive/repository-hygiene/batch2-closure.md)에 안전한 보관·staging dependency 정리와 고정 경로/복구/R5 예외를 남겼다. SSH 인증 실패로 원격 게시가 차단되어 최종 종결은 대기한다. 남은 예외는 명시 보류이며 Phase4는 미착수·별도 승인 필요다. 인증 복구·게시 뒤 독립 최종 위생 감사에 인계한다.
+- Repository Hygiene **CLOSED**: Batch 1과 Batch 2 독립 감사 결과를 owner가 수용했다. 수동 push 성공 및 원격 HEAD `25e9f5c74a1c7ed05082378391c673ee4679858c`를 확인했고 [종결 기록](archive/repository-hygiene/batch2-closure.md)에 B2-M01/B2-I01 해결과 최초 SSH 실패 이력을 보존했다. 독립 검증된 즉시 회수량은 311,623,680B이며 이후 302,956,544B 순회수량 주장은 미검증이다. 모든 제외 후보는 그대로 보존한다. Phase4는 **미착수·별도 승인 필요**다.
 
 - Phase3 한정 정리 종료(2026-11-04): D01–D03·Claim 무기한 유지 정책을 owner가 수용했고 독립 scoped 감사 BLOCKER/MAJOR는 없다. MINOR P3-A01을 고쳐 승인 작업을 개발 branch에 게시했다. [장부 §12](archive/phase3/phase3-cleanup-candidate-inventory.md#12-phase-3-수용안전-게시)에 포함/제외·검증·커밋을 기록한다. D04–D06은 보류, Phase4는 **미착수·별도 승인 필요**다. main 병합·운영 배포나 기존 formal gate 종결을 뜻하지 않는다.
 

@@ -1,6 +1,6 @@
-# Repository Hygiene Batch 2 — 구현 완료 / 게시 차단
+# Repository Hygiene Batch 2 — CLOSED
 
-기준선은 `phase2/mobile-network / 1ccef3149fa2c23dda7cb5a315da4584a0492b2e`다. owner가 별도 Batch1 독립 감사 완료·수용을 명시 확인한 뒤 Batch2를 진행했다. 이 세션은 구현 세션이며 독립 최종 위생 감사는 후속 단계다.
+기준선은 `phase2/mobile-network / 1ccef3149fa2c23dda7cb5a315da4584a0492b2e`다. owner가 별도 Batch1 독립 감사 완료·수용을 명시 확인한 뒤 Batch2를 진행했다. Batch 1은 독립 감사 후 owner가 수용했고, Batch 2 독립 감사의 CONDITIONAL PASS도 owner가 수용했다. 이 문서는 승인된 문서 종결 기록이다.
 
 ## 범위와 처분
 
@@ -26,7 +26,7 @@ H06/H07 목적지는 각각 `docs/archive/legacy-performance/`, `docs/archive/de
 
 ## 계측과 검증
 
-삭제 경로별 할당량 합은 **358,313,984B**, hardlink 중복을 제외한 회수 대상 inode 할당량은 **324,939,776B**다. 실제 정리 직후 가용 공간 증가는 **311,623,680B**다. 디렉터리·새 검토 근거·동시 host 활동이 있어 세 수치를 동일시하지 않는다. 보관 이동은 용량 절감으로 세지 않는다.
+삭제 경로별 할당량 합은 **358,313,984B**, hardlink 중복을 제외한 회수 대상 inode 할당량은 **324,939,776B**다. 독립 감사에서 검증한 정리 직후 가용 공간 증가는 **311,623,680B**다. 이후 순회수량으로 보고된 **302,956,544B**는 독립 검증되지 않은 후속 관측 주장으로 보존하며, 검증된 회수량이나 종결 성과로 합산하지 않는다(B2-I01 해결). 디렉터리·새 검토 근거·동시 host 활동이 있어 세 수치를 동일시하지 않는다. 보관 이동은 용량 절감으로 세지 않는다.
 
 사전 rebase guard가 불변 FS1 문서의 `P01.md:709` 참조를 발견해 해당 task-owned 이동을 verified before-image로 되돌리고 P01을 제외했다. 원문·고정 문서가 변경된 채 남지 않았다. dependency 정리 중 자체 hardlink unlink로 esbuild의 nlink가 2→1이 되어 엄격한 신원 검사가 중단됐다. 나머지 inode/mode/bytes/mtime가 같음을 확인한 뒤 자체 unlink 수만 정확히 반영해 같은 build lock 아래 완료했다. 관련 원인·확인·정리 목록을 근거에 보존한다.
 
@@ -38,4 +38,8 @@ H06/H07 목적지는 각각 `docs/archive/legacy-performance/`, `docs/archive/de
 
 현재 규범·운영·호환성 문서와 고정 경로 자료는 기존 위치를 유지한다. 완료 기록은 `archive/phase1`, `phase2`, `phase3`, `legacy-performance`, `device-gate/history`, `repository-hygiene`에서 찾는다. current indexes와 roadmap의 실제 탐색 링크를 갱신했다. 역사 JSON 안의 당시 경로·SHA 문자열은 보존하고 실행 근거의 대응표를 제공한다.
 
-**구현 종료 조건 충족 / 최종 종결은 게시 대기:** 승인된 안전 작업을 완료하고 모든 조건부 예외·R5/H11을 보류/보호로 명시 처분했다. 구현 commit은 `75d09a75b2f9c83f026333b083edb78e15ee7128`이다. 원격 push와 이후 조회는 `Permission denied (publickey)`로 실패했고 SSH 인증 에이전트 연결도 없었다. 새 자격 증명을 취득하거나 인증 설정을 변경하지 않았다. 현재 원격 tip은 재검증하지 못했고 마지막 성공 조회는 기준선 `1ccef3149fa2c23dda7cb5a315da4584a0492b2e`였다. 기존 인증 복구 후 같은 개발 branch에 게시하고 원격 일치를 확인해야 최종 CLOSED로 기록한다. 다음은 독립 최종 위생 감사이며 Phase4·main 병합·운영 배포는 미착수다.
+**Repository Hygiene CLOSED:** Batch 1과 Batch 2 모두 owner가 수용했다. 승인된 안전 작업과 조건부 예외 처분이 완료되었으며 추가 정리는 수행하지 않는다. 원격 게시 상태 불일치 B2-M01과 회수량 증거 구분 B2-I01은 이 문서 종결로 해결했다. 독립 감사의 CONDITIONAL PASS 및 원래 구현·실패 이력은 보존한다.
+
+구현 commit은 `75d09a75b2f9c83f026333b083edb78e15ee7128`, 최초 게시 차단 기록은 `25e9f5c74a1c7ed05082378391c673ee4679858c`다. 최초 push/조회는 `Permission denied (publickey)`로 실패했고 당시 SSH 인증 에이전트 연결도 없었다. 당시 새 자격 증명을 취득하거나 인증 설정을 변경하지 않았다. 이후 owner 요청으로 수동 push를 재시도해 성공했으며 `phase2/mobile-network`의 원격 HEAD `25e9f5c74a1c7ed05082378391c673ee4679858c` 일치를 확인했다. 이번 종결 시에도 같은 원격 tip을 재확인했다. 이 SHA는 종결 문서 commit 전의 게시 확인 기준점이며, 후속 문서 commit은 별도 Git 이력에 남긴다.
+
+고정 경로·복구 의존성·R5/H11 및 모든 제외 후보는 보류/보호 상태로 그대로 유지한다. Phase 4는 **미착수·별도 승인 필요**다. main 병합과 운영 배포는 수행하지 않았다.
