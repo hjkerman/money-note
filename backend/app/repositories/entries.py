@@ -578,7 +578,8 @@ def update_entry(entry_id: int, patch: LedgerEntryPatch, *, conn: Any | None = N
                 JOIN card_payment_events e ON e.id = a.payment_event_id
                 WHERE a.entry_payment_key = ? AND e.event_type = 'discount'
             """, (merged.get("payment_key"),))
-            validate_manual_discount(merged.get("amount_value"), legacy_discount)
+            if legacy_discount:
+                validate_manual_discount(merged.get("amount_value"), legacy_discount)
         assignments = ", ".join(f"{column} = ?" for column in values)
         params = list(values.values()) + [entry_id]
         conn.execute(
