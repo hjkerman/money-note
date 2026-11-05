@@ -1,4 +1,4 @@
-import { FormEvent } from "react";
+import { Dispatch, FormEvent, SetStateAction, useRef } from "react";
 import {
   appendPlannedEntry,
   confirmPlannedEntry,
@@ -21,6 +21,9 @@ import {
   parseOptionalDay,
 } from "../utils";
 
+type ExpenseDraft = { date: string; usagePlace: string; usageItem: string; spendingCategory: string; amount: string };
+type PlannedDraft = { dueDay: string; usagePlace: string; usageItem: string; amount: string };
+
 export function useEntryHandlers({
   entries,
   expenseForm,
@@ -33,13 +36,17 @@ export function useEntryHandlers({
   entries: LedgerEntry[];
   expenseForm: { date: string; usagePlace: string; usageItem: string; spendingCategory: string; amount: string };
   plannedForm: { dueDay: string; usagePlace: string; usageItem: string; amount: string };
-  setExpenseForm: (value: { date: string; usagePlace: string; usageItem: string; spendingCategory: string; amount: string }) => void;
-  setPlannedForm: (value: { dueDay: string; usagePlace: string; usageItem: string; amount: string }) => void;
+  setExpenseForm: Dispatch<SetStateAction<ExpenseDraft>>;
+  setPlannedForm: Dispatch<SetStateAction<PlannedDraft>>;
   setStatus: (value: string) => void;
   withRefresh: (action: () => Promise<void>) => Promise<boolean>;
 }) {
+  const expenseSubmitting = useRef(false);
+  const plannedSubmitting = useRef(false);
+
   async function handleExpenseSubmit(event: FormEvent) {
     event.preventDefault();
+    if (expenseSubmitting.current) return;
     const form = event.currentTarget as HTMLFormElement;
     const usagePlace = expenseForm.usagePlace.trim();
     const usageItem = expenseForm.usageItem.trim();
@@ -48,38 +55,46 @@ export function useEntryHandlers({
       setStatus("날짜, 사용처, 금액은 필수입니다.");
       return;
     }
-    await withRefresh(async () => {
-      const dateLabel = formatDateLabel(expenseForm.date);
-      const title = formatUsageTitle(usagePlace, usageItem);
-      const created = await createEntry({
-        book_section: "current",
-        entry_kind: "expense",
-        entry_date: expenseForm.date || null,
-        date_label: dateLabel,
-        group_label: null,
-        title,
-        usage_place: usagePlace || null,
-        usage_item: usageItem || null,
-        amount_value: amount,
-        amount_expr: null,
-        aux_amount_value: null,
-        aux_amount_expr: null,
-        extra_value: null,
-        sort_order: nextSortOrder(entries),
-        due_day: null,
-        confirmed_at: null,
-        confirmed_month: null,
-        spending_category: (expenseForm.spendingCategory || null) as SpendingCategory | null,
-        discount_override: 0,
+    expenseSubmitting.current = true;
+    try {
+      await withRefresh(async () => {
+        const dateLabel = formatDateLabel(expenseForm.date);
+        const title = formatUsageTitle(usagePlace, usageItem);
+        const created = await createEntry({
+          book_section: "current",
+          entry_kind: "expense",
+          entry_date: expenseForm.date || null,
+          date_label: dateLabel,
+          group_label: null,
+          title,
+          usage_place: usagePlace || null,
+          usage_item: usageItem || null,
+          amount_value: amount,
+          amount_expr: null,
+          aux_amount_value: null,
+          aux_amount_expr: null,
+          extra_value: null,
+          sort_order: nextSortOrder(entries),
+          due_day: null,
+          confirmed_at: null,
+          confirmed_month: null,
+          spending_category: (expenseForm.spendingCategory || null) as SpendingCategory | null,
+          discount_override: 0,
+        });
+        setExpenseForm((current) => current === expenseForm
+          ? { date: expenseForm.date, usagePlace: "", usageItem: "", spendingCategory: "", amount: "" }
+          : current);
+        setStatus(created.book_section === "archive" ? "이미 마감한 달의 전체 기록에 추가 완료" : "당월 기록 추가 완료");
+        focusFirstDataInput(form);
       });
-      setExpenseForm({ date: expenseForm.date, usagePlace: "", usageItem: "", spendingCategory: "", amount: "" });
-      setStatus(created.book_section === "archive" ? "이미 마감한 달의 전체 기록에 추가 완료" : "당월 기록 추가 완료");
-      focusFirstDataInput(form);
-    });
+    } finally {
+      expenseSubmitting.current = false;
+    }
   }
 
   async function handlePlannedSubmit(event: FormEvent) {
     event.preventDefault();
+    if (plannedSubmitting.current) return;
     const form = event.currentTarget as HTMLFormElement;
     const usagePlace = plannedForm.usagePlace.trim();
     const usageItem = plannedForm.usageItem.trim();
@@ -89,18 +104,25 @@ export function useEntryHandlers({
       setStatus("결제일, 사용처, 금액은 필수입니다.");
       return;
     }
-    await withRefresh(async () => {
-      await appendPlannedEntry({
-        title: formatUsageTitle(usagePlace, usageItem),
-        usage_place: usagePlace || null,
-        usage_item: usageItem || null,
-        amount_value: amount,
-        due_day: dueDay,
+    plannedSubmitting.current = true;
+    try {
+      await withRefresh(async () => {
+        await appendPlannedEntry({
+          title: formatUsageTitle(usagePlace, usageItem),
+          usage_place: usagePlace || null,
+          usage_item: usageItem || null,
+          amount_value: amount,
+          due_day: dueDay,
+        });
+        setPlannedForm((current) => current === plannedForm
+          ? { dueDay: "", usagePlace: "", usageItem: "", amount: "" }
+          : current);
+        setStatus("카드 정기결제 추가 완료");
+        focusFirstDataInput(form);
       });
-      setPlannedForm({ dueDay: "", usagePlace: "", usageItem: "", amount: "" });
-      setStatus("카드 정기결제 추가 완료");
-      focusFirstDataInput(form);
-    });
+    } finally {
+      plannedSubmitting.current = false;
+    }
   }
 
   async function handlePlannedConfirm(entry: LedgerEntry, entryDate: string, actualAmount: number) {
