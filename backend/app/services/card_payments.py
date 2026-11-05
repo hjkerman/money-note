@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from app.services.card_charge.evaluator import validate_manual_discount
+
 from datetime import date, datetime
 import hashlib
 import json
@@ -466,8 +468,7 @@ def set_entry_discount(
         ).fetchone()
         if row is None:
             raise ValueError("할인 대상 사용내역을 찾을 수 없습니다.")
-        if amount > exact_money(row["amount_value"] or 0):
-            raise ValueError("할인액은 원래 금액을 초과할 수 없습니다.")
+        validate_manual_discount(row["amount_value"], amount)
         _delete_entry_discount_events(conn, entry_payment_key)
         conn.execute(
             """

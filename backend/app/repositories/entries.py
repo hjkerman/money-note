@@ -8,6 +8,7 @@ from app.schemas import LedgerEntryIn, LedgerEntryPatch, PlannedEntryIn
 from app.services.clock import app_today
 from app.services.financial_inputs import inputs_for
 from app.services.card_charge import utility_default_discount_excluded
+from app.services.card_charge.evaluator import validate_manual_discount
 from app.services.financial_relationships import (
     validate_runtime_card_payment_ownership, validate_runtime_recurring_ownership,
 )
@@ -296,7 +297,12 @@ def create_entry(entry: LedgerEntryIn, conn: Any | None = None) -> dict[str, Any
     values = entry.model_dump()
     if values.get("entry_date") is not None:
         values["entry_date"] = values["entry_date"].isoformat()
-    _validate_structured_entry(values)
+    effective_values = dict(values)
+    if initial_discount_override_amount is not None:
+        effective_values.update(discount_override=1, aux_amount_value=initial_discount_override_amount)
+    elif initial_discount_enabled is False:
+        effective_values.update(discount_override=1, aux_amount_value=0)
+    _validate_structured_entry(effective_values)
     placeholders = ", ".join("?" for _ in ENTRY_COLUMNS)
     columns = ", ".join(ENTRY_COLUMNS)
     with borrowed_or_new_session(conn, transaction_mode="IMMEDIATE") as conn:
@@ -566,6 +572,13 @@ def update_entry(entry_id: int, patch: LedgerEntryPatch, *, conn: Any | None = N
             _ensure_recurring_confirmation_epoch(conn, entry_id, source)
         merged = {**dict(existing), **values}
         _validate_structured_entry(merged)
+        if not (merged.get("discount_override") and merged.get("aux_amount_value") is not None):
+            legacy_discount = query_money_sum(conn, """
+                SELECT a.amount_value FROM card_payment_allocations a
+                JOIN card_payment_events e ON e.id = a.payment_event_id
+                WHERE a.entry_payment_key = ? AND e.event_type = 'discount'
+            """, (merged.get("payment_key"),))
+            validate_manual_discount(merged.get("amount_value"), legacy_discount)
         assignments = ", ".join(f"{column} = ?" for column in values)
         params = list(values.values()) + [entry_id]
         conn.execute(
@@ -758,6 +771,8 @@ def _legacy_recurring_source(
 
 def _validate_structured_entry(values: dict[str, Any]) -> None:
     """현재 일반 지출과 카드 정기결제의 필수 필드를 쓰기 직전에 검증한다."""
+    if values.get("discount_override") and values.get("aux_amount_value") is not None:
+        validate_manual_discount(values.get("amount_value"), values["aux_amount_value"])
     if values.get("book_section") != "current":
         return
     kind = values.get("entry_kind")

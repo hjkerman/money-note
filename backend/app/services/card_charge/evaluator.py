@@ -20,6 +20,15 @@ from .profiles import (
 from .registry import policy_for
 
 
+def validate_manual_discount(amount: int | float | None, discount: int | float | None) -> None:
+    """Reject invalid write intent without changing stored values or read projections."""
+    value = exact_money(discount or 0)
+    if value < 0:
+        raise ValueError("할인액은 0원 이상이어야 합니다.")
+    if value > exact_money(amount or 0):
+        raise ValueError("할인액은 원래 금액을 초과할 수 없습니다.")
+
+
 def evaluate_card_charge(charge: CardChargeInput) -> CardChargeResult:
     """카드 정책, 월 스위치, 수동 보정을 합쳐 최종 실결제액을 반환한다."""
     original = max(0, exact_money(charge.original_amount))
