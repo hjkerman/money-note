@@ -38,9 +38,9 @@ F01 첫 수정 commit: `74fe9d9` (`Reject excessive effective manual discounts o
 다음 작업은 **독립 F01/F02 한정 수정 감사**다. 기존 불법 행 읽기 정책의 후속 결정 필요성을 포함해 인계하며 이 구현 세션에서 독립 감사를 시작하지 않는다.
 
 
-## F01-L01 — 승인된 최종 읽기 방어, 독립 검증 대기
+## F01-L01 — ACCEPTED (owner 수용)
 
-owner가 설계안 A를 승인해 `card_charge/evaluator.py`의 정책/override 선택 뒤 `effective_discount = min(original, max(0, effective_discount))`, `effective_amount = original - effective_discount`를 적용했다. original은 기존 evaluator가 정규화한 비음수 원금이다. 정상 자동 할인, 사용월 정책, override 및 legacy 이벤트 우선순위를 유지하며 Summary/다른 소비자 코드는 수정하지 않았다. 저장 할인·이벤트·allocation·aux·schema·revision·Snapshot 형식은 변경하지 않는다. F01-L01은 **IMPLEMENTED / INDEPENDENT VERIFICATION PENDING**이며 CLOSED가 아니다.
+owner가 설계안 A를 승인해 `card_charge/evaluator.py`의 정책/override 선택 뒤 `effective_discount = min(original, max(0, effective_discount))`, `effective_amount = original - effective_discount`를 적용했다. original은 기존 evaluator가 정규화한 비음수 원금이다. 정상 자동 할인, 사용월 정책, override 및 legacy 이벤트 우선순위를 유지하며 Summary/다른 소비자 코드는 수정하지 않았다. 저장 할인·이벤트·allocation·aux·schema·revision·Snapshot 형식은 변경하지 않는다. 구현 게시 당시 상태는 **IMPLEMENTED / INDEPENDENT VERIFICATION PENDING**이었다. 이후 owner의 명시적 수용 지시에 따라 현재 상태를 **ACCEPTED — OWNER ACCEPTED**로 갱신한다. 수용 대상 구현은 `96e9a0a309f91ef1e94cbbda119541e72601d1c3`이다. 별도의 독립 감사 verdict는 이번 메시지에 제공되지 않았으므로 PASS로 새로 기록하지 않는다. 기존 재현 증거의 당시 대기 상태와 실패/성공 이력은 보존한다.
 
 새 `backend/tests/test_p4_legacy_discount.py`는 SQL로 합성 legacy 행을 만든다. override/event 각각 초과 할인, per-entry 순액 합과 Summary 일치, 사용월 할인 상한, override 우선순위, 0/동일 경계, owner/family 정상 정책, active batch 및 통행료 그룹을 확인한다. 원래 금융 DB dump(revision 포함)와 고정 시각 Snapshot 원문·manifest가 읽기 전후 같음을 검사한다. Bundle과 legacy HTTP projection의 완전 동등성도 기존 oracle로 확인한다. 두 번째 행의 기본 자동 할인 2원이 적용되는 fixture를 발견해 할인 제외를 명시했으며 기존 정상 자동 할인 의미를 변경하지 않았다.
 
@@ -48,4 +48,4 @@ owner가 설계안 A를 승인해 `card_charge/evaluator.py`의 정책/override 
 
 실제 변경 Bundle 두 종류(override/event)는 직접 engine host runner로 모바일 strict admission까지 **2 PASS / 0 FAIL / 0 SKIP**다. Flutter CLI·Android·ADB·기기는 사용하지 않았다. 초기 시스템 Python에는 FastAPI가 없어 fixture 생성이 실패했고 기존 venv로 재실행했다. [단일 재현 근거](../benchmarks/p4-f01-l01-evidence.json)에 synthetic Bundle, host runner·Dart 실험 원문, 호출 및 실패/성공 로그를 보존했다. 개인 금융 데이터나 인증 token은 포함하지 않는다.
 
-한계: host-only 검증이며 Production 데이터 존재 여부·실기기 동작은 조사하지 않았다. 초과 원시 할인은 의도적으로 보존되므로 별도 데이터 수선이나 오류 경고 UI가 구현된 것은 아니다. 다른 legacy 음수/NULL 원금 정책을 확대하지 않는다. 다음은 독립 F01-L01 한정 재검증이다.
+한계: host-only 검증이며 Production 데이터 존재 여부·실기기 동작은 조사하지 않았다. 초과 원시 할인은 의도적으로 보존되므로 별도 데이터 수선이나 오류 경고 UI가 구현된 것은 아니다. 다른 legacy 음수/NULL 원금 정책을 확대하지 않는다. 구현 당시 다음 단계는 독립 F01-L01 한정 재검증으로 기록했다. 현재는 owner 수용 완료이며, 이번 기록은 F01/F02 전체 또는 Phase 4 전체의 종결·운영 배포 승인을 뜻하지 않는다.
