@@ -60,12 +60,15 @@ def evaluate_card_charge(charge: CardChargeInput) -> CardChargeResult:
         effective_discount = automatic.amount
         reason = automatic.reason
 
+    # Applied discounts cannot reduce another entry's charge in aggregate.
+    effective_discount = min(original, max(0, effective_discount))
+
     return CardChargeResult(
         original_amount=original,
         automatic_discount_eligible=automatic.eligible,
         automatic_discount_amount=automatic.amount,
         effective_discount_amount=effective_discount,
-        effective_amount=max(0, original - effective_discount),
+        effective_amount=original - effective_discount,
         policy_id=policy.policy_id,
         month_policy=month_policy,
         reason=reason,
