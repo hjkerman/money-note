@@ -2,9 +2,23 @@
 
 이 문서는 새 개발자나 새 작업 세션이 Money Note의 현재 기준선과 문서 읽기 순서를 빠르게 파악하기 위한 체크포인트다. 상세 도메인 규칙, API, 스키마, 운영 절차를 대신하지 않는다.
 
-마지막 기능 코드 대조: 2026-10-09, T6.5B-3 coherent bundle 취득 개발 checkout (운영 배포 기준 아님)
+역사적 기능 경로 체크포인트: 2026-10-09, T6.5B-3 coherent bundle 취득 개발 checkout (운영 배포 기준 아님)
 
-## 현재 기준선
+## 2026-11-06 개발 사이클 종료 기준
+
+현재 운영/완료 상태는 이 절을 우선한다. 아래 오래된 체크포인트와 개별 감사의 당시 판정을 소급 변경하지 않는다. [완료 근거](benchmarks/release-2.5.0-cycle-closure.json)는 기존 게시·검증·삭제 기록의 비민감 요약이며 이번 문서 정리에서 Production에 재접속하지 않았다.
+
+- Backend/Web: application `9c98396e76c4d88f47c5f724523eda4f3222de1f`, image `sha256:8b7e68de0ed8ffdbb4beee861478d50ed460402d1f24fa0c3a11d46f087c73a9`의 운영 배포 및 공개 서비스 복구 완료. schema 4. 배포 후 image·핵심 runtime 소스 8개·HTTPS Web 7개 파일·health·401 경계와 read-only DB/금융 validator를 직접 확인했다.
+- Mobile: **2.5.0 (16)** 게시 완료. APK SHA `f5ff939e5a6d221ba7cdd290c843170875b10708c04e4acc25f27bcde97ed2b6`, 빌드 commit `437fc5124683d457787bc2cc2a1e34f4422fbc2d`. 앱 lib/Android/lock은 위 승인 application 기준이고 버전·테스트 스타일만 별도 변경했다. 실제 기기 업데이트 완료는 owner 보고이며 독립 기기 qualification 또는 전체 로그인/기능 실사용 PASS로 확대하지 않는다.
+- Flutter analyze·서명·패키지·운영 URL 검증 PASS, 정상 앱 회귀 **783 PASS / 3 SKIP**. SKIP은 과거 T6.6A HOST fixture 2건과 보류 P1-S 성능 probe다. 전체 실험 포함 suite는 FAIL 이력을 유지한다. owner가 segmented 실험 suite 제외·정상 앱 검사 통과 조건의 게시를 명시 승인했다.
+- Phase1 CLOSED(R-01 채택, S/U 보류, P1-05 제외); Phase2 N01 ACCEPTED, N02 DEFER/독립 Snapshot GET 유지, 나머지 후보 미구현. Phase3 D01–D03/Claim 무기한 유지 수용·CLOSED. Phase4의 F01/F02/F01-L01 한정 수정은 owner 수용·배포에 포함됐다. 과거 문서의 “Phase4 미착수”는 당시 기록이며 현재 상태가 아니다. 별도 독립 감사 verdict를 새로 발급하거나 역사적 전체 gate를 종결하지 않는다.
+- T6.6 구현·실험 소스와 동결 근거는 보존한다. 정상 앱은 Bundle 취득 경로이며 `*ForIsolatedUse`를 startup/UI에서 호출하지 않는다. segmented 운영 활성화는 하지 않았다. B03 계측 정확성 IR07 CLOSED와 전체 Phase B INCONCLUSIVE, 8개 이관 의무·T6.9/large-Snapshot 보류를 구분한다. 이번 기기 업데이트가 F01/G1/G2·ADB·formal T6.6F 판정을 대체하지 않는다.
+- 승인된 임시 파일 A/B 정리 완료: 파일 29,097개·디렉터리 3,900개, 파일 할당량 3,923,726,336B, 관측된 즉시 여유 증가 3,917,955,072B. Stage1 격리 개발 컨테이너만 별도 승인으로 정상 정지했다. C/D·현재 APK·서명키는 보존했다. 롤백 전용 보관 필요성 철회도 owner 결정이다. 삭제된 staging을 다시 만들지 않는다.
+- 로컬 통합은 `phase2/mobile-network`를 사용한다. main/phase1은 이미 조상이고, 과거 cash incident의 변경 의미는 현재 Web에 반영돼 중복 병합하지 않는다. 승인 Controller `dc9736f`의 로컬 통합은 application release SHA와 구분한다. Dependabot 제안은 이 사이클 범위 밖이다.
+- 통합 소스는 운영 application/APK 빌드 commit과 다르다. APK의 783 PASS를 이후 보존한 실험 소스 전체의 새 검증 결과로 적용하지 않는다. 이번 통합 확인은 Controller 84 PASS, Web TypeScript/Vite build PASS와 선별 Python AST/diff 검사에 한정한다. 승인 APK 이력과 Controller 이력은 로컬 import/merge로 보존하며 새 배포는 하지 않는다.
+- owner 결정에 따라 device-gate 보안/서명/네트워크 묶음은 미커밋 보존하고 대용량 raw DB/archive/log도 로컬 보존한다. 실험 소스 커밋은 activation 승인이 아니다. 남은 실험 검증·device gate·의존성 업데이트·대규모 Snapshot은 후속 별도 승인 대상으로 남긴다.
+
+## 이전 체크포인트
 
 - Repository Hygiene **CLOSED**: Batch 1과 Batch 2 독립 감사 결과를 owner가 수용했다. 수동 push 성공 및 원격 HEAD `25e9f5c74a1c7ed05082378391c673ee4679858c`를 확인했고 [종결 기록](archive/repository-hygiene/batch2-closure.md)에 B2-M01/B2-I01 해결과 최초 SSH 실패 이력을 보존했다. 독립 검증된 즉시 회수량은 311,623,680B이며 이후 302,956,544B 순회수량 주장은 미검증이다. 모든 제외 후보는 그대로 보존한다. Phase4는 **미착수·별도 승인 필요**다.
 

@@ -1,0 +1,58 @@
+{
+  "application_release": "9c98396e76c4d88f47c5f724523eda4f3222de1f",
+  "backend_image": "sha256:8b7e68de0ed8ffdbb4beee861478d50ed460402d1f24fa0c3a11d46f087c73a9",
+  "apk_build_commit": "437fc5124683d457787bc2cc2a1e34f4422fbc2d",
+  "apk": {
+    "versionName": "2.5.0",
+    "versionCode": 16,
+    "package": "kr.re.hjkerman.money_note",
+    "sha256": "f5ff939e5a6d221ba7cdd290c843170875b10708c04e4acc25f27bcde97ed2b6",
+    "signer_certificate_sha256": "e3566d0aea6eb9c3b0011496c7710439e65165e61a36704db5e141875e8dfad5",
+    "cryptographic_signature_verification": "PASS",
+    "production_origin": "https://money.hjkerman.re.kr"
+  },
+  "verification_origin": "previous authorized Stage3 post-deployment verification; no Production access in this closure task",
+  "backend_web": "PASS: running image and 8 runtime source files matched release; 7 approved Web files matched HTTPS bytes; unauthenticated protected GETs 401; read-only integrity/FK/money/ownership/Summary passed",
+  "normal_mobile_tests": {
+    "success": 783,
+    "skipped": 3
+  },
+  "skipped_tests": [
+    "T6.6A frozen bytes admission and actual durable HOST pipeline",
+    "T6.6A actual IOClient content encoding and byte-exact admission",
+    "P1-S content receipt digest/decode cost precondition"
+  ],
+  "full_suite": "FAIL: segmented experimental suites; owner explicitly approved normal-app verification profile for APK publication",
+  "device_update": "owner reports completed; no independent device/tool validation",
+  "cleanup": {
+    "deleted_files": 29097,
+    "deleted_directory_count": 3900,
+    "deleted_allocated_bytes": 3923726336,
+    "immediate_free_space_increase": 3917955072,
+    "protected_C_D": "UNCHANGED",
+    "APK_250_16_and_signing_key": "PRESERVED",
+    "Git_HEAD_index_and_worktree_status": "UNCHANGED"
+  },
+  "rollback_retention": "owner no longer requires rollback-only copies; A+B removal explicitly authorized; current artifacts and C/D retained",
+  "integration_policy": "retain device-gate security bundle uncommitted; retain large raw evidence locally; no push/activation/deployment",
+  "closure_validation": {
+    "controller_tests": "84 PASS",
+    "frontend_TypeScript_Vite_build": "PASS",
+    "selected_Python_sources": "AST parse PASS",
+    "private_key_and_known_token_patterns": "NONE in selected paths",
+    "scope": "lightweight integration checks only; no Production, APK rebuild or historical campaign rerun"
+  },
+  "integrated_history": {
+    "APK": [
+      "bcee7af5c1ba75ea6311756634c0bf44e69cd9b4",
+      "437fc5124683d457787bc2cc2a1e34f4422fbc2d"
+    ],
+    "controller": "dc9736f450eaf8ff7b1673287fc4e0406c58472a",
+    "experimental_preservation": "0d39c42",
+    "target": "phase2/mobile-network",
+    "not_merged": [
+      "incident-20261001-web-cash (equivalent behavior and regression already present)",
+      "Dependabot proposals (out of scope)"
+    ]
+  }
+}

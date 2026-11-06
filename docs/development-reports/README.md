@@ -1,6 +1,8 @@
 # 최적화·개선·감사 작업 기록
 
-Phase3 D01–D03·Claim 유지 정책은 owner 수용과 안전 게시를 마쳐 **CLOSED**다. Phase4는 미착수이며 별도 승인이 필요하다. 아래 로드맵을 기준으로 진행하고 장기 유지 문서는 [상위 문서 안내](../README.md)에 둔다.
+현재 사이클: **Backend/Web 배포·Mobile 2.5.0(16) 게시·owner의 기기 업데이트 및 A/B 정리 완료**. [현재 기준선](../project-state.md#2026-11-06-개발-사이클-종료-기준)을 우선한다. 아래 과거 단계의 미착수·배포 미승인 표시는 당시 이력이며 현재 release 상태를 뜻하지 않는다. T6.6 운영 활성화와 역사적 gate 종결은 별개다.
+
+Phase3 D01–D03·Claim 유지 정책은 owner 수용과 안전 게시를 마쳐 **CLOSED**다. 이후 Phase4 F01/F02/L01 한정 수정이 owner 수용·운영 배포에 반영됐다. 역사적 전체 gate와 후속 보류 과제는 별도다. 아래 로드맵을 기준으로 진행하고 장기 유지 문서는 [상위 문서 안내](../README.md)에 둔다.
 
 ## 현재 로드맵·P1 결과
 
@@ -18,7 +20,7 @@ Batch 1에서 완료된 P1·N02·Phase3 기록과 과거 디스크 조사를 [ar
 - [p1-02-flutter-rebuild-derived-state-results.md](../archive/phase1/p1-02-flutter-rebuild-derived-state-results.md) — 원래 경로 보존
 - [p1-03-snapshot-save-validation-performance-results.md](../archive/phase1/p1-03-snapshot-save-validation-performance-results.md) — 원래 경로 보존
 
-P1-R-01 최초 p95 기준 미달·원복은 보존한다. 독립 거부 검토 A와 owner의 한정1회 예외 승인 뒤 동일 B를 재복원해 활성132건 통과로 채택했다. P1-S는 digest 비용 조건 실패로 미구현·보류했다. P1-U는 보류, P1-05는 소유자 결정으로 제외했다. 실제 구현·감사 지적은 위 공유 장부를 갱신하며 Phase1 종료나 다음 단계 진입은 자동이 아니다.
+P1-R-01 최초 p95 기준 미달·원복은 보존한다. 독립 거부 검토 A와 owner의 한정1회 예외 승인 뒤 동일 B를 재복원해 활성132건 통과로 채택했다. P1-S는 digest 비용 조건 실패로 미구현·보류했다. P1-U는 보류, P1-05는 소유자 결정으로 제외했다. 위 공유 장부는 Phase1 종료 당시의 구현·감사 이력을 보존한다. 종료 이후 새 과제를 자동 착수하지 않는다.
 
 ## 기존 단계별 설계·구현 기록
 

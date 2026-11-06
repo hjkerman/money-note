@@ -1,5 +1,8 @@
 # 알려진 이슈
 
+현재 release·검증 범위는 [사이클 종료 기준](project-state.md#2026-11-06-개발-사이클-종료-기준)을 따른다. 아래 독립 재감사 대기 등 과거 항목을 일괄 종결하지 않는다. 현재 확인된 제한은 전체 segmented 실험 suite FAIL(정상 앱 프로필 게시 예외는 owner 승인), 환경 의존 HOST 2건/P1-S probe 1건 SKIP, 독립 실기기 qualification 미수행이다. owner의 실제 2.5.0 업데이트 완료와 이를 구분한다.
+
+
 ## Owner-attested explicit canonicalization — 독립 재감사 대기 / live 미실행
 
 소유자가 11개 관계를 모두 YES로 승인했다. 자동 admission의 증명 불가 상태를 완화하지 않고 별도 명시적 manifest 도구를 추가했다. 보존 COPY의 11개 dry-run/폐기용 apply는 metadata 외 변화와 금융 차이 0원을 검증하고 strict startup/current Snapshot round-trip을 통과했다. 지급된 historical archive의 삭제 거부는 정상 보호 규칙이며 유지한다. 검토 날짜 경과 및 불완전 receipt 승인 반례도 test-first로 차단했다. 실제 운영은 아직 적용/배포하지 않았고 fresh backup·precondition 재검토·독립 감사·별도 실행 승인이 필요하다. [상세 절차](guides/owner-recurring-canonicalization.md).

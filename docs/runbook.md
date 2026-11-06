@@ -1,5 +1,10 @@
 # 실행 방법
 
+## 현재 운영 릴리스와 작업 기록
+
+Backend/Web application `9c98396e`, Mobile 2.5.0(16) 게시·owner 보고 기기 업데이트를 완료했다. 배포·검증 범위, SHA, 보류 과제와 승인된 임시 작업 디렉터리 삭제는 [현재 기준선](project-state.md#2026-11-06-개발-사이클-종료-기준)을 따른다. 삭제된 Stage1/2/2.5 경로를 실행 가능한 현행 workspace로 가정하지 않는다. 과거 원문 증거의 경로·판정은 당시 기록으로 유지한다. 현재 통합/commit은 추가 배포·APK 게시·T6.6 activation 권한이 아니다.
+
+
 ## Owner-approved one-time recurring 작업 — live 미실행
 
 자동 compatibility는 proof-only로 유지한다. R01–R11 YES는 exact private manifest의 인간 승인이지 timestamp/content matching 허가가 아니다. 별도 [도구/manifest/backup/dry-run/apply 절차](guides/owner-recurring-canonicalization.md)를 따른다. Fresh Online Backup과 pinned hash, stale-review/날짜 검사, 검증된 dry-run receipt, 0원 금융 차이, metadata allowlist를 모두 통과해야 한다. 향후 live apply는 별도 승인된 write-quiescent maintenance window에서만 수행한다. 기존 recovery 23개를 재작성하지 않고 적용 후 fresh canonical Snapshot을 새 baseline으로 검증한다. 이 코드 commit/push 및 COPY 검증은 deployment/live 적용 허가가 아니다.
