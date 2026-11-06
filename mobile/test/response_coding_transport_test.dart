@@ -93,8 +93,9 @@ void main() {
           exact = sha256.convert(bytes) == sha256.convert(raw);
           // Missing metadata is an identity response, never guessed as gzip. JSON
           // consumers reject these bytes; the transport must not auto-detect coding.
-          if (mode == 'missing-header')
+          if (mode == 'missing-header') {
             expect(() => jsonDecode(utf8.decode(bytes)), throwsA(anything));
+          }
         } catch (e) {
           error = e;
         } finally {

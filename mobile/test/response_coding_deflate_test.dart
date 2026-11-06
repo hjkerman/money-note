@@ -123,7 +123,7 @@ void main() {
       return int.parse(f[11]) + int.parse(f[12]);
     }
 
-    for (final n in [376, 1000, 10000])
+    for (final n in [376, 1000, 10000]) {
       for (final route in ['bundle', 'snapshot']) {
         final data = File('$root/$n-$route.gzip').readAsBytesSync();
         final expected = GZipDecoder().decodeBytes(data, verify: true);
@@ -135,7 +135,9 @@ void main() {
           expect(sink.offset, expected.length);
         }
 
-        for (var i = 0; i < 5; i++) validate();
+        for (var i = 0; i < 5; i++) {
+          validate();
+        }
         final before = ticks();
         final rss = ProcessInfo.currentRss;
         final samples = <int>[];
@@ -155,6 +157,7 @@ void main() {
           'maxRss': ProcessInfo.maxRss
         });
       }
+    }
     await File('$root/r1-incremental-resources.json')
         .writeAsString(jsonEncode(rows));
   }, skip: root == null ? 'requires synthetic fixtures' : false);
@@ -168,8 +171,9 @@ class ComparisonProbe implements Sink<List<int>> {
   @override
   void add(List<int> data) {
     for (final b in data) {
-      if (offset >= expected.length || expected[offset++] != b)
+      if (offset >= expected.length || expected[offset++] != b) {
         throw const FormatException('mismatch');
+      }
     }
   }
 

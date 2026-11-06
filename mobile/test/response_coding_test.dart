@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
 import 'package:money_note_mobile/src/api_client.dart';
 import 'package:money_note_mobile/src/authoritative_bundle.dart';
@@ -99,10 +98,12 @@ void main() {
         var encoded =
             File('$fixturePath/376-$route.gzip').readAsBytesSync().toList();
         if (defect == 'magic') encoded[0] = 0;
-        if (defect == 'truncated-middle')
+        if (defect == 'truncated-middle') {
           encoded = encoded.sublist(0, encoded.length ~/ 2);
-        if (defect == 'truncated-trailer')
+        }
+        if (defect == 'truncated-trailer') {
           encoded = encoded.sublist(0, encoded.length - 8);
+        }
         if (defect == 'crc') encoded[encoded.length - 8] ^= 1;
         final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
         server.listen((req) async {
