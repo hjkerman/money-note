@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import stat
 import subprocess
 import tarfile
 import tempfile
@@ -353,8 +354,11 @@ def cleanup_server(control):
             shutil.rmtree(backup)
 
 
-def apply_server(stage, revision, backend, frontend, previous, old_image):
+def apply_server(stage, revision, backend, frontend, previous, old_image, *, promotion=None):
     with deploy_lock() as control:
+        if promotion is not None:
+            verify_promotion_stage(stage, promotion)
+            validate_compose(stage)
         production_paths()
         pending = control / "pending.json"
         require(not pending.exists(), "Unfinished deployment: use --rollback ATTEMPT --apply first")
@@ -390,6 +394,9 @@ def apply_server(stage, revision, backend, frontend, previous, old_image):
         if backend:
             shutil.copy2(stage / "docker-compose.yml", release / "docker-compose.yml")
             shutil.copy2(stage / "image.json", release / "image.json")
+        if promotion is not None:
+            verify_promotion_stage(stage, promotion)
+            shutil.copyfile(stage / "promotion.json", release / "promotion.json")
         save_json(pending, {"attempt": attempt})
         try:
             if backend:
@@ -398,9 +405,15 @@ def apply_server(stage, revision, backend, frontend, previous, old_image):
                 health()
             for relative in files:
                 atomic_copy(stage / "frontend/dist" / relative, WEB / relative)
-            save_json(current, {"commit": revision, "runtime": str(release if backend else old_compose),
+            publication = {"commit": revision, "runtime": str(release if backend else old_compose),
                                 "attempt": attempt, "assets": new_assets,
-                                "managed_assets": sorted(existing_assets | set(new_assets))})
+                           "managed_assets": sorted(existing_assets | set(new_assets))}
+            if promotion is not None:
+                publication.update(controller_commit=promotion["controller_commit"],
+                                   promotion_manifest_sha256=promotion["manifest_sha256"],
+                                   backend_image_id=promotion["manifest"]["backend_image_id"],
+                                   web_manifest_sha256=promotion["manifest"]["web_manifest_sha256"])
+            save_json(current, publication)
         except BaseException:
             try:
                 restore(backup)
@@ -417,6 +430,8 @@ def apply_server(stage, revision, backend, frontend, previous, old_image):
 
 
 def server(args, revision):
+    if getattr(args, "promote_manifest", None):
+        return promote_server(args, revision)
     production_paths()
     current = PRODUCTION / ".local-deploy/current.json"
     plain(current)
@@ -527,6 +542,184 @@ def mobile(args, revision, config):
                     old.unlink()
 
 
+# Promotion manifest v1 (all fields required, no extensions):
+# {version: 1, release: full Git SHA, backend_image_id: sha256:HEX64,
+#  compose_sha256: HEX64, web_root: relative directory below manifest.parent,
+#  web_files: {relative POSIX ASCII path: HEX64}, web_manifest_sha256: HEX64,
+#  provenance: {dockerfile_sha256: HEX64, requirements_lock_sha256: HEX64,
+#               python_base_image: sha256:HEX64, node_image: sha256:HEX64}}
+# The Web digest hashes compact, sort_keys=True JSON of web_files. The CLI's
+# expected digest instead hashes the exact promotion manifest bytes. A pinned
+# manifest in an owner-private directory authorizes only its own subtree.
+# Base/node IDs attest the approved build; they are not inferred from image tags.
+# Relative paths are ASCII POSIX components with no dot/traversal, case aliases,
+# symlinks, special files or .env paths. Producer root and manifest are private.
+PROMOTION_FIELDS = {"version", "release", "backend_image_id", "compose_sha256",
+                    "web_root", "web_files", "web_manifest_sha256", "provenance"}
+PROVENANCE_FIELDS = {"dockerfile_sha256", "requirements_lock_sha256",
+                     "python_base_image", "node_image"}
+
+
+def promotion_digest(value):
+    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def promotion_object(pairs):
+    result = {}
+    for key, value in pairs:
+        require(key not in result, "Duplicate promotion JSON field")
+        result[key] = value
+    return result
+
+
+def promotion_hex(value, prefix=""):
+    require(isinstance(value, str) and re.fullmatch(re.escape(prefix) + r"[0-9a-f]{64}", value),
+            "Invalid promotion digest/image identity")
+
+
+def promotion_relative(value):
+    require(isinstance(value, str) and value and not value.startswith("/"), "Invalid promotion path")
+    parts = value.split("/")
+    require(all(part not in {"", ".", ".."} and not part.endswith(".")
+                and not part.startswith(".env") and re.fullmatch(r"[A-Za-z0-9_.-]+", part)
+                for part in parts), "Unsafe/ambiguous promotion path")
+    return Path(*parts)
+
+
+def promotion_inventory(root):
+    plain(root)
+    require(root.is_dir(), "Missing promotion Web root")
+    files, names = {}, set()
+    for path in root.rglob("*"):
+        plain(path)
+        relative = path.relative_to(root).as_posix()
+        promotion_relative(relative)
+        require(relative.casefold() not in names, "Ambiguous promotion path case")
+        names.add(relative.casefold())
+        mode = path.stat().st_mode
+        require(stat.S_ISREG(mode) or stat.S_ISDIR(mode), "Unsafe promotion file type")
+        if stat.S_ISREG(mode):
+            files[relative] = sha(path)
+    return files
+
+
+def load_promotion(args, release):
+    promotion_hex(args.expected_manifest_sha256)
+    path = Path(args.promote_manifest)
+    plain(path)
+    require(path.is_file() and path.stat().st_uid == os.getuid()
+            and path.stat().st_mode & 0o077 == 0, "Promotion manifest must be owner-private")
+    root = path.parent
+    require(not root.is_relative_to(PRODUCTION) and not root.is_relative_to(WEB),
+            "Production/Web cannot be a promotion artifact root")
+    require(root.stat().st_uid == os.getuid() and root.stat().st_mode & 0o077 == 0,
+            "Promotion artifact root must be owner-private")
+    raw = path.read_bytes()
+    require(hashlib.sha256(raw).hexdigest() == args.expected_manifest_sha256,
+            "Promotion manifest SHA mismatch")
+    try:
+        manifest = json.loads(raw, object_pairs_hook=promotion_object)
+    except (ValueError, UnicodeError) as exc:
+        raise RuntimeError("Malformed promotion JSON") from exc
+    require(isinstance(manifest, dict) and set(manifest) == PROMOTION_FIELDS,
+            "Unsupported/missing promotion fields")
+    require(type(manifest["version"]) is int and manifest["version"] == 1,
+            "Unsupported promotion version")
+    require(isinstance(release, str) and re.fullmatch(r"[0-9a-f]{40}", release)
+            and manifest["release"] == release, "Promotion release SHA mismatch")
+    require(run(["git", "rev-parse", "--verify", release + "^{commit}"]) == release,
+            "Promotion release commit missing")
+    promotion_hex(manifest["backend_image_id"], "sha256:")
+    promotion_hex(manifest["compose_sha256"])
+    promotion_hex(manifest["web_manifest_sha256"])
+    provenance = manifest["provenance"]
+    require(isinstance(provenance, dict) and set(provenance) == PROVENANCE_FIELDS,
+            "Invalid promotion provenance")
+    for key in PROVENANCE_FIELDS:
+        promotion_hex(provenance[key], "sha256:" if key.endswith("image") else "")
+    contents = {}
+    for name, digest in [("docker-compose.yml", manifest["compose_sha256"]),
+                         ("backend/Dockerfile", provenance["dockerfile_sha256"]),
+                         ("backend/requirements.lock", provenance["requirements_lock_sha256"])]:
+        contents[name] = subprocess.check_output(["git", "show", f"{release}:{name}"], cwd=ROOT)
+        require(hashlib.sha256(contents[name]).hexdigest() == digest,
+                "Promotion Compose/source provenance mismatch")
+    web = manifest["web_files"]
+    require(isinstance(web, dict) and web, "Missing promotion Web inventory")
+    folded = set()
+    for name, digest in web.items():
+        promotion_relative(name)
+        require(name.casefold() not in folded, "Ambiguous promotion inventory")
+        folded.add(name.casefold())
+        promotion_hex(digest)
+    require(promotion_digest(web) == manifest["web_manifest_sha256"], "Promotion Web digest mismatch")
+    require("index.html" in web and ".well-known/assetlinks.json" in web
+            and any(name.startswith("assets/") and name.endswith(".js") for name in web),
+            "Missing required promotion Web artifacts")
+    web_root = root / promotion_relative(manifest["web_root"])
+    require(promotion_inventory(web_root) == web, "Promotion Web inventory/hash mismatch")
+    require((web_root / "index.html").stat().st_size > 0, "Empty promotion index")
+    verify_promotion_image(manifest)
+    return {"manifest": manifest, "raw": raw, "web_root": web_root,
+            "compose": contents["docker-compose.yml"], "manifest_sha256": args.expected_manifest_sha256,
+            "controller_commit": args.controller_revision}
+
+
+def verify_promotion_image(manifest):
+    image = manifest["backend_image_id"]
+    require(run(["docker", "image", "inspect", "--format", "{{.Id}}", image]) == image,
+            "Promotion Backend image mismatch")
+    require(run(["docker", "image", "inspect", "--format", "{{.Config.User}}", image])
+            in {"money-note", "1000", "1000:1000"}, "Expected non-root promotion image")
+
+
+def verify_promotion_stage(stage, info):
+    m = info["manifest"]
+    for name in ("promotion.json", "docker-compose.yml", "image.json"):
+        plain(stage / name)
+        require((stage / name).is_file(), "Unsafe staged promotion file")
+    require((stage / "promotion.json").read_bytes() == info["raw"], "Staged promotion manifest changed")
+    require(sha(stage / "docker-compose.yml") == m["compose_sha256"], "Staged Compose changed")
+    require((stage / "image.json").read_bytes() == info["image_override"], "Staged image override changed")
+    require(promotion_inventory(stage / "frontend/dist") == m["web_files"], "Staged Web changed")
+    verify_promotion_image(m)
+
+
+def prepare_promotion(info):
+    work = ROOT / "work/deploy"
+    plain(work)
+    work.mkdir(parents=True, exist_ok=True)
+    stage = Path(tempfile.mkdtemp(prefix=info["manifest"]["release"][:12] + "-", dir=work))
+    # Interrupted preparation remains task-owned staging, never a published attempt.
+    (stage / "docker-compose.yml").write_bytes(info["compose"])
+    (stage / "promotion.json").write_bytes(info["raw"])
+    image_override(stage, info["manifest"]["backend_image_id"])
+    info["image_override"] = (stage / "image.json").read_bytes()
+    for name in info["manifest"]["web_files"]:
+        source = info["web_root"] / promotion_relative(name)
+        plain(source)
+        require(source.is_file(), "Promotion source disappeared")
+        target = stage / "frontend/dist" / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, target)
+    verify_promotion_stage(stage, info)
+    return stage
+
+
+def promote_server(args, release):
+    info = load_promotion(args, release)
+    if not args.apply and not args.stage_only:
+        print(f"Verified promotion: release={release}; controller={args.controller_revision}; no publication")
+        return
+    stage = prepare_promotion(info)
+    print(f"Prepared verified promotion: {stage}")
+    if args.apply:
+        production_paths()
+        current = PRODUCTION / ".local-deploy/current.json"
+        previous = json.loads(current.read_text()) if current.exists() else None
+        apply_server(stage, release, True, True, previous, live_image(), promotion=info)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("target", choices=("server", "mobile"))
@@ -536,10 +729,19 @@ def main():
     modes.add_argument("--apply", action="store_true", help="explicit production deployment operation")
     parser.add_argument("--force", action="store_true", help="rebuild both server areas")
     parser.add_argument("--rollback", metavar="ATTEMPT", help="restore current/interrupted artifact backup")
+    parser.add_argument("--promote-manifest", help="owner-private pinned artifact manifest v1")
+    parser.add_argument("--expected-manifest-sha256")
+    parser.add_argument("--release", help="application commit, distinct from controller HEAD")
     args = parser.parse_args()
+    promotion = any((args.promote_manifest, args.expected_manifest_sha256, args.release))
+    require(not promotion or (args.target == "server" and args.promote_manifest
+            and args.expected_manifest_sha256 and args.release and not args.force and not args.rollback),
+            "Promotion requires server, all three identity arguments, no force/rollback")
     require(not (args.rollback and args.stage_only), "Rollback cannot use --stage-only")
     config = settings()
-    revision = source_revision(config["MONEY_NOTE_DEPLOY_BRANCH"], clean=args.apply or args.stage_only)
+    controller_revision = source_revision(config["MONEY_NOTE_DEPLOY_BRANCH"], clean=args.apply or args.stage_only)
+    args.controller_revision = controller_revision
+    revision = args.release if promotion else controller_revision
     def execute():
         if args.target == "server":
             server(args, revision)
