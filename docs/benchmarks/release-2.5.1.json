@@ -1,0 +1,45 @@
+{
+  "version": "2.5.1+17",
+  "source_commit": "64552d0390dcbcf659da9443ddea0683f58fbbd8",
+  "base_APK_commit": "437fc5124683d457787bc2cc2a1e34f4422fbc2d",
+  "artifact": {
+    "sha256": "23f994bdaaebffb9dc4091814188a151d0544b6205b7b9162b15c3469fc7623f",
+    "bytes": 62173960,
+    "versionName": "2.5.1",
+    "versionCode": 17,
+    "applicationId": "kr.re.hjkerman.money_note",
+    "signer_certificate_sha256": "e3566d0aea6eb9c3b0011496c7710439e65165e61a36704db5e141875e8dfad5",
+    "signature_verification": "PASS"
+  },
+  "audited_source_hashes": {
+    "mobile/lib/src/api_client.dart": "373979301aafe50846b81331b487585a5fd225195bfe813f8ed4894d5e4bd578",
+    "mobile/lib/src/app_state.dart": "44ea68d2f60691edacacd2e6cbd5d40920f3cf1660b2bfc22b53ff3253acfc85",
+    "mobile/lib/src/local_snapshot_repository.dart": "4529161be404ec901b9f335269f2cf314ce457a97fd85cb4a06aded304e5da49",
+    "mobile/lib/src/response_coding_client.dart": "d2c40d3cbeda96c70e2ea63b2bea93d4254a1c484b28fb8695326d0aadef06c5",
+    "mobile/lib/src/verified_gzip.dart": "211349ce0acd92e97eb01b38dbf44694213fe891fd6d89cb49212f7f2497fa2f",
+    "mobile/lib/src/snapshot_file_codec.dart": "48c6b485a9b4d75882f5ccd320ca3030e73913f495cf1c497a5f9e998ce19af3",
+    "mobile/test/local_snapshot_repository_test.dart": "bdb348ee994f40f3650f9f7ebc6d6e4743516c7b059e6f83d9ea88f246aaa5ca",
+    "mobile/test/snapshot_gzip_test.dart": "41c770eaed0bed42be99cbbe97cf1b043fc878819345de3200fdd1f76c977e32",
+    "mobile/pubspec.yaml": "1e1771dc77f6686200e8fa4ced307bd0a8c6cb876992946d58f3c512aaedba7e"
+  },
+  "independent_audit": "PASS — owner supplied; no blockers/required code correction",
+  "focused_regression": "62 PASS / 0 FAIL / 0 SKIP; existing verified results reused for release",
+  "build_analysis": "8 changed Dart files PASS",
+  "publication": {
+    "status": "PUBLISHED",
+    "source_commit": "64552d0390dcbcf659da9443ddea0683f58fbbd8",
+    "sha256": "23f994bdaaebffb9dc4091814188a151d0544b6205b7b9162b15c3469fc7623f",
+    "bytes": 62173960,
+    "version": "2.5.1+17",
+    "target": "/opt/money-note/downloads/money-note.apk",
+    "previous_apk_sha256": "f5ff939e5a6d221ba7cdd290c843170875b10708c04e4acc25f27bcde97ed2b6",
+    "previous_apk_preserved": true,
+    "existing_controller_lock_atomic_copy_metadata": "USED",
+    "backend_web_marker_unchanged": true,
+    "backend_restart_DB_mutation": "NOT_PERFORMED",
+    "device_installation": "NOT_PERFORMED",
+    "container_download_hash": "MATCH"
+  },
+  "installation": "PENDING — no 2.5.1 device installation performed",
+  "preexisting_fixture_output_incident": "8 non-frozen auxiliary JSON outputs rewritten in initial implementation test; previous auxiliary timing values unavailable; canonical discovery evidence/raw input hashes preserved; later tests use task copies"
+}

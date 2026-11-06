@@ -4,6 +4,14 @@
 
 역사적 기능 경로 체크포인트: 2026-10-09, T6.5B-3 coherent bundle 취득 개발 checkout (운영 배포 기준 아님)
 
+## 2026-11-07 Patch Release 2.5.1
+
+Mobile **2.5.1 (17) 게시 완료**, 단말 업데이트는 대기다. 정확한 APK 소스 commit은 `64552d0390dcbcf659da9443ddea0683f58fbbd8`이며 실제 2.5.0 빌드 기준에 감사된 gzip 변경과 버전만 반영했다. applicationId·기존 서명·저장 경로를 유지했다. APK SHA-256은 `23f994bdaaebffb9dc4091814188a151d0544b6205b7b9162b15c3469fc7623f`, 크기는 62,173,960B다. [릴리스 근거](benchmarks/release-2.5.1.json)에 독립 감사 PASS(owner 전달), 기존 62개 회귀 PASS, 빌드·서명 검증과 게시 결과를 기록한다.
+
+신규 로컬 백업만 gzip level6으로 저장하며 기존 JSON·혼합 30개 rolling retention·기존 JSON Restore API를 유지한다. Backend/Web은 기존 `9c98396e` 릴리스를 유지하고 DB/schema/API·N02·T6.6 activation을 변경하지 않았다. 기존 Controller의 잠금·이전 APK 보존·원자 게시를 사용했고 API container의 다운로드 파일 SHA도 일치했다. 2.5.1 설치·실제 단말 복원은 수행하지 않았다.
+
+구현 초기의 비동결 보조 fixture JSON 8개 재기록 및 보조 타이밍 원값 복원 불가 이력은 보존한다. 동결 근거와 원문 fixture SHA는 유지했으며 이후 시험은 작업 사본에서 수행했다. 이전 전체 실험 suite FAIL/보류 및 device-gate 보안 묶음 미커밋 보존 결정은 유효하다.
+
 ## 2026-11-06 개발 사이클 종료 기준
 
 현재 운영/완료 상태는 이 절을 우선한다. 아래 오래된 체크포인트와 개별 감사의 당시 판정을 소급 변경하지 않는다. [완료 근거](benchmarks/release-2.5.0-cycle-closure.json)는 기존 게시·검증·삭제 기록의 비민감 요약이며 이번 문서 정리에서 Production에 재접속하지 않았다.
