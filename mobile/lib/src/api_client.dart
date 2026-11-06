@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'models.dart';
 import 'money.dart';
 import 'response_coding_client.dart';
+import 'snapshot_file_codec.dart';
 
 // Grammar source only. This does not authorize a command or change J admission.
 enum _WriteMoneySource { input, mobileWinsBaseline }
@@ -18,6 +19,20 @@ const _tokenKey = 'money_note_session_token';
 const _secureStorage = FlutterSecureStorage(
   aOptions: AndroidOptions(migrateWithBackup: true),
 );
+
+/// Immutable, once-serialized restore request; prepared before pending-state changes.
+class SnapshotRestoreRequest {
+  SnapshotRestoreRequest._(this.password, this.snapshotText, this._body);
+  final String password;
+  final String snapshotText;
+  final Uint8List _body;
+  int get byteLength => _body.length;
+  factory SnapshotRestoreRequest.prepare(String password, String snapshotText) {
+    final body = encodeSnapshotRestoreBody(
+        {'password': password, 'snapshot_text': snapshotText});
+    return SnapshotRestoreRequest._(password, snapshotText, body);
+  }
+}
 
 class MoneyNoteApiClient {
   MoneyNoteApiClient({
@@ -448,9 +463,16 @@ class MoneyNoteApiClient {
   Future<Map<String, dynamic>> restoreSnapshot({
     required String password,
     required String snapshotText,
+    SnapshotRestoreRequest? prepared,
   }) {
+    final request =
+        prepared ?? SnapshotRestoreRequest.prepare(password, snapshotText);
+    if (request.password != password || request.snapshotText != snapshotText) {
+      throw const FormatException('Snapshot request mismatch');
+    }
     return _post('/api/admin/snapshot/restore',
-        {'password': password, 'snapshot_text': snapshotText}, (json) => json);
+        {'password': password, 'snapshot_text': snapshotText}, (json) => json,
+        serializedBody: request._body);
   }
 
   Future<Map<String, dynamic>> offlineReconciliationBaseline() {
@@ -529,12 +551,18 @@ class MoneyNoteApiClient {
 
   Future<T> _post<T>(String path, Map<String, dynamic> body,
       T Function(Map<String, dynamic>) parser,
-      {_WriteMoneySource moneySource = _WriteMoneySource.input}) async {
+      {_WriteMoneySource moneySource = _WriteMoneySource.input,
+      Uint8List? serializedBody}) async {
     _validateWriteMoney(body, source: moneySource);
     final response = await _request(() => _client.post(
           _uri(path),
-          headers: {'Content-Type': 'application/json', ..._headers()},
-          body: jsonEncode(body),
+          headers: {
+            'Content-Type': serializedBody == null
+                ? 'application/json'
+                : 'application/json; charset=utf-8',
+            ..._headers()
+          },
+          body: serializedBody ?? jsonEncode(body),
         ));
     return parser(_parseMap(response));
   }
