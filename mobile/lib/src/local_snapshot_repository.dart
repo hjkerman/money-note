@@ -6,6 +6,7 @@ import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
 
 import 'api_client.dart';
+import 'snapshot_file_codec.dart';
 
 typedef SnapshotDirectoryProvider = Future<Directory> Function();
 
@@ -21,6 +22,13 @@ class LocalSnapshotRepository {
   final SnapshotDirectoryProvider _directoryProvider;
 
   Future<List<LocalSnapshotInfo>> save(Uint8List bytes) async {
+    if (bytes.length > snapshotJsonLimit) {
+      throw const FormatException('Snapshot input too large');
+    }
+    final encoded = GZipCodec(level: 6).encode(bytes);
+    if (encoded.length > snapshotGzipLimit) {
+      throw const FormatException('Snapshot gzip too large');
+    }
     final directory = await _snapshotDirectory();
     await _discardStaleTemporaryFiles(directory);
     final random = Random.secure();
@@ -29,12 +37,14 @@ class LocalSnapshotRepository {
         .join();
     final basename = 'money-note-snapshot-${timestampForFilename()}-$suffix';
     final temporary = File('${directory.path}/.$basename.pending');
-    final backup = File('${directory.path}/$basename.money-note-snapshot.json');
+    final backup =
+        File('${directory.path}/$basename.money-note-snapshot.json.gz');
     _activeTemporaryPaths.add(temporary.path);
     try {
       await temporary.create(exclusive: true);
-      await temporary.writeAsBytes(bytes, flush: true);
-      await _validateSnapshotFile(temporary, expectedBytes: bytes);
+      await temporary.writeAsBytes(encoded, flush: true);
+      await _validateSnapshotFile(temporary,
+          expectedBytes: bytes, compressed: true);
       await temporary.rename(backup.path);
       await _prune();
       return await list();
@@ -49,8 +59,10 @@ class LocalSnapshotRepository {
     }
   }
 
-  Future<String> readText(String filename) async =>
-      (await safeFile(filename)).readAsString();
+  Future<String> readText(String filename) async {
+    final file = await safeFile(filename);
+    return utf8.decode(await _validateSnapshotFile(file));
+  }
 
   Future<void> delete(String filename) async {
     final snapshot = await safeFile(filename);
@@ -62,7 +74,7 @@ class LocalSnapshotRepository {
     for (final file in directory
         .listSync()
         .whereType<File>()
-        .where((file) => file.path.endsWith('.money-note-snapshot.json'))) {
+        .where((file) => isSnapshotName(file.path))) {
       if (await file.exists()) await file.delete();
     }
   }
@@ -73,7 +85,7 @@ class LocalSnapshotRepository {
     final files = directory
         .listSync()
         .whereType<File>()
-        .where((file) => file.path.endsWith('.money-note-snapshot.json'))
+        .where((file) => isSnapshotName(file.path))
         .toList();
     for (final file in files) {
       try {
@@ -97,7 +109,9 @@ class LocalSnapshotRepository {
   Future<File> safeFile(String filename) async {
     final allowed = (await list()).map((snapshot) => snapshot.filename).toSet();
     if (!allowed.contains(filename)) {
-      throw MoneyNoteApiException('알 수 없는 스냅샷 파일입니다.');
+      {
+        throw MoneyNoteApiException('알 수 없는 스냅샷 파일입니다.');
+      }
     }
     final directory = await _snapshotDirectory();
     return File('${directory.path}/$filename');
@@ -112,9 +126,10 @@ class LocalSnapshotRepository {
     }
   }
 
-  Future<void> _validateSnapshotFile(File file,
-      {Uint8List? expectedBytes}) async {
-    final bytes = await file.readAsBytes();
+  Future<Uint8List> _validateSnapshotFile(File file,
+      {Uint8List? expectedBytes, bool? compressed}) async {
+    final bytes = await readSnapshotBytes(file,
+        compressed: compressed ?? file.path.endsWith('.json.gz'));
     if (expectedBytes != null &&
         (bytes.length != expectedBytes.length ||
             !_sameBytes(bytes, expectedBytes))) {
@@ -133,6 +148,7 @@ class LocalSnapshotRepository {
             .hasMatch(decoded['manifest']['content_sha256'] as String)) {
       throw const FormatException('snapshot envelope is incomplete');
     }
+    return bytes;
   }
 
   bool _sameBytes(List<int> left, List<int> right) {

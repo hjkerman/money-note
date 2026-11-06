@@ -30,6 +30,7 @@ class SnapshotApiFake extends MoneyNoteApiClient {
   Future<Map<String, dynamic>> restoreSnapshot({
     required String password,
     required String snapshotText,
+    SnapshotRestoreRequest? prepared,
   }) async {
     restores += 1;
     return {};
@@ -91,6 +92,14 @@ class PausedSnapshotFile implements File {
 
   @override
   Future<Uint8List> readAsBytes() => delegate.readAsBytes();
+
+  @override
+  Stream<List<int>> openRead([int? start, int? end]) =>
+      delegate.openRead(start, end);
+
+  @override
+  Future<RandomAccessFile> open({FileMode mode = FileMode.read}) =>
+      delegate.open(mode: mode);
 
   @override
   Future<File> rename(String newPath) => delegate.rename(newPath);
@@ -213,8 +222,10 @@ void main() {
         isFalse);
     final newest = listed.first;
     expect(newest.filename, startsWith('money-note-snapshot-'));
-    expect(newest.filename, endsWith('.money-note-snapshot.json'));
-    expect(await File('${snapshots.path}/${newest.filename}').readAsBytes(),
+    expect(newest.filename, endsWith('.money-note-snapshot.json.gz'));
+    expect(
+        gzip.decode(
+            await File('${snapshots.path}/${newest.filename}').readAsBytes()),
         validSnapshotBytes);
   });
 

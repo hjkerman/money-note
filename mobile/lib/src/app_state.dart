@@ -7,6 +7,7 @@ import 'api_client.dart';
 import 'mutation_contract.dart';
 import 'coherent_refresh_coordinator.dart';
 import 'local_snapshot_repository.dart';
+import 'snapshot_file_codec.dart';
 import 'models.dart';
 import 'notification_bridge.dart';
 import 'offline/offline_data.dart';
@@ -2490,7 +2491,8 @@ class AppState extends ChangeNotifier {
         ShareParams(
           files: [
             XFile(current.path,
-                mimeType: 'application/json', name: snapshots.first.filename)
+                mimeType: snapshotMimeType(snapshots.first.filename),
+                name: snapshots.first.filename)
           ],
           text: 'Money-Note 스냅샷 백업',
         ),
@@ -2507,9 +2509,7 @@ class AppState extends ChangeNotifier {
         ShareParams(
           files: [
             XFile(snapshot.path,
-                mimeType: 'application/json',
-                name:
-                    'money-note-snapshot-${_snapshotRepository.timestampForFilename()}.json')
+                mimeType: snapshotMimeType(filename), name: filename)
           ],
           text: 'Money-Note 스냅샷 백업',
         ),
@@ -2525,10 +2525,12 @@ class AppState extends ChangeNotifier {
     await _run(() async {
       _requireOnline('스냅샷 복원');
       final snapshotText = await _snapshotRepository.readText(filename);
+      final request = SnapshotRestoreRequest.prepare(password, snapshotText);
       await _financialWrite(
           () => api.restoreSnapshot(
                 password: password,
                 snapshotText: snapshotText,
+                prepared: request,
               ),
           contract: MutationContract.snapshotRestore);
       await refresh(notify: false);
