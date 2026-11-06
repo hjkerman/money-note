@@ -69,7 +69,13 @@ Uint8List decodeSnapshotBytes(Uint8List bytes, {required bool compressed}) {
   }
 }
 
-Uint8List encodeSnapshotRestoreBody(Map<String, String> body) {
+Uint8List encodeSnapshotRestoreBody(Map<String, String> body) =>
+    _encodeBoundedSnapshotJson(body);
+
+Uint8List encodeSnapshotJson(Map<String, dynamic> snapshot) =>
+    _encodeBoundedSnapshotJson(snapshot);
+
+Uint8List _encodeBoundedSnapshotJson(Object body) {
   final output = _SnapshotRequestOutput();
   final encoder = json.fuse(utf8).encoder.startChunkedConversion(output);
   encoder.add(body);

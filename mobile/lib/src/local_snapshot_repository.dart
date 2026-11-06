@@ -21,7 +21,11 @@ class LocalSnapshotRepository {
   static final Set<String> _activeTemporaryPaths = <String>{};
   final SnapshotDirectoryProvider _directoryProvider;
 
-  Future<List<LocalSnapshotInfo>> save(Uint8List bytes) async {
+  // Optional event authority is checked synchronously at publication and before
+  // each retention deletion, including after asynchronous file verification.
+  Future<List<LocalSnapshotInfo>> save(Uint8List bytes,
+      {void Function()? beforePublish}) async {
+    beforePublish?.call();
     if (bytes.length > snapshotJsonLimit) {
       throw const FormatException('Snapshot input too large');
     }
@@ -45,8 +49,14 @@ class LocalSnapshotRepository {
       await temporary.writeAsBytes(encoded, flush: true);
       await _validateSnapshotFile(temporary,
           expectedBytes: bytes, compressed: true);
-      await temporary.rename(backup.path);
-      await _prune();
+      if (beforePublish == null) {
+        await temporary.rename(backup.path);
+      } else {
+        // Same guarded publication pattern as OfflineStore: no async gap.
+        beforePublish();
+        temporary.renameSync(backup.path);
+      }
+      await _prune(beforeDelete: beforePublish);
       return await list();
     } finally {
       try {
@@ -117,12 +127,17 @@ class LocalSnapshotRepository {
     return File('${directory.path}/$filename');
   }
 
-  Future<void> _prune() async {
+  Future<void> _prune({void Function()? beforeDelete}) async {
     final snapshots = await list();
     final directory = await _snapshotDirectory();
     for (final snapshot in snapshots.skip(_maxLocalSnapshots)) {
       final file = File('${directory.path}/${snapshot.filename}');
-      if (await file.exists()) await file.delete();
+      if (beforeDelete == null) {
+        if (await file.exists()) await file.delete();
+      } else {
+        beforeDelete();
+        if (file.existsSync()) file.deleteSync();
+      }
     }
   }
 
