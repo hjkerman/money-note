@@ -1,6 +1,7 @@
 """기존 Phase B TLS fixture 위의 test-only 계측. 새 endpoint/financial engine 없음."""
 
-from contextlib import ExitStack
+from contextlib import ExitStack, contextmanager
+from contextvars import ContextVar
 import asyncio
 import functools
 import importlib.util
@@ -90,6 +91,22 @@ def main():
     bootstrap = FinalizationSandbox.bootstrap
     session_hash = original.auth._hash_session_token
     create_app = original.create_app
+    mutating = ContextVar("b03_real_generation", default=False)
+    connect = original.RetentionSandbox.connect
+
+    def generation_connection(self):
+        # Explicit sandbox connection is real capture/finalization. The two
+        # independent sqlite3.connect catalog oracles stay outside this scope.
+        if not mutating.get():
+            return connect(self)
+
+        @contextmanager
+        def measured():
+            with collector.stage("generation"):
+                with connect(self) as connection:
+                    yield connection
+
+        return measured()
 
     def observed_app(*args, **kwargs):
         def metrics(value):
@@ -147,16 +164,22 @@ def main():
                         }
                     print(json.dumps(value), flush=True)
                     continue
-                stage = "generation" if request["command"] == "mutate" else "setup"
-                with collector.stage(stage):
-                    yield line
+                token = mutating.set(request["command"] == "mutate")
+                try:
+                    with collector.stage("setup"):
+                        yield line
+                finally:
+                    mutating.reset(token)
 
     with ExitStack() as stack:
-        stack.enter_context(instrument())
-        stack.enter_context(instrument_connections())
-        stack.enter_context(instrument_workers())
+        instrument().enter(stack)
+        instrument_connections().enter(stack)
+        instrument_workers().enter(stack)
         stack.enter_context(patch.object(original, "Wire", ObservedWire))
         stack.enter_context(patch.object(original, "create_app", observed_app))
+        stack.enter_context(
+            patch.object(original.RetentionSandbox, "connect", generation_connection)
+        )
         stack.enter_context(
             patch.object(original.auth, "_hash_session_token", observed_session_hash)
         )
@@ -168,7 +191,7 @@ def main():
             patch.object(FinalizationSandbox, "bootstrap", observed_bootstrap)
         )
         stack.enter_context(patch.object(sys, "stdin", Commands()))
-        stack.enter_context(collector.stage("setup"))
+        collector.stage("setup").enter(stack)
         original.main()
 
 

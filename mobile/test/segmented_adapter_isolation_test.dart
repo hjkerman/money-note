@@ -103,7 +103,18 @@ void main() {
         as Map;
     expect(
         hash('mobile/lib/src/segmented/fetch.dart'), reviewed['fetch_sha256']);
+    final admission = jsonDecode(read(
+        'docs/benchmarks/t66f-b05a/source-lock-review.json')) as Map;
     expect(hash('mobile/lib/src/segmented/protocol.dart'),
+        admission['protocol_sha256']);
+    var restoredProtocol = read('mobile/lib/src/segmented/protocol.dart');
+    for (final change in admission['changes'] as List) {
+      final after = change['after'] as String;
+      expect(after.allMatches(restoredProtocol).length, 1);
+      restoredProtocol = restoredProtocol.replaceFirst(
+          after, change['before'] as String);
+    }
+    expect(sha256.convert(utf8.encode(restoredProtocol)).toString(),
         reviewed['protocol_sha256']);
   });
   test(

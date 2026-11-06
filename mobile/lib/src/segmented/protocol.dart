@@ -158,6 +158,8 @@ class ReleaseContract {
   static const policyRegistry =
       '18be2d36483467e9250d568bcbfed6458c15a364fa99896eb1b8daad05db043d';
   static const financialEngine =
+      'f84dacdf5da288611f32876a60766a398a830818d28fe438ccd41c4a2f8294b3';
+  static const b04FinancialEngine =
       '7ad114bc3ca9c06f56ffca2c5efdc9a026a665feada99ece7c90cdf0d0208d6c';
   static const previousFinancialEngine =
       'afe26b70856b5a3fa06477641d91e8e1784e9184906281843f0a39a9c99cbdf5';
@@ -169,6 +171,7 @@ class ReleaseContract {
         v['projection_schema'] != projectionSchema ||
         v['policy_registry'] != policyRegistry ||
         (context.engine != financialEngine &&
+            context.engine != b04FinancialEngine &&
             context.engine != previousFinancialEngine &&
             context.engine != historicalFinancialEngine)) {
       rejectSegment('UNSUPPORTED_CONTRACT');

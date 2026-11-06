@@ -1,0 +1,22 @@
+import hashlib,json,xml.etree.ElementTree as ET
+from pathlib import Path
+r=Path('/tmp/money-note-ir03-20261023');ev=r/'evidence';payload='645fd4d883cecbf617d7d9c8e1a771efe9a9e88fac4b3ae646337adfb6b582b8'
+records=[]
+def junit(name,source,expected,invocation):
+ root=ET.parse(ev/source).getroot();s=next(root.iter('testsuite'));data={k:int(s.get(k,'0')) for k in ['tests','failures','errors','skipped']};data['pass']=data['tests']-data['failures']-data['errors']-data['skipped'];records.append(dict(name=name,candidate_payload_sha256=payload,fixture='동결 source의 literal/합성 fixture; 실제 기대값은 연결한 test source에 고정',invocation=invocation,cwd=str(r/'candidate/backend'),expected=expected,observed=data,raw=source,status='FAIL' if data['failures'] or data['errors'] else 'PASS'))
+py='/home/hjkerman/codex/money-note/.venv/bin/python'
+junit('독립 Python byte/SQL oracle','independent-python.xml','35개 고유 사례 모두 정확한 native/literal 기대값', [py,'-m','pytest',str(ev/'test_ir03_oracles.py'),'-q','-p','no:cacheprovider','--junitxml='+str(ev/'independent-python.xml')])
+junit('독립 동시 최초 설치','independent-installation-final.xml','실제 두 번째 parse 1회/2B',[py,'-m','pytest',str(ev/'test_ir03_installation.py'),'-q','-p','no:cacheprovider','--junitxml='+str(ev/'independent-installation-final.xml')])
+junit('동시 설치 역사 대조','installation-historical.xml','같은 schedule에서 역사 wrapper 계수 1회/2B',[py,str(ev/'run_installation_control.py')])
+junit('독립 실제 TLS principal 격리','independent-tls.xml','201/201, principal1/2, 직접 native witness와 scope 계수 일치',[py,'-m','pytest',str(ev/'test_ir03_tls.py'),'-q','-p','no:cacheprovider','--junitxml='+str(ev/'independent-tls.xml')])
+junit('독립 trigger/cascade event oracle','independent-triggers.xml','고정 payload ledger와 별도 native SQLite 결과 일치',[py,'-m','pytest',str(ev/'test_ir03_triggers.py'),'-q','-p','no:cacheprovider','--junitxml='+str(ev/'independent-triggers.xml')])
+junit('DDL 역사 대조','ddl-historical.xml','현재와 동일한 기대값을 exact 역사 wrapper에 적용',[py,str(ev/'run_ddl_control.py')])
+junit('전체 backend','backend-full.xml','지원 전체 suite; 원 결함 assertion4개만 역사 버전에서 실행',[py,str(r/'run_backend.py'),'-q','-p','no:cacheprovider','--junitxml='+str(ev/'backend-full.xml')])
+junit('P05 소형 lifecycle 회귀','p05.xml','N1000 이하와 원 ROWS 합성 fixture; 보존·복원·인가·실패 경계',[py,str(ev/'run_p05_regression.py')])
+for filename in ['flutter-full-results.json','flutter-additional-results.json','flutter-final-results.json']:
+ for i,value in enumerate(json.loads((ev/filename).read_text())):
+  records.append(dict(name=value.get('name',f'전체 Flutter part {i}'),candidate_payload_sha256=payload,fixture='동결 source 및 명시적인 새 소형 synthetic fixture',invocation=value['invocation'],cwd=value.get('cwd',str(r/'candidate/mobile')),expected='연결한 source의 assertion 유지; 모든 필수 비교 성공',observed=value,raw=filename,status='PASS' if value['exit_code']==0 else 'FAIL'))
+records.append(dict(name='native 준비 후 환경 실패8개 재검증',candidate_payload_sha256=payload,**json.loads((ev/'flutter-native-rerun.json').read_text()),raw='flutter-native-rerun.log',status='PASS'))
+for value in json.loads((ev/'static-checks.json').read_text()):records.append(dict(candidate_payload_sha256=payload,**value,status='PASS' if value['exit_code']==0 else 'FAIL',raw=value['name']+'.log'))
+result={'schema_version':1,'candidate_payload_sha256':payload,'environment':'environment.json','source_identity':'integrity.json','records':records,'new_independent_unique_cases':{'pass':51,'fail':5,'skip':0,'total':56,'breakdown':{'python_current_oracles':38,'dart_current_oracles':17,'actual_delta_integration':1},'excluded':'역사 control, 같은 case 재실행, 원 independent HTTP2, 구현 측 회귀, 환경 probe, child 보조 probe는 신규 합계에서 제외'},'backend_full':json.loads((ev/'backend-full-summary.json').read_text()),'flutter_full':{'initial_parts':{'pass':1682,'fail':8,'skip':2},'native_rerun':{'pass':8,'fail':0,'skip':0},'unique_case_coverage_after_rerun':{'pass':1690,'fail':0,'skip':2},'verdict':'PARTIAL','reason':'최초 전체 실행은 실패했다. source/assertion 변경 없는 8개 재검증으로 고유 case coverage는 모두 확보했지만 오류 없는 전체 3-part 재실행은 하지 않았다. 역사 defect-existence3개는 현 정확성 PASS와 구별한다.'},'uncertainties':['full-scale feasibility·Android·hardware power-loss 미검증','동시 TLS principal 시험의 ephemeral namespace/nonce 원문은 보존하지 않았다. 고정 seed history3/source SHA와 실제 span·principal·scope snapshot으로 시험 identity를 기록한다.','전체 Flutter 첫 실행의 native asset 미해결8개와 후속 준비 완료/재검증을 별도로 보존한다.']}
+(ev/'execution-manifest.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n');print(json.dumps(result['new_independent_unique_cases'],ensure_ascii=False))

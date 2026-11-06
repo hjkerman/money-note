@@ -529,6 +529,8 @@ T6.6A 측정 → T6.6B 설계 → 별도 독립 설계 감사
 
 Backend change tracking/root가 정확히 만들어져야 incremental transport의 비용 이득을 주장할 수 있다. Mobile complete cold store/provenance가 있어야 unchanged validation 재사용이 안전하다. 두 쪽 contract를 먼저 함께 설계하고 producer·consumer를 순차 구현해야 한다. Alphabetical 순서대로 delta부터 활성화해서는 안 된다.
 
+이 도식의 F 이후 T6.9 배치는 최종 수용 순서를 유지한다. 단, T6.6C §34-B11 및 §35-T69의 별도 유효 승인이 있는 경우 그 조항의 8개 원 B03 의무를 수집하는 격리 T6.9-E subgate에 한해 formal F exit 전에 진입할 수 있다. T6.9-E entry는 bounded 작업 인계·§34-B11 승인 기록에 명시된 실행 책임 역할/구현·측정 비참여 독립 수용 역할·source/fixture/runtime/계측·accepted provenance 사전심사와 별도 실행 GO를 요구한다. 전체 F PASS·R1 활성화·T6.7/8 완료를 수집의 전제로 요구하지 않지만 이들의 구현/활성화를 승인하지도 않는다. 최종 T6.9 acceptance, formal F exit 및 rollout/deployment에는 이관 증거의 독립 수용과 나머지 선행 gate가 여전히 필요하다. §27의 confirmed-heavy/한 달 hot 대량·initial/full/restore/crash 등 기존 T6.9 감사 방향은 이 8개 의무에 흡수하거나 면제하지 않는다. 상세 T6.9 명세가 별도로 제정되면 이 계약과 기존 범위를 명시적으로 수록·대조해야 하며, 현재 독립 상세 명세가 존재한다고 가정하지 않는다.
+
 Compression은 이 root/storage redesign과 독립적으로 승인·호환성/메모리/negotiation 검증 후 도입할 수 있다. History paging도 baseline 완전성과 독립적으로 설계하되 revision/view binding은 공유한다. 큰 restore/MW request protocol은 정상 delta만으로 해결되지 않아 별도 선행 compatibility gate다. 이번에는 C/D/E 구현을 시작하지 않았다.
 
 ## 30. 정확성 proof obligations와 negative tests

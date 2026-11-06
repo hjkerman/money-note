@@ -1,0 +1,46 @@
+"""완료된 실제 cold 12건만 집계하며 logical byte와 중첩 시간을 합산하지 않는다."""
+import collections,gzip,hashlib,json,pathlib,statistics
+R=pathlib.Path('/home/hjkerman/codex/money-note');E=R/'docs/benchmarks/t66f-b05a';W=pathlib.Path('/tmp/money-note-t66f-b05a-20261026')
+def save(n,d):(E/n).write_text(json.dumps(d,ensure_ascii=False,indent=2)+'\n')
+runs=[];stages=[];logical=[]
+for N in [1000,5000]:
+ cohort=json.loads((E/f'cohort-n{N}.json').read_text());assert cohort['status']=='PASS'
+ for c in cohort['runs']:
+  d=json.loads((R/c['raw']).read_text());lookup=d['backend']['lookup'];calls=lookup['lookup_calls'];assert lookup['hot_constructor_calls']==calls and lookup['hot_body_calls']==calls*(3 if d['variant']=='A' else 2)
+  row={k:d[k] for k in ['id','N','variant','on','rep','ordinal','engine_sha','backend_observation_sha256','client_source_digest','fixture_digest','template_sha256','H','D','start_utc','end_utc','status','valid_completed','accepted_before','accepted_after','completed_objects','staged_objects','committed_generation_objects','collector_closed','observation_expired']};row.update(raw=c['raw'],source_B05_payload='d0d9b35cefed5da51b08d77c3b7018d0a21318c0cdeb11a8418f2c1dde6232ae' if d['variant']=='B' else None,baseline_backend_payload='8bd698368620394eece061f0b7b30b21172e814d2be92d153de40441a6f2a1f8' if d['variant']=='A' else None,client_admission_version='B05-A exact4 + release8a2734...',end_to_end_s=d['end_to_end_with_bounded_E4_us']/1e6,semantic_digest=d['semantic_digest'],stage_completion={k:d[k] for k in ['E1','E2','E3','E4']},independent_verification=str(pathlib.Path(c['raw']).with_name('independent-verification.json')))
+  runs.append(row)
+  requests=d['backend']['requests'];generation=[r['generation_metrics'] for r in requests if r.get('generation_metrics')]
+  stage={'id':d['id'],'N':N,'variant':d['variant'],'on':d['on'],'rep':d['rep'],'end_to_end_s':row['end_to_end_s'],'publication_s':d['publication_elapsed_us']/1e6,'E2_with_initial_recovery_envelope_s':d['E2_plus_initial_recovery_envelope_us']/1e6,'E1_SQL_API_s':d['E1_SQL_API_us']/1e6,'E1_SQL_API_through_acquisition_s':d['E1_SQL_API_through_acquisition_us']/1e6,'E3_envelope_s':d['E3_envelope_us']/1e6,'E3_native_transaction_s':d['E3_transaction_us']/1e6,'E3_native_readback_s':d['E3_readback_us']/1e6,'E4_bounded_read_s':d['E4_bounded_read_us']/1e6,'HTTP_send_to_body_s':d['HTTP']['send_to_complete_body_us']/1e6,'backend_handler_s':sum(r['wall_ns'] for r in requests)/1e9,'backend_CPU_s':sum(r['process_cpu_ns'] for r in requests)/1e9,'backend_generation_existing_metrics':generation,'backend_generation_total_s':sum(r.get('total_ms',0) for r in generation)/1000,'lookup_calls':calls,'hot_constructor_decodes':lookup['hot_constructor_calls'],'hot_body_decodes':lookup['hot_body_calls'],'total_hot_decodes':lookup['hot_constructor_calls']+lookup['hot_body_calls'],'lookup_s':lookup['lookup_ns']/1e9,'lookup_ms_per_call':lookup['lookup_ns']/calls/1e6,'hot_body_decode_s':lookup['hot_body_decode_ns']/1e9,'body_decode_ms_per_call':lookup['hot_body_decode_ns']/lookup['hot_body_calls']/1e6,'SQL_callback_s_lower_bound':d['SQL_callback_us_lower_bound']/1e6 if d['on'] else None,'backend_peak_RSS':d['backend']['backend_peak_RSS_bytes'],'client_process_peak_RSS_including_verification_previous_reps':d['peak_RSS_bytes'],'CPU_tick_scope':'client CPU tick은 primary+후속 검증을 포함하며 primary CPU 비교에 사용하지 않음'}
+  stage['CPU_tick_scope']='client CPU tick은 primary+후속 검증을 포함하므로 primary CPU 비교에 사용하지 않음'
+  stages.append(stage)
+  lc={'id':d['id'],'N':N,'variant':d['variant'],'on':d['on'],'OFF_is_not_zero':True,'client_hash_input_bytes':None,'client_primary_validation_input_bytes':None,'backend_hash_input_bytes':None,'backend_primary_validation_input_bytes':None,'SQL_logical':None}
+  if d['on']:
+   cl=d['logical_counters'];b=d['backend']['counters'];s=d['sql_counters'];lc.update(client_hash_input_bytes=sum(int(v) for k,v in cl.items() if k.endswith('/hashInputBytes')),client_primary_validation_input_bytes=sum(int(v) for k,v in cl.items() if k.endswith('/submittedBytes')),backend_hash_input_bytes=sum(int(v) for k,v in b.items() if k.endswith('/sha256/hash_input_bytes')),backend_primary_validation_input_bytes=sum(int(v) for k,v in b.items() if k.endswith('/json/submitted_bytes')),SQL_logical={kind:{metric:sum(int(v) for k,v in s.items() if (('/'+kind+'/' in k and k.endswith('/'+metric)) if kind!='committed' else k.endswith('/'+metric+'/committed'))) for metric in ['textBytes','blobBytes','scalarValues','nullValues']} for kind in ['attempted','effective','committed']},objects_committed_blob_bytes=sum(int(v) for k,v in s.items() if '/objects/INSERT/blobBytes/committed' in k))
+   assert lc['objects_committed_blob_bytes']==d['db_after']['body_bytes']
+  logical.append(lc)
+summary=[];pairs=[]
+for N in [1000,5000]:
+ for on in [False,True]:
+  a=[r['end_to_end_s'] for r in runs if r['N']==N and r['on']==on and r['variant']=='A'];b=[r['end_to_end_s'] for r in runs if r['N']==N and r['on']==on and r['variant']=='B'];ma=statistics.median(a);mb=statistics.median(b)
+  summary.append({'N':N,'on':on,'A_values_s':a,'B_values_s':b,'A_median_s':ma,'B_median_s':mb,'B_minus_A_s':mb-ma,'B_over_A':mb/ma,'observed_reduction_percent':(1-mb/ma)*100,'A_min_max_s':[min(a),max(a)],'B_min_max_s':[min(b),max(b)],'replicates_per_condition':len(a)})
+  for rep in range(len(a)):
+   pa=next(r for r in runs if r['N']==N and r['on']==on and r['variant']=='A' and r['rep']==rep);pb=next(r for r in runs if r['N']==N and r['on']==on and r['variant']=='B' and r['rep']==rep)
+   pairs.append({'N':N,'on':on,'rep':rep,'A':pa['id'],'B':pb['id'],'order':'A→B' if pa['ordinal']<pb['ordinal'] else 'B→A','A_s':pa['end_to_end_s'],'B_s':pb['end_to_end_s'],'B_over_A':pb['end_to_end_s']/pa['end_to_end_s']})
+interaction=[]
+for N in [1000,5000]:
+ for v in ['A','B']:
+  off=statistics.median(r['end_to_end_s'] for r in runs if r['N']==N and r['variant']==v and not r['on']);on=statistics.median(r['end_to_end_s'] for r in runs if r['N']==N and r['variant']==v and r['on']);interaction.append({'N':N,'variant':v,'ON_over_OFF':on/off,'ON_minus_OFF_s':on-off})
+accounting=[]
+for N in [1000,5000]:
+ for rep in range(2 if N==1000 else 1):
+  a=next(d for d in logical if d['N']==N and d['variant']=='A' and d['on'] and next(r for r in runs if r['id']==d['id'])['rep']==rep)
+  b=next(d for d in logical if d['N']==N and d['variant']=='B' and d['on'] and next(r for r in runs if r['id']==d['id'])['rep']==rep)
+  lookup=next(s for s in stages if s['id']==a['id']);span=lookup['lookup_calls']*87364;assert a['backend_primary_validation_input_bytes']-b['backend_primary_validation_input_bytes']==span
+  assert all(a[k]==b[k] for k in ['backend_hash_input_bytes','client_hash_input_bytes','client_primary_validation_input_bytes','SQL_logical','objects_committed_blob_bytes'])
+  accounting.append({'N':N,'rep':rep,'removed_primary_backend_bytes':span,'removed_json_calls':lookup['lookup_calls'],'hash_client_validation_SQL_equal':True})
+verdict='PASS — ADMISSION AND REAL-PATH QUALIFICATION COMPLETE'
+manifest={'schema_version':1,'classification':verdict,'measurement_boundary':'AppState segmented-internal publication + bounded E4 accepted read; UI/Offline-ready 미측정','runs':runs,'valid_completed_cold':len(runs),'incomplete_cold':0,'fresh_AB_pairs':len(pairs),'N_points':[1000,5000],'N50k_cold':0,'N100k_cold':0,'N10k_cold':0,'historical_B04_B05_not_used_as_fresh_control':True,'actual_server_clock':'normal utc_now','lease_seconds':900,'attempts':3,'unknown_OFF_counters':None,'limitations':['E2는 초기 recovery 포함 envelope; acquire 단독 시간 아님','E1 SQL API는 E2/E3와 겹침','backend lookup/decode/handler/HTTP를 합산하지 않음','client CPU tick은 후속 semantic verification도 포함; primary CPU 비교에 사용하지 않음','client peakRSS는 process전체 및 이전 rep 포함','조건당 N1k2회/N5k1회; 신뢰구간·유의성 없음']}
+save('run-manifest.json',manifest);save('timing-comparison.json',{'end_to_end':summary,'paired_observations':pairs,'instrumentation_interaction':interaction,'stage_timings':stages,'confidence':'small-sample descriptive only; 5k ON benefit not demonstrated','not_summed_overlapping_boundaries':True});save('logical-counters.json',{'runs':logical,'work_reduction':accounting,'classification':'EXPLAINED WORK REDUCTION','E1_objects_blob_proven':'actual committed body bytes = native DB body lengths for every ON run','physical_IO_not_measured':True})
+save('qualification.json',{'verdict':verdict,'admission':'PASS','full_backend':'PASS1904 +1540 subtests','Flutter':'PASS205; original41resolved','real_N1k':'PASS8/8','real_N5k':'PASS4/4','product_semantics':'PASS','counter_semantics':'EXPLAINED WORK REDUCTION','system_benefit':'OFF 관찰 개선 일관; N5k ON 이득 미입증. 모든 모드/규모의 이득을 주장하지 않음','N50k_followup':'NOT JUSTIFIED','N100k':'NO-GO','adoption':'AWAITING INDEPENDENT QUALIFICATION','next_action':'동결 B05-A 후보의 N=5k ON A/B를 반대 순서로 1쌍 독립 재현한다.','new_source_independently_IR07_audited':False})
+for name in ['cold-n1000.jsonl','cold-n1000.stderr','cold-n5000.jsonl','cold-n5000.stderr','verify-n1000.log','verify-n5000.log','fixture-A-n1000.log','fixture-B-n1000.log','fixture-A-n5000.log','fixture-B-n5000.log']:(E/(name+'.gz')).write_bytes(gzip.compress((W/'raw'/name).read_bytes(),mtime=0))
+print(json.dumps({'verdict':verdict,'completed':len(runs),'timing':summary,'interaction':interaction,'accounting':accounting},ensure_ascii=False))

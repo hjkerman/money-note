@@ -678,6 +678,20 @@ R1 large restore/MW + artifacts/retention + migration/rollback
  → T6.6F independent integrated audit → explicit rollout authorization
 ```
 
+### 34-B11. 제한 Phase B 행정 종결과 증거 이관 — 승인된 경우에만 효력
+
+이 예외는 T66F-B11-TRANSFER-01의 별도 유효 승인 기록이 있는 경우에만 적용한다(MUST). 대상은 원 B03 source의 T35-100K-NC, T35-100K-CARD, T35-100K-CASH, T35-ROWS, T35-NET, T35-GZIP, I25-E3-100K, I25-BOOKKEEPING-100K의 미완료 증거 수집뿐이다. 이 ID는 본 예외의 추적 ID이며 기존 I25 등 규범 ID를 대체하지 않는다.
+
+승인자는 권한 근거와 실제 승인자·일시·승인 대상 exact 문서 SHA 및 8개 의무, T6.9-E 실행 책임 역할과 독립 증거 수용 역할(실행: T6.9 구현·측정 워크스트림, 수용: 해당 구현·측정에 관여하지 않은 별도 T6.9 감사 세션, 최종 승인: 프로젝트 소유자), hard blocking milestone, 보고 책임·위험 수락 범위를 한 결정 기록에 명시해야 한다(MUST). 누락·pending·draft·이의 없는 침묵은 유효 승인이 아니다(MUST NOT). 승인 자체는 새 benchmark/최적화/기기 실행·소스 변경 허가가 아니며 실행은 별도 계획·기존 제한의 명시 GO를 필요로 한다.
+
+유효 승인 뒤 bounded work package는 완료, Phase B 행정 상태는 ADMINISTRATIVELY CLOSED — EVIDENCE TRANSFERRED로 기록할 수 있다. 동시에 Phase B 정량 증거 상태는 INCONCLUSIVE, 다섯 점은 PARTIAL, N100k 정상/I25는 UNVERIFIED로 유지해야 한다(MUST). 이 상태는 quantitative PASS 또는 formal T6.6F CLOSED가 아니다.
+
+§35-T69의 증거 수집 전용 T6.9-E에 한해 formal F exit 전에 진입하도록 순서를 조정한다. R1 구현 proof·interop/full-resync/crash 및 다른 선행 의무는 제거하지 않는다. 모든 이관 의무의 독립 수용과 나머지 §26/31/32/33/34, I23/I24, §38.8–11 whole-F proof가 충족될 때까지 formal T6.6F exit 재심사를 통과시킬 수 없다(MUST NOT). 최종 T6.9 수용도 그 전에 완료로 표시할 수 없다.
+
+T6.7/T6.8 구현·cleanup은 행정 종결을 PASS나 자동 entry로 사용할 수 없다(MUST NOT). 본 예외는 그 작업을 승인하지 않으며, 기존 legacy full consumer/store와 복구 경로를 제거할 근거가 아니다. T6.9-E 수집은 T6.7/8 구현 완료나 사용자 활성화를 요구하지 않는 격리 subgate다. 독립적인 R1 구현 작업 단계와 R1 사용자 활성화는 별개이며, R1 활성화·segmented rollout·production deployment는 전체 proof와 별도 명시 승인이 있을 때까지 계속 차단한다.
+
+이관 누락·실패·수행 불능을 이유로 요구를 소거하거나 자동 연장/수용할 수 없다(MUST NOT). 책임자는 차단 상태와 증거를 기록하고 승인권자에게 보고해야 한다. 철회/조건 위반이면 행정 종결 효력을 중단하고 원 종결 gate를 복원한다. 후속 결과는 그 날짜/source의 새 증거이며 과거 실패·미측정 상태를 다시 쓰지 않는다.
+
 Server는 old clients를 유지하면서 새 support를 미활성 상태로 준비해야 한다. DB schema migration/root bootstrap을 검증하기 전 capabilities의 v1 support를 광고하지 않는다. New mobile을 backend support보다 먼저 강제 활성화하지 않는다. Compression은 독립 승인 후보이며 이번 구현/설계가 배포한 것이 아니다.
 
 ## 35. Complexity·압축 비교와 measurable gate
@@ -700,6 +714,35 @@ N=전체 역사 row, H=hot/참조 working set와 required control/policy descrip
 T6.6A HOST/synthetic 비교군은 10k raw **5,684,312B**, Snapshot **98.45%**, cold **97.05%**, gzip6 **108,916B**, Brotli4 **43,033B**, backend **1,348.5ms**, parser+typed **1,970.1ms**, publication **269.7ms**다. 서로 포함되는 timing을 더하지 않는다. New base64 framing·compression CPU·object HTTP headers/RTT도 비교에 포함한다. Hot raw 후보 167,812B가 full gzip보다 클 수 있다. 다양한 문자열 control gzip 568,847B와도 비교해야 한다.
 
 Scaling 감사는 H/D 고정, N=1k/5k/10k/50k/100k에서 no-change/card/cash rebuild를 반복하고 rows read/bytes hashed·validated·written/HTTP entity/RTT/memory·median/p95를 측정한다. 정상 경로의 full history fetch/hash/serialize/write 횟수 **0**, control에 flat P 목록 없음, bounded leaf/hash-path/affected index 증가를 입증한다. Device 절대 latency 목표는 post-T6.6 gate 전 정하지 않는다.
+
+### 35-T69. 이관 증거의 필수 완료 계약 — 승인된 경우에만 효력
+
+§34-B11의 유효 승인 아래 T6.9-E는 아래 8개 미완료 의무를 인수하고 독립 수용 기록을 제출해야 한다(MUST). 수집 기한은 formal T6.6F exit 재심사 및 최종 T6.9 acceptance 중 먼저 도래하는 시점 이전이며, R1 활성화/rollout/production도 계속 차단한다. 날짜가 미정이라는 이유로 milestone 차단을 생략할 수 없다.
+
+- T35-100K-NC/CARD/CASH: N=100000의 no-change/card/cash 정상 rebuild를 반복하여 §35의 rows read/bytes hashed·validated·written/HTTP entity/RTT/memory/median/p95를 실제 측정한다. D1–D3 generation/request, E1/E2, E3Verify/Prepare/Commit, E4 범위를 분리한다.
+- T35-ROWS: N=1000/5000/10000/50000/100000의 세 정상 workload에 대해 실제 SQL/반환 행·raw/index lookup·query plan 경계의 결측 열을 보완하여 완결 비교를 제출한다. 반환 행을 모든 VM/pager 방문 행으로 표현하지 않는다.
+- T35-NET: 동일 다섯 규모/workload에서 method/path·금융/auxiliary·request/response entity·decoded canonical bytes·base64/JSON framing·headers·RTT dependency/cache misses를 full 비교군과 결합한다. 4×ceil(decoded/3)의 산술은 실제 HTTP wire 관측의 대체가 아니다.
+- T35-GZIP: 같은 source/DB state/Context·fixture의 full authoritative response를 full gzip 비교군으로 유지하고 representative/less-repetitive 문자열에서 network/codec CPU/parse·validation/write를 분리한다. 역사 gzip6과 대응하려면 codec level6·버전·입력 SHA/길이·압축 bytes/CPU를 기록한다. Brotli4 등 과거 비교 수치는 원 범위로 보존하며 새 matched wire 수치로 바꾸지 않는다. 오프라인 compression은 그렇게 표시하고 미관측 HTTP/RTT/headers를 채우지 못한다. 다양성 fixture의 규모·문자열 분포도 사전 계획에서 고정하며 서로 다른 family/입력을 한 곡선으로 합치지 않는다.
+- I25-E3-100K: N100k 세 정상 workload의 E3Verify/Prepare/Commit rows/bytes·SQL·tree/index/pin/CAS/readback 귀속과 full_recoveries/full_verifications/full_raw_rows/full_fact_rows/canonical_full_builds=0을 직접 입증한다. 초기/재시작/명시 full recovery는 정상 counter 밖의 별도 workload다.
+- I25-BOOKKEEPING-100K: 같은 N100k 정상 D/E 흐름의 lease/GC/refcount/root pin/transfer bookkeeping에 hidden full graph/history scan이 없고 control에 flat P 목록이 없음을 source와 직접 counter로 입증한다. 명시 maintenance O(N/P)를 정상 refresh 안으로 숨기지 않는다.
+
+원 B03의 base commit ebcbd54d90eeee194a04b9eea6367f446ee2fd28, canonical payload 8bd698368620394eece061f0b7b30b21172e814d2be92d153de40441a6f2a1f8, engine 7ad114bc3ca9c06f56ffca2c5efdc9a026a665feada99ece7c90cdf0d0208d6c, archive fc53b16635610574ab32042b5c76e01369aba5e858fb43b51040f34b94eb59e5를 기준으로 한다. runtime은 IR07/B04 지원 CPython3.12.3/backend SQLite3.45.1/Flutter3.47.4/Dart3.13.3/client SQLite3.53.4 및 안정된 monitoring 설정이다. payload/engine/archive/runtime의 의미를 혼동하거나 live 실험 tree를 기준으로 선택하지 않는다(MUST NOT).
+
+H/D 숫자·표본 수·절대 latency 상한은 기존 규범에 없으므로 발명하지 않는다. 원 B04 재사용 구성은 seed662602·평가일2026-10-05·offset540·current ledger105·다른 table35·초기 hot87364B/control3178B, no-change D0/card·cash UPDATE D1이다. N label=ledger 총 N, 전체 authoritative rows=N+35를 명시한다. 각 scale의 실제 fixture SHA/행/descriptor/NS/Target/변경 전후 입력을 freeze한다. 기존 4점과 이어 붙이는 N100k는 동일 H/D·문자열/descriptor·변경 규칙임을 독립 대조해야 한다. B04 raw에 실제 존재하는 동종 metric만 재사용하고 결측은 수용 전 보완한다. 새 fixture/다른 H/D가 필요하면 별도 곡선이며 원 이관 의무를 대체하지 못한다.
+
+계측은 IR07 범위의 B03 ON이며 source-SHA·monitoring/lifecycle/ownership/byte/SQL guards를 유지해야 한다(MUST). hash 실제 sink(domain/NUL·반복 포함), primary submitted/completed/failed span, SQL NEW TEXT UTF8/BLOB attempted/effective/committed/rollback·scalar/row를 구별한다. 미지원 환경/불완전 collector·취소·실패를 성공 0으로 제출하지 않는다. OFF·backend-only·ASGI·prepare/discard·다른 source의 기능 PASS는 ON 완료 cell의 대체가 아니다. warmup/n/median/p95 estimator/IQR·계측 교란/메모리 관찰 한계를 공개한다.
+
+수집 전 독립 admission은 source/runtime/fixture·instrumentation 지원과 완전 accepted baseline/provenance를 확인해야 한다(MUST). 이 개정은 사용할 수 있는 N100k DB가 이미 있음을 인증하지 않는다. §18/23–25에 따라 complete objects/11 tables/global index/receipt/NS/principal/Versions/Target/same-connection provenance/generation을 확인한다. 적법 baseline을 확보하지 못하면 수집 차단을 기록한다. 새로운 instrumented full cold 성공은 별도 MUST로 추가하지 않으며, 적법 baseline 위의 원 B03 정상 증거로 이관 의무를 수용할 수 있다. 새 cold가 필요해지면 기존 NO-GO를 별도 명시 계획/허가 없이 뒤집지 못한다.
+
+실제 authenticated D3→HTTP/TLS→Flutter E2/E1→원 AppState guard의 E3 accepted publication/readback→E4가 완료되어야 한다(MUST). no-change에서 ID/sequence가 그대로인 정상 완료와 mutation의 실제 generation 전진을 구별한다. backend 실제 rows/presenters·native complete graph/값 digest·SQLite FK·hash/root·accepted before/after를 독립 대조한다. 모바일 canonical 금융 엔진을 추가하지 않는다. E3 마지막 authority guard 바로 다음의 동기 COMMIT 사이에 await/hook/callback을 넣지 않는다.
+
+§16 TTL 최대900초, 기존 client attempts3/observations3와 principal Available 최대4의 서로 다른 제한을 보존한다. 관측 수명이나 횟수를 늘려 과거와 비교 가능한 실행을 만들지 않는다(MUST NOT). 50k를100k로 외삽하거나 부분 N을 다섯 점 PASS로 바꾸거나 uninstrumented 기능으로 실패 계측을 대체할 수 없다. B05/B08 실험 최적화 채택, 금융 canonical data·source guard·release/admission 변경은 이 예외에 포함되지 않는다.
+
+command/cwd/exit/time·source/runtime/binary·fixture/Target/accepted before/after·stage 완료·raw samples/counters/HTTP·실패/취소·manifest SHA/mode/size를 보존해야 한다(MUST). 재검증에 필요한 일관 backend/client SQLite snapshot은 supported backup API로 보존하고 검증하기 전 유일한 matched 자료를 삭제하지 않는다. docs/development-artifact-hygiene.md에 따라 검증된 task-owned disposable만 정리한다.
+
+다른 engine/source/runtime의 나중 결과는 해당 미래 source의 주장만 성립시키며 원 B03 8개 의무를 소거하지 못한다(MUST NOT). 새 source를 채택/인증하려면 별도 승인·exact release/admission·변경 영향 계측 oracle/정확성/구조·provenance·authority fence·durability/legacy 복구 재검증과 그 source의 전체 다섯 점 곡선이 필요하다. 호환 proof 없는 validator/schema 변경은 §23에 따라 full revalidation한다. 금융 데이터 동등성은 engine 동등성이 아니다. 원 closed B01/B02/B03 감사는 material 반증 없이 재개하지 않으며 IR07 인증을 새 source로 자동 이전하지 않는다.
+
+모든 metric/workload/scale 및 8개 의무가 원 source·경계에 맞게 완결되고 독립 수용자가 근거/해시/한계를 기록해야 T6.9-E EVIDENCE ACCEPTED를 발급할 수 있다(MUST). 결측·불완전 실행은 PARTIAL/UNVERIFIED, 실제 full-N 위반은 귀속된 구현 거부/별도 수정·재자격 사유이며 자동 waiver가 아니다. 정량 비용은 새 ms 목표로 채점하지 않고 기존 full-N 금지/bounded 경로와 측정 완결성을 적용한다. 모든 결과는 그 날짜/source의 후속 판정이며 역사 P03 FAIL·B04 4/5·B10 Option D를 소급 PASS로 바꾸지 않는다. T6.9-E 수용은 formal F 재심사의 필요조건일 뿐 R1/Android proof·기기 gate·별도 rollout/deployment 승인의 충분조건이 아니다.
 
 ## 36. Normative invariant catalog
 
@@ -732,6 +775,8 @@ Severity는 실제 violation이 구현되었을 때의 제안 등급이며 이�
 | I23 큰 복구 all-or-nothing MUST | recovery | chunks/hash/backup/one apply/receipt / 부분 DB 적용 | >25MiB/crash/retry, H |
 | I24 30 backup 의미 보존 MUST | backup/GC | 별도 파일/artifact retention / 2gen으로 축소 | backup count/export, M |
 | I25 steady-state full N 작업 MUST NOT | D/E integration | instrumented rows/bytes / hidden full scan | H/D fixed scaling, M |
+
+I25의 steady-state full-N 작업 금지 및 D/E instrumented rows/bytes 의무는 계속 적용한다. §34-B11의 유효 승인이 있는 경우에만 §35-T69에 열거된 I25-E3-100K 및 I25-BOOKKEEPING-100K의 미완료 증거 수집 시점을 T6.9-E로 옮긴다. 이것은 I25 준수 의무의 일시 중지, 실제 위반 허용 또는 현재 PASS가 아니다. E3 즉시 guard-before-COMMIT, 필수 counters/귀속·proof 및 independent source-qualified acceptance를 유지한다.
 
 ## 37. Negative matrix·결정적 기대값
 
@@ -794,6 +839,8 @@ Severity는 실제 violation이 구현되었을 때의 제안 등급이며 이�
 12. 고정 H/D scaling·full gzip 비교·HTTP RTT/byte 계측·실기기 post-T6.6 gate.
 
 현재 **BLOCKING PROTOCOL DECISION 0, 필수 제품 결정 0**이다. Restart epoch rotation, synchronous finalizer, B+tree leaves/Patricia facts, single local SQLite store, read-only observation POST, byte-preserving base64 transfer, explicit large-restore dependency를 선택하여 명세 공백을 남기지 않았다. 구현 증명이 실패하면 해당 구현/rollout을 차단하고 이 명세의 변경을 별도 감사받아야 한다. 완성 판정은 아직 구현되지 않은 알고리즘이 이미 안전하다는 주장이 아니다.
+
+위 7·12의 필수 proof 중 §35-T69가 지정한 8개 의무의 아직 비어 있는 증거 수집 시점만 §34-B11의 유효 승인 아래 T6.9-E로 이관할 수 있다. 완전한 다섯 점·rows/bytes/HTTP/framing/full gzip 및 I25 증명을 없애거나 추정으로 채울 수 없다. 8–11의 Android durability·legacy/migration·recovery·30 backup/artifact/GC 의무는 이 예외의 대상이 아니며 기존 whole-F/rollout 차단을 유지한다. 12의 기존 post-T6.6 실기기 성능 단계 분리도 그대로다. 구현 proof 실패는 이 절의 구현 증명 실패 시 구현/rollout 차단 및 별도 명세 변경 감사 원칙에 따라 해당 구현/rollout 차단과 별도 명세 변경 감사를 필요로 한다.
 
 잔여 위험은 auth-session SQLite database-is-locked, metadata BEGIN IMMEDIATE contention, 미래 registry drift, backend detailed-payment 중복 계산, standalone backup/완전 복구의 O(N), base64/여러 tree RTT의 상수 비용이다. 기존 이슈를 해결했다고 주장하지 않는다. 압축·history paging·다른 journal mode·epoch 외부 anchor는 별도 승인/검증 대상이지 이 설계에서 활성화한 기능이 아니다.
 

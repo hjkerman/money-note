@@ -106,16 +106,37 @@ class Wire:
             await send(message)
 
 
-def main():
+def main(*, artifact_destination=None):
     n, out = int(sys.argv[1]), Path(sys.argv[2])
     assert n in (1000, 50000, 100000)
     out.mkdir(parents=True, exist_ok=False)
     resource.setrlimit(resource.RLIMIT_AS, (8 * 1024**3, 8 * 1024**3))
     token = secrets.token_urlsafe(32)
     credential = BundleCredential(auth._hash_session_token(token), 1)
+    sandbox = RetentionSandbox
+    if artifact_destination is not None:
+        # 명시적인 test-only 보존. 기본 실행은 기존 sandbox/cleanup 그대로다.
+        spec = importlib.util.spec_from_file_location(
+            "test_backend_artifact_handoff",
+            ROOT / "docs/benchmarks/t66f-b03-ic01-p05/artifact_handoff.py",
+        )
+        handoff = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(handoff)
+
+        def sandbox():
+            return handoff.retained_backend(
+                RetentionSandbox,
+                destination=artifact_destination,
+                fixture_name="b02-fixed-H",
+                n=n,
+                expected_reachable_objects={1000: 4132, 50000: 200331, 100000: 400532}[
+                    n
+                ],
+            )
+
     # RetentionSandbox path is new and private; all clocks remain real.
     with (
-        RetentionSandbox() as db,
+        sandbox() as db,
         patch("app.services.judgment.common._MESSAGE_RANDOM.randrange", return_value=0),
     ):
         with db.connect() as conn:

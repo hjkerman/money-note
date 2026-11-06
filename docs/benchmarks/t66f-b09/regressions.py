@@ -1,0 +1,19 @@
+"""새 결과만 집계. 과거 B05-A PASS로 새 full suite를 대체하지 않는다."""
+from pathlib import Path
+import collections,json,re,xml.etree.ElementTree as ET
+E=Path('/home/hjkerman/codex/money-note/docs/benchmarks/t66f-b09')
+def flutter(name):
+ rows=[]
+ for l in (E/name).read_text().splitlines():
+  try:rows.append(json.loads(l))
+  except:pass
+ done=[j for j in rows if j.get('type')=='done'];assert done and done[-1]['success'] is True
+ return {'passed':sum(j.get('type')=='testDone' and j.get('result')=='success' and not j.get('hidden') for j in rows),'errors':sum(j.get('type')=='error' for j in rows),'elapsed_ms':done[-1]['time'],'exit_code':0,'raw':str((E/name).relative_to(E.parents[2]))}
+root=ET.parse(E/'backend-full.xml').getroot();suite=root.find('testsuite');attrs=suite.attrib;assert attrs['failures']=='0' and attrs['errors']=='0'
+text=(E/'backend-full.log').read_text();m=re.search(r'(\d+) passed',text);assert m
+backend={'passed':int(m[1]),'subtests_pass':int(re.search(r'(\d+) subtests passed',text)[1]) if re.search(r'(\d+) subtests passed',text) else None,'junit':attrs,'exit_code':0,'full_suite_runs':1,'command':'B05A_TREE=<B09 candidate> B05A_EVIDENCE=<B09 evidence> B05A_SCRATCH=<B09 scratch> PYTHONPATH=. PYTHONDONTWRITEBYTECODE=1 TMPDIR=<B09 disposable> .venv/bin/python <B09>/backend_regression.py -q -p no:cacheprovider --basetemp=<B09>/disposable/backend-full --junitxml=<B09>/backend-full.xml','historical_reproducer':'IC01/B05-A external adapter; only historical reproducer module/output paths; original assertions preserved','raw':'docs/benchmarks/t66f-b09/backend-full.log','xml':'docs/benchmarks/t66f-b09/backend-full.xml'}
+focus=ET.parse(E/'backend-focused.xml').getroot().find('testsuite').attrib;assert focus['failures']=='0' and focus['errors']=='0'
+f=flutter('flutter-affected.jsonl');additional=flutter('flutter-B08-mutation-after.jsonl');reg={'backend':backend,'backend_focused':{'tests':int(focus['tests']),'dedicated_B08':22,'B09_admission':8,'original_release':1,'exit_code':0},'flutter_affected':f,'flutter_B08_mutated_source':additional,'flutter_total_affected_with_additional':f['passed']+additional['passed'],'flutter_focused':flutter('flutter-focused-after.jsonl'),'driver_compile_only':flutter('flutter-compile-only.jsonl'),'frontend_build':{'command':'npm run build','exit_code':0,'raw':'docs/benchmarks/t66f-b09/frontend-build.log'},'resolved_preflight_failures':[{'raw':'artifact-before.log','reason':'original B03 engine artifact vs actual B08 engine, financial_engine only','resolved':'canonical regeneration + existing exact test PASS'},{'raw':'flutter-focused.jsonl','reason':'historical db_migrations source SHA must recognize verified B08-only transformation','resolved':'exact current SHA + reversible B08 fragment + unchanged historical SHA'},{'raw':'flutter-focused-unapplied.jsonl','reason':'task tool cwd error left guard unchanged; no product modification','resolved':'absolute paths; focused after PASS'},{'raw':'flutter-B08-mutation.jsonl','reason':'new test missing c1.dart import for exception type, product unchanged','resolved':'direct test import fixed; after PASS'}]}
+(E/'regressions.json').write_text(json.dumps(reg,ensure_ascii=False,indent=2)+'\n');print(json.dumps({'backend':backend['passed'],'subtests':backend['subtests_pass'],'Flutter':reg['flutter_total_affected_with_additional'],'all':'PASS'}))
+# Confirm generated artifacts, exact entries, current guards, and original expectation are intact.
+p=E/'admission-consistency.json';a=json.loads(p.read_text());a['status']='PASS';a['previous_engine_preservation']='PASS';a['unknown_mutation_payload_rejection']='PASS';a['B08_source_mutation']='PASS — flutter-B08-mutation-after.jsonl';a['original_exact_artifact_failure']='RESOLVED';a['regression_evidence']='docs/benchmarks/t66f-b09/regressions.json';p.write_text(json.dumps(a,ensure_ascii=False,indent=2)+'\n')

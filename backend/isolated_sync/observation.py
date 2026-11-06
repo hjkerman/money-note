@@ -547,8 +547,10 @@ class ObservationRepository:
             reject("OBSERVATION_INCOMPLETE", "new_observation")
         for kind in ("hot", "control"):
             obj = self._view_object(conn, target[kind+"_ref"], kind, target["ns"])
-            if kind == "hot" and (obj.body().get("context") != target["context"] or obj.body().get("projection_schema") != target["versions"]["projection_schema"]):
-                reject("REQUIRED_METADATA_INVALID")
+            if kind == "hot":
+                hot_body = obj.body()
+                if hot_body.get("context") != target["context"] or hot_body.get("projection_schema") != target["versions"]["projection_schema"]:
+                    reject("REQUIRED_METADATA_INVALID")
         from isolated_sync.canonical import Context, Namespace
         from isolated_sync.store import Store
         store = Store(conn, Context(Namespace(**target["ns"]), target["versions"]["raw_schema"]))
