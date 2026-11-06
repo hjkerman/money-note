@@ -1,0 +1,47 @@
+{
+  "version": "2.5.2+18",
+  "source_commit": "381eb539f5700551ecd53501d3bef52f0b4eb196",
+  "artifact": {
+    "path": "/home/hjkerman/codex/money-note/work/apk-releases/2.5.2-dbmsvfpt/money-note-2.5.2+18.apk",
+    "sha256": "0b8424dff747564408579b3f0c00af07136669e2e443f4e5ffb7510b2f12bd1d",
+    "bytes": 62173960,
+    "versionName": "2.5.2",
+    "versionCode": 18,
+    "applicationId": "kr.re.hjkerman.money_note",
+    "signer_certificate_sha256": "e3566d0aea6eb9c3b0011496c7710439e65165e61a36704db5e141875e8dfad5",
+    "signature_verification": "PASS",
+    "debuggable": false,
+    "update_from_2_5_1_17": "package + signer match; versionCode 17 -> 18",
+    "device_validation": "NOT_PERFORMED"
+  },
+  "N02_audited_source_hashes": {
+    "mobile/lib/src/app_state.dart": "3bd990119d69f2c27dd63d2d901029d0d9c5533349ecb70e3bbc838f4ef0466f",
+    "mobile/lib/src/local_snapshot_repository.dart": "3dd773ecc11c357bb5b6b7bdd7886193848c0f1ee823791fbd6f97a50a553fe0",
+    "mobile/lib/src/snapshot_file_codec.dart": "fef866a307e6d965126bdc29d14c0d26f5f63bf744c60ee83e75685a3804057f",
+    "mobile/test/authoritative_acquisition_test.dart": "fc104ece85521414838b3d5d654fdc5a2d6aab5c82c6e1dd04a26416c7351bb1",
+    "mobile/test/n02_snapshot_backup_test.dart": "c3c9b153dc209ed566ec66277ec1fd3e8cfe27fc208ec1299a97435f471eb009"
+  },
+  "independent_audit": "Final PASS; N02-01 Recovery Fallback exception Owner-approved CLOSED. Historical conditional audit retained.",
+  "regressions": "34 PASS / 0 FAIL / 0 SKIP on actual release source; prior audited 213 PASS reused",
+  "analysis": "5 changed Dart files No issues found",
+  "publication": {
+    "status": "PUBLISHED",
+    "source_commit": "381eb539f5700551ecd53501d3bef52f0b4eb196",
+    "version": "2.5.2+18",
+    "sha256": "0b8424dff747564408579b3f0c00af07136669e2e443f4e5ffb7510b2f12bd1d",
+    "bytes": 62173960,
+    "target": "/opt/money-note/downloads/money-note.apk",
+    "previous_apk_sha256": "23f994bdaaebffb9dc4091814188a151d0544b6205b7b9162b15c3469fc7623f",
+    "previous_apk_preserved": true,
+    "all_existing_production_APK_backups": "PRESERVED",
+    "controller_lock_atomic_copy_metadata": "USED",
+    "backend_web_marker_unchanged": true,
+    "backend_restart_DB_mutation": "NOT_PERFORMED",
+    "device_installation": "NOT_PERFORMED",
+    "container_download_hash": "MATCH"
+  },
+  "data_compatibility": "Previous APK Gradle, AndroidManifest, OfflineStore, dependency lock unchanged; existing application data paths retained",
+  "device_installation": "PENDING — not performed",
+  "excluded": "pre-existing Gradle/device-gate security bundle and unrelated experimental changes; local raw evidence preserved",
+  "safety_review": "Automatic approval rejected deletion of older Production APK backups; no such deletion executed; all Production backups retained"
+}

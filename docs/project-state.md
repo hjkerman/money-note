@@ -4,6 +4,14 @@
 
 역사적 기능 경로 체크포인트: 2026-10-09, T6.5B-3 coherent bundle 취득 개발 checkout (운영 배포 기준 아님)
 
+## 2026-11-07 N02 Release 2.5.2
+
+Mobile **2.5.2 (18) 게시 완료**, 실제 단말 설치는 대기다. APK 정확한 소스 commit은 `381eb539f5700551ecd53501d3bef52f0b4eb196`이며 기존 2.5.1 APK 소스에 감사된 N02 변경과 버전만 반영했다. applicationId·서명·데이터 경로는 유지했다. APK SHA-256은 `0b8424dff747564408579b3f0c00af07136669e2e443f4e5ffb7510b2f12bd1d`, 크기는 62,173,960B다. [릴리스 근거](benchmarks/release-2.5.2.json)에 게시·서명·소스 identity를 기록한다.
+
+N02 최종 독립 감사 PASS 및 Recovery Fallback 예외 N02-01의 Owner 승인 CLOSED를 수용했다. 정상 온라인 cold startup·로그인·복귀의 자동 백업은 성공적으로 검증·durable publication·UI 채택한 Bundle의 Snapshot(T1)을 저장한다. 각 이벤트는 Bundle GET 1회 / Snapshot GET 0회이며, 기존 recovery 독립 GET과 빈 목록 수동 공유 fallback은 유지한다. 일반/mutation Refresh·Finalizing에 자동 백업을 추가하지 않았다. JSON/gzip 호환·크기 상한·혼합 30개 Retention과 Snapshot/Restore API는 유지한다.
+
+기존 관련 host 213 PASS, 실제 APK 빌드 소스의 집중 회귀 34 PASS, 수정 파일 5개 분석 PASS를 근거로 한다. 게시 후 API 컨테이너의 다운로드 SHA도 일치한다. 기존 APK와 모든 운영 APK 백업을 보존했으며 Backend/Web·DB·서비스·T6.6 activation은 변경하지 않았다. 게시 직후 권한 상실 시 Retention 보류로 일시 초과할 수 있고 다음 권한 있는 저장에서 정리한다. 기존 dispose/resume debug 알림 예외는 범위 밖 제한으로 보존한다. 과거 N02 DEFER·CONDITIONAL 기록은 당시 판정이다.
+
 ## 2026-11-07 Patch Release 2.5.1
 
 Mobile **2.5.1 (17) 게시 완료**, 단말 업데이트는 대기다. 정확한 APK 소스 commit은 `64552d0390dcbcf659da9443ddea0683f58fbbd8`이며 실제 2.5.0 빌드 기준에 감사된 gzip 변경과 버전만 반영했다. applicationId·기존 서명·저장 경로를 유지했다. APK SHA-256은 `23f994bdaaebffb9dc4091814188a151d0544b6205b7b9162b15c3469fc7623f`, 크기는 62,173,960B다. [릴리스 근거](benchmarks/release-2.5.1.json)에 독립 감사 PASS(owner 전달), 기존 62개 회귀 PASS, 빌드·서명 검증과 게시 결과를 기록한다.
