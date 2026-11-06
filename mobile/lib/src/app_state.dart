@@ -251,8 +251,7 @@ class AppState extends ChangeNotifier {
       await api.health();
       networkUnavailable = false;
       user = await api.me();
-      await refresh(notify: false);
-      await saveLaunchSnapshot();
+      await _refreshForAutomaticBackup();
       await consumeLaunchTarget(notify: false);
     } on MoneyNoteConnectionException catch (error) {
       statusMessage = error.message;
@@ -376,8 +375,7 @@ class AppState extends ChangeNotifier {
       _authenticationGeneration += 1;
       _refreshCoordinator.invalidateAuthentication();
       user = authenticated;
-      await refresh(notify: false);
-      await saveLaunchSnapshot();
+      await _refreshForAutomaticBackup();
       await consumeLaunchTarget(notify: false);
       statusMessage = '로그인 완료';
     });
@@ -955,6 +953,7 @@ class AppState extends ChangeNotifier {
     bool notify = true,
     bool allowBaselineWhileFinalizing = false,
     bool refreshNotifications = true,
+    bool automaticBackup = false,
   }) async {
     if (_onlineWriteInFlight) {
       throw MoneyNoteApiException(
@@ -1058,6 +1057,35 @@ class AppState extends ChangeNotifier {
       await refreshNotificationInboxState(notify: false);
     }
     if (notify) notifyListeners();
+    if (automaticBackup) {
+      // Archive only this operation's admitted and durably/UI-published T1.
+      // Backup failure must never turn an already successful refresh into failure.
+      void requireBackupAuthority() {
+        if (_isDisposed || !isOnline) {
+          throw MoneyNoteApiException('자동 백업 권한이 만료됐습니다.');
+        }
+        requireInstallAuthority();
+      }
+
+      try {
+        requireBackupAuthority();
+        final bytes = encodeSnapshotJson(after.snapshot);
+        final saved = await _snapshotRepository.save(bytes,
+            beforePublish: requireBackupAuthority);
+        requireBackupAuthority();
+        localSnapshots = saved;
+      } catch (_) {
+        // No cache reuse, pending cleanup or independent-GET retry here.
+      }
+    }
+  }
+
+  Future<void> _refreshForAutomaticBackup() async {
+    if (!isOnline) {
+      await refresh(notify: false);
+      return;
+    }
+    await _refreshAuthoritativeState(notify: false, automaticBackup: true);
   }
 
   bool _refreshModeAllowed(bool allowBaselineWhileFinalizing) =>
@@ -1069,13 +1097,35 @@ class AppState extends ChangeNotifier {
     _isForegroundRefreshRunning = true;
     try {
       if (isOnline) {
-        if (networkUnavailable || serverFailurePromptPending) {
+        final recovering = networkUnavailable || serverFailurePromptPending;
+        final backupAuthentication = _authenticationGeneration;
+        final backupLineage = _lineageGeneration;
+        if (recovering) {
           await recoverConnectivity();
         } else {
-          await refresh(notify: false);
+          await _refreshForAutomaticBackup();
         }
         if (!networkUnavailable && isLoggedIn) {
-          await saveLaunchSnapshot();
+          // Recovery can swallow failures; no publication receipt is available.
+          // Preserve its independent GET rather than borrowing a cached Bundle.
+          if (recovering) {
+            // me() may identify a restored session during recovery. Pin that
+            // principal before the independent GET, but retain the auth/lineage
+            // generation captured before recovery so a login cannot authorize it.
+            final backupPrincipal = user?.id;
+            void requireRecoveryBackupAuthority() {
+              if (_isDisposed ||
+                  !isOnline ||
+                  backupAuthentication != _authenticationGeneration ||
+                  backupLineage != _lineageGeneration ||
+                  backupPrincipal != user?.id) {
+                throw MoneyNoteApiException('복구 백업 권한이 만료됐습니다.');
+              }
+            }
+
+            await saveLaunchSnapshot(
+                beforePublish: requireRecoveryBackupAuthority);
+          }
           statusMessage = '앱 복귀 동기화 완료';
         }
       } else {
@@ -2464,11 +2514,16 @@ class AppState extends ChangeNotifier {
     });
   }
 
-  Future<void> saveLaunchSnapshot() async {
+  Future<void> saveLaunchSnapshot({void Function()? beforePublish}) async {
     if (!isOnline) return;
     try {
+      beforePublish?.call();
       final snapshot = await api.downloadSnapshot();
-      localSnapshots = await _snapshotRepository.save(snapshot.bytes);
+      beforePublish?.call();
+      final saved = await _snapshotRepository.save(snapshot.bytes,
+          beforePublish: beforePublish);
+      beforePublish?.call();
+      localSnapshots = saved;
     } catch (_) {
       // 자동 백업 실패는 앱 실행을 막지 않는다. 상태 화면의 스냅샷 관리에서 다시 확인한다.
     }

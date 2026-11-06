@@ -518,12 +518,12 @@ void main() {
       await rejected;
       expect(s.user!.id, id);
       expect(await file.readAsBytes(), fresh);
-      // Auxiliary health, authentication and launch-backup requests are real
-      // operation HTTP calls, but not the authoritative acquisition graph.
+      // Health/authentication remain separate. The newly accepted login Bundle
+      // now supplies the T1 automatic backup without a second Snapshot GET.
       expect(
           t.calls.where((c) => c == 'GET /api/authoritative-state').length, 3);
       expect(t.calls, contains('GET /health'));
-      expect(t.calls, contains('GET /api/admin/snapshot'));
+      expect(t.calls, isNot(contains('GET /api/admin/snapshot')));
     });
   }
 
